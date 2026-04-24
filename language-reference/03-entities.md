@@ -1,0 +1,17 @@
+# Entity Reference Overview
+
+Aggrega's authoring vocabulary comprises eight entity kinds — `Aggregate`, `Component`, `Feature`, `Recipe`, `FeatureRecipe`, `Provider`, `Manifest`, `Release` — plus the platform-owned `Workload` kind embedded inside a Recipe's synthesized input. Every entity is a YAML document conforming to a JSON Schema; every field, keyword, and cross-entity reference this Reference describes is part of that authoring contract.
+
+This chapter set covers the authoring surface: which fields each entity accepts, what each field means to the author, how fields interact across entities (a Recipe's `implements:` binding to a Component, a Release's `manifest:` pointer to a Manifest, a Workload's `containers.<name>.secrets` referencing slots declared in the Component's `secretsSchema`). The conceptual role of each entity — why the taxonomy has the shape it does, which domain owns which entity, how the Four Domains separate authoring concerns — lives in [../architecture/04-eight-entity-taxonomy.md](../architecture/04-eight-entity-taxonomy.md). The Workload kind's architectural role as one of the three Recipe input kinds lives in [../architecture/16-recipe-input-composition.md](../architecture/16-recipe-input-composition.md).
+
+## Per-entity reference
+
+- [Aggregate](entities/aggregate.md) — the developer's declarative intent artifact. Declares components, their topology via `uses`, parameter contracts for per-environment variation, and Feature / Secret attachments.
+- [Component](entities/component.md) — Platform-Architect-authored catalog entity defining a reusable component kind. Declares its `values` and `infra` CUE schemas, its `provides` output contract, its `usesSchema` inbound-edge contract, and credential slots via `secretsSchema`.
+- [Feature](entities/feature.md) — Platform-Architect-authored catalog entity for a cross-cutting concern (monitoring sidecar, data masking, routing policy). Declares its `values` / `infra` CUE schemas, `appliesTo` attachment selectors, and interoperability constraints.
+- [Recipe](entities/recipe.md) — Ops-authored translation from a Component to a specific provider. Composes three input kinds (`source:` + `valuesMapping:`, `workload:` / `workloadFrom:`, `artifacts:` / `artifactsFrom:`) plus a `provides` block that forms the caller-injection contract.
+- [FeatureRecipe](entities/featurerecipe.md) — Ops-authored translation from a Feature to a specific provider. Uses the same three input-kinds contract as Recipe plus a Phase-A `injectMapping` for caller-side variable rewriting.
+- [Provider](entities/provider.md) — registered rendering engine (`helm`, `helm-chart`, `compose`, `terraform`, `cloudformation`). Declares its plugin binding, its base schema for sourceless modes, and its `workloadSchema` for the synthesized input kind.
+- [Manifest](entities/manifest.md) — per-project dependency lockfile. Binds abstract Component and Feature types to concrete Recipe and FeatureRecipe URIs, grouped by provider, with three-tier resolution (`name` > versioned `type` > unversioned `type`).
+- [Release](entities/release.md) — per-environment deployment router. Binds an Aggregate to a Manifest, maps components into physical boundaries, supplies per-environment parameter values, and attaches Ops-managed Features.
+- [Workload](entities/workload.md) — platform-owned compiler kind (not a user-authored catalog entity). Embedded inside a Recipe's `workload:` / `workloadFrom:` field; describes the deployment shape the Engine synthesizes into provider-native manifests.

@@ -1,0 +1,243 @@
+# Cross-Boundary Routing
+
+When components deployed in different Release boundaries need to communicate, the target's `provides.host` is a string the compiler cannot introspect — it cannot decide on its own whether that string is valid across boundaries. Cross-boundary routing handles this through a Feature-and-FeatureRecipe pattern: a Feature attached to the caller declares which injected variable needs rewriting; its FeatureRecipe declares how to rewrite it per provider.
+
+*Worked examples for cross-boundary routing are under active development. The standard-library routing Features and their FeatureRecipes will land as the catalog expands; this chapter populates with examples when they ship.*
+
+In the meantime, the architectural primitives that compose into cross-boundary routing solutions are documented in their own homes:
+
+* The `injectMapping` mechanism for caller-side variable rewriting: [entities/featurerecipe.md](../entities/featurerecipe.md)
+* Release boundary annotations that Features consume to build FQDNs and routing metadata: [entities/release.md](../entities/release.md)
+* The `provides` / `inject` / `uses` contract: [vocabulary/topology-triad.md](../vocabulary/topology-triad.md)
+
+## Example 18: Pre-Render Injection Interception (`injectMapping`)
+
+When a component is deployed to a different Kubernetes namespace than its target, the local service name must be rewritten to an FQDN. The `injectMapping` block on a FeatureRecipe natively intercepts the `.context.inject` memory pipe *before* the Base Recipe renders — no WebAssembly needed.
+
+**1. Platform Catalog: The Routing Feature**
+This is purely an Ops concern — no `values`, only `infra`.
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Feature
+metadata:
+  name: core/k8s-dns-resolver
+  version: 1.0.0
+spec:
+  cueSchema: |
+    infra: {
+      target_var:              string
+      namespace_annotation?:   string
+      cluster_domain?:         string
+    }
+```
+
+**2. Ops Domain: The FeatureRecipe**
+The `injectMapping` template executes during Phase A of Step 5. It reads the base host from the already pre-hydrated inject pipe, dynamically locates the specific topological edge that owns the variable, resolves the namespace from the target's Release annotations, and emits a precise override dictionary.
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: FeatureRecipe
+metadata:
+  name: k8s-dns-rewriter
+  version: 1.0.0
+spec:
+  provider: helm
+  implements: core/k8s-dns-resolver:1.0.0
+
+  # Native Deep-Merge: Evaluates first, permanently rewrites .context.inject.env
+  injectMapping: |
+    # 1. Grab the atomic base host from the pre-hydrated pipe
+    {{ $base_host := index .context.inject.env .infra.target_var }}
+
+    # 2. Dynamically locate the edge that injected this variable
+    {{ $target_edge := dict }}
+    {{ range $alias, $edge := .context.uses }}
+      {{ if hasKey $edge.inject.env $.infra.target_var }}
+        {{ $target_edge = $edge }}
+      {{ end }}
+    {{ end }}
+
+    # 3. Resolve the Namespace from the target's Release annotations
+    {{ $ns := "" }}
+    {{ if and .infra.namespace_annotation $target_edge }}
+      {{ $ns = index $target_edge.annotations.release .infra.namespace_annotation }}
+      {{ if not $ns }}
+        {{ warn (printf "Routing Warning: Target missing annotation %s" .infra.namespace_annotation) }}
+      {{ end }}
+    {{ end }}
+
+    # 4. Formulate the FQDN
+    {{ $resolved_host := $base_host }}
+    {{ if $ns }}
+      {{ if .infra.cluster_domain }}
+        {{ $resolved_host = printf "%s.%s.%s" $base_host $ns .infra.cluster_domain }}
+      {{ else }}
+        {{ $resolved_host = printf "%s.%s.svc" $base_host $ns }}
+      {{ end }}
+    {{ end }}
+
+    # 5. Emit the override dictionary
+    env:
+      "{{ .infra.target_var }}": "{{ $resolved_host }}"
+```
+
+**3. Routing Domain: The Release (Ops Attaches the Feature)**
+Ops attaches the routing feature via the Release — the developer's Aggregate is never modified. The `namespace_annotation` key instructs the feature where to look up the target boundary's namespace.
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: cross-ns-release
+  version: 1.0.0
+  environment: production
+spec:
+  aggregate: web-app                        # Uses Aggregate from Example 2
+  manifest: cross-ns-manifest
+  boundaries:
+    prod-cluster:
+      directory: "deploy/prod"
+      boundaries:
+        frontend-ns:
+          annotations:
+            aggrega.ai/namespace: "frontend-zone"
+          components:
+            web-server:
+              features:
+                cross-ns-routing:
+                  type: core/k8s-dns-resolver:1.0.0
+                  infra:
+                    target_var: "DB_HOST"
+                    namespace_annotation: "aggrega.ai/namespace"
+        backend-ns:
+          annotations:
+            aggrega.ai/namespace: "backend-zone"
+          components:
+            app-db: {}
+```
+
+**Compilation Trace:**
+1. **Pass 1:** `app-db`'s Recipe resolves `provides: { host: "app-db", port: "5432" }`.
+2. **Pass 2:** `web-server`'s inject pipe is pre-hydrated: `DB_HOST: "app-db"`.
+3. **Pass 3 Phase A:** The `k8s-dns-patcher` `injectMapping` executes on `web-server`. It reads `DB_HOST` → `"app-db"`, finds the edge to `app-db`, resolves its Release annotation `aggrega.ai/namespace` → `"backend-zone"`, and emits `DB_HOST: "app-db.backend-zone.svc"`.
+4. **Pass 3 Phase B:** The web server's `valuesMapping` renders with the FQDN already in `.context.inject.env`.
+
+---
+
+## Example 19: The Complete Wasm Handshake (stdin/stdout)
+
+This traces the exact JSON payload the Go compiler sends to a WebAssembly plugin and the Strategic Merge Patch it receives back.
+
+**1. Dev Domain: The Aggregate**
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: secret-file-mount
+  version: 1.0.0
+spec:
+  components:
+    data-worker:
+      type: core/python-worker:2.0.0        # Uses Component from Example 11
+      values:
+        image: "corp/finance-worker:v2"
+      secrets:
+        db_credentials:
+          type: core/aws-secrets-manager:1.0.0
+          values:
+            path: "arn:aws:secretsmanager:us-east-1:123456:secret:prod/db"
+            key: "password"
+          inject:
+            file:
+              "/etc/secrets/db.json": "password"
+```
+
+**2. Ops Domain: The Base Recipe**
+Exports physical pointers for downstream plugins.
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Recipe
+metadata:
+  name: python-worker-helm
+  version: 1.0.0
+spec:
+  provider: helm
+  implements: core/python-worker:2.0.0
+  source: "./charts/worker"
+  locals:
+    primary_compute: "worker-container"
+    containers_path: "/spec/template/spec/containers"
+    volumes_path: "/spec/template/spec/volumes"
+  valuesMapping: |
+    image: "{{ .values.image }}"
+```
+
+**3. The Wasm Input (Go Compiler → Wasm `stdin`)**
+During Step 5 Phase C, the compiler feeds the Injector plugin this precise JSON payload. Note how the `with:` template has already been evaluated.
+```json
+{
+  "execution_context": {
+    "instance_id": "data-worker",
+    "function": "inject_secret",
+    "with": {
+      "k8s_secret_name": "data-worker-db_credentials",
+      "target_container": "worker-container",
+      "containers_path": "/spec/template/spec/containers",
+      "volumes_path": "/spec/template/spec/volumes",
+      "file_injections": { "/etc/secrets/db.json": "password" },
+      "env_injections": {}
+    }
+  },
+  "base_objects": [
+    {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": { "name": "data-worker" },
+      "spec": {
+        "template": {
+          "spec": {
+            "containers": [
+              { "name": "worker-container", "volumeMounts": [] }
+            ],
+            "volumes": []
+          }
+        }
+      }
+    }
+  ]
+}
+```
+
+**4. The Wasm Output (Wasm `stdout` → Go Compiler)**
+The plugin returns a Strategic Merge Patch appending the Volume and VolumeMount.
+```json
+{
+  "patch": {
+    "spec": {
+      "template": {
+        "spec": {
+          "volumes": [
+            {
+              "name": "vault-vol-db",
+              "secret": { "secretName": "data-worker-db_credentials" }
+            }
+          ],
+          "containers": [
+            {
+              "name": "worker-container",
+              "volumeMounts": [
+                {
+                  "name": "vault-vol-db",
+                  "mountPath": "/etc/secrets/db.json",
+                  "subPath": "db.json",
+                  "readOnly": true
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+  }
+}
+```
+
+The Go compiler merges this patch into the base Deployment AST, producing the final rendered artifact.

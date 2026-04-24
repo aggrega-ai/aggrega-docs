@@ -1,0 +1,113 @@
+# The Eight-Entity Taxonomy
+
+Aggrega's architecture is organized into four domains, each owned by a different persona and housing specific entity kinds. The diagram below shows the entities and their relationships across all four domains. Detailed authoring surfaces (fields, schemas, examples) for each entity live in the [Language Reference entities catalog](../language-reference/entities/).
+
+~~~mermaid
+%%{
+  init: {
+    'theme': 'base',
+    'themeVariables': {
+      'fontSize': '25px',
+      'fontFamily': 'sans-serif',
+      'primaryTextColor': '#111',
+      'edgeLabelBackground': '#ffffff',
+      'clusterBkg': '#fafafa',
+      'clusterBorder': '#cccccc'
+    }
+  }
+}%%
+graph LR
+    classDef domain fill:transparent,stroke:#cccccc,stroke-width:2px,font-weight:bold,font-style:italic,font-size:34px,color:#444;
+    classDef role fill:transparent,stroke:none,font-weight:bold,font-style:italic,font-size:30px,color:#444;
+    classDef baseNode fill:#eef2ff,stroke:#818cf8,stroke-width:2px,font-size:25px,color:#000;
+
+    subgraph D1 ["Domain 1: Developer Intent"]
+        P1["Developer"]:::role
+        A["Aggregate<br/>The 'What'"]:::baseNode
+        P1 ~~~ A
+    end
+
+    subgraph D2 ["Domain 2: Platform Catalog"]
+        P2["Platform Architect"]:::role
+        CC["Component<br/>The Compute Interface"]:::baseNode
+        CapC["Feature<br/>The Operational Trait"]:::baseNode
+        SS["SecretStore<br/>The Credential Interface"]:::baseNode
+        P2 ~~~ CC
+        CC ~~~ CapC
+        CapC ~~~ SS
+    end
+
+    subgraph D4 ["Domain 4: Routing & Policy"]
+        P4["Platform Operator / DevOps"]:::role
+        EB["Release<br/>The Deployment Router"]:::baseNode
+        ENV["Manifest<br/>The Dependency Lockfile"]:::baseNode
+        P4 ~~~ EB
+        EB ~~~ ENV
+    end
+
+    subgraph D3 ["Domain 3: Infrastructure Base"]
+        P3["Infrastructure Engineer / Ops"]:::role
+        CD["Recipe<br/>The Implementation"]:::baseNode
+        CapD["FeatureRecipe<br/>The Wasm Plugin"]:::baseNode
+        SR["SecretRecipe<br/>The Credential Plugin"]:::baseNode
+        T["Provider<br/>Wasm Rendering Plugin"]:::baseNode
+        P3 ~~~ CD
+        CD ~~~ CapD
+        CapD ~~~ SR
+        SR ~~~ T
+    end
+
+    %% Logical Flow Connections
+    A -.->|"Requests"| CC
+    A -.->|"Attaches"| CapC
+    A -.->|"Maps Credentials"| SS
+    A -->|"Binds via"| EB
+
+    CC -.->|"Resolved to"| CD
+    CapC -.->|"Resolved to"| CapD
+    SS -.->|"Resolved to"| SR
+
+    EB -->|"Uses"| ENV
+    
+    ENV -->|"Resolves Interfaces to"| CD
+    ENV -->|"Resolves Interfaces to"| CapD
+    ENV -->|"Resolves Interfaces to"| SR
+    
+    EB -->|"Ships via"| T
+
+    %% Apply the domain class to the subgraphs
+    class D1,D2,D3,D4 domain;
+~~~
+
+## Domain 1: Developer Intent (The "What")
+
+* **Role:** The Developer. Focuses purely on AI architecture, cognitive loops, and application survival requirements. They know nothing about CEL, OPA, or physical ports.
+* **1. Aggregate:** The map-based declarative blueprint of the application topology. Serving as either the root application or a parameterized, reusable module, it defines logical `components` and attaches operational `features`. Both natively support an isolated `secrets` dictionary to request credentials autonomously via credential Features. It defines abstract capacity requirements via `parameters` (supporting optional typed contracts) and payload state via `values`. Component instances support an optional `description` field for documentation and Studio rendering. It promotes the "Zero-Port" convention (abstracting network ports unless explicitly required by legacy code) with zero hardcoded deployment targets or namespaces.
+
+## Domain 2: Platform Catalog (The "Interfaces & Intelligence")
+
+* **Role:** The Platform Architect. The "Programmer" of the platform. They define the 7-type taxonomy, author the programmable policies (Wasm mutators and validators), and establish the semantic duck-typing labels.
+* **2. Component:** The abstract interface for a compute node. It declares its base shape via the 7-type cloud ontology (e.g., `component.aggrega.ai/type: server`), and layers its cognitive identity via duck-typing labels (e.g., `model.aggrega.ai/capability: generative`). It declares credential slots via `secretsSchema` (required/optional, blackbox/transparent) and uses `cueSchema` to strictly validate the developer's opaque `values` block.
+* **3. Feature:** A modular operational trait (e.g., Data Masking, DNS Routing, Secret Management). It uses `appliesToExpressions` to dynamically bind to specific semantic labels. Like Components, it declares credential slots via `secretsSchema` to enforce API key provisioning. Crucially, it uses `metadata.annotations` to explicitly tag elements in the flat IR Graph, which informs downstream Wasm policy validators and rendering plugins how to handle the Feature's configuration payload.
+  * **Credential Features:** The platform unifies credential management into the Feature entity: a Feature with the label `feature.aggrega.ai/kind: secret` is a credential feature — it defines a vault query interface (e.g., AWS Secrets Manager, HashiCorp Vault). The compiler enforces a hard partition: credential-labeled Features may only appear in the Developer's `secrets:` block, and non-credential Features may only appear in the `features:` block. This preserves the Developer's cognitive separation between "capabilities I'm attaching" and "credentials I'm requesting" while eliminating two entity types (`SecretStore` and `SecretRecipe`) from the taxonomy. The architectural reasoning: the `SecretRecipe` was already schema-identical to `FeatureRecipe` ("Total Schema Symmetry"), the Fetcher/Injector two-part pipeline works identically for both, and the `inject` delivery contract (`env`, `file`, `arg`) is shared. Unifying them reduces the entity count, simplifies the Manifest (credentials are mapped under `features.type`), and gives the compiler a single modifier execution path in Step 5.
+
+**Ontology as label.** The 7-type cloud ontology is declared in `metadata.labels["component.aggrega.ai/type"]` rather than as a top-level `spec.type` field. This choice lets the compiler's label-selector engine target ontology values directly — a Feature declares `appliesToExpressions: [{ key: "component.aggrega.ai/type", operator: In, values: ["server", "worker"] }]` to dynamically attach to every server or worker component without any new Go logic in the core compiler. Adding a new ontology value does not require a compiler release: the Catalog Architect authors the label, Features select against it, and the Wasm ecosystem evaluates the bindings. The same selector machinery applies to every Aggrega label — there is nothing special about `component.aggrega.ai/type` at the compiler level beyond its role as the standard-library convention for the core ontology.
+
+## Domain 3: Infrastructure Base (The "Implementations")
+
+* **Role:** The Infrastructure Engineer / Ops. Owns the physical reality, network port assignment, and templating logic.
+* **4. Recipe:** The multi-provider translation template (e.g., Helm or Docker Compose). It establishes a strict 1:1 API Contract with the catalog component via the `implements` keyword. The Recipe maps the developer's `.values` into the physical format. It hardcodes the physical network ports (e.g., `5432`) and utilizes the `.context.uses` pipe to dynamically resolve the target's `provides`, satisfying the Injection Contract without hardcoding database names.
+* **5. FeatureRecipe:** Explicitly maps a `Feature` to a concrete infrastructure implementation via the `implements` keyword. It mandates a target `provider` (e.g., `helm`, `terraform`). Because the platform unifies credential management into the Feature entity, FeatureRecipes handle both operational features (data masking, DNS routing, sidecar injection) and credential features (vault CRD generation, secret volume mounting). To support this full spectrum, it supports three distinct execution blocks:
+  1. **`pipeline`:** A sequential array of WebAssembly (Wasm) plugins for Post-Render Workload Mutation (e.g., injecting an Envoy sidecar via JSONPatch, or mounting a secret volume).
+  2. **`source` & `valuesMapping`:** Used for Resource Generation, allowing Ops to render static templates natively (e.g., generating a new `HTTPRoute` CRD or an `ExternalSecret` CRD) alongside the base component.
+  3. **`injectMapping` (Pre-Render Interception):** A native Go template block executed *before* the Base Recipe renders. It outputs a JSON dictionary that the compiler natively deep-merges over the Caller's `.context.inject` memory pipe, allowing Wasm-free, Caller-Side mutation of environment variables and connection strings.
+  * **The Credential FeatureRecipe Pattern:** When a FeatureRecipe implements a credential Feature (labeled `feature.aggrega.ai/kind: secret`), the standard Two-Part Plugin Principle applies: the `pipeline` chains a Fetcher plugin (generating the vault-specific CRD) followed by an Injector plugin (mounting the secret to the target container). The Fetcher/Injector split maximizes reusability — swapping from AWS Secrets Manager to HashiCorp Vault only requires replacing the Fetcher plugin; the Injector remains identical.
+* **6. Provider:** The global plugin registrar acting as an "Engine Format Instruction" (e.g., mapping the name `helm` to a `helm-renderer.wasm` plugin) which handles the final stringified file format.
+
+## Domain 4: Routing & Policy (The "Glue")
+
+* **Role:** The Platform Operator / DevOps.
+* **7. Manifest:** The dependency lockfile. It uses a **Two-Tier Resolution** model: a `type` dictionary maps catalog types to Recipes in bulk (DRY), and an optional `name` dictionary overrides specific instances granularly. Resolution order: `name` wins over `type`; versioned type keys win over unversioned. After resolution, every entity must have a mapping or the compiler halts. To maintain a DRY ecosystem, Manifests support a Kustomize-style composition pattern via an `extends` keyword, allowing environment-specific manifests (like local or staging) to cleanly inherit from a global base manifest and only declare their specific overrides.
+* **8. Release:** The deployment router. It binds an `aggregate` to a `manifest` and maps components to physical deployment boundaries (e.g., `aws-eks-production`). To maintain a DRY workflow, Releases support inheritance via the `extends` keyword, allowing environment-specific releases to cleanly inherit from a global base release. It fulfills the abstract aggregate contract by injecting physical realities strictly into the `parameters` block, and injects physical sizing (like CPUs or ports) via the `infra` parallel namespace. To protect the Aggregate as the Single Source of Truth, the Release schema mechanically bans a `values:` block — Ops cannot declare `values` on any Component, Feature, or Secret from a Release. Per-environment variation of developer-facing values flows through **Parameter Hoisting**: the Developer exposes a typed `parameters.*` field in the Aggregate, the Component's `values` template references it, and the Release fulfills the parameter for its environment. The rendered values differ across environments while the Aggregate — the authoring surface for *which* values exist and *how* they flow — remains the single source of truth. See [Part 6 §8 Constraint 4 (Silently Mutated State)](06-data-taxonomy-and-composition.md) for the schema-level ban stated explicitly. Crucially, to prevent untraceable "aggregate-mutating" deployments, when a Release uses `extends`, declaring an `aggregate` is rejected by the Release schema (the schema constraint disallows declaring `aggregate` when `extends` is used). The child release must map to the exact same Developer Intent as its parent. The `manifest`, however, becomes optional, unlocking "Late Binding"—allowing Ops to inherit the entire physical topology but surgically swap the dependency lockfile.
+
+**Why split the Manifest from the Release.** Separating the software lockfile (Manifest) from the deployment router (Release) enables a shape the two entities could not produce alone: DevOps deploys a single application to multiple regional deployment routers — different Releases targeting different cloud regions, all referencing the same Manifest — without duplicating Recipe bindings across environments. Each regional Release carries its boundary layout and environment-specific parameters while consuming the same software lockfile the Manifest provides. Multi-region scaling follows from the domain separation, not from Manifest duplication.

@@ -1,0 +1,93 @@
+# Vision and Positioning
+
+This chapter establishes the foundational problem space, the strict anti-goals of the platform, its market positioning, and the overarching philosophies that govern the Aggrega ecosystem.
+
+## Part 1: The Infrastructure Semantic Gap & How Aggrega Bridges It
+
+The enterprise cloud landscape is currently constrained by a persistent semantic gap: **traditional Infrastructure-as-Code (IaC) tools manage physical state, but natively lack Application-Layer context.**
+
+Foundational tools like Terraform are state managers. They provision physical compute nodes, but they are inherently blind to the logical L7 data flows happening *between* those nodes. They cannot natively analyze an architecture to provision the semantic firewalls needed to trace AI prompt chains or stop "Confused Deputy" attacks. Conversely, Kubernetes-native tools (like KubeVela) operate as active runtime controllers, failing to provide the static, ahead-of-time compliance artifacts required by enterprise security teams.
+
+Aggrega solves this by acting as an **Ahead-of-Time (AOT) Topological Compiler**. We solve the most critical bottlenecks in modern platform engineering and AI deployment:
+
+### 1. Abstract Capacity vs. Physical Mechanics
+* **The Problem:** When developers author traditional IaC, physical infrastructure constraints (like hardcoding AWS EBS volumes or EC2 instance sizes) frequently leak into the application logic. This tight coupling reduces portability and unintentionally locks workloads to specific cloud vendors.
+* **The Solution:** Aggrega structurally delegates the line between *Abstract Capacity* and *Physical Mechanics* to the Platform Catalog. Rather than relying on hardcoded compiler bans, Platform Architects author strict CUE schemas to govern exactly what developers can request. Typically, developers are restricted to abstract survival requirements (e.g., `storage_size: 100Gi` or `hardware/accelerator: gpu`), and are blocked from injecting arbitrary cloud storage classes simply because the component's schema will reject them. If an application truly requires a specific physical EC2 instance type, the Architect must explicitly expose that dial in the component's interface, making vendor lock-in a conscious, governed choice rather than an accidental leak.
+
+### 2. True Control Inversion & Semantic Wiring
+* **The Problem:** Manually stringing together IP addresses, database connection strings (DSNs), and network ports across microservices creates brittle, environment-locked architectures. While organizations currently manage these shifts using complex layers of variable overrides, Kustomize patches, or duplicated deployment scripts, maintaining this manual translation logic introduces massive operational friction and cognitive load when promoting workloads from a local laptop to a production cloud.
+* **The Solution:** Aggrega replaces hardcoded infrastructure dependencies with **True Control Inversion** via an explicit *Injection Contract*. Developers simply declare a semantic topological edge (e.g., "Agent A uses Database B") and dictate how their code expects to receive the connection data (e.g., as an environment variable or a file mount). The compiler dynamically resolves the target's Ops-assigned deterministic pointers—whether that is an internal Kubernetes DNS name, a Terraform interpolation string, or a Wasm-formatted DSN—and pipes them directly into the rendering templates. This completely abstracts physical routing and ports for modern workloads. The compiler pipes deterministic strings through; stable dependency wiring across environments is a property of Recipe authoring discipline (Ops provides environment-appropriate deterministic pointers), not a guarantee of the core compiler.
+
+### 3. Bridging the AI Walled Garden to Cloud-Native Reality
+* **The Problem:** AI frameworks assume infrastructure simply exists, leaving Ops to manually wire agents, RAG pipelines, and databases together using fragmented, hardcoded YAML files.
+* **The Solution:** Aggrega acts as the ultimate topological translator. By compiling the developer's declarative DSL, the engine generates the precise configurations required to wire complex multi-agent reasoning loops directly into standard cloud infrastructure, without developers writing a single infrastructure script.
+
+### 4. Infrastructure-Enforced Guardrails & MCP Defense
+* **The Problem:** Software-level guardrails fail if an application is compromised or an AI hallucinates while having access to internal tools via the Model Context Protocol (MCP).
+* **The Solution:** Aggrega moves trust boundaries out of the application code and into the network infrastructure through a strict **Execution Handoff**. After validating the static application graph via pluggable WebAssembly policy sockets, the compiler executes rendering plugins to generate the exact configurations required for L7 interception proxies (like data masking or human-approval webhooks). It then hands these artifacts off to the runtime orchestrator, which physically enforces the rules and blocks unauthorized actions.
+
+### 5. Centralizing AI Traffic & Gateway Governance
+* **The Problem:** Managing LLM traffic requires highly specialized routing (token budgets, semantic caching, failovers) that standard microservice gateways lack.
+* **The Solution:** Because Aggrega is completely agnostic, the boundary between application and infrastructure is entirely up to the user. Aggrega can be used for "greenfield" pure-infrastructure deployments, or it can generate configurations for enterprise AI Gateways on demand if the developer explicitly requests them as part of their application. When requested, the compiler utilizes WebAssembly rendering plugins and Ops Recipes to output the precise artifacts for these gateways, allowing the runtime infrastructure to physically execute the semantic caching and cross-provider fallback chains.
+
+### 6. Stateful Cognitive Memory & Local Model Hosting
+* **The Problem:** Treating vector databases and episodic logs as generic, flat storage allows hijacked agents to easily overwrite critical semantic facts.
+* **The Solution:** Aggrega treats vector stores and local models as explicit architectural nodes in the topology graph. Based strictly on what the user requests and what the Ops team has implemented in their `Recipes`, the compiler utilizes WebAssembly plugins to output the precise artifacts required to secure them. This includes generating the strict network policies necessary to map autonomous agents to isolated memory partitions, and formatting specific scheduling constraints (like Kubernetes `nodeSelectors`) so the runtime orchestrator places local models onto optimized GPU hardware.
+
+### 7. True Cloud & Provider Agnosticism (Late Binding)
+* **The Problem:** Translating a complex architecture from a local Docker testing environment to production Kubernetes requires maintaining completely separate, duplicated deployment scripts.
+* **The Solution:** Aggrega relies on "Late Binding." Developers write a single abstract blueprint. Platform Ops can then seamlessly map that exact same topology to Docker Compose for local testing, or AWS/EKS for production, simply by swapping the `Manifest` lockfile and `Release` router. This cleanly decouples the application's cognitive logic from the physical infrastructure, guaranteeing a write-once, run-anywhere experience for the core architecture while making vendor lock-in a governed, intentional choice rather than an accidental byproduct.
+
+~~~mermaid
+graph TD
+    A["Single Abstract Blueprint<br/>Aggregate.yaml"]
+
+    subgraph LateBinding ["Late Binding Phase"]
+        B{"Manifest Mapping"}
+    end
+
+    A --> B
+
+    B -->|"Manifest: local-dev"| C["Local Provider<br/>Docker Compose"]
+    B -->|"Manifest: aws-prod"| D["Cloud Provider<br/>EKS + AWS Bedrock"]
+    B -->|"Manifest: azure-prod"| E["Cloud Provider<br/>AKS + Azure OpenAI"]
+
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style C fill:#bbf,stroke:#333,stroke-width:1px
+    style D fill:#bbf,stroke:#333,stroke-width:1px
+    style E fill:#bbf,stroke:#333,stroke-width:1px
+~~~
+
+## Part 2: Platform Boundaries & Anti-Goals (What Aggrega Is Not)
+
+To maintain architectural purity and prevent scope creep, Aggrega operates under strict, non-negotiable boundaries. The platform is highly opinionated about the problems it solves, and equally protective of what it does not do.
+
+### 1. A Deterministic Compiler, Not an IaC Generator
+Aggrega is not an AI agent that "writes Terraform for you". It is a deterministic Go compiler that parses a strict Domain-Specific Language (DSL) to guarantee reproducible, auditable deployment artifacts. It does not hallucinate infrastructure.
+
+### 2. No Cognitive Logic or Application Code
+Aggrega strictly enforces Conway's Law and rejects the paradigm of proprietary language adoption. It never forces developers to rewrite their AI reasoning logic, LangGraph nodes, or Python embeddings into a platform-specific cloud language. The compiler treats the application as a black box. It configures the secure roads and walls; the application frameworks drive the cars.
+
+### 3. Operational & Lifecycle Anti-Goals
+* **Not a CI/CD Pipeline:** Aggrega does not build Docker images, run unit tests, or manage Git repositories. Developers must use existing tools to build their application code. The engine strictly compiles the declarative infrastructure blueprint that accompanies those builds.
+* **Not an Active Cluster Orchestrator (No GitOps):** Aggrega is an Ahead-of-Time (AOT) static compiler, not an active cluster agent continuously reconciling state. It outputs standard Kubernetes manifests, Docker Compose and Terraform configurations for dedicated GitOps tools (like ArgoCD or Flux) to deploy.
+* **Not a Cognitive State Manager:** The compiler utilizes plugins to generate the configurations for secure network boundaries and physical databases. However, it does not monitor an AI agent's internal memory loop. If an AI hallucinates or fails to write to its database, that is the application framework's problem.
+* **Not a "Day 0" Provisioner:** Aggrega typically assumes a foundational control plane already exists (e.g., an active Kubernetes cluster or AWS account). It compiles the "Day 1" application architecture on top of that foundation; it does not execute the initial scripts to create a corporate cloud organization.
+* **Exception (Platform Aggregates & Mixed Use Cases):** Because Aggrega is target-agnostic, it natively supports "Greenfield" scenarios. If a Platform Architect defines Day-0 infrastructure (like VPCs and Kubernetes clusters) within a Platform `Aggregate`, the engine compiles and renders it exactly the same way it does for a standard application. This agnosticism seamlessly supports mixed environments: a heavy architectural node—like an Enterprise AI Gateway—can be modeled as a pre-existing infrastructure resource (using formatter plugins to just pass traffic), or it can be deployed directly alongside the application as a standard provisioned component.
+
+### 4. Application Paradigm & Infrastructure Anti-Goals
+* **No Decentralized or P2P Networks:** The generated configurations rely on a centralized corporate control plane (Kubernetes/VPC) capable of enforcing L4/L7 network boundaries. The compiler cannot generate secure routing for agents that dynamically discover each other on decentralized blockchains or public P2P networks.
+* **No Zero-Copy or Shared-Memory Systems:** Aggrega's security model relies on generating configurations for network-level interception (like Envoy sidecars) to enforce policies. If a swarm of agents communicates purely through intra-node shared system memory (e.g., Ray Core Actors), the network proxies are blind to that communication and cannot enforce guardrails.
+* **No Client-Side Agents:** Aggrega is strictly a backend infrastructure orchestrator. It cannot generate configurations for unmanaged AI models executing entirely within an end-user's Chrome browser or mobile edge.
+* **No JIT Ephemeral Sandboxing (Per-Request Micro-Segmentation):** Aggrega is an AOT static compiler designed to provision long-running compute (like Kubernetes Deployments). It does not natively support Just-In-Time (JIT) ephemeral sandboxing where an entire container is spun up and destroyed per-request to limit blast radius.
+
+### 5. Relationship to Adjacent Tools
+
+Aggrega's pluggable WebAssembly (Wasm) rendering socket means the community can author a `renderer.wasm` plugin for any target tool. The core project ships four renderers — Terraform, CloudFormation, Helm, Compose — covering the dominant static-artifact surfaces across cloud provisioning, managed AWS, Kubernetes GitOps, and local development. Teams evaluating Aggrega often come from ecosystems built around tools that sit in nearby but distinct parts of the stack. This section maps how Aggrega relates to each.
+
+* **Ansible** is an imperative configuration-management tool for sequential playbooks on long-lived VMs and on-premise fleets. Aggrega emits declarative topology artifacts for container and cloud-API targets. The two address adjacent problem domains — teams running Ansible for server-state management alongside containerized workloads typically keep it for that role and use Aggrega for the application topology.
+* **Pulumi** lets developers author infrastructure in general-purpose languages (TypeScript, Python, Go); its core value is treating infrastructure as executable code. Aggrega's authoring surface is a declarative YAML blueprint — the abstraction, not the API surface, is what developers write against. Each reflects a different philosophy about where the developer's contract with infrastructure lives.
+* **AWS CDK and CDKTF** are static AOT compilers that translate general-purpose code into CloudFormation JSON and Terraform JSON respectively. Aggrega emits those same final static artifacts directly through its renderer plugins, which is why placing one tool upstream of the other adds a compilation layer without adding capability.
+* **Crossplane and KubeVela** are active Kubernetes control-plane operators that reconcile desired state from inside a cluster. Aggrega is strictly ahead-of-time — it produces manifests, and GitOps tools (ArgoCD, Flux) or a Crossplane / KubeVela control plane apply them. A Crossplane or KubeVela cluster can consume Aggrega's Kubernetes output like any other declarative YAML; the two layers complement each other.
+* **Score.dev** is a declarative abstraction for basic workload capacity — CPU, memory, ports — rendered into Docker Compose or Helm. It addresses a focused subset of what Aggrega covers: cross-component topology, policy sockets, Wasm adapters, and AI-specific capabilities are outside Score's scope. Teams whose needs begin and end with per-workload capacity typically reach for Score; teams needing topological wiring and policy enforcement reach for Aggrega.
+
