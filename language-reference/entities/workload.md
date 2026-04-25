@@ -60,6 +60,8 @@ replicas: {{ .infra.replicas | default 1 }}
 
 `containers` is an ordered map keyed on container name. Container 0 (the first map key) matters for pod-spec ordering in Kubernetes output and for default-container semantics. `initContainers` is an ordered list of init-container entries, each carrying `name`, `image`, and the same variable/secret/volume-mount authoring shape as the main containers.
 
+Author-order preservation is a load-bearing contract of the Workload model — the compiler emits `containers`, `volumes`, `services`, container `ports`, container `variables`, and container `secrets` in the order the Recipe author declared them, regardless of whether two compilations of the same input produce different Go map iteration orderings under the hood. Recipe authors can rely on the ordered shape: when the deployment-time semantic depends on the order (sidecar startup, `$(VAR)` chaining in environment variables, `volumeMounts` referencing previously-declared volumes), authoring order IS the runtime order.
+
 Container field authoring follows these conventions:
 
 - **`image`** is typically a template expression referencing `.values.image` (the Developer's selected image) with optional `.infra.*` overrides for environment-specific registry prefixing.
@@ -156,6 +158,17 @@ workload: |
           as: env
         # ROOT_PASSWORD: ...      # rejected at load time: blackbox slot
 ```
+
+## Validation surface
+
+Every Workload is validated at Recipe load time before any rendering runs. Validation has two stages:
+
+- **Schema validation.** The Workload value is unified against the embedded `aggrega.ai/v1alpha1` Workload schema. Errors carry the field path and the constraint violated (for example, `.containers.main.health.ready: more than one probe shape declared`). Schema validation enforces every type, enum, range, and disjunction declared in the schema — including the closed-set service `type` (one of `ClusterIP`, `NodePort`, `LoadBalancer`, `Headless`), the integer port range (1..65535), the probe-shape disjunction (exactly one of `http`, `tcp`, `exec`), and the volume-variant disjunction (exactly one of `ephemeral`, `configmap`, `secret`, `persistent`, `persistentTemplate`).
+- **Cross-reference validation.** Workload secret references are checked against the Component's `secretsSchema` (rules in the next section). This is a cross-entity check that schema-only validation cannot perform.
+
+Both stages produce the same `CATALOG_ERROR`-prefixed message shape; failures stop the build before any rendering output is produced. Recipe authors get pointed feedback identifying the exact field that failed and the constraint that rejected it.
+
+The K8s-shaped pass-through fields (`scheduling.affinity`, `scheduling.tolerations`, `scheduling.topologySpreadConstraints`, the `items` lists inside ConfigMap and Secret volumes, lifecycle `httpGet` hooks) are validated structurally only — Aggrega's schema constrains their presence and outer shape, but the inner shape of these K8s-API-defined values is the provider engine's responsibility (the helm provider hands them to the K8s pod spec verbatim; the compose provider rejects or degrades them as appropriate). A Workload using a misshapen `affinity` value passes Aggrega validation and surfaces the error during provider synthesis instead.
 
 ## Auxiliary resources belong outside the Workload
 
