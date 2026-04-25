@@ -26,6 +26,110 @@ Emitted message:
 
 **How to fix:** verify the `parametersFrom:` path is correct relative to the Release file, confirm the file exists and is readable by the build process, and check that its contents parse as valid YAML. If the file is committed to the repository, confirm the Release's build context can see it (for example, a gitignored `.env` file is not available during a CI build).
 
+### Recipe shape rules
+
+A Recipe composes its output from three input kinds — sourced, synthesized, and artifacts — described in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md). The shape of a valid Recipe is constrained by seven composition rules; six are checked when the Recipe is loaded, one is checked at emission time. The seven rules apply to Recipes that target a non-`eval` provider; the `eval` provider has its own constraint (below).
+
+Every Recipe-shape error carries the same message shape:
+
+> CATALOG_ERROR: Recipe `<file-path>` (`<name>:<version>`) violates rule `<N>`:
+> `<rule description>`
+> `<rule-specific detail>`
+
+The `CATALOG_ERROR:` prefix signals that the failure is attributable to the catalog entity (the Recipe, or the Provider it binds to), not to the Aggregate or the Release.
+
+#### Rule 1 — `valuesMapping` requires `source`
+
+A Recipe declares `valuesMapping` (or `valuesMappingFile`) but not `source`. Without a source engine to overlay, there is nothing to receive the mapped values.
+
+Emitted message:
+> CATALOG_ERROR: Recipe `<path>` (`<name>:<version>`) violates rule 1:
+> valuesMapping requires source
+> declare a source: pointer alongside valuesMapping (or remove the valuesMapping if no overlay is intended)
+
+**How to fix:** add a `source:` pointer (a chart, module, or compose-file reference) alongside the `valuesMapping`, or remove the `valuesMapping` and adopt a different input kind (`workload:` for synthesized output, `artifacts:` for direct manifest emission).
+
+#### Rule 2 — `source` requires `valuesMapping`
+
+A Recipe declares `source` but neither `valuesMapping` nor `valuesMappingFile`. An externally-loaded chart or module needs values; a source with no values overlay is underspecified.
+
+Emitted message:
+> CATALOG_ERROR: Recipe `<path>` (`<name>:<version>`) violates rule 2:
+> source requires valuesMapping
+> declare a valuesMapping (or valuesMappingFile) alongside source, or use a different input kind (workload, workloadFrom, artifacts, artifactsFrom)
+
+**How to fix:** declare a `valuesMapping:` (or `valuesMappingFile:`) that produces the values overlay for the source, or remove the `source:` and adopt the input kind that matches your authoring intent.
+
+#### Rule 3 — `workload` and `workloadFrom` are mutually exclusive
+
+A Recipe declares both `workload` (inline Workload template) and `workloadFrom` (path to a Workload template file). The two are alternative authoring shapes for the same input kind; declaring both is a contradiction.
+
+Emitted message:
+> CATALOG_ERROR: Recipe `<path>` (`<name>:<version>`) violates rule 3:
+> workload and workloadFrom are mutually exclusive
+> declare workload (inline template) or workloadFrom (file reference), not both
+
+**How to fix:** keep one and remove the other. The inline `workload:` form is convenient for small Workloads; `workloadFrom:` is preferred for larger Workloads that benefit from being authored in their own file with editor support.
+
+#### Rule 4 — `workload` / `workloadFrom` requires the Provider to declare `workloadSchema`
+
+A Recipe declares `workload:` or `workloadFrom:` for a Provider that omits `workloadSchema`. Providers that do not declare `workloadSchema` do not support synthesized-mode rendering; pointing a synthesized Recipe at such a Provider has no rendering implementation behind it.
+
+Rule 4 is checked after the Manifest binds the Recipe to its Provider, so the message names both entities.
+
+Emitted message:
+> CATALOG_ERROR: Recipe `<path>` (`<name>:<version>`) violates rule 4:
+> workload/workloadFrom requires the bound Provider to declare workloadSchema
+> Provider `<provider-name>` has no workloadSchema; Workload synthesis is not supported on this provider
+
+**How to fix:** either bind the Recipe to a Provider that declares `workloadSchema` (most commonly `helm`), or migrate the Recipe to a different input kind (`artifacts:` for direct manifest emission, or `source:` + `valuesMapping:` if a chart/module exists).
+
+#### Rule 5 — at least one input kind must be present
+
+A Recipe declares no input kind: no `source` paired with `valuesMapping`, no `workload:` / `workloadFrom:`, no `artifacts:` / `artifactsFrom:`. Such a Recipe produces no output and has no rendering surface.
+
+Emitted message:
+> CATALOG_ERROR: Recipe `<path>` (`<name>:<version>`) violates rule 5:
+> at least one input kind must be present
+> declare one of: source (with valuesMapping), workload, workloadFrom, artifacts, artifactsFrom
+
+**How to fix:** add the input kind that matches the Recipe's authoring intent. Recipes that only define `provides:` (virtual components that supply pointer strings without rendering anything) belong on the `eval` provider — see the eval-provider constraint below.
+
+#### Rule 6 — `artifacts` and `artifactsFrom` basenames must not collide
+
+A Recipe declares both `artifacts:` (inline filename → template map) and `artifactsFrom:` (list of template-file paths) such that an inline filename collides with the basename of an `artifactsFrom:` entry. Both would emit a file with the same name to the same boundary directory.
+
+Emitted message:
+> CATALOG_ERROR: Recipe `<path>` (`<name>:<version>`) violates rule 6:
+> artifacts inline keys collide with artifactsFrom basenames
+> colliding output filenames: `<basename1>, <basename2>, ...`
+
+**How to fix:** rename the inline key in `artifacts:` to a distinct filename, or move the colliding `artifactsFrom:` entry to a path whose basename does not match. The output filename is what counts; renaming the source file (so its basename differs) is sufficient.
+
+#### Rule 7 — emission-time filename collision across input kinds
+
+A Recipe's `source:` output, `workload:` synthesis, and `artifacts:` outputs all produce files into the same boundary directory. If two input kinds emit a file with the same name, the build halts at emission with a message naming every contributor.
+
+Rule 7 is checked at emission time (after Workload translation completes), not at Recipe load.
+
+Emitted message (intended; emission-time detection ships incrementally):
+> CATALOG_ERROR: Recipe `<path>` (`<name>:<version>`) violates rule 7:
+> filename collision across input-kind origins at emission
+> `<filename>` declared by: `<origin1>, <origin2>, ...`
+
+**How to fix:** rename the colliding file in whichever input kind you control. If the collision involves a Workload-translated filename and an `artifacts:` entry, the Workload-translated names follow the provider's translation conventions (e.g., `<instance-id>-deployment.yaml` for helm) — adjust the `artifacts:` filename to a name the provider does not synthesise.
+
+#### `eval`-provider constraint
+
+A Recipe targets the `eval` provider but declares one or more input-kind fields (`source`, `workload`, `workloadFrom`, `artifacts`, `artifactsFrom`, `valuesMapping`, `valuesMappingFile`). The `eval` provider executes formatting in-memory and has no rendering surface; declaring input-kind fields on an eval Recipe is meaningless.
+
+Emitted message:
+> CATALOG_ERROR: Recipe `<path>` (`<name>:<version>`) violates rule eval:
+> the eval provider executes formatting in-memory and forbids input-kind fields
+> forbidden fields declared: `<field1>, <field2>, ...`
+
+**How to fix:** remove the input-kind fields from the eval Recipe. An eval Recipe legitimately declares only `provides:` (and optionally `locals:`); it produces deterministic pointer strings for downstream consumers without rendering any artifacts.
+
 ### Instance name fails the naming pattern
 
 An authored instance name — a key under `components`, `subsystems`, `features`, `secrets`, a sub-aggregate alias, or a `uses:` alias — contains characters outside the allowed pattern `^[a-zA-Z0-9_-]+$`. Dots, spaces, slashes, and other punctuation are not permitted in user-authored instance names; the dot in particular is reserved as the compiler's internal path separator for nested-aggregate flattening.
