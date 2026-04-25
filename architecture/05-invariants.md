@@ -43,12 +43,16 @@ The topology triad — `provides` on the producing Recipe, `uses` on the consumi
 
 The compiler never silently injects compute, Features, annotations, routing proxies, or any other resource the author did not explicitly declare. Policy violations produce **Loud Guardrails** — the build halts with a specific error telling the author what to fix in the Aggregate — not silent mutations that produce infrastructure mysteries at debug time.
 
-Resources enter the graph through four explicit paths, all of which are authoring-time declarations:
+Resources enter the graph through explicit authoring-time declarations:
 
-- The developer's Aggregate (components, uses edges, features).
+- The developer's Aggregate (components, `uses` edges, Feature attachments).
 - The Release's Feature attachments (Operator-level adds).
 - Annotation-driven expansion (the Manifest declares annotation → Feature bindings; the annotation on a Component or boundary is explicit declaration).
-- FeatureRecipe Resource Generation (triggered by an explicit Feature attachment).
+- Recipe-level resource production: the Recipe's `source` rendering produces the primary artifact; `workload` synthesis emits the provider-specific deployment shape (Pod spec, Compose service, etc.); `artifacts` and `artifactsFrom` emit Recipe-intrinsic auxiliary manifests; FeatureRecipe Resource Generation emits per-Feature auxiliary resources triggered by an explicit Feature attachment.
+
+Recipe-level paths are authoring-time declarations one step removed: the Recipe author writes `source` / `workload` / `artifacts` / `valuesMapping` against a Component contract, and the developer's Aggregate selects which Components participate. A resource appearing in rendered output traces back to either a declaration in the Aggregate, the Release, an annotation binding, or the Recipe authoring that the Aggregate's component types selected.
+
+Synthesis transforms author-declared shapes into provider-specific output formats. A Workload spec authored as a map of containers may render as a Kubernetes Pod spec, a Compose service block, or a Terraform module — the transformation is provider-driven, but the resources trace back to the author's Workload declaration.
 
 Wasm policy sockets may reject a build. They may not silently mutate it into compliance. If a policy wants to add a resource, it must fail the build with a remediation pointer so the author adds the resource themselves.
 
