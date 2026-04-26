@@ -105,6 +105,8 @@ services:
 
 Multiple services on a single Workload are common for exposing internal and external traffic separately (internal `ClusterIP` for in-cluster consumers, `LoadBalancer` for external traffic, `ClusterIP` for Prometheus scraping).
 
+**Provider-specific note (compose).** The compose provider derives `depends_on` automatically from IR uses-edges and emits the short-form list (`depends_on: [<target>]`). The long-form with `service_healthy` condition gating is reserved for a future intent; today's emit always has `service_started` semantics regardless of whether the target declares a healthcheck.
+
 ## Health probes — intent shape
 
 The Workload declares probes in an abstract intent shape. Each provider translates the intent into its native probe shape at synthesis time.

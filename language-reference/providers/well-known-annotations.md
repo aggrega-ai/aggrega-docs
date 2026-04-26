@@ -18,10 +18,12 @@ Provider engines read specific boundary annotations from the Release to configur
 
 | Annotation | Consumed By | Purpose | Default |
 | --- | --- | --- | --- |
-| `aggrega.ai/namespace` | `helm`, `helm-chart` | Kubernetes namespace for manifests | Not injected if absent |
+| `aggrega.ai/namespace` | `helm`, `helm-chart`, `compose` | Kubernetes namespace (helm / helm-chart); per-boundary Docker network name (compose) | Not injected if absent (helm / helm-chart); sanitised boundary path (compose) |
 | `aggrega.ai/region` | `terraform`, `cloudformation` | Cloud provider region | Provider-specific or fatal halt |
 | `aggrega.ai/account-id` | `terraform`, `cloudformation` | Cloud account / project | Provider reads from environment |
 | `aggrega.ai/project-name` | `compose` | Docker Compose project name | Leaf boundary name |
+
+`aggrega.ai/namespace` is dual-purpose by design. It expresses the same logical-isolation intent — *"this boundary's resources live in their own addressable scope"* — in each target's native form: a Kubernetes `metadata.namespace` for helm and helm-chart, a Docker network name for compose. Recipe authors set one annotation; each provider materialises it appropriately for the target. For the compose case, the per-boundary derivation reads the alphabetically-first node's annotation; when unset on every node in the boundary, the network name falls back to the sanitised boundary path (lowercased, with non-`[a-z0-9._-]` characters replaced by `_`).
 
 ### Category 2 — Registry
 
@@ -35,7 +37,6 @@ Provider engines read specific boundary annotations from the Release to configur
 | Annotation | Consumed By | Purpose | Default |
 | --- | --- | --- | --- |
 | `aggrega.ai/cluster-domain` | `helm`, `helm-chart` | DNS suffix for cross-namespace service discovery | `cluster.local` |
-| `aggrega.ai/network` | `compose` | Docker Compose network name | `default` |
 | `aggrega.ai/ingress-class` | `helm`, `helm-chart` | Kubernetes IngressClass for Ingress resources | Provider default or omitted |
 | `aggrega.ai/service-mesh` | `helm`, `helm-chart` | Mesh sidecar injection annotations | None |
 
