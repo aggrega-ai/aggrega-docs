@@ -357,7 +357,7 @@ Emitted message:
 A Recipe declares `valuesMappingJsonnet:` as its mapping language. Jsonnet support is a planned extension; the schema accepts the field today, but the renderer rejects it with an explicit pointer to the supported alternatives.
 
 Emitted message:
-> valuesMappingJsonnet is not supported in ; use valuesMapping or valuesMappingFile.
+> valuesMappingJsonnet is not supported; use valuesMapping or valuesMappingFile.
 
 **How to fix (current):** switch the Recipe to `valuesMapping:` (inline Go template) or `valuesMappingFile:` (Go template from a file path). Jsonnet support lands in a later milestone; Recipes requiring Jsonnet's expressiveness today must use Go templates as a short-term substitute.
 

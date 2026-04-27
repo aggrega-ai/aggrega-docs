@@ -120,13 +120,13 @@ A Release with multiple compose-targeted boundaries produces **one** `docker-com
 
 Service-name collisions across boundaries are a `TRANSLATION_ERROR`. When two different nodes (in any combination of boundaries) contribute services with the same name, the compiler halts and the diagnostic names every contributing `(boundary, node)` tuple in alphabetical order. The author resolves the collision by renaming one of the contributors (typically by adjusting the node's identifier so the synthesizer produces a different service name) before the build proceeds.
 
-Top-level volumes union across the Release — name collisions silently merge because the  named-volume shape has no body content to conflict on. Top-level networks are one-per-boundary, named per the derivation rules above; collisions across boundaries (two boundaries with the same `aggrega.ai/namespace`) merge to a single network shared by both.
+Top-level volumes union across the Release — name collisions silently merge because the current named-volume shape has no body content to conflict on. Top-level networks are one-per-boundary, named per the derivation rules above; collisions across boundaries (two boundaries with the same `aggrega.ai/namespace`) merge to a single network shared by both.
 
 ## What the compose provider does not deliver
 
 - **Cross-boundary L4 routing.** A service in boundary A reaching a service in boundary B by anything other than docker-compose's default DNS requires the `compose-bridge` Feature, which is part of a future intent.
 - **Native env-from-secret resolution.** Workload `secrets[as: env]` entries emit environment placeholders rather than runtime-resolved secret references. The `compose-bridge` Feature is the future home for compose-side secret resolution.
-- **Compose `deploy:` block.** Replicas, placement constraints, and update strategy under `deploy:` are swarm-mode features; the  compose surface targets single-host compose only and does not emit `deploy:` content.
+- **Compose `deploy:` block.** Replicas, placement constraints, and update strategy under `deploy:` are swarm-mode features; the compose provider targets single-host compose only and does not emit `deploy:` content.
 - **Health-condition-gated `depends_on`.** The long-form `{ <target>: { condition: service_healthy } }` shape is reserved for a future intent; today's emit always uses the short-form list with `service_started` semantics.
 - **Workload synthesis for terraform / cloudformation.** Workload-mode is supported by helm and compose only; terraform and cloudformation Recipes use sourced mode exclusively.
 
@@ -197,4 +197,4 @@ The compose provider produces a single `docker-compose.yaml` at the Release outp
 - [Workload entity](../entities/workload.md) — the platform-owned Workload kind that the compose provider translates.
 - [Provider architecture](architecture.md) — how providers fit into the compilation pipeline.
 - [Well-known annotations](well-known-annotations.md) — the `aggrega.ai/*` annotations the compose provider consumes.
-- [Provider capability matrix](reference-matrix.md) — per-provider feature support across the  surface.
+- [Provider capability matrix](reference-matrix.md) — per-provider feature support across the current surface.

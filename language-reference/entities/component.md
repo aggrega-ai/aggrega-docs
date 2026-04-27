@@ -60,6 +60,97 @@ The `Component` schema (and its `Feature` counterpart, including credential Feat
 
 One of `cueSchema` / `cueSchemaRef` applies per Component; the compiler reads the inline string or fetches the referenced file and unifies the result with the auto-generated bases derived from `usesSchema` and `secretsSchema` (see the section below) during the Component's validation pass.
 
+## The `infra` Pillar
+
+The Component schema separates three pillars by ownership: `values` is filled by the Developer in the Aggregate (cognitive intent — database name, version, charset), `infra` is filled by Ops in the Release (operational sizing — compute, storage, HA, backup), and `provides` is set by the Recipe (the public API contract — host, port, protocol). The Developer never sees `infra`; the Ops engineer never sees `values`. Recipes consume both during Phase B rendering, mapping the abstract pillars into the concrete shape their target provider expects.
+
+Three `infra` conventions matter across every provider-agnostic Component in the standard library: an open-struct escape hatch for provider-specific knobs, an optional override for the upstream artifact version, and an intent-based vocabulary for high-availability fields. The canonical reference Component is [`core/database/mariadb`](../../../aggrega-hub/aggrega-catalog/component/core/database/mariadb.yaml) — implementable by Helm Recipes against the Bitnami chart, Terraform Recipes against AWS RDS, CloudFormation Recipes against the same RDS surface, and Compose Recipes against a local container — and its `infra` block illustrates all three patterns.
+
+### `infra.overrides`
+
+Universal `infra` fields — `compute`, `storage`, `ha`, `backup` — cover roughly 95% of operational sizing across providers. The remaining slice is irreducibly provider-specific: a Kubernetes Recipe needs a `nodeSelector`, an RDS Terraform Recipe needs an `instance_class`, a CloudFormation RDS Recipe needs a `DBInstanceClass`, a Compose Recipe needs an `image` override. The Component schema exposes a CUE open-struct escape hatch so these knobs flow through without bloating the schema:
+
+```cue
+infra: {
+  // ... universal fields ...
+
+  // Provider-specific overrides. Accepts any nested structure.
+  // Each Recipe documents which keys it reads.
+  overrides?: _    // CUE top type: accepts ANY nested value
+}
+```
+
+CUE's top type (`_`) accepts arbitrary nested structure with no constraints. The compiler pipes the structure through untouched; the Recipe's template body reads whichever keys it knows about and ignores the rest. Each Recipe documents the override-key ontology in its header comment, so an Ops engineer authoring a Release for a specific Component × Recipe combination knows what knobs the Recipe exposes.
+
+A Release fragment using overrides:
+
+```yaml
+components:
+  main-db:
+    infra:
+      compute: { cpu: "2", memory: 8Gi }
+      storage: { size: 40Gi, type: balanced-csi }
+      overrides:
+        nodeSelector:
+          kubernetes.io/hostname: cluster1-worker1
+        service_type: LoadBalancer
+        metrics:
+          enabled: true
+          image:
+            repository: bitnamilegacy/mysqld-exporter
+```
+
+The Developer never sees `overrides` — it lives in the Release, which is the Ops domain.
+
+### `infra.source_version`
+
+A Recipe's `source` field references an upstream artifact at a specific version (Helm chart 25.0.8, Terraform module 4.2.0, OCI image tag). Hardcoding the version inside the Recipe forces the catalog maintainer to publish a new Recipe on every compatible upstream version bump. The Component schema exposes an optional override:
+
+```cue
+infra: {
+  // Overrides the Recipe's default source artifact version.
+  // Changing from default does not guarantee value mapping compatibility.
+  source_version?: string
+}
+```
+
+The Recipe reads this as a Go template default in its `source` block:
+
+```yaml
+source:
+  registry: oci://registry-1.docker.io/bitnamicharts
+  chart: mariadb
+  version: "{{ .infra.source_version | default `25.0.8` }}"
+```
+
+Recipe `source` strings (and string-valued sub-fields of a structured `source:` map) are evaluated as Go templates with the same self-contained context as Recipe `provides` — `.context.instance_id`, `.values`, `.infra`, and the same node's resolved `.provides`, with `.context.inject` and `.context.uses` forbidden. See [Template Expansion Matrix row #5](../templates/expansion-matrix.md) for the full availability rules. Changing `infra.source_version` away from the Recipe's default does not guarantee that the Recipe's `valuesMapping` is wire-compatible with the new upstream version; the inline comment on the Component schema's `source_version` declaration carries that warning.
+
+### `infra.ha.*`
+
+High-availability fields use intent vocabulary, not mechanism vocabulary:
+
+```cue
+infra: {
+  ha: {
+    enabled:       bool | *false
+    read_replicas: int & >=0 | *0
+  }
+}
+```
+
+`infra.ha.enabled` says "make this Component highly available," and `infra.ha.read_replicas` says "I want N read-only copies." Each Recipe maps the intent into its provider's mechanism:
+
+| Recipe's provider | `ha.enabled: true` maps to | `ha.read_replicas: N` maps to |
+| :--- | :--- | :--- |
+| Helm (Bitnami MariaDB chart) | activates the `secondary` StatefulSet block | sets `secondary.replicaCount` |
+| Terraform (AWS RDS) | sets `multi_az = true` on the primary `aws_db_instance` | creates N separate `aws_db_instance` read-replica resources |
+| CloudFormation (AWS RDS) | sets `MultiAZ: true` on the `AWS::RDS::DBInstance` | creates N separate `AWS::RDS::DBInstance` replica resources |
+| Compose (local dev container) | ignored — no HA mechanism at this layer | ignored — no replica mechanism at this layer |
+
+Mechanism vocabulary (`infra.primary.replicas`) reads naturally for one provider (Kubernetes pods are replicas of a StatefulSet) and as a category error elsewhere — RDS has no "replicas" concept on the primary, CloudFormation mirrors RDS, Compose has no horizontal-replica abstraction at all. Intent vocabulary translates: every provider has some concept of "make this database highly available" and some concept of "I want N read-only copies," and the Recipe carries the per-provider translation. A provider whose target lacks an HA equivalent (Compose) treats `ha.*` as advisory.
+
+`infra.ha.read_replicas: 0` is the default; the K8s Recipe handles it explicitly with a `replicaCount: 0` branch on the secondary StatefulSet block rather than generating zero-pod resources. Operators choosing a provider whose target lacks HA accept that `ha.*` settings on the Release have no effect for that boundary.
+
 ## Credential Slots: `secretsSchema`
 
 A Component may declare credential slots through a `secretsSchema` block — a declarative YAML map parallel to `usesSchema`. Each slot names a credential the Component needs (a root password, an API key, an auth token) and governs how the developer's Aggregate may populate it. The compiler auto-generates CUE validation rules from the declared slots and unifies them with the Component's `cueSchema` during Component resolution; developers do not hand-author a `secrets:` pillar inside `cueSchema`, because the structure comes from `secretsSchema`.

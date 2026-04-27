@@ -493,10 +493,10 @@ Three structural distinctions:
 | helm | ✅ Helm chart rendering via the Helm SDK | Not yet shipped — authoring contract frozen | Not yet shipped — authoring contract frozen |
 | helm-chart | ✅ Umbrella-chart composition | Not applicable | Not yet shipped — authoring contract frozen |
 | compose | Not yet shipped — authoring contract frozen | Not yet shipped — authoring contract frozen | Not yet shipped — authoring contract frozen |
-| terraform | Not yet shipped — authoring contract frozen | Not yet shipped — future iteration | Not yet shipped — authoring contract frozen |
-| cloudformation | Not yet shipped — authoring contract frozen | Not yet shipped — future iteration | Not yet shipped — authoring contract frozen |
+| terraform | Not yet shipped — authoring contract frozen | Not yet shipped — synthesis is a future iteration | Not yet shipped — authoring contract frozen |
+| cloudformation | Not yet shipped — authoring contract frozen | Not yet shipped — synthesis is a future iteration | Not yet shipped — authoring contract frozen |
 
-*This table reflects what the current compiler binary consumes. Cells marked `✅` ship today. Cells marked "Not yet shipped" have their authoring shape accepted by the Recipe schema; compiler consumption lands incrementally per provider and per input kind, with milestone anchors (e.g., ) where known. Cells marked "Not applicable" describe combinations the architecture does not support.*
+*This table reflects what the current compiler binary consumes. Cells marked `✅` ship today. Cells marked "Not yet shipped" have their authoring shape accepted by the Recipe schema; compiler consumption lands incrementally per provider and per input kind. Cells marked "Not applicable" describe combinations the architecture does not support.*
 
 ### Designed Target Shape
 
