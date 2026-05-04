@@ -15,7 +15,7 @@ This page summarises the provider-side nuances that matter for Recipe authors ch
 ## Where to look for what
 
 | If you want to know… | Look at |
-|---|---|
+| --- | --- |
 | Which provider supports which input kind today, and which are forward-looking | [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md) Provider Capability Matrix section (both tables) |
 | How a provider's plugin socket receives input and returns output | [architecture.md](architecture.md) |
 | Per-provider authoring shape (chart structure, compose top-level keys, `.tf.json` layout, CFN template shape) | The matching per-provider page ([helm.md](helm.md), [helm-chart.md](helm-chart.md), [compose.md](compose.md), [terraform.md](terraform.md), [cloudformation.md](cloudformation.md)) |

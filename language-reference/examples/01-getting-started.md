@@ -6,6 +6,7 @@ The absolute minimum to compile. A developer requests a web server. Ops provides
 
 **1. Platform Catalog: The Component Interface**
 The Architect defines what a web server *is* — its ontology type and the shape of its configuration.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Component
@@ -24,6 +25,7 @@ spec:
 
 **2. Dev Domain: The Aggregate**
 The Developer writes pure intent. No ports, no namespaces, no cloud provider.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate
@@ -41,6 +43,7 @@ spec:
 
 **3. Ops Domain: The Recipe**
 Ops maps the abstract Component to a real Helm chart. The `locals` block exports private physical state for downstream plugins. The `valuesMapping` template wires `.values` into the chart's expected format.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Recipe
@@ -60,6 +63,7 @@ spec:
 
 **4. Routing Domain: The Manifest (Dependency Lockfile)**
 The Manifest maps abstract types to concrete Recipes. The `type` tier provides a bulk DRY mapping — every instance of `core/web-server` resolves to the same Recipe.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Manifest
@@ -76,6 +80,7 @@ spec:
 
 **5. Routing Domain: The Release (Deployment Router)**
 The Release binds the Aggregate to the Manifest and routes Components into physical boundaries. This is the single entry point for the compiler: `aggrega build release.yaml`.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Release
@@ -103,6 +108,7 @@ A web application connects to a Postgres database. The developer declares *what*
 
 **1. Platform Catalog: The Postgres Component**
 The Architect defines the database interface. The `provides` block in the CUE schema declares the Public API keys that downstream callers can request. The `usesSchema` is absent because databases don't initiate connections.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Component
@@ -122,6 +128,7 @@ spec:
 
 **2. Platform Catalog: The Web Server (Extended)**
 The web server now declares a `usesSchema` — a topology socket allowing it to connect to databases. The `selector` enforces Cross-Node Type Safety: the developer cannot accidentally plug a messaging queue into the `databases` socket.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Component
@@ -141,6 +148,7 @@ spec:
 
 **3. Dev Domain: The Aggregate**
 The developer declares two components and an explicit topological edge. The `inject` block uses **compact form**: each key is the local environment variable name, each value is the target's `provides` key.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate
@@ -169,6 +177,7 @@ spec:
 ```
 
 > **Alternative (Verbose Form):** The `inject` block also supports an explicit `in`/`from` array syntax. Both forms normalize identically during Step 2 parsing:
+>
 > ```yaml
 > inject:
 >   env:
@@ -178,6 +187,7 @@ spec:
 
 **4. Ops Domain: The Postgres Recipe**
 Ops hardcodes the physical port and exports it via `provides`. The `provides` block is the Public API — it can only reference self-contained data (`.context.instance_id`, `.locals`, `.values`, `.infra`, and static strings). This invariant enables cyclic dependency safety.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Recipe
@@ -205,6 +215,7 @@ spec:
 
 **5. Ops Domain: The Web Server Recipe**
 The web server's Recipe consumes the pre-hydrated `.context.inject.env` pipe. By the time this template renders, the compiler has already resolved `DB_HOST` → `"app-db"` and `DB_PORT` → `"5432"`.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Recipe
@@ -227,6 +238,7 @@ spec:
 ```
 
 **6. Routing Domain: Manifest & Release**
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Manifest
@@ -259,6 +271,7 @@ spec:
 ```
 
 **Compilation Trace (Step 5 — The Three-Pass Model):**
+
 1. **Pass 1 (Provides Resolution):** The compiler evaluates `app-db`'s Recipe `provides` → `{ host: "app-db", port: "5432" }`.
 2. **Pass 2 (Inject Pre-Hydration):** The compiler maps `web-server`'s inject contract: `DB_HOST` → target `app-db`'s `provides["host"]` → `"app-db"`. `DB_PORT` → `provides["port"]` → `"5432"`. The `.context.inject.env` pipe is now `{ "DB_HOST": "app-db", "DB_PORT": "5432" }`.
 3. **Pass 3 (Rendering):** The web server's `valuesMapping` template iterates over the pre-hydrated pipe, generating the Helm values.
@@ -271,6 +284,7 @@ A single Aggregate serves dev and production by hoisting environment-specific va
 
 **1. Dev Domain: The Aggregate**
 The developer uses `parameters` to declare an environment contract. Go template interpolation (`{{ .parameters.X }}`) executes *before* CUE validation.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate
@@ -304,6 +318,7 @@ spec:
 
 **2. Routing Domain: Two Releases (Dev & Prod)**
 Each environment fulfills the parameter contract with its own values. The Aggregate is never modified.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Release

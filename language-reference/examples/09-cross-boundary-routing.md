@@ -16,6 +16,7 @@ When a component is deployed to a different Kubernetes namespace than its target
 
 **1. Platform Catalog: The Routing Feature**
 This is purely an Ops concern — no `values`, only `infra`.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Feature
@@ -33,6 +34,7 @@ spec:
 
 **2. Ops Domain: The FeatureRecipe**
 The `injectMapping` template executes during Phase A of Step 5. It reads the base host from the already pre-hydrated inject pipe, dynamically locates the specific topological edge that owns the variable, resolves the namespace from the target's Release annotations, and emits a precise override dictionary.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: FeatureRecipe
@@ -82,6 +84,7 @@ spec:
 
 **3. Routing Domain: The Release (Ops Attaches the Feature)**
 Ops attaches the routing feature via the Release — the developer's Aggregate is never modified. The `namespace_annotation` key instructs the feature where to look up the target boundary's namespace.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Release
@@ -115,6 +118,7 @@ spec:
 ```
 
 **Compilation Trace:**
+
 1. **Pass 1:** `app-db`'s Recipe resolves `provides: { host: "app-db", port: "5432" }`.
 2. **Pass 2:** `web-server`'s inject pipe is pre-hydrated: `DB_HOST: "app-db"`.
 3. **Pass 3 Phase A:** The `k8s-dns-patcher` `injectMapping` executes on `web-server`. It reads `DB_HOST` → `"app-db"`, finds the edge to `app-db`, resolves its Release annotation `aggrega.ai/namespace` → `"backend-zone"`, and emits `DB_HOST: "app-db.backend-zone.svc"`.
@@ -127,6 +131,7 @@ spec:
 This traces the exact JSON payload the Go compiler sends to a WebAssembly plugin and the Strategic Merge Patch it receives back.
 
 **1. Dev Domain: The Aggregate**
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate
@@ -152,6 +157,7 @@ spec:
 
 **2. Ops Domain: The Base Recipe**
 Exports physical pointers for downstream plugins.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Recipe
@@ -172,6 +178,7 @@ spec:
 
 **3. The Wasm Input (Go Compiler → Wasm `stdin`)**
 During Step 5 Phase C, the compiler feeds the Injector plugin this precise JSON payload. Note how the `with:` template has already been evaluated.
+
 ```json
 {
   "execution_context": {
@@ -208,6 +215,7 @@ During Step 5 Phase C, the compiler feeds the Injector plugin this precise JSON 
 
 **4. The Wasm Output (Wasm `stdout` → Go Compiler)**
 The plugin returns a Strategic Merge Patch appending the Volume and VolumeMount.
+
 ```json
 {
   "patch": {

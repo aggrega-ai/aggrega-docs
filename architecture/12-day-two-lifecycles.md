@@ -7,6 +7,7 @@ A target-agnostic Ahead-of-Time (AOT) compiler inherently creates a gap between 
 Aggrega structurally bridges these gaps through specific architectural polyfills and GitOps-native routing, ensuring the generated configurations are fully equipped to handle real-world enterprise chaos without compromising the purity of the core compiler.
 
 ### 1. The DAG Execution Model (Temporal Sequencing)
+
 **The Problem:** Infrastructure deployment is a Directed Acyclic Graph (DAG) of *time*. A database migration `task` must run to completion *before* the web `server` boots up. However, AOT compilers generate flat folders of static YAML or Terraform. If you hand these flat folders to a GitOps controller (like ArgoCD), it applies everything simultaneously, causing the web server to crash-loop while waiting for the database.
 
 **The Solution: `syncWaves` in the Release**
@@ -31,10 +32,12 @@ spec:
 
 **The Compiler Effect:**
 When the Infrastructure Rendering Engine (Step 5) utilizes Wasm plugins to generate the artifacts, it evaluates these waves to provide safe handoffs for the downstream CI/CD pipeline:
+
 * **For Kubernetes (ArgoCD/Flux):** The rendering plugins natively inject the GitOps-standard annotations (e.g., `argocd.argoproj.io/sync-wave: "1"`) directly into the headers of the generated YAML.
 * **For Multi-Provider (Terraform + Helm):** The plugins physically group the generated artifacts into stage-specific folders (e.g., `dist/wave-0-infra/`, `dist/wave-1-tasks/`). The enterprise CI/CD pipeline (e.g., GitHub Actions) simply executes the folders sequentially.
 
 ### 2. The Dynamic Addressing Polyfill
+
 **The Problem:** The cloud is non-deterministic at creation time. Resources like AWS RDS instances or S3 buckets generate random URL hashes *only after* they are physically provisioned. Because the AOT compiler generates configuration *before* the cloud provisions anything, it is physically impossible for the compiler to inject the literal database URL into a container's environment variable.
 
 **The Solution: Deterministic Pointers via the Credential Pillar**
@@ -48,6 +51,7 @@ Aggrega solves this by leveraging the existing `inject` mechanism, shifting the 
 At runtime, Terraform provisions the DB and saves the URL to the vault. The container boots up, reads the vault, and connects flawlessly. The AOT compiler generated the relationships seamlessly without ever needing the literal IP address.
 
 ### 3. Imperative Actions (The Executable Handoff)
+
 **The Problem:** Declarative state is perfect for Day-1 provisioning, but developers need to run imperative actions: *"Run a DB backup right now."* A strictly declarative GitOps pipeline has no native mechanism to re-trigger a static script.
 
 **The Solution: Dormant Tasks & Script Generation**
@@ -60,6 +64,7 @@ Aggrega solves this by preserving strict AOT purity. It generates configurations
 *(Note: While Ops could manually author a dedicated `CronJob` Recipe to achieve this, utilizing Wasm plugins allows them to reuse their standard Python Worker Recipe, keeping the infrastructure catalog DRY).*
 
 ### 4. Pre-Analysis: The Workspace Hook (Platform RBAC & Quotas)
+
 **The Problem:** In an enterprise environment, Some changes provision expensive or production-critical infrastructure — a large GPU cluster, say — and must not flow into the GitOps pipeline unreviewed. *Which* contributors may promote *which* changes to *which* environments is an organizational policy decision; the compiler must not hard-code it.
 
 **The Solution:**
@@ -68,12 +73,14 @@ A pure AOT compiler cannot ping Active Directory or fetch cloud credentials to f
 When `aggrega build` is invoked by a CI/CD runner, the pipeline explicitly passes the execution context (e.g., `--context approval=standard`) to the CLI. The enterprise's custom `policy-validator.wasm` plugin evaluates this injected context against the enterprise's `Workspace` rules and the `Release` mapping (e.g., returning a failure array if `context.approval !== "platform-approved" && release.environment === "production-aws"`). This isolates RBAC from the compiler's native logic, ensuring the compiler acts purely as a deterministic evaluator of the provided data.
 
 ### 5. Shift-Left FinOps (Cost Estimation via Policies)
+
 **The Problem:** Accidental misconfigurations (e.g., requesting `workers: 500`) can bypass financial safeguards and trigger massive cloud overruns.
 
 **The Solution (Enterprise Wasm Policies):**
 Because the IR Graph contains the complete topology and the `Release` contains the physical mapping (`.infra`), enterprises can evaluate exact deployment costs prior to generation without needing a hardcoded compiler feature. Enterprises simply author a custom FinOps WebAssembly plugin and slot it into their `policy-validator.wasm` or `linter.wasm` CI/CD gates. This custom plugin can read the `.infra` payloads, calculate the estimated monthly cost, and return a fatal failure to the compiler if the calculated cost exceeds the enterprise's internally defined budget limits.
 
 ### 6. The "Brownfield" Import Lifecycle
+
 **The Problem:** Enterprises already have most of their infrastructure running. While Aggrega seamlessly generates configurations to connect to unmanaged infrastructure via Wasm formatter stubs (pass-through networking), shifting an *existing* Oracle database into Aggrega's generated Terraform state typically causes orchestrators to attempt to *recreate* the database, destroying the existing data.
 
 **The Solution (Future Implementation):**
@@ -94,6 +101,7 @@ Because GitOps controllers (ArgoCD, Flux) perform byte-level diff detection on r
 Platform Ops engineers must **never** hardcode physical cloud resource names. Instead, they must construct deterministically unique names by concatenating the Aggrega deployment context during the template evaluation phase. This is a **reusability and collision-safety rule**, not a determinism rule — hardcoded names produce stable output but fatally collide when the same Recipe renders multiple component instances or when the same Aggregate deploys across multiple Releases.
 
 The compiler provides exactly two variables to guarantee global uniqueness:
+
 1. `{{ .metadata.release_name }}`: The name of the `Release` driving the deployment (e.g., `prod-billing`).
 2. `{{ .context.instance_id }}`: The specific Component ID from the Developer's `Aggregate` (e.g., `receipt-storage`).
 

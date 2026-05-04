@@ -29,11 +29,13 @@ Enforcing deterministic addressing natively solves **cyclic dependencies** (e.g.
 
 **The Implementation Mechanics (The Catalog as the API Contract)**
 To implement this without tightly coupling Developers to Ops, Aggrega uses the Platform Catalog (Domain 2) as the strict API contract, utilizing three distinct layers of validation:
+
 1. **The Credential Feature Schema (labeled `feature.aggrega.ai/kind: secret`):** Validates **ONLY** the vault query (`path`, `key`). It is completely blind to how the container consumes the data.
 2. **The `Component` Schema (`spec.inject` Allowlist):** Enforces the Black-Box/White-Box rule via the `spec.inject` field. If `spec.inject` is present (e.g., `inject: ["env", "file"]`), the developer may use component-level self-inject with those delivery mechanisms. If `spec.inject` is omitted, the compiler structurally forbids self-inject — Black-Box components rely entirely on the Recipe's `valuesMapping` for internal wiring. This is a structural schema enforcement, not a CUE-level constraint.
 3. **The `secretsSchema` Map:** Defined in the Component Catalog, this explicitly declares the credential slots the Developer must (or may) use. Each entry specifies `required` (default `false`), `inject` allowlist (`[]` = blackbox, `[env, file]` = transparent), and `description`. Because these keys are stable and contractually guaranteed, the Ops Engineer can directly rely on them to reliably dictate deterministic targets in their Go template (e.g., `existingSecret: "{{ .context.instance_id }}-admin_password"`), explicitly exporting that name via `.locals` so the downstream credential FeatureRecipe fulfills the requirement without violating AOT execution order. See §14 for the full `secretsSchema` design.
 
 **The Strict Placement Rule:** The `inject:` mechanism is available in three locations in the Developer's `Aggregate`:
+
 1. **Component-level self-inject:** As a direct sibling to `values:` on a component instance. Injects the component's own literal values or its own `provides` keys into the delivery pipe. Only allowed if the Component catalog declares `spec.inject` with the corresponding mechanisms.
 2. **Uses-level cross-inject:** Inside explicit target definitions within the `uses:` block. Injects a dependency target's `provides` keys into the delivery pipe.
 3. **Feature/Secret-level inject:** As a sibling to `values:` when attaching features and secrets. Injects data from the feature's dependency targets into the delivery pipe.
@@ -62,6 +64,7 @@ The verbose form uses the `in` keyword for the local identifier plus exactly one
 | `value:` | Literal string (supports Go templates) | ✅ | ❌ (`value:` is not valid in `uses[].inject`; use component-level `inject` for self-inject) |
 
 **Examples:**
+
 ```yaml
 # Component-level self-inject (White-Box custom code)
 components:
@@ -105,8 +108,8 @@ A developer requesting the same delivery key (e.g., the same env var name) from 
 
 To prevent Go template boilerplate in Recipes, the compiler provides **both**:
 
-  * `.context.uses`: The enriched topological edge map (for complex logic, secret references, and origin tracking).
-  * `.context.inject`: A pre-resolved, flattened dictionary where the compiler has already resolved all inject sources (self-inject literals, self-inject provides references, and cross-component provides references) into final string values, then applied FeatureRecipe `injectMapping` interceptions.
+* `.context.uses`: The enriched topological edge map (for complex logic, secret references, and origin tracking).
+* `.context.inject`: A pre-resolved, flattened dictionary where the compiler has already resolved all inject sources (self-inject literals, self-inject provides references, and cross-component provides references) into final string values, then applied FeatureRecipe `injectMapping` interceptions.
 
 **The Dual-State Injection Context (Null-Safety vs. AST Purity)**
 When generating configurations for Modifiers (FeatureRecipes, including credential FeatureRecipes from the `secrets:` block), the compiler must balance null-pointer safety for Go templates, dynamic network routing, and the preservation of a target-agnostic AST graph. To achieve this, the compiler natively provides a dual-state context at the root level of the template execution:
@@ -141,12 +144,15 @@ The compiler resolves this at compile-time (mapping to static AST strings or int
 
 **A. Environment Variables (`env`) & Dynamic Destination Resolution**
 The standard delivery mechanism for modern cloud-native applications. For explicit topological edges (e.g., an Agent talking to a Database), Aggrega uses `.context.uses` to inject the environment variable mapping.
+
 * **Use Case:** Receiving deterministic internal DNS names, Infrastructure-as-Code interpolation strings (e.g., `${aws_db_instance.main.endpoint}`), or static Vault pointers. The compiler wires these static references AOT so the runtime infrastructure or GitOps controller can resolve the live values.
 
 **B. File Mounts (`file`)**
 Many enterprise AI frameworks expect a structured `config.json` or `.pem` certificate to exist at a specific path on the disk, rather than relying on environment variables.
+
 * **Use Case:** Injecting complex JSON configurations or satisfying legacy SDKs that read from disk.
 * **Dev Intent:**
+
     ```yaml
     secrets:
       openai_key:
@@ -158,12 +164,15 @@ Many enterprise AI frameworks expect a structured `config.json` or `.pem` certif
           file: 
             "/etc/secrets/openai.json": "api_token" # Local Path : Target Provide Key
     ```
+
 * **Ops Reality:** The Ops Recipe dynamically generates the Kubernetes `Volume`, `VolumeMount`, and `ExternalSecret` required to securely pull the vault data and mount it to `/etc/secrets/openai.json`.
 
 **C. Command-Line Arguments (`arg`)**
 Pre-compiled binaries (like Rust or Go worker nodes) often bypass environment variables entirely, expecting values to be passed as runtime flags in their execution command.
+
 * **Use Case:** Appending physical realities to the container's startup command.
 * **Dev Intent:**
+
     ```yaml
     features:
       public-ingress:
@@ -174,4 +183,5 @@ Pre-compiled binaries (like Rust or Go worker nodes) often bypass environment va
           arg: 
             "--callback-url=": "hostname" # Local Flag : Target Provide Key
     ```
+
 * **Ops Reality:** The Feature's Wasm plugin receives the resolved public URL via the Injection Contract and emits a JSONPatch to dynamically append the Kubernetes `args` array: `["/app/binary", "--callback-url=https://api.enterprise.com"]`, completely bypassing the Component's Base Recipe.

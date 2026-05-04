@@ -9,6 +9,7 @@ Aggrega drops hardcoded orchestration logic in favor of a strict 5-step Ahead-of
 The pipeline executes entirely in-memory in a strict, fixed order:
 
 **1. The Resolver & Syntax Validator**
+
 * **Mechanism:** Two-Tiered Inheritance Merge, Go Template Interpolation, and CUE Lang Validation.
 * **Action:** The CLI fetches all requested entities (Components, Features, Releases). It first checks these definitions for the `extends` keyword. For the Catalog entities, it performs a **Two-Tiered Merge** (deep-merging YAML metadata and auto-unifying CUE schemas `ParentSchema & ChildSchema`). For the `Release` object, it deep-merges the `infra` and `parameters` blocks from the parent release.
 Next, it performs an in-memory interpolation, exclusively injecting the resolved `parameters` into the abstract `Aggregate` template strings (**where `parameters` safely fulfill their lifecycle and are purged**). Finally, it injects the resolved `infra` blocks into the target component payloads. Once the blueprint is fully concrete, the compiler uses the unified `cueSchema` from the Catalog to strictly validate the developer's `values` and `infra` configurations locally.
@@ -16,19 +17,23 @@ Next, it performs an in-memory interpolation, exclusively injecting the resolved
   * **`requiredFeatures` Completeness Check:** If a Component declares `requiredFeatures` in its catalog spec, the compiler verifies the requirement is satisfied by the **merged** feature list (Aggregate-attached + subsystem-attached + Release-attached). This check runs after Release merging, so Ops-injected features satisfy developer-declared requirements. If a required feature type is missing from the combined list, the compiler halts.
 
 **2. The Topology Builder & Mutation Gate**
+
 * **Mechanism:** AST Expansion + The `mutator.wasm` Socket.
 * **Action:** The compiler natively reads the explicitly declared `uses` structs from the validated components to deterministically draw topological edges between nodes in the graph, leaving the `values` block completely opaque. It then evaluates the **Mutation Gate**, passing the early-stage AST Graph to the `mutator.wasm` plugin. This plugin evaluates the context and returns JSONPatches to dynamically auto-tag the graph (e.g., injecting the label `compliance.aggrega.ai/data-class: restricted` based on environment scopes).
 
 **3. Graph Finalization**
+
 * **Mechanism:** Edge Inference & Normalization.
 * **Action:** The engine finalizes the flat Intermediate Representation (IR) Graph, preserving the explicit topological edges drawn in Step 2. It then normalizes the attached Features and their `values` payloads into a flat dictionary mapped by node ID, preparing the target-agnostic graph for validation.
   * **IR Payload Normalization:** The IR's structural shape enforces a Single Source of Truth for configuration: the topology layer carries only the graph structure (node identity, edges, metadata labels), and the normalized configuration state lives in a separate in-memory dictionary the compiler passes to downstream plugins. Mutators that change configuration change it in one place; the Provider Engine reads the normalized state without risk of drift from redundant storage.
 
 **4. The Static Analyzer & Validation Gate**
+
 * **Mechanism:** Topological Purity Checks + The `policy-validator.wasm` Socket.
 * **Action:** The compiler runs abstract static analysis over the IR Graph. First, it extracts the `selector` strings from the `usesSchema` definitions and evaluates them using a native Go label-matching engine (supporting Kubernetes-style `AND`, `OR` via `in()`, and `NOT` via `!=` semantics) across the explicitly defined graph edges to guarantee cross-node type safety. It also evaluates Feature `appliesTo`, `appliesToExpressions`, and `appliesToAnyOf` structured selectors to verify that attached features are compatible with their target component's labels. Second, it executes the **Validation Gate**, passing the complete graph structure (including all nodes, edges, attached features, and precalculated DFS paths) to the `policy-validator.wasm` socket. The enterprise's custom Wasm policy evaluates the topology. If the Wasm plugin returns a failure array (e.g., detecting a continuous path from a `public` node to a `restricted` node without a specific proxy feature), the build halts.
 
 **5. The Infrastructure Rendering Engine**
+
 * **Mechanism:** Pre-Render Interception (`injectMapping`), Late Binding (`valuesMapping`), and Wasm Rendering Sockets (`pipeline`).
 * **Action:** The final artifact generation phase is split into three strict temporal sub-phases to guarantee deterministic execution without Wasm overhead:
   * **Phase A (Pre-Render Interception):** The Go compiler resolves the Developer's abstract `.context.inject` contract. It then executes the `injectMapping` Go templates from all attached `FeatureRecipes` following the strict 5-Tier Onion Model execution order (Sub-Aggregate → Root Aggregate component → Root Aggregate subsystem → Release boundary outer-to-inner → Release component-specific). The compiler natively deep-merges the resulting dictionaries over the Caller's `.context.inject` memory pipe. This safely rewrites environment variables and connection strings for the Caller before the Base Recipe ever sees them.
@@ -41,6 +46,7 @@ Next, it performs an in-memory interpolation, exclusively injecting the resolved
 *The Phase B sub-passes described above reflect what the current compiler executes for Recipes using `source:` + `valuesMapping:` plus FeatureRecipe Resource Generation. Forward-looking sub-passes for `workload:` / `workloadFrom:` parsing, Workload → provider-native synthesis, and `artifacts:` / `artifactsFrom:` evaluation land within Phase B as their respective render paths ship; see [16-recipe-input-composition.md](16-recipe-input-composition.md) for the three-input-kinds composition model, the Workload kind, and the Artifacts mechanism.*
 
 ### GitOps-Native Output
+
 To remain strictly unopinionated about deployment execution, the rendering plugins output the generated artifacts into a clean, boundary-isolated directory structure (e.g., `dist/boundaries/aws-core-cluster/`, `dist/boundaries/gcp-data-cluster/`). This allows external GitOps controllers (like ArgoCD or Flux) to seamlessly sync and deploy the infrastructure without the Aggrega compiler ever needing live cluster API credentials.
 
 ```mermaid

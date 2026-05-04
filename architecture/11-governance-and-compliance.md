@@ -11,10 +11,12 @@ If Aggrega hardcoded domain-specific logic into its official components, it woul
 To solve this, Aggrega provides the **Wasm socket mechanisms** for compliance, while the Enterprise dictates the **policy**. Enterprises achieve zero-trust governance by adopting two distinct social contracts within their ecosystem.
 
 ### 1. The "Bring Your Own Baseline" (BYOB) + Wasm Validation Gate
+
 For static, developer-provided data (such as team ownership or data classification), enterprises should never rely on the raw open-source catalog directly. Instead, the Platform Architect authors a corporate baseline component that enforces their specific CUE constraints, and uses the `policy-validator.wasm` socket to enforce its use.
 
 **The Catalog Contract:**
 The enterprise creates a baseline that requires specific tags but provisions no infrastructure.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Component
@@ -31,6 +33,7 @@ spec:
         cost_center: string
     }
 ```
+
 All internal components (e.g., `acme/postgres`) must use `extends: "acme/corporate-baseline"`.
 
 **The Wasm Validation Failsafe:**
@@ -51,12 +54,14 @@ export function validate(graph) {
     return failures;
 }
 ```
+
 If the plugin returns a failure, the compiler instantly halts.
 
 **Centralized Enterprise Governance (Evaluating Complete Reality):**
 Relying on out-of-band mechanisms (like `CODEOWNERS` on a git repository) to govern architecture is a weak workaround. All governance is localized in the compiler's `policy-validator.wasm` socket. Because the AOT compiler builds the IR Graph by flattening *both* the Developer's `Aggregate` and the Ops Engineer's `Release`, the policy engine evaluates the complete reality before physical artifacts are generated. Policies can fatally halt the build if a developer requests an unapproved Component, if Ops maps a component to an unapproved Recipe in the Manifest, or if an insecure Wasm mutation is attached to a Component carrying a `restricted` subsystem label.
 
 ### 2. The Wasm Mutator Gate (Dynamic Compliance)
+
 Developers should not be forced to manually type environmental compliance tags (e.g., `environment: production` or `soc2_in_scope: true`) into their `Aggregate`, as these change depending on the GitOps target.
 
 For dynamic metadata, enterprises utilize the **Mutation Gate (`mutator.wasm`) in Step 2**. After the AST is expanded, the compiler executes the Wasm mutation plugin authored by the enterprise. This plugin silently evaluates the deployment context and returns JSONPatches to inject the required metadata directly into the component's labels, completely bypassing the developer's YAML (e.g., injecting the label `compliance.aggrega.ai/data-class: restricted` based on environment boundaries).
@@ -75,6 +80,7 @@ export function mutate(context, graph) {
     return patches;
 }
 ```
+
 Because these tags are silently injected into the standard metadata dictionary in-memory, Wasm rendering plugins can easily read them to conditionally generate specific physical configurations (like hardened AWS or Kubernetes resources) during Step 5.
 
 > **Looking Ahead: "Zero-Touch" Governance**

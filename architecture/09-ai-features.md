@@ -11,6 +11,7 @@ The core Go compiler is a dumb universal execution engine; all AI-specific intel
 To bridge the generic Open Application Model (OAM) with the strict realities of modern infrastructure, the `component.aggrega.ai/type` label maps exclusively to **7 Universal Cloud-Native Primitives**. This semantic identity dictates precisely how the Wasm rendering plugins should treat state, network ingress, and lifecycles.
 
 **The 7 Cloud-Native Types (The Infrastructure Base):**
+
 * `server`: Long-running, stateless compute that *expects inbound application traffic* (e.g., an AI Gateway or a Chat UI).
 * `worker`: Long-running, stateless compute that *pulls from queues or runs background loops* with zero inbound application ports (e.g., a LangGraph agent or Celery worker).
 * `task`: Ephemeral compute that runs to completion and dies (e.g., DB migration scripts).
@@ -30,6 +31,7 @@ When applying these labels, there is a critical distinction between the **Offici
 For the official open-source catalog to remain universally usable, it must strictly distinguish between **Immutable Technical Physics** and **Subjective Cognitive Intent**. If a generic `core/postgres` is hardcoded with `engine: relational`, a `policy-validator.wasm` plugin configured to enforce datastore-type matching will halt the build when a developer enables the `pgvector` extension in their `values` and attempts to connect an AI Agent that requires a `vector` datastore.
 
 To maintain an unopinionated core catalog, official components follow this standard: **Keep the Base Naked, and Flavor the Edges.**
+
 1. **The Naked Base:** The root-level open-source `Component` contains exactly **ONE** hardcoded label: the 7-Type Primitive (`component.aggrega.ai/type`). A Postgres database is objectively a `stateful-server`; that fact cannot change.
 2. **The Flavored Interfaces (CUE Inheritance):** To use semantic labels for strict policy evaluation, Architects create specifically flavored interfaces using Two-Tiered Inheritance. (e.g., `core/postgres-vector` extends `core/postgres-base` and explicitly appends the `datastore.aggrega.ai/engine: "vector"` label).
 3. **The Dynamic Mutator (Wasm Promotion):** If a trait is dictated by the developer's payload (e.g., `enable_vector: true`), the enterprise uses the `mutator.wasm` socket in Step 2 to dynamically read the opaque `values` and automatically inject the `engine: vector` label into the IR Graph before policies run.
@@ -41,41 +43,49 @@ To maintain an unopinionated core catalog, official components follow this stand
 To enforce the Separation of Concerns, Developers are **strictly forbidden** from writing labels on their `Component` instances inside the `Aggregate`. Labels exist exclusively in the Platform Catalog. Here is exactly how these immutable labels drive the compilation pipeline without requiring custom Go code:
 
 **1. `component.aggrega.ai/type` (The Base Primitive)**
+
 * **Who writes it?** The Platform Architect (Domain 2). This is mandatory for every component in the catalog.
 * **Who consumes it?** The Static Analyzer and Wasm Rendering Plugins.
 * **Compiler Use Case:** This is the core 7-type cloud ontology. The Static Analyzer evaluates the `usesSchema` selector strings natively in Go to guarantee a Developer cannot attach an Agent to a standard Database if the socket requires a specific AI capability. Furthermore, DevOps uses this label to explicitly route stateful primitives (`stateful-server`, `resource`) into physical cluster boundaries that support persistent disks, while the `policy-validator.wasm` can enforce that stateful components are never placed in ephemeral-only boundaries.
 
 **2. `model.aggrega.ai/capability`**
+
 * **Who writes it?** The Platform Architect.
 * **Who consumes it?** The Static Analyzer (via CUE Schemas).
 * **Compiler Use Case:** When an Architect authors a `usesSchema` selector naming the required capability label, the compiler's native label-matching engine rejects wiring that does not satisfy the selector before artifacts are generated. The compiler treats these labels as opaque strings; the semantic meaning of "text-generation" vs "embedding" lives in the Architect's selector authoring.
 
 **3. `model.aggrega.ai/hosting`**
+
 * **Who writes it?** The Platform Architect.
 * **Who consumes it?** The Policy Engine (`policy-validator.wasm`) and Wasm Rendering Plugins.
 * **Compiler Use Case:** It allows the policy engine to calculate Data Exfiltration risk. If a local Agent holding "Internal" data connects to a Model labeled `saas`, the policy evaluates that the data is leaving the corporate VPC. It can automatically halt the build unless a data-masking feature is explicitly attached to the connection.
 
 **4. `agent.aggrega.ai/autonomy`**
+
 * **Who writes it?** The Platform Architect.
 * **Who consumes it?** The Policy Engine (`policy-validator.wasm`).
 * **Compiler Use Case:** It identifies the execution risk of the cognitive loop. If an agent is labeled `autonomous` (meaning it runs background loops without user prompts) and connects to a highly sensitive database, the policy engine can halt the build unless a hardware-level `human-approval-gate` feature is attached to prevent runaway AI actions.
 
 **5. `gateway.aggrega.ai/intelligence`**
+
 * **Who writes it?** The Platform Architect.
 * **Who consumes it?** The Static Analyzer / Linter Wasm Plugins.
 * **Compiler Use Case:** It dictates what features a router can physically support. If a Developer tries to attach an AI `token-budget` feature to a standard `l4-mesh` gateway, the linter uses this label to instantly fail the build, informing the user that standard TCP meshes cannot parse LLM JSON payloads to count tokens.
 
 **6. `tool.aggrega.ai/impact`**
+
 * **Who writes it?** The Platform Architect.
 * **Who consumes it?** The Policy Engine and Wasm Rendering Plugins.
 * **Compiler Use Case:** By moving this out of the developer's mutable `values` block and into the immutable label identity, it allows the policy engine to evaluate strict, least-privilege configurations. A rendering plugin might generate standard `invoke` permissions for a `read_only` web-search tool, but demand strict cryptographic signature configurations to invoke a `mutating` SQL-drop tool.
 
 **7. `compliance.aggrega.ai/data-class`**
+
 * **Who writes it?** The Platform Architect (or dynamically injected via the `mutator.wasm` gate).
 * **Who consumes it?** The Policy Engine (`policy-validator.wasm`).
 * **Compiler Use Case:** Acts as the cornerstone for Zero-Trust data-plane rules. By tracking this label across the flat IR graph, policies evaluate whether an agent holding `restricted` enterprise data is illegally passing payloads into a `public` tool socket.
 
 **8. `hardware.aggrega.ai/accelerator`**
+
 * **Who writes it?** The Platform Architect. When packaging a local model component, they know it fundamentally requires a GPU to function.
 * **Who consumes it?** DevOps (Domain 4).
 * **Compiler Use Case:** DevOps explicitly routes GPU-labeled components into physical hardware pool boundaries in the `Release` via the `components: {}` map. The Developer simply asks for the cognitive model in their `Aggregate`, and DevOps places it into the expensive GPU cluster boundary, entirely preserving the Separation of Concerns. The `policy-validator.wasm` can additionally enforce that any component carrying this label is never placed in a boundary lacking GPU infrastructure.
@@ -112,6 +122,7 @@ The Intermediate Representation (IR) graph and gateway components are uniquely t
 * **Response Validation & Evals:** Natively supports configuration for `response_validation` (to filter output toxicity) and `traffic_shadowing` (to duplicate live requests out-of-band for safe model evaluations).
 
 ### 5. Asynchronous Execution & HITL Infrastructure
+
 Aggrega treats human-interactive frameworks (like AutoGen and LangGraph) as blackbox worker nodes. To support "sleeping" agents waiting for human input without losing state, **Platform Architects can author CUE schemas** that strictly enforce the explicit binding of `ai-datastore` components to these agents. Furthermore, for human-to-agent feedback loops (e.g., Slack integrations), an enterprise's `policy-validator.wasm` socket can be configured to reject the architecture unless an explicitly declared Gateway component is attached, guaranteeing secure ingress boundaries for callback webhooks.
 
 ### 6. Topological Security Validation & Runtime Enforcement
@@ -144,29 +155,35 @@ How those configurations are executed is highly flexible and completely up to th
 By decoupling architectural validation from runtime execution, Platform Teams can use Aggrega to explicitly model, validate, and generate configuration solutions to the most critical AI vulnerabilities.
 
 #### A. Data Exfiltration & Payload Interception
+
 * **The Problem:** An autonomous agent might attempt to leak restricted enterprise data to an unauthorized external API.
 * **The Aggrega Solution:**
   1. **Compile-Time (Validation & Generation):** The Platform Team authors a policy (e.g., Rego) evaluated via the `policy-validator.wasm` socket stating: *"If an edge connects an internal node to an external node, the source node must have a Feature attached with the label `security: data_masking`."* If missing, the compiler halts. If present, the compiler executes a Wasm plugin to output the specific sidecar configuration (e.g., a Lakera Guard `EnvoyFilter`).
   2. **Runtime (Physical Enforcement):** Once the orchestrator deploys the generated artifacts, the active sidecar physically intercepts and redacts the outbound payload before it leaves the cluster.
 
 #### B. Defending Against MCP Poisoning (Trust & Isolation)
+
 * **The Problem:** If an agent is compromised via a poisoned Model Context Protocol (MCP) tool, it may autonomously execute destructive actions (like dropping a database or authorizing a transfer).
 * **The Aggrega Solution:**
   1. **Compile-Time (Validation & Generation):** The developer attaches a `human_approval_gate` Feature to the sensitive tool in their `Aggregate.yaml`. The compiler validates the graph and translates this Feature into the configuration for an L7 proxy or webhook gateway.
   2. **Runtime (Physical Enforcement):** When the hijacked agent attempts to invoke the tool, the deployed proxy pauses the request and physically blocks execution until a cryptographically signed approval is received from a human operator.
 
 #### C. Solving the "Confused Deputy" (Context Propagation)
+
 * **The Problem:** In multi-agent chains, a public-facing agent might be hijacked and command an internal, highly privileged agent to fetch sensitive data. Standard firewalls only see that "Agent A is talking to Agent B" and allow the traffic, completely losing the context of the original malicious user.
 * **The Aggrega Solution:** Enterprises can layer two specific patterns:
   1. **Cryptographic Context Propagation:** The developer attaches an identity-verification Feature to the internal agent. At **compile-time**, a Wasm plugin generates the required Service Mesh configuration (e.g., an Istio JWT `AuthorizationPolicy`). At **runtime**, the mesh physically rejects any request at the internal agent's ingress that lacks a trace ID or signed token proving the original user's intent.
   2. **The Semantic Edge Firewall:** The developer attaches a payload-inspection Feature. At **compile-time**, a Wasm plugin generates a sidecar proxy configuration (e.g., NeMo Guardrails). At **runtime**, this proxy intercepts the request between the two agents, evaluates the prompt against corporate exfiltration policies, and drops the connection if a Confused Deputy attack is detected.
 
 #### D. Topological Risk Analysis
+
 * **The Problem:** Complex AI architectures with dozens of interconnected models, vectors, and tools are too massive for a human to manually audit for transitive vulnerabilities (e.g., "Can Agent A talk to Tool B, which talks to Agent C, which has access to Database D?").
 * **The Aggrega Solution:** This is the ultimate Ahead-of-Time failsafe. Because Aggrega builds a complete IR graph of the intended topology in memory, the `policy-validator.wasm` socket can run advanced pathfinding rules across the entire architecture. If the policy detects a continuous, transitive chain of edges originating from a public node and terminating at a highly sensitive database without a masking proxy anywhere in the path, it immediately halts the build. The insecure architecture is blocked before a single line of infrastructure code is ever generated.
 
 ### 8. Observability & Compliance
+
 To satisfy stringent regulatory requirements (e.g., the EU AI Act), **Platform Architects can utilize Aggrega's feature system** to enforce AI observability as a structural infrastructure requirement rather than relying on application code:
+
 * **Audit Logging:** Enterprise-authored Wasm plugins can configure gateway sidecars to asynchronously stream raw, unredacted prompts and responses to a secure WORM (Write Once, Read Many) storage bucket, bypassing standard application logs.
 * **LLM Tracing:** Proxy features can configure the data-plane to extract and forward AI-specific OpenTelemetry span headers, ensuring complex agent reasoning loops can be visualized in external tools.
 
@@ -179,6 +196,7 @@ Because the core compiler is blind to physical infrastructure mechanics, it reli
 ### 10. Dynamic Topology Mapping (The Dependency Engine)
 
 To build the IR graph without hardcoded orchestrator rules, the compiler uses a three-tiered pattern:
+
 * **AST Variable Interpolation:** Developers intuitively link components within their `values` definitions (e.g., referencing a database map ID).
 * **Dynamic Schema Extension:** The `cueSchema` restricts `uses` and enforces that inputs are valid component references.
 * **Cross-Node Type Safety:** The `usesSchema` selector strings act as explicit out-of-band instructions, evaluated natively by the Go compiler's label-matching engine in Step 4. They guarantee that developers cannot accidentally wire standard components into sockets that require a specific AI-native capability or compliance label.

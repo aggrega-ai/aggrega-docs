@@ -6,6 +6,7 @@ Features are modular operational behaviors attached to Components. The developer
 
 **1. Platform Catalog: The Feature Interface**
 The Feature uses `appliesToExpressions` to restrict which Components can receive it. The CUE schema defines the developer-facing configuration surface.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Feature
@@ -24,6 +25,7 @@ spec:
 
 **2. Dev Domain: The Aggregate**
 The developer attaches the Feature to their worker. They configure the cognitive `values`. They have no awareness of how the masking is physically implemented.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate
@@ -44,6 +46,7 @@ spec:
 ```
 
 **3. Platform Catalog: The Worker Component (with `usesSchema`)**
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Component
@@ -59,6 +62,7 @@ spec:
 
 **4. Ops Domain: The FeatureRecipe (Wasm Pipeline)**
 The FeatureRecipe maps the abstract Feature to a concrete Wasm plugin pipeline. The pipeline executes sequentially during Step 5 Phase C, mutating the base infrastructure AST.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: FeatureRecipe
@@ -85,6 +89,7 @@ spec:
 ```
 
 **5. Routing Domain: Manifest & Release**
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Manifest
@@ -131,6 +136,7 @@ spec:
 Labels are the semantic identity layer. They drive policy, Feature binding, and `usesSchema` selectors — all without code changes.
 
 **1. Platform Catalog: Richly Labeled Components**
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Component
@@ -154,6 +160,7 @@ spec:
 
 **2. Platform Catalog: Features Using Advanced Selectors**
 This Feature targets components with the autonomy label present, regardless of its value. It declares `conflictsWith` to prevent attaching alongside another conflicting Feature.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Feature
@@ -172,6 +179,7 @@ spec:
 
 **3. Platform Catalog: Feature with `DoesNotExist` (Exclusion Pattern)**
 This Feature auto-binds to all servers and workers, but explicitly excludes components carrying a generative model capability.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Feature
@@ -191,6 +199,7 @@ spec:
 
 **4. Platform Catalog: Component with `requiredFeatures`**
 The Architect mandates that any instance of this Component must have an audit logger attached. The compiler halts if the developer omits it.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Component
@@ -214,6 +223,7 @@ spec:
 An AI agent uses a sensitive corporate tool. Aggrega generates the webhook proxy configuration that physically blocks unapproved executions.
 
 **1. Platform Catalog: The Feature Interface**
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Feature
@@ -231,6 +241,7 @@ spec:
 
 **2. Dev Domain: The Aggregate**
 The developer attaches the approval gate Feature to the email tool, not to the agent. The compiler traces the topological edge from the agent to the tool and generates the interception proxy configuration on the tool's ingress path.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate
@@ -267,6 +278,7 @@ The compiler pipeline executes two Wasm gates. The `mutator.wasm` auto-tags the 
 
 **1. The Wasm Mutator (Step 2 — Graph Enrichment)**
 Auto-tags stateful servers with a `restricted` data classification label.
+
 ```javascript
 // mutator.wasm (compiled from JS/Go/Rust into WebAssembly)
 // Input: each node from the flat IR graph
@@ -278,6 +290,7 @@ if (node.labels["component.aggrega.ai/type"] === "stateful-server") {
 
 **2. The OPA Policy Validator (Step 4 — Security Boundaries)**
 Traces precalculated topological paths and blocks any connection to restricted data without a masking Feature attached.
+
 ```rego
 # policy-validator.wasm (compiled from Rego into WebAssembly)
 package aggrega.security

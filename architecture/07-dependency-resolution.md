@@ -9,6 +9,7 @@ In the Aggrega architecture, topological dependencies are mapped explicitly via 
 The `uses` block declares cross-component dependencies as pure topology: Component A depends on Component B's public `provides` contract, not on Component B's physical address or connection details. Topology lives in `uses`; configuration lives in `values`. The separation lets the compiler see all cross-component edges explicitly without inferring them from `values` content.
 
 Aggrega solves this by elevating topology to a first-class schema pillar called `uses`.
+
 * **The Semantic Proxy Argument:** The keyword `uses` represents L7 Semantic Intent. If an agent `uses` a database, it remains semantically true even if Platform Ops injects transparent Wasm proxy meshes between them.
 * **Mathematical Blindness:** The Go compiler parses the `uses` struct natively to draw the Intermediate Representation (IR) graph. It never attempts to parse or query the developer's application logic (`values`).
 * **Feature Atomicity:** The `uses` pillar applies identically to Components and Features (including credential Features). This allows a sidecar proxy (a Feature) or a credential fetcher to autonomously declare its own network dependencies without polluting its parent Component's configuration.
@@ -24,6 +25,7 @@ To prevent the Platform Catalog from fragmenting into unmanageable schema files,
 
 **Domain 1: The Developer Experience (Polymorphism)**
 Developers write `uses:` as a sibling to `values:` and `secrets:`. To ensure a frictionless UX, the schema natively supports polymorphism:
+
 * **Arrays of Strings:** Used for simple logical component references (e.g., `tools: ["search-api"]`) where standard routing is sufficient.
 * **Maps of Objects:** Used when strict delivery contracts are required (e.g., `databases: { hr_db: { target: "corporate-hr", inject: { env: { DB_URL: "host" } } } }`).
 * **No Wildcards:** Wildcards (e.g., `["*"]`) are rejected by the schema to prevent "Ghost Dependencies" and unauthorized auto-wiring.
@@ -38,6 +40,7 @@ To maintain predictable Go templates, the Go compiler normalizes the polymorphic
 The following two examples demonstrate the two distinct superpowers of the explicit Topology Pillar: **Example A** proves *whether* a connection is authorized (Cross-Node Type Safety), and **Example B** proves *how* the connection data is physically delivered (Polymorphism & Normalization).
 
 #### Example A: Topological Validation & Cross-Node Type Safety
+
 This scenario traces how a `policy-validator.wasm` socket — when Ops has configured the Release to invoke it — detects that an AI Agent is about to connect to a database lacking required compliance labels, and halts the build. The core Go compiler pipes labels opaquely; the detection logic lives inside the Wasm plugin that Ops has chosen to wire in.
 
 **1. The Standard Library (The Unified `cueSchema` in the Catalog)**
@@ -81,10 +84,12 @@ components:
 ```
 
 **3. Compiler Execution & Topological Validation**
+
 1. **Local Validation:** The Go compiler evaluates the entire object against the `cueSchema` in Step 1. It checks the underlying catalog labels of `my_secure_vector_db`. If the database lacked the `restricted` label, the engine would immediately halt the build with a type-safety violation.
 2. **Graph Drawing:** In Step 2, the Go compiler ignores CUE entirely. It reads `uses.datastores.finance_memory.target` natively from the YAML and draws the explicit edge in the IR graph.
 
 #### Example B: Polymorphism & The Normalized `.context.uses`
+
 This scenario demonstrates how the compiler seamlessly handles both a black-box AI tool (passed as an array) and a legacy relational database (requiring a map with an `inject` contract).
 
 **1. The Catalog (Domain 2): The `cueSchema`**

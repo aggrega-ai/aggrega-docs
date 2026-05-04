@@ -48,6 +48,7 @@ spec:
     // 2. CUE dynamically pipes it to the Ops reality
     infra: { iops_limit: values.required_iops }
 ```
+
 ```yaml
 # Domain 1: The Developer Intent (Remains Pure)
 components:
@@ -62,6 +63,7 @@ To scale this hardware constraint across GitOps environments (Dev vs. Prod) with
 
 **1. The Developer Intent (Abstracting the Dial):**
 The Developer knows they need to control IOPS, but they abstract the explicit number to the environment level.
+
 ```yaml
 spec:
   parameters:
@@ -75,11 +77,13 @@ spec:
 
 **2. The GitOps Releases (Ops Overrides):**
 Ops has complete control over the physical reality across environments by fulfilling the `parameters` contract in environment-specific `Release` files. They never touch the Developer's logic.
-* **Dev Environment (`release-dev.yaml`):** `env_iops: "1000"`
-* **Prod Environment (`release-prod.yaml`):** `env_iops: "25000"`
+
+- **Dev Environment (`release-dev.yaml`):** `env_iops: "1000"`
+- **Prod Environment (`release-prod.yaml`):** `env_iops: "25000"`
 
 **The Bulletproof Compilation Order:**
 This mechanism is protected by the strict execution order of the Go Compiler (Step 1):
+
 1. **Interpolation First:** The compiler reads the Prod `Release` and interpolates `"25000"` into the `Aggregate` string.
 2. **CUE Validation Second:** The CUE engine runs. It sees `values.required_iops: 25000` and pipes it into `infra.iops_limit`.
 3. **Execution Last:** The Ops `Recipe` receives the fully resolved `.infra` payload and the Wasm renderer plugin generates the correct physical database configuration. The developer gets their explicit hardware control, Ops gets their environment-specific scaling, and the `Aggregate` remains target-agnostic.

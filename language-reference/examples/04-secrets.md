@@ -5,6 +5,7 @@
 When deploying custom code, the developer *must* tell the system how their application reads credentials. The Component's CUE schema enforces the `inject` requirement.
 
 **1. Platform Catalog: The Component (White-Box Enforcement)**
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Component
@@ -27,6 +28,7 @@ spec:
 
 **2. Platform Catalog: The Credential Feature**
 A Feature labeled as a credential feature. The compiler enforces the partition: this Feature can only appear in `secrets:` blocks, never in `features:`.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Feature
@@ -45,6 +47,7 @@ spec:
 
 **3. Dev Domain: The Aggregate**
 The developer tells the system exactly how their Python code reads the OpenAI key — as an environment variable named `OPENAI_API_KEY`.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate
@@ -70,6 +73,7 @@ spec:
 
 **4. Ops Domain: The FeatureRecipe (Fetcher + Injector Pipeline)**
 The FeatureRecipe implements the credential Feature. The Two-Part Plugin Principle splits the work: the Fetcher generates the cloud-specific CRD, the Injector mounts it. Swapping vaults (AWS → HashiCorp) only replaces the Fetcher; the Injector is reusable.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: FeatureRecipe
@@ -99,6 +103,7 @@ spec:
 
 **5. Routing Domain: Manifest**
 Credential Features are mapped under the `features` tier — the same tier as operational Features. There is no separate `secrets` section.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Manifest
@@ -125,6 +130,7 @@ When deploying packaged infrastructure (e.g., Bitnami Redis), the developer prov
 
 **1. Platform Catalog: The Component (Black-Box Enforcement)**
 The `secretsSchema` declares the credential slot as required and blackbox (`inject: []`). The compiler auto-generates CUE validation rules — no `secrets:` pillar needed in `cueSchema`.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Component
@@ -148,6 +154,7 @@ spec:
 
 **2. Dev Domain: The Aggregate**
 The developer provides the vault query but omits `inject`. If they attempt to add it, CUE validation fails the build.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate
@@ -170,6 +177,7 @@ spec:
 
 **3. Ops Domain: The Base Recipe**
 Ops dictates the exact physical secret name. The Bitnami chart's native `existingSecret` mechanism handles injection internally.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Recipe
@@ -198,6 +206,7 @@ spec:
 
 **4. Ops Domain: The FeatureRecipe**
 The Fetcher plugin dynamically indexes the Base Recipe's exported key using the `.secret_name` context variable (`"admin_password"`) to extract the dictated physical name.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: FeatureRecipe
@@ -225,6 +234,7 @@ spec:
 A Feature (like an AI guardrail proxy) demands its own API key. The credential is completely isolated from the parent Component — the Python worker never sees the proxy's authentication.
 
 **1. Platform Catalog: The Feature with `secretsSchema`**
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Feature
@@ -247,6 +257,7 @@ spec:
 
 **2. Dev Domain: The Aggregate**
 The `secrets` block nests inside the Feature, perfectly isolating the credential from the parent Component.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate

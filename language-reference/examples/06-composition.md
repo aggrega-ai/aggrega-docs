@@ -5,6 +5,7 @@
 Aggregates can import other Aggregates as parameterized modules, enabling team-level composition. The `exportedComponents` block defines the sub-module's Public API.
 
 **1. Dev Domain: The Sub-Aggregate (Database Module)**
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate
@@ -25,6 +26,7 @@ spec:
 
 **2. Dev Domain: The Root Aggregate**
 The root Aggregate imports the database module and connects to its exported component using the dotted path syntax `data-layer.public_db`.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate
@@ -58,6 +60,7 @@ spec:
 
 **3. Routing Domain: The Release**
 DevOps routes the sub-aggregate's internal components into specific boundaries. The `aggregates` block inside the boundary mirrors the Aggregate's nesting.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Release
@@ -92,6 +95,7 @@ External SaaS APIs and legacy databases are first-class graph nodes. They produc
 
 **1. Platform Catalog: The External Service Component**
 The `eval` provider executes formatting in-memory — no source chart, no valuesMapping. The Recipe simply exports provides strings.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Component
@@ -123,6 +127,7 @@ spec:
 
 **2. Dev Domain: The Aggregate**
 The developer uses **Parameter Hoisting** — the physical IP of the legacy database is unknown to the developer and demanded from Ops via the `parameters` contract.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate
@@ -165,6 +170,7 @@ spec:
 
 **3. Routing Domain: Manifest & Release**
 The Manifest maps the external service to the `eval` provider. No compute is provisioned. The Release fulfills the parameter contract.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Manifest
@@ -209,6 +215,7 @@ spec:
 Subsystems organize components into logical groups within an Aggregate. Annotations cascade down to every component in the subsystem, and Features attached at the subsystem level apply to all nested components.
 
 **1. Dev Domain: The Aggregate**
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate
@@ -257,6 +264,7 @@ spec:
 Features and Secrets can autonomously declare their own `uses` edges, creating independent topological connections without polluting the parent component.
 
 **1. Dev Domain: The Aggregate**
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate
@@ -312,6 +320,7 @@ spec:
 ```
 
 **Compilation:** The compiler draws three independent edge sets:
+
 1. `finance-agent` → `search-api` (Developer-owned topology, agent socket)
 2. `finance-agent[secret:db_password]` → `internal-vault` (Secret-owned topology, tagged `origin_feature: db_password`)
 3. `finance-agent[feature:audit-logger]` → `compliance-s3` (Feature-owned topology, tagged `origin_feature: audit-logger`)

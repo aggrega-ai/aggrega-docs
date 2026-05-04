@@ -9,25 +9,26 @@ To establish a predictable schema and eliminate cognitive friction, the platform
 **The Direct Structural Vocabulary:** A fundamental rule of the schema design is that root data structures must be single, structural keywords. While utilizing conversational English phrases (like depends_on or runs_within) can make a YAML DSL read more naturally to a developer, it introduces structural complexity when mapping those keys into programmatic Go templates. To maintain a direct 1:1 variable mapping and prevent Domain Specific Language (DSL) fragmentation, the JSON schemas of the core catalog entities (`Component`, `Feature`) express a near-total structural symmetry, driven by the same core set of structural keywords used across authored instance slots. Credential Features (labeled `feature.aggrega.ai/kind: secret`) share this identical paradigm — there is no separate schema for secrets.
 
 * **`parameters` (The Global Environment Contract)**
-    * **Scope:** Defined at the root of the `Aggregate`; fulfilled by the `Release` (CI/CD) natively or via the external `parametersFrom` array.
-    * **Meaning:** External arguments that dynamically alter the cognitive or logical state of the application across environments (e.g., changing `workers: 2` to `workers: 10`). Supports an optional **typed contract** (see [data-pillars](../language-reference/vocabulary/data-pillars.md) for the full typed-contract syntax) validated before interpolation. For GitOps workflows, Ops can point to external parameter files via `parametersFrom`; the compiler fetches the file and deep-merges it into the in-memory parameter map.
+  * **Scope:** Defined at the root of the `Aggregate`; fulfilled by the `Release` (CI/CD) natively or via the external `parametersFrom` array.
+  * **Meaning:** External arguments that dynamically alter the cognitive or logical state of the application across environments (e.g., changing `workers: 2` to `workers: 10`). Supports an optional **typed contract** (see [data-pillars](../language-reference/vocabulary/data-pillars.md) for the full typed-contract syntax) validated before interpolation. For GitOps workflows, Ops can point to external parameter files via `parametersFrom`; the compiler fetches the file and deep-merges it into the in-memory parameter map.
 * **`values` (The Cognitive Intent - Developer Owned)**
-    * **Scope:** Used uniformly inside `components`, `features`, and `secrets` within the `Aggregate`.
-    * **Meaning:** The core cognitive state, business logic, and operational configuration. Mathematically opaque to the Go compiler but strictly validated by the Catalog's unified `cueSchema`.
+  * **Scope:** Used uniformly inside `components`, `features`, and `secrets` within the `Aggregate`.
+  * **Meaning:** The core cognitive state, business logic, and operational configuration. Mathematically opaque to the Go compiler but strictly validated by the Catalog's unified `cueSchema`.
 * **`uses` (The Structural Topology - Declarative State)**
-    * **Scope:** Used uniformly inside `components`, `features`, and `secrets` within the `Aggregate`.
-    * **Meaning:** A declarative statement of fact defining network edges and dependencies (e.g., "This agent *uses* this database"). Parsed natively by the Go compiler to draw the Intermediate Representation (IR) graph. Validated by the Catalog's unified `cueSchema` to enforce cross-node type safety.
+  * **Scope:** Used uniformly inside `components`, `features`, and `secrets` within the `Aggregate`.
+  * **Meaning:** A declarative statement of fact defining network edges and dependencies (e.g., "This agent *uses* this database"). Parsed natively by the Go compiler to draw the Intermediate Representation (IR) graph. Validated by the Catalog's unified `cueSchema` to enforce cross-node type safety.
 * **`infra` (The Physical Reality - Ops Owned)**
-    * **Scope:** Used uniformly inside `components`, `features`, and `secrets` within the `Release`.
-    * **Meaning:** The physical footprint and mechanical sizing injected during Late Binding (e.g., `cpu_limit: "4"`, `port: 5432`). The Aggregate's `component_instance` / `feature` / `secret` slots do not include an `infra` field and, combined with `additionalProperties: false`, reject `infra` at schema validation. Validated by the Catalog's unified `cueSchema`.
+  * **Scope:** Used uniformly inside `components`, `features`, and `secrets` within the `Release`.
+  * **Meaning:** The physical footprint and mechanical sizing injected during Late Binding (e.g., `cpu_limit: "4"`, `port: 5432`). The Aggregate's `component_instance` / `feature` / `secret` slots do not include an `infra` field and, combined with `additionalProperties: false`, reject `infra` at schema validation. Validated by the Catalog's unified `cueSchema`.
 * **`inject` (The Delivery Contract - Imperative Command)**
-    * **Scope:** Used strictly inside explicit target definitions within `uses`, attached `features`, and `secrets`.
-    * **Meaning:** An explicit, imperative command dictating the *intent* of the delivery (e.g., "Compiler, *inject* this mapped value as an environment variable"). It establishes the abstract contract (`env`, `file`, `arg`, or custom mechanisms) for a physical output, a resolved endpoint, or a retrieved credential, while the physical mechanics of exactly *how* that mount is executed are delegated entirely to the underlying Ops Recipe. Supports two equivalent syntaxes: a compact map form (`{ API_HOST: "host" }`) and a verbose array form (`[{ in: API_HOST, from: "host" }]`). Both normalize to `map[string]string` internally. See [topology-triad](../language-reference/vocabulary/topology-triad.md) for the full injection-contract syntax.
+  * **Scope:** Used strictly inside explicit target definitions within `uses`, attached `features`, and `secrets`.
+  * **Meaning:** An explicit, imperative command dictating the *intent* of the delivery (e.g., "Compiler, *inject* this mapped value as an environment variable"). It establishes the abstract contract (`env`, `file`, `arg`, or custom mechanisms) for a physical output, a resolved endpoint, or a retrieved credential, while the physical mechanics of exactly *how* that mount is executed are delegated entirely to the underlying Ops Recipe. Supports two equivalent syntaxes: a compact map form (`{ API_HOST: "host" }`) and a verbose array form (`[{ in: API_HOST, from: "host" }]`). Both normalize to `map[string]string` internally. See [topology-triad](../language-reference/vocabulary/topology-triad.md) for the full injection-contract syntax.
 * **`.context` (The Generic Metadata Pipe)**
-    * **Scope:** Injected silently by the Compiler into the Ops `Recipe` templates.
-    * **Meaning:** Contains the universally resolved deployment realities (like `.context.uses`) passed directly to the Ops templating engine.
+  * **Scope:** Injected silently by the Compiler into the Ops `Recipe` templates.
+  * **Meaning:** Contains the universally resolved deployment realities (like `.context.uses`) passed directly to the Ops templating engine.
 
-###### The 1:1 Mapping Reality
+#### The 1:1 Mapping Reality
+
 By replacing conversational prepositions with strict infrastructure keywords, this achieves perfect 1:1 mapping. The Ops engineer doesn't have to translate grammar; they just reference the exact keys the developer wrote.
 
 **Structural shapes: maps at the root, arrays in payloads.** Root topology blocks — `components`, `features`, `secrets`, `aggregates`, `subsystems`, `boundaries` — are YAML maps with user-authored keys serving as stable instance IDs. Arrays are not valid at these positions; the map key is the identity the compiler uses for cross-references (`target: my-db`), graph-node construction, and Manifest resolution. Inside the opaque payload blocks (`values`, `infra`, `parameters`), arrays are fully permitted — developers can write `tools_allowed: ["sql", "web"]` or `hostnames: ["stripe.com", "twilio.com"]` inside a Component's `values`. The Aggregate schema declares these payload blocks as `additionalProperties: true`, so they are opaque to the Go compiler and validated entirely by the Catalog's embedded `cueSchema`. This places framework volatility (new AI API shapes, new cloud-native payload formats) inside the Catalog Domain where it can evolve independently, while the Go compiler stays addressable-keys-only at the structural root.
@@ -55,6 +56,7 @@ To prevent template namespace collisions and the unintended leaking of physical 
 **Architectural Note:** The "Zero-Port" convention is the most prominent example of the platform's broader **Separation of Concerns**. This exact same philosophy—abstracting the physical mechanics away from the developer—applies to CPU requests, memory limits, operational domains, and disk sizing. Whenever a physical infrastructure constraint *must* leak into the developer's application payload (due to legacy code or strict hardware requirements), it must always be governed by an explicit "Escape Hatch" in the Architect's CUE schema, rather than breaking the core compiler rules.
 
 **The CUE Schema (Domain 2):**
+
 ```cue
 values: {
     image: string
@@ -64,6 +66,7 @@ values: {
 ```
 
 **The Developer YAML (Domain 1):**
+
 ```yaml
 components:
   legacy-payment-engine:
@@ -72,6 +75,7 @@ components:
       image: "corp/payments:v4"
       port: 8080 # The infrastructure must adapt to the app, not vice versa
 ```
+
 **Compiler Behavior:** The Go compiler passes `port: 8080` into the IR graph. The Ops Recipe then reads `{{ .values.port }}` to configure the Kubernetes `TargetPort` or AWS Target Group, successfully bridging the legacy gap without violating the schema.
 
 ### 4. The Injection Contract & Pre-Resolved Map
@@ -89,6 +93,7 @@ Platform Ops engineers author the translation templates and require the full pow
 ### 6. Rules of Composition: Aggregates, Subsystems, and Components
 
 * **Logical Grouping (The `subsystems` Array):** Developers can apply logical metadata (team ownership, compliance labels) and cross-cutting features across dozens of components simultaneously using `subsystems`. Subsystems act as recursive folders on the logical/intent plane, cascading `annotations` downward into the `.context.annotations.aggregate` bucket and **attaching features to all contained components** without dictating physical boundaries. Subsystem-level features follow the same schema as component-level features (supporting `type`, `values`, `uses`, `inject`) because they are in Domain 1 (Developer Intent). The compiler flattens subsystem features into each contained component's feature list during Step 3 (Graph Finalization), positioned after the component's own features and before any Release-attached features in the execution order.
+
 ```yaml
 # aggregate.yaml
 subsystems:
@@ -107,6 +112,7 @@ subsystems:
 ```
 
 * **Composite Aggregates are SUPPORTED (The Module Pattern):** Aggregates act as both the root application and reusable modules. A parent Aggregate can declare a child Aggregate exactly like a component, passing `parameters` down into it. To prevent tight coupling, child Aggregates expose an **`exportedComponents:`** contract, establishing a stable public interface name. The parent requests this interface, and the Go compiler dynamically rewires the topological edge to the correct internal node.
+
 ```yaml
 # child-database-module.yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -191,11 +197,13 @@ No application exists in a vacuum. A compiled Aggrega architecture represents a 
 To securely integrate these external systems, Aggrega strictly separates the **Security Boundary** from the **Execution Mechanics**. The Security Boundary is governed by the **Universal Component Rule** and the **Explicit Egress Guardrail**.
 
 #### 1. The Universal Component Rule
+
 If an application interacts with an entity—whether it is a local database, a managed cloud resource, a SaaS LLM, or a generic public API endpoint—that entity **MUST** be declared as a distinct Component in the `Aggregate`.
 
 By treating external SaaS APIs and legacy databases as first-class nodes in the Intermediate Representation (IR) graph, developers unlock the ability to attach Zero-Trust proxy configurations directly to the outbound call. For example, by modeling the Stripe API as a distinct node, a developer can seamlessly attach a `header-injector` feature to it, ensuring the generated configuration prevents the calling Agent from holding the raw API token in its own memory.
 
 #### 2. The Explicit Egress Guardrail (Infrastructure Conformance)
+
 Rather than relying on hardcoded compiler logic to govern network egress, Aggrega delegates perimeter security entirely to the enterprise's agnostic policy engines and Wasm rendering plugins. This ensures the generated configurations conform strictly to explicit egress approvals.
 
 * **The Catalog Hook (Domain 2):** When an Architect defines a public SaaS component (e.g., `core/external-api`), they attach an immutable corporate label to it (e.g., `security.enterprise.com/zone: "untrusted-external"`).
@@ -205,9 +213,11 @@ Rather than relying on hardcoded compiler logic to govern network egress, Aggreg
 This guarantees — via the `policy-validator.wasm` socket evaluating the declared topology — that the *explicitly declared* infrastructure conforms to the egress policy without the core Go compiler needing to understand what "external" means. *(Note: True zero-trust egress relies on the target cluster running a Default Deny CNI at runtime; the generated configurations simply map the authorized exceptions).*
 
 #### One Component Per External Service
+
 Each external service is declared as a distinct component, not collapsed into a multi-target array. If an application calls five different third-party APIs, the developer declares five distinct `core/external-service` components. This per-service declaration is what lets policy engines and Wasm plugins target each outbound destination individually — attaching different egress policies, different proxy features, or different observability hooks to each external dependency.
 
 #### Decoupling Security from Execution (The "Brownfield" Scenario)
+
 It is critical to note that the semantic label (e.g., `untrusted-external`) dictates **network security policy**, not execution. It is completely decoupled from whether the resource is physically provisioned by Aggrega.
 
 * **Scenario A (Public SaaS API):** Labeled `untrusted-external` in the Catalog (triggers Policy Egress Guardrails). Executed via the `formatter.wasm` plugin (no compute provisioned).
@@ -289,6 +299,7 @@ spec:
 ```
 
 **4. Step 5 Compiler Execution (The Handoff)**
+
 1. The Go compiler executes the `eval` pipeline for `legacy-oracle` first. It feeds the mapped `values` into the Wasm plugin.
 2. The Wasm plugin constructs the required strings and returns a flat JSON dictionary via `stdout` (e.g., `{"primary_endpoint": "oracle://..."}`).
 3. The Go compiler blindly assigns this entire JSON dictionary to the Oracle node's exported `.locals` state in memory.
@@ -308,6 +319,7 @@ env:
 ```
 
 #### Architectural Benefits
+
 * **Broadly Extensible:** Ops can format arbitrary connection strings, API paths, or complex URI structures using programmatic WebAssembly, rather than being constrained by string templating.
 * **Zero Magic:** The core compiler doesn't have to guess formatting or rely on hardcoded URL builders; it just evaluates the string from the Wasm plugin's `exports` and passes it to the Caller's `.context`.
 * **Unified Ecosystem:** In an Aggrega catalog, this Wasm "eval stub" is version-controlled, auditable, and shareable just like a physical Helm chart.
@@ -317,11 +329,13 @@ env:
 See [inheritance-and-interface](../language-reference/vocabulary/inheritance-and-interface.md) for the CUE-inheritance bridge pattern that safely exposes specialized infrastructure dials through child components.
 
 ### 12. Greenfield Provisioning ("Platform Aggregates")
+
 A recurring trap in platform engineering is forcing the deployment router (our `Release` file) to handle heavy Day-0 cluster provisioning (e.g., spinning up a new AWS EKS cluster before deploying the app into it). This creates bloated, unreadable routing files.
 
 Aggrega solves this using the principle of "Turtles All the Way Down." We do not introduce a new `install_infrastructure:` block into the `Release` schema. Instead, we use **Platform Aggregates**.
 
 Because an AWS EKS Cluster, an Istio Control Plane, and an AWS VPC are ultimately just physical cloud resources, they are modeled exactly like application components.
+
 1. **The Platform Aggregate:** The Infrastructure team writes a standard `Aggregate.yaml` where the components are `core/aws-vpc`, `core/eks-cluster`, and `core/istio-base`.
 2. **The Platform Release:** They deploy this aggregate. The `terraform-renderer.wasm` plugin outputs the raw Terraform files required to stand up the base infrastructure.
 3. **The Application Release:** When the Application Developer is ready to deploy their AI Agent, the Ops team simply targets the newly created cluster as an `environment` inside the App's `Release` file.

@@ -5,6 +5,7 @@
 A FeatureRecipe can generate entirely new infrastructure resources (like an Ingress CRD) alongside the base component. This uses the `source` + `valuesMapping` pattern rather than a `pipeline`.
 
 **1. Platform Catalog: The Ingress Feature**
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Feature
@@ -18,6 +19,7 @@ spec:
 
 **2. Ops Domain: The FeatureRecipe**
 The FeatureRecipe renders its own Helm chart. The compiler appends the generated objects to the base component's AST.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: FeatureRecipe
@@ -37,6 +39,7 @@ spec:
 
 **3. Routing Domain: The Release**
 Ops attaches the Ingress feature and provides the physical hostname via `infra`.
+
 ```yaml
 # Inside a Release boundary:
 components:
@@ -80,6 +83,7 @@ spec:
 ```
 
 **Resolution Order (Most Specific Wins):**
+
 1. `name` lookup (exact instance name) — highest priority
 2. `type` lookup with version (exact version match, e.g., `"core/python-worker:2.0.0"`)
 3. `type` lookup without version (any version match, e.g., `"core/python-worker"`)

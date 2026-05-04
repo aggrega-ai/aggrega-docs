@@ -6,7 +6,7 @@ The conceptual role of the Feature entity (the modular operational trait in Doma
 
 Unlike Components (which use three-segment URIs with category subdirectories), Features are organized flat — only ~25 files in the standard library, growing slowly.
 
-```
+```text
 aggrega-catalog/
 └── feature/
     └── {namespace}/               # e.g., `core`, `acme`

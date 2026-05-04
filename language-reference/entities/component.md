@@ -249,6 +249,7 @@ See [architecture/13-catalog-and-registry.md §3](../../architecture/13-catalog-
 
 **Example A: The Base Component (The Corporate Baseline)**
 The Platform Architect defines a foundational enterprise server. This base template sets the required 7-Type cloud primitive label and establishes immutable security constraints in CUE.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Component
@@ -271,6 +272,7 @@ spec:
 
 **Example B: The Child Component (Extending the Baseline)**
 A specialized AI Gateway is created. Notice how the component inherits from the base enterprise server, meaning the Architect doesn't have to rewrite the base ontology labels or the standard `tls_enabled` security schemas.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Component

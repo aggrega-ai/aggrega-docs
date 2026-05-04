@@ -6,7 +6,7 @@ The conceptual role of the FeatureRecipe entity (Domain 3 — the Wasm-plugin-dr
 
 FeatureRecipes are organized with the provider as the namespace (same pattern as Recipes):
 
-```
+```text
 aggrega-catalog/
 └── feature-recipe/
     └── {provider}/                          # e.g., `helm`, `compose`, `eval`

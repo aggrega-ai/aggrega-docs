@@ -36,7 +36,7 @@ All three produce files that the Engine emits to the boundary's output directory
 The three "modes" are descriptive vocabulary for documentation and diagnostics. Recipe authors do not declare a mode; they write the keywords they need. A Recipe is characterized by its dominant input:
 
 | Dominant keyword(s) | Descriptive mode name |
-|---|---|
+| --- | --- |
 | `source:` + `valuesMapping:` (no `workload:`, no artifacts) | **sourced** |
 | `workload:` / `workloadFrom:` (no `source:`, no artifacts) | **synthesized** |
 | `artifacts:` / `artifactsFrom:` (no `source:`, no `workload:`) | **artifacts** (informally: "inline") |
@@ -285,7 +285,7 @@ health:
 Providers translate each intent to their native shape:
 
 | Intent | Helm (K8s) | Compose |
-|---|---|---|
+| --- | --- | --- |
 | `http: /path` | `httpGet.path: /path, httpGet.port: <first port or "http">` | `CMD-SHELL "curl -f http://localhost:<port>/path"` |
 | `tcp: <port>` | `tcpSocket.port: <port>` | `CMD-SHELL "nc -z localhost <port>"` |
 | `exec: [cmd]` | `exec.command: [cmd]` | `CMD [cmd]` |
@@ -299,7 +299,7 @@ Compose degrades HTTP/TCP probes to healthcheck shell commands; this is noted as
 Five volume types; no compound:
 
 | Type | Semantics | K8s (helm) | Compose |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `ephemeral` | Tmpfs / emptyDir; dies with pod | `emptyDir: { sizeLimit }` | `tmpfs: { size }` (in-memory; warning if semantics differ) |
 | `configmap` | Read-only config files | ConfigMap volume reference | bind mount from generated config file |
 | `secret` | Read-only secret files | Secret volume reference | env_file or bind-mounted secret file |
@@ -489,7 +489,7 @@ Three structural distinctions:
 ### Shipping Today
 
 | Provider | `source:` + `valuesMapping:` | `workload:` / `workloadFrom:` | `artifacts:` / `artifactsFrom:` |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | helm | ✅ Helm chart rendering via the Helm SDK | Not yet shipped — authoring contract frozen | Not yet shipped — authoring contract frozen |
 | helm-chart | ✅ Umbrella-chart composition | Not applicable | Not yet shipped — authoring contract frozen |
 | compose | Not yet shipped — authoring contract frozen | Not yet shipped — authoring contract frozen | Not yet shipped — authoring contract frozen |
@@ -503,7 +503,7 @@ Three structural distinctions:
 *The following matrix describes the designed target shape when per-provider synthesis and the artifacts render path land. Every cell represents intended behavior of the shipping compiler; timing anchors appear where known.*
 
 | Provider | `source:` + `valuesMapping:` | `workload:` / `workloadFrom:` | `artifacts:` / `artifactsFrom:` |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | helm | ✅ Helm chart | ✅ synthesizes Deployment/StatefulSet + Services + PVCs + ConfigMap/Secret volume refs | ✅ Kubernetes YAML files |
 | helm-chart | ✅ umbrella chart | ❌ not applicable | ✅ file-loaded only; injected as pre-Helm templates |
 | compose | ✅ `docker-compose.yaml` base | ✅ synthesizes compose service + volumes + networks | ✅ compose fragments merged into the combined file |

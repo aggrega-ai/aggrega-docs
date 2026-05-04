@@ -12,7 +12,7 @@ An official `aggrega-catalog` repository (and any compliant third-party catalog)
 
 URI segments map 1:1 to filesystem path segments. Components use a three-segment URI (`{namespace}/{category}/{name}`) with 10 human-navigable categories. Features remain flat (`{namespace}/{name}`) — only ~25 files, growing slowly. Ontology classification (`stateful-server`, `server`, etc.) lives in `metadata.labels`, NOT in directory structure. The hub web UI uses labels for filtering and search. Categories are for human filesystem navigation.
 
-```
+```text
 aggrega-catalog/
 ├── README.md
 │
@@ -112,7 +112,7 @@ aggrega-catalog/
 **The 10 Component Categories:**
 
 | Category | Contains | Ontology label(s) |
-|---|---|---|
+| --- | --- | --- |
 | `database` | Persistent datastores (relational, vector, document, graph, KV) | stateful-server |
 | `model` | AI model providers and inference runtimes | server |
 | `agent` | AI agent frameworks and patterns | worker, server |
@@ -129,6 +129,7 @@ Categories are chosen for how users navigate, not how the compiler classifies. O
 ### 2. The Split Schema & Unification Pipeline
 
 To eliminate complex CUE polymorphism boilerplate, Aggrega introduces a split validation engine:
+
 1. **`usesSchema` (Native YAML):** Defines and enables the topology. The `usesSchema` keys are the only valid socket names a developer may use in `uses` blocks — a catalog entity without `usesSchema` cannot accept `uses` declarations. The Go CLI natively reads this to extract `selector` strings for Step 4 label matching and to validate allowed `inject` paradigms. Each socket entry supports an optional `required: true` field (default `false`) — when set, the compiler emits a validation error if no dependency is declared in that socket. This is the soft equivalent of the `required: true` semantics on `secretsSchema` entries.
 2. **Desugaring:** If developers use the YAML array shorthand (`uses: databases: ["db1"]`), the CLI normalizes it into a map (`{"db1": {"target": "db1"}}`).
 3. **`baseUsesCueSchema` Generation:** The compiler dynamically translates the YAML `usesSchema` into a strict CUE representation in memory (locking down the topology). The `selector` string from the YAML is embedded as a CUE attribute tag for traceability — CUE ignores it during unification, but the Go compiler extracts it programmatically via the CUE SDK's `Attribute()` API in Step 4 for native label matching. *Rule: For each defined edge, the compiler generates:* `[EdgeName]?: { [Name=string]: { target: string @selector("<SELECTOR>"), inject?: { <EACH_ALLOWED_INJECT>: {[string]: string} } } }`.
@@ -136,6 +137,7 @@ To eliminate complex CUE polymorphism boilerplate, Aggrega introduces a split va
 
 **Example Pipeline Generation:**
 **Step 1: The Platform Architect's YAML**
+
 ```yaml
 spec:
   usesSchema:
@@ -155,6 +157,7 @@ spec:
 ```
 
 **Step 2: The Compiler-Generated `baseUsesCueSchema`**
+
 ```cue
 uses: {
     databases?: {
@@ -174,6 +177,7 @@ uses: {
 The compiler executes `baseUsesCueSchema & userCueSchema` to produce the unified structural lock.
 
 ### Kubernetes-Style Selectors in usesSchema
+
 The Go compiler's native label-matching engine evaluates selector strings using standard Kubernetes-style selection semantics (`AND` via comma, `OR` via `in()`, `NOT` via `!=`/`notin()`). This same engine also evaluates the structured selectors on Feature catalog entities (`appliesTo`, `appliesToExpressions`, `appliesToAnyOf`). CUE remains completely blind to the routing logic — CUE's role is strictly structural validation of the `values`, `infra`, and `provides` pillars. After the Go compiler draws the topological edges in Step 2, the Static Analyzer (Step 4) extracts the `selector` strings (either directly from the resolved `usesSchema` or from the `@selector()` CUE attribute tag on the generated `baseUsesCueSchema`) and evaluates them against the target node's Catalog `labels` to validate cross-node type safety.
 
 ```yaml
@@ -207,6 +211,7 @@ See [entities/component](../language-reference/entities/component.md) for the ba
 The `aggrega.yaml` file at the project root is the project's workspace configuration. It is **committed to Git** (it is the equivalent of `go.mod` or `package.json`). The `.aggrega/` directory is **gitignored** (it is the equivalent of `node_modules/` or `.terraform/`).
 
 All fields are optional with sensible defaults:
+
 ```yaml
 # aggrega.yaml
 workspace:
@@ -244,6 +249,7 @@ Aggrega treats infrastructure logic the same way Docker treats container images,
 Because Recipes are strictly **1:1 with a physical execution engine** — a single Recipe cannot target multiple providers — the cleanest way to organize them in an OCI registry is to use the **Provider as the Namespace**.
 
 The OCI taxonomy covers all entity types. URI segments map 1:1 to filesystem paths and OCI repository names:
+
 * `hub.aggrega.ai/component/core/database/mariadb:1.0.0` — Component, namespace `core`, category `database`
 * `hub.aggrega.ai/component/core/server/api-server:1.0.0` — Component, namespace `core`, category `server`
 * `hub.aggrega.ai/feature/core/data-masking:1.0.0` — Feature, namespace `core` (flat, no categories)

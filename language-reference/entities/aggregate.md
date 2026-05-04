@@ -9,7 +9,8 @@ Aggregates serve as both the root application and reusable modules. A parent Agg
 ### Catalog Location
 
 Reusable Aggregate modules live in the catalog under:
-```
+
+```text
 aggrega-catalog/
 └── aggregate/
     └── {namespace}/             # e.g., `core`, `acme`
@@ -22,6 +23,7 @@ OCI URI: `hub.aggrega.ai/aggregate/{namespace}/{module-name}:{version}` (e.g., `
 ### The Module Pattern
 
 **Child module (`aggregate/core/db-module/aggregate.yaml`):**
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate
@@ -39,6 +41,7 @@ spec:
 ```
 
 **Parent application:**
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate

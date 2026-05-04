@@ -6,6 +6,7 @@ The Architect enforces structural separation: Developers control cognitive `valu
 
 **1. Platform Catalog: The Component with `infra`**
 The `cueSchema` declares both `values` (Developer) and `infra` (Ops) as separate namespaces. The Aggregate schema bans developers from writing `infra`; the Release schema bans Ops from writing `values`.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Component
@@ -29,6 +30,7 @@ spec:
 
 **2. Dev Domain: The Aggregate**
 The developer requests the database using `values`. They have zero visibility into `infra` sizing.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Aggregate
@@ -46,6 +48,7 @@ spec:
 
 **3. Routing Domain: The Release**
 Ops injects physical sizing via the `infra` block on the component inside the boundary. The compiler passes `.values` and `.infra` as two cleanly separated objects to the Recipe.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Release
@@ -70,6 +73,7 @@ spec:
 
 **4. Ops Domain: The Recipe**
 Ops consumes both `.values` and `.infra` without conflict.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Recipe
@@ -107,6 +111,7 @@ spec:
 Ops defines a global baseline. DevOps inherits it and surgically overrides for production. Developers override the secret implementation for local prototyping.
 
 **1. Routing Domain: The Global Base Release**
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Release
@@ -131,6 +136,7 @@ spec:
 
 **2. Routing Domain: The Production Override**
 The `extends` keyword inherits all boundaries, routing, and parameters from the base. DevOps surgically overrides only the storage size. When a Release uses `extends`, declaring `aggregate` is rejected by the Release schema — the child must map to the exact same Developer Intent.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Release
@@ -154,6 +160,7 @@ spec:
 
 **3. Routing Domain: Manifest Composition for Local Dev**
 The base Manifest maps all components to Helm Recipes. The local Manifest inherits everything but swaps the secret implementation for a Docker `.env` injector.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Manifest
@@ -188,6 +195,7 @@ spec:
 
 **4. Routing Domain: The Local Dev Release (Permissive Escape Hatch)**
 A flat, single boundary with compose-friendly parameters. The developer runs `aggrega build local-release.yaml` and gets a Docker Compose file.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Release
