@@ -1,6 +1,6 @@
 # Credential Model
 
-## Part 8: Data Governance & The Credential Pillar
+## Data Governance & The Credential Pillar
 
 In the Aggrega architecture, we strictly differentiate between **Business Data** (the state held by an application) and **Credentials** (the keys required to access that state). While the generated network mesh configurations govern "Data in Motion" (Topological Data Flows), "Data at Rest" and "Secrets" are handled by the **Credential Pillar** and **Ops Baselines** to ensure maximum cryptographic isolation.
 

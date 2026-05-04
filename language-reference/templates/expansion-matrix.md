@@ -1,6 +1,6 @@
 # Template Expansion Matrix
 
-## Part 12: Template Expansion Reference — The Complete Matrix
+## Template Expansion Reference — The Complete Matrix
 
 The Aggrega DSL supports Go `text/template` expansion (with the Sprig library pre-registered) in multiple locations across the YAML entities. Each location has a specific set of available references, governed by when the data becomes concrete during the 5-step compilation pipeline. This part is the definitive reference for what can be referenced where.
 

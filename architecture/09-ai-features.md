@@ -1,6 +1,6 @@
 # AI Features
 
-## Part 9: The Aggrega AI Feature Set
+## The Aggrega AI Feature Set
 
 To support the unique demands, volatility, and security threats of modern AI systems, Aggrega embeds specialized intelligence directly into its open-source **AI Standard Library (The Catalog)**. It ensures that both generic cloud-native scaffolding and highly specialized AI-native reasoning engines coexist securely.
 

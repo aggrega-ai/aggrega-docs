@@ -12,6 +12,24 @@ Every Release declares a `manifest:` field pointing at its dependency lockfile (
 
 The Release dictates the destination for compiled artifacts; provider-engine dispatch belongs to the Manifest the Release points at (see [Manifest vs. Release: concern separation](manifest.md#manifest-vs-release-concern-separation) for the role split).
 
+## Environment Metadata
+
+Every Release metadata block accepts an `environment:` field — a free-form string identifying the deployment environment (typical values: `production`, `staging`, `dev`). The field is informational: it carries no enumeration, no schema-level pattern, and no cross-entity validation beyond `type: string`. The compiler emits its value as the `aggrega.ai/environment` label on every rendered Kubernetes manifest produced by the helm and helm-chart providers, alongside the rest of the Aggrega provenance label suite. Other providers (terraform, compose, cloudformation) translate the same identifier into their native tagging mechanisms as their renderers add that capability.
+
+Five practical patterns drive `environment:` authoring:
+
+1. **OTel/FinOps cost attribution.** Cloud cost dashboards (AWS Cost Explorer, Datadog Cloud Cost Management, CloudHealth) tag-filter Kubernetes pods by environment. The `aggrega.ai/environment: production` label flows into pod labels via the Helm provider's label injection; cost reports group spend by `aggrega.ai/environment` without manual per-resource tagging.
+
+2. **OTel trace and log filtering.** Observability dashboards (Datadog, New Relic, Honeycomb, Grafana Tempo) filter telemetry by environment label. `aggrega.ai/environment: staging` lets operators scope log queries and trace lookups to staging without filtering on namespace conventions or chart names — a single canonical label across the rendered surface.
+
+3. **Kubernetes operator targeting.** GitOps controllers (ArgoCD, Flux) and policy operators (Kyverno, OPA Gatekeeper) sometimes filter resources by environment label for environment-specific policies (for example, "production-only resources require an approved-image-source label"). The `aggrega.ai/environment` label provides a stable selector distinct from namespace conventions or naming patterns.
+
+4. **Multi-region production differentiation.** A team running a `production-us-east` Release alongside a `production-eu-west` Release — both with `metadata.environment: production` — gets the same `aggrega.ai/environment: production` label across regions. Combined with a separate region label, this enables cross-region cost rollup ("total production spend") and per-region drill-down.
+
+5. **Compliance scoping.** SOC 2, PCI, and HIPAA evidence collection scopes by environment (production-only audit, etc.). The `aggrega.ai/environment` label is consumed by compliance-evidence-gathering tooling (Vanta, Drata) to filter resources by audit scope.
+
+*The field is informational and optional in intent; the current schema declares it required, and the requirement will be relaxed in a future iteration. The renderer already handles empty values — a Release that omits `environment:` (when the schema relaxes) produces no `aggrega.ai/environment` label, while all other provenance labels emit normally.*
+
 ## Schema-Level Constraints
 
 Two structural guarantees protect the Aggregate as the Single Source of Truth:

@@ -2,7 +2,7 @@
 
 This chapter defines how Platform Teams enforce corporate compliance, manage Day-2 lifecycle events, and ensure the physical infrastructure scales safely across multiple environments.
 
-## Part 15: Enterprise Governance & Compliance Patterns
+## Enterprise Governance & Compliance Patterns
 
 A core challenge in platform engineering is enforcing corporate governance (such as SOC 2 compliance, FinOps cost-center tracking, and strict ownership mapping) without polluting the open-source catalog.
 

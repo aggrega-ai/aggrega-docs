@@ -1,6 +1,6 @@
 # Extensibility
 
-## Part 18: Ecosystem Extensibility & Compiler Guardrails
+## Ecosystem Extensibility & Compiler Guardrails
 
 ### 1. The Universal WebAssembly (Wasm) Interface
 

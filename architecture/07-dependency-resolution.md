@@ -1,6 +1,6 @@
 # Dependency Resolution
 
-## Part 7: Aggrega Dependency Resolution & The Structural Topology Pillar
+## Aggrega Dependency Resolution & The Structural Topology Pillar
 
 In the Aggrega architecture, topological dependencies are mapped explicitly via the `uses` schema pillar to maintain a fully opaque `values` payload. Resolving "who talks to whom" presents a unique challenge: we must map complex, multi-node application topologies without forcing the Developer to write explicit network routing, orchestrator-level execution orders, or infrastructure dependencies.
 

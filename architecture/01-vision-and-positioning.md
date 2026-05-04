@@ -2,7 +2,7 @@
 
 This chapter establishes the foundational problem space, the strict anti-goals of the platform, its market positioning, and the overarching philosophies that govern the Aggrega ecosystem.
 
-## Part 1: The Infrastructure Semantic Gap & How Aggrega Bridges It
+## The Infrastructure Semantic Gap & How Aggrega Bridges It
 
 The enterprise cloud landscape is currently constrained by a persistent semantic gap: **traditional Infrastructure-as-Code (IaC) tools manage physical state, but natively lack Application-Layer context.**
 
@@ -65,7 +65,7 @@ graph TD
     style E fill:#bbf,stroke:#333,stroke-width:1px
 ~~~
 
-## Part 2: Platform Boundaries & Anti-Goals (What Aggrega Is Not)
+## Platform Boundaries & Anti-Goals (What Aggrega Is Not)
 
 To maintain architectural purity and prevent scope creep, Aggrega operates under strict, non-negotiable boundaries. The platform is highly opinionated about the problems it solves, and equally protective of what it does not do.
 

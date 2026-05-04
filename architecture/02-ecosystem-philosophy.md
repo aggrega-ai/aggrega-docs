@@ -1,6 +1,6 @@
 # Ecosystem Philosophy
 
-## Part 4: The Ecosystem Philosophy
+## The Ecosystem Philosophy
 
 The Aggrega architecture is guided by core design principles that balance flexibility with predictability. By maintaining clear boundaries and standardized contracts, a fundamentally generic compiler can seamlessly orchestrate everything from standard cloud-native infrastructure to highly specialized AI intelligence.
 

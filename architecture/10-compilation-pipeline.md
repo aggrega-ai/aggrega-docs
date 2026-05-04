@@ -2,7 +2,7 @@
 
 This chapter details the internal physics of the Go engine, defining how abstract YAML is translated into physical configurations via the 5-Step compilation pipeline, the Intermediate Representation (IR) Graph, and WebAssembly (Wasm) execution sockets.
 
-## Part 10: The Compilation Pipeline & Execution Flow
+## The Compilation Pipeline & Execution Flow
 
 Aggrega drops hardcoded orchestration logic in favor of a strict 5-step Ahead-of-Time (AOT) compiler pipeline. Triggered by the **CLI Orchestrator**, the Go engine acts as a high-speed traffic cop, passing the flat graph between isolated WebAssembly (Wasm) sockets to evaluate the architecture before rendering physical artifacts.
 

@@ -1,6 +1,6 @@
 # Day-2 Lifecycles
 
-## Part 16: Day-2 Lifecycles & Temporal Execution
+## Day-2 Lifecycles & Temporal Execution
 
 A target-agnostic Ahead-of-Time (AOT) compiler inherently creates a gap between declarative intent (Day-1) and operational reality (Day-2). The cloud is not perfectly deterministic, deployment requires temporal sequencing, and developers require imperative triggers for maintenance tasks.
 

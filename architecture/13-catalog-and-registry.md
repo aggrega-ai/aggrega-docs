@@ -2,7 +2,7 @@
 
 This chapter defines how the platform scales across the enterprise via the Open Container Initiative (OCI) Catalog, automated bootstrapping factories, and strict WebAssembly (Wasm) plugin guardrails.
 
-## Part 17: The Aggrega Catalog: Registry Taxonomy and Resolution
+## The Aggrega Catalog: Registry Taxonomy and Resolution
 
 The Aggrega compiler relies on a strictly typed, OAM-inspired registry to resolve abstract Developer Intent (Domain 1) into concrete Ops Reality (Domain 3). To support an open, distributed ecosystem while maintaining a seamless developer experience, all schemas, infrastructure bindings, programmable policies, and adapter plugins follow a standardized Open Container Initiative (OCI) URI taxonomy. Because every catalog entity is addressable by URI, the compiler fetches them on demand during compilation. The developer's local workspace contains only their Aggregate and Release files, not a copy of the catalog.
 

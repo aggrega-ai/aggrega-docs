@@ -4,7 +4,7 @@ The conceptual role of the Recipe entity (the Ops-authored translation template 
 
 ## The Recipe Architecture: Pointers and Mappers
 
-A Recipe in Aggrega is no longer a multi-provider mega-template. It serves exactly two functions:
+A Recipe serves exactly two functions:
 
 1. **The Pointer (`source`):** Tells the compiler exactly where the infrastructure code lives.
 2. **The Mapper (`valuesMapping` / `valuesMappingFile` / `valuesMappingJsonnet`):** Injects Aggrega's abstract context into the specific variables the underlying code expects. Ops can author mappings in Go templates (inline or file) for standard use cases, or in Jsonnet for complex transformations where Go template logic becomes unwieldy.

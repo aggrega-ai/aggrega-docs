@@ -1,6 +1,6 @@
 # Data Taxonomy and Composition
 
-## Part 6: The Unified Data Taxonomy & Composition Rules
+## The Unified Data Taxonomy & Composition Rules
 
 To establish a predictable schema and eliminate cognitive friction, the platform utilizes exactly five universally understood keywords and a strictly Map-based (Dictionary) YAML structure, replacing disjointed terminology and deeply nested arrays.
 
@@ -22,7 +22,7 @@ To establish a predictable schema and eliminate cognitive friction, the platform
   * **Meaning:** The physical footprint and mechanical sizing injected during Late Binding (e.g., `cpu_limit: "4"`, `port: 5432`). The Aggregate's `component_instance` / `feature` / `secret` slots do not include an `infra` field and, combined with `additionalProperties: false`, reject `infra` at schema validation. Validated by the Catalog's unified `cueSchema`.
 * **`inject` (The Delivery Contract - Imperative Command)**
   * **Scope:** Used strictly inside explicit target definitions within `uses`, attached `features`, and `secrets`.
-  * **Meaning:** An explicit, imperative command dictating the *intent* of the delivery (e.g., "Compiler, *inject* this mapped value as an environment variable"). It establishes the abstract contract (`env`, `file`, `arg`, or custom mechanisms) for a physical output, a resolved endpoint, or a retrieved credential, while the physical mechanics of exactly *how* that mount is executed are delegated entirely to the underlying Ops Recipe. Supports two equivalent syntaxes: a compact map form (`{ API_HOST: "host" }`) and a verbose array form (`[{ in: API_HOST, from: "host" }]`). Both normalize to `map[string]string` internally. See [topology-triad](../language-reference/vocabulary/topology-triad.md) for the full injection-contract syntax.
+  * **Meaning:** An explicit, imperative command dictating the *intent* of the delivery (e.g., "Compiler, *inject* this mapped value as an environment variable"). It establishes the abstract contract (`env`, `file`, `arg`, or custom mechanisms) for a physical output, a resolved endpoint, or a retrieved credential, while the physical mechanics of exactly *how* that mount is executed are delegated entirely to the underlying Ops Recipe. Supports two equivalent syntaxes: a compact map form (`{ API_HOST: "host" }`) and a verbose array form (`[{ in: API_HOST, from: "host" }]`). Both normalize to `map[string]string` internally.
 * **`.context` (The Generic Metadata Pipe)**
   * **Scope:** Injected silently by the Compiler into the Ops `Recipe` templates.
   * **Meaning:** Contains the universally resolved deployment realities (like `.context.uses`) passed directly to the Ops templating engine.
@@ -80,7 +80,13 @@ components:
 
 ### 4. The Injection Contract & Pre-Resolved Map
 
-The `inject` mechanism is the strict delivery contract mapping data into a target's physical destination. See [topology-triad](../language-reference/vocabulary/topology-triad.md) for the full Injection Contract specification, including dual-state context semantics, compact vs. verbose syntax, key-collision rules, and worked examples.
+Among the five structural keywords, `inject` carries a different shape than its siblings. `parameters`, `values`, `uses`, and `infra` are declarative state — the developer writes facts about what the application is and what it depends on. `inject` is an imperative command — the developer dictates *how* a value should be delivered to the running container, mapping abstract data sources (a target's `provides` keys, the component's own values, a credential Feature's vault response) onto concrete delivery mechanisms (`env`, `file`, `arg`, or a custom mechanism the Component declares).
+
+This decoupling is structural. The Developer's Aggregate says "inject the database host as the environment variable `DB_HOST`" without naming the database's physical address, the secret store's vault path, or the cloud provider's hostname format. The Ops Recipe receives the resolved string through `.context.inject` and consumes it without authoring the lookup chain.
+
+**The Pre-Resolved Map.** During Step 5 of the compilation pipeline, the compiler resolves every inject source — self-inject literals and `from:` references against the component's own `provides`, cross-component references through `uses[].inject`, FeatureRecipe `injectMapping` interceptions — into a single flattened dictionary at `.context.inject`. By the time the base Recipe's `valuesMapping` template runs, every inject key carries its final string value. Recipes iterate the map directly (`{{ range $k, $v := .context.inject.env }}`) without walking the resolution chain.
+
+The full Injection Contract specification — dual-state context semantics, key-collision rules, the FeatureRecipe interception model, and worked examples — lives in [topology-triad](../language-reference/vocabulary/topology-triad.md).
 
 ### 5. The Templating Engine (Ops DX)
 
