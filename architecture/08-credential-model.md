@@ -33,7 +33,7 @@ The golden use case for Developer Experience is running `aggrega build` locally 
 
 ### 6. The Two-Part Secret Pipeline (Maximizing Reusability)
 
-See [Credential Features worked example](../language-reference/examples/05-credential-features.md) for the full Two-Part Plugin Principle with Fetcher / Injector plugin orchestration and concrete JSON input/output handshake.
+See [Credential Features worked example](../language-reference/examples/04-secrets.md) (Example 11) for the full Two-Part Plugin Principle with Fetcher / Injector plugin orchestration and concrete JSON input/output handshake.
 
 ### 7. The Runtime Templating Polyfill (The "Substring" Trap)
 A fundamental law of an Ahead-of-Time (AOT) compiler is that it cannot format strings containing data generated at runtime.
@@ -43,7 +43,7 @@ A fundamental law of an Ahead-of-Time (AOT) compiler is that it cannot format st
 **The Native Ops Solution (Cluster-Side Rendering):**
 To solve this without breaking the AOT compiler's blindness to live secrets, Platform Ops must handle the substring formatting natively inside the target cluster.
 
-If an application demands a single formatted DSN string, the Ops `SecretRecipe` Wasm plugin generates configuration utilizing the native templating capabilities of the cluster's vault operator (e.g., the Kubernetes External Secrets Operator's `template` block).
+If an application demands a single formatted DSN string, the Ops credential FeatureRecipe (a `FeatureRecipe` carrying the `feature.aggrega.ai/kind: secret` label) Wasm plugin generates configuration utilizing the native templating capabilities of the cluster's vault operator (e.g., the Kubernetes External Secrets Operator's `template` block).
 
 ```json
 // The Wasm plugin emits an ExternalSecret CRD utilizing runtime templating

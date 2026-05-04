@@ -30,11 +30,9 @@ graph LR
     subgraph D2 ["Domain 2: Platform Catalog"]
         P2["Platform Architect"]:::role
         CC["Component<br/>The Compute Interface"]:::baseNode
-        CapC["Feature<br/>The Operational Trait"]:::baseNode
-        SS["SecretStore<br/>The Credential Interface"]:::baseNode
+        CapC["Feature<br/>The Operational Trait<br/>(plus Credential Features<br/>via feature.aggrega.ai/kind: secret label)"]:::baseNode
         P2 ~~~ CC
         CC ~~~ CapC
-        CapC ~~~ SS
     end
 
     subgraph D4 ["Domain 4: Routing & Policy"]
@@ -48,30 +46,25 @@ graph LR
     subgraph D3 ["Domain 3: Infrastructure Base"]
         P3["Infrastructure Engineer / Ops"]:::role
         CD["Recipe<br/>The Implementation"]:::baseNode
-        CapD["FeatureRecipe<br/>The Wasm Plugin"]:::baseNode
-        SR["SecretRecipe<br/>The Credential Plugin"]:::baseNode
+        CapD["FeatureRecipe<br/>The Wasm Plugin<br/>(operational + credential)"]:::baseNode
         T["Provider<br/>Wasm Rendering Plugin"]:::baseNode
         P3 ~~~ CD
         CD ~~~ CapD
-        CapD ~~~ SR
-        SR ~~~ T
+        CapD ~~~ T
     end
 
     %% Logical Flow Connections
     A -.->|"Requests"| CC
-    A -.->|"Attaches"| CapC
-    A -.->|"Maps Credentials"| SS
+    A -.->|"Attaches (features +<br/>credential features in secrets:)"| CapC
     A -->|"Binds via"| EB
 
     CC -.->|"Resolved to"| CD
     CapC -.->|"Resolved to"| CapD
-    SS -.->|"Resolved to"| SR
 
     EB -->|"Uses"| ENV
     
     ENV -->|"Resolves Interfaces to"| CD
     ENV -->|"Resolves Interfaces to"| CapD
-    ENV -->|"Resolves Interfaces to"| SR
     
     EB -->|"Ships via"| T
 

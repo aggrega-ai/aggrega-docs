@@ -2,7 +2,7 @@
 
 This chapter defines the semantic grammar, the structural primitives, and the domain-driven boundaries required to author an Aggrega architecture.
 
-To prevent the platform from collapsing into a convoluted "DevOps overlap" where developers are forced to write infrastructure, Aggrega's 10-entity taxonomy is mapped directly to the industry-standard **Team Topologies** framework.
+To prevent the platform from collapsing into a convoluted "DevOps overlap" where developers are forced to write infrastructure, Aggrega's 8-entity taxonomy is mapped directly to the industry-standard **Team Topologies** framework.
 
 The system explicitly serves distinct functional personas across 4 Domains. By separating the cognitive load of application development from the mechanics of cloud architecture, the burden of governance is shifted securely to the Platform Catalog. This formalizes the boundary between the teams building the applications and the teams building the platform, while establishing a dedicated Credential Pillar that treats secrets as first-class citizens.
 

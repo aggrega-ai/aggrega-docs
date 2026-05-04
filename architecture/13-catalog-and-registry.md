@@ -221,7 +221,23 @@ The `catalog_dirs` list supports monorepo setups where a shared catalog lives in
 
 *(Note: `aggrega pull` lockfile mechanics — pinning exact resolved versions and checksums for reproducible builds — are deferred to implementation analysis.)*
 
-### 5. Artifact Packaging & The OCI Taxonomy (Provider as Namespace)
+### 5. The Three-Tier Entity Resolution Model
+
+The compiler resolves every entity reference encountered during compilation through a strict cascading lookup. The three tiers correspond to three authoring workflows that coexist in a healthy Aggrega project: an author iterating on an entity locally, a team consuming a checked-in catalog plus previously-pulled cache, and a production build reaching the registry for an unfetched artifact. The same cascade evaluates `type` fields in Aggregates, URI values in Manifest mappings, `implements` declarations on Recipes and FeatureRecipes, and `plugin` references inside FeatureRecipe pipelines.
+
+**Tier 1 — Explicit local path.** A reference beginning with `./` or `../` (a POSIX relative-path prefix) is read directly from disk relative to the authoring file. No catalog lookup, no registry call. The explicit prefix disambiguates local-path intent from type-name lookup at the syntactic level: an Aggregate writing `type: core/api-server:1.0.0` is unambiguously a type reference; `type: ./local-api-variant` is unambiguously a local file. The resolver never sniffs string content to decide which tier applies — the prefix is the discriminator.
+
+**Tier 2 — Workspace and cache.** A reference without an explicit local-path prefix is searched first against the directories listed in `workspace.catalog_dirs` (project-local catalog trees authored or vendored into the repository — see §4 for the configuration shape) and then against `workspace.cache_dir` (the gitignored `.aggrega/oci-cache/` location holding artifacts pulled from prior Tier 3 resolutions). The cache hit on second-and-subsequent builds is what keeps the inner loop network-free even when the project depends on remote catalog content.
+
+**Tier 3 — Remote OCI registry.** If Tier 2 returns no match, the resolver issues an ORAS-based OCI pull against `workspace.default_registry` (default `hub.aggrega.ai`), unpacks the artifact into the cache for subsequent builds, and continues with the resolved entity. The OCI URI form the registry call constructs follows the entity-type taxonomy described in §6 (Artifact Packaging & OCI Taxonomy). Shorthand URIs in Aggregates and Manifests are expanded into their full OCI form before the Tier 3 call; the inference rules driving that expansion live at the Manifest's [Context-Aware Shorthand URIs](../language-reference/entities/manifest.md) reference and §8 below.
+
+**Precedence and shadowing.** Resolution precedence is strictly Tier 1 > Tier 2 > Tier 3. A local file with the same name as a registry entity shadows the registry entity — this is intentional and lets catalog authors experiment with modifications before publishing. The same shadowing applies between `catalog_dirs` and the cache: an entity present in a workspace catalog directory is preferred over a cached copy, ensuring local edits to a vendored catalog take effect immediately.
+
+**Air-gapped builds.** Setting `workspace.offline: true` (§4) skips Tier 3 entirely. A reference that fails to resolve in Tier 1 or Tier 2 surfaces a missing-entity error rather than silently attempting a network call, which gives CI pipelines that legally cannot reach the network a deterministic fail-fast contract.
+
+**Where the cascade operates.** The cascade fetches the entity into memory; further resolution mechanics layered on top — the Manifest's two-tier `type` vs `name` lookup, the `implements` three-form version matching (exact / major-compatible range / unversioned) at [vocabulary/inheritance-and-interface](../language-reference/vocabulary/inheritance-and-interface.md), and the per-axis Recipe selection by provider and component instance — operate on entities the resolver has already pulled through this cascade.
+
+### 6. Artifact Packaging & The OCI Taxonomy (Provider as Namespace)
 
 Aggrega treats infrastructure logic the same way Docker treats container images, utilizing Open Container Initiative (OCI) standards via ORAS (OCI Registry As Storage). Users can host their Aggrega catalog on any standard registry (GHCR, AWS ECR, Aggrega Hub).
 
@@ -246,11 +262,11 @@ Recipes utilize the `implements` keyword to bind to the interface they fulfill. 
 
 When an Ops engineer runs `aggrega push`, the CLI bundles the entity YAML and its associated source files into an immutable `.tar.gz` package. The compiler downloads this tarball via the Three-Tier Resolution Model, extracts it, and caches it in `.aggrega/oci-cache/` locally.
 
-### 6. The Recipe Architecture: Pointers and Mappers
+### 7. The Recipe Architecture: Pointers and Mappers
 
 See [entities/recipe](../language-reference/entities/recipe.md) for the complete Recipe authoring surface — source (pointer), valuesMapping / valuesMappingFile / valuesMappingJsonnet (mapper), Wasm-driven source schemas, native IaC support, Jsonnet evaluation mechanics, and worked examples.
 
-### 7. The Default Registry & Context-Aware Shorthand URIs
+### 8. The Default Registry & Context-Aware Shorthand URIs
 
 To eliminate YAML bloat, the compiler resolves shorthand URIs context-aware against the schema position in which they appear. The default registry is configured in `aggrega.yaml` (defaulting to `hub.aggrega.ai`).
 
