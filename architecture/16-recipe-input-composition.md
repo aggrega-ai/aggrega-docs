@@ -290,7 +290,7 @@ Providers translate each intent to their native shape:
 | `tcp: <port>` | `tcpSocket.port: <port>` | `CMD-SHELL "nc -z localhost <port>"` |
 | `exec: [cmd]` | `exec.command: [cmd]` | `CMD [cmd]` |
 
-Port resolution for `http:` without explicit port: uses the first named port in `containers.<name>.ports` alphabetically by author order. If no ports are declared, the Recipe fails validation.
+Port resolution for `http:` without explicit port: uses the first named port in `containers.<name>.ports` by author order. If no ports are declared, the Recipe fails validation.
 
 Compose degrades HTTP/TCP probes to healthcheck shell commands; this is noted as a warning comment in the generated `docker-compose.yaml`.
 

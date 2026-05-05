@@ -100,6 +100,20 @@ The current emit shape is the **short-form list**: `depends_on: [<service-name>]
 
 ## Sourced mode
 
+The compose engine accepts `source:` as a **bare filesystem path string only**. The path is interpreted relative to the compile invocation's working directory and must point at a docker-compose YAML file that the provider can read and parse.
+
+```yaml
+spec:
+  provider: compose
+  source: ./docker-compose.base.yaml     # filesystem path to the base compose file
+  valuesMapping: |
+    services:
+      api:
+        image: "{{ .values.image }}"
+```
+
+Structured source objects (e.g. `source: { repo: ..., chart: ..., version: ... }`) are reserved for a future registry-integration intent and are rejected today. A Recipe targeting a remote compose fragment must vendor it locally and point `source:` at the vendored copy.
+
 A Recipe with `source: <path-to-compose-file>` and `valuesMapping:` runs the following pipeline:
 
 1. The base compose file at `<path>` is read and parsed as YAML.

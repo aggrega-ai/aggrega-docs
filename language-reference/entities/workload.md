@@ -125,7 +125,9 @@ health:
     periodSeconds: 10
 ```
 
-Three intent forms (`http:`, `tcp:`, `exec:`) are mutually exclusive within a single probe declaration. Port resolution for `http:` without an explicit port uses the first named port in `containers.<name>.ports` alphabetically by author order; if no ports are declared on the container, the compiler reports a validation error.
+Three intent forms (`http:`, `tcp:`, `exec:`) are mutually exclusive within a single probe declaration. Port resolution for `http:` without an explicit port uses the first named port in `containers.<name>.ports` by author order; if no ports are declared on the container, the compiler reports a validation error.
+
+**Provider-specific note (compose).** Authoring a `health:` block on a compose-targeted Workload does not gate `depends_on` ordering on health: the compose provider's `depends_on` entries derived from `uses:` edges always use `service_started` semantics, regardless of whether the target Workload declares health probes. Long-form `service_healthy` gating is reserved for a future intent. See [providers/compose.md](../providers/compose.md) for the full inference rules.
 
 ## Secrets integration with the Component's `secretsSchema`
 

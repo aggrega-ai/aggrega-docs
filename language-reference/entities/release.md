@@ -82,6 +82,8 @@ spec:
 
 Annotations cascaded by this mechanism surface in downstream Recipe templates via `.context.annotations.release`; see [Recipe authoring](recipe.md) and the [Template Expansion Matrix](../templates/expansion-matrix.md) for how renderers consume them.
 
+**Well-known annotations.** Beyond ad-hoc keys, the Aggrega standard library defines a set of well-known annotations under the `aggrega.ai/` and `feature.aggrega.ai/` namespaces, grouped into placement, networking, security, and observability categories. Authors adding annotations to a Release boundary should consult [providers/well-known-annotations.md](../providers/well-known-annotations.md) for the full matrix plus per-provider consumption rules — the page documents which providers honour each well-known key and what behaviour they emit when the key is present.
+
 ## Temporal Sequencing
 
 The optional `syncWaves` dictionary maps component IDs to integer deployment stages, giving Ops explicit control over deployment order without touching the Developer's Aggregate. See [architecture/12-day-two-lifecycles.md §1](../../architecture/12-day-two-lifecycles.md) for the full syncWaves mechanism and downstream GitOps annotation emission.

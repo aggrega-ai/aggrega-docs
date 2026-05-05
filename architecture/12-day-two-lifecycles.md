@@ -48,7 +48,7 @@ Aggrega solves this by leveraging the existing `inject` mechanism, shifting the 
 * **Example 2: The Input Injection (Kubernetes App)**
   The Developer writes `inject: { env: { DB_URL: "host" } }`. During compilation, Aggrega maps the deterministic pointer string (`"/aggrega/prod/db-url"`) through the IR graph edges. The Wasm rendering plugin for the worker application translates this edge into a generated Kubernetes `ExternalSecret` configuration and a Pod environment variable mapped to `valueFrom: secretKeyRef`.
 
-At runtime, Terraform provisions the DB and saves the URL to the vault. The container boots up, reads the vault, and connects flawlessly. The AOT compiler generated the relationships seamlessly without ever needing the literal IP address.
+At runtime, Terraform provisions the DB and saves the URL to the vault. The container boots up, reads the vault, and connects flawlessly. The AOT compiler generated the relationships via stable pointer strings without ever needing the literal IP address.
 
 ### 3. Imperative Actions (The Executable Handoff)
 
@@ -81,7 +81,7 @@ Because the IR Graph contains the complete topology and the `Release` contains t
 
 ### 6. The "Brownfield" Import Lifecycle
 
-**The Problem:** Enterprises already have most of their infrastructure running. While Aggrega seamlessly generates configurations to connect to unmanaged infrastructure via Wasm formatter stubs (pass-through networking), shifting an *existing* Oracle database into Aggrega's generated Terraform state typically causes orchestrators to attempt to *recreate* the database, destroying the existing data.
+**The Problem:** Enterprises already have most of their infrastructure running. While Aggrega generates configurations to connect to unmanaged infrastructure via Wasm formatter stubs (pass-through networking), shifting an *existing* Oracle database into Aggrega's generated Terraform state typically causes orchestrators to attempt to *recreate* the database, destroying the existing data.
 
 **The Solution (Future Implementation):**
 Aggrega will introduce the `core/resource-adoption` feature to manage the import lifecycle.
@@ -95,7 +95,7 @@ While the core compiler relies on stable, internal node IDs (e.g., `support-db`)
 If a Platform Ops engineer hardcodes a physical name in their baseline template (e.g., `bucket_name: "enterprise-data-bucket"`), the generated artifacts will deploy flawlessly the first time. However, if a developer deploys a second environment (e.g., `staging` vs `prod`), the cloud provider will reject the deployment at runtime due to a naming collision.
 
 **The Deterministic Output Rule (GitOps Safety):**
-Because GitOps controllers (ArgoCD, Flux) perform byte-level diff detection on rendered artifacts, the compiler guarantees that identical inputs produce byte-identical outputs. The Go compiler pre-sorts all map keys before injecting them into the template context, ensuring that `{{ range }}` over maps like `.context.inject.env` always produces arrays in alphabetical key order. Ops engineers should never rely on a specific iteration order, but they can rely on the output being *stable*. If Ops engineers use the Sprig `keys` function in templates, they must pipe it through `sortAlpha` (e.g., `{{ keys .values | sortAlpha }}`) to preserve determinism.
+Because GitOps controllers (ArgoCD, Flux) perform byte-level diff detection on rendered artifacts, the compiler guarantees that identical inputs produce byte-identical outputs. Maps that flow through the template context (`.context.inject.env`, `.values`, `.infra`, and the rest of the runtime view) are backed by ordered-map structures that preserve author insertion order across the data layer; `{{ range }}` over those maps iterates in author order, not in alphabetical order. Ops engineers can rely on iteration order being deterministic across runs of the same input. The Sprig `keys` function, however, returns Go-map iteration order (which is non-deterministic by language design); templates that compose a deterministic key sequence from `keys` output must pipe through `sortAlpha` (e.g., `{{ keys .values | sortAlpha }}`) to recover determinism.
 
 **The Golden Rule for Ops Recipes (The Helm Pattern):**
 Platform Ops engineers must **never** hardcode physical cloud resource names. Instead, they must construct deterministically unique names by concatenating the Aggrega deployment context during the template evaluation phase. This is a **reusability and collision-safety rule**, not a determinism rule — hardcoded names produce stable output but fatally collide when the same Recipe renders multiple component instances or when the same Aggregate deploys across multiple Releases.
