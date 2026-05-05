@@ -23,6 +23,31 @@ Resolution precedence is exact → major-compatible range → unversioned. When 
 
 The `implements:` binding is the mechanism that makes "the same Component type, different Recipes for different providers" work: a `core/postgres` Component can have one Recipe implementing it for the `helm` provider and a different Recipe implementing it for the `terraform` provider. Each Recipe declares the same `implements:` value; the Manifest's provider-axis grouping routes the request to the correct Recipe at build time.
 
+## Cross-entity version consumption
+
+The 'Resolution precedence' framing in the section above describes the design target; the table below describes what the resolver matches against today.
+
+All eight Aggrega entities (Component, Feature, Aggregate, Recipe, FeatureRecipe, Manifest, Release, Provider) share a uniform `metadata.version` field validated against the same SemVer regex (`MAJOR.MINOR.PATCH` per [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md) §3). Versions are uniform in *shape*; the *consumption* of versions varies per entity kind. Some versions actively participate in resolution; others are descriptive provenance the compiler does not match against. The summary below names what the compiler does with each entity's version field today, and uses the four-label status taxonomy from [`10-status.md`](../10-status.md) to classify each consumption regime.
+
+| Entity | Consumption regime | Status today |
+| --- | --- | --- |
+| Component | Recipe `implements:` matching | `available` for verbatim string match; precedence iteration `planned` (see [Status → Version matching](../10-status.md#version-matching)) |
+| Feature | FeatureRecipe `implements:` matching | Same as Component |
+| Recipe | Manifest mapping tier resolution | `accepted but inert` |
+| FeatureRecipe | Manifest mapping tier resolution | Same as Recipe |
+| Aggregate | Parent `aggregates[].type` URI matching | `available` for verbatim string match against catalog `metadata.name`; no version-segment parsing |
+| Provider | `recipe.spec.provider` engine factory dispatch | `available` for bare-name dispatch only; version-pinning `accepted but inert` |
+| Manifest | Provenance label emission | `available` (consumed only at `internal/compiler/ir/provenance.go`; no role in resolution dispatch) |
+| Release | Provenance label emission + template metadata (`release_version`) | Same as Manifest |
+
+**Catalog-resolution regimes (Component, Feature, Aggregate, Provider).** The `available` label on these rows describes what the catalog lookup actually performs today: the catalog package indexes Recipes by their `spec.implements` literal string and looks them up by the Aggregate's `components[].type` URI as a literal string; FeatureRecipes mirror the same shape. Aggregate sub-aggregate imports look up by `aggregates[].type` against the catalog Aggregate's `metadata.name` — also a literal string match. Provider engine dispatch reads `recipe.spec.provider` (a bare name like `helm`) and looks up the registered engine by that bare name. In every case, **both sides must match verbatim**: a versioned `type:` URI does not match an unversioned `implements:` value, and an unversioned `aggregates[].type` does not match a versioned catalog `metadata.name`. Authors who want a Recipe to apply across versions of a Component declare the Component instance with the same form (versioned or unversioned) the Recipe used; mixed-form matching is the precedence iteration that ships with the caret form.
+
+**Manifest mapping tier resolution.** The Manifest's `mappings.<provider>.{components,features}` two-tier resolution mechanism (with `name` and `type` tiers, name-wins-over-type, and versioned-type wins over unversioned-type) is documented at [`entities/manifest.md`](../entities/manifest.md). The struct shape and schema accept the mappings; the resolver and renderer do not consume them today. Recipe selection runs through the catalog's `spec.implements` index as described above, bypassing the Manifest mapping tiers entirely. The mapping shape is reserved for the future when the resolver consults Manifest mappings to disambiguate per-provider Recipe selection (e.g., one Recipe for helm, another for terraform implementing the same Component); today the per-provider distinction is carried by the Recipe's own `provider:` field at engine dispatch. See the observation referenced below for the implementation gap.
+
+**Descriptive-provenance regimes (Manifest, Release).** Manifest `metadata.version` and Release `metadata.version` are read at [`internal/compiler/ir/provenance.go`](../../../aggrega-cli/internal/compiler/ir/provenance.go) for provenance struct population and downstream label emission (e.g., `aggrega.ai/release-version` on rendered Kubernetes manifests). Templates also see Release version exposed as `.metadata.release_version`. Neither version is matched against any other entity's version for resolution dispatch; these are pure provenance.
+
+**Reading the table.** The four-label classification distinguishes "the version field is accepted by the schema and exists on the entity" (always true — uniform SemVer regex) from "the compiler matches against this version during resolution" (varies per entity). When the precedence-iteration extension and Manifest mapping tier consumption ship in their respective future releases, this table's labels update to `available` accordingly; until then, the table reflects what the resolver does today rather than what the architectural design promises.
+
 ## CUE Inheritance: Bridging Intent to Infrastructure
 
 Aggrega expresses a strong Separation of Concerns between Domain 1 and Domain 4: Developers write cognitive logic in the `values` block, while Ops Engineers dictate physical sizing in the `infra` block. The `Aggregate.yaml` schema enforces one concrete corollary: the `infra` keyword is absent from the Aggregate's `component_instance` / `feature` / `secret` slots and, combined with `additionalProperties: false`, is rejected by schema validation. Developers should not dictate physical sizing inside Developer Intent; when a specific value fits the application's case (e.g., a hardcoded port or a specific CPU number), the Architect may expose it explicitly in the Component's CUE schema and the value flows through `values`.
