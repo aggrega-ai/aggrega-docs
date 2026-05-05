@@ -104,6 +104,8 @@ The Aggrega compiler utilizes **Context-Aware Inference** when resolving OCI URI
 # Compiler resolves via Tier 2 local catalog, or Tier 3: hub.aggrega.ai/recipe/helm/postgres-bitnami:2.0
 ```
 
+**Legacy `ops/` prefix.** Older catalog conventions placed an `ops/` prefix before Recipe names. This prefix is no longer used — the `recipe/` entity type directory in the OCI taxonomy already identifies the domain, and Recipes ship under `recipe/{provider}/{name}` without additional prefixing. Manifests should reference Recipes by `{provider}/{name}` (or via the bare shorthand for context-aware inference). See [architecture/13-catalog-and-registry.md](../../architecture/13-catalog-and-registry.md) §6 for the full OCI taxonomy.
+
 ## Annotation-Driven Feature Bindings
 
 The Manifest's per-provider `features.annotations` block declares bindings between annotation keys and Feature types plus `infra` CUE schemas. The binding is the authoring surface for compressing repetitive per-component Feature attachments — the pattern where dozens of components across a boundary each carry an identical `features:` block — into single annotation declarations on Release boundaries or Aggregate subsystems.

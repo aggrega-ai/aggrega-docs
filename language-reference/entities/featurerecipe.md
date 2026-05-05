@@ -79,9 +79,6 @@ injectMapping: |
   {{ $ns := "" }}
   {{ if and .infra.namespace_annotation $target_edge }}
     {{ $ns = index $target_edge.annotations.release .infra.namespace_annotation }}
-    {{ if not $ns }}
-      {{ warn (printf "Routing Warning: Target missing annotation %s" .infra.namespace_annotation) }}
-    {{ end }}
   {{ end }}
 
   # 4. Formulate the FQDN safely (fall back to the base host if no namespace exists)
