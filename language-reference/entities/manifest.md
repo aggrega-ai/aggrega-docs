@@ -70,6 +70,56 @@ spec:
 
 **Completeness check.** After all resolution is complete, the compiler verifies that every component and feature instance (including credential Features from the `secrets:` block) in the Aggregate has a resolved Recipe or FeatureRecipe. Unmapped entities cause a fatal halt with an explicit diagnostic listing every missing entity and suggesting which `type` or `name` key to add to close the gap.
 
+### All three sub-mechanisms in one Manifest
+
+The Manifest's per-provider `features.annotations` block sits alongside the `components.{type,name}` and `features.{type,name}` tiers. The three sub-mechanisms cover related ground but serve distinct authoring intents — `components.{type,name}` for component-instance Recipe binding, `features.{type,name}` for explicit Feature attachment Recipe binding, and `features.annotations` for annotation-driven Feature attachment expansion (when the expansion pass ships). The example below shows all three in one Manifest:
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: production-manifest
+  version: 1.0.0
+spec:
+  mappings:
+    helm:
+      components:
+        type:
+          # Bulk DRY: every Component of these types resolves to the named Recipe
+          "core/python-worker": "standard-python-worker:2.0.0"
+          "core/postgres": "postgres-bitnami:1.2.0"
+        name:
+          # Granular override: this specific instance uses a non-standard Recipe
+          "legacy-billing-agent": "custom/legacy-worker:3.0.0"
+
+      features:
+        type:
+          # Operational Feature → FeatureRecipe binding
+          "core/data-masking": "lakera-guard-istio:1.2.0"
+          # Credential Feature → FeatureRecipe binding (same tier as operational; no separate `secrets:` section)
+          "core/aws-secrets-manager": "eso-aws-fetcher:1.0.0"
+        name:
+          # Granular override: a specific Feature instance uses a different FeatureRecipe
+          "billing-pii-guard": "lakera-guard-strict:1.0.0"
+
+        annotations:
+          # Annotation-driven Feature expansion — `accepted but inert` per Status page
+          # When the expansion pass ships, this binds the annotation key to a Feature type
+          # so that any boundary or component declaring the annotation gets the Feature
+          # synthesised onto it without an explicit `features:` block.
+          feature.aggrega.ai/tls-pinning:
+            feature: core/tls-pinning
+            infra:
+              min_version: string
+              enforce: bool | *true
+```
+
+The three sub-mechanisms accumulate per provider — a single provider section (`helm` here) can declare any combination of the three, and the resolver applies them in the order: `components.{type,name}` for Component → Recipe binding; `features.{type,name}` for explicit Feature → FeatureRecipe binding; `features.annotations` for annotation-expansion (gated on the expansion pass shipping).
+
+The annotation-expansion sub-mechanism is currently **`accepted but inert`** — the schema accepts and parses the bindings; the compiler pass that synthesises per-component Feature attachments from matching annotations is not yet wired into the build pipeline. Manifests may author annotation bindings against this schema today; the attachment expansion will engage when the pass ships. Today's behaviour: annotation bindings are parsed without effect on rendered output. See [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases) for the current readiness state.
+
+The two-tier resolution (`type` tier + `name` tier with name-wins-over-type and versioned-type wins over unversioned-type) and the resolver's consumption of these mappings is itself part of the broader Manifest mapping framing. The struct shape and schema accept the mappings; the resolver's consumption pattern across the tiers is its own current readiness question, separate from the annotation-expansion gating.
+
 ## Composition via `extends`
 
 A Manifest may declare a single `extends:` URI pointing to a base Manifest whose `mappings` it inherits. Child mappings overwrite the base on key collision, supporting environment-overlay patterns (staging/prod parity with surgical per-environment diffs) and local-development patterns without full-copy authoring.
