@@ -61,8 +61,11 @@ Every location in the DSL where Go template expressions are evaluated, and exact
 | 9 | FeatureRecipe `injectMapping` | FeatureRecipe | Step 5 Phase A | **Full TemplateContext:** `.values`, `.infra`, `.context.*` (including `.context.inject` — the pipe being intercepted — and `.context.uses`). |
 | 10 | FeatureRecipe `valuesMapping` | FeatureRecipe | Step 5 Phase B | **Full TemplateContext** + `.secret_name`, `.inject` (for credential FeatureRecipes implementing Features labeled `feature.aggrega.ai/kind: secret`). |
 | 11 | Pipeline `with:` blocks | Recipe / FeatureRecipe | Step 5 Phase C | **Full TemplateContext** + `.steps` (inter-step outputs from preceding pipeline steps). |
+| 12 | Recipe `workload` / `workloadFrom` body (every templated field inside) | Recipe | Step 5 Phase B | **Full TemplateContext.** Every field inside the Workload body — `replicas`, `containers.<name>.image`, `containers.<name>.variables.<KEY>`, `containers.<name>.ports.<port>`, `services.<name>.ports.<port>`, `volumes.<name>.*`, `health.*` — is part of the same template evaluation pass that consumes the entire Workload string. The Workload content is a single Go template evaluated once against the full TemplateContext; field-level templates inside resolve in the same evaluation rather than in a sub-pass. |
 
 **Self-containment note.** Recipe `source` strings (#5) share the `provides` self-containment invariant (#6): both surfaces reject `.context.inject` and `.context.uses` references. Source resolution runs in Phase B.0 — before the Pass-2 inject hydration that populates `.context.inject` and before downstream sub-passes consume the resolved source — so the rule and its rationale carry across both surfaces.
+
+**Workload-body templating note (#12).** The Workload body is one templated string that the renderer evaluates as a whole, then parses the result as a Workload document. Field-level templates inside (a `replicas: {{ .infra.replicas | default 1 }}` here, a `LOG_LEVEL: "{{ .values.log_level }}"` inside `containers.app.variables` there) are not separate template-evaluation sites — they all participate in the single Phase B pass that produces the Workload. Authors do not need a separate availability rule for Workload-internal fields; the rule for Workload as a whole (#12) covers every field-level template inside.
 
 ### 3. Forbidden References & Rationale
 
