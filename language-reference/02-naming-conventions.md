@@ -51,6 +51,79 @@ The DSL separates developer-facing YAML (authored by humans) from internal compi
 
 Developers do not encounter snake_case in their authored YAML, and template authors do not encounter camelCase in their Go templates. Schema additions follow these conventions.
 
+### Three casings crossing in one statement
+
+Recipe authoring routinely crosses all three casing conventions in a single statement: the schema-defined DSL field uses **camelCase**, the user-authored instance name uses **kebab-case** or **snake_case**, and the template-context reference uses **snake_case**. Authors who notice the crossings as separate conventions read the resulting YAML cleanly; authors who try to rationalise the casings as one convention struggle with the boundaries.
+
+The canonical worked example: a Recipe's `valuesMapping:` template referencing the rendered Component instance via the template context.
+
+```yaml
+# Recipe authored against a Component the developer instantiated as "web-server"
+# (kebab-case instance name) in their Aggregate.
+spec:
+  valuesMapping: |        # camelCase — schema-defined DSL field
+    name: "{{ .context.instance_id }}"   # snake_case — template context
+                                         #   internal contract
+    image: "{{ .values.image }}"         # snake_case — template context
+                                         #   internal contract
+```
+
+Three casings, one statement:
+
+* `valuesMapping` — **camelCase**. The DSL field name the schema defines for the Recipe's mapping template. Camel because the language's developer-facing YAML follows Kubernetes API conventions.
+* `web-server` (referenced indirectly via the rendered component) — **kebab-case**. The user-authored instance name in the Aggregate; the developer chose the hyphenated form. Could equally be `web_server` (snake_case); both are valid per the instance-name pattern.
+* `instance_id`, `image` — **snake_case**. Field names inside the template context (`.context.instance_id`, `.values.image`). Snake because the IR Graph and template context follow JSON-API conventions and align with Go's JSON struct tag generation.
+
+The three casings are not interchangeable. A Recipe author who writes `{{ .context.instanceId }}` (camelCase) gets a missing-template-key error because the template context uses snake_case; a developer who writes `web.server` (with a dot) hits the instance-name pattern rejection because the dot is reserved as the path separator. The discipline target: hold the three conventions in mind when reading or authoring; rely on the boundaries (where you are in the YAML or template) to know which casing applies.
+
+## Document-path naming-suffix discipline
+
+A subset of fields across the language carry document-path values — strings that point at a position inside another document (a rendered Workload's volumes section, a Component's secretsSchema entry, a Manifest's mappings tier). The values follow [RFC 6901 JSON Pointer](https://datatracker.ietf.org/doc/html/rfc6901) syntax — slash-separated tokens identifying the path through the target document.
+
+**RFC 6901 is the path-grammar baseline for every document-path surface in Aggrega.** The Wasm plugin contract consumes RFC 6901 patches (per [`wasm/plugin-contract.md`](wasm/plugin-contract.md) `mutator.wasm` JSONPatch output); the URI grammar's format-string inventory names RFC 6901 alongside Go template syntax and Sprig helpers (per [`vocabulary/uri-grammar.md`](vocabulary/uri-grammar.md) "Format-string inventory"); the per-Recipe `.locals` exports use RFC 6901 to point at synthesised-Workload positions Wasm Injector plugins read at Phase C. One grammar, multiple consuming surfaces.
+
+**The naming-suffix discipline** distinguishes the two authoring sides of these path values via a deliberate suffix split aligned with the broader Field Casing section above:
+
+* **Schema fields** carrying RFC 6901 JSON Pointers use **camelCase `*Path`** suffix. The fields are part of the developer-facing YAML schema, so they follow the camelCase convention. Examples:
+  * `componentRefPath` — a schema-defined field referencing a target component's path inside the IR Graph.
+  * `targetPath` — a schema-defined field naming the path the Wasm Injector should patch.
+* **`.locals` export keys** carrying RFC 6901 JSON Pointers use **snake_case `*_path`** suffix. The keys are part of the Recipe's internal export surface (consumed by Wasm plugin pipelines reading `.context.uses[].locals` or by the Recipe's own subsequent templates), so they follow the snake_case convention. Examples:
+  * `volumes_path` — `.locals.volumes_path: "/spec/template/spec/volumes"` exposing the synthesised Workload's volumes-array position.
+  * `containers_path` — `.locals.containers_path: "/spec/template/spec/containers"` exposing the containers-array position.
+  * `resource_path` — `.locals.resource_path: "/resource/aws_s3_bucket/main"` exposing a Terraform-native resource path.
+  * `root_path` — `.locals.root_path: "/data"` exposing the root path the renderer's pipe consumes.
+
+The two suffix conventions reflect the Field Casing section's two-tier convention: schema-defined fields use camelCase; user-authored or Recipe-private identifiers use snake_case (or kebab-case). The `*Path` / `*_path` suffix discipline makes the path-grammar nature of the value visible at the identifier level — readers seeing either suffix know the value follows RFC 6901 syntax without having to inspect the value itself.
+
+**Worked example: a Wasm Injector consuming a Recipe's `*_path` exports.**
+
+```yaml
+# Recipe (Domain 3) — declares .locals exports the Wasm Injector consumes
+spec:
+  locals:
+    primary_compute: "worker-container"
+    containers_path: "/spec/template/spec/containers"
+    volumes_path: "/spec/template/spec/volumes"
+```
+
+```yaml
+# Credential FeatureRecipe (Domain 3) — declares an Injector pipeline step
+# that reads the Recipe's .locals via .context.uses[].locals
+spec:
+  pipeline:
+    - id: workload_injector
+      plugin: mutator/k8s-workload-injector:2.0.0
+      function: inject_secret
+      with: |
+        target_container: "{{ .context.uses[0].locals.primary_compute }}"
+        containers_path: "{{ .context.uses[0].locals.containers_path }}"
+        volumes_path: "{{ .context.uses[0].locals.volumes_path }}"
+```
+
+The `*_path` keys are Recipe-private exports; the `containers_path` / `volumes_path` values are RFC 6901 JSON Pointer strings. The Injector plugin consumes the strings to position its JSONPatch output against the rendered Workload's AST.
+
+For the broader format-string inventory (Go template syntax, Sprig functions, CUE syntax, JSON Pointer alongside SemVer regex and label selector grammar), see [`vocabulary/uri-grammar.md`](vocabulary/uri-grammar.md) "Format-string inventory". For the Wasm plugin contract surface that consumes RFC 6901 patches, see [`wasm/plugin-contract.md`](wasm/plugin-contract.md).
+
 ## Comment Syntax
 
 Comment characters depend on the surrounding language:

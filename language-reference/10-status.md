@@ -91,13 +91,15 @@ Manifests carry a `features.annotations:` binding section that maps annotation k
 
 ## Version matching
 
-Recipes and FeatureRecipes bind to a Component or Feature interface via the `implements:` keyword. The Recipe schema accepts the `implements:` field as a free-form string; the Manifest two-tier resolution evaluates the binding at lookup time. Per-form status:
+Recipes and FeatureRecipes bind to a Component or Feature interface via the `implements:` keyword. The catalog indexes Recipes by their `spec.implements` declaration; at Recipe selection the lookup walks three forms in precedence order. Per-form status:
 
-- **Exact (`core/api-server:1.0.0`) — available.** The Manifest lookup matches the implements value against type-tier keys by exact string equality, then falls back to unversioned. Highest resolution precedence.
-- **Unversioned (`core/api-server`) — available.** The Manifest lookup matches the unversioned form against type-tier unversioned keys when no versioned match exists.
-- **Major-compatible range (`core/api-server:^1.0.0`) — planned.** The schema accepts the caret form, but the Manifest resolver does not parse the range; a Recipe declaring `implements: core/api-server:^1.0.0` matches no type-tier key and surfaces as an unmapped-Recipe error at Manifest resolution. Authors avoid the caret form until the range matcher lands.
+- **Exact (`core/api-server:1.0.0`) — available.** Literal-string match against the indexed key. Highest resolution precedence.
+- **Major-compatible range (`core/api-server:^1.0.0`) — available.** The catalog parses the caret form as a SemVer constraint (`>=1.0.0, <2.0.0` for the example) and matches the caller's URI against entries whose constraints the caller's version satisfies. When multiple caret entries match the same caller, the one with the highest baseline version wins as the more-specific match.
+- **Unversioned (`core/api-server`) — available.** Bare-base match when no versioned or caret form matches the caller's URI. Lowest resolution precedence.
 
-See [`vocabulary/inheritance-and-interface.md`](vocabulary/inheritance-and-interface.md) for the `implements:` design surface and [`entities/manifest.md`](entities/manifest.md) for the two-tier resolution rules.
+The three-form precedence iteration ships in the catalog package; missing `implements:` declarations across all three forms surface as unmapped-Recipe errors at Recipe selection. Future iteration may add comparison range forms (`>=1.0.0`, `<2.0.0`) for finer-grained version constraints; the caret form is the canonical authoring surface today for major-compatible matching.
+
+See [`vocabulary/inheritance-and-interface.md`](vocabulary/inheritance-and-interface.md) for the `implements:` design surface and [`entities/manifest.md`](entities/manifest.md) for the per-Manifest mapping tier shape.
 
 ## Metadata envelope
 
