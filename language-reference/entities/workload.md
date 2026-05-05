@@ -105,6 +105,12 @@ services:
 
 Multiple services on a single Workload are common for exposing internal and external traffic separately (internal `ClusterIP` for in-cluster consumers, `LoadBalancer` for external traffic, `ClusterIP` for Prometheus scraping).
 
+**Synthesised-name convention.** When the helm provider synthesises a Workload's services, each Service's `metadata.name` is derived deterministically from the node's instance ID and the service's authoring key: `<instance_id>-<service-key>`. A Workload declaring `services.http` on node `api-server` produces a Service named `api-server-http`; the same Workload on node `billing` produces `billing-http`. The output filename mirrors the same convention: `<instance_id>-<service-key>-service.yaml`.
+
+The convention has two practical consequences. First, **cross-node collisions are impossible by construction** — the instance-ID prefix differentiates services across every node in the boundary, so two Workloads each declaring `services.http` produce distinct K8s Service resources with non-overlapping names. Second, **within-Workload duplicate keys are prevented by schema** — the `services:` map is an OrderedMap, so the YAML parser deduplicates duplicate keys at parse time (the second declaration silently overwrites the first); authors should not rely on declaration order to disambiguate same-named services on the same Workload.
+
+The collision risk that does remain is at the **K8s name-length boundary**: Kubernetes Service names cap at 63 characters, and the synthesised `<instance_id>-<service-key>` form can exceed that limit when both segments are long. The Aggrega compiler does not enforce the limit; the Service applies cleanly at render time but Kubernetes rejects the apply. Authors with deeply nested instance IDs (e.g., `data-layer.regional.eu-west.primary`) plus long service keys should keep the combined length under 63 characters.
+
 **Provider-specific note (compose).** The compose provider derives `depends_on` automatically from IR uses-edges and emits the short-form list (`depends_on: [<target>]`). The long-form with `service_healthy` condition gating is reserved for a future intent; today's emit always has `service_started` semantics regardless of whether the target declares a healthcheck.
 
 ## Health probes — intent shape
@@ -184,6 +190,116 @@ Recipe authors emit auxiliary resources through two channels outside the Workloa
 - **Features with Resource Generation** — for cross-cutting concerns attached via Release selectors (a ServiceMonitor Feature attached to every component with metrics exposed, a NetworkPolicy Feature attached to every production workload). See [../entities/featurerecipe.md](../entities/featurerecipe.md) for the FeatureRecipe authoring surface.
 
 The Workload stays focused on the workload shape; cross-cutting and Recipe-intrinsic auxiliary manifests have their own authoring homes.
+
+## Common Workload patterns
+
+The Workload schema is broad — it covers single-container HTTP servers, multi-container sidecar patterns, init-container chains, batch jobs, and stateful services with persistent volumes. Three patterns recur frequently enough that authoring boilerplate from scratch per Recipe is wasteful. The blocks below are copy-paste templates Recipe authors can adapt to specific components.
+
+A future iteration is expected to ship these patterns as catalog-shipped Workload-fragments authors `implements:` from rather than copy-paste; see the "Workload Pattern Library" entry under Standard Library Expansion in the project ROADMAP. Until those fragments ship, the templates here are the canonical starting points.
+
+### Pattern 1 — Server with metrics exposure
+
+A typical web application that serves application traffic on one port and exposes Prometheus-scraped metrics on a separate port. Two services in the Workload — one for the application, one for metrics — keeps Service-mesh policy and load-balancer configuration cleanly separable.
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Workload
+replicas: {{ .infra.replicas | default 2 }}
+containers:
+  app:
+    image: "{{ .values.image }}"
+    ports:
+      web: {{ .values.port | default 8080 }}
+      metrics: {{ .values.metrics_port | default 9090 }}
+    variables:
+      LOG_LEVEL: "{{ .values.log_level | default "info" }}"
+services:
+  http:
+    type: ClusterIP
+    ports:
+      web: {{ .values.port | default 8080 }}
+  metrics:
+    type: ClusterIP
+    ports:
+      metrics: {{ .values.metrics_port | default 9090 }}
+health:
+  ready:
+    http: /healthz
+    timeoutSeconds: 5
+  live:
+    http: /healthz
+    timeoutSeconds: 5
+```
+
+The metrics service is typically annotated for Prometheus discovery via a Feature attachment at the Release surface (e.g., `feature.aggrega.ai/prometheus-scrape: "true"`); the Workload itself stays clean of provider-specific scrape annotations.
+
+### Pattern 2 — Batch job
+
+A workload that runs to completion rather than serving traffic indefinitely. The pattern omits `services:` entirely — batch jobs do not expose ports — and uses `replicas: 1` since K8s Jobs (which the helm provider may emit when it detects this shape) handle parallelism via the Job spec rather than Deployment replicas. Authors who need K8s `Job` semantics rather than `Deployment` semantics rely on the provider engine's promotion rule (today: helm emits Deployment unconditionally for Workloads; Job emission is a future provider extension).
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Workload
+replicas: 1
+containers:
+  worker:
+    image: "{{ .values.image }}"
+    command: ["{{ .values.entrypoint }}"]
+    args:
+      - "--config"
+      - "/etc/config/job.yaml"
+    variables:
+      JOB_ID: "{{ .context.instance_id }}-{{ .metadata.release_name }}"
+    volumeMounts:
+      config:
+        path: /etc/config
+volumes:
+  config:
+    configmap:
+      name: "{{ .context.instance_id }}-config"
+```
+
+The config volume references a ConfigMap the Recipe is expected to emit alongside the Workload via `artifacts:` (see "Auxiliary resources belong outside the Workload" above) — the Workload itself only declares the consumption side.
+
+### Pattern 3 — Sidecar pair
+
+A two-container pod where the main container handles application logic and the sidecar handles a cross-cutting concern (TLS termination, log shipping, service-mesh proxy, AI guardrail). Author order in `containers:` is load-bearing — the helm provider emits containers in declared order; the first key (here, `main`) is the default-container target for `kubectl logs` and similar tooling.
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Workload
+replicas: {{ .infra.replicas | default 2 }}
+containers:
+  main:
+    image: "{{ .values.app_image }}"
+    ports:
+      app: {{ .values.app_port | default 8080 }}
+    variables:
+      UPSTREAM_URL: "http://localhost:{{ .values.app_port | default 8080 }}"
+  sidecar:
+    image: "{{ .values.sidecar_image }}"
+    ports:
+      proxy: {{ .values.proxy_port | default 9000 }}
+    variables:
+      PROXY_TARGET: "http://localhost:{{ .values.app_port | default 8080 }}"
+services:
+  external:
+    type: ClusterIP
+    ports:
+      proxy: {{ .values.proxy_port | default 9000 }}
+```
+
+The Service exposes the sidecar's port (not the main container's), routing external traffic through the sidecar to the main container via `localhost`. The two containers share the pod's network namespace, so `localhost:<port>` reaches the peer container directly. For sidecars that need credential injection (the canonical AI-guardrail pattern), the credential typically lives on the sidecar's `secrets:` block rather than the main container's — keeping the credential scoped to the sidecar's process boundary.
+
+### Pattern selection
+
+The three patterns map to distinct shipping-shape concerns:
+
+- **Server with metrics** — long-running services that the cluster keeps alive; multiple Service exposures for traffic separation.
+- **Batch job** — bounded execution; no Service exposure; relies on Recipe-emitted ConfigMap or external state for input.
+- **Sidecar pair** — multi-container pod with shared network namespace; the sidecar's Service exposes the cross-cutting concern.
+
+A fourth pattern — **stateful server with persistent volume** — uses the Workload's `volumes.<name>.persistentTemplate` field to declare per-replica persistent storage; the helm provider's StatefulSet promotion rule (see [providers/helm.md](../providers/helm.md)) emits StatefulSet rather than Deployment when this volume variant is present. The pattern is identical in shape to "server with metrics" with an additional `persistentTemplate` volume; authors needing it adapt Pattern 1 with the volume declaration.
 
 ## Cross-references
 

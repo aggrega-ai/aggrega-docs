@@ -1,5 +1,22 @@
 # Secrets
 
+## The secret-delivery checklist
+
+Implementing a credential pattern end-to-end touches six surfaces across the four domains. The mental model authors carry when wiring a new secret: every credential flows through these six touch-points before it reaches a running container.
+
+| Step | Surface | Action |
+| --- | --- | --- |
+| 1 | Component `secretsSchema:` (or `cueSchema.secrets`) | **Declare** the credential slot. Slot definitions specify the slot name, whether it is `required`, the `inject:` allowlist (`[env]`, `[file]`, `[]` for blackbox), and a description. The Component author chooses White-Box (transparent: developer dictates delivery) or Black-Box (opaque: Recipe controls delivery) by setting the `inject:` allowlist accordingly. |
+| 2 | Credential Feature `cueSchema` | **Define** the vault-query contract for the credential type. The Feature carries the `feature.aggrega.ai/kind: secret` label and declares the values keys (e.g., `path`, `key`) that authors supply when requesting the credential. |
+| 3 | Aggregate component instance `secrets:` block | **Request** the credential at the developer's authoring surface. The block specifies the credential Feature `type`, the vault-query `values`, and (for White-Box slots only) the `inject:` mapping that wires the resolved credential to the application's expected delivery shape. |
+| 4 | FeatureRecipe `pipeline:` (Two-Part Plugin Principle) | **Implement** the credential's runtime resolution. The Fetcher plugin generates the cloud-specific CRD (`ExternalSecret`, `VaultSecret`, etc.) referencing the developer's vault path; the Injector plugin mounts the resolved Kubernetes Secret to the target container at the developer's requested key. Swapping vaults (AWS → HashiCorp) only replaces the Fetcher; the Injector is reusable. |
+| 5 | Manifest `mappings.<provider>.features.type` | **Bind** the credential Feature type to its FeatureRecipe per provider, in the same `features.type` tier as operational Features. There is no separate `secrets` mapping section. |
+| 6 | Recipe `valuesMapping:` template (Black-Box only) | **Reference** the dictated physical secret name when the slot is Black-Box. The Recipe's `valuesMapping:` consumes `{{ .locals.secret_target_<slot> }}` (or the equivalent Recipe-published pointer) and feeds the chart's native secret-mount mechanism (`existingSecret`, etc.). White-Box slots skip this step — the Workload's `secrets:` block carries the delivery directly. |
+
+The split between White-Box (Steps 1, 2, 3, 4, 5) and Black-Box (Steps 1, 2, 3, 4, 5, 6) determines how many touch-points a particular credential pattern requires. White-Box is five surfaces; Black-Box is six. The audit's "six artefact touches" framing covers the Black-Box case, which is the heavier of the two and the one Recipe authors most often implement when wrapping packaged infrastructure (Bitnami charts, managed services, etc.).
+
+The three worked examples below demonstrate the pattern across the canonical scenarios: White-Box (Example 11), Black-Box (Example 12), and Feature-Level isolation (Example 13).
+
 ## Example 11: White-Box Secrets — Developer Controls Delivery
 
 When deploying custom code, the developer *must* tell the system how their application reads credentials. The Component's CUE schema enforces the `inject` requirement.
