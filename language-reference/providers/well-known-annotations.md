@@ -57,6 +57,33 @@ Provider engines read specific boundary annotations from the Release to configur
 | `aggrega.ai/stack-name` | `cloudformation` | CloudFormation stack name | Leaf boundary name |
 | `aggrega.ai/tf-backend` | `terraform` | Terraform state backend key | None |
 
+## Provenance labels emitted by providers
+
+The annotations above flow *into* the build — the Release authors them, providers consume them. Providers also emit a parallel set of labels *out of* the build, attaching them to the rendered output so downstream tooling can attribute runtime resources back to the catalog content that produced them. These provenance labels are not authored on the Release; they are derived from the build's own state (release identity, aggregate name, environment, sync wave, compiler version) and emitted by the provider at render time.
+
+The current emit set on rendered Kubernetes manifests:
+
+| Label | Source | Always emitted? |
+| --- | --- | --- |
+| `app.kubernetes.io/name` | Node ID | Yes |
+| `aggrega.ai/component-id` | Node ID | Yes |
+| `aggrega.ai/boundary-path` | Boundary path | When set |
+| `aggrega.ai/compiler-version` | Provenance struct | When set |
+| `aggrega.ai/aggregate-name` | Aggregate `metadata.name` | When set |
+| `aggrega.ai/environment` | Release `metadata.environment` | When the Release sets it (the field is moving to optional) |
+| `aggrega.ai/sync-wave` | Per-node sync-wave | When set |
+
+### Per-provider asymmetry
+
+The provenance label emission is **not uniform across providers today**. The current shipping state:
+
+- **`helm`** — emits the full provenance label set above on every rendered Kubernetes resource (Deployment, Service, PVC, etc.). Both sourced-mode (Helm SDK render with post-render label injection) and synthesised-mode (workload synthesis) paths produce the same labels.
+- **`helm-chart`** — emits the same set on its sub-chart resources via the same label-injection mechanism as helm.
+- **`compose`** — does **not** emit aggrega-prefixed provenance labels on rendered docker-compose services today. The compose engine consumes `aggrega.ai/namespace` for per-boundary network derivation but does not write a parallel set of labels onto compose services. Downstream tooling that filters compose output by aggrega provenance has nothing to filter on for compose-targeted boundaries.
+- **`terraform` / `cloudformation`** — `planned`; the engines do not ship today, so there is no emission discipline yet. When the engines ship, the design target is to emit equivalent tags via each cloud's native tagging mechanism (Terraform `tags` block, CloudFormation `Tags`); the per-provider translation lands with the engine.
+
+The asymmetry is a real authoring caveat. Authors targeting cost-attribution dashboards or environment-filtered observability across mixed compose + helm boundaries should expect the compose subset of resources to carry no aggrega provenance labels until compose adopts the emission discipline. This is tracked as a documentation observation rather than a bug — the compose docker-compose output shape is structurally different from K8s manifests, and the canonical compose label-host (the service block's labels field) requires a per-service decision on which subset of provenance to emit.
+
 ## Authoring examples
 
 Boundary-level placement and registry configuration:
