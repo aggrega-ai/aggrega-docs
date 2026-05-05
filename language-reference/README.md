@@ -4,6 +4,8 @@ The "what" and "how to use" of Aggrega. Syntax, CLI invocation, error catalog, w
 
 Read the chapters below in order for first-time understanding. Reference subdirectories are listed under their chapter — jump directly when looking up a specific entity, keyword, provider, CLI command, or error.
 
+Before reading the chapter sequence, consult [Status of the Language](10-status.md) for the current state of readiness — which language surfaces are available today, which are accepted but not yet acted on by the compiler, and which are planned for future iterations.
+
 ## Reading order
 
 1. [Getting Started](01-getting-started.md)

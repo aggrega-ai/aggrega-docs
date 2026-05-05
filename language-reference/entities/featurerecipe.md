@@ -20,7 +20,7 @@ OCI URI: `hub.aggrega.ai/feature-recipe/{provider}/{name}:{version}` (e.g., `hub
 
 FeatureRecipes bind to a Feature interface via `implements` and declare a concrete provider. They support three distinct execution blocks — a superset of base Recipe authoring:
 
-1. **`pipeline`:** A sequential array of WebAssembly (Wasm) plugins for Post-Render Workload Mutation (e.g., injecting an Envoy sidecar via JSONPatch, or mounting a secret volume). See [architecture/09-ai-features.md](../../architecture/09-ai-features.md) for the Two-Part Plugin Principle (Fetcher / Injector).
+1. **`pipeline`:** A sequential array of WebAssembly (Wasm) plugins for Post-Render Workload Mutation (e.g., injecting an Envoy sidecar via JSONPatch, or mounting a secret volume). See [architecture/09-ai-features.md](../../architecture/09-ai-features.md) for the Two-Part Plugin Principle (Fetcher / Injector). **Status: accepted but inert** — the schema accepts the array shape but the compiler does not yet execute the plugins; see [Status of the Language](../10-status.md#compilation-pipeline-phases) for current behaviour.
 2. **`source` & `valuesMapping`:** Used for Resource Generation, allowing Ops to render static templates natively (e.g., generating a new `HTTPRoute` CRD or an `ExternalSecret` CRD) alongside the base component.
 3. **`injectMapping` (Pre-Render Interception):** A native Go template block executed *before* the Base Recipe renders. It outputs a JSON dictionary that the compiler natively deep-merges over the Caller's `.context.inject` memory pipe, allowing Wasm-free, Caller-Side mutation of environment variables and connection strings.
 

@@ -177,7 +177,7 @@ spec:
 ```
 
 **3. The Wasm Input (Go Compiler → Wasm `stdin`)**
-During Step 5 Phase C, the compiler feeds the Injector plugin this precise JSON payload. Note how the `with:` template has already been evaluated.
+During Step 5 Phase C, the compiler is designed to feed the Injector plugin this precise JSON payload. Note how the `with:` template has already been evaluated. *Phase C is currently `accepted but inert`; see [Status of the Language](../10-status.md#compilation-pipeline-phases) for current behaviour.*
 
 ```json
 {

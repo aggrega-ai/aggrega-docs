@@ -61,7 +61,9 @@ spec:
 ```
 
 **4. Ops Domain: The FeatureRecipe (Wasm Pipeline)**
-The FeatureRecipe maps the abstract Feature to a concrete Wasm plugin pipeline. The pipeline executes sequentially during Step 5 Phase C, mutating the base infrastructure AST.
+The FeatureRecipe maps the abstract Feature to a concrete Wasm plugin pipeline. The pipeline is designed to execute sequentially during Step 5 Phase C, mutating the base infrastructure AST. *Phase C is currently `accepted but inert`; see [Status of the Language](../10-status.md#compilation-pipeline-phases) for current behaviour.*
+
+> **Status: the `pipeline:` field is currently `accepted but inert` — the schema accepts the array shape but the compiler does not yet execute the plugins. See [Status of the Language](../10-status.md#compilation-pipeline-phases) for current behaviour. The example below illustrates the designed flow.**
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1

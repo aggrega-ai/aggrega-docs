@@ -74,6 +74,8 @@ spec:
 **4. Ops Domain: The FeatureRecipe (Fetcher + Injector Pipeline)**
 The FeatureRecipe implements the credential Feature. The Two-Part Plugin Principle splits the work: the Fetcher generates the cloud-specific CRD, the Injector mounts it. Swapping vaults (AWS → HashiCorp) only replaces the Fetcher; the Injector is reusable.
 
+> **Status: the `pipeline:` field is currently `accepted but inert` — the schema accepts the array shape but the compiler does not yet execute the plugins. See [Status of the Language](../10-status.md#compilation-pipeline-phases) for current behaviour. The example below illustrates the designed flow.**
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: FeatureRecipe
@@ -206,6 +208,8 @@ spec:
 
 **4. Ops Domain: The FeatureRecipe**
 The Fetcher plugin dynamically indexes the Base Recipe's exported key using the `.secret_name` context variable (`"admin_password"`) to extract the dictated physical name.
+
+> **Status: the `pipeline:` field is currently `accepted but inert` — the schema accepts the array shape but the compiler does not yet execute the plugins. See [Status of the Language](../10-status.md#compilation-pipeline-phases) for current behaviour. The example below illustrates the designed flow.**
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1

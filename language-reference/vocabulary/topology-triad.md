@@ -94,8 +94,6 @@ components:
                 from: "dsn"               # From target's provides
 ```
 
-The `aggrega create recipe` scaffolder emits the compact form. The `aggrega import` scaffolder emits the verbose form (with `from`/`value` descriptors) to maximize readability for developers unfamiliar with the convention.
-
 **The Inject Key Collision Rule:**
 A developer requesting the same delivery key (e.g., the same env var name) from two different sources is a fatal error, not a merge. The compiler detects the collision and halts the build:
 

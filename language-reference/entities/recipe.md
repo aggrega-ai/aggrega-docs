@@ -30,7 +30,7 @@ Ops engineers author these mapping blocks to translate abstract context before W
 | :--- | :--- | :--- |
 | **`injectMapping`** *(FeatureRecipe only)* | **Pre-Render Interception.** Evaluated in Go memory *before* the Base Recipe. Natively deep-merges its output dictionary strictly over the Caller's `.context.inject` pipe. Intentionally absent from the base `Recipe` schema — see [entities/featurerecipe](featurerecipe.md) for the architectural rationale. | Surgically rewriting injected `env` variables or formatting FQDNs for a caller without requiring Wasm JSONPatch. |
 | **`valuesMapping`** | **Base Rendering (Go Template).** Evaluated to map variables into the underlying `source` infrastructure chart/module. | Mapping standard variables (like replicas or image tags) into a Helm chart directly in the YAML. |
-| **`valuesMappingFile`** | **Base Rendering (Go Template).** Points to a single Go template mapping file inside the Recipe tarball (e.g., `./mappings/vars.yaml`). | Essential for massive configurations like Terraform state, keeping the root YAML clean. |
+| **`valuesMappingFile`** | **Base Rendering (Go Template).** Points to a single Go template mapping file inside the Recipe tarball (e.g., `./mappings/vars.yaml`). | Essential for large mapping payloads (multi-page Helm chart values, multi-chart bundles), keeping the root YAML clean. |
 | **`valuesMappingJsonnet`** | **Base Rendering (Jsonnet).** Points to a Jsonnet file inside the Recipe tarball (e.g., `./mappings/vars.jsonnet`). The compiler evaluates the Jsonnet program with the full Aggrega context injected via `std.extVar()`. | Complex mapping logic involving deep conditional nesting, array comprehensions, or multi-level object construction where Go templates become write-only code. |
 
 **Mapping Language Guidance:** `valuesMapping`, `valuesMappingFile`, and `valuesMappingJsonnet` are mutually exclusive — a Recipe must choose exactly one. Go templates are the recommended default: they leverage existing Helm/Ops muscle memory, the Sprig library is pre-registered, and standard `.tpl` helpers are fully supported. Jsonnet is the recommended alternative when the mapping logic exceeds ~20 lines of nested `{{ if }}` / `{{ range }}` blocks. Both languages produce identical output: a JSON/YAML dictionary consumed by the Provider Engine. The IR graph is unaffected by the choice — parallelism converges at the compiler boundary.
@@ -109,6 +109,8 @@ spec:
 
 **Example B: The Local Terraform Module (File Mapping)**
 
+> **Status: the terraform provider is currently `planned` — the provider name is documented as designed, but no engine is registered with the production dispatch. See [Status of the Language](../10-status.md#provider-engines) for current behaviour. The example below illustrates the designed flow.**
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Recipe
@@ -153,6 +155,6 @@ A Recipe's `source` field is itself a templating surface. Both shapes of `source
 
 **Authoring vs. Execution: `.tf.json` as a Compiled Artifact**
 
-`.tf.json` is valid Terraform input — the `terraform` CLI executes it identically to `.tf` HCL. GitOps pipelines (GitHub Actions, Atlantis) and scanning tools (Checkov) handle `.tf.json` the same way they handle standard HCL.
+`.tf.json` is valid Terraform input — the `terraform` CLI executes it identically to `.tf` HCL. GitOps pipelines (GitHub Actions, Atlantis) and scanning tools (Checkov) handle `.tf.json` the same way they handle standard HCL. *The terraform provider engine is currently `planned`; this discussion describes the designed flow.*
 
 JSON is suited for machine-to-machine communication, not for manual human authoring. Ops engineers author their Recipes using standard `.tf` HCL files; the Wasm rendering socket generates the final JSON artifacts. The `.tf.json` in the `dist/` folder is a compiled output, following the same authoring-vs-output split established by AWS CDK and CDKTF.
