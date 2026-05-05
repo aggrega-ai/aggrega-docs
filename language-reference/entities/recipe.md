@@ -153,6 +153,20 @@ spec:
 **Source field templating.**
 A Recipe's `source` field is itself a templating surface. Both shapes of `source` accept Go templates: the universal-string form (`source: "{{ .infra.module_path | default \"./src\" }}"`) and the structured-object form (each string-valued sub-field is template-evaluated; non-string sub-fields pass through). Templates evaluate in Phase B.0 with the same self-contained context as Recipe `provides` — `.context.instance_id`, `.values`, `.infra`, and the same node's resolved `.provides`. References to `.context.inject` and `.context.uses` are forbidden; the source URI must resolve before the topology pipe is hydrated and before downstream sub-passes load the chart, module, or artifact body the URI points at. The full availability rules and forbidden-reference rationale live in [Template Expansion Matrix row #5](../templates/expansion-matrix.md). The canonical use is a Component-exposed `infra.source_version` override threaded into the source's version field — see [entities/component](component.md) "The `infra` Pillar" — so a catalog need not republish a Recipe on every compatible upstream version bump.
 
+**Source field scheme inventory.**
+The `source:` field accepts several shape variants in the schema. Each variant's runtime support varies per provider engine; the table below documents what ships today and what is reserved for future provider work.
+
+| Shape | Example | Status today |
+| --- | --- | --- |
+| Bare relative filesystem path | `source: "./charts/postgres"` | `available` — every shipping provider engine (helm, helm-chart, compose) accepts a bare filesystem path string. |
+| Bare absolute filesystem path | `source: "/abs/path/to/chart"` | `available` — same engines, same handling; the path is interpreted against the build's working directory regardless of relative vs absolute form. |
+| Empty string | `source: ""` | `accepted but blocked` — the schema accepts the empty string; the Recipe loader rejects it with a clear authoring-disambiguation message. See [`errors/fatal-halts.md`](../errors/fatal-halts.md) "Recipe `source:` is an empty string". |
+| Structured object (`{registry, chart, version, ...}`) | `source: { registry: "...", chart: "...", version: "1.0" }` | `accepted but blocked` — the schema accepts the object shape; the helm engine rejects it at render time with `helm: node "<id>": structured source not supported`. The structured form is reserved for future registry integration; today's catalog authors vendor remote charts locally and point `source:` at the vendored copy. See [`providers/helm.md`](../providers/helm.md) "`source:` keyset" for the helm-engine-side state. |
+| OCI URI (`oci://...`) | `source: "oci://hub.aggrega.ai/recipe/helm/postgres:1.0.0"` | `planned` — design target for catalog distribution. Today's three-tier resolver (local paths, workspace catalogs, remote OCI registry) is documented at [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md); the entity-level resolver consumes OCI URIs through that cascade, but the per-Recipe `source:` field's OCI form is not wired in the engines today. |
+| Other URL schemes (`https://`, `git+https://`, etc.) | (illustrative) | `planned` — documented as design intent in the architecture's pluggable-source roadmap; no engine support today. |
+
+The inventory is the canonical reference for what authors can put in `source:` today. Authors targeting future shipping milestones (OCI URI, structured forms with the helm-renderer.wasm Wasm engine when it ships) should expect the framings above to update from `planned` to `available` per the four-label taxonomy at [`10-status.md`](../10-status.md).
+
 **Authoring vs. Execution: `.tf.json` as a Compiled Artifact**
 
 `.tf.json` is valid Terraform input — the `terraform` CLI executes it identically to `.tf` HCL. GitOps pipelines (GitHub Actions, Atlantis) and scanning tools (Checkov) handle `.tf.json` the same way they handle standard HCL. *The terraform provider engine is currently `planned`; this discussion describes the designed flow.*

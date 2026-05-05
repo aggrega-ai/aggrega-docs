@@ -84,9 +84,39 @@ Annotations cascaded by this mechanism surface in downstream Recipe templates vi
 
 **Well-known annotations.** Beyond ad-hoc keys, the Aggrega standard library defines a set of well-known annotations under the `aggrega.ai/` and `feature.aggrega.ai/` namespaces, grouped into placement, networking, security, and observability categories. Authors adding annotations to a Release boundary should consult [providers/well-known-annotations.md](../providers/well-known-annotations.md) for the full matrix plus per-provider consumption rules — the page documents which providers honour each well-known key and what behaviour they emit when the key is present.
 
-## Temporal Sequencing
+## Temporal Sequencing — `syncWaves`
 
-The optional `syncWaves` dictionary maps component IDs to integer deployment stages, giving Ops explicit control over deployment order without touching the Developer's Aggregate. See [architecture/12-day-two-lifecycles.md §1](../../architecture/12-day-two-lifecycles.md) for the full syncWaves mechanism and downstream GitOps annotation emission.
+The optional `syncWaves` dictionary maps integer deployment stages to lists of component IDs, giving Ops explicit control over deployment order without touching the Developer's Aggregate. The dictionary is keyed by integer stage; the value at each stage is the list of component IDs that deploy together at that stage.
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: prod-release
+  version: 1.0.0
+  environment: production
+spec:
+  aggregate: my-app
+  manifest: prod-manifest
+  syncWaves:
+    0: ["core-vpc", "postgres-db"]
+    1: ["db-migration-task"]
+    2: ["web-server", "ai-agent"]
+```
+
+**Stage semantics.** Components in stage `N` deploy after every component in stages `0..N-1` completes. Components within the same stage deploy concurrently — the dictionary entry is a list of components that share the stage. The integer keys do not need to be contiguous (an author can use `0, 5, 10` if they want gaps for future insertion); the compiler orders stages by integer value regardless of dictionary author-order.
+
+**Per-provider emission.** The compiler emits stage information into the rendered output in provider-native form:
+
+* **Kubernetes (helm / helm-chart provider).** Each component's rendered manifests carry the GitOps-standard `argocd.argoproj.io/sync-wave: "<N>"` annotation injected onto the resource header. ArgoCD and Flux read this annotation natively and order resource application accordingly.
+* **Multi-provider (Terraform + Helm + others).** The compiler groups rendered artifacts into stage-specific subdirectories under `dist/` (e.g., `dist/wave-0-infra/`, `dist/wave-1-tasks/`, `dist/wave-2-apps/`). Enterprise CI/CD pipelines (GitHub Actions, Atlantis, GitLab CI) execute the folders sequentially.
+* **Compose.** The compose provider does not currently translate `syncWaves:` into compose-native ordering; the docker-compose `depends_on` mechanism (per [`providers/compose.md`](../providers/compose.md) "depends_on inference") handles per-edge ordering rather than stage-based ordering. Authors targeting compose should rely on `uses:` edges for inter-component dependencies.
+
+**Components that omit a stage.** A component instance not listed in any `syncWaves` stage carries no sync-wave annotation; the GitOps controller applies it without explicit ordering. Authors who want explicit ordering for a component must list it in a stage; authors who want concurrent default-ordering omit the component from `syncWaves` entirely.
+
+**Use cases.** The dispatch ordering matters whenever a component's startup depends on another's prior completion. Canonical patterns: a database migration job (`db-migration-task` in stage 1) that runs after the database itself (`postgres-db` in stage 0) and before the application that consumes the migrated schema (`web-server` in stage 2). Without `syncWaves:`, all three deploy concurrently and the application crash-loops while waiting for the migration to complete.
+
+For the full architectural framing including the DAG execution model and the rationale for placing temporal sequencing on the Release rather than the Aggregate, see [`architecture/12-day-two-lifecycles.md` §1](../../architecture/12-day-two-lifecycles.md).
 
 ## Feature Attachment
 

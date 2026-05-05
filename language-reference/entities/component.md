@@ -34,7 +34,7 @@ These represent the foundational enterprise tags that drive Zero-Trust validatio
 
 | Label Prefix | Allowed Values (Convention) | Why Platform Ops needs it (The Policy Hook) |
 | :--- | :--- | :--- |
-| `compliance.aggrega.ai/data-class`| `public`, `internal`, `restricted` | Tracked topologically by the policy engine. If a continuous path exists from a `public` node to a `restricted` database without a masking proxy feature attached, the policy halts the build. |
+| `compliance.aggrega.ai/data-class` | `public`, `internal`, `restricted` | Tracked topologically by the policy engine. If a continuous path exists from a `public` node to a `restricted` database without a masking proxy feature attached, the policy halts the build. |
 | `compliance.aggrega.ai/contains-pii` | `true`, `false` | Explicitly flags workloads for GDPR/CCPA. Policy engines use this to mandate the attachment of specific L7 data-redaction proxies. |
 | `hardware.aggrega.ai/accelerator` | `gpu`, `tpu`, `npu` | Used by DevOps in the `Release` file. They explicitly route these components into physical hardware pool boundaries (e.g., a GPU-capable cluster) via the `components: {}` map, while `policy-validator.wasm` can enforce that GPU-labeled components are never placed in non-GPU boundaries. |
 | `state.aggrega.ai/retention` | `retain`, `delete` | **Solves the AOT Deletion Blind Spot.** If a developer deletes a database from their `Aggregate`, a GitOps orchestrator will physically drop the disk. A `mutator.wasm` plugin can read the `retain` label and automatically mutate the output artifacts to include orchestrator-native protection (e.g., `helm.sh/resource-policy: keep`). |
@@ -150,6 +150,32 @@ infra: {
 Mechanism vocabulary (`infra.primary.replicas`) reads naturally for one provider (Kubernetes pods are replicas of a StatefulSet) and as a category error elsewhere — RDS has no "replicas" concept on the primary, CloudFormation mirrors RDS, Compose has no horizontal-replica abstraction at all. Intent vocabulary translates: every provider has some concept of "make this database highly available" and some concept of "I want N read-only copies," and the Recipe carries the per-provider translation. A provider whose target lacks an HA equivalent (Compose) treats `ha.*` as advisory.
 
 `infra.ha.read_replicas: 0` is the default; the K8s Recipe handles it explicitly with a `replicaCount: 0` branch on the secondary StatefulSet block rather than generating zero-pod resources. Operators choosing a provider whose target lacks HA accept that `ha.*` settings on the Release have no effect for that boundary.
+
+## Required Features: `requiredFeatures`
+
+A Component may declare a list of Feature types that **must** be attached to every instance of that Component. The `spec.requiredFeatures` field carries an array of Feature type URIs; the compiler verifies that every required type appears in the resolved feature set for each Component instance after the 5-Tier Onion Model attachment cascade completes.
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Component
+metadata:
+  name: core/payment-processor
+  version: 1.0.0
+  labels:
+    component.aggrega.ai/type: server
+spec:
+  requiredFeatures:
+    - core/audit-logging:1.0.0
+    - core/pci-compliance:1.0.0
+  cueSchema: |
+    values: { processor_endpoint: string }
+```
+
+The compiler walks every Feature attached to a `core/payment-processor` instance — across the Aggregate component-level and subsystem-level features blocks, the Release boundary-level and component-level features blocks, and the Manifest annotation-driven expansion (when shipped) — and confirms each `requiredFeatures:` entry has a matching attachment. A missing required Feature halts the build with a fatal diagnostic naming the component instance, the missing Feature type, and the attachment surfaces the compiler searched.
+
+The mechanism enforces architectural invariants the Component contract demands. A payment-processing Component that requires `core/audit-logging` ensures every deployment carries the audit-logging Feature regardless of whether the developer remembered to attach it; a PCI-compliant Component requiring `core/pci-compliance` cannot ship without the compliance Feature being explicitly attached at the Release surface.
+
+The diagnostic message is documented at [`errors/fatal-halts.md`](../errors/fatal-halts.md) "Required feature not attached".
 
 ## Credential Slots: `secretsSchema`
 
