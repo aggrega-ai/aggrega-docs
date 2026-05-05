@@ -132,6 +132,17 @@ The `locals:` pillar is Recipe-private state. A Recipe declares `locals:` at Pha
 - DRY-ing repeated computed values inside one Recipe (a hostname computed once, referenced from multiple `valuesMapping:` fields).
 - Intermediate values for complex template logic that would be unreadable inline.
 
+### `provides:` and `locals:` — public face vs private face
+
+The two Recipe-side pillars carry a deliberate visibility split that authors should hold in mind:
+
+- **`provides:` is the public face.** Every key is the canonical topology pipe surface — downstream callers' `uses[].inject` blocks consume them via `from: "<key>"` references. The `provides:` dictionary is a typed contract that callers depend on; renaming or removing a key is a breaking change to every Recipe whose `uses[].inject` declarations reference it.
+- **`locals:` is the private face.** Every key is Recipe-internal state visible only inside the Recipe's own subsequent templates. No caller can read a Recipe's locals; the names in `locals:` are not part of any published interface and renaming them is a Recipe-internal refactor with no downstream effect.
+
+The split is deliberate per the architectural separation of Recipe internals (private) from Recipe interface (public). Authors treating `provides:` and `locals:` as one namespace lose the visibility distinction and risk exposing internal state through the topology pipe — every key declared in `provides:` becomes part of the Recipe's contract surface, whether or not the author intended it. The discipline target: declare a key in `locals:` first; promote to `provides:` only when a downstream caller actually needs it.
+
+A future per-key visibility annotation (`@visible: public/private` or similar) could let one declaration carry both kinds of state with explicit per-key marking. The current separation by pillar is the simpler shape and the one that ships today; per-key annotations remain an authoring discussion rather than planned shipping work.
+
 ## Parameters
 
 Both the `Aggregate` and `Release` schemas carry a `parameters` dictionary at their root. Developers declare the keys the Aggregate expects; Ops fills the values from environment-specific Release files. This decoupling is the mechanism for GitOps promotion: a single immutable `Aggregate.yaml` moves through Dev, Staging, and Production environments, with each environment's Release supplying its own parameter values.

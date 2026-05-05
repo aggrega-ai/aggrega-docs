@@ -91,6 +91,18 @@ volumes:
 
 `persistentTemplate` produces a per-replica PVC for StatefulSet-shaped translation; in compose translation it degrades to a single shared named volume with a warning in the generated file.
 
+**Per-provider translation.** Each provider engine translates the five volume variants into its native shape:
+
+| Variant | Helm / helm-chart (K8s) | Compose | Loss notes |
+| --- | --- | --- | --- |
+| `ephemeral` | `emptyDir: { sizeLimit }` | `tmpfs: { size }` (in-memory) | Compose tmpfs is RAM-backed; helm's emptyDir is disk-backed on the node by default — semantic divergence in the underlying storage medium. The compose engine emits a warning comment when the semantics differ. |
+| `configmap` | ConfigMap volume reference (consumes a ConfigMap resource emitted by the Recipe's `artifacts:` or by a Feature) | Bind mount from a generated config file at the boundary's output directory | Compose has no direct ConfigMap equivalent; the engine generates a config file locally and bind-mounts it, which works for static config but loses K8s ConfigMap's update-on-rollout semantics. |
+| `secret` | Secret volume reference (consumes a Secret resource emitted by a credential FeatureRecipe) | `env_file:` for env-shaped secrets, or a bind-mounted secret file for path-shaped secrets | Compose lacks first-class Kubernetes Secret semantics; secrets are local files outside any vault-fetch CRD lifecycle. |
+| `persistent` | PVC resource + `volume.persistentVolumeClaim` | Named volume | Compose named volumes are a flat host-side abstraction; helm's PVC supports storage class, access mode, and capacity declaration that compose ignores. |
+| `persistentTemplate` | `StatefulSet.volumeClaimTemplates` (per-replica PVC, automatic StatefulSet promotion) | Named volume (degraded — single shared volume across replicas with a warning emitted) | Compose cannot express per-replica templates. When `persistentTemplate` is translated to compose, a single named volume is emitted with a warning comment. Workloads relying on per-replica volume isolation should not target compose-only boundaries. |
+
+The `persistentTemplate` translation triggers automatic StatefulSet promotion on the helm engine — when any container declares a `persistentTemplate` volume, helm emits a StatefulSet rather than a Deployment; the per-pod identity that StatefulSet provides is required for the per-replica volume lifecycle. Authors who want StatefulSet semantics without `persistentTemplate` cannot opt in; the helm engine's promotion rule is volume-driven only.
+
 ### `services`
 
 An ordered map of service exposures. Each service declares its type (`ClusterIP`, `NodePort`, `LoadBalancer`, `Headless`) and a named-port map. Port names must match container port names declared elsewhere in the Workload:
@@ -132,6 +144,18 @@ health:
 ```
 
 Three intent forms (`http:`, `tcp:`, `exec:`) are mutually exclusive within a single probe declaration. Port resolution for `http:` without an explicit port uses the first named port in `containers.<name>.ports` by author order; if no ports are declared on the container, the compiler reports a validation error.
+
+**Per-provider translation.** Each provider engine translates the abstract probe intent into its native shape at synthesis time:
+
+| Intent | Helm (K8s) | Compose | Loss notes |
+| --- | --- | --- | --- |
+| `http: /path` | `httpGet.path: /path, httpGet.port: <first port or "http">` | `CMD-SHELL "curl -f http://localhost:<port>/path"` | Compose lacks a native HTTP probe shape; the CMD-SHELL wrapper depends on `curl` being present in the container image. |
+| `tcp: <port>` | `tcpSocket.port: <port>` | `CMD-SHELL "nc -z localhost <port>"` | Compose lacks a native TCP probe shape; the CMD-SHELL wrapper depends on `nc` being present in the container image. |
+| `exec: [cmd, ...]` | `exec.command: [cmd, ...]` | `CMD [cmd, ...]` | One-to-one mapping; both providers carry the command list verbatim. |
+
+Compose's `CMD-SHELL` wrappers approximate HTTP and TCP probes through shell-evaluable predicates; the approximation loses the timeout / interval / retries semantics that K8s probes carry directly on the probe spec. Compose-targeted boundaries that need precise probe gating either use the native `exec:` shape (which translates without loss) or supplement the compose `healthcheck:` config with explicit retry parameters in the Recipe's compose-side overlay.
+
+The compose engine emits a warning comment in the generated `docker-compose.yaml` whenever a probe is degraded from native HTTP/TCP to a CMD-SHELL wrapper.
 
 **Provider-specific note (compose).** Authoring a `health:` block on a compose-targeted Workload does not gate `depends_on` ordering on health: the compose provider's `depends_on` entries derived from `uses:` edges always use `service_started` semantics, regardless of whether the target Workload declares health probes. Long-form `service_healthy` gating is reserved for a future intent. See [providers/compose.md](../providers/compose.md) for the full inference rules.
 
