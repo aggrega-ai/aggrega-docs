@@ -474,6 +474,14 @@ Label injection is uniform across all three input kinds. See [11-governance-and-
 
 **helm-chart provider (special case):** artifacts are not written to the output directory as standalone files — Helm owns the rendering pipeline. Instead, `artifactsFrom:` files are treated as pre-Helm template files: they are Go-templated with Aggrega's pillar context FIRST, then injected into the chart's `templates/` directory BEFORE Helm rendering. This gives the helm-chart provider an extension mechanism equivalent to what `artifacts:` provides for the plain helm provider, while respecting Helm's chart model. In the helm-chart case, inline `artifacts:` is not supported — only `artifactsFrom:` with file paths, because Helm requires template files to be physical files in the chart structure.
 
+Inline `artifacts:` for helm-chart is rejected at Recipe load with a clear error pointing the author at `artifactsFrom:` instead. The injected file lands at `boundaries/<bp>/charts/<nodeID>/templates/<basename>` so it sits alongside the sourced chart's templates and Helm picks it up during the downstream render pass.
+
+**helm-chart delimiter convention.** Aggrega's pre-template pass on helm-chart `artifactsFrom:` files uses `[[ ]]` delimiters rather than the default `{{ }}` so Helm's own `{{ ... }}` syntax inside the file survives untouched into Helm's render pass. Authors write Aggrega-side substitutions as `[[ .context.instance_id ]]`, `[[ .values.name ]]`, etc.; Helm-side substitutions stay as `{{ .Values.x }}`, `{{ .Release.Name }}`, `{{- include "common.labels" . }}`, etc. Authors mixing the two delimiter pairs in one file is the supported authoring shape.
+
+**Provenance labels and helm-chart artifacts.** Provenance labels are merged into `metadata.labels` for files that parse as YAML before Helm rendering — files using only `[[ ]]` Aggrega context or with Helm `{{ }}` only at quoted scalar positions. Files with structural Helm template actions (`{{- include ... }}`, `{{- if ... }}`, `{{- range ... }}`, `{{- with ... }}` at positions where they emit YAML structure rather than scalar leaves), or files with unquoted `{{ ... }}` at value positions, do not survive Aggrega's YAML round-trip; the build emits a "skipped provenance label injection" warning naming the artifact and passes the file through unchanged. **This warning is expected for any helm-chart artifactsFrom file using structural Helm template actions or unquoted Helm value substitutions** — it is the common case in production Helm authoring, not the edge case. Authors who need provenance labels on such files inject them via the chart's `_helpers.tpl` `aggrega.commonLabels` template or equivalent Helm-side mechanism, not via Aggrega's pre-template injection.
+
+**Chart-root basename collisions.** `artifactsFrom:` entries whose basename collides with a chart-root file (`Chart.yaml`, `values.yaml`, `.helmignore`, etc.) are not detected by Aggrega's filename-collision check — the artifact lands at `templates/<basename>` while the chart-root file lands at the chart root, and the path-prefixing makes them distinct in Aggrega's view. Authors avoid these basenames; the consequence of using them is that Helm sees both files (one at the chart root, one inside `templates/`) and may render the templates-side copy unexpectedly.
+
 ### What Artifacts Is Not
 
 Three structural distinctions:
@@ -490,8 +498,8 @@ Three structural distinctions:
 
 | Provider | `source:` + `valuesMapping:` | `workload:` / `workloadFrom:` | `artifacts:` / `artifactsFrom:` |
 | --- | --- | --- | --- |
-| helm | ✅ Helm chart rendering via the Helm SDK | Not yet shipped — authoring contract frozen | Not yet shipped — authoring contract frozen |
-| helm-chart | ✅ Umbrella-chart composition | Not applicable | Not yet shipped — authoring contract frozen |
+| helm | ✅ Helm chart rendering via the Helm SDK | Not yet shipped — authoring contract frozen | ✅ standalone YAML files emitted under the boundary output directory |
+| helm-chart | ✅ Umbrella-chart composition | Not applicable | ✅ file-loaded only; injected at `templates/<basename>` with `[[ ]]` Aggrega delimiters; inline rejected at Recipe load |
 | compose | Not yet shipped — authoring contract frozen | Not yet shipped — authoring contract frozen | Not yet shipped — authoring contract frozen |
 | terraform | Not yet shipped — authoring contract frozen | Not yet shipped — synthesis is a future iteration | Not yet shipped — authoring contract frozen |
 | cloudformation | Not yet shipped — authoring contract frozen | Not yet shipped — synthesis is a future iteration | Not yet shipped — authoring contract frozen |
