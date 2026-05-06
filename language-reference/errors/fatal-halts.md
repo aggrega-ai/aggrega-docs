@@ -108,7 +108,7 @@ Emitted message:
 
 #### Rule 7 — emission-time filename collision across input kinds
 
-A Recipe's `source:` output, `workload:` synthesis, and `artifacts:` outputs all produce files into the same boundary directory. If two input kinds emit a file with the same name, the build halts at emission with a message naming every contributor.
+A Recipe's three input kinds — sourced, synthesized, and artifacts — each emit files into the same boundary directory. If source-rendered, workload-synthesized, or artifact-emitted output produces a file whose name another input kind also produced, the build halts at emission with a message naming every contributor.
 
 Rule 7 is checked at emission time (after Workload translation completes), not at Recipe load.
 

@@ -91,7 +91,7 @@ The Recipe schema enforces seven composition rules at load time:
 4. **`workload:` / `workloadFrom:` requires the Provider to declare `workloadSchema`.** Providers that do not support synthesis reject Recipes that use `workload:`. Load-time error.
 5. **At least one input kind must be present.** A Recipe with none of `source:`+`valuesMapping:`, `workload:`/`workloadFrom:`, or `artifacts:`/`artifactsFrom:` produces no output and is an error.
 6. **Inline and file-loaded variants may coexist for artifacts.** A Recipe may use `artifacts:` (inline map) and `artifactsFrom:` (list of files) simultaneously. Filename collision across the two is a load-time error.
-7. **Cross-input-kind filename collisions are render-time errors.** If `source:` output, a `workload:` translation, or any artifact produces a file whose name already exists from another input kind, the Engine emits a fatal error identifying every contributor. This check runs after Workload translation, so it's render-time rather than load-time.
+7. **Cross-input-kind filename collisions are render-time errors.** If two of a Recipe's input kinds — source-rendered output, workload-synthesized output, or artifact-emitted output — produce a file with the same name, the Engine emits a fatal error identifying every contributor. This check runs after Workload translation, so it's render-time rather than load-time.
 
 ## The Workload Kind
 
@@ -374,7 +374,7 @@ Features and Recipe artifacts together cover every auxiliary-resource case curre
 
 ### Inline and File-Loaded Artifacts
 
-Artifacts are templated provider-native manifests the Recipe emits directly alongside any `source:` output or Workload synthesis. They come in two flavors:
+The artifacts input kind emits templated provider-native manifest files directly to the boundary output, alongside any source-rendered or workload-synthesized output. Authors declare it via two surfaces:
 
 ```yaml
 spec:
@@ -447,7 +447,7 @@ This invariant preserves Recipe reusability: a Recipe can be dropped into any Ag
 
 ### Provenance Labels
 
-Post-translation, the Engine injects `aggrega.ai/*` provenance labels into the metadata of every emitted file — whether it came from `source:`, `workload:`, or `artifacts:`. All files carrying the same Recipe's output share the same provenance:
+Post-translation, the Engine injects `aggrega.ai/*` provenance labels into the metadata of every emitted file — whether it was source-rendered, workload-synthesized, or emitted from an artifact template. All files carrying the same Recipe's output share the same provenance:
 
 ```yaml
 metadata:
@@ -486,7 +486,7 @@ Inline `artifacts:` for helm-chart is rejected at Recipe load with a clear error
 
 Three structural distinctions:
 
-**Not cross-provider.** A Recipe declares exactly one `provider:` at its top level. Everything the Recipe produces — `source:` output, `workload:` synthesis, and artifacts — is in that provider's native format. A helm Recipe's artifacts contain Kubernetes YAML. A compose Recipe's artifacts contain compose fragments. A terraform Recipe's artifacts contain `.tf.json`. A Recipe targets one provider; every output is in that provider's native format. Multi-provider composition happens at the Release level: a Release with three boundaries can target helm for boundary A, compose for boundary B, terraform for boundary C, and each boundary's Recipes are single-provider. Cross-provider coordination is the Release author's responsibility.
+**Not cross-provider.** A Recipe declares exactly one `provider:` at its top level. Everything the Recipe produces — source-rendered output, workload-synthesized output, and artifact emissions — is in that provider's native format. A helm Recipe's artifacts contain Kubernetes YAML. A compose Recipe's artifacts contain compose fragments. A terraform Recipe's artifacts contain `.tf.json`. A Recipe targets one provider; every output is in that provider's native format. Multi-provider composition happens at the Release level: a Release with three boundaries can target helm for boundary A, compose for boundary B, terraform for boundary C, and each boundary's Recipes are single-provider. Cross-provider coordination is the Release author's responsibility.
 
 **Not Recipes-in-Recipes.** Artifacts do not load or compose other Recipes. They are inline manifests (or file paths to inline manifests), templated with this Recipe's pillars, emitted to this Recipe's output. Recipe reuse happens through three mechanisms: `extends:` (inheritance of metadata and CUE schemas, not of output files); the Manifest's per-provider dispatch (the same Component can resolve to different Recipes for different providers — see [../language-reference/entities/manifest.md](../language-reference/entities/manifest.md)); and Features + FeatureRecipes (cross-cutting concerns attached orthogonally).
 

@@ -105,7 +105,7 @@ A Recipe declares both `artifacts:` (inline filename → template map) and `arti
 
 ### Recipe shape rule 7 — Cross-input-kind emission-time collision
 
-A Recipe's `source:` output, `workload:` synthesis, and `artifacts:` outputs all produce files into the same boundary directory. If two input kinds emit a file with the same name, the build halts at emission. Detected at Phase B.5 emit time per [`errors/fatal-halts.md`](../errors/fatal-halts.md) Recipe shape rule 7.
+A Recipe's three input kinds — sourced, synthesized, and artifacts — each emit files into the same boundary directory. If source-rendered, workload-synthesized, or artifact-emitted output produces a file whose name another input kind also produced, the build halts at emission. Detected at Phase B.5 emit time per [`errors/fatal-halts.md`](../errors/fatal-halts.md) Recipe shape rule 7.
 
 ### Compose service-name collision (Release-level)
 
