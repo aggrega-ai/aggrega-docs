@@ -10,8 +10,8 @@ Aggrega structurally bridges these gaps through specific architectural polyfills
 
 **The Problem:** Infrastructure deployment is a Directed Acyclic Graph (DAG) of *time*. A database migration `task` must run to completion *before* the web `server` boots up. However, AOT compilers generate flat folders of static YAML or Terraform. If you hand these flat folders to a GitOps controller (like ArgoCD), it applies everything simultaneously, causing the web server to crash-loop while waiting for the database.
 
-**The Solution: `syncWaves` in the Release**
-We leave the Developer's `Aggregate` completely untouched. Because sequencing is a physical operational reality, it is strictly managed in Domain 4 (The `Release`). We introduce an optional `syncWaves` dictionary, allowing DevOps to explicitly map component IDs to integer deployment stages.
+**The Solution: per-boundary `syncWave` in the Release**
+We leave the Developer's `Aggregate` completely untouched. Because sequencing is a physical operational reality, it is strictly managed in Domain 4 (the `Release`). Each boundary in the Release carries an optional `syncWave: <integer>` field, allowing DevOps to explicitly stage deployment ordering at the boundary level.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -23,18 +23,47 @@ metadata:
 spec:
   aggregate: my-app
   manifest: prod-manifest
-  boundaries: {}
-  syncWaves:
-    0: ["core-vpc", "postgres-db"]
-    1: ["db-migration-task"]
-    2: ["web-server", "ai-agent"]
+  boundaries:
+    infra:
+      syncWave: 0
+      components:
+        core-vpc: {}
+        postgres-db: {}
+    migrations:
+      syncWave: 1
+      components:
+        db-migration-task: {}
+    apps:
+      syncWave: 2
+      components:
+        web-server: {}
+        ai-agent: {}
 ```
 
-**The Compiler Effect:**
-When the Infrastructure Rendering Engine (Step 5) utilizes Wasm plugins to generate the artifacts, it evaluates these waves to provide safe handoffs for the downstream CI/CD pipeline:
+**Wave value semantics:**
 
-* **For Kubernetes (ArgoCD/Flux):** The rendering plugins natively inject the GitOps-standard annotations (e.g., `argocd.argoproj.io/sync-wave: "1"`) directly into the headers of the generated YAML.
-* **For Multi-Provider (Terraform + Helm):** The plugins physically group the generated artifacts into stage-specific folders (e.g., `dist/wave-0-infra/`, `dist/wave-1-tasks/`). The enterprise CI/CD pipeline (e.g., GitHub Actions) simply executes the folders sequentially.
+* The wave is a signed integer; the default is `0`. Negative values run before everything else (CRDs, namespaces, RBAC); larger values run after lower values. Operators set values to fit their deployment topology.
+* Every component instance directly contained in a boundary inherits the boundary's wave value into its IR node. There is no per-component override at the authoring layer — provider-internal per-resource ordering inside a single boundary is the provider engine's concern.
+* Nested boundaries do not implicitly inherit. A nested boundary that does not declare `syncWave` defaults to `0` regardless of the outer boundary's declaration. Operators wanting "all of `outer` is wave 1, including its `inner` sub-boundary" declare `syncWave: 1` on both.
+
+**The Compiler Effect:**
+When the Infrastructure Rendering Engine (Step 5) generates artifacts, it propagates each boundary's wave value to every rendered manifest in that boundary. Provider engines emit native sequencing primitives:
+
+* **For Kubernetes (ArgoCD/Flux):** the helm and helm-chart engines emit `argocd.argoproj.io/sync-wave: "<N>"` as a `metadata.annotations` entry on every rendered manifest. Helm hook resources additionally receive `helm.sh/hook-weight: "<N>"` for native Helm hook ordering.
+* **For Terraform / CloudFormation (when those providers ship synthesis):** cross-resource `depends_on` chains derived from per-boundary wave values plus the IR's `uses` edges.
+* **For Compose:** no per-resource sequencing primitive exists; operators sequence at the `docker compose up` invocation layer, applying per-boundary compose projects in declared order.
+
+The Aggrega-internal `aggrega.ai/sync-wave: "<N>"` label continues to ship alongside the ArgoCD annotation for observability and provenance use (queryable via `kubectl get -l aggrega.ai/sync-wave=1`); the annotation is what GitOps controllers consume.
+
+#### Wave-authoring vs deployable unit
+
+The boundary is the **wave-authoring unit**. The deployable unit is the **assembly path** — the on-disk output produced by the compiler that a CI/CD pipeline orchestrates against. By default, one boundary maps to one assembly path: each boundary's components emit under `boundaries/<boundary-name>/<provider>/`, and `helm install` / `terraform apply` / `docker compose up` runs against that path.
+
+Operators can collapse this 1:1 mapping. Boundaries may declare `directory:` (and `subDirectory:`) path-template fields that, when shared across boundaries, route those boundaries' components into a single assembled output at the shared path. Two boundaries declaring `directory: "deploy/cluster"` produce one assembled output containing components from both — the deployable becomes the assembly path, not the boundary identity.
+
+Mixed-wave manifests within one assembled output are normal and supported. When boundary A declares `syncWave: 1` and boundary B declares `syncWave: 2`, and both share `directory: "deploy/cluster"`, the resulting deployable contains both boundaries' components; each manifest carries its author-boundary's wave annotation. Runtime tooling reads per-resource annotations and orders within the assembled deployment unit — ArgoCD's per-Application sync context processes wave 1 manifests, waits for them to be Healthy, then processes wave 2; Helm's hook ordering reads `helm.sh/hook-weight` per-hook-resource. This is the standard ArgoCD pattern: the per-resource emission is exactly the input cross-tool consumers expect.
+
+Cross-Application sequencing (when an operator runs multiple ArgoCD Applications against separate assembled outputs) is operator-level CI configuration — Aggrega produces the artifacts; the operator wires their ArgoCD Applications around them via app-of-apps or Progressive Sync. Aggrega's per-resource annotation pattern is the standard input shape every cross-tool consumer expects.
 
 ### 2. The Dynamic Addressing Polyfill
 

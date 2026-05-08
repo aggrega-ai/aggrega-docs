@@ -268,7 +268,7 @@ Emitted message:
 
 ### Intentional omission: the topology is not required to be acyclic
 
-Unlike tools that enforce a Directed Acyclic Graph on infrastructure dependencies, Aggrega allows cycles in the topology. Agent-to-agent architectures, callback patterns, and mutual-authentication pairs all produce cyclic edges, and the compiler accepts them. Ordering at deploy time is the renderer's concern (through `syncWaves` or equivalent), not the IR graph's.
+Unlike tools that enforce a Directed Acyclic Graph on infrastructure dependencies, Aggrega allows cycles in the topology. Agent-to-agent architectures, callback patterns, and mutual-authentication pairs all produce cyclic edges, and the compiler accepts them. Ordering at deploy time is the renderer's concern (through per-boundary `syncWave` or equivalent), not the IR graph's.
 
 ## When checking inject contracts
 
@@ -369,6 +369,53 @@ Emitted message:
 > unsupported provider: `<provider-name>` — no Provider entity is registered under this name.
 
 **How to fix:** confirm the provider name is spelled correctly (`helm`, `helm-chart`, `compose`, `terraform`, `cloudformation` are the standard-library names). If you intended a custom enterprise provider, ensure the Provider entity is present in the catalog workspace the build is pointed at. If you're evaluating a future provider that has not shipped yet, pick one of the standard-library providers until the target provider is available.
+
+### Path-template references a variable outside the allowlist
+
+A `directory:` or `subDirectory:` template references a variable name that the path-template variable allowlist does not include — for example, a typo such as `{{ .parmaeters.region }}`, or a field that exists in the Recipe rendering context but is not exposed to path templates (such as `.context.inject` or `.values`).
+
+Path templates are validated at parse time against a closed allowlist; the validation runs before any rendering work begins. The compiler also evaluates path templates with `missingkey=error` semantics, so an in-allowlist-but-undefined-at-eval-time reference produces an explicit error rather than silently rendering an empty string into a directory path.
+
+Emitted message:
+> PATH_TEMPLATE_INVALID_FIELD: `<directory|subDirectory>` template on boundary `<boundary-name>` references `<dotted-path>` which is not in the path-template variable allowlist. See `aggrega-docs/language-reference/path-template-variables.md` for the per-context matrix.
+
+**How to fix:** correct the field name to one in the path-template allowlist, or remove the reference. The allowlist for `directory:` is `{{ .provider }}`, `{{ .boundary_name }}`, `{{ .parameters.X }}`, `{{ .manifest.recipe_name }}`, and `{{ .parent_boundary.* }}`; `subDirectory:` adds `{{ .component_id }}`. Other surfaces (Recipe `valuesMapping`, FR `injectMapping`, etc.) use a different context shape; references to `.context.*`, `.values`, `.infra`, or `.locals` are deliberately not exposed to path templates because path emission is a structural concern, not a value-rendering concern.
+
+### Path collision: two contributors emit at incompatible paths
+
+Two boundary contributors evaluate to the same physical assembly path but disagree on a property that must be uniform across the contributors at that path — for example, two boundaries assembling under the same `directory:` route through different providers, or one boundary declares a per-(path, provider) tuple a second boundary cannot satisfy.
+
+Emitted message:
+> PATH_COLLISION: assembly path `<path>` receives contributors from boundaries `<boundary-1>, <boundary-2>` with conflicting `<property>` (`<value-1>` vs `<value-2>`).
+
+**How to fix:** either give each boundary a distinct `directory:` (so they assemble to separate paths), or align the conflicting property across the contributors. The compose-bridge pattern intentionally collapses two sub-boundaries into one assembly path; that pattern requires both boundaries to target the same provider and to carry compatible cascade-resolved annotations.
+
+### Instance-ID collision across boundaries assembling to the same path
+
+Two boundaries that assemble to the same per-(path, provider) tuple contribute components with identical instance IDs. The merged assembly cannot disambiguate the two component fragments — a single Helm chart cannot carry two Deployments named `web-server`, and a single docker-compose file cannot carry two services named `api`.
+
+Emitted message:
+> INSTANCE_ID_COLLISION: components with instance ID `<instance-id>` contributed to assembly path `<path>` (provider `<provider>`) from boundaries `<boundary-1>, <boundary-2>`.
+
+**How to fix:** rename one of the colliding components in the Aggregate, or split the two boundaries onto separate `directory:` paths so each component instance lands in its own assembly.
+
+### Chart-name mismatch on a merged helm-chart umbrella
+
+Two or more boundaries contribute to the same `helm-chart`-provider assembly path but their effective `aggrega.ai/chart-name` annotations (resolved through the boundary annotation cascade) do not agree. A Helm umbrella chart has exactly one chart name; the renderer cannot pick one of the conflicting candidates.
+
+Emitted message:
+> CHART_NAME_MISMATCH: helm-chart assembly at `<path>` receives contributors with conflicting `aggrega.ai/chart-name` annotations: boundary `<boundary-1>` resolves to `<chart-name-1>`, boundary `<boundary-2>` resolves to `<chart-name-2>`.
+
+**How to fix:** declare a matching `aggrega.ai/chart-name` annotation on every contributing boundary (the cascade mechanism makes this DRY when the contributors share a parent boundary — declare once on the parent), or split the boundaries onto separate `directory:` paths so each gets its own umbrella chart.
+
+### FeatureRecipe template references a field outside its scope's allowlist
+
+A FeatureRecipe with `executionScope: boundary` references a per-component-only field such as `.context.instance_id`, `.context.inject`, or `.context.uses` — fields that have no meaningful value at boundary scope. The mirror condition holds: a component-scope FeatureRecipe (the default) referencing `.boundary.*` fields fails the same validator. Validation runs at parse time against the relevant scope's field allowlist before any rendering work begins.
+
+Emitted message:
+> FR_TEMPLATE_INVALID_FIELD: FeatureRecipe `<name>` with `executionScope: <scope>` references `<dotted-path>` which is not available in `<scope>`-scope templates. Available alternatives: `<list>`. See `aggrega-docs/language-reference/entities/featurerecipe.md` for the per-scope template-context shape.
+
+**How to fix:** rewrite the template against the scope's available fields, or change the FeatureRecipe's `executionScope`. Boundary-scope FRs reference `.boundary.path`, `.boundary.boundary_name`, `.boundary.components`, the `.boundary.*_uses_edges` collections, `.boundary.labels`, `.boundary.annotations`, and `.boundary.feature_attachments`. Component-scope FRs reference `.context.instance_id`, `.context.inject`, `.context.uses`, `.context.labels`, `.context.annotations`. Both scopes share `.values`, `.infra`, `.locals`, `.parameters`, `.steps`, and `.metadata`.
 
 ### Self-inject value template references cross-node data
 

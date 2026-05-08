@@ -1,6 +1,6 @@
 # Compose Provider
 
-The compose provider renders Aggrega Recipes into a Docker Compose file. A Release that targets one or more compose boundaries produces a single `docker-compose.yaml` at the Release output root, aggregating every contributing node's services, volumes, and networks.
+The compose provider renders Aggrega Recipes into a Docker Compose file. The provider assembles per-`(path, provider)`: every boundary's compose contributors are routed to the assembler keyed on the boundary's evaluated `directory:` joined with the per-component `subDirectory:`, and that assembler emits one `docker-compose.yaml` containing every contributor at that path. Two sibling boundaries that evaluate to the same path collapse into a single merged compose file — the canonical example is a parent boundary plus two child boundaries with `directory: "{{ .parent_boundary.directory }}"` (the [compose-bridge proof case](../entities/featurerecipe.md#compose-bridge-proof-case)).
 
 ## Supported input kinds
 
@@ -86,9 +86,9 @@ Pod-level Workload fields (`scheduling`, `podSecurityContext`, `serviceAccount`)
 
 ## Per-boundary networking
 
-Each compose-targeted boundary in a Release contributes one Docker network. The network name is derived from the `aggrega.ai/namespace` annotation on the alphabetically-first node in the boundary; when no node carries that annotation, the network name falls back to the sanitised boundary path (lowercased, with non-`[a-z0-9._-]` characters replaced by `_`). Every service in a boundary joins its boundary's network; sidecars inherit the network through their `network_mode` reference to the main service.
+Each compose-contributing boundary contributes one Docker network. The network name is derived from the `aggrega.ai/namespace` annotation on the alphabetically-first node in the boundary; when no node carries that annotation, the network name falls back to the sanitised boundary path (lowercased, with non-`[a-z0-9._-]` characters replaced by `_`). Every service in a boundary joins its boundary's network; sidecars inherit the network through their `network_mode` reference to the main service.
 
-The merged `docker-compose.yaml` declares one top-level `networks:` entry per boundary. Services from different boundaries can communicate by their service names within compose's default DNS resolution, subject to compose's own cross-network reachability rules.
+When two boundaries collapse into one assembly path (shared `directory:`), the merged `docker-compose.yaml` declares one top-level `networks:` entry per contributing boundary. Services from different boundaries within the same compose file can communicate by their service names within compose's default DNS resolution, subject to compose's own cross-network reachability rules. Cross-network L4 routing within a single compose file is what the `compose-bridge` Feature enables.
 
 ## `depends_on` inference
 
@@ -128,17 +128,18 @@ The deep-merge rules:
 
 The merged document then flows into the Release-level merge alongside any synthesised-mode contributions, with the same per-boundary networking and `depends_on` inference.
 
-## Release-level output
+## Per-`(path, provider)` output
 
-A Release with multiple compose-targeted boundaries produces **one** `docker-compose.yaml` at the Release output root. The provider collects every boundary's contributing nodes, merges their services, volumes, and networks into a single document, and emits it under `dist/`.
+Each compose assembly path produces one `docker-compose.yaml`. Boundaries that evaluate to distinct paths produce distinct compose files; boundaries that share an evaluated path produce one merged compose file containing every contributor at that path. The path is the boundary's `directory:` joined with the per-component `subDirectory:` (which defaults to `{{ .provider }}` so compose contributors land under a `compose/` subfolder by default).
 
-Service-name collisions across boundaries are a `TRANSLATION_ERROR`. When two different nodes (in any combination of boundaries) contribute services with the same name, the compiler halts and the diagnostic names every contributing `(boundary, node)` tuple in alphabetical order. The author resolves the collision by renaming one of the contributors (typically by adjusting the node's identifier so the synthesizer produces a different service name) before the build proceeds.
+Service-name collisions within a single assembly path raise `INSTANCE_ID_COLLISION`. When two different nodes contribute services with the same instance ID at the same `(path, provider)` tuple, the compiler halts and the diagnostic names every contributing `(boundary, node)` tuple in alphabetical order. The author resolves the collision by renaming one of the contributors (typically by adjusting the node's identifier so the synthesizer produces a different service name), or by routing the contributors to distinct paths via different `directory:` declarations.
 
-Top-level volumes union across the Release — name collisions silently merge because the current named-volume shape has no body content to conflict on. Top-level networks are one-per-boundary, named per the derivation rules above; collisions across boundaries (two boundaries with the same `aggrega.ai/namespace`) merge to a single network shared by both.
+Top-level volumes union within an assembly path — name collisions silently merge because the current named-volume shape has no body content to conflict on. Top-level networks are one-per-contributing-boundary, named per the derivation rules above; two contributing boundaries with the same `aggrega.ai/namespace` annotation merge to a single network shared by both.
 
 ## What the compose provider does not deliver
 
-- **Cross-boundary L4 routing.** A service in boundary A reaching a service in boundary B by anything other than docker-compose's default DNS requires the `compose-bridge` Feature, which is part of a future intent.
+- **Cross-network L4 routing within one compose file.** A service in network A reaching a service in network B by anything other than docker-compose's default DNS requires the `compose-bridge` Feature.
+- **Cross-compose-file routing.** Boundaries that evaluate to distinct assembly paths produce distinct `docker-compose.yaml` files; the compose runtime treats them as independent projects. Cross-file communication is the operator's concern (publishing host ports, sharing external networks, or coalescing the boundaries onto one path via a shared `directory:`).
 - **Native env-from-secret resolution.** Workload `secrets[as: env]` entries emit environment placeholders rather than runtime-resolved secret references. The `compose-bridge` Feature is the future home for compose-side secret resolution.
 - **Compose `deploy:` block.** Replicas, placement constraints, and update strategy under `deploy:` are swarm-mode features; the compose provider targets single-host compose only and does not emit `deploy:` content.
 - **Health-condition-gated `depends_on`.** The long-form `{ <target>: { condition: service_healthy } }` shape is reserved for a future intent; today's emit always uses the short-form list with `service_started` semantics.
@@ -200,7 +201,7 @@ spec:
     db: {}
 ```
 
-The compose provider produces a single `docker-compose.yaml` at the Release output root containing:
+The compose provider produces one `docker-compose.yaml` at the boundary's evaluated path (default `dist/production/compose/docker-compose.yaml` because `subDirectory:` defaults to `{{ .provider }}`) containing:
 
 - `services.api` (the main api service, network `prod`, ports `8080:8080`, healthcheck via `curl`, `depends_on: [db]`)
 - `services.db` (the main db service, network `prod`)

@@ -1,6 +1,8 @@
 # Helm Provider
 
-The helm provider produces flat rendered Kubernetes YAML for GitOps consumers (ArgoCD, Flux). A Release that targets one or more helm boundaries emits one YAML file per Kubernetes resource into each boundary's output directory; downstream tooling diffs and applies the files directly without a Helm install step.
+The helm provider produces flat rendered Kubernetes YAML for GitOps consumers (ArgoCD, Flux). The provider assembles per-`(path, provider)`: every helm-targeted node's rendered YAML is routed to the assembler keyed on the boundary's evaluated `directory:` joined with the per-component `subDirectory:`, and that assembler emits one YAML file per Kubernetes resource. Downstream tooling diffs and applies the files directly without a Helm install step.
+
+Each emitted Kubernetes resource carries the boundary's `syncWave: <integer>` value as the `argocd.argoproj.io/sync-wave: "<N>"` annotation; Helm hooks additionally carry `helm.sh/hook-weight: "<N>"`. ArgoCD, Flux, and Helm read these annotations natively and order resource application accordingly.
 
 This page is the helm provider's authoring reference. For the cross-provider input-composition model, see [architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md). For current shipping-state classifications, see [Status of the Language → Provider engines](../10-status.md#provider-engines).
 

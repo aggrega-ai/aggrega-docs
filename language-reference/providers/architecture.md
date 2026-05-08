@@ -16,7 +16,7 @@ See [../entities/provider.md](../entities/provider.md) for the full field-level 
 
 ## Per-provider dispatch
 
-Every Recipe declares exactly one `provider:` at the top of its `spec`. The compiler reads this field and dispatches rendering through the matching Provider entity's plugin. A Recipe cannot target multiple providers at once — multi-provider composition happens at the Release level, where different boundaries can target different providers and the Release as a whole coordinates the multi-target deployment.
+Every Recipe declares exactly one `provider:` at the top of its `spec`. The compiler reads this field and dispatches rendering through the matching Provider entity's plugin. A Recipe cannot target multiple providers at once. Multi-provider composition happens at the Release level: a boundary can hold mixed-provider components, and each provider's contributors at the boundary's evaluated assembly path are assembled independently — one assembly per `(path, provider)` tuple.
 
 The dispatch path for a single node:
 
@@ -24,9 +24,9 @@ The dispatch path for a single node:
 2. The resolved Recipe's `spec.provider` identifies the Provider entity to dispatch to.
 3. The compiler resolves the Provider entity through the standard catalog three-tier lookup (local path, workspace cache, remote OCI registry).
 4. The compiler invokes the Provider's plugin socket with the per-node render context (pillar values, `.context.*` projections, the Recipe's input kinds).
-5. The plugin returns rendered output, which the compiler writes into the boundary's output directory.
+5. The plugin returns rendered output. The compiler routes the rendered files to the per-`(path, provider)` assembler keyed on the boundary's evaluated `directory:` joined with the per-component `subDirectory:`. Two boundaries that evaluate to the same path under the same provider share an assembler — the canonical pattern is a parent boundary plus two child boundaries with `directory: "{{ .parent_boundary.directory }}"` collapsing into one merged assembly.
 
-See [../entities/manifest.md](../entities/manifest.md) for the Manifest's provider-axis dispatch shape, and [../entities/recipe.md](../entities/recipe.md) for the Recipe-side single-provider declaration.
+See [../entities/manifest.md](../entities/manifest.md) for the Manifest's provider-axis dispatch shape, and [../entities/recipe.md](../entities/recipe.md) for the Recipe-side single-provider declaration. The per-`(path, provider)` assembly model and the path-template variable allowlist that controls evaluated paths are documented in [../path-template-variables.md](../path-template-variables.md).
 
 ## The Wasm plugin contract
 

@@ -1,6 +1,8 @@
 # Helm-Chart Provider
 
-The helm-chart provider produces a packaged Helm umbrella chart per Release boundary. Where the [helm provider](helm.md) emits flat Kubernetes YAML for direct GitOps consumption, helm-chart emits a chart scaffold — an umbrella `Chart.yaml` + `values.yaml` plus one sub-chart per contributing node — that downstream tooling can install via `helm install` or vendor for further per-environment customisation.
+The helm-chart provider produces a packaged Helm umbrella chart per assembly path. Where the [helm provider](helm.md) emits flat Kubernetes YAML for direct GitOps consumption, helm-chart emits a chart scaffold — an umbrella `Chart.yaml` + `values.yaml` plus one sub-chart per contributing node — that downstream tooling can install via `helm install` or vendor for further per-environment customisation. The provider assembles per-`(path, provider)`: every node bound to a helm-chart Recipe contributes to the umbrella at the boundary's evaluated `directory:` joined with the per-component `subDirectory:`. Two boundaries that evaluate to the same path collapse into one merged umbrella chart that lists every contributor as a sub-chart dependency.
+
+Each rendered Kubernetes resource emitted from sub-chart templates carries the boundary's `syncWave: <integer>` value as the `argocd.argoproj.io/sync-wave: "<N>"` annotation; Helm hooks additionally carry `helm.sh/hook-weight: "<N>"`. ArgoCD, Flux, and Helm read these annotations natively.
 
 This page is the helm-chart provider's authoring reference. For the helm vs helm-chart split, see the [Provider engines](../10-status.md#provider-engines) section of the Status page; for the cross-provider input-composition model, see [architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md).
 
@@ -33,26 +35,32 @@ The chart at the source path **must contain a valid `Chart.yaml`** at its root; 
 
 A nil or empty source is rejected; helm-chart has no sourceless or generative fallback.
 
-## Boundary composition — the umbrella shape
+## Path-keyed composition — the umbrella shape
 
-The provider runs in two phases per Release boundary:
+The provider runs in two phases per assembly path:
 
-1. **Per-node copy.** For each node bound to a helm-chart Recipe, the engine copies the source chart's full directory tree into a sub-chart slot. Files land flat in the per-node output map; the orchestrator nests them under `charts/<instance_id>/` when assembling the boundary output.
-2. **Boundary umbrella assembly.** Once all per-node copies complete, the boundary composer emits an umbrella `Chart.yaml` + `values.yaml` at the boundary root. The umbrella declares one dependency per contributing node and routes per-node values under instance-id-keyed sub-blocks.
+1. **Per-node copy.** For each node bound to a helm-chart Recipe, the engine copies the source chart's full directory tree into a sub-chart slot. Files land flat in the per-node output map; the orchestrator nests them under `charts/<instance_id>/` when assembling the umbrella.
+2. **Per-`(path, provider)` umbrella assembly.** Once all per-node copies for the path complete, the assembler emits an umbrella `Chart.yaml` + `values.yaml` at the assembly path's root. The umbrella declares one dependency per contributing node and routes per-node values under instance-id-keyed sub-blocks. When the assembly path receives contributors from more than one boundary (boundaries with shared `directory:`), every contributor lands as a dependency in the same umbrella.
 
 The umbrella `Chart.yaml` has the shape:
 
 ```yaml
 apiVersion: v2
-name: <aggregate-name>-<boundary-name>      # sanitised; "." and "_" replaced by "-"
+name: <effective-chart-name>                # see "Chart-name resolution" below
 version: 0.1.0
-description: Aggrega umbrella chart for boundary "<boundary-name>"
+description: Aggrega umbrella chart at <assembly-path>
 dependencies:
   - name: <user-chart-name>                 # from the source chart's Chart.yaml
     version: <user-chart-version>           # from the source chart's Chart.yaml
     alias: <instance_id>                    # sanitised
     repository: file://charts/<instance_id>
 ```
+
+### Chart-name resolution
+
+The umbrella's chart `name` is resolved through the boundary annotation cascade. Each contributing boundary's effective `aggrega.ai/chart-name` annotation (the cascade-resolved value, walking up the boundary tree) determines the umbrella name. When the assembly path receives contributors from more than one boundary, every contributor's effective `aggrega.ai/chart-name` MUST resolve to the same value; mismatches raise `CHART_NAME_MISMATCH` and halt the build with a diagnostic naming the conflicting values and the contributing boundaries.
+
+The cascade resolves the DRY tension naturally: declare `aggrega.ai/chart-name` once on the parent boundary and child boundaries inherit it through the cascade; sibling boundaries with no common parent must declare matching values explicitly. Boundaries with no `aggrega.ai/chart-name` declared anywhere in their cascade fall back to a sanitised concatenation of the aggregate name and the contributing boundary name (with `.` and `_` replaced by `-`), matching the legacy single-boundary shape.
 
 Each dependency entry's `name` is the chart name extracted from the source chart's own `Chart.yaml`; the `alias` is the node's instance_id (sanitised). The alias serves two roles:
 
@@ -100,10 +108,10 @@ spec:
     replicaCount: {{ .infra.replicas | default 2 }}
 ```
 
-After Release composition, the boundary output directory contains:
+After composition, the boundary's evaluated assembly path (default `dist/<boundary-directory>/<provider>/` because `subDirectory:` defaults to `{{ .provider }}`) contains:
 
 ```text
-boundaries/<boundary>/
+dist/<boundary-directory>/helm-chart/
 ├── Chart.yaml                       # umbrella; lists api-east and api-west as dependencies
 ├── values.yaml                      # alias-keyed: api-east + api-west values blocks
 └── charts/
@@ -119,7 +127,7 @@ boundaries/<boundary>/
             └── deployment.yaml
 ```
 
-A `helm install <release-name> boundaries/<boundary>` against this layout installs both instances as a single Helm release, with the umbrella's alias-keyed values driving each sub-chart's templates.
+A `helm install <release-name> dist/<boundary-directory>/helm-chart` against this layout installs both instances as a single Helm release, with the umbrella's alias-keyed values driving each sub-chart's templates.
 
 ## Cross-references
 

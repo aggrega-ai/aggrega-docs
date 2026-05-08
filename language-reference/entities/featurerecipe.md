@@ -126,3 +126,51 @@ When a FeatureRecipe implements a credential Feature (one labeled `feature.aggre
 ## Provider & `implements`
 
 The `provider` field is mandatory at the root level and declares which Wasm rendering plugin will execute the FeatureRecipe's output (`helm`, `compose`, `terraform`, `cloudformation`, `eval`, etc.). The `implements` field binds the FeatureRecipe to its Feature interface and supports exact, major-compatible range, or unversioned matching — see [vocabulary/inheritance-and-interface](../vocabulary/inheritance-and-interface.md) for `implements` Version Matching semantics.
+
+## Execution Scope — `spec.executionScope`
+
+The optional `spec.executionScope` enum selects the dispatch model for Resource Generation. Two values are accepted; the default when the field is omitted is `component`.
+
+* **`component` (default).** The FeatureRecipe's Resource Generation runs once per attached component instance. Each invocation receives a per-component `TemplateContext` rooted at `.context.*` — `.context.instance_id`, `.context.inject`, `.context.uses`, `.context.annotations`, etc. — exactly as today. Existing FeatureRecipes that omit `executionScope` continue to behave identically.
+* **`boundary`.** Resource Generation runs **once per attached boundary**, regardless of how many components inside the boundary's subtree consume the feature. Each invocation receives a boundary-scope `TemplateContext` rooted at `.boundary.*` instead of `.context.*`.
+
+The Phase-A `injectMapping` mechanism (described above) is **always per-consumer** regardless of `executionScope`. Each component that uses the feature still gets its own caller-side rewrite of `.context.inject`. Only the Resource Generation step (`source`/`valuesMapping` and the `pipeline` array) deduplicates at boundary scope.
+
+### Boundary-scope `TemplateContext`
+
+When `executionScope: boundary`, the FeatureRecipe's templates evaluate against a `.boundary.*` view of the boundary the feature is attached to. The view exposes:
+
+* `.boundary.path` — the boundary's evaluated `directory:` path (replaces `.context.instance_id`).
+* `.boundary.boundary_name` — the boundary's authored name in the Release.
+* `.boundary.components` — a map keyed by instance ID containing every component in the boundary's subtree (`instance_id`, `component`, `resolved_version`, `boundary_path`).
+* `.boundary.internal_uses_edges` — `uses:` edges where both endpoints are inside this boundary's subtree.
+* `.boundary.outgoing_cross_boundary_uses_edges` — edges with the source inside the subtree and the target outside (used by the compose-bridge pattern to enumerate connections that need a proxy).
+* `.boundary.incoming_cross_boundary_uses_edges` — edges with the target inside the subtree and the source outside (used by ingress-style aggregators).
+* `.boundary.cross_boundary_uses_edges` — the union of incoming and outgoing cross-boundary edges, when the FeatureRecipe wants the full cross-boundary view.
+* `.boundary.labels` — the union of subtree labels with author-order preservation.
+* `.boundary.annotations` — the boundary's own annotations plus the cascade.
+* `.boundary.feature_attachments` — every feature attached at this boundary (so a boundary-scope FR can introspect siblings if needed).
+
+The `.values` and `.infra` pillars on a boundary-scope FR resolve to the **boundary-attached feature's** `values:` and `infra:` blocks, not to a per-component cascade-merged set. `.locals` continues to be the FR's own locals block. `.steps`, `.metadata`, `.parameters` remain unchanged.
+
+### Boundary-scope template field allowlist
+
+Boundary-scope FRs may only reference fields available in the boundary-scope view. Authoring a template that references a per-component-only field (e.g., `.context.instance_id`, `.context.inject`, `.context.uses`) when `executionScope: boundary` causes the FeatureRecipe to fail validation at parse time with an `FR_TEMPLATE_INVALID_FIELD` error naming the FR, the offending field, and the alternative fields available in the boundary-scope view. The mirror rule applies in the other direction: a component-scope FR that references `.boundary.*` fields fails the same validator.
+
+The validator runs the same template-AST walk that the path-template variable allowlist uses, with a different reference set per scope.
+
+### Deduplication and Resource Generation output
+
+For `executionScope: boundary`, the compiler deduplicates Resource Generation by the tuple `(boundary_path, FR-instance)`. Two components in the same boundary subtree both consuming the same boundary-attached feature trigger one FR invocation, not two. Cross-boundary attachments of the same feature run independently per boundary.
+
+A boundary-scope FR emits files under `<boundary_directory>/<fr-provider>/features/<feature-instance>/` for non-intermediate output (one set of files per `(boundary_path, FR-instance)` tuple). Intermediate output flows to the boundary's per-(path, provider) assembler at the FR's evaluated path under the FR's own `spec.provider` — this is the mechanism the compose-bridge proof case uses to merge a bridge service alongside per-component compose contributors at the same assembly path.
+
+### Cascade-aware `provides:` resolution
+
+Boundary-scope FRs produce one `provides:` set per `(boundary_path, FR-instance)` tuple. The FR's `provides:` template evaluates with the boundary-scope `TemplateContext` (so it can reference `.boundary.components`, `.boundary.path`, `.infra`, `.values`, but not per-consumer fields). The provides values are **constants relative to consumers** — every consumer in the boundary's subtree sees the same provided values.
+
+When a consumer references a boundary-scope FR's provides via `.context.uses.<feature-alias>.<provided-name>`, the resolver walks up the boundary tree from the consumer's boundary path until it finds the boundary that holds the FR attachment, then reads the provides set for that `(boundary_path, FR-instance)` tuple. The cascade walk terminates at the tree root with the same not-found semantics as today's per-component case.
+
+### Compose-bridge proof case
+
+The compose-bridge FeatureRecipe is the canonical boundary-scope-FR pattern. A `core/compose-bridge` feature is attached at a parent boundary that contains two sub-boundaries (e.g., `services-net` and `data-net` with shared `directory:`). The FR's `executionScope: boundary` ensures one bridge service is synthesized per parent-boundary attachment. Phase-A `injectMapping` rewrites each consumer's `DB_HOST` (or equivalent) to point at the bridge address. Phase-B Resource Generation emits the bridge's `nginx-stream` compose service, which the per-(path, provider) compose assembler merges with per-component compose contributors at the same evaluated path. The result is one `docker-compose.yaml` containing every component plus the bridge service, with cross-network routing wired correctly.
