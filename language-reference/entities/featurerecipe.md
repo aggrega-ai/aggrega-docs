@@ -151,7 +151,7 @@ When `executionScope: boundary`, the FeatureRecipe's templates evaluate against 
 * `.boundary.annotations` — the boundary's own annotations plus the cascade.
 * `.boundary.feature_attachments` — every feature attached at this boundary (so a boundary-scope FR can introspect siblings if needed).
 
-The `.values` and `.infra` pillars on a boundary-scope FR resolve to the **boundary-attached feature's** `values:` and `infra:` blocks, not to a per-component cascade-merged set. `.locals` continues to be the FR's own locals block. `.steps`, `.metadata`, `.parameters` remain unchanged.
+The `.infra` pillar on a boundary-scope FR resolves to the **boundary-attached feature's** `infra:` block (Release-side authored physical sizing for that boundary attachment). `.values` is **always empty** for boundary-scope FRs: the Release schema's pillar-split rule forbids `values:` on Release-level Feature attachments, so a `BoundaryFeature` carries no values to project. Boundary-scope FRs that need parameter-shaped data should consume it via `.infra` (the operator's authoring surface for boundary-feature configuration), via `.boundary.annotations` (cascade-resolvable string values authored on the boundary or any ancestor), or via `.parameters.X` (Release-fulfilled typed parameters from the Aggregate's `parameters:` declaration). `.locals` continues to be the FR's own locals block. `.steps`, `.metadata`, `.parameters` remain unchanged.
 
 ### Boundary-scope template field allowlist
 
@@ -167,9 +167,9 @@ A boundary-scope FR emits files under `<boundary_directory>/<fr-provider>/featur
 
 ### Cascade-aware `provides:` resolution
 
-Boundary-scope FRs produce one `provides:` set per `(boundary_path, FR-instance)` tuple. The FR's `provides:` template evaluates with the boundary-scope `TemplateContext` (so it can reference `.boundary.components`, `.boundary.path`, `.infra`, `.values`, but not per-consumer fields). The provides values are **constants relative to consumers** — every consumer in the boundary's subtree sees the same provided values.
+Boundary-scope FRs produce one `provides:` set per `(boundary_path, FR-instance)` tuple. The FR's `provides:` template evaluates with the boundary-scope `TemplateContext` (so it can reference `.boundary.components`, `.boundary.path`, `.infra`, but not per-consumer fields and not `.values`). The provides values are **constants relative to consumers** — every consumer in the boundary's subtree sees the same provided values.
 
-When a consumer references a boundary-scope FR's provides via `.context.uses.<feature-alias>.<provided-name>`, the resolver walks up the boundary tree from the consumer's boundary path until it finds the boundary that holds the FR attachment, then reads the provides set for that `(boundary_path, FR-instance)` tuple. The cascade walk terminates at the tree root with the same not-found semantics as today's per-component case.
+**Consumer-side resolution of boundary-scope FR provides is currently a deferred integration.** The `.context.uses.<feature-alias>.<provided-name>` surface resolves correctly for component-scope FRs as today; for boundary-scope FRs, the cascade walk from consumer to FR-attachment-bearing boundary is implemented as a helper but not yet wired into the consumer-side rehydration path. Boundary-scope FRs that need to expose values to consumers should currently rely on Phase-A `injectMapping` (which is per-consumer regardless of `executionScope` and works correctly today) rather than `provides:`. The cascade-aware provides path is expected to land when a use case requiring it surfaces.
 
 ### Compose-bridge proof case
 
