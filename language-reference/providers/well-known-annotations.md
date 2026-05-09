@@ -59,30 +59,46 @@ Provider engines read specific boundary annotations from the Release to configur
 
 ## Provenance labels emitted by providers
 
-The annotations above flow *into* the build — the Release authors them, providers consume them. Providers also emit a parallel set of labels *out of* the build, attaching them to the rendered output so downstream tooling can attribute runtime resources back to the catalog content that produced them. These provenance labels are not authored on the Release; they are derived from the build's own state (release identity, aggregate name, environment, sync wave, compiler version) and emitted by the provider at render time.
+The annotations above flow *into* the build — the Release authors them, providers consume them. Providers also emit a parallel set of labels *out of* the build, attaching them to the rendered output so downstream tooling can attribute runtime resources back to the catalog content that produced them. These provenance labels are not authored on the Release; they are derived from the build's own state (Recipe identity, boundary path, aggregate name, environment, sync wave, compiler version) and emitted by the provider at render time.
 
-The current emit set on rendered Kubernetes manifests:
+The shipping emit set, attached to every rendered Kubernetes manifest by helm and helm-chart, and to every emitted service by compose:
 
-| Label | Source | Always emitted? |
+| Label | Source | Emission |
 | --- | --- | --- |
-| `app.kubernetes.io/name` | Node ID | Yes |
-| `aggrega.ai/component-id` | Node ID | Yes |
-| `aggrega.ai/boundary-path` | Boundary path | When set |
-| `aggrega.ai/compiler-version` | Provenance struct | When set |
-| `aggrega.ai/aggregate-name` | Aggregate `metadata.name` | When set |
-| `aggrega.ai/environment` | Release `metadata.environment` | When the Release sets it (the field is moving to optional) |
-| `aggrega.ai/sync-wave` | Per-node sync-wave | When set |
+| `app.kubernetes.io/name` | Node ID (or sanitised label-component identifier for FeatureRecipe-emitted resources) | helm and helm-chart only — Kubernetes-standard label, not emitted on compose services |
+| `aggrega.ai/component-id` | Node ID (or sanitised label-component identifier for FeatureRecipe-emitted resources) | All three engines |
+| `aggrega.ai/recipe-uri` | `<recipe-name>:<recipe-version>` of the producing Recipe (or producing FeatureRecipe for FR-emitted resources) | All three engines, when the producing entity has both name and version set |
+| `aggrega.ai/boundary-path` | Boundary path the component was routed into | All three engines, when the boundary path is non-empty |
+| `aggrega.ai/aggregate-name` | Aggregate `metadata.name` | All three engines, when set |
+| `aggrega.ai/compiler-version` | Compiler version stamped at build time | All three engines, when set |
+| `aggrega.ai/environment` | Release `metadata.environment` | All three engines, when the Release sets it |
+| `aggrega.ai/sync-wave` | Per-boundary `syncWave` integer | All three engines, when non-zero |
 
-### Per-provider asymmetry
+### Per-engine emission notes
 
-The provenance label emission is **not uniform across providers today**. The current shipping state:
+- **`helm`** — labels land in `metadata.labels` on every rendered Kubernetes resource (Deployment, Service, PVC, etc.). Both sourced-mode (Helm SDK render with post-render label injection) and synthesised-mode (workload synthesis) paths produce the same set.
+- **`helm-chart`** — labels land in `metadata.labels` on every sub-chart resource via the same label-injection mechanism as helm.
+- **`compose`** — labels land in `services.<name>.labels` on every emitted compose service. Sourced-mode (post-merge label injection on the merged base + valuesMapping document) and synthesised-mode (workload synthesis directly setting the service's labels block) both produce the same set. The Kubernetes-specific `app.kubernetes.io/name` is omitted from compose output.
+- **`terraform` / `cloudformation`** — `planned`; the engines do not ship today, so there is no emission discipline yet. When the engines ship, the design target is to emit equivalent tags via each cloud's native tagging mechanism (Terraform `tags` block, CloudFormation `Tags`).
 
-- **`helm`** — emits the full provenance label set above on every rendered Kubernetes resource (Deployment, Service, PVC, etc.). Both sourced-mode (Helm SDK render with post-render label injection) and synthesised-mode (workload synthesis) paths produce the same labels.
-- **`helm-chart`** — emits the same set on its sub-chart resources via the same label-injection mechanism as helm.
-- **`compose`** — does **not** emit aggrega-prefixed provenance labels on rendered docker-compose services today. The compose engine consumes `aggrega.ai/namespace` for per-boundary network derivation but does not write a parallel set of labels onto compose services. Downstream tooling that filters compose output by aggrega provenance has nothing to filter on for compose-targeted boundaries.
-- **`terraform` / `cloudformation`** — `planned`; the engines do not ship today, so there is no emission discipline yet. When the engines ship, the design target is to emit equivalent tags via each cloud's native tagging mechanism (Terraform `tags` block, CloudFormation `Tags`); the per-provider translation lands with the engine.
+For resources emitted by a boundary-scope FeatureRecipe (the `compose-bridge` gateway service is the canonical example), the `aggrega.ai/component-id` value carries a sanitised form of the FR-instance attachment identifier rather than a regular component name; the value remains a valid Kubernetes label string in all cases. The `aggrega.ai/recipe-uri` resolves to the FeatureRecipe's own `name:version`, not the consuming Recipe's identity — downstream tooling reading the label to identify the producing entity gets the correct provenance for both component-emitted and FR-emitted output.
 
-The asymmetry is a real authoring caveat. Authors targeting cost-attribution dashboards or environment-filtered observability across mixed compose + helm boundaries should expect the compose subset of resources to carry no aggrega provenance labels until compose adopts the emission discipline. This is tracked as a documentation observation rather than a bug — the compose docker-compose output shape is structurally different from K8s manifests, and the canonical compose label-host (the service block's labels field) requires a per-service decision on which subset of provenance to emit.
+## Sync-wave annotations
+
+The `aggrega.ai/sync-wave` label above is paired with a sync-wave annotation that downstream tooling consumes for deployment ordering. The label exposes the wave value for selector queries; the annotation surfaces the value where each tool conventionally reads it.
+
+| Annotation | Emission | Consumed by |
+| --- | --- | --- |
+| `argocd.argoproj.io/sync-wave` | helm and helm-chart, on every Kubernetes resource where `syncWave` is non-zero on the contributing boundary | ArgoCD's sync-wave ordering |
+| `helm.sh/hook-weight` | helm only, on chart-templated manifests that already carry a `helm.sh/hook` annotation when `syncWave` is non-zero | Helm's hook-weight ordering within a hook phase |
+
+### `helm.sh/hook-weight` emission is path-dependent
+
+A subtlety worth flagging for chart authors: `helm.sh/hook-weight` is emitted only on manifests rendered through the chart-templating path — the chart's `templates/` directory rendered via the Helm SDK. Manifests produced through the artifacts path (the Recipe's `artifacts:` or `artifactsFrom:` block) carry the `argocd.argoproj.io/sync-wave` annotation and the full provenance label set, but they do **not** receive `helm.sh/hook-weight` — even when the artifact carries a `helm.sh/hook` annotation.
+
+The distinction is structural: `helm.sh/hook` and `helm.sh/hook-weight` are Helm-runtime ordering primitives that apply to chart-templated hook resources. Recipe-author artifacts are extra resources declared at the Recipe layer; they do not participate in Helm's hook lifecycle by default.
+
+If you need Helm hook-weight ordering on a hook resource, author the resource as a chart template under the Recipe's `source:` directory rather than as an `artifacts:` entry. The chart template will receive both `argocd.argoproj.io/sync-wave` and `helm.sh/hook-weight` matching the contributing boundary's `syncWave` value.
 
 ## Authoring examples
 

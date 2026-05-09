@@ -61,23 +61,26 @@ Annotation and label keys follow a uniform `<namespace>/<name>` shape. Three res
 
 Authors writing custom annotations use a domain they control (typically reverse-DNS style). Authoring under `aggrega.ai/` directly (without a sub-prefix) is reserved for the platform; the Manifest's `features.annotations` bindings cannot bind keys directly under `aggrega.ai/` either — see [`entities/manifest.md`](../entities/manifest.md) "`aggrega.ai/` Prefix Reservation".
 
-## Provenance labels emitted on rendered manifests
+## Provenance labels emitted on rendered output
 
-Beyond the inbound annotations the engines consume, Aggrega also **emits** provenance labels onto rendered Kubernetes manifests. The label set lets downstream tooling (cost dashboards, observability stacks, GitOps controllers) attribute runtime resources back to the catalog content that produced them.
+Beyond the inbound annotations the engines consume, Aggrega also **emits** provenance labels onto every rendered Kubernetes manifest and every emitted compose service. The label set lets downstream tooling (cost dashboards, observability stacks, GitOps controllers) attribute runtime resources back to the catalog content that produced them.
 
-The current emit set, per the helm and helm-chart provider engines:
+The shipping label set, emitted uniformly by the helm, helm-chart, and compose provider engines:
 
 | Label | Source | Always emitted? |
 | --- | --- | --- |
-| `app.kubernetes.io/name` | Node ID | Yes |
-| `aggrega.ai/component-id` | Node ID | Yes |
-| `aggrega.ai/boundary-path` | Boundary path | When set |
-| `aggrega.ai/compiler-version` | Provenance struct | When set |
+| `app.kubernetes.io/name` | Node ID (or sanitised label-component identifier for FeatureRecipe-emitted resources) | Yes on Kubernetes manifests; not emitted on compose services (the standard label is K8s-specific) |
+| `aggrega.ai/component-id` | Node ID (or sanitised label-component identifier for FeatureRecipe-emitted resources) | Yes |
+| `aggrega.ai/recipe-uri` | `<recipe-name>:<recipe-version>` of the producing Recipe (or producing FeatureRecipe for FR-emitted resources) | When the producing entity has both name and version set |
+| `aggrega.ai/boundary-path` | Boundary path the component was routed into | When the boundary path is non-empty |
 | `aggrega.ai/aggregate-name` | Aggregate `metadata.name` | When set |
-| `aggrega.ai/environment` | Release `metadata.environment` | When Release sets it (per D-10, environment is being made optional) |
-| `aggrega.ai/sync-wave` | Per-node sync-wave | When set |
+| `aggrega.ai/compiler-version` | Compiler version stamped at build time | When set |
+| `aggrega.ai/environment` | Release `metadata.environment` | When the Release sets it |
+| `aggrega.ai/sync-wave` | Per-boundary `syncWave` integer driving GitOps deployment ordering | When non-zero |
 
-The label set is canonical for helm and helm-chart provider output. The compose provider does not emit this set today — see [`providers/well-known-annotations.md`](../providers/well-known-annotations.md) "Provenance labels emitted by providers" for the per-provider asymmetry and roadmap framing.
+For resources emitted by a boundary-scope FeatureRecipe (such as the `compose-bridge` gateway service), the `aggrega.ai/component-id` value carries a sanitised form of the FR-instance attachment identifier rather than a regular component name. The value remains a valid Kubernetes label string in all cases. The `aggrega.ai/recipe-uri` for an FR-emitted resource resolves to the FeatureRecipe's own `name:version`, not the consuming Recipe's identity — so downstream tooling reading `recipe-uri` to identify the producing entity gets the correct provenance for both component-emitted and FR-emitted output.
+
+For per-provider emission specifics (where on the rendered output the labels land, and how each provider serialises them), see [`providers/well-known-annotations.md`](../providers/well-known-annotations.md) "Provenance labels emitted by providers".
 
 ## Feature attachment — five surfaces
 

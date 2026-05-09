@@ -116,4 +116,6 @@ Deterministic output is maintained through three disciplines:
 - No wall-clock or random content in rendered artifacts unless the author explicitly injected it via template input.
 - Rendering is pure: the same Wasm guest invocation with the same JSON input produces the same JSON output.
 
+The compiler's `--trace` flag (see [`language-reference/cli/aggrega-build.md`](../language-reference/cli/aggrega-build.md)) gives authors and operators a verification surface for this invariant. Two compiles of the same input with `--trace` enabled produce byte-identical trace dumps; any per-pass diff localises a regression. Determinism is not just a release-time property — it is observable at every intermediate compiler state through the per-node trace layout.
+
 Deterministic output is the contract that makes Aggrega safe to use as the source of truth in a GitOps loop.
