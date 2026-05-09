@@ -136,6 +136,16 @@ Service-name collisions within a single assembly path raise `INSTANCE_ID_COLLISI
 
 Top-level volumes union within an assembly path — name collisions silently merge because the current named-volume shape has no body content to conflict on. Top-level networks are one-per-contributing-boundary, named per the derivation rules above; two contributing boundaries with the same `aggrega.ai/namespace` annotation merge to a single network shared by both.
 
+### Artifacts-emitted compose fragments
+
+When a Recipe's `artifacts:` (or `artifactsFrom:`) block evaluates to compose YAML — a fragment carrying its own `services:`, `volumes:`, or `networks:` blocks — the merge into the per-`(path, provider)` assembly follows shape-specific rules:
+
+- **`services:` from artifacts merge into the assembled compose file alongside per-component services.** Service-name collisions across the artifact fragments and the per-component contributions raise `INSTANCE_ID_COLLISION`; the diagnostic names every contributor.
+- **`volumes:` from artifacts merge into the top-level `volumes:` block.** Name collisions silently merge, matching the same rule as per-component volumes.
+- **`networks:` from artifacts are NOT merged into the assembled compose file.** The compose provider derives networks from boundary annotations (one network per contributing boundary, named per the derivation rules above); artifact-supplied network declarations are silently dropped at the assembler boundary. Authors who need cross-network routing within a single compose file should use the `compose-bridge` Feature rather than authoring custom network entries via artifacts.
+
+The asymmetry is structural: `services:` and `volumes:` carry per-Recipe content the assembler accumulates into the assembled file; `networks:` is per-boundary infrastructure the assembler derives from boundary state. Artifacts can extend the former; only boundary annotations can shape the latter.
+
 ## What the compose provider does not deliver
 
 - **Cross-network L4 routing within one compose file.** A service in network A reaching a service in network B by anything other than docker-compose's default DNS requires the `compose-bridge` Feature.
