@@ -115,7 +115,7 @@ A SchemaLibrary with a non-PascalCase key in `spec.schemas` or `spec.templates` 
 
 Parameter names inside a template's `$params:` map are template-local — they do not appear in canonical `$id` URIs and are not pattern-constrained at the envelope level. Authors follow whatever naming convention fits the template's parameters; `port`, `path`, `intervalSec`, and similar lowercase parameter names are typical.
 
-The naming uniformity at library, schema, and template levels makes canonical `$ref` URIs scan cleanly: `oci://hub.aggrega.io/WebPrimitives@1.0.0#/schemas/URL` reads at a glance.
+The naming uniformity at library, schema, and template levels makes canonical `$ref` URIs scan cleanly: `oci://hub.aggrega.ai/WebPrimitives@1.0.0#/schemas/URL` reads at a glance.
 
 ## Canonical `$id` and Lockfile Integration
 
@@ -135,7 +135,7 @@ Component / Feature authors reference library entries by writing the canonical `
 spec:
   schema:
     healthCheck:
-      $ref: "oci://hub.aggrega.io/WebPrimitives@1.0.0#/schemas/URL"
+      $ref: "oci://hub.aggrega.ai/WebPrimitives@1.0.0#/schemas/URL"
 ```
 
 ## Forbidden JSON Schema Keywords
