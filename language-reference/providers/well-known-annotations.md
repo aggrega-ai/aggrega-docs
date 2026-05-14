@@ -57,6 +57,19 @@ Provider engines read specific boundary annotations from the Release to configur
 | `aggrega.ai/stack-name` | `cloudformation` | CloudFormation stack name | Leaf boundary name |
 | `aggrega.ai/tf-backend` | `terraform` | Terraform state backend key | None |
 
+> Note: Manifest `features.annotations` bindings using the `aggrega.ai/`
+> prefix are rejected at load time; the prefix is reserved exclusively
+> for the provider well-known annotations documented in this chapter.
+> Authors of annotation-driven Feature bindings use `feature.aggrega.ai/`
+> for standard-library shortcuts or a custom domain for enterprise
+> shortcuts.
+>
+> Note: explicit `null` on a Release annotation does not currently
+> remove an inherited Feature attachment from annotation-driven
+> expansion. The opt-out semantics ship in a follow-up implementation
+> pass; until then, omit the annotation key entirely from the
+> overriding component to avoid inheriting a binding.
+
 ## Provenance labels emitted by providers
 
 The annotations above flow *into* the build — the Release authors them, providers consume them. Providers also emit a parallel set of labels *out of* the build, attaching them to the rendered output so downstream tooling can attribute runtime resources back to the catalog content that produced them. These provenance labels are not authored on the Release; they are derived from the build's own state (Recipe identity, boundary path, aggregate name, environment, sync wave, compiler version) and emitted by the provider at render time.

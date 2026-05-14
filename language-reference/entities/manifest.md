@@ -187,6 +187,10 @@ spec:
 
 The `feature` field references a Feature type that must also appear in the sibling `features.type` section (which is where the FeatureRecipe version binding lives). The `infra` block is a JSON Schema 2020-12 fragment (compact-form or full JSON Schema) that validates the annotation value's argument structure. Provider polymorphism for the same annotation key — e.g., `feature.aggrega.ai/rewrite-host` binding to `core/k8s-dns-resolver` in a Kubernetes deployment but to `core/compose-bridge` in a local Compose deployment — is expressed by choosing different Feature types in different Manifests; each Manifest binds the annotation to one Feature, and the chosen Feature's FeatureRecipe carries the provider-specific implementation.
 
+**Explicit attachment wins on key collision.** When a Release component carries both an explicit `features:` entry and an annotation that expands to the same Feature key, the explicit entry is preserved and the annotation expansion for that key on that component is a no-op. The synthetic attachment never overwrites an author-declared `BoundaryFeature`. Authors can therefore use annotation expansion for the bulk of components in a boundary and surgically override individual components by writing an explicit `features:` entry with the same key — the explicit entry carries the per-component customization, the annotation cascades to every other component in the boundary unchanged.
+
+**Schema defaults at expansion time.** The synthetic Feature attachment produced by annotation expansion carries only the fields the author populated through the annotation value (one field for a scalar value; zero fields for an empty-string value). Schema defaults declared in the binding's `infra:` block are not merged into the synthetic attachment at expansion time. Default-value materialization is the FeatureRecipe rendering layer's responsibility, applied uniformly to explicit and synthetic attachments so the two paths produce the same downstream output for the same effective configuration.
+
 **Annotation namespace separation:**
 
 | Prefix | Owner | Purpose |
