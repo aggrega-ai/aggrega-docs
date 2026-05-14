@@ -12,8 +12,8 @@ The schema for the runtime shape is `template-context-v1alpha1.schema.json` (shi
 
 The top-level fields live at the root of the template context — accessed as `.field` from inside a template.
 
-- **`.values` (map).** Developer-authored cognitive payload from the Aggregate. Per-component values flow through to the rendered Recipe at this field. Validated by the Catalog's `cueSchema` at Step 1.
-- **`.infra` (map).** Ops-authored physical sizing from the Release. Validated by the Catalog's `cueSchema` at Step 1.
+- **`.values` (map).** Developer-authored cognitive payload from the Aggregate. Per-component values flow through to the rendered Recipe at this field. Validated by the Catalog's `schema:` (the Component's or Feature's JSON Schema 2020-12 declaration) at Step 1.
+- **`.infra` (map).** Ops-authored physical sizing from the Release. Validated by the Catalog's `schema:` (the Component's or Feature's JSON Schema 2020-12 declaration) at Step 1.
 - **`.locals` (string-valued map).** Recipe-private state — names declared in the Recipe's `locals:` block, populated at the Phase B preamble. Accessible only within the Recipe's own templates; never exposed to callers.
 - **`.provides` (string-valued map).** The Recipe's public output strings — the contract callers' `inject:` blocks resolve `from:` references against. Populated at Pass 1.
 - **`.features` (map of feature attachments).** Each entry has `.type`, `.values`, and `.infra`. Iterates the Features attached to this Component (Aggregate-level + subsystem-level + Release-level + Manifest-annotation-driven, per the 5-Tier Onion Model).

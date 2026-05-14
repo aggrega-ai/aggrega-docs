@@ -10,7 +10,7 @@ Each mechanism lives at a specific Recipe / FeatureRecipe authoring surface and 
 
 ### 1 — Recipe sourced rendering (`source:` + `valuesMapping:`)
 
-**Authoring surface.** Recipe declares `source: <path>` plus `valuesMapping:` (or `valuesMappingFile:`). The source points at an on-disk Helm chart, a docker-compose YAML file, or another provider-native artefact.
+**Authoring surface.** Recipe declares `source: <path>` plus `valuesMapping:` (the field accepts inline Go template, file `$import:`, or library `$import:` to a MappingLibrary entry — see [`entities/recipe.md`](../entities/recipe.md) "The `valuesMapping` field — three authoring modes"). The source points at an on-disk Helm chart, a docker-compose YAML file, or another provider-native artefact.
 
 **Pipeline placement.** Step 5 Phase B, after the Recipe's locals + provides resolve.
 
@@ -20,9 +20,9 @@ Each mechanism lives at a specific Recipe / FeatureRecipe authoring surface and 
 - **helm-chart provider** — sub-chart files copied verbatim under `charts/<instance_id>/`; per-boundary umbrella `Chart.yaml` + `values.yaml` emitted alongside.
 - **compose provider** — intermediate `<nodeID>.compose-fragment.yaml` files that flow into Release-level composition (mechanism 5).
 
-### 2 — Recipe Workload synthesis (`workload:` / `workloadFrom:`)
+### 2 — Recipe Workload synthesis (`workload:`)
 
-**Authoring surface.** Recipe declares `workload:` (inline) or `workloadFrom:` (file path) carrying a Workload document.
+**Authoring surface.** Recipe declares `workload:` carrying a Workload document. The field accepts inline content (block scalar) or `$import:` (file path) per the unified file-import vocabulary.
 
 **Pipeline placement.** Step 5 Phase B, after the Recipe's valuesMapping resolves (the Workload body is itself a Go-templated string evaluated with full TemplateContext).
 
@@ -68,15 +68,15 @@ Each mechanism lives at a specific Recipe / FeatureRecipe authoring surface and 
 - **compose provider** — one `docker-compose.yaml` at the boundary root, aggregating every contributing node's services, volumes, and networks. The intermediate `<nodeID>.compose-fragment.yaml` files (mechanisms 1 + 2) are merged into the single output; the fragments do not appear in the final boundary directory.
 - **helm-chart provider** — one umbrella `Chart.yaml` + `values.yaml` at the boundary root, plus per-node sub-chart directories under `charts/<instance_id>/`.
 
-### 6 — Recipe direct artifact emission (`artifacts:` / `artifactsFrom:`)
+### 6 — Recipe direct artifact emission (`artifacts:`)
 
-**Authoring surface.** Recipe declares `artifacts:` (inline filename → template map) or `artifactsFrom:` (list of template-file paths) — direct file emission without going through a provider engine.
+**Authoring surface.** Recipe declares `artifacts:` as a map of named entries; each entry is either inline content (a templated string carrying the file body) or an `$import:` reference to a template file path — direct file emission without going through a provider engine.
 
 **Pipeline placement.** Step 5 Phase B.3.
 
-**Output shape.** One file per artifact entry, named per the inline key or the basename of the file path. The Recipe author dictates filename and content directly.
+**Output shape.** One file per artifact entry, named per the entry's key in the `artifacts:` map. The Recipe author dictates filename and content directly.
 
-**Status today:** **`accepted but blocked`** per [Status of the Language → Recipe input kinds](../10-status.md#recipe-input-kinds). The schema accepts `artifacts:` / `artifactsFrom:` declarations; the Phase B.3 evaluator returns a `CATALOG_ERROR:` naming the field as not yet implemented. Recipes that declare these fields halt the build until the implementation ships.
+**Status today:** **`accepted but blocked`** per [Status of the Language → Recipe input kinds](../10-status.md#recipe-input-kinds). The schema accepts `artifacts:` declarations; the Phase B.3 evaluator returns a `CATALOG_ERROR:` naming the field as not yet implemented. Recipes that declare this field halt the build until the implementation ships.
 
 ## Rendering order
 
@@ -99,9 +99,9 @@ The order matters because downstream mechanisms can read upstream outputs — fo
 
 When two mechanisms produce a file with the same name in the same boundary directory, the build halts with a `CATALOG_ERROR:` naming every contributor. The rule set:
 
-### Recipe shape rule 6 — `artifacts` and `artifactsFrom` basename collision
+### Recipe shape rule 6 — `artifacts:` entry-key collision
 
-A Recipe declares both `artifacts:` (inline filename → template map) and `artifactsFrom:` (list of template-file paths) such that an inline filename collides with the basename of an `artifactsFrom:` entry. Detected at Recipe load time per [`errors/fatal-halts.md`](../errors/fatal-halts.md) Recipe shape rule 6.
+A Recipe declares two entries under `artifacts:` with the same key (the key dictates the emitted filename, whether the entry's body is authored inline or loaded via `$import:`). Detected at Recipe load time per [`errors/fatal-halts.md`](../errors/fatal-halts.md) Recipe shape rule 6.
 
 ### Recipe shape rule 7 — Cross-input-kind emission-time collision
 

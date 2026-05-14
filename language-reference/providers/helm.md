@@ -11,10 +11,10 @@ This page is the helm provider's authoring reference. For the cross-provider inp
 The helm provider accepts all three of the Recipe input kinds in different roles:
 
 - **Sourced mode.** A Recipe with `source: <chart-path>` points at an on-disk Helm chart directory. The Helm Go SDK loads the chart, the Phase B values dictionary is coalesced with the chart's defaults, and the chart's templates render to flat Kubernetes YAML.
-- **Workload (synthesised) mode.** A Recipe with `workload:` or `workloadFrom:` declares a Workload document. The provider synthesises one or more Kubernetes resources per node — a Deployment (or StatefulSet) plus per-service Services and per-persistent-volume PVCs — directly from the Workload spec.
+- **Workload (synthesised) mode.** A Recipe with `workload:` (inline or `$import:`-loaded) declares a Workload document. The provider synthesises one or more Kubernetes resources per node — a Deployment (or StatefulSet) plus per-service Services and per-persistent-volume PVCs — directly from the Workload spec.
 - **Sourceless (generative) mode.** A Recipe with neither `source:` nor `workload:` falls back to the engine's built-in flat generator. The values dictionary feeds a Deployment plus an optional Service shaped from a small fixed key vocabulary (see [Sourceless mode](#sourceless-mode-keyset) below).
 
-A Recipe may declare exactly one of `source:`, `workload:`, or `workloadFrom:`; combining them is a Phase B validation error.
+A Recipe may declare exactly one of `source:` or `workload:`; combining them is a Phase B validation error.
 
 ## `source:` keyset
 
@@ -48,7 +48,7 @@ The namespace applied to rendered resources is read from the `aggrega.ai/namespa
 
 ## Workload (synthesised) mode
 
-A Recipe with `workload:` or `workloadFrom:` synthesises Kubernetes resources from the Workload's abstract intent. The Workload schema is documented at [entities/workload.md](../entities/workload.md); this section covers what the helm engine emits.
+A Recipe with `workload:` (inline or `$import:`-loaded) synthesises Kubernetes resources from the Workload's abstract intent. The Workload schema is documented at [entities/workload.md](../entities/workload.md); this section covers what the helm engine emits.
 
 For each node:
 

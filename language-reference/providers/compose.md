@@ -7,7 +7,7 @@ The compose provider renders Aggrega Recipes into a Docker Compose file. The pro
 The compose provider accepts two of the three Recipe input kinds:
 
 - **Sourced mode.** A Recipe with `source:` pointing at an existing compose file plus `valuesMapping:` producing an overlay document. The base compose file is loaded, the overlay is evaluated, and the two are deep-merged per docker-compose's native overlay semantics.
-- **Workload mode.** A Recipe with `workload:` (or `workloadFrom:`) declares a `Workload` document. The provider synthesises one or more compose services from the Workload spec.
+- **Workload mode.** A Recipe with `workload:` (inline or `$import:`-loaded) declares a `Workload` document. The provider synthesises one or more compose services from the Workload spec.
 
 A bare `valuesMapping:`-only Recipe with no `source:` and no `workload:` is unsupported by the compose provider. The compiler halts at render time with a message explaining that compose Recipes must declare either `workload:` or `source:`.
 
@@ -138,7 +138,7 @@ Top-level volumes union within an assembly path — name collisions silently mer
 
 ### Artifacts-emitted compose fragments
 
-When a Recipe's `artifacts:` (or `artifactsFrom:`) block evaluates to compose YAML — a fragment carrying its own `services:`, `volumes:`, or `networks:` blocks — the merge into the per-`(path, provider)` assembly follows shape-specific rules:
+When a Recipe's `artifacts:` block evaluates to compose YAML — a fragment carrying its own `services:`, `volumes:`, or `networks:` blocks (each entry inline or per-entry `$import:`-loaded) — the merge into the per-`(path, provider)` assembly follows shape-specific rules:
 
 - **`services:` from artifacts merge into the assembled compose file alongside per-component services.** Service-name collisions across the artifact fragments and the per-component contributions raise `INSTANCE_ID_COLLISION`; the diagnostic names every contributor.
 - **`volumes:` from artifacts merge into the top-level `volumes:` block.** Name collisions silently merge, matching the same rule as per-component volumes.

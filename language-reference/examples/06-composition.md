@@ -105,11 +105,11 @@ metadata:
   labels:
     component.aggrega.ai/type: "server"
 spec:
-  cueSchema: |
-    values: { hostname: string }
-    provides: {
-      primary_endpoint: string
-    }
+  schema:
+    values:
+      hostname: { type: string, required: true }
+    provides:
+      primary_endpoint: { type: string }
 ---
 apiVersion: aggrega.ai/v1alpha1
 kind: Recipe

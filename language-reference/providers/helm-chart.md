@@ -11,31 +11,31 @@ This page is the helm-chart provider's authoring reference. For the helm vs helm
 The helm-chart provider accepts two input kinds:
 
 - **Sourced mode.** A Recipe with `source: <chart-path>` points at an on-disk Helm chart directory. The chart is copied verbatim into the umbrella structure as a sub-chart; no rendering or templating is performed at the per-node level. Aggrega's role is composition (umbrella assembly across the boundary's nodes), not template evaluation.
-- **`artifactsFrom:` mode.** A Recipe with `artifactsFrom: [<paths>]` declares additional template files that the helm-chart provider injects into the sub-chart's `templates/` directory after the source-chart copy. Each file is pre-templated against Aggrega's TemplateContext using `[[ ]]` delimiters (see "`artifactsFrom:` injection rule" below) so any `{{ }}` Helm templating in the same file survives into the downstream `helm install` render.
+- **`$import:`-loaded `artifacts:` mode.** A Recipe with `artifacts:` entries authored as `$import:` per-entry declares additional template files that the helm-chart provider injects into the sub-chart's `templates/` directory after the source-chart copy. Each file is pre-templated against Aggrega's TemplateContext using `[[ ]]` delimiters (see "`artifacts:` injection rule" below) so any `{{ }}` Helm templating in the same file survives into the downstream `helm install` render.
 
-A Recipe targeting helm-chart that declares `workload:` or `workloadFrom:` is rejected at render time with a diagnostic pointing the author at the helm provider:
+A Recipe targeting helm-chart that declares `workload:` is rejected at render time with a diagnostic pointing the author at the helm provider:
 
 > source is required (helm-chart provider supports sourced mode only; for synthesised K8s manifests use the helm provider with workload:)
 
 The split is deliberate: workload synthesis (translating an abstract Workload into Kubernetes resources) is the helm provider's exclusive concern. helm-chart's role is umbrella + sub-chart composition for charts the author has already produced.
 
-A Recipe targeting helm-chart that declares **inline `artifacts:`** (the dictionary form, where each key is a filename and each value is the file body inline in the Recipe) is rejected at Recipe load with a `CATALOG_ERROR`:
+A Recipe targeting helm-chart that declares **inline-content `artifacts:` entries** (entries whose value is a block scalar carrying the file body inline in the Recipe rather than an `$import:`-loaded reference) is rejected at Recipe load with a `CATALOG_ERROR`:
 
-> helm-chart provider rejects inline `artifacts:`; use `artifactsFrom:` with file paths so Helm's `{{ }}` template syntax inside the file content survives the dual-delimiter pre-template pass
+> helm-chart provider rejects inline-content `artifacts:` entries; author each entry with `$import:` referencing a file path so Helm's `{{ }}` template syntax inside the file content survives the dual-delimiter pre-template pass
 
-Inline artifacts would force Aggrega's Go-template engine to evaluate the file body using `{{ }}` delimiters — which would conflict with Helm's own `{{ }}` syntax inside chart-author-managed template files. The `artifactsFrom:` form sidesteps the conflict by reading the file content as-is and pre-templating with `[[ ]]` delimiters (Aggrega's interpolation) before the file lands in the sub-chart's `templates/` directory, where Helm's `{{ }}` syntax then evaluates at downstream `helm install` time.
+Inline-content entries would force Aggrega's Go-template engine to evaluate the body using `{{ }}` delimiters — which would conflict with Helm's own `{{ }}` syntax inside chart-author-managed template files. The `$import:`-loaded form sidesteps the conflict by reading the referenced file's content as-is and pre-templating with `[[ ]]` delimiters (Aggrega's interpolation) before the file lands in the sub-chart's `templates/` directory, where Helm's `{{ }}` syntax then evaluates at downstream `helm install` time.
 
-## `artifactsFrom:` injection rule
+## `artifacts:` injection rule
 
-When a helm-chart Recipe declares `artifactsFrom:`, each entry is a path to a template file resolved **relative to the Recipe's own directory** (the directory containing the Recipe YAML on disk). The provider:
+When a helm-chart Recipe declares `artifacts:` entries via per-entry `$import:`, each `$import:` value is a path to a template file resolved **relative to the Recipe's own directory** (the directory containing the Recipe YAML on disk). The provider:
 
 1. Reads each file's content.
 2. Pre-templates the content with Aggrega delimiters `[[ ]]` against the Recipe's TemplateContext (the same context the Recipe's `valuesMapping:` evaluates against). `{{ }}` inside the file content is left untouched — those become Helm template directives at `helm install` time.
 3. Writes each file to `boundaries/<boundary-path>/charts/<instance-id>/templates/<basename>` of the umbrella output. The basename is the file's name only — directory structure within the source path is flattened.
 
-The `[[ ]]` / `{{ }}` dual-delimiter discipline is the load-bearing detail. A typical `artifactsFrom:` file might mix Aggrega-time interpolation (e.g., `[[ .values.image ]]`) with Helm-time interpolation (e.g., `{{ .Release.Namespace }}`). Each delimiter pair fires at its own phase: Aggrega resolves `[[ ]]` at compile time before the file lands; Helm resolves `{{ }}` at install time after the umbrella ships.
+The `[[ ]]` / `{{ }}` dual-delimiter discipline is the load-bearing detail. A typical `$import:`-loaded artifact file might mix Aggrega-time interpolation (e.g., `[[ .values.image ]]`) with Helm-time interpolation (e.g., `{{ .Release.Namespace }}`). Each delimiter pair fires at its own phase: Aggrega resolves `[[ ]]` at compile time before the file lands; Helm resolves `{{ }}` at install time after the umbrella ships.
 
-Filename collisions across the source-chart's templates and the `artifactsFrom:` injections raise `CATALOG_ERROR` — the diagnostic names both the chart-supplied template and the conflicting `artifactsFrom:` source. Authors resolve the collision by renaming one of the conflicting files.
+Filename collisions across the source-chart's templates and the `$import:`-loaded artifact injections raise `CATALOG_ERROR` — the diagnostic names both the chart-supplied template and the conflicting `$import:` source. Authors resolve the collision by renaming one of the conflicting files.
 
 ## `source:` keyset
 

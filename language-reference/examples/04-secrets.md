@@ -6,8 +6,8 @@ Implementing a credential pattern end-to-end touches six surfaces across the fou
 
 | Step | Surface | Action |
 | --- | --- | --- |
-| 1 | Component `secretsSchema:` (or `cueSchema.secrets`) | **Declare** the credential slot. Slot definitions specify the slot name, whether it is `required`, the `inject:` allowlist (`[env]`, `[file]`, `[]` for blackbox), and a description. The Component author chooses White-Box (transparent: developer dictates delivery) or Black-Box (opaque: Recipe controls delivery) by setting the `inject:` allowlist accordingly. |
-| 2 | Credential Feature `cueSchema` | **Define** the vault-query contract for the credential type. The Feature carries the `feature.aggrega.ai/kind: secret` label and declares the values keys (e.g., `path`, `key`) that authors supply when requesting the credential. |
+| 1 | Component `secretsSchema:` (or `schema.secrets`) | **Declare** the credential slot. Slot definitions specify the slot name, whether it is `required`, the `inject:` allowlist (`[env]`, `[file]`, `[]` for blackbox), and a description. The Component author chooses White-Box (transparent: developer dictates delivery) or Black-Box (opaque: Recipe controls delivery) by setting the `inject:` allowlist accordingly. |
+| 2 | Credential Feature `schema:` | **Define** the vault-query contract for the credential type. The Feature carries the `feature.aggrega.ai/kind: secret` label and declares the values keys (e.g., `path`, `key`) that authors supply when requesting the credential. |
 | 3 | Aggregate component instance `secrets:` block | **Request** the credential at the developer's authoring surface. The block specifies the credential Feature `type`, the vault-query `values`, and (for White-Box slots only) the `inject:` mapping that wires the resolved credential to the application's expected delivery shape. |
 | 4 | FeatureRecipe `pipeline:` (Two-Part Plugin Principle) | **Implement** the credential's runtime resolution. The Fetcher plugin generates the cloud-specific CRD (`ExternalSecret`, `VaultSecret`, etc.) referencing the developer's vault path; the Injector plugin mounts the resolved Kubernetes Secret to the target container at the developer's requested key. Swapping vaults (AWS → HashiCorp) only replaces the Fetcher; the Injector is reusable. |
 | 5 | Manifest `mappings.<provider>.features.type` | **Bind** the credential Feature type to its FeatureRecipe per provider, in the same `features.type` tier as operational Features. There is no separate `secrets` mapping section. |
@@ -19,7 +19,7 @@ The three worked examples below demonstrate the pattern across the canonical sce
 
 ## Example 11: White-Box Secrets — Developer Controls Delivery
 
-When deploying custom code, the developer *must* tell the system how their application reads credentials. The Component's CUE schema enforces the `inject` requirement.
+When deploying custom code, the developer *must* tell the system how their application reads credentials. The Component's pillar schema enforces the `inject` requirement.
 
 **1. Platform Catalog: The Component (White-Box Enforcement)**
 
@@ -32,15 +32,21 @@ metadata:
   labels:
     component.aggrega.ai/type: "worker"
 spec:
-  cueSchema: |
-    values: { image: string }
-    // White-Box: developer MUST dictate delivery
-    secrets?: [Name=string]: {
-      inject: {
-        env?:  { [string]: string }
-        file?: { [string]: string }
-      }
-    }
+  schema:
+    values:
+      image: { type: string, required: true }
+    # White-Box: developer MUST dictate delivery
+    secrets:
+      type: object
+      additionalProperties:
+        type: object
+        properties:
+          inject:
+            type: object
+            properties:
+              env:  { type: object, additionalProperties: { type: string } }
+              file: { type: object, additionalProperties: { type: string } }
+            required: [inject]
 ```
 
 **2. Platform Catalog: The Credential Feature**
@@ -55,11 +61,10 @@ metadata:
   labels:
     feature.aggrega.ai/kind: "secret"       # The credential partition label
 spec:
-  cueSchema: |
-    values: {
-      path: string
-      key:  string
-    }
+  schema:
+    values:
+      path: { type: string, required: true }
+      key:  { type: string, required: true }
 ```
 
 **3. Dev Domain: The Aggregate**
@@ -148,7 +153,7 @@ spec:
 When deploying packaged infrastructure (e.g., Bitnami Redis), the developer provides the vault location but is blocked from dictating how the chart internally consumes the credential.
 
 **1. Platform Catalog: The Component (Black-Box Enforcement)**
-The `secretsSchema` declares the credential slot as required and blackbox (`inject: []`). The compiler auto-generates CUE validation rules — no `secrets:` pillar needed in `cueSchema`.
+The `secretsSchema` declares the credential slot as required and blackbox (`inject: []`). The compiler auto-generates the schema rules that validate the developer's `secrets:` block — no `secrets:` pillar needed inside `schema:`.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -164,15 +169,14 @@ spec:
       required: true
       inject: []                            # Blackbox: Recipe controls delivery.
       description: Redis auth password.
-  cueSchema: |
-    provides: {
-      host: string
-      port: string
-    }
+  schema:
+    provides:
+      host: { type: string }
+      port: { type: string }
 ```
 
 **2. Dev Domain: The Aggregate**
-The developer provides the vault query but omits `inject`. If they attempt to add it, CUE validation fails the build.
+The developer provides the vault query but omits `inject`. If they attempt to add it, the slot's auto-generated schema rule fails the build.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -190,7 +194,7 @@ spec:
           values:
             path: /prod/redis
             key: "master_pass"
-          # inject: ← BANNED by CUE schema. Developer cannot dictate delivery.
+          # inject: ← BANNED by the slot's auto-generated schema rule. Developer cannot dictate delivery.
       values: {}
 ```
 
@@ -272,8 +276,9 @@ spec:
     - key: "component.aggrega.ai/type"
       operator: In
       values: ["server", "worker"]
-  cueSchema: |
-    values: { action: *"redact" | "block" }
+  schema:
+    values:
+      action: { type: string, enum: [redact, block], default: redact }
 ```
 
 **2. Dev Domain: The Aggregate**

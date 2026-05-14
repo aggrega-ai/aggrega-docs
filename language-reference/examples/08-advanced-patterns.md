@@ -13,8 +13,9 @@ metadata:
   name: core/ingress
   version: 1.0.0
 spec:
-  cueSchema: |
-    infra: { hostname: string }
+  schema:
+    infra:
+      hostname: { type: string, required: true }
 ```
 
 **2. Ops Domain: The FeatureRecipe**

@@ -228,18 +228,20 @@ spec:
 
 The Recipe mixes chart output with an additional ServiceMonitor artifact; both land in the output directory. Filename-collision detection verifies no chart template produced a file named `<monitor_name>.yaml`.
 
-## Example 25: External workload file (`workloadFrom`)
+## Example 25: External workload file (`workload: { $import: ... }`)
 
-Pattern: **synthesized with artifacts**, using `workloadFrom:` to keep the Workload grammar in a dedicated file rather than inline. Pillars exercised: `.values`, `.infra`. Expected output: synthesized Deployment + a NetworkPolicy artifact.
+Pattern: **synthesized with artifacts**, using `$import:` on the `workload:` field to keep the Workload grammar in a dedicated file rather than inline. Pillars exercised: `.values`, `.infra`. Expected output: synthesized Deployment + a NetworkPolicy artifact.
 
 ```yaml
 # recipe.yaml
 spec:
   provider: helm
   implements: core/server/api:1.0.0
-  workloadFrom: ./workload.yaml
-  artifactsFrom:
-    - ./artifacts/networkpolicy.yaml
+  workload:
+    $import: ./workload.yaml
+  artifacts:
+    networkpolicy:
+      $import: ./artifacts/networkpolicy.yaml
 ```
 
 ```yaml

@@ -5,7 +5,7 @@
 The Architect enforces structural separation: Developers control cognitive `values`, Ops controls physical `infra`. They cannot step on each other's fields.
 
 **1. Platform Catalog: The Component with `infra`**
-The `cueSchema` declares both `values` (Developer) and `infra` (Ops) as separate namespaces. The Aggregate schema bans developers from writing `infra`; the Release schema bans Ops from writing `values`.
+The `schema:` declaration covers both `values` (Developer) and `infra` (Ops) as separate namespaces. The Aggregate schema bans developers from writing `infra`; the Release schema bans Ops from writing `values`.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -16,16 +16,15 @@ metadata:
   labels:
     component.aggrega.ai/type: "stateful-server"
 spec:
-  cueSchema: |
-    values: { db_name: string | *"defaultdb" }
-    infra: {
-      cpu_limit:    string
-      storage_size: string
-    }
-    provides: {
-      host: string
-      port: string
-    }
+  schema:
+    values:
+      db_name: { type: string, default: "defaultdb" }
+    infra:
+      cpu_limit:    { type: string }
+      storage_size: { type: string }
+    provides:
+      host: { type: string }
+      port: { type: string }
 ```
 
 **2. Dev Domain: The Aggregate**

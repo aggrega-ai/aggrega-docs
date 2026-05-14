@@ -24,12 +24,11 @@ metadata:
   name: core/k8s-dns-resolver
   version: 1.0.0
 spec:
-  cueSchema: |
-    infra: {
-      target_var:              string
-      namespace_annotation?:   string
-      cluster_domain?:         string
-    }
+  schema:
+    infra:
+      target_var:            { type: string, required: true }
+      namespace_annotation:  { type: string }
+      cluster_domain:        { type: string }
 ```
 
 **2. Ops Domain: The FeatureRecipe**

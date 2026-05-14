@@ -15,11 +15,10 @@ metadata:
   labels:
     feature.aggrega.ai/kind: secret
 spec:
-  cueSchema: |
-    values: {
-      source: string
-      key: string | *"value"
-    }
+  schema:
+    values:
+      source: { type: string, required: true }
+      key:    { type: string, default: "value" }
 ```
 
 The `feature.aggrega.ai/kind: secret` label makes this a credential Feature, subject to the compiler's partition rule: it may only appear in a Component's `secrets:` block, never in the `features:` block.
@@ -77,7 +76,7 @@ The six steps from developer authoring to compiled output:
           key: mariadb-root-password
     ```
 
-    The `root_password` slot has no `inject:` block here. The Component's `secretsSchema` declares `inject: []` for this slot (blackbox), so CUE validation rejects any developer-authored `inject:` — delivery is the Recipe's concern.
+    The `root_password` slot has no `inject:` block here. The Component's `secretsSchema` declares `inject: []` for this slot (blackbox), so the slot's auto-generated schema rule rejects any developer-authored `inject:` — delivery is the Recipe's concern.
 
 2. **Ops writes the Release** supplying the parameter value:
 
@@ -112,7 +111,7 @@ The six steps from developer authoring to compiled output:
     ```
 
 5. **Compilation runs:**
-    - Step 1 validates the `secrets:` block against the generated base CUE schema from the Component's `secretsSchema`.
+    - Step 1 validates the `secrets:` block against the auto-generated schema rules derived from the Component's `secretsSchema`.
     - Pass 1 evaluates the base Recipe's `locals` (producing the deterministic secret name).
     - Phase B evaluates the base Recipe's `valuesMapping` (Helm renders the MariaDB chart referencing `secret_target_root_password`).
     - Phase B also evaluates the `k8s-secret-from-parameter` FeatureRecipe's `valuesMapping` with `.secret_name = "root_password"`, producing a Kubernetes Secret manifest with the matching name.

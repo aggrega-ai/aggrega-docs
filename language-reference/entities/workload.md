@@ -4,10 +4,10 @@ The architectural role of the Workload kind — why it exists, how it composes w
 
 ## Authoring location
 
-Workload content is authored inline or from file, always inside a Recipe. A Recipe declares exactly one Workload per node via either:
+Workload content is authored inline or from file, always inside a Recipe. A Recipe declares exactly one `workload:` per node:
 
 ```yaml
-# Inline
+# Inline (block scalar)
 spec:
   workload: |
     apiVersion: aggrega.ai/v1alpha1
@@ -18,12 +18,13 @@ spec:
 or
 
 ```yaml
-# File-loaded (relative to the Recipe directory)
+# File-loaded via $import: (path relative to the Recipe directory)
 spec:
-  workloadFrom: ./workload.yaml
+  workload:
+    $import: ./workload.yaml
 ```
 
-Both forms produce the same post-parse Workload object; the choice is authoring ergonomics. The two fields are mutually exclusive — a Recipe declaring both fails at Recipe load time.
+Both forms produce the same post-parse Workload object; the choice is authoring ergonomics. Per the unified file-import vocabulary, `$import:` accepts a single source — see [../vocabulary/cross-document-ref.md](../vocabulary/cross-document-ref.md) for the broader `$ref:` / `$import:` distinction.
 
 Workload YAML is not authored as a standalone catalog entity. There is no `catalog/workload/` directory; the Workload grammar exists only as embedded content inside a Recipe. The apiVersion and kind declarations inside the YAML (`apiVersion: aggrega.ai/v1alpha1`, `kind: Workload`) identify the embedded content for schema validation; they do not make the Workload independently addressable.
 
@@ -210,7 +211,7 @@ The Workload describes the workload shape only — containers, volumes, services
 
 Recipe authors emit auxiliary resources through two channels outside the Workload:
 
-- **Recipe-level `artifacts:` / `artifactsFrom:`** — for resources intrinsic to this Recipe (a specific ConfigMap the Recipe's Workload references, a one-off CRD registration the Recipe needs). See the Artifacts Mechanism section in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md).
+- **Recipe-level `artifacts:`** — for resources intrinsic to this Recipe (a specific ConfigMap the Recipe's Workload references, a one-off CRD registration the Recipe needs). The field is a map of named entries; each entry is authored inline or loaded via per-entry `$import:`. See the Artifacts Mechanism section in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md) for the three authoring modes.
 - **Features with Resource Generation** — for cross-cutting concerns attached via Release selectors (a ServiceMonitor Feature attached to every component with metrics exposed, a NetworkPolicy Feature attached to every production workload). See [../entities/featurerecipe.md](../entities/featurerecipe.md) for the FeatureRecipe authoring surface.
 
 The Workload stays focused on the workload shape; cross-cutting and Recipe-intrinsic auxiliary manifests have their own authoring homes.
@@ -328,7 +329,7 @@ A fourth pattern — **stateful server with persistent volume** — uses the Wor
 ## Cross-references
 
 - [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md) — architectural role of the Workload kind and the full schema surface.
-- [../entities/recipe.md](../entities/recipe.md) — how `workload:` / `workloadFrom:` compose with the other two Recipe input kinds.
+- [../entities/recipe.md](../entities/recipe.md) — how `workload:` composes with the other two Recipe input kinds.
 - [../entities/component.md](../entities/component.md) — `secretsSchema` authoring that Workload `secrets:` blocks reference.
 - [../entities/featurerecipe.md](../entities/featurerecipe.md) — Feature-level auxiliary resources that sit alongside Workloads.
 - [../vocabulary/data-pillars.md](../vocabulary/data-pillars.md) — pillar-access contract for template evaluation.
