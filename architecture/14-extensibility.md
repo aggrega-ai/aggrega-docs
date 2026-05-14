@@ -33,7 +33,7 @@ This binding carries three consequences for the ecosystem:
 
 * **Decoupling evolution.** The infrastructure vocabulary grows through external Wasm plugins without requiring a core release of the Aggrega compiler. New providers, new sidecars, and new security integrations ship as independent Wasm binaries against the stable Wasm ABI.
 * **Semantic versioning.** FeatureRecipes reference Wasm plugins with SemVer constraints (`>= 1.0.0`, `< 2.0.0`). Ops locks down major versions while safely picking up minor and patch releases.
-* **Offloading complexity.** Vendor-specific CRD generation or complex rendering (vendor-specific policy objects, provider-native routing resources) lives in pure Wasm plugins operating on the flat IR graph, rather than threading through CUE schemas or template logic inside component definitions.
+* **Offloading complexity.** Vendor-specific CRD generation or complex rendering (vendor-specific policy objects, provider-native routing resources) lives in pure Wasm plugins operating on the flat IR graph, rather than threading through schema declarations or template logic inside component definitions.
 
 **Pipeline chaining — separating concerns across plugins.** A FeatureRecipe pipeline can chain multiple Wasm plugins sequentially, each receiving the same IR node context from the compiler. The standard pattern splits responsibility so that a single plugin does not carry both the semantic intent of a feature and the physical traffic-interception mechanism of a specific target environment.
 
