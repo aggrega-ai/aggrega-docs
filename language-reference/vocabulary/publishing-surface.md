@@ -100,3 +100,5 @@ The remaining asymmetries (Recipe vs Component required fields, Provider's `base
 - [`entities/release.md`](../entities/release.md) — Release's `metadata.environment` field and its current required state.
 - [`10-status.md`](../10-status.md) — the environment-field relaxation roadmap.
 - [`architecture/02-ecosystem-philosophy.md`](../../architecture/02-ecosystem-philosophy.md) — Strict API Partitioning and the Enterprise Metadata Suite design framing.
+- [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md) §"Lockfile pinning and artifact immutability" + §"Catalog entity name-shape enforcement" — the lock-time / build-time / publish-time separation that anchors the publishing-discipline policy plugin's enforcement modes; the shared-regex-source-of-truth pattern between the publishing-discipline plugin (publish-time rejection) and `linter.wasm` (build-time warning).
+- [`architecture/11-governance-and-compliance.md`](../../architecture/11-governance-and-compliance.md) §"Inheritance and policy narrowing" — the policy-plugin enforcement model for the monotonic-narrowing rule on `extends:` chains.

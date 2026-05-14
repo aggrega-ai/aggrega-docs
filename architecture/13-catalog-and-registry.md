@@ -126,16 +126,16 @@ aggrega-catalog/
 
 Categories are chosen for how users navigate, not how the compiler classifies. Ontology classification stays in `metadata.labels`. When a component moves to its category directory, the redundant type suffix is stripped (e.g., `openai-model.yaml` → `model/openai.yaml`).
 
-### 2. The Split Schema & Unification Pipeline
+### 2. The Split Schema & Bridge Synthesis Pipeline
 
-To eliminate complex CUE polymorphism boilerplate, Aggrega introduces a split validation engine:
+To eliminate per-Component boilerplate around the topology socket declarations, Aggrega splits validation into two parts and bridges them at compile time:
 
-1. **`usesSchema` (Native YAML):** Defines and enables the topology. The `usesSchema` keys are the only valid socket names a developer may use in `uses` blocks — a catalog entity without `usesSchema` cannot accept `uses` declarations. The Go CLI natively reads this to extract `selector` strings for Step 4 label matching and to validate allowed `inject` paradigms. Each socket entry supports an optional `required: true` field (default `false`) — when set, the compiler emits a validation error if no dependency is declared in that socket. This is the soft equivalent of the `required: true` semantics on `secretsSchema` entries.
-2. **Desugaring:** If developers use the YAML array shorthand (`uses: databases: ["db1"]`), the CLI normalizes it into a map (`{"db1": {"target": "db1"}}`).
-3. **`baseUsesCueSchema` Generation:** The compiler dynamically translates the YAML `usesSchema` into a strict CUE representation in memory (locking down the topology). The `selector` string from the YAML is embedded as a CUE attribute tag for traceability — CUE ignores it during unification, but the Go compiler extracts it programmatically via the CUE SDK's `Attribute()` API in Step 4 for native label matching. *Rule: For each defined edge, the compiler generates:* `[EdgeName]?: { [Name=string]: { target: string @selector("<SELECTOR>"), inject?: { <EACH_ALLOWED_INJECT>: {[string]: string} } } }`.
-4. **Unification:** The Ops engineer writes a strict `cueSchema` defining `values`, `infra`, and `provides`. The Go engine evaluates: `finalCue := baseUsesCueSchema & userCueSchema`. This guarantees perfect cross-pillar validation without requiring the Ops engineer to write any `uses` boilerplate.
+1. **`usesSchema` (declarative YAML).** Defines and enables the topology. The `usesSchema` keys are the only valid socket names a developer may use in `uses` blocks — a catalog entity without `usesSchema` cannot accept `uses` declarations. The Go CLI natively reads this to extract `x-aggrega-selector:` strings for Step 4 label matching and to validate allowed `inject` mechanisms. Each socket entry supports an optional `required: true` field (default `false`) — when set, the compiler emits a validation error if no dependency is declared in that socket. This is the soft equivalent of the `required: true` semantics on `secretsSchema` entries.
+2. **Desugaring.** If developers use the YAML array shorthand (`uses: databases: ["db1"]`), the CLI normalizes it into a map (`{"db1": {"target": "db1"}}`).
+3. **Bridge synthesis.** The compiler walks each socket entry and emits a JSON Schema 2020-12 fragment with `x-aggrega-selector:` and `x-aggrega-inject:` extension keywords. The selector string from the YAML is preserved at the `x-aggrega-selector:` annotation for traceability — JSON Schema validation ignores extension keywords during structural validation, but the Go compiler extracts them programmatically in Step 4 for native label matching.
+4. **Composition.** The Ops engineer writes a strict `schema:` declaration (compact form or full JSON Schema 2020-12) defining `values`, `infra`, and `provides`. The Go engine composes the synthesized fragment with the user-authored schema via JSON Schema 2020-12 composition; the resulting unified schema validates the entity's instance content. This guarantees perfect cross-pillar validation without requiring the Ops engineer to write any `uses` boilerplate.
 
-**Example Pipeline Generation:**
+**Example bridge synthesis:**
 **Step 1: The Platform Architect's YAML**
 
 ```yaml
@@ -143,42 +143,53 @@ spec:
   usesSchema:
     databases:
       selector: "component.aggrega.ai/type=stateful-server"
-      inject: ["env", "file", "ssm_param"] # Agnostic! env and file are core schema, ssm_param is a user provided mechanism
+      inject: ["env", "file", "ssm_param"] # env and file are core mechanisms; ssm_param is a user-provided mechanism
 
-  cueSchema: |
-    values: { ha_mode: bool | *false }
-    infra: { replicas?: int }
-    provides: { host: string }
-    
-    // Ops CAN write advanced cross-validation which safely unifies with baseUsesCueSchema
-    if values.ha_mode == true {
-        uses: databases: { _min: len(uses.databases) >= 2 }
-    }
+  schema:
+    values:
+      ha_mode: { type: boolean, default: false }
+    infra:
+      replicas: { type: integer, min: 1 }
+    provides:
+      host: { type: string, required: true }
+
+  assertions: |
+    {{- /* Ops can write cross-pillar invariants against the unified instance content */ -}}
+    {{- if eq .values.ha_mode true -}}
+      {{- if lt (len .uses.databases) 2 -}}
+        {{- fail "ha_mode=true requires at least two database attachments" -}}
+      {{- end -}}
+    {{- end -}}
 ```
 
-**Step 2: The Compiler-Generated `baseUsesCueSchema`**
+**Step 2: The compiler-synthesized JSON Schema fragment**
 
-```cue
-uses: {
-    databases?: {
-        [Name=string]: {
-            target: string @selector("component.aggrega.ai/type=stateful-server")
-            inject?: {
-                env?: { [string]: string }
-                file?: { [string]: string }
-                ssm_param?: { [string]: string }
-            }
-        }
-    }
-}
+```yaml
+uses:
+  type: object
+  properties:
+    databases:
+      type: object
+      additionalProperties:
+        type: object
+        properties:
+          target: { type: string }
+          inject:
+            type: object
+            properties:
+              env: { type: object, valuesType: string }
+              file: { type: object, valuesType: string }
+              ssm_param: { type: object, valuesType: string }
+            additionalProperties: false
+      x-aggrega-selector: "component.aggrega.ai/type=stateful-server"
 ```
 
-**Step 3: Execution**
-The compiler executes `baseUsesCueSchema & userCueSchema` to produce the unified structural lock.
+**Step 3: Composition**
+The compiler composes the synthesized fragment with the user-authored `schema:` to produce the unified validation schema. The Static Analyzer (Step 4) reads `x-aggrega-selector:` from the synthesized fragment + `appliesTo` / `appliesToExpressions` / `appliesToAnyOf` from the Feature entities, and evaluates label matching against each target's `metadata.labels` to validate cross-node type safety.
 
 ### Kubernetes-Style Selectors in usesSchema
 
-The Go compiler's native label-matching engine evaluates selector strings using standard Kubernetes-style selection semantics (`AND` via comma, `OR` via `in()`, `NOT` via `!=`/`notin()`). This same engine also evaluates the structured selectors on Feature catalog entities (`appliesTo`, `appliesToExpressions`, `appliesToAnyOf`). CUE remains completely blind to the routing logic — CUE's role is strictly structural validation of the `values`, `infra`, and `provides` pillars. After the Go compiler draws the topological edges in Step 2, the Static Analyzer (Step 4) extracts the `selector` strings (either directly from the resolved `usesSchema` or from the `@selector()` CUE attribute tag on the generated `baseUsesCueSchema`) and evaluates them against the target node's Catalog `labels` to validate cross-node type safety.
+The Go compiler's native label-matching engine evaluates selector strings using standard Kubernetes-style selection semantics (`AND` via comma, `OR` via `in()`, `NOT` via `!=`/`notin()`). This same engine also evaluates the structured selectors on Feature catalog entities (`appliesTo`, `appliesToExpressions`, `appliesToAnyOf`). The selector layer is strictly the topology gate — the per-pillar `schema:` declarations validate `values`, `infra`, and `provides` content independently. After the Go compiler draws the topological edges in Step 2, the Static Analyzer (Step 4) extracts the `selector` strings from the synthesized JSON Schema fragment's `x-aggrega-selector:` annotation and evaluates them against the target node's Catalog `labels` to validate cross-node type safety.
 
 ```yaml
 usesSchema:
@@ -197,14 +208,14 @@ usesSchema:
 
 ### 3. Schema Formats and Composition
 
-To provide both strict validation and standard catalog metadata (author, version, description), Domain 2 (Interfaces) and Domain 3 (Implementations) definitions are written as YAML envelopes. Domain 2 utilizes embedded CUE schemas.
+To provide both strict validation and standard catalog metadata (author, version, description), Domain 2 (Interfaces) and Domain 3 (Implementations) definitions are written as YAML envelopes. Domain 2 utilises embedded `schema:` declarations expressed in compact form (the default; ~15 keywords, mechanically transformed to JSON Schema 2020-12) or in full JSON Schema YAML.
 
 **Why every catalog YAML repeats the envelope.** The envelope (`apiVersion`, `kind`, `metadata` block) appears at the top of every catalog file — Component, Feature, Recipe, FeatureRecipe, Aggregate, Manifest, Release, Provider — regardless of how short the body is. The repetition is deliberate: each file is designed to parse, validate, lint, and inspect as a standalone artefact. A single file pulled from the OCI registry, dropped into a CI sandbox, or opened in a third-party editor must carry enough self-description that downstream tooling can identify what kind of entity it represents and which schema version applies. Catalog-relative-path inference (where the directory location implies the entity kind and the envelope could be omitted) is not implemented today — every parser, validator, and linter consumes the envelope explicitly. The cost is mechanical boilerplate per file; the benefit is that the standalone-tooling guarantee holds across the OCI distribution surface, the local filesystem, and the IDE / CI / inspect surfaces. Authors copy the envelope from existing files when authoring new catalog content; future scaffolders are expected to ship the boilerplate as starter templates.
 
 To maintain the DRY (Don't Repeat Yourself) principle, the Catalog employs two distinct composition mechanisms:
 
-* **Shared CUE Libraries (Mixins):** Reusable data structures (like standard model capability definitions) are stored in the `cue/` directory. They are imported directly via OCI URIs into the YAML schemas and unified using the `&` operator.
-* **Single Inheritance (`extends`):** For complete component baselines, entities can use the `extends: "URI"` property. The Go compiler recursively fetches the parent, performing a **Two-Tiered Merge**: it deep-merges the YAML metadata (overwriting labels on conflict and appending arrays) and auto-unifies the CUE schemas in memory (`ParentSchema & ChildSchema`).
+* **Shared SchemaLibrary entries (cross-document `$ref:`):** Reusable JSON Schema definitions are stored in SchemaLibrary catalog entities (Tier 3). They are referenced via cross-document `$ref:` URLs (`oci://hub.aggrega.ai/schema-library/<namespace>/<name>@<version>#/schemas/<entry>`) from any consumer Component or Feature schema. The compactform compiler walks the chain at compile time via resolution-stack threading; each property in the resolved shape carries an `x-aggrega-source` annotation attributing it to the immediate-parent library entry. See [entities/schemalibrary](../language-reference/entities/schemalibrary.md) for the library entity's authoring shape and [vocabulary/cross-document-ref](../language-reference/vocabulary/cross-document-ref.md) for the resolution semantics.
+* **Single Inheritance (`extends`):** For complete component baselines, entities can use the `extends: "URI"` property. The Go compiler recursively fetches the parent, performing a **Two-Tiered Merge**: it deep-merges the YAML metadata (overwriting labels on conflict and appending arrays) and composes the schemas under JSON Schema 2020-12 composition. The publishing-discipline policy plugin enforces monotonic narrowing on the composed result at publish time — child schemas may narrow parent constraints but cannot relax them. See [entities/component](../language-reference/entities/component.md) for the base-and-child component extension examples + [governance-and-compliance §"Inheritance and policy narrowing"](11-governance-and-compliance.md#inheritance-and-policy-narrowing) for the narrowing enforcement mechanism.
 
 See [entities/component](../language-reference/entities/component.md) for the base-and-child component extension examples, and [entities/recipe](../language-reference/entities/recipe.md) for Recipe pointer-and-mapper authoring with complete examples.
 
@@ -226,7 +237,34 @@ workspace:
 
 The `catalog_dirs` list supports monorepo setups where a shared catalog lives in a sibling directory. The compiler checks each directory in sequence. The `offline: true` flag prevents any network access — the compiler only uses local paths and the cache, halting if an entity is not found locally.
 
-*(Note: `aggrega pull` lockfile mechanics — pinning exact resolved versions and checksums for reproducible builds — are deferred to implementation analysis.)*
+The `.aggrega.lock` file at the workspace root records the resolved versions and content digests for every pinned dependency. `aggrega pull` fetches dependencies and writes the lockfile; `aggrega build` reads the lockfile and uses the pinned versions regardless of registry state at build time. The lockfile carries sections per entity kind:
+
+```yaml
+# .aggrega.lock
+schema_libraries:
+  - name: aggrega/datastores
+    version: 1.0.0
+    digest: sha256:abc123...
+
+mapping_libraries:
+  - name: aggrega/bitnami-helpers
+    version: 1.0.0
+    digest: sha256:def456...
+
+components:
+  - name: core/datastore/mariadb
+    version: 1.0.0
+    digest: sha256:789abc...
+
+recipes:
+  - name: core/helm/postgres-bitnami
+    version: 1.2.0
+    digest: sha256:ghi789...
+
+# ... features, feature-recipes, providers, plugins ...
+```
+
+Each pinned entry carries name + version + content-addressable digest. The digest is verified at every fetch; bytes that do not match the pinned digest halt the build with an integrity error.
 
 ### 5. The Three-Tier Entity Resolution Model
 
@@ -260,7 +298,26 @@ The OCI taxonomy covers all entity types. URI segments map 1:1 to filesystem pat
 * `hub.aggrega.ai/recipe/terraform/mariadb-rds:1.0.0` — Recipe, provider `terraform`
 * `hub.aggrega.ai/recipe/compose/mariadb:1.0.0` — Recipe, provider `compose`
 * `hub.aggrega.ai/feature-recipe/helm/k8s-secret-from-parameter:1.0.0` — FeatureRecipe
+* `hub.aggrega.ai/schema-library/aggrega/datastores:1.0.0` — SchemaLibrary, shared schema definitions
+* `hub.aggrega.ai/mapping-library/aggrega/bitnami-helpers:1.0.0` — MappingLibrary, shared Go-template mapping fragments
 * `hub.aggrega.ai/plugin/security/lakera-guard:1.0.0` — Wasm plugin
+
+Each kind has a distinct OCI mediatype:
+
+| Entity kind | Mediatype |
+| --- | --- |
+| Aggregate | `application/vnd.aggrega.aggregate.v1+json` |
+| Component | `application/vnd.aggrega.component.v1+json` |
+| Feature | `application/vnd.aggrega.feature.v1+json` |
+| Recipe | `application/vnd.aggrega.recipe.v1+json` |
+| FeatureRecipe | `application/vnd.aggrega.featurerecipe.v1+json` |
+| Provider | `application/vnd.aggrega.provider.v1+json` |
+| Manifest | `application/vnd.aggrega.manifest.v1+json` |
+| Release | `application/vnd.aggrega.release.v1+json` |
+| SchemaLibrary | `application/vnd.aggrega.schemalibrary.v1+json` |
+| MappingLibrary | `application/vnd.aggrega.mappinglibrary.v1+json` |
+
+The `v1` segment names a major schema version. If a future migration changes the on-the-wire envelope shape for an entity kind, that kind's mediatype version bumps to `v2`; downstream tooling dispatches on the mediatype version.
 
 Recipe names do NOT include the `ops/` prefix or the provider name. The entity type directory and provider directory provide all context needed.
 
@@ -272,10 +329,59 @@ When an Ops engineer runs `aggrega push`, the CLI bundles the entity YAML and it
 
 ### 7. The Recipe Architecture: Pointers and Mappers
 
-See [entities/recipe](../language-reference/entities/recipe.md) for the complete Recipe authoring surface — source (pointer), valuesMapping / valuesMappingFile / valuesMappingJsonnet (mapper), Wasm-driven source schemas, native IaC support, Jsonnet evaluation mechanics, and worked examples.
+See [entities/recipe](../language-reference/entities/recipe.md) for the complete Recipe authoring surface — `source:` (pointer), `valuesMapping:` (mapper, with three authoring modes: inline block scalar, file `$import:`, library `$import:` to a MappingLibrary entry), Wasm-driven source schemas, native IaC support, and worked examples.
 
 ### 8. The Default Registry & Context-Aware Shorthand URIs
 
 To eliminate YAML bloat, the compiler resolves shorthand URIs context-aware against the schema position in which they appear. The default registry is configured in `aggrega.yaml` (defaulting to `hub.aggrega.ai`).
 
 Shorthand URIs resolve context-aware against the Manifest; see [`../language-reference/entities/manifest.md`](../language-reference/entities/manifest.md) §Context-Aware Shorthand URIs for the specific inference rules.
+
+### 9. Lockfile pinning and artifact immutability
+
+Lockfile-pinning discipline anchors every dependency to a specific content-addressable artifact. At first lockfile-resolve (`aggrega pull`), the resolver consults the registry, picks a version per the URI's three-form constraint (exact / range / unversioned), and writes the pinned version + digest into `.aggrega.lock`. Subsequent `aggrega build` invocations use the pinned values regardless of registry mutability; new versions can be published without affecting the existing lockfile.
+
+The pinning model carries one load-bearing rule: once a `name:version` is published to a registry and resolves to digest `D`, that mapping is permanent. **Republishing the same `name:version` with different content is rejected at push time.** The publishing-discipline policy plugin enforces this rule on every `aggrega push`: it fetches the existing artifact at `name:version` from the target registry; if present and the digest matches the content about to be pushed, the push is an idempotent no-op; if present and the digest differs, the push halts with an immutability-violation error citing both digests.
+
+Immutability matters for two consequences:
+
+1. **Lockfile pins are honest.** When the lockfile records `mariadb:1.0.0` at digest `D`, a build that fetches by digest receives `D`'s bytes. Without immutability, a registry-side mutation could replace `D`'s bytes underneath the lockfile pin, undermining lock-time-to-build-time stability. Reproducible builds rest on this guarantee.
+2. **Post-publication metadata changes have a clear pathway.** Marking a published version as deprecated, rotating signing keys, or amending attestations cannot be done by mutating the published artifact (the rule forbids it). It must be done by publishing a new patch version or a sidecar artifact recording the metadata change separately. Either pathway is auditable — a new version or sidecar appears as a distinct registry entry — and neither alters the bytes of the original artifact.
+
+The immutability rule applies uniformly to every OCI-published Aggrega artifact (entities, SchemaLibrary, MappingLibrary, Wasm plugins referenced by Recipe `pipeline[].plugin:` / FeatureRecipe `pipeline[].plugin:` / Provider `plugin:` / workspace config `plugins.{mutator,policy,linter,importer}[]:`). Anything pinned by `name:version` plus a content digest in the lockfile is subject to immutability.
+
+Workspace configuration permits a forensic opt-out:
+
+```yaml
+# .aggrega-policies.yaml
+publishing_discipline:
+  enforce_immutability: true   # default true; required for production catalogs
+```
+
+Setting `enforce_immutability: false` is logged at every push and surfaced in audit reports. The setting exists so a workspace operator can reproduce historical builds where overwrites occurred prior to the rule's introduction; routine use is discouraged.
+
+Re-resolution to a newer version requires explicit user action (`aggrega catalog upgrade <URI>` for a single URI; `aggrega catalog upgrade --all` for all dependencies per the original form's constraint). Range-form and unversioned-form dependencies re-resolve to the latest matching version; exact-form pins do not move unless the user explicitly upgrades to a different exact version. The lockfile is the source of truth for builds; the user-typed form expresses the version constraint at authoring time.
+
+### 10. Catalog entity name-shape enforcement
+
+Catalog entity names follow per-entity-kind patterns documented at [`../language-reference/02-naming-conventions.md`](../language-reference/02-naming-conventions.md) "Catalog Entity Naming". Component names take the form `{namespace}/{category}/{name}` (e.g., `core/database/postgres`); Recipe and FeatureRecipe names take the form `{namespace}/{provider}/{name}` (e.g., `core/helm/postgres-bitnami`); Feature, SchemaLibrary, MappingLibrary, and Provider names take `{namespace}/{name}` (e.g., `core/data-masking`, `aggrega/datastores`).
+
+The JSON Schema for `metadata.name` accepts any non-empty string; structural validation does not enforce the per-entity-kind patterns. The patterns are enforced separately by two complementary mechanisms with a single shared regex source-of-truth:
+
+* **Publishing-discipline plugin (publish time): rejects.** `aggrega push` invokes the publishing-discipline plugin, which checks every artifact's `metadata.name` against the per-entity-kind regex. A name that does not match the documented pattern halts the publish with a clear error pointing at the convention documentation.
+* **`linter.wasm` (build time): warns.** `aggrega build` invokes `linter.wasm` per the extensibility-page architecture. The build-time linter emits a warning for the same name-shape violations the publishing-discipline plugin rejects:
+
+```text
+WARN: catalog/<entity-kind>/<name>: name shape "<invalid-name>"
+does not match the documented per-entity-kind pattern. This
+catalog will not be publishable to the registry as-authored.
+See aggrega-docs/language-reference/02-naming-conventions.md
+for documented patterns. (To proceed without warning, set
+.aggrega-policies.yaml allow_nonstandard_names: true)
+```
+
+The build-time warning catches the edge case where a CI/CD pipeline succeeds (the rendered K8s / Helm output does not depend on Aggrega entity names), but a subsequent catalog publish fails because the names violate the publishing-discipline rule. Authors see the warning during local development and fix the names before CI deploys broken-state catalogs.
+
+The per-workspace `allow_nonstandard_names: true` opt-out suppresses build-time warnings; it does NOT bypass publishing-discipline rejections (publish-time enforcement remains in force per the discipline). Legitimate edge cases — one-off internal catalogs that will never publish, multi-namespace experiments, special-purpose entities — use the opt-out to silence the build noise without weakening the publishing rule.
+
+The two enforcement modes share the same regex source; updating the convention updates both mechanisms in lockstep.

@@ -1,6 +1,6 @@
 # Naming Conventions
 
-This chapter covers the naming and casing rules that apply to authored Aggrega content: the pattern for user-authored instance names, the casing discipline for field names in the DSL, and the comment syntax that depends on the surrounding language (YAML vs CUE).
+This chapter covers the naming and casing rules that apply to authored Aggrega content: the pattern for user-authored instance names, the casing discipline for field names in the DSL, and the comment syntax used at the YAML authoring surface.
 
 ## Instance Names
 
@@ -45,7 +45,7 @@ Socket names in a developer's `uses` block must match a key in the catalog entit
 
 The DSL separates developer-facing YAML (authored by humans) from internal compiler contracts (consumed by templates and tooling):
 
-* **Developer-facing YAML (camelCase):** Multi-word field names in Aggregate, Release, Component, Feature, Recipe, FeatureRecipe, Manifest, and Provider schemas use camelCase. Examples: `exportedComponents`, `syncWave`, `subDirectory`, `parametersFrom`, `secretsSchema`, `requiredFeatures`, `usesSchema`, `cueSchema`, `valuesMapping`, `injectMapping`, `executionScope`, `appliesTo`, `appliesToExpressions`, `matchLabels`, `conflictsWith`, `componentRefPath`. Follows Kubernetes API conventions.
+* **Developer-facing YAML (camelCase):** Multi-word field names in Aggregate, Release, Component, Feature, Recipe, FeatureRecipe, Manifest, and Provider schemas use camelCase. Examples: `exportedComponents`, `syncWave`, `subDirectory`, `secretsSchema`, `requiredFeatures`, `usesSchema`, `valuesMapping`, `injectMapping`, `executionScope`, `appliesTo`, `appliesToExpressions`, `matchLabels`, `conflictsWith`, `componentRefPath`. Follows Kubernetes API conventions.
 * **Internal contracts (snake_case):** Multi-word field names in the IR Graph schema and the Template Context schema use snake_case. User-facing examples Recipe authors encounter: `instance_id` (in `.context.instance_id` — the Recipe's identity), `inject_raw` (in `.context.inject_raw` — the unmutated injection contract), `secret_name` (in credential FeatureRecipe context — identifies which declared secret slot the FeatureRecipe is processing). Follows JSON API conventions and aligns with Go's JSON struct tag generation.
 * **Single-word fields:** Lowercase regardless of context. Examples: `values`, `infra`, `inject`, `provides`, `locals`, `features`, `secrets`, `labels`, `annotations`, `boundaries`, `components`, `subsystems`, `pipeline`, `source`.
 
@@ -122,13 +122,13 @@ spec:
 
 The `*_path` keys are Recipe-private exports; the `containers_path` / `volumes_path` values are RFC 6901 JSON Pointer strings. The Injector plugin consumes the strings to position its JSONPatch output against the rendered Workload's AST.
 
-For the broader format-string inventory (Go template syntax, Sprig functions, CUE syntax, JSON Pointer alongside SemVer regex and label selector grammar), see [`vocabulary/uri-grammar.md`](vocabulary/uri-grammar.md) "Format-string inventory". For the Wasm plugin contract surface that consumes RFC 6901 patches, see [`wasm/plugin-contract.md`](wasm/plugin-contract.md).
+For the broader format-string inventory (Go template syntax, Sprig functions, JSON Pointer alongside SemVer regex and label selector grammar), see [`vocabulary/uri-grammar.md`](vocabulary/uri-grammar.md) "Format-string inventory". For the Wasm plugin contract surface that consumes RFC 6901 patches, see [`wasm/plugin-contract.md`](wasm/plugin-contract.md).
 
 ## Comment Syntax
 
 Comment characters depend on the surrounding language:
 
-* **YAML context** (outside `cueSchema: |` blocks): use `#`
-* **CUE context** (inside `cueSchema: |` blocks, standalone `.cue` files): use `//`
+* **YAML context** (the default authoring surface for every Aggrega entity): use `#`
+* **Go template context** (inside Recipe `valuesMapping:` block scalars, FeatureRecipe `injectMapping:` block scalars, SchemaLibrary `$templates:` bodies, MappingLibrary mapping entries, assertion-block `assertions:` bodies): use `{{/* ... */}}` for template comments that the template engine recognises and strips at render time, or `#` for YAML-level comments outside the template body.
 
-CUE's parser rejects `#` as a comment character; YAML's parser rejects `//`. A `cueSchema: |` block is CUE code embedded in a YAML literal scalar — the inner content follows CUE conventions.
+Compact-form schemas under `schema:`, `usesSchema:`, `secretsSchema:`, and `parameters:` are YAML throughout; the per-field `description:` annotation is the documented surface for inline field documentation (`port: { type: integer, description: "TCP listen port" }`).
