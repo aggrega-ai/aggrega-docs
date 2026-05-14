@@ -82,6 +82,8 @@ Parameter names inside a template's `$params:` map are template-local — they d
 
 The naming uniformity at library, schema, and template levels makes canonical `$ref` URIs scan cleanly: `oci://hub.aggrega.ai/WebPrimitives@1.0.0#/schemas/URL` reads at a glance.
 
+For the cross-document `$ref:` resolution semantics — how `$ref:` resolves across SchemaLibrary boundaries, the `required:` syntax distinction for `$ref:`-bearing consumers, library-to-library chain expansion, and consumer-narrows-library behaviour — see [vocabulary/cross-document-ref.md](../vocabulary/cross-document-ref.md).
+
 ## Canonical `$id` and Lockfile Integration
 
 Each schema entry's canonical `$id` derives as `oci://<host>/<library>@<version>#/schemas/<name>`. The host comes from the workspace's lockfile entry for the library; the version comes from the lockfile-pinned version; the schema entry's name is the entry's map key. Local-development workspaces (where the library is unpacked under the catalog tree rather than installed from a remote registry) use the placeholder host `local.aggrega`; the publishing pipeline substitutes the placeholder with the canonical hub host at publish time.

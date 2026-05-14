@@ -174,3 +174,27 @@ Boundary-scope FRs produce one `provides:` set per `(boundary_path, FR-instance)
 ### Compose-bridge proof case
 
 The compose-bridge FeatureRecipe is the canonical boundary-scope-FR pattern. A `core/compose-bridge` feature is attached at a parent boundary that contains two sub-boundaries (e.g., `services-net` and `data-net` with shared `directory:`). The FR's `executionScope: boundary` ensures one bridge service is synthesized per parent-boundary attachment. Phase-A `injectMapping` rewrites each consumer's `DB_HOST` (or equivalent) to point at the bridge address. Phase-B Resource Generation emits the bridge's `nginx-stream` compose service, which the per-(path, provider) compose assembler merges with per-component compose contributors at the same evaluated path. The result is one `docker-compose.yaml` containing every component plus the bridge service, with cross-network routing wired correctly.
+
+## The `assertions:` block
+
+`FeatureRecipe.spec.assertions:` is an optional Go template body that expresses **implementation invariants of the FeatureRecipe** — cross-field rules that hold given the specific Wasm plugin pipeline, chart, or mechanism the FeatureRecipe wraps. Like Recipe assertions, FeatureRecipe assertions are properties of the specific implementation; the Feature-level contract rules apply independently at an earlier pipeline phase.
+
+```yaml
+spec:
+  implements: core/secret-value:^1.0.0
+  pipeline:
+    - id: fetch-secret
+      plugin: secret-providers/aws-secrets-manager:^1.0.0
+  assertions: |
+    {{- /* aws-secrets-manager plugin 1.x requires explicit region when no AWS_DEFAULT_REGION
+           is implied through the Aggregate's infra block */ -}}
+    {{- if not .values.region -}}
+      {{- if not .infra.aws.region -}}
+        {{- fail "aws-secrets-manager plugin 1.x requires either values.region or infra.aws.region to be set" -}}
+      {{- end -}}
+    {{- end -}}
+```
+
+The rule above is specific to the `aws-secrets-manager` plugin 1.x; it does not apply if a different `core/secret-value` FeatureRecipe binds. The Feature-level contract rules from the Feature definition still apply alongside.
+
+FeatureRecipe assertions evaluate after FeatureRecipe binding and before Resource Generation. The template context for component-scope FRs mirrors the Recipe assertions context (entity-instance fields plus `.provides`, `.locals`, `.recipe.metadata`, `.recipe.source`); for boundary-scope FRs (`executionScope: boundary`), assertions evaluate against the boundary-scope view (`.boundary.*` fields available; per-component fields not). For the full authoring grammar and worked examples, see [templates/assertions-block.md](../templates/assertions-block.md).

@@ -182,3 +182,26 @@ The inventory is the canonical reference for what authors can put in `source:` t
 `.tf.json` is valid Terraform input — the `terraform` CLI executes it identically to `.tf` HCL. GitOps pipelines (GitHub Actions, Atlantis) and scanning tools (Checkov) handle `.tf.json` the same way they handle standard HCL. *The terraform provider engine is currently `planned`; this discussion describes the designed flow.*
 
 JSON is suited for machine-to-machine communication, not for manual human authoring. Ops engineers author their Recipes using standard `.tf` HCL files; the Wasm rendering socket generates the final JSON artifacts. The `.tf.json` in the `dist/` folder is a compiled output, following the same authoring-vs-output split established by AWS CDK and CDKTF.
+
+## The `assertions:` block
+
+`Recipe.spec.assertions:` is an optional Go template body that expresses **implementation invariants of the Recipe** — cross-field rules that hold given the specific chart or module the Recipe wraps. Unlike Component assertions (which express contract-level invariants regardless of which Recipe binds), Recipe assertions are properties of the specific implementation chosen.
+
+```yaml
+spec:
+  implements: core/datastore/mariadb:^1.0.0
+  source:
+    chart: oci://registry-1.docker.io/bitnamicharts/mariadb
+    version: "20.0.0"
+  assertions: |
+    {{- /* Bitnami 20.x: serviceMonitor namespace requirement */ -}}
+    {{- if and (eq .values.architecture "replication") .values.metrics.serviceMonitor.enabled -}}
+      {{- if not .values.metrics.serviceMonitor.namespace -}}
+        {{- fail "Bitnami MariaDB 20.x requires metrics.serviceMonitor.namespace when architecture=replication and metrics.serviceMonitor.enabled=true" -}}
+      {{- end -}}
+    {{- end -}}
+```
+
+The rule above is specific to Bitnami chart 20.x; it does not apply if a different MariaDB Recipe binds. The Component-level rules from the contract still apply alongside, evaluated at an earlier pipeline phase.
+
+Recipe assertions evaluate after Recipe binding and before rendering. The template context includes the Recipe's `.provides`, `.locals`, and `.recipe.source` in addition to the entity-instance fields (`.values`, `.infra`, `.uses`, `.secrets`). For the full authoring grammar, the responsibility split between contract-level and implementation-level rules, and worked examples, see [templates/assertions-block.md](../templates/assertions-block.md).

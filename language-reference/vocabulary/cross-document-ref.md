@@ -1,0 +1,129 @@
+# Cross-document `$ref:` resolution
+
+This page documents the resolution semantics of cross-document `$ref:` references in Aggrega's schema authoring surface — what authors of Components, Features, and SchemaLibrary entries see when a `$ref:` crosses a document boundary into a library, and the per-syntax `required:` rules that pin which authoring forms work cleanly with cross-document expansion.
+
+`$ref:` is JSON Schema 2020-12-native. It appears inside `schema:` content (Component, Feature, SchemaLibrary entries), inside compact-form schemas, and inside the synthesized JSON Schema layer that `usesSchema:` and `secretsSchema:` emit. This page focuses on the cross-document case, where `$ref:` targets a SchemaLibrary entry in a separate file or OCI artifact.
+
+For entity-level inheritance (Component-extends-Component, Release-extends-Release), see [inheritance-and-interface.md](inheritance-and-interface.md). For whole-content imports at non-schema sites (`valuesMapping:`, `workload:`, `parameters:`), `$import:` is the keyword; this page does not cover that surface.
+
+## `$ref:` resolution semantics
+
+`$ref:` follows JSON Schema 2020-12 standard resolution. Three reference shapes appear in practice:
+
+- **Local fragments** within the same document: `{ $ref: "#/$defs/PodResources" }` — resolves to the `PodResources` entry under the schema's `$defs`.
+- **External OCI URLs**: `{ $ref: "oci://hub.aggrega.ai/aggrega/datastores@1.0.0#/schemas/MariaDBPayload" }` — resolves through the lockfile to the cached SchemaLibrary content, then dereferences the `#/schemas/MariaDBPayload` JSON Pointer fragment within that content.
+- **External file paths**: `{ $ref: "./schemas/foo.yaml#/definitions/Foo" }` — resolves the file relative to the schema's location, then the JSON Pointer fragment within.
+
+The reference resolves at compile time. The expander inlines the referenced content into the consumer's schema; the rendered IR carries the inlined content, not the indirection. Per-property attribution is preserved via the `x-aggrega-source` annotation (see [Library-to-library chain expansion](#library-to-library-chain-expansion) below).
+
+`$ref:` composes naturally with JSON Schema's composition keywords:
+
+```yaml
+secondary:
+  allOf:
+    - { $ref: "#/$defs/NodePool" }
+    - replicaCount: { min: 2 }
+    - description: "Replication-mode secondary instances."
+```
+
+The `allOf` composes the referenced `NodePool` shape with the additional constraints.
+
+## `required:` syntax under cross-document `$ref:`
+
+Catalog authors choose between two authoring shapes when declaring required properties on a Component or Feature: leaf-level markers (`required: true` on each property) or the parent-level array (`required: [name1, name2, ...]` at the object scope). Both shapes are valid in JSON Schema 2020-12. Under cross-document `$ref:` expansion, only one of them threads through cleanly.
+
+**Inferred-form authoring without `$ref:`** — leaf-level markers accumulate at compile time. The compactform compiler walks each property and, where a leaf carries `required: true`, contributes the property name to the synthesized parent's `required:` array.
+
+```yaml
+spec:
+  schema:
+    values:
+      host: { type: string, required: true }
+      port: { type: integer, default: 5432 }
+      database: { type: string, required: true }
+```
+
+The compiler emits `required: [host, database]` at the parent scope.
+
+**`$ref:`-bearing consumers** — leaf-level markers are silently dropped. The cross-document sibling collector reads only the top-level `required:` SequenceNode of the consumer's object scope; leaf-level markers inside `$ref:`-pulled subtrees do not contribute. Authors of `$ref:`-bearing consumers should declare the requirement set explicitly at the parent level:
+
+```yaml
+spec:
+  schema:
+    values:
+      $ref: "oci://hub.aggrega.ai/aggrega/datastores@1.0.0#/schemas/PostgresPayload"
+      required: [host, database]
+```
+
+The authoring criterion is simple: any consumer that uses `$ref:` to pull a library entry into its schema must declare its `required:` set as a parent-level array. Mixing parent-level `required:` with `$ref:` is the canonical authoring shape; leaf-level `required: true` markers in this case do nothing.
+
+## Library-to-library chain expansion
+
+A SchemaLibrary entry may itself contain a `$ref:` pointing into another SchemaLibrary entry, producing a chain. The compactform compiler walks the chain at compile time via resolution-stack threading: each `$ref:` encountered during expansion pushes the source library onto the stack, the referenced entry is expanded, then the stack is popped.
+
+```yaml
+# Library A
+spec:
+  schemas:
+    DatabasePayload:
+      type: object
+      properties:
+        host: { type: string }
+        credentials: { $ref: "oci://hub.aggrega.ai/aggrega/credentials@1.0.0#/schemas/BasicAuth" }
+
+# Library B (referenced from library A above)
+spec:
+  schemas:
+    BasicAuth:
+      type: object
+      properties:
+        username: { type: string }
+        password: { type: string }
+```
+
+A consumer Component that references `DatabasePayload` receives the fully-expanded shape with `credentials` populated from library B's `BasicAuth`.
+
+### `x-aggrega-source` attribution
+
+The expander annotates each property in the rendered shape with `x-aggrega-source`, pointing at the immediate parent library entry that contributed the property. Under chain expansion, the annotation attributes to the **immediate parent only**:
+
+- `host` in the expanded `DatabasePayload` carries `x-aggrega-source: <library-A>/DatabasePayload`.
+- `username` in the expanded `credentials` carries `x-aggrega-source: <library-A>/DatabasePayload` (the immediate parent in the chain), not `<library-B>/BasicAuth`.
+
+The deeper origin (library B) is not preserved in the current annotation shape. This is documented authoring-surface behaviour, not a defect — `aggrega explain` reports the immediate-parent attribution; the chain can be reconstructed by recursive library lookup if needed. A future authoring polish may surface chain depth via an `x-aggrega-source-chain:` extension; until then, the immediate-parent attribution is the contract.
+
+## Consumer narrows library entry
+
+A consumer Component may declare a property whose name matches a property pulled in from a library entry. When this happens, the consumer's compiled property entirely replaces the library entry's in the merged shape; the library's `x-aggrega-source` annotation drops with the replaced property.
+
+```yaml
+# Library entry
+spec:
+  schemas:
+    ToolContract:
+      type: object
+      properties:
+        side_effects:
+          type: array
+          items: { type: string, enum: [read, write, delete] }
+
+# Consumer Component
+spec:
+  schema:
+    values:
+      $ref: "oci://hub.aggrega.ai/aggrega/tools@1.0.0#/schemas/ToolContract"
+      side_effects:
+        type: array
+        items: { type: string, enum: [read] }
+        default: [read]
+```
+
+In the merged shape, `side_effects` reflects the consumer's narrower contract (`enum: [read]`, with a `default`); the library entry's broader `enum: [read, write, delete]` is gone. The `x-aggrega-source` annotation on the consumer's `side_effects` property is dropped — the property is consumer-authored.
+
+This is the expected behaviour: consumers refining a library entry's property is the canonical narrowing pattern. A future polish surface may add `x-aggrega-narrowed-from:` to record that a consumer property derives from a library entry it narrows; until then, narrowing is silent and the consumer's property stands on its own provenance.
+
+## Cross-pointers
+
+- For envelope-level inheritance (Component-extends-Component, Release-extends-Release, Manifest-extends-Manifest), see [inheritance-and-interface.md](inheritance-and-interface.md).
+- For provider-specific source pointers (`Recipe.spec.source.chart:`, `Recipe.spec.source.modulePath:`), see the per-entity Recipe documentation. Provider source pointers are not unified under `$ref:`; the provider plugin consumes them directly.
+- For OCI URI shorthand expansion rules (domain default, registry segment, version fallback, namespace expansion), see [uri-grammar.md](uri-grammar.md).

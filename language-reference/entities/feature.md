@@ -84,3 +84,18 @@ The core Go compiler does not enforce this convention. Feature definitions with 
 * The `interoperability.conflictsWith` declaration on paired Features provides runtime composition discipline when two attached Features would otherwise overlap on a component.
 
 Open-source standard-library Features follow the purity convention by authoring discipline; enterprise catalogs are free to deviate when a tightly-coupled composite genuinely fits the deployment model.
+
+## The `assertions:` block
+
+`Feature.spec.assertions:` is an optional Go template body that expresses **architectural invariants of the Feature contract** — cross-field rules over the Feature's `values:` and the attached Component's resolved state. The compiler evaluates the template after schema validation and before the bound FeatureRecipe renders; a failing assertion halts the build with the assertion's specific error message.
+
+```yaml
+spec:
+  appliesTo: { component.aggrega.ai/type: server }
+  assertions: |
+    {{- if and (eq .values.mode "active-active") (lt .values.replicas 2) -}}
+      {{- fail "mode=active-active requires replicas >= 2" -}}
+    {{- end -}}
+```
+
+Like Component assertions, Feature assertions express contract-level invariants — properties the Feature attachment must satisfy regardless of which FeatureRecipe implements the rendering. For cross-field rules that depend on the specific implementation (a Wasm plugin requirement, a chart quirk), use the FeatureRecipe's `assertions:` field instead. For the full authoring grammar, template context, and the responsibility split between Feature and FeatureRecipe assertions, see [templates/assertions-block.md](../templates/assertions-block.md).

@@ -320,3 +320,21 @@ spec:
 ```
 
 For the Recipe that implements this `core/ai-gateway` interface against a physical Helm chart, see [entities/recipe](recipe.md) Example C (`kong-gateway`).
+
+## The `assertions:` block
+
+`Component.spec.assertions:` is an optional Go template body that expresses **architectural invariants of the Component contract** — cross-field rules the developer's authoring must satisfy regardless of which Recipe binds to the Component. The compiler evaluates the template after schema validation and before Recipe binding; a failing assertion halts the build with the assertion's specific error message per the Loud Guardrails contract.
+
+```yaml
+spec:
+  assertions: |
+    {{- if eq .values.architecture "replication" -}}
+      {{- if lt .values.secondary.replicaCount 2 -}}
+        {{- fail "architecture=replication requires secondary.replicaCount >= 2" -}}
+      {{- end -}}
+    {{- end -}}
+```
+
+The rule above is a property of the Component contract — whatever Recipe binds (Bitnami chart, hand-rolled alternative, future implementation), replication mode requires at least two secondary replicas.
+
+Use `assertions:` for genuine **cross-field** rules. Per-field constraints (range, pattern, enum) belong in `schema:` keywords; per-field custom predicates belong in the compact form's `validate:`; conditional shape (whether a subtree's constraints apply) belongs in `when:`. For the full authoring grammar — template context fields, the `{{ fail }}` message convention, the evaluation phase, and worked examples spanning the Component and Recipe roles — see [templates/assertions-block.md](../templates/assertions-block.md).
