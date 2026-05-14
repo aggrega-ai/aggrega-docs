@@ -40,7 +40,7 @@ The `CATALOG_ERROR:` prefix signals that the failure is attributable to the cata
 
 #### Rule 1 — `valuesMapping` requires `source`
 
-A Recipe declares `valuesMapping` (or `valuesMappingFile`) but not `source`. Without a source engine to overlay, there is nothing to receive the mapped values.
+A Recipe declares `valuesMapping` but not `source`. Without a source engine to overlay, there is nothing to receive the mapped values.
 
 Emitted message:
 > CATALOG_ERROR: Recipe `<path>` (`<name>:<version>`) violates rule 1:
@@ -51,60 +51,49 @@ Emitted message:
 
 #### Rule 2 — `source` requires `valuesMapping`
 
-A Recipe declares `source` but neither `valuesMapping` nor `valuesMappingFile`. An externally-loaded chart or module needs values; a source with no values overlay is underspecified.
+A Recipe declares `source` but no `valuesMapping`. An externally-loaded chart or module needs values; a source with no values overlay is underspecified.
 
 Emitted message:
 > CATALOG_ERROR: Recipe `<path>` (`<name>:<version>`) violates rule 2:
 > source requires valuesMapping
-> declare a valuesMapping (or valuesMappingFile) alongside source, or use a different input kind (workload, workloadFrom, artifacts, artifactsFrom)
+> declare a valuesMapping alongside source, or use a different input kind (workload, artifacts)
 
-**How to fix:** declare a `valuesMapping:` (or `valuesMappingFile:`) that produces the values overlay for the source, or remove the `source:` and adopt the input kind that matches your authoring intent.
+**How to fix:** declare a `valuesMapping:` (inline Go template, or file `$import:`, or library `$import:` to a [MappingLibrary](../entities/mappinglibrary.md) entry) that produces the values overlay for the source, or remove the `source:` and adopt the input kind that matches your authoring intent.
 
-#### Rule 3 — `workload` and `workloadFrom` are mutually exclusive
+#### Rule 4 — `workload:` requires the Provider to declare `workloadSchema`
 
-A Recipe declares both `workload` (inline Workload template) and `workloadFrom` (path to a Workload template file). The two are alternative authoring shapes for the same input kind; declaring both is a contradiction.
-
-Emitted message:
-> CATALOG_ERROR: Recipe `<path>` (`<name>:<version>`) violates rule 3:
-> workload and workloadFrom are mutually exclusive
-> declare workload (inline template) or workloadFrom (file reference), not both
-
-**How to fix:** keep one and remove the other. The inline `workload:` form is convenient for small Workloads; `workloadFrom:` is preferred for larger Workloads that benefit from being authored in their own file with editor support.
-
-#### Rule 4 — `workload` / `workloadFrom` requires the Provider to declare `workloadSchema`
-
-A Recipe declares `workload:` or `workloadFrom:` for a Provider that omits `workloadSchema`. Providers that do not declare `workloadSchema` do not support synthesized-mode rendering; pointing a synthesized Recipe at such a Provider has no rendering implementation behind it.
+A Recipe declares `workload:` for a Provider that omits `workloadSchema`. Providers that do not declare `workloadSchema` do not support synthesized-mode rendering; pointing a synthesized Recipe at such a Provider has no rendering implementation behind it.
 
 Rule 4 is checked after the Manifest binds the Recipe to its Provider, so the message names both entities.
 
 Emitted message:
 > CATALOG_ERROR: Recipe `<path>` (`<name>:<version>`) violates rule 4:
-> workload/workloadFrom requires the bound Provider to declare workloadSchema
+> workload: requires the bound Provider to declare workloadSchema
 > Provider `<provider-name>` has no workloadSchema; Workload synthesis is not supported on this provider
 
 **How to fix:** either bind the Recipe to a Provider that declares `workloadSchema` (most commonly `helm`), or migrate the Recipe to a different input kind (`artifacts:` for direct manifest emission, or `source:` + `valuesMapping:` if a chart/module exists).
 
 #### Rule 5 — at least one input kind must be present
 
-A Recipe declares no input kind: no `source` paired with `valuesMapping`, no `workload:` / `workloadFrom:`, no `artifacts:` / `artifactsFrom:`. Such a Recipe produces no output and has no rendering surface.
+A Recipe declares no input kind: no `source` paired with `valuesMapping`, no `workload:`, no `artifacts:`. Such a Recipe produces no output and has no rendering surface.
 
 Emitted message:
 > CATALOG_ERROR: Recipe `<path>` (`<name>:<version>`) violates rule 5:
 > at least one input kind must be present
-> declare one of: source (with valuesMapping), workload, workloadFrom, artifacts, artifactsFrom
+> declare one of: source (with valuesMapping), workload, artifacts
 
 **How to fix:** add the input kind that matches the Recipe's authoring intent. Recipes that only define `provides:` (virtual components that supply pointer strings without rendering anything) belong on the `eval` provider — see the eval-provider constraint below.
 
-#### Rule 6 — `artifacts` and `artifactsFrom` basenames must not collide
+#### Rule 6 — `artifacts:` entry keys must be unique
 
-A Recipe declares both `artifacts:` (inline filename → template map) and `artifactsFrom:` (list of template-file paths) such that an inline filename collides with the basename of an `artifactsFrom:` entry. Both would emit a file with the same name to the same boundary directory.
+A Recipe declares two or more entries under `artifacts:` with the same key. The key dictates the emitted filename (whether the entry's body is authored inline or loaded via per-entry `$import:`); duplicate keys would emit a file with the same name to the same boundary directory.
 
 Emitted message:
 > CATALOG_ERROR: Recipe `<path>` (`<name>:<version>`) violates rule 6:
-> artifacts inline keys collide with artifactsFrom basenames
-> colliding output filenames: `<basename1>, <basename2>, ...`
+> artifacts: entry keys collide
+> colliding entry keys: `<key1>, <key2>, ...`
 
-**How to fix:** rename the inline key in `artifacts:` to a distinct filename, or move the colliding `artifactsFrom:` entry to a path whose basename does not match. The output filename is what counts; renaming the source file (so its basename differs) is sufficient.
+**How to fix:** rename one of the colliding entry keys so each `artifacts:` entry has a unique filename.
 
 #### Rule 7 — emission-time filename collision across input kinds
 
@@ -121,7 +110,7 @@ Emitted message (intended; emission-time detection ships incrementally):
 
 #### `eval`-provider constraint
 
-A Recipe targets the `eval` provider but declares one or more input-kind fields (`source`, `workload`, `workloadFrom`, `artifacts`, `artifactsFrom`, `valuesMapping`, `valuesMappingFile`). The `eval` provider executes formatting in-memory and has no rendering surface; declaring input-kind fields on an eval Recipe is meaningless.
+A Recipe targets the `eval` provider but declares one or more input-kind fields (`source`, `workload`, `artifacts`, `valuesMapping`). The `eval` provider executes formatting in-memory and has no rendering surface; declaring input-kind fields on an eval Recipe is meaningless.
 
 Emitted message:
 > CATALOG_ERROR: Recipe `<path>` (`<name>:<version>`) violates rule eval:
@@ -351,15 +340,6 @@ Emitted message:
 > selector violation on edge `<source-id> --<socket>--> <target-id>`: target does not match selector `<selector-expression>`.
 
 **How to fix:** either route the `uses:` edge to a Component whose labels satisfy the selector, or adjust the selector expression in the catalog entity to accept the intended target class. Review the target Component's `metadata.labels` with `aggrega inspect` to confirm which labels it carries.
-
-### Jsonnet mapping path not supported **[pending]**
-
-A Recipe declares `valuesMappingJsonnet:` as its mapping language. Jsonnet support is a planned extension; the schema accepts the field today, but the renderer rejects it with an explicit pointer to the supported alternatives.
-
-Emitted message:
-> valuesMappingJsonnet is not supported; use valuesMapping or valuesMappingFile.
-
-**How to fix (current):** switch the Recipe to `valuesMapping:` (inline Go template) or `valuesMappingFile:` (Go template from a file path). Jsonnet support lands in a later milestone; Recipes requiring Jsonnet's expressiveness today must use Go templates as a short-term substitute.
 
 ### Unregistered provider
 
