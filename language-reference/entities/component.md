@@ -51,14 +51,15 @@ While `labels` define the immutable Catalog DNA, dynamic business contexts (like
 
 *The taxonomy is a catalog convention, not a compiler rule. Enterprises can ignore it, delete it, or invent their own label vocabulary (`mycompany.com/custom-trait`). Wasm plugins evaluate whatever label keys the enterprise authors.*
 
-## CUE Schema Authoring
+## Schema Authoring
 
-The `Component` schema (and its `Feature` counterpart, including credential Features labeled `feature.aggrega.ai/kind: secret`) offers two ways to declare the CUE validation contract for developer-authored `values`:
+The `Component` schema (and its `Feature` counterpart, including credential Features labeled `feature.aggrega.ai/kind: secret`) declares the validation contract for developer-authored `values` through a `spec.schema:` block. The block accepts JSON Schema 2020-12 expressed either in the compact-form YAML shorthand (the default; about 15 keywords, mechanically transformed to JSON Schema at compile time) or in full JSON Schema YAML (the verbose form), with cross-document references via `$ref:` for SchemaLibrary entries shared across multiple Components.
 
-* **Inline (`cueSchema`):** an embedded string carrying the CUE code directly in the Component YAML. Fits simple validations cleanly and keeps everything in one file.
-* **External URI (`cueSchemaRef`):** a pointer to a shared `.cue` file in the registry. Enterprise schemas can span hundreds of lines and may be reused across multiple Components; `cueSchemaRef` keeps the Component YAML compact and lets the CUE library live in its own versioned artifact.
+* **Inline compact form (default authoring surface):** an embedded YAML block carrying compact-form leaves directly in the Component YAML. Fits ~95% of catalog schema content in a fraction of the line count of full JSON Schema. See [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md) for the keyword vocabulary and authoring conventions.
+* **Inline JSON Schema YAML:** the verbose form, suitable when the schema needs JSON Schema 2020-12 keywords the compact form does not carry directly (`$dynamicRef`, deep `unevaluatedProperties`, complex `not:` composition). Compact form and JSON Schema can be mixed at any node boundary within a single `schema:` block via the `$jsonschema:` escape hatch.
+* **Cross-document reference (`$ref:` to a SchemaLibrary entry):** a JSON Schema-native `$ref:` URL pointing at a SchemaLibrary entry (`oci://hub.aggrega.ai/aggrega/datastores@1.0.0#/schemas/MariaDBValues` or similar). Enterprise schemas spanning hundreds of lines and reused across multiple Components live in SchemaLibrary entities; the consumer Component references the entry without inlining the content. See [`entities/schemalibrary.md`](schemalibrary.md) and [`vocabulary/cross-document-ref.md`](../vocabulary/cross-document-ref.md) for the library entity and the resolution semantics.
 
-One of `cueSchema` / `cueSchemaRef` applies per Component; the compiler reads the inline string or fetches the referenced file and unifies the result with the auto-generated bases derived from `usesSchema` and `secretsSchema` (see the section below) during the Component's validation pass.
+The compiler resolves the `schema:` block — expanding compact form, dereferencing `$ref:` URLs, applying SchemaLibrary library-to-library chains — and unifies the resulting JSON Schema with the auto-generated bases derived from `usesSchema` and `secretsSchema` (see the section below) during the Component's validation pass. Validation runs against the resolved schema; the authoring path is opaque to downstream pipeline stages.
 
 ## The `infra` Pillar
 
@@ -68,19 +69,20 @@ Three `infra` conventions matter across every provider-agnostic Component in the
 
 ### `infra.overrides`
 
-Universal `infra` fields — `compute`, `storage`, `ha`, `backup` — cover roughly 95% of operational sizing across providers. The remaining slice is irreducibly provider-specific: a Kubernetes Recipe needs a `nodeSelector`, an RDS Terraform Recipe needs an `instance_class`, a CloudFormation RDS Recipe needs a `DBInstanceClass`, a Compose Recipe needs an `image` override. The Component schema exposes a CUE open-struct escape hatch so these knobs flow through without bloating the schema:
+Universal `infra` fields — `compute`, `storage`, `ha`, `backup` — cover roughly 95% of operational sizing across providers. The remaining slice is irreducibly provider-specific: a Kubernetes Recipe needs a `nodeSelector`, an RDS Terraform Recipe needs an `instance_class`, a CloudFormation RDS Recipe needs a `DBInstanceClass`, a Compose Recipe needs an `image` override. The Component schema exposes a genuinely-open map as the escape hatch so these knobs flow through without bloating the schema:
 
-```cue
-infra: {
-  // ... universal fields ...
+```yaml
+infra:
+  # ... universal fields ...
 
-  // Provider-specific overrides. Accepts any nested structure.
-  // Each Recipe documents which keys it reads.
-  overrides?: _    // CUE top type: accepts ANY nested value
-}
+  # Provider-specific overrides. Accepts any nested structure.
+  # Each Recipe documents which keys it reads.
+  overrides:
+    type: object
+    additionalProperties: true   # genuinely open map: arbitrary nested structure permitted
 ```
 
-CUE's top type (`_`) accepts arbitrary nested structure with no constraints. The compiler pipes the structure through untouched; the Recipe's template body reads whichever keys it knows about and ignores the rest. Each Recipe documents the override-key ontology in its header comment, so an Ops engineer authoring a Release for a specific Component × Recipe combination knows what knobs the Recipe exposes.
+The explicit `type: object` with `additionalProperties: true` opts into the open-map semantic. The compiler pipes the structure through untouched; the Recipe's template body reads whichever keys it knows about and ignores the rest. Each Recipe documents the override-key ontology in its header comment, so an Ops engineer authoring a Release for a specific Component × Recipe combination knows what knobs the Recipe exposes.
 
 A Release fragment using overrides:
 
@@ -106,12 +108,13 @@ The Developer never sees `overrides` — it lives in the Release, which is the O
 
 A Recipe's `source` field references an upstream artifact at a specific version (Helm chart 25.0.8, Terraform module 4.2.0, OCI image tag). Hardcoding the version inside the Recipe forces the catalog maintainer to publish a new Recipe on every compatible upstream version bump. The Component schema exposes an optional override:
 
-```cue
-infra: {
-  // Overrides the Recipe's default source artifact version.
-  // Changing from default does not guarantee value mapping compatibility.
-  source_version?: string
-}
+```yaml
+infra:
+  source_version:
+    type: string
+    description: |
+      Overrides the Recipe's default source artifact version.
+      Changing from default does not guarantee value mapping compatibility.
 ```
 
 The Recipe reads this as a Go template default in its `source` block:
@@ -129,13 +132,11 @@ Recipe `source` strings (and string-valued sub-fields of a structured `source:` 
 
 High-availability fields use intent vocabulary, not mechanism vocabulary:
 
-```cue
-infra: {
-  ha: {
-    enabled:       bool | *false
-    read_replicas: int & >=0 | *0
-  }
-}
+```yaml
+infra:
+  ha:
+    enabled: { type: boolean, default: false }
+    read_replicas: { type: integer, min: 0, default: 0 }
 ```
 
 `infra.ha.enabled` says "make this Component highly available," and `infra.ha.read_replicas` says "I want N read-only copies." Each Recipe maps the intent into its provider's mechanism:
@@ -167,8 +168,9 @@ spec:
   requiredFeatures:
     - core/audit-logging:1.0.0
     - core/pci-compliance:1.0.0
-  cueSchema: |
-    values: { processor_endpoint: string }
+  schema:
+    values:
+      processor_endpoint: { type: string, required: true }
 ```
 
 The compiler walks every Feature attached to a `core/payment-processor` instance — across the Aggregate component-level and subsystem-level features blocks, the Release boundary-level and component-level features blocks, and the Manifest annotation-driven expansion (when shipped) — and confirms each `requiredFeatures:` entry has a matching attachment. A missing required Feature halts the build with a fatal diagnostic naming the component instance, the missing Feature type, and the attachment surfaces the compiler searched.
@@ -179,7 +181,7 @@ The diagnostic message is documented at [`errors/fatal-halts.md`](../errors/fata
 
 ## Credential Slots: `secretsSchema`
 
-A Component may declare credential slots through a `secretsSchema` block — a declarative YAML map parallel to `usesSchema`. Each slot names a credential the Component needs (a root password, an API key, an auth token) and governs how the developer's Aggregate may populate it. The compiler auto-generates CUE validation rules from the declared slots and unifies them with the Component's `cueSchema` during Component resolution; developers do not hand-author a `secrets:` pillar inside `cueSchema`, because the structure comes from `secretsSchema`.
+A Component may declare credential slots through a `secretsSchema` block — a declarative YAML map parallel to `usesSchema`. Each slot names a credential the Component needs (a root password, an API key, an auth token) and governs how the developer's Aggregate may populate it. The compiler auto-generates JSON Schema 2020-12 validation rules from the declared slots and unifies them with the Component's `schema:` during Component resolution; developers do not hand-author a `secrets:` pillar inside `schema:`, because the structure comes from `secretsSchema`.
 
 **Schema definition on the Component:**
 
@@ -208,9 +210,9 @@ spec:
 
 The `required: false` default matches the most common authoring pattern: most Components work fine without an explicit credential provided by the developer, because the Recipe or the underlying chart supplies a sensible default or auto-generates one. Only credentials the Component genuinely cannot boot without are marked `required: true`.
 
-### CUE generation from `secretsSchema`
+### Schema generation from `secretsSchema`
 
-The compiler generates a base CUE schema from the declared slots and unifies it with the user's `cueSchema` — the same pattern `usesSchema` uses for its own base schema generation. The generated schema never touches disk; it exists only in memory during the Component validation pass.
+The compiler generates a base JSON Schema 2020-12 fragment from the declared slots and composes it with the user's `schema:` declaration — the same pattern `usesSchema` uses for its own base schema generation. The generated schema never touches disk; it exists only in memory during the Component validation pass.
 
 Input `secretsSchema`:
 
@@ -223,28 +225,29 @@ secretsSchema:
     inject: [env, file]
 ```
 
-Generated base schema (in memory):
+Generated base schema (in memory; compact-form representation):
 
-```cue
-secrets: {
-  root_password: {
-    type: string
-    values?: _
-    // inject is ABSENT — inject: [] means no inject block allowed
-  }
-  user_password?: {           // optional (?) because required defaults to false
-    type: string
-    values?: _
-    inject?: {
-      env?: [string]: string
-      file?: [string]: string
-      // arg is absent — not in inject allowlist
-    }
-  }
-}
+```yaml
+secrets:
+  root_password:
+    type: { type: string, required: true }
+    values:
+      type: object
+      additionalProperties: true
+    # inject is ABSENT — inject: [] means no inject block allowed
+  user_password:
+    # optional at the parent — `required` defaults to false for this slot
+    type: { type: string, required: true }
+    values:
+      type: object
+      additionalProperties: true
+    inject:
+      env: { type: object, valuesType: string }
+      file: { type: object, valuesType: string }
+      # arg is absent — not in inject allowlist
 ```
 
-The compiler unifies the generated base with the user's `cueSchema` via CUE's `&` operator, producing a single validation schema for the Component's authored instances. The user's `cueSchema` does not need a `secrets:` pillar — the generated schema handles all structure and validation for the declared slots.
+The compiler composes the generated base with the user's `schema:` declaration under JSON Schema 2020-12 composition, producing a single validation schema for the Component's authored instances. The user's `schema:` does not need a `secrets:` pillar — the generated schema handles all structure and validation for the declared slots.
 
 ### Validation behavior
 
@@ -258,7 +261,7 @@ secrets:
     values:
       source: "{{ .parameters.db_root_pass }}"
       key: mariadb-root-password
-    inject:                    # ← CUE validation REJECTS this
+    inject:                    # ← schema validation REJECTS this
       env:                     #    because the generated base schema
         DB_PASS: root_password #    has no inject field for root_password
 ```
@@ -267,14 +270,66 @@ The developer gets a clear error: *"field `inject` not allowed on secret `root_p
 
 The end-to-end flow through the compilation pipeline — how the Aggregate's `secrets:` block connects to a credential Feature (such as `core/secret-value`) and then to a provider-specific FeatureRecipe that delivers the secret to the running workload — is worked through in [examples/05-credential-features](../examples/05-credential-features.md).
 
+### Credential delegation through typed reference fields
+
+Components whose role is to orchestrate other catalog entities — agents that compose Model and Tool entities, pipelines that chain transformer stages, gateways that fan out to downstream services — frequently carry **zero** entries in their own `secretsSchema:`. Their credential delegation flows transitively through typed reference fields in `values:`, which point to other Components or Features that carry their own `secretsSchema:` at their own scope.
+
+A canonical example: a `core/ai-agent` Component declares `values:` fields like `models: [...#ModelRef]` and `tools_allowed: [...#ToolRef]`. The Model and Tool entities each carry their own `secretsSchema:` (API key for the model endpoint; per-Tool credentials for the targeted services). The agent itself does not own those credentials; the referenced entities own them at their own catalog scope.
+
+```yaml
+# core/ai-agent Component carries no secretsSchema — its credentials are delegated
+apiVersion: aggrega.ai/v1alpha1
+kind: Component
+metadata:
+  name: core/ai-agent
+  version: 1.0.0
+spec:
+  schema:
+    values:
+      models:
+        type: array
+        items:
+          $ref: "oci://hub.aggrega.ai/aggrega/ai-types@1.0.0#/schemas/ModelRef"
+      tools_allowed:
+        type: array
+        items:
+          $ref: "oci://hub.aggrega.ai/aggrega/ai-types@1.0.0#/schemas/ToolRef"
+  # secretsSchema absent: agents own no secrets directly
+```
+
+```yaml
+# core/ai-model Component carries its own secretsSchema for the model endpoint's API key
+apiVersion: aggrega.ai/v1alpha1
+kind: Component
+metadata:
+  name: core/ai-model
+  version: 1.0.0
+spec:
+  schema:
+    values:
+      endpoint: { type: string, format: uri, required: true }
+      capability: { type: string, enum: [generative, embedding, transcription], required: true }
+  secretsSchema:
+    api_key:
+      required: true
+      inject: [env]
+      description: API key for the model endpoint
+```
+
+The convention is: **secrets co-locate with the entity that uses them, not with the entity that orchestrates them.** When the agent's Aggregate declares the agent's `values.models[0]` pointing at a specific Model instance, that Model instance's `secretsSchema:` is what enumerates the agent's transitive credential requirements. The compiler walks the topology graph and validates that every Model / Tool / downstream reference's credential slots are satisfied through their own attachments; the agent does not need to repeat them.
+
+The pattern preserves cohesion: a Model entity that gains a new credential requirement (e.g., a region-specific authentication token) updates its own `secretsSchema:` and every consumer of that Model immediately requires the new credential. The agents that compose the Model do not need to track the change; the validation flows through the typed reference.
+
+Aggregate-level secrets declared at the agent — credentials the agent itself owns rather than delegates — go through the standard `secretsSchema:` mechanism. The two patterns compose: an agent may carry a small `secretsSchema:` for its own operational credentials (e.g., a database connection for the agent's state store) while delegating model and tool credentials to the referenced entities.
+
 ## Catalog Authoring: Extending Base Components
 
-Platform Architects use the `extends` keyword to layer specialized interfaces on top of corporate or community baselines. The Go compiler recursively fetches the parent, performing a **Two-Tiered Merge**: it deep-merges the YAML metadata (overwriting labels on conflict and appending arrays) and auto-unifies the CUE schemas in memory (`ParentSchema & ChildSchema`). The `cueSchema` unification is strictly monotonic — a child can narrow a parent's constraint, but never relax or bypass it.
+Platform Architects use the `extends` keyword to layer specialized interfaces on top of corporate or community baselines. The compiler recursively fetches the parent and performs a **Two-Tiered Merge**: it deep-merges the YAML metadata (overwriting labels on conflict and appending arrays) and composes the schemas via JSON Schema 2020-12 composition (the parent's `schema:` and the child's `schema:` merge under `allOf`-style narrowing semantics enforced by the publishing-discipline policy plugin). The schema composition is strictly monotonic — a child may narrow a parent's constraint (e.g., tighten an `enum:` set, shrink a numeric range), but never relax or bypass it. The publishing-discipline policy plugin rejects publishes where a child Component declares a constraint that relaxes a parent's.
 
-See [architecture/13-catalog-and-registry.md §3](../../architecture/13-catalog-and-registry.md) for the Schema Formats and Composition mechanism (Shared CUE Libraries and Single Inheritance).
+See [architecture/13-catalog-and-registry.md §3](../../architecture/13-catalog-and-registry.md) for the Schema Formats and Composition mechanism.
 
 **Example A: The Base Component (The Corporate Baseline)**
-The Platform Architect defines a foundational enterprise server. This base template sets the required 7-Type cloud primitive label and establishes immutable security constraints in CUE.
+The Platform Architect defines a foundational enterprise server. This base template sets the required 7-Type cloud primitive label and establishes immutable security constraints in the schema.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -285,19 +340,19 @@ metadata:
   labels:
     component.aggrega.ai/type: "server"
 spec:
-  cueSchema: |
-    // The corporate baseline constraint:
-    values: {
-      // CUE unification ensures no child component can ever set this to false.
-      tls_enabled: true 
-      
-      // Default fallback for application logic, children can override this integer.
-      timeout_ms: int | *5000
-    }
+  schema:
+    values:
+      # The corporate baseline constraint: child Components must not relax this constraint.
+      # The publishing-discipline policy plugin rejects any child that declares
+      # tls_enabled with a value space wider than {true}.
+      tls_enabled: { type: boolean, enum: [true], default: true }
+
+      # Default fallback for application logic; children may narrow this integer's range.
+      timeout_ms: { type: integer, default: 5000 }
 ```
 
 **Example B: The Child Component (Extending the Baseline)**
-A specialized AI Gateway is created. Notice how the component inherits from the base enterprise server, meaning the Architect doesn't have to rewrite the base ontology labels or the standard `tls_enabled` security schemas.
+A specialized AI Gateway is created. The Component inherits from the base enterprise server, so the Architect does not rewrite the base ontology labels or the `tls_enabled` security constraint.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -309,14 +364,15 @@ metadata:
     gateway.aggrega.ai/intelligence: "semantic" # Appended to parent labels
 spec:
   extends: core/base-enterprise-server # Triggers the Two-Tiered Merge
-  cueSchema: |
-    values: {
-      routing_mode: *"latency_optimized" | "cost_optimized"
-      
-      // NOTE: If the architect attempted to write `tls_enabled: false` here, 
-      // the compiler's auto-merge evaluates true & false for such cases,
-      // resulting in a native CUE error (_|_) that instantly halts the build.
-    }
+  schema:
+    values:
+      # New field local to the child; routing-mode enum narrows from the open string type.
+      routing_mode: { type: string, enum: [latency_optimized, cost_optimized], default: latency_optimized }
+
+      # NOTE: a child Component that declared
+      #   tls_enabled: { type: boolean, enum: [false] }
+      # would be rejected at publish time by the publishing-discipline policy plugin —
+      # the child's constraint (enum: [false]) relaxes the parent's (enum: [true]).
 ```
 
 For the Recipe that implements this `core/ai-gateway` interface against a physical Helm chart, see [entities/recipe](recipe.md) Example C (`kong-gateway`).

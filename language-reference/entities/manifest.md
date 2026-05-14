@@ -1,6 +1,6 @@
 # Manifest
 
-The conceptual role of the Manifest entity (Domain 4 — the dependency lockfile mapping abstract interfaces to concrete Recipes) lives in [architecture/04-eight-entity-taxonomy.md](../../architecture/04-eight-entity-taxonomy.md). This page covers the Manifest authoring surface: how it sits alongside the Release, the two-tier Recipe lookup, composition via `extends`, URI shorthand rules, annotation-driven Feature bindings, and the platform-reserved `aggrega.ai/` prefix.
+The conceptual role of the Manifest entity (Domain 4 — the dependency lockfile mapping abstract interfaces to concrete Recipes) lives in [architecture/04-eight-entity-taxonomy.md](../../architecture/04-eight-entity-taxonomy.md). This page covers the Manifest authoring surface: how it sits alongside the Release, the flat-URI mapping shape, composition via `extends`, URI shorthand rules, annotation-driven Feature bindings, and the platform-reserved `aggrega.ai/` prefix.
 
 ## Manifest vs. Release: Concern Separation
 
@@ -19,60 +19,12 @@ The Release schema carries no `provider` field at any nesting level; provider di
 4. **Extract engine.** The matching tier sits under a specific provider block (e.g., `helm`), mapping to a specific Recipe.
 5. **Output generation.** The compiler now knows the target folder (`dist/boundaries/ovh-cluster-3/`), the engine (Helm rendering via Wasm), and the artifact (the Recipe's source code). Ahead-of-time GitOps boundaries are respected end-to-end.
 
-## Two-Tier Resolution
+## Flat URI mapping
 
-The Manifest's `mappings` block is grouped by provider — each provider section (`helm`, `terraform`, `compose`, `eval`) contains a `components` sub-section and a `features` sub-section, and each sub-section supports up to two tiers:
+The Manifest's `mappings:` block is a flat map from **component-type URI** to **Recipe URI** (and from **feature-type URI** to **FeatureRecipe URI**). The mapping is provider-agnostic at the Manifest level; provider determination flows from each resolved Recipe's `spec.provider` field at orchestrator-time, not from the Manifest's structural shape. The block organises mappings under two top-level keys:
 
-* **`type` (bulk DRY mapping)** maps a catalog type URI to a Recipe URI. All instances of that component type automatically resolve to the specified Recipe. The `type` tier supports versioned keys (`core/api-server:1.0.0` — exact match) and unversioned keys (`core/api-server` — any version). Versioned keys take precedence over unversioned.
-* **`name` (granular override)** maps a specific instance name to a Recipe URI, overriding the type-based mapping for that single instance. Used when a specific instance requires a non-standard Recipe.
-
-Credential Features (labeled `feature.aggrega.ai/kind: secret`) are mapped under the `features` sub-section alongside operational Features — there is no separate `secrets` sub-section, reflecting the unified Feature entity model.
-
-**Resolution order (most specific wins):**
-
-1. `name` lookup (exact instance name match) — highest priority.
-2. `type` lookup with version (exact version match).
-3. `type` lookup without version (any version match).
-4. If no match — fatal halt listing the unmapped entity and suggesting which `type` or `name` key to add.
-
-**YAML anchors for DRY manifests.** To avoid YAML bloat, the Manifest supports an optional `defs:` block for standard YAML anchors (`&` and `*`):
-
-```yaml
-apiVersion: aggrega.ai/v1alpha1
-kind: Manifest
-metadata:
-  name: global-base-manifest
-  version: 1.0.0
-defs:
-  - &python_worker "standard-python-worker:2.0.0"
-spec:
-  mappings:
-    helm:
-      components:
-        type:
-          "core/python-worker": *python_worker
-          "core/postgres": "postgres-bitnami:1.2.0"
-        name:
-          # Override: this specific agent uses a custom recipe
-          "legacy-billing-agent": "custom/legacy-worker:3.0.0"
-      features:
-        type:
-          "core/data-masking": "lakera-guard-istio:1.2.0"
-          "core/aws-secrets-manager": "eso-aws-fetcher:1.0.0"  # Credential Feature — same tier
-```
-
-**Feature negotiation.** The capability handshake relies on the same two-tier resolution:
-
-1. The developer requests `features: [core/data-masking]` on a component in the Aggregate.
-2. The compiler checks the Manifest's `features` section under the active provider.
-3. If `"core/data-masking"` maps to a FeatureRecipe (e.g., `lakera-guard-istio:1.2.0`) in the `type` tier, the capability exists and the FeatureRecipe's Wasm pipeline executes in the defined order.
-4. If neither `type` nor `name` tier contains a mapping, the compiler halts the build and lists the unmapped Feature.
-
-**Completeness check.** After all resolution is complete, the compiler verifies that every component and feature instance (including credential Features from the `secrets:` block) in the Aggregate has a resolved Recipe or FeatureRecipe. Unmapped entities cause a fatal halt with an explicit diagnostic listing every missing entity and suggesting which `type` or `name` key to add to close the gap.
-
-### All three sub-mechanisms in one Manifest
-
-The Manifest's per-provider `features.annotations` block sits alongside the `components.{type,name}` and `features.{type,name}` tiers. The three sub-mechanisms cover related ground but serve distinct authoring intents — `components.{type,name}` for component-instance Recipe binding, `features.{type,name}` for explicit Feature attachment Recipe binding, and `features.annotations` for annotation-driven Feature attachment expansion (when the expansion pass ships). The example below shows all three in one Manifest:
+* **`components.type`** maps a component-type URI to a Recipe URI. Every component instance of the declared type resolves to the specified Recipe. The mapping is one-to-one per component-type.
+* **`features.type`** maps a feature-type URI to a FeatureRecipe URI. Every Feature attachment of the declared type resolves to the specified FeatureRecipe. Credential Features (labeled `feature.aggrega.ai/kind: secret`) live in the same `features.type` map as operational Features — the unified Feature entity model.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -82,43 +34,90 @@ metadata:
   version: 1.0.0
 spec:
   mappings:
-    helm:
-      components:
-        type:
-          # Bulk DRY: every Component of these types resolves to the named Recipe
-          "core/python-worker": "standard-python-worker:2.0.0"
-          "core/postgres": "postgres-bitnami:1.2.0"
-        name:
-          # Granular override: this specific instance uses a non-standard Recipe
-          "legacy-billing-agent": "custom/legacy-worker:3.0.0"
+    components:
+      type:
+        # Component-type → Recipe URI. The Recipe URI's path segment carries the provider.
+        core/database/postgres: core/helm/postgres-bitnami:1.2.0
+        core/api-server: core/helm/api-helm:0.5.0
+        core/python-worker: core/helm/standard-python-worker:2.0.0
 
-      features:
-        type:
-          # Operational Feature → FeatureRecipe binding
-          "core/data-masking": "lakera-guard-istio:1.2.0"
-          # Credential Feature → FeatureRecipe binding (same tier as operational; no separate `secrets:` section)
-          "core/aws-secrets-manager": "eso-aws-fetcher:1.0.0"
-        name:
-          # Granular override: a specific Feature instance uses a different FeatureRecipe
-          "billing-pii-guard": "lakera-guard-strict:1.0.0"
-
-        annotations:
-          # Annotation-driven Feature expansion — `accepted but inert` per Status page
-          # When the expansion pass ships, this binds the annotation key to a Feature type
-          # so that any boundary or component declaring the annotation gets the Feature
-          # synthesised onto it without an explicit `features:` block.
-          feature.aggrega.ai/tls-pinning:
-            feature: core/tls-pinning
-            infra:
-              min_version: string
-              enforce: bool | *true
+    features:
+      type:
+        # Feature-type → FeatureRecipe URI. Credential Features (e.g., aws-secrets-manager) sit alongside operational ones.
+        core/data-masking: core/helm/lakera-guard-istio:1.2.0
+        core/aws-secrets-manager: core/helm/eso-aws-fetcher:1.0.0
 ```
 
-The three sub-mechanisms accumulate per provider — a single provider section (`helm` here) can declare any combination of the three, and the resolver applies them in the order: `components.{type,name}` for Component → Recipe binding; `features.{type,name}` for explicit Feature → FeatureRecipe binding; `features.annotations` for annotation-expansion (gated on the expansion pass shipping).
+**Provider determination at orchestrator-time.** The Manifest entry binds a component-type to a Recipe URI; the Recipe URI's `<namespace>/<provider>/<name>` path segment carries the provider. At orchestrator time, the resolver loads the Recipe via direct URI lookup against the lockfile and catalog, and each Recipe's `spec.provider` field determines the per-(path, provider) dispatch grouping. The Manifest's structural shape stays flat regardless of how many providers the broader catalog supports.
+
+### Direct URI lookup, no `matchImplements` walking
+
+The Manifest's mapping value is a Recipe URI. The catalog walker resolves the URI directly against the lockfile and catalog, returning the matching Recipe. The walker does not iterate `spec.implements` declarations to find a Recipe that "implements" a component-type. Each Manifest entry binds the developer's authored component-type to a specific Recipe URI; the choice is explicit and unambiguous in the Manifest content.
+
+**`spec.implements` is a load-time consistency check.** The resolved Recipe's `spec.implements` value MUST match the Manifest's component-type key for that mapping entry; mismatch produces a `CATALOG_ERROR` at workspace load time with a clear diagnostic naming the Manifest entry, the resolved Recipe, and the conflicting `spec.implements` value. The check fires once per Manifest mapping entry at workspace load — static, no walking, deterministic.
+
+### Three forms for the URI version segment
+
+A Recipe URI in the Manifest may carry the version in any of three forms:
+
+* **Exact** — `core/helm/postgres-bitnami:1.2.0`. The lockfile must pin exactly this version; at first lockfile resolve, the resolver pins this version; if the catalog or registry does not contain this version at resolve time, the workspace load halts with an error.
+* **Range** — `core/helm/postgres-bitnami:^1.2.0`. Semver range with the standard MVS rule; at first lockfile resolve, the resolver pins the highest available version satisfying the range.
+* **Unversioned** — `core/helm/postgres-bitnami`. No `:version` suffix; at first lockfile resolve, the resolver pins the latest available version.
+
+Subsequent builds use the lockfile-pinned version regardless of the user-typed form. Re-resolving to a newer version requires explicit user action (`aggrega catalog upgrade <URI>` or similar) — the lockfile is the source of truth for builds; the user-typed form is how the user expresses the version constraint at authoring time.
+
+### Completeness check
+
+After all mappings resolve, the compiler verifies that every component and feature instance (including credential Features attached via the Aggregate's `secrets:` block) in the developer's Aggregate has a resolved Recipe or FeatureRecipe. Unmapped entities cause a fatal halt with an explicit diagnostic listing every missing entity and suggesting which `components.type` or `features.type` key to add to close the gap.
+
+### YAML anchors for DRY manifests
+
+To avoid YAML bloat across large mapping sets, the Manifest supports an optional `defs:` block for standard YAML anchors (`&` and `*`):
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: global-base-manifest
+  version: 1.0.0
+defs:
+  - &python_worker_recipe "core/helm/standard-python-worker:2.0.0"
+spec:
+  mappings:
+    components:
+      type:
+        core/python-worker: *python_worker_recipe
+        core/postgres: core/helm/postgres-bitnami:1.2.0
+```
+
+### Feature negotiation
+
+The capability handshake uses the same flat-URI mapping:
+
+1. The developer requests `features: [core/data-masking]` on a component in the Aggregate.
+2. The compiler looks up `core/data-masking` in the Manifest's `features.type` map.
+3. If the lookup resolves to a FeatureRecipe URI (e.g., `core/helm/lakera-guard-istio:1.2.0`), the capability exists and the FeatureRecipe's pipeline executes in the defined order.
+4. If `features.type` contains no matching entry, the compiler halts the build and lists the unmapped Feature.
+
+### Annotation-driven Feature bindings
+
+The Manifest's `features.annotations` block declares bindings between annotation keys and Feature types plus their `infra:` schemas. The binding is the authoring surface for compressing repetitive per-component Feature attachments — the pattern where dozens of components across a boundary each carry an identical `features:` block — into single annotation declarations on Release boundaries or Aggregate subsystems.
+
+```yaml
+spec:
+  mappings:
+    features:
+      type:
+        core/tls-pinning: core/helm/tls-pinning-istio:1.0.0
+      annotations:
+        feature.aggrega.ai/tls-pinning:
+          feature: core/tls-pinning
+          infra:
+            min_version: { type: string }
+            enforce: { type: boolean, default: true }
+```
 
 The annotation-expansion sub-mechanism is currently **`accepted but inert`** — the schema accepts and parses the bindings; the compiler pass that synthesises per-component Feature attachments from matching annotations is not yet wired into the build pipeline. Manifests may author annotation bindings against this schema today; the attachment expansion will engage when the pass ships. Today's behaviour: annotation bindings are parsed without effect on rendered output. See [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases) for the current readiness state.
-
-The two-tier resolution (`type` tier + `name` tier with name-wins-over-type and versioned-type wins over unversioned-type) and the resolver's consumption of these mappings is itself part of the broader Manifest mapping framing. The struct shape and schema accept the mappings; the resolver's consumption pattern across the tiers is its own current readiness question, separate from the annotation-expansion gating.
 
 ## Composition via `extends`
 
@@ -158,7 +157,7 @@ The Aggrega compiler utilizes **Context-Aware Inference** when resolving OCI URI
 
 ## Annotation-Driven Feature Bindings
 
-The Manifest's per-provider `features.annotations` block declares bindings between annotation keys and Feature types plus `infra` CUE schemas. The binding is the authoring surface for compressing repetitive per-component Feature attachments — the pattern where dozens of components across a boundary each carry an identical `features:` block — into single annotation declarations on Release boundaries or Aggregate subsystems.
+The Manifest's `features.annotations` block declares bindings between annotation keys and Feature types plus `infra:` schema fragments. The binding is the authoring surface for compressing repetitive per-component Feature attachments — the pattern where dozens of components across a boundary each carry an identical `features:` block — into single annotation declarations on Release boundaries or Aggregate subsystems.
 
 *Annotation-triggered expansion — translating matching boundary or subsystem annotations into per-component synthetic Feature attachments at build time — is the intended consumer of these bindings. The binding shape is frozen at the schema layer today; the compiler pass that performs the expansion is under active development and not yet wired into the build pipeline. Manifests may author bindings against this schema now; attachment expansion will engage when the pass ships.*
 
@@ -167,27 +166,26 @@ The Manifest's per-provider `features.annotations` block declares bindings betwe
 ```yaml
 spec:
   mappings:
-    helm:
-      features:
-        type:
-          core/tls-pinning: tls-pinning-helm:1.0.0
-          core/data-masking: lakera-guard-sidecar:1.0.0
+    features:
+      type:
+        core/tls-pinning: core/helm/tls-pinning-helm:1.0.0
+        core/data-masking: core/helm/lakera-guard-sidecar:1.0.0
 
-        annotations:
-          feature.aggrega.ai/tls-pinning:
-            feature: core/tls-pinning
-            infra:
-              min_version: string
-              enforce: bool | *true
+      annotations:
+        feature.aggrega.ai/tls-pinning:
+          feature: core/tls-pinning
+          infra:
+            min_version: { type: string }
+            enforce: { type: boolean, default: true }
 
-          feature.aggrega.ai/data-masking:
-            feature: core/data-masking
-            infra:
-              action: string | *"redact"
-              scope: string | *"all"
+        feature.aggrega.ai/data-masking:
+          feature: core/data-masking
+          infra:
+            action: { type: string, default: "redact" }
+            scope: { type: string, default: "all" }
 ```
 
-The `feature` field references a Feature type that must also appear in the sibling `features.type` section (which is where the FeatureRecipe version binding lives). The `infra` block is a CUE schema fragment that validates the annotation value's argument structure. The same annotation key can map to different Feature types per provider — for example, `feature.aggrega.ai/rewrite-host` may bind to `core/k8s-dns-resolver` under the `helm` provider section and `core/compose-bridge` under the `compose` provider section, capturing per-provider polymorphism without forcing the Release (which does not declare a provider) to know which provider it targets.
+The `feature` field references a Feature type that must also appear in the sibling `features.type` section (which is where the FeatureRecipe version binding lives). The `infra` block is a JSON Schema 2020-12 fragment (compact-form or full JSON Schema) that validates the annotation value's argument structure. Provider polymorphism for the same annotation key — e.g., `feature.aggrega.ai/rewrite-host` binding to `core/k8s-dns-resolver` in a Kubernetes deployment but to `core/compose-bridge` in a local Compose deployment — is expressed by choosing different Feature types in different Manifests; each Manifest binds the annotation to one Feature, and the chosen Feature's FeatureRecipe carries the provider-specific implementation.
 
 **Annotation namespace separation:**
 

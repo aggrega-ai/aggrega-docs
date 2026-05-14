@@ -16,11 +16,10 @@ metadata:
   labels:
     component.aggrega.ai/type: "server"
 spec:
-  cueSchema: |
-    values: {
-      image: string
-      port:  int | *8080
-    }
+  schema:
+    values:
+      image: { type: string, required: true }
+      port: { type: integer, default: 8080 }
 ```
 
 **2. Dev Domain: The Aggregate**
@@ -62,7 +61,7 @@ spec:
 ```
 
 **4. Routing Domain: The Manifest (Dependency Lockfile)**
-The Manifest maps abstract types to concrete Recipes. The `type` tier provides a bulk DRY mapping — every instance of `core/web-server` resolves to the same Recipe.
+The Manifest maps abstract component types to concrete Recipe URIs. Every instance of `core/web-server` resolves to the named Recipe; the Recipe URI's path segment carries the provider.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -72,10 +71,9 @@ metadata:
   version: 1.0.0
 spec:
   mappings:
-    helm:
-      components:
-        type:
-          "core/web-server": "web-server-helm:1.0.0"
+    components:
+      type:
+        core/web-server: core/helm/web-server-helm:1.0.0
 ```
 
 **5. Routing Domain: The Release (Deployment Router)**
@@ -98,7 +96,7 @@ spec:
         my-site: {}
 ```
 
-**Compilation:** `aggrega build release.yaml` → The compiler resolves `my-site` (type `core/web-server:1.0.0`) → looks up the Manifest → finds `web-server-helm:1.0.0` under the `helm` provider → renders the chart into `dist/boundaries/default-cluster/`.
+**Compilation:** `aggrega build release.yaml` → The compiler resolves `my-site` (type `core/web-server:1.0.0`) → looks up `core/web-server` in the Manifest's `components.type` map → finds `core/helm/web-server-helm:1.0.0` → loads the Recipe (its `spec.provider: helm` carries the provider) → renders the chart into `dist/boundaries/default-cluster/`.
 
 ---
 
@@ -107,7 +105,7 @@ spec:
 A web application connects to a Postgres database. The developer declares *what* they need and *how* their code reads connection data. The compiler resolves the physical addresses.
 
 **1. Platform Catalog: The Postgres Component**
-The Architect defines the database interface. The `provides` block in the CUE schema declares the Public API keys that downstream callers can request. The `usesSchema` is absent because databases don't initiate connections.
+The Architect defines the database interface. The `provides` block in the schema declares the Public API keys downstream callers can request. The `usesSchema` is absent because databases don't initiate connections.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -118,12 +116,12 @@ metadata:
   labels:
     component.aggrega.ai/type: "stateful-server"
 spec:
-  cueSchema: |
-    values: { db_name: string | *"appdb" }
-    provides: {
-      host: string
-      port: string
-    }
+  schema:
+    values:
+      db_name: { type: string, default: "appdb" }
+    provides:
+      host: { type: string }
+      port: { type: string }
 ```
 
 **2. Platform Catalog: The Web Server (Extended)**
@@ -142,8 +140,9 @@ spec:
     databases:
       selector: "component.aggrega.ai/type=stateful-server"
       inject: ["env"]
-  cueSchema: |
-    values: { image: string }
+  schema:
+    values:
+      image: { type: string, required: true }
 ```
 
 **3. Dev Domain: The Aggregate**
@@ -283,7 +282,7 @@ spec:
 A single Aggregate serves dev and production by hoisting environment-specific values into `parameters`. The Release fulfills the contract.
 
 **1. Dev Domain: The Aggregate**
-The developer uses `parameters` to declare an environment contract. Go template interpolation (`{{ .parameters.X }}`) executes *before* CUE validation.
+The developer uses `parameters` to declare an environment contract. Each parameter slot is typed; the compiler validates each Release-supplied value against the typed contract, then Go template interpolation (`{{ .parameters.X }}`) executes *before* the surrounding `values:` schema validation.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1

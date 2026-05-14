@@ -13,13 +13,13 @@ To establish a predictable schema and eliminate cognitive friction, the platform
   * **Meaning:** External arguments that dynamically alter the cognitive or logical state of the application across environments (e.g., changing `workers: 2` to `workers: 10`). Supports an optional **typed contract** (see [data-pillars](../language-reference/vocabulary/data-pillars.md) for the full typed-contract syntax) validated before interpolation. For GitOps workflows, Ops can point to external parameter files via `parametersFrom`; the compiler fetches the file and deep-merges it into the in-memory parameter map.
 * **`values` (The Cognitive Intent - Developer Owned)**
   * **Scope:** Used uniformly inside `components`, `features`, and `secrets` within the `Aggregate`.
-  * **Meaning:** The core cognitive state, business logic, and operational configuration. Mathematically opaque to the Go compiler but strictly validated by the Catalog's unified `cueSchema`.
+  * **Meaning:** The core cognitive state, business logic, and operational configuration. Mathematically opaque to the Go compiler but strictly validated by the Catalog's unified `schema:` declaration (compact form or JSON Schema 2020-12).
 * **`uses` (The Structural Topology - Declarative State)**
   * **Scope:** Used uniformly inside `components`, `features`, and `secrets` within the `Aggregate`.
-  * **Meaning:** A declarative statement of fact defining network edges and dependencies (e.g., "This agent *uses* this database"). Parsed natively by the Go compiler to draw the Intermediate Representation (IR) graph. Validated by the Catalog's unified `cueSchema` to enforce cross-node type safety.
+  * **Meaning:** A declarative statement of fact defining network edges and dependencies (e.g., "This agent *uses* this database"). Parsed natively by the Go compiler to draw the Intermediate Representation (IR) graph. Validated by the Catalog's unified `usesSchema` declaration to enforce cross-node type safety.
 * **`infra` (The Physical Reality - Ops Owned)**
   * **Scope:** Used uniformly inside `components`, `features`, and `secrets` within the `Release`.
-  * **Meaning:** The physical footprint and mechanical sizing injected during Late Binding (e.g., `cpu_limit: "4"`, `port: 5432`). The Aggregate's `component_instance` / `feature` / `secret` slots do not include an `infra` field and, combined with `additionalProperties: false`, reject `infra` at schema validation. Validated by the Catalog's unified `cueSchema`.
+  * **Meaning:** The physical footprint and mechanical sizing injected during Late Binding (e.g., `cpu_limit: "4"`, `port: 5432`). The Aggregate's `component_instance` / `feature` / `secret` slots do not include an `infra` field and, combined with `additionalProperties: false`, reject `infra` at schema validation. Validated by the Catalog's unified `schema:` declaration.
 * **`inject` (The Delivery Contract - Imperative Command)**
   * **Scope:** Used strictly inside explicit target definitions within `uses`, attached `features`, and `secrets`.
   * **Meaning:** An explicit, imperative command dictating the *intent* of the delivery (e.g., "Compiler, *inject* this mapped value as an environment variable"). It establishes the abstract contract (`env`, `file`, `arg`, or custom mechanisms) for a physical output, a resolved endpoint, or a retrieved credential, while the physical mechanics of exactly *how* that mount is executed are delegated entirely to the underlying Ops Recipe. Supports two equivalent syntaxes: a compact map form (`{ API_HOST: "host" }`) and a verbose array form (`[{ in: API_HOST, from: "host" }]`). Both normalize to `map[string]string` internally.
@@ -31,18 +31,18 @@ To establish a predictable schema and eliminate cognitive friction, the platform
 
 By replacing conversational prepositions with strict infrastructure keywords, this achieves perfect 1:1 mapping. The Ops engineer doesn't have to translate grammar; they just reference the exact keys the developer wrote.
 
-**Structural shapes: maps at the root, arrays in payloads.** Root topology blocks — `components`, `features`, `secrets`, `aggregates`, `subsystems`, `boundaries` — are YAML maps with user-authored keys serving as stable instance IDs. Arrays are not valid at these positions; the map key is the identity the compiler uses for cross-references (`target: my-db`), graph-node construction, and Manifest resolution. Inside the opaque payload blocks (`values`, `infra`, `parameters`), arrays are fully permitted — developers can write `tools_allowed: ["sql", "web"]` or `hostnames: ["stripe.com", "twilio.com"]` inside a Component's `values`. The Aggregate schema declares these payload blocks as `additionalProperties: true`, so they are opaque to the Go compiler and validated entirely by the Catalog's embedded `cueSchema`. This places framework volatility (new AI API shapes, new cloud-native payload formats) inside the Catalog Domain where it can evolve independently, while the Go compiler stays addressable-keys-only at the structural root.
+**Structural shapes: maps at the root, arrays in payloads.** Root topology blocks — `components`, `features`, `secrets`, `aggregates`, `subsystems`, `boundaries` — are YAML maps with user-authored keys serving as stable instance IDs. Arrays are not valid at these positions; the map key is the identity the compiler uses for cross-references (`target: my-db`), graph-node construction, and Manifest resolution. Inside the opaque payload blocks (`values`, `infra`, `parameters`), arrays are fully permitted — developers can write `tools_allowed: ["sql", "web"]` or `hostnames: ["stripe.com", "twilio.com"]` inside a Component's `values`. The Aggregate schema declares these payload blocks as `additionalProperties: true`, so they are opaque to the Go compiler and validated entirely by the Catalog's embedded `schema:` declaration. This places framework volatility (new AI API shapes, new cloud-native payload formats) inside the Catalog Domain where it can evolve independently, while the Go compiler stays addressable-keys-only at the structural root.
 
 ### 2. The Information Flows: Who, When, and For What?
 
 To prevent template namespace collisions and the unintended leaking of physical infrastructure configurations into the cognitive application logic, the architecture explicitly separates data into six distinct streams:
 
-* **Flow 1: The Environmental Injection (`parameters`):** The CI/CD Pipeline injects deployment realities. The compiler interpolates these Go template variables *before* running CUE validation.
+* **Flow 1: The Environmental Injection (`parameters`):** The CI/CD Pipeline injects deployment realities. The compiler validates each Release-supplied value against the typed `parameters:` contract, then interpolates the resolved Go template variables *before* running the downstream `values:` schema validation.
   * **Recommended usage:** `parameters` are reserved for cognitive application logic that varies between environments (e.g., `LOG_LEVEL=debug`, `ENABLE_BETA=true`). Operational sizing and physical infrastructure concerns — replicas, CPU limits, AWS ARNs, ingress hostnames — flow through the `Release`'s `infra` block and boundary overlays, keeping the Developer's `Aggregate` focused on application intent.
   * **Pragmatic escape hatch:** For smaller teams, rapid prototyping, or legacy CI/CD integrations where strict separation is not practical, `parameters` can carry global environment configurations through the stack. The compiler accepts whatever passes schema validation; the recommendation above is a social contract, not a compiler rule.
-* **Flow 2: Cognitive Application Intent (`values` in Components):** Defines the intrinsic application logic. The Component's CUE schema provides strict type-checking and validation for this payload, providing immediate "Shift-Left" feedback to developers and ensuring the requested configurations perfectly match the underlying infrastructure API.
+* **Flow 2: Cognitive Application Intent (`values` in Components):** Defines the intrinsic application logic. The Component's `schema:` declaration (compact form or JSON Schema 2020-12) provides strict type-checking and validation for this payload, providing immediate "Shift-Left" feedback to developers and ensuring the requested configurations perfectly match the underlying infrastructure API.
 * **Flow 3: Operational Feature Intent (`values` in Features/Secrets):** Requests infrastructure capabilities or queries strictly typed credentials without modifying the internal code.
-* **Flow 4: Physical Infrastructure Sizing (`infra`):** Bypassing the Developer entirely, physical `infra` sizing is explicitly projected from the environment-specific `Release` directly onto locally-scoped Components and their attached Features/Secrets. To avoid closed-CUE validation collisions from blindly broadcasting dictionaries, `infra` sizing is strictly localized to the explicit component targeting it. This guarantees True Separation of Concerns by placing compute limits, replicas, and mechanical resource requirements strictly in the Ops domain.
+* **Flow 4: Physical Infrastructure Sizing (`infra`):** Bypassing the Developer entirely, physical `infra` sizing is explicitly projected from the environment-specific `Release` directly onto locally-scoped Components and their attached Features/Secrets. To avoid closed-schema validation collisions from blindly broadcasting dictionaries, `infra` sizing is strictly localized to the explicit component targeting it. This guarantees True Separation of Concerns by placing compute limits, replicas, and mechanical resource requirements strictly in the Ops domain.
 * **Flow 5: Cascading Annotations (Contextual Metadata):** Broad contextual data (like operational domains, namespaces, or billing codes) is handled via Cascading Annotations, preventing `infra` broadcasting pollution. These are explicitly segregated into memory buckets based on their origin to enforce strict consumption rules:
   * **`.context.annotations.release` (Domain 4 Boundaries):** Used exclusively to govern physical realities. Ops explicitly routes these annotations into strict local `infra` fields via Go templates (e.g., mapping a regional namespace to a compute component).
   * **`.context.annotations.aggregate` (Domain 1 Subsystems):** Used exclusively to govern cognitive and operational logic. These annotations are explicitly routed into the component's `values` payloads (e.g., cascading a team billing code down to an application configuration).
@@ -52,10 +52,10 @@ To prevent template namespace collisions and the unintended leaking of physical 
 ### 3. Network Abstraction: The "Zero-Port" Convention
 
 * **The Best Practice:** Developers should omit ports from the `Aggregate`. The Ops Recipe handles internal routing dynamically.
-* **The Escape Hatch:** If an application's internal code *cannot* be changed, the Platform Architect explicitly exposes an `port` field in the CUE schema.
-**Architectural Note:** The "Zero-Port" convention is the most prominent example of the platform's broader **Separation of Concerns**. This exact same philosophy—abstracting the physical mechanics away from the developer—applies to CPU requests, memory limits, operational domains, and disk sizing. Whenever a physical infrastructure constraint *must* leak into the developer's application payload (due to legacy code or strict hardware requirements), it must always be governed by an explicit "Escape Hatch" in the Architect's CUE schema, rather than breaking the core compiler rules.
+* **The Escape Hatch:** If an application's internal code *cannot* be changed, the Platform Architect explicitly exposes a `port` field in the `schema:` declaration.
+**Architectural Note:** The "Zero-Port" convention is the most prominent example of the platform's broader **Separation of Concerns**. This exact same philosophy — abstracting the physical mechanics away from the developer — applies to CPU requests, memory limits, operational domains, and disk sizing. Whenever a physical infrastructure constraint *must* leak into the developer's application payload (due to legacy code or strict hardware requirements), it must always be governed by an explicit "Escape Hatch" in the Architect's `schema:` declaration, rather than breaking the core compiler rules.
 
-**The CUE Schema (Domain 2):**
+**The Schema (Domain 2):**
 
 ```cue
 values: {
@@ -174,7 +174,7 @@ The compiler and the core schemas enforce the following structural rules.
 
 * **Recommended pattern: Parameter Hoisting via Template Strings**
   * **Example:** Developer writes `workers: "{{ .parameters.env_workers }}"` in their `values` block.
-  * **Why:** If the Aggregate declares `env_workers` as a typed parameter (`type: int`), the compiler first validates the Release-provided value against the type constraint. Parameter interpolation happens *before* CUE validation, preserving the reusability of the Aggregate. Ops injects the integer via the `Release` parameters, the compiler validates it, interpolates it, and the Component's CUE schema successfully validates the resulting integer.
+  * **Why:** If the Aggregate declares `env_workers` as a typed parameter (`type: integer`), the compiler first validates the Release-provided value against the contract. Parameter contract validation happens *before* interpolation; interpolation happens *before* the surrounding `values:` schema validation. This preserves the reusability of the Aggregate: Ops supplies the integer via the `Release`'s `parameters:`, the compiler validates it against the typed `parameters:` declaration, interpolates the resolved value into the surrounding `values:` string, and the Component's `schema:` declaration successfully validates the resulting integer.
 
 * **Constraint 1: Strict Credential Scoping**
   * **Unsupported pattern:** Developer writes `values: { password: "123" }` under a `secrets` block.
@@ -186,7 +186,7 @@ The compiler and the core schemas enforce the following structural rules.
 
 * **Constraint 3: Conditional Logic on Metadata**
   * **Unsupported pattern:** Ops writes `{{ if eq .context.labels.gpu "true" }}` in a `Recipe` to fundamentally change the deployment strategy.
-  * **Why:** The `.context` pipe bypasses CUE validation. Relying on unvalidated labels for core infrastructure logic makes the platform brittle. The `.context` object carries metadata tagging (e.g., billing, SOC2); structural routing belongs in CUE-validated pillars.
+  * **Why:** The `.context` pipe bypasses the per-pillar `schema:` validation. Relying on unvalidated labels for core infrastructure logic makes the platform brittle. The `.context` object carries metadata tagging (e.g., billing, SOC2); structural routing belongs in schema-validated pillars.
 
 * **Constraint 4: Release Cannot Override Developer Values**
   * **Unsupported pattern:** Ops attempts to override a developer's cognitive logic (e.g., changing `workers: 4` to `workers: 10`) from the `Release`.
@@ -330,9 +330,9 @@ env:
 * **Zero Magic:** The core compiler doesn't have to guess formatting or rely on hardcoded URL builders; it just evaluates the string from the Wasm plugin's `exports` and passes it to the Caller's `.context`.
 * **Unified Ecosystem:** In an Aggrega catalog, this Wasm "eval stub" is version-controlled, auditable, and shareable just like a physical Helm chart.
 
-### 11. CUE Inheritance: Bridging Intent to Infrastructure
+### 11. Schema-bridge cross-pillar piping: Bridging Intent to Infrastructure
 
-See [inheritance-and-interface](../language-reference/vocabulary/inheritance-and-interface.md) for the CUE-inheritance bridge pattern that safely exposes specialized infrastructure dials through child components.
+See [inheritance-and-interface](../language-reference/vocabulary/inheritance-and-interface.md) for the schema-bridge pattern that safely exposes specialized infrastructure dials through child components — a developer-facing `values:` field declared on the Component's `schema:` that the Recipe's `valuesMapping:` template pipes into the rendered `infra:`-shaped output.
 
 ### 12. Greenfield Provisioning ("Platform Aggregates")
 

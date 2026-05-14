@@ -26,7 +26,7 @@ Features declare:
 
 * `metadata.labels`: Use `feature.aggrega.ai/kind: secret` to mark a Feature as a credential Feature. The compiler enforces a hard partition — credential-labeled Features appear ONLY in the Developer's `secrets:` block; non-credential Features appear ONLY in the `features:` block.
 * `usesSchema` (optional): Declares the topological sockets the Feature can consume (e.g., a credential Feature's `path` / `key` socket targeting a vault). See [architecture/13-catalog-and-registry.md §2](../../architecture/13-catalog-and-registry.md) for the Split Schema mechanism.
-* `cueSchema`: Validates the Feature's `values` block (the cognitive intent the Developer or Platform Ops configures on each instance).
+* `schema`: Validates the Feature's `values` block (the cognitive intent the Developer or Platform Ops configures on each instance). Accepts JSON Schema 2020-12 expressed in the compact-form YAML shorthand (the default; see [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md)) or in full JSON Schema YAML, with cross-document `$ref:` to SchemaLibrary entries for shared shapes (see [`vocabulary/cross-document-ref.md`](../vocabulary/cross-document-ref.md)).
 * `secretsSchema` (optional): Declares credential slots the Feature needs for its own operation (e.g., a Datadog sidecar Feature's API key slot). See [architecture/08-credential-model.md §8](../../architecture/08-credential-model.md) for the Feature-owned secrets pattern.
 * `appliesTo` / `appliesToExpressions` / `appliesToAnyOf`: Label selectors controlling which Components the Feature can attach to. Evaluated by the compiler's native label-matching engine during the static analysis stage. See [Label-Based Attachment](#label-based-attachment) below and [architecture/13-catalog-and-registry.md §2 "Kubernetes-Style Selectors"](../../architecture/13-catalog-and-registry.md) for the selector syntax reference.
 * `interoperability` (optional): A nested block grouping operational safety mechanisms — `conflictsWith` (array of Feature type URIs that cannot attach to the same component simultaneously) and `componentRefPath` (JSONPath telling the renderer where to inject the resolved target component's name). See [The `interoperability` Block](#the-interoperability-block) below for the full teaching.
@@ -64,8 +64,10 @@ metadata:
 spec:
   appliesTo:
     component.aggrega.ai/type: server
-  cueSchema: |
-    values: { min_replicas: int, max_replicas: int }
+  schema:
+    values:
+      min_replicas: { type: integer, min: 1, required: true }
+      max_replicas: { type: integer, min: 1, required: true }
   interoperability:
     conflictsWith:
       - core/fixed-replica-controller
@@ -84,6 +86,32 @@ The core Go compiler does not enforce this convention. Feature definitions with 
 * The `interoperability.conflictsWith` declaration on paired Features provides runtime composition discipline when two attached Features would otherwise overlap on a component.
 
 Open-source standard-library Features follow the purity convention by authoring discipline; enterprise catalogs are free to deviate when a tightly-coupled composite genuinely fits the deployment model.
+
+## Feature scope and authoring shape
+
+A Feature's `spec.schema` defines the **Feature's own** `values:` shape — the cognitive intent the Developer or Platform Ops configures per Feature attachment. This is distinct from the host Component's `values:` block; the two pillars live in separate namespaces and are validated independently. When the Developer attaches an `autoscaler` Feature to a `web-server` Component in the Aggregate, the Aggregate carries two `values:` blocks at that attachment site: one for the Component (`web-server`'s pillars) and one for the Feature (the autoscaler's `min_replicas` / `max_replicas`).
+
+```yaml
+# Aggregate fragment — Feature attachment with its own values:
+components:
+  web-server:
+    type: core/web-server
+    values:
+      port: 8080            # the Component's own values
+      tls_enabled: true
+    features:
+      autoscaler:
+        type: core/autoscaler
+        values:
+          min_replicas: 2   # the Feature's own values
+          max_replicas: 10
+```
+
+The Feature's `schema:` validates the Feature's `values:` block. The Component's `schema:` validates the Component's `values:` block. The two are evaluated independently at the static analysis stage; a Feature `values:` shape that does not match the Feature's `schema:` halts the build with an error scoped to the Feature attachment site, not the host Component.
+
+The compiler's template context exposes the Feature's instance state to the bound FeatureRecipe through the `.features.<alias>` field (containing `.type`, `.values`, `.infra` per attachment). Templates inside the FeatureRecipe read the Feature's own `values:` via `.values.<field>` at the FeatureRecipe's own template scope; the host Component's `values:` are not directly visible to the FeatureRecipe's templates unless the Feature explicitly declares a `uses:` socket to the host Component.
+
+This scope separation makes Features composable: an `autoscaler` Feature does not depend on which Component it attaches to; its `schema:` describes the autoscaling intent regardless of host. The host Component's `values:` are the host's concern; the Feature's `values:` are the Feature's concern; the two pillars compose without leaking field names across the boundary.
 
 ## The `assertions:` block
 

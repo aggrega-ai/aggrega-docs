@@ -7,9 +7,9 @@ Catalog entities (`Component`, `Feature`) support Single Inheritance via the `ex
 When the compiler resolves an `extends` chain, it performs a **Two-Tiered Merge**:
 
 1. **YAML envelope deep-merge.** Metadata, labels, and declarative fields on the child YAML overwrite matching keys in the parent; arrays append; nested maps recurse.
-2. **CUE schema unification.** The child's `cueSchema` is unified with the parent's via CUE's `&` operator, producing a single merged schema that both constraint sets must satisfy.
+2. **Schema composition.** The child's `schema:` declaration composes with the parent's under JSON Schema 2020-12 composition semantics, producing a single merged schema that both constraint sets must satisfy. The publishing-discipline policy plugin enforces monotonic narrowing on the composed result.
 
-CUE unification is monotonic: the child can narrow the parent's constraints but cannot widen them. If a base component `core/base-server` declares `tls_enabled: true` and a child component attempts to override it with `tls_enabled: false`, the compiler evaluates `true & false`, which resolves to `_|_` (Bottom/Error) and the build halts with a unification failure. The parent acts as an immutable contract: child schemas narrow parent constraints; they cannot relax them.
+Schema composition is monotonic: the child can narrow the parent's constraints but cannot widen them. If a base component `core/base-server` declares `tls_enabled: { type: boolean, enum: [true] }` and a child component attempts to override it with `tls_enabled: { type: boolean, enum: [false] }`, the publishing-discipline policy plugin rejects the child's publish — the child's `enum: [false]` value space is disjoint from the parent's `enum: [true]` value space, which is a relaxation, not a narrowing. The parent acts as an immutable contract: child schemas narrow parent constraints; they cannot relax them.
 
 ## Interface Binding via `implements`
 
@@ -48,17 +48,17 @@ All eight Aggrega entities (Component, Feature, Aggregate, Recipe, FeatureRecipe
 
 **Reading the table.** The four-label classification distinguishes "the version field is accepted by the schema and exists on the entity" (always true — uniform SemVer regex) from "the compiler matches against this version during resolution" (varies per entity). When the precedence-iteration extension and Manifest mapping tier consumption ship in their respective future releases, this table's labels update to `available` accordingly; until then, the table reflects what the resolver does today rather than what the architectural design promises.
 
-## CUE Inheritance: Bridging Intent to Infrastructure
+## Schema-bridge cross-pillar piping: Bridging Intent to Infrastructure
 
-Aggrega expresses a strong Separation of Concerns between Domain 1 and Domain 4: Developers write cognitive logic in the `values` block, while Ops Engineers dictate physical sizing in the `infra` block. The `Aggregate.yaml` schema enforces one concrete corollary: the `infra` keyword is absent from the Aggregate's `component_instance` / `feature` / `secret` slots and, combined with `additionalProperties: false`, is rejected by schema validation. Developers should not dictate physical sizing inside Developer Intent; when a specific value fits the application's case (e.g., a hardcoded port or a specific CPU number), the Architect may expose it explicitly in the Component's CUE schema and the value flows through `values`.
+Aggrega expresses a strong Separation of Concerns between Domain 1 and Domain 4: Developers write cognitive logic in the `values` block, while Ops Engineers dictate physical sizing in the `infra` block. The `Aggregate.yaml` schema enforces one concrete corollary: the `infra` keyword is absent from the Aggregate's `component_instance` / `feature` / `secret` slots and, combined with `additionalProperties: false`, is rejected by schema validation. Developers should not dictate physical sizing inside Developer Intent; when a specific value fits the application's case (e.g., a hardcoded port or a specific CPU number), the Architect may expose it explicitly in the Component's `schema:` declaration and the value flows through `values`.
 
-For cases where a specific infrastructure constraint is an intrinsic part of a component's contract — a high-throughput trading database that must have 10,000 provisioned IOPS, an ML workload that must run on exactly 4 GPUs — Platform Architects expose the constraint through a specialized child component built with **CUE Inheritance**.
+For cases where a specific infrastructure constraint is an intrinsic part of a component's contract — a high-throughput trading database that must have 10,000 provisioned IOPS, an ML workload that must run on exactly 4 GPUs — Platform Architects expose the constraint through a specialized child component built with the **schema-bridge cross-pillar piping** pattern.
 
-**CUE Inheritance for Infrastructure-Aware Components**
-The child component extends a target-agnostic base, exposes the specific infrastructure dial inside the developer's `values` block, and pipes the value natively to the Ops `infra` block using CUE unification. The result is a typed bridge between cognitive intent and physical sizing: the developer dictates the hardware constraint through a validated field, and the constraint flows to Ops without either side writing raw infrastructure code.
+**The schema-bridge pattern for infrastructure-aware components.**
+The child component extends a target-agnostic base, exposes the specific infrastructure dial inside the developer's `values` block through the `schema:` declaration, and the bound Recipe's `valuesMapping:` template pipes the value into the rendered `infra:`-shaped output. The result is a typed bridge between cognitive intent and physical sizing: the developer dictates the hardware constraint through a validated field, and the constraint flows to Ops without either side writing raw infrastructure code.
 
 ```yaml
-# Domain 2: The Platform Catalog (The CUE Bridge)
+# Domain 2: The Platform Catalog (the schema-bridge Component)
 apiVersion: aggrega.ai/v1alpha1
 kind: Component
 metadata:
@@ -68,14 +68,31 @@ metadata:
     component.aggrega.ai/type: "stateful-server"
 spec:
   extends: core/base-postgres
-  cueSchema: |    // 1. Expose the dial safely to the Developer
-    values: { required_iops: int }
-    // 2. CUE dynamically pipes it to the Ops reality
-    infra: { iops_limit: values.required_iops }
+  schema:
+    values:
+      # Expose the dial safely to the Developer with a typed contract.
+      required_iops: { type: integer, min: 1000, max: 100000, required: true }
 ```
 
 ```yaml
-# Domain 1: The Developer Intent (Remains Pure)
+# Domain 2: The Platform Catalog (the Recipe pipes the dial into provider infra)
+apiVersion: aggrega.ai/v1alpha1
+kind: Recipe
+metadata:
+  name: aws-rds-high-perf-postgres
+  version: 1.0.0
+spec:
+  implements: core/high-perf-postgres:^1.0.0
+  provider: terraform
+  valuesMapping:
+    # The Recipe pipes the developer's values.required_iops into the provider's infra-side knob.
+    iops: "{{ .values.required_iops }}"
+    allocated_storage: "{{ .infra.storage.size }}"
+    instance_class: "{{ .infra.compute.instance_class }}"
+```
+
+```yaml
+# Domain 1: The Developer Intent (remains target-agnostic)
 components:
   trading-db:
     type: core/high-perf-postgres:1.0.0
@@ -83,16 +100,20 @@ components:
       required_iops: 10000 # Developer dictates the hardware constraint safely
 ```
 
-**Multi-Environment Scaling (The Hoisting Requirement):**
-To scale this hardware constraint across GitOps environments (Dev vs. Prod) without mutating the developer's `Aggregate.yaml`, the developer must hoist the value to the `parameters` contract. Ops can then fulfill the specific IOPS requirement via environment-specific `Release` files. The compiler's execution order strictly protects this: Interpolation resolves the parameter -> CUE pipes the value to `infra` -> The Ops `Recipe` receives the physical sizing.
+**Multi-Environment Scaling (the parameter-hoisting requirement).**
+To scale this hardware constraint across GitOps environments (Dev vs. Prod) without mutating the developer's `Aggregate.yaml`, the developer hoists the value to the typed `parameters` contract. Ops fulfills the specific IOPS requirement via environment-specific `Release` files. The compiler's execution order protects the flow: parameter contract validation runs at Step 1; interpolation resolves the parameter into the surrounding `values:` string; the Recipe's `valuesMapping:` template pipes the resolved value into the rendered output.
 
-**1. The Developer Intent (Abstracting the Dial):**
-The Developer knows they need to control IOPS, but they abstract the explicit number to the environment level.
+**1. The Developer Intent (abstracting the dial).**
+The Developer knows they need to control IOPS, but they abstract the explicit number to the environment level via the typed `parameters` contract.
 
 ```yaml
 spec:
   parameters:
-    env_iops: ""  # The contract Ops must fulfill
+    env_iops:
+      type: integer
+      min: 1000
+      max: 100000
+      description: Provisioned IOPS for the trading-db instance
   components:
     trading-db:
       type: core/high-perf-postgres:1.0.0
@@ -100,15 +121,16 @@ spec:
         required_iops: "{{ .parameters.env_iops }}" # Hoisted to the environment
 ```
 
-**2. The GitOps Releases (Ops Overrides):**
-Ops has complete control over the physical reality across environments by fulfilling the `parameters` contract in environment-specific `Release` files. They never touch the Developer's logic.
+**2. The GitOps Releases (Ops fulfilment).**
+Ops fulfills the `parameters` contract in environment-specific `Release` files. The typed contract validates each Release-supplied value before interpolation runs.
 
-- **Dev Environment (`release-dev.yaml`):** `env_iops: "1000"`
-- **Prod Environment (`release-prod.yaml`):** `env_iops: "25000"`
+- **Dev Environment (`release-dev.yaml`):** `env_iops: 1000`
+- **Prod Environment (`release-prod.yaml`):** `env_iops: 25000`
 
-**The Bulletproof Compilation Order:**
-This mechanism is protected by the strict execution order of the Go Compiler (Step 1):
+**The compilation order.**
+This mechanism is protected by the strict execution order of the compiler (Step 1):
 
-1. **Interpolation First:** The compiler reads the Prod `Release` and interpolates `"25000"` into the `Aggregate` string.
-2. **CUE Validation Second:** The CUE engine runs. It sees `values.required_iops: 25000` and pipes it into `infra.iops_limit`.
-3. **Execution Last:** The Ops `Recipe` receives the fully resolved `.infra` payload and the Wasm renderer plugin generates the correct physical database configuration. The developer gets their explicit hardware control, Ops gets their environment-specific scaling, and the `Aggregate` remains target-agnostic.
+1. **Parameter contract validation.** Each Release-supplied parameter value validates against the Aggregate's typed `parameters:` declaration. A Prod value of `25000` validates (within `min: 1000, max: 100000`); a value of `500` would halt with a clear error.
+2. **Interpolation.** The compiler reads the Prod `Release`'s parameter values, interpolates `25000` into the `Aggregate` YAML string at `values.required_iops`, and purges the `.parameters` map from the in-memory context.
+3. **Schema validation.** The Component's `schema:` declaration validates the resulting `values:` dictionary; `values.required_iops: 25000` satisfies the schema's `min: 1000, max: 100000`.
+4. **Recipe valuesMapping rendering.** The bound Recipe's `valuesMapping:` template pipes `values.required_iops` into the provider's `infra`-shaped output (`iops: 25000`). The Wasm renderer plugin generates the correct physical database configuration. The developer gets their explicit hardware control, Ops gets their environment-specific scaling, and the `Aggregate` remains target-agnostic.

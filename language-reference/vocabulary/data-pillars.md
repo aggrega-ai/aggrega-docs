@@ -18,7 +18,7 @@ Aggrega entities carry seven named data pillars. Five participate in the IR data
 
 `values` / `infra` / `provides` / `uses` / `secrets` are the **five live pillars** the runtime template context exposes through `.values`, `.infra`, `.provides`, `.context.uses`, and `.secrets` respectively. `parameters` and `locals` are off the live-pillar list — `parameters` because it does not survive Step 1; `locals` because it is Recipe-private and never crosses entity boundaries.
 
-The list resolves D-03's pillar-walls-vs-signposts question with **signposts**: the template engine permits cross-pillar reads at every site unless explicitly forbidden by self-containment rules (Recipe `provides:` and Recipe `source:` block reading `.context.inject` / `.context.uses`; documented at [`templates/expansion-matrix.md`](../templates/expansion-matrix.md)). Pillar boundaries are authoring discipline, not language enforcement.
+The pillar-walls-vs-signposts question resolves with **signposts**: the template engine permits cross-pillar reads at every site unless explicitly forbidden by self-containment rules (Recipe `provides:` and Recipe `source:` block reading `.context.inject` / `.context.uses`; documented at [`templates/expansion-matrix.md`](../templates/expansion-matrix.md)). Pillar boundaries are authoring discipline, not language enforcement.
 
 ## Pillar boundaries and authoring discipline
 
@@ -31,11 +31,11 @@ Cross-pillar reads from a Recipe template are unrestricted at every site that al
 
 The discipline is **signposts**, not walls. A Recipe template that reads `.infra.replicas` to drive a `values:` field works; the template engine does not gate the read. The architecture's framing is that pillar boundaries describe *authoring intent* — who owns the data — rather than *runtime restriction*. Conventions match the four-domain split: developer-authored values come from `.values`; Ops-authored sizing comes from `.infra`; cross-component coordinates come from the topology pipe.
 
-When a deliberate cross-pillar bridge is needed — e.g., a Component's `cueSchema` exposes a developer-facing dial that flows into Ops-side `infra` per [vocabulary/inheritance-and-interface.md](inheritance-and-interface.md) "CUE Inheritance: Bridging Intent to Infrastructure" — the architecture treats the bridge as a deliberate exception. See "Cross-pillar mechanics" below.
+When a deliberate cross-pillar bridge is needed — e.g., a Component's `schema:` exposes a developer-facing dial that the Recipe's `valuesMapping:` template pipes into Ops-side `infra:`-shaped output per [vocabulary/inheritance-and-interface.md](inheritance-and-interface.md) — the architecture treats the bridge as a signposted exception. See "Cross-pillar mechanics" below.
 
 ## Values
 
-The `values:` pillar carries developer-authored cognitive payload — the configuration the developer dictates per component instance. The Component's `cueSchema` declares the values shape; the developer's Aggregate populates concrete values per instance.
+The `values:` pillar carries developer-authored cognitive payload — the configuration the developer dictates per component instance. The Component's `schema:` declares the values shape; the developer's Aggregate populates concrete values per instance.
 
 **Authored at:**
 
@@ -48,7 +48,7 @@ The `values:` pillar carries developer-authored cognitive payload — the config
 
 - Release entity (the Release schema bans a `values:` block at every nesting level — Parameter Hoisting is the supported per-environment-variation path; see Parameters below).
 
-**Validated by:** Component `cueSchema`'s `values:` block (and Feature `cueSchema`'s `values:` block for Feature attachments), unified at Component / Feature load time per [vocabulary/validation-surface.md](validation-surface.md) Layer 2.
+**Validated by:** Component `schema`'s `values:` block (and Feature `schema`'s `values:` block for Feature attachments), resolved to JSON Schema 2020-12 at Component / Feature load time per [vocabulary/validation-surface.md](validation-surface.md) Layer 2.
 
 **Consumed by:** Recipe `valuesMapping:` templates via `.values`. The full TemplateContext exposes the resolved values dictionary at every Phase B template site.
 
@@ -77,9 +77,9 @@ The architectural target for `infra:` is component-local: a component's sizing a
 
 - **Boundary annotation cascade.** Boundary `annotations:` cascade through nested boundaries to inner components (Surface 5 of the annotation matrix in [labels-and-annotations.md](labels-and-annotations.md)). Annotations consumed by Recipes as routing input become indirect `infra` reach — the boundary-level annotation flows through `.context.annotations.release` into the per-node Recipe's rendered output.
 - **Release inheritance via `extends:`.** A Release that `extends:` a parent Release inherits the parent's `infra` declarations across surfaces 1-4 unless the child overrides per-key. The inheritance is deep-merge with child-wins-on-collision; it crosses the per-Release boundary deliberately.
-- **CUE-driven cross-pillar piping.** A Component's `cueSchema` can expose a developer-facing `values` field that pipes into `infra` via CUE unification (see "Cross-pillar mechanics — CUE Inheritance bridge" below). Strictly speaking the value originates in `values` and flows into `infra`; the cascade is intra-instance but cross-pillar.
+- **Schema-bridge cross-pillar piping.** A Component's `schema:` can expose a developer-facing `values:` dial that the Recipe's `valuesMapping:` template pipes into the provider's `infra:`-shaped output (see "Cross-pillar mechanics — Schema-bridge cross-pillar piping" below). Strictly speaking the value originates in `values:` and flows into the rendered output; the cascade is intra-instance but cross-pillar.
 
-The historical phrasing "strictly localized" overstates the localization — it implies a wall the engine doesn't enforce. **"Primarily localized"** is the accurate framing: localization is the design intent; cascades exist as deliberate exceptions documented at the relevant surface.
+The phrase "strictly localized" overstates the localization — it implies a wall the engine doesn't enforce. **"Primarily localized"** is the accurate framing: localization is the design intent; cascades exist as deliberate exceptions documented at the relevant surface.
 
 ## Provides
 
@@ -177,7 +177,7 @@ spec:
     - "./prod-values.yaml"    # Deep-merged into the parameters map
 ```
 
-**Parameter lifecycle.** The compiler interpolates parameters into the Aggregate's YAML strings during Step 1 (before CUE validation runs), then purges them from the in-memory context. Parameters do not persist as a live pillar through the compilation pipeline; they exist only as raw YAML template strings (`{{ .parameters.X }}`) at authoring time and as resolved string values during Step 1 interpolation.
+**Parameter lifecycle.** The compiler resolves parameters during Step 1 in three sub-steps: parameter interpolation (raw YAML template strings expand against the Release's resolved values), parameter contract validation (the typed `parameters:` contract validates each resolved value against its declared `type` / `enum` / `min` / `max` / `pattern` constraints), and parameter purge (the in-memory context drops the `.parameters` map once Step 1 completes). Parameters do not persist as a live pillar through the rest of the compilation pipeline; they exist only as raw YAML template strings (`{{ .parameters.X }}`) at authoring time and as resolved string values during Step 1 interpolation.
 
 ### The parameter-hoisting checklist
 
@@ -185,16 +185,14 @@ Every cross-environment value flows through four authoring touchpoints in sequen
 
 | Step | Surface | Action |
 | --- | --- | --- |
-| 1 | Aggregate `spec.parameters.<name>` | **Declare** the parameter as part of the Aggregate's typed authoring contract. Today the value is a string-valued slot; the typed-parameters extension under development will add `type` / `description` / `default` / `enum` / range constraints per slot. |
+| 1 | Aggregate `spec.parameters.<name>` | **Declare** the parameter as part of the Aggregate's typed authoring contract. Each parameter slot carries a declared `type` (`string`, `integer`, `number`, `boolean`, `array`, `object`), an optional `description`, an optional `default`, optional value-space constraints (`enum`, `min`, `max`, `pattern`, `minLength`, `maxLength`), and optional nested structure for object-typed slots. The contract validates each Release-supplied value before interpolation. |
 | 2 | Component `values:` template inside the same Aggregate | **Reference** the parameter via `{{ .parameters.<name> }}` from inside the `values:` block of any component (or feature, or sub-aggregate) that consumes it. The reference is a Go template expression — the compiler evaluates it during Step 1 interpolation. |
 | 3 | Release `spec.parameters.<name>` (or `parametersFrom:` external file) | **Fulfill** the parameter with the environment-specific value at the Release surface. Per-environment Release files supply different values for the same parameter key without modifying the Aggregate. |
 | 4 | Recipe `valuesMapping:` template | **Consume** the resolved value via `{{ .values.<key> }}` — the Recipe sees the post-interpolation `values:` dictionary and never sees `.parameters` directly. The `parameters` pillar is purged after Step 1; only the resolved values dictionary flows through to Step 5 rendering. |
 
-The four touchpoints are sequential and load-bearing: skipping the Aggregate declaration leaves the Release with no slot to fulfill; skipping the values reference leaves the Recipe with no value to consume; skipping the Release fulfilment leaves the parameter empty. The compiler validates the chain across Step 1 (interpolation) and downstream CUE validation of the resulting `values:` dictionary; mismatches surface as either an unfilled-template error or a CUE constraint violation against the typed values schema.
+The four touchpoints are sequential and load-bearing: skipping the Aggregate declaration leaves the Release with no slot to fulfill; skipping the values reference leaves the Recipe with no value to consume; skipping the Release fulfilment leaves the parameter empty. The compiler validates the chain across Step 1 (parameter contract validation against the typed `parameters:` declaration, then interpolation into the surrounding `values:` strings, then JSON Schema validation of the resulting `values:` dictionary against the Component or Feature `schema:`); mismatches surface as either a parameter-contract violation (caught at Step 1 against the typed `parameters:` declaration), an unfilled-template error (caught at Step 1 interpolation), or a JSON Schema constraint violation against the `values:` schema (caught at Step 1 validation).
 
 The pattern is the canonical mechanism for GitOps promotion: a single immutable Aggregate moves through environments with each environment's Release supplying its own parameter values. Every per-environment value an author wants to vary belongs in the parameter chain rather than embedded directly in the Aggregate.
-
-*Typed parameter contracts — declaring `type`, `description`, `default`, `enum`, and `min`/`max` constraints per parameter key to validate values before interpolation — are under active development. Today `parameters` are simple string-valued keys; type validation errors surface during CUE validation of the component `values` they flow into, rather than at the parameter-contract level. The typed form will enable earlier diagnostics when it ships.*
 
 ## Per-pillar `extends:` merge semantics
 
@@ -202,34 +200,43 @@ When a catalog entity declares `extends:` and the compiler walks the inheritance
 
 | Pillar | Merge behaviour on `extends:` chain |
 | --- | --- |
-| `values` (CUE schema) | Schemas unify via CUE's `&` operator. Monotonic — child can narrow parent constraints; cannot relax. |
-| `infra` (CUE schema fragment) | Same as `values` — CUE unification, monotonic. |
-| `provides` (Recipe template map) | Top-level shallow replacement: child key fully replaces parent key for the same name; sibling keys preserved from parent. Templates are not unified; the child's template fully owns its slot. |
-| `uses` (`usesSchema`) | CUE unification per socket — child socket schema unified with parent's; monotonic. Child cannot widen parent's selector. |
-| `secrets` (`secretsSchema` per-slot CUE) | Per-slot CUE unification with monotonic narrowing. Child can add new slots; cannot relax parent slot constraints. |
+| `values` (JSON Schema 2020-12) | Schemas compose via JSON Schema 2020-12 composition; the publishing-discipline policy plugin enforces monotonic narrowing — child can narrow parent constraints; cannot relax. |
+| `infra` (JSON Schema 2020-12 fragment) | Same as `values` — JSON Schema composition with policy-level monotonic narrowing. |
+| `provides` (Recipe template map) | Top-level shallow replacement: child key fully replaces parent key for the same name; sibling keys preserved from parent. Templates are not composed; the child's template fully owns its slot. |
+| `uses` (`usesSchema`) | JSON Schema composition per socket — child socket schema composes with parent's; monotonic at the policy layer. Child cannot widen parent's selector. |
+| `secrets` (`secretsSchema` per-slot schema) | Per-slot schema composition with monotonic narrowing at the policy layer. Child can add new slots; cannot relax parent slot constraints. |
 | `locals` (Recipe template map) | Top-level shallow replacement — same as `provides`. |
 | `parameters` (Aggregate root map) | Aggregate `extends:` is not currently supported (Aggregate doesn't carry an `extends:` field); the question is moot today. Release `extends:` produces deep-merge with child-wins. |
 
-The general pattern: **CUE-validated pillars use CUE unification (monotonic narrowing)**; **template-authored pillars use shallow per-key replacement**. CUE unification protects schema contracts (a child cannot relax a parent's compliance rule); template replacement gives the child full ownership of any template slot it declares.
+The general pattern: **schema-validated pillars use JSON Schema 2020-12 composition with policy-level monotonic narrowing**; **template-authored pillars use shallow per-key replacement**. Schema composition protects contracts (a child cannot relax a parent's compliance rule; the publishing-discipline policy plugin enforces this at publish time); template replacement gives the child full ownership of any template slot it declares.
 
 For the inheritance mechanism itself, see [inheritance-and-interface.md](inheritance-and-interface.md) "Inheritance via `extends`".
 
 ## Cross-pillar mechanics
 
-D-03's signposts framing permits cross-pillar reads everywhere except the documented self-containment surfaces. Three patterns formalise common cross-pillar mechanics; one anti-pattern is documented honestly so authors recognise the trade-off.
+The signposts framing permits cross-pillar reads everywhere except the documented self-containment surfaces. Three patterns formalise common cross-pillar mechanics; one anti-pattern is documented honestly so authors recognise the trade-off.
 
-### CUE Inheritance bridge — deliberate exception
+### Schema-bridge cross-pillar piping — signposted, not walled
 
-A Component's `cueSchema` can pipe a developer-facing `values:` field into the Ops-side `infra:` block via CUE unification:
+The pillar boundaries are authoring discipline: the architecture signposts what goes where (`values:` for developer cognitive intent, `infra:` for Ops physical sizing, `provides:` for Recipe-emitted strings, and so on) and the catalog reviewer enforces the convention. The template engine itself permits cross-pillar reads unless the documented self-containment rules forbid them (Recipe `provides:` does not see `.context.inject`; FeatureRecipe boundary-scope `provides:` does not see per-consumer fields). The pillar walls are signposts, not enforcement.
 
-```cue
-values: { required_iops: int }
-infra: { iops_limit: values.required_iops }
+A canonical signposted exception: a Component's `schema:` can declare a developer-facing `values:` dial that the Recipe's `valuesMapping:` template pipes into the rendered `infra:`-shaped output. The developer dictates intent through a typed `values:` field; the Recipe template pipes the resulting value into the provider's infrastructure layer without the developer authoring infrastructure code. A worked example:
+
+```yaml
+# Component schema declares a developer-facing dial in values
+spec:
+  schema:
+    values:
+      required_iops: { type: integer, min: 100 }
 ```
 
-The bridge is a **deliberate exception** to the values-vs-infra authoring split. The developer dictates the dial through a typed `values` field; CUE pipes the resulting integer into `infra` so the Ops Recipe receives the physical sizing without the developer authoring infrastructure code. The pattern is documented at [inheritance-and-interface.md](inheritance-and-interface.md) "CUE Inheritance: Bridging Intent to Infrastructure" with worked examples.
+```yaml
+# Recipe valuesMapping pipes the developer's intent into the provider's infra-side knob
+valuesMapping:
+  iops_limit: "{{ .values.required_iops }}"
+```
 
-When the schema-language migration replaces CUE with JSON Schema 2020-12 + custom merger, the bridge pattern continues with the equivalent JSON-Schema-bridge mechanic; the architectural intent (declared cross-pillar piping) carries forward.
+The bridge is documented at [inheritance-and-interface.md](inheritance-and-interface.md) with worked examples. The architectural intent (a declared cross-pillar dial that the Recipe pipes through) carries one direction — developer-side `values:` flowing into Ops-side rendered output — and lands in the Recipe's mapping templates, not in the Component schema itself. The pillar boundary stays signposted: the developer sees `values:`, the Recipe sees both `values:` and `infra:`, the rendered output combines them.
 
 ### Cross-pillar `inject` accumulator
 
@@ -245,11 +252,11 @@ For the inject grammar and collision rules, see [topology-triad.md](topology-tri
 
 ### Cross-pillar constraint duplication
 
-A field that lives in two pillars with different validation layers can carry duplicate constraints. The canonical example: a port number declared in a Component's `usesSchema` (CUE-validated, range `>=1, <=65535`) and the same port number consumed in a Workload's `services.<name>.ports.<port>` field (validated by the Provider's `workloadSchema`, which may add a `>=1024` rule for non-privileged ports).
+A field that lives in two pillars with different validation layers can carry duplicate constraints. The canonical example: a port number declared in a Component's `usesSchema` (JSON-Schema-validated, range `min: 1, max: 65535`) and the same port number consumed in a Workload's `services.<name>.ports.<port>` field (validated by the Provider's `workloadSchema`, which may add a `min: 1024` rule for non-privileged ports).
 
-When CUE allows port 80 but `workloadSchema` rejects ports below 1024, the runtime fires the `workloadSchema` rejection at Step 5 Phase B — the Layer 3 validation per [validation-surface.md](validation-surface.md). The CUE constraint passed; the second layer caught the violation.
+When the `usesSchema` allows port 80 but `workloadSchema` rejects ports below 1024, the runtime fires the `workloadSchema` rejection at Step 5 Phase B — the Layer 3 validation per [validation-surface.md](validation-surface.md). The first layer's constraint passed; the second layer caught the violation.
 
-The duplication is deliberate: each layer covers a different concern. CUE governs the cognitive contract (the developer's `usesSchema` declaration). The Provider's `workloadSchema` governs the rendered-output contract (what the helm engine will accept). When both apply to the same field, the strictest wins; authors who hit the second layer's rejection see a `CATALOG_ERROR:` attributed to the Recipe-Provider pairing.
+The duplication is deliberate: each layer covers a different concern. The Component's `usesSchema` governs the cognitive contract (the developer's `uses:` declaration). The Provider's `workloadSchema` governs the rendered-output contract (what the helm engine accepts). When both apply to the same field, the strictest wins; authors who hit the second layer's rejection see a `CATALOG_ERROR:` attributed to the Recipe-Provider pairing.
 
 ### Feature attachment / Component pillar isolation
 
@@ -260,7 +267,7 @@ Two consequences for authors:
 - A `values:` setting on a Feature attachment does not appear in the Component's `valuesMapping:` template's `.values`. The Component sees only its own values.
 - A Feature's `infra:` payload does not flow into the Component's `infra:`. Each attached Feature has its own physical sizing scoped to the Feature's resources.
 
-The isolation is explicit per the architecture's separation of concerns: Features are independent contributors layered onto Components via the 5-Tier Onion Model. For the attachment surfaces and ordering, see [labels-and-annotations.md](labels-and-annotations.md) "D-12 Feature attachment — five surfaces".
+The isolation is explicit per the architecture's separation of concerns: Features are independent contributors layered onto Components via the 5-Tier Onion Model. For the attachment surfaces and ordering, see [labels-and-annotations.md](labels-and-annotations.md) "Feature attachment — five surfaces".
 
 ## Pillar validation tiers
 
@@ -269,10 +276,8 @@ The pillars carry validation across three tiers. Each tier covers a different co
 | Tier | What it validates | Where it runs |
 | --- | --- | --- |
 | 1 — JSON Schema envelope | Structural shape (which keys are present, types match the field declarations) | Step 1, per file load |
-| 2 — CUE schema (`cueSchema` / `secretsSchema` / `usesSchema`) | Per-pillar typed content with monotonic narrowing on `extends:` chains | Step 1, after envelope passes |
+| 2 — Per-pillar schema (`schema` / `secretsSchema` / `usesSchema`) | Per-pillar typed content validated as JSON Schema 2020-12 with monotonic narrowing on `extends:` chains enforced by the publishing-discipline policy plugin | Step 1, after envelope passes |
 | 3 — Provider `workloadSchema` / `baseSchema` | Recipe output and Workload content gated by the bound Provider's schema | Step 5 Phase B, after valuesMapping resolves |
-
-Tier 2 is post-migration replaced by JSON Schema 2020-12 + custom merger per the schema-language migration; the per-pillar validation discipline carries forward unchanged.
 
 For the four-layer error-shape table and per-layer error prefixes, see [validation-surface.md](validation-surface.md).
 
@@ -282,21 +287,20 @@ Default values appear across the corpus through several distinct mechanisms. Aut
 
 | # | Mechanism | Where authored | Trigger |
 | --- | --- | --- | --- |
-| 1 | CUE schema default (`*"value"`) | Component / Feature `cueSchema` | Field validates with the default when the developer omits the key |
-| 2 | JSON Schema `default:` | (post-migration) Component / Feature schema | Same as 1 — the post-migration replacement |
-| 3 | Go template `\| default <expr>` | Recipe `valuesMapping:`, Workload body, FeatureRecipe templates | Inline pipeline — the value falls back to `<expr>` when the upstream field is empty / absent |
-| 4 | Sprig `default` function (`{{ default <expr> .field }}`) | Same as 3 | Function form of the same fallback semantic |
-| 5 | Recipe `locals:` fallback | Recipe `locals:` template | A locals entry computes a default-bearing string the rest of the Recipe consumes |
-| 6 | Provider `baseSchema` defaults | Provider entity `cueSchema` | Provider engine populates missing values per its own schema defaults |
-| 7 | Per-engine generative defaults | Provider engine code (e.g., helm sourceless mode) | Engine-internal defaults for unauthored fields (e.g., `replicas: 1`, `image: aggrega/placeholder:latest`) |
+| 1 | JSON Schema `default:` (compact form `{ default: <value> }`) | Component / Feature `schema:` | Field validates with the default when the developer omits the key |
+| 2 | Go template `\| default <expr>` | Recipe `valuesMapping:`, Workload body, FeatureRecipe templates | Inline pipeline — the value falls back to `<expr>` when the upstream field is empty / absent |
+| 3 | Sprig `default` function (`{{ default <expr> .field }}`) | Same as 2 | Function form of the same fallback semantic |
+| 4 | Recipe `locals:` fallback | Recipe `locals:` template | A locals entry computes a default-bearing string the rest of the Recipe consumes |
+| 5 | Provider `baseSchema` defaults | Provider entity `baseSchema:` JSON Schema | Provider engine populates missing values per its own schema defaults |
+| 6 | Per-engine generative defaults | Provider engine code (e.g., helm sourceless mode) | Engine-internal defaults for unauthored fields (e.g., `replicas: 1`, `image: aggrega/placeholder:latest`) |
 
-**Recommended placement guidance.** When a default value is genuinely part of the type contract (e.g., "this port is 5432 by default unless the developer overrides it"), the **CUE / JSON Schema default** (mechanism 1 / 2) is canonical — IDE autocomplete surfaces the default; validation tooling honours it; the contract carries with the Component / Feature catalog entity. When the default is a Recipe-internal shortcut (e.g., "if no replica count is declared, use 1"), the **Go template `| default`** (mechanism 3) is appropriate — the default lives in the Recipe's authoring intent, not the Component contract.
+**Recommended placement guidance.** When a default value is genuinely part of the type contract (e.g., "this port is 5432 by default unless the developer overrides it"), the **JSON Schema `default:`** (mechanism 1) is canonical — IDE autocomplete surfaces the default; validation tooling honours it; the contract carries with the Component / Feature catalog entity. When the default is a Recipe-internal shortcut (e.g., "if no replica count is declared, use 1"), the **Go template `| default`** (mechanism 2) is appropriate — the default lives in the Recipe's authoring intent, not the Component contract.
 
-Mechanism 7 (engine generative defaults) is the lowest-priority surface. Authors should not rely on engine defaults silently — the helm sourceless mode's `aggrega/placeholder:latest` image default exists as a guardrail against missing-image-key crashes, not as a production value.
+Mechanism 6 (engine generative defaults) is the lowest-priority surface. Authors should not rely on engine defaults silently — the helm sourceless mode's `aggrega/placeholder:latest` image default exists as a guardrail against missing-image-key crashes, not as a production value.
 
 ## Cross-references
 
-- [`inheritance-and-interface.md`](inheritance-and-interface.md) — `extends:` mechanism, `implements:` Interface Binding, CUE Inheritance bridge.
+- [`inheritance-and-interface.md`](inheritance-and-interface.md) — `extends:` mechanism, `implements:` Interface Binding, schema-bridge cross-pillar piping.
 - [`topology-triad.md`](topology-triad.md) — `provides`, `inject`, `uses` topological mechanics.
 - [`labels-and-annotations.md`](labels-and-annotations.md) — content-side metadata vocabulary distinct from data pillars (the five-pillar canonical list above does not include labels / annotations / publishing fields — those are metadata vocabulary).
 - [`publishing-surface.md`](publishing-surface.md) — publishing-side metadata vocabulary distinct from data pillars.

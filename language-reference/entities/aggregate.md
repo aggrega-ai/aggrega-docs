@@ -74,6 +74,99 @@ When an Aggregate is published to the catalog as a reusable module, it may carry
 
 See [architecture/06-data-taxonomy-and-composition.md §6](../../architecture/06-data-taxonomy-and-composition.md) for the full Composite Aggregates / Module Pattern discussion (including the no-sub-components rule for Components), and for the `subsystems` cross-cutting grouping mechanism. See [vocabulary/data-pillars](../vocabulary/data-pillars.md) for the typed `parameters` contract authoring surface.
 
+## Typed parameter contracts
+
+The Aggregate's `spec.parameters:` block declares the typed contract for the parameters the Release fulfills. Each parameter slot carries a declared `type`, an optional `description`, an optional `default`, optional value-space constraints, and (for object-typed slots) nested structure. The compiler validates each Release-supplied value against the contract during Step 1 before parameter interpolation runs.
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: web-app
+  version: 1.0.0
+spec:
+  parameters:
+    region:
+      type: string
+      description: Cloud region the deployment targets
+      enum: [us-east-1, us-west-2, eu-west-1, ap-northeast-1]
+    replicas:
+      type: integer
+      description: Web-tier replica count
+      min: 1
+      max: 100
+      default: 3
+    enable_debug:
+      type: boolean
+      description: Toggle verbose request logging
+      default: false
+    feature_flags:
+      type: object
+      description: Per-feature enablement map
+      valuesType: boolean
+      default: {}
+    allowed_hosts:
+      type: array
+      description: Hostnames the ingress accepts
+      items: { type: string, format: hostname }
+      min: 1
+      default: ["*"]
+
+  components:
+    web:
+      type: core/web-server:1.0.0
+      values:
+        replicas: "{{ .parameters.replicas }}"
+        region: "{{ .parameters.region }}"
+        debug: "{{ .parameters.enable_debug }}"
+```
+
+### Parameter slot vocabulary
+
+The typed `parameters:` block accepts the compact-form vocabulary: `type`, `description`, `default`, `enum`, `min`, `max`, `pattern`, `minLength`, `maxLength`, `format`, `items` (for arrays), `properties` (for objects), `valuesType` (for typed-value maps), and `required: true` (per-slot marker). The compiler resolves the parameter declarations to JSON Schema 2020-12 and validates each Release-supplied value against the resolved schema before interpolation. See [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md) for the full keyword vocabulary.
+
+### Object-typed and array-typed parameters
+
+Parameter slots accept any type the compact form supports, including nested objects and arrays of typed elements:
+
+```yaml
+spec:
+  parameters:
+    database_config:
+      type: object
+      description: Database connection configuration
+      properties:
+        host: { type: string, required: true }
+        port: { type: integer, min: 1, max: 65535, default: 5432 }
+        ssl_mode: { type: string, enum: [disable, require, verify-full], default: require }
+        pool_size: { type: integer, min: 1, max: 100, default: 10 }
+      additionalProperties: false
+
+    metric_labels:
+      type: array
+      description: Custom Prometheus labels to attach to scraped metrics
+      items:
+        type: object
+        properties:
+          name: { type: string, required: true }
+          value: { type: string, required: true }
+        additionalProperties: false
+```
+
+The Release fulfills object-typed parameters with structured YAML; the compiler validates the structure against the declared schema before interpolation. Templates referencing the object's fields use the standard Go template syntax: `{{ .parameters.database_config.host }}`, `{{ .parameters.database_config.port }}`, etc.
+
+### Parameter contract validation
+
+The compiler runs three sub-steps during Step 1 parameter processing:
+
+1. **Contract validation** — each Release-supplied value validates against the declared `type` / `enum` / `min` / `max` / `pattern` / nested-structure constraints. Validation failures halt the build with a clear error naming the offending slot, the supplied value, and the violated constraint. Missing required parameters with no `default:` produce a similar halt with the slot name.
+2. **Default fill** — slots with `default:` defined and no Release-supplied value receive their default.
+3. **Interpolation** — the compiler walks the Aggregate's YAML strings, replaces every `{{ .parameters.<slot> }}` reference with the resolved value, then purges the `.parameters` map from the in-memory context.
+
+After Step 1 completes, the `parameters` pillar no longer exists as a live context; only the resolved values dictionary flows through to downstream rendering. Recipes consuming developer-authored `values:` see the post-interpolation strings and never read `.parameters` directly.
+
+For the broader parameter-hoisting checklist (Aggregate declaration → values reference → Release fulfilment → Recipe consumption) and the cross-pillar mechanics, see [`vocabulary/data-pillars.md`](../vocabulary/data-pillars.md) §"Parameters" and §"The parameter-hoisting checklist". For the template-context fields exposed during Step 1 interpolation, see [`templates/parameters-context.md`](../templates/parameters-context.md).
+
 ## YAML anchor patterns (`defs:` block)
 
 The Aggregate schema accepts an optional root-level `defs:` block — a list of YAML strings used purely as a host for standard YAML anchors (`&anchor`) and references (`*anchor`). The block's contents are never read by the compiler; it exists so authors can declare anchor definitions in one place and reference them across the rest of the Aggregate, keeping repeated values DRY without losing the flat O(1) dictionary the compiler iterates. The mechanism mirrors the equivalent `defs:` block on the Manifest entity.

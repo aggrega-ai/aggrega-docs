@@ -17,7 +17,7 @@ An early approach extracts a fixed key set (e.g., `image`, `environment`, `ports
 - ConfigMap / Secret / PVC / CRD resources
 - Non-ClusterIP Services (LoadBalancer, NodePort, Headless)
 
-The abstraction layer needs to describe a full workload shape, not a fixed key set. The three input kinds described below are that abstraction: a Recipe composes its output additively from an externally-loaded chart or module (`source:`), an abstract Workload specification the Engine synthesizes into provider-native manifests (`workload:` / `workloadFrom:`), and templated provider-native manifests the Recipe emits directly (`artifacts:` / `artifactsFrom:`).
+The abstraction layer needs to describe a full workload shape, not a fixed key set. The three input kinds described below are that abstraction: a Recipe composes its output additively from an externally-loaded chart or module (`source:`), an abstract Workload specification the Engine synthesizes into provider-native manifests (`workload:`), and templated provider-native manifests the Recipe emits directly (`artifacts:`).
 
 ## The Three Input Kinds
 
@@ -26,8 +26,8 @@ The abstraction layer needs to describe a full workload shape, not a fixed key s
 There are three ways to produce provider-native manifest files from a Recipe, and they compose by addition rather than by mutual exclusion:
 
 1. **`source:`** — an externally-loaded artifact (Helm chart, Terraform module, compose file) that the provider's native engine renders, with `valuesMapping:` supplying the overlay values.
-2. **`workload:` or `workloadFrom:`** — an abstract Workload specification (platform-owned kind) that the Engine synthesizes into provider-native manifests.
-3. **`artifacts:` or `artifactsFrom:`** — inline or file-loaded provider-native manifests, Go-templated against the full pillar context.
+2. **`workload:`** — an abstract Workload specification (platform-owned kind) that the Engine synthesizes into provider-native manifests. The field accepts an inline YAML block scalar or a `$import:` to a single local file or library entry; the dispatch is content-shape driven.
+3. **`artifacts:`** — a map of inline or `$import:`-loaded provider-native manifests, Go-templated against the full pillar context. Each entry may be authored inline (the entry's value is a block scalar) or via `$import:` to a single file or library content.
 
 All three produce files that the Engine emits to the boundary's output directory. All three may coexist in a single Recipe, subject to the validation rules below. Merge semantics are top-level-only: each input kind produces complete files; files are concatenated; collision on output filename is a fatal error.
 
@@ -38,8 +38,8 @@ The three "modes" are descriptive vocabulary for documentation and diagnostics. 
 | Dominant keyword(s) | Descriptive mode name |
 | --- | --- |
 | `source:` + `valuesMapping:` (no `workload:`, no artifacts) | **sourced** |
-| `workload:` / `workloadFrom:` (no `source:`, no artifacts) | **synthesized** |
-| `artifacts:` / `artifactsFrom:` (no `source:`, no `workload:`) | **artifacts** (informally: "inline") |
+| `workload:` (no `source:`, no artifacts) | **synthesized** |
+| `artifacts:` (no `source:`, no `workload:`) | **artifacts** (informally: "inline") |
 | Any combination of two or more | described explicitly (e.g., "sourced with artifacts", "synthesized with artifacts") |
 
 There is no keyword named `mode:` and no enum. The mode is an emergent property of which inputs are present.
@@ -63,23 +63,29 @@ spec:
   source: ...
   valuesMapping: |
     # Go template → YAML/JSON overlay values
+  # OR:
+  valuesMapping:
+    $import: ./mappings/api-server.tmpl        # local file path
+  # OR:
+  valuesMapping:
+    $import: oci://hub.aggrega.ai/aggrega/<lib>@1.0.0#/mappings/<entry>   # MappingLibrary entry
 
-  # ─── Synthesized input (optional, one of the two) ───
+  # ─── Synthesized input (optional) ───
   workload: |
     # Go template → YAML → parsed Workload
-  # OR:
-  workloadFrom: ./workload.yaml
+  # OR (single-source $import for whole-content load from a file or library):
+  workload:
+    $import: ./workload.yaml
 
-  # ─── Artifacts input (optional, both may coexist) ───
+  # ─── Artifacts input (optional, multiple entries permitted) ───
   artifacts:
     "filename.yaml": |
-      # Go template → manifest YAML
-  artifactsFrom:
-    - ./artifacts/another.yaml
-    - ./artifacts/crd.yaml
+      # Inline Go template → manifest YAML
+    "other.yaml":
+      $import: ./artifacts/other.yaml         # per-entry $import: for file or library content
 ```
 
-*The authoring shape above is frozen at the Recipe schema layer. Every field is accepted by the schema today. Compiler consumption of `workload:` / `workloadFrom:` / `artifacts:` / `artifactsFrom:` lands incrementally as the per-provider synthesizers and the corresponding Recipe consumption paths ship; see the Provider Capability Matrix at the end of this chapter for what each provider produces today.*
+*The authoring shape above is frozen at the Recipe schema layer. Every field is accepted by the schema today. Compiler consumption of `workload:` / `artifacts:` lands incrementally as the per-provider synthesizers and the corresponding Recipe consumption paths ship; see the Provider Capability Matrix at the end of this chapter for what each provider produces today.*
 
 ### Load-Time Validation Rules
 
@@ -87,17 +93,17 @@ The Recipe schema enforces seven composition rules at load time:
 
 1. **`valuesMapping:` requires `source:`.** Without a source engine to overlay, there is nothing to receive the mapped values. A Recipe with `valuesMapping:` and no `source:` is a load-time error.
 2. **`source:` requires `valuesMapping:`.** An externally-loaded chart or module needs values; a source with no values overlay is underspecified. Load-time error.
-3. **`workload:` and `workloadFrom:` are mutually exclusive.** A Recipe specifies the Workload either inline or from a file, never both. Load-time error.
-4. **`workload:` / `workloadFrom:` requires the Provider to declare `workloadSchema`.** Providers that do not support synthesis reject Recipes that use `workload:`. Load-time error.
-5. **At least one input kind must be present.** A Recipe with none of `source:`+`valuesMapping:`, `workload:`/`workloadFrom:`, or `artifacts:`/`artifactsFrom:` produces no output and is an error.
-6. **Inline and file-loaded variants may coexist for artifacts.** A Recipe may use `artifacts:` (inline map) and `artifactsFrom:` (list of files) simultaneously. Filename collision across the two is a load-time error.
+3. **`workload:` accepts one source — inline or `$import:`, not both.** A Recipe specifies the Workload as either an inline block scalar or a `$import:` to a single file. The `$import:` form is single-source per the unified file-import vocabulary; multi-source merge is not supported at `workload:`. Load-time error on a malformed dispatch.
+4. **`workload:` requires the Provider to declare `workloadSchema`.** Providers that do not support synthesis reject Recipes that use `workload:`. Load-time error.
+5. **At least one input kind must be present.** A Recipe with none of `source:`+`valuesMapping:`, `workload:`, or `artifacts:` produces no output and is an error.
+6. **Inline and `$import:` artifact entries may coexist.** A Recipe may declare some `artifacts:` entries inline and others via per-entry `$import:` directives. Filename collision across the two forms is a load-time error.
 7. **Cross-input-kind filename collisions are render-time errors.** If two of a Recipe's input kinds — source-rendered output, workload-synthesized output, or artifact-emitted output — produce a file with the same name, the Engine emits a fatal error identifying every contributor. This check runs after Workload translation, so it's render-time rather than load-time.
 
 ## The Workload Kind
 
 ### Ownership and Location
 
-`Workload` is a platform-owned kind at `apiVersion: aggrega.ai/v1alpha1`. Its CUE schema is embedded in the compiler binary at build time; catalog authors do not edit the Workload schema, nor do they author standalone `Workload` YAML files as catalog entities. The Workload grammar is consumed inside a Recipe's `workload:` field (or referenced via `workloadFrom:`) and nowhere else.
+`Workload` is a platform-owned kind at `apiVersion: aggrega.ai/v1alpha1`. Its JSON Schema 2020-12 declaration is embedded in the compiler binary at build time; catalog authors do not edit the Workload schema, nor do they author standalone `Workload` YAML files as catalog entities. The Workload grammar is consumed inside a Recipe's `workload:` field (inline or via `$import:` to a single file) and nowhere else.
 
 Workload is a platform kind and a compiler concept, not a ninth entity in the [Eight-Entity Taxonomy](04-eight-entity-taxonomy.md). The Recipe is the authoring entity; the Workload is the shape the Recipe's synthesized input takes.
 
@@ -105,7 +111,7 @@ Workload is a platform kind and a compiler concept, not a ninth entity in the [E
 
 A Recipe declares exactly one `workload:`. The Workload represents the single deployment unit associated with the Component this Recipe implements. Use cases requiring additional side-workloads are expressed via:
 
-- `artifacts:` / `artifactsFrom:` — additional manifests alongside the workload, in the same Recipe.
+- `artifacts:` — additional manifests alongside the workload, in the same Recipe (inline or via per-entry `$import:`).
 - Features with Resource Generation — cross-cutting side-workloads (e.g., a backup sidecar attached to databases) declared as separate catalog entities. See [14-extensibility.md](14-extensibility.md) for FeatureRecipe Resource Generation.
 
 This preserves the 1:1 Component → Recipe → Workload model.
@@ -226,7 +232,7 @@ podSecurityContext:
 serviceAccount: "my-sa"  # just the name; actual RBAC via Features
 ```
 
-*The Workload CUE schema is authoritative and ships embedded in the compiler binary today. Recipe-side `workload:` / `workloadFrom:` consumption and per-provider synthesizers land incrementally; see the Provider Capability Matrix for current provider support.*
+*The Workload JSON Schema 2020-12 declaration is authoritative and ships embedded in the compiler binary today. Recipe-side `workload:` consumption (inline or `$import:`) and per-provider synthesizers land incrementally; see the Provider Capability Matrix for current provider support.*
 
 The Workload entity authoring page at [../language-reference/entities/workload.md](../language-reference/entities/workload.md) covers field-level authoring details.
 
@@ -334,7 +340,7 @@ Service names in K8s output are prefixed with the component's `instance_id` for 
 
 ### Provider-Side Translation Contract: `workloadSchema`
 
-Each Provider entity declares a `workloadSchema` — a CUE schema documenting how Workload fields translate to that provider's native output. This is the self-documenting translation contract. See [../language-reference/entities/provider.md](../language-reference/entities/provider.md) for the Provider authoring surface.
+Each Provider entity declares a `workloadSchema` — a JSON Schema 2020-12 declaration documenting how Workload fields translate to that provider's native output. This is the self-documenting translation contract. See [../language-reference/entities/provider.md](../language-reference/entities/provider.md) for the Provider authoring surface.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -353,9 +359,9 @@ spec:
     // ...
 ```
 
-The `workloadSchema` field is documentation-first: it communicates translation intent to catalog authors and IDE tooling. A Provider that omits `workloadSchema` does not support Workload synthesis; Recipes targeting such a provider that use `workload:` or `workloadFrom:` are rejected at Recipe load time with a clear error.
+The `workloadSchema` field is documentation-first: it communicates translation intent to catalog authors and IDE tooling. A Provider that omits `workloadSchema` does not support Workload synthesis; Recipes targeting such a provider that use `workload:` are rejected at Recipe load time with a clear error.
 
-*The Provider schema declares `workloadSchema` today. Provider-side validation of the contract (Recipe load-time rejection when the target Provider omits `workloadSchema`) lands alongside Recipe consumption of `workload:` / `workloadFrom:`.*
+*The Provider schema declares `workloadSchema` today. Provider-side validation of the contract (Recipe load-time rejection when the target Provider omits `workloadSchema`) lands alongside Recipe consumption of `workload:`.*
 
 ### Auxiliary Resources Live Outside the Workload
 
@@ -364,7 +370,7 @@ The Workload spec has no `additionalResources` field, no `extras`, no inline Con
 Auxiliary resources have two legitimate homes outside the Workload:
 
 1. **Features + FeatureRecipes** — the mechanism for cross-cutting concerns. A ServiceMonitor attached to "any server with metrics exposed" is `core/prometheus-exporter` as a Feature. An HTTPRoute is `core/public-ingress` as a Feature. A NetworkPolicy enforced on all production workloads is a Feature attached via Release-level selectors. Features compose orthogonally and can be reused across Recipes. See [14-extensibility.md](14-extensibility.md) for FeatureRecipe Resource Generation.
-2. **Recipe-level `artifacts:` / `artifactsFrom:`** — for resources that belong to this specific Recipe's implementation and aren't worth creating a Feature for. A one-off CRD registration the Recipe needs. A Recipe-specific PodDisruptionBudget that applies only when this Recipe is used. A ConfigMap the Recipe's Workload references. See the Artifacts Mechanism section below.
+2. **Recipe-level `artifacts:`** — for resources that belong to this specific Recipe's implementation and aren't worth creating a Feature for. A one-off CRD registration the Recipe needs. A Recipe-specific PodDisruptionBudget that applies only when this Recipe is used. A ConfigMap the Recipe's Workload references. Each entry is inline or `$import:`-loaded; see the Artifacts Mechanism section below.
 
 The line between Feature and artifact is a social convention. If an auxiliary resource is cross-cutting (applies to many Recipes, or is attached conditionally via selectors), it's a Feature. If it's intrinsic to this one Recipe (the Recipe can't do its job without emitting that resource), it's an artifact. Authors choose based on reuse and attachment semantics; the compiler does not police the choice.
 
@@ -388,14 +394,15 @@ spec:
         endpoints:
           - port: {{ .workload.services.metrics.ports.prom }}
 
-  artifactsFrom:
-    - ./artifacts/networkpolicy.yaml
-    - ./artifacts/crd-registration.yaml
+    "networkpolicy.yaml":
+      $import: ./artifacts/networkpolicy.yaml
+    "crd-registration.yaml":
+      $import: ./artifacts/crd-registration.yaml
 ```
 
-The `artifactsFrom:` paths are relative to the Recipe directory. A typical convention places them in an `./artifacts/` subdirectory, though the compiler does not enforce this.
+The `$import:` paths are relative to the Recipe directory. A typical convention places them in an `./artifacts/` subdirectory, though the compiler does not enforce this. Each entry's map key is the output filename emitted to the boundary's output directory.
 
-Each file (or inline entry) is Go-templated against the full TemplateContext before being emitted to the output directory.
+Each entry (inline or `$import:`-loaded) is Go-templated against the full TemplateContext before being emitted to the output directory.
 
 ### Inline Keys Are Output Filenames
 
@@ -411,15 +418,17 @@ artifacts:
 
 Produces `dist/boundaries/.../configmap-config.yaml` and `dist/boundaries/.../pdb.yaml`.
 
-For `artifactsFrom:`, the output filename is the basename of the input path:
+For `$import:`-loaded artifact entries, the output filename remains the map key (NOT the imported file's basename — the author chooses the output filename explicitly):
 
 ```yaml
-artifactsFrom:
-  - ./artifacts/monitor.yaml
-  - ./artifacts/subdir/netpol.yaml
+artifacts:
+  "monitor.yaml":
+    $import: ./artifacts/monitor.yaml
+  "netpol.yaml":
+    $import: ./artifacts/subdir/some-other-name.yaml
 ```
 
-Produces `.../monitor.yaml` and `.../netpol.yaml`. Basename collisions across `artifactsFrom:` entries are load-time errors. Collisions between inline `artifacts:` keys and `artifactsFrom:` basenames are load-time errors.
+Produces `.../monitor.yaml` and `.../netpol.yaml`. Filename collisions across `artifacts:` entries are load-time errors regardless of whether each entry is inline or `$import:`-loaded.
 
 ### Template Context for Artifacts
 
@@ -472,15 +481,15 @@ Label injection is uniform across all three input kinds. See [11-governance-and-
 
 **cloudformation provider:** artifacts are CFN resource snippets or sub-stack definitions written alongside template output.
 
-**helm-chart provider (special case):** artifacts are not written to the output directory as standalone files — Helm owns the rendering pipeline. Instead, `artifactsFrom:` files are treated as pre-Helm template files: they are Go-templated with Aggrega's pillar context FIRST, then injected into the chart's `templates/` directory BEFORE Helm rendering. This gives the helm-chart provider an extension mechanism equivalent to what `artifacts:` provides for the plain helm provider, while respecting Helm's chart model. In the helm-chart case, inline `artifacts:` is not supported — only `artifactsFrom:` with file paths, because Helm requires template files to be physical files in the chart structure.
+**helm-chart provider (special case):** artifacts are not written to the output directory as standalone files — Helm owns the rendering pipeline. Instead, the helm-chart provider treats each `artifacts:` entry as a pre-Helm template file: the entry is Go-templated with Aggrega's pillar context FIRST, then injected into the chart's `templates/` directory BEFORE Helm rendering. This gives the helm-chart provider an extension mechanism equivalent to what `artifacts:` provides for the plain helm provider, while respecting Helm's chart model. In the helm-chart case, each `artifacts:` entry must use `$import:` to a file path — inline block scalars are rejected at Recipe load because Helm requires template files to be physical files in the chart structure.
 
-Inline `artifacts:` for helm-chart is rejected at Recipe load with a clear error pointing the author at `artifactsFrom:` instead. The injected file lands at `boundaries/<bp>/charts/<nodeID>/templates/<basename>` so it sits alongside the sourced chart's templates and Helm picks it up during the downstream render pass.
+Inline-block-scalar `artifacts:` entries for helm-chart are rejected at Recipe load with a clear error pointing the author at the `$import:` form instead. The injected file lands at `boundaries/<bp>/charts/<nodeID>/templates/<map-key>` so it sits alongside the sourced chart's templates and Helm picks it up during the downstream render pass.
 
-**helm-chart delimiter convention.** Aggrega's pre-template pass on helm-chart `artifactsFrom:` files uses `[[ ]]` delimiters rather than the default `{{ }}` so Helm's own `{{ ... }}` syntax inside the file survives untouched into Helm's render pass. Authors write Aggrega-side substitutions as `[[ .context.instance_id ]]`, `[[ .values.name ]]`, etc.; Helm-side substitutions stay as `{{ .Values.x }}`, `{{ .Release.Name }}`, `{{- include "common.labels" . }}`, etc. Authors mixing the two delimiter pairs in one file is the supported authoring shape.
+**helm-chart delimiter convention.** Aggrega's pre-template pass on helm-chart `$import:`-loaded artifact entries uses `[[ ]]` delimiters rather than the default `{{ }}` so Helm's own `{{ ... }}` syntax inside the file survives untouched into Helm's render pass. Authors write Aggrega-side substitutions as `[[ .context.instance_id ]]`, `[[ .values.name ]]`, etc.; Helm-side substitutions stay as `{{ .Values.x }}`, `{{ .Release.Name }}`, `{{- include "common.labels" . }}`, etc. Authors mixing the two delimiter pairs in one file is the supported authoring shape.
 
-**Provenance labels and helm-chart artifacts.** Provenance labels are merged into `metadata.labels` for files that parse as YAML before Helm rendering — files using only `[[ ]]` Aggrega context or with Helm `{{ }}` only at quoted scalar positions. Files with structural Helm template actions (`{{- include ... }}`, `{{- if ... }}`, `{{- range ... }}`, `{{- with ... }}` at positions where they emit YAML structure rather than scalar leaves), or files with unquoted `{{ ... }}` at value positions, do not survive Aggrega's YAML round-trip; the build emits a "skipped provenance label injection" warning naming the artifact and passes the file through unchanged. **This warning is expected for any helm-chart artifactsFrom file using structural Helm template actions or unquoted Helm value substitutions** — it is the common case in production Helm authoring, not the edge case. Authors who need provenance labels on such files inject them via the chart's `_helpers.tpl` `aggrega.commonLabels` template or equivalent Helm-side mechanism, not via Aggrega's pre-template injection.
+**Provenance labels and helm-chart artifacts.** Provenance labels are merged into `metadata.labels` for files that parse as YAML before Helm rendering — files using only `[[ ]]` Aggrega context or with Helm `{{ }}` only at quoted scalar positions. Files with structural Helm template actions (`{{- include ... }}`, `{{- if ... }}`, `{{- range ... }}`, `{{- with ... }}` at positions where they emit YAML structure rather than scalar leaves), or files with unquoted `{{ ... }}` at value positions, do not survive Aggrega's YAML round-trip; the build emits a "skipped provenance label injection" warning naming the artifact and passes the file through unchanged. **This warning is expected for any helm-chart `$import:`-loaded artifact file using structural Helm template actions or unquoted Helm value substitutions** — it is the common case in production Helm authoring, not the edge case. Authors who need provenance labels on such files inject them via the chart's `_helpers.tpl` `aggrega.commonLabels` template or equivalent Helm-side mechanism, not via Aggrega's pre-template injection.
 
-**Chart-root basename collisions.** `artifactsFrom:` entries whose basename collides with a chart-root file (`Chart.yaml`, `values.yaml`, `.helmignore`, etc.) are not detected by Aggrega's filename-collision check — the artifact lands at `templates/<basename>` while the chart-root file lands at the chart root, and the path-prefixing makes them distinct in Aggrega's view. Authors avoid these basenames; the consequence of using them is that Helm sees both files (one at the chart root, one inside `templates/`) and may render the templates-side copy unexpectedly.
+**Chart-root filename collisions.** `artifacts:` map keys that collide with a chart-root filename (`Chart.yaml`, `values.yaml`, `.helmignore`, etc.) are not detected by Aggrega's filename-collision check — the artifact lands at `templates/<map-key>` while the chart-root file lands at the chart root, and the path-prefixing makes them distinct in Aggrega's view. Authors avoid these map keys; the consequence of using them is that Helm sees both files (one at the chart root, one inside `templates/`) and may render the templates-side copy unexpectedly.
 
 ### What Artifacts Is Not
 
@@ -490,7 +499,7 @@ Three structural distinctions:
 
 Multi-provider composition happens at the Release level. Boundaries hold mixed-provider components; each provider's contributors at a boundary's evaluated path are dispatched and assembled per-(path, provider) independently. A Release with three components targeting helm, compose, and terraform respectively can place all three in one boundary; the dispatch grouping partitions them per provider, each provider's contributors land in their own assembled output under the boundary's path, and the operator authors the cross-provider coordination via the boundary structure they choose. Cross-provider coordination is the Release author's responsibility.
 
-**Not Recipes-in-Recipes.** Artifacts do not load or compose other Recipes. They are inline manifests (or file paths to inline manifests), templated with this Recipe's pillars, emitted to this Recipe's output. Recipe reuse happens through three mechanisms: `extends:` (inheritance of metadata and CUE schemas, not of output files); the Manifest's per-provider dispatch (the same Component can resolve to different Recipes for different providers — see [../language-reference/entities/manifest.md](../language-reference/entities/manifest.md)); and Features + FeatureRecipes (cross-cutting concerns attached orthogonally).
+**Not Recipes-in-Recipes.** Artifacts do not load or compose other Recipes. They are inline manifests (or file paths to inline manifests), templated with this Recipe's pillars, emitted to this Recipe's output. Recipe reuse happens through three mechanisms: `extends:` (inheritance of metadata and schemas, not of output files); the Manifest's flat-URI mapping (the same Component can resolve to different Recipes across catalogs — see [../language-reference/entities/manifest.md](../language-reference/entities/manifest.md)); and Features + FeatureRecipes (cross-cutting concerns attached orthogonally).
 
 **Not a cross-Recipe glue layer.** Artifacts cannot reference names, resources, or state that the Recipe did not itself declare. A ConfigMap artifact referenced by the Recipe's Workload must be emitted by this Recipe. An artifact that expects an externally-provisioned Secret must get that Secret's name via the `.secrets` pillar, not assume it exists. This is the self-containment invariant (above) stated from the artifact-authoring perspective: each Recipe emits files in one format, applied by one tool, into one boundary's output directory.
 
@@ -498,7 +507,7 @@ Multi-provider composition happens at the Release level. Boundaries hold mixed-p
 
 ### Shipping Today
 
-| Provider | `source:` + `valuesMapping:` | `workload:` / `workloadFrom:` | `artifacts:` / `artifactsFrom:` |
+| Provider | `source:` + `valuesMapping:` | `workload:` | `artifacts:` |
 | --- | --- | --- | --- |
 | helm | ✅ Helm chart rendering via the Helm SDK | Not yet shipped — authoring contract frozen | ✅ standalone YAML files emitted under the boundary output directory |
 | helm-chart | ✅ Umbrella-chart composition | Not applicable | ✅ file-loaded only; injected at `templates/<basename>` with `[[ ]]` Aggrega delimiters; inline rejected at Recipe load |
@@ -512,7 +521,7 @@ Multi-provider composition happens at the Release level. Boundaries hold mixed-p
 
 *The following matrix describes the designed target shape when per-provider synthesis and the artifacts render path land. Every cell represents intended behavior of the shipping compiler; timing anchors appear where known.*
 
-| Provider | `source:` + `valuesMapping:` | `workload:` / `workloadFrom:` | `artifacts:` / `artifactsFrom:` |
+| Provider | `source:` + `valuesMapping:` | `workload:` | `artifacts:` |
 | --- | --- | --- | --- |
 | helm | ✅ Helm chart | ✅ synthesizes Deployment/StatefulSet + Services + PVCs + ConfigMap/Secret volume refs | ✅ Kubernetes YAML files |
 | helm-chart | ✅ umbrella chart | ❌ not applicable | ✅ file-loaded only; injected as pre-Helm templates |

@@ -5,7 +5,7 @@
 Features are modular operational behaviors attached to Components. The developer requests *what* they want (data masking). Ops decides *how* to implement it (a Lakera Guard sidecar via a Wasm pipeline).
 
 **1. Platform Catalog: The Feature Interface**
-The Feature uses `appliesToExpressions` to restrict which Components can receive it. The CUE schema defines the developer-facing configuration surface.
+The Feature uses `appliesToExpressions` to restrict which Components can receive it. The `schema:` block defines the developer-facing configuration surface.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -18,9 +18,11 @@ spec:
     - key: "component.aggrega.ai/type"
       operator: In
       values: ["server", "worker"]
-  cueSchema: |
-    values: { action: *"redact" | "tokenize" | "block" }
-    infra?: { sidecar_cpu_limit?: string }
+  schema:
+    values:
+      action: { type: string, enum: [redact, tokenize, block], default: redact }
+    infra:
+      sidecar_cpu_limit: { type: string }
 ```
 
 **2. Dev Domain: The Aggregate**
@@ -56,8 +58,9 @@ metadata:
   labels:
     component.aggrega.ai/type: "worker"
 spec:
-  cueSchema: |
-    values: { image: string }
+  schema:
+    values:
+      image: { type: string, required: true }
 ```
 
 **4. Ops Domain: The FeatureRecipe (Wasm Pipeline)**
@@ -156,8 +159,9 @@ spec:
     datastores:
       selector: "component.aggrega.ai/type=stateful-server"
       inject: ["env"]
-  cueSchema: |
-    values: { system_prompt: string }
+  schema:
+    values:
+      system_prompt: { type: string, required: true }
 ```
 
 **2. Platform Catalog: Features Using Advanced Selectors**
@@ -175,8 +179,9 @@ spec:
       operator: Exists                        # Matches any component with this label
   interoperability:
     conflictsWith: ["core/full-auto-mode"]    # Cannot coexist on same component
-  cueSchema: |
-    values: { max_tool_calls_per_turn: int | *5 }
+  schema:
+    values:
+      max_tool_calls_per_turn: { type: integer, min: 1, default: 5 }
 ```
 
 **3. Platform Catalog: Feature with `DoesNotExist` (Exclusion Pattern)**
@@ -195,8 +200,9 @@ spec:
       values: ["server", "worker"]
     - key: "model.aggrega.ai/capability"
       operator: DoesNotExist                  # Exclude local generative models
-  cueSchema: |
-    values: { strict_mode: bool | *true }
+  schema:
+    values:
+      strict_mode: { type: boolean, default: true }
 ```
 
 **4. Platform Catalog: Component with `requiredFeatures`**
@@ -214,8 +220,9 @@ metadata:
 spec:
   requiredFeatures:
     - "core/enterprise-audit-logger"
-  cueSchema: |
-    values: { merchant_id: string }
+  schema:
+    values:
+      merchant_id: { type: string, required: true }
 ```
 
 ---
@@ -237,8 +244,9 @@ spec:
     - key: "tool.aggrega.ai/impact"
       operator: In
       values: ["mutating"]
-  cueSchema: |
-    values: { channel: string }
+  schema:
+    values:
+      channel: { type: string, required: true }
 ```
 
 **2. Dev Domain: The Aggregate**

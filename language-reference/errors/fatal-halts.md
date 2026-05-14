@@ -190,12 +190,12 @@ Emitted message:
 
 **How to fix:** reconcile the two declarations. Aggregate-side and Release-side declarations of the same feature instance combine by pillar — Aggregate contributes `values`, Release contributes `infra`. If both sides specify the same non-pillar field (such as `type:`), the values must match; correct one side to match the other, or drop the redundant declaration.
 
-### `usesSchema` unification failure on `extends` chain
+### `usesSchema` composition failure on `extends` chain
 
-A Component or Feature declares `extends:` against a parent whose `usesSchema` cannot be unified with the child's `usesSchema` via CUE's `&` operator. CUE unification is monotonic — a child may narrow a parent's constraints but cannot widen them. Attempting to declare a looser socket type than the parent permits produces a unification failure.
+A Component or Feature declares `extends:` against a parent whose `usesSchema` cannot compose with the child's `usesSchema` under the monotonic-narrowing rule enforced by the publishing-discipline policy plugin. The rule: a child may narrow a parent's constraints (tighten an `enum:` set, shrink a numeric range, restrict a selector) but cannot relax them. Attempting to declare a looser socket type than the parent permits produces a composition failure.
 
 Emitted message:
-> usesSchema unification failed: child `<child-uri>` socket `<socket-name>` conflicts with parent `<parent-uri>`: `<unification-detail>`.
+> usesSchema composition failed: child `<child-uri>` socket `<socket-name>` conflicts with parent `<parent-uri>`: `<composition-detail>`.
 
 **How to fix:** either narrow the child's `usesSchema` entry to satisfy the parent's constraint, or change the inheritance direction if the child's shape is genuinely broader than the parent. Review the parent chain with `aggrega inspect` to see the resolved socket contract the child must satisfy.
 

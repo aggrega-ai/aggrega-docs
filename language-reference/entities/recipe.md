@@ -1,13 +1,13 @@
 # Recipe
 
-The conceptual role of the Recipe entity (the Ops-authored translation template that maps Developer Intent to a physical execution engine) lives in [architecture/04-eight-entity-taxonomy.md](../../architecture/04-eight-entity-taxonomy.md). This page covers the Recipe authoring surface — the pointer (`source`), the mapper (`valuesMapping` variants), native IaC support, and worked examples.
+The conceptual role of the Recipe entity (the Ops-authored translation template that maps Developer Intent to a physical execution engine) lives in [architecture/04-eight-entity-taxonomy.md](../../architecture/04-eight-entity-taxonomy.md). This page covers the Recipe authoring surface — the pointer (`source`), the mapper (`valuesMapping:`), native IaC support, and worked examples.
 
 ## The Recipe Architecture: Pointers and Mappers
 
 A Recipe serves exactly two functions:
 
 1. **The Pointer (`source`):** Tells the compiler exactly where the infrastructure code lives.
-2. **The Mapper (`valuesMapping` / `valuesMappingFile` / `valuesMappingJsonnet`):** Injects Aggrega's abstract context into the specific variables the underlying code expects. Ops can author mappings in Go templates (inline or file) for standard use cases, or in Jsonnet for complex transformations where Go template logic becomes unwieldy.
+2. **The Mapper (`valuesMapping`):** Injects Aggrega's abstract context into the specific variables the underlying code expects. The field is a single Go template surface with three authoring modes — inline block scalar, file `$import:`, or library `$import:` — dispatched by content shape. See [The `valuesMapping` field — three authoring modes](#the-valuesmapping-field--three-authoring-modes) below.
 
 Because a Recipe is strictly 1:1 with a physical execution engine, the `provider` is explicitly declared at the root level, ensuring the Go compiler knows exactly which downstream Wasm rendering plugin to invoke.
 
@@ -22,51 +22,76 @@ To guarantee predictable validation, Recipes should reference the exact version 
 
 ### B. Context Injection: The Semantic Mapping Layer
 
-To prevent the compiler from performing dangerous, non-deterministic deep-merges across multiple environments, a Recipe only allows a **single source of truth** for its mapping layer.
+To prevent the compiler from performing dangerous, non-deterministic deep-merges across multiple environments, a Recipe allows only a **single source of truth** for its mapping layer.
 
-Ops engineers author these mapping blocks to translate abstract context before Wasm plugins execute. The compiler supports two mapping languages: **Go text templates** (`{{ ... }}`) for standard use cases (the default, leveraging the existing Helm/Ops muscle memory and Sprig library) and **Jsonnet** for complex conditional nesting, array comprehensions, and multi-level object construction.
+Ops engineers author the mapping content to translate abstract context before the Wasm rendering plugin executes. The mapping language is Go template (text/template + Sprig); the Sprig library is pre-registered; standard `define` / `include` / `template` helpers are fully supported.
 
-| Field Name | Scope & Execution Phase | Best Use Case |
+| Field Name | Scope and Execution Phase | Best Use Case |
 | :--- | :--- | :--- |
 | **`injectMapping`** *(FeatureRecipe only)* | **Pre-Render Interception.** Evaluated in Go memory *before* the Base Recipe. Natively deep-merges its output dictionary strictly over the Caller's `.context.inject` pipe. Intentionally absent from the base `Recipe` schema — see [entities/featurerecipe](featurerecipe.md) for the architectural rationale. | Surgically rewriting injected `env` variables or formatting FQDNs for a caller without requiring Wasm JSONPatch. |
-| **`valuesMapping`** | **Base Rendering (Go Template).** Evaluated to map variables into the underlying `source` infrastructure chart/module. | Mapping standard variables (like replicas or image tags) into a Helm chart directly in the YAML. |
-| **`valuesMappingFile`** | **Base Rendering (Go Template).** Points to a single Go template mapping file inside the Recipe tarball (e.g., `./mappings/vars.yaml`). | Essential for large mapping payloads (multi-page Helm chart values, multi-chart bundles), keeping the root YAML clean. |
-| **`valuesMappingJsonnet`** | **Base Rendering (Jsonnet).** Points to a Jsonnet file inside the Recipe tarball (e.g., `./mappings/vars.jsonnet`). The compiler evaluates the Jsonnet program with the full Aggrega context injected via `std.extVar()`. | Complex mapping logic involving deep conditional nesting, array comprehensions, or multi-level object construction where Go templates become write-only code. |
+| **`valuesMapping`** | **Base Rendering (Go template).** Evaluated to map variables into the underlying `source` infrastructure chart/module. Single field, three authoring modes (inline, file `$import:`, library `$import:`). See the subsection below for the dispatch mechanism. | Mapping standard variables (like replicas or image tags) into a Helm chart directly in the Recipe YAML, or referencing a shared template via `$import:` for cross-Recipe reuse. |
 
-**Mapping Language Guidance:** `valuesMapping`, `valuesMappingFile`, and `valuesMappingJsonnet` are mutually exclusive — a Recipe must choose exactly one. Go templates are the recommended default: they leverage existing Helm/Ops muscle memory, the Sprig library is pre-registered, and standard `.tpl` helpers are fully supported. Jsonnet is the recommended alternative when the mapping logic exceeds ~20 lines of nested `{{ if }}` / `{{ range }}` blocks. Both languages produce identical output: a JSON/YAML dictionary consumed by the Provider Engine. The IR graph is unaffected by the choice — parallelism converges at the compiler boundary.
+*Note: `injectMapping` is exclusive to FeatureRecipes and isolates variable interception from `valuesMapping`. The Base Recipe's `valuesMapping` unknowingly consumes the rewritten `.context.inject` strings generated by FeatureRecipe `injectMapping` blocks, ensuring perfect decoupling.*
 
-*(Note: Naming it `valuesMappingFile` instead of `valueFiles` strictly reinforces the mental model: "This is a mapping layer, not a place to hardcode static passwords.")*
+### The `valuesMapping` field — three authoring modes
 
-*(Note: `injectMapping` is exclusive to FeatureRecipes and isolates variable interception from `valuesMapping`. The Base Recipe's `valuesMapping` unknowingly consumes the rewritten `.context.inject` strings generated by FeatureRecipe `injectMapping` blocks, ensuring perfect decoupling.)*
+A Recipe's `valuesMapping:` is a single Go template surface that accepts three dispatch modes. The compiler dispatches based on the field's content shape; no `$mode:` annotation is needed.
 
-**Jsonnet Evaluation Mechanics & Constraints**
+**Mode 1: Inline Go template (YAML block scalar).** The field's value is a string written in YAML block-scalar `|` form:
 
-When the compiler encounters a `valuesMappingJsonnet` file, it executes the Jsonnet program using an embedded pure-Go Jsonnet implementation. Jsonnet runs hermetically — no filesystem or network access from within the program by default — which aligns with the AOT compiler model.
-
-* **Context Injection via `std.extVar()`:** The Go compiler serializes the identical context object that Go templates receive (`.values`, `.infra`, `.context`, `.features`, `.locals`) as JSON strings and registers them as Jsonnet external variables. The Jsonnet program accesses them idiomatically:
-
-```jsonnet
-  local values = std.parseJson(std.extVar('values'));
-  local infra = std.parseJson(std.extVar('infra'));
-  local ctx = std.parseJson(std.extVar('context'));
-  
-  {
-    namespace: infra.namespace,
-    env: ctx.inject.env,
-    database: values.db_name,
-  }
+```yaml
+spec:
+  valuesMapping: |
+    {{- with .values -}}
+    image:
+      tag: {{ .image.tag | default "11.4.4-debian-12-r0" }}
+      pullPolicy: {{ .image.pullPolicy | default "IfNotPresent" }}
+    architecture: {{ .architecture | default "standalone" }}
+    primary:
+      replicaCount: {{ .primary.replicaCount | default 1 }}
+    {{- end }}
 ```
 
-* **Output Contract:** The Jsonnet program must evaluate to a single JSON object. The compiler treats this output identically to the rendered output of a Go template `valuesMapping`—it is fed directly to the Provider Engine for base AST rendering.
-* **Error Diagnostics:** Jsonnet produces stack traces with line numbers pointing to the exact failing expression, providing a meaningful DX improvement over Go template errors for complex mapping logic.
-* **Scope:** Jsonnet is available for `valuesMappingJsonnet` (Base Rendering). The `injectMapping` block uses Go templates. Inject mappings are typically short (5–10 lines of string formatting) and benefit from consistency with the Sprig-enriched Go template ecosystem.
+Inline mode is the typical authoring form for Recipes whose mapping content is small to medium (under ~50 lines). The template body sits inline with the rest of the Recipe envelope; the Recipe's content is self-contained.
+
+**Mode 2: File `$import:`.** The field's value is a map containing only `$import:` with a local file path:
+
+```yaml
+spec:
+  valuesMapping:
+    $import: ./mappings/api-server.tmpl
+```
+
+The compiler loads the file's content (a Go template), template-renders it against the standard Recipe template context, and treats the result as the mapping output. Path resolution is relative to the Recipe's directory. File mode suits medium-to-large mapping content (~50+ lines) and review patterns where mapping changes show up as standalone file diffs.
+
+**Mode 3: Library `$import:`.** The field's value is a map containing only `$import:` with an `oci://` URL referencing a MappingLibrary entry:
+
+```yaml
+spec:
+  valuesMapping:
+    $import: oci://hub.aggrega.ai/aggrega/bitnami-helpers@1.0.0#/mappings/MariaDBBitnamiCore
+```
+
+The compiler resolves the OCI URL through the catalog resolver (using the workspace's lockfile pinning), loads the MappingLibrary entry's content, and treats it as the mapping output. Library content shares the standard Recipe template context. Library mode suits cross-Recipe reuse — mapping patterns that recur across many Recipes (multiple datastore Recipes sharing Bitnami helper logic; multiple Helm-provider Recipes sharing pod-template patterns). The MappingLibrary entity provides versioning, OCI publishing, lockfile pinning, and hub-UI surfacing.
+
+**Dispatch rules.** The compiler walks the YAML node and dispatches by content shape:
+
+1. If the node is a string scalar, dispatch as inline mode (Mode 1).
+2. Otherwise the node is a map; check for `$import:` key.
+3. If the `$import:` value starts with `oci://`, dispatch as library mode (Mode 3).
+4. Otherwise dispatch as file mode (Mode 2).
+5. Any other shape (a map without `$import:`, a map with extra keys beyond `$import:`, etc.) produces a build-time error.
+
+**Single-source `$import:` only.** Per the unified file-import vocabulary, `$import:` accepts a single source. Multi-source merge is not supported at `valuesMapping:`. A Recipe needing to compose multiple mapping fragments uses a MappingLibrary entry with internal Go template `define` / `include` composition, a local file with Go template `template` directives invoking sibling files, or inline composition for short content. See [entities/mappinglibrary](mappinglibrary.md) for the library entity, [vocabulary/cross-document-ref](../vocabulary/cross-document-ref.md) for the broader `$ref:` / `$import:` distinction, and the file-import vocabulary discussion.
+
+**Provenance.** Error messages from template-rendering failures cite the appropriate provenance per mode: inline templates cite the Recipe's file:line where the block scalar begins; file imports cite the imported file's content; library imports cite the MappingLibrary entry's source position with the OCI URL as the canonical pointer for stable references.
 
 ### C. Native IaC Support & In-Memory Transpilation
 
 If an Ops team wants to bring their own Terraform or CloudFormation code, they simply bundle their raw `.tf` (HCL) or `.yaml` files into a `src/` directory inside the Recipe package. To bridge this human-readable code with the Wasm JSONPatch security plugins and rendering sockets, the compiler uses a transparent transpilation pipeline:
 
 1. **Parse:** The compiler reads the raw files into an in-memory representation.
-2. **Inject:** It evaluates the mapping layer (`valuesMapping`, `valuesMappingFile`, or `valuesMappingJsonnet`) to inject the abstract context (e.g., mapping `{{ .values.storage_size }}` or `std.extVar('values').storage_size` to `TF_VAR_db_size`).
+2. **Inject:** It evaluates the mapping layer (`valuesMapping:` — inline, file-import, or library-import) to inject the abstract context (e.g., mapping `{{ .values.storage_size }}` to `TF_VAR_db_size`).
 3. **Patch:** The Wasm plugins execute their surgical JSONPatch operations (like injecting an Envoy sidecar or an IAM policy) directly against the in-memory object.
 4. **Output:** The compiler passes the finalized in-memory JSON to the corresponding Wasm rendering socket (e.g., `terraform-renderer.wasm`), which serializes the object and outputs a deployment-ready `main.tf.json` or `template.json` string to be written to the target destination.
 
