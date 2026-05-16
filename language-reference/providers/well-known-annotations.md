@@ -64,11 +64,11 @@ Provider engines read specific boundary annotations from the Release to configur
 > for standard-library shortcuts or a custom domain for enterprise
 > shortcuts.
 >
-> Note: explicit `null` on a Release annotation does not currently
-> remove an inherited Feature attachment from annotation-driven
-> expansion. The opt-out semantics ship in a follow-up implementation
-> pass; until then, omit the annotation key entirely from the
-> overriding component to avoid inheriting a binding.
+> Note: explicit `null` on a Release annotation removes the inherited
+> binding from the overriding boundary or component (annotation-driven
+> Feature opt-out). Sibling components in the same boundary that did
+> not opt out retain the inherited binding; absent keys continue to
+> inherit from the parent cascade as normal.
 
 ## Provenance labels emitted by providers
 
