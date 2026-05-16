@@ -147,8 +147,80 @@ spec:
             aggrega.ai/namespace: legacy-zone   # override — this component deploys elsewhere
 ```
 
+## Aggregate-side annotation cascade
+
+Annotations also live on the Aggregate authoring surface — at the subsystem scope (`spec.subsystems.<name>.annotations`) and at the component-instance scope (`spec.subsystems.<name>.components.<name>.annotations` or `spec.components.<name>.annotations` for top-level components). The Aggregate-side cascade carries Developer-authored annotations down through the subsystem tree to contained components.
+
+### The cascade rule
+
+A subsystem-level annotation propagates to every nested subsystem and every contained component in the subsystem's subtree. Closer-level annotations override outer-level annotations at per-key granularity: a component-level annotation overrides any inherited subsystem-level annotation for the same key without affecting sibling keys or sibling components.
+
+Annotation values carry pointer-tristate semantics:
+
+- **Absent key** — the scope declares no value for this annotation. Nested subsystems and contained components inherit any binding from an ancestor scope.
+- **Non-nil pointer (a string value)** — the scope declares a value. Nested subsystems and contained components inherit this value unless they declare their own value or opt out.
+- **Nil pointer (explicit YAML `null`)** — the scope removes any inherited binding for this key from its subtree. Sibling components and siblings subsystems retain their independent inheritance; only the opting-out scope's subtree loses the binding.
+
+```yaml
+spec:
+  subsystems:
+    data:
+      annotations:
+        feature.myco/db-pool: "shared-pool"   # propagates to api and worker
+      components:
+        api:
+          # inherits feature.myco/db-pool: "shared-pool"
+        worker:
+          annotations:
+            feature.myco/db-pool: null         # opts out for this component only
+        special:
+          annotations:
+            feature.myco/db-pool: "vip-pool"   # closer-level override
+```
+
+### The side-vs-pillar partition
+
+The Aggregate-as-Authoring-Surface invariant restricts Aggregate-side annotations to the values pillar. A Manifest annotation binding declares routing paths under either `maps.infra` (Release-side routing) or `maps.values` (Aggregate-side routing); an Aggregate-side annotation whose binding declares only `maps.infra` paths halts the build with a clear OPS_ERROR naming the annotation key, the routed pillar, and the authoring side. The symmetric rule applies to the Release side: Release-side annotations may only route through `maps.infra`; a Release-side annotation against a values-only binding fires the parallel error.
+
+Bindings that declare paths in both pillars route the side-compatible subset on each pass: an Aggregate-side annotation fires the values-pillar paths only, and a Release-side annotation fires the infra-pillar paths only. Cross-side composition — values from the Aggregate, infra from the Release — produces one Feature attachment per (Component, Feature) pair with both pillars populated and per-leaf provenance recording which side contributed each leaf.
+
+### Authoring example — subsystem annotation routes to values
+
+```yaml
+# Manifest binding
+spec:
+  mappings:
+    features:
+      type:
+        core/db-pool: db-pool-helm:1.0.0
+      annotations:
+        feature.myco/db-pool:
+          feature: core/db-pool:1.0.0
+          maps:
+            values:
+              - pool                            # routes to values.pool
+```
+
+```yaml
+# Aggregate
+spec:
+  subsystems:
+    data:
+      annotations:
+        feature.myco/db-pool: "shared-pool"
+      components:
+        api:
+          type: core/server:1.0.0
+        worker:
+          type: core/server:1.0.0
+```
+
+After annotation expansion, both `api` and `worker` carry a synthetic `feature.myco/db-pool` Feature attachment whose `values.pool` field reads `"shared-pool"`. The provenance side-table records each leaf as `Origin: annotation`, `Side: aggregate`, `AnnotationSource: aggregate.yaml:subsystems.data.annotations.feature.myco/db-pool`.
+
 ## Related references
 
 - [Provider architecture](architecture.md) — the provider-plugin architecture and the Provider entity's role.
 - [../entities/release.md](../entities/release.md) — the Release authoring surface where boundary and component annotations live.
+- [../entities/aggregate.md](../entities/aggregate.md) — the Aggregate authoring surface where subsystem and component-level annotations live.
+- [../entities/manifest.md](../entities/manifest.md) — the Manifest's `mappings.features.annotations` map where annotation bindings declare their `maps:` routing.
 - [../../architecture/11-governance-and-compliance.md](../../architecture/11-governance-and-compliance.md) — the compile-time provenance stamping story that complements author-controlled annotations.

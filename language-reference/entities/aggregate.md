@@ -167,6 +167,45 @@ After Step 1 completes, the `parameters` pillar no longer exists as a live conte
 
 For the broader parameter-hoisting checklist (Aggregate declaration → values reference → Release fulfilment → Recipe consumption) and the cross-pillar mechanics, see [`vocabulary/data-pillars.md`](../vocabulary/data-pillars.md) §"Parameters" and §"The parameter-hoisting checklist". For the template-context fields exposed during Step 1 interpolation, see [`templates/parameters-context.md`](../templates/parameters-context.md).
 
+## Annotations on subsystems and components
+
+Subsystems and component instances both carry an `annotations:` field. Developer-authored annotations on the Aggregate surface drive the Aggregate-side annotation cascade — a subsystem annotation propagates to every nested subsystem and every contained component, with closer-level overrides at per-key granularity. The Manifest's `mappings.features.annotations` map declares the bindings that translate annotation keys into synthetic Feature attachments at build time. The Aggregate-as-Authoring-Surface invariant restricts these annotations to routing through the binding's `maps.values` paths; a binding declaring only `maps.infra` paths fires from the Release side, not from the Aggregate side.
+
+### Pointer-tristate semantics
+
+Each annotation value carries one of three states, distinguishing "I'm silent" from "I declare a value" from "I opt out":
+
+* **Absent key** — the scope declares no value for this annotation. Nested subsystems and contained components inherit any binding from an ancestor scope.
+* **Non-nil pointer (a string value)** — the scope declares a value. Nested subsystems and contained components inherit this value unless they declare their own or opt out.
+* **Nil pointer (explicit YAML `null`)** — the scope removes any inherited binding for this key from its subtree. Sibling components and sibling subsystems retain their inheritance; only the opting-out scope loses the binding.
+
+```yaml
+spec:
+  subsystems:
+    data:
+      annotations:
+        feature.myco/db-pool: "shared-pool"   # propagates to api and worker
+      components:
+        api:
+          # inherits feature.myco/db-pool: "shared-pool"
+        worker:
+          annotations:
+            feature.myco/db-pool: null         # opts out for this component only
+        special:
+          annotations:
+            feature.myco/db-pool: "vip-pool"   # closer-level override
+```
+
+### Per-key independence
+
+Each annotation key inherits, overrides, and opts out independently. A component declaring `annotations.feature.myco/db-pool: null` opts out only of that key; other keys inherited from the enclosing subsystem continue to propagate to that component. Sibling components in the same subsystem retain their own annotation maps independently — one component's opt-out does not affect siblings.
+
+### Top-level component annotations
+
+Top-level components (declared directly under `spec.components` rather than inside a subsystem) carry no inherited cascade. Their `annotations:` field declares values directly on the component scope; expansion synthesises Feature attachments from each declared annotation that the Manifest carries a matching binding for.
+
+For the Aggregate-side cascade rule applied to bindings, the side-vs-pillar partition, and a worked end-to-end example showing the bindings translating annotations into synthetic Feature attachments, see [providers/well-known-annotations.md](../providers/well-known-annotations.md) §"Aggregate-side annotation cascade".
+
 ## YAML anchor patterns (`defs:` block)
 
 The Aggregate schema accepts an optional root-level `defs:` block — a list of YAML strings used purely as a host for standard YAML anchors (`&anchor`) and references (`*anchor`). The block's contents are never read by the compiler; it exists so authors can declare anchor definitions in one place and reference them across the rest of the Aggregate, keeping repeated values DRY without losing the flat O(1) dictionary the compiler iterates. The mechanism mirrors the equivalent `defs:` block on the Manifest entity.

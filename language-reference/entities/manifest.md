@@ -101,23 +101,9 @@ The capability handshake uses the same flat-URI mapping:
 
 ### Annotation-driven Feature bindings
 
-The Manifest's `features.annotations` block declares bindings between annotation keys and Feature types plus their `infra:` schemas. The binding is the authoring surface for compressing repetitive per-component Feature attachments — the pattern where dozens of components across a boundary each carry an identical `features:` block — into single annotation declarations on Release boundaries or Aggregate subsystems.
+The Manifest's `features.annotations` block declares bindings between annotation keys and Feature types plus the routing paths each binding sends the annotation value through. The binding is the authoring surface for compressing repetitive per-component Feature attachments — the pattern where dozens of components across a boundary each carry an identical `features:` block — into single annotation declarations on Release boundaries or Aggregate subsystems.
 
-```yaml
-spec:
-  mappings:
-    features:
-      type:
-        core/tls-pinning: core/helm/tls-pinning-istio:1.0.0
-      annotations:
-        feature.aggrega.ai/tls-pinning:
-          feature: core/tls-pinning
-          infra:
-            min_version: { type: string }
-            enforce: { type: boolean, default: true }
-```
-
-The annotation-expansion sub-mechanism is currently **`accepted but inert`** — the schema accepts and parses the bindings; the compiler pass that synthesises per-component Feature attachments from matching annotations is not yet wired into the build pipeline. Manifests may author annotation bindings against this schema today; the attachment expansion will engage when the pass ships. Today's behaviour: annotation bindings are parsed without effect on rendered output. See [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases) for the current readiness state.
+The full binding shape, the side-vs-pillar partition that governs which authoring surface can use which routing paths, the explicit-attachment-wins discipline, and the schema-defaults rule live in the dedicated [Annotation-Driven Feature Bindings](#annotation-driven-feature-bindings-1) section below.
 
 ## Composition via `extends`
 
@@ -157,9 +143,7 @@ The Aggrega compiler utilizes **Context-Aware Inference** when resolving OCI URI
 
 ## Annotation-Driven Feature Bindings
 
-The Manifest's `features.annotations` block declares bindings between annotation keys and Feature types plus `infra:` schema fragments. The binding is the authoring surface for compressing repetitive per-component Feature attachments — the pattern where dozens of components across a boundary each carry an identical `features:` block — into single annotation declarations on Release boundaries or Aggregate subsystems.
-
-*Annotation-triggered expansion — translating matching boundary or subsystem annotations into per-component synthetic Feature attachments at build time — is the intended consumer of these bindings. The binding shape is frozen at the schema layer today; the compiler pass that performs the expansion is under active development and not yet wired into the build pipeline. Manifests may author bindings against this schema now; attachment expansion will engage when the pass ships.*
+The Manifest's `features.annotations` block declares bindings between annotation keys and Feature types plus the routing paths each binding sends the annotation value through. The binding is the authoring surface for compressing repetitive per-component Feature attachments — the pattern where dozens of components across a boundary each carry an identical `features:` block — into single annotation declarations on Release boundaries or Aggregate subsystems.
 
 **Schema shape:**
 
@@ -168,28 +152,38 @@ spec:
   mappings:
     features:
       type:
-        core/tls-pinning: core/helm/tls-pinning-helm:1.0.0
-        core/data-masking: core/helm/lakera-guard-sidecar:1.0.0
+        core/rewrite-host: core/helm/rewrite-host-helm:1.0.0
+        core/db-pool: core/helm/db-pool-helm:1.0.0
 
       annotations:
-        feature.aggrega.ai/tls-pinning:
-          feature: core/tls-pinning
-          infra:
-            min_version: { type: string }
-            enforce: { type: boolean, default: true }
+        feature.aggrega.ai/rewrite-host:
+          feature: core/rewrite-host
+          maps:
+            infra:
+              - upstream                  # Release-side: routes annotation value into infra.upstream
 
-        feature.aggrega.ai/data-masking:
-          feature: core/data-masking
-          infra:
-            action: { type: string, default: "redact" }
-            scope: { type: string, default: "all" }
+        feature.aggrega.ai/db-pool:
+          feature: core/db-pool
+          maps:
+            values:
+              - pool                      # Aggregate-side: routes annotation value into values.pool
 ```
 
-The `feature` field references a Feature type that must also appear in the sibling `features.type` section (which is where the FeatureRecipe version binding lives). The `infra` block is a JSON Schema 2020-12 fragment (compact-form or full JSON Schema) that validates the annotation value's argument structure. Provider polymorphism for the same annotation key — e.g., `feature.aggrega.ai/rewrite-host` binding to `core/k8s-dns-resolver` in a Kubernetes deployment but to `core/compose-bridge` in a local Compose deployment — is expressed by choosing different Feature types in different Manifests; each Manifest binds the annotation to one Feature, and the chosen Feature's FeatureRecipe carries the provider-specific implementation.
+A binding carries a `feature` field naming the target Feature type and a `maps` block grouping dotted-path subkey routes by target pillar. The `feature` field references a Feature type that must also appear in the sibling `features.type` section (which is where the FeatureRecipe version binding lives). The `maps` block declares two pillar-keyed lists — `maps.infra` and `maps.values` — each carrying dotted-path strings that point into the target Feature's `spec.schema.<pillar>.<path>` properties. A binding must declare at least one path across the two lists (the JSON Schema enforces `minProperties: 1` on `maps`).
 
-**Explicit attachment wins on key collision.** When a Release component carries both an explicit `features:` entry and an annotation that expands to the same Feature key, the explicit entry is preserved and the annotation expansion for that key on that component is a no-op. The synthetic attachment never overwrites an author-declared `BoundaryFeature`. Authors can therefore use annotation expansion for the bulk of components in a boundary and surgically override individual components by writing an explicit `features:` entry with the same key — the explicit entry carries the per-component customization, the annotation cascades to every other component in the boundary unchanged.
+Provider polymorphism for the same annotation key — e.g., `feature.aggrega.ai/rewrite-host` binding to `core/k8s-dns-resolver` in a Kubernetes deployment but to `core/compose-bridge` in a local Compose deployment — is expressed by choosing different Feature types in different Manifests; each Manifest binds the annotation to one Feature, and the chosen Feature's FeatureRecipe carries the provider-specific implementation.
 
-**Schema defaults at expansion time.** The synthetic Feature attachment produced by annotation expansion carries only the fields the author populated through the annotation value (one field for a scalar value; zero fields for an empty-string value). Schema defaults declared in the binding's `infra:` block are not merged into the synthetic attachment at expansion time. Default-value materialization is the FeatureRecipe rendering layer's responsibility, applied uniformly to explicit and synthetic attachments so the two paths produce the same downstream output for the same effective configuration.
+**The side-vs-pillar partition.** The Aggregate-as-Authoring-Surface invariant restricts each authoring side to one pillar's routing paths. Aggregate-side annotations route only through `maps.values` paths; Release-side annotations route only through `maps.infra` paths. A binding declaring paths in both pillars supports cross-side composition: an Aggregate-side annotation fires the values-pillar subset; a Release-side annotation against the same key fires the infra-pillar subset; both contributions compose into one Feature attachment per (Component, Feature) pair with both pillars populated. A side-vs-pillar mismatch — e.g., an Aggregate-side annotation against a binding declaring only `maps.infra` — halts the build with a clear OPS_ERROR naming the annotation key, the routed pillar, the authoring side, and the source location.
+
+**Path-target validation.** At catalog load, the compiler verifies that every dotted path declared under `maps.infra` and `maps.values` corresponds to a property the target Feature's `spec.schema.<pillar>` actually declares. A binding routing to a path the Feature schema does not list halts catalog load with a clear OPS_ERROR. Schema shapes that escape simple property-walk (`$ref`, `patternProperties`, `oneOf` / `anyOf` / `allOf` composition) terminate the static check at that branch and let downstream schema validation catch any mismatch.
+
+**Scalar values and the unambiguous-routing rule.** Annotation values are scalars at this layer. A scalar paired with a binding declaring exactly one path across both pillars routes the value to that single path. A scalar paired with a binding declaring more than one path is ambiguous routing and halts the build with a clear OPS_ERROR; authors who need multi-path routing declare separate annotation keys, one per path.
+
+**Explicit attachment wins on key collision.** When a Release component or Aggregate component carries both an explicit `features:` entry and an annotation that expands to the same Feature key, the explicit entry is preserved and the annotation expansion for that key on that component is a no-op. The synthetic attachment never overwrites an author-declared Feature instance. Authors can therefore use annotation expansion for the bulk of components and surgically override individual components by writing an explicit `features:` entry with the same key — the explicit entry carries the per-component customization, the annotation cascades to every other component unchanged.
+
+**Per-leaf explicit-wins on cross-side composition.** When an explicit attachment and an annotation contribution both populate the same Feature instance but write to different leaves, both contributions stand and the resulting Feature carries both leaves with per-leaf provenance recording each leaf's source. When an explicit attachment and an annotation contribution target the same leaf within the same pillar, the explicit contribution wins and the IR records the suppressed annotation provenance as an override marker on that leaf. Catalog load surfaces this override at build time via an advisory lint warning naming the suppressed annotation key + source.
+
+**Schema defaults at expansion time.** The synthetic Feature attachment produced by annotation expansion carries only the leaves the annotation value populates through the binding's declared paths. Schema defaults declared on the target Feature's `spec.schema` are not merged into the synthetic attachment at expansion time. Default-value materialization is the FeatureRecipe rendering layer's responsibility, applied uniformly to explicit and synthetic attachments so the two paths produce the same downstream output for the same effective configuration.
 
 **Annotation namespace separation:**
 

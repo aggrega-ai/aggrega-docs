@@ -113,6 +113,14 @@ The compiler's template context exposes the Feature's instance state to the boun
 
 This scope separation makes Features composable: an `autoscaler` Feature does not depend on which Component it attaches to; its `schema:` describes the autoscaling intent regardless of host. The host Component's `values:` are the host's concern; the Feature's `values:` are the Feature's concern; the two pillars compose without leaking field names across the boundary.
 
+## Annotation-binding targets
+
+A Feature does not declare annotation bindings itself; the Manifest's `mappings.features.annotations` map carries them. A Feature participates in the binding relationship indirectly as the routing target: each binding names a Feature type via its `feature:` field, and the binding's `maps.infra` and `maps.values` lists declare dotted paths into the named Feature's `spec.schema.infra.<path>` and `spec.schema.values.<path>` properties.
+
+At catalog load, the compiler verifies that every dotted path in a binding's `maps` lists corresponds to a property the target Feature's `spec.schema` actually declares at the named pillar. A binding routing to a path the Feature schema does not declare halts catalog load with a clear OPS_ERROR. Schema authors therefore know that any property they declare under `spec.schema.values.<path>` or `spec.schema.infra.<path>` is reachable as a binding target; conversely, any property a Manifest binding routes through must exist on the target Feature's schema.
+
+When an Aggregate-side or Release-side annotation matches a binding, the compiler synthesizes a Feature attachment whose pillar payloads route the annotation value into the named paths. The synthesized attachment is structurally indistinguishable from an explicit author-declared Feature attachment at the same site; downstream rendering, validation, and the FeatureRecipe template context all consume both shapes uniformly. For the binding shape, the side-vs-pillar partition, and the explicit-attachment-wins discipline, see [entities/manifest.md](manifest.md) §"Annotation-Driven Feature Bindings". For the Aggregate-side cascade rule and authoring example, see [providers/well-known-annotations.md](../providers/well-known-annotations.md) §"Aggregate-side annotation cascade".
+
 ## The `assertions:` block
 
 `Feature.spec.assertions:` is an optional Go template body that expresses **architectural invariants of the Feature contract** — cross-field rules over the Feature's `values:` and the attached Component's resolved state. The compiler evaluates the template after schema validation and before the bound FeatureRecipe renders; a failing assertion halts the build with the assertion's specific error message.
