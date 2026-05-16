@@ -2,10 +2,10 @@
 
 ## Example 4: The Parallel Namespace — Separating Logic from Physics
 
-The Architect enforces structural separation: Developers control cognitive `values`, Ops controls physical `infra`. They cannot step on each other's fields.
+The Architect enforces structural separation: the Developer controls cognitive `values`, the Operator controls physical `infra`. They cannot step on each other's fields.
 
 **1. Platform Catalog: The Component with `infra`**
-The `schema:` declaration covers both `values` (Developer) and `infra` (Ops) as separate namespaces. The Aggregate schema bans developers from writing `infra`; the Release schema bans Ops from writing `values`.
+The `schema:` declaration covers both `values` (Developer's domain) and `infra` (Operator's domain) as separate namespaces. The Aggregate schema bans Developers from writing `infra`; the Release schema bans Operators from writing `values`.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -46,7 +46,7 @@ spec:
 ```
 
 **3. Routing Domain: The Release**
-Ops injects physical sizing via the `infra` block on the component inside the boundary. The compiler passes `.values` and `.infra` as two cleanly separated objects to the Recipe.
+The Operator injects physical sizing via the `infra` block on the component inside the boundary. The compiler passes `.values` and `.infra` as two cleanly separated objects to the Recipe.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1

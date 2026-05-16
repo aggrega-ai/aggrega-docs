@@ -63,7 +63,7 @@ The compiler resolves the `schema:` block — expanding compact form, dereferenc
 
 ## The `infra` Pillar
 
-The Component schema separates three pillars by ownership: `values` is filled by the Developer in the Aggregate (cognitive intent — database name, version, charset), `infra` is filled by Ops in the Release (operational sizing — compute, storage, HA, backup), and `provides` is set by the Recipe (the public API contract — host, port, protocol). The Developer never sees `infra`; the Ops engineer never sees `values`. Recipes consume both during Phase B rendering, mapping the abstract pillars into the concrete shape their target provider expects.
+The Component schema separates three pillars by ownership: `values` is filled by the Developer in the Aggregate (cognitive intent — database name, version, charset), `infra` is filled by the Operator in the Release (operational sizing — compute, storage, HA, backup), and `provides` is set by the Recipe (the public API contract — host, port, protocol). The Developer never sees `infra`; the Operator never sees `values`. Recipes consume both during Phase B rendering, mapping the abstract pillars into the concrete shape their target provider expects.
 
 Three `infra` conventions matter across every provider-agnostic Component in the standard library: an open-struct escape hatch for provider-specific knobs, an optional override for the upstream artifact version, and an intent-based vocabulary for high-availability fields. The canonical reference Component is [`core/database/mariadb`](../../../aggrega-hub/aggrega-catalog/component/core/database/mariadb.yaml) — implementable by Helm Recipes against the Bitnami chart, Terraform Recipes against AWS RDS, CloudFormation Recipes against the same RDS surface, and Compose Recipes against a local container — and its `infra` block illustrates all three patterns.
 
@@ -82,7 +82,7 @@ infra:
     additionalProperties: true   # genuinely open map: arbitrary nested structure permitted
 ```
 
-The explicit `type: object` with `additionalProperties: true` opts into the open-map semantic. The compiler pipes the structure through untouched; the Recipe's template body reads whichever keys it knows about and ignores the rest. Each Recipe documents the override-key ontology in its header comment, so an Ops engineer authoring a Release for a specific Component × Recipe combination knows what knobs the Recipe exposes.
+The explicit `type: object` with `additionalProperties: true` opts into the open-map semantic. The compiler pipes the structure through untouched; the Recipe's template body reads whichever keys it knows about and ignores the rest. Each Recipe documents the override-key ontology in its header comment, so an Operator authoring a Release for a specific Component × Recipe combination knows what knobs the Recipe exposes.
 
 A Release fragment using overrides:
 
@@ -102,7 +102,7 @@ components:
             repository: bitnamilegacy/mysqld-exporter
 ```
 
-The Developer never sees `overrides` — it lives in the Release, which is the Ops domain.
+The Developer never sees `overrides` — it lives in the Release, which is the Operator's domain.
 
 ### `infra.source_version`
 

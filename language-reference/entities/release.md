@@ -34,8 +34,8 @@ Five practical patterns drive `environment:` authoring:
 
 Two structural guarantees protect the Aggregate as the Single Source of Truth:
 
-* **`values:` is forbidden.** To protect the Aggregate as the Single Source of Truth, the Release schema mechanically bans a `values:` block — Ops cannot declare `values` on any Component, Feature, or Secret from a Release. Per-environment variation of developer-facing values flows through **Parameter Hoisting**: the Developer exposes a typed `parameters.*` field in the Aggregate, the Component's `values` template references it, and the Release fulfills the parameter for its environment. See [architecture/06-data-taxonomy-and-composition.md §8 Constraint 4](../../architecture/06-data-taxonomy-and-composition.md) for the schema-level ban stated explicitly.
-* **`extends` + `aggregate:` is rejected.** To prevent untraceable "aggregate-mutating" deployments, when a Release uses `extends`, declaring an `aggregate` pointer is rejected by the Release schema. The child release must map to the exact same Developer Intent as its parent. The `manifest`, however, becomes optional, unlocking "Late Binding" — allowing Ops to inherit the entire physical topology but surgically swap the dependency lockfile.
+* **`values:` is forbidden.** To protect the Aggregate as the Single Source of Truth, the Release schema mechanically bans a `values:` block — the Operator cannot declare `values` on any Component, Feature, or Secret from a Release. Per-environment variation of Developer-facing values flows through **Parameter Hoisting**: the Developer exposes a typed `parameters.*` field in the Aggregate, the Component's `values` template references it, and the Release fulfills the parameter for its environment. See [architecture/06-data-taxonomy-and-composition.md §8 Constraint 4](../../architecture/06-data-taxonomy-and-composition.md) for the schema-level ban stated explicitly.
+* **`extends` + `aggregate:` is rejected.** To prevent untraceable "aggregate-mutating" deployments, when a Release uses `extends`, declaring an `aggregate` pointer is rejected by the Release schema. The child release must map to the exact same Developer Intent as its parent. The `manifest`, however, becomes optional, unlocking "Late Binding" — allowing the Operator to inherit the entire physical topology but surgically swap the dependency lockfile.
 
 ## Boundaries and Flat Release
 
@@ -86,7 +86,7 @@ Annotations cascaded by this mechanism surface in downstream Recipe templates vi
 
 ## Temporal Sequencing — per-boundary `syncWave`
 
-Each boundary in the Release optionally declares an integer `syncWave:` field, giving Ops explicit control over deployment order without touching the Developer's Aggregate. The wave number is a property of the boundary itself; every component contained in the boundary's subtree inherits its boundary's wave value when artifacts emit.
+Each boundary in the Release optionally declares an integer `syncWave:` field, giving the Operator explicit control over deployment order without touching the Developer's Aggregate. The wave number is a property of the boundary itself; every component contained in the boundary's subtree inherits its boundary's wave value when artifacts emit.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1

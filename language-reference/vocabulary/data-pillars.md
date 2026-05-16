@@ -9,7 +9,7 @@ Aggrega entities carry seven named data pillars. Five participate in the IR data
 | Pillar | Lives on | Lifecycle | Role |
 | --- | --- | --- | --- |
 | `values` | Aggregate component / feature / secret instances | Live through Step 5 | Developer-authored cognitive payload |
-| `infra` | Release component / boundary / feature / secret instances | Live through Step 5 | Ops-authored physical sizing |
+| `infra` | Release component / boundary / feature / secret instances | Live through Step 5 | Operator-authored physical sizing |
 | `provides` | Recipe `provides:` block | Live through Step 5 (derived pillar — see below) | Recipe-computed public output strings the topology pipe consumes |
 | `uses` | Aggregate component / feature instances | Live through Step 5 | Topological edges to other components / features |
 | `secrets` | Component `secretsSchema` declarations + four authoring surfaces (Aggregate / Recipe / Workload / FeatureRecipe) — see "Secrets pillar" below | Live through Step 5 | Credential pillar with four parallel authoring surfaces |
@@ -24,18 +24,18 @@ The pillar-walls-vs-signposts question resolves with **signposts**: the template
 
 Cross-pillar reads from a Recipe template are unrestricted at every site that allows the full TemplateContext. Authoring discipline expects authors to:
 
-- Read `.values` for cognitive payload (developer-authored intent).
-- Read `.infra` for physical sizing (Ops-authored sizing).
+- Read `.values` for cognitive payload (Developer-authored intent).
+- Read `.infra` for physical sizing (Operator-authored sizing).
 - Read `.context.uses[].provides.<key>` for cross-component pointer strings (the topology triad's data flow).
 - Read `.context.inject` for the post-hydration delivery pipe (assembled from inject sources across `component.inject`, `uses[].inject`, and FeatureRecipe `injectMapping` interceptions).
 
-The discipline is **signposts**, not walls. A Recipe template that reads `.infra.replicas` to drive a `values:` field works; the template engine does not gate the read. The architecture's framing is that pillar boundaries describe *authoring intent* — who owns the data — rather than *runtime restriction*. Conventions match the four-domain split: developer-authored values come from `.values`; Ops-authored sizing comes from `.infra`; cross-component coordinates come from the topology pipe.
+The discipline is **signposts**, not walls. A Recipe template that reads `.infra.replicas` to drive a `values:` field works; the template engine does not gate the read. The architecture's framing is that pillar boundaries describe *authoring intent* — who owns the data — rather than *runtime restriction*. Conventions match the four-domain split: Developer-authored values come from `.values`; Operator-authored sizing comes from `.infra`; cross-component coordinates come from the topology pipe.
 
 When a deliberate cross-pillar bridge is needed — e.g., a Component's `schema:` exposes a developer-facing dial that the Recipe's `valuesMapping:` template pipes into Ops-side `infra:`-shaped output per [vocabulary/inheritance-and-interface.md](inheritance-and-interface.md) — the architecture treats the bridge as a signposted exception. See "Cross-pillar mechanics" below.
 
 ## Values
 
-The `values:` pillar carries developer-authored cognitive payload — the configuration the developer dictates per component instance. The Component's `schema:` declares the values shape; the developer's Aggregate populates concrete values per instance.
+The `values:` pillar carries Developer-authored cognitive payload — the application-shape parameters the Developer dictates per component instance. The Component's `schema:` declares the values shape; the Developer's Aggregate populates concrete values per instance. This is the Developer's domain.
 
 **Authored at:**
 
@@ -54,7 +54,7 @@ The `values:` pillar carries developer-authored cognitive payload — the config
 
 ## Infra
 
-The `infra:` pillar carries Ops-authored physical sizing — replicas, resource requests, IOPS limits, region pinning, machine class. It expresses *where and how big*, complementing values' *what and how it behaves*.
+The `infra:` pillar carries Operator-authored physical sizing — replicas, resource requests, IOPS limits, region pinning, machine class. It expresses *where and how big*, complementing values' *what and how it behaves*. This is the Operator's domain.
 
 ### Four authoring surfaces
 
@@ -67,7 +67,7 @@ Authors encounter `infra:` at four distinct surfaces, each with different scope 
 | 3 | Release boundary `features.<id>.infra:` | Per-feature-attachment under that boundary | Same precedence as 2 — feature-attachment-scoped |
 | 4 | Release boundary `components.<id>.features.<id>.infra:` (and equivalent for `secrets`) | Per-attachment-on-component | Highest specificity — overrides surfaces 1-3 for that exact attachment |
 
-Surfaces 1 and 2 are the most-authored pair: an Ops engineer declares boundary-level defaults (e.g., `replicas: 3` for production) and overrides per-component where a specific instance needs different sizing. Surfaces 3 and 4 cover Feature-attachment sizing — Features carry their own infra payload that the FeatureRecipe consumes when synthesising sidecars or per-Feature resources.
+Surfaces 1 and 2 are the most-authored pair: an Operator declares boundary-level defaults (e.g., `replicas: 3` for production) and overrides per-component where a specific instance needs different sizing. Surfaces 3 and 4 cover Feature-attachment sizing — Features carry their own infra payload that the FeatureRecipe consumes when synthesising sidecars or per-Feature resources.
 
 ### "Infra primarily localized" — the rule with exceptions
 
