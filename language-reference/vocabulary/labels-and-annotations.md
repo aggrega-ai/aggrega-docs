@@ -13,7 +13,7 @@ Authors encounter labels and annotations on six distinct surfaces. Each carries 
 | 3 | Component `metadata.annotations` | Per-Component-instance traits authored by the Architect | Cascades into IR per-node `.context.annotations.catalog` bucket | `policy-validator.wasm` (intrinsic-trait policies), Recipe template logic |
 | 4 | Aggregate / Subsystem `annotations:` | Aggregate-side cognitive metadata | Cascades into IR per-node `.context.annotations.aggregate` bucket | Recipe `valuesMapping:` for cognitive routing |
 | 5 | Release boundary `annotations:` | Ops-side physical metadata, including `aggrega.ai/*` well-known annotations | Cascades into IR per-node `.context.annotations.release` bucket | Provider engines (helm reads `aggrega.ai/namespace`; compose derives network name from same key); FeatureRecipe `injectMapping:` for cross-boundary routing |
-| 6 | Manifest `features.annotations` bindings | Annotation-key → Feature-type binding for annotation-driven Feature attachment | Reserved for the annotation-driven expansion pass (`accepted but inert` per [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases)) | (planned) annotation-driven expansion |
+| 6 | Manifest `features.annotations` bindings | Annotation-key → Feature-type binding with pillar-grouped subkey routing (`maps.infra` / `maps.values`) for annotation-driven Feature attachment | Step 1 annotation-expansion sub-phase walks Release boundaries (outer-to-inner) and Aggregate subsystems (outer-to-inner); per-component override and whole-value / per-subkey null opt-out apply; side-vs-pillar enforcement gates which pillar fires per authoring side | Annotation-driven Feature expansion (synthetic Feature attachments tagged `Origin: "annotation"`) |
 
 Surfaces 4 and 5 share a YAML shape (an `annotations:` map at the cascading boundary) but cascade into distinct IR buckets — the bucket distinction is the load-bearing rule the runtime exposes. Surface 6 is structurally separate: it lives on the Manifest entity rather than on Aggregate / Release content, and its consumption is gated by the annotation-driven expansion pass.
 
@@ -92,7 +92,7 @@ Features attach to Components through five distinct authoring surfaces, each wit
 | 2 | Aggregate subsystem `features:` block | Developer | Subsystem scope (cross-cutting within Aggregate) | Cascades to every component in the subsystem |
 | 3 | Release boundary `components.<id>.features` | Ops | Per-component-instance (granular, Ops side) | None — author-direct |
 | 4 | Release boundary `features:` block | Ops | Boundary scope (cross-cutting within boundary) | Cascades to every component in the boundary |
-| 5 | Manifest `features.annotations` expansion | Platform Operator | Annotation-driven (synthetic attachment) | Cascades wherever the matched annotation appears (when the expansion pass ships; `accepted but inert` today) |
+| 5 | Manifest `features.annotations` expansion | Platform Operator | Annotation-driven (synthetic attachment) | Cascades through the boundary tree (Release-side) or subsystem tree (Aggregate-side); per-component override and per-subkey null opt-out apply |
 
 The five surfaces accumulate; an attachment present at any tier contributes to the Component's resolved feature set. When the same Feature instance name appears at multiple tiers, the resolved attachment merges per pillar (Aggregate side contributes `values`; Release side contributes `infra`); type mismatches halt the build with a feature-merge-conflict error.
 
@@ -121,7 +121,7 @@ The cascade rules across the six surfaces, as evaluated by the compiler:
 3. **Component `metadata.annotations` (Surface 3)** flow into the per-node `.context.annotations.catalog` bucket.
 4. **Aggregate / Subsystem `annotations:` (Surface 4)** cascade through the subsystem hierarchy, accumulating from outer subsystems inward, into the per-node `.context.annotations.aggregate` bucket.
 5. **Release boundary `annotations:` (Surface 5)** cascade through the boundary hierarchy from outer boundaries inward, into the per-node `.context.annotations.release` bucket.
-6. **Manifest `features.annotations` (Surface 6)** does not cascade to per-node IR data directly; the annotation-driven expansion pass (when shipped) consumes the bindings to synthesise per-node Feature attachments.
+6. **Manifest `features.annotations` (Surface 6)** does not cascade to per-node IR data directly; the annotation-driven expansion sub-phase in Step 1 consumes the bindings to synthesise per-node Feature attachments tagged with `Origin: "annotation"` provenance. The synthetic attachments are structurally indistinguishable from explicit ones downstream of Step 1 except via provenance inspection — see [`providers/well-known-annotations.md`](../providers/well-known-annotations.md) for the full expansion teaching and [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md) §"Annotation-driven Feature expansion" for the catalog-load and inspect-time mechanics.
 
 For the canonical cascading-annotation design, see [`architecture/06-data-taxonomy-and-composition.md`](../../architecture/06-data-taxonomy-and-composition.md) §2 (Flow 5).
 

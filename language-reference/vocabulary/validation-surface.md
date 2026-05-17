@@ -53,13 +53,13 @@ Provider <provider-name> has no workloadSchema; Workload synthesis is not suppor
 
 Provider source-keyset violations follow the same `CATALOG_ERROR:` shape — the catalog entity (the Recipe's authored `source:` block, the Provider's declared schema) is what's at fault, not the developer's Aggregate.
 
-### Layer 4 — Annotation-binding fragments
+### Layer 4 — Annotation-binding value validation
 
-**Scope.** Annotation values bound at the Manifest's `mappings.<provider>.features.annotations.<key>.infra` (and `.values`) sections, where each annotation key declares a JSON Schema 2020-12 fragment validating the annotation value's argument structure. When a Release authors `feature.aggrega.ai/<key>: "<value>"` on a boundary or component, the Manifest's binding determines which fragment validates `<value>`.
+**Scope.** Annotation values authored on Release boundaries / boundary components or Aggregate subsystems / component instances, when a Manifest binding under `mappings.features.annotations.<key>` declares routing through `maps.infra` and/or `maps.values` dotted-path lists. Each declared path navigates the target Feature's `spec.schema.<pillar>` to a leaf property; the annotation value's contribution at that leaf is validated against the Feature schema's declared type. Validation flows through the Feature's own JSON Schema 2020-12 declaration — bindings declare routing only, not validation fragments.
 
-**Validation runs.** Reserved for the annotation-driven Feature expansion pass (currently `accepted but inert` — see [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases)). The Manifest accepts and parses the annotation bindings; the expansion pass that consumes them is not yet wired into the build pipeline. When the pass ships, Layer 4 validation runs at the same stage as Layer 2 (Step 1), against any annotation key whose Manifest binding matched a boundary or component declaration.
+**Validation runs.** Step 1 annotation-expansion sub-phase, after Manifest binding-target validation (the catalog-load check confirming each declared path exists in the referenced Feature schema) and alongside Layer 2 schema validation on explicit attachments. For each effective per-component annotation: parse the value into the Scalar / Structured / Nil sum type; route per-subkey through the binding's pillar-grouped `maps` declaration with side-vs-pillar enforcement (Aggregate-side fires `maps.values`; Release-side fires `maps.infra`); validate the per-leaf runtime value against the Feature schema's declared type at the routed pillar. Multiple subkey errors collect-and-emit-all before halting.
 
-**Error shape.** When the pass ships, Layer 4 errors will follow the schema-validation shape used by Layer 2 — entity, path inside the annotation `infra:` argument, constraint detail.
+**Error shape.** Schema-validation errors at this layer follow the Layer 2 shape — entity, path (annotation key plus subkey route), constraint detail. Side-vs-pillar partition violations and ambiguous-routing failures carry the `OPS_ERROR:` prefix and name the annotation key, the routed pillar, the authoring side, and the source location.
 
 ## One error-formatting convention across layers
 
@@ -67,7 +67,7 @@ The four layers share one observable convention: **every Aggrega-attributable va
 
 - Layer 1 (envelope) and Layer 2 (pillar schemas) errors come through unprefixed at Step 1 — they fire before any Aggrega-prefixed sentinel discipline applies, so the YAML library's or schema validator's native error wraps with a positional prefix (`unmarshal <kind> "<path>": ...`, `<field-path>: <schema rule violated>`).
 - Layer 3 (Provider source / Workload) errors are catalog-entity-attributable by definition — the Recipe + Provider pair authored the schema that rejected the developer's input. These carry the `CATALOG_ERROR:` prefix declared at [`pkg/validator/recipe_validate_errors.go`](../../../aggrega-cli/pkg/validator/recipe_validate_errors.go) and [`pkg/validator/workload_validate_errors.go`](../../../aggrega-cli/pkg/validator/workload_validate_errors.go).
-- Layer 4 (annotation-binding fragments) — once the expansion pass ships, errors are expected to follow the Layer 2 shape since the validating JSON Schema 2020-12 fragment lives inside the Manifest binding.
+- Layer 4 (annotation-binding value validation) errors follow the Layer 2 shape — the validating Feature schema lives in the referenced Feature's `spec.schema`, and runtime values flow through the Manifest binding's `maps` routing into that schema for per-leaf type checking.
 
 For the full inventory of Aggrega-prefixed sentinels and the surfaces that produce them, see [`errors/error-translation.md`](../errors/error-translation.md). For the per-error catalog (`CATALOG_ERROR:` rules 1-7, sentinel-by-sentinel diagnostics), see [`errors/fatal-halts.md`](../errors/fatal-halts.md).
 
@@ -90,7 +90,7 @@ A second common overlap pattern: cross-pillar constraints declared at the pillar
 | 1 — JSON Schema envelope | Structural shape (apiVersion, kind, metadata, top-level spec) | Step 1 (load) | unprefixed YAML / unmarshal error |
 | 2 — Pillar schemas (`schema:` / `secretsSchema` / `usesSchema`) | Per-pillar data validation (values, infra, secrets, uses) | Step 1 (after envelope) | unprefixed schema-validation error |
 | 3 — Provider source / `workloadSchema` | Recipe output / Workload content gates | Step 5 Phase B | `CATALOG_ERROR:` |
-| 4 — Annotation-binding fragments | Annotation-value argument structure | (planned) Step 1, alongside Layer 2 | (planned) schema-validation error |
+| 4 — Annotation-binding value validation | Annotation-value contributions routed into the target Feature's `spec.schema` via the Manifest binding's `maps` paths | Step 1 annotation-expansion sub-phase, alongside Layer 2 | schema-validation error; side-vs-pillar / ambiguous-routing surfaces carry `OPS_ERROR:` |
 
 ## Cross-references
 
@@ -100,4 +100,4 @@ A second common overlap pattern: cross-pillar constraints declared at the pillar
 - [`entities/component.md`](../entities/component.md) — Component authoring surface for `schema:` / `secretsSchema` / `usesSchema`.
 - [`entities/provider.md`](../entities/provider.md) — Provider authoring surface for `baseSchema` / `workloadSchema`.
 - [`entities/manifest.md`](../entities/manifest.md) — Manifest's `features.annotations` binding surface (Layer 4).
-- [`10-status.md#compilation-pipeline-phases`](../10-status.md#compilation-pipeline-phases) — current readiness state for Layer 4's annotation-driven expansion pass.
+- [`providers/well-known-annotations.md`](../providers/well-known-annotations.md) — annotation-value parsing, structured-value subkey routing, per-subkey null opt-out, and cross-side composition that Layer 4 validates.

@@ -15,7 +15,8 @@ The compilation pipeline reserves the following socket points. The shape labels 
 | FeatureRecipe `pipeline:` plugins | Step 5 Phase C (Post-Render Mutation) | `accepted but inert` per Status page Phase C classification |
 | Provider rendering plugins (e.g., `helm-renderer.wasm`) | Step 5 (Phase B engines) | `planned` — declared design target; native Go engines ship today |
 | `linter.wasm` (out-of-band) | Outside the build (CI gate / IDE) | `planned` — no contract types defined in code today |
-| Annotation-binding expansion | Step 1, alongside Layer-2 validation | `accepted but inert` per Status page |
+
+The annotation-driven Feature expansion sub-phase (Step 1) is a native Go pipeline pass, not a Wasm socket. It validates annotation values against the target Feature's `spec.schema` and injects synthetic Feature attachments at IR build time. See [`vocabulary/labels-and-annotations.md`](../vocabulary/labels-and-annotations.md) for the six annotation- and label-bearing surfaces and [`providers/well-known-annotations.md`](../providers/well-known-annotations.md) for the binding-shape and authoring teaching.
 
 ## Output shape contract — what exists today
 

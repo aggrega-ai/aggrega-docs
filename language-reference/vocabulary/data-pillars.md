@@ -81,6 +81,8 @@ The architectural target for `infra:` is component-local: a component's sizing a
 
 The phrase "strictly localized" overstates the localization — it implies a wall the engine doesn't enforce. **"Primarily localized"** is the accurate framing: localization is the design intent; cascades exist as deliberate exceptions documented at the relevant surface.
 
+**Side-vs-pillar partition for annotation-driven Feature expansion.** The Aggregate-as-Authoring-Surface invariant carries through to the annotation-driven Feature expansion path: Aggregate-side annotations (subsystem and component-instance scope) may only fire `maps.values` subkeys; Release-side annotations (boundary and component-instance scope) may only fire `maps.infra` subkeys. A Manifest binding can declare paths in both pillars; each side fires only its compatible subset, and cross-side composition merges the contributions per-field at IR build time. The partition preserves the values-developer / infra-operator authoring separation at the annotation surface — the same separation `values:` and `infra:` enforce on the explicit-attachment surfaces. See [`providers/well-known-annotations.md`](../providers/well-known-annotations.md) §"Side-vs-pillar partition per subkey" for the per-subkey teaching and the cross-side composition pattern.
+
 ## Provides
 
 The `provides:` pillar is **derived** — a Recipe declares it, but unlike `values` / `infra`, the developer does not author it directly. Recipes compute the public output strings the topology pipe will consume.
