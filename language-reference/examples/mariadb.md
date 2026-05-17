@@ -374,16 +374,15 @@ spec:
           default: 30
 
     api:
-      port:
-        type: integer
-        min: 1024
-        max: 65535
-        default: 8080
-      replicas:
+      log_level:
+        type: string
+        enum: [debug, info, warn, error]
+        default: info
+      cache_ttl_seconds:
         type: integer
         min: 1
-        max: 50
-        default: 2
+        max: 86400
+        default: 60
 
   components:
     db:
@@ -409,8 +408,8 @@ spec:
     api:
       type: my-org/server/checkout-api:1.0.0
       values:
-        port: '{{ .parameters.api.port }}'
-        replicas: '{{ .parameters.api.replicas }}'
+        log_level: '{{ .parameters.api.log_level }}'
+        cache_ttl_seconds: '{{ .parameters.api.cache_ttl_seconds }}'
       uses:
         primary_db: db    # Reference to the db Component above
 ```
@@ -466,8 +465,8 @@ spec:
         enabled: true
         retention_days: 90
     api:
-      port: 8443
-      replicas: 6
+      log_level: warn
+      cache_ttl_seconds: 300
 ```
 
 The Release supplies parameter values for production. The Aggregate's typed-parameter defaults are overridden by the Release's explicit values; the resolved parameters drive the Aggregate's compilation.

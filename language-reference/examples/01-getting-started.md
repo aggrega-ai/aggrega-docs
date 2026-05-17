@@ -19,6 +19,7 @@ spec:
   schema:
     values:
       image: { type: string, required: true }
+    infra:
       port: { type: integer, default: 8080 }
 ```
 
@@ -57,7 +58,7 @@ spec:
     primary_compute: "web-container"
   valuesMapping: |
     image: "{{ .values.image }}"
-    containerPort: {{ .values.port }}
+    containerPort: {{ .infra.port }}
 ```
 
 **4. Routing Domain: The Manifest (Dependency Lockfile)**

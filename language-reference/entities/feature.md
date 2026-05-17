@@ -66,6 +66,8 @@ spec:
     component.aggrega.ai/type: server
   schema:
     values:
+      metric_target: { type: string, enum: [cpu, memory, custom], required: true }
+    infra:
       min_replicas: { type: integer, min: 1, required: true }
       max_replicas: { type: integer, min: 1, required: true }
   interoperability:
@@ -89,7 +91,7 @@ Open-source standard-library Features follow the purity convention by authoring 
 
 ## Feature scope and authoring shape
 
-A Feature's `spec.schema` defines the **Feature's own** `values:` shape — the cognitive intent the Developer configures per Feature attachment in the Aggregate. This is distinct from the host Component's `values:` block; the two pillars live in separate namespaces and are validated independently. When the Developer attaches an `autoscaler` Feature to a `web-server` Component in the Aggregate, the Aggregate carries two `values:` blocks at that attachment site: one for the Component (`web-server`'s pillars) and one for the Feature (the autoscaler's `min_replicas` / `max_replicas`).
+A Feature's `spec.schema` defines the **Feature's own** `values:` and `infra:` shapes — the cognitive intent the Developer configures per Feature attachment in the Aggregate (`values`), distinct from the capacity numbers the Operator decides per environment (`infra`). The Feature's pillars live in their own namespaces and are validated independently from the host Component's pillars. When the Developer attaches an `autoscaler` Feature to a `web-server` Component in the Aggregate, the Aggregate carries the Component's `values:` (host shape) plus the Feature's `values:` (the scaling-intent shape — which metric drives scaling); the operator-facing capacity numbers (`min_replicas` / `max_replicas`) flow through the Release's `infra:` block on the Feature attachment.
 
 ```yaml
 # Aggregate fragment — Feature attachment with its own values:
@@ -97,14 +99,26 @@ components:
   web-server:
     type: core/web-server
     values:
-      port: 8080            # the Component's own values
+      log_level: "info"     # the Component's own values
       tls_enabled: true
     features:
       autoscaler:
         type: core/autoscaler
         values:
-          min_replicas: 2   # the Feature's own values
-          max_replicas: 10
+          metric_target: "cpu"   # the Feature's own values (dev intent: scale on CPU)
+```
+
+```yaml
+# Release fragment — Feature attachment's infra block (operator-side capacity):
+boundaries:
+  prod:
+    components:
+      web-server:
+        features:
+          autoscaler:
+            infra:
+              min_replicas: 2
+              max_replicas: 10
 ```
 
 The Feature's `schema:` validates the Feature's `values:` block. The Component's `schema:` validates the Component's `values:` block. The two are evaluated independently at the static analysis stage; a Feature `values:` shape that does not match the Feature's `schema:` halts the build with an error scoped to the Feature attachment site, not the host Component.

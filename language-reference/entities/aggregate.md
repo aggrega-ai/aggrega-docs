@@ -90,12 +90,11 @@ spec:
       type: string
       description: Cloud region the deployment targets
       enum: [us-east-1, us-west-2, eu-west-1, ap-northeast-1]
-    replicas:
-      type: integer
-      description: Web-tier replica count
-      min: 1
-      max: 100
-      default: 3
+    default_locale:
+      type: string
+      description: Default UI locale presented to end users
+      enum: [en-US, en-GB, fr-FR, ja-JP]
+      default: en-US
     enable_debug:
       type: boolean
       description: Toggle verbose request logging
@@ -116,7 +115,7 @@ spec:
     web:
       type: core/web-server:1.0.0
       values:
-        replicas: "{{ .parameters.replicas }}"
+        default_locale: "{{ .parameters.default_locale }}"
         region: "{{ .parameters.region }}"
         debug: "{{ .parameters.enable_debug }}"
 ```
@@ -247,17 +246,17 @@ defs:
   - &standard_labels
     aggregate.aggrega.ai/tier: "infrastructure"
     aggregate.aggrega.ai/compliance: "pci-dss"
-  - &default_replicas 3
+  - &default_log_level "info"
 spec:
   components:
     primary:
       type: core/server/api-server:1.0.0
       values:
-        replicas: *default_replicas
+        log_level: *default_log_level
     secondary:
       type: core/worker/python:1.0.0
       values:
-        replicas: *default_replicas
+        log_level: *default_log_level
 ```
 
-Anchors resolve at YAML-parse time, so `*default_replicas` is the integer `3` by the time the compiler reads the values block. The `defs:` block is the conventional home for the anchor definitions; YAML allows anchors to be declared anywhere, but co-locating them keeps the rest of the Aggregate readable. The block is optional — Aggregates that do not need anchors omit it entirely.
+Anchors resolve at YAML-parse time, so `*default_log_level` is the string `"info"` by the time the compiler reads the values block. The `defs:` block is the conventional home for the anchor definitions; YAML allows anchors to be declared anywhere, but co-locating them keeps the rest of the Aggregate readable. The block is optional — Aggregates that do not need anchors omit it entirely.

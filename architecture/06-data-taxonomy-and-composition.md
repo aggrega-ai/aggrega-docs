@@ -55,13 +55,15 @@ To prevent template namespace collisions and the unintended leaking of physical 
 * **The Escape Hatch:** If an application's internal code *cannot* be changed, the Platform Architect explicitly exposes a `port` field in the `schema:` declaration.
 **Architectural Note:** The "Zero-Port" convention is the most prominent example of the platform's broader **Separation of Concerns**. This exact same philosophy — abstracting the physical mechanics away from the developer — applies to CPU requests, memory limits, operational domains, and disk sizing. Whenever a physical infrastructure constraint *must* leak into the developer's application payload (due to legacy code or strict hardware requirements), it must always be governed by an explicit "Escape Hatch" in the Architect's `schema:` declaration, rather than breaking the core compiler rules.
 
+The "Zero-Port" name is the canonical historical handle for this convention; the principle generalizes to any physical-infrastructure constraint a legacy application hardcodes. The schema below uses `tcp_keepalive_seconds` as the worked exemplar — a kernel/network timing the application expects at the socket layer — to keep the example explicitly on the infra-leak axis without naming a field whose values-vs-infra placement is itself debated.
+
 **The Schema (Domain 2):**
 
 ```cue
 values: {
     image: string
     // The architect explicitly allows the developer to declare a hardcoded constraint
-    port?: int & >=1024 & <=65535 
+    tcp_keepalive_seconds?: int & >=10 & <=300
 }
 ```
 
@@ -73,10 +75,10 @@ components:
     type: core/java-tomcat:1.0.0
     values:
       image: "corp/payments:v4"
-      port: 8080 # The infrastructure must adapt to the app, not vice versa
+      tcp_keepalive_seconds: 120 # The infrastructure must adapt to the app, not vice versa
 ```
 
-**Compiler Behavior:** The Go compiler passes `port: 8080` into the IR graph. The Ops Recipe then reads `{{ .values.port }}` to configure the Kubernetes `TargetPort` or AWS Target Group, successfully bridging the legacy gap without violating the schema.
+**Compiler Behavior:** The Go compiler passes `tcp_keepalive_seconds: 120` into the IR graph. The Ops Recipe then reads `{{ .values.tcp_keepalive_seconds }}` to configure the Kubernetes pod spec or the cloud provider's load-balancer idle-timeout, successfully bridging the legacy gap without violating the schema.
 
 ### 4. The Injection Contract & Pre-Resolved Map
 

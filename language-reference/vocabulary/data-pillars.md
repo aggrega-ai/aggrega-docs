@@ -274,17 +274,17 @@ The isolation is explicit per the architecture's separation of concerns: Feature
 A Component or Feature whose `spec.schema.values:` and `spec.schema.infra:` declare the same property name — at the root, at any nesting depth, or both — is a frequent authoring smell. The two pillars are separate namespaces by design (the compiler accepts the overlap), so the schema validates and the rendered output is well-formed. The smell is cognitive: readers and template authors hit "which pillar holds the `foo` I'm reading?" friction every time they scan the schema or write a template against it.
 
 ```yaml
-# Smell — both pillars declare `port`. A reader of the schema or a
+# Smell — both pillars declare `mode`. A reader of the schema or a
 # template against the Feature has to disambiguate every reference.
 spec:
   schema:
     values:
-      port: { type: integer }
+      mode: { type: string }
     infra:
-      port: { type: integer }
+      mode: { type: string }
 ```
 
-Authors with intentional overlap have a real reason to keep both — e.g., a `port` that means "app-internal listen port" under values and "service-port for routing" under infra carry distinct semantics and the names happen to coincide. Authors with accidental overlap (the more common case) rename one entry.
+Authors with intentional overlap have a real reason to keep both — e.g., a `mode` that means "application operational mode" under values (`"debug"` / `"production"`) and "deployment topology mode" under infra (`"standalone"` / `"clustered"`) carry distinct semantics and the names happen to coincide. Authors with accidental overlap (the more common case) rename one entry.
 
 Catalog load emits a `LINT: <kind> <name> at <path> declares property <name> in both values: and infra: pillars (path: <dotted-path>)` advisory for every same-name property whose overlap resolves to a terminal leaf on at least one side. Same-name properties that exist as shared organizing namespaces (both pillars carry an object named `ingress` with disjoint sub-properties) do not warn; only the leaf overlap is reported. The warning is advisory — the build proceeds.
 

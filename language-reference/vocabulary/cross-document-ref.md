@@ -38,12 +38,12 @@ Catalog authors choose between two authoring shapes when declaring required prop
 spec:
   schema:
     values:
-      host: { type: string, required: true }
-      port: { type: integer, default: 5432 }
       database: { type: string, required: true }
+      display_name: { type: string, required: true }
+      default_locale: { type: string, default: "en-US" }
 ```
 
-The compiler emits `required: [host, database]` at the parent scope.
+The compiler emits `required: [database, display_name]` at the parent scope.
 
 **`$ref:`-bearing consumers** — leaf-level markers are silently dropped. The cross-document sibling collector reads only the top-level `required:` SequenceNode of the consumer's object scope; leaf-level markers inside `$ref:`-pulled subtrees do not contribute. Authors of `$ref:`-bearing consumers should declare the requirement set explicitly at the parent level:
 
@@ -52,7 +52,7 @@ spec:
   schema:
     values:
       $ref: "oci://hub.aggrega.ai/aggrega/datastores@1.0.0#/schemas/PostgresPayload"
-      required: [host, database]
+      required: [database, display_name]
 ```
 
 The authoring criterion is simple: any consumer that uses `$ref:` to pull a library entry into its schema must declare its `required:` set as a parent-level array. Mixing parent-level `required:` with `$ref:` is the canonical authoring shape; leaf-level `required: true` markers in this case do nothing.

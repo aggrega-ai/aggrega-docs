@@ -24,16 +24,16 @@ Each declared parameter slot is accessible as a field on the `.parameters` map. 
 spec:
   parameters:
     region: { type: string, enum: [us-east-1, us-west-2] }
-    replicas: { type: integer, min: 1, max: 100, default: 3 }
+    cache_ttl_seconds: { type: integer, min: 1, max: 86400, default: 60 }
     enable_debug: { type: boolean, default: false }
 
   components:
     web:
       type: core/web-server:1.0.0
       values:
-        region: "{{ .parameters.region }}"        # string
-        replicas: "{{ .parameters.replicas }}"    # integer (renders as YAML string; the values-side schema validates type)
-        debug: "{{ .parameters.enable_debug }}"   # boolean
+        region: "{{ .parameters.region }}"                       # string
+        cache_ttl_seconds: "{{ .parameters.cache_ttl_seconds }}" # integer (renders as YAML string; the values-side schema validates type)
+        debug: "{{ .parameters.enable_debug }}"                  # boolean
 ```
 
 The interpolation pass produces a Go template evaluation against the `.parameters` map; the result replaces the template expression inline at the YAML string position. The Component / Feature `values:` schema then validates the resulting value at Step 1 sub-step 3 (post-interpolation schema validation).
