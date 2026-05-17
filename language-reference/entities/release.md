@@ -82,6 +82,25 @@ spec:
 
 Annotations cascaded by this mechanism surface in downstream Recipe templates via `.context.annotations.release`; see [Recipe authoring](recipe.md) and the [Template Expansion Matrix](../templates/expansion-matrix.md) for how renderers consume them.
 
+**Structured annotation values.** When a Manifest binding declares multiple infra-pillar routing paths for one annotation key, the Release-side annotation value can be a structured object carrying values for several Feature schema fields in one declaration:
+
+```yaml
+boundaries:
+  prod:
+    annotations:
+      feature.myco/db-pool:
+        pool_size: 20
+        max_connections: 100
+      components:
+        api:
+          annotations:
+            feature.myco/db-pool:
+              max_connections: 200   # closer-level override
+              # pool_size not listed → inherits 20 from boundary
+```
+
+Structured values cascade with per-subkey deep merge; closer-level subkeys override parent subkeys. Per-subkey `null` opts out one subkey while sibling subkeys stand. The Release side fires only the subkeys whose binding-map pillar is `infra`; subkeys routing to `values` belong on Aggregate-side annotations. For the full structured-value teaching — cross-side composition, per-subkey type validation, the relaxed-default discipline — see [providers/well-known-annotations.md](../providers/well-known-annotations.md) §"Structured annotation values".
+
 **Well-known annotations.** Beyond ad-hoc keys, the Aggrega standard library defines a set of well-known annotations under the `aggrega.ai/` and `feature.aggrega.ai/` namespaces, grouped into placement, networking, security, and observability categories. Authors adding annotations to a Release boundary should consult [providers/well-known-annotations.md](../providers/well-known-annotations.md) for the full matrix plus per-provider consumption rules — the page documents which providers honour each well-known key and what behaviour they emit when the key is present.
 
 ## Temporal Sequencing — per-boundary `syncWave`

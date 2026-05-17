@@ -171,20 +171,21 @@ For the broader parameter-hoisting checklist (Aggregate declaration → values r
 
 Subsystems and component instances both carry an `annotations:` field. Developer-authored annotations on the Aggregate surface drive the Aggregate-side annotation cascade — a subsystem annotation propagates to every nested subsystem and every contained component, with closer-level overrides at per-key granularity. The Manifest's `mappings.features.annotations` map declares the bindings that translate annotation keys into synthetic Feature attachments at build time. The Aggregate-as-Authoring-Surface invariant restricts these annotations to routing through the binding's `maps.values` paths; a binding declaring only `maps.infra` paths fires from the Release side, not from the Aggregate side.
 
-### Pointer-tristate semantics
+### Value shapes
 
-Each annotation value carries one of three states, distinguishing "I'm silent" from "I declare a value" from "I opt out":
+Each annotation value carries one of three forms, distinguishing "I'm silent" from "I declare a value" from "I opt out":
 
 * **Absent key** — the scope declares no value for this annotation. Nested subsystems and contained components inherit any binding from an ancestor scope.
-* **Non-nil pointer (a string value)** — the scope declares a value. Nested subsystems and contained components inherit this value unless they declare their own or opt out.
-* **Nil pointer (explicit YAML `null`)** — the scope removes any inherited binding for this key from its subtree. Sibling components and sibling subsystems retain their inheritance; only the opting-out scope loses the binding.
+* **A scalar string** — a single value. The Manifest binding must declare exactly one path total; the scalar routes to that path.
+* **A structured object** — a map of subkey to subvalue. Each subkey of the object routes through the Manifest binding's `maps` to the corresponding Feature schema field at the declared pillar.
+* **Explicit YAML `null`** — the scope removes any inherited binding for this key from its subtree. Sibling components and sibling subsystems retain their inheritance; only the opting-out scope loses the binding.
 
 ```yaml
 spec:
   subsystems:
     data:
       annotations:
-        feature.myco/db-pool: "shared-pool"   # propagates to api and worker
+        feature.myco/db-pool: "shared-pool"   # scalar value — propagates to api and worker
       components:
         api:
           # inherits feature.myco/db-pool: "shared-pool"
@@ -195,6 +196,32 @@ spec:
           annotations:
             feature.myco/db-pool: "vip-pool"   # closer-level override
 ```
+
+### Structured values for multi-field Features
+
+A Feature with multiple configurable fields invites a structured annotation value: one annotation key carrying values for several Feature schema fields in one declaration. The Aggregate side fires only the subkeys whose binding-map pillar is `values`; subkeys routing to `infra` belong on Release-side annotations.
+
+```yaml
+spec:
+  subsystems:
+    data:
+      annotations:
+        feature.myco/db-pool:
+          db_name: "prod-db"
+          read_replicas: 5
+      components:
+        api:
+          annotations:
+            feature.myco/db-pool:
+              db_name: "api-override"   # closer-level override at subkey granularity
+              # read_replicas not listed → inherits 5 from parent
+        analytics:
+          annotations:
+            feature.myco/db-pool:
+              read_replicas: null       # per-subkey opt-out
+```
+
+Structured values cascade with per-subkey deep merge: closer-level subkeys override parent subkeys; an explicit `null` at a subkey suppresses the inherited subkey for that scope while sibling subkeys stand. For the full structured-value teaching — cross-side composition with Release-side infra subkeys, per-subkey type validation, the relaxed-default discipline for schema fields without a declared `type` — see [providers/well-known-annotations.md](../providers/well-known-annotations.md) §"Structured annotation values".
 
 ### Per-key independence
 
