@@ -66,6 +66,8 @@ Every location in the DSL where Go template expressions are evaluated, and exact
 
 **Workload-body templating note (#11).** The Workload body is one templated string that the renderer evaluates as a whole, then parses the result as a Workload document. Field-level templates inside (a `replicas: {{ .infra.replicas | default 1 }}` here, a `LOG_LEVEL: "{{ .values.log_level }}"` inside `containers.app.variables` there) are not separate template-evaluation sites — they all participate in the single Phase B pass that produces the Workload. Authors do not need a separate availability rule for Workload-internal fields; the rule for Workload as a whole (#11) covers every field-level template inside.
 
+**Discriminator-aware fallback inside the Workload body.** The `replicas: {{ .infra.replicas | default 1 }}` example above conflates "author didn't set `replicas`" with "author set `replicas` to `0`" — `default` fires on both. When a Release legitimately authors `infra.replicas: 0` to express scale-to-zero (a common Knative / KEDA pattern), the `| default 1` form silently overrides the intent. The discriminator-aware shape is `replicas: {{ optional .infra "replicas" 1 }}` — `optional` checks key presence and returns the authored value (including authored zero) when the key is set, falling back to `1` only when the key is absent. See [`sprig-functions.md`](sprig-functions.md#optional--presence-aware-fallback) for the full semantics and the when-to-prefer guidance.
+
 ### 3. Forbidden References & Rationale
 
 | Location | Forbidden Reference | Rationale |
