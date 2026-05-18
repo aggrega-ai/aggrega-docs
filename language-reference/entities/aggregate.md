@@ -159,7 +159,7 @@ The Release fulfills object-typed parameters with structured YAML; the compiler 
 The compiler runs three sub-steps during Step 1 parameter processing:
 
 1. **Contract validation** — each Release-supplied value validates against the declared `type` / `enum` / `min` / `max` / `pattern` / nested-structure constraints. Validation failures halt the build with a clear error naming the offending slot, the supplied value, and the violated constraint. Missing required parameters with no `default:` produce a similar halt with the slot name.
-2. **Default fill** — slots with `default:` defined and no Release-supplied value receive their default.
+2. **Default fill** — slots with `default:` defined and no Release-supplied value receive their default. Nested-object parameters carry a three-case authoring semantic for omitted, explicit-empty, and partially-authored parent slots: see [`templates/parameters-context.md`](../templates/parameters-context.md#nested-object-parameters) for the distinction between omit-to-fill and explicit-empty-to-suppress.
 3. **Interpolation** — the compiler walks the Aggregate's YAML strings, replaces every `{{ .parameters.<slot> }}` reference with the resolved value, then purges the `.parameters` map from the in-memory context.
 
 After Step 1 completes, the `parameters` pillar no longer exists as a live context; only the resolved values dictionary flows through to downstream rendering. Recipes consuming developer-authored `values:` see the post-interpolation strings and never read `.parameters` directly.

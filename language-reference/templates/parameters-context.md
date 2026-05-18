@@ -116,6 +116,76 @@ spec:
 
 Required parameters (slots with no `default:` and no `required: false` opt-out — required is the implicit default) trigger a build-time error when the Release omits them. The error names the slot, the declared type, and the contract location for the author to fix.
 
+### Nested-object parameters
+
+When a parameter declares `type: object` with `properties:` whose children themselves carry `default:` values, three authoring cases produce distinct results. Understanding the distinction matters when the parameter declaration is a structured object — a database configuration, a feature-flag bundle, a timeout-and-retry policy — rather than a single scalar.
+
+**Case 1 — Release omits the parent slot.** The contract's children defaults fill. The Aggregate author who declared the nested defaults gets the behavior they intended: when ops doesn't supply the slot, the configuration uses the documented defaults.
+
+```yaml
+# Aggregate
+spec:
+  parameters:
+    database:
+      type: object
+      properties:
+        host: { type: string, default: "localhost" }
+        port: { type: integer, default: 5432 }
+
+# Release (parent omitted)
+spec:
+  parameters: {}
+
+# Resolved at template-interpolation time
+parameters:
+  database:
+    host: "localhost"
+    port: 5432
+```
+
+**Case 2 — Release authors the parent as an explicit empty map.** The explicit empty is honored as a deliberate opt-out. Children's defaults are NOT filled; the slot remains empty. Use this form when ops wants to suppress the contract's nested defaults without supplying overrides — for example, when a downstream consumer expects the slot present but empty.
+
+```yaml
+# Release (parent explicit empty)
+spec:
+  parameters:
+    database: {}
+
+# Resolved at template-interpolation time
+parameters:
+  database: {}
+```
+
+The distinction from Case 1 is deliberate: ops can express both "use the defaults" (by omitting the slot) and "suppress the defaults" (by authoring the slot as `{}`). This mirrors how Aggrega treats explicit null in annotations — an annotation authored as `aggrega.ai/<key>: null` is a deliberate opt-out distinct from omitting the annotation entirely.
+
+**Case 3 — Release partially authors the parent.** Children the Release supplied take their authored values; children the Release did not supply fill from defaults.
+
+```yaml
+# Release (partial)
+spec:
+  parameters:
+    database:
+      host: "db.prod.example.com"
+
+# Resolved at template-interpolation time
+parameters:
+  database:
+    host: "db.prod.example.com"   # Release-supplied
+    port: 5432                    # filled from default
+```
+
+This is the common case for Release authors who want to override selected fields while leaving the rest at their contract defaults.
+
+#### When to use each form
+
+- **Omit the slot** when you want the contract's defaults to apply.
+- **Author `{}`** when you deliberately want the slot present but empty — when the contract's defaults are wrong for your environment and you don't have overrides.
+- **Author partially** when you want some overrides and want the rest to use the contract's defaults.
+
+A Release author who types `database: {}` expecting "give me the defaults" will be surprised — the resolved value is empty, not the filled defaults. To get the defaults, omit the slot entirely.
+
+The three-case dispatch is per-sibling at every nesting depth. A parent authored as `{ connection: {}, other_field: "x" }` produces a resolved tree where `connection` is empty (Case 2 at depth 1) and `other_field` is the Release-supplied value (Case 3 at depth 0) — the cases dispatch independently for each sibling, not as a single decision for the whole subtree.
+
 ## Boundary with downstream template contexts
 
 The parameters pillar is **purged** after Step 1. Recipes and FeatureRecipes at Phase B do not see `.parameters`. The template-context fields available to Recipes (`.values`, `.infra`, `.uses`, `.secrets`, `.metadata`, `.context.*`, `.provides`, `.locals`) are documented at [template-context-contract.md](template-context-contract.md).
