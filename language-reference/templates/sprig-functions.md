@@ -43,16 +43,28 @@ The signature takes the map and the key as separate arguments because a value pi
 
 ```yaml
 # Present and non-zero: returns 3
-{{ optional .infra "replicas" 1 }}            # .infra.replicas = 3   → 3
+{{ optional .infra `replicas` 1 }}            # .infra.replicas = 3   → 3
 
 # Absent: returns the fallback
-{{ optional .infra "replicas" 1 }}            # .infra.replicas unset → 1
+{{ optional .infra `replicas` 1 }}            # .infra.replicas unset → 1
 
 # Present but authored zero: returns 0 (the discriminator)
-{{ optional .infra "replicas" 1 }}            # .infra.replicas = 0   → 0
+{{ optional .infra `replicas` 1 }}            # .infra.replicas = 0   → 0
 ```
 
 The last case is the discriminator Sprig's `default` cannot make. `{{ .infra.replicas | default 1 }}` returns `1` whether `replicas` was authored as `0` or omitted — the conflation that prevents legitimate scale-to-zero, no-retries, no-timeout, and false-flag patterns.
+
+**Key-quoting convention: prefer backticks.** Go templates accept both double-quoted (`"replicas"`) and backtick-quoted (`` `replicas` ``) string literals for the key argument; both produce the same string at template-eval time. The catalog and documentation examples uniformly use the **backtick form** because it is YAML-safe in every quoting context. A double-quoted key inside a double-quoted YAML scalar terminates the YAML string mid-template:
+
+```yaml
+# BROKEN — the inner " closes the outer YAML string:
+service_port: "{{ optional .infra "port" 8080 }}"
+
+# WORKS — backticks are not a YAML escape character:
+service_port: "{{ optional .infra `port` 8080 }}"
+```
+
+When the template lives inside a YAML block-scalar (`|` form) or as a bare-value scalar, both forms render correctly. When the template is embedded inside a double-quoted YAML scalar (the `field: "{{ ... }}"` field-value-as-template pattern), backticks are required. The single convention (always backticks) avoids the YAML-quoting trap entirely.
 
 **When to prefer `optional` over `default`.** Use `optional` when the field can legitimately be zero, empty, or false and the catalog author needs to distinguish "author didn't set this" from "author set this to a falsy value." Use `default` when the conflation is acceptable (e.g., string fields where empty is invalid; numeric fields where zero is invalid).
 
@@ -60,10 +72,21 @@ The last case is the discriminator Sprig's `default` cannot make. `{{ .infra.rep
 
 ## Common helpers NOT available
 
-Two patterns from the wider Helm/Sprig ecosystem are sometimes mistaken for available helpers:
+Helm extends Go's `text/template` with chart-template helpers that are commonly mistaken for general Sprig helpers. **None of these are registered in Aggrega's renderer.** Templates that the Aggrega renderer evaluates (Recipe `valuesMapping:`, FeatureRecipe `injectMapping:`, `provides`, Workload body, the assertion evaluator) cannot call them:
 
-- **`warn`** — a Helm-specific extension that emits a non-fatal note to the operator's terminal. Aggrega does not register it. Templates that need to halt the render with an explanatory message should use Sprig's `fail` instead, which raises a fatal template error carrying the supplied string. Templates that need to fall back without halting should rely on standard Go `if`/`else` branches.
-- **`tpl`** — a Helm-specific helper that re-evaluates a string as a nested template against the current context. Aggrega does not register it; nested re-evaluation is not part of the template surface. Authors needing computed values should compose them with Sprig's string helpers and emit the final value directly.
+- **`include`** — Helm's preferred form for invoking a defined template fragment with a pipeable string output. Aggrega's renderer does not register it. Use standard Go template's `{{ template "name" . }}` instead (the side-effect-only form); for pipeable output, compose using MappingLibrary fragments and `$import:` directives.
+- **`tpl`** — re-evaluates a string as a nested template against the current context. Aggrega does not register it; nested re-evaluation is not part of the template surface. Authors needing computed values should compose them with Sprig's string helpers and emit the final value directly.
+- **`required`** — fails the chart-render with a custom message when the named value is missing. Aggrega does not register it. Aggrega's required-field enforcement lives at the typed-parameter-contract layer (Aggregate `parameters:` slots with `required: true` produce `ErrParameterMissing` at Step 1a with file:line provenance); per-template required-marker checks use Sprig's `fail` to raise a fatal template error carrying the supplied string.
+- **`warn`** — emits a non-fatal note to the operator's terminal. Aggrega does not register it. Templates that need to halt the render with an explanatory message should use Sprig's `fail`; templates that need to fall back without halting should rely on standard Go `if`/`else` branches.
+
+### Cross-engine helper inventory (load-bearing for MappingLibrary authors)
+
+MappingLibrary fragments can target either of two consumption sites:
+
+- **Aggrega-side consumption** (Recipe `valuesMapping:`, FeatureRecipe `injectMapping:`, etc., evaluated by Aggrega's renderer). The available helpers are: full Sprig v3 (`default`, `coalesce`, `quote`, `nindent`, `indent`, `b64enc`, etc.) **plus** `optional` (Aggrega-specific). The chart-template helpers (`include`, `tpl`, `required`, `warn`) are NOT available.
+- **Helm chart-internal consumption** (chart `values.yaml` content or chart `templates/*.yaml` rendered downstream by Helm's own template engine). The available helpers are: full Sprig v3 **plus** Helm's chart-template helpers (`include`, `tpl`, `required`, `warn`). `optional` (Aggrega-specific) is NOT available.
+
+The two helper sets share the Sprig surface but diverge on the engine-specific extensions. MappingLibrary entries that target Helm chart-internal consumption use Helm conventions (`.Values.<key>` capital-V root, `| default`, `include`-based composition); entries that target Aggrega-side consumption use Aggrega conventions (lowercase `.values.<key>`, `optional` for presence-aware fallback). The library entity stores fragments verbatim; the authoring shape follows where the fragment is meant to render.
 
 Aggrega's only custom helper on top of Sprig is `optional` (documented above). The remainder of the helper surface is exactly what `sprig.FuncMap()` exposes.
 
