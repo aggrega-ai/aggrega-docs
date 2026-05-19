@@ -30,7 +30,13 @@ Workload YAML is not authored as a standalone catalog entity. There is no `catal
 
 ## Template evaluation
 
-Workload content is Go-templated against the full pillar context before parsing. When a Recipe author writes `replicas: {{ .infra.replicas | default 1 }}`, the compiler evaluates that template during the Workload sub-pass of rendering, resolves `.infra.replicas` against the node's `infra` payload, and parses the resulting YAML as a Workload document. Template evaluation happens after the base Recipe's `valuesMapping` has resolved, so Workload authors can reference previously-computed state via `.locals` the Recipe declared.
+Workload content is Go-templated against the full pillar context before parsing. When a Recipe author writes a template like the following...
+
+```yaml
+replicas: {{ optional .infra `replicas` 1 }}
+```
+
+...the compiler evaluates that template during the Workload sub-pass of rendering, resolves `.infra.replicas` against the node's `infra` payload, and parses the resulting YAML as a Workload document. Template evaluation happens after the base Recipe's `valuesMapping` has resolved, so Workload authors can reference previously-computed state via `.locals` the Recipe declared.
 
 Pillar access inside Workload templates:
 
@@ -54,7 +60,7 @@ The full Workload schema is in [../../architecture/16-recipe-input-composition.m
 A single integer for the workload's replica count. Defaults to 1 when omitted. Use a template expression to drive replicas from Ops-declared sizing:
 
 ```yaml
-replicas: {{ .infra.replicas | default 1 }}
+replicas: {{ optional .infra `replicas` 1 }}
 ```
 
 ### `containers` vs `initContainers`
@@ -229,24 +235,24 @@ A typical web application that serves application traffic on one port and expose
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Workload
-replicas: {{ .infra.replicas | default 2 }}
+replicas: {{ optional .infra `replicas` 2 }}
 containers:
   app:
     image: "{{ .values.image }}"
     ports:
-      web: {{ .values.port | default 8080 }}
-      metrics: {{ .values.metrics_port | default 9090 }}
+      web: {{ optional .values `port` 8080 }}
+      metrics: {{ optional .values `metrics_port` 9090 }}
     variables:
-      LOG_LEVEL: "{{ .values.log_level | default "info" }}"
+      LOG_LEVEL: "{{ optional .values `log_level` "info" }}"
 services:
   http:
     type: ClusterIP
     ports:
-      web: {{ .values.port | default 8080 }}
+      web: {{ optional .values `port` 8080 }}
   metrics:
     type: ClusterIP
     ports:
-      metrics: {{ .values.metrics_port | default 9090 }}
+      metrics: {{ optional .values `metrics_port` 9090 }}
 health:
   ready:
     http: /healthz
@@ -293,25 +299,25 @@ A two-container pod where the main container handles application logic and the s
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Workload
-replicas: {{ .infra.replicas | default 2 }}
+replicas: {{ optional .infra `replicas` 2 }}
 containers:
   main:
     image: "{{ .values.app_image }}"
     ports:
-      app: {{ .values.app_port | default 8080 }}
+      app: {{ optional .values `app_port` 8080 }}
     variables:
-      UPSTREAM_URL: "http://localhost:{{ .values.app_port | default 8080 }}"
+      UPSTREAM_URL: "http://localhost:{{ optional .values `app_port` 8080 }}"
   sidecar:
     image: "{{ .values.sidecar_image }}"
     ports:
-      proxy: {{ .values.proxy_port | default 9000 }}
+      proxy: {{ optional .values `proxy_port` 9000 }}
     variables:
-      PROXY_TARGET: "http://localhost:{{ .values.app_port | default 8080 }}"
+      PROXY_TARGET: "http://localhost:{{ optional .values `app_port` 8080 }}"
 services:
   external:
     type: ClusterIP
     ports:
-      proxy: {{ .values.proxy_port | default 9000 }}
+      proxy: {{ optional .values `proxy_port` 9000 }}
 ```
 
 The Service exposes the sidecar's port (not the main container's), routing external traffic through the sidecar to the main container via `localhost`. The two containers share the pod's network namespace, so `localhost:<port>` reaches the peer container directly. For sidecars that need credential injection (the canonical AI-guardrail pattern), the credential typically lives on the sidecar's `secrets:` block rather than the main container's — keeping the credential scoped to the sidecar's process boundary.

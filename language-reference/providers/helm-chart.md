@@ -47,7 +47,7 @@ spec:
   source: ./charts/api-server     # filesystem path to a chart directory
   valuesMapping: |
     image: "{{ .values.image }}"
-    replicaCount: {{ .infra.replicas | default 2 }}
+    replicaCount: {{ optional .infra `replicas` 2 }}
 ```
 
 The chart at the source path **must contain a valid `Chart.yaml`** at its root; missing it surfaces a clear error before the copy runs. The chart's directory layout is preserved when copied — `templates/`, `values.yaml`, `Chart.yaml`, and any other files are present in the sub-chart directory after composition.
@@ -124,7 +124,7 @@ spec:
   source: ./charts/api-server
   valuesMapping: |
     image: "{{ .values.image }}"
-    replicaCount: {{ .infra.replicas | default 2 }}
+    replicaCount: {{ optional .infra `replicas` 2 }}
 ```
 
 After composition, the boundary's evaluated assembly path (default `dist/<boundary-directory>/<provider>/` because `subDirectory:` defaults to `{{ .provider }}`) contains:

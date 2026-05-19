@@ -123,7 +123,7 @@ The Recipe reads this as a Go template default in its `source` block:
 source:
   registry: oci://registry-1.docker.io/bitnamicharts
   chart: mariadb
-  version: "{{ .infra.source_version | default `25.0.8` }}"
+  version: "{{ optional .infra `source_version` `25.0.8` }}"
 ```
 
 Recipe `source` strings (and string-valued sub-fields of a structured `source:` map) are evaluated as Go templates with the same self-contained context as Recipe `provides` — `.context.instance_id`, `.values`, `.infra`, and the same node's resolved `.provides`, with `.context.inject` and `.context.uses` forbidden. See [Template Expansion Matrix row #5](../templates/expansion-matrix.md) for the full availability rules. Changing `infra.source_version` away from the Recipe's default does not guarantee that the Recipe's `valuesMapping` is wire-compatible with the new upstream version; the inline comment on the Component schema's `source_version` declaration carries that warning.

@@ -44,11 +44,11 @@ spec:
   valuesMapping: |
     {{- with .values -}}
     image:
-      tag: {{ .image.tag | default "11.4.4-debian-12-r0" }}
-      pullPolicy: {{ .image.pullPolicy | default "IfNotPresent" }}
-    architecture: {{ .architecture | default "standalone" }}
+      tag: {{ optional .image `tag` "11.4.4-debian-12-r0" }}
+      pullPolicy: {{ optional .image `pullPolicy` "IfNotPresent" }}
+    architecture: {{ optional . `architecture` "standalone" }}
     primary:
-      replicaCount: {{ .primary.replicaCount | default 1 }}
+      replicaCount: {{ optional .primary `replicaCount` 1 }}
     {{- end }}
 ```
 
@@ -186,7 +186,13 @@ The discipline applies wherever a single global namespace constrains the name. A
 This discipline is one of several Class C contracts (convention-enforced authoring discipline) that authors learn from documentation rather than from compiler enforcement. See [`vocabulary/social-contracts.md`](../vocabulary/social-contracts.md) for the broader Class C inventory and the architectural rationale for each contract's classification.
 
 **Source field templating.**
-A Recipe's `source` field is itself a templating surface. Both shapes of `source` accept Go templates: the universal-string form (`source: "{{ .infra.module_path | default \"./src\" }}"`) and the structured-object form (each string-valued sub-field is template-evaluated; non-string sub-fields pass through). Templates evaluate in Phase B.0 with the same self-contained context as Recipe `provides` — `.context.instance_id`, `.values`, `.infra`, and the same node's resolved `.provides`. References to `.context.inject` and `.context.uses` are forbidden; the source URI must resolve before the topology pipe is hydrated and before downstream sub-passes load the chart, module, or artifact body the URI points at. The full availability rules and forbidden-reference rationale live in [Template Expansion Matrix row #5](../templates/expansion-matrix.md). The canonical use is a Component-exposed `infra.source_version` override threaded into the source's version field — see [entities/component](component.md) "The `infra` Pillar" — so a catalog need not republish a Recipe on every compatible upstream version bump.
+A Recipe's `source` field is itself a templating surface. Both shapes of `source` accept Go templates: the universal-string form
+
+```yaml
+  source: "{{ optional .infra `module_path` \"./src\" }}"
+```
+
+and the structured-object form (each string-valued sub-field is template-evaluated; non-string sub-fields pass through). Templates evaluate in Phase B.0 with the same self-contained context as Recipe `provides` — `.context.instance_id`, `.values`, `.infra`, and the same node's resolved `.provides`. References to `.context.inject` and `.context.uses` are forbidden; the source URI must resolve before the topology pipe is hydrated and before downstream sub-passes load the chart, module, or artifact body the URI points at. The full availability rules and forbidden-reference rationale live in [Template Expansion Matrix row #5](../templates/expansion-matrix.md). The canonical use is a Component-exposed `infra.source_version` override threaded into the source's version field — see [entities/component](component.md) "The `infra` Pillar" — so a catalog need not republish a Recipe on every compatible upstream version bump.
 
 **Source field scheme inventory.**
 The `source:` field accepts several shape variants in the schema. Each variant's runtime support varies per provider engine; the table below documents what ships today and what is reserved for future provider work.

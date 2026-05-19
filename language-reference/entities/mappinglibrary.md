@@ -24,6 +24,8 @@ spec:
     Replicas: 'replicas: {{ .Values.replicas | default 1 }}'
 ```
 
+*Note on the `| default` filter and the `.Values` capital-V convention in this example: the fragment shown here is shaped for downstream consumption by a Helm chart's template engine, where Helm conventions (`.Values.X` for chart values, `default` for absent-field fallback, `include` / `tpl` / `required` for chart-internal composition) are the established idiom. When a MappingLibrary fragment is consumed by an Aggrega-side `valuesMapping:` surface (Recipe `valuesMapping:` content evaluated by Aggrega's renderer), the fragment authoring shifts to Aggrega's conventions: lowercase `.values.X`, and the presence-aware `optional` helper for absent-field fallback. The two conventions correspond to two consumption sites; the library entity stores fragments verbatim and the authoring shape follows where the fragment is meant to render.*
+
 ## Authoring Mapping Entries
 
 Each mapping entry is a Go template fragment authored as a YAML string. The fragment is opaque to the entity envelope — the compiler stores the string verbatim at MappingLibrary load and parses it at consumption time when a Recipe or FeatureRecipe imports the entry via `valuesMapping: { $import: ... }`.

@@ -89,7 +89,7 @@ spec:
       function: inject_sidecar
       with: |
         generated_policy: "{{ .steps.policy_gen.outputs.policy_id }}"
-        cpu_limit: "{{ .infra.sidecar_cpu_limit | default "100m" }}"
+        cpu_limit: "{{ optional .infra `sidecar_cpu_limit` "100m" }}"
         target_container: "{{ .locals.primary_compute }}"
 ```
 

@@ -26,7 +26,7 @@ spec:
   source: ./charts/api-server     # filesystem path to a chart directory
   valuesMapping: |
     image: "{{ .values.image }}"
-    replicas: {{ .infra.replicas | default 2 }}
+    replicas: {{ optional .infra `replicas` 2 }}
 ```
 
 Structured source objects (e.g. `source: { repo: ..., chart: ..., version: ... }`) are reserved for a future registry-integration intent and are rejected today with a "structured source not supported" diagnostic. A Recipe targeting a remote chart must vendor it locally and point `source:` at the vendored copy.
@@ -98,12 +98,12 @@ spec:
   source: ./vendor/charts/api-server
   valuesMapping: |
     image: "{{ .values.image }}"
-    replicaCount: {{ .infra.replicas | default 2 }}
+    replicaCount: {{ optional .infra `replicas` 2 }}
     service:
       type: ClusterIP
       port: {{ .values.port }}
     env:
-      LOG_LEVEL: "{{ .values.log_level | default "info" }}"
+      LOG_LEVEL: "{{ optional .values `log_level` "info" }}"
 ```
 
 **Workload mode — Recipe declaring an inline Workload:**
@@ -120,7 +120,7 @@ spec:
   workload: |
     apiVersion: aggrega.ai/v1alpha1
     kind: Workload
-    replicas: {{ .infra.replicas | default 2 }}
+    replicas: {{ optional .infra `replicas` 2 }}
     containers:
       api:
         image: "{{ .values.image }}"

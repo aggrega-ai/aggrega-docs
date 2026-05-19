@@ -20,7 +20,7 @@ spec:
   implements: core/server/api:1.0.0
 
   locals:
-    port: "{{ .values.port | default 8080 }}"
+    port: "{{ optional .values `port` 8080 }}"
 
   provides:
     host: "{{ .context.instance_id }}"
@@ -30,16 +30,16 @@ spec:
   workload: |
     apiVersion: aggrega.ai/v1alpha1
     kind: Workload
-    replicas: {{ .infra.replicas | default 1 }}
+    replicas: {{ optional .infra `replicas` 1 }}
 
     containers:
       main:
-        image: "{{ .values.image }}:{{ .values.tag | default `latest` }}"
+        image: "{{ .values.image }}:{{ optional .values `tag` `latest` }}"
         variables:
           {{- range $k, $v := .context.inject.env }}
           {{ $k }}: "{{ $v }}"
           {{- end }}
-          LOG_LEVEL: "{{ .values.log_level | default `info` }}"
+          LOG_LEVEL: "{{ optional .values `log_level` `info` }}"
         secrets:
           {{- range $name, $secret := .secrets }}
           {{ upper $name | replace "-" "_" }}:
@@ -50,11 +50,11 @@ spec:
           web: {{ .locals.port }}
         resources:
           requests:
-            cpu: "{{ .infra.cpu_request | default `100m` }}"
-            memory: "{{ .infra.memory_request | default `128Mi` }}"
+            cpu: "{{ optional .infra `cpu_request` `100m` }}"
+            memory: "{{ optional .infra `memory_request` `128Mi` }}"
         health:
           ready:
-            http: "{{ .values.health_path | default `/healthz` }}"
+            http: "{{ optional .values `health_path` `/healthz` }}"
 
     services:
       http:
@@ -93,7 +93,7 @@ spec:
   workload: |
     apiVersion: aggrega.ai/v1alpha1
     kind: Workload
-    replicas: {{ .infra.replicas | default 2 }}
+    replicas: {{ optional .infra `replicas` 2 }}
 
     containers:
       main:
@@ -156,7 +156,7 @@ spec:
       data:
         config.yaml: |
           listen: 0.0.0.0:{{ .workload.containers.main.ports.web }}
-          log_level: {{ .values.log_level | default "info" }}
+          log_level: {{ optional .values `log_level` "info" }}
 
     "{{ .locals.envoy_cm }}.yaml": |
       apiVersion: v1
@@ -199,7 +199,7 @@ spec:
   source:
     registry: oci://registry-1.docker.io/bitnamicharts
     chart: mariadb
-    version: "{{ .infra.source_version | default `25.0.8` }}"
+    version: "{{ optional .infra `source_version` `25.0.8` }}"
 
   valuesMapping: |
     auth:
@@ -248,7 +248,7 @@ spec:
 # workload.yaml (relative to recipe.yaml)
 apiVersion: aggrega.ai/v1alpha1
 kind: Workload
-replicas: {{ .infra.replicas | default 1 }}
+replicas: {{ optional .infra `replicas` 1 }}
 containers:
   main:
     image: "{{ .values.image }}"
