@@ -18,10 +18,10 @@ Aggrega solves this by elevating topology to a first-class schema pillar called 
 
 ### 2. The Mechanics of the Unified Schema Contract
 
-To extract operational instructions without parsing the application payload, the system relies on strict CUE schemas governing explicitly separated YAML structures.
+To extract operational instructions without parsing the application payload, the system relies on strict JSON Schema 2020-12 declarations governing explicitly separated YAML structures.
 
-**Domain 2: The Split Schema (`usesSchema` & `cueSchema`)**
-To prevent the Platform Catalog from fragmenting into unmanageable schema files, Aggrega utilizes a Split Schema engine. The Native YAML `usesSchema` strictly defines and validates the topology, while the `cueSchema` validates the `values`, `infra`, and `provides` pillars. **The `usesSchema` is the enabling schema for `uses` declarations: a Component or Feature that does not define `usesSchema` cannot accept `uses` blocks on its instances, and every socket name in the developer's `uses` must match a key defined in the catalog entity's `usesSchema`.** Inside the `usesSchema`, Platform Architects use the `selector` string natively evaluated by the Go compiler to enforce **Cross-Node Type Safety**. It ensures that if a socket requires a database, the developer cannot plug in a web server.
+**Domain 2: The Split Schema (`usesSchema` & `schema`)**
+To prevent the Platform Catalog from fragmenting into unmanageable schema files, Aggrega utilizes a Split Schema engine. The Native YAML `usesSchema` strictly defines and validates the topology, while `schema:` (JSON Schema 2020-12 — typically authored via the compact-form shorthand) validates the `values`, `infra`, and `provides` pillars. **The `usesSchema` is the enabling schema for `uses` declarations: a Component or Feature that does not define `usesSchema` cannot accept `uses` blocks on its instances, and every socket name in the developer's `uses` must match a key defined in the catalog entity's `usesSchema`.** Inside the `usesSchema`, Platform Architects use the `selector:` field — synthesised into the merged JSON Schema as the `x-aggrega-selector:` extension keyword — and the native Go selector engine evaluates it to enforce **Cross-Node Type Safety**. It ensures that if a socket requires a database, the developer cannot plug in a web server.
 
 **Domain 1: The Developer Experience (Polymorphism)**
 Developers write `uses:` as a sibling to `values:` and `secrets:`. To ensure a frictionless UX, the schema natively supports polymorphism:
@@ -43,7 +43,7 @@ The following two examples demonstrate the two distinct superpowers of the expli
 
 This scenario traces how a `policy-validator.wasm` socket — when Ops has configured the Release to invoke it — detects that an AI Agent is about to connect to a database lacking required compliance labels, and halts the build. The core Go compiler pipes labels opaquely; the detection logic lives inside the Wasm plugin that Ops has chosen to wire in.
 
-**1. The Standard Library (The Unified `cueSchema` in the Catalog)**
+**1. The Standard Library (The Unified `schema:` in the Catalog)**
 The Platform Architect defines the schema structure, separating cognitive logic from topological targets natively.
 
 ```yaml
@@ -58,10 +58,11 @@ spec:
   usesSchema:
     datastores:
       selector: "component.aggrega.ai/type=stateful-server, compliance.aggrega.ai/data-class=restricted"
-      
-  cueSchema: |
-    // 1. The Cognitive Intent
-    values: { system_prompt: string }
+
+  schema:
+    # 1. The Cognitive Intent
+    values:
+      system_prompt: { type: string, required: true }
 ```
 
 **2. The Developer's Intent (The Aggregate)**
@@ -85,14 +86,14 @@ components:
 
 **3. Compiler Execution & Topological Validation**
 
-1. **Local Validation:** The Go compiler evaluates the entire object against the `cueSchema` in Step 1. It checks the underlying catalog labels of `my_secure_vector_db`. If the database lacked the `restricted` label, the engine would immediately halt the build with a type-safety violation.
-2. **Graph Drawing:** In Step 2, the Go compiler ignores CUE entirely. It reads `uses.datastores.finance_memory.target` natively from the YAML and draws the explicit edge in the IR graph.
+1. **Local Validation:** The Go compiler evaluates the entire object against the resolved JSON Schema in Step 1. It checks the underlying catalog labels of `my_secure_vector_db`. If the database lacked the `restricted` label, the engine would immediately halt the build with a type-safety violation.
+2. **Graph Drawing:** In Step 2, the Go compiler ignores schema-validated content entirely. It reads `uses.datastores.finance_memory.target` natively from the YAML and draws the explicit edge in the IR graph.
 
 #### Example B: Polymorphism & The Normalized `.context.uses`
 
 This scenario demonstrates how the compiler seamlessly handles both a black-box AI tool (passed as an array) and a legacy relational database (requiring a map with an `inject` contract).
 
-**1. The Catalog (Domain 2): The `cueSchema`**
+**1. The Catalog (Domain 2): The `schema:` declaration**
 The Architect allows polymorphic arrays for tools, but demands strict objects for databases.
 
 ```yaml
@@ -101,14 +102,15 @@ spec:
     # Polymorphic Array Socket (No injection needed)
     tools:
       selector: "tool.aggrega.ai/impact=read-only"
-      
+
     # Strict Map Socket (Requires delivery contract)
     databases:
       selector: "component.aggrega.ai/type=stateful-server"
       inject: ["env", "file"]
 
-  cueSchema: |
-    values: { system_prompt: string }
+  schema:
+    values:
+      system_prompt: { type: string, required: true }
 ```
 
 **2. The Developer Intent (Domain 1): The Aggregate**

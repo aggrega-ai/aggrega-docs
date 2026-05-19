@@ -16,11 +16,18 @@ URI segments map 1:1 to filesystem path segments. Components use a three-segment
 aggrega-catalog/
 ├── README.md
 │
-├── cue/                      # SHARED LIBRARIES: Base types imported by schemas
-│   └── core/
-│       ├── metadata.cue
-│       ├── network.cue
-│       └── parameter.cue
+├── schemalibrary/            # TIER 3: Reusable JSON Schema 2020-12 definitions
+│   │                         # Common shapes (PodResources, PersistenceSpec, etc.)
+│   │                         # consumed via $ref: oci://<host>/<library>@<version>#/schemas/<name>
+│   │                         #   schemalibrary/base-components.yaml
+│   │                         #   schemalibrary/networking-primitives.yaml
+│   └── ...
+│
+├── mappinglibrary/           # TIER 3: Reusable Go template fragments
+│   │                         # Common valuesMapping helpers consumed via
+│   │                         # valuesMapping: { $import: oci://<host>/<library>@<version>#/mappings/<name> }
+│   │                         #   mappinglibrary/bitnami-helpers.yaml
+│   └── ...
 │
 ├── component/                # DOMAIN 2: Abstract Interfaces
 │   │                         # URI: {namespace}/{category}/{name}

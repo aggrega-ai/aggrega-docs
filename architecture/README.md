@@ -9,7 +9,7 @@ Cross-references between chapters use relative links; external references to the
 1. [Vision and Positioning](01-vision-and-positioning.md)
 2. [Ecosystem Philosophy](02-ecosystem-philosophy.md)
 3. [Team Topologies and the Four Domains](03-team-topologies-and-domains.md)
-4. [The Eight-Entity Taxonomy](04-eight-entity-taxonomy.md)
+4. [The Entity Taxonomy](04-eight-entity-taxonomy.md)
 5. [Architectural Invariants](05-invariants.md)
 6. [Data Taxonomy and Composition](06-data-taxonomy-and-composition.md)
 7. [Dependency Resolution](07-dependency-resolution.md)

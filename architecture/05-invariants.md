@@ -8,7 +8,7 @@ Invariants are referenced by number across other architecture chapters. When a l
 
 The Aggrega compiler is an Ahead-Of-Time (AOT) text-router. It parses YAML, traverses graphs, evaluates label intersections, and pipes strings from sources to sinks. It does not police what authors put into `values`, `parameters`, `infra`, `provides`, or `locals`. It does not enforce naming conventions, port conventions, or semantic type labels.
 
-Many rules that sound like compiler rules — the Zero-Port Contract, the 7-Type Cloud-Native Ontology, Naked-Base / Flavored-Edges catalog style — are **Social Contracts**: best practices with escape hatches, upheld by Platform Architects authoring CUE schemas and the standard-library catalog. The compiler is blind to them.
+Many rules that sound like compiler rules — the Zero-Port Contract, the 7-Type Cloud-Native Ontology, Naked-Base / Flavored-Edges catalog style — are **Social Contracts**: best practices with escape hatches, upheld by Platform Architects authoring the standard-library catalog. The compiler is blind to them.
 
 What the compiler does enforce is narrow: schema validation, YAML parsing, graph construction, template evaluation, and the dumb text-routing of the Injection Contract. Everything else is convention, enforced at catalog authoring time or inside opt-in Wasm policy sockets.
 
@@ -48,7 +48,7 @@ Resources enter the graph through explicit authoring-time declarations:
 - The developer's Aggregate (components, `uses` edges, Feature attachments).
 - The Release's Feature attachments (Operator-level adds).
 - Annotation-driven expansion (the Manifest declares annotation → Feature bindings; the annotation on a Component or boundary is explicit declaration).
-- Recipe-level resource production: the Recipe's `source` rendering produces the primary artifact; `workload` synthesis emits the provider-specific deployment shape (Pod spec, Compose service, etc.); `artifacts` and `artifactsFrom` emit Recipe-intrinsic auxiliary manifests; FeatureRecipe Resource Generation emits per-Feature auxiliary resources triggered by an explicit Feature attachment.
+- Recipe-level resource production: the Recipe's `source` rendering produces the primary artifact; `workload` synthesis emits the provider-specific deployment shape (Pod spec, Compose service, etc.); `artifacts:` entries (inline or `$import:`-loaded) emit Recipe-intrinsic auxiliary manifests; FeatureRecipe Resource Generation emits per-Feature auxiliary resources triggered by an explicit Feature attachment.
 
 Recipe-level paths are authoring-time declarations one step removed: the Recipe author writes `source` / `workload` / `artifacts` / `valuesMapping` against a Component contract, and the developer's Aggregate selects which Components participate. A resource appearing in rendered output traces back to either a declaration in the Aggregate, the Release, an annotation binding, or the Recipe authoring that the Aggregate's component types selected.
 

@@ -105,7 +105,7 @@ The Recipe schema enforces seven composition rules at load time:
 
 `Workload` is a platform-owned kind at `apiVersion: aggrega.ai/v1alpha1`. Its JSON Schema 2020-12 declaration is embedded in the compiler binary at build time; catalog authors do not edit the Workload schema, nor do they author standalone `Workload` YAML files as catalog entities. The Workload grammar is consumed inside a Recipe's `workload:` field (inline or via `$import:` to a single file) and nowhere else.
 
-Workload is a platform kind and a compiler concept, not a ninth entity in the [Eight-Entity Taxonomy](04-eight-entity-taxonomy.md). The Recipe is the authoring entity; the Workload is the shape the Recipe's synthesized input takes.
+Workload is a platform kind and a compiler concept, not a separate entity in the [Entity Taxonomy](04-eight-entity-taxonomy.md). The Recipe is the authoring entity; the Workload is the shape the Recipe's synthesized input takes.
 
 ### One Workload per Recipe
 

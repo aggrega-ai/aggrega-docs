@@ -1,6 +1,6 @@
-# The Eight-Entity Taxonomy
+# The Entity Taxonomy
 
-Aggrega's architecture is organized into four domains, each owned by a different persona and housing specific entity kinds. The diagram below shows the entities and their relationships across all four domains. Detailed authoring surfaces (fields, schemas, examples) for each entity live in the [Language Reference entities catalog](../language-reference/entities/).
+Aggrega's architecture is organized into four domains, each owned by a different persona and housing specific entity kinds, plus a Tier 3 library layer that holds reusable schema and mapping content. The diagram below shows the entities and their relationships across the four domains plus the Tier 3 libraries. Detailed authoring surfaces (fields, schemas, examples) for each entity live in the [Language Reference entities catalog](../language-reference/entities/).
 
 ~~~mermaid
 %%{
@@ -53,6 +53,12 @@ graph LR
         CapD ~~~ T
     end
 
+    subgraph DL ["Tier 3: Libraries"]
+        SL["SchemaLibrary<br/>Reusable JSON Schema 2020-12 Definitions"]:::baseNode
+        ML["MappingLibrary<br/>Reusable Go Template Fragments"]:::baseNode
+        SL ~~~ ML
+    end
+
     %% Logical Flow Connections
     A -.->|"Requests"| CC
     A -.->|"Attaches (features +<br/>credential features in secrets:)"| CapC
@@ -62,25 +68,48 @@ graph LR
     CapC -.->|"Resolved to"| CapD
 
     EB -->|"Uses"| ENV
-    
+
     ENV -->|"Resolves Interfaces to"| CD
     ENV -->|"Resolves Interfaces to"| CapD
-    
+
     EB -->|"Ships via"| T
 
+    %% Library references (Tier 3 — opt-in for catalogs needing cross-Component reuse)
+    CC -.->|"$ref: oci://&lt;library&gt;#/schemas/&lt;name&gt;"| SL
+    CapC -.->|"$ref"| SL
+    CD -.->|"valuesMapping: { $import: oci://&lt;library&gt;#/mappings/&lt;name&gt; }"| ML
+    CapD -.->|"$import"| ML
+
     %% Apply the domain class to the subgraphs
-    class D1,D2,D3,D4 domain;
+    class D1,D2,D3,D4,DL domain;
 ~~~
+
+The corpus carries ten entity kinds across four domains plus the Tier 3 library layer:
+
+| # | Entity | Domain | Role |
+|---|---|---|---|
+| 1 | Aggregate | D1 — Developer Intent | Application topology blueprint |
+| 2 | Component | D2 — Platform Catalog | Abstract compute-node interface |
+| 3 | Feature | D2 — Platform Catalog | Operational trait (including credential Features) |
+| 4 | Recipe | D3 — Infrastructure Base | Component implementation, per provider |
+| 5 | FeatureRecipe | D3 — Infrastructure Base | Feature implementation, per provider |
+| 6 | Provider | D3 — Infrastructure Base | Wasm rendering-plugin registrar |
+| 7 | Manifest | D4 — Routing & Policy | Dependency lockfile mapping interfaces to Recipes |
+| 8 | Release | D4 — Routing & Policy | Deployment router binding Aggregate to Manifest |
+| 9 | SchemaLibrary | Tier 3 — Libraries | Reusable JSON Schema 2020-12 definitions |
+| 10 | MappingLibrary | Tier 3 — Libraries | Reusable Go template fragments |
+
+The Workload kind is platform-owned content embedded inside a Recipe's synthesized input rather than a standalone catalog entity (see chapter 16).
 
 ## Domain 1: Developer Intent (The "What")
 
 * **Role:** The Developer. Focuses purely on AI architecture, cognitive loops, and application survival requirements. They know nothing about CEL, OPA, or physical ports.
-* **1. Aggregate:** The map-based declarative blueprint of the application topology. Serving as either the root application or a parameterized, reusable module, it defines logical `components` and attaches operational `features`. Both natively support an isolated `secrets` dictionary to request credentials autonomously via credential Features. It defines abstract capacity requirements via `parameters` (supporting optional typed contracts) and payload state via `values`. Component instances support an optional `description` field for documentation and Studio rendering. It promotes the "Zero-Port" convention (abstracting network ports unless explicitly required by legacy code) with zero hardcoded deployment targets or namespaces.
+* **1. Aggregate:** The map-based declarative blueprint of the application topology. Serving as either the root application or a parameterized, reusable module, it defines logical `components` and attaches operational `features`. Both natively support an isolated `secrets` dictionary to request credentials autonomously via credential Features. It defines abstract capacity requirements via `parameters` (typed contracts authored in the compact-form vocabulary) and payload state via `values`. Component instances support an optional `description` field for documentation and Studio rendering. It promotes the "Zero-Port" convention (abstracting network ports unless explicitly required by legacy code) with zero hardcoded deployment targets or namespaces.
 
 ## Domain 2: Platform Catalog (The "Interfaces & Intelligence")
 
 * **Role:** The Platform Architect. The "Programmer" of the platform. They define the 7-type taxonomy, author the programmable policies (Wasm mutators and validators), and establish the semantic duck-typing labels.
-* **2. Component:** The abstract interface for a compute node. It declares its base shape via the 7-type cloud ontology (e.g., `component.aggrega.ai/type: server`), and layers its cognitive identity via duck-typing labels (e.g., `model.aggrega.ai/capability: generative`). It declares credential slots via `secretsSchema` (required/optional, blackbox/transparent) and uses `cueSchema` to strictly validate the developer's opaque `values` block.
+* **2. Component:** The abstract interface for a compute node. It declares its base shape via the 7-type cloud ontology (e.g., `component.aggrega.ai/type: server`), and layers its cognitive identity via duck-typing labels (e.g., `model.aggrega.ai/capability: generative`). It declares credential slots via `secretsSchema` (required/optional, blackbox/transparent) and uses `schema:` (JSON Schema 2020-12, typically authored via the compact-form shorthand) to strictly validate the developer's opaque `values` block.
 * **3. Feature:** A modular operational trait (e.g., Data Masking, DNS Routing, Secret Management). It uses `appliesToExpressions` to dynamically bind to specific semantic labels. Like Components, it declares credential slots via `secretsSchema` to enforce API key provisioning. Crucially, it uses `metadata.annotations` to explicitly tag elements in the flat IR Graph, which informs downstream Wasm policy validators and rendering plugins how to handle the Feature's configuration payload.
   * **Credential Features:** The platform unifies credential management into the Feature entity: a Feature with the label `feature.aggrega.ai/kind: secret` is a credential feature — it defines a vault query interface (e.g., AWS Secrets Manager, HashiCorp Vault). The compiler enforces a hard partition: credential-labeled Features may only appear in the Developer's `secrets:` block, and non-credential Features may only appear in the `features:` block. This preserves the Developer's cognitive separation between "capabilities I'm attaching" and "credentials I'm requesting" while eliminating two entity types (`SecretStore` and `SecretRecipe`) from the taxonomy. The architectural reasoning: the `SecretRecipe` was already schema-identical to `FeatureRecipe` ("Total Schema Symmetry"), the Fetcher/Injector two-part pipeline works identically for both, and the `inject` delivery contract (`env`, `file`, `arg`) is shared. Unifying them reduces the entity count, simplifies the Manifest (credentials are mapped under `features.type`), and gives the compiler a single modifier execution path in Step 5.
 
@@ -100,7 +129,15 @@ graph LR
 ## Domain 4: Routing & Policy (The "Glue")
 
 * **Role:** The Platform Operator / DevOps.
-* **7. Manifest:** The dependency lockfile. It uses a **Two-Tier Resolution** model: a `type` dictionary maps catalog types to Recipes in bulk (DRY), and an optional `name` dictionary overrides specific instances granularly. Resolution order: `name` wins over `type`; versioned type keys win over unversioned. After resolution, every entity must have a mapping or the compiler halts. To maintain a DRY ecosystem, Manifests support a Kustomize-style composition pattern via an `extends` keyword, allowing environment-specific manifests (like local or staging) to cleanly inherit from a global base manifest and only declare their specific overrides.
+* **7. Manifest:** The dependency lockfile. It uses a flat URI mapping: a `components.type` dictionary maps catalog component types to Recipe URIs, and a `features.type` dictionary maps Feature types to FeatureRecipe URIs. Resolution is direct URI lookup against the lockfile + catalog; provider determination flows from each resolved Recipe's `spec.provider` field at orchestrator time, not from a per-provider Manifest tier. After resolution, every entity must have a mapping or the compiler halts. To maintain a DRY ecosystem, Manifests support a Kustomize-style composition pattern via an `extends` keyword, allowing environment-specific manifests (like local or staging) to cleanly inherit from a global base manifest and only declare their specific overrides.
 * **8. Release:** The deployment router. It binds an `aggregate` to a `manifest` and maps components to physical deployment boundaries (e.g., `aws-eks-production`). To maintain a DRY workflow, Releases support inheritance via the `extends` keyword, allowing environment-specific releases to cleanly inherit from a global base release. It fulfills the abstract aggregate contract by injecting physical realities strictly into the `parameters` block, and injects physical sizing (like CPUs or ports) via the `infra` parallel namespace. To protect the Aggregate as the Single Source of Truth, the Release schema mechanically bans a `values:` block — Ops cannot declare `values` on any Component, Feature, or Secret from a Release. Per-environment variation of developer-facing values flows through **Parameter Hoisting**: the Developer exposes a typed `parameters.*` field in the Aggregate, the Component's `values` template references it, and the Release fulfills the parameter for its environment. The rendered values differ across environments while the Aggregate — the authoring surface for *which* values exist and *how* they flow — remains the single source of truth. See [§8 Constraint 4 (Silently Mutated State)](06-data-taxonomy-and-composition.md) for the schema-level ban stated explicitly. Crucially, to prevent untraceable "aggregate-mutating" deployments, when a Release uses `extends`, declaring an `aggregate` is rejected by the Release schema (the schema constraint disallows declaring `aggregate` when `extends` is used). The child release must map to the exact same Developer Intent as its parent. The `manifest`, however, becomes optional, unlocking "Late Binding"—allowing Ops to inherit the entire physical topology but surgically swap the dependency lockfile.
 
 **Why split the Manifest from the Release.** Separating the software lockfile (Manifest) from the deployment router (Release) enables a shape the two entities could not produce alone: DevOps deploys a single application to multiple regional deployment routers — different Releases targeting different cloud regions, all referencing the same Manifest — without duplicating Recipe bindings across environments. Each regional Release carries its boundary layout and environment-specific parameters while consuming the same software lockfile the Manifest provides. Multi-region scaling follows from the domain separation, not from Manifest duplication.
+
+## Tier 3: Libraries (Catalog Reuse)
+
+* **Role:** The Platform Architect (same persona as Domain 2), but the role kicks in only when catalog content grows large enough to benefit from cross-Component schema reuse or cross-Recipe template reuse. Solo authors and small catalogs ship without any Tier 3 entities.
+* **9. SchemaLibrary:** Reusable JSON Schema 2020-12 definitions. A library declares named schemas at `spec.schemas:` and optional parameterized helpers at `spec.templates:` (with `$params:` declarations and `$instantiate:` references for parametric reuse). Catalog entities consume library entries via the standard JSON Schema `$ref:` keyword pointing at the library's canonical `oci://<host>/<library>@<version>#/schemas/<name>` URL. PascalCase naming, OCI-published, lockfile-pinned. Opt-in for catalogs that need cross-Component schema reuse — common shapes like `PodResources`, `PersistenceSpec`, `NodePool`, `MetricsServiceMonitor` recur across every datastore Component and every workload Component, and SchemaLibrary entries factor that repetition out of per-Component authoring.
+* **10. MappingLibrary:** Reusable Go template fragments. A library declares named templates at `spec.mappings:`. Recipes and FeatureRecipes consume library entries via `valuesMapping: { $import: oci://<host>/<library>@<version>#/mappings/<name> }`. Single authoring mode (Go templates only); no parallel Jsonnet authoring path. Opt-in for catalogs that need cross-Recipe mapping reuse — common patterns like Bitnami chart helper logic or shared pod-template patterns recur across every datastore Recipe targeting the same provider, and MappingLibrary entries factor that repetition out of per-Recipe authoring.
+
+Both libraries publish via OCI, pin in the workspace lockfile (`schema_libraries:` and `mapping_libraries:` sections), and surface in the Hub UI with consumer awareness (which Components reference which library entries; which Recipes consume which library templates).

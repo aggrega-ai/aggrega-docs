@@ -4,7 +4,7 @@
 
 To support the unique demands, volatility, and security threats of modern AI systems, Aggrega embeds specialized intelligence directly into its open-source **AI Standard Library (The Catalog)**. It ensures that both generic cloud-native scaffolding and highly specialized AI-native reasoning engines coexist securely.
 
-The core Go compiler is a dumb universal execution engine; all AI-specific intelligence lives in pluggable WebAssembly (Wasm) policies and CUE schemas.
+The core Go compiler is a dumb universal execution engine; all AI-specific intelligence lives in pluggable WebAssembly (Wasm) policies and the JSON Schema 2020-12 declarations Platform Architects author on Catalog entities.
 
 ### 1. The 7-Type Cloud Ontology & AI Duck-Typing
 
@@ -33,7 +33,7 @@ For the official open-source catalog to remain universally usable, it must stric
 To maintain an unopinionated core catalog, official components follow this standard: **Keep the Base Naked, and Flavor the Edges.**
 
 1. **The Naked Base:** The root-level open-source `Component` contains exactly **ONE** hardcoded label: the 7-Type Primitive (`component.aggrega.ai/type`). A Postgres database is objectively a `stateful-server`; that fact cannot change.
-2. **The Flavored Interfaces (CUE Inheritance):** To use semantic labels for strict policy evaluation, Architects create specifically flavored interfaces using Two-Tiered Inheritance. (e.g., `core/postgres-vector` extends `core/postgres-base` and explicitly appends the `datastore.aggrega.ai/engine: "vector"` label).
+2. **The Flavored Interfaces (Schema Inheritance):** To use semantic labels for strict policy evaluation, Architects create specifically flavored interfaces using Two-Tiered Inheritance. (e.g., `core/postgres-vector` extends `core/postgres-base` and explicitly appends the `datastore.aggrega.ai/engine: "vector"` label).
 3. **The Dynamic Mutator (Wasm Promotion):** If a trait is dictated by the developer's payload (e.g., `enable_vector: true`), the enterprise uses the `mutator.wasm` socket in Step 2 to dynamically read the opaque `values` and automatically inject the `engine: vector` label into the IR Graph before policies run.
 
 **The Enterprise Exception:** Because the compiler is completely mathematically unopinionated, enterprises authoring their own internal catalogs are free to break this rule. If a corporate security policy dictates that *all* internal databases are highly sensitive, the Platform Architect can and should hardcode `compliance.aggrega.ai/data-class: restricted` (or a company dictated similar label) directly onto their `acme/postgres` base component to enforce maximum rigidity.
@@ -51,7 +51,7 @@ To enforce the Separation of Concerns, Developers are **strictly forbidden** fro
 **2. `model.aggrega.ai/capability`**
 
 * **Who writes it?** The Platform Architect.
-* **Who consumes it?** The Static Analyzer (via CUE Schemas).
+* **Who consumes it?** The Static Analyzer (via JSON Schema 2020-12 `usesSchema` selectors).
 * **Compiler Use Case:** When an Architect authors a `usesSchema` selector naming the required capability label, the compiler's native label-matching engine rejects wiring that does not satisfy the selector before artifacts are generated. The compiler treats these labels as opaque strings; the semantic meaning of "text-generation" vs "embedding" lives in the Architect's selector authoring.
 
 **3. `model.aggrega.ai/hosting`**
@@ -93,20 +93,20 @@ To enforce the Separation of Concerns, Developers are **strictly forbidden** fro
 ### 2. Port Abstraction (The Zero-Port Convention)
 
 The open-source Aggrega standard-library catalog recommends omitting physical port declarations from Components' cognitive layer, routing port selection through the Ops Recipe instead. Authors following this recommendation avoid port collisions across deployment targets, prevent backdoor APIs that bypass the Injection
-Contract, and keep network topography flexible across providers. The compiler itself is blind to ports — it pipes whatever values the CUE schema permits. The
+Contract, and keep network topography flexible across providers. The compiler itself is blind to ports — it pipes whatever values the resolved JSON Schema permits. The
 convention operates with an explicit escape hatch for legacy systems whose physical ports cannot move.
 
 * **The Cloud-Native Default (Dynamic Injection):** For modern workloads,
-  Components omit physical ports entirely (no `ports` or `expose` arrays) from their CUE schema. Platform Ops Recipes dynamically assign the internal TCP/UDP
+  Components omit physical ports entirely (no `ports` or `expose` arrays) from their `schema:` declaration. Platform Ops Recipes dynamically assign the internal TCP/UDP
   port and inject it into downstream consumers via the `.context.uses` Injection Contract as a named `provides` key.
 * **The Legacy Escape Hatch (Explicit Declaration):** When a legacy component has an unchangeable, hardcoded port, the Platform Architect explicitly exposes
-  a `port` field within the Component's CUE schema. This gives the Developer a validated way to declare the physical constraint. The compiler carries the
+  a `port` field within the Component's `schema:` declaration. This gives the Developer a validated way to declare the physical constraint. The compiler carries the
   value through the pipeline unchanged; the Recipe consumes it via `{{ .values.port }}`.
 * **Operational Ports (Out-of-Band):** Ports used strictly by cluster infrastructure (e.g., Prometheus scraping, Envoy sidecar metrics) remain hidden from the Developer's cognitive layer. They are injected out-of-band by Platform Ops via **Features** (e.g., attaching a `metrics-exporter` Feature).
 
 ### 3. Domain-Specific Schemas (Configuration Intelligence)
 
-The developer's `values` blocks (which are opaque to the Go compiler but strictly typed by CUE) are validated to support explicit AI workflows:
+The developer's `values` blocks (which are opaque to the Go compiler but strictly typed by the Component's `schema:` declaration) are validated to support explicit AI workflows:
 
 * **Agent Links (Dependency Arrays):** While standard variables belong in `values`, the `uses` pillar natively supports arrays for defining topological relationships like `tools_allowed` and `agents_allowed`.
 * **Deep Cognitive Memory Partitioning (CoALA):** Replaces flat memory buckets with structured `cognitive_memory` dictionaries inside the `uses` pillar. By mapping Semantic, Episodic, and Procedural memory to distinct infrastructure targets as explicit topological edges, policy engines can evaluate and mandate granular access guardrails (e.g., ensuring an agent can read Semantic memory, but cannot overwrite it if hijacked).
@@ -123,7 +123,7 @@ The Intermediate Representation (IR) graph and gateway components are uniquely t
 
 ### 5. Asynchronous Execution & HITL Infrastructure
 
-Aggrega treats human-interactive frameworks (like AutoGen and LangGraph) as blackbox worker nodes. To support "sleeping" agents waiting for human input without losing state, **Platform Architects can author CUE schemas** that strictly enforce the explicit binding of `ai-datastore` components to these agents. Furthermore, for human-to-agent feedback loops (e.g., Slack integrations), an enterprise's `policy-validator.wasm` socket can be configured to reject the architecture unless an explicitly declared Gateway component is attached, guaranteeing secure ingress boundaries for callback webhooks.
+Aggrega treats human-interactive frameworks (like AutoGen and LangGraph) as blackbox worker nodes. To support "sleeping" agents waiting for human input without losing state, **Platform Architects can author Component `schema:` declarations** that strictly enforce the explicit binding of `ai-datastore` components to these agents. Furthermore, for human-to-agent feedback loops (e.g., Slack integrations), an enterprise's `policy-validator.wasm` socket can be configured to reject the architecture unless an explicitly declared Gateway component is attached, guaranteeing secure ingress boundaries for callback webhooks.
 
 ### 6. Topological Security Validation & Runtime Enforcement
 
@@ -198,7 +198,7 @@ Because the core compiler is blind to physical infrastructure mechanics, it reli
 To build the IR graph without hardcoded orchestrator rules, the compiler uses a three-tiered pattern:
 
 * **AST Variable Interpolation:** Developers intuitively link components within their `values` definitions (e.g., referencing a database map ID).
-* **Dynamic Schema Extension:** The `cueSchema` restricts `uses` and enforces that inputs are valid component references.
+* **Dynamic Schema Extension:** The Component's `schema:` declaration restricts `uses` and enforces that inputs are valid component references.
 * **Cross-Node Type Safety:** The `usesSchema` selector strings act as explicit out-of-band instructions, evaluated natively by the Go compiler's label-matching engine in Step 4. They guarantee that developers cannot accidentally wire standard components into sockets that require a specific AI-native capability or compliance label.
 
 ### 11. Automated Design of Agentic Systems (ADAS)

@@ -59,12 +59,11 @@ The "Zero-Port" name is the canonical historical handle for this convention; the
 
 **The Schema (Domain 2):**
 
-```cue
-values: {
-    image: string
-    // The architect explicitly allows the developer to declare a hardcoded constraint
-    tcp_keepalive_seconds?: int & >=10 & <=300
-}
+```yaml
+values:
+  image: { type: string, required: true }
+  # The architect explicitly allows the developer to declare a hardcoded constraint
+  tcp_keepalive_seconds: { type: integer, min: 10, max: 300 }
 ```
 
 **The Developer YAML (Domain 1):**
@@ -183,7 +182,7 @@ The compiler and the core schemas enforce the following structural rules.
   * **Why:** The schema requires strictly typed credential Features mapped to the component. Secrets must reference a credential Feature `type` (labeled `feature.aggrega.ai/kind: secret`) and use `values` to query an external vault. The compiler enforces the partition: only credential-labeled Features are accepted in the `secrets:` block.
 
 * **Constraint 2: Target-Agnostic Components**
-  * **Unsupported pattern:** Architect writes `aws_instance_type: string` in `api-server.cue`.
+  * **Unsupported pattern:** Architect writes `aws_instance_type: string` in the Component's `schema:` declaration.
   * **Why:** Components are target-agnostic by convention. Physical hardware targets live in Ops Recipes or generic `.context` annotations, not inside the core cognitive application logic.
 
 * **Constraint 3: Conditional Logic on Metadata**
