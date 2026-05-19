@@ -57,7 +57,7 @@ graph TD
         
         B -->|"Emits IR Graph"| C["Step 3: Graph Finalization<br/>(Edge Inference & Normalization)"]
         
-        C -->|"Flat IR Graph"| D["Step 4: The Static Analyzer<br/>(@selectors + policy-validator.wasm Gate)"]
+        C -->|"Flat IR Graph"| D["Step 4: The Static Analyzer<br/>(Selectors + policy-validator.wasm Gate)"]
         
         D -->|"Validated Topology"| E["Step 5: The Infrastructure Rendering Engine<br/>Phase A: Pre-Render Interception (injectMapping)<br/>Phase B: Base Rendering (valuesMapping)<br/>Phase C: Wasm Mutation (pipeline)"]
     end

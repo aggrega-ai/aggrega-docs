@@ -15,11 +15,11 @@ The same URI string carries different entity-kind meaning depending on where it 
 | `Aggregate.spec.aggregates.<id>.type` | Aggregate (sub-aggregate module) | `/aggregate/{namespace}/{name}` |
 | `Aggregate.spec.components.<id>.features.<id>.type` | Feature | `/feature/{namespace}/{name}` |
 | `Aggregate.spec.components.<id>.secrets.<id>.type` | Feature (credential — labeled `feature.aggrega.ai/kind: secret`) | `/feature/{namespace}/{name}` |
-| `Manifest.spec.mappings.<provider>.components.type.<key>` | Component (the URI used as the lookup key); the value is a Recipe URI | key: `/component/`; value: `/recipe/{provider}/{name}` |
-| `Manifest.spec.mappings.<provider>.components.name.<id>` | Recipe (granular override binding) | `/recipe/{provider}/{name}` |
-| `Manifest.spec.mappings.<provider>.features.type.<key>` | Feature (lookup key); the value is a FeatureRecipe URI | key: `/feature/`; value: `/feature-recipe/{provider}/{name}` |
-| `Manifest.spec.mappings.<provider>.features.name.<id>` | FeatureRecipe (granular override binding) | `/feature-recipe/{provider}/{name}` |
-| `Manifest.spec.mappings.<provider>.features.annotations.<key>.feature` | Feature (annotation-bound) | `/feature/{namespace}/{name}` |
+| `Manifest.spec.mappings.components.type.<key>` | Component (the URI used as the lookup key); the value is a Recipe URI | key: `/component/`; value: `/recipe/{provider}/{name}` |
+| `Manifest.spec.mappings.components.name.<id>` | Recipe (granular override binding) | `/recipe/{provider}/{name}` |
+| `Manifest.spec.mappings.features.type.<key>` | Feature (lookup key); the value is a FeatureRecipe URI | key: `/feature/`; value: `/feature-recipe/{provider}/{name}` |
+| `Manifest.spec.mappings.features.name.<id>` | FeatureRecipe (granular override binding) | `/feature-recipe/{provider}/{name}` |
+| `Manifest.spec.mappings.features.annotations.<key>.feature` | Feature (annotation-bound) | `/feature/{namespace}/{name}` |
 | `Recipe.spec.implements` | Component (interface contract) | `/component/{namespace}/{category}/{name}` |
 | `FeatureRecipe.spec.implements` | Feature (interface contract) | `/feature/{namespace}/{name}` |
 | `Recipe.spec.extends` / `FeatureRecipe.spec.extends` | Recipe / FeatureRecipe (parent in inheritance chain) | `/recipe/{provider}/{name}` or `/feature-recipe/{provider}/{name}` |
@@ -41,7 +41,7 @@ Every URI position above accepts two shape variants:
 | Versioned | `core/postgres:1.0.0` | Pins to one specific version |
 | Unversioned | `core/postgres` | Resolves to "any version" or "latest registered", depending on the position's resolution semantics |
 
-The two variants coexist in the same position. Authors choose based on whether they need version pinning or version flexibility. The Manifest's `mappings.<provider>.{components,features}.type` tier supports both variants as distinct dictionary keys with **versioned-wins-over-unversioned** precedence — a versioned key (`core/api-server:1.0.0`) takes precedence over the unversioned key (`core/api-server`) when both match the same lookup. The two variants are not exclusive; both can sit in the same `type:` map and the resolver picks the most specific.
+The two variants coexist in the same position. Authors choose based on whether they need version pinning or version flexibility. The Manifest's `mappings.{components,features}.type` tier supports both variants as distinct dictionary keys with **versioned-wins-over-unversioned** precedence — a versioned key (`core/api-server:1.0.0`) takes precedence over the unversioned key (`core/api-server`) when both match the same lookup. The two variants are not exclusive; both can sit in the same `type:` map and the resolver picks the most specific. Provider dispatch flows from the resolved Recipe's `spec.provider` field at orchestrator time; the Manifest's mapping shape is flat (no per-provider tier).
 
 For the per-entity version-consumption regime (which entities actually have their version field consumed by resolution dispatch vs descriptive provenance), see [`vocabulary/inheritance-and-interface.md`](inheritance-and-interface.md) "Cross-entity version consumption".
 
@@ -72,7 +72,7 @@ The compiler appends the correct entity-type segment based on the schema positio
 Aggregate.spec.components.foo.type: core/postgres:1.0.0
 # → hub.aggrega.ai/component/core/postgres:1.0.0
 
-Manifest.spec.mappings.helm.components.type."core/postgres:1.0.0": helm/postgres-bitnami:1.0.0
+Manifest.spec.mappings.components.type."core/postgres:1.0.0": helm/postgres-bitnami:1.0.0
 # Key: hub.aggrega.ai/component/core/postgres:1.0.0
 # Value: hub.aggrega.ai/recipe/helm/postgres-bitnami:1.0.0
 ```

@@ -56,7 +56,7 @@ The compiler does not enforce or validate maintainer content beyond JSON Schema'
 
 ## Required-fields asymmetries
 
-The eight Aggrega entity kinds carry slightly different required-field sets in their JSON Schemas. Most asymmetries are deliberate and reflect the entity's role; one asymmetry (Release `metadata.environment`) is in transition per a ratified design decision.
+The ten Aggrega entity kinds carry slightly different required-field sets in their JSON Schemas. Most asymmetries are deliberate and reflect the entity's role; one asymmetry (Release `metadata.environment`) is in transition and will be relaxed in a future release.
 
 The current required-fields state per entity (excluding `apiVersion` / `kind` / `metadata.name` / `metadata.version`, which every entity requires uniformly):
 
@@ -91,7 +91,7 @@ For the environment-field relaxation framing and use cases, see [`10-status.md`]
 
 ### Other asymmetries are not in transition
 
-The remaining asymmetries (Recipe vs Component required fields, Provider's `baseSchema` requirement, Aggregate's `components`-or-`aggregates` requirement, Manifest's `mappings` requirement) reflect each entity's role and are not slated for change. Authors who want a uniform required-fields contract across all eight entities will not find it; the asymmetries are deliberate per the role-driven design.
+The remaining asymmetries (Recipe vs Component required fields, Provider's `baseSchema` requirement, Aggregate's `components`-or-`aggregates` requirement, Manifest's `mappings` requirement) reflect each entity's role and are not slated for change. Authors who want a uniform required-fields contract across every entity kind will not find it; the asymmetries are deliberate per the role-driven design.
 
 ## Cross-references
 

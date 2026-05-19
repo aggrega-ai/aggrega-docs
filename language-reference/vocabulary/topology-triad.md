@@ -94,7 +94,7 @@ components:
                 from: "dsn"               # From target's provides
 ```
 
-**Provider-specific note (compose).** When `uses:` edges resolve between compose-targeted nodes, the compose provider derives `depends_on` entries from those edges. Today's emit always uses `service_started` semantics regardless of any target's `health:` block; long-form `service_healthy` gating is reserved for a future intent. See [providers/compose.md](../providers/compose.md) for the full inference rules.
+**Provider-specific note (compose).** When `uses:` edges resolve between compose-targeted nodes, the compose provider derives `depends_on` entries from those edges. Today's emit always uses `service_started` semantics regardless of any target's `health:` block; long-form `service_healthy` gating is planned for a future iteration. See [providers/compose.md](../providers/compose.md) for the full inference rules.
 
 **The Inject Key Collision Rule:**
 A developer requesting the same delivery key (e.g., the same env var name) from two different sources is a fatal error, not a merge. The compiler detects the collision and halts the build:

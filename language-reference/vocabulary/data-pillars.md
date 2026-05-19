@@ -13,7 +13,7 @@ Aggrega entities carry seven named data pillars. Five participate in the IR data
 | `provides` | Recipe `provides:` block | Live through Step 5 (derived pillar — see below) | Recipe-computed public output strings the topology pipe consumes |
 | `uses` | Aggregate component / feature instances | Live through Step 5 | Topological edges to other components / features |
 | `secrets` | Component `secretsSchema` declarations + four authoring surfaces (Aggregate / Recipe / Workload / FeatureRecipe) — see "Secrets pillar" below | Live through Step 5 | Credential pillar with four parallel authoring surfaces |
-| `parameters` | Aggregate + Release roots | Transient — purged after Step 1 interpolation | Per-environment string-valued slots |
+| `parameters` | Aggregate + Release roots | Alive through end-of-pipeline (purged after every render phase completes); accessible to path templates at Step 5 via the asymmetric grant; value-template TemplateContexts consume the post-interpolation literals rather than `.parameters` directly | Per-environment slots fulfilled by the Release |
 | `locals` | Recipe `locals:` block | Recipe-private — visible only inside the Recipe's own templates | Computed string state Recipes derive at Phase B preamble |
 
 `values` / `infra` / `provides` / `uses` / `secrets` are the **five live pillars** the runtime template context exposes through `.values`, `.infra`, `.provides`, `.context.uses`, and `.secrets` respectively. `parameters` and `locals` are off the live-pillar list — `parameters` because it does not survive Step 1; `locals` because it is Recipe-private and never crosses entity boundaries.
@@ -101,7 +101,7 @@ The `uses:` pillar is the topological-edge declaration. A component instance's `
 
 ## Secrets pillar
 
-The `secrets:` keyword appears at four distinct authoring surfaces in the corpus. The audit's design question (finding 6.9) was whether the four surfaces form one logical pillar or four distinct concepts. The resolution: **one logical pillar with four authoring surfaces**.
+The `secrets:` keyword appears at four distinct authoring surfaces in the corpus. The design question — whether the four surfaces form one logical pillar or four distinct concepts — resolves as: **one logical pillar with four authoring surfaces**.
 
 The four surfaces:
 
@@ -174,7 +174,7 @@ spec:
 ```
 
 ```yaml
-# release-prod.yaml
+# release-prod.yaml — inline parameter values
 spec:
   aggregate: my-app
   manifest: prod-manifest
@@ -183,11 +183,11 @@ spec:
     env_workers: 10
     region: "eu-west-1"
     enable_debug: false
-  parametersFrom:
-    - "./prod-values.yaml"    # Deep-merged into the parameters map
 ```
 
-**Parameter lifecycle.** The compiler resolves parameters during Step 1 in three sub-steps: parameter interpolation (raw YAML template strings expand against the Release's resolved values), parameter contract validation (the typed `parameters:` contract validates each resolved value against its declared `type` / `enum` / `min` / `max` / `pattern` constraints), and parameter purge (the in-memory context drops the `.parameters` map once Step 1 completes). Parameters do not persist as a live pillar through the rest of the compilation pipeline; they exist only as raw YAML template strings (`{{ .parameters.X }}`) at authoring time and as resolved string values during Step 1 interpolation.
+For CI/CD flows that keep the parameter values in a separate file (e.g., a per-environment `.yaml` checked in alongside the Release), the Release uses the `$import:` form: `parameters: { $import: ./prod-values.yaml }`. The file's content replaces the inline map at the Release surface. Multi-file layering (combining a base file with an environment-specific overlay) is expressed by Release `extends:` chains — the parent Release supplies base parameters; the child Release extends and overrides per-key.
+
+**Parameter lifecycle.** The compiler resolves parameters across four phases. (1) Parameter contract validation — the typed `parameters:` contract validates each Release-supplied value against its declared `type` / `enum` / `min` / `max` / `pattern` constraints. (2) Default fill — slots with `default:` defined and no Release value receive their default. (3) Interpolation — the compiler walks the Aggregate's YAML strings and replaces every `{{ .parameters.<slot> }}` reference inside value-template surfaces with the resolved value. (4) End-of-pipeline active-purge — the merged parameter map is actively zeroed and deleted after Step 5 completes (path-template eval, Phase A injectMapping, Phase B sub-passes, Phase B.6 dispatch, per-(path, provider) assembly). The map remains alive through Step 5 between phases 3 and 4 so that path templates (Release boundary `directory:` / `subDirectory:`) can read `.parameters.<slot>` directly at orchestrator time against the closed allowlist documented at [`../path-template-variables.md`](../path-template-variables.md). Value-template surfaces (Recipe `valuesMapping`, FeatureRecipe `injectMapping` / `provides` / `pipeline.with`, Workload bodies) do NOT receive `.parameters` in their TemplateContext — they consume the resolved values written into the surrounding `values:` strings by phase 3 interpolation.
 
 ### The parameter-hoisting checklist
 
@@ -197,8 +197,8 @@ Every cross-environment value flows through four authoring touchpoints in sequen
 | --- | --- | --- |
 | 1 | Aggregate `spec.parameters.<name>` | **Declare** the parameter as part of the Aggregate's typed authoring contract. Each parameter slot carries a declared `type` (`string`, `integer`, `number`, `boolean`, `array`, `object`), an optional `description`, an optional `default`, optional value-space constraints (`enum`, `min`, `max`, `pattern`, `minLength`, `maxLength`), and optional nested structure for object-typed slots. The contract validates each Release-supplied value before interpolation. |
 | 2 | Component `values:` template inside the same Aggregate | **Reference** the parameter via `{{ .parameters.<name> }}` from inside the `values:` block of any component (or feature, or sub-aggregate) that consumes it. The reference is a Go template expression — the compiler evaluates it during Step 1 interpolation. |
-| 3 | Release `spec.parameters.<name>` (or `parametersFrom:` external file) | **Fulfill** the parameter with the environment-specific value at the Release surface. Per-environment Release files supply different values for the same parameter key without modifying the Aggregate. |
-| 4 | Recipe `valuesMapping:` template | **Consume** the resolved value via `{{ .values.<key> }}` — the Recipe sees the post-interpolation `values:` dictionary and never sees `.parameters` directly. The `parameters` pillar is purged after Step 1; only the resolved values dictionary flows through to Step 5 rendering. |
+| 3 | Release `spec.parameters.<name>` (inline or `parameters: { $import: ./path.yaml }`) | **Fulfill** the parameter with the environment-specific value at the Release surface. Per-environment Release files supply different values for the same parameter key without modifying the Aggregate. |
+| 4 | Recipe `valuesMapping:` template | **Consume** the resolved value via `{{ .values.<key> }}` — the Recipe is a value-template surface; its TemplateContext does not carry `.parameters` directly. Per-environment variation reaches the Recipe through the post-interpolation `values:` dictionary written by Step 1 phase 3. (Path templates on Release boundaries are the carve-out: they read `.parameters.<slot>` directly at Step 5 orchestrator time per the asymmetric grant.) |
 
 The four touchpoints are sequential and load-bearing: skipping the Aggregate declaration leaves the Release with no slot to fulfill; skipping the values reference leaves the Recipe with no value to consume; skipping the Release fulfilment leaves the parameter empty. The compiler validates the chain across Step 1 (parameter contract validation against the typed `parameters:` declaration, then interpolation into the surrounding `values:` strings, then JSON Schema validation of the resulting `values:` dictionary against the Component or Feature `schema:`); mismatches surface as either a parameter-contract violation (caught at Step 1 against the typed `parameters:` declaration), an unfilled-template error (caught at Step 1 interpolation), or a JSON Schema constraint violation against the `values:` schema (caught at Step 1 validation).
 

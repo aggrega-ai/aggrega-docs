@@ -51,7 +51,7 @@ Every location in the DSL where Go template expressions are evaluated, and exact
 | # | Location | Entity | Evaluated In | Available References |
 | :--- | :--- | :--- | :--- | :--- |
 | 1 | `{{ .parameters.X }}` in Aggregate YAML strings | Aggregate | Step 1 (interpolation) | `.parameters` only. All other data is not yet resolved. |
-| 2 | `{{ .parameters.X }}` in Release YAML strings | Release | Step 1 (interpolation) | `.parameters` (including `parametersFrom` deep-merged values). |
+| 2 | `{{ .parameters.X }}` in Release YAML strings | Release | Step 1 (interpolation) | `.parameters` (inline `parameters:` map and `$import:`-loaded values combined into the merged parameter map). |
 | 3 | `directory` / `subDirectory` templates | Release boundary | Step 5 (path evaluation) | `.provider`, `.boundary_name`, `.component_id`, `.parameters.X`, `.boundary_type`, `.manifest.recipe_name`. |
 | 4 | Component `inject` `value:` strings | Aggregate component | Step 5 Pass 2a | `.values`, `.infra`, `.context.instance_id`, `.context.labels`, `.context.annotations.*` (all 3 buckets), `.metadata.*`. **FORBIDDEN:** `.context.inject` (circular — pipe being built), `.context.uses` (use `uses[].inject` for cross-component wiring instead). |
 | 5 | Recipe `source` field strings (top-level string OR string-valued sub-fields of a structured `source:` map) | Recipe | Step 5 Phase B.0 | `.context.instance_id`, `.values`, `.infra`, `.provides` (the same node's Pass 1 output), static strings. **FORBIDDEN:** `.context.inject`, `.context.uses` (self-containment invariant — same rule as Recipe `provides`; source resolution must complete before the topology pipe is hydrated and before any chart, module, or artifact body is loaded). |

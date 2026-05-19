@@ -363,4 +363,4 @@ spec:
         web-server: {}
 ```
 
-> **`parametersFrom` (GitOps pattern):** For CI/CD-driven workflows, the Release can import parameters from external files: `parametersFrom: ["./env/prod-values.yaml"]`. The compiler fetches the file and deep-merges it into the in-memory parameter map.
+> **External parameters file (GitOps pattern):** For CI/CD-driven workflows that keep parameter values in a separate file, the Release uses the `$import:` form: `parameters: { $import: ./env/prod-values.yaml }`. The compiler loads the file's content and replaces the inline `parameters:` map. Multi-file layering (combining a base file with per-environment overrides) is expressed via Release `extends:` chains.

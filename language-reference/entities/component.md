@@ -1,6 +1,6 @@
 # Component
 
-The conceptual role of the Component entity (the abstract compute-node interface in Domain 2) lives in [architecture/04-eight-entity-taxonomy.md](../../architecture/04-eight-entity-taxonomy.md). This page covers the Semantic Label Taxonomy — the label vocabulary Architects use to layer cognitive identity on top of the 7-type base ontology. Additional authoring-surface detail (schemas, worked examples) lands during later migrations.
+The conceptual role of the Component entity (the abstract compute-node interface in Domain 2) lives in [architecture/04-eight-entity-taxonomy.md](../../architecture/04-eight-entity-taxonomy.md). This page covers the Component authoring surface: the Semantic Label Taxonomy that Architects use to layer cognitive identity on top of the 7-type base ontology, the `schema:` declaration for the data pillars, the `usesSchema` and `secretsSchema` declarative tables for topology and credential slots, `requiredFeatures`, the `extends:` inheritance mechanism, and the `assertions:` cross-field rule block.
 
 ## The Semantic Label Taxonomy (The Standard Library Convention)
 
@@ -173,7 +173,7 @@ spec:
       processor_endpoint: { type: string, required: true }
 ```
 
-The compiler walks every Feature attached to a `core/payment-processor` instance — across the Aggregate component-level and subsystem-level features blocks, the Release boundary-level and component-level features blocks, and the Manifest annotation-driven expansion (when shipped) — and confirms each `requiredFeatures:` entry has a matching attachment. A missing required Feature halts the build with a fatal diagnostic naming the component instance, the missing Feature type, and the attachment surfaces the compiler searched.
+The compiler walks every Feature attached to a `core/payment-processor` instance — across the Aggregate component-level and subsystem-level features blocks, the Release boundary-level and component-level features blocks, and the Manifest annotation-driven expansion — and confirms each `requiredFeatures:` entry has a matching attachment. A missing required Feature halts the build with a fatal diagnostic naming the component instance, the missing Feature type, and the attachment surfaces the compiler searched.
 
 The mechanism enforces architectural invariants the Component contract demands. A payment-processing Component that requires `core/audit-logging` ensures every deployment carries the audit-logging Feature regardless of whether the developer remembered to attach it; a PCI-compliant Component requiring `core/pci-compliance` cannot ship without the compliance Feature being explicitly attached at the Release surface.
 

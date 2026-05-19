@@ -1,19 +1,26 @@
 # Parameters template context
 
-The `parameters:` pillar is a Step-1-only template context: it carries the Release-fulfilled, contract-validated parameter values during the YAML-string interpolation pass that runs before Component / Feature schema validation. Once Step 1 completes, the compiler purges the `.parameters` map from the in-memory context, so downstream pipeline stages (Component / Feature validation, Recipe binding, Phase B rendering) do not see `.parameters` directly — they consume the resolved values that interpolation wrote into the surrounding `values:` strings.
+The `parameters:` pillar carries the Release-fulfilled, contract-validated parameter values. Two parallel mental models govern its accessibility:
 
-This page documents the Step-1 template context, the per-slot value shapes, the access patterns inside Aggregate YAML strings, and the boundary semantics that separate the parameters context from the downstream Recipe / FeatureRecipe template context. For the broader template context shape that Recipes consume during Phase B (`.values`, `.infra`, `.uses`, etc.), see [template-context-contract.md](template-context-contract.md). For per-template-site availability across the compilation pipeline, see [expansion-matrix.md](expansion-matrix.md). For the typed-parameter contract declaration shape on the Aggregate, see [`entities/aggregate.md`](../entities/aggregate.md) §"Typed parameter contracts".
+- **Value-template surfaces** (component / feature / sub-aggregate `values:` strings inside the Aggregate, plus Recipe `valuesMapping`, FeatureRecipe `injectMapping` and `provides`, Workload bodies) consume the parameter values as **already-interpolated literals**. The Step 1 interpolation pass walks the Aggregate's YAML strings and substitutes every `{{ .parameters.<slot> }}` reference with the resolved value; downstream value-template surfaces never see `.parameters` directly in their TemplateContext.
+- **Path-template surfaces** (operator-authored `directory:` and `subDirectory:` templates on Release boundaries) read `.parameters.<slot>` directly at Step 5 path-template evaluation. The merged parameter map remains alive through end-of-pipeline so the orchestrator can construct the path-template TemplateContext that includes `.parameters` against the closed allowlist.
 
-## When the `.parameters` map exists
+The asymmetric grant — path templates read `.parameters` directly; value templates do not — keeps each layer owning what it needs: developer-side `values:` carry already-resolved environment-specific data forward to value templates; operator-side path templates reference region / environment / account-id parameters without round-tripping through the Aggregate's `values` schema.
 
-The `.parameters` map is available exclusively during Step 1 of the compilation pipeline:
+This page documents the Step-1 interpolation pass, the per-slot value shapes, the access patterns inside Aggregate YAML strings, the path-template carve-out, and the active-purge timing. For the broader Recipe / FeatureRecipe template context shape (`.values`, `.infra`, `.uses`, etc.), see [template-context-contract.md](template-context-contract.md). For per-template-site availability across the compilation pipeline, see [expansion-matrix.md](expansion-matrix.md). For the typed-parameter contract declaration shape on the Aggregate, see [`entities/aggregate.md`](../entities/aggregate.md) §"Typed parameter contracts". For the path-template variable allowlist that includes `.parameters.<slot>` at boundary `directory:` / `subDirectory:` evaluation, see [`path-template-variables.md`](../path-template-variables.md).
+
+## Parameter lifecycle
+
+The compiler resolves parameters in four ordered phases:
 
 1. **Parameter contract validation** — each Release-supplied value validates against the Aggregate's `spec.parameters.<slot>` declared `type` / `enum` / `min` / `max` / `pattern` / nested-structure constraints. The `.parameters` map exists in the validator's in-memory context as the structured payload being checked.
 2. **Default fill** — slots with `default:` defined and no Release-supplied value receive their default. The `.parameters` map is in scope at this point.
-3. **Interpolation** — the compiler walks every YAML string in the Aggregate that contains a `{{ .parameters.<slot> }}` reference and replaces it with the resolved value. The `.parameters` map is the template context.
-4. **Parameter purge** — once interpolation completes, the `.parameters` map is dropped from the in-memory context. Downstream pipeline stages do not see `.parameters`.
+3. **Interpolation** — the compiler walks every YAML string in the Aggregate that contains a `{{ .parameters.<slot> }}` reference and replaces it with the resolved value. The interpolation is the substitution path for value-template surfaces — after this pass, value-template TemplateContexts no longer carry `.parameters`; they consume the resolved values written into the surrounding `values:` strings.
+4. **End-of-pipeline purge** — after Step 5 rendering completes (path-template evaluation, Phase A injectMapping, Phase B sub-passes, Phase B.6 boundary-scope dispatch, per-(path, provider) assembly), the merged parameter map is actively zeroed and deleted before the build returns. The map's residence window is bounded by the build's lifetime.
 
-Templates inside Aggregate YAML strings (component `values:`, feature `values:`, sub-aggregate `parameters:` pass-through expressions) read the `.parameters` map via standard Go template syntax. Templates inside Recipe and FeatureRecipe files (which evaluate at Phase B, after the parameter purge) do NOT have access to `.parameters`.
+The map remains alive through Step 5 between phases 3 and 4 specifically to support path-template evaluation. The path-template surface (Release `directory:` / `subDirectory:`) reads `.parameters.<slot>` at orchestrator time against the closed allowlist documented at [`path-template-variables.md`](../path-template-variables.md).
+
+Templates inside Aggregate YAML strings (component `values:`, feature `values:`, sub-aggregate `parameters:` pass-through expressions) read the `.parameters` map via standard Go template syntax during the Step 1 interpolation pass. Templates inside Recipe and FeatureRecipe files do NOT receive `.parameters` in their TemplateContext (see "Boundary with downstream template contexts" below for the per-surface contract).
 
 ## The `.parameters.<slot>` access pattern
 
@@ -188,15 +195,17 @@ The three-case dispatch is per-sibling at every nesting depth. A parent authored
 
 ## Boundary with downstream template contexts
 
-The parameters pillar is **purged** after Step 1. Recipes and FeatureRecipes at Phase B do not see `.parameters`. The template-context fields available to Recipes (`.values`, `.infra`, `.uses`, `.secrets`, `.metadata`, `.context.*`, `.provides`, `.locals`) are documented at [template-context-contract.md](template-context-contract.md).
+The asymmetric grant — path templates read `.parameters` directly; value templates do not — is the load-bearing distinction at this boundary. The boundary semantics per surface:
 
-The boundary semantics:
+- An **Aggregate component-`values:` template** that writes `{{ .parameters.X }}` resolves correctly at Step 1 interpolation. The resolved literal is written into the YAML string in place.
+- A **Recipe `valuesMapping:` template** that writes `{{ .parameters.X }}` is a value-template surface; the TemplateContext does not carry `.parameters`. Authors needing per-environment variation in `valuesMapping:` express it through the resolved `.values.<key>` consumption path — the Aggregate exposes a parameter, references it from a Component's `values:`, the Release fulfils it, and the post-interpolation value flows through to the Recipe.
+- A **FeatureRecipe `injectMapping:`, `provides:`, or `pipeline.with:` template** is a value-template surface; same as Recipe `valuesMapping:`. `.parameters` is not in the TemplateContext.
+- A **Workload body template** (`workload:` content inside a Recipe) is a value-template surface; same.
+- A **path template** (Release boundary `directory:` / `subDirectory:`) is the carve-out. The path-template TemplateContext includes `.parameters.<slot>` against the closed allowlist; references resolve at Step 5 orchestrator-time path emission. See [`path-template-variables.md`](../path-template-variables.md) for the full path-template variable matrix.
 
-- A Recipe `valuesMapping:` template that writes `{{ .parameters.X }}` produces a template-execution error at Phase B (`.parameters` is nil at that scope).
-- An Aggregate component-`values:` template that writes `{{ .parameters.X }}` resolves correctly at Step 1.
-- A FeatureRecipe `provides:` template that writes `{{ .parameters.X }}` produces a template-execution error at Phase B (same reason).
+The four-domain ownership boundary is preserved by **which surface receives parameters**, not by whether the parameter map exists in memory at a given pipeline stage. Path templates are operator-authored and operator-owned; granting them direct parameter access keeps operator concerns (per-environment artifact layout) inside the operator surface. Value templates are catalog-authored; denying them direct parameter access keeps catalog-side authoring loosely coupled to the Aggregate-as-Single-Source-of-Truth contract.
 
-The boundary is load-bearing: the architecture preserves the parameters-as-authoring-time-only invariant by purging the map. Recipes operate on the resolved values dictionary; the `.parameters` map exists exclusively at the Aggregate-authoring scope where interpolation runs.
+The merged parameter map is actively purged at end-of-pipeline (after every render phase completes) before the build returns. The residence window is bounded by the build's lifetime.
 
 ## Cross-pillar bridging
 

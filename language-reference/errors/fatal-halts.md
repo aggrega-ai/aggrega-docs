@@ -8,27 +8,31 @@ This catalog is organized by the stage of compilation at which each halt fires. 
 
 The compiler reads every Aggregate, Manifest, Component, Feature, Recipe, FeatureRecipe, Provider, and Release referenced by your build, validates each against its schema, and interpolates typed parameters from the Release into the Aggregate.
 
-### Parameter type mismatch **[pending]**
+### Parameter type mismatch / contract violation
 
-The Release supplied a value whose type does not match what the Aggregate declared for that parameter.
+The Release supplied a value whose type or shape does not match what the Aggregate declared for that parameter. The Step 1a parameter-contract validator catches type mismatches, enum violations, range violations, pattern violations, and missing required parameters before any template interpolation runs.
 
-Intended message (not yet emitted):
-> Parameter `<parameter-name>` in Aggregate `<aggregate-name>` expects type `<declared-type>`, received `<received-type>` value `<received-value>`.
+Emitted message shape:
+> parameter contract violated at `<aggregate-path>` slot `<slot-name>`: `<constraint detail>` (got `<received-type>` value `<received-value>`)
 
-**How to fix:** change the Release value to match the parameter's declared type, or widen the Aggregate's parameter declaration to accept the type you actually need.
+For a parameter declared `required: true` with no `default:` and no Release-supplied value, the validator emits the missing-parameter form:
+> required parameter not supplied at `<aggregate-path>` slot `<slot-name>`
+
+**How to fix:** change the Release value to match the parameter's declared `type` / `enum` / `min` / `max` / `pattern` constraints, supply a missing required parameter, or widen the Aggregate's declaration to accept the shape you actually need.
 
 ### External parameters file cannot be loaded
 
-A Release declares `parametersFrom:` pointing at an external parameter file that does not exist, cannot be read, or cannot be parsed as YAML.
+A Release declares `parameters: { $import: <path> }` pointing at an external parameter file that does not exist, cannot be read, or cannot be parsed as YAML.
 
 Emitted message:
-> parametersFrom load failed: `<path>`: `<underlying-error>`.
+> failed to read file: `<path>`: `<underlying-error>`
+> failed to unmarshal YAML: `<path>`: `<underlying-error>`
 
-**How to fix:** verify the `parametersFrom:` path is correct relative to the Release file, confirm the file exists and is readable by the build process, and check that its contents parse as valid YAML. If the file is committed to the repository, confirm the Release's build context can see it (for example, a gitignored `.env` file is not available during a CI build).
+**How to fix:** verify the `$import:` path is correct relative to the Release file, confirm the file exists and is readable by the build process, and check that its contents parse as valid YAML. If the file is committed to the repository, confirm the Release's build context can see it (for example, a gitignored `.env` file is not available during a CI build).
 
 ### Recipe shape rules
 
-A Recipe composes its output from three input kinds — sourced, synthesized, and artifacts — described in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md). The shape of a valid Recipe is constrained by seven composition rules; six are checked when the Recipe is loaded, one is checked at emission time. The seven rules apply to Recipes that target a non-`eval` provider; the `eval` provider has its own constraint (below).
+A Recipe composes its output from three input kinds — sourced, synthesized, and artifacts — described in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md). The shape of a valid Recipe is constrained by six composition rules; five are checked when the Recipe is loaded, one is checked at emission time. The rules apply to Recipes that target a non-`eval` provider; the `eval` provider has its own constraint (below). The rule numbering preserves a gap at Rule 3 — the original Rule 3 forbade authoring `workload:` and the retired `workloadFrom:` together; with the unified `$import:` file-import vocabulary, the retired keyword no longer exists and the rule was dropped without renumbering the surviving rules.
 
 Every Recipe-shape error carries the same message shape:
 
@@ -141,30 +145,35 @@ Emitted message:
 
 **How to fix:** inspect the `extends:` fields along the chain reported in the message and break the cycle by removing one of the pointers or by collapsing the duplicated content into a single base entity.
 
-### Recipe `implements` does not match the component type **[pending]**
+### Recipe `implements` does not match the mapped component type
 
-The Manifest picked a Recipe whose `implements:` declaration does not match the Component's `type:` (under the three-form version matching rules — exact, range, unversioned).
+The Manifest's mapping entry points at a Recipe whose `spec.implements:` declaration does not match the component-type key for that mapping entry. The check fires at workspace load time as a load-time consistency check (per the post-migration direct-URI-lookup model — `spec.implements` becomes a consistency check, not a dispatch mechanism).
 
-Intended message (not yet emitted):
-> Recipe `<recipe-name>:<version>` implements `<implements-ref>` but Component `<component-id>` in Aggregate `<aggregate-name>` has type `<component-type>`.
+Emitted message:
+> CATALOG_ERROR: manifest mapping `<component-type>` → `<recipe-uri>`: recipe spec.implements is `<recipe-implements>` (expected `<component-type>`)
 
-**How to fix:** either correct the Recipe's `implements:` declaration so it matches the Component type, or change the Manifest entry to point at a Recipe that does implement the right type.
+A parallel form fires when the mapping entry points at a Recipe URI that does not exist in the catalog at all:
+> CATALOG_ERROR: manifest mapping `<component-type>` → `<recipe-uri>`: recipe not found in catalog
+
+FeatureRecipe entries follow the same shape; the `features.type` mapping check emits `manifest feature mapping ... featurerecipe spec.implements is ... (expected ...)`.
+
+**How to fix:** either correct the Recipe's `spec.implements:` declaration so it matches the Manifest's component-type key, or change the Manifest entry to point at a Recipe whose `spec.implements:` does match the component-type key.
 
 ### Ambiguous Recipe selection **[pending]**
 
-Two or more Recipes tie for specificity when resolving a single Component through the Manifest's two-tier lookup.
+Two or more Recipes tie for specificity when resolving a single Component through the catalog's three-form (exact / caret-range / unversioned) implements-index lookup — for example, two exact-version Recipes declaring the same `spec.implements:` URI, or two unversioned Recipes for the same Component type. The ambiguity-detection sentinel is designed but not yet shipped; today the catalog's exact-string lookup resolves only literal-key matches, and the broader three-form precedence (which is where within-form ties surface) ships alongside the range-match implementation. Until then, ambiguity does not surface as a fatal halt — authors with multiple Recipes declaring the same `spec.implements:` should disambiguate by version.
 
 Intended message (not yet emitted):
 > Component `<component-id>` in Aggregate `<aggregate-name>` resolves to multiple Recipes with equal specificity: `<recipe-1>`, `<recipe-2>`. Disambiguate with a name-keyed Manifest entry.
 
 **How to fix:** add a name-keyed entry in the local Manifest that explicitly routes this Component to one Recipe. Name-keyed entries beat type-keyed entries, so the ambiguity resolves.
 
-### Divergent Release (extends + aggregate pointer) **[pending]**
+### Divergent Release (extends + aggregate pointer)
 
-A Release uses `extends:` to inherit from a base Release but also declares its own `aggregate:` pointer.
+A Release uses `extends:` to inherit from a base Release but also declares its own `aggregate:` pointer. The Release JSON Schema rejects this shape at schema validation (Layer 1 envelope validation) via an `allOf` constraint: when `extends:` is present, `aggregate:` is forbidden; when `extends:` is absent, both `aggregate:` and `manifest:` are required.
 
-Intended message (not yet emitted):
-> Release `<release-name>` declares both `extends: <parent-release>` and `aggregate: <aggregate-ref>`. A Release that extends another Release must inherit the parent's Aggregate pointer.
+Emitted message shape (Layer 1 schema validation):
+> Release `<path>` failed schema validation: `aggregate` is not permitted when `extends` is set, or `aggregate`+`manifest` must be set when `extends` is absent.
 
 **How to fix:** remove the `aggregate:` field from the child Release. Inheritance intentionally forces the child to deploy the same Developer Intent as its parent; if you need to deploy a different Aggregate, author a fresh Release without `extends:`.
 
@@ -203,7 +212,7 @@ Once every Component has a resolved Recipe, the compiler stitches Components tog
 
 ### Dangling `uses` target **[pending]**
 
-A Component's `uses:` entry points at a target name that does not exist in the Aggregate.
+A Component's `uses:` entry points at a target name that does not exist in the Aggregate. The target-reference validator is declared in the resolver but does not have production call sites today; the dangling reference surfaces at edge-typing time as an indirect error (a topology edge cannot resolve its target). The dedicated halt is planned alongside the broader resolver wiring of target-reference validation.
 
 Intended message (not yet emitted):
 > Component `<component-id>` in Aggregate `<aggregate-name>` has `uses.<group>.<target-id>` pointing at `<target-id>`, which is not declared in this Aggregate.
@@ -332,9 +341,9 @@ Emitted message:
 
 **How to fix:** refactor the template to pull only from the Recipe's own pillars. If the value you need depends on another node's output, that dependency belongs in a caller's `uses[].inject` block, not in the target's `provides`. Cross-node wiring is the consuming side's responsibility.
 
-### Cross-node type safety violation via `@selector()`
+### Cross-node type safety violation via `selector:`
 
-A `usesSchema` socket declares a `@selector()` attribute tag that excludes the target Component attached at the other end of the edge. The selector is the catalog author's way of saying "this socket only accepts targets whose labels match this expression"; an edge that satisfies the socket-name lookup but fails the selector expression is a type-safety violation.
+A `usesSchema` socket declares a `selector:` field that excludes the target Component attached at the other end of the edge. The selector is the catalog author's way of saying "this socket only accepts targets whose labels match this expression"; an edge that satisfies the socket-name lookup but fails the selector expression is a type-safety violation. The synthesized JSON Schema carries the selector as the `x-aggrega-selector:` extension keyword consumed by the native Go selector engine.
 
 Emitted message:
 > selector violation on edge `<source-id> --<socket>--> <target-id>`: target does not match selector `<selector-expression>`.
@@ -406,14 +415,18 @@ Emitted message:
 
 **How to fix:** move the cross-component wiring into a `uses[].inject` entry — that is where cross-node context is available. Keep component-level self-inject `value:` templates closed over the Component's own `values`, `parameters`, `infra`, and `locals`.
 
-### Missing template key **[pending]**
+### Missing template key — asymmetric policy
 
-A template in a Recipe, a FeatureRecipe, or a Provider eval references a parameter or context key that was never supplied.
+The renderer's missing-key handling depends on the template surface:
 
-Intended message (not yet emitted):
-> template evaluation for `<entity>` at `<field-path>` references `<key>` which was not provided by Aggregate, Release, or upstream inject.
+- **Path templates** (Release boundary `directory:` / `subDirectory:`) evaluate with `missingkey=error` against a closed allowlist. A reference to an undeclared variable halts at parse time with `PATH_TEMPLATE_INVALID_FIELD`; an in-allowlist-but-undefined-at-eval-time reference produces an explicit error rather than silently rendering an empty string into a directory path.
+- **Value templates** (Recipe `valuesMapping`, FeatureRecipe `injectMapping` / `provides` / `pipeline.with`, Workload bodies, Component / Feature `assertions`) evaluate with `missingkey=zero`. A reference to an undefined key renders as the type's zero value (empty string / `0` / `false`) without erroring. Catalog idioms like `{{ .values.optional_field | default "fallback" }}` continue to work; authors who need the absent-vs-zero discriminator use the `optional` helper documented at [`templates/sprig-functions.md`](../templates/sprig-functions.md).
+- **Typed parameter contracts** catch missing-required-parameter and contract-violation cases at Step 1a (parameter-contract layer) with `ErrParameterContractViolation` / `ErrParameterMissing` — see "Parameter type mismatch / contract violation" above.
 
-**How to fix:** supply the missing key — as a `parameters.*` declaration on the Aggregate with a Release value, as an upstream Component's `provides:` entry wired through `uses[].inject`, or as a `locals:` entry on the same entity. The template engine runs with missing-key-is-fatal semantics so that empty strings do not silently reach rendered artifacts.
+Path-template missing-key emit shape:
+> PATH_TEMPLATE_INVALID_FIELD: `<directory|subDirectory>` template on boundary `<boundary-name>` references `<dotted-path>` which is not in the path-template variable allowlist.
+
+**How to fix:** for path-template misses, correct the field name to one in the allowlist documented at [`path-template-variables.md`](../path-template-variables.md). For value-template misses where empty rendering is undesired, use the `optional` helper or supply the missing key as a typed `parameters.*` declaration on the Aggregate with a Release value, as an upstream Component's `provides:` entry wired through `uses[].inject`, or as a `locals:` entry on the same entity.
 
 ## The linter domain (not fatal)
 

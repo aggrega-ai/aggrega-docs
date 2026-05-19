@@ -104,9 +104,9 @@ The placement criterion phrased as a single rule: **if the check should halt the
 
 The criterion matters only when both sockets ship. Today only `policy-validator.wasm` is typed (and inert); `linter.wasm` is design target only. Authors targeting a future shipping milestone use the criterion to choose the socket; authors writing custom enterprise policies today have only the `policy-validator.wasm` typed surface, and the runtime that would execute either socket is not yet wired.
 
-## What the audit framing names that does not exist in code
+## Design surfaces without current code anchors
 
-Three items from the audit-other-findings framing for finding 3.14 do not have current code anchors:
+Three design surfaces named elsewhere in the corpus do not have current code anchors today:
 
 - **Six output shapes.** Current code defines two (JSONPatch via mutator, PolicyResult array via policy-validator). The architecture chapters and worked examples describe additional shapes (Strategic Merge Patch, Resource Generation, Step output, Provider rendering output) but those don't carry Go type definitions in the compiler today.
 - **`linter.wasm` socket.** No types, no host-side dispatch, no test fixtures. The placement criterion above is forward-looking design guidance; today's authoring surface has only `policy-validator.wasm`.
