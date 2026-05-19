@@ -153,10 +153,18 @@ Both the `Aggregate` and `Release` schemas carry a `parameters` dictionary at th
 # aggregate.yaml
 spec:
   parameters:
-    corp_db_name: ""
-    env_workers: ""
-    region: ""
-    enable_debug: ""
+    corp_db_name:
+      type: string
+      required: true
+    env_workers:
+      type: integer
+      required: true
+    region:
+      type: string
+      required: true
+    enable_debug:
+      type: boolean
+      required: true
   components:
     my-backend:
       type: core/python-worker:1.0.0
@@ -172,9 +180,9 @@ spec:
   manifest: prod-manifest
   parameters:
     corp_db_name: "enterprise_data"
-    env_workers: "10"
+    env_workers: 10
     region: "eu-west-1"
-    enable_debug: "false"
+    enable_debug: false
   parametersFrom:
     - "./prod-values.yaml"    # Deep-merged into the parameters map
 ```

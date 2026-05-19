@@ -293,8 +293,12 @@ metadata:
   version: 1.0.0
 spec:
   parameters:
-    app_image: ""
-    db_name: ""
+    app_image:
+      type: string
+      required: true
+    db_name:
+      type: string
+      required: true
 
   components:
     app-db:

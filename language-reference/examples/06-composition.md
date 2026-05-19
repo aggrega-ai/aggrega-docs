@@ -14,7 +14,9 @@ metadata:
   version: 1.0.0
 spec:
   parameters:
-    env_db_name: ""
+    env_db_name:
+      type: string
+      required: true
   components:
     main-db:
       type: core/postgres:1.0.0             # Uses Component from Example 2
@@ -35,7 +37,9 @@ metadata:
   version: 1.0.0
 spec:
   parameters:
-    corp_db_name: ""
+    corp_db_name:
+      type: string
+      required: true
 
   aggregates:
     data-layer:
@@ -136,7 +140,9 @@ metadata:
   version: 1.0.0
 spec:
   parameters:
-    legacy_db_ip: ""                         # The contract Ops must fulfill
+    legacy_db_ip:                            # The contract Ops must fulfill
+      type: string
+      required: true
 
   components:
     stripe-api:

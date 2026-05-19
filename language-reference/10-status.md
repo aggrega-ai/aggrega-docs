@@ -60,6 +60,8 @@ Aggrega's Go template engine evaluates Recipe and FeatureRecipe templates agains
 
 **Parameter-contract enforcement at the declaration layer.** Required parameters that the Release does not supply produce explicit errors at Step 1a of the resolver pipeline — the parameter-contract layer — with file:line provenance naming the parameter and the contract. Type / constraint violations surface the same way. This is the substantive missing-key enforcement: typing is checked where the developer's intent lives (the Aggregate's `parameters:` declaration), not at downstream template-eval time. See [`entities/aggregate.md`](entities/aggregate.md) §"Typed parameter contracts".
 
+**Single declaration grammar for Aggregate `parameters:`.** Each parameter slot is authored as a typed-contract object (`key: { type: <type>, default: <value>, ... }`). The previously-accepted bare-scalar shorthand (`key: <value>`) is rejected at parse time with a directed error pointing the author at the typed-contract syntax. The typed-contract vocabulary makes the `type:`, `required:`, and constraint semantics explicit at the declaration layer; Release fulfillment continues to use scalar values per the contract's declared type.
+
 See [`templates/expansion-matrix.md`](templates/expansion-matrix.md) for the per-template-site evaluation matrix and [`05-templates.md`](05-templates.md) for the templating overview.
 
 ## Compilation pipeline phases
