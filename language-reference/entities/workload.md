@@ -166,6 +166,85 @@ The compose engine emits a warning comment in the generated `docker-compose.yaml
 
 **Provider-specific note (compose).** Authoring a `health:` block on a compose-targeted Workload does not gate `depends_on` ordering on health: the compose provider's `depends_on` entries derived from `uses:` edges always use `service_started` semantics, regardless of whether the target Workload declares health probes. Long-form `service_healthy` gating is planned for a future iteration. See [providers/compose.md](../providers/compose.md) for the full inference rules.
 
+## K8s-shape pass-through fields — `scheduling`, `serviceAccount`, `podSecurityContext`
+
+The Workload schema accepts three optional top-level fields that exist primarily to thread Kubernetes-native primitives through the helm provider while preserving Aggrega's structural shape. The compose provider translates the subset that has a Compose analogue and ignores the rest with an emitted warning. Aggrega validates the outer shape but does not police the inner content (per "Validation surface" above) — the K8s-native inner values pass through verbatim to the helm-rendered pod spec.
+
+### `scheduling`
+
+`scheduling` groups four K8s-native scheduling primitives — `nodeSelector`, `affinity`, `tolerations`, `topologySpreadConstraints` — into one block keyed by purpose. Each sub-field is shaped exactly as the corresponding Kubernetes pod-spec field:
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Workload
+scheduling:
+  nodeSelector:
+    disktype: ssd
+    region: us-east-1
+  tolerations:
+    - key: dedicated
+      operator: Equal
+      value: gpu-workloads
+      effect: NoSchedule
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchLabels: { app: "{{ .context.instance_id }}" }
+            topologyKey: kubernetes.io/hostname
+  topologySpreadConstraints:
+    - maxSkew: 1
+      topologyKey: topology.kubernetes.io/zone
+      whenUnsatisfiable: ScheduleAnyway
+containers:
+  app: { image: "..." }
+```
+
+**Provider translation.** The helm provider passes each sub-field verbatim into the rendered pod spec. The compose provider has no equivalent for `affinity`, `tolerations`, or `topologySpreadConstraints`; it emits a warning naming the dropped field. `nodeSelector` translates to a Compose `deploy.placement.constraints` block when the target compose version supports it; older targets drop the field with a warning.
+
+### `serviceAccount`
+
+`serviceAccount` is a plain string carrying the name of the ServiceAccount the workload runs under:
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Workload
+serviceAccount: "{{ .context.instance_id }}-runner"
+containers:
+  app: { image: "..." }
+```
+
+The field references an existing ServiceAccount; it does not create one. The accompanying RBAC resources (the ServiceAccount object itself, plus Role / RoleBinding / ClusterRole / ClusterRoleBinding) should ship through one of two channels:
+
+- **Recipe `artifacts:`** — when the RBAC is intrinsic to this Recipe (the Recipe knows it needs a specific Role for a specific job).
+- **Features with Resource Generation** — when the RBAC is cross-cutting (a Workload-Identity FeatureRecipe attaching IAM-bound ServiceAccounts to every component with a particular label).
+
+Setting `serviceAccount:` without arranging for the named ServiceAccount to exist results in a runtime K8s error at apply time, not a build-time error — the workload schema validation does not cross-check ServiceAccount existence (no compile-time access to the cluster state per the AOT-purity invariant).
+
+The compose provider ignores `serviceAccount:` with a warning; Compose has no equivalent identity-binding concept.
+
+### `podSecurityContext`
+
+`podSecurityContext` carries pod-level security primitives — UID, GID, fsGroup, supplementalGroups — that apply to every container in the pod:
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Workload
+podSecurityContext:
+  runAsUser: 1000
+  runAsGroup: 3000
+  fsGroup: 2000
+  supplementalGroups: [4000, 5000]
+containers:
+  app: { image: "..." }
+```
+
+**Field semantics.** All four fields are integers (numeric UIDs/GIDs, not strings); `runAsUser` and `runAsGroup` set the container processes' effective UID/GID; `fsGroup` sets the group ownership for volumes mounted into the pod; `supplementalGroups` adds additional GIDs to each container's process group.
+
+**Provider translation.** The helm provider passes the block verbatim into the rendered pod spec. The compose provider has no equivalent for `fsGroup` or `supplementalGroups`; `runAsUser`/`runAsGroup` translate to the Compose `user: "1000:3000"` form. Per-container `securityContext:` (a separate K8s pod-spec field on individual containers) is not part of the Workload schema today; that lives on the helm provider's per-container overlay path and is an authoring concern at the chart level, not at the Workload-grammar level.
+
 ## Secrets integration with the Component's `secretsSchema`
 
 The Workload's `containers.<name>.secrets` block references credential slots declared in the Component's `secretsSchema`; it does not declare new slots. See [../entities/component.md](../entities/component.md) for the `secretsSchema` authoring surface.

@@ -175,6 +175,32 @@ Boundary-scope FRs produce one `provides:` set per `(boundary_path, FR-instance)
 
 The compose-bridge FeatureRecipe is the canonical boundary-scope-FR pattern. A `core/compose-bridge` feature is attached at a parent boundary that contains two sub-boundaries (e.g., `services-net` and `data-net` with shared `directory:`). The FR's `executionScope: boundary` ensures one bridge service is synthesized per parent-boundary attachment. Phase-A `injectMapping` rewrites each consumer's `DB_HOST` (or equivalent) to point at the bridge address. Phase-B Resource Generation emits the bridge's `nginx-stream` compose service, which the per-(path, provider) compose assembler merges with per-component compose contributors at the same evaluated path. The result is one `docker-compose.yaml` containing every component plus the bridge service, with cross-network routing wired correctly.
 
+## The `locals:` block
+
+`FeatureRecipe.spec.locals:` is an optional Go template body whose rendered output exposes a `.locals.*` map to every other template inside the same FeatureRecipe. It is the FeatureRecipe-private equivalent of Recipe `locals:` — a place to compute derived strings once and reference them from `injectMapping`, `valuesMapping`, `pipeline[].with`, `provides`, and `assertions:` without recomputing.
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: FeatureRecipe
+metadata:
+  name: regional-router
+spec:
+  implements: core/regional-router:^1.0.0
+  provider: helm
+  locals: |
+    region_prefix: "{{ index .context.annotations.release "cloud.aggrega.ai/region" | lower }}"
+    fqdn_suffix: "{{ printf "%s.svc.cluster.local" .infra.namespace }}"
+  injectMapping: |
+    env:
+      "{{ .infra.target_var }}": "{{ .locals.region_prefix }}.{{ .infra.target_var | lower }}.{{ .locals.fqdn_suffix }}"
+```
+
+`.locals.*` is per-invocation: each FR invocation evaluates its own `locals:` template against the invocation's template context, and `.locals` is visible only to that invocation's downstream templates. `locals:` runs after Phase A interception evaluates the `.context.*` view but before the FR's other authoring-surface templates evaluate, so every other template in the FR sees the resolved `.locals` map.
+
+**Scope behavior.** For `executionScope: component` (default), `locals:` evaluates per attached component instance with the per-component `TemplateContext` rooted at `.context.*`. For `executionScope: boundary`, `locals:` evaluates per boundary attachment with the boundary-scope view rooted at `.boundary.*`; the per-component fields (`.context.instance_id`, `.context.inject`, `.context.uses`) are not available. The boundary-scope template field allowlist applies to `locals:` the same way it applies to the other FR authoring-surface templates.
+
+**Distinction from `injectMapping` overlays and `pipeline[].with` mappings.** `locals:` produces a context-visible map for downstream templates; it does not contribute output. `injectMapping` writes into the consumer's `.context.inject` pipe (caller-side mutation). `pipeline[].with` supplies the Wasm plugin's `args` payload. The three surfaces are orthogonal — a FeatureRecipe routinely uses all three together, with `locals:` carrying the shared derived strings the other two reference.
+
 ## The `assertions:` block
 
 `FeatureRecipe.spec.assertions:` is an optional Go template body that expresses **implementation invariants of the FeatureRecipe** — cross-field rules that hold given the specific Wasm plugin pipeline, chart, or mechanism the FeatureRecipe wraps. Like Recipe assertions, FeatureRecipe assertions are properties of the specific implementation; the Feature-level contract rules apply independently at an earlier pipeline phase.

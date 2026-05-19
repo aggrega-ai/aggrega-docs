@@ -16,9 +16,32 @@ When a Recipe declares `spec.provider: helm`, the compiler:
 
 Recipes should reference the exact version of the provider they were authored for (e.g., `spec.provider: "helm:1.0.0"`). If the version tag is omitted (e.g., `spec.provider: "helm"`), the compiler dynamically falls back to fetching the `latest` available version of the Wasm plugin from the registry. The IDE Language Server (LSP) runs this resolved Wasm plugin in the background, extracting its native JSON schema to provide real-time autocomplete and linting directly to the developer.
 
+## The `plugin:` field
+
+Every Provider declares a `spec.plugin:` field carrying the URI of the Wasm rendering socket capable of producing the target format:
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Provider
+metadata:
+  name: helm
+spec:
+  plugin: "hub.aggrega.ai/providers/helm-renderer:1.0.0"
+  baseSchema: |
+    ...
+  workloadSchema: |
+    ...
+```
+
+`plugin:` is the routing primitive that ties the logical provider name (the Provider's `metadata.name`, e.g. `helm`) to the concrete Wasm artifact (`hub.aggrega.ai/providers/helm-renderer:1.0.0`). The compiler resolves a Recipe's `spec.provider: helm` value to the matching Provider entity, then dereferences `spec.plugin` to load the Wasm socket. The Recipe never names the Wasm plugin directly; it names the logical provider, and the Provider catalog entry supplies the indirection.
+
+The plugin URI uses the same OCI registry conventions as the rest of the catalog. The version tag may be omitted at the Recipe authoring surface (per **Versioning** above); the resolved Provider entity still carries an explicit `plugin:` URI with a concrete version, captured at catalog publish time.
+
+`plugin:` is distinct from FeatureRecipe `spec.pipeline[].plugin` — the latter is a Wasm mutation socket attached to a single FeatureRecipe pipeline step, not the format-renderer the whole Provider routes to. See [entities/featurerecipe.md](featurerecipe.md) for the FeatureRecipe pipeline shape.
+
 ## Standard Library Providers
 
-The official catalog ships four first-class rendering providers:
+The official catalog ships six first-class rendering providers:
 
 * `helm` — Kubernetes Helm charts rendered to flat YAML via the Helm Go SDK
 * `helm-chart` — Helm umbrella chart with per-component sub-charts (for Helm-native distribution)

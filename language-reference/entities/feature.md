@@ -78,6 +78,45 @@ spec:
 
 This Feature attaches only to `server`-typed Components, declares incompatibility with another replica-controlling Feature, and instructs the renderer to write the target component's resolved name into the generated artifact at `.spec.scaleTargetRef.name`.
 
+## Inheritance via `extends`
+
+A Feature may declare `spec.extends: <feature-uri>` pointing to a base Feature whose authoring surface it inherits. The compiler walks the parent chain at catalog load, validates that the chain is acyclic, then merges parent specs into the child to produce a single resolved Feature. The child's authored fields take precedence on key collision; the parent's `metadata.labels`, `appliesTo` / `appliesToExpressions` / `appliesToAnyOf` selectors, `interoperability` block, `usesSchema`, `secretsSchema`, and the JSON Schema 2020-12 declarations on `schema` are auto-merged downward.
+
+```yaml
+# Base Feature — generic message queue intent
+apiVersion: aggrega.ai/v1alpha1
+kind: Feature
+metadata:
+  name: core/queue
+spec:
+  appliesTo: { component.aggrega.ai/type: worker }
+  schema:
+    values:
+      qos: { type: string, enum: [at-most-once, at-least-once, exactly-once], required: true }
+    infra:
+      partition_count: { type: integer, min: 1 }
+
+---
+# Child Feature — Kafka-specialized variant
+apiVersion: aggrega.ai/v1alpha1
+kind: Feature
+metadata:
+  name: core/kafka-queue
+spec:
+  extends: hub.aggrega.ai/feature/core/queue:1.0.0
+  schema:
+    values:
+      compression_codec: { type: string, enum: [none, gzip, snappy, lz4], default: none }
+```
+
+The merged `core/kafka-queue` inherits `appliesTo` from the parent, inherits the `values.qos` and `infra.partition_count` properties, and adds `values.compression_codec` on top. A child explicitly declaring `appliesTo` overrides the parent's selector wholesale (label-selector merge is not deep — the child's selector replaces the parent's). A child's `schema.values.qos` overrides the parent's declaration for that property.
+
+**Inheritance is schema-merge, not interface-binding.** A Feature `extends:` chain produces one resolved Feature, not a polymorphic family. The base Feature URI from the chain is not what a Manifest binding's `feature:` field references — Manifests bind by the leaf Feature's URI, and the resolved schema includes the inherited properties. The Feature contract a FeatureRecipe `implements:` is similarly the leaf URI; FeatureRecipes do not navigate the inheritance chain.
+
+**Error modes.** Cyclic `extends:` chains and missing parent URIs halt catalog load with explicit error sentinels (`ErrCyclicExtension` / `ErrInheritanceMerge`) naming the offending Feature, the parent reference that failed, and the chain reconstruction. See [errors/fatal-halts.md](../errors/fatal-halts.md) for the per-error message shapes.
+
+For the broader inheritance / interface vocabulary across Components, Features, and credential Features, see [vocabulary/inheritance-and-interface.md](../vocabulary/inheritance-and-interface.md).
+
 ## Composability: the Purity Social Contract
 
 The standard-library convention is **one Feature, one internal function** — an observability sidecar is an observability Feature; a network-proxy sidecar is a network-proxy Feature; they do not combine into a single composite with two unrelated concerns. The convention keeps individual Features composable, independently versioned, and independently attachable.

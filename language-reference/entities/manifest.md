@@ -99,11 +99,7 @@ The capability handshake uses the same flat-URI mapping:
 3. If the lookup resolves to a FeatureRecipe URI (e.g., `core/helm/lakera-guard-istio:1.2.0`), the capability exists and the FeatureRecipe's pipeline executes in the defined order.
 4. If `features.type` contains no matching entry, the compiler halts the build and lists the unmapped Feature.
 
-### Annotation-driven Feature bindings
-
-The Manifest's `features.annotations` block declares bindings between annotation keys and Feature types plus the routing paths each binding sends the annotation value through. The binding is the authoring surface for compressing repetitive per-component Feature attachments — the pattern where dozens of components across a boundary each carry an identical `features:` block — into single annotation declarations on Release boundaries or Aggregate subsystems.
-
-The full binding shape, the side-vs-pillar partition that governs which authoring surface can use which routing paths, the explicit-attachment-wins discipline, and the schema-defaults rule live in the dedicated [Annotation-Driven Feature Bindings](#annotation-driven-feature-bindings-1) section below.
+The Manifest also accepts a `features.annotations` block — a parallel authoring surface that lets a Release or Aggregate subsystem attach Features by annotation key rather than by per-component declaration. The binding shape, the side-vs-pillar partition that governs which authoring surface uses which routing paths, the explicit-attachment-wins discipline, and the schema-defaults rule live in the dedicated [Annotation-Driven Feature Bindings](#annotation-driven-feature-bindings) section further down.
 
 ## Composition via `extends`
 

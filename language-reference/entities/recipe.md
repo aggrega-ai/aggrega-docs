@@ -214,6 +214,131 @@ The inventory is the canonical reference for what authors can put in `source:` t
 
 JSON is suited for machine-to-machine communication, not for manual human authoring. Ops engineers author their Recipes using standard `.tf` HCL files; the Wasm rendering socket generates the final JSON artifacts. The `.tf.json` in the `dist/` folder is a compiled output, following the same authoring-vs-output split established by AWS CDK and CDKTF.
 
+## The `workload:` field — synthesized input kind
+
+`Recipe.spec.workload:` declares the Workload body the compiler synthesizes into provider-native resources. It is one of the three input kinds a Recipe may declare alongside `source:` (sourced rendering) and `artifacts:` (auxiliary manifests). At least one of the three must be present for non-`eval` providers; the `eval` provider rejects all three by schema constraint.
+
+The field accepts two content-shape-dispatched authoring modes:
+
+**Mode 1: Inline (Go template string scalar).** The value is a YAML block scalar whose output parses as `aggrega.ai/v1alpha1 Workload`:
+
+```yaml
+spec:
+  provider: helm
+  implements: core/web-server:1.0.0
+  workload: |
+    apiVersion: aggrega.ai/v1alpha1
+    kind: Workload
+    metadata:
+      name: "{{ .context.instance_id }}"
+    spec:
+      containers:
+        - name: app
+          image: "{{ .values.image }}"
+          ports:
+            - { name: http, port: 8080 }
+      replicas: {{ .infra.replicas | default 1 }}
+```
+
+**Mode 2: File `$import:`.** The value is a map with a single `$import:` key pointing at a local Go-template file:
+
+```yaml
+spec:
+  workload:
+    $import: ./workload/web-server.yaml.tmpl
+```
+
+Library `$import:` (the `oci://` form supported by `valuesMapping:`) is not available at this site — Workload bodies are Recipe-local. The target Provider must declare `workloadSchema:` to accept synthesized input; targeting a Provider that does not is rejected at Recipe load. For the full Workload grammar, the K8s-shape pass-through fields, and the per-provider translation behavior, see [entities/workload.md](workload.md). For the broader three-input-kinds model and the assembler that merges synthesis with source-rendered output and artifacts, see [architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md).
+
+## The `artifacts:` field — auxiliary manifests
+
+`Recipe.spec.artifacts:` is a map of output-filename → artifact-body authoring whose entries emit additional manifest files alongside the Recipe's sourced or synthesized primary output. It is one of the three input kinds (sourced / synthesized / artifacts) — a Recipe may declare `artifacts:` alone, or alongside `workload:` and/or `source:`.
+
+Map keys become output filenames verbatim; each entry's value carries one of two content-shape-dispatched modes parallel to `workload:`:
+
+```yaml
+spec:
+  provider: helm
+  implements: core/web-server:1.0.0
+  artifacts:
+    extra-configmap.yaml: |
+      apiVersion: v1
+      kind: ConfigMap
+      metadata:
+        name: "{{ .context.instance_id }}-extras"
+      data:
+        threshold: "{{ .values.threshold }}"
+    network-policy.yaml:
+      $import: ./artifacts/network-policy.tmpl
+```
+
+Each artifact entry's template evaluates with the same template context as `valuesMapping:`. Map keys translate to filenames in the assembled output; filename collisions across artifact entries, source output, and workload synthesis are load-time or render-time errors with a clear diagnostic naming every contributor. Library `$import:` is not available at this site; artifacts are Recipe-local.
+
+**Use cases.** `artifacts:` is the home for auxiliary resources that the primary chart or module does not produce: a `NetworkPolicy` accompanying a workload, an `HPA` paired with a Deployment, a sidecar `ConfigMap` keyed off `instance_id`. Cross-cutting auxiliary resources that apply across many components (a backup sidecar attached to every datastore, for example) belong on FeatureRecipe Resource Generation rather than per-Recipe `artifacts:` — see [entities/featurerecipe.md](featurerecipe.md) for the FeatureRecipe extension surface.
+
+## The `locals:` block
+
+`Recipe.spec.locals:` is the **Private Ops State** — a map of named Go template strings whose rendered output exposes a `.locals.*` map to every other template in the same Recipe. It is the workspace for computing physical realities (target containers, JSON paths, derived hostnames) once and reusing them across `valuesMapping:`, `provides:`, and `pipeline[].with` payloads without recomputation.
+
+```yaml
+spec:
+  provider: helm
+  implements: core/postgres-db:1.0.0
+  locals:
+    primary_compute: postgresql
+    listen_port: "5432"
+    secret_target_db_password: "{{ .context.instance_id }}-postgres-auth"
+    volumes_path: "/spec/template/spec/volumes"
+  valuesMapping: |
+    primary:
+      auth:
+        existingSecret: "{{ .locals.secret_target_db_password }}"
+```
+
+`locals:` is never exposed to callers — downstream components consuming this Recipe via `uses:` see only `provides:`. The Recipe's own templates (`valuesMapping:`, `provides:`, `pipeline[].with`, `assertions:`) all see the resolved `.locals.*` map. Per-key values may be plain strings or Go templates; the compiler evaluates `locals:` early in Phase B so all downstream templates observe stable resolved values.
+
+For the public-API counterpart, see [The `provides:` block](#the-provides-block) below. For the FeatureRecipe equivalent, see [entities/featurerecipe.md](featurerecipe.md) "The `locals:` block".
+
+## The `provides:` block
+
+`Recipe.spec.provides:` is the **Public Developer API** — a map of name → Go template string declaring the values this Recipe contributes to downstream callers' `.context.inject` and `.context.uses` pipes. The compiler evaluates `provides:` templates in Pass 1 (self-contained, any order); callers' `inject` keys resolve against these values in Pass 2.
+
+```yaml
+spec:
+  provider: helm
+  implements: core/postgres-db:1.0.0
+  provides:
+    host: "{{ .context.instance_id }}-postgresql.{{ .context.annotations.release.\"aggrega.ai/namespace\" }}.svc.cluster.local"
+    port: "5432"
+    database: "{{ .values.db_name }}"
+```
+
+Each entry's template evaluates with the per-instance template context (`.context.*`, `.values`, `.infra`, `.locals`). The Pass 1 / Pass 2 split is load-bearing: a Recipe's `provides:` cannot reference any caller's state because callers haven't been resolved yet at Pass 1 — `provides:` is self-contained per the architectural invariant. Callers then read these values via `.context.uses.<alias>.<provided-name>` in their own templates.
+
+`provides:` keys are part of the Recipe's contract surface. Renaming or removing a key is a breaking change for every caller relying on the old name; the `implements:` interface version should reflect the contract evolution. For the cascade resolution semantics, the inject-pipe contract, and worked examples covering cross-namespace and cross-region routing, see [architecture/06-data-taxonomy-and-composition.md §3](../../architecture/06-data-taxonomy-and-composition.md) and [templates/expansion-matrix.md](../templates/expansion-matrix.md).
+
+## The `pipeline:` field
+
+`Recipe.spec.pipeline:` is a sequential array of Wasm plugin invocations for stateful AST mutation directly on the base infrastructure. Each entry declares an `id` (per-step identifier), a `plugin` URI (the Wasm artifact), a `function` (the plugin export to invoke), and an optional `with:` Go template body supplying the plugin's payload:
+
+```yaml
+spec:
+  provider: helm
+  implements: core/web-server:1.0.0
+  source: { registry: "...", chart: "..." }
+  pipeline:
+    - id: inject-sidecar
+      plugin: hub.aggrega.ai/plugin/envoy-sidecar:1.0.0
+      function: Inject
+      with: |
+        target_container: "{{ .locals.primary_compute }}"
+        envoy_version: "{{ .values.envoy_version | default \"1.30.0\" }}"
+```
+
+**Status: accepted but inert.** The schema accepts the `pipeline:` array shape on base Recipes (parallel to the FeatureRecipe `pipeline:` field), but the base-Recipe pipeline executor is not yet wired in production dispatch; the schema-accepted entries pass through to the rendered output unchanged. The FeatureRecipe `pipeline:` field shares the same schema shape and is the standard catalog home for Wasm AST mutation today — see [entities/featurerecipe.md](featurerecipe.md) "Authoring Contract" and [Status of the Language](../10-status.md#compilation-pipeline-phases) for the current execution state of each surface.
+
+When base-Recipe pipeline execution lands, the field's mechanics will mirror the FeatureRecipe semantics: sequential evaluation in declared order, per-step output addressable by `id` from later steps, JSON Patch operations applied to the in-memory rendered AST, errors surfaced with provenance pointing at the offending step.
+
 ## The `assertions:` block
 
 `Recipe.spec.assertions:` is an optional Go template body that expresses **implementation invariants of the Recipe** — cross-field rules that hold given the specific chart or module the Recipe wraps. Unlike Component assertions (which express contract-level invariants regardless of which Recipe binds), Recipe assertions are properties of the specific implementation chosen.

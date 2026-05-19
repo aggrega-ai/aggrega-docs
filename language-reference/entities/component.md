@@ -61,6 +61,43 @@ The `Component` schema (and its `Feature` counterpart, including credential Feat
 
 The compiler resolves the `schema:` block — expanding compact form, dereferencing `$ref:` URLs, applying SchemaLibrary library-to-library chains — and unifies the resulting JSON Schema with the auto-generated bases derived from `usesSchema` and `secretsSchema` (see the section below) during the Component's validation pass. Validation runs against the resolved schema; the authoring path is opaque to downstream pipeline stages.
 
+## The `values` Pillar
+
+The Component schema separates three pillars by ownership: `values` is filled by the Developer in the Aggregate (cognitive intent — database name, version, charset), `infra` is filled by the Operator in the Release (operational sizing — compute, storage, HA, backup), and `provides` is set by the Recipe (the public API contract — host, port, protocol). The Developer never sees `infra`; the Operator never sees `values`. Recipes consume both pillars during Phase B rendering, mapping the abstract pillars into the concrete shape their target provider expects. This section covers the `values` pillar's authoring surface. See [`vocabulary/data-pillars.md`](../vocabulary/data-pillars.md) for the broader pillar taxonomy and the cross-pillar cascade discipline.
+
+`values` carries the **Developer's cognitive intent** — the choices that describe what the application is or does, not how it sizes or runs. Database name, charset, engine version, log level, feature flags, application-tier knobs that change between application versions but stay stable across environments are typical `values` content. The Operator never overrides `values:` (the Release schema mechanically rejects a `values:` block per [architecture/06-data-taxonomy-and-composition.md §8 Constraint 4](../../architecture/06-data-taxonomy-and-composition.md)); per-environment variation flows through Parameter Hoisting — the Aggregate exposes typed `parameters.*`, the Component's `values` template references them, and the Release fulfills the parameters.
+
+```yaml
+# Component schema declares the values shape:
+apiVersion: aggrega.ai/v1alpha1
+kind: Component
+metadata:
+  name: core/database/mariadb
+spec:
+  schema:
+    values:
+      database_name: { type: string, required: true }
+      charset: { type: string, default: utf8mb4, enum: [utf8mb4, latin1, ascii] }
+      engine_version: { type: string, default: "10.11" }
+      log_level: { type: string, default: info, enum: [debug, info, warn, error] }
+```
+
+```yaml
+# Aggregate fragment — the developer fills values:
+components:
+  customer-db:
+    type: core/database/mariadb
+    values:
+      database_name: customers
+      charset: utf8mb4
+      engine_version: "{{ .parameters.mariadb_version }}"   # Parameter Hoisting
+      log_level: info
+```
+
+**Recipe-side consumption.** Recipes read the resolved values via `.values.<field>` in `valuesMapping:`, `provides:`, `assertions:`, and the other template surfaces — see [entities/recipe.md](recipe.md) for the per-template availability matrix. The compiler unifies the Component's `values` schema with any Feature-attachment `values:` schemas at the same Component node so the resolved template context carries every applicable field.
+
+**Cross-pillar discipline.** `values` is the only pillar the Developer authors at the Aggregate. Strictly developer-facing fields belong here; operational knobs (replica counts, CPU/memory bounds) belong on the Component's `infra` pillar so they live in the Release; public output (host, port) belongs on the Recipe's `provides`. Mixing these breaks the ownership invariant; see [vocabulary/data-pillars.md](../vocabulary/data-pillars.md) "Cross-pillar mechanics" for the rare cases where deliberate cross-pillar piping is justified.
+
 ## The `infra` Pillar
 
 The Component schema separates three pillars by ownership: `values` is filled by the Developer in the Aggregate (cognitive intent — database name, version, charset), `infra` is filled by the Operator in the Release (operational sizing — compute, storage, HA, backup), and `provides` is set by the Recipe (the public API contract — host, port, protocol). The Developer never sees `infra`; the Operator never sees `values`. Recipes consume both during Phase B rendering, mapping the abstract pillars into the concrete shape their target provider expects.
@@ -152,6 +189,47 @@ Mechanism vocabulary (`infra.primary.replicas`) reads naturally for one provider
 
 `infra.ha.read_replicas: 0` is the default; the K8s Recipe handles it explicitly with a `replicaCount: 0` branch on the secondary StatefulSet block rather than generating zero-pod resources. Operators choosing a provider whose target lacks HA accept that `ha.*` settings on the Release have no effect for that boundary.
 
+## The `provides` Pillar
+
+`provides` is the **Recipe-authored public API** — the values a Component's resolved Recipe contributes to downstream callers via their `.context.uses.<alias>.<provided-name>` surface. The Component schema declares the shape (key names plus types); the bound Recipe's `provides:` block supplies the values. The Developer authoring an Aggregate sees the `provides` shape on the Component page as the contract callers can rely on; the Recipe author fulfills the contract for the specific implementation they wrap.
+
+```yaml
+# Component schema declares the provides contract:
+apiVersion: aggrega.ai/v1alpha1
+kind: Component
+metadata:
+  name: core/database/mariadb
+spec:
+  schema:
+    values:
+      database_name: { type: string, required: true }
+    provides:
+      host: { type: string }
+      port: { type: integer }
+      database: { type: string }
+```
+
+```yaml
+# Recipe fulfills the contract:
+apiVersion: aggrega.ai/v1alpha1
+kind: Recipe
+metadata:
+  name: postgres-bitnami
+spec:
+  provider: helm
+  implements: core/database/mariadb:1.0.0
+  provides:
+    host: "{{ .context.instance_id }}-mariadb.{{ .context.annotations.release.\"aggrega.ai/namespace\" }}.svc.cluster.local"
+    port: "3306"
+    database: "{{ .values.database_name }}"
+```
+
+**Pass 1 / Pass 2 evaluation split.** The compiler evaluates `provides:` templates in Pass 1 against the self-contained template context (`.context.instance_id`, `.values`, `.infra`, `.locals` on the same node) — no caller state is visible. In Pass 2 the compiler walks `uses:` edges and resolves each caller's `.context.uses.<alias>.<provided-name>` against the resolved provides values. The two-pass discipline guarantees acyclic resolution: `provides:` cannot reference a caller, and a caller's `inject:` cannot reference a not-yet-resolved provider's output until Pass 2 runs.
+
+**Contract evolution.** Renaming or removing a `provides` field is a breaking change for every caller relying on the old name. The Component's `implements:` interface version (and the Recipe's `implements:` declaration) carries the contract evolution signal; downstream callers pinned to a specific major version see a stable `provides` shape.
+
+**Recipe-side teaching.** For the `provides:` template authoring grammar, the per-template availability matrix, and worked examples of cross-namespace and cross-region routing, see [entities/recipe.md](recipe.md) "The `provides:` block" and [architecture/06-data-taxonomy-and-composition.md §3](../../architecture/06-data-taxonomy-and-composition.md).
+
 ## Required Features: `requiredFeatures`
 
 A Component may declare a list of Feature types that **must** be attached to every instance of that Component. The `spec.requiredFeatures` field carries an array of Feature type URIs; the compiler verifies that every required type appears in the resolved feature set for each Component instance after the 5-Tier Onion Model attachment cascade completes.
@@ -178,6 +256,60 @@ The compiler walks every Feature attached to a `core/payment-processor` instance
 The mechanism enforces architectural invariants the Component contract demands. A payment-processing Component that requires `core/audit-logging` ensures every deployment carries the audit-logging Feature regardless of whether the developer remembered to attach it; a PCI-compliant Component requiring `core/pci-compliance` cannot ship without the compliance Feature being explicitly attached at the Release surface.
 
 The diagnostic message is documented at [`errors/fatal-halts.md`](../errors/fatal-halts.md) "Required feature not attached".
+
+## Topology Sockets: `usesSchema`
+
+A Component may declare topological sockets through a `usesSchema:` block — a declarative YAML map parallel to `secretsSchema`. Each entry names a socket the Component accepts cross-component dependencies through and governs which Component shapes the developer may wire into the socket. The compiler auto-generates JSON Schema 2020-12 validation rules from the declared sockets and unifies them with the Component's `schema:` during Component resolution; developers do not hand-author a `uses:` pillar inside `schema:`, because the structure comes from `usesSchema`.
+
+```yaml
+# Component declares the sockets it accepts:
+apiVersion: aggrega.ai/v1alpha1
+kind: Component
+metadata:
+  name: core/ai-agent
+spec:
+  usesSchema:
+    primary_datastore:
+      required: true
+      selector:
+        datastore.aggrega.ai/engine: vector
+      inject: [env]
+    cache:
+      required: false
+      selector:
+        datastore.aggrega.ai/engine: cache
+      inject: [env, file]
+    log_destination:
+      required: false
+      selector:
+        component.aggrega.ai/type: sink
+      inject: []
+```
+
+```yaml
+# Aggregate fragment — developer wires the sockets:
+components:
+  agent:
+    type: core/ai-agent
+    uses:
+      primary_datastore: { target: vector-db-instance }
+      log_destination:   { target: audit-sink }
+```
+
+**Field semantics:**
+
+| Field | Type | Default | Meaning |
+| --- | --- | --- | --- |
+| `required` | bool | `false` | When `true`, the developer must wire at least one dependency into this socket. When `false`, the socket is optional. |
+| `selector` | object | — | Label-selector matching against candidate target Components. Translated to the `x-aggrega-selector:` JSON Schema extension keyword at validation time; the Static Analyzer (Step 4) enforces selector intersection. The matched candidate set is what the developer's `uses:` declaration must resolve into. |
+| `inject` | string[] | — | Allowlist of allowed inject delivery mechanisms (parallel to `secretsSchema[].inject`). `[]` (empty) means blackbox — no `inject:` block allowed on the developer's `uses:` entry; the Recipe controls delivery. `[env, file, arg]` (non-empty) means transparent — the developer may dictate which mechanism delivers the dependency's `provides` values. |
+| `description` | string | — | Human documentation, rendered by IDE and hub. |
+
+**Schema generation from `usesSchema`.** The compiler generates a base JSON Schema 2020-12 fragment from the declared sockets and composes it with the user's `schema:` declaration — the same pattern `secretsSchema` uses. The generated schema never touches disk; it exists only in memory during the Component validation pass. The developer's `uses:` map in the Aggregate validates against the merged schema; the per-socket `selector:` evaluates against candidate Component labels at Step 4 as the cross-node type-safety check.
+
+**Selector semantics — the Split Schema mechanism.** `usesSchema[].selector:` is what makes Aggrega's topology more than untyped string-passing. A socket declaring `selector: { datastore.aggrega.ai/engine: vector }` only accepts wiring to Components labeled with the matching key-value pair; an agent attempting to wire its `primary_datastore` socket to a `relational` Component fails the Static Analyzer with a clear selector-violation diagnostic. The selector vocabulary supports key-value equality, expression-list operators (`In`, `NotIn`, `Exists`, `DoesNotExist`), and any-of composition — see [architecture/13-catalog-and-registry.md §2 "Kubernetes-Style Selectors"](../../architecture/13-catalog-and-registry.md) for the full operator semantics.
+
+**The `usesSchema` vs `secretsSchema` relationship.** Both are declarative tables; both auto-generate JSON Schema bases that compose with the user's `schema:`; both carry an `inject:` allowlist with identical semantics. They differ only in what they target: `usesSchema` governs cross-component edges (the topology graph); `secretsSchema` governs credential slots (the secrets pillar). Many Components declare both; the two tables compose independently.
 
 ## Credential Slots: `secretsSchema`
 
@@ -321,6 +453,55 @@ The convention is: **secrets co-locate with the entity that uses them, not with 
 The pattern preserves cohesion: a Model entity that gains a new credential requirement (e.g., a region-specific authentication token) updates its own `secretsSchema:` and every consumer of that Model immediately requires the new credential. The agents that compose the Model do not need to track the change; the validation flows through the typed reference.
 
 Aggregate-level secrets declared at the agent — credentials the agent itself owns rather than delegates — go through the standard `secretsSchema:` mechanism. The two patterns compose: an agent may carry a small `secretsSchema:` for its own operational credentials (e.g., a database connection for the agent's state store) while delegating model and tool credentials to the referenced entities.
+
+## Self-inject: `spec.inject`
+
+A Component may declare a top-level `spec.inject:` array that allowlists self-inject delivery mechanisms. When present, developers may use an `inject:` block at the **component level** in the Aggregate to inject the Component's own `values:` or `provides:` keys directly into its own delivery pipe (its container's environment variables, mounted files, or process arguments). When `spec.inject:` is absent or empty, component-level self-inject is forbidden — the Recipe controls all internal wiring, matching the Black-Box pattern that `usesSchema[].inject: []` and `secretsSchema[].inject: []` apply to cross-component and credential delivery respectively.
+
+```yaml
+# Component declares its self-inject allowlist:
+apiVersion: aggrega.ai/v1alpha1
+kind: Component
+metadata:
+  name: core/web-server
+spec:
+  inject: [env, file]
+  schema:
+    values:
+      log_level: { type: string, default: info }
+      tls_enabled: { type: boolean, default: false }
+    provides:
+      health_endpoint: { type: string }
+```
+
+```yaml
+# Aggregate fragment — developer dictates self-inject delivery:
+components:
+  api:
+    type: core/web-server
+    values:
+      log_level: debug
+      tls_enabled: true
+    inject:
+      env:
+        LOG_LEVEL: "{{ .values.log_level }}"
+        TLS_ENABLED: "{{ .values.tls_enabled }}"
+      file:
+        "/etc/web/health-probe":
+          content: "{{ .provides.health_endpoint }}"
+```
+
+**Field semantics.** `spec.inject:` is an array of mechanism names. Three values are defined:
+
+* `env` — environment variables in the container.
+* `file` — mounted file paths.
+* `arg` — process command-line arguments.
+
+The semantics mirror `usesSchema[].inject` and `secretsSchema[].inject` exactly — same vocabulary, same Black-Box pattern when omitted, same authoring shape on the Aggregate side. The difference is the source: `usesSchema[].inject` governs how a cross-component dependency's `provides` flows into the consumer's delivery pipe; `secretsSchema[].inject` governs how a credential reaches a container; `spec.inject` governs how the Component's own `values` and `provides` reach the Component's own container.
+
+**Authoring discipline.** A `core/web-server` Component declaring `spec.inject: [env, file]` opts into transparent delivery — the Aggregate author dictates which env-var names carry which values. A Component declaring `spec.inject: []` (or omitting the field) keeps delivery opaque — the Recipe's `valuesMapping:` decides which fields flow into which container variables, and the developer cannot override at the Aggregate. The Black-Box pattern suits stable contract Components (a `core/postgres-db` Component whose Recipe knows how to wire the DB password into a `POSTGRES_PASSWORD` env var); the transparent pattern suits Components where the developer's intent legitimately names delivery details (a `core/web-server` whose application reads `LOG_LEVEL` from a non-standard variable name the developer wants to customize).
+
+**Error modes.** A developer's Aggregate using an `inject:` block on a Component whose `spec.inject:` is missing or empty halts the build at workspace load with `ErrSelfInjectForbidden`. An `inject:` block using a mechanism not in the allowlist halts with `ErrInvalidInjectKey`. A delivery-key collision across self-inject, cross-component inject, and credential inject halts with `ErrInjectKeyCollision`. See [errors/fatal-halts.md](../errors/fatal-halts.md) for the per-error message shapes.
 
 ## Catalog Authoring: Extending Base Components
 

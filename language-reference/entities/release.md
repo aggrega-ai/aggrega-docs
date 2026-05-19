@@ -37,6 +37,55 @@ Two structural guarantees protect the Aggregate as the Single Source of Truth:
 * **`values:` is forbidden.** To protect the Aggregate as the Single Source of Truth, the Release schema mechanically bans a `values:` block — the Operator cannot declare `values` on any Component, Feature, or Secret from a Release. Per-environment variation of Developer-facing values flows through **Parameter Hoisting**: the Developer exposes a typed `parameters.*` field in the Aggregate, the Component's `values` template references it, and the Release fulfills the parameter for its environment. See [architecture/06-data-taxonomy-and-composition.md §8 Constraint 4](../../architecture/06-data-taxonomy-and-composition.md) for the schema-level ban stated explicitly.
 * **`extends` + `aggregate:` is rejected.** To prevent untraceable "aggregate-mutating" deployments, when a Release uses `extends`, declaring an `aggregate` pointer is rejected by the Release schema. The child release must map to the exact same Developer Intent as its parent. The `manifest`, however, becomes optional, unlocking "Late Binding" — allowing the Operator to inherit the entire physical topology but surgically swap the dependency lockfile.
 
+## The `parameters:` block
+
+A Release fulfills the typed parameter contract the Aggregate declares. `spec.parameters:` is the authoring surface — a YAML map whose keys match the Aggregate's `parameters.*` declarations and whose values supply the per-environment fulfillment.
+
+```yaml
+# Aggregate declares the typed contract
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: my-app
+spec:
+  parameters:
+    db_size: { type: string, required: true }
+    timeout_seconds: { type: integer, default: 30 }
+    region: { type: string, enum: [us-east-1, eu-west-1], required: true }
+```
+
+```yaml
+# Release fulfills the contract for this environment
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: prod-release
+  version: 1.0.0
+spec:
+  aggregate: my-app
+  manifest: prod-manifest
+  parameters:
+    db_size: "100Gi"
+    timeout_seconds: 60
+    region: "us-east-1"
+```
+
+Each value passes the Aggregate-declared schema check at Step 1a — the parameter-contract layer — and the compiler emits clear `ErrParameterContractViolation` / `ErrParameterMissing` errors when a Release omits a required parameter or supplies a value of the wrong type. Parameters declared with a `default:` receive the default when the Release omits the slot; the typed contract is the only authoring vocabulary (the pre-migration scalar shorthand is removed; see [vocabulary/data-pillars.md](../vocabulary/data-pillars.md) for the lifecycle teaching).
+
+**Two authoring modes — content-shape dispatch.** `parameters:` accepts either an inline YAML map (Mode 1, shown above) or a single `$import:` key pointing at a local file (Mode 2):
+
+```yaml
+spec:
+  aggregate: my-app
+  manifest: prod-manifest
+  parameters:
+    $import: ./prod-parameters.yaml
+```
+
+The two modes are mutually exclusive at this site. The pre-migration multi-file array form (`parametersFrom: [a, b, c]`) is removed; the multi-file layering use case migrates to Release `extends:` chains where the parent Release supplies a base set of parameters and the child extends-and-overrides per environment. See [Composite Release / `extends:` inheritance](#composite-release-and-extends-inheritance) further down for the pattern.
+
+**Boundary between parameters and infra.** Parameters carry the Developer's cognitive intent expressed as typed slots the Aggregate declares; the Release fulfills them. `infra:` on the Release carries the Operator's physical sizing (replica counts, CPU/memory bounds, storage classes) attached to specific components or Feature attachments. Parameters flow into the Aggregate's `values:` templates via `.parameters.X`; `infra:` flows into the Recipe's `valuesMapping:` template via `.infra.X`. See [architecture/06-data-taxonomy-and-composition.md §3](../../architecture/06-data-taxonomy-and-composition.md) for the data-pillar taxonomy and [templates/parameters-context.md](../templates/parameters-context.md) for the parameter lifecycle through the pipeline.
+
 ## Boundaries and Flat Release
 
 If the Release omits the `boundaries` block entirely, the compiler creates an implicit `default` boundary containing all components. Output goes to `dist/default/`. This supports the simplest use case: a developer running `aggrega build --release local.yaml` for a flat Docker Compose deployment without needing to understand boundaries. See [architecture/06-data-taxonomy-and-composition.md §7](../../architecture/06-data-taxonomy-and-composition.md) for the Optional Top-Level Structures pattern.
@@ -103,6 +152,53 @@ Structured values cascade with per-subkey deep merge; closer-level subkeys overr
 
 **Well-known annotations.** Beyond ad-hoc keys, the Aggrega standard library defines a set of well-known annotations under the `aggrega.ai/` and `feature.aggrega.ai/` namespaces, grouped into placement, networking, security, and observability categories. Authors adding annotations to a Release boundary should consult [providers/well-known-annotations.md](../providers/well-known-annotations.md) for the full matrix plus per-provider consumption rules — the page documents which providers honour each well-known key and what behaviour they emit when the key is present.
 
+## The `aggregates:` field — routing nested sub-modules into boundaries
+
+When the Aggregate declares nested sub-modules via `spec.aggregates:`, the Release decides which boundary each sub-module's components land in by declaring `aggregates:` alongside `components:` inside the target boundary:
+
+```yaml
+# Aggregate declares two sub-aggregates
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: platform
+spec:
+  aggregates:
+    finance:
+      type: finance-module:1.2.0
+    analytics:
+      type: analytics-module:2.0.0
+  components:
+    gateway:
+      type: core/ingress
+---
+# Release routes each sub-aggregate into a specific boundary
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: prod-release
+spec:
+  aggregate: platform
+  manifest: prod-manifest
+  boundaries:
+    eu-prod:
+      directory: "deploy/eu-prod"
+      aggregates:
+        finance: {}
+      components:
+        gateway: {}
+    us-prod:
+      directory: "deploy/us-prod"
+      aggregates:
+        analytics: {}
+```
+
+Every sub-aggregate listed under `Aggregate.spec.aggregates:` must be placed in exactly one boundary when the Release declares `boundaries:`. The compiler halts at workspace load with a clear error when a sub-aggregate is unplaced or placed in more than one boundary.
+
+**Recursive routing.** `aggregates:` is recursive — each entry under a boundary's `aggregates:` may itself declare a nested `aggregates:` map for deeply-nested module composition. The annotation cascade, the per-boundary `syncWave`, and the spatial segregation rules apply at every level.
+
+**Per-aggregate routing block.** Inside the routing entry the Release may declare the same shape as a regular boundary entry: `annotations:` (cascading down into the sub-aggregate's components), `infra:` (the sub-aggregate's components receive these as their per-instance physical sizing values), and per-component overrides. The sub-aggregate's own components and Features are not redeclared at the Release — the Release only routes them into the boundary topology.
+
 ## Temporal Sequencing — per-boundary `syncWave`
 
 Each boundary in the Release optionally declares an integer `syncWave:` field, giving the Operator explicit control over deployment order without touching the Developer's Aggregate. The wave number is a property of the boundary itself; every component contained in the boundary's subtree inherits its boundary's wave value when artifacts emit.
@@ -154,3 +250,77 @@ For the full architectural framing — the DAG execution model, the rationale fo
 ## Feature Attachment
 
 The Release can attach Features both at boundary scope (broad policy) and at component-specific scope (precise targeting), with execution following the 5-Tier Onion Model defined in [architecture/10-compilation-pipeline.md](../../architecture/10-compilation-pipeline.md). Features declared in the Release contribute `type` and `infra`; they cannot declare `values` (see Schema-Level Constraints above).
+
+## Composite Release and `extends:` inheritance
+
+A Release may declare `spec.extends: <release-uri>` pointing to a base Release whose authoring surface it inherits. The compiler walks the inheritance chain at workspace load, validates that the chain is acyclic, and merges parent fields into the child to produce a single resolved Release. The Schema-Level Constraints above govern the merge:
+
+* The child cannot declare `aggregate:` — it inherits the parent's Aggregate pointer unchanged (the schema rejects child-side overrides of the Developer Intent).
+* The child may omit `manifest:` — inheriting the parent's manifest pointer — or surgically override it for Late Binding.
+* All other fields (`parameters:`, `boundaries:`, per-boundary `infra:`, annotations, Feature attachments) merge with child-wins-on-collision semantics.
+
+**The local-development bridge pattern.** The canonical use case is a developer running their team's production Aggregate against local Docker Compose without forking the Aggregate or duplicating the boundary topology. The team publishes a production Release; a local Release `extends:` the production Release and overrides only the Manifest pointer (swapping cloud-targeted Recipes for local equivalents):
+
+```yaml
+# production Release (committed; the source of truth for prod deployments)
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: prod-release
+spec:
+  aggregate: my-app
+  manifest: prod-manifest
+  parameters:
+    region: us-east-1
+    db_size: 100Gi
+  boundaries:
+    prod:
+      directory: deploy/prod
+      components:
+        api: { infra: { replicas: 5 } }
+        db: {}
+
+---
+# Local Release (developer-side; inherits everything, swaps the Manifest)
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: local-release
+spec:
+  extends: hub.aggrega.ai/release/prod-release:1.0.0
+  manifest: local-manifest    # surgically overrides for local
+  parameters:
+    region: dev-local
+    db_size: 1Gi
+```
+
+`local-release` inherits the parent's boundary topology, Feature attachments, and component overrides; the developer sees one `local-release.yaml` and runs `aggrega build local-release.yaml` with no production-config duplication.
+
+**Multi-file parameter layering.** Release inheritance is also the home for the multi-file parameter layering use case the pre-migration `parametersFrom:` array previously handled. A base Release supplies the common parameter set; per-environment children `extends:` the base and override the slots that differ:
+
+```yaml
+# base-release.yaml — common parameters
+spec:
+  aggregate: my-app
+  parameters:
+    timeout_seconds: 30
+    feature_flags: { dark_mode: true }
+
+---
+# prod-release.yaml
+spec:
+  extends: ./base-release.yaml
+  manifest: prod-manifest
+  parameters:
+    feature_flags: { dark_mode: false }   # override one nested key
+
+---
+# staging-release.yaml
+spec:
+  extends: ./base-release.yaml
+  manifest: staging-manifest
+```
+
+Each child sees the parent's inherited parameters merged with its own. Map-valued parameters deep-merge with child-key wins; scalar-valued parameters child-replace.
+
+**Error modes.** Cyclic `extends:` chains, missing parent pointers, and child-side `aggregate:` declarations all halt workspace load with explicit diagnostics naming the offending Release and the schema-level violation. See [errors/fatal-halts.md](../errors/fatal-halts.md) for the per-error message shapes.

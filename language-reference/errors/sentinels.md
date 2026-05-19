@@ -1,0 +1,126 @@
+# Error sentinels — canonical reference
+
+Every fatal halt the compiler emits wraps a named Go error sentinel. The user-facing diagnostic (the prefixed message catalogued in [fatal-halts.md](./fatal-halts.md) and [error-translation.md](./error-translation.md)) carries the developer-facing prose; the wrapped sentinel is what `errors.Is` matches against in programmatic consumers.
+
+This page is the sentinel-keyed view of the catalogue. Programmers writing CI gates, IDE integrations, or build-orchestration code that needs to distinguish error kinds match against the sentinels listed here using the standard `errors.Is(err, sentinel)` idiom. Authors debugging a build by reading the emitted error text usually want the message-keyed views — [fatal-halts.md](./fatal-halts.md) for build-stopping errors, [warnings.md](./warnings.md) for advisory output.
+
+The compiler exports each sentinel from its declaring package; importing the package and dereferencing the sentinel by name is the supported integration surface:
+
+```go
+import "github.com/aggrega/aggrega-cli/pkg/resolver"
+
+if errors.Is(err, resolver.ErrParameterContractViolation) {
+    // handle parameter contract violations
+}
+```
+
+The sentinels listed below are stable across patch releases; renames or removals are signalled by a release-notes entry and a deprecation cycle. Adding a new sentinel within a package is additive and does not break existing matchers. The message text on the right-hand column is the literal wrapped string; the user-facing diagnostic adds a category prefix (`DEVELOPER_ERROR:` / `OPS_ERROR:` / `CATALOG_ERROR:` / `TRANSLATION_ERROR:` per [error-translation.md](./error-translation.md)) and the source location ahead of the sentinel's text.
+
+## Resolver-stage sentinels (`pkg/resolver`)
+
+Step 1 of the compilation pipeline — workspace load, parameter interpolation, target-reference validation, inject-contract checks, credential-partition guards, required-feature completeness.
+
+| Sentinel | Wrapped message | User-facing surface |
+| --- | --- | --- |
+| `ErrInvalidParameterRef` | `invalid parameter reference` | Subsumed under "Parameter type mismatch / contract violation" in fatal-halts. |
+| `ErrParametersImportLoad` | `parameters $import: load failed` | Surfaces as "External parameters file cannot be loaded" in fatal-halts. |
+| `ErrInvalidInstanceName` | `invalid instance name` | Surfaces as "Instance name fails the naming pattern" in fatal-halts. |
+| `ErrInvalidTargetRef` | `invalid target reference` | Surfaces as "Dangling `uses` target" in fatal-halts. |
+| `ErrYAMLLoad` | `YAML load failed` | YAML-load failures present through schema-validation paths covered under "When loading your files" in fatal-halts. |
+| `ErrManifestReservedPrefix` | `manifest annotation binding uses reserved prefix` | Surfaces during Manifest validation; reserved annotation namespaces (`aggrega.ai/`, `feature.aggrega.ai/`) cannot be redefined by ad-hoc bindings. |
+| `ErrManifestCrossBindingPillarCollision` | `manifest annotation bindings collide on same Feature path+pillar` | Two bindings route different annotation keys into the same Feature path through the same pillar — collision halts catalog load. |
+| `ErrInvalidInjectKey` | `invalid inject key` | Surfaces as "Inject `from` key is not in the target's `provides`" in fatal-halts. |
+| `ErrCredentialLabelPartition` | `credential label partition violated` | Surfaces as "Credential label partition violated" in fatal-halts. |
+| `ErrMissingRequiredFeature` | `missing required feature` | Surfaces as "Required feature not attached" in fatal-halts. |
+| `ErrFeatureMergeConflict` | `feature merge conflict` | Surfaces under "Manifest merge strategy" in fatal-halts. |
+| `ErrUnknownUsesSocket` | `unknown uses socket` | Surfaces as "`uses:` socket not declared in the target's `usesSchema`" in fatal-halts. |
+| `ErrSelfInjectForbidden` | `self-inject on component without spec.inject allowlist` | Surfaces as "Self-inject on a component without an allowlist" in fatal-halts. |
+| `ErrInjectKeyCollision` | `duplicate delivery key across inject sources` | Surfaces as "Duplicate delivery key across inject sources" in fatal-halts. |
+| `ErrSchemaValidation` | `schema validation failed` | Generic JSON Schema validation failure — the user-facing message attached to the error names the failing field and the constraint violated. |
+| `ErrMissingRequiredSocket` | `required uses socket not populated` | Surfaces as "Required `uses:` socket not populated" in fatal-halts. |
+| `ErrParameterMissing` | `required parameter not supplied` | Surfaces as the missing-parameter branch of "Parameter type mismatch / contract violation" in fatal-halts. |
+| `ErrParameterContractViolation` | `parameter contract violated` | Surfaces as the contract-violation branch of "Parameter type mismatch / contract violation" in fatal-halts. |
+
+## Validator-stage sentinels (`pkg/validator`)
+
+Catalog-side validation — `extends:` inheritance chain walks, `usesSchema` composition, JSON Schema unification.
+
+| Sentinel | Wrapped message | User-facing surface |
+| --- | --- | --- |
+| `ErrSchemaValidation` | `schema validation failed` | Same generic surface as the resolver-stage copy; distinguish by package on the wrap path when matching. |
+| `ErrInheritanceMerge` | `inheritance merge failed` | Surfaces as the merge-failure branch of "Cyclic extends chain" / "`usesSchema` composition failure on `extends` chain" in fatal-halts. |
+| `ErrCyclicExtension` | `cyclic extends chain` | Surfaces as "Cyclic extends on Components or Features" in fatal-halts. |
+| `ErrUsesSchemaUnification` | `usesSchema unification failed` | Surfaces as "`usesSchema` composition failure on `extends` chain" in fatal-halts. |
+
+## Compact-form sentinels (`pkg/compactform`)
+
+Compact-form authoring surface validation — keyword vocabulary, constraint-type compatibility, cross-document `$ref:` resolution.
+
+| Sentinel | Wrapped message | User-facing surface |
+| --- | --- | --- |
+| `ErrUnknownKeyword` | `compactform: unknown keyword` | A schema author used a compact-form keyword the vocabulary does not declare; the message lists allowed keywords. See [vocabulary/compact-form-authoring.md](../vocabulary/compact-form-authoring.md). |
+| `ErrAmbiguousDispatch` | `compactform: ambiguous dispatch — $mode required` | A schema author wrote a leaf whose shape could match multiple compact-form modes; the message names the conflicting modes and asks the author to disambiguate via `$mode:`. |
+| `ErrEscapeContentInvalid` | `compactform: $jsonschema content invalid` | The `$jsonschema:` escape hatch's nested content failed JSON Schema parsing. |
+| `ErrConstraintTypeMismatch` | `compactform: constraint not valid for declared type` | A constraint keyword does not apply to the declared type (`min:` on `type: object`, `pattern:` on `type: integer`). |
+| `ErrReferenceUnresolvable` | `compactform: $ref unresolvable` | A `$ref:` URL did not resolve to a target schema. |
+| `ErrUnresolvedSchemaLibraryRef` | `compactform: cross-document $ref target not found` | A cross-document `$ref:` (typically targeting a SchemaLibrary entry) failed to resolve the named target inside the resolved document. |
+| `ErrCircularRef` | `compactform: circular cross-document $ref expansion` | A SchemaLibrary chain forms a cycle; expansion would not terminate. |
+| `ErrOCINotYetSupported` | `compactform: oci:// $ref scheme not yet supported` | An `oci://` URI scheme appeared at the compact-form site that does not yet accept OCI resolution. |
+
+## Topology-stage sentinels (`internal/compiler/topology`)
+
+Step 2 — topology graph construction, sub-aggregate flattening.
+
+| Sentinel | Wrapped message | User-facing surface |
+| --- | --- | --- |
+| `ErrSubAggregateLoad` | `sub-aggregate load failed` | A sub-Aggregate referenced via `spec.aggregates.<name>.type:` could not be loaded; the message names the unreachable Aggregate URI. |
+| `ErrInvalidUsesFormat` | `invalid uses format` | A `uses:` declaration's structural shape did not match the schema (e.g., a string where a map was expected). |
+| `ErrMaxDepth` | `max sub-aggregate nesting depth exceeded` | Surfaces as "Sub-aggregate nesting depth exceeded" in fatal-halts. |
+| `ErrSubAggregateNameCollision` | `flattened node ID collision` | Two sub-Aggregates flatten to the same node ID after compilation; rename one of the sub-Aggregate instance names to disambiguate. |
+
+## IR-stage sentinels (`internal/compiler/ir`)
+
+Step 3 — IR construction, Feature merging across Aggregate + Release surfaces.
+
+| Sentinel | Wrapped message | User-facing surface |
+| --- | --- | --- |
+| `ErrFeatureTypeMismatch` | `feature type mismatch between Aggregate and Release` | Surfaces as "Feature type mismatch between Aggregate and Release" in fatal-halts. |
+
+## Static analyzer sentinels (`internal/compiler/analyzer`)
+
+Step 4 — selector evaluation, cross-node type-safety checks.
+
+| Sentinel | Wrapped message | User-facing surface |
+| --- | --- | --- |
+| `ErrSelectorViolation` | `selector violation` | Surfaces as "Cross-node type safety violation via `selector:`" in fatal-halts. |
+| `ErrCatalogLookup` | `catalog lookup failed` | A catalog-resolution miss the analyzer cannot proceed past; the message names the unreachable entity. |
+
+## Provider-engine sentinels
+
+Step 5 — renderer dispatch and per-engine rendering.
+
+| Sentinel | Wrapped message | User-facing surface |
+| --- | --- | --- |
+| `ErrUnknownProvider` | `unknown provider` | Surfaces as "Unregistered provider" in fatal-halts. |
+
+## Matching guidance
+
+The `errors.Is` predicate walks the wrap chain, so a sentinel match works even when the error is wrapped multiple times across pipeline stages. The typical integration pattern:
+
+```go
+err := compiler.Build(release, options)
+switch {
+case errors.Is(err, resolver.ErrParameterMissing):
+    // distinct UX for missing-parameter cases
+case errors.Is(err, resolver.ErrParameterContractViolation):
+    // distinct UX for contract-violation cases
+case errors.Is(err, resolver.ErrCredentialLabelPartition):
+    // distinct UX for credential-partition violations
+case err != nil:
+    // catch-all
+}
+```
+
+Sentinels declared in different packages with the same short name (e.g., `ErrSchemaValidation` in both `pkg/resolver` and `pkg/validator`) are distinct values — they live in separate `var` blocks in separate packages and `errors.Is` distinguishes them by identity, not by name. Match against the fully-qualified package path the wrap chain carries; the wrapped message text is shared by both sentinels but the identity is the discriminator.
+
+For the user-facing diagnostic catalogue (the messages developers see in their terminal when a build halts), see [fatal-halts.md](./fatal-halts.md). For the advisory-warning catalogue (non-halting `LINT:` and `WARN:` output), see [warnings.md](./warnings.md). For the category-prefix taxonomy (`DEVELOPER_ERROR:` / `OPS_ERROR:` / `CATALOG_ERROR:` / `TRANSLATION_ERROR:`), see [error-translation.md](./error-translation.md).

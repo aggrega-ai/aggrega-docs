@@ -197,6 +197,28 @@ Emitted message:
 
 **How to fix:** either narrow the child's `usesSchema` entry to satisfy the parent's constraint, or change the inheritance direction if the child's shape is genuinely broader than the parent. Review the parent chain with `aggrega inspect` to see the resolved socket contract the child must satisfy.
 
+### Annotation binding targets a non-existent Feature or path
+
+A Manifest annotation binding's `feature:` field names a Feature that the catalog does not load, or the binding's `maps.infra` / `maps.values` lists declare dotted paths that the named Feature's `spec.schema` does not actually carry. Either condition halts workspace load — the binding would synthesise Feature attachments routing values into paths the runtime cannot resolve.
+
+The validator fires three distinct conditions:
+
+- **Feature not found.** The `feature:` value references a Feature URI absent from the loaded catalog.
+- **Feature schema compile error.** The named Feature loads but its `spec.schema:` is malformed and cannot be compiled to a JSON Schema 2020-12 representation.
+- **Binding path not in target schema.** The binding's `maps.infra` or `maps.values` entry names a dotted path the Feature's `spec.schema.<pillar>.<path>` does not declare.
+
+Emitted messages (Feature-not-found variant):
+
+> CATALOG_ERROR: annotation binding `<key>` targets Feature `<feature-uri>`, but no such Feature is loaded in the catalog
+
+Emitted messages (path-not-found variant):
+
+> OPS_ERROR: annotation binding `<key>` routes through pillar `<pillar>` at path `<path>` on Feature `<feature-uri>`, but the Feature's spec.schema does not declare a property at that path
+
+**Soft-skip on schema escape hatches.** The path-existence check soft-skips when the schema walker encounters one of the JSON Schema 2020-12 escape hatches that prevent statically-resolvable property navigation: `$ref` (cross-document or in-document references), `patternProperties` (key-shape-based property declarations), the composition operators `oneOf` / `anyOf` / `allOf`, and `additionalProperties` with a schema body. When the walker reaches one of these before the binding's path has fully resolved, the validator treats the path as potentially-valid and continues without raising the OPS_ERROR. The actual validation defers to runtime schema application — the binding either resolves to a valid path at orchestration time or surfaces the error there with the same `OPS_ERROR:` prefix. The soft-skip is the discipline that prevents strict validation from rejecting many valid schema compositions a runtime-active schema validator would handle correctly.
+
+**How to fix:** confirm the binding's `feature:` URI exists in the catalog and matches the case-sensitive URI a Recipe `implements:`. If the path-not-found variant fires on a path the Feature schema does declare, confirm the dotted path spelling (case-sensitive) and the pillar name (`infra` vs `values`). When the schema uses a composition operator and the validator emits no error but the runtime later does, narrow the schema to surface the property at the binding's path directly, or accept that the runtime is the validation surface for that binding.
+
 ### Recipe `source:` is an empty string
 
 A Recipe declares `source: ""` — an empty string. An empty-string `source:` is an authoring ambiguity between sourceless mode (no external artifact; the Recipe produces output entirely from its `valuesMapping` or other input kinds) and sourced mode (the Recipe references an external chart, module, or file). The compiler rejects the ambiguous form at Recipe load.
