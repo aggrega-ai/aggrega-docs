@@ -371,9 +371,18 @@ Re-resolution to a newer version requires explicit user action (`aggrega catalog
 
 ### 10. Catalog entity name-shape enforcement
 
-Catalog entity names follow per-entity-kind patterns documented at [`../language-reference/02-naming-conventions.md`](../language-reference/02-naming-conventions.md) "Catalog Entity Naming". Component names take the form `{namespace}/{category}/{name}` (e.g., `core/database/postgres`); Recipe and FeatureRecipe names take the form `{namespace}/{provider}/{name}` (e.g., `core/helm/postgres-bitnami`); Feature, SchemaLibrary, MappingLibrary, and Provider names take `{namespace}/{name}` (e.g., `core/data-masking`, `aggrega/datastores`).
+Catalog entity names follow per-entity-kind patterns documented at [`../language-reference/02-naming-conventions.md`](../language-reference/02-naming-conventions.md) "Catalog Entity Naming" and detailed in the per-entity reference pages at [`../language-reference/entities/`](../language-reference/entities/). The `metadata.name` field a catalog YAML declares is not always identical to the entity's canonical reference URI: Component and Feature embed namespace and grouping segments directly in `metadata.name`; Recipe, FeatureRecipe, and Provider declare a leaf-only `metadata.name` and the canonical URI is constructed at catalog load from the entity's filesystem path under `<catalog-root>/<kind>/...` plus the leaf; SchemaLibrary and MappingLibrary declare a PascalCase token in `metadata.name`.
 
-The JSON Schema for `metadata.name` accepts any non-empty string; structural validation does not enforce the per-entity-kind patterns. The patterns are enforced separately by two complementary mechanisms with a single shared regex source-of-truth:
+Per-entity-kind shapes:
+
+* **Component** — three kebab-case segments `{namespace}/{category}/{name}` declared in `metadata.name`. Example: `core/database/postgres`.
+* **Feature** — two kebab-case segments `{namespace}/{name}` declared in `metadata.name`. Example: `core/data-masking`.
+* **Recipe** — a single kebab-case leaf in `metadata.name` (e.g., `postgres-bitnami`). The canonical reference URI `{namespace}/{provider}/{name}` is constructed at catalog load from the recipe's filesystem path `<catalog-root>/recipe/<provider>/<name>/recipe.yaml` plus the namespace bound by the publishing context.
+* **FeatureRecipe** — single kebab-case leaf in `metadata.name` (e.g., `k8s-secret-from-parameter`), symmetric with Recipe. Canonical URI constructed from `<catalog-root>/feature-recipe/<provider>/<name>/recipe.yaml` plus the publishing-context namespace.
+* **Provider** — single kebab-case leaf in `metadata.name` (e.g., `helm`, `compose`, `terraform`). Canonical URI `{namespace}/{name}` is constructed at catalog load from `<catalog-root>/provider/<name>.yaml` plus the publishing-context namespace.
+* **SchemaLibrary** and **MappingLibrary** — a PascalCase single token in `metadata.name` matching `^[A-Z][A-Za-z0-9]*$` (e.g., `BaseComponents`, `AIDatastores`). This pattern is enforced by the JSON Schema envelope itself; structural validation rejects non-conforming names at parse time.
+
+Structural JSON Schema validation enforces the SchemaLibrary and MappingLibrary PascalCase pattern at the envelope. For the other entity kinds (Component, Feature, Recipe, FeatureRecipe, Provider), the JSON Schema for `metadata.name` accepts any non-empty string and the per-entity-kind shapes above are enforced separately by two complementary mechanisms with a single shared regex source-of-truth:
 
 * **Publishing-discipline plugin (publish time): rejects.** `aggrega push` invokes the publishing-discipline plugin, which checks every artifact's `metadata.name` against the per-entity-kind regex. A name that does not match the documented pattern halts the publish with a clear error pointing at the convention documentation.
 * **`linter.wasm` (build time): warns.** `aggrega build` invokes `linter.wasm` per the extensibility-page architecture. The build-time linter emits a warning for the same name-shape violations the publishing-discipline plugin rejects:
