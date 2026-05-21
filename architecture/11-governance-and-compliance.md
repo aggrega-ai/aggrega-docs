@@ -156,31 +156,29 @@ Combinations of constraints (e.g., `min: 5, max: 10` vs parent's `min: 3, max: 1
 
 ### Policy configuration and the per-entity exemption pattern
 
-The standard publishing-discipline plugin reads workspace policy from `.aggrega-policies.yaml`:
+The standard publishing-discipline plugin reads workspace policy from the `lint.publishing_discipline` block of `.aggrega-config.yaml`:
 
 ```yaml
-publishing_discipline:
-  enforce_monotonic_narrowing: true   # default true; preserves the typical inheritance contract
+lint:
+  publishing_discipline:
+    enforce_monotonic_narrowing: true   # default true; preserves the typical inheritance contract
 
-  # Workspace-wide opt-out (rare; usually a smell)
-  allow_narrowing_violations: false   # default false
-
-  # Per-entity exemptions (the common pattern for legitimate relaxation)
-  narrowing_exemptions:
-    - entity: my-team/datastore/mariadb-eu
-      paths:
-        - spec.schema.values.primary.replicaCount
-      reason: "EU regional capacity constraint differs from parent's range"
-    - entity: my-team/server/cluster-prod
-      paths:
-        - spec.schema.values.architecture
-      reason: "Production-only architecture options not in parent"
+    # Per-entity exemptions (the common pattern for legitimate relaxation)
+    narrowing_exemptions:
+      - entity: my-team/datastore/mariadb-eu
+        paths:
+          - spec.schema.values.primary.replicaCount
+        reason: "EU regional capacity constraint differs from parent's range"
+      - entity: my-team/server/cluster-prod
+        paths:
+          - spec.schema.values.architecture
+        reason: "Production-only architecture options not in parent"
 ```
 
 Three configuration patterns emerge in practice:
 
 1. **Default (most workspaces)**: `enforce_monotonic_narrowing: true`, no exemptions. The plugin rejects any publish where a child relaxes a parent constraint. This matches the typical inheritance contract — a child Component must satisfy every constraint its parent declares.
-2. **Workspace-wide opt-out (rare)**: `allow_narrowing_violations: true`. All relaxations pass. Appropriate only for workspaces with explicit reasons to bypass narrowing (research catalogs where contracts evolve rapidly; experimental playgrounds).
+2. **Workspace-wide opt-out (rare)**: `enforce_monotonic_narrowing: false`. All relaxations pass. Appropriate only for workspaces with explicit reasons to bypass narrowing (research catalogs where contracts evolve rapidly; experimental playgrounds).
 3. **Per-entity exemptions (common for legitimate relaxation)**: Specific entities and constraint paths are exempted; the architect provides a `reason:` string. Code review of the policy file is the governance layer; exemptions are explicit, reviewable, and documented in the workspace.
 
 Per-entity exemptions are the recommended pattern when relaxation is needed. They are explicit and reviewable; they do not disable the check workspace-wide; they document the architectural reason.
@@ -198,7 +196,7 @@ Publishing-discipline violation: monotonic narrowing
   Child declares maximum: 12  (wider — relaxes parent)
     (declared in: my-team/mariadb-strict.yaml:23)
   Suggestion: either narrow the child's constraint to satisfy the parent,
-              or add an exemption to .aggrega-policies.yaml under narrowing_exemptions.
+              or add an exemption to .aggrega-config.yaml under lint.publishing_discipline.narrowing_exemptions.
 ```
 
 The error formatter (see [compilation-pipeline §"The Validator Pipeline"](10-compilation-pipeline.md#the-validator-pipeline-step-4a)) produces the same parent-child framing for build-time validation diagnostics; the publishing-discipline plugin reuses the format at publish time.

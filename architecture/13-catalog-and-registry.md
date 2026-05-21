@@ -360,9 +360,10 @@ The immutability rule applies uniformly to every OCI-published Aggrega artifact 
 Workspace configuration permits a forensic opt-out:
 
 ```yaml
-# .aggrega-policies.yaml
-publishing_discipline:
-  enforce_immutability: true   # default true; required for production catalogs
+# .aggrega-config.yaml — lint section
+lint:
+  publishing_discipline:
+    enforce_immutability: true   # default true; required for production catalogs
 ```
 
 Setting `enforce_immutability: false` is logged at every push and surfaced in audit reports. The setting exists so a workspace operator can reproduce historical builds where overwrites occurred prior to the rule's introduction; routine use is discouraged.
@@ -393,7 +394,7 @@ does not match the documented per-entity-kind pattern. This
 catalog will not be publishable to the registry as-authored.
 See aggrega-docs/language-reference/02-naming-conventions.md
 for documented patterns. (To proceed without warning, set
-.aggrega-policies.yaml allow_nonstandard_names: true)
+.aggrega-config.yaml lint.publishing_discipline.allow_nonstandard_names: true)
 ```
 
 The build-time warning catches the edge case where a CI/CD pipeline succeeds (the rendered K8s / Helm output does not depend on Aggrega entity names), but a subsequent catalog publish fails because the names violate the publishing-discipline rule. Authors see the warning during local development and fix the names before CI deploys broken-state catalogs.
