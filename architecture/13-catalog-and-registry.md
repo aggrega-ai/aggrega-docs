@@ -237,7 +237,7 @@ All fields are optional with sensible defaults:
 workspace:
   catalog_dirs:               # Ordered list of local catalog directories (checked before cache)
     - ./aggrega-catalog       # Default
-  cache_dir: .aggrega/oci-cache  # Default OCI artifact cache
+  cache_dir: .aggrega/cache  # Default OCI artifact cache
   default_registry: hub.aggrega.ai  # Default registry for unqualified URIs
   offline: false              # Default; set to true for air-gapped environments
 ```
@@ -279,7 +279,7 @@ The compiler resolves every entity reference encountered during compilation thro
 
 **Tier 1 — Explicit local path.** A reference beginning with `./` or `../` (a POSIX relative-path prefix) is read directly from disk relative to the authoring file. No catalog lookup, no registry call. The explicit prefix disambiguates local-path intent from type-name lookup at the syntactic level: an Aggregate writing `type: core/api-server:1.0.0` is unambiguously a type reference; `type: ./local-api-variant` is unambiguously a local file. The resolver never sniffs string content to decide which tier applies — the prefix is the discriminator.
 
-**Tier 2 — Workspace and cache.** A reference without an explicit local-path prefix is searched first against the directories listed in `workspace.catalog_dirs` (project-local catalog trees authored or vendored into the repository — see §4 for the configuration shape) and then against `workspace.cache_dir` (the gitignored `.aggrega/oci-cache/` location holding artifacts pulled from prior Tier 3 resolutions). The cache hit on second-and-subsequent builds is what keeps the inner loop network-free even when the project depends on remote catalog content.
+**Tier 2 — Workspace and cache.** A reference without an explicit local-path prefix is searched first against the directories listed in `workspace.catalog_dirs` (project-local catalog trees authored or vendored into the repository — see §4 for the configuration shape) and then against `workspace.cache_dir` (the gitignored `.aggrega/cache/` location holding artifacts pulled from prior Tier 3 resolutions). The cache hit on second-and-subsequent builds is what keeps the inner loop network-free even when the project depends on remote catalog content.
 
 **Tier 3 — Remote OCI registry.** If Tier 2 returns no match, the resolver issues an ORAS-based OCI pull against `workspace.default_registry` (default `hub.aggrega.ai`), unpacks the artifact into the cache for subsequent builds, and continues with the resolved entity. The OCI URI form the registry call constructs follows the entity-type taxonomy described in §6 (Artifact Packaging & OCI Taxonomy). Shorthand URIs in Aggregates and Manifests are expanded into their full OCI form before the Tier 3 call; the inference rules driving that expansion live at the Manifest's [Context-Aware Shorthand URIs](../language-reference/entities/manifest.md) reference and §8 below.
 
@@ -332,7 +332,7 @@ Recipe names do NOT include the `ops/` prefix or the provider name. The entity t
 
 Recipes utilize the `implements` keyword to bind to the interface they fulfill. The `implements` field supports exact, major-compatible range, or unversioned matching (see [vocabulary/inheritance-and-interface](../language-reference/vocabulary/inheritance-and-interface.md) for `implements` Version Matching).
 
-When an Ops engineer runs `aggrega push`, the CLI bundles the entity YAML and its associated source files into an immutable `.tar.gz` package. The compiler downloads this tarball via the Three-Tier Resolution Model, extracts it, and caches it in `.aggrega/oci-cache/` locally.
+When an Ops engineer runs `aggrega push`, the CLI bundles the entity YAML and its associated source files into an immutable `.tar.gz` package. The compiler downloads this tarball via the Three-Tier Resolution Model, extracts it, and caches it in `.aggrega/cache/` locally.
 
 ### 7. The Recipe Architecture: Pointers and Mappers
 
