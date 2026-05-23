@@ -32,7 +32,7 @@ Emitted message:
 
 ### Recipe shape rules
 
-A Recipe composes its output from three input kinds — sourced, synthesized, and artifacts — described in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md). The shape of a valid Recipe is constrained by six composition rules; five are checked when the Recipe is loaded, one is checked at emission time. The rules apply to Recipes that target a non-`eval` provider; the `eval` provider has its own constraint (below). The rule numbering preserves a gap at Rule 3 — the original Rule 3 forbade authoring `workload:` and the retired `workloadFrom:` together; with the unified `$import:` file-import vocabulary, the retired keyword no longer exists and the rule was dropped without renumbering the surviving rules.
+A Recipe composes its output from three input kinds — sourced, synthesized, and artifacts — described in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md). The shape of a valid Recipe is constrained by five composition rules; four are checked when the Recipe is loaded, one is checked at emission time. The rules apply to Recipes that target a non-`eval` provider; the `eval` provider has its own constraint (below). The rule numbering preserves a gap at Rule 3 for cross-reference stability across releases.
 
 Every Recipe-shape error carries the same message shape:
 

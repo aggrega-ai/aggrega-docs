@@ -82,7 +82,7 @@ spec:
     $import: ./prod-parameters.yaml
 ```
 
-The two modes are mutually exclusive at this site. The pre-migration multi-file array form (`parametersFrom: [a, b, c]`) is removed; the multi-file layering use case migrates to Release `extends:` chains where the parent Release supplies a base set of parameters and the child extends-and-overrides per environment. See [Composite Release / `extends:` inheritance](#composite-release-and-extends-inheritance) further down for the pattern.
+The two modes are mutually exclusive at this site, and only a single file may be imported. Multi-file parameter layering is the province of Release `extends:` chains: the parent Release supplies a base set of parameters and the child extends-and-overrides per environment. See [Composite Release / `extends:` inheritance](#composite-release-and-extends-inheritance) further down for the pattern.
 
 **Boundary between parameters and infra.** Parameters carry the Developer's cognitive intent expressed as typed slots the Aggregate declares; the Release fulfills them. `infra:` on the Release carries the Operator's physical sizing (replica counts, CPU/memory bounds, storage classes) attached to specific components or Feature attachments. Parameters flow into the Aggregate's `values:` templates via `.parameters.X`; `infra:` flows into the Recipe's `valuesMapping:` template via `.infra.X`. See [architecture/06-data-taxonomy-and-composition.md §3](../../architecture/06-data-taxonomy-and-composition.md) for the data-pillar taxonomy and [templates/parameters-context.md](../templates/parameters-context.md) for the parameter lifecycle through the pipeline.
 
@@ -296,7 +296,7 @@ spec:
 
 `local-release` inherits the parent's boundary topology, Feature attachments, and component overrides; the developer sees one `local-release.yaml` and runs `aggrega build local-release.yaml` with no production-config duplication.
 
-**Multi-file parameter layering.** Release inheritance is also the home for the multi-file parameter layering use case the pre-migration `parametersFrom:` array previously handled. A base Release supplies the common parameter set; per-environment children `extends:` the base and override the slots that differ:
+**Multi-file parameter layering.** Release inheritance is the home for multi-file parameter layering. A base Release supplies the common parameter set; per-environment children `extends:` the base and override the slots that differ:
 
 ```yaml
 # base-release.yaml — common parameters
