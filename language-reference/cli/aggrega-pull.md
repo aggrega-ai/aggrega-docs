@@ -19,6 +19,24 @@ When `aggrega pull` ships, the intended surface covers:
 
 Once pulled, the cache directory is consumed by `aggrega build` and `aggrega lint` via the `--catalog` flag (or a default cache location). Pulling is a separate step to keep the build loop offline-capable once the catalog has been cached locally.
 
+## Authentication
+
+Aggrega does not implement its own authentication for remote registries. Authentication uses the standard tooling configs in priority order:
+
+- `~/.docker/config.json` (Docker login)
+- `$XDG_RUNTIME_DIR/containers/auth.json` (Podman / Skopeo)
+- `~/.config/helm/registry/config.json` (Helm OCI)
+
+Credential-helper delegation via `credsStore` and `credHelpers` is honored across all three locations, so OS-keychain integration via delegated helper binaries works without further configuration. For a private OCI catalog or chart repository, run `docker login <registry>` (or `helm registry login <registry>` for Helm-specific OCI) before `aggrega pull`. The credentials persist in the standard config file; Aggrega reads them automatically.
+
+Other source kinds use their native authentication conventions:
+
+- Helm classic HTTPS chart repositories (non-OCI) read `~/.config/helm/repositories.yaml` per Helm's own convention.
+- Git module sources use the standard Git transport credentials — SSH agent, `~/.netrc`, gitconfig credential helpers.
+- Plain HTTPS fragment sources transport with no authentication today; richer per-host token configuration is a future iteration.
+
+The goal across kinds is to let each kind's native tooling continue to own its authentication story. Aggrega does not interpose its own credential store or auth layer.
+
 ## See also
 
 - [./aggrega-build.md](./aggrega-build.md) — consumes the pulled catalog.

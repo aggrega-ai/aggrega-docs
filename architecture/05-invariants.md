@@ -119,3 +119,9 @@ Deterministic output is maintained through three disciplines:
 The compiler's `--trace` flag (see [`language-reference/cli/aggrega-build.md`](../language-reference/cli/aggrega-build.md)) gives authors and operators a verification surface for this invariant. Two compiles of the same input with `--trace` enabled produce byte-identical trace dumps; any per-pass diff localises a regression. Determinism is not just a release-time property — it is observable at every intermediate compiler state through the per-node trace layout.
 
 Deterministic output is the contract that makes Aggrega safe to use as the source of truth in a GitOps loop.
+
+### Tier-1 invariance scope
+
+The byte-identical-output guarantee scopes to artifacts pinned in the lockfile — entities resolved through registry artifacts whose digests the lockfile records (Tier-3 acquisitions). When entities reference local files (Tier-1 paths beginning with `./` or `../`) or workspace catalog directories (Tier-2 `catalog_dirs:`), invariance depends on those files remaining unchanged between builds. Local-file integrity is the responsibility of the source-control system (typically Git), not the lockfile.
+
+A Tier-1 reference whose underlying file changes between two compiles produces a legitimate diff in rendered output even though the compiler's input shape is unchanged — the deterministic-output guarantee is preserved (same byte input → same byte output), but the inputs differ because the local file changed. Catalogs that need cross-build invariance for every source pull artifacts from a registry into the lockfile-pinned cache (Tier 3) rather than from a workspace directory (Tier 1/2); the lockfile is the byte-identity anchor.
