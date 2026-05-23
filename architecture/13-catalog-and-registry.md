@@ -237,12 +237,14 @@ All fields are optional with sensible defaults:
 workspace:
   catalog_dirs:               # Ordered list of local catalog directories (checked before cache)
     - ./aggrega-catalog       # Default
-  cache_dir: .aggrega/cache  # Default OCI artifact cache
+  cache_dir: .aggrega/cache  # Default artifact cache root
   default_registry: hub.aggrega.ai  # Default registry for unqualified URIs
   offline: false              # Default; set to true for air-gapped environments
 ```
 
 The `catalog_dirs` list supports monorepo setups where a shared catalog lives in a sibling directory. The compiler checks each directory in sequence. The `offline: true` flag prevents any network access — the compiler only uses local paths and the cache, halting if an entity is not found locally.
+
+The `cache_dir` root carries two parallel subtrees that the future `aggrega pull` command populates uniformly in a single invocation: `<cache_dir>/entities/<URI-encoded>/<version>/` for catalog entities (Components, Features, Recipes, FeatureRecipes, Providers) and `<cache_dir>/source-artifacts/<kind>/<host>/<path>/<version>/<digest-prefix>/` for source artifacts pulled from Recipe / FeatureRecipe `spec.source` fields (Helm charts, terraform modules, compose fragments). Each source-artifact cache slot carries the authoritative `.tgz` archive, a derived `extracted/` directory regenerated on every build read, and a `metadata.yaml` file recording the artifact's `{kind, url, version, digest, mediatype, pulled_at}` identity. The 12-character `<digest-prefix>` segment namespaces the same `{kind, url, version}` re-tagged at different upstream digests into distinct slots.
 
 The `.aggrega.lock` file at the workspace root records the resolved versions and content digests for every pinned dependency. `aggrega pull` fetches dependencies and writes the lockfile; `aggrega build` reads the lockfile and uses the pinned versions regardless of registry state at build time. The lockfile carries sections per entity kind:
 
@@ -279,7 +281,7 @@ The compiler resolves every entity reference encountered during compilation thro
 
 **Tier 1 — Explicit local path.** A reference beginning with `./` or `../` (a POSIX relative-path prefix) is read directly from disk relative to the authoring file. No catalog lookup, no registry call. The explicit prefix disambiguates local-path intent from type-name lookup at the syntactic level: an Aggregate writing `type: core/api-server:1.0.0` is unambiguously a type reference; `type: ./local-api-variant` is unambiguously a local file. The resolver never sniffs string content to decide which tier applies — the prefix is the discriminator.
 
-**Tier 2 — Workspace and cache.** A reference without an explicit local-path prefix is searched first against the directories listed in `workspace.catalog_dirs` (project-local catalog trees authored or vendored into the repository — see §4 for the configuration shape) and then against `workspace.cache_dir` (the gitignored `.aggrega/cache/` location holding artifacts pulled from prior Tier 3 resolutions). The cache hit on second-and-subsequent builds is what keeps the inner loop network-free even when the project depends on remote catalog content.
+**Tier 2 — Workspace and cache.** A reference without an explicit local-path prefix is searched first against the directories listed in `workspace.catalog_dirs` (project-local catalog trees authored or vendored into the repository — see §4 for the configuration shape) and then against `workspace.cache_dir` (the gitignored `.aggrega/cache/` location holding artifacts pulled from prior Tier 3 resolutions, split into `entities/` and `source-artifacts/` subtrees per §4). The cache hit on second-and-subsequent builds is what keeps the inner loop network-free even when the project depends on remote catalog content.
 
 **Tier 3 — Remote OCI registry.** If Tier 2 returns no match, the resolver issues an ORAS-based OCI pull against `workspace.default_registry` (default `hub.aggrega.ai`), unpacks the artifact into the cache for subsequent builds, and continues with the resolved entity. The OCI URI form the registry call constructs follows the entity-type taxonomy described in §6 (Artifact Packaging & OCI Taxonomy). Shorthand URIs in Aggregates and Manifests are expanded into their full OCI form before the Tier 3 call; the inference rules driving that expansion live at the Manifest's [Context-Aware Shorthand URIs](../language-reference/entities/manifest.md) reference and §8 below.
 
