@@ -1,27 +1,85 @@
 # aggrega lint
 
-The `aggrega lint` subcommand will validate a catalog, an Aggregate, a Release, or a Manifest against the compiler's authoring rules without producing rendered output. It is a planned addition to the CLI that is not yet available.
+`aggrega lint` checks a catalog entity against Aggrega's publishing-discipline rules. It runs the rules as a Wasm plugin and reports findings. In its publish-gating mode it also fetches the entity's currently-published version from the registry and verifies that the proposed version bump matches the size of the change.
 
-## Current state
+`aggrega lint` is opt-in. The compiler itself stays unopinionated about catalog discipline; these rules live in a separate plugin you choose to run. A workspace that never runs `aggrega lint` still builds and publishes.
 
-`aggrega lint` does not ship today. Invoking it on a current CLI build prints an "unknown command" error and exits non-zero. Validation is currently reached as a side effect of `aggrega build` — the compiler parses, resolves, and validates before any renderer runs, and any validation failure halts the build with the same diagnostics that `aggrega lint` will surface independently.
+## Synopsis
 
-## Designed scope
+```
+aggrega lint <entity-path> [--pre-publish] [--plugin <path>] [policy flags]
+```
 
-When `aggrega lint` ships, the intended surface covers:
+The entity path may be given positionally or with `--entity <path>`.
 
-- **Schema validation.** Each entity file (Aggregate, Component, Feature, Recipe, FeatureRecipe, Provider, Manifest, Release) is checked against its JSON Schema.
-- **Cross-entity resolution.** References between entities (a Release's `aggregate:` pointer, a Recipe's `implements:` target, an `extends:` chain) are resolved; broken references surface as diagnostics.
-- **Composition rule enforcement.** Recipe input-kind rules (see [../entities/recipe.md](../entities/recipe.md)) are evaluated without rendering.
-- **Style warnings.** The linter surface covers catalog-convention rules (naming, label usage, credential-declaration discipline) that the compiler does not enforce at build time.
+## Two modes
 
-## Reporting
+- **Default (local).** Runs the discipline rules over the local entity content at **warning** severity. No registry access; the version-bump check is skipped. Use it while authoring.
+- **`--pre-publish` (publish gate).** Fetches the entity's latest published non-pre-release version from the registry, runs the same rules at **error** severity, and additionally classifies the change as `PATCH` / `MINOR` / `MAJOR` and halts if the proposed `metadata.version` bump is smaller than the change requires. Use it in the publish flow, before `aggrega push`.
 
-Output format will follow the headless-friendly structure already used by the rest of the CLI: one diagnostic per line with category, severity, file path, and message, plus a `--format json` variant for programmatic consumers.
+Over-bumping is always allowed; under-bumping halts. The first publication of an entity (no prior version in the registry) skips the bump check and surfaces a warning noting that no verification was performed.
+
+## The version-bump rubric
+
+In `--pre-publish` mode the change is compared against the previous published version and classified:
+
+- **`PATCH`** — documentation- or comment-only changes.
+- **`MINOR`** — strictly additive changes (a new optional field, a new entry).
+- **`MAJOR`** — removals, type narrowing, or a previously-optional field becoming required.
+
+The comparison is per entity kind: Component, Feature, Provider, and SchemaLibrary are compared with awareness of their schema-bearing fields; MappingLibrary is compared at the entry-key level (entry bodies are opaque, so a changed body is treated conservatively as `MAJOR`); Recipe and FeatureRecipe are compared on their load-bearing fields; legacy CUE modules are treated conservatively (any change is `MAJOR`). Under-bumping halts with a diagnostic naming the required bump.
+
+## The discipline rules
+
+Each rule has a per-workspace setting under `lint.publishing_discipline` in `.aggrega-config.yaml` and a matching CLI override. Defaults are grounded either in platform machinery, in a documented catalog convention, or are off by default where the platform takes no position.
+
+- **Annotation prefix** — reserved namespaces (`aggrega.ai/`, and `feature.aggrega.ai/` outside a Feature) are platform-owned and rejected on other keys. Default on; opt out with `allow_aggrega_ai_prefix`.
+- **Name shape** — each entity kind has a name-shape convention (segment counts for the cloud-native kinds; PascalCase for library kinds). Default on; opt out with `allow_nonstandard_names`.
+- **Monotonic narrowing** — when an entity uses `extends`, the child's schema must not broaden the parent's field types. The platform takes no position on which direction is correct, so this is **off by default**; enable it with `enforce_monotonic_narrowing`, and exempt specific entity paths with `narrowing_exemptions`.
+- **Dynamic refs** — SchemaLibrary entries may not use `$dynamicAnchor` / `$dynamicRef` (the platform's compile-time `$ref` expansion cannot resolve them). Default on; opt out with `allow_dynamic_refs`.
+- **Id overrides** — SchemaLibrary entries may not declare their own `$id` (the platform derives the canonical `$id`). Default on; opt out with `allow_id_overrides`.
+- **Category matches directory** — a Component's `component.aggrega.ai/category` label must match the first directory segment under `core/`, drawn from the closed category set (`ai-agent`, `ai-model`, `ai-tool`, `ai-pipeline`, `datastore`, `gateway`, `mesh`, `network`, `messaging`, `storage`, `compute`, `observability`, `security`, `bigdata`, `devtool`). Default on for entities under a `core/` path; opt out with `allow_category_mismatches`.
+- **Direct `x-aggrega-*` extensions** — directly authoring `x-aggrega-*` keys in a Component or Feature schema is discouraged in favor of the first-class authoring path. Default on; opt out with `allow_direct_x_aggrega_extensions`.
+- **Immutability** — in `--pre-publish` mode, re-publishing a version that already exists in the registry is rejected. Controlled by `enforce_immutability`.
+
+## Build-time and publish-time
+
+The `x-aggrega-*` discouragement rule also runs during `aggrega build`, where it surfaces as a **warning**; `aggrega lint --pre-publish` raises the same finding to an **error**. Local builds carry the advisory; the publish gate enforces it.
+
+## Flags
+
+- `<entity-path>` (positional) or `--entity <path>` — the entity to lint.
+- `--pre-publish` — switch to the registry-aware publish gate (error severity, version-bump check).
+- `--plugin <path>` — the publishing-linter Wasm plugin to run. When omitted, the plugin is taken from the `plugins.linter` entry in `.aggrega-config.yaml`.
+- Per-rule overrides, each with a `--no-` counterpart: `--allow-dynamic-refs`, `--allow-id-overrides`, `--allow-direct-x-aggrega-extensions`, `--allow-aggrega-ai-prefix`, `--allow-nonstandard-names`, `--allow-category-mismatches`, `--enforce-monotonic-narrowing`, `--enforce-immutability`. Precedence is `--no-<flag>` over `--<flag>` over the workspace-config value. (`narrowing_exemptions` is workspace-config-only.)
+
+## Choosing the linter
+
+The rules ship as a standard publishing-linter Wasm plugin. Because the rules live in a plugin rather than in the compiler, an enterprise can point `aggrega lint` at a different plugin to enforce its own catalog discipline without changing the compiler.
+
+## Examples
+
+Lint an entity locally while authoring:
+
+```
+aggrega lint core/datastore/postgres/component.yaml
+```
+
+Run the publish gate before publishing a new version:
+
+```
+aggrega lint core/datastore/postgres/component.yaml --pre-publish
+```
+
+Enable monotonic-narrowing enforcement for one run:
+
+```
+aggrega lint core/datastore/postgres/component.yaml --pre-publish --enforce-monotonic-narrowing
+```
 
 ## See also
 
-- [./aggrega-build.md](./aggrega-build.md) — which validates as part of compilation today.
-- [./global-flags.md](./global-flags.md) — flags (such as `--catalog`, `--manifest`) shared across subcommands.
-- [../errors/fatal-halts.md](../errors/fatal-halts.md) — fatal error categories linting will report.
-- [../errors/warnings.md](../errors/warnings.md) — non-fatal warnings linting will surface.
+- [./aggrega-build.md](./aggrega-build.md) — validates as part of compilation; surfaces the `x-aggrega-*` advisory at warning severity.
+- [./aggrega-push.md](./aggrega-push.md) — publishes an entity to the registry; `aggrega lint --pre-publish` is the gate that precedes it.
+- [./aggrega-pull.md](./aggrega-pull.md) — resolves and pins dependencies.
+- [../errors/warnings.md](../errors/warnings.md) — non-fatal warnings, including the local-mode lint findings.

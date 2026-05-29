@@ -14,7 +14,7 @@ if errors.Is(err, resolver.ErrParameterContractViolation) {
 }
 ```
 
-The sentinels listed below are stable across patch releases; renames or removals are signalled by a release-notes entry and a deprecation cycle. Adding a new sentinel within a package is additive and does not break existing matchers. The message text on the right-hand column is the literal wrapped string; the user-facing diagnostic adds a category prefix (`DEVELOPER_ERROR:` / `OPS_ERROR:` / `CATALOG_ERROR:` / `TRANSLATION_ERROR:` per [error-translation.md](./error-translation.md)) and the source location ahead of the sentinel's text.
+The sentinels listed below are stable across patch releases; renames or removals are signalled by a release-notes entry and a deprecation cycle. Adding a new sentinel within a package is additive and does not break existing matchers. The message text on the right-hand column is the literal wrapped string; the user-facing diagnostic adds a category prefix (`DEVELOPER_ERROR:` / `OPS_ERROR:` / `CATALOG_ERROR:` / `TRANSLATION_ERROR:` / `FETCH_ERROR:` per [error-translation.md](./error-translation.md)) and the source location ahead of the sentinel's text.
 
 ## Resolver-stage sentinels (`pkg/resolver`)
 
@@ -103,6 +103,51 @@ Step 5 — renderer dispatch and per-engine rendering.
 | --- | --- | --- |
 | `ErrUnknownProvider` | `unknown provider` | Surfaces as "Unregistered provider" in fatal-halts. |
 
+## Fetch sentinels (`pkg/oci`, re-exported by `pkg/sourceresolver`)
+
+`aggrega pull`, `aggrega push`, and `aggrega build`'s lockfile verification acquire pinned catalog entities and source artifacts. Acquisition failures wrap one of four shared fetch sentinels and carry the `FETCH_ERROR` category. `pkg/sourceresolver` re-exports the four `ErrFetch*` values as identity-equal aliases, so a match against either package's name succeeds.
+
+| Sentinel | Wrapped message | User-facing surface |
+| --- | --- | --- |
+| `ErrFetchNotFound` | `oci: artifact not found at remote source` | A pinned entity, chart, or module is not present at the registry / remote source — or, under offline mode, not in the local cache. |
+| `ErrFetchUnauthorized` | `oci: authentication required or failed` | The registry or source rejected the request; the message carries a remediation pointer (e.g. `docker login <registry>`). |
+| `ErrFetchNetworkUnreachable` | `oci: network unreachable` | A transport-layer failure — DNS, connection refused, TLS, or a retry-class status. |
+| `ErrFetchIntegrity` | `oci: content digest mismatch` | A cached artifact's digest does not match the lockfile entry; remediation: `aggrega pull --regenerate`. |
+| `ErrUnknownEntityKind` | `oci: unknown entity kind for mediatype dispatch` | `aggrega push` was given a non-publishable kind (Aggregate, Release, Manifest). |
+| `ErrLibraryVersionMismatch` | `oci: library per-version subdirectory mismatch` | A published library's `metadata.version` does not match its versioned path. |
+
+Two related sentinels live alongside the source-resolver: `ErrUnknownKind` (`pkg/sourceresolver`) for a Recipe `source:` whose kind has no registered adapter, and `ErrCacheMetadataInvalid` (`pkg/sourceresolver/metadata`) for a corrupt source-artifact cache slot — the latter wraps `ErrFetchIntegrity`, so it matches that sentinel too.
+
+## Lockfile sentinels (`pkg/lockfile`)
+
+The per-Release lockfile reader and the build-time drift verifier.
+
+| Sentinel | Wrapped message | User-facing surface |
+| --- | --- | --- |
+| `ErrLockfileInvalid` | `lockfile: file failed schema validation` | The `<release-stem>.lock` file is structurally malformed (older and partial shapes load with diagnostics rather than this error). |
+| `ErrLockfileDrift` | `lockfile: closure drift between lockfile and current catalog state` | A build's resolved dependencies do not match the lockfile; remediation: `aggrega pull --regenerate`. |
+
+## Dependency-closure sentinels (`pkg/closure`)
+
+The closure walk that `aggrega pull` runs to compute the lockfile.
+
+| Sentinel | Wrapped message | User-facing surface |
+| --- | --- | --- |
+| `ErrMVSConflict` | `closure: minimum version selection conflict — incompatible library version requirements` | Two consumers require incompatible versions of the same library. |
+| `ErrUnresolvableURI` | `closure: URI not resolvable via Lookup` | A referenced URI resolves through no tier (local, cache, or registry). |
+| `ErrInvalidLibraryRef` | `closure: invalid library reference URI` | A malformed schema / mapping library `$import:` or `$ref:` URI. |
+| `ErrSourceTemplateAtLockTime` | `closure: source-template evaluation failure at lock time` | A Recipe `source:` version template failed at lock time — typically by referencing `.provides`, which does not exist until build. |
+
+## Workspace-config sentinel (`pkg/workspaceconfig`)
+
+| Sentinel | Wrapped message | User-facing surface |
+| --- | --- | --- |
+| `ErrConfigInvalid` | `workspaceconfig: file failed schema validation` | A present `.aggrega-config.yaml` is structurally malformed. A missing file is not an error — defaults apply. |
+
+## Wasm host loader
+
+The embedded Wasm host loader emits its own guardrail sentinels — a manifest-rejected guardrail (a plugin requested a runtime-access capability the AOT-purity firewall denies), a guest-panic recovery, and a deterministic plugin-exit trap. These surface in the user-facing diagnostic when running a plugin (for example through `aggrega lint`), but they are declared in an internal package and are not part of the importable `errors.Is` matching surface.
+
 ## Matching guidance
 
 The `errors.Is` predicate walks the wrap chain, so a sentinel match works even when the error is wrapped multiple times across pipeline stages. The typical integration pattern:
@@ -123,4 +168,4 @@ case err != nil:
 
 Sentinels declared in different packages with the same short name (e.g., `ErrSchemaValidation` in both `pkg/resolver` and `pkg/validator`) are distinct values — they live in separate `var` blocks in separate packages and `errors.Is` distinguishes them by identity, not by name. Match against the fully-qualified package path the wrap chain carries; the wrapped message text is shared by both sentinels but the identity is the discriminator.
 
-For the user-facing diagnostic catalogue (the messages developers see in their terminal when a build halts), see [fatal-halts.md](./fatal-halts.md). For the advisory-warning catalogue (non-halting `LINT:` and `WARN:` output), see [warnings.md](./warnings.md). For the category-prefix taxonomy (`DEVELOPER_ERROR:` / `OPS_ERROR:` / `CATALOG_ERROR:` / `TRANSLATION_ERROR:`), see [error-translation.md](./error-translation.md).
+For the user-facing diagnostic catalogue (the messages developers see in their terminal when a build halts), see [fatal-halts.md](./fatal-halts.md). For the advisory-warning catalogue (non-halting `LINT:` and `WARN:` output), see [warnings.md](./warnings.md). For the category-prefix taxonomy (`DEVELOPER_ERROR:` / `OPS_ERROR:` / `CATALOG_ERROR:` / `TRANSLATION_ERROR:` / `FETCH_ERROR:`), see [error-translation.md](./error-translation.md).

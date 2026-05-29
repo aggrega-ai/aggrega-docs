@@ -117,10 +117,13 @@ See [`02-naming-conventions.md`](02-naming-conventions.md) for the field-casing 
 
 The Aggrega CLI (`aggrega-cli/cmd/aggrega/`) registers the build pipeline plus introspection. Per-command status:
 
-- **`aggrega build` — available.** Reads a Release file, resolves the Aggregate + Manifest, runs the 5-step pipeline, writes rendered artifacts to the boundary output directories.
+- **`aggrega build` — available.** Reads a Release file, resolves the Aggregate + Manifest, runs the 5-step pipeline, writes rendered artifacts to the boundary output directories. When a lockfile is present it verifies dependencies against it; when one is absent it auto-pulls (unless configured otherwise).
 - **`aggrega inspect` — available.** Inspects a catalog entity and reports its resolved shape. Subcommand surface remains in active development; the full reference page is pending.
-- **`aggrega pull` — planned.** Resolves and caches catalog artifacts from remote OCI registries into a local catalog directory. Documented as designed; no command is registered today.
-- **`aggrega lint` — planned.** Validates a catalog, an Aggregate, a Release, or a Manifest against authoring rules without producing rendered output. Documented as designed; no command is registered today.
+- **`aggrega pull` — available.** Resolves a Release's full dependency closure and writes a per-Release lockfile pinning every catalog entity and source artifact to a version and content digest; caches the fetched content under `.aggrega/cache`. `--verify` checks an existing lockfile against current state. See [`cli/aggrega-pull.md`](cli/aggrega-pull.md).
+- **`aggrega push` — available.** Publishes a catalog entity (Component, Feature, Recipe, FeatureRecipe, Provider, SchemaLibrary, MappingLibrary) to an OCI registry. See [`cli/aggrega-push.md`](cli/aggrega-push.md).
+- **`aggrega lint` — available.** Runs the publishing-discipline rules over a catalog entity at warning severity; `--pre-publish` runs them at error severity and adds a version-bump check against the entity's currently-published version. The rules ship as an opt-in Wasm plugin. See [`cli/aggrega-lint.md`](cli/aggrega-lint.md).
+- **`aggrega serve` — available.** A long-running compiler-as-service daemon speaking JSON-RPC 2.0 over stdin/stdout, for IDE integration (diagnostics, hover, completion, go-to-definition, IR-graph). See [`cli/aggrega-serve.md`](cli/aggrega-serve.md).
+- **`aggrega version` — available.** Prints the CLI version; `--json` emits a machine-readable version object.
 - **`aggrega create` and `aggrega import` — planned.** Recipe scaffolders documented in some vocabulary references; no commands are registered today.
 
 See [`07-cli.md`](07-cli.md) for the CLI overview and [`cli/`](cli/) for per-command reference pages.

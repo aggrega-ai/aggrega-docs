@@ -6,6 +6,8 @@ This chapter details the internal physics of the Go engine, defining how abstrac
 
 Aggrega drops hardcoded orchestration logic in favor of a strict 5-step Ahead-of-Time (AOT) compiler pipeline. Triggered by the **CLI Orchestrator**, the Go engine acts as a high-speed traffic cop, passing the flat graph between isolated WebAssembly (Wasm) sockets to evaluate the architecture before rendering physical artifacts.
 
+The Wasm sockets run on an embedded host — the Extism toolkit on top of the Wazero engine — behind an **AOT-purity firewall** that denies a plugin any runtime-access capability (network, filesystem, wall-clock, environment, standard I/O), so a plugin cannot break the deterministic, ahead-of-time guarantee. The host ships and runs the publishing-linter today, out of band, via [`aggrega lint`](../language-reference/cli/aggrega-lint.md). The in-band gates described below — the Step 2 mutator, the Step 4 policy-validator, and the Step 5 Phase C pipeline — carry stable contracts and assemble their payloads, but `aggrega build` does not yet dispatch them through the host; each activates one socket at a time. The descriptions that follow teach the pipeline's design; [Status of the Language](../language-reference/10-status.md) tracks which sockets execute today.
+
 The pipeline executes entirely in-memory in a strict, fixed order:
 
 **1. The Resolver & Syntax Validator**

@@ -1,8 +1,8 @@
 # Wasm plugin contract
 
-Aggrega's compilation pipeline includes designated socket points where WebAssembly (Wasm) plugins extend the engine's behaviour: a Step 2 Mutation Gate, a Step 4 Validation Gate, a Step 5 Phase C plugin pipeline for FeatureRecipe execution, and other planned sockets for provider rendering and out-of-band linting. This page documents the public Wasm plugin contract: which sockets exist, what each socket consumes and produces, and where each socket sits in the compilation pipeline.
+Aggrega's compilation pipeline includes designated socket points where WebAssembly (Wasm) plugins extend the engine's behaviour: a Step 2 Mutation Gate, a Step 4 Validation Gate, a Step 5 Phase C plugin pipeline for FeatureRecipe execution, an out-of-band linting socket, and a planned provider-rendering socket. This page documents the public Wasm plugin contract: which sockets exist, what each socket consumes and produces, and where each socket sits in the compilation pipeline.
 
-The contract is the authoring surface that future plugin authors target. The runtime that invokes plugins is **`accepted but inert`** today — see [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases) — so the documented shapes describe the design contract rather than a hot dispatch path. The two existing typed sockets (mutator, policy-validator) carry stable Go type definitions that compile and assemble payloads on every build; no guest is invoked.
+Aggrega embeds a Wasm host runtime — Extism on top of the Wazero engine — that loads and executes plugins behind an AOT-purity firewall: the host denies runtime-access capabilities (network, filesystem, walltime, environment, stdio) so a plugin cannot break the compiler's ahead-of-time guarantees. Plugin authors target the host through the three-language PDK (Go, Rust, TypeScript). The first socket dispatched through the host in a shipping command is the **linter socket** — the standard publishing-linter, executed by [`aggrega lint`](../cli/aggrega-lint.md). The in-band build sockets (the Step 2 mutator, the Step 4 policy-validator, the Step 5 Phase C pipeline) are **accepted but inert**: their Go type definitions compile, and the policy-validator payload is assembled on every build, but `aggrega build` does not yet dispatch them through the host. See [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases).
 
 ## Pipeline placement of Wasm sockets
 
@@ -14,7 +14,7 @@ The compilation pipeline reserves the following socket points. The shape labels 
 | `policy-validator.wasm` | Step 4 (Static Analyzer) | `accepted but inert` — types defined; payload assembled every build, never read |
 | FeatureRecipe `pipeline:` plugins | Step 5 Phase C (Post-Render Mutation) | `accepted but inert` per Status page Phase C classification |
 | Provider rendering plugins (e.g., `helm-renderer.wasm`) | Step 5 (Phase B engines) | `planned` — declared design target; native Go engines ship today |
-| `linter.wasm` (out-of-band) | Outside the build (CI gate / IDE) | `planned` — no contract types defined in code today |
+| `linter.wasm` (publishing-linter) | Out-of-band (`aggrega lint`) | **available** — the publishing-linter ships and runs through the host via `aggrega lint` |
 
 The annotation-driven Feature expansion sub-phase (Step 1) is a native Go pipeline pass, not a Wasm socket. It validates annotation values against the target Feature's `spec.schema` and injects synthetic Feature attachments at IR build time. See [`vocabulary/labels-and-annotations.md`](../vocabulary/labels-and-annotations.md) for the six annotation- and label-bearing surfaces and [`providers/well-known-annotations.md`](../providers/well-known-annotations.md) for the binding-shape and authoring teaching.
 
@@ -61,7 +61,7 @@ The host collects all rule results, halts the build with all failed-rule message
 
 ## Output shape contract — design targets
 
-The architecture also names additional shapes that current code does not type yet. These are documented here so plugin authors targeting a future shipping milestone know what's coming; the documentation does not imply current code support.
+The architecture also names additional shapes that current code does not type yet. These are documented here so plugin authors building ahead of their availability know what's coming; the documentation does not imply current code support.
 
 ### Strategic Merge Patch (Phase C plugin pipeline)
 
@@ -85,13 +85,15 @@ Phase C plugin steps are designed to publish named outputs that subsequent steps
 
 The architecture's Wasm Engine future implementation will replace native Go provider engines with Wasm rendering plugins. Each plugin's output is the same flat-YAML shape the native engine produces today; the contract is the same `Render` interface, but the implementation lives in a `.wasm` binary rather than Go code. Documented at [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md) and tracked in roadmap.
 
-**Status today:** `planned`. Native Go engines ship today (`helm`, `helm-chart`, `compose`); the Wasm-renderer transition is a future milestone.
+**Status today:** `planned`. Native Go engines ship today (`helm`, `helm-chart`, `compose`); the Wasm-renderer transition is a planned future capability.
 
-### `linter.wasm` (out-of-band)
+### `linter.wasm` (publishing-linter)
 
-The `linter.wasm` socket is a planned out-of-band gate intended to run as part of CI / IDE integration rather than at compile time. The contract surface is not declared in current code — no types, no host-side dispatch — but the design intent is documented at [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md). The output shape is expected to be a list of advisory results (warnings, info-level diagnostics) rather than build-halting rule failures.
+The `linter.wasm` socket ships as the standard **publishing-linter**, an out-of-band gate that runs through `aggrega lint` rather than at compile time. It consumes a catalog entity (and, in `--pre-publish` mode, the entity's currently-published version) and returns a list of findings, each with a severity and a message; in `--pre-publish` mode it also returns a version-bump classification. The host dispatches it through the embedded Wasm runtime, behind the same AOT-purity firewall as every other socket. The full rule set, severities, and per-rule opt-outs are documented at [`cli/aggrega-lint.md`](../cli/aggrega-lint.md).
 
-**Status today:** `planned`. No contract types defined in code; the socket is a design target with no implementation.
+The linter is opt-in catalog discipline: the compiler does not run it during `aggrega build` (with the single exception of the `x-aggrega-*` discouragement advisory, which surfaces at warning severity during build and at error severity under `aggrega lint --pre-publish`). Because the rules live in a plugin, an enterprise can point `aggrega lint` at a different linter plugin to enforce its own discipline.
+
+**Status today:** **available**. The publishing-linter ships and runs through the host via `aggrega lint`.
 
 ## Placement criterion: `linter.wasm` vs `policy-validator.wasm`
 
@@ -102,15 +104,16 @@ Two of the documented sockets share a similar surface — both consume a graph p
 
 The placement criterion phrased as a single rule: **if the check should halt the build, it belongs in `policy-validator.wasm`; if the check should warn an author or a reviewer without blocking the pipeline, it belongs in `linter.wasm`**.
 
-The criterion matters only when both sockets ship. Today only `policy-validator.wasm` is typed (and inert); `linter.wasm` is design target only. Authors targeting a future shipping milestone use the criterion to choose the socket; authors writing custom enterprise policies today have only the `policy-validator.wasm` typed surface, and the runtime that would execute either socket is not yet wired.
+The criterion matters once both sockets are usable. The `linter.wasm` socket ships today (the publishing-linter, run via `aggrega lint`); the `policy-validator.wasm` socket is typed but inert — its payload is assembled on every build, but `aggrega build` does not yet dispatch it. Authors with build-halting policies are targeting the policy-validator socket's eventual in-band activation; authors with advisory or publish-time checks can run them through the linter socket today.
 
 ## Design surfaces without current code anchors
 
-Three design surfaces named elsewhere in the corpus do not have current code anchors today:
+Two design surfaces named elsewhere in the corpus do not have current code anchors today:
 
-- **Six output shapes.** Current code defines two (JSONPatch via mutator, PolicyResult array via policy-validator). The architecture chapters and worked examples describe additional shapes (Strategic Merge Patch, Resource Generation, Step output, Provider rendering output) but those don't carry Go type definitions in the compiler today.
-- **`linter.wasm` socket.** No types, no host-side dispatch, no test fixtures. The placement criterion above is forward-looking design guidance; today's authoring surface has only `policy-validator.wasm`.
-- **Six Wasm-socket roles enumeration.** The current typed surface is two sockets; the broader six-role design (mutator, policy-validator, linter, helm-renderer, policy-formatter, fetcher/injector) is documented across architecture chapters but not centralized in a Go type registry.
+- **Additional output shapes.** Current code types three (JSONPatch via the mutator, a PolicyResult array via the policy-validator, and the linter's findings plus version-bump classification). The architecture chapters and worked examples describe further shapes (Strategic Merge Patch, Resource Generation, Step output, Provider rendering output) that do not carry Go type definitions in the compiler today.
+- **Six Wasm-socket roles enumeration.** The current typed surface is three sockets (mutator, policy-validator, linter); the broader six-role design (adding helm-renderer, policy-formatter, fetcher/injector) is documented across architecture chapters but not centralized in a Go type registry.
+
+The `linter.wasm` socket, previously listed here as design-only, now ships as the publishing-linter — a typed contract with host dispatch via `aggrega lint`.
 
 The pipeline placement table at the top of this page reflects today's state plus the planned placements; readers interested in the full architectural design target should consult [`architecture/09-ai-features.md`](../../architecture/09-ai-features.md) and [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md).
 

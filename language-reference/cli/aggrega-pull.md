@@ -1,23 +1,52 @@
 # aggrega pull
 
-The `aggrega pull` subcommand will resolve and cache catalog artifacts (Components, Features, Recipes, FeatureRecipes, Providers, and their Wasm plugin binaries) from remote OCI registries into a local catalog directory. It is a planned addition to the CLI that is not yet available.
+`aggrega pull` resolves a Release's full dependency closure and writes a **lockfile** that pins every dependency to an exact version and content digest. A subsequent `aggrega build` reads the lockfile and verifies against it, so builds are reproducible and offline-capable. `aggrega pull` is the one step that touches the network; build does not.
 
-## Current state
+## Synopsis
 
-`aggrega pull` does not ship today. Invoking it on a current CLI build prints an "unknown command" error and exits non-zero. Today's catalog workflow is filesystem-based: point the `--catalog` flag at a local directory tree containing the catalog entities, and the compiler reads them directly. Remote catalog distribution through OCI registries is a planned capability.
+```
+aggrega pull --release <path> [--regenerate] [--include-prerelease] [--dry-run]
+aggrega pull --release <path> --verify
+```
 
-## Designed scope
+## What it does
 
-When `aggrega pull` ships, the intended surface covers:
+`aggrega pull` resolves two kinds of dependency in one pass:
 
-- **OCI registry resolution.** Catalog references of the form `<registry>/<namespace>/<kind>/<name>:<version>` resolve to an OCI image, whose layers are extracted into a local cache directory.
-- **Transitive resolution.** Pulling an Aggregate or Release resolves every entity it references (recursively through `extends:`, `implements:`, `aggregate:`, and Feature attachments) and pulls the transitive closure into the cache.
-- **Wasm artifact fetch.** Recipes and FeatureRecipes that reference Wasm artifacts have those artifacts fetched alongside the YAML manifests.
-- **Cache discipline.** The cache is content-addressable; identical version pins share storage across Aggregates.
+- **Catalog entities** — the Components, Features, Recipes, FeatureRecipes, Providers, schema and mapping libraries, and Wasm plugins the Release references, resolved transitively (through `extends:`, `implements:`, `aggregate:`, Feature attachments, and library `$import:` / `$ref:` sites) and fetched from the registry when not already local.
+- **Source artifacts** — the remote `source:` that an individual Recipe or FeatureRecipe points a render engine at: a Helm chart (OCI or classic HTTPS), a Compose fragment over HTTPS, or a Terraform module from Git. Each is fetched, cached, and pinned.
 
-## Integration with other subcommands
+It writes the result to `<release-stem>.lock` next to the Release.
 
-Once pulled, the cache directory is consumed by `aggrega build` and `aggrega lint` via the `--catalog` flag (or a default cache location). Pulling is a separate step to keep the build loop offline-capable once the catalog has been cached locally.
+## The lockfile
+
+The lockfile pins each dependency to its URI, resolved version, and content digest. It has sections for catalog entities, schema and mapping libraries (each carrying back-pointers to the Components and Features that consume it), Wasm plugins, and source artifacts. The file is written in a canonical, deterministic form.
+
+Commit `<release-stem>.lock` alongside the Release, the way you commit any pinned-dependency manifest. A lockfile diff shows reviewers exactly which dependency versions and digests changed; a library digest change names the consumers it affects.
+
+## The cache
+
+Pulled content is stored under `.aggrega/cache`, split into an `entities/` subtree for catalog entities and a `source-artifacts/` subtree for source artifacts. The cache is content-addressed, so identical version pins share storage across Releases. Each source-artifact slot holds the authoritative archive, a regenerated extraction, and a small metadata file; the extraction is regenerated on every read, so build output depends on the archive and the lockfile, not on the state of the extracted files.
+
+## Integration with `aggrega build`
+
+- **Verification.** `aggrega build` verifies every resolved dependency against the lockfile and halts on drift between the lockfile and the current catalog or registry state. Run `aggrega pull --regenerate` to adopt the new state.
+- **Auto-pull.** If the lockfile is missing and `auto_pull` is true (the default), `aggrega build` runs the pull first automatically. If `auto_pull` is false, the build halts and asks you to pull.
+- **Offline.** Under `workspace.offline: true`, `aggrega build` uses only the cache; a missing lockfile or a missing cache entry halts with an air-gap diagnostic.
+
+## Flags
+
+- `--release <path>` — the Release to resolve (required).
+- `--regenerate` — discard the existing lockfile and rebuild it from current registry state. This is the remediation named in drift diagnostics.
+- `--include-prerelease` — include pre-release versions during selection (reserved; no effect today).
+- `--dry-run` — compute and report the closure without writing the lockfile.
+- `--verify` — read-only: check the existing lockfile against the current state and report drift without writing anything.
+
+## Determinism and integrity
+
+A Recipe's `source:` may template its version against the Release's resolved `values` and `infra` (and over `locals` defined on the same); these resolve at pull time and the result is pinned. A mutable Git tag or branch is pinned to the concrete commit it points at, with the original ref preserved for readability. At build time the cached archive's digest is re-verified against the lockfile, so a tampered cache is caught.
+
+The lockfile pins content fetched from registries and remote sources. Local files — sources beginning with `./` or `../`, and workspace catalog directories — are not pinned; their integrity between builds is the responsibility of the source-control system. See [byte-identical output](../../architecture/05-invariants.md) for the scope of the determinism guarantee.
 
 ## Authentication
 
@@ -39,6 +68,7 @@ The goal across kinds is to let each kind's native tooling continue to own its a
 
 ## See also
 
-- [./aggrega-build.md](./aggrega-build.md) — consumes the pulled catalog.
-- [./global-flags.md](./global-flags.md) — the `--catalog` flag that points at the cache directory.
-- [../providers/architecture.md](../providers/architecture.md) — provider Wasm artifacts that `pull` will fetch alongside YAML manifests.
+- [./aggrega-build.md](./aggrega-build.md) — verifies the lockfile and auto-pulls when configured.
+- [./aggrega-push.md](./aggrega-push.md) — publishes catalog entities to a registry.
+- [./aggrega-lint.md](./aggrega-lint.md) — the publish gate that precedes `aggrega push`.
+- [../../architecture/13-catalog-and-registry.md](../../architecture/13-catalog-and-registry.md) — the catalog, lockfile, and cache model in full.

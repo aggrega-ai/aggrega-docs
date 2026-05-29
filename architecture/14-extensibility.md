@@ -8,7 +8,7 @@ To ensure architectural symmetry across the ecosystem, Aggrega utilizes a comple
 
 The YAML interface for invoking *any* plugin relies on two explicitly chosen keywords: `function` and `with`.
 
-* **Why `function` (Not `command`):** Aggrega embeds Wazero, executing Wasm directly in memory. Using `command` implies an OS-level CLI execution (e.g., `docker run`). Using `function` correctly aligns the DSL with the underlying WebAssembly physics: the Go host is invoking an explicitly exported function from the Wasm module.
+* **Why `function` (Not `command`):** Aggrega embeds a Wasm runtime (the Extism toolkit on top of the Wazero engine), executing Wasm directly in memory. Using `command` implies an OS-level CLI execution (e.g., `docker run`). Using `function` correctly aligns the DSL with the underlying WebAssembly physics: the Go host is invoking an explicitly exported function from the Wasm module.
 * **Why `with` (Not `values` or `parameters`):** Using `values` would conflate the Plugin's inputs with the Developer's cognitive payload. Using `parameters` would conflate them with the Release's environment variables. By adopting the GitHub Actions standard (`with:`), the schema clearly designates an explicit mapping contract that is validated against the plugin's own embedded JSON schema before execution.
 
 **The 6 Types of Wasm Plugins:**
@@ -24,6 +24,12 @@ This universal `function` and `with` interface supports every programmable socke
 | **Out of Band** | **Linter/Estimator** (`linter.wasm`) | Optional FinOps or hygiene checks (e.g., calculating cloud costs based on `.infra`). | Warning Strings or Fatal Halts. |
 
 *The full engineering mandates governing how these sockets integrate with the Go compiler's pipeline and data-flow integrity rules live in the internal Wasm-sockets reference.*
+
+**The host runtime: a capability-denying sandbox.** Aggrega embeds the Wasm host as the Extism toolkit running on top of the Wazero engine; the host binary stays pure Go with no native toolchain dependency, so `aggrega` cross-compiles cleanly. Every socket runs behind an **AOT-purity firewall**: the host refuses to grant a plugin any runtime-access capability — no network, no filesystem, no wall-clock, no environment, no standard I/O — and rejects a plugin that asks for one. A plugin that cannot reach the network or read the clock cannot break the compiler's ahead-of-time guarantee that the same input produces the same output. Language runtimes that need a few benign startup imports are satisfied with deterministic no-op stubs rather than real capabilities, so a plugin still cannot observe anything that varies across builds.
+
+**Authoring against the host: the PDK.** Plugin authors do not hand-write the Wasm memory ABI. Aggrega ships a Plugin Development Kit in three languages — Go, Rust, and TypeScript — thin wrappers that present each socket's typed input and output so the author writes ordinary functions. The `function` / `with` interface above is what an Aggregate or FeatureRecipe uses to *invoke* a plugin; the PDK is what a plugin author *builds against*.
+
+**Which sockets run today.** The host runtime ships, and the first socket dispatched through it in a shipping command is the **linter socket** — the standard publishing-linter, run by [`aggrega lint`](../language-reference/cli/aggrega-lint.md). The in-band build sockets — the Step 2 mutator, the Step 4 policy-validator, and the Step 5 Phase C pipeline — carry stable contracts but are not yet dispatched during `aggrega build`; they activate one socket at a time against the same host. See [Status of the Language](../language-reference/10-status.md) for the per-socket readiness.
 
 ### 2. FeatureRecipe Plugin Pipelines
 

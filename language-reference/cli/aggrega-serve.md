@@ -1,0 +1,60 @@
+# aggrega serve
+
+`aggrega serve` runs Aggrega as a long-running **compiler-as-service daemon** for IDE integration. It speaks JSON-RPC 2.0 over stdin/stdout and holds catalog-resolver, parse-cache, and diagnostic state across requests, so editor operations get sub-second feedback instead of paying the full catalog-load cost on every keystroke.
+
+## Synopsis
+
+```
+aggrega serve [--workspace-root <dir>]
+```
+
+The daemon is normally spawned as a subprocess by an editor extension, not run by hand. A VS Code extension is the reference client; other editors can integrate by speaking the same protocol.
+
+## The protocol
+
+The wire protocol is JSON-RPC 2.0 with Content-Length framing, under the `aggrega/` method namespace. It is intentionally **not** the Language Server Protocol — Aggrega has domain operations (an IR-graph query, a cache-invalidation signal) that LSP has no analogue for. An editor extension translates between the editor's LSP requests and these `aggrega/*` methods; LSP-shaped position, range, and location values are reused where they fit.
+
+**Requests:**
+
+- `aggrega/initialize` — handshake. Negotiates the position encoding (the server prefers UTF-8, then UTF-16, then UTF-32, and defaults to UTF-16) and reports the resolved workspace root and the marker that resolved it.
+- `aggrega/validate {file, content}` — validate a file's content; returns diagnostics.
+- `aggrega/diagnostics {file}` — return the cached diagnostics for a file.
+- `aggrega/hover {uri, position}` — hover content for the entity at a position.
+- `aggrega/completion {uri, position}` — completion candidates at a position.
+- `aggrega/resolve {uri, position}` — resolve the entity referenced at a position (go-to-definition).
+- `aggrega/findReferences {uri, position}` / `aggrega/findImplementations {uri, position}`.
+- `aggrega/irGraph {release}` — the compiled IR graph for a Release, for editor introspection.
+- `aggrega/invalidate {file, granularity?}` — a cache-invalidation signal from the editor's file watcher.
+
+**Notifications:**
+
+- `aggrega/shutdown` — begin a cooperative drain: in-flight requests finish, new requests are refused, then the daemon exits.
+- `aggrega/publishDiagnostics` — a server-pushed diagnostic set (used for lockfile-drift warnings and at-startup state).
+
+## Cache model
+
+Operations are cache-driven: call `aggrega/validate` for a file before `hover` / `completion` / `resolve` / `diagnostics` on it. The parse cache is checked against each file's on-disk modification time on every read, so external edits (an editor save, a `git checkout`) are picked up automatically — the editor's `aggrega/invalidate` is an optimization, not a correctness requirement.
+
+## Workspace root and active Release
+
+The daemon discovers the workspace root by walking up from its working directory for a marker, in priority order: an `.aggrega-config.yaml` file, an `.aggrega/` directory, then `aggregate*.yaml`, `release*.yaml`, and `manifest*.yaml` globs. `--workspace-root` bypasses the walk. A global config under the XDG config path layers beneath the workspace config.
+
+Operations that need a Release pick the active one through a four-step cascade: the `build.authoring_release` config field, then a single-Release-in-the-workspace heuristic, then an `.aggrega/active-release` marker file, then an Aggregate-only fallback.
+
+## Lockfile awareness
+
+When an active Release has a lockfile, the daemon checks it for drift at startup and on each `aggrega/irGraph`, surfacing drift as a non-blocking warning. `aggrega/irGraph` requires a lockfile to be present.
+
+## Error codes
+
+Responses use the standard JSON-RPC error codes plus an application-level range in the 1xxx band: file-not-validated, release-not-resolved, lockfile-absent, entity-not-resolvable, and shutting-down. An editor client can branch on the code without parsing the message.
+
+## Flags
+
+- `--workspace-root <dir>` — set the workspace root explicitly instead of discovering it from the working directory.
+
+## See also
+
+- [./aggrega-build.md](./aggrega-build.md) — the daemon runs the same compiler pipeline the build command does; the build command remains the authoritative, lockfile-verified surface.
+- [./aggrega-version.md](./aggrega-version.md) — the version command an editor extension uses to check daemon compatibility.
+- [./aggrega-pull.md](./aggrega-pull.md) — the lockfile the daemon's drift surface reads.
