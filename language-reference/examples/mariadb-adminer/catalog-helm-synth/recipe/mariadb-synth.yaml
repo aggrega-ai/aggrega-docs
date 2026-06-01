@@ -51,7 +51,10 @@ spec:
     volumes:
       data:
         persistent:
-          size: "{{ if .infra.storage }}{{ .infra.storage.size | default "10Gi" }}{{ else }}10Gi{{ end }}"
+          # The Component's storage schema (composed from the DbSizing
+          # SchemaLibrary) materializes the size default, so the Recipe reads
+          # the resolved infra value directly rather than carrying its own.
+          size: "{{ .infra.storage.size }}"
     services:
       default:
         type: ClusterIP
