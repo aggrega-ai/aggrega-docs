@@ -69,7 +69,7 @@ The compiler loads the file's content (a Go template), template-renders it again
 ```yaml
 spec:
   valuesMapping:
-    $import: oci://hub.aggrega.ai/aggrega/bitnami-helpers@1.0.0#/mappings/MariaDBBitnamiCore
+    $import: BitnamiHelpers#/mappings/MariaDBBitnamiCore
 ```
 
 The compiler resolves the OCI URL through the catalog resolver (using the workspace's lockfile pinning), loads the MappingLibrary entry's content, and treats it as the mapping output. Library content shares the standard Recipe template context. Library mode suits cross-Recipe reuse — mapping patterns that recur across many Recipes (multiple datastore Recipes sharing Bitnami helper logic; multiple Helm-provider Recipes sharing pod-template patterns). The MappingLibrary entity provides versioning, OCI publishing, lockfile pinning, and hub-UI surfacing.

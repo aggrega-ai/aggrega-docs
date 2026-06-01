@@ -68,7 +68,7 @@ spec:
     $import: ./mappings/api-server.tmpl        # local file path
   # OR:
   valuesMapping:
-    $import: oci://hub.aggrega.ai/aggrega/<lib>@1.0.0#/mappings/<entry>   # MappingLibrary entry
+    $import: <Lib>#/mappings/<entry>   # MappingLibrary entry
 
   # ─── Synthesized input (optional) ───
   workload: |

@@ -236,7 +236,7 @@ References borrow JSON Schema's `$ref:` syntactically and semantically:
 ```yaml
 resources: { $ref: "#/$defs/PodResources" }
 
-auth: { $ref: "oci://hub.aggrega.ai/aggrega/datastores@1.0.0#/schemas/MariaDBAuth" }
+auth: { $ref: "Datastores#/schemas/MariaDBAuth" }
 
 secondary:
   allOf:

@@ -122,7 +122,7 @@ metadata:
 spec:
   schema:
     values:
-      $ref: oci://hub.aggrega.ai/aggrega/datastores@1.0.0#/schemas/MariaDBPayload
+      $ref: Datastores#/schemas/MariaDBPayload
 
     infra:
       cpu_arch: { type: string, enum: [amd64, arm64], default: amd64 }
@@ -303,7 +303,7 @@ spec:
     version: "20.0.0"
 
   valuesMapping:
-    $import: oci://hub.aggrega.ai/aggrega/bitnami-helpers@1.0.0#/mappings/MariaDBBitnamiCore
+    $import: BitnamiHelpers#/mappings/MariaDBBitnamiCore
 
   provides: |
     host: {{ .recipe.metadata.name }}-primary.{{ .recipe.metadata.namespace }}.svc.cluster.local

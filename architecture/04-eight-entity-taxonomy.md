@@ -75,9 +75,9 @@ graph LR
     EB -->|"Ships via"| T
 
     %% Library references (Tier 3 — opt-in for catalogs needing cross-Component reuse)
-    CC -.->|"$ref: oci://&lt;library&gt;#/schemas/&lt;name&gt;"| SL
+    CC -.->|"$ref: &lt;Library&gt;#/schemas/&lt;name&gt;"| SL
     CapC -.->|"$ref"| SL
-    CD -.->|"valuesMapping: { $import: oci://&lt;library&gt;#/mappings/&lt;name&gt; }"| ML
+    CD -.->|"valuesMapping: { $import: &lt;Library&gt;#/mappings/&lt;name&gt; }"| ML
     CapD -.->|"$import"| ML
 
     %% Apply the domain class to the subgraphs
@@ -137,7 +137,7 @@ The Workload kind is platform-owned content embedded inside a Recipe's synthesiz
 ## Tier 3: Libraries (Catalog Reuse)
 
 * **Role:** The Platform Architect (same persona as Domain 2), but the role kicks in only when catalog content grows large enough to benefit from cross-Component schema reuse or cross-Recipe template reuse. Solo authors and small catalogs ship without any Tier 3 entities.
-* **9. SchemaLibrary:** Reusable JSON Schema 2020-12 definitions. A library declares named schemas at `spec.schemas:` and optional parameterized helpers at `spec.templates:` (with `$params:` declarations and `$instantiate:` references for parametric reuse). Catalog entities consume library entries via the standard JSON Schema `$ref:` keyword pointing at the library's canonical `oci://<host>/<library>@<version>#/schemas/<name>` URL. PascalCase naming, OCI-published, lockfile-pinned. Opt-in for catalogs that need cross-Component schema reuse — common shapes like `PodResources`, `PersistenceSpec`, `NodePool`, `MetricsServiceMonitor` recur across every datastore Component and every workload Component, and SchemaLibrary entries factor that repetition out of per-Component authoring.
-* **10. MappingLibrary:** Reusable Go template fragments. A library declares named templates at `spec.mappings:`. Recipes and FeatureRecipes consume library entries via `valuesMapping: { $import: oci://<host>/<library>@<version>#/mappings/<name> }`. Single authoring mode (Go templates only); no parallel Jsonnet authoring path. Opt-in for catalogs that need cross-Recipe mapping reuse — common patterns like Bitnami chart helper logic or shared pod-template patterns recur across every datastore Recipe targeting the same provider, and MappingLibrary entries factor that repetition out of per-Recipe authoring.
+* **9. SchemaLibrary:** Reusable JSON Schema 2020-12 definitions. A library declares named schemas at `spec.schemas:` and optional parameterized helpers at `spec.templates:` (with `$params:` declarations and `$instantiate:` references for parametric reuse). Catalog entities consume library entries via the standard JSON Schema `$ref:` keyword pointing at the library entry by identity — the host-less `<library>#/schemas/<name>` form (the version comes from the lockfile, not the reference). PascalCase naming, OCI-distributed, lockfile-pinned. Opt-in for catalogs that need cross-Component schema reuse — common shapes like `PodResources`, `PersistenceSpec`, `NodePool`, `MetricsServiceMonitor` recur across every datastore Component and every workload Component, and SchemaLibrary entries factor that repetition out of per-Component authoring.
+* **10. MappingLibrary:** Reusable Go template fragments. A library declares named templates at `spec.mappings:`. Recipes and FeatureRecipes consume library entries by identity via `valuesMapping: { $import: <library>#/mappings/<name> }`. Single authoring mode (Go templates only); no parallel Jsonnet authoring path. Opt-in for catalogs that need cross-Recipe mapping reuse — common patterns like Bitnami chart helper logic or shared pod-template patterns recur across every datastore Recipe targeting the same provider, and MappingLibrary entries factor that repetition out of per-Recipe authoring.
 
 Both libraries publish via OCI, pin in the workspace lockfile (`schema_libraries:` and `mapping_libraries:` sections), and surface in the Hub UI with consumer awareness (which Components reference which library entries; which Recipes consume which library templates).

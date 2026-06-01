@@ -57,7 +57,7 @@ The `Component` schema (and its `Feature` counterpart, including credential Feat
 
 * **Inline compact form (default authoring surface):** an embedded YAML block carrying compact-form leaves directly in the Component YAML. Fits ~95% of catalog schema content in a fraction of the line count of full JSON Schema. See [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md) for the keyword vocabulary and authoring conventions.
 * **Inline JSON Schema YAML:** the verbose form, suitable when the schema needs JSON Schema 2020-12 keywords the compact form does not carry directly (`$dynamicRef`, deep `unevaluatedProperties`, complex `not:` composition). Compact form and JSON Schema can be mixed at any node boundary within a single `schema:` block via the `$jsonschema:` escape hatch.
-* **Cross-document reference (`$ref:` to a SchemaLibrary entry):** a JSON Schema-native `$ref:` URL pointing at a SchemaLibrary entry (`oci://hub.aggrega.ai/aggrega/datastores@1.0.0#/schemas/MariaDBValues` or similar). Enterprise schemas spanning hundreds of lines and reused across multiple Components live in SchemaLibrary entities; the consumer Component references the entry without inlining the content. See [`entities/schemalibrary.md`](schemalibrary.md) and [`vocabulary/cross-document-ref.md`](../vocabulary/cross-document-ref.md) for the library entity and the resolution semantics.
+* **Cross-document reference (`$ref:` to a SchemaLibrary entry):** a JSON Schema-native `$ref:` pointing at a SchemaLibrary entry by identity (`Datastores#/schemas/MariaDBValues` or similar). Enterprise schemas spanning hundreds of lines and reused across multiple Components live in SchemaLibrary entities; the consumer Component references the entry without inlining the content. See [`entities/schemalibrary.md`](schemalibrary.md) and [`vocabulary/cross-document-ref.md`](../vocabulary/cross-document-ref.md) for the library entity and the resolution semantics.
 
 The compiler resolves the `schema:` block — expanding compact form, dereferencing `$ref:` URLs, applying SchemaLibrary library-to-library chains — and unifies the resulting JSON Schema with the auto-generated bases derived from `usesSchema` and `secretsSchema` (see the section below) during the Component's validation pass. Validation runs against the resolved schema; the authoring path is opaque to downstream pipeline stages.
 
@@ -423,11 +423,11 @@ spec:
       models:
         type: array
         items:
-          $ref: "oci://hub.aggrega.ai/aggrega/ai-types@1.0.0#/schemas/ModelRef"
+          $ref: "AiTypes#/schemas/ModelRef"
       tools_allowed:
         type: array
         items:
-          $ref: "oci://hub.aggrega.ai/aggrega/ai-types@1.0.0#/schemas/ToolRef"
+          $ref: "AiTypes#/schemas/ToolRef"
   # secretsSchema absent: agents own no secrets directly
 ```
 

@@ -18,14 +18,14 @@ aggrega-catalog/
 │
 ├── schemalibrary/            # TIER 3: Reusable JSON Schema 2020-12 definitions
 │   │                         # Common shapes (PodResources, PersistenceSpec, etc.)
-│   │                         # consumed via $ref: oci://<host>/<library>@<version>#/schemas/<name>
+│   │                         # consumed via $ref: <Library>#/schemas/<name>
 │   │                         #   schemalibrary/base-components.yaml
 │   │                         #   schemalibrary/networking-primitives.yaml
 │   └── ...
 │
 ├── mappinglibrary/           # TIER 3: Reusable Go template fragments
 │   │                         # Common valuesMapping helpers consumed via
-│   │                         # valuesMapping: { $import: oci://<host>/<library>@<version>#/mappings/<name> }
+│   │                         # valuesMapping: { $import: <Library>#/mappings/<name> }
 │   │                         #   mappinglibrary/bitnami-helpers.yaml
 │   └── ...
 │
@@ -221,7 +221,7 @@ To provide both strict validation and standard catalog metadata (author, version
 
 To maintain the DRY (Don't Repeat Yourself) principle, the Catalog employs two distinct composition mechanisms:
 
-* **Shared SchemaLibrary entries (cross-document `$ref:`):** Reusable JSON Schema definitions are stored in SchemaLibrary catalog entities (Tier 3). They are referenced via cross-document `$ref:` URLs (`oci://hub.aggrega.ai/schema-library/<namespace>/<name>@<version>#/schemas/<entry>`) from any consumer Component or Feature schema. The compactform compiler walks the chain at compile time via resolution-stack threading; each property in the resolved shape carries an `x-aggrega-source` annotation attributing it to the immediate-parent library entry. See [entities/schemalibrary](../language-reference/entities/schemalibrary.md) for the library entity's authoring shape and [vocabulary/cross-document-ref](../language-reference/vocabulary/cross-document-ref.md) for the resolution semantics.
+* **Shared SchemaLibrary entries (cross-document `$ref:`):** Reusable JSON Schema definitions are stored in SchemaLibrary catalog entities (Tier 3). They are referenced by identity via cross-document `$ref:` (`<library>#/schemas/<entry>`, host-less — the version comes from the lockfile) from any consumer Component or Feature schema. The compactform compiler walks the chain at compile time via resolution-stack threading; each property in the resolved shape carries an `x-aggrega-source` annotation attributing it to the immediate-parent library entry. See [entities/schemalibrary](../language-reference/entities/schemalibrary.md) for the library entity's authoring shape and [vocabulary/cross-document-ref](../language-reference/vocabulary/cross-document-ref.md) for the resolution semantics.
 * **Single Inheritance (`extends`):** For complete component baselines, entities can use the `extends: "URI"` property. The Go compiler recursively fetches the parent, performing a **Two-Tiered Merge**: it deep-merges the YAML metadata (overwriting labels on conflict and appending arrays) and composes the schemas under JSON Schema 2020-12 composition. The publishing-discipline policy plugin enforces monotonic narrowing on the composed result at publish time — child schemas may narrow parent constraints but cannot relax them. See [entities/component](../language-reference/entities/component.md) for the base-and-child component extension examples + [governance-and-compliance §"Inheritance and policy narrowing"](11-governance-and-compliance.md#inheritance-and-policy-narrowing) for the narrowing enforcement mechanism.
 
 See [entities/component](../language-reference/entities/component.md) for the base-and-child component extension examples, and [entities/recipe](../language-reference/entities/recipe.md) for Recipe pointer-and-mapper authoring with complete examples.
