@@ -80,25 +80,23 @@ A SchemaLibrary with a non-PascalCase key in `spec.schemas` or `spec.templates` 
 
 Parameter names inside a template's `$params:` map are template-local — they do not appear in canonical `$id` URIs and are not pattern-constrained at the envelope level. Authors follow whatever naming convention fits the template's parameters; `port`, `path`, `intervalSec`, and similar lowercase parameter names are typical.
 
-The naming uniformity at library, schema, and template levels makes canonical `$ref` URIs scan cleanly: `oci://hub.aggrega.ai/WebPrimitives@1.0.0#/schemas/URL` reads at a glance.
+The naming uniformity at library, schema, and template levels makes reference identifiers scan cleanly: `WebPrimitives#/schemas/URL` reads at a glance.
 
 For the cross-document `$ref:` resolution semantics — how `$ref:` resolves across SchemaLibrary boundaries, the `required:` syntax distinction for `$ref:`-bearing consumers, library-to-library chain expansion, and consumer-narrows-library behaviour — see [vocabulary/cross-document-ref.md](../vocabulary/cross-document-ref.md).
 
-## Canonical `$id` and Lockfile Integration
+## Referencing Library Entries
 
-Each schema entry's canonical `$id` derives as `oci://<host>/<library>@<version>#/schemas/<name>`. The host comes from the workspace's lockfile entry for the library; the version comes from the lockfile-pinned version; the schema entry's name is the entry's map key. Local-development workspaces (where the library is unpacked under the catalog tree rather than installed from a remote registry) use the placeholder host `local.aggrega`; the publishing pipeline substitutes the placeholder with the canonical hub host at publish time.
-
-Component / Feature authors reference library entries by writing the canonical `$id` as a `$ref` value:
+Component / Feature authors reference a library entry by its **identity** — the bare-name form `<Library>#/schemas/<name>`:
 
 ```yaml
 # Inside a Component schema:
 spec:
   schema:
     healthCheck:
-      $ref: "oci://hub.aggrega.ai/WebPrimitives@1.0.0#/schemas/URL"
+      $ref: "WebPrimitives#/schemas/URL"
 ```
 
-For a workspace-local library — one loaded from a catalog directory rather than pulled from a registry — two reference spellings resolve interchangeably: the canonical OCI form, which for a workspace-local library carries the `local.aggrega` placeholder host described above (`$ref: "oci://local.aggrega/WebPrimitives@1.0.0#/schemas/URL"`), and the bare-name shorthand `$ref: "WebPrimitives#/schemas/URL"`. Both match the library by name against the loaded catalog and compile to identical output; the OCI form's `@version` is validated against the loaded library's `metadata.version` (a mismatch is rejected at compile). A reference to a **remote** library — one not present in any local catalog, pulled into the content cache and pinned in the lockfile — resolves once the remote-library fetch ships; until then such a reference reports a clear "not yet supported" diagnostic rather than resolving silently.
+The library name resolves against the loaded catalog closure; the `#/schemas/<name>` fragment selects the entry. A reference carries no registry host and no version: the version is supplied by the per-Release lockfile, which pins each consumed library by name + version + content digest. A reference that carries a registry host — an `oci://<host>/…` form — is rejected at compile with a diagnostic that steers the author to the identity form, so a physical registry location never enters authored source. Where the library's bytes are served from (a local catalog directory, the content cache, or a remote registry) is the resolver's concern, bound at resolution time; relocating a registry is a resolver-configuration change, not a source change.
 
 ## Forbidden JSON Schema Keywords
 

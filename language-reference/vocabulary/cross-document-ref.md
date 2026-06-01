@@ -11,7 +11,7 @@ For entity-level inheritance (Component-extends-Component, Release-extends-Relea
 `$ref:` follows JSON Schema 2020-12 standard resolution. The following reference shapes appear in practice:
 
 - **Local fragments** within the same document: `{ $ref: "#/$defs/PodResources" }` — resolves to the `PodResources` entry under the schema's `$defs`.
-- **SchemaLibrary entry references**, in two interchangeable spellings: the bare-name shorthand `{ $ref: "WebPrimitives#/schemas/URL" }` and the canonical OCI form `{ $ref: "oci://hub.aggrega.ai/aggrega/datastores@1.0.0#/schemas/MariaDBPayload" }`. For a **workspace-local** library (one loaded from a catalog directory, addressed in the OCI form with the `local.aggrega` placeholder host — `oci://local.aggrega/WebPrimitives@1.0.0#/schemas/URL`), both spellings resolve by matching the library name against the loaded catalog, then dereferencing the `#/schemas/<name>` JSON Pointer fragment within that library's content; the OCI form's `@version` is validated against the loaded library's `metadata.version`. The two spellings compile to identical output. A **remote** library — one not present in any local catalog, pulled into the content cache and pinned in the lockfile — resolves through the lockfile to the cached content; that remote fetch-at-build path resolves once the remote-library fetch ships, so today a reference to a not-locally-present library reports a clear "not yet supported" diagnostic rather than a silent miss.
+- **SchemaLibrary entry references** by identity: `{ $ref: "WebPrimitives#/schemas/URL" }` — the bare-name `<Library>#/schemas/<Entry>` form. The library name resolves against the loaded closure and the `#/schemas/<Entry>` JSON Pointer fragment selects the entry; the version is supplied by the lockfile, not the reference. A reference carries no registry host — a host-bearing `oci://<host>/…` form is rejected at compile with a diagnostic that steers the author to the identity form, so a physical registry location never enters authored source. Where the library's bytes are served from (a local catalog directory, the content cache, or a remote registry) is the resolver's concern, bound at resolution time, never part of the reference.
 - **External file paths**: `{ $ref: "./schemas/foo.yaml#/definitions/Foo" }` — resolves the file relative to the schema's location, then the JSON Pointer fragment within.
 
 The reference resolves at compile time. The expander inlines the referenced content into the consumer's schema; the rendered IR carries the inlined content, not the indirection. Per-property attribution is preserved via the `x-aggrega-source` annotation (see [Library-to-library chain expansion](#library-to-library-chain-expansion) below).
@@ -51,7 +51,7 @@ The compiler emits `required: [database, display_name]` at the parent scope.
 spec:
   schema:
     values:
-      $ref: "oci://hub.aggrega.ai/aggrega/datastores@1.0.0#/schemas/PostgresPayload"
+      $ref: "Datastores#/schemas/PostgresPayload"
       required: [database, display_name]
 ```
 
@@ -69,7 +69,7 @@ spec:
       type: object
       properties:
         host: { type: string }
-        credentials: { $ref: "oci://hub.aggrega.ai/aggrega/credentials@1.0.0#/schemas/BasicAuth" }
+        credentials: { $ref: "Credentials#/schemas/BasicAuth" }
 
 # Library B (referenced from library A above)
 spec:
@@ -111,7 +111,7 @@ spec:
 spec:
   schema:
     values:
-      $ref: "oci://hub.aggrega.ai/aggrega/tools@1.0.0#/schemas/ToolContract"
+      $ref: "Tools#/schemas/ToolContract"
       side_effects:
         type: array
         items: { type: string, enum: [read] }

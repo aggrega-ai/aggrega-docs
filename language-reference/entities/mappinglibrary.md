@@ -77,22 +77,20 @@ Library names and mapping entry keys follow PascalCase. The entity envelope's JS
 
 A MappingLibrary with a non-PascalCase key in `spec.mappings` fails envelope validation at workspace load. The enforcement is load-bearing: mapping entry keys appear in canonical reference URLs (`#/mappings/<name>`); non-PascalCase keys would propagate through every consumer that imports the entry, including the eventual hub UI surfacing.
 
-The naming uniformity makes canonical reference URLs scan cleanly: `oci://hub.aggrega.ai/BaseMappings@1.0.0#/mappings/ProbeBlock` reads at a glance.
+The naming uniformity makes reference identifiers scan cleanly: `BaseMappings#/mappings/ProbeBlock` reads at a glance.
 
-## Canonical Reference URL and Lockfile Integration
+## Referencing Library Entries
 
-Each mapping entry's canonical reference is `oci://<host>/<library>@<version>#/mappings/<name>`. The host comes from the workspace's lockfile entry for the library; the version comes from the lockfile-pinned version; the entry's name is the entry's map key. Local-development workspaces (where the library is unpacked under the catalog tree rather than installed from a remote registry) use the placeholder host `local.aggrega`; the publishing pipeline substitutes the placeholder with the canonical hub host at publish time.
-
-Recipe and FeatureRecipe authors reference library entries by writing the canonical URL as an `$import:` argument:
+Recipe and FeatureRecipe authors reference a mapping entry by its **identity** — the bare-name form `<Library>#/mappings/<name>` — written as an `$import:` argument:
 
 ```yaml
 # Inside a Recipe's valuesMapping block:
 spec:
   valuesMapping:
-    $import: "oci://hub.aggrega.ai/BaseMappings@1.0.0#/mappings/ProbeBlock"
+    $import: "BaseMappings#/mappings/ProbeBlock"
 ```
 
-The `#/mappings/<name>` fragment distinguishes the URL shape from SchemaLibrary's `#/schemas/<name>` — readers can identify the library kind without dereferencing the URL.
+The library name resolves against the loaded closure; the `#/mappings/<name>` fragment selects the entry and distinguishes the reference from SchemaLibrary's `#/schemas/<name>` — readers identify the library kind without dereferencing. A reference carries no registry host and no version: the version is supplied by the per-Release lockfile, which pins each consumed library by name + version + content digest. An author never writes a registry host in a reference — the `oci://<host>/…` form is not an identity reference; physical registry location is the resolver's concern, bound at resolution time, never part of the reference. (The `$import:` resolution that enforces this lands with Recipe consumption of mapping libraries.)
 
 ## Cross-Library Composition
 
@@ -104,7 +102,7 @@ spec:
   mappings:
     ProbeWithMonitoring: |
       {{ template "Probe" . }}
-      {{ $import "oci://hub.aggrega.ai/MonitoringLibrary@2.1.0#/mappings/PrometheusAnnotations" }}
+      {{ $import "MonitoringLibrary#/mappings/PrometheusAnnotations" }}
 ```
 
 Cycle detection across library chains and version pinning across cross-library chains are concerns at the consumption-side machinery. The library entity itself ships no cycle-detection state; libraries can reference each other freely at the authoring surface.

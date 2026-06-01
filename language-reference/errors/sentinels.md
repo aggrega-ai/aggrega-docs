@@ -65,7 +65,7 @@ Compact-form authoring surface validation — keyword vocabulary, constraint-typ
 | `ErrReferenceUnresolvable` | `compactform: $ref unresolvable` | A `$ref:` URL did not resolve to a target schema. |
 | `ErrUnresolvedSchemaLibraryRef` | `compactform: cross-document $ref target not found` | A cross-document `$ref:` (typically targeting a SchemaLibrary entry) failed to resolve the named target inside the resolved document. |
 | `ErrCircularRef` | `compactform: circular cross-document $ref expansion` | A SchemaLibrary chain forms a cycle; expansion would not terminate. |
-| `ErrOCINotYetSupported` | `compactform: oci:// $ref scheme not yet supported` | An `oci://` URI scheme appeared at the compact-form site that does not yet accept OCI resolution. |
+| `ErrHostInLibraryRef` | `compactform: cross-document $ref carries a registry host; reference the library by identity` | A cross-document `$ref:` carries a registry host (an `oci://<host>/…` form). References address libraries by identity — the bare-name `<Library>#/schemas/<Entry>` form — so the host is rejected with a steer to the identity form. |
 
 ## Topology-stage sentinels (`internal/compiler/topology`)
 
