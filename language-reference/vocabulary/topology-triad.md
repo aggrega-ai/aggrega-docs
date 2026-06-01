@@ -38,7 +38,7 @@ To implement this without tightly coupling Developers to Ops, Aggrega uses the P
 
 1. **Component-level self-inject:** As a direct sibling to `values:` on a component instance. Injects the component's own literal values or its own `provides` keys into the delivery pipe. Only allowed if the Component catalog declares `spec.inject` with the corresponding mechanisms.
 2. **Uses-level cross-inject:** Inside explicit target definitions within the `uses:` block. Injects a dependency target's `provides` keys into the delivery pipe.
-3. **Feature/Secret-level inject:** As a sibling to `values:` when attaching features and secrets. Injects data from the feature's dependency targets into the delivery pipe.
+3. **Feature/Secret-level inject:** As a sibling to `values:` when attaching features and secrets. Injects the attachment's own resolved `provides` keys — the resolved credential for a secret, or a feature's provided values — into the delivery pipe.
 
 All three forms populate the same `.context.inject` pipe. The Recipe reads a single, unified pipe regardless of how many sources contributed to it.
 
@@ -53,7 +53,7 @@ The compact form `KEY: "string"` has different semantics depending on where it a
 | :--- | :--- | :--- |
 | `component.inject` | Literal value | Always a **literal string** (sugar for `value:`) |
 | `uses[target].inject` | Provides key reference | Always a **provides key** (sugar for `from:`) |
-| `feature.inject` / `secret.inject` | Provides key reference | Same as uses — always a **provides key** |
+| `feature.inject` / `secret.inject` | Provides key reference | Always a **provides key** — resolved against the attachment's own `provides` |
 
 **Verbose Form Keywords (`from:` and `value:`):**
 The verbose form uses the `in` keyword for the local identifier plus exactly one of `from:` (provides key reference) or `value:` (literal string):
