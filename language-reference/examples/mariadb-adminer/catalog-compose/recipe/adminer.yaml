@@ -1,0 +1,42 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Recipe
+metadata:
+  name: adminer-compose
+  version: 1.0.0
+  description: >
+    Adminer for local development via Docker Compose. Synthesized-mode
+    Workload: image, environment, port, and the exposed service are
+    translated from the Workload kind by the compose provider. The
+    database host resolved from the `databases` uses-edge arrives on
+    .context.inject.env and is rendered verbatim into the service env.
+  maintainers:
+    - name: "Massimiliano Ferrero"
+      email: "m.ferrero@cognitio.it"
+spec:
+  provider: compose
+  implements: app/adminer
+
+  provides:
+    host: "{{ .context.instance_id }}"
+    port: "{{ optional .infra `port` 8080 }}"
+
+  workload: |
+    apiVersion: aggrega.ai/v1alpha1
+    kind: Workload
+    containers:
+      main:
+        image: "adminer:4"
+        variables:
+          ADMINER_DESIGN: "{{ .values.design }}"
+          {{- range $k, $v := .context.inject.env }}
+          {{ $k }}: "{{ $v }}"
+          {{- end }}
+        ports:
+          http: {{ optional .infra `port` 8080 }}
+    services:
+      # NodePort publishes the port to the host (compose: "host:container";
+      # Kubernetes: a NodePort Service) so the UI is reachable from a browser.
+      default:
+        type: NodePort
+        ports:
+          http: {{ optional .infra `port` 8080 }}

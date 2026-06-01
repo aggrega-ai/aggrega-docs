@@ -1,0 +1,54 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: aggregate
+  version: "1.0.0"
+  description: >
+    A MariaDB database with an Adminer web UI in front of it. This is the
+    single Developer-authored intent surface. The same Aggregate compiles
+    to Docker Compose and to Kubernetes/Helm; only the loaded Recipe layer
+    differs per target.
+spec:
+  components:
+    # ── Database ────────────────────────────────────────────────────────
+    db:
+      type: core/database/mariadb
+      values:
+        database: appdb
+        user: appuser
+        charset: utf8mb4
+        collation: utf8mb4_general_ci
+      # Credentials. The literal-credential Feature injects each value into
+      # the database's environment under the variable name the MariaDB image
+      # expects. The loaded FeatureRecipe layer (compose / helm) decides the
+      # delivery; its injectMapping populates the component's inject pipe,
+      # which the database Recipe reads as .context.inject.env.<VAR>.
+      features:
+        root-password:
+          type: app/literal-credential
+          values:
+            var: MARIADB_ROOT_PASSWORD
+            value: dev-root-pw-change-me
+        app-password:
+          type: app/literal-credential
+          values:
+            var: MARIADB_PASSWORD
+            value: dev-app-pw-change-me
+
+    # ── Web UI ──────────────────────────────────────────────────────────
+    web:
+      type: app/adminer
+      values:
+        design: pepa-linha-dark
+      # The String Pipe: db.provides.host is wired into Adminer's
+      # ADMINER_DEFAULT_SERVER. The compiler does not interpret the string;
+      # it routes whatever the database Recipe's `provides.host` emits
+      # (a compose service name, or a Kubernetes service DNS name).
+      uses:
+        databases:
+          db:
+            target: db
+            inject:
+              env:
+                - in: ADMINER_DEFAULT_SERVER
+                  from: host

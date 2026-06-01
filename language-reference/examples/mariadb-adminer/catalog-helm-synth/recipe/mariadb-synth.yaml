@@ -1,0 +1,59 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Recipe
+metadata:
+  name: mariadb-synth
+  version: 1.0.0
+  description: >
+    MariaDB on Kubernetes, rendered offline as plain manifests by the helm
+    provider's Workload synthesis — no external chart. The Workload becomes
+    a Deployment, a ClusterIP Service, and a PersistentVolumeClaim for the
+    data directory. Credentials arrive on .context.inject.env from the
+    attached literal-credential Features.
+  maintainers:
+    - name: "Massimiliano Ferrero"
+      email: "m.ferrero@cognitio.it"
+spec:
+  provider: helm
+  implements: core/database/mariadb
+
+  # provides.host is provider-specific: the helm provider names the
+  # synthesized Service "<component>-<service-key>", so the in-cluster DNS
+  # name a consumer must dial is "<instance_id>-default". The compose Recipe
+  # names its service after the component alone — the same Aggregate edge
+  # routes whichever string the bound Recipe emits.
+  provides:
+    host: "{{ .context.instance_id }}-default"
+    port: "3306"
+    protocol: "mariadb"
+
+  workload: |
+    apiVersion: aggrega.ai/v1alpha1
+    kind: Workload
+    replicas: 1
+    containers:
+      main:
+        image: "mariadb:{{ .infra.engine_version }}"
+        variables:
+          MARIADB_DATABASE: "{{ .values.database }}"
+          MARIADB_CHARACTER_SET_SERVER: "{{ .values.charset }}"
+          MARIADB_COLLATION_SERVER: "{{ .values.collation }}"
+          {{- if .values.user }}
+          MARIADB_USER: "{{ .values.user }}"
+          {{- end }}
+          {{- range $k, $v := .context.inject.env }}
+          {{ $k }}: "{{ $v }}"
+          {{- end }}
+        ports:
+          mysql: 3306
+        volumeMounts:
+          - name: data
+            path: /var/lib/mysql
+    volumes:
+      data:
+        persistent:
+          size: "{{ if .infra.storage }}{{ .infra.storage.size | default "10Gi" }}{{ else }}10Gi{{ end }}"
+    services:
+      default:
+        type: ClusterIP
+        ports:
+          mysql: 3306
