@@ -4,7 +4,7 @@ A MappingLibrary is a catalog entity that holds reusable Go template fragments. 
 
 ## The MappingLibrary's Role
 
-Platform architects author MappingLibraries to centralise Go template fragments that recur across the catalog's Recipes and FeatureRecipes. A library is not a deployable build instruction; it is a definitions namespace. Recipe and FeatureRecipe authors reference library entries by their canonical reference URL, written once and consumed wherever the import resolves.
+Platform architects author MappingLibraries to centralise Go template fragments that recur across the catalog's Recipes and FeatureRecipes. A library is not a deployable build instruction; it is a definitions namespace. Recipe and FeatureRecipe authors reference library entries by an `$import:` directive, written once and consumed wherever the import resolves.
 
 The split between "library" and "consumer" is intentional. Recipes encode build instructions (source, valuesMapping, infraMapping, artifacts). FeatureRecipes encode behavioral attachments. MappingLibraries encode only template fragments — the Go-template content that other entities consume at render time. Keeping the three roles distinct lets each entity kind evolve at its own cadence; authors who don't need shared template content never encounter the library entity.
 
@@ -75,22 +75,22 @@ Library names and mapping entry keys follow PascalCase. The entity envelope's JS
 - `metadata.name` matches `^[A-Z][A-Za-z0-9]*$`.
 - `spec.mappings` map keys match the same pattern via `propertyNames`.
 
-A MappingLibrary with a non-PascalCase key in `spec.mappings` fails envelope validation at workspace load. The enforcement is load-bearing: mapping entry keys appear in canonical reference URLs (`#/mappings/<name>`); non-PascalCase keys would propagate through every consumer that imports the entry, including the eventual hub UI surfacing.
+A MappingLibrary with a non-PascalCase key in `spec.mappings` fails envelope validation at workspace load. The enforcement is load-bearing: mapping entry keys appear in the `#/mappings/<name>` reference fragment; non-PascalCase keys would propagate through every consumer that imports the entry, including the eventual hub UI surfacing.
 
-The naming uniformity makes reference identifiers scan cleanly: `BaseMappings#/mappings/ProbeBlock` reads at a glance.
+The naming uniformity keeps the `#/mappings/<name>` fragment legible: `#/mappings/ProbeBlock` reads at a glance.
 
 ## Referencing Library Entries
 
-Recipe and FeatureRecipe authors reference a mapping entry by its **identity** — the bare-name form `<Library>#/mappings/<name>` — written as an `$import:` argument:
+Recipe and FeatureRecipe authors reference a mapping entry inside a `valuesMapping: { $import: ... }` block. MappingLibrary consumption is not yet executable — the renderer recognizes the library-import form but reports it as not-yet-supported pending that work — so the form authored today is the `oci://` reference the dispatch recognizes:
 
 ```yaml
 # Inside a Recipe's valuesMapping block:
 spec:
   valuesMapping:
-    $import: "BaseMappings#/mappings/ProbeBlock"
+    $import: "oci://hub.aggrega.ai/BaseMappings@1.0.0#/mappings/ProbeBlock"
 ```
 
-The library name resolves against the loaded closure; the `#/mappings/<name>` fragment selects the entry and distinguishes the reference from SchemaLibrary's `#/schemas/<name>` — readers identify the library kind without dereferencing. A reference carries no registry host and no version: the version is supplied by the per-Release lockfile, which pins each consumed library by name + version + content digest. An author never writes a registry host in a reference — the `oci://<host>/…` form is not an identity reference; physical registry location is the resolver's concern, bound at resolution time, never part of the reference. (The `$import:` resolution that enforces this lands with Recipe consumption of mapping libraries.)
+The `#/mappings/<name>` fragment selects the entry and distinguishes a mapping reference from SchemaLibrary's `#/schemas/<name>`. When MappingLibrary consumption lands, the `$import:` reference converges to the same bare-name identity model SchemaLibrary `$ref:` already uses — `<Library>#/mappings/<name>`, carrying no registry host and no version, with the version supplied by the per-Release lockfile (name + version + content digest) and physical location bound at resolution time. Until then, the `oci://` form above is the recognized spelling.
 
 ## Cross-Library Composition
 
@@ -102,7 +102,7 @@ spec:
   mappings:
     ProbeWithMonitoring: |
       {{ template "Probe" . }}
-      {{ $import "MonitoringLibrary#/mappings/PrometheusAnnotations" }}
+      {{ $import "oci://hub.aggrega.ai/MonitoringLibrary@2.1.0#/mappings/PrometheusAnnotations" }}
 ```
 
 Cycle detection across library chains and version pinning across cross-library chains are concerns at the consumption-side machinery. The library entity itself ships no cycle-detection state; libraries can reference each other freely at the authoring surface.

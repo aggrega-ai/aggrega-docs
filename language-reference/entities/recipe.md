@@ -69,10 +69,10 @@ The compiler loads the file's content (a Go template), template-renders it again
 ```yaml
 spec:
   valuesMapping:
-    $import: BitnamiHelpers#/mappings/MariaDBBitnamiCore
+    $import: oci://hub.aggrega.ai/aggrega/bitnami-helpers@1.0.0#/mappings/MariaDBBitnamiCore
 ```
 
-The compiler resolves the OCI URL through the catalog resolver (using the workspace's lockfile pinning), loads the MappingLibrary entry's content, and treats it as the mapping output. Library content shares the standard Recipe template context. Library mode suits cross-Recipe reuse — mapping patterns that recur across many Recipes (multiple datastore Recipes sharing Bitnami helper logic; multiple Helm-provider Recipes sharing pod-template patterns). The MappingLibrary entity provides versioning, OCI publishing, lockfile pinning, and hub-UI surfacing.
+The compiler recognizes the `oci://` library form on content-shape dispatch but reports it as not-yet-supported today; when MappingLibrary consumption lands it will resolve the OCI URL through the catalog resolver (workspace lockfile pinning), load the entry's content, and treat it as the mapping output. Library content shares the standard Recipe template context. Library mode suits cross-Recipe reuse — mapping patterns that recur across many Recipes (multiple datastore Recipes sharing Bitnami helper logic; multiple Helm-provider Recipes sharing pod-template patterns). The MappingLibrary entity provides versioning, OCI publishing, lockfile pinning, and hub-UI surfacing.
 
 **Dispatch rules.** The compiler walks the YAML node and dispatches by content shape:
 
@@ -84,7 +84,7 @@ The compiler resolves the OCI URL through the catalog resolver (using the worksp
 
 **Single-source `$import:` only.** Per the unified file-import vocabulary, `$import:` accepts a single source. Multi-source merge is not supported at `valuesMapping:`. A Recipe needing to compose multiple mapping fragments uses a MappingLibrary entry with internal Go template `define` / `include` composition, a local file with Go template `template` directives invoking sibling files, or inline composition for short content. See [entities/mappinglibrary](mappinglibrary.md) for the library entity, [vocabulary/cross-document-ref](../vocabulary/cross-document-ref.md) for the broader `$ref:` / `$import:` distinction, and the file-import vocabulary discussion.
 
-**Provenance.** Error messages from template-rendering failures cite the appropriate provenance per mode: inline templates cite the Recipe's file:line where the block scalar begins; file imports cite the imported file's content; library imports cite the MappingLibrary entry's source position with the OCI URL as the canonical pointer for stable references.
+**Provenance.** Error messages from template-rendering failures cite the appropriate provenance per mode: inline templates cite the Recipe's file:line where the block scalar begins; file imports cite the imported file's content; library imports — once MappingLibrary consumption lands — will cite the MappingLibrary entry's source position with the OCI URL as the canonical pointer for stable references.
 
 ### C. Native IaC Support & In-Memory Transpilation
 
@@ -248,7 +248,7 @@ spec:
     $import: ./workload/web-server.yaml.tmpl
 ```
 
-Library `$import:` (the `oci://` form supported by `valuesMapping:`) is not available at this site — Workload bodies are Recipe-local. The target Provider must declare `workloadSchema:` to accept synthesized input; targeting a Provider that does not is rejected at Recipe load. For the full Workload grammar, the K8s-shape pass-through fields, and the per-provider translation behavior, see [entities/workload.md](workload.md). For the broader three-input-kinds model and the assembler that merges synthesis with source-rendered output and artifacts, see [architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md).
+Library `$import:` (the `oci://` form recognized by `valuesMapping:`) is not available at this site — Workload bodies are Recipe-local. The target Provider must declare `workloadSchema:` to accept synthesized input; targeting a Provider that does not is rejected at Recipe load. For the full Workload grammar, the K8s-shape pass-through fields, and the per-provider translation behavior, see [entities/workload.md](workload.md). For the broader three-input-kinds model and the assembler that merges synthesis with source-rendered output and artifacts, see [architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md).
 
 ## The `artifacts:` field — auxiliary manifests
 

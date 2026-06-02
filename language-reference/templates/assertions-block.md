@@ -108,7 +108,7 @@ spec:
     version: "20.0.0"
 
   valuesMapping:
-    $import: BitnamiHelpers#/mappings/MariaDBBitnamiCore
+    $import: oci://hub.aggrega.ai/aggrega/bitnami-helpers@1.0.0#/mappings/MariaDBBitnamiCore
 
   assertions: |
     {{- /* Bitnami chart 20.x requires explicit ServiceMonitor namespace
