@@ -26,9 +26,23 @@ in to the live database.
 - **Workload synthesis.** The compose and self-contained Kubernetes Recipes
   declare a provider-agnostic `Workload`; the provider engine synthesises a
   `docker-compose.yaml` service or a `Deployment` + `Service` + `PersistentVolumeClaim`.
-- **Features and FeatureRecipes.** Database credentials are attached as a
-  small `Feature` whose per-provider `FeatureRecipe` injects the value into
-  the database container's environment.
+- **The credential subsystem.** Database passwords are attached in the
+  component's `secrets:` pillar — each a `Feature` labeled
+  `feature.aggrega.ai/kind: secret`, kept apart from application `values`. The
+  Component's `secretsSchema` declares two slot kinds, and the example exercises
+  both: a *black-box* slot whose FeatureRecipe delivers the value internally, and
+  a *transparent* slot whose value the developer delivers explicitly with a
+  `secret.inject` block on the attachment.
+- **Remote chart sources.** The managed Kubernetes target sources the upstream
+  Bitnami MariaDB chart by OCI reference. `aggrega pull` pins the chart in a
+  lockfile and fetches it into a content-addressed cache; `aggrega build` renders
+  from that cache, so lock-time and build-time resolve the same chart. A
+  developer-authored value selects the chart version (a value flowing into source
+  resolution).
+- **Provenance as annotations.** Every rendered Kubernetes object carries an
+  `aggrega.ai/recipe-uri` annotation recording the Recipe that produced it —
+  an annotation, not a label, because the URI value contains characters a
+  Kubernetes label value may not.
 - **Provider selection by component type.** The Recipe that renders each
   component is chosen by the component *type* it implements, drawn from
   whichever catalog layer the build loads.
@@ -72,13 +86,16 @@ spec:
         user: appuser
         charset: utf8mb4
         collation: utf8mb4_general_ci
-      features:
-        root-password:
-          type: app/literal-credential
-          values: { var: MARIADB_ROOT_PASSWORD, value: dev-root-pw-change-me }
-        app-password:
-          type: app/literal-credential
-          values: { var: MARIADB_PASSWORD, value: dev-app-pw-change-me }
+        chart_version: "25.0.8"          # selects the managed-chart target's chart
+      secrets:
+        root_password:                    # black-box slot: the FeatureRecipe delivers it
+          type: core/secret-value
+          values: { key: MARIADB_ROOT_PASSWORD, source: dev-root-pw-change-me }
+        user_password:                    # transparent slot: the developer delivers it
+          type: core/secret-provided
+          values: { source: dev-app-pw-change-me }
+          inject:
+            env: { MARIADB_PASSWORD: value }
 
     web:
       type: app/adminer
@@ -101,18 +118,25 @@ that choice lives entirely in the catalog layer the build loads.
 
 ### A note on credentials
 
-The MariaDB image needs a root password to start, and an application user
-needs its own. This example injects those values with a small
-`app/literal-credential` Feature so the stack runs from a single command —
-suitable for local development and demos.
+The MariaDB image needs a root password to start, and the application user needs
+its own. Both are attached in the database component's `secrets:` pillar — kept
+apart from application `values` — as Features labeled
+`feature.aggrega.ai/kind: secret`. The `core/database/mariadb` Component's
+`secretsSchema` declares the two slots, and the example exercises both delivery
+models:
 
-For shared or production environments, credentials belong in a secret store
-rather than inline literals. The `core/database/mariadb` Component declares a
-`secretsSchema` for exactly this: a `root_password` slot the database Recipe
-consumes internally, and a transparent `user_password` slot. The production
-path provisions those slots through a credential FeatureRecipe (a Kubernetes
-`Secret`, an external secret-store reference, and so on) instead of the
-literal-value Feature used here.
+- `root_password` is a **black-box** slot (`inject: []`): the FeatureRecipe
+  delivers the value into the component's pipe. The developer does not — and may
+  not — dictate how.
+- `user_password` is a **transparent** slot (`inject: [env, file]`): the
+  credential exposes its value, and the developer maps it to an environment
+  variable with the `secret.inject` block on the attachment.
+
+The values here are inline literals so the stack runs from a single command —
+suitable for local development and demos. For shared or production environments,
+the same `secrets:` attachments resolve their values from a secret store: the
+target's catalog loads a FeatureRecipe that fetches them, and the Aggregate does
+not change.
 
 ---
 
@@ -192,31 +216,42 @@ Open <http://localhost:8080> and log in with Server `db-default`, username
 
 The third layer implements the *same* `core/database/mariadb` Component
 against the upstream **Bitnami MariaDB Helm chart** instead of synthesising
-manifests. The Recipe sources the chart and maps the Component's values onto
-the chart's value schema:
+manifests. The Recipe sources the chart by OCI reference and maps the
+Component's values onto the chart's value schema:
 
 ```yaml
 spec:
   provider: helm
   implements: core/database/mariadb
   source:
-    registry: oci://registry-1.docker.io/bitnamicharts
-    chart: mariadb
-    version: "{{ optional .infra `source_version` \"25.0.8\" }}"
+    kind: helm-oci-chart
+    url: oci://registry-1.docker.io/bitnamicharts/mariadb
+    version: "{{ .values.chart_version }}"   # a value flowing into source resolution
   valuesMapping: |
     auth:
       database: "{{ .values.database }}"
-      existingSecret: "{{ .locals.secret_target_root_password }}"
+      rootPassword: "{{ .context.inject.env.MARIADB_ROOT_PASSWORD }}"
+      username: "{{ .values.user }}"
+      password: "{{ .context.inject.env.MARIADB_PASSWORD }}"
     primary:
       persistence:
         size: "{{ .infra.storage.size }}"
-    # … resources, HA, metrics, backup mapped from infra …
+    # … resources, HA, metrics mapped from infra …
 ```
 
-Adminer is rendered by the same synthesised Recipe as Target 2. Because this
-target consumes an upstream chart, building it fetches that chart into the
-build cache first (an online step), and the chart provisions its credentials
-from a Kubernetes `Secret` rather than from inline literals. The two
+The chart version is taken from a developer-authored `.values.chart_version`,
+showing a value flowing into source resolution. Operationally a chart version is
+more often an infrastructure concern — the Component also exposes
+`infra.source_version` for that — so this is a demonstration of the mechanism,
+not a recommendation to pin chart versions from developer values.
+
+Building this target is a two-step flow: `aggrega pull` resolves the chart,
+pins it in `release-helm-bitnami.lock`, and fetches it into the content-addressed
+build cache (the one online step); `aggrega build` then renders from the cache,
+so lock-time and build-time resolve the identical chart. The injected credentials
+flow into the chart's `auth` values, and the chart generates the Kubernetes
+`Secret` the database reads. Adminer is rendered by the same synthesised Recipe
+as Target 2 and dials the chart's primary Service (`db-mariadb`). The two
 self-contained targets above are the zero-dependency way to run the stack
 end to end.
 

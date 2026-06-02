@@ -7,8 +7,9 @@ metadata:
   name: mariadb-bitnami
   version: 1.0.0
   description: >
-    MariaDB via Bitnami Helm chart (bitnami/mariadb).
-    Default chart version in source.version: Override via infra.source_version.
+    MariaDB via Bitnami Helm chart (bitnami/mariadb). The chart version is read
+    from .values.chart_version — a developer-authored value flowing from the
+    Aggregate into source resolution.
   maintainers:
     - name: "Massimiliano Ferrero"
       email: "m.ferrero@cognitio.it"
@@ -20,20 +21,22 @@ spec:
     kind: helm-oci-chart
     # OCI chart reference: registry path plus the chart name.
     url: oci://registry-1.docker.io/bitnamicharts/mariadb
-    # Default chart version. Override via infra.source_version.
-    version: "{{ optional .infra `source_version` \"25.0.8\" }}"
+    # Chart version read from a developer-authored value: it flows from the
+    # Aggregate into source resolution and pins identically at lock and build.
+    version: "{{ .values.chart_version }}"
 
   locals:
     primary_compute: "mariadb"
-    # Black-Box: the credential FeatureRecipe generates a K8s Secret
-    # with this deterministic name. The Bitnami chart reads it via
-    # auth.existingSecret.
-    secret_target_root_password: "{{ .context.instance_id }}-root-password"
-    secret_target_user_password: "{{ .context.instance_id }}-user-password"
 
   provides:
-    host: "{{ .context.instance_id }}"
-    port: "{{ .values.port }}"
+    # The Bitnami chart names its primary Service <release>-mariadb, where the
+    # release name is the component instance — so a consumer dials
+    # "<instance_id>-mariadb" (e.g. "db-mariadb"), NOT the bare instance id. The
+    # compose and self-contained Kubernetes targets name their services
+    # differently; each target's provides.host reflects its own service naming,
+    # and the same Aggregate edge routes whichever string this Recipe emits.
+    host: "{{ .context.instance_id }}-mariadb"
+    port: "3306"
     protocol: "mariadb"
 
   valuesMapping: |
@@ -58,13 +61,16 @@ spec:
     {{- end }}
     {{- end }}
 
-    ## ── Authentication (Black-Box) ─────────────────────────────
+    ## ── Authentication ─────────────────────────────────────────
+    ## The credential Secrets deliver the passwords into the component inject
+    ## pipe (.context.inject.env); the chart reads them inline. No Kubernetes
+    ## Secret is generated here — that is the production resource-generation path.
     auth:
       database: "{{ .values.database }}"
-      existingSecret: "{{ .locals.secret_target_root_password }}"
+      rootPassword: "{{ .context.inject.env.MARIADB_ROOT_PASSWORD }}"
       {{- if .values.user }}
       username: "{{ .values.user }}"
-      usePasswordFiles: true
+      password: "{{ .context.inject.env.MARIADB_PASSWORD }}"
       {{- end }}
 
     ## ── Primary ────────────────────────────────────────────────
