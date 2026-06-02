@@ -1,0 +1,20 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: manifest-helm-chart
+  version: "1.0.0"
+  description: >
+    Ops mapping for the helm-chart target. Each component type binds to a
+    helm-chart-provider Recipe that sources a local chart; the provider composes
+    them into a redistributable umbrella chart. Recipe selection at build time is
+    by component type against the loaded catalog layer.
+spec:
+  mappings:
+    components:
+      type:
+        core/database/mariadb:1.0.0: mariadb-chart:1.0.0
+        app/adminer:1.0.0: adminer-chart:1.0.0
+    features:
+      type:
+        core/secret-value:1.0.0: env-secret-helm:1.0.0
+        core/secret-provided:1.0.0: provided-secret-helm:1.0.0

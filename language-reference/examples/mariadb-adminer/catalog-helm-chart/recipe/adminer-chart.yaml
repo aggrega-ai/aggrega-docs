@@ -1,0 +1,31 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Recipe
+metadata:
+  name: adminer-chart
+  version: 1.0.0
+  description: >
+    Adminer composed as a Helm sub-chart. The helm-chart provider copies the
+    local ./charts/adminer chart verbatim into the umbrella. The String Pipe is
+    expressed in chart terms: the database host resolved from the `databases`
+    uses-edge arrives on .context.inject.env.ADMINER_DEFAULT_SERVER and the
+    valuesMapping routes it into the sub-chart's values.
+  maintainers:
+    - name: "Massimiliano Ferrero"
+      email: "m.ferrero@cognitio.it"
+spec:
+  provider: helm-chart
+  implements: app/adminer
+
+  source: ./charts/adminer
+
+  provides:
+    host: "{{ .context.instance_id }}"
+    port: "8080"
+
+  valuesMapping: |
+    {
+      "image": "adminer:4",
+      "design": "{{ .values.design }}",
+      "adminerDefaultServer": "{{ .context.inject.env.ADMINER_DEFAULT_SERVER }}",
+      "port": {{ optional .infra `port` 8080 }}
+    }

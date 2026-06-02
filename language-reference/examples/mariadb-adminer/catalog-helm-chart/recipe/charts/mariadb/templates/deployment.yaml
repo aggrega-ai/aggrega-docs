@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-mariadb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.serviceName }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.serviceName }}
+    spec:
+      containers:
+        - name: mariadb
+          image: {{ .Values.image }}
+          env:
+            - name: MARIADB_DATABASE
+              value: {{ .Values.database | quote }}
+            - name: MARIADB_USER
+              value: {{ .Values.user | quote }}
+            - name: MARIADB_CHARACTER_SET_SERVER
+              value: {{ .Values.charset | quote }}
+            - name: MARIADB_COLLATION_SERVER
+              value: {{ .Values.collation | quote }}
+            - name: MARIADB_ROOT_PASSWORD
+              value: {{ .Values.rootPassword | quote }}
+            - name: MARIADB_PASSWORD
+              value: {{ .Values.password | quote }}
+          resources:
+            limits:
+              cpu: {{ .Values.cpu | quote }}
+              memory: {{ .Values.memory | quote }}
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - name: data
+              mountPath: /var/lib/mysql
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Release.Name }}-mariadb-data

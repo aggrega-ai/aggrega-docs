@@ -1,0 +1,20 @@
+# Injected into the mariadb sub-chart's templates/ by the helm-chart provider.
+# Two delimiter passes apply: the Aggrega pass resolves its own delimiters at
+# compile time (before the file lands); Helm's own delimiters are left untouched
+# and resolve at install time. The instance id below is filled at compile time;
+# the namespace stays a Helm reference for install time.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: [[ .context.instance_id ]]-mariadb-netpol
+  namespace: {{ .Release.Namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: [[ .context.instance_id ]]-mariadb
+  policyTypes:
+    - Ingress
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 3306

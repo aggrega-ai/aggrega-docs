@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: SchemaLibrary
+metadata:
+  name: DbSizing
+  version: 1.0.0
+  description: >
+    Reusable storage-sizing schema shared by database Components. A Component
+    composes the Storage schema into its infra pillar with a cross-library
+    `$ref`; the defaults declared here materialize into the rendered output
+    when the Release omits the keys, so an operator gets a sensible default
+    volume size without authoring one.
+spec:
+  schemas:
+    Storage:
+      type: object
+      properties:
+        size:
+          type: string
+          default: 10Gi
+          description: Persistent volume size for the database data directory.
+        type:
+          type: string
+          default: gp3
+          description: Storage class / volume type.

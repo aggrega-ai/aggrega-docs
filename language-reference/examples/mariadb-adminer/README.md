@@ -43,6 +43,12 @@ in to the live database.
   `aggrega.ai/recipe-uri` annotation recording the Recipe that produced it —
   an annotation, not a label, because the URI value contains characters a
   Kubernetes label value may not.
+- **Chart composition (vs synthesis).** The same Aggregate can produce a
+  redistributable Helm chart instead of rendered manifests. The `helm-chart`
+  provider composes an umbrella chart: each component's local sub-chart is copied
+  in verbatim (its Helm `{{ }}` preserved untouched), and the umbrella's
+  `values.yaml` routes each component's mapped values — including the piped
+  database host — under that component's alias.
 - **Provider selection by component type.** The Recipe that renders each
   component is chosen by the component *type* it implements, drawn from
   whichever catalog layer the build loads.
@@ -63,7 +69,11 @@ mariadb-adminer/
 │
 ├── manifest-helm-bitnami.yaml  # Ops mapping, managed-chart Kubernetes target
 ├── release-helm-bitnami.yaml   # Operator release, managed-chart Kubernetes target
-└── catalog-helm-bitnami/       # Recipe layer: helm (upstream Bitnami chart)
+├── catalog-helm-bitnami/       # Recipe layer: helm (upstream Bitnami chart)
+│
+├── manifest-helm-chart.yaml    # Ops mapping, composed-Helm-chart target
+├── release-helm-chart.yaml     # Operator release, composed-Helm-chart target
+└── catalog-helm-chart/         # Recipe layer: helm-chart (umbrella composition)
 ```
 
 Each `catalog-*` directory is a self-contained catalog: the shared Component,
@@ -254,6 +264,81 @@ flow into the chart's `auth` values, and the chart generates the Kubernetes
 as Target 2 and dials the chart's primary Service (`db-mariadb`). The two
 self-contained targets above are the zero-dependency way to run the stack
 end to end.
+
+---
+
+## Target 4 — Kubernetes (composed Helm chart)
+
+The fourth layer implements the *same* components against the `helm-chart`
+provider, which **composes a redistributable Helm umbrella chart** rather than
+rendering manifests (Target 2) or rendering an upstream chart (Target 3). Each
+Recipe sources a small local chart:
+
+```yaml
+spec:
+  provider: helm-chart
+  implements: core/database/mariadb
+  source: ./charts/mariadb          # copied verbatim as the sub-chart
+  valuesMapping: |
+    { "database": "{{ .values.database }}",
+      "rootPassword": "{{ .context.inject.env.MARIADB_ROOT_PASSWORD }}",
+      "serviceName": "{{ .context.instance_id }}-mariadb" }
+```
+
+Build it:
+
+```bash
+aggrega build --release release-helm-chart.yaml --catalog catalog-helm-chart
+```
+
+Output under `dist/app/helm-chart/`:
+
+```text
+Chart.yaml                 # umbrella; lists db and web as sub-chart dependencies
+values.yaml                # alias-keyed: db.* and web.* value blocks
+charts/
+├── db/                    # the local ./charts/mariadb, copied verbatim
+│   ├── Chart.yaml
+│   ├── values.yaml
+│   └── templates/
+│       ├── deployment.yaml
+│       ├── service.yaml
+│       ├── pvc.yaml
+│       └── mariadb-netpol.yaml   # injected artifact (see below)
+└── web/                   # the local ./charts/adminer, copied verbatim
+```
+
+Install it (the sub-charts are vendored under `charts/`, so no
+`helm dependency build` is needed first):
+
+```bash
+helm install mariadb-adminer dist/app/helm-chart/
+```
+
+The umbrella's `values.yaml` already carries each component's resolved values, so
+the database starts with its credentials and Adminer is wired to the MariaDB
+Service — the same connection the other targets express, now shipped as a chart
+you can install or vendor.
+
+Two distinct delimiter regimes apply, and they do not overlap:
+
+- **Sourced sub-charts are copied verbatim.** The files under `./charts/mariadb`
+  and `./charts/adminer` are bundled into the umbrella unchanged — their Helm
+  `{{ }}` directives are *not* touched by the compiler and resolve at
+  `helm install` time. The composer's only job there is assembly, not templating.
+- **`$import:` artifacts are dual-delimiter.** A Recipe may inject extra template
+  files via `artifacts: { name: { $import: ... } }`. *Those* files — and only
+  those — are pre-rendered by the compiler with the `[[ ]]` delimiters before they
+  land, while their `{{ }}` is preserved for Helm. The `mariadb-netpol.yaml`
+  artifact shows the mix: `[[ .context.instance_id ]]` (filled at build) and
+  `{{ .Release.Namespace }}` (left for install).
+
+The String Pipe is expressed in chart terms: Adminer's `databases` use of MariaDB
+resolves the database Recipe's `provides.host` into the umbrella's `values.yaml`
+under the web alias (`adminerDefaultServer: db-mariadb`), which the Adminer
+sub-chart reads as `{{ .Values.adminerDefaultServer }}`. The same value names the
+MariaDB sub-chart's Service, so the wiring resolves consistently at install. The
+output is a chart to `helm install` or vendor — not a set of applied manifests.
 
 ---
 

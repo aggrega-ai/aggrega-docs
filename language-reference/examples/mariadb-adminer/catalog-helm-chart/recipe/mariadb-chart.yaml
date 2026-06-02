@@ -1,0 +1,50 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Recipe
+metadata:
+  name: mariadb-chart
+  version: 1.0.0
+  description: >
+    MariaDB composed as a Helm sub-chart. The helm-chart provider copies the
+    local ./charts/mariadb chart VERBATIM into the umbrella — its {{ }} survives
+    untouched for `helm install`. The valuesMapping feeds the sub-chart's values
+    (database config plus the injected credentials). The netpol artifact is
+    pre-templated with Aggrega's [[ ]] delimiters while its Helm {{ }} is left
+    for install time.
+  maintainers:
+    - name: "Massimiliano Ferrero"
+      email: "m.ferrero@cognitio.it"
+spec:
+  provider: helm-chart
+  implements: core/database/mariadb
+
+  # Local chart, copied verbatim as the sub-chart (sourced mode).
+  source: ./charts/mariadb
+
+  # Injected template file: pre-templated with [[ ]] (Aggrega, compile time);
+  # its {{ }} survives for Helm (install time). Lands at the sub-chart's
+  # templates/ directory.
+  artifacts:
+    netpol.yaml:
+      $import: ./extras/mariadb-netpol.yaml
+
+  provides:
+    # The sub-chart's primary Service name (see ./charts/mariadb service.yaml,
+    # which reads .Values.serviceName). A consumer dials this string.
+    host: "{{ .context.instance_id }}-mariadb"
+    port: "3306"
+    protocol: "mariadb"
+
+  valuesMapping: |
+    {
+      "image": "mariadb:{{ .infra.engine_version }}",
+      "database": "{{ .values.database }}",
+      "user": "{{ .values.user }}",
+      "charset": "{{ .values.charset }}",
+      "collation": "{{ .values.collation }}",
+      "rootPassword": "{{ .context.inject.env.MARIADB_ROOT_PASSWORD }}",
+      "password": "{{ .context.inject.env.MARIADB_PASSWORD }}",
+      "serviceName": "{{ .context.instance_id }}-mariadb",
+      "storageSize": "{{ .infra.storage.size }}",
+      "cpu": "{{ .infra.compute.cpu }}",
+      "memory": "{{ .infra.compute.memory }}"
+    }

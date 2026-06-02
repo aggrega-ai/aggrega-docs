@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-adminer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}-adminer
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}-adminer
+    spec:
+      containers:
+        - name: adminer
+          image: {{ .Values.image }}
+          env:
+            - name: ADMINER_DESIGN
+              value: {{ .Values.design | quote }}
+            - name: ADMINER_DEFAULT_SERVER
+              value: {{ .Values.adminerDefaultServer | quote }}
+          ports:
+            - containerPort: {{ .Values.port }}

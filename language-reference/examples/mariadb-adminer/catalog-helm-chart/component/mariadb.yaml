@@ -1,0 +1,94 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Component
+metadata:
+  name: core/database/mariadb
+  version: 1.0.0
+  description: >
+    A MariaDB relational database. Provider-agnostic: the same component
+    is implemented by Helm Recipes (Bitnami chart on Kubernetes),
+    Terraform Recipes (AWS RDS, Azure Database), CloudFormation Recipes,
+    and Compose Recipes (local development).
+  labels:
+    component.aggrega.ai/type: stateful-server
+  maintainers:
+    - name: Massimiliano Ferrero
+      email: m.ferrero@cognitio.it
+spec:
+  # Self-inject allowlist: the component may inject its own provides
+  # keys into env or file delivery mechanisms.
+  inject: [env, file]
+
+  # Credential slots. inject: [] = blackbox (Recipe controls delivery).
+  # inject: [env, file] = transparent (developer may dictate delivery).
+  # required: false is the default (omitted = optional).
+  secretsSchema:
+    root_password:
+      required: true
+      inject: []
+      description: Root database password. Recipe controls delivery (Black-Box).
+    user_password:
+      inject: [env, file]
+      description: Application user password, auto-generated if omitted.
+
+  # This target's MariaDB is a focused chart-composition example: the schema
+  # declares the values + infra the composed sub-chart actually consumes. The
+  # richer operational schema (HA, backup, provider overrides) lives on the
+  # other targets' components, which exercise it. `chart_version` is retained
+  # because the shared Aggregate authors it for the managed-chart target's
+  # source selection; this target sources a local chart, so it does not consume
+  # that value.
+  schema:
+    values:
+      # Developer Intent — filled by the Developer in the Aggregate.
+      database:
+        type: string
+        required: true
+        description: Logical database name created on startup.
+      chart_version:
+        type: string
+        description: >
+          Source chart version, read by a managed-chart Recipe's source
+          resolution (the Bitnami target). This target sources a local chart and
+          does not consume it.
+      user:
+        type: string
+        description: Application-level database user (non-root). Omit for root-only access.
+      charset:
+        type: string
+        default: utf8mb4
+        description: Default character set.
+      collation:
+        type: string
+        default: utf8mb4_general_ci
+        description: Default collation.
+
+    infra:
+      # Operational Sizing — filled by the Operator in the Release.
+      engine_version:
+        type: string
+        default: "11.4"
+        description: Server binary version (the container image tag).
+      compute:
+        cpu:
+          type: string
+          default: 250m
+        memory:
+          type: string
+          default: 512Mi
+      # Storage sizing is composed from the shared DbSizing SchemaLibrary via a
+      # cross-library $ref. The library declares the size/type defaults, so they
+      # materialize into the rendered output even when the Release omits them.
+      storage:
+        $ref: "DbSizing#/schemas/Storage"
+
+    provides:
+      # Public API Contract — keys exported to consumers via uses topology edges.
+      host:
+        type: string
+      port:
+        type: string
+      protocol:
+        type: string
