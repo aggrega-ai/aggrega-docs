@@ -125,7 +125,7 @@ The per-Release lockfile reader and the build-time drift verifier.
 | Sentinel | Wrapped message | User-facing surface |
 | --- | --- | --- |
 | `ErrLockfileInvalid` | `lockfile: file failed schema validation` | The `<release-stem>.lock` file is structurally malformed (older and partial shapes load with diagnostics rather than this error). |
-| `ErrLockfileDrift` | `lockfile: closure drift between lockfile and current catalog state` | A build's resolved dependencies do not match the lockfile; remediation: `aggrega pull --regenerate`. |
+| `ErrLockfileDrift` | `lockfile: out of date; it no longer matches the current catalog` | A build's resolved dependencies do not match the lockfile; remediation: `aggrega pull --regenerate`. |
 
 ## Dependency-closure sentinels (`pkg/closure`)
 
