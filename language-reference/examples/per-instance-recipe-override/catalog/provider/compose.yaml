@@ -1,0 +1,24 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Provider
+metadata:
+  name: compose
+  version: "1.0.0"
+spec:
+  baseSchema: |
+    type: object
+    properties:
+      image: { type: string }
+      replicas: { type: integer, default: 1 }
+      ports:
+        type: array
+        items: { type: string }
+      environment:
+        type: object
+        additionalProperties:
+          oneOf:
+            - { type: string }
+            - { type: integer }
+    additionalProperties: true
+  workloadSchema: |
+    type: object
+    additionalProperties: true

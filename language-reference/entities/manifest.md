@@ -26,6 +26,8 @@ The Manifest's `mappings:` block is a flat map from **component-type URI** to **
 * **`components.type`** maps a component-type URI to a Recipe URI. Every component instance of the declared type resolves to the specified Recipe. The mapping is one-to-one per component-type.
 * **`features.type`** maps a feature-type URI to a FeatureRecipe URI. Every Feature attachment of the declared type resolves to the specified FeatureRecipe. Credential Features (labeled `feature.aggrega.ai/kind: secret`) live in the same `features.type` map as operational Features — the unified Feature entity model.
 
+Each block also accepts a **`name`** tier alongside `type`, mapping a specific **instance name** to a Recipe (or FeatureRecipe) URI. The name tier takes precedence over the type tier: an instance named in `components.name` resolves to that Recipe, while every other instance of the same type resolves through `components.type`. This expresses a per-instance override — two instances of one component type can deploy through two different Recipes (for example, most database instances use the bulk-mapped Recipe while one instance is pinned to a different physical implementation), without forking the component type or duplicating the Manifest. The override applies uniformly: the named instance both renders through and pins its source from the override Recipe. `features.name` is the symmetric tier for Feature attachments. The [per-instance recipe override example](../examples/per-instance-recipe-override/) walks a minimal two-instance case end to end.
+
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Manifest

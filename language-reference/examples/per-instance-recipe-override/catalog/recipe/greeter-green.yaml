@@ -1,0 +1,28 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Recipe
+metadata:
+  name: greeter-green
+  version: 1.0.0
+  description: >
+    The ALTERNATE physical implementation of app/greeter — the "green" build.
+    No greeter instance reaches it through the type tier; it is selected only
+    when the Manifest name tier overrides a specific instance to it.
+spec:
+  provider: compose
+  implements: app/greeter
+  workload: |
+    apiVersion: aggrega.ai/v1alpha1
+    kind: Workload
+    containers:
+      main:
+        image: "greeter:green"
+        variables:
+          VARIANT: "green"
+          MESSAGE: "{{ .values.message }}"
+        ports:
+          http: {{ optional .infra `port` 8080 }}
+    services:
+      default:
+        type: NodePort
+        ports:
+          http: {{ optional .infra `port` 8080 }}
