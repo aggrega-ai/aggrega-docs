@@ -303,7 +303,7 @@ spec:
     version: "20.0.0"
 
   valuesMapping:
-    $import: oci://hub.aggrega.ai/aggrega/bitnami-helpers@1.0.0#/mappings/MariaDBBitnamiCore
+    $import: BitnamiHelpers#/mappings/MariaDBBitnamiCore
 
   provides: |
     host: {{ .recipe.metadata.name }}-primary.{{ .recipe.metadata.namespace }}.svc.cluster.local

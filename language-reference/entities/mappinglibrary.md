@@ -81,16 +81,16 @@ The naming uniformity keeps the `#/mappings/<name>` fragment legible: `#/mapping
 
 ## Referencing Library Entries
 
-Recipe and FeatureRecipe authors reference a mapping entry inside a `valuesMapping: { $import: ... }` block. MappingLibrary consumption is not yet executable — the renderer recognizes the library-import form but reports it as not-yet-supported pending that work — so the form authored today is the `oci://` reference the dispatch recognizes:
+Recipe and FeatureRecipe authors reference a mapping entry inside a `valuesMapping: { $import: ... }` block by its bare-name identity:
 
 ```yaml
 # Inside a Recipe's valuesMapping block:
 spec:
   valuesMapping:
-    $import: "oci://hub.aggrega.ai/BaseMappings@1.0.0#/mappings/ProbeBlock"
+    $import: "BaseMappings#/mappings/ProbeBlock"
 ```
 
-The `#/mappings/<name>` fragment selects the entry and distinguishes a mapping reference from SchemaLibrary's `#/schemas/<name>`. When MappingLibrary consumption lands, the `$import:` reference converges to the same bare-name identity model SchemaLibrary `$ref:` already uses — `<Library>#/mappings/<name>`, carrying no registry host and no version, with the version supplied by the per-Release lockfile (name + version + content digest) and physical location bound at resolution time. Until then, the `oci://` form above is the recognized spelling.
+The `#/mappings/<name>` fragment selects the entry and distinguishes a mapping reference from SchemaLibrary's `#/schemas/<name>`. The reference uses the same bare-name identity model as SchemaLibrary `$ref:` — `<Library>#/mappings/<name>`, carrying no registry host. The version is supplied by the per-Release lockfile (name + version + content digest); an author may assert an optional minimum-version floor as `<Library>:<version>#/mappings/<name>` (the version separator is `:`, matching recipe/feature mappings and the lockfile pin), and physical location is bound at resolution time.
 
 ## Cross-Library Composition
 
@@ -102,7 +102,7 @@ spec:
   mappings:
     ProbeWithMonitoring: |
       {{ template "Probe" . }}
-      {{ $import "oci://hub.aggrega.ai/MonitoringLibrary@2.1.0#/mappings/PrometheusAnnotations" }}
+      {{ $import "MonitoringLibrary#/mappings/PrometheusAnnotations" }}
 ```
 
 Cycle detection across library chains and version pinning across cross-library chains are concerns at the consumption-side machinery. The library entity itself ships no cycle-detection state; libraries can reference each other freely at the authoring surface.

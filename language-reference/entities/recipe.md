@@ -64,15 +64,15 @@ spec:
 
 The compiler loads the file's content (a Go template), template-renders it against the standard Recipe template context, and treats the result as the mapping output. Path resolution is relative to the Recipe's directory. File mode suits medium-to-large mapping content (~50+ lines) and review patterns where mapping changes show up as standalone file diffs.
 
-**Mode 3: Library `$import:`.** The field's value is a map containing only `$import:` with an `oci://` URL referencing a MappingLibrary entry:
+**Mode 3: Library `$import:`.** The field's value is a map containing only `$import:` with a bare-name identity reference to a MappingLibrary entry:
 
 ```yaml
 spec:
   valuesMapping:
-    $import: oci://hub.aggrega.ai/aggrega/bitnami-helpers@1.0.0#/mappings/MariaDBBitnamiCore
+    $import: BitnamiHelpers#/mappings/MariaDBBitnamiCore
 ```
 
-The compiler recognizes the `oci://` library form on content-shape dispatch but reports it as not-yet-supported today; when MappingLibrary consumption lands it will resolve the OCI URL through the catalog resolver (workspace lockfile pinning), load the entry's content, and treat it as the mapping output. Library content shares the standard Recipe template context. Library mode suits cross-Recipe reuse — mapping patterns that recur across many Recipes (multiple datastore Recipes sharing Bitnami helper logic; multiple Helm-provider Recipes sharing pod-template patterns). The MappingLibrary entity provides versioning, OCI publishing, lockfile pinning, and hub-UI surfacing.
+The compiler resolves the reference against the resolved MappingLibrary set (the local catalog plus any lockfile-pinned libraries), loads the entry's content, and treats it as the mapping output; an entry whose body is itself a field-root `$import:` resolves recursively. The reference carries no registry host — the library name resolves by identity and the version comes from the per-Release lockfile, with an optional `:<version>` minimum-version floor (`<Library>:<version>#/mappings/<entry>`). Library content shares the standard Recipe template context. Library mode suits cross-Recipe reuse — mapping patterns that recur across many Recipes (multiple datastore Recipes sharing Bitnami helper logic; multiple Helm-provider Recipes sharing pod-template patterns). The MappingLibrary entity provides versioning, lockfile pinning, and hub-UI surfacing.
 
 **Dispatch rules.** The compiler walks the YAML node and dispatches by content shape:
 
