@@ -1,0 +1,61 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: advanced-platform
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: aggregate
+  manifest: manifest
+  # Parameter fulfilment (per environment). app_design is a non-default value, so
+  # the rendered Adminer theme visibly proves the hoist flowed into the manifest;
+  # db_chart_version drives the Bitnami chart source identity pinned in the lock.
+  parameters:
+    app_design: "hever"
+    db_chart_version: "25.0.8"
+  # Multi-boundary topology: the database lives in its own `data` boundary and
+  # the web UI in the `app` boundary. The Adminer `uses: databases` edge to `db`
+  # therefore crosses a boundary — the String Pipe routes the database host
+  # across boundaries.
+  boundaries:
+    data:
+      directory: data
+      # Boundary-wide attachment of the boundary-scope shared-config feature.
+      # Its FeatureRecipe (executionScope: boundary) renders ONCE for this
+      # boundary, emitting `data-shared-config`. infra.tier is this boundary's
+      # operator-set value, so the rendered ConfigMap carries the data tier.
+      features:
+        shared_config:
+          type: core/shared-config
+          infra:
+            tier: data-tier
+      components:
+        db:
+          infra:
+            engine_version: "11.4"
+            compute:
+              cpu: 500m
+              memory: 1Gi
+            storage:
+              size: 8Gi
+              type: standard
+            ha:
+              enabled: false
+              read_replicas: 0
+            backup:
+              enabled: false
+              retention_days: 7
+    app:
+      directory: app
+      # The same boundary-scope feature attached in the app boundary, so the FR
+      # renders a second, distinct `app-shared-config` ConfigMap with the app tier
+      # — proving "once per boundary" across the two-boundary topology.
+      features:
+        shared_config:
+          type: core/shared-config
+          infra:
+            tier: app-tier
+      components:
+        web:
+          infra:
+            port: 8080

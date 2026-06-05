@@ -1,0 +1,21 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: manifest
+  version: "1.0.0"
+  description: >
+    Ops mapping for the Kubernetes target backed by the Bitnami MariaDB Helm
+    chart. MariaDB is sourced from an OCI chart and rendered via the Helm
+    SDK; Adminer is rendered offline by Workload synthesis. Recipe selection
+    at build time is by component type against the loaded catalog layer.
+spec:
+  mappings:
+    components:
+      type:
+        core/database/mariadb:1.0.0: mariadb-bitnami:1.0.0
+        app/adminer:1.0.0: adminer-helm:1.0.0
+    features:
+      type:
+        core/secret-value:1.0.0: env-secret-helm:1.0.0
+        core/secret-provided:1.0.0: provided-secret-helm:1.0.0
+        core/shared-config:1.0.0: shared-config-helm:1.0.0

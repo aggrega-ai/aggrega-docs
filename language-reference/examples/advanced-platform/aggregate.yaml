@@ -1,0 +1,102 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: aggregate
+  version: "1.0.0"
+  description: >
+    A MariaDB database with an Adminer web UI in front of it. This is the
+    single Developer-authored intent surface. The same Aggregate compiles
+    to Docker Compose and to Kubernetes/Helm; only the loaded Recipe layer
+    differs per target.
+spec:
+  # ── Parameter hoisting ──────────────────────────────────────────────
+  # Typed parameters the Release fulfils per environment. Two slots
+  # demonstrate the two distinct hoisting destinations:
+  #   - app_design hoists into a plain VALUE (the Adminer theme rendered
+  #     into the manifest);
+  #   - db_chart_version hoists into a SOURCE identity (the Bitnami chart
+  #     version the database Recipe fetches + the lockfile pins).
+  parameters:
+    app_design:
+      type: string
+      default: pepa-linha-dark
+      description: >
+        Adminer UI theme. Hoisted into web.values.design — a parameter
+        flowing into a plain rendered value, fulfilled per environment.
+    db_chart_version:
+      type: string
+      description: >
+        Bitnami MariaDB chart version. Hoisted into db.values.chart_version,
+        which the database Recipe reads as its source: version — a parameter
+        flowing into the SOURCE identity, pinned in the lockfile (lock==build).
+  components:
+    # ── Database ────────────────────────────────────────────────────────
+    db:
+      type: core/database/mariadb
+      values:
+        database: appdb
+        user: appuser
+        charset: utf8mb4
+        collation: utf8mb4_general_ci
+        # `.values`-in-source: this value feeds the database Recipe's source:
+        # version. It is HOISTED from a parameter (db_chart_version), so a
+        # Release fulfils the chart version per environment and that materialized
+        # value drives the pinned source identity — proven lock==build. The
+        # canonical operational knob for a chart version remains
+        # infra.source_version; this parameter→values→source path is the
+        # developer-driven demonstration.
+        chart_version: "{{ .parameters.db_chart_version }}"
+      # Credentials live in the secrets: pillar (each Feature is labeled
+      # feature.aggrega.ai/kind: secret), never features:. The two slots the
+      # Component's secretsSchema declares demonstrate both delivery models:
+      #
+      #   - root_password is a BLACK-BOX slot (secretsSchema inject: []): the
+      #     FeatureRecipe controls delivery, injecting the value straight into
+      #     the component's pipe. The developer may not dictate delivery.
+      #   - user_password is a TRANSPARENT slot (secretsSchema inject:
+      #     [env, file]): the credential exposes its value as a `provides` key,
+      #     and the developer dictates delivery with the secret.inject block
+      #     below (the third inject placement).
+      #
+      # Either way the value lands on .context.inject.env.<VAR>, which the
+      # database Recipe reads.
+      secrets:
+        root_password:
+          type: core/secret-value
+          values:
+            key: MARIADB_ROOT_PASSWORD
+            source: dev-root-pw-change-me
+        user_password:
+          type: core/secret-provided
+          values:
+            source: dev-app-pw-change-me
+          inject:
+            env:
+              MARIADB_PASSWORD: value
+
+    # ── Web UI ──────────────────────────────────────────────────────────
+    web:
+      type: app/adminer
+      values:
+        design: "{{ .parameters.app_design }}"
+      # The database connection is wired through a reusable binding Feature
+      # rather than an inline component `uses:`. The feature carries the
+      # `databases` uses-edge AND its delivery: db.provides.host lands on
+      # Adminer's ADMINER_DEFAULT_SERVER. The edge is therefore attributed to
+      # the binding feature (its origin feature) — a feature-carried
+      # dependency, distinct from an inline component edge. The String Pipe is
+      # unchanged: the compiler does not interpret the string; it routes
+      # whatever the database Recipe's `provides.host` emits (a compose service
+      # name, or a Kubernetes service DNS name) across the boundary into the
+      # consumer's environment.
+      features:
+        db_binding:
+          type: app/db-binding
+          uses:
+            databases:
+              db:
+                target: db
+                inject:
+                  env:
+                    - in: ADMINER_DEFAULT_SERVER
+                      from: host
