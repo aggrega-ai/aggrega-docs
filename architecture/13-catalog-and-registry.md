@@ -311,22 +311,20 @@ The OCI taxonomy covers all entity types. URI segments map 1:1 to filesystem pat
 * `hub.aggrega.ai/mapping-library/aggrega/bitnami-helpers:1.0.0` — MappingLibrary, shared Go-template mapping fragments
 * `hub.aggrega.ai/plugin/security/lakera-guard:1.0.0` — Wasm plugin
 
-Each kind has a distinct OCI mediatype:
+The publishable kinds are the seven catalog kinds — Component, Feature, Recipe, FeatureRecipe, Provider, SchemaLibrary, and MappingLibrary — plus the Aggregate, a reusable module (publishable whether it is later referenced as a Release's top-level `spec.aggregate` or nested in another Aggregate's `aggregates:` block). Release and Manifest are deployment-side inputs that live in source control and are never pushed — `aggrega push` rejects them — so they have no publish mediatype. Each publishable kind has a distinct OCI mediatype:
 
 | Entity kind | Mediatype |
 | --- | --- |
-| Aggregate | `application/vnd.aggrega.aggregate.v1+json` |
-| Component | `application/vnd.aggrega.component.v1+json` |
-| Feature | `application/vnd.aggrega.feature.v1+json` |
-| Recipe | `application/vnd.aggrega.recipe.v1+json` |
-| FeatureRecipe | `application/vnd.aggrega.featurerecipe.v1+json` |
-| Provider | `application/vnd.aggrega.provider.v1+json` |
-| Manifest | `application/vnd.aggrega.manifest.v1+json` |
-| Release | `application/vnd.aggrega.release.v1+json` |
+| Component | `application/vnd.aggrega.component.v1alpha1+yaml` |
+| Feature | `application/vnd.aggrega.feature.v1alpha1+yaml` |
+| Provider | `application/vnd.aggrega.provider.v1alpha1+yaml` |
+| Aggregate | `application/vnd.aggrega.aggregate.v1alpha1+yaml` |
+| Recipe | `application/vnd.aggrega.recipe.v1alpha1+tar+gz` |
+| FeatureRecipe | `application/vnd.aggrega.featurerecipe.v1alpha1+tar+gz` |
 | SchemaLibrary | `application/vnd.aggrega.schemalibrary.v1+json` |
 | MappingLibrary | `application/vnd.aggrega.mappinglibrary.v1+json` |
 
-The `v1` segment names a major schema version. If a future migration changes the on-the-wire envelope shape for an entity kind, that kind's mediatype version bumps to `v2`; downstream tooling dispatches on the mediatype version.
+The encoding suffix reflects how each kind ships. Component, Feature, Provider, and Aggregate are single documents, published as bare YAML (`+yaml`). Recipe and FeatureRecipe bundle their co-located sources — the `source:` tree, `$import:`-referenced templates, and inline `artifacts:` — so they ship as a gzipped tar (`+tar+gz`). SchemaLibrary and MappingLibrary ship as JSON (`+json`). The version segment is `v1alpha1` for the YAML and tar+gz kinds and `v1` for the two libraries; downstream tooling dispatches on the full mediatype string — kind, version, and encoding together.
 
 Recipe names do NOT include the `ops/` prefix or the provider name. The entity type directory and provider directory provide all context needed.
 
