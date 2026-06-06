@@ -29,7 +29,7 @@ spec:
     replicas: {{ optional .infra `replicas` 2 }}
 ```
 
-Structured source objects (e.g. `source: { repo: ..., chart: ..., version: ... }`) are reserved for a future registry-integration intent and are rejected today with a "structured source not supported" diagnostic. A Recipe targeting a remote chart must vendor it locally and point `source:` at the vendored copy.
+Structured source objects (e.g. `source: { registry: ..., chart: ..., version: ... }`) resolve through the source-resolver: `aggrega pull` fetches the chart and pins it in the lockfile, and the build extracts it from the cache, so the engine renders a resolved local chart path. Vendoring a chart locally remains supported but is no longer required.
 
 The chart at the source path must contain a valid `Chart.yaml`. Sourced renders that fail to load the chart surface the underlying Helm SDK error verbatim; an empty `source: ""` string is rejected with a clear diagnostic before SDK dispatch.
 
