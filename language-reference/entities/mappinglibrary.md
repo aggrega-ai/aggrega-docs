@@ -94,15 +94,14 @@ The `#/mappings/<name>` fragment selects the entry and distinguishes a mapping r
 
 ## Cross-Library Composition
 
-A MappingLibrary entry's body may reference another library entry via `$import:` directives inside the Go template fragment. Cross-library references resolve at consumption time (Recipe rendering), not at MappingLibrary load — the library entity's storage layer is opaque to the directive; the consumption-side template engine handles the lookup against the workspace lockfile's pinned library set.
+A MappingLibrary entry can be a **field-root `$import:` redirect**: its body's first token is `$import: <Library>#/mappings/<entry>`, which replaces the whole entry with the referenced entry's content — reuse by identity, not in-place templating. The redirect resolves at consumption time (Recipe rendering), not at MappingLibrary load, and recursively — an imported entry may itself be a field-root `$import:`. `$import:` is whole-entry only; it is not a mid-fragment template function. To compose template text *within* a single fragment, use Go template `define` / `template`.
 
 ```yaml
-# In library A:
+# In library A — alias an entry to a shared entry in another library:
 spec:
   mappings:
-    ProbeWithMonitoring: |
-      {{ template "Probe" . }}
-      {{ $import "MonitoringLibrary#/mappings/PrometheusAnnotations" }}
+    StandardProbe: |
+      $import: MonitoringLibrary#/mappings/PrometheusAnnotations
 ```
 
 Cycle detection across library chains and version pinning across cross-library chains are concerns at the consumption-side machinery. The library entity itself ships no cycle-detection state; libraries can reference each other freely at the authoring surface.

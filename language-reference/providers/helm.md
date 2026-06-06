@@ -41,7 +41,7 @@ A Recipe with `source: <chart-path>` and `valuesMapping:` runs the following pip
 2. The `valuesMapping` template evaluates against the Recipe's TemplateContext. Its YAML output is treated as a **values overlay** for the chart.
 3. The overlay is coalesced with the chart's `values.yaml` defaults; overlay keys win on collision (Helm's standard `helm install --values` semantics).
 4. The Helm SDK renders the chart's templates against the merged values.
-5. Aggrega injects its provenance label suite (`aggrega.ai/release-name`, `aggrega.ai/environment`, `aggrega.ai/component-name`, etc.) into the rendered manifests via post-render YAML rewriting, ensuring sourced output carries the same labelling as workload-mode output.
+5. Aggrega injects its provenance metadata into the rendered manifests via post-render YAML rewriting, ensuring sourced output carries the same labelling as workload-mode output. Charset-safe values become labels (`app.kubernetes.io/name`, `aggrega.ai/component-id`, and — when set — `aggrega.ai/aggregate-name`, `aggrega.ai/compiler-version`, `aggrega.ai/environment`); values a Kubernetes label cannot represent become annotations (`aggrega.ai/recipe-uri`, `aggrega.ai/boundary-path`, `aggrega.ai/sync-wave`).
 6. Output files land flat in the Recipe's output directory, named `<nodeID>-<basename>.yaml` (the chart's directory layout is flattened — there is no `templates/` subdirectory in the rendered output).
 
 The namespace applied to rendered resources is read from the `aggrega.ai/namespace` annotation cascading from the boundary; if unset, the namespace defaults to `default`.
@@ -56,7 +56,7 @@ For each node:
 - One **Service** per declared `services:` entry on the Workload, exposing the named ports the service spec lists.
 - One **PersistentVolumeClaim** per `persistentTemplate` volume, sized and shaped from the volume's spec.
 
-Each emitted resource carries the full Aggrega provenance label suite plus a selector pair (`app: <nodeID>`) wired between the Deployment/StatefulSet and its Services. Container names in the rendered Deployment are the Workload's container keys with `.` and `_` characters replaced by `-` (Kubernetes name-sanitisation).
+Each emitted resource carries the full Aggrega provenance labels and annotations plus a selector pair (`app: <nodeID>`) wired between the Deployment/StatefulSet and its Services. Container names in the rendered Deployment are the Workload's container keys with `.` and `_` characters replaced by `-` (Kubernetes name-sanitisation).
 
 Output file naming follows the same `<nodeID>-<kind>.yaml` convention as sourced mode: `<nodeID>-deployment.yaml`, `<nodeID>-service-<svcName>.yaml`, `<nodeID>-pvc-<volName>.yaml`.
 
@@ -77,7 +77,7 @@ Sourceless mode is the lowest-ceremony path for components whose only physical r
 
 ## Engine-specific quirks
 
-- **Provenance label injection.** The sourced and sourceless paths converge on the same label set; sourced renders inject labels via post-render YAML rewriting (after the Helm SDK has already rendered), so chart authors do not need to thread Aggrega labels through their own templates.
+- **Provenance injection.** The sourced and sourceless paths converge on the same label-and-annotation set; sourced renders inject them via post-render YAML rewriting (after the Helm SDK has already rendered), so chart authors do not need to thread Aggrega labels through their own templates.
 - **Deterministic value coercion.** When the Phase B values dict contains a hash-randomised Go map (rather than an OrderedMap), the sourceless extractor sorts keys alphabetically before emission — the deterministic choice when no author order is available upstream. OrderedMap-backed values preserve author order through the entire pipeline.
 - **Ordered env emission.** Kubernetes environment variables are an ordered list (later entries can `$(VAR)`-reference earlier ones); the engine emits them in author order from the OrderedMap-backed `environment` map. Authoring environment-variable order matters for correctness.
 - **Namespace cascade.** Both modes resolve the rendered-resource namespace from `aggrega.ai/namespace` on the boundary annotation cascade; absent, the namespace falls back to `default`. The annotation is not consumed by chart templates — the engine writes it directly into each resource's `metadata.namespace` field.

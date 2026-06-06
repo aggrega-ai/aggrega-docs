@@ -125,8 +125,8 @@ apiVersion: aggrega.ai/v1alpha1
 kind: Workload
 
 metadata:
-  labels: {}           # merged with aggrega.ai/* provenance labels at emission
-  annotations: {}
+  labels: {}           # merged with the label-safe aggrega.ai/* provenance at emission
+  annotations: {}      # merged with the charset-unsafe aggrega.ai/* provenance (recipe-uri, boundary-path, sync-wave)
 
 replicas: 1            # default 1
 
@@ -456,18 +456,19 @@ This invariant preserves Recipe reusability: a Recipe can be dropped into any Ag
 
 ### Provenance Labels
 
-Post-translation, the Engine injects `aggrega.ai/*` provenance labels into the metadata of every emitted file — whether it was source-rendered, workload-synthesized, or emitted from an artifact template. All files carrying the same Recipe's output share the same provenance:
+Post-translation, the Engine injects `aggrega.ai/*` provenance into the metadata of every emitted file — whether it was source-rendered, workload-synthesized, or emitted from an artifact template. The set splits by whether a value satisfies the Kubernetes label-value charset: label-safe keys are **labels** (queryable); charset-unsafe keys — `recipe-uri` (carries a `:`), `boundary-path` (a nested path carries `/`), and `sync-wave` (a negative wave's leading `-`) — are **annotations**, whose values are unconstrained. All files carrying the same Recipe's output share the same provenance:
 
 ```yaml
 metadata:
   labels:
     aggrega.ai/component-id: api
+    # ... plus the standard OTel / recommended label set
+  annotations:
     aggrega.ai/recipe-uri: api-server-helm:1.0.0
     aggrega.ai/boundary-path: production
-    # ... plus the standard OTel label set
 ```
 
-Label injection is uniform across all three input kinds. See [11-governance-and-compliance.md](11-governance-and-compliance.md) for compile-time provenance stamping.
+This split is uniform across all three input kinds. (The Compose provider has no annotation concept and its label values are unconstrained, so it emits the whole set as service labels.) See [11-governance-and-compliance.md](11-governance-and-compliance.md) for compile-time provenance stamping.
 
 ### Per-Provider Artifact Semantics
 
@@ -487,7 +488,7 @@ Inline-block-scalar `artifacts:` entries for helm-chart are rejected at Recipe l
 
 **helm-chart delimiter convention.** Aggrega's pre-template pass on helm-chart `$import:`-loaded artifact entries uses `[[ ]]` delimiters rather than the default `{{ }}` so Helm's own `{{ ... }}` syntax inside the file survives untouched into Helm's render pass. Authors write Aggrega-side substitutions as `[[ .context.instance_id ]]`, `[[ .values.name ]]`, etc.; Helm-side substitutions stay as `{{ .Values.x }}`, `{{ .Release.Name }}`, `{{- include "common.labels" . }}`, etc. Authors mixing the two delimiter pairs in one file is the supported authoring shape.
 
-**Provenance labels and helm-chart artifacts.** Provenance labels are merged into `metadata.labels` for files that parse as YAML before Helm rendering — files using only `[[ ]]` Aggrega context or with Helm `{{ }}` only at quoted scalar positions. Files with structural Helm template actions (`{{- include ... }}`, `{{- if ... }}`, `{{- range ... }}`, `{{- with ... }}` at positions where they emit YAML structure rather than scalar leaves), or files with unquoted `{{ ... }}` at value positions, do not survive Aggrega's YAML round-trip; the build emits a "skipped provenance label injection" warning naming the artifact and passes the file through unchanged. **This warning is expected for any helm-chart `$import:`-loaded artifact file using structural Helm template actions or unquoted Helm value substitutions** — it is the common case in production Helm authoring, not the edge case. Authors who need provenance labels on such files inject them via the chart's `_helpers.tpl` `aggrega.commonLabels` template or equivalent Helm-side mechanism, not via Aggrega's pre-template injection.
+**Provenance and helm-chart artifacts.** Provenance is merged into `metadata.labels` and `metadata.annotations` (per the charset-split above) for files that parse as YAML before Helm rendering — files using only `[[ ]]` Aggrega context or with Helm `{{ }}` only at quoted scalar positions. Files with structural Helm template actions (`{{- include ... }}`, `{{- if ... }}`, `{{- range ... }}`, `{{- with ... }}` at positions where they emit YAML structure rather than scalar leaves), or files with unquoted `{{ ... }}` at value positions, do not survive Aggrega's YAML round-trip; the build emits a "skipped provenance label injection" warning naming the artifact and passes the file through unchanged. **This warning is expected for any helm-chart `$import:`-loaded artifact file using structural Helm template actions or unquoted Helm value substitutions** — it is the common case in production Helm authoring, not the edge case. Authors who need provenance labels on such files inject them via the chart's `_helpers.tpl` `aggrega.commonLabels` template or equivalent Helm-side mechanism, not via Aggrega's pre-template injection.
 
 **Chart-root filename collisions.** `artifacts:` map keys that collide with a chart-root filename (`Chart.yaml`, `values.yaml`, `.helmignore`, etc.) are not detected by Aggrega's filename-collision check — the artifact lands at `templates/<map-key>` while the chart-root file lands at the chart root, and the path-prefixing makes them distinct in Aggrega's view. Authors avoid these map keys; the consequence of using them is that Helm sees both files (one at the chart root, one inside `templates/`) and may render the templates-side copy unexpectedly.
 

@@ -16,7 +16,7 @@ Each mechanism lives at a specific Recipe / FeatureRecipe authoring surface and 
 
 **Output shape.** Provider-engine-specific:
 
-- **helm provider** — flat Kubernetes YAML files, named `<nodeID>-<basename>.yaml` per chart-template emission. The Helm SDK renders the chart with the merged values; Aggrega injects provenance labels post-render.
+- **helm provider** — flat Kubernetes YAML files, named `<nodeID>-<basename>.yaml` per chart-template emission. The Helm SDK renders the chart with the merged values; Aggrega injects provenance labels and annotations post-render.
 - **helm-chart provider** — sub-chart files copied verbatim under `charts/<instance_id>/`; per-boundary umbrella `Chart.yaml` + `values.yaml` emitted alongside.
 - **compose provider** — intermediate `<nodeID>.compose-fragment.yaml` files that flow into Release-level composition (mechanism 5).
 

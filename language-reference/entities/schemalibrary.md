@@ -96,7 +96,7 @@ spec:
       $ref: "WebPrimitives#/schemas/URL"
 ```
 
-The library name resolves against the loaded catalog closure; the `#/schemas/<name>` fragment selects the entry. A reference carries no registry host and no version: the version is supplied by the per-Release lockfile, which pins each consumed library by name + version + content digest. A reference that carries a registry host — an `oci://<host>/…` form — is rejected at compile with a diagnostic that steers the author to the identity form, so a physical registry location never enters authored source. Where the library's bytes are served from (a local catalog directory, the content cache, or a remote registry) is the resolver's concern, bound at resolution time; relocating a registry is a resolver-configuration change, not a source change.
+The library name resolves against the loaded catalog closure; the `#/schemas/<name>` fragment selects the entry. A reference carries no registry host; an author may assert an optional minimum-version floor as `<Library>:<version>#/schemas/<name>` (the version separator is `:`, matching recipe/feature mappings and the lockfile pin), but the resolved version is supplied by the per-Release lockfile, which pins each consumed library by name + version + content digest. A reference that carries a registry host — an `oci://<host>/…` form — is rejected at compile with a diagnostic that steers the author to the identity form, so a physical registry location never enters authored source. Where the library's bytes are served from (a local catalog directory, the content cache, or a remote registry) is the resolver's concern, bound at resolution time; relocating a registry is a resolver-configuration change, not a source change.
 
 ## Forbidden JSON Schema Keywords
 

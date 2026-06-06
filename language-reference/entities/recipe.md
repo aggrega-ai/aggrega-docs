@@ -78,8 +78,8 @@ The compiler resolves the reference against the resolved MappingLibrary set (the
 
 1. If the node is a string scalar, dispatch as inline mode (Mode 1).
 2. Otherwise the node is a map; check for `$import:` key.
-3. If the `$import:` value starts with `oci://`, dispatch as library mode (Mode 3).
-4. Otherwise dispatch as file mode (Mode 2).
+3. If the `$import:` value is a bare-name library reference (`<Library>#/mappings/<Entry>`, optionally with a `:<version>` floor), dispatch as library mode (Mode 3).
+4. Otherwise (a local file path) dispatch as file mode (Mode 2).
 5. Any other shape (a map without `$import:`, a map with extra keys beyond `$import:`, etc.) produces a build-time error.
 
 **Single-source `$import:` only.** Per the unified file-import vocabulary, `$import:` accepts a single source. Multi-source merge is not supported at `valuesMapping:`. A Recipe needing to compose multiple mapping fragments uses a MappingLibrary entry with internal Go template `define` / `include` composition, a local file with Go template `template` directives invoking sibling files, or inline composition for short content. See [entities/mappinglibrary](mappinglibrary.md) for the library entity, [vocabulary/cross-document-ref](../vocabulary/cross-document-ref.md) for the broader `$ref:` / `$import:` distinction, and the file-import vocabulary discussion.

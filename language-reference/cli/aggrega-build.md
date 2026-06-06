@@ -61,7 +61,7 @@ Each slot captures a specific compiler state:
 - `09-phaseB-artifacts/` — one file per evaluated artifact. Present only when the Recipe declares `artifacts:` (with entries inline or per-entry `$import:`-loaded).
 - `10-engine-synthesis/` — one file per synthesised manifest the provider engine produced from the Workload (helm/compose workload-mode). Present only when the engine ran a synthesis path.
 - `11-engine-emission.log` — the post-emission summary (file count, output paths) for the node.
-- `12-labels-injected.log` — the provenance label set written onto rendered output for the node.
+- `12-labels-injected.log` — the provenance labels and annotations written onto rendered output for the node.
 
 The trace writer is non-blocking: events go through a bounded channel and a dedicated goroutine drains to disk. Compile latency is unaffected by trace I/O — the same compile finishes in the same wall-clock time whether `--trace` is on or off.
 

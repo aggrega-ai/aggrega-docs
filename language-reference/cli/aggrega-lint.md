@@ -1,13 +1,13 @@
 # aggrega lint
 
-`aggrega lint` checks a catalog entity against Aggrega's publishing-discipline rules. It runs the rules as a Wasm plugin and reports findings. In its publish-gating mode it also fetches the entity's currently-published version from the registry and verifies that the proposed version bump matches the size of the change.
+`aggrega lint` has two modes, selected by whether an entity path is given. With **no entity path** it runs **catalog-wide correctness validation** — loading every catalog entity and validating its pillars and cross-document `$ref` / `$import` chains, halting loudly on any schema-pillar violation or unresolvable reference. This is the catalog-wide counterpart to a build's per-Release validation: a build validates only the entities its Release's closure reaches, so whole-catalog validation is `aggrega lint`'s job. With an **entity path** it checks that one entity against Aggrega's publishing-discipline rules — running them as a Wasm plugin and reporting findings; in its publish-gating mode it also fetches the entity's currently-published version from the registry and verifies that the proposed version bump matches the size of the change.
 
 `aggrega lint` is opt-in. The compiler itself stays unopinionated about catalog discipline; these rules live in a separate plugin you choose to run. A workspace that never runs `aggrega lint` still builds and publishes.
 
 ## Synopsis
 
 ```
-aggrega lint <entity-path> [--pre-publish] [--plugin <path>] [policy flags]
+aggrega lint [<entity-path>] [--pre-publish] [--plugin <path>] [policy flags]
 ```
 
 The entity path may be given positionally or with `--entity <path>`.
