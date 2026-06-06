@@ -5,7 +5,7 @@
 ## Synopsis
 
 ```
-aggrega pull --release <path> [--regenerate] [--include-prerelease] [--dry-run]
+aggrega pull --release <path> [--regenerate] [--include-prerelease] [--dry-run] [--detail]
 aggrega pull --release <path> --verify
 ```
 
@@ -41,6 +41,7 @@ Pulled content is stored under `.aggrega/cache`, split into an `entities/` subtr
 - `--include-prerelease` — include pre-release versions during selection (reserved; no effect today).
 - `--dry-run` — compute and report the closure without writing the lockfile.
 - `--verify` — read-only: check the existing lockfile against the current state and report drift without writing anything.
+- `--detail` — print, per resolved entity, what this pull run did: fetched fresh from a registry, reused a cache slot, found in a local catalog, or external. This is a transient pull-event diagnostic written to stdout, never to the lockfile — the resolution tier depends on the pulling machine's local state and so is deliberately not persisted (it would break the lockfile's byte-identity across machines). It reports what *this pull* did, which is unrecoverable afterward (a freshly-pulled entity is cached by the next run); for the post-pull resolution *state* of a closure, use `aggrega inspect`.
 
 ## Determinism and integrity
 

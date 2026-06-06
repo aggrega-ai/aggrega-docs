@@ -10,14 +10,16 @@ aggrega push <entity-path> [--registry <ref>] [--dry-run]
 
 ## What it does
 
-`aggrega push` reads a single entity YAML, bundles it for transport, and pushes it to `<registry>/<kind>/<metadata.name>:<metadata.version>`. The publishable kinds are the seven catalog kinds: Component, Feature, Recipe, FeatureRecipe, Provider, SchemaLibrary, and MappingLibrary. Aggregate, Release, and Manifest are deployment-side inputs, not catalog artifacts, and are rejected.
+`aggrega push` reads a single entity YAML, bundles it for transport, and pushes it to `<registry>/<kind>/<metadata.name>:<metadata.version>`. The publishable kinds are the seven catalog kinds — Component, Feature, Recipe, FeatureRecipe, Provider, SchemaLibrary, and MappingLibrary — plus the Aggregate, which is a reusable module. Publishability is a property of the entity, not of how it is used: an Aggregate is publishable whether it is later referenced as a Release's top-level `spec.aggregate` or nested in another Aggregate's `aggregates:` block. Release and Manifest are deployment-side inputs, not catalog artifacts, and are rejected.
 
 ## Bundling
 
-- Component, Feature, Provider, SchemaLibrary, and MappingLibrary publish as bare YAML.
+- Component, Feature, Provider, Aggregate, SchemaLibrary, and MappingLibrary publish as bare YAML.
 - Recipe and FeatureRecipe publish as a `.tar.gz` that bundles the entity YAML together with its co-located source files — a filesystem `source:` directory, `$import:`-referenced template files, and inline `artifacts:`.
 
 A remote `source:` URL on a Recipe (an OCI chart reference, an HTTPS chart or fragment URL, a Git module) is **preserved verbatim** in the published YAML; it is not pulled and vendored into the artifact. Consumers resolve and pin remote sources independently at their own pull time. This keeps catalog-entity distribution and source-artifact resolution as separate concerns.
+
+An Aggregate publishes as its own single document: a sub-aggregate it references in `aggregates:` is **not** bundled into the artifact. Each sub-aggregate is a separately published Aggregate that consumers resolve and pin independently at pull time, by identity — the same separation-of-distribution principle that applies to remote sources.
 
 ## Registry, tag, and content-addressing
 
