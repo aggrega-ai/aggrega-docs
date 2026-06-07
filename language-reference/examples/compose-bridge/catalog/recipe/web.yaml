@@ -1,0 +1,28 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Recipe
+metadata:
+  name: web-recipe
+  version: "1.0.0"
+  description: >
+    The web component for the `frontend` boundary via Docker Compose,
+    sourced-mode: the service skeleton is loaded from the co-located
+    web-fragment.yaml and the valuesMapping overlay supplies the published
+    port and the DB_HOST environment variable. DB_HOST arrives on the
+    injection context from the `backend` uses-edge (the database host); the
+    boundary-scope compose-bridge then rewrites it to "aggrega-gw:<port>" (the
+    derived gateway port) so the web reaches the database across the compose
+    network seam.
+spec:
+  provider: compose
+  implements: app/web
+  provides:
+    host: "{{ .context.instance_id }}"
+    port: 8080
+  source: "./web-fragment.yaml"
+  valuesMapping: |
+    services:
+      web:
+        ports:
+          - "{{ optional .infra `port` 8080 }}:80"
+        environment:
+          DB_HOST: "{{ .context.inject.env.DB_HOST }}"

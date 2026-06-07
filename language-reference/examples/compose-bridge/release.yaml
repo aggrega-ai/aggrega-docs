@@ -1,0 +1,41 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: compose-bridge-release
+  environment: local
+  version: "1.0.0"
+spec:
+  aggregate: compose-bridge-app
+  manifest: compose-bridge-manifest
+  boundaries:
+    # Parent boundary. core/compose-bridge attaches here, boundary-wide (the FR
+    # is executionScope: boundary — it renders the aggrega-gw gateway once for
+    # this boundary, not per component).
+    bridge:
+      directory: bridge
+      features:
+        gateway:
+          # No infra. The gateway's listen port and the rewritten consumer env
+          # var are DERIVED from the boundary's cross-network uses edge (web
+          # uses db, injecting from the db's host field). The single edge gives
+          # listen = the target's own port (5432), and the web's DB_HOST is
+          # rewritten to "aggrega-gw:5432". portBase / providesField are
+          # optional knobs; their defaults (10000 / "host") are correct here.
+          type: core/compose-bridge:1.0.0
+      # Two child boundaries share the parent's evaluated directory, so all
+      # contributions (web, db, and the gateway) collapse into ONE
+      # dist/bridge/compose/docker-compose.yaml. Each child's
+      # aggrega.ai/namespace annotation becomes a compose network.
+      boundaries:
+        frontend:
+          directory: "{{ .parent_boundary.directory }}"
+          annotations:
+            aggrega.ai/namespace: "frontend"
+          components:
+            web: {}
+        backend:
+          directory: "{{ .parent_boundary.directory }}"
+          annotations:
+            aggrega.ai/namespace: "backend"
+          components:
+            db: {}

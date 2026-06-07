@@ -1,0 +1,25 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Component
+metadata:
+  name: app/web
+  version: "1.0.0"
+  description: >
+    A stateless web component that reaches a database across a compose
+    network seam. It declares a `backend` uses-edge to a stateful-server and
+    injects the database host into its DB_HOST environment variable. When a
+    boundary attaches core/compose-bridge, that DB_HOST is rewritten to the
+    gateway address so the connection crosses the seam.
+  labels:
+    component.aggrega.ai/type: "server"
+spec:
+  inject: ["env"]
+  usesSchema:
+    backend:
+      selector: "component.aggrega.ai/type=stateful-server"
+      inject: ["env"]
+  schema:
+    infra:
+      port: { type: integer, default: 8080 }
+    provides:
+      host: { type: string, required: true }
+      port: { type: integer, required: true }

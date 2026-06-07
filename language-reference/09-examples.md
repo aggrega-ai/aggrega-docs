@@ -15,3 +15,7 @@ Use this chapter set in two modes. For pattern lookup, jump directly to the chap
 - [Input Kinds](examples/07-input-kinds.md) — Examples 22 through 25: Recipe composition exercising the three input kinds (synthesized-only stateless service, multi-container synthesized Recipe with ConfigMap volumes, sourced chart with artifacts, external-file Workload loaded via `workload: { $import: ... }`).
 - [Advanced Patterns](examples/08-advanced-patterns.md) — Examples 20 through 21: FeatureRecipe Resource Generation via `source:` + `valuesMapping:`, the Manifest Name-Tier Override with YAML Anchors.
 - [Cross-Boundary Routing](examples/09-cross-boundary-routing.md) — Examples 18 through 19: Pre-Render Injection Interception via `injectMapping`, the complete Wasm stdin/stdout handshake for plugin authors.
+
+## Runnable example workspaces
+
+The chapters above teach one pattern at a time, inline. For complete, forkable workspaces you can compile with the `aggrega` CLI and run — self-contained Aggregate + Release + catalog directories — see [Runnable Examples](examples/README.md): a single-application stack across Compose and Kubernetes, cross-boundary Compose bridging via `core/compose-bridge`, bridgeless cross-boundary Kubernetes routing, and the Manifest per-instance Recipe override.
