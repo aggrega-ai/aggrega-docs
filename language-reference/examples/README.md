@@ -20,11 +20,12 @@ inline; the workspaces here are whole stacks you can build, read, and adapt.
   sourced charts, the credential subsystem, and remote chart sourcing.
 
 - **[compose-bridge](compose-bridge/)** — cross-boundary bridging under Docker
-  Compose with the standard-library `core/compose-bridge` FeatureRecipe. A web
-  and a database split across two boundaries (two compose network seams); a
-  boundary-scope gateway service is rendered once and the consumer's `DB_HOST` is
-  rewritten to reach it. The compose counterpart to the bridgeless Kubernetes
-  routing below.
+  Compose with the standard-library `core/compose-bridge` FeatureRecipe. An
+  Adminer database UI and a database split across two boundaries (two compose
+  network seams); a boundary-scope gateway service is rendered once and the
+  consumer's server env var is rewritten to reach it, so the running stack
+  exercises the bridge (Adminer connects to postgres through the gateway). The
+  compose counterpart to the bridgeless Kubernetes routing below.
 
 - **[advanced-platform](advanced-platform/)** — a multi-boundary Kubernetes
   platform showing cross-boundary references resolving **without** a gateway:

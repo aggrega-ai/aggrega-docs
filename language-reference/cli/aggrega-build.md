@@ -21,6 +21,17 @@ aggrega build --release <path> [--catalog <dir>] [--trace] [other flags]
 
 Rendered artifacts land under `dist/`. The default output structure is per-boundary, per-provider: `dist/<boundary-path>/<provider>/<files>`. Operator-authored `directory:` and `subDirectory:` overrides on Release boundaries change the target path; per-`(path, provider)` collapse merges contributors that resolve to the same evaluated path.
 
+### YAML indentation
+
+Every rendered YAML artifact — docker-compose files, Helm chart templates and values, and Kubernetes manifests — is emitted at a uniform indentation width. The width is set by `build.yaml_indent` in `.aggrega-config.yaml` and defaults to **2** (the conventional width for those formats):
+
+```yaml
+build:
+  yaml_indent: 2   # default; accepts 2 through 9
+```
+
+The width is applied at a single marshal point shared by every renderer, so output stays byte-identical across runs of the same input. Values outside the `[2, 9]` range are rejected by config-schema validation.
+
 ## Trace output
 
 The `--trace` flag turns on a per-node debug dump capturing every intermediate compiler state. Output lives at `.trace/` next to `dist/` (never under it; the sibling layout follows the convention of `.git/`, `.terraform/`, `node_modules/` and keeps `dist/` purely deployable).
