@@ -109,7 +109,8 @@ spec:
   provider: helm # Unpinned version, compiler will fetch 'latest'
   implements: core/postgres-db:1.0.0
   source:
-    # Validated dynamically by the 'helm' Wasm socket
+    # Planned: provider-declared source keys, validated by the provider's Wasm plugin.
+    # The built-in resolver today uses the { kind, url, version } form.
     registry: https://charts.bitnami.com/bitnami
     chart: postgresql
     version: 12.1.0
@@ -171,6 +172,8 @@ spec:
   provider: helm
   implements: core/ai-gateway:1.0.0
   source:
+    # Planned: provider-declared source keys, validated by the provider's Wasm plugin.
+    # The built-in resolver today uses the { kind, url, version } form.
     registry: https://charts.konghq.com
     chart: kong
 ```
@@ -202,7 +205,7 @@ The `source:` field accepts several shape variants in the schema. Each variant's
 | Bare relative filesystem path | `source: "./charts/postgres"` | `available` — every shipping provider engine (helm, helm-chart, compose) accepts a bare filesystem path string. |
 | Bare absolute filesystem path | `source: "/abs/path/to/chart"` | `available` — same engines, same handling; the path is interpreted against the build's working directory regardless of relative vs absolute form. |
 | Empty string | `source: ""` | `accepted but blocked` — the schema accepts the empty string; the Recipe loader rejects it with a clear authoring-disambiguation message. See [`errors/fatal-halts.md`](../errors/fatal-halts.md) "Recipe `source:` is an empty string". |
-| Structured object (`{registry, chart, version, ...}`) | `source: { registry: "...", chart: "...", version: "1.0" }` | `available` — the schema accepts the object shape; the source-resolver fetches the referenced chart at `aggrega pull`, pins it in the lockfile, and extracts it from the cache at build, so the engine renders a resolved local chart path. The former render-time `structured source not supported` rejection is retired; vendoring a chart locally remains supported but is no longer required. See [`providers/helm.md`](../providers/helm.md) "`source:` keyset". |
+| Structured object (built-in `{kind, url, version, chart, ...}`) | `source: { url: "oci://…/mariadb", version: "25.0.8" }` | `available` — the built-in source-resolver reads the `{kind, url, version, chart, ref, module_subdir}` form (`url:`'s scheme selects the kind — `oci://` → OCI chart, `https://….tgz` → chart archive, `https://` repo root paired with `chart:` → repo chart — or name it with `kind:`), fetches and pins the artifact at `aggrega pull`, and the build extracts it from the cache. The former render-time `structured source not supported` rejection is retired; vendoring a chart locally remains supported but is no longer required. The schema accepts an open structured object so a provider can later declare its own source keys (e.g. a Helm `registry` + `chart` pair) validated by the provider's Wasm plugin — `planned`. See [`providers/helm.md`](../providers/helm.md) "`source:` keyset". |
 | OCI URI (`oci://...`) | `source: "oci://hub.aggrega.ai/recipe/helm/postgres:1.0.0"` | `planned` — design target for catalog distribution. Today's three-tier resolver (local paths, workspace catalogs, remote OCI registry) is documented at [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md); the entity-level resolver consumes OCI URIs through that cascade, but the per-Recipe `source:` field's OCI form is not wired in the engines today. |
 | Other URL schemes (`https://`, `git+https://`, etc.) | (illustrative) | `planned` — documented as design intent in the architecture's pluggable-source roadmap; no engine support today. |
 
@@ -347,6 +350,7 @@ When base-Recipe pipeline execution lands, the field's mechanics will mirror the
 spec:
   implements: core/datastore/mariadb:^1.0.0
   source:
+    # Planned provider-declared form; the built-in resolver today uses { kind, url, version }.
     chart: oci://registry-1.docker.io/bitnamicharts/mariadb
     version: "20.0.0"
   assertions: |

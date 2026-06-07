@@ -211,6 +211,8 @@ spec:
   provider: helm
   implements: core/redis:1.0.0
   source:
+    # Planned: provider-declared source keys, validated by the provider's Wasm plugin.
+    # The built-in resolver today uses the { kind, url, version } form.
     registry: https://charts.bitnami.com/bitnami
     chart: redis
     version: 18.0.0

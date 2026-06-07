@@ -299,6 +299,7 @@ spec:
   implements: core/datastore/mariadb:^1.0.0
 
   source:
+    # Planned provider-declared form; the built-in resolver today uses { kind, url, version }.
     chart: oci://registry-1.docker.io/bitnamicharts/mariadb
     version: "20.0.0"
 

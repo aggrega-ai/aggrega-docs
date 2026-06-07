@@ -198,6 +198,8 @@ spec:
   provider: helm
   implements: core/postgres:1.0.0
   source:
+    # Planned: provider-declared source keys, validated by the provider's Wasm plugin.
+    # The built-in resolver today uses the { kind, url, version } form.
     registry: https://charts.bitnami.com/bitnami
     chart: postgresql
     version: 12.1.0

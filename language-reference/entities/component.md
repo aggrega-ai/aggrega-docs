@@ -160,6 +160,8 @@ The Recipe reads this as a Go template default in its `source` block:
 
 ```yaml
 source:
+  # Planned: provider-declared source keys, validated by the provider's Wasm plugin.
+  # The built-in resolver today uses the { kind, url, version } form.
   registry: oci://registry-1.docker.io/bitnamicharts
   chart: mariadb
   version: "{{ optional .infra `source_version` `25.0.8` }}"

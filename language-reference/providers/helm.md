@@ -29,7 +29,7 @@ spec:
     replicas: {{ optional .infra `replicas` 2 }}
 ```
 
-Structured source objects (e.g. `source: { registry: ..., chart: ..., version: ... }`) resolve through the source-resolver: `aggrega pull` fetches the chart and pins it in the lockfile, and the build extracts it from the cache, so the engine renders a resolved local chart path. Vendoring a chart locally remains supported but is no longer required.
+Structured source objects resolve through the source-resolver. The built-in form is `source: { kind, url, version, chart? }`: `url:` carries the chart location — `oci://…` for an OCI chart, an `https://….tgz` for a direct chart archive, or an `https://` repo root paired with `chart:` — and the kind comes from the URL scheme or an explicit `kind:`. `aggrega pull` fetches and pins the chart in the lockfile; the build extracts it from the cache. The former `structured source not supported` rejection is retired; vendoring a chart locally remains supported but is no longer required. The schema accepts an open structured object, so a provider Wasm plugin can later validate provider-declared source keys (e.g. a `registry` + `chart` pair) — `planned`.
 
 The chart at the source path must contain a valid `Chart.yaml`. Sourced renders that fail to load the chart surface the underlying Helm SDK error verbatim; an empty `source: ""` string is rejected with a clear diagnostic before SDK dispatch.
 
