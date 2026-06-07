@@ -19,13 +19,14 @@ inline; the workspaces here are whole stacks you can build, read, and adapt.
   a composed umbrella Helm chart. Shows the String Pipe, Workload synthesis vs.
   sourced charts, the credential subsystem, and remote chart sourcing.
 
-- **[compose-bridge](compose-bridge/)** — cross-boundary bridging under Docker
-  Compose with the standard-library `core/compose-bridge` FeatureRecipe. An
-  Adminer database UI and a database split across two boundaries (two compose
-  network seams); a boundary-scope gateway service is rendered once and the
-  consumer's server env var is rewritten to reach it, so the running stack
-  exercises the bridge (Adminer connects to postgres through the gateway). The
-  compose counterpart to the bridgeless Kubernetes routing below.
+- **[cross-boundary-networking](cross-boundary-networking/)** — one developer
+  intent (an Adminer UI reaching a PostgreSQL database across a boundary seam)
+  deployed **two ways**. The Docker Compose variant uses the standard-library
+  `core/compose-bridge` FeatureRecipe to generate an `aggrega-gw` gateway that
+  crosses the network seam; the Kubernetes (Helm) variant places each boundary in
+  its own namespace via the same `aggrega.ai/namespace` annotation and the
+  reference crosses by native cross-namespace DNS — no bridge. Teaches that the
+  compose-bridge is what Kubernetes namespaces + DNS give you natively.
 
 - **[advanced-platform](advanced-platform/)** — a multi-boundary Kubernetes
   platform showing cross-boundary references resolving **without** a gateway:

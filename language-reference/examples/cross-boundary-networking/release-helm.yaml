@@ -1,0 +1,28 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: cross-boundary-helm
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: cross-boundary-app
+  manifest: cross-boundary-helm-manifest
+  # Same developer intent as the compose variant, deployed to Kubernetes. Two
+  # sibling boundaries, each with a distinct aggrega.ai/namespace annotation that
+  # cascades to every resource in the boundary as metadata.namespace. There is
+  # NO compose-bridge: the adminer→db reference crosses the namespace seam by
+  # native cross-namespace DNS (db-default.backend), which is what the compose
+  # gateway emulates on a network that has no such facility.
+  boundaries:
+    frontend:
+      directory: frontend
+      annotations:
+        aggrega.ai/namespace: "frontend"
+      components:
+        adminer: {}
+    backend:
+      directory: backend
+      annotations:
+        aggrega.ai/namespace: "backend"
+      components:
+        db: {}

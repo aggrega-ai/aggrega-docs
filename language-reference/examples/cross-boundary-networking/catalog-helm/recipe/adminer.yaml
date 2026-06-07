@@ -1,0 +1,35 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Recipe
+metadata:
+  name: adminer-helm
+  version: "1.0.0"
+  description: >
+    Adminer on Kubernetes via the helm provider's Workload synthesis
+    (Deployment + NodePort Service). The database host resolved from the
+    `backend` uses-edge arrives on .context.inject.env and renders as
+    ADMINER_DEFAULT_SERVER — here a namespace-qualified cross-namespace DNS
+    name, so Adminer reaches the database in another namespace with no gateway.
+spec:
+  provider: helm
+  implements: app/adminer
+  provides:
+    host: "{{ .context.instance_id }}"
+    port: "{{ optional .infra `port` 8080 }}"
+  workload: |
+    apiVersion: aggrega.ai/v1alpha1
+    kind: Workload
+    replicas: 1
+    containers:
+      main:
+        image: "adminer:4"
+        variables:
+          {{- range $k, $v := .context.inject.env }}
+          {{ $k }}: "{{ $v }}"
+          {{- end }}
+        ports:
+          http: {{ optional .infra `port` 8080 }}
+    services:
+      default:
+        type: NodePort
+        ports:
+          http: {{ optional .infra `port` 8080 }}

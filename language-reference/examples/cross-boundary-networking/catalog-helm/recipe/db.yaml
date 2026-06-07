@@ -1,0 +1,43 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Recipe
+metadata:
+  name: db-helm
+  version: "1.0.0"
+  description: >
+    PostgreSQL on Kubernetes via the helm provider's Workload synthesis
+    (Deployment + ClusterIP Service + demo credentials). provides.host is the
+    namespace-qualified in-cluster DNS name of the synthesized Service, so a
+    consumer in another namespace reaches it directly — the helm counterpart to
+    the compose bridge (k8s cross-namespace DNS does what the gateway does).
+spec:
+  provider: helm
+  implements: core/postgres
+  # The helm provider names the synthesized Service "<instance_id>-<service-key>"
+  # (here "db-default") and places it in this boundary's namespace ("backend",
+  # from the boundary's aggrega.ai/namespace annotation). A consumer in another
+  # namespace dials "<service>.<namespace>" — db-default.backend. That host is
+  # what the shared Aggregate's inject edge pipes into ADMINER_DEFAULT_SERVER;
+  # the namespace segment must match the backend boundary's annotation.
+  provides:
+    host: "{{ .context.instance_id }}-default.backend"
+    port: "5432"
+  workload: |
+    apiVersion: aggrega.ai/v1alpha1
+    kind: Workload
+    replicas: 1
+    containers:
+      main:
+        image: postgres:16
+        # Demo-only credentials so the stack runs out of the box. A real
+        # deployment supplies these via the credential subsystem, not inline.
+        variables:
+          POSTGRES_USER: appuser
+          POSTGRES_PASSWORD: apppass
+          POSTGRES_DB: appdb
+        ports:
+          tcp: 5432
+    services:
+      default:
+        type: ClusterIP
+        ports:
+          tcp: 5432
