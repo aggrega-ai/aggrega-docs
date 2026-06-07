@@ -292,16 +292,19 @@ Unlike tools that enforce a Directed Acyclic Graph on infrastructure dependencie
 
 ## When checking inject contracts
 
-After topology, the compiler walks every `inject:` block — both self-inject (a Component injecting into itself) and uses-inject (cross-Component wiring) — and validates the delivery contract against the target Component's `provides:` schema, the Feature's label partition, and the set of declared delivery keys.
+The compiler walks every `inject:` block — both self-inject (a Component injecting into itself) and uses-inject (cross-Component wiring) — and validates the delivery contract against the target Component's `provides:` schema, the Feature's label partition, and the set of declared delivery keys. The `from:`-key check runs early, right after the catalog resolves and before the topology is built, so a misspelled provides key fails fast against the line you wrote.
 
 ### Inject `from` key is not in the target's `provides`
 
-An `inject:` entry references a `from:` key that the target Component's `provides:` schema does not declare.
+An `inject:` entry references a `from:` key that the target Component's `provides:` schema does not declare. The compiler checks this as soon as the catalog is resolved, before it builds the topology, so the diagnostic points at the exact line you authored rather than at a later wiring stage. The target depends on where the reference lives: a Component-level self-inject `from:` resolves against that same Component's own `provides:`, while a `uses[]` cross-inject reference resolves against the used target Component's `provides:`. A Component that declares no `provides:` rejects every `from:` reference aimed at it.
 
 Emitted message:
-> from-key `<from-key>` does not match any provides key on target; valid keys: `<key-1>, <key-2>, ...`
+> inject from-key `<from-key>` is not declared in component type `<component-type>` provides; declared keys are: `[<key-1> <key-2> ...]`
 
-**How to fix:** either change the `from:` key to match one of the valid keys listed in the message, or extend the target Component's `provides:` schema to declare the key you need.
+When the target declares no `provides:` at all, the message names that explicitly:
+> inject from-key `<from-key>` is not a provides key of component type `<component-type>`, which declares no provides keys
+
+**How to fix:** either change the `from:` key to match one of the declared keys listed in the message, or extend the target Component's `provides:` schema to declare the key you need.
 
 ### Required feature not attached
 
