@@ -85,7 +85,6 @@ spec:
       features:
         bridge:
           type: core/compose-bridge:1.0.0
-          infra: { mappedPort: 15432 }
       boundaries:
         services-net:
           directory: "{{ .parent_boundary.directory }}"
