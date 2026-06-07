@@ -1,0 +1,28 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Recipe
+metadata:
+  name: service-helm
+  version: "1.0.0"
+  description: >
+    A generic HTTP service on Kubernetes via the helm provider's Workload
+    synthesis: a Deployment plus a ClusterIP Service exposing an `http` port and
+    a named `metrics` port — the port core/scrape-target's ServiceMonitor scrapes.
+spec:
+  provider: helm
+  implements: app/service
+  workload: |
+    apiVersion: aggrega.ai/v1alpha1
+    kind: Workload
+    replicas: 1
+    containers:
+      main:
+        image: "{{ optional .infra `image` `nginx:alpine` }}"
+        ports:
+          http: 8080
+          metrics: 9090
+    services:
+      default:
+        type: ClusterIP
+        ports:
+          http: 8080
+          metrics: 9090

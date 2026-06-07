@@ -1,0 +1,26 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: monitoring-manifest
+  version: "1.0.0"
+  description: >
+    Ops mapping. The features.annotations binding expands the `monitoring`
+    annotation into a core/scrape-target attachment per component, routing the
+    structured annotation subkeys into the feature's infra pillar. The bound
+    Feature's FeatureRecipe version is declared in features.type alongside it.
+spec:
+  mappings:
+    components:
+      type:
+        app/service:1.0.0: service-helm:1.0.0
+    features:
+      type:
+        core/scrape-target: scrape-target-helm:1.0.0
+      annotations:
+        feature.aggrega.ai/monitoring:
+          feature: core/scrape-target
+          maps:
+            infra:
+              - interval
+              - port
+              - path

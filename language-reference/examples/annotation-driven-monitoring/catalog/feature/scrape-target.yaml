@@ -1,0 +1,27 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Feature
+metadata:
+  name: core/scrape-target
+  version: 1.0.0
+  description: >
+    Marks a component as a Prometheus scrape target. Its FeatureRecipe
+    (component-scope) emits one ServiceMonitor per attached component, scraping
+    the component's named metrics port on the operator-set interval. Designed to
+    be attached in bulk via a Manifest `features.annotations` binding — one
+    annotation on a boundary expands to every contained component — rather than a
+    per-component `features:` block.
+spec:
+  schema:
+    infra:
+      interval:
+        type: string
+        default: "60s"
+        description: Prometheus scrape interval (operator-set; routed from the monitoring annotation).
+      port:
+        type: string
+        default: metrics
+        description: Named Service port the ServiceMonitor scrapes.
+      path:
+        type: string
+        default: /metrics
+        description: HTTP metrics path.

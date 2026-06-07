@@ -1,0 +1,40 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: monitoring-platform
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: monitoring-demo
+  manifest: monitoring-manifest
+  boundaries:
+    platform:
+      directory: platform
+      # One operator annotation monitors every component in the subtree. The
+      # structured value cascades with per-subkey deep merge: child boundaries
+      # override `interval` while inheriting `port` and `path`.
+      annotations:
+        feature.aggrega.ai/monitoring:
+          interval: 30s
+          port: metrics
+          path: /metrics
+      components:
+        gateway: {}                 # inherits the platform default: 30s
+      boundaries:
+        payments:
+          directory: payments
+          annotations:
+            feature.aggrega.ai/monitoring:
+              interval: 15s          # override interval; inherit port + path
+          components:
+            api: {}
+            worker: {}
+            ledger: {}
+        batch:
+          directory: batch
+          annotations:
+            feature.aggrega.ai/monitoring:
+              interval: 120s
+          components:
+            etl: {}
+            reconcile: {}
