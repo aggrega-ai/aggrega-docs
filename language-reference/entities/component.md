@@ -300,6 +300,28 @@ components:
       log_destination:   { target: audit-sink }
 ```
 
+**Wiring forms — a socket accepts one or many targets.** The examples above wire each socket to a single target, but a socket may fan out to several. A socket value is authored in one of two forms:
+
+```yaml
+uses:
+  # Single target (the common case).
+  primary_datastore: { target: vector-db-instance }
+
+  # Compact form — a list of target names. Each entry produces an edge
+  # whose alias equals its target. Use when one socket connects to several
+  # peers of the same shape.
+  shards: [orders-db, customers-db, inventory-db]
+
+  # Verbose form — an alias-keyed map. Each alias produces an edge to its
+  # own target and may carry its own inject directives. Use when the
+  # connections need distinct names or per-edge inject.
+  databases:
+    primary: { target: orders-db,    inject: { env: { DB_URL: url } } }
+    replica: { target: orders-db-ro, inject: { env: { DB_URL: url } } }
+```
+
+Each entry — list element or map alias — becomes one edge, preserved in authoring order. The socket's `selector:` applies to every target wired through it (each edge is type-checked independently at Step 4), and `required: true` means at least one target must be wired. A bare string in the verbose map (`primary: orders-db`) is shorthand for `{ target: orders-db }`.
+
 **Field semantics:**
 
 | Field | Type | Default | Meaning |

@@ -206,6 +206,7 @@ The validator fires three distinct conditions:
 - **Feature not found.** The `feature:` value references a Feature URI absent from the loaded catalog.
 - **Feature schema compile error.** The named Feature loads but its `spec.schema:` is malformed and cannot be compiled to a JSON Schema 2020-12 representation.
 - **Binding path not in target schema.** The binding's `maps.infra` or `maps.values` entry names a dotted path the Feature's `spec.schema.<pillar>.<path>` does not declare.
+- **Bound value does not conform to the target schema.** A value routed to a declared path does not satisfy the Feature schema's sub-schema at that path — a wrong type, or (now validated in full) an out-of-`enum` value, a `pattern` mismatch, an out-of-range number, or a malformed nested shape.
 
 Emitted messages (Feature-not-found variant):
 
@@ -215,9 +216,13 @@ Emitted messages (path-not-found variant):
 
 > OPS_ERROR: annotation binding `<key>` routes through pillar `<pillar>` at path `<path>` on Feature `<feature-uri>`, but the Feature's spec.schema does not declare a property at that path
 
-**Soft-skip on schema escape hatches.** The path-existence check soft-skips when the schema walker encounters one of the JSON Schema 2020-12 escape hatches that prevent statically-resolvable property navigation: `$ref` (cross-document or in-document references), `patternProperties` (key-shape-based property declarations), the composition operators `oneOf` / `anyOf` / `allOf`, and `additionalProperties` with a schema body. When the walker reaches one of these before the binding's path has fully resolved, the validator treats the path as potentially-valid and continues without raising the OPS_ERROR. The actual validation defers to runtime schema application — the binding either resolves to a valid path at orchestration time or surfaces the error there with the same `OPS_ERROR:` prefix. The soft-skip is the discipline that prevents strict validation from rejecting many valid schema compositions a runtime-active schema validator would handle correctly.
+Emitted messages (value-conformance variant):
 
-**How to fix:** confirm the binding's `feature:` URI exists in the catalog and matches the case-sensitive URI a Recipe `implements:`. If the path-not-found variant fires on a path the Feature schema does declare, confirm the dotted path spelling (case-sensitive) and the pillar name (`infra` vs `values`). When the schema uses a composition operator and the validator emits no error but the runtime later does, narrow the schema to surface the property at the binding's path directly, or accept that the runtime is the validation surface for that binding.
+> OPS_ERROR: annotation subkey `<subkey>` value `<value>` does not conform to Feature `<feature-uri>` spec.schema.`<pillar>`.`<subkey>`: `<constraint failure>`
+
+**Full validation at the located path; soft-skip only when the path cannot be located.** Once the bound subkey's sub-schema is located, the value is validated against the **complete** JSON Schema 2020-12 constraint set at that path (type, enum, pattern, numeric range, nested object/array shape) — a terminal `$ref` / `allOf` / `oneOf` is resolved against the schema's definitions and validated, not skipped. The soft-skip discipline applies only to *navigation*: when the walker meets an escape hatch (`$ref`, `patternProperties`, `oneOf`/`anyOf`/`allOf`, or schema-bodied `additionalProperties`) on an **intermediate** segment — before reaching the bound leaf — the path is not statically resolvable, so the validator continues without raising the error rather than risk a false halt; the runtime remains the validation surface for that binding.
+
+**How to fix:** confirm the binding's `feature:` URI exists in the catalog and matches the case-sensitive URI a Recipe `implements:`. If the path-not-found variant fires on a path the Feature schema does declare, confirm the dotted path spelling (case-sensitive) and the pillar name (`infra` vs `values`). For the value-conformance variant, correct the bound value to satisfy the declared sub-schema, or widen that property's schema if the value is legitimate. When an intermediate composition operator makes a path unresolvable and the runtime later rejects it, narrow the schema to surface the property at the binding's path directly.
 
 ### Authored values or infra do not conform to the declared schema
 
