@@ -219,18 +219,21 @@ Emitted messages (path-not-found variant):
 
 **How to fix:** confirm the binding's `feature:` URI exists in the catalog and matches the case-sensitive URI a Recipe `implements:`. If the path-not-found variant fires on a path the Feature schema does declare, confirm the dotted path spelling (case-sensitive) and the pillar name (`infra` vs `values`). When the schema uses a composition operator and the validator emits no error but the runtime later does, narrow the schema to surface the property at the binding's path directly, or accept that the runtime is the validation surface for that binding.
 
-### Authored values do not conform to the Component schema
+### Authored values or infra do not conform to the Component schema
 
-A component instance's authored `values:` does not conform to the catalog Component's declared `schema.values`. The build validates the values pillar against its declared schema before rendering, so a typo'd key, a wrong-typed value, an out-of-range number, or a missing required field is caught at its source rather than producing a broken manifest at deploy time.
+A component instance's resolved `values:` or `infra:` does not conform to the catalog Component's declared schema. The build validates each pillar against its declared schema before rendering, so a typo'd key, a wrong-typed value, an out-of-range number, or a missing required field is caught at its source rather than producing a broken manifest at deploy time.
 
-The check covers the standard schema constraints: a value of the wrong type (a string where the schema declares an integer), a value outside a declared range or `enum`, a value failing a declared `pattern`, and a **required** field that the author did not supply. It is **default-aware**: a field the schema gives a `default:` is considered supplied even when the author omits it, so a required-with-default field never trips the "missing" check.
+The check covers the standard schema constraints: a value of the wrong type (a string where the schema declares an integer), a value outside a declared range or `enum`, a value failing a declared `pattern`, and a **required** field that was not supplied. It is **default-aware**: a field the schema gives a `default:` is considered supplied even when it is omitted, so a required-with-default field never trips the "missing" check.
 
-The values pillar is validated **closed** — it is the developer's complete authoring surface, so a property the schema does not declare is rejected as a likely typo. A values schema that composes within its own document (a local `#/$defs` `$ref` or `allOf`) is resolved and validated against that definitional context.
+The **values** pillar is the developer's authoring surface. It is validated **closed** — a property the schema does not declare is rejected as a likely typo. A values schema that composes within its own document (a local `#/$defs` `$ref` or `allOf`) is resolved and validated against that definitional context.
+
+The **infra** pillar is the operator's sizing surface, and it is checked only when the Component declares a `schema.infra` pillar — that declaration is the contract the component opts into. Because an operator may legitimately set provider-layered keys (such as `replicas`) that the rendering provider recognises but the Component schema does not list, the infra pillar is validated **closed against the union** of the Component's `schema.infra` keys and the rendering provider's recognised infra keys. A key in neither is rejected as a typo; a provider-recognised key is admitted; a key the Component schema declares still has its type and range enforced. Required-ness comes from the Component's `schema.infra` only — a provider's own required keys (which describe rendered output, not authored infra) are not imposed. When the rendering provider cannot be resolved, infra validation is skipped rather than risk rejecting a legitimate provider key.
 
 Emitted message:
 > Aggregate `<name>` at `.spec.components.<component>.values.<field>`: values pillar does not conform to the Component schema: `<constraint failure>`.
+> Aggregate `<name>` at `.spec.components.<component>.infra.<field>`: infra pillar does not conform to the declared infra schema: `<constraint failure>`.
 
-**How to fix:** correct the offending value to satisfy the declared schema, or — if the value is legitimate — widen the Component's `schema.values` to declare it. Inspect the Component's declared schema with `aggrega inspect <component-type>` to see the exact types, ranges, defaults, and required fields the values pillar expects.
+**How to fix:** correct the offending value to satisfy the declared schema, or — if the value is legitimate — widen the Component's `schema.values` (or `schema.infra`) to declare it. Inspect the Component's declared schema with `aggrega inspect <component-type>` to see the exact types, ranges, defaults, and required fields each pillar expects.
 
 ### Recipe `source:` is an empty string
 
