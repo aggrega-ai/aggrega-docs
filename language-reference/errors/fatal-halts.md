@@ -219,6 +219,19 @@ Emitted messages (path-not-found variant):
 
 **How to fix:** confirm the binding's `feature:` URI exists in the catalog and matches the case-sensitive URI a Recipe `implements:`. If the path-not-found variant fires on a path the Feature schema does declare, confirm the dotted path spelling (case-sensitive) and the pillar name (`infra` vs `values`). When the schema uses a composition operator and the validator emits no error but the runtime later does, narrow the schema to surface the property at the binding's path directly, or accept that the runtime is the validation surface for that binding.
 
+### Authored values do not conform to the Component schema
+
+A component instance's authored `values:` does not conform to the catalog Component's declared `schema.values`. The build validates the values pillar against its declared schema before rendering, so a typo'd key, a wrong-typed value, an out-of-range number, or a missing required field is caught at its source rather than producing a broken manifest at deploy time.
+
+The check covers the standard schema constraints: a value of the wrong type (a string where the schema declares an integer), a value outside a declared range or `enum`, a value failing a declared `pattern`, and a **required** field that the author did not supply. It is **default-aware**: a field the schema gives a `default:` is considered supplied even when the author omits it, so a required-with-default field never trips the "missing" check.
+
+The values pillar is validated **closed** — it is the developer's complete authoring surface, so a property the schema does not declare is rejected as a likely typo. A values schema that composes within its own document (a local `#/$defs` `$ref` or `allOf`) is resolved and validated against that definitional context.
+
+Emitted message:
+> Aggregate `<name>` at `.spec.components.<component>.values.<field>`: values pillar does not conform to the Component schema: `<constraint failure>`.
+
+**How to fix:** correct the offending value to satisfy the declared schema, or — if the value is legitimate — widen the Component's `schema.values` to declare it. Inspect the Component's declared schema with `aggrega inspect <component-type>` to see the exact types, ranges, defaults, and required fields the values pillar expects.
+
 ### Recipe `source:` is an empty string
 
 A Recipe declares `source: ""` — an empty string. An empty-string `source:` is an authoring ambiguity between sourceless mode (no external artifact; the Recipe produces output entirely from its `valuesMapping` or other input kinds) and sourced mode (the Recipe references an external chart, module, or file). The compiler rejects the ambiguous form at Recipe load.
