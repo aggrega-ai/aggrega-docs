@@ -109,12 +109,12 @@ Workload is a platform kind and a compiler concept, not a separate entity in the
 
 ### One Workload per Recipe
 
-A Recipe declares exactly one `workload:`. The Workload represents the single deployment unit associated with the Component this Recipe implements. Use cases requiring additional side-workloads are expressed via:
+A Recipe declares exactly one `workload:`. The Workload represents the single deployment unit associated with the Component this Recipe implements. A FeatureRecipe likewise declares at most one `workload:` of its own — a Feature-owned deployment unit synthesized through the same Workload kind — see [FeatureRecipe](../language-reference/entities/featurerecipe.md). Use cases requiring additional side-workloads are expressed via:
 
 - `artifacts:` — additional manifests alongside the workload, in the same Recipe (inline or via per-entry `$import:`).
-- Features with Resource Generation — cross-cutting side-workloads (e.g., a backup sidecar attached to databases) declared as separate catalog entities. See [14-extensibility.md](14-extensibility.md) for FeatureRecipe Resource Generation.
+- Features with Resource Generation — cross-cutting side-workloads (e.g., a backup sidecar attached to databases) declared as separate catalog entities, where the FeatureRecipe synthesizes its own `workload:` (or renders via `source:` / `artifacts:`). See [14-extensibility.md](14-extensibility.md) for FeatureRecipe Resource Generation.
 
-This preserves the 1:1 Component → Recipe → Workload model.
+This preserves the one-deployment-unit-per-author model: a Recipe synthesizes the Component's workload; a FeatureRecipe synthesizes its own.
 
 ### The Full Surface
 

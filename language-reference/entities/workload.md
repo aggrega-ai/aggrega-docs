@@ -4,7 +4,7 @@ The architectural role of the Workload kind — why it exists, how it composes w
 
 ## Authoring location
 
-Workload content is authored inline or from file, always inside a Recipe. A Recipe declares exactly one `workload:` per node:
+Workload content is authored inline or from file, inside a Recipe or a FeatureRecipe (see [FeatureRecipe](featurerecipe.md)). A Recipe declares exactly one `workload:` per node; a FeatureRecipe likewise declares at most one of its own:
 
 ```yaml
 # Inline (block scalar)
