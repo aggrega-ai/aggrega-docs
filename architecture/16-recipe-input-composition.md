@@ -85,19 +85,18 @@ spec:
       $import: ./artifacts/other.yaml         # per-entry $import: for file or library content
 ```
 
-*The authoring shape above is frozen at the Recipe schema layer. Every field is accepted by the schema today. Compiler consumption of `workload:` / `artifacts:` lands incrementally as the per-provider synthesizers and the corresponding Recipe consumption paths ship; see the Provider Capability Matrix at the end of this chapter for what each provider produces today.*
+*Every field above is accepted by the Recipe schema, and the compiler consumes all three input kinds today — sourced rendering, Workload synthesis, and artifacts emission all ship. What differs is per-provider support — which provider renders which input kind — captured in the Provider Capability Matrix at the end of this chapter.*
 
 ### Load-Time Validation Rules
 
-The Recipe schema enforces seven composition rules at load time:
+The Recipe schema and load validation enforce these composition rules:
 
-1. **`valuesMapping:` requires `source:`.** Without a source engine to overlay, there is nothing to receive the mapped values. A Recipe with `valuesMapping:` and no `source:` is a load-time error.
-2. **`source:` requires `valuesMapping:`.** An externally-loaded chart or module needs values; a source with no values overlay is underspecified. Load-time error.
-3. **`workload:` accepts one source — inline or `$import:`, not both.** A Recipe specifies the Workload as either an inline block scalar or a `$import:` to a single file. The `$import:` form is single-source per the unified file-import vocabulary; multi-source merge is not supported at `workload:`. Load-time error on a malformed dispatch.
-4. **`workload:` requires the Provider to declare `workloadSchema`.** Providers that do not support synthesis reject Recipes that use `workload:`. Load-time error.
-5. **At least one input kind must be present.** A Recipe with none of `source:`+`valuesMapping:`, `workload:`, or `artifacts:` produces no output and is an error.
-6. **Inline and `$import:` artifact entries may coexist.** A Recipe may declare some `artifacts:` entries inline and others via per-entry `$import:` directives. Filename collision across the two forms is a load-time error.
-7. **Cross-input-kind filename collisions are render-time errors.** If two of a Recipe's input kinds — source-rendered output, workload-synthesized output, or artifact-emitted output — produce a file with the same name, the Engine emits a fatal error identifying every contributor. This check runs after Workload translation, so it's render-time rather than load-time.
+1. **`valuesMapping:` requires `source:`.** Without a source engine to overlay, there is nothing to receive the mapped values. A Recipe with `valuesMapping:` and no `source:` is a load-time error. (A `source:` without `valuesMapping:` is permitted — the chart or module renders with its own defaults.)
+2. **`workload:` accepts one source — inline or `$import:`, not both.** A Recipe specifies the Workload as either an inline block scalar or a `$import:` to a single file. The `$import:` form is single-source per the unified file-import vocabulary; multi-source merge is not supported at `workload:`. Load-time error on a malformed dispatch.
+3. **`workload:` requires a synthesis-capable provider.** A provider declares synthesis support by carrying `workloadSchema:`; targeting a provider that does not support synthesis with a `workload:` Recipe is rejected when the node renders — through the provider-capability gate (see the Provider Capability Matrix) — with a clear diagnostic.
+4. **At least one input kind must be present.** A Recipe with none of `source:`+`valuesMapping:`, `workload:`, or `artifacts:` produces no output and is a load-time error.
+5. **Inline and `$import:` artifact entries may coexist.** A Recipe may declare some `artifacts:` entries inline and others via per-entry `$import:` directives. Filename collision across the two forms is a load-time error.
+6. **Cross-input-kind filename collisions are render-time errors.** If two of a Recipe's input kinds — source-rendered output, workload-synthesized output, or artifact-emitted output — produce a file with the same name, the Engine emits a fatal error identifying every contributor. This check runs after Workload translation, so it's render-time rather than load-time.
 
 ## The Workload Kind
 
@@ -232,7 +231,7 @@ podSecurityContext:
 serviceAccount: "my-sa"  # just the name; actual RBAC via Features
 ```
 
-*The Workload JSON Schema 2020-12 declaration is authoritative and ships embedded in the compiler binary today. Recipe-side `workload:` consumption (inline or `$import:`) and per-provider synthesizers land incrementally; see the Provider Capability Matrix for current provider support.*
+*The Workload JSON Schema 2020-12 declaration is authoritative and ships embedded in the compiler binary. Recipe-side `workload:` consumption (inline or `$import:`) and the helm and compose synthesizers ship today; see the Provider Capability Matrix for per-provider support.*
 
 The Workload entity authoring page at [../language-reference/entities/workload.md](../language-reference/entities/workload.md) covers field-level authoring details.
 
@@ -359,7 +358,7 @@ spec:
     // ...
 ```
 
-The `workloadSchema` field is documentation-first: it communicates translation intent to catalog authors and IDE tooling. A Provider that omits `workloadSchema` does not support Workload synthesis; Recipes targeting such a provider that use `workload:` are rejected at Recipe load time with a clear error.
+The `workloadSchema` field communicates translation intent to catalog authors and IDE tooling, and its presence declares that the provider supports Workload synthesis. A Provider that omits `workloadSchema` does not support synthesis; a Recipe targeting such a provider with `workload:` is rejected when the node renders — through the provider-capability gate — with a clear error.
 
 *The Provider schema declares `workloadSchema` today. Provider-side validation of the contract (Recipe load-time rejection when the target Provider omits `workloadSchema`) lands alongside Recipe consumption of `workload:`.*
 
@@ -472,7 +471,7 @@ This split is uniform across all three input kinds. (The Compose provider has no
 
 ### Per-Provider Artifact Semantics
 
-*The per-provider semantics below describe how each provider's artifact render path will integrate artifacts into the provider's native output when the artifacts render path ships. These descriptions are the designed target behavior; the artifacts render path is not yet wired into the compiler binary.*
+*The per-provider semantics below describe how each provider integrates artifacts into its native output. The artifacts render path ships today; the terraform and cloudformation rows are forward-looking, pending those provider engines.*
 
 **helm provider:** artifacts are Kubernetes YAML documents written directly to the output directory, alongside manifests rendered from the chart and manifests synthesized from the Workload.
 
@@ -506,26 +505,20 @@ Multi-provider composition happens at the Release level. Boundaries hold mixed-p
 
 ## Provider Capability Matrix
 
+Each provider engine declares which input kinds it renders; a central input-kind gate accepts the supported combinations and rejects the rest with a uniform diagnostic when the node renders. Capability is a property of the engine, not the Recipe — a provider engine renders a subset of the three kinds. The `artifacts:` column distinguishes artifacts riding *alongside* a sourced/synthesized primary from a *standalone* artifacts-only Recipe (no `source:`, no `workload:`).
+
 ### Shipping Today
 
-| Provider | `source:` + `valuesMapping:` | `workload:` | `artifacts:` |
-| --- | --- | --- | --- |
-| helm | ✅ Helm chart rendering via the Helm SDK | Not yet shipped — authoring contract frozen | ✅ standalone YAML files emitted under the boundary output directory |
-| helm-chart | ✅ Umbrella-chart composition | Not applicable | ✅ file-loaded only; injected at `templates/<basename>` with `[[ ]]` Aggrega delimiters; inline rejected at Recipe load |
-| compose | Not yet shipped — authoring contract frozen | Not yet shipped — authoring contract frozen | Not yet shipped — authoring contract frozen |
-| terraform | Not yet shipped — authoring contract frozen | Not yet shipped — synthesis is a future iteration | Not yet shipped — authoring contract frozen |
-| cloudformation | Not yet shipped — authoring contract frozen | Not yet shipped — synthesis is a future iteration | Not yet shipped — authoring contract frozen |
+| Provider | `source:` + `valuesMapping:` | `workload:` | `artifacts:` (alongside) | artifacts-only (standalone) |
+| --- | --- | --- | --- | --- |
+| helm | ✅ Helm chart via the Helm SDK | ✅ synthesizes Deployment/StatefulSet + Services + PVCs + ConfigMap/Secret volume refs | ✅ flat Kubernetes YAML under the boundary output | ✅ emits the declared artifacts as the node's whole output |
+| compose | ✅ compose file → per-node fragment | ✅ synthesizes a compose service fragment | ✅ merged into the combined `docker-compose.yaml` | ❌ declined at the gate (no service fragment to contribute) |
+| helm-chart | ✅ umbrella-chart composition | ❌ not supported — use the helm provider | ✅ `$import`-only, injected at `templates/<basename>` with `[[ ]]` Aggrega delimiters; inline rejected | ❌ declined at the gate (no chart to inject into) |
+| terraform | ⏳ not yet shipped — engine not registered | ⏳ not yet shipped | ⏳ not yet shipped | ⏳ not yet shipped |
+| cloudformation | ⏳ not yet shipped — engine not registered | ⏳ not yet shipped | ⏳ not yet shipped | ⏳ not yet shipped |
 
-*This table reflects what the current compiler binary consumes. Cells marked `✅` ship today. Cells marked "Not yet shipped" have their authoring shape accepted by the Recipe schema; compiler consumption lands incrementally per provider and per input kind. Cells marked "Not applicable" describe combinations the architecture does not support.*
+*Cells marked `✅` ship today; `❌` is a provider-capability decline surfaced by the gate; `⏳` awaits the provider engine. The per-node compose fragments are merged per boundary today; a further Release-level cross-boundary merge is a future refinement.*
 
-### Designed Target Shape
+### Not Yet Shipped (designed target)
 
-*The following matrix describes the designed target shape when per-provider synthesis and the artifacts render path land. Every cell represents intended behavior of the shipping compiler; timing anchors appear where known.*
-
-| Provider | `source:` + `valuesMapping:` | `workload:` | `artifacts:` |
-| --- | --- | --- | --- |
-| helm | ✅ Helm chart | ✅ synthesizes Deployment/StatefulSet + Services + PVCs + ConfigMap/Secret volume refs | ✅ Kubernetes YAML files |
-| helm-chart | ✅ umbrella chart | ❌ not applicable | ✅ file-loaded only; injected as pre-Helm templates |
-| compose | ✅ `docker-compose.yaml` base | ✅ synthesizes compose service + volumes + networks | ✅ compose fragments merged into the combined file |
-| terraform | ✅ Terraform module | ✅ planned (target-resource selection — ECS, Fargate, Cloud Run, etc. — resolved in a future design iteration) | ✅ `.tf.json` files |
-| cloudformation | ✅ CFN template | ✅ planned (target-resource selection — ECS, Fargate, App Runner, etc. — resolved in a future design iteration) | ✅ CFN resource snippets |
+*When the terraform and cloudformation provider engines ship, each renders the three input kinds in its native format — sourced (module / template), synthesized (target-resource selection — ECS, Fargate, Cloud Run, App Runner, etc. — resolved in a future design iteration), and artifacts (`.tf.json` / CFN resource snippets). The Release-level cross-boundary compose merge lands here as well.*
