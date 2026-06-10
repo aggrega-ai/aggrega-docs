@@ -260,16 +260,14 @@ Emitted message:
 
 Once every Component has a resolved Recipe, the compiler stitches Components together into the IR graph by reading each Component's `uses:` block and cross-referencing targets and feature attachments.
 
-### Dangling `uses` target **[pending]**
+### Dangling `uses` target
 
-A Component's `uses:` entry points at a target name that does not exist in the Aggregate. The target-reference validator is declared in the resolver but does not have production call sites today; the dangling reference surfaces at edge-typing time as an indirect error (a topology edge cannot resolve its target). The dedicated halt is planned alongside the broader resolver wiring of target-reference validation.
+A `uses:` edge names a target component that does not exist in the resolved topology. The halt is origin-agnostic — a developer-authored Aggregate edge and a Release-wired edge are caught alike. A dangling target is a fatal halt, not a silent drop: an edge to a non-existent target would otherwise vanish and leave the consumer's injected values silently empty at deploy time. It is the structural sibling of the uses-socket allowlist — the socket must be declared *and* the target must resolve to an existing component before an edge is type-checked.
 
-Intended message (not yet emitted):
-> Component `<component-id>` in Aggregate `<aggregate-name>` has `uses.<group>.<target-id>` pointing at `<target-id>`, which is not declared in this Aggregate.
+Emitted message:
+> uses edge `<consumer>`/`<socket>`/`<alias>` targets `<target>`, which is not a component in the topology.
 
-**How to fix:** either declare the missing target Component in the Aggregate, or correct the target name in the `uses:` block to match an existing Component.
-
-The same dangling-target condition on a *Release*-wired edge already halts with a dedicated message — see "Release edge target does not exist" below. The Aggregate/Component-side halt above is the remaining `[pending]` case.
+**How to fix:** declare the missing target component, or correct the target name in the `uses:` entry to match an existing component.
 
 ### `uses:` socket not declared in the target's `usesSchema`
 
@@ -288,15 +286,6 @@ Emitted message:
 > release edge `<consumer>`/`<socket>`/`<alias>` retargets developer-declared target `<declared-target>` to `<release-target>`.
 
 **How to fix:** drop the differing `target` from the Release `uses:` entry to configure the existing edge (per-edge `infra` only), or, if the connection genuinely belongs to a different socket, wire it through a socket the developer left unbound. To change the target itself, change it in the Aggregate, where the topology is authored.
-
-### Release edge target does not exist
-
-A Release per-edge `uses:` entry wires an edge into a declared-but-unbound socket but names a target component that is not present in the resolved topology.
-
-Emitted message:
-> release edge `<consumer>`/`<socket>`/`<alias>` targets `<target>`, which is not a component in the topology.
-
-**How to fix:** name an existing component as the target, or declare the missing component in the Aggregate. (The Aggregate/Component-side dangling case is tracked separately — see "Dangling `uses` target" above, still `[pending]`.)
 
 ### Required `uses:` socket not populated
 
