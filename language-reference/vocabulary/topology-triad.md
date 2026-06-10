@@ -142,6 +142,15 @@ The compiler resolves this at compile-time (mapping to static AST strings or int
 }
 ```
 
+**Connection-scoped configuration (`values` and `infra`).** Beyond delivering a target's `provides` via `inject`, an edge may carry its own configuration — per-connection settings the consuming Recipe reads from the enriched topology pipe:
+
+* `.context.uses.<alias>.values` — developer-authored, declared in the Aggregate's verbose `uses` entry, validated against the socket's `valueSchema`.
+* `.context.uses.<alias>.infra` — operator-authored, declared in the Release, validated against the socket's `infraSchema`.
+
+The socket (`usesSchema[<socket>]`) is the Architect's contract for which connections are possible and what configuration they may carry; `values` and `infra` split that configuration by authoring domain, mirroring the values/infra split on components. So an edge has two authors: the developer wires the topology and tunes it with `values` in the Aggregate, while the operator sets per-connection `infra` in the Release within the sockets the Architect declared. The Release may also wire an edge into a declared-but-unbound socket to an existing component; it may not retarget a developer-declared edge — see [entities/release.md](../entities/release.md) §"Per-edge connection configuration".
+
+Per-edge configuration is consumer-scoped: it surfaces only in the context of the node that authored the edge (the connection's source), never in the target's context. A target's rendered output is therefore invariant with respect to the consumers that connect to it.
+
 **A. Environment Variables (`env`) & Dynamic Destination Resolution**
 The standard delivery mechanism for modern cloud-native applications. For explicit topological edges (e.g., an Agent talking to a Database), Aggrega uses `.context.uses` to inject the environment variable mapping.
 

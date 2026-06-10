@@ -69,10 +69,12 @@ This does not mean values are identical across environments. The supported path 
 
 The Aggregate remains the Single Source of Truth for which values are exposed for environment variation (the `parameters` declaration) and how they flow into component values (the template reference). The Release fulfills; it does not override.
 
-Two other schema-level constraints protect the same invariant:
+Two other constraints protect the same invariant:
 
 - When a Release uses `extends`, declaring an `aggregate:` pointer is schema-forbidden. The child Release must deploy the same Developer Intent as its parent.
-- The Release cannot introduce compute or topology that the Aggregate did not declare.
+- The Release cannot introduce compute the Aggregate did not declare, and cannot retarget an edge the developer declared. Within the sockets the Architect declared, the Release may wire and configure edges between existing components: it sets per-edge `infra` on an edge the developer wired, or wires an edge into a declared-but-unbound socket to an existing component. It cannot declare per-edge `values` (those stay in the Aggregate), bind a socket the Component's `usesSchema` does not declare, or point an edge at a component that does not exist — each halts the build.
+
+Per-edge connection configuration is consumer-scoped: the `values` and `infra` carried on an edge surface only in the render context of the node that authored the edge, never in the target's context. A component's rendered output is therefore invariant with respect to the connections other components make to it — wiring or configuring an edge into a target never perturbs that target's output.
 
 ## 6. The WebAssembly ABI Boundary: domain-specific intelligence lives in Wasm
 

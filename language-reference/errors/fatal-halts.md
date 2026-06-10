@@ -236,11 +236,14 @@ The **infra** pillar is the operator's sizing surface, and it is checked only wh
 
 **Feature and Secret attachments** are validated the same way, against the attached Feature's (or Secret's) declared `schema.values` / `schema.infra`. The value checked is the **effective merged result** after attachment values cascade across scopes (component, subsystem, boundary, and component-specific) — so a value introduced legally at one scope but overridden to an illegal value at a more specific scope is caught on the merged result, not the fragment. An attachment whose type declares no schema is not validated; attachment infra is validated against the attachment's own `schema.infra` (an attachment is an overlay and carries no provider union).
 
+**Per-edge connection config** is validated the same way against the socket's per-edge contract: an edge's developer-authored `values` against the socket's `valueSchema`, and an edge's operator-authored `infra` (from a Release) against the socket's `infraSchema`. A socket that declares no per-edge schema for a pillar accepts no validated config for it (omission = no contract, nothing to check). The diagnostic names the edge by consumer, socket, and alias.
+
 Emitted message:
 > Aggregate `<name>` at `.spec.components.<component>.values.<field>`: values pillar does not conform to the Component schema: `<constraint failure>`.
 > Aggregate `<name>` at `.spec.components.<component>.infra.<field>`: infra pillar does not conform to the declared infra schema: `<constraint failure>`.
 > Aggregate `<name>` at `.spec.components.<component>.features.<attachment>.values.<field>`: values pillar does not conform to the Feature schema: `<constraint failure>`.
 > Aggregate `<name>` at `.spec.components.<component>.secrets.<attachment>.values.<field>`: values pillar does not conform to the Secret schema: `<constraint failure>`.
+> Aggregate `<name>` at `.spec.components.<component>.uses.<socket>.<alias>.values.<field>`: values pillar does not conform to the socket valueSchema: `<constraint failure>`.
 
 **How to fix:** correct the offending value to satisfy the declared schema, or — if the value is legitimate — widen the declaring schema (the Component's `schema.values`/`schema.infra`, or the attached Feature's/Secret's) to declare it. Inspect a Component's declared schema with `aggrega inspect <component-type>` to see the exact types, ranges, defaults, and required fields each pillar expects.
 
@@ -266,14 +269,34 @@ Intended message (not yet emitted):
 
 **How to fix:** either declare the missing target Component in the Aggregate, or correct the target name in the `uses:` block to match an existing Component.
 
+The same dangling-target condition on a *Release*-wired edge already halts with a dedicated message — see "Release edge target does not exist" below. The Aggregate/Component-side halt above is the remaining `[pending]` case.
+
 ### `uses:` socket not declared in the target's `usesSchema`
 
-A Component or Feature instance declares a `uses:` block with a socket name that does not exist in the target catalog entity's `usesSchema`. The `usesSchema` on the catalog entity is the enabling schema — every socket in an authored `uses:` block must correspond to a `usesSchema` key.
+A Component or Feature instance declares a `uses:` block with a socket name that does not exist in the target catalog entity's `usesSchema`. The `usesSchema` on the catalog entity is the enabling schema — every socket in an authored `uses:` block must correspond to a `usesSchema` key. The same halt fires for a per-edge `uses:` entry authored on a boundary component in a **Release**: a Release may only wire or configure edges within sockets the Component's `usesSchema` declares.
 
 Emitted message:
 > unknown uses socket `<socket-name>` on `<entity-uri>`: target entity declares no such socket in its usesSchema.
 
 **How to fix:** either correct the socket name to match one of the keys the target catalog entity declares, or extend the target entity's `usesSchema` to declare the new socket (which requires editing the catalog entity, not the instance). If the catalog entity declares no `usesSchema` at all, the entity does not accept `uses:` declarations on its instances — remove the `uses:` block entirely.
+
+### Release retargets a developer-declared edge
+
+A Release per-edge `uses:` entry names a target that differs from the target the developer already wired for the same socket and alias. A Release may *configure* an edge the developer declared (set per-edge `infra`, naming the same target or omitting it) and may *wire* an edge into a declared-but-unbound socket, but it may not *retarget* an edge the developer declared — the developer owns the architecture they authored.
+
+Emitted message:
+> release edge `<consumer>`/`<socket>`/`<alias>` retargets developer-declared target `<declared-target>` to `<release-target>`.
+
+**How to fix:** drop the differing `target` from the Release `uses:` entry to configure the existing edge (per-edge `infra` only), or, if the connection genuinely belongs to a different socket, wire it through a socket the developer left unbound. To change the target itself, change it in the Aggregate, where the topology is authored.
+
+### Release edge target does not exist
+
+A Release per-edge `uses:` entry wires an edge into a declared-but-unbound socket but names a target component that is not present in the resolved topology.
+
+Emitted message:
+> release edge `<consumer>`/`<socket>`/`<alias>` targets `<target>`, which is not a component in the topology.
+
+**How to fix:** name an existing component as the target, or declare the missing component in the Aggregate. (The Aggregate/Component-side dangling case is tracked separately — see "Dangling `uses` target" above, still `[pending]`.)
 
 ### Required `uses:` socket not populated
 

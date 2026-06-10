@@ -36,7 +36,7 @@ Five practical patterns drive `environment:` authoring:
 
 Two structural guarantees protect the Aggregate as the Single Source of Truth:
 
-* **`values:` is forbidden.** To protect the Aggregate as the Single Source of Truth, the Release schema mechanically bans a `values:` block — the Operator cannot declare `values` on any Component, Feature, or Secret from a Release. Per-environment variation of Developer-facing values flows through **Parameter Hoisting**: the Developer exposes a typed `parameters.*` field in the Aggregate, the Component's `values` template references it, and the Release fulfills the parameter for its environment. See [architecture/06-data-taxonomy-and-composition.md §8 Constraint 4](../../architecture/06-data-taxonomy-and-composition.md) for the schema-level ban stated explicitly.
+* **`values:` is forbidden.** To protect the Aggregate as the Single Source of Truth, the Release schema mechanically bans a `values:` block — the Operator cannot declare `values` on any Component, Feature, or Secret from a Release. The ban extends to `uses` edges: a Release per-edge `uses` entry carries `infra` only, never `values` (developer-facing per-edge values stay in the Aggregate). Per-environment variation of Developer-facing values flows through **Parameter Hoisting**: the Developer exposes a typed `parameters.*` field in the Aggregate, the Component's `values` template references it, and the Release fulfills the parameter for its environment. See [architecture/06-data-taxonomy-and-composition.md §8 Constraint 4](../../architecture/06-data-taxonomy-and-composition.md) for the schema-level ban stated explicitly. The Release's `uses` edge surface — what it may configure and wire — is documented in [Per-edge connection configuration](#per-edge-connection-configuration) below.
 * **`extends` + `aggregate:` is rejected.** To prevent untraceable "aggregate-mutating" deployments, when a Release uses `extends`, declaring an `aggregate` pointer is rejected by the Release schema. The child release must map to the exact same Developer Intent as its parent. The `manifest`, however, becomes optional, unlocking "Late Binding" — allowing the Operator to inherit the entire physical topology but surgically swap the dependency lockfile.
 
 ## The `parameters:` block
@@ -153,6 +153,38 @@ boundaries:
 Structured values cascade with per-subkey deep merge; closer-level subkeys override parent subkeys. Per-subkey `null` opts out one subkey while sibling subkeys stand. The Release side fires only the subkeys whose binding-map pillar is `infra`; subkeys routing to `values` belong on Aggregate-side annotations. For the full structured-value teaching — cross-side composition, per-subkey type validation, the relaxed-default discipline — see [providers/well-known-annotations.md](../providers/well-known-annotations.md) §"Structured annotation values".
 
 **Well-known annotations.** Beyond ad-hoc keys, the Aggrega standard library defines a set of well-known annotations under the `aggrega.ai/` and `feature.aggrega.ai/` namespaces, grouped into placement, networking, security, and observability categories. Authors adding annotations to a Release boundary should consult [providers/well-known-annotations.md](../providers/well-known-annotations.md) for the full matrix plus per-provider consumption rules — the page documents which providers honour each well-known key and what behaviour they emit when the key is present.
+
+## Per-edge connection configuration
+
+A boundary component may carry a `uses:` block that configures or wires the topology edges within the sockets the Component's catalog `usesSchema` declares. This is the operator's per-connection surface, bounded so the developer keeps ownership of the architecture they authored:
+
+* **Configure an existing edge.** Set per-edge `infra` on an edge the developer already declared. The entry names the developer's alias and supplies `infra`; it either names the same target the developer wired or omits the target. The `infra` is validated against the socket's `infraSchema`.
+* **Wire an unbound socket.** Create an edge into a socket the Component's `usesSchema` declares but the developer left unwired, pointing at an existing component. The created edge may also carry per-edge `infra`.
+
+The surface is **create-not-retarget**: a Release may add an edge into an unbound socket, but it may not redirect an edge the developer already declared. A per-edge entry that names a *different* target than the developer's edge halts the build; an entry that names the *same* target (or omits it) configures that edge. The Release also may not declare `values` on an edge (developer-facing values stay in the Aggregate), bind a socket the `usesSchema` does not declare, or point an edge at a component that does not exist — each is a fatal halt. See [errors/fatal-halts.md](../errors/fatal-halts.md) §"When building the topology".
+
+```yaml
+spec:
+  aggregate: spatial-app
+  manifest: prod-manifest
+  boundaries:
+    eu-prod:
+      components:
+        api-server:
+          uses:
+            databases:
+              # Configure the developer-declared edge "primary": add per-edge infra.
+              # The target matches what the Aggregate wired (or is omitted) — a configure, not a retarget.
+              primary:
+                infra: { storage_class: fast-ssd }
+            caches:
+              # Wire an edge into the declared-but-unbound "caches" socket to an existing component.
+              main:
+                target: redis-prod
+                infra: { storage_class: standard }
+```
+
+The resolved per-edge `infra` flows into the *consuming* component's render context at `.context.uses.<alias>.infra.<key>`; it never appears in the target component's context, so a target's rendered output is invariant with respect to the consumers that configure edges into it.
 
 ## The `aggregates:` field — routing nested sub-modules into boundaries
 

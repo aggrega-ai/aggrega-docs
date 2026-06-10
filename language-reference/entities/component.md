@@ -331,7 +331,33 @@ Each entry — list element or map alias — becomes one edge, preserved in auth
 | `required` | bool | `false` | When `true`, the developer must wire at least one dependency into this socket. When `false`, the socket is optional. |
 | `selector` | object | — | Label-selector matching against candidate target Components. Translated to the `x-aggrega-selector:` JSON Schema extension keyword at validation time; the Static Analyzer (Step 4) enforces selector intersection. The matched candidate set is what the developer's `uses:` declaration must resolve into. |
 | `inject` | string[] | — | Allowlist of allowed inject delivery mechanisms (parallel to `secretsSchema[].inject`). `[]` (empty) means blackbox — no `inject:` block allowed on the developer's `uses:` entry; the Recipe controls delivery. `[env, file, arg]` (non-empty) means transparent — the developer may dictate which mechanism delivers the dependency's `provides` values. |
+| `valueSchema` | object | — | Optional per-edge contract for developer-authored `values` on an edge wired through this socket (authored in the Aggregate). JSON Schema 2020-12 in the same authoring forms as `schema:`. Omission means the socket declares no `values` contract. |
+| `infraSchema` | object | — | Optional per-edge contract for operator-authored `infra` on an edge wired through this socket (authored in the Release). Same authoring forms as `valueSchema`. Omission means the socket declares no `infra` contract. |
 | `description` | string | — | Human documentation, rendered by IDE and hub. |
+
+**Per-edge connection contracts — `valueSchema` and `infraSchema`.** Beyond governing *which* Components may wire into a socket, a socket may declare *what configuration each connection carries*. Two optional per-socket schemas validate connection-scoped config on every edge wired through the socket:
+
+* `valueSchema` is the contract for the developer-authored `values` block on a `uses` edge — per-connection tuning the developer expresses in the Aggregate (for example, a connection pool size or a client mode).
+* `infraSchema` is the contract for the operator-authored `infra` block on a `uses` edge — per-connection operational sizing the operator expresses in the Release.
+
+Both accept JSON Schema 2020-12 in the same content-shape forms as the `schema:` field — inline compact form, inline JSON Schema YAML, or a cross-document `$ref:` into a SchemaLibrary entry. They are **per-edge** contracts validated against each edge's config independently; they are not composed into the consuming Component's own `values` schema. A socket that omits a per-edge schema for a pillar declares no contract there, and any config authored for that pillar is unvalidated. Per-edge config is validated closed and default-aware, exactly like component `values`.
+
+```yaml
+spec:
+  usesSchema:
+    databases:
+      required: true
+      selector:
+        datastore.aggrega.ai/engine: relational
+      inject: [env]
+      valueSchema:                       # developer per-edge values, authored in the Aggregate
+        pool_size: { type: integer, minimum: 1, maximum: 100, default: 10 }
+        tls_mode:  { type: string, enum: [disable, require, verify-full], default: require }
+      infraSchema:                       # operator per-edge infra, authored in the Release
+        storage_class: { type: string }
+```
+
+A Recipe for the consuming Component reads the resolved per-edge config from the enriched topology pipe at `.context.uses.<alias>.values.<key>` and `.context.uses.<alias>.infra.<key>` — see [`vocabulary/topology-triad.md`](../vocabulary/topology-triad.md).
 
 **Schema generation from `usesSchema`.** The compiler generates a base JSON Schema 2020-12 fragment from the declared sockets and composes it with the user's `schema:` declaration — the same pattern `secretsSchema` uses. The generated schema never touches disk; it exists only in memory during the Component validation pass. The developer's `uses:` map in the Aggregate validates against the merged schema; the per-socket `selector:` evaluates against candidate Component labels at Step 4 as the cross-node type-safety check.
 
