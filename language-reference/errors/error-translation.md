@@ -38,6 +38,20 @@ The CLI renders a richer multi-line form when an error carries additional contex
 
 The `expression:` line carries the template excerpt that triggered the failure. The `active pillars:` block lists the top-level pillar keys available at the point of failure, so authors see what was queryable.
 
+## Nested context frames
+
+An error often crosses more than one surface on its way to the CLI: a load phase wraps the specific entity failure, which itself wraps a sentinel explaining the rule. Every categorized frame in such a chain renders — the outermost as the head in the shape above, each nested frame as an indented `caused by:` continuation carrying its own category tag, source pointer, and message. The innermost file-pointed frame is always visible:
+
+```text
+[CATALOG_ERROR] aggrega-catalog
+  catalog load
+  caused by: [CATALOG_ERROR] aggrega-catalog/recipe/terraform/mariadb-rds-copy/recipe.yaml
+    recipe identity "terraform/mariadb-rds:1.0.0" already declared
+    caused by: duplicate recipe identity (spec.provider + metadata.name + version) in the catalog
+```
+
+Reading top-down: the phase that failed, then the entity (with its file path) that caused it, then the rule it violated. A nested frame that adds nothing beyond its parent (same category, same source, a message the parent already contains) is deduplicated rather than repeated, and a terminal explanation renders only when the frames above it don't already carry its text.
+
 ## Multi-error chains
 
 When a single compile detects multiple independent violations (most commonly during static analysis, where every selector and `appliesTo` violation is collected before any one halts the build), the errors are joined into a single chain via Go's `errors.Join`. The CLI walks the chain and renders each sub-error independently, separated by a horizontal-rule line:
@@ -49,7 +63,7 @@ When a single compile detects multiple independent violations (most commonly dur
 ---
 
 [DEVELOPER_ERROR] aggregate.yaml:18:5
-  appliesTo on Feature "metrics" requires label "exporter=prometheus" which the target component lacks
+  feature "metrics" (type "core/metrics") appliesTo constraint not satisfied by node "api" labels {[component.aggrega.ai/type] map[component.aggrega.ai/type:worker]}
 ```
 
 The `---` separator is literal — readers and downstream tools can split on it to enumerate the joined errors. The category prefix appears on each sub-error so each violation carries its own attribution.
