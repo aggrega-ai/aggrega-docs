@@ -250,11 +250,11 @@ defs:
 spec:
   components:
     primary:
-      type: core/server/api-server:1.0.0
+      type: core/compute/api-server:1.0.0
       values:
         log_level: *default_log_level
     secondary:
-      type: core/worker/python:1.0.0
+      type: core/compute/python:1.0.0
       values:
         log_level: *default_log_level
 ```

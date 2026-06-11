@@ -58,7 +58,7 @@ When the failure forks beneath a frame — a phase that collected several indepe
 [CATALOG_ERROR]
   Step 4c (recipe resolution)
   caused by (2):
-    multiple recipes implement this type and the Manifest does not map it; pin the instance or type in the Manifest to disambiguate: component "db" (type "core/database/mariadb:1.0.0"): recipes [cloudformation/mariadb-rds:1.0.0 terraform/mariadb-rds:1.0.0] all implement it
+    multiple recipes implement this type and the Manifest does not map it; pin the instance or type in the Manifest to disambiguate: component "db" (type "core/datastore/mariadb:1.0.0"): recipes [cloudformation/mariadb-rds:1.0.0 terraform/mariadb-rds:1.0.0] all implement it
     ---
     no recipe resolved for component/feature instance; map its type in the Manifest or add a recipe implementing it: feature "metrics" (type "core/metrics:1.0.0"): no Manifest mapping and no feature recipe implements it
 ```

@@ -170,7 +170,7 @@ metadata:
   version: 1.0.0
 spec:
   provider: helm
-  implements: core/ai-gateway:1.0.0
+  implements: core/gateway/ai-gateway:1.0.0
   source:
     # Planned: provider-declared source keys, validated by the provider's Wasm plugin.
     # The built-in resolver today uses the { kind, url, version } form.

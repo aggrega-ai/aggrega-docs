@@ -62,7 +62,7 @@ spec:
 
   components:
     api:
-      type: core/server/api:1.0.0
+      type: core/compute/api:1.0.0
       values:
         db_host: "{{ .parameters.database_config.host }}"
         db_port: "{{ .parameters.database_config.port }}"
@@ -110,7 +110,7 @@ spec:
 
   components:
     api:
-      type: core/server/api:1.0.0
+      type: core/compute/api:1.0.0
       values:
         timeout: "{{ .parameters.timeout_seconds }}"
 

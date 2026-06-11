@@ -39,7 +39,7 @@ spec:
     components:
       type:
         # Component-type → Recipe URI. The Recipe URI's path segment carries the provider.
-        core/database/postgres: core/helm/postgres-bitnami:1.2.0
+        core/datastore/postgres: core/helm/postgres-bitnami:1.2.0
         core/api-server: core/helm/api-helm:0.5.0
         core/python-worker: core/helm/standard-python-worker:2.0.0
 

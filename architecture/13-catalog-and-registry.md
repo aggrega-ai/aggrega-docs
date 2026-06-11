@@ -10,7 +10,7 @@ The Aggrega compiler relies on a strictly typed, OAM-inspired registry to resolv
 
 An official `aggrega-catalog` repository (and any compliant third-party catalog) is organized to physically enforce the Separation of Concerns. The structure explicitly separates abstract interfaces from their concrete infrastructure implementations.
 
-URI segments map 1:1 to filesystem path segments. Components use a three-segment URI (`{namespace}/{category}/{name}`) with 10 human-navigable categories. Features remain flat (`{namespace}/{name}`) — only ~25 files, growing slowly. Ontology classification (`stateful-server`, `server`, etc.) lives in `metadata.labels`, NOT in directory structure. The hub web UI uses labels for filtering and search. Categories are for human filesystem navigation.
+URI segments map 1:1 to filesystem path segments. Components use a three-segment URI (`{namespace}/{category}/{name}`) where the category segment carries one of 15 cognitive categories — the same word as the component's `component.aggrega.ai/category` label (the 1:1 directory mirror, checked by the publishing linter's `category-matches-directory` rule). Features remain flat (`{namespace}/{name}`) — a small set, growing slowly. Operational ontology classification (`stateful-server`, `server`, etc.) lives in the `component.aggrega.ai/type` label, never in directory structure; cognitive capability labels (`datastore.aggrega.ai/engine`, `agent.aggrega.ai/autonomy`, …) layer behavioral subsets on top. The hub web UI uses labels for filtering and search; categories serve both filesystem navigation and the catalog's browse axis.
 
 ```text
 aggrega-catalog/
@@ -31,32 +31,36 @@ aggrega-catalog/
 │
 ├── component/                # DOMAIN 2: Abstract Interfaces
 │   │                         # URI: {namespace}/{category}/{name}
-│   │                         #   type: core/database/mariadb:1.0.0
-│   │                         #   → component/core/database/mariadb.yaml
+│   │                         #   type: core/datastore/mariadb:1.0.0
+│   │                         #   → component/core/datastore/mariadb.yaml
 │   │
 │   └── core/                 # "core" = official Aggrega standard library
-│       ├── database/         # stateful-server ontology
-│       │   ├── mariadb.yaml
-│       │   ├── postgres.yaml
-│       │   └── redis.yaml
-│       ├── model/            # AI model providers
-│       │   ├── openai.yaml
-│       │   └── openai-embedding.yaml
-│       ├── agent/            # AI agent frameworks
+│       ├── ai-agent/         # AI agent frameworks, platforms, patterns
 │       │   ├── anthropic.yaml
 │       │   └── pydantic-ai.yaml
-│       ├── tool/             # AI tools
+│       ├── ai-model/         # model providers and inference runtimes
+│       │   ├── openai.yaml
+│       │   └── openai-embedding.yaml
+│       ├── ai-tool/          # tools agents invoke
 │       │   └── browser.yaml
-│       ├── server/           # HTTP/gRPC endpoints, gateways, UIs
-│       │   ├── api-server.yaml
-│       │   ├── web-ui.yaml
-│       │   └── llm-gateway.yaml
-│       ├── worker/           # background processors
-│       │   └── python-worker.yaml
+│       ├── ai-pipeline/      # AI data/processing pipelines
+│       │   └── base.yaml
+│       ├── datastore/        # persistent datastores
+│       │   ├── ai-datastore.yaml
+│       │   ├── base.yaml
+│       │   └── mariadb.yaml
+│       ├── gateway/          # API and AI gateways
+│       │   └── ai-gateway.yaml
+│       ├── compute/          # generic compute primitives
+│       │   ├── function.yaml
+│       │   ├── server.yaml
+│       │   ├── task.yaml
+│       │   └── worker.yaml
 │       ├── messaging/        # event buses, queues
-│       ├── storage/          # object/file storage
-│       ├── compute/          # tasks, functions, serverless
-│       └── pipeline/         # data and AI pipelines
+│       └── storage/          # object/file storage
+│                             # (mesh/, network/, observability/, security/,
+│                             #  bigdata/, devtool/ are created when their
+│                             #  first entity lands)
 │
 ├── feature/                  # DOMAIN 2: Abstract Interfaces
 │   │                         # Flat: {namespace}/{name} (no categories)
@@ -116,22 +120,27 @@ aggrega-catalog/
         └── lakera-guard.wasm 
 ```
 
-**The 10 Component Categories:**
+**The 15 Component Categories** (directory name = `component.aggrega.ai/category` label value, 1:1):
 
-| Category | Contains | Ontology label(s) |
+| Category | Contains | Typical ontology label(s) |
 | --- | --- | --- |
-| `database` | Persistent datastores (relational, vector, document, graph, KV) | stateful-server |
-| `model` | AI model providers and inference runtimes | server |
-| `agent` | AI agent frameworks and patterns | worker, server |
-| `tool` | AI tools invoked by agents | ai-tool |
-| `server` | Long-running HTTP/gRPC endpoints, gateways, UIs | server |
-| `worker` | Background processors, consumers | worker |
+| `ai-agent` | AI agent frameworks, platforms, and patterns | worker, server, resource |
+| `ai-model` | Model providers and inference runtimes | server, resource |
+| `ai-tool` | Tools agents invoke | function, server, resource |
+| `ai-pipeline` | AI data/processing pipelines | worker, task |
+| `datastore` | Persistent datastores (relational, vector, document, graph, KV) | stateful-server, resource |
+| `gateway` | API and AI gateways | server |
+| `mesh` | Service meshes | server |
+| `network` | Network primitives | server, resource |
 | `messaging` | Event buses, queues, streams | messaging |
 | `storage` | Object/file storage, managed cloud resources (no compute) | resource |
-| `compute` | Tasks, functions, serverless, run-to-completion jobs | task, function |
-| `pipeline` | Data and AI pipelines | ai-pipeline |
+| `compute` | Generic compute primitives (server, worker, task, function bases) | server, worker, task, function |
+| `observability` | Telemetry, tracing, monitoring | varies |
+| `security` | Security and compliance components | varies |
+| `bigdata` | Large-scale data processing | varies |
+| `devtool` | Developer tooling | varies |
 
-Categories are chosen for how users navigate, not how the compiler classifies. Ontology classification stays in `metadata.labels`. When a component moves to its category directory, the redundant type suffix is stripped (e.g., `openai-model.yaml` → `model/openai.yaml`).
+The ontology column carries only the 7 operational primitives — cognitive vocabulary never appears on the `type` axis. The three-axis split: operational `type` (how infrastructure treats the component), cognitive `category` (what it is, mirrored by the directory), and per-role capability labels (behavioral subsets — a Postgres-with-pgvector is `category: datastore` plus `datastore.aggrega.ai/engine: vector`). AI-pure categories carry the `ai-` prefix; dual-use categories appear bare with AI flavor expressed by capability labels. Categories are chosen for how users navigate and browse, not how the compiler classifies — the compiler is blind to all of it. When a component moves to its category directory, the redundant type suffix is stripped (e.g., `openai-model.yaml` → `ai-model/openai.yaml`).
 
 ### 2. The Split Schema & Bridge Synthesis Pipeline
 
@@ -299,8 +308,8 @@ Because Recipes are strictly **1:1 with a physical execution engine** — a sing
 
 The OCI taxonomy covers all entity types. URI segments map 1:1 to filesystem paths and OCI repository names:
 
-* `hub.aggrega.ai/component/core/database/mariadb:1.0.0` — Component, namespace `core`, category `database`
-* `hub.aggrega.ai/component/core/server/api-server:1.0.0` — Component, namespace `core`, category `server`
+* `hub.aggrega.ai/component/core/datastore/mariadb:1.0.0` — Component, namespace `core`, category `database`
+* `hub.aggrega.ai/component/core/compute/api-server:1.0.0` — Component, namespace `core`, category `server`
 * `hub.aggrega.ai/feature/core/data-masking:1.0.0` — Feature, namespace `core` (flat, no categories)
 * `hub.aggrega.ai/aggregate/core/db-module:1.0.0` — Reusable Aggregate module
 * `hub.aggrega.ai/recipe/helm/mariadb-bitnami:1.0.0` — Recipe, provider `helm`
@@ -376,7 +385,7 @@ Catalog entity names follow per-entity-kind patterns documented at [`../language
 
 Per-entity-kind shapes:
 
-* **Component** — three kebab-case segments `{namespace}/{category}/{name}` declared in `metadata.name`. Example: `core/database/postgres`.
+* **Component** — three kebab-case segments `{namespace}/{category}/{name}` declared in `metadata.name`. Example: `core/datastore/postgres`.
 * **Feature** — two kebab-case segments `{namespace}/{name}` declared in `metadata.name`. Example: `core/data-masking`.
 * **Recipe** — a single kebab-case leaf in `metadata.name` (e.g., `postgres-bitnami`). The canonical reference URI `{provider}/{name}` (per §6 above) is derived at catalog load from the recipe's filesystem path under `<catalog-root>/recipe/<provider>/<name>/recipe.yaml`: the `<provider>` segment of the path and the leaf `metadata.name` combine into the two-segment canonical form. No additional namespace component appears in the canonical Recipe URI.
 * **FeatureRecipe** — single kebab-case leaf in `metadata.name` (e.g., `k8s-secret-from-parameter`), symmetric with Recipe. Canonical URI `{provider}/{name}` derived from `<catalog-root>/feature-recipe/<provider>/<name>/recipe.yaml` the same way.

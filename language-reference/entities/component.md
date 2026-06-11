@@ -76,7 +76,7 @@ The Component schema separates three pillars by ownership: `values` is filled by
 apiVersion: aggrega.ai/v1alpha1
 kind: Component
 metadata:
-  name: core/database/mariadb
+  name: core/datastore/mariadb
 spec:
   schema:
     values:
@@ -90,7 +90,7 @@ spec:
 # Aggregate fragment — the developer fills values:
 components:
   customer-db:
-    type: core/database/mariadb
+    type: core/datastore/mariadb
     values:
       database_name: customers
       charset: utf8mb4
@@ -106,7 +106,7 @@ components:
 
 The Component schema separates three pillars by ownership: `values` is filled by the Developer in the Aggregate (cognitive intent — database name, version, charset), `infra` is filled by the Operator in the Release (operational sizing — compute, storage, HA, backup), and `provides` is set by the Recipe (the public API contract — host, port, protocol). The Developer never sees `infra`; the Operator never sees `values`. Recipes consume both during Phase B rendering, mapping the abstract pillars into the concrete shape their target provider expects.
 
-Three `infra` conventions matter across every provider-agnostic Component in the standard library: an open-struct escape hatch for provider-specific knobs, an optional override for the upstream artifact version, and an intent-based vocabulary for high-availability fields. The canonical reference Component is [`core/database/mariadb`](../../../aggrega-hub/aggrega-catalog/component/core/database/mariadb.yaml) — implementable by Helm Recipes against the Bitnami chart, Terraform Recipes against AWS RDS, CloudFormation Recipes against the same RDS surface, and Compose Recipes against a local container — and its `infra` block illustrates all three patterns.
+Three `infra` conventions matter across every provider-agnostic Component in the standard library: an open-struct escape hatch for provider-specific knobs, an optional override for the upstream artifact version, and an intent-based vocabulary for high-availability fields. The canonical reference Component is [`core/datastore/mariadb`](../../../aggrega-hub/aggrega-catalog/component/core/datastore/mariadb.yaml) — implementable by Helm Recipes against the Bitnami chart, Terraform Recipes against AWS RDS, CloudFormation Recipes against the same RDS surface, and Compose Recipes against a local container — and its `infra` block illustrates all three patterns.
 
 ### `infra.overrides`
 
@@ -204,7 +204,7 @@ Mechanism vocabulary (`infra.primary.replicas`) reads naturally for one provider
 apiVersion: aggrega.ai/v1alpha1
 kind: Component
 metadata:
-  name: core/database/mariadb
+  name: core/datastore/mariadb
 spec:
   schema:
     values:
@@ -223,7 +223,7 @@ metadata:
   name: postgres-bitnami
 spec:
   provider: helm
-  implements: core/database/mariadb:1.0.0
+  implements: core/datastore/mariadb:1.0.0
   provides:
     host: "{{ .context.instance_id }}-mariadb.{{ .context.annotations.release.\"aggrega.ai/namespace\" }}.svc.cluster.local"
     port: "3306"
@@ -593,7 +593,7 @@ A specialized AI Gateway is created. The Component inherits from the base enterp
 apiVersion: aggrega.ai/v1alpha1
 kind: Component
 metadata:
-  name: core/ai-gateway
+  name: core/gateway/ai-gateway
   version: 1.0.0
   labels:
     gateway.aggrega.ai/intelligence: "semantic" # Appended to parent labels
@@ -610,7 +610,7 @@ spec:
       # the child's constraint (enum: [false]) relaxes the parent's (enum: [true]).
 ```
 
-For the Recipe that implements this `core/ai-gateway` interface against a physical Helm chart, see [entities/recipe](recipe.md) Example C (`kong-gateway`).
+For the Recipe that implements this `core/gateway/ai-gateway` interface against a physical Helm chart, see [entities/recipe](recipe.md) Example C (`kong-gateway`).
 
 ## The `assertions:` block
 

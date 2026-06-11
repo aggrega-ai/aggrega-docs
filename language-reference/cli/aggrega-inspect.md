@@ -121,7 +121,7 @@ $ aggrega inspect ContentLibrary --catalog ./catalog
 Component: ContentLibrary
   Version: 2.1.0
   Extends:
-    > core/database/postgres (1.0.0)
+    > core/datastore/postgres (1.0.0)
   Labels:
     component.aggrega.ai/type: server
     datastore.aggrega.ai/engine: relational

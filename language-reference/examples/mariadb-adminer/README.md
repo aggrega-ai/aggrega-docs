@@ -90,7 +90,7 @@ directory; the `--catalog` directory is separate.
 spec:
   components:
     db:
-      type: core/database/mariadb
+      type: core/datastore/mariadb
       values:
         database: appdb
         user: appuser
@@ -131,7 +131,7 @@ that choice lives entirely in the catalog layer the build loads.
 The MariaDB image needs a root password to start, and the application user needs
 its own. Both are attached in the database component's `secrets:` pillar — kept
 apart from application `values` — as Features labeled
-`feature.aggrega.ai/kind: secret`. The `core/database/mariadb` Component's
+`feature.aggrega.ai/kind: secret`. The `core/datastore/mariadb` Component's
 `secretsSchema` declares the two slots, and the example exercises both delivery
 models:
 
@@ -224,7 +224,7 @@ Open <http://localhost:8080> and log in with Server `db-default`, username
 
 ## Target 3 — Kubernetes (managed Bitnami chart)
 
-The third layer implements the *same* `core/database/mariadb` Component
+The third layer implements the *same* `core/datastore/mariadb` Component
 against the upstream **Bitnami MariaDB Helm chart** instead of synthesising
 manifests. The Recipe sources the chart by OCI reference and maps the
 Component's values onto the chart's value schema:
@@ -232,7 +232,7 @@ Component's values onto the chart's value schema:
 ```yaml
 spec:
   provider: helm
-  implements: core/database/mariadb
+  implements: core/datastore/mariadb
   source:
     kind: helm-oci-chart
     url: oci://registry-1.docker.io/bitnamicharts/mariadb
@@ -277,7 +277,7 @@ Recipe sources a small local chart:
 ```yaml
 spec:
   provider: helm-chart
-  implements: core/database/mariadb
+  implements: core/datastore/mariadb
   source: ./charts/mariadb          # copied verbatim as the sub-chart
   valuesMapping: |
     { "database": "{{ .values.database }}",
@@ -345,7 +345,7 @@ output is a chart to `helm install` or vendor — not a set of applied manifests
 ## How a target is selected
 
 Recipe selection is by **component type**. Each catalog layer contains exactly
-one Recipe per type, so loading `catalog-compose` binds `core/database/mariadb`
+one Recipe per type, so loading `catalog-compose` binds `core/datastore/mariadb`
 to the compose Recipe, while loading `catalog-helm-synth` binds it to the
 Kubernetes one. The provider engine that renders a node is the `spec.provider`
 of whichever Recipe was bound. Swapping targets is swapping the `--catalog`

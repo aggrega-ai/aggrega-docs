@@ -17,7 +17,7 @@ metadata:
       email: e@example.com
 spec:
   provider: helm
-  implements: core/server/api:1.0.0
+  implements: core/compute/api:1.0.0
 
   locals:
     port: "{{ optional .values `port` 8080 }}"
@@ -80,7 +80,7 @@ metadata:
   version: 1.0.0
 spec:
   provider: helm
-  implements: core/server/api:1.0.0
+  implements: core/compute/api:1.0.0
 
   locals:
     app_cm: "{{ .context.instance_id }}-app-config"
@@ -186,7 +186,7 @@ metadata:
   version: 1.0.0
 spec:
   provider: helm
-  implements: core/database/mariadb:1.0.0
+  implements: core/datastore/mariadb:1.0.0
 
   locals:
     monitor_name: "{{ .context.instance_id }}-monitor"
@@ -238,7 +238,7 @@ Pattern: **synthesized with artifacts**, using `$import:` on the `workload:` fie
 # recipe.yaml
 spec:
   provider: helm
-  implements: core/server/api:1.0.0
+  implements: core/compute/api:1.0.0
   workload:
     $import: ./workload.yaml
   artifacts:

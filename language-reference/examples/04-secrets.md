@@ -159,7 +159,7 @@ The `secretsSchema` declares the credential slot as required and blackbox (`inje
 apiVersion: aggrega.ai/v1alpha1
 kind: Component
 metadata:
-  name: core/database/redis
+  name: core/datastore/redis
   version: 1.0.0
   labels:
     component.aggrega.ai/type: stateful-server
