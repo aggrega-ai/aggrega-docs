@@ -90,6 +90,18 @@ To enforce the Separation of Concerns, Developers are **strictly forbidden** fro
 * **Who consumes it?** DevOps (Domain 4).
 * **Compiler Use Case:** DevOps explicitly routes GPU-labeled components into physical hardware pool boundaries in the `Release` via the `components: {}` map. The Developer simply asks for the cognitive model in their `Aggregate`, and DevOps places it into the expensive GPU cluster boundary, entirely preserving the Separation of Concerns. The `policy-validator.wasm` can additionally enforce that any component carrying this label is never placed in a boundary lacking GPU infrastructure.
 
+**9. `datastore.aggrega.ai/engine`**
+
+* **Who writes it?** The Platform Architect, on datastore-category components (statically, on a flavored specialization, or injected by `mutator.wasm` when developer `values` promote the role). The value set is stabilizing against the populated catalog: `relational`, `document`, `kv`, `vector`, `graph`, `episodic`, `semantic-memory`.
+* **Who consumes it?** The Static Analyzer (via selector strings) and the Policy Engine.
+* **Compiler Use Case:** Selectors target storage semantics rather than products — an agent's knowledge-base socket selects `datastore.aggrega.ai/engine in (vector, episodic, semantic-memory)` and matches any compliant store, while a policy engine can refuse SQL payload routing to a vector engine. AI-relevance across dual-use datastores is derived from this label, never stored as a separate boolean.
+
+**10. `pipeline.aggrega.ai/mode`**
+
+* **Who writes it?** The Platform Architect, on pipeline-category components. The value set is stabilizing against the populated catalog: `streaming`, `batch`, `multimodal-rag`, `document-chunking`.
+* **Who consumes it?** The Policy Engine and Wasm Rendering Plugins.
+* **Compiler Use Case:** Lets policies and renderers distinguish continuous stream consumers from run-to-completion batches — a streaming pipeline routes into long-running compute with backpressure configuration, while a batch pipeline gets job semantics with completion deadlines.
+
 ### 2. Port Abstraction (The Zero-Port Convention)
 
 The open-source Aggrega standard-library catalog recommends omitting physical port declarations from Components' cognitive layer, routing port selection through the Ops Recipe instead. Authors following this recommendation avoid port collisions across deployment targets, prevent backdoor APIs that bypass the Injection
@@ -123,7 +135,7 @@ The Intermediate Representation (IR) graph and gateway components are uniquely t
 
 ### 5. Asynchronous Execution & HITL Infrastructure
 
-Aggrega treats human-interactive frameworks (like AutoGen and LangGraph) as blackbox worker nodes. To support "sleeping" agents waiting for human input without losing state, **Platform Architects can author Component `schema:` declarations** that strictly enforce the explicit binding of `ai-datastore` components to these agents. Furthermore, for human-to-agent feedback loops (e.g., Slack integrations), an enterprise's `policy-validator.wasm` socket can be configured to reject the architecture unless an explicitly declared Gateway component is attached, guaranteeing secure ingress boundaries for callback webhooks.
+Aggrega treats human-interactive frameworks (like AutoGen and LangGraph) as blackbox worker nodes. To support "sleeping" agents waiting for human input without losing state, **Platform Architects can author Component `schema:` declarations** that strictly enforce the explicit binding of datastore-category components (typically selected by an AI-memory engine label such as `datastore.aggrega.ai/engine: episodic`) to these agents. Furthermore, for human-to-agent feedback loops (e.g., Slack integrations), an enterprise's `policy-validator.wasm` socket can be configured to reject the architecture unless an explicitly declared Gateway component is attached, guaranteeing secure ingress boundaries for callback webhooks.
 
 ### 6. Topological Security Validation & Runtime Enforcement
 

@@ -37,7 +37,7 @@ spec:
       syncWave: 2
       components:
         web-server: {}
-        ai-agent: {}
+        support-agent: {}
 ```
 
 **Wave value semantics:**
