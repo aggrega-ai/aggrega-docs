@@ -52,6 +52,19 @@ An error often crosses more than one surface on its way to the CLI: a load phase
 
 Reading top-down: the phase that failed, then the entity (with its file path) that caused it, then the rule it violated. A nested frame that adds nothing beyond its parent (same category, same source, a message the parent already contains) is deduplicated rather than repeated, and a terminal explanation renders only when the frames above it don't already carry its text.
 
+When the failure forks beneath a frame — a phase that collected several independent violations before halting — the continuation carries a count, and every collected failure renders beneath it, separated by the same `---` rule the multi-error chains below use:
+
+```text
+[CATALOG_ERROR]
+  Step 4c (recipe resolution)
+  caused by (2):
+    multiple recipes implement this type and the Manifest does not map it; pin the instance or type in the Manifest to disambiguate: component "db" (type "core/database/mariadb:1.0.0"): recipes [cloudformation/mariadb-rds:1.0.0 terraform/mariadb-rds:1.0.0] all implement it
+    ---
+    no recipe resolved for component/feature instance; map its type in the Manifest or add a recipe implementing it: feature "metrics" (type "core/metrics:1.0.0"): no Manifest mapping and no feature recipe implements it
+```
+
+One separator grammar applies throughout: `---` between sibling failures, `caused by:` between nested context frames.
+
 ## Multi-error chains
 
 When a single compile detects multiple independent violations (most commonly during static analysis, where every selector and `appliesTo` violation is collected before any one halts the build), the errors are joined into a single chain via Go's `errors.Join`. The CLI walks the chain and renders each sub-error independently, separated by a horizontal-rule line:
