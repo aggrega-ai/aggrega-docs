@@ -1,0 +1,56 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: aggregate
+  version: "1.0.0"
+  description: >
+    A MariaDB database with an Adminer web UI in front of it, assembled
+    entirely from standard-library catalog entities. This file is the
+    only thing a Developer authors besides the Release: every Component,
+    Feature, and Recipe referenced here ships in the catalog.
+spec:
+  components:
+    # ── Database ────────────────────────────────────────────────────────
+    # `type:` names a catalog Component. The Developer picks WHAT to run;
+    # the catalog already knows HOW to run it on each target.
+    db:
+      type: core/datastore/mariadb
+      # values — the Developer-intent pillar. Only the fields the
+      # Component's schema exposes; everything omitted takes the
+      # schema's defaults (server version, charset, collation...).
+      values:
+        database: appdb
+      # Credentials live in the secrets: pillar, never in values. The
+      # Component's secretsSchema requires a root_password slot; the
+      # core/secret-value Feature fills it. This slot is BLACK-BOX
+      # (secretsSchema declares inject: []): the FeatureRecipe the
+      # Manifest selects controls how the value is delivered, and the
+      # Developer cannot dictate delivery.
+      secrets:
+        root_password:
+          type: core/secret-value
+          values:
+            key: MARIADB_ROOT_PASSWORD
+            source: dev-root-pw-change-me
+
+    # ── Web UI ──────────────────────────────────────────────────────────
+    web:
+      type: core/devtool/adminer
+      values:
+        design: pepa-linha-dark
+      # The String Pipe. Adminer's usesSchema declares a `databases`
+      # socket accepting any component labeled
+      # component.aggrega.ai/type=stateful-server. The edge below wires
+      # the db instance into that socket and injects the database
+      # Recipe's `provides.host` string into the env var
+      # ADMINER_DEFAULT_SERVER. The compiler does not interpret the
+      # string — it routes whatever the database Recipe emits (here, a
+      # compose service name).
+      uses:
+        databases:
+          db:
+            target: db
+            inject:
+              env:
+                - in: ADMINER_DEFAULT_SERVER
+                  from: host

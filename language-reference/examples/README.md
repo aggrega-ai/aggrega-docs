@@ -1,9 +1,10 @@
 # Runnable Examples
 
 Complete, forkable workspaces you can compile with the `aggrega` CLI. Each is a
-self-contained directory — a Developer-authored `Aggregate`, one or more
-`Release`/`Manifest` pairs, and a local `catalog/` of Recipes — that builds
-offline with no external setup:
+self-contained directory — a Developer-authored `Aggregate` and one or more
+`Release`/`Manifest` pairs — that builds offline with no external setup. The
+catalog layer is either local to the workspace (a `catalog/` of Recipes the
+example authors) or the standard-library catalog the workspace references:
 
 ```bash
 aggrega build --release <release>.yaml --catalog <catalog-dir>
@@ -23,8 +24,14 @@ The smallest surface: an Aggregate + Release that reference existing catalog
 entities, authoring no Components, Features, or Recipes of their own — the
 developer surface and the String Pipe with zero platform authoring.
 
-*Planned — a catalog-only example ships alongside the standard-library catalog
-it references.*
+- **[catalog-only](catalog-only/)** — a MariaDB database with an Adminer web
+  UI, assembled entirely from standard-library entities and compiled to
+  Docker Compose. Three short YAML files teach the developer surface: catalog
+  references by `type:`, schema defaults, the secrets pillar, the String Pipe
+  through a `uses` socket, Release `infra:` fulfillment, and provider-qualified
+  Recipe routing in the Manifest. Builds against the standard-library catalog
+  it references; the same stack reappears in the Authoring tier below, built
+  from scratch.
 
 ## Authoring
 

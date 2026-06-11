@@ -1,0 +1,27 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: manifest
+  version: "1.0.0"
+  description: >
+    Ops mapping for the Docker Compose target. Each component type and
+    secret Feature is routed to the standard-library Recipe that
+    implements it on this target.
+spec:
+  mappings:
+    components:
+      type:
+        # Recipe references are provider-qualified (provider/name:version)
+        # because the standard-library catalog ships multiple Recipes
+        # implementing core/datastore/mariadb — one per provider (compose,
+        # helm, terraform, cloudformation). The Operator's mapping is what
+        # disambiguates the target: a bare `mariadb:1.0.0` would match
+        # Recipes under four providers and the build would halt loudly
+        # rather than silently pick one.
+        core/datastore/mariadb:1.0.0: compose/mariadb:1.0.0
+        core/devtool/adminer:1.0.0: compose/adminer:1.0.0
+    features:
+      type:
+        # The secret Feature routes the same way: dotenv-secret maps the
+        # secret to a .env entry that Docker Compose resolves at runtime.
+        core/secret-value:1.0.0: compose/dotenv-secret:1.0.0
