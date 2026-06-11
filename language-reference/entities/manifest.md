@@ -68,6 +68,15 @@ A Recipe URI in the Manifest may carry the version in any of three forms:
 
 Subsequent builds use the lockfile-pinned version regardless of the user-typed form. Re-resolving to a newer version requires explicit user action (`aggrega catalog upgrade <URI>` or similar) — the lockfile is the source of truth for builds; the user-typed form is how the user expresses the version constraint at authoring time.
 
+### Provider-qualified references
+
+Recipe identity in the catalog is provider-scoped: two providers may each ship a recipe of the same `metadata.name` and version (the catalog tree places them at `recipe/{provider}/{name}/`, and the registry identity is `recipe/{provider}/{name}:{version}`). A Manifest mapping value names the recipe at either precision:
+
+* **Bare** — `mariadb-rds:1.0.0`. Resolves when exactly one provider ships the name; the common case for single-provider catalogs.
+* **Provider-qualified** — `terraform/mariadb-rds:1.0.0`. The segment before the first `/` names the provider (`spec.provider`). Required when more than one provider ships the same recipe name: a bare reference that matches recipes under two providers is ambiguous and halts loudly at resolution rather than silently picking one.
+
+The version-segment forms above apply to both shapes.
+
 ### Completeness check
 
 After all mappings resolve, the compiler verifies that every component and feature instance (including credential Features attached via the Aggregate's `secrets:` block) in the developer's Aggregate has a resolved Recipe or FeatureRecipe. Unmapped entities cause a fatal halt with an explicit diagnostic listing every missing entity and suggesting which `components.type` or `features.type` key to add to close the gap.
