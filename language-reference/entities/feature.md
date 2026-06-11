@@ -28,22 +28,21 @@ Features declare:
 * `usesSchema` (optional): Declares the topological sockets the Feature can consume (e.g., a credential Feature's `path` / `key` socket targeting a vault). See [architecture/13-catalog-and-registry.md §2](../../architecture/13-catalog-and-registry.md) for the Split Schema mechanism.
 * `schema`: Validates the Feature's `values` block (the cognitive intent the Developer configures on each Feature attachment in the Aggregate — values are the Developer's domain; the Release schema bans `values:` on Feature attachments). Accepts JSON Schema 2020-12 expressed in the compact-form YAML shorthand (the default; see [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md)) or in full JSON Schema YAML, with cross-document `$ref:` to SchemaLibrary entries for shared shapes (see [`vocabulary/cross-document-ref.md`](../vocabulary/cross-document-ref.md)).
 * `secretsSchema` (optional): Declares credential slots the Feature needs for its own operation (e.g., a Datadog sidecar Feature's API key slot). See [architecture/08-credential-model.md §8](../../architecture/08-credential-model.md) for the Feature-owned secrets pattern.
-* `appliesTo` / `appliesToExpressions` / `appliesToAnyOf`: Label selectors controlling which Components the Feature can attach to. Evaluated by the compiler's native label-matching engine during the static analysis stage. See [Label-Based Attachment](#label-based-attachment) below and [architecture/13-catalog-and-registry.md §2 "Kubernetes-Style Selectors"](../../architecture/13-catalog-and-registry.md) for the selector syntax reference.
+* `appliesTo` / `appliesToAnyOf`: Label selectors controlling which Components the Feature can attach to. Evaluated by the compiler's native label-matching engine during the static analysis stage. See [Label-Based Attachment](#label-based-attachment) below and [architecture/13-catalog-and-registry.md §2 "Kubernetes-Style Selectors"](../../architecture/13-catalog-and-registry.md) for the selector syntax reference.
 * `interoperability` (optional): A nested block grouping operational safety mechanisms — `conflictsWith` (array of Feature type URIs that cannot attach to the same component simultaneously) and `componentRefPath` (JSONPath telling the renderer where to inject the resolved target component's name). See [The `interoperability` Block](#the-interoperability-block) below for the full teaching.
 
 The structural rendering of a Feature is bound to its corresponding [FeatureRecipe](featurerecipe.md), which maps the Feature interface to a concrete infrastructure implementation.
 
 ## Label-Based Attachment
 
-The three applies-selectors on the Feature schema control which Components the Feature attaches to, evaluated by the compiler's native label-matching engine during the static analysis stage:
+The two applies-selectors on the Feature schema control which Components the Feature attaches to, evaluated by the compiler's native label-matching engine during the static analysis stage:
 
-* **`appliesTo`** — simple key-value equality map. The most concise form; a Feature declaring `appliesTo: { "datastore.aggrega.ai/engine": "vector" }` attaches only to Components labeled with that exact key-value pair.
-* **`appliesToExpressions`** — Kubernetes-style expression list with richer operators: `In`, `NotIn`, `Exists`, `DoesNotExist`. Each entry carries `{ key, operator, values? }`; multiple expressions AND together. A Feature can apply to `component.aggrega.ai/type In [server, worker]` AND `compliance.aggrega.ai/data-class NotIn [restricted]`, expressing "any server or worker that does not hold restricted data" in a single selector.
-* **`appliesToAnyOf`** — OR-logic composition. A list of selector blocks where any single block matching is sufficient. Used when a Feature fits multiple unrelated component shapes — for example, an observability Feature that applies to either `{ component.aggrega.ai/type: worker }` OR `{ component.aggrega.ai/type: task }` without forcing the two into a single expression list.
+* **`appliesTo`** — a Kubernetes-style label-selector string; the AND-composition surface. Comma-separated requirements all must hold, with the full operator vocabulary: `key=value`, `key!=value`, `key in (v1, v2)`, `key notin (v1, v2)`, bare `key` (label present), `!key` (label absent). A Feature declaring `appliesTo: "datastore.aggrega.ai/engine=vector"` attaches only to Components labeled with that exact key-value pair; `appliesTo: "component.aggrega.ai/type in (server, worker), compliance.aggrega.ai/data-class notin (restricted)"` expresses "any server or worker that does not hold restricted data" in a single selector string.
+* **`appliesToAnyOf`** — the OR-composition surface. A list of selector items where any single item matching is sufficient. Each item is either a string-form selector (same grammar as `appliesTo`; requirements inside the string AND together) or a flat key-value map for equality-only matching. Used when a Feature fits multiple unrelated component shapes — for example, an observability Feature that applies to either `{ component.aggrega.ai/type: worker }` OR `{ component.aggrega.ai/type: task }` without forcing the two into a single selector string.
 
-Without the expression and any-of forms, Architects would need to duplicate the same Feature YAML for every semantic combination the selector should cover. The three forms compose: a Feature may declare any combination of them, and results AND at the selector-block level within each form and across forms.
+Without the any-of form, Architects would need to duplicate the same Feature YAML for every unrelated component shape the Feature fits. The two forms compose: a Feature may declare both, and the results AND across the forms — the `appliesTo` string must hold and at least one `appliesToAnyOf` item must match. An omitted or empty selector declares no constraint and matches every label set.
 
-See [architecture/13-catalog-and-registry.md §2 "Kubernetes-Style Selectors"](../../architecture/13-catalog-and-registry.md) for the selector-syntax reference and the full `In` / `NotIn` / `Exists` / `DoesNotExist` operator semantics.
+See [architecture/13-catalog-and-registry.md §2 "Kubernetes-Style Selectors"](../../architecture/13-catalog-and-registry.md) for the selector-syntax reference — the grammar a Feature selector accepts is the same grammar `usesSchema` socket selectors accept, the string form Kubernetes users know from `kubectl get -l`.
 
 ## The `interoperability` Block
 
@@ -62,8 +61,7 @@ metadata:
   name: core/autoscaler
   version: 1.0.0
 spec:
-  appliesTo:
-    component.aggrega.ai/type: server
+  appliesTo: "component.aggrega.ai/type=server"
   schema:
     values:
       metric_target: { type: string, enum: [cpu, memory, custom], required: true }
@@ -80,7 +78,7 @@ This Feature attaches only to `server`-typed Components, declares incompatibilit
 
 ## Inheritance via `extends`
 
-A Feature may declare `spec.extends: <feature-uri>` pointing to a base Feature whose authoring surface it inherits. The compiler walks the parent chain at catalog load, validates that the chain is acyclic, then merges parent specs into the child to produce a single resolved Feature. The child's authored fields take precedence on key collision; the parent's `metadata.labels`, `appliesTo` / `appliesToExpressions` / `appliesToAnyOf` selectors, `interoperability` block, `usesSchema`, `secretsSchema`, and the JSON Schema 2020-12 declarations on `schema` are auto-merged downward.
+A Feature may declare `spec.extends: <feature-uri>` pointing to a base Feature whose authoring surface it inherits. The compiler walks the parent chain at catalog load, validates that the chain is acyclic, then merges parent specs into the child to produce a single resolved Feature. The child's authored fields take precedence on key collision; the parent's `metadata.labels`, `appliesTo` / `appliesToAnyOf` selectors, `interoperability` block, `usesSchema`, `secretsSchema`, and the JSON Schema 2020-12 declarations on `schema` are auto-merged downward.
 
 ```yaml
 # Base Feature — generic message queue intent
@@ -89,7 +87,7 @@ kind: Feature
 metadata:
   name: core/queue
 spec:
-  appliesTo: { component.aggrega.ai/type: worker }
+  appliesTo: "component.aggrega.ai/type=worker"
   schema:
     values:
       qos: { type: string, enum: [at-most-once, at-least-once, exactly-once], required: true }

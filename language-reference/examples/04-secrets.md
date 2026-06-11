@@ -274,10 +274,7 @@ spec:
       required: true
       inject: []
       description: Lakera Guard proxy API key.
-  appliesToExpressions:
-    - key: "component.aggrega.ai/type"
-      operator: In
-      values: ["server", "worker"]
+  appliesTo: "component.aggrega.ai/type in (server, worker)"
   schema:
     values:
       action: { type: string, enum: [redact, block], default: redact }

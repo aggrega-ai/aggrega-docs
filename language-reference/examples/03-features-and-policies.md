@@ -5,7 +5,7 @@
 Features are modular operational behaviors attached to Components. The developer requests *what* they want (data masking). Ops decides *how* to implement it (a Lakera Guard sidecar via a Wasm pipeline).
 
 **1. Platform Catalog: The Feature Interface**
-The Feature uses `appliesToExpressions` to restrict which Components can receive it. The `schema:` block defines the developer-facing configuration surface.
+The Feature uses an `appliesTo` label selector to restrict which Components can receive it. The `schema:` block defines the developer-facing configuration surface.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -14,10 +14,7 @@ metadata:
   name: core/data-masking
   version: 1.0.0
 spec:
-  appliesToExpressions:
-    - key: "component.aggrega.ai/type"
-      operator: In
-      values: ["server", "worker"]
+  appliesTo: "component.aggrega.ai/type in (server, worker)"
   schema:
     values:
       action: { type: string, enum: [redact, tokenize, block], default: redact }
@@ -174,9 +171,7 @@ metadata:
   name: core/autonomy-guardrail
   version: 1.0.0
 spec:
-  appliesToExpressions:
-    - key: "agent.aggrega.ai/autonomy"
-      operator: Exists                        # Matches any component with this label
+  appliesTo: "agent.aggrega.ai/autonomy"      # Bare key: matches any component with this label
   interoperability:
     conflictsWith: ["core/full-auto-mode"]    # Cannot coexist on same component
   schema:
@@ -194,12 +189,8 @@ metadata:
   name: core/global-pii-masking
   version: 1.0.0
 spec:
-  appliesToExpressions:
-    - key: "component.aggrega.ai/type"
-      operator: In
-      values: ["server", "worker"]
-    - key: "model.aggrega.ai/capability"
-      operator: DoesNotExist                  # Exclude local generative models
+  # !key excludes components carrying the label (here: local generative models)
+  appliesTo: "component.aggrega.ai/type in (server, worker), !model.aggrega.ai/capability"
   schema:
     values:
       strict_mode: { type: boolean, default: true }
@@ -240,10 +231,7 @@ metadata:
   name: core/human-approval-gate
   version: 1.0.0
 spec:
-  appliesToExpressions:
-    - key: "tool.aggrega.ai/impact"
-      operator: In
-      values: ["mutating"]
+  appliesTo: "tool.aggrega.ai/impact=mutating"
   schema:
     values:
       channel: { type: string, required: true }
@@ -278,7 +266,7 @@ spec:
       values: {}
 ```
 
-**The `tools/smtp-sender` Component** must carry the label `tool.aggrega.ai/impact: "mutating"` for the Feature's `appliesToExpressions` to validate.
+**The `tools/smtp-sender` Component** must carry the label `tool.aggrega.ai/impact: "mutating"` for the Feature's `appliesTo` selector to validate.
 
 ---
 

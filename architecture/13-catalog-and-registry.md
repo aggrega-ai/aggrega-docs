@@ -192,11 +192,11 @@ uses:
 ```
 
 **Step 3: Composition**
-The compiler composes the synthesized fragment with the user-authored `schema:` to produce the unified validation schema. The Static Analyzer (Step 4) reads `x-aggrega-selector:` from the synthesized fragment + `appliesTo` / `appliesToExpressions` / `appliesToAnyOf` from the Feature entities, and evaluates label matching against each target's `metadata.labels` to validate cross-node type safety.
+The compiler composes the synthesized fragment with the user-authored `schema:` to produce the unified validation schema. The Static Analyzer (Step 4) reads `x-aggrega-selector:` from the synthesized fragment + `appliesTo` / `appliesToAnyOf` from the Feature entities, and evaluates label matching against each target's `metadata.labels` to validate cross-node type safety.
 
 ### Kubernetes-Style Selectors in usesSchema
 
-The Go compiler's native label-matching engine evaluates selector strings using standard Kubernetes-style selection semantics (`AND` via comma, `OR` via `in()`, `NOT` via `!=`/`notin()`). This same engine also evaluates the structured selectors on Feature catalog entities (`appliesTo`, `appliesToExpressions`, `appliesToAnyOf`). The selector layer is strictly the topology gate — the per-pillar `schema:` declarations validate `values`, `infra`, and `provides` content independently. After the Go compiler draws the topological edges in Step 2, the Static Analyzer (Step 4) extracts the `selector` strings from the synthesized JSON Schema fragment's `x-aggrega-selector:` annotation and evaluates them against the target node's Catalog `labels` to validate cross-node type safety.
+The Go compiler's native label-matching engine evaluates selector strings using standard Kubernetes-style selection semantics (`AND` via comma, `OR` via `in()`, `NOT` via `!=`/`notin()`). This same engine — and the same selector-string grammar — also evaluates the Feature attachment selectors (`appliesTo`, and each item of `appliesToAnyOf`). The selector layer is strictly the topology gate — the per-pillar `schema:` declarations validate `values`, `infra`, and `provides` content independently. After the Go compiler draws the topological edges in Step 2, the Static Analyzer (Step 4) extracts the `selector` strings from the synthesized JSON Schema fragment's `x-aggrega-selector:` annotation and evaluates them against the target node's Catalog `labels` to validate cross-node type safety.
 
 ```yaml
 usesSchema:
