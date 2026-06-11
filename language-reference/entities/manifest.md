@@ -77,6 +77,32 @@ Recipe identity in the catalog is provider-scoped: two providers may each ship a
 
 The version-segment forms above apply to both shapes.
 
+### Registry-published entities in mappings
+
+An entity consumed from a registry rather than a local catalog is
+addressed by its full host-qualified URI — the registry host followed by
+the entity-kind path: `<registry>/component/<name>:<version>` for a
+Component type, and the matching form for any other published kind. The
+host-qualified URI is valid anywhere the entity is referenced: as a
+component `type:` in the Aggregate, as the Manifest mapping key for that
+type, and as a mapping value. At resolution time the three-tier cascade
+finds no local or cached copy, pulls the entity from the named registry,
+caches it, and pins the resolved version and content digest in the
+lockfile; subsequent builds consume the cache without network access.
+
+```yaml
+# Aggregate fragment — a registry-published Component as the type:
+components:
+  db:
+    type: hub.aggrega.ai/component/core/datastore/mariadb:1.0.0
+```
+
+A bare, host-less reference resolves against the workspace's
+`default_registry` only for the entity kinds with name-to-location
+binding (libraries and Aggregates); component-type references are either
+local catalog names or full host-qualified URIs — the resolver never
+guesses a host for them.
+
 ### Completeness check
 
 After all mappings resolve, the compiler verifies that every component and feature instance (including credential Features attached via the Aggregate's `secrets:` block) in the developer's Aggregate has a resolved Recipe or FeatureRecipe. Unmapped entities cause a fatal halt with an explicit diagnostic listing every missing entity and suggesting which `components.type` or `features.type` key to add to close the gap.

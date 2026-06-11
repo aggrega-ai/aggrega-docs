@@ -178,7 +178,7 @@ When an Aggregate-side or Release-side annotation matches a binding, the compile
 
 ```yaml
 spec:
-  appliesTo: { component.aggrega.ai/type: server }
+  appliesTo: "component.aggrega.ai/type=server"
   assertions: |
     {{- if and (eq .values.mode "active-active") (lt .values.replicas 2) -}}
       {{- fail "mode=active-active requires replicas >= 2" -}}

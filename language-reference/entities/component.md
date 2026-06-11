@@ -15,7 +15,7 @@ These labels describe universal behaviors, allowing policy engines and generated
 | :--- | :--- | :--- |
 | `api.aggrega.ai/protocol` | `http`, `grpc`, `tcp`, `udp` | Allows Ops rendering plugins (like an Istio recipe) to know if they should configure HTTP termination or just pass raw TCP packets. |
 | `tool.aggrega.ai/impact` | `read-only`, `mutating` | Allows policy engines to evaluate Least-Privilege AuthZ. Mutating tools can automatically trigger policies that require strict approval-gate sidecars to be attached. |
-| `datastore.aggrega.ai/engine` | `relational`, `vector`, `blob` | Allows policy engines to enforce cross-node type-safety (e.g., preventing an agent from attempting to send SQL payloads to a Vector DB). |
+| `datastore.aggrega.ai/engine` | `relational`, `document`, `kv`, `vector`, `graph`, `episodic`, `semantic-memory` (value set stabilizing against the populated catalog) | Allows policy engines to enforce cross-node type-safety (e.g., preventing an agent from attempting to send SQL payloads to a Vector DB). |
 | `execution.aggrega.ai/pattern` | `sync`, `async`, `autonomous-loop` | Allows policies to distinguish between a standard background worker and a runaway AI agent, mandating strict Time-To-Live (TTL) timeouts for autonomous loops. |
 | `gateway.aggrega.ai/intelligence` | `semantic`, `l4-mesh` | Dictates what features a router can physically support (e.g., preventing token-budget features on a standard TCP mesh). |
 
@@ -272,23 +272,20 @@ A Component may declare topological sockets through a `usesSchema:` block — a 
 apiVersion: aggrega.ai/v1alpha1
 kind: Component
 metadata:
-  name: core/ai-agent
+  name: core/ai-agent/orchestrator
 spec:
   usesSchema:
     primary_datastore:
       required: true
-      selector:
-        datastore.aggrega.ai/engine: vector
+      selector: "datastore.aggrega.ai/engine=vector"
       inject: [env]
     cache:
       required: false
-      selector:
-        datastore.aggrega.ai/engine: cache
+      selector: "datastore.aggrega.ai/engine=kv"
       inject: [env, file]
     log_destination:
       required: false
-      selector:
-        component.aggrega.ai/type: sink
+      selector: "component.aggrega.ai/type=messaging"
       inject: []
 ```
 
@@ -296,7 +293,7 @@ spec:
 # Aggregate fragment — developer wires the sockets:
 components:
   agent:
-    type: core/ai-agent
+    type: core/ai-agent/orchestrator
     uses:
       primary_datastore: { target: vector-db-instance }
       log_destination:   { target: audit-sink }
@@ -347,8 +344,7 @@ spec:
   usesSchema:
     databases:
       required: true
-      selector:
-        datastore.aggrega.ai/engine: relational
+      selector: "datastore.aggrega.ai/engine=relational"
       inject: [env]
       valueSchema:                       # developer per-edge values, authored in the Aggregate
         pool_size: { type: integer, minimum: 1, maximum: 100, default: 10 }
@@ -361,7 +357,7 @@ A Recipe for the consuming Component reads the resolved per-edge config from the
 
 **Schema generation from `usesSchema`.** The compiler generates a base JSON Schema 2020-12 fragment from the declared sockets and composes it with the user's `schema:` declaration — the same pattern `secretsSchema` uses. The generated schema never touches disk; it exists only in memory during the Component validation pass. The developer's `uses:` map in the Aggregate validates against the merged schema; the per-socket `selector:` evaluates against candidate Component labels at Step 4 as the cross-node type-safety check.
 
-**Selector semantics — the Split Schema mechanism.** `usesSchema[].selector:` is what makes Aggrega's topology more than untyped string-passing. A socket declaring `selector: { datastore.aggrega.ai/engine: vector }` only accepts wiring to Components labeled with the matching key-value pair; an agent attempting to wire its `primary_datastore` socket to a `relational` Component fails the Static Analyzer with a clear selector-violation diagnostic. The selector vocabulary supports key-value equality, expression-list operators (`In`, `NotIn`, `Exists`, `DoesNotExist`), and any-of composition — see [architecture/13-catalog-and-registry.md §2 "Kubernetes-Style Selectors"](../../architecture/13-catalog-and-registry.md) for the full operator semantics.
+**Selector semantics — the Split Schema mechanism.** `usesSchema[].selector:` is what makes Aggrega's topology more than untyped string-passing. A socket declaring `selector: "datastore.aggrega.ai/engine=vector"` only accepts wiring to Components labeled with the matching key-value pair; an agent attempting to wire its `primary_datastore` socket to a `relational` Component fails the Static Analyzer with a clear selector-violation diagnostic. The selector is a Kubernetes-style label-selector string — comma-AND requirements over `=`, `!=`, `in (...)`, `notin (...)`, bare-key, and `!key` forms — the same grammar Feature `appliesTo` uses; see [vocabulary/modifier-system.md](../vocabulary/modifier-system.md) for the grammar and [architecture/13-catalog-and-registry.md §2 "Kubernetes-Style Selectors"](../../architecture/13-catalog-and-registry.md) for the engine semantics.
 
 **The `usesSchema` vs `secretsSchema` relationship.** Both are declarative tables; both auto-generate JSON Schema bases that compose with the user's `schema:`; both carry an `inject:` allowlist with identical semantics. They differ only in what they target: `usesSchema` governs cross-component edges (the topology graph); `secretsSchema` governs credential slots (the secrets pillar). Many Components declare both; the two tables compose independently.
 

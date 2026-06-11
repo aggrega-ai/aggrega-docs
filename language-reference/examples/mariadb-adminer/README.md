@@ -38,7 +38,9 @@ in to the live database.
   lockfile and fetches it into a content-addressed cache; `aggrega build` renders
   from that cache, so lock-time and build-time resolve the same chart. A
   developer-authored value selects the chart version (a value flowing into source
-  resolution).
+  resolution). The per-release lockfiles pin entity identities and digests:
+  after catalog entities are renamed or their content changes, refresh a stale
+  local lockfile with `aggrega pull --regenerate --release <release>.yaml`.
 - **Provenance as annotations.** Every rendered Kubernetes object carries an
   `aggrega.ai/recipe-uri` annotation recording the Recipe that produced it —
   an annotation, not a label, because the URI value contains characters a

@@ -235,54 +235,52 @@ To maintain the DRY (Don't Repeat Yourself) principle, the Catalog employs two d
 
 See [entities/component](../language-reference/entities/component.md) for the base-and-child component extension examples, and [entities/recipe](../language-reference/entities/recipe.md) for Recipe pointer-and-mapper authoring with complete examples.
 
-### 4. The Workspace Config (`aggrega.yaml`)
+### 4. The Workspace Config (`.aggrega-config.yaml`)
 
-The `aggrega.yaml` file at the project root is the project's workspace configuration. It is **committed to Git** (it is the equivalent of `go.mod` or `package.json`). The `.aggrega/` directory is **gitignored** (it is the equivalent of `node_modules/` or `.terraform/`).
+The `.aggrega-config.yaml` file at the workspace root is the project's workspace configuration — the workspace's own declaration, suited to source control the way `go.mod` or `package.json` is. The `.aggrega/` directory is **gitignored** (it is the equivalent of `node_modules/` or `.terraform/`).
 
-All fields are optional with sensible defaults:
+The configuration carries five top-level sections — `workspace`, `build`, `plugins`, `lint`, and `cache` — and every field is optional with documented defaults. The `workspace` section is the routing surface:
 
 ```yaml
-# aggrega.yaml
+# .aggrega-config.yaml
 workspace:
   catalog_dirs:               # Ordered list of local catalog directories (checked before cache)
-    - ./aggrega-catalog       # Default
-  cache_dir: .aggrega/cache  # Default artifact cache root
+    - ./aggrega-catalog
+  cache_dir: .aggrega/cache   # Default artifact cache root
   default_registry: hub.aggrega.ai  # Default registry for unqualified URIs
-  offline: false              # Default; set to true for air-gapped environments
+  offline: false              # Set true for air-gapped environments
+  auto_pull: true             # Default; build performs the implicit pull when no lockfile exists
 ```
 
-The `catalog_dirs` list supports monorepo setups where a shared catalog lives in a sibling directory. The compiler checks each directory in sequence. The `offline: true` flag prevents any network access — the compiler only uses local paths and the cache, halting if an entity is not found locally.
+The `catalog_dirs` list supports monorepo setups where a shared catalog lives in a sibling directory. The compiler checks each directory in sequence. The `offline: true` flag prevents any network access — the compiler only uses local paths and the cache, halting if an entity is not found locally. The `build`, `plugins`, `lint`, and `cache` sections carry the build dials, the Wasm attachment sockets (`mutator`, `policy`, `linter`, `importer`), the publishing-discipline policy switches, and cache tuning.
 
 The `cache_dir` root carries two parallel subtrees that the future `aggrega pull` command populates uniformly in a single invocation: `<cache_dir>/entities/<URI-encoded>/<version>/` for catalog entities (Components, Features, Recipes, FeatureRecipes, Providers) and `<cache_dir>/source-artifacts/<kind>/<host>/<path>/<version>/<digest-prefix>/` for source artifacts pulled from Recipe / FeatureRecipe `spec.source` fields (Helm charts, terraform modules, compose fragments). Each source-artifact cache slot carries the authoritative `.tgz` archive, a derived `extracted/` directory regenerated on every build read, and a `metadata.yaml` file recording the artifact's `{kind, url, version, digest, mediatype, pulled_at}` identity. The 12-character `<digest-prefix>` segment namespaces the same `{kind, url, version}` re-tagged at different upstream digests into distinct slots.
 
-The `.aggrega.lock` file at the workspace root records the resolved versions and content digests for every pinned dependency. `aggrega pull` fetches dependencies and writes the lockfile; `aggrega build` reads the lockfile and uses the pinned versions regardless of registry state at build time. The lockfile carries sections per entity kind:
+The lockfile is per-Release: resolving `release.yaml` writes `release.lock` next to it (the Release file's stem plus `.lock`). `aggrega pull` resolves dependencies and writes the lockfile; `aggrega build` reads it and uses the pinned versions regardless of registry state at build time. Workspaces commit the lockfile when build reproducibility across machines matters; after catalog identities or content change, `aggrega pull --regenerate` refreshes it. The lockfile records every resolved entity with its URI as authored, the resolved version, the content digest, and the referencing sites:
 
 ```yaml
-# .aggrega.lock
-schema_libraries:
-  - name: aggrega/datastores
-    version: 1.0.0
-    digest: sha256:abc123...
-
-mapping_libraries:
-  - name: aggrega/bitnami-helpers
-    version: 1.0.0
-    digest: sha256:def456...
-
-components:
-  - name: core/datastore/mariadb
-    version: 1.0.0
-    digest: sha256:789abc...
-
-recipes:
-  - name: core/helm/postgres-bitnami
-    version: 1.2.0
-    digest: sha256:ghi789...
-
-# ... features, feature-recipes, providers, plugins ...
+# release.lock
+entities:
+  - uri: core/datastore/mariadb:1.0.0
+    resolved_version: 1.0.0
+    digest: sha256:5deeedb9acc1be00d4e0f98e55e01d301a0bcc01d702c015a9d9628ff573650a
+    referenced_from:
+      - aggregate.spec.components.db.type
+  - uri: mariadb-bitnami:1.0.0
+    resolved_version: 1.0.0
+    digest: sha256:215b54e2da1ce512fcdccff87f6f71daac707bc77e4214b60b946b27a24e483a
+    referenced_from:
+      - manifest.spec.mappings.components.type.core/datastore/mariadb:1.0.0
+generated_at: "2026-06-11T16:48:15Z"
+mapping_libraries: []
+release: release.yaml
+schema_libraries: []
+source_artifacts: []
+version: 1
+wasm_plugins: []
 ```
 
-Each pinned entry carries name + version + content-addressable digest. The digest is verified at every fetch; bytes that do not match the pinned digest halt the build with an integrity error.
+Each pinned entry carries the URI + resolved version + content-addressable digest. The digest is verified at every fetch; bytes that do not match the pinned digest halt the build with an integrity error.
 
 ### 5. The Three-Tier Entity Resolution Model
 
@@ -308,8 +306,8 @@ Because Recipes are strictly **1:1 with a physical execution engine** — a sing
 
 The OCI taxonomy covers all entity types. URI segments map 1:1 to filesystem paths and OCI repository names:
 
-* `hub.aggrega.ai/component/core/datastore/mariadb:1.0.0` — Component, namespace `core`, category `database`
-* `hub.aggrega.ai/component/core/compute/api-server:1.0.0` — Component, namespace `core`, category `server`
+* `hub.aggrega.ai/component/core/datastore/mariadb:1.0.0` — Component, namespace `core`, category `datastore`
+* `hub.aggrega.ai/component/core/compute/api-server:1.0.0` — Component, namespace `core`, category `compute`
 * `hub.aggrega.ai/feature/core/data-masking:1.0.0` — Feature, namespace `core` (flat, no categories)
 * `hub.aggrega.ai/aggregate/core/db-module:1.0.0` — Reusable Aggregate module
 * `hub.aggrega.ai/recipe/helm/mariadb-bitnami:1.0.0` — Recipe, provider `helm`
@@ -349,13 +347,13 @@ See [entities/recipe](../language-reference/entities/recipe.md) for the complete
 
 ### 8. The Default Registry & Context-Aware Shorthand URIs
 
-To eliminate YAML bloat, the compiler resolves shorthand URIs context-aware against the schema position in which they appear. The default registry is configured in `aggrega.yaml` (defaulting to `hub.aggrega.ai`).
+To eliminate YAML bloat, the compiler resolves shorthand URIs context-aware against the schema position in which they appear. The default registry is configured in `.aggrega-config.yaml` (defaulting to `hub.aggrega.ai`).
 
 Shorthand URIs resolve context-aware against the Manifest; see [`../language-reference/entities/manifest.md`](../language-reference/entities/manifest.md) §Context-Aware Shorthand URIs for the specific inference rules.
 
 ### 9. Lockfile pinning and artifact immutability
 
-Lockfile-pinning discipline anchors every dependency to a specific content-addressable artifact. At first lockfile-resolve (`aggrega pull`), the resolver consults the registry, picks a version per the URI's three-form constraint (exact / range / unversioned), and writes the pinned version + digest into `.aggrega.lock`. Subsequent `aggrega build` invocations use the pinned values regardless of registry mutability; new versions can be published without affecting the existing lockfile.
+Lockfile-pinning discipline anchors every dependency to a specific content-addressable artifact. At first lockfile-resolve (`aggrega pull`), the resolver consults the registry, picks a version per the URI's three-form constraint (exact / range / unversioned), and writes the pinned version + digest into the Release's `<release-stem>.lock`. Subsequent `aggrega build` invocations use the pinned values regardless of registry mutability; new versions can be published without affecting the existing lockfile.
 
 The pinning model carries one load-bearing rule: once a `name:version` is published to a registry and resolves to digest `D`, that mapping is permanent. **Republishing the same `name:version` with different content is rejected at push time.** The publishing-discipline policy plugin enforces this rule on every `aggrega push`: it fetches the existing artifact at `name:version` from the target registry; if present and the digest matches the content about to be pushed, the push is an idempotent no-op; if present and the digest differs, the push halts with an immutability-violation error citing both digests.
 
