@@ -8,7 +8,7 @@ This page documents the four layers, their pipeline placement, the error-shape c
 
 ### Layer 1 — JSON Schema envelope
 
-**Scope.** The structural shape of every catalog YAML: `apiVersion`, `kind`, `metadata.{name, version, description, maintainers, license, ...}`, the top-level `spec:` block, and the per-entity required fields the schema declares. Each entity kind (Aggregate, Component, Feature, Recipe, FeatureRecipe, Manifest, Provider, Release) has its own JSON Schema at [`aggrega-schemas/json-schemas/`](../../../aggrega-schemas/json-schemas/).
+**Scope.** The structural shape of every catalog YAML: `apiVersion`, `kind`, `metadata.{name, version, description, maintainers, license, ...}`, the top-level `spec:` block, and the per-entity required fields the schema declares. Each entity kind (Aggregate, Component, Feature, Recipe, FeatureRecipe, Manifest, Provider, Release) has its own JSON Schema at [`aggrega-schemas/json/`](../../../aggrega-schemas/json/).
 
 **Validation runs.** At Step 1 (resolver / load), per file. The compiler unmarshals each YAML into the corresponding Go struct; YAML keys outside the struct's declared fields surface as parse errors before any further validation runs.
 
