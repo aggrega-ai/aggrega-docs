@@ -30,12 +30,12 @@ This is **True Control Inversion**: developers dictate an Injection Contract in 
 
 ## 3. The String Pipe: the compiler cannot infer meaning
 
-The compiler is mathematically blind to what strings mean. When Component A uses Component B, the compiler takes the string Component B's Recipe produces via `provides` and pipes it into Component A's Recipe context — regardless of whether that string is an FQDN, a local hostname, an IP literal, or a Wasm-formatted DSN. The compiler does not validate routability, protocol correctness, or semantic appropriateness.
+The compiler is mathematically blind to what piped values mean. When Component A uses Component B, the compiler takes the scalar Component B's Recipe produces via `provides` — a string, a number, or a boolean — and pipes it into Component A's Recipe context, stringified deterministically at the injection boundary. Whether that value is an FQDN, a local hostname, an IP literal, a port number, or a Wasm-formatted DSN makes no difference: the compiler does not validate routability, protocol correctness, or semantic appropriateness.
 
 Two consequences follow:
 
 - The compiler does not guess component purpose from names. A component named `database-production` is not recognized as a database. Semantic type labels such as `component.aggrega.ai/type` (when present) are opaque metadata consumed for label matching, not compiler branching logic.
-- The compiler does not distinguish a hostname string from a database-name string from an arbitrary opaque value. They are all string-valued entries in the injection context.
+- The compiler does not distinguish a hostname from a database name from a port number from an arbitrary opaque value. They are all scalar entries in the injection context, delivered as strings.
 
 The topology triad — `provides` on the producing Recipe, `uses` on the consuming Aggregate, `inject` on the edge — is the Injection Contract. The compiler evaluates labels and passes strings; interpretation is the authoring contract between Recipe and Component.
 
@@ -58,7 +58,7 @@ Wasm policy sockets may reject a build. They may not silently mutate it into com
 
 ## 5. The Aggregate is the authoring surface; Release cannot declare `values:`
 
-The Release schema mechanically bans a `values:` block. Operators cannot write `values` on a Component, Feature, or Secret from a Release. This is schema enforcement at the JSON Schema level — not a social contract, not a convention.
+The Release schema mechanically bans a `values:` block. Operators cannot write `values` on a Component, Feature, or Secret from a Release. This is schema enforcement at the JSON Schema level — not a social contract, not a convention — and it is loud: every entity document is validated against its kind's schema when it is loaded, so a Release carrying `values:` halts the build with a diagnostic naming the file and the offending key rather than being silently ignored.
 
 This does not mean values are identical across environments. The supported path for per-environment variation is **Parameter Hoisting**:
 

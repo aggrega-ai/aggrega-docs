@@ -65,6 +65,18 @@ When the failure forks beneath a frame — a phase that collected several indepe
 
 One separator grammar applies throughout: `---` between sibling failures, `caused by:` between nested context frames.
 
+## The document-envelope failure class
+
+Every entity document — catalog entities, Aggregates, Manifests, Releases — is validated against its kind's published JSON schema when it is loaded, before typed parsing. A document that violates its envelope (an unknown key, a missing required field, a value of the wrong shape, a banned construct such as Release `values:`) halts loudly with a path-pointed diagnostic naming the file, the entity kind, and each offending key or shape:
+
+```text
+[OPS_ERROR] release.yaml
+  Release: release.yaml: Release document violates its envelope schema; spec.boundaries.main: unexpected additional properties ["values"]
+  caused by: document envelope validation failed
+```
+
+The category follows the authoring surface: `[CATALOG_ERROR]` for catalog entities, `[DEVELOPER_ERROR]` for Aggregates, `[OPS_ERROR]` for Releases and Manifests. The same gate runs at every surface that loads entities — build, lint, and the serve daemon's editor diagnostics — so a stray or misspelled key is rejected wherever the document is first read instead of being silently dropped.
+
 ## Multi-error chains
 
 When a single compile detects multiple independent violations (most commonly during static analysis, where every selector and `appliesTo` violation is collected before any one halts the build), the errors are joined into a single chain via Go's `errors.Join`. The CLI walks the chain and renders each sub-error independently, separated by a horizontal-rule line:
