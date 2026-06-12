@@ -12,7 +12,7 @@ Every language surface on this page carries one of four status labels:
 
 - **accepted but inert.** The schema accepts the surface — authoring against it passes validation — but the compiler does not yet act on it. Authoring an `accepted but inert` surface produces a syntactically valid build with no rendered effect for the surface; the compiler may emit a warning naming the inert surface (the recommended pattern), or some current surfaces silently skip without warning. Per-section entries below name the specific behaviour.
 
-- **accepted but blocked.** The schema accepts the surface — authoring against it passes validation — but the compiler halts the build with an explicit error naming the pending implementation work. Authoring against an `accepted but blocked` surface fails at render with a `CATALOG_ERROR` pointing to the work item that will deliver the implementation.
+- **accepted but blocked.** The schema accepts the surface — authoring against it passes validation — but the compiler halts the build with an explicit error naming the pending implementation work. Authoring against an `accepted but blocked` surface fails at render with a `CATALOG_ERROR` that names the pending implementation.
 
 - **planned.** The surface is documented as designed but neither the schema nor the compiler accepts it yet. Authoring against a `planned` surface fails at schema validation. The page surfaces planned items so authors can plan around their absence rather than discover the gap at build time.
 
