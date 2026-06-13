@@ -88,9 +88,32 @@ The two modes are mutually exclusive at this site, and only a single file may be
 
 **Boundary between parameters and infra.** Parameters carry the Developer's cognitive intent expressed as typed slots the Aggregate declares; the Release fulfills them. `infra:` on the Release carries the Operator's physical sizing (replica counts, CPU/memory bounds, storage classes) attached to specific components or Feature attachments. Parameters flow into the Aggregate's `values:` templates via `.parameters.X`; `infra:` flows into the Recipe's `valuesMapping:` template via `.infra.X`. See [architecture/06-data-taxonomy-and-composition.md §3](../../architecture/06-data-taxonomy-and-composition.md) for the data-pillar taxonomy and [templates/parameters-context.md](../templates/parameters-context.md) for the parameter lifecycle through the pipeline.
 
-## Boundaries and Flat Release
+## Boundaries and the default scope
 
-If the Release omits the `boundaries` block entirely, the compiler creates an implicit `default` boundary containing all components. Output goes to `dist/default/`. This supports the simplest use case: a developer running `aggrega build --release local.yaml` for a flat Docker Compose deployment without needing to understand boundaries. See [architecture/06-data-taxonomy-and-composition.md §7](../../architecture/06-data-taxonomy-and-composition.md) for the Optional Top-Level Structures pattern.
+A Release groups components into **boundaries** — physical deployment units, each with its own output directory and annotation cascade. The single-boundary case is the common one, so it needs no ceremony.
+
+**Single scope (the default).** Author components directly under `spec.components:` and omit the `boundaries:` block. The compiler folds them into a synthesized `default` boundary whose output is **flat** — artifacts land directly under `dist/` (per provider, via the safe `subDirectory` default below: `dist/compose/`, `dist/helm/`, …), with no boundary-name segment in the path. This is the simplest deployment: `aggrega build` over a flat Compose or single-cluster target without naming boundaries.
+
+```yaml
+spec:
+  aggregate: aggregate
+  manifest: manifest
+  components:
+    db:
+      infra:
+        engine_version: "11.4"
+    web:
+      infra:
+        port: 8080
+```
+
+**Multiple scopes (Level 2).** When a deployment spans more than one physical grouping — separate clusters, regions, or sync waves — declare named boundaries under `boundaries:`. Each boundary carries its own `directory:`, annotation cascade, and `syncWave:`, and components are addressed within their boundary.
+
+**Mutual exclusivity.** `spec.components:` and `spec.boundaries:` are mutually exclusive at the Release root — a Release authors one or the other, never both. A document declaring both halts at load with an envelope error. The top-level `components` surface carries the same per-component operator shape a boundary's `components` carry (`infra:`, `annotations:`, `uses:`).
+
+**A declared boundary named `default`.** The flat output is a property of the *synthesized* default, not of the name. A Release that explicitly declares a boundary named `default` under `boundaries:` is an ordinary named boundary: its output follows its `directory:` (defaulting to `dist/default/`), exactly like any other declared boundary.
+
+See [architecture/06-data-taxonomy-and-composition.md §7](../../architecture/06-data-taxonomy-and-composition.md) for the default-scope pattern.
 
 ## Spatial Segregation and Output Paths
 

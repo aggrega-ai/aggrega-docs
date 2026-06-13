@@ -65,7 +65,10 @@ aggrega build --release release.yaml --catalog ../../../../aggrega-hub/aggrega-c
 The build resolves every referenced entity, pins it in `release.lock`
 (identity + content digest; regenerate a stale lockfile with
 `aggrega pull --regenerate --release release.yaml`), and renders
-`dist/app/compose/docker-compose.yaml`.
+`dist/compose/docker-compose.yaml`. The Release authors its components
+directly (no `boundaries:` block), so the compiler folds them into the
+synthesized default scope and emits flat under `dist/` — one boundary, no
+boundary-name segment in the path.
 
 ## Read the output
 
@@ -85,7 +88,7 @@ The rendered compose file is where the wiring becomes visible:
 ## Run
 
 ```bash
-cd dist/app/compose
+cd dist/compose
 docker compose up -d
 ```
 

@@ -7,17 +7,17 @@ metadata:
 spec:
   aggregate: aggregate
   manifest: manifest
-  boundaries:
-    app:
-      directory: app
-      components:
-        # infra — the Operator-sizing pillar, fulfilled per environment.
-        # The Developer's Aggregate never carries these fields.
-        db:
-          infra:
-            engine_version: "11.4"
-            storage:
-              size: 2Gi
-        web:
-          infra:
-            port: 8080
+  # Single scope: components are authored directly, no boundaries block. The
+  # compiler folds them into the synthesized default boundary and emits flat
+  # under dist/ (per provider).
+  components:
+    # infra — the Operator-sizing pillar, fulfilled per environment.
+    # The Developer's Aggregate never carries these fields.
+    db:
+      infra:
+        engine_version: "11.4"
+        storage:
+          size: 2Gi
+    web:
+      infra:
+        port: 8080

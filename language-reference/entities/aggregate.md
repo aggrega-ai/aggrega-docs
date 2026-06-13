@@ -2,6 +2,27 @@
 
 The conceptual role of the Aggregate entity (Domain 1 — the Developer's declarative topology blueprint) lives in [architecture/04-eight-entity-taxonomy.md](../../architecture/04-eight-entity-taxonomy.md). The composition patterns (subsystems, nested aggregates, Zero-Port Convention, Parameter Hoisting) live in [architecture/06-data-taxonomy-and-composition.md](../../architecture/06-data-taxonomy-and-composition.md). This page covers the Aggregate catalog authoring surface — specifically, authoring reusable Aggregate modules for catalog distribution.
 
+## Component scope: the default subsystem
+
+An Aggregate organizes components into **subsystems** — named groupings for cross-cutting concerns (a data tier, an edge tier) that carry their own annotation cascade. Most Aggregates have a single grouping, so it needs no ceremony.
+
+**Single scope (the default).** Author components directly under `spec.components:` and omit the `subsystems:` block:
+
+```yaml
+spec:
+  components:
+    api:
+      type: core/server:1.0.0
+    worker:
+      type: core/worker:1.0.0
+```
+
+The compiler folds these into a synthesized `default` subsystem. Node identity is unchanged — `api` stays `api`, never `default.api` — so an Aggregate authored this way is interchangeable with the explicit single-subsystem form, and addressing it (in `uses:` targets, in diagnostics) uses the bare `spec.components[…]` path. The synthesized scope is recorded honestly in the exported IR (carrying a synthesized-subsystem marker), but it never appears in the paths an author writes or reads.
+
+**Multiple scopes (Level 2).** When components fall into distinct cross-cutting groups, declare named subsystems under `subsystems:`. Each subsystem carries its own components and annotation cascade, and may nest further subsystems.
+
+**Mutual exclusivity.** `spec.components:` and `spec.subsystems:` are mutually exclusive at the Aggregate root — author one or the other, never both. A document declaring both halts at load with an envelope error. (A subsystem a developer explicitly names `default` is an ordinary declared subsystem, addressed at its qualified `spec.subsystems.default.components[…]` path — the synthesized-scope elision keys on provenance, not on the name.)
+
 ## Reusable Aggregate Modules
 
 Aggregates serve as both the root application and reusable modules. A parent Aggregate can declare a child Aggregate exactly like a component, passing `parameters` down into it. To prevent tight coupling, child Aggregates expose an **`exportedComponents:`** contract, establishing a stable public interface name. The parent requests this interface, and the Go compiler dynamically rewires the topological edge to the correct internal node.
