@@ -58,6 +58,8 @@ The Manifest's mapping value is a Recipe URI. The catalog walker resolves the UR
 
 **`spec.implements` is a load-time consistency check.** The resolved Recipe's `spec.implements` value MUST match the Manifest's component-type key for that mapping entry; mismatch produces a `CATALOG_ERROR` at workspace load time with a clear diagnostic naming the Manifest entry, the resolved Recipe, and the conflicting `spec.implements` value. The check fires once per Manifest mapping entry at workspace load — static, no walking, deterministic.
 
+**`spec.implements` also suggests candidates.** An instance whose type carries no Manifest mapping halts the build with a `CATALOG_ERROR` that lists the recipes whose `spec.implements` is able to implement that type as pin candidates; editor completion on a mapping value ranks those same matching recipes first. `spec.implements` thus declares what a recipe *can* implement and informs the human's choice — in the consistency check, the no-mapping diagnostic, and completion — but it never *resolves* a build. The Manifest mapping is the user's explicit deployment choice, pinned in the lockfile for reproducibility; the catalog never chooses a deployment on the user's behalf.
+
 ### Three forms for the URI version segment
 
 A Recipe URI in the Manifest may carry the version in any of three forms:

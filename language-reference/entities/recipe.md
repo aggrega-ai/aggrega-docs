@@ -11,6 +11,8 @@ A Recipe serves exactly two functions:
 
 Because a Recipe is strictly 1:1 with a physical execution engine, the `provider` is explicitly declared at the root level, ensuring the Go compiler knows exactly which downstream Wasm rendering plugin to invoke.
 
+`spec.implements` declares which catalog component type the Recipe is able to implement. The compiler uses it to verify Manifest mappings (a mapped Recipe's `implements` must match the mapped type) and to suggest candidates — the recipes listed in a no-mapping diagnostic and ranked first in editor completion. It never resolves a build: the Manifest mapping is the user's explicit deployment choice, pinned in the lockfile. A Recipe whose `implements` is unversioned, exact, or a major-compatible range still only *offers* itself for a type; the user pins the choice. `FeatureRecipe.spec.implements` carries the identical role for feature types.
+
 ### A. Wasm-Driven Source Schemas (The Ultimate Agnosticism)
 
 To eradicate implementation biases from the core engine, the `source` block abandons hardcoded infrastructure fields (like `registry` or `chart`). The core JSON schema delegates validation entirely to the Provider's WebAssembly socket. The `source` field supports two formats:
