@@ -114,7 +114,7 @@ Step 5 — renderer dispatch and per-engine rendering.
 | `ErrFetchNetworkUnreachable` | `oci: network unreachable` | A transport-layer failure — DNS, connection refused, TLS, or a retry-class status. |
 | `ErrFetchIntegrity` | `oci: content digest mismatch` | A cached artifact's digest does not match the lockfile entry; remediation: `aggrega pull --regenerate`. |
 | `ErrUnknownEntityKind` | `oci: unknown entity kind for mediatype dispatch` | `aggrega push` was given a non-publishable kind (Aggregate, Release, Manifest). |
-| `ErrLibraryVersionMismatch` | `oci: library per-version subdirectory mismatch` | A published library's `metadata.version` does not match its versioned path. |
+| `ErrEntityVersionPathMismatch` | `oci: entity per-version subdirectory mismatch` | A published entity's `metadata.version` does not match its versioned-directory path. |
 
 Two related sentinels live alongside the source-resolver: `ErrUnknownKind` (`pkg/sourceresolver`) for a Recipe `source:` whose kind has no registered adapter, and `ErrCacheMetadataInvalid` (`pkg/sourceresolver/metadata`) for a corrupt source-artifact cache slot — the latter wraps `ErrFetchIntegrity`, so it matches that sentinel too.
 
