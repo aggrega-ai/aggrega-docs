@@ -87,6 +87,8 @@ Before applying the OCI inference, the compiler resolves the URI through the Thr
 
 The cascade lets authors mix locally-vendored content (Tier 1) with workspace-shared catalog content (Tier 2) with remote-fetched registry content (Tier 3) without authoring distinct URI shapes per tier.
 
+When `catalog_dirs:` lists more than one directory, the list is an ordered **first-win precedence stack**: an entity identity present in more than one listed directory resolves to the earliest-listed directory, and the later occurrence is shadowed (overridden, not an error) — so a project can layer its own catalog directory ahead of a shared one and override entities by identity while the rest fall through. The override is reported in the resolution detail. Two files claiming the same identity *within a single* directory remain an authoring mistake that halts the load.
+
 ### Rule 4 — Version handling
 
 A URI may include or omit the version segment. The version handling depends on the resolution position (Manifest tier resolution, `implements:` matching, sub-aggregate import) per the position's own version-consumption rules. See [`inheritance-and-interface.md`](inheritance-and-interface.md) "Cross-entity version consumption" for the per-entity version semantics.
