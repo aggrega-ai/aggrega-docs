@@ -5,7 +5,7 @@
 ## Synopsis
 
 ```
-aggrega build --release <path> [--catalog <dir>] [--trace] [--detail] [other flags]
+aggrega build --release <path> [--catalog <dir>]... [--trace] [--detail] [other flags]
 ```
 
 ## Required flags
@@ -14,7 +14,7 @@ aggrega build --release <path> [--catalog <dir>] [--trace] [--detail] [other fla
 
 ## Common flags
 
-- `--catalog <dir>` — directory containing catalog entities (Components, Features, Recipes, FeatureRecipes, Providers). Defaults to the current working directory. Catalog entities are loaded recursively under this path.
+- `--catalog <dir>` — a directory containing catalog entities (Components, Features, Recipes, FeatureRecipes, Providers), loaded recursively. **Repeatable**, and **prepended** to the workspace's `catalog_dirs`: the resulting list is an ordered first-win search stack, so an earlier directory (each `--catalog` dir, then the configured directories in order) wins an entity identity and a later directory's copy is shadowed. Build honors `catalog_dirs` from `.aggrega-config.yaml` even when no `--catalog` is given. With neither set, the search defaults to the current working directory. To search a project-local catalog alongside a shared one, pass both (`--catalog ./catalog --catalog ../shared-catalog`) or list them under `catalog_dirs`. With `--detail`, any entity a higher-precedence directory shadows is reported.
 - `--trace` — write per-pass intermediate state to `.trace/` (sibling to `dist/`) for post-mortem inspection. See [Trace output](#trace-output) below.
 - `--detail` — when build performs the implicit auto-pull (no lockfile present and `auto_pull` enabled), print per resolved entity what that pull did: fetched fresh from a registry, reused a cache slot, found in a local catalog, or external. This is the same transient pull-event diagnostic that [`aggrega pull --detail`](aggrega-pull.md) emits, written to stdout and never persisted to the lockfile. When a lockfile already exists, build does not pull, so there is nothing to report: the flag prints a one-line note to stderr and proceeds — it never fabricates a resolution tier the committed lockfile does not carry. For the post-pull resolution *state* of a closure, use [`aggrega inspect`](aggrega-inspect.md).
 

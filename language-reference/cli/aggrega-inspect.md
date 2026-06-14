@@ -5,7 +5,7 @@
 ## Synopsis
 
 ```text
-aggrega inspect <identifier> [--catalog <dir>]
+aggrega inspect <identifier> [--catalog <dir>]...
 ```
 
 A single positional argument routes by content shape; no subcommand is needed. The compiler dispatches per the following heuristic:
@@ -22,7 +22,7 @@ The single positional argument design keeps the command terse for the common cas
 
 | Flag | Default | Effect |
 | --- | --- | --- |
-| `--catalog <dir>` | `.` | Catalog directory to load. The catalog branch resolves the named Component against this directory; the file and release branches still load referenced catalog entities from here when needed (e.g., resolving the parent in an `extends:` chain). |
+| `--catalog <dir>` | `.` | Catalog directory to load. **Repeatable**, and **prepended** to the workspace's `catalog_dirs` (an ordered first-win search stack — an earlier directory wins an entity identity, a later one's copy is shadowed). Honors `catalog_dirs` from `.aggrega-config.yaml` even with no flag; defaults to the current directory when neither is set. The catalog branch resolves the named Component against this stack; the file and release branches still load referenced catalog entities from it when needed (e.g., resolving the parent in an `extends:` chain). |
 
 The flag is the only override; the dispatch heuristic above is otherwise fixed.
 
