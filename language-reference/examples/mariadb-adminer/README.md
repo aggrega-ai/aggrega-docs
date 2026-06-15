@@ -55,6 +55,23 @@ in to the live database.
   component is chosen by the component *type* it implements, drawn from
   whichever catalog layer the build loads.
 
+## Authoring and consumption — two ends of one curriculum
+
+This is the **authoring tier**: here you build the catalog entities — the
+Component, the Features, and the per-target Recipes — from scratch in local
+`catalog-*/` directories, and watch one Aggregate render across four providers.
+The entities you build here are the same *kind* that ship in Aggrega's standard
+library: a database Component, credential Features, provider Recipes.
+
+The **consumption tier** is the other end of the same curriculum. The
+[catalog-only](../catalog-only/) example assembles this very stack — a MariaDB
+database with an Adminer UI — by *referencing* standard-library entities, authoring
+none of its own; the other runnable workspaces likewise consume the shipped
+catalog and keep only their teaching-specific pieces local. Read this example to
+learn how the entities are **built**; read the consumption examples to learn how
+they are **used**. The split is navigable in both directions — what you author
+here is what you consume there.
+
 ## Layout
 
 ```text

@@ -2,13 +2,25 @@
 
 Complete, forkable workspaces you can compile with the `aggrega` CLI. Each is a
 self-contained directory — a Developer-authored `Aggregate` and one or more
-`Release`/`Manifest` pairs — that builds offline with no external setup. The
-catalog layer is either local to the workspace (a `catalog/` of Recipes the
-example authors) or the standard-library catalog the workspace references:
+`Release`/`Manifest` pairs — that builds offline with no external setup.
 
-```bash
-aggrega build --release <release>.yaml --catalog <catalog-dir>
-```
+The examples come in two modes — the two ends of one curriculum:
+
+- **Consumption** — the workspace *references* standard-library catalog entities
+  and authors only its own teaching-specific content locally. It lists both its
+  local `./catalog` and the standard catalog checkout under `catalog_dirs` in
+  `.aggrega-config.yaml` (the search stack resolves local entities first), so it
+  builds with no `--catalog` flag:
+  ```bash
+  aggrega build --release release.yaml
+  ```
+  A multi-target workspace that keeps a separate catalog per target passes the
+  directories as a repeatable `--catalog` instead
+  (`--catalog ./catalog-<target> --catalog <standard-catalog>`).
+- **Authoring** — the workspace *builds* the catalog entities (Components,
+  Features, Recipes) from scratch in local `catalog-*/` directories.
+  `mariadb-adminer` is the worked authoring example; the entities it builds are
+  the same kind the consumption examples consume.
 
 These complement the numbered walkthrough chapters in
 [Examples Overview](../09-examples.md): the chapters teach one pattern at a time
@@ -57,9 +69,10 @@ providers.
 
 - **[advanced-platform](advanced-platform/)** — a multi-boundary Kubernetes
   platform. Boundary-scope FeatureRecipes (a shared-config ConfigMap rendered
-  once per boundary), parameter hoisting (a value and a chart-source identity
-  fulfilled per environment), `.values`-in-source, the credential subsystem, and
-  cross-boundary references resolving through Service DNS.
+  once per boundary), parameter hoisting (a typed value fulfilled per
+  environment), the credential subsystem, and cross-boundary references resolving
+  through Service DNS. Consumes the standard catalog; keeps only `app/adminer` and
+  the `app/db-binding` wiring local.
 - **[cross-boundary-networking](cross-boundary-networking/)** — one developer
   intent (an Adminer UI reaching a database across a boundary seam) deployed
   **two ways**: the Docker Compose variant uses the standard-library
@@ -71,8 +84,8 @@ providers.
 - **[annotation-driven-monitoring](annotation-driven-monitoring/)** —
   annotation-driven Feature expansion: one monitoring annotation on a boundary,
   refined by per-subtree overrides, expands (via the Manifest's
-  `features.annotations` binding) into a `core/scrape-target` attachment on every
-  contained component — each rendering a Prometheus ServiceMonitor with its
+  `features.annotations` binding) into a `core/prometheus-exporter` attachment on
+  every contained component — each rendering a Prometheus ServiceMonitor with its
   cascade-resolved profile, with no per-component `features:` blocks. Shows
   structured-annotation per-subkey deep merge.
 
