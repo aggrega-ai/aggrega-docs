@@ -15,10 +15,12 @@ Because a Recipe is strictly 1:1 with a physical execution engine, the `provider
 
 ### A. Wasm-Driven Source Schemas (The Ultimate Agnosticism)
 
-To eradicate implementation biases from the core engine, the `source` block abandons hardcoded infrastructure fields (like `registry` or `chart`). The core JSON schema delegates validation entirely to the Provider's WebAssembly socket. The `source` field supports two formats:
+To keep implementation biases out of the core engine, the `source` block is not a fixed set of infrastructure fields. The `source` field supports two formats:
 
 * **The Universal String (Fast & Clean):** Best for local paths, OCI artifacts, and Git repositories. The compiler deduces the fetch method via the prefix (`./src`, `git::https://...`, `oci://...`).
-* **The Open Structured Object:** An open dictionary (`additionalProperties: true`). The exact required keys (e.g., `registry`, `chart`, `appVersion` for Helm, or `workspace` for Terraform) are dictated and validated dynamically at compile-time by the Provider's Wasm socket.
+* **The Open Structured Object:** An open dictionary (`additionalProperties: true`) whose keys are provider-defined and are exposed to the Recipe's templates as `.source.*` (for example `.source.chart`). The design intent is that each provider's WebAssembly socket defines and validates its own source shape (e.g., `registry`/`chart`/`appVersion` for Helm, or `workspace` for Terraform).
+
+**What the core resolves today.** Per-provider Wasm source validation is not yet implemented. A *fetched* source is resolved by the `{ kind, url, version }` form, where `kind` selects a built-in resolver — today `helm-oci-chart`, `helm-https-chart`, and `compose-https-fragment`. A fetch-intended source must use `{ kind, url, version }`; a structured source that omits `kind`/`url` is not fetched, and if a fetch was intended the build halts loudly at lock-time source descent rather than silently resolving to nothing. When the per-provider Wasm socket ships, it validates provider-specific shapes and translates them ahead-of-time into a deterministic `{ kind, url, version }` fetch identity — the version always pins ahead-of-time; the compiler never fetches live runtime state.
 
 To guarantee predictable validation, Recipes should reference the exact version of the provider they were authored for (e.g., `spec.provider: "helm:1.0.0"`). If the version tag is omitted (e.g., `spec.provider: "helm"`), the compiler dynamically falls back to fetching the `latest` available version of the Wasm plugin from the registry. The IDE Language Server (LSP) runs this resolved Wasm plugin in the background, extracting its native JSON schema to provide real-time autocomplete and linting directly to the developer.
 
@@ -111,12 +113,15 @@ spec:
   provider: helm # Unpinned version, compiler will fetch 'latest'
   implements: core/postgres-db:1.0.0
   source:
-    # Planned: provider-declared source keys, validated by the provider's Wasm plugin.
-    # The built-in resolver today uses the { kind, url, version } form.
-    registry: https://charts.bitnami.com/bitnami
-    chart: postgresql
+    # The shipped fetch form: { kind, url, version }. 'kind' selects a built-in
+    # resolver (helm-oci-chart, helm-https-chart, compose-https-fragment).
+    kind: helm-oci-chart
+    url: oci://registry-1.docker.io/bitnamicharts/postgresql
     version: 12.1.0
-    appVersion: 15.4.0 # Explicit binary override handled safely by the plugin
+    # Planned (not yet implemented): a provider's Wasm socket may instead validate
+    # provider-declared keys like registry/chart/appVersion and translate them
+    # ahead-of-time into this { kind, url, version } fetch identity. See "Source
+    # Schemas" above.
     
   locals:
     primary_compute: postgresql
