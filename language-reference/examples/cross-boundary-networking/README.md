@@ -36,7 +36,7 @@ components:
               - in: ADMINER_DEFAULT_SERVER   # rewritten/resolved per variant
                 from: host                   # ← the target db's provides.host
   db:
-    type: core/postgres
+    type: core/datastore/postgres
 ```
 
 The one `uses` edge injects the database's `host` into `ADMINER_DEFAULT_SERVER`.
@@ -48,7 +48,7 @@ change to developer intent.
 ## Variant A — local (Docker Compose): the bridge
 
 ```bash
-aggrega build --release release-compose.yaml --catalog catalog-compose
+aggrega build --release release-compose.yaml --catalog catalog-compose --catalog ../../../../aggrega-hub/aggrega-catalog
 ```
 
 A parent `bridge` boundary holds two children, `frontend` (adminer) and
@@ -92,7 +92,7 @@ out of the box); a real deployment uses the credential subsystem.
 ## Variant B — Kubernetes (Helm): namespaces + cross-namespace DNS
 
 ```bash
-aggrega build --release release-helm.yaml --catalog catalog-helm
+aggrega build --release release-helm.yaml --catalog catalog-helm --catalog ../../../../aggrega-hub/aggrega-catalog
 ```
 
 The same Aggregate, deployed to Kubernetes. Two **sibling** boundaries, each with
@@ -145,16 +145,24 @@ cross-boundary-networking/
 ├── aggregate.yaml            # SHARED developer intent (both variants)
 ├── release-compose.yaml      # Variant A: parent bridge boundary + two networks
 ├── manifest-compose.yaml
-├── catalog-compose/          # compose provider, recipes, core/compose-bridge
+├── catalog-compose/          # local app/adminer + its compose recipe (the rest from standard)
 ├── release-helm.yaml         # Variant B: two namespace boundaries, no bridge
 ├── manifest-helm.yaml
-└── catalog-helm/             # helm provider, synthesized recipes (db host namespace-qualified)
+└── catalog-helm/             # local app/adminer + adminer/db helm recipes (the rest from standard)
 ```
 
-The `core/compose-bridge` files under `catalog-compose/` are a vendored snapshot
-of the standard-library entity (so the example builds standalone); the canonical
-entity ships in the Aggrega standard-library catalog, and its build-faithful
-regression guard lives in the compiler's tests.
+This example **consumes the standard library**. Each variant builds with a
+repeatable `--catalog`: its own local directory first, then the standard catalog
+(`--catalog catalog-<variant> --catalog ../../../../aggrega-hub/aggrega-catalog`),
+so the first-win search stack resolves local entities before the shared ones.
+`core/datastore/postgres`, the compose `core/compose-bridge` FeatureRecipe, and the
+`compose`/`helm` providers come from the standard catalog. What stays local is the
+example-specific teaching content: the `app/adminer` UI component and its per-target
+recipes, and the helm `db` recipe — whose `provides.host` is the namespace-qualified
+`<service>-default.backend` cross-namespace DNS name. That helm recipe is kept local
+deliberately: a standard-catalog entity cannot hardcode a consumer's boundary
+namespace, so generalizing it is a separate caller-side host-qualification design;
+until then this example carries its own.
 
 Two categories of file meet in a built variant: **authored** inputs (everything
 above) and **compiler-generated** output under `dist/` (the merged
