@@ -10,25 +10,17 @@ metadata:
     differs per target.
 spec:
   # ── Parameter hoisting ──────────────────────────────────────────────
-  # Typed parameters the Release fulfils per environment. Two slots
-  # demonstrate the two distinct hoisting destinations:
-  #   - app_design hoists into a plain VALUE (the Adminer theme rendered
-  #     into the manifest);
-  #   - db_chart_version hoists into a SOURCE identity (the Bitnami chart
-  #     version the database Recipe fetches + the lockfile pins).
+  # A typed parameter the Release fulfils per environment: app_design hoists
+  # into web.values.design (the Adminer theme), flowing a typed parameter into
+  # a standard developer value. (The database's chart/source version is the
+  # operator's infra.source_version knob, set Release-side — not hoisted into.)
   parameters:
     app_design:
       type: string
       default: pepa-linha-dark
       description: >
-        Adminer UI theme. Hoisted into web.values.design — a parameter
-        flowing into a plain rendered value, fulfilled per environment.
-    db_chart_version:
-      type: string
-      description: >
-        Bitnami MariaDB chart version. Hoisted into db.values.chart_version,
-        which the database Recipe reads as its source: version — a parameter
-        flowing into the SOURCE identity, pinned in the lockfile (lock==build).
+        Adminer UI theme. Hoisted into web.values.design — a typed parameter
+        flowing into a standard developer value, fulfilled per environment.
   components:
     # ── Database ────────────────────────────────────────────────────────
     db:
@@ -38,14 +30,6 @@ spec:
         user: appuser
         charset: utf8mb4
         collation: utf8mb4_general_ci
-        # `.values`-in-source: this value feeds the database Recipe's source:
-        # version. It is HOISTED from a parameter (db_chart_version), so a
-        # Release fulfils the chart version per environment and that materialized
-        # value drives the pinned source identity — proven lock==build. The
-        # canonical operational knob for a chart version remains
-        # infra.source_version; this parameter→values→source path is the
-        # developer-driven demonstration.
-        chart_version: "{{ .parameters.db_chart_version }}"
       # Credentials live in the secrets: pillar (each Feature is labeled
       # feature.aggrega.ai/kind: secret), never features:. The two slots the
       # Component's secretsSchema declares demonstrate both delivery models:
