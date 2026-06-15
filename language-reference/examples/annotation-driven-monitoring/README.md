@@ -4,7 +4,7 @@ This example attaches a monitoring Feature to **six services across a nested
 topology** without writing a single per-component `features:` block. One
 operator annotation on the top boundary, refined by two subtree overrides,
 expands — via the Manifest's `features.annotations` binding — into a
-`core/scrape-target` attachment on every contained component, and each renders
+`core/prometheus-exporter` attachment on every contained component, and each renders
 its own Prometheus **ServiceMonitor**.
 
 This is the **annotation-driven Feature expansion** surface: the pattern for
@@ -20,10 +20,10 @@ annotation that cascades down the boundary tree.
   ```yaml
   features:
     type:
-      core/scrape-target: scrape-target-helm:1.0.0   # the FeatureRecipe version binding
+      core/prometheus-exporter: prometheus-exporter:1.0.0   # the FeatureRecipe version binding
     annotations:
       feature.aggrega.ai/monitoring:
-        feature: core/scrape-target
+        feature: core/prometheus-exporter
         maps:
           infra: [interval, port, path]              # structured-value subkeys → the feature's infra
   ```
@@ -35,19 +35,27 @@ annotation that cascades down the boundary tree.
     batch:    { monitoring: {interval: 120s} }                                  # etl/reconcile
   ```
 
-`core/scrape-target` is a **component-scope** FeatureRecipe: its local chart
-emits one `monitoring.coreos.com/v1` ServiceMonitor per attached component,
-templating `interval`/`port`/`path` from the resolved annotation. (It is
-Go-native Resource Generation — `source:` + `valuesMapping:` — not a Wasm
-mutator or pipeline step.)
+`core/prometheus-exporter` and its **component-scope** ServiceMonitor
+FeatureRecipe are consumed from the standard catalog (this example declares no
+local copy). The recipe's chart emits one `monitoring.coreos.com/v1`
+ServiceMonitor per attached component, templating `interval`/`port`/`path` from
+the resolved annotation — all three are operator scrape knobs in the feature's
+`infra`. (It is Go-native Resource Generation — `source:` + `valuesMapping:` —
+not a Wasm mutator or pipeline step.)
 
 ## What the rendered output proves
 
 Build it and inspect `dist/<boundary>/helm/features/feature.aggrega.ai/monitoring/<component>-servicemonitor.yaml`:
 
 ```bash
-aggrega build --release release.yaml --catalog catalog
+aggrega build --release release.yaml
 ```
+
+This example consumes `core/prometheus-exporter` and its ServiceMonitor
+FeatureRecipe (plus the `helm` provider) from the **standard library** — its
+`.aggrega-config.yaml` lists both the local `./catalog` and the standard catalog
+under `catalog_dirs`, so the build command needs no `--catalog` flag. Only the
+`app/service` demo component and its recipe are local.
 
 | Component | Boundary | interval | port | path |
 | --- | --- | --- | --- | --- |
@@ -59,7 +67,7 @@ Three facts the table makes concrete:
 
 1. **Annotation-driven, not author-declared.** The Aggregate has no monitoring
    `features:` anywhere, yet six ServiceMonitors render. They exist *only*
-   because the annotation expanded `core/scrape-target` onto each component (the
+   because the annotation expanded `core/prometheus-exporter` onto each component (the
    attachment's IR origin is annotation-synthesised, not explicit).
 2. **Per-subkey deep merge.** `payments` and `batch` set only `interval`, yet
    their ServiceMonitors carry `port: metrics` and `path: /metrics` — inherited
