@@ -1,18 +1,31 @@
 # aggrega lint
 
-`aggrega lint` has two modes, selected by whether an entity path is given. With **no entity path** it runs **catalog-wide correctness validation** — loading every catalog entity and validating its pillars and cross-document `$ref` / `$import` chains, halting loudly on any schema-pillar violation or unresolvable reference. This is the catalog-wide counterpart to a build's per-Release validation: a build validates only the entities its Release's closure reaches, so whole-catalog validation is `aggrega lint`'s job. With an **entity path** it checks that one entity against Aggrega's publishing-discipline rules — running them as a Wasm plugin and reporting findings; in its publish-gating mode it also fetches the entity's currently-published version from the registry and verifies that the proposed version bump matches the size of the change.
+`aggrega lint` has three modes, selected by its argument. With **no argument** it runs **catalog-wide correctness validation** — loading every catalog entity and validating its pillars and cross-document `$ref` / `$import` chains, halting loudly on any schema-pillar violation or unresolvable reference. With **`--release <path>`** it runs **closure-scoped validation** — validating only the entities a Release's resolved closure reaches (the same set a build of that Release resolves) and surfacing closure-scoped advisories. With an **entity path** it checks that one entity against Aggrega's publishing-discipline rules — running them as a Wasm plugin and reporting findings; in its publish-gating mode it also fetches the entity's currently-published version from the registry and verifies that the proposed version bump matches the size of the change.
+
+The whole-catalog and closure-scoped modes are complementary: whole-catalog validation checks everything published; `--release` checks exactly what one Release pulls in — the unserved middle between linting the whole catalog and linting a single entity. A build validates its own closure as part of compilation, so `--release` is "the build's closure validation and advisories, without the render."
 
 `aggrega lint` is opt-in. The compiler itself stays unopinionated about catalog discipline; these rules live in a separate plugin you choose to run. A workspace that never runs `aggrega lint` still builds and publishes.
 
 ## Synopsis
 
 ```
-aggrega lint [<entity-path>] [--pre-publish] [--plugin <path>] [policy flags]
+aggrega lint [<entity-path>] [--release <release-path>] [--pre-publish] [--plugin <path>] [policy flags]
 ```
 
-The entity path may be given positionally or with `--entity <path>`.
+The entity path may be given positionally or with `--entity <path>`. `--release` is mutually exclusive with an entity argument — they select different scopes; passing both halts.
 
-## Two modes
+## Closure-scoped mode (`--release`)
+
+`aggrega lint --release <release-path>` validates a single Release's resolved closure rather than the whole catalog or one entity. It computes the closure through the same machinery a build uses — so the entities it checks are exactly the entities a build of that Release would resolve — and then, over that closure only:
+
+- validates each closure entity's schema pillars and `extends` chains (the same closure-scoped validation a build runs), failing with a non-zero exit on a schema-pillar or extends-resolution error;
+- surfaces **schema-pillar overlap** advisories (two closure entities contributing overlapping pillars) and **narrowing-on-extend** advisories (a child widening an inherited constraint) as informational `notice:` lines that never change the exit code.
+
+It runs no render and triggers no network pull: the closure resolves from the local catalog (and the Release's lockfile pins, when present); a registry-pinned closure that needs a lockfile surfaces an honest unresolvable-reference error rather than fetching. Narrowing is surfaced as advice, never enforced — the compiler takes no position on narrow-vs-relax (that stays the opt-in `--pre-publish` discipline rule below).
+
+## Entity discipline: local and publish gate
+
+The entity-path mode runs at one of two severities:
 
 - **Default (local).** Runs the discipline rules over the local entity content at **warning** severity. No registry access; the version-bump check is skipped. Use it while authoring.
 - **`--pre-publish` (publish gate).** Fetches the entity's latest published non-pre-release version from the registry, runs the same rules at **error** severity, and additionally classifies the change as `PATCH` / `MINOR` / `MAJOR` and halts if the proposed `metadata.version` bump is smaller than the change requires. Use it in the publish flow, before `aggrega push`.
@@ -49,6 +62,7 @@ The `x-aggrega-*` discouragement rule also runs during `aggrega build`, where it
 ## Flags
 
 - `<entity-path>` (positional) or `--entity <path>` — the entity to lint.
+- `--release <release-path>` — switch to closure-scoped mode: validate the entities in this Release's resolved closure (schema-pillar + extends validation, plus overlap and narrowing advisories). Mutually exclusive with an entity argument.
 - `--pre-publish` — switch to the registry-aware publish gate (error severity, version-bump check).
 - `--plugin <path>` — the publishing-linter Wasm plugin to run. When omitted, the plugin is taken from the `plugins.linter` entry in `.aggrega-config.yaml`.
 - Per-rule overrides, each with a `--no-` counterpart: `--allow-dynamic-refs`, `--allow-id-overrides`, `--allow-direct-x-aggrega-extensions`, `--allow-aggrega-ai-prefix`, `--allow-nonstandard-names`, `--allow-category-mismatches`, `--enforce-monotonic-narrowing`, `--enforce-immutability`. Precedence is `--no-<flag>` over `--<flag>` over the workspace-config value. (`narrowing_exemptions` is workspace-config-only.)
