@@ -24,6 +24,14 @@ The lockfile pins each dependency to its URI, resolved version, and content dige
 
 Commit `<release-stem>.lock` alongside the Release, the way you commit any pinned-dependency manifest. A lockfile diff shows reviewers exactly which dependency versions and digests changed; a library digest change names the consumers it affects.
 
+## Honoring vs. updating
+
+By default `aggrega pull` **honors** an existing lockfile: a dependency already pinned resolves to its exact pinned version (verified against its pinned digest), only references that are not yet pinned are resolved and added, and pins for references the Release no longer reaches are pruned. So a re-pull of an unchanged Release is a no-op — it reproduces the same lockfile byte-for-byte (including `generated_at`). Adding a new dependency, or pulling after a hand-edit removed a pin, resolves just that gap and leaves every other pin untouched.
+
+**To update pinned versions, run `aggrega pull --regenerate`** — it discards the existing pins and re-resolves the whole closure to the latest satisfying versions. Updating is the explicit act; the default never floats a pinned dependency. This mirrors the convention of `npm ci` / `cargo` / `go build` (the default realizes the lock; updating is opt-in), and it is what makes `aggrega build`'s automatic pull safe — build resolves exactly what the lockfile pins, never silently moving a version.
+
+If a pinned version's bytes in the registry no longer match the digest the lockfile recorded (an immutability violation upstream), `pull` halts with an integrity error rather than silently adopting the changed bytes — run `--regenerate` to deliberately re-pin.
+
 ## The cache
 
 Pulled content is stored under `.aggrega/cache`, split into an `entities/` subtree for catalog entities and a `source-artifacts/` subtree for source artifacts. The cache is content-addressed, so identical version pins share storage across Releases. Each source-artifact slot holds the authoritative archive, a regenerated extraction, and a small metadata file; the extraction is regenerated on every read, so build output depends on the archive and the lockfile, not on the state of the extracted files.
@@ -38,7 +46,7 @@ Pulled content is stored under `.aggrega/cache`, split into an `entities/` subtr
 
 - `--release <path>` — the Release to resolve (required).
 - `--catalog <dir>` — a catalog directory, loaded recursively. **Repeatable**, and **prepended** to the workspace's `catalog_dirs` (an ordered first-win search stack — an earlier directory wins an entity identity, a later one's copy is shadowed). Pull honors `catalog_dirs` from `.aggrega-config.yaml` even with no `--catalog`, and resolves the same stack `aggrega build` does, so the closure it pins matches what build searches. Defaults to the current working directory when neither is set.
-- `--regenerate` — discard the existing lockfile and rebuild it from current registry state. This is the remediation named in drift diagnostics.
+- `--regenerate` — discard the existing pins and re-resolve the whole closure to the latest satisfying versions. This is how you **update** pinned versions (the default pull honors existing pins and never floats them), and the remediation named in drift diagnostics.
 - `--include-prerelease` — include pre-release versions during selection (reserved; no effect today).
 - `--dry-run` — compute and report the closure without writing the lockfile.
 - `--verify` — read-only: check the existing lockfile against the current state and report drift without writing anything.
