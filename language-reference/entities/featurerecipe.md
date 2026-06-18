@@ -51,14 +51,13 @@ The compiler remains agnostic to the networking semantics — Kubernetes namespa
 
 ### Worked example: K8s DNS resolver
 
-Because environment variable names must be unique within a container, the `target_var` (e.g., `API_HOST`) acts as a globally unique identifier for a specific injection contract within the caller. By looping over the explicit edges in `.context.uses` and checking which edge claimed the `target_var`, the template locates the correct target node and extracts its cascaded annotations.
+The standard catalog ships this as `core/k8s-dns-resolver` with a helm FeatureRecipe. Because environment variable names must be unique within a container, the `target_var` (e.g., `API_HOST`) acts as a globally unique identifier for a specific injection contract within the caller. By looping over the explicit edges in `.context.uses` and checking which edge claimed the `target_var`, the template locates the correct target node and reads its namespace. The single parameter is the variable to rewrite; the target and its namespace are discovered, never hardcoded.
 
 **The Routing Feature schema (`core/k8s-dns-resolver`):**
 
 ```yaml
 infra: {
-  target_var: string            # Ops dictates WHICH injected var to rewrite
-  namespace_annotation?: string # Ops tells the feature WHERE to look for physical placement
+  target_var: string  # Ops dictates WHICH injected var to rewrite
 }
 ```
 
@@ -77,17 +76,19 @@ injectMapping: |
     {{ end }}
   {{ end }}
   
-  # 3. Resolve the namespace using the annotation key provided by Ops
-  {{ $ns := "" }}
-  {{ if and .infra.namespace_annotation $target_edge }}
-    {{ $ns = index $target_edge.annotations.release .infra.namespace_annotation }}
-  {{ end }}
+  # 3. Read the target's namespace from its cascaded release annotation,
+  #    coalescing an absent namespace to "default"
+  {{ $ns := "default" }}
+  {{ if $target_edge.annotations }}{{ if $target_edge.annotations.release }}
+    {{ $raw := index $target_edge.annotations.release "aggrega.ai/namespace" }}
+    {{ if $raw }}{{ $ns = $raw }}{{ end }}
+  {{ end }}{{ end }}
 
-  # 4. Formulate the FQDN safely (fall back to the base host if no namespace exists)
-  {{ $resolved_host := $base_host }}
-  {{ if $ns }}
-    {{ $resolved_host = printf "%s.%s" $base_host $ns }}
-  {{ end }}
+  # 4. Qualify the host with the namespace. An unset namespace resolves to
+  #    "default" — where the helm provider deploys an unannotated workload — so
+  #    the qualified host always matches the service's actual location and is
+  #    never malformed.
+  {{ $resolved_host := printf "%s.%s" $base_host $ns }}
 
   # 5. Emit the precise override dictionary for the compiler to deep-merge
   env:
