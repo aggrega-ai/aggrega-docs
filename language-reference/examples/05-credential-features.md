@@ -24,7 +24,7 @@ metadata:
 spec:
   schema:
     values:
-      source: { type: string, required: true }
+      origin: { type: string, required: true }
       key:    { type: string, default: "value" }
 ```
 
@@ -41,7 +41,7 @@ metadata:
 spec:
   schema:
     values:
-      source: { type: string, required: true }
+      origin: { type: string, required: true }
       key:    { type: string, default: "value" }
     provides:
       name: { type: string }
@@ -70,7 +70,7 @@ spec:
   valuesMapping: |
     secretName: "{{ .provides.name }}"
     secretKey: "{{ .provides.key }}"
-    secretValue: "{{ .values.source }}"
+    secretValue: "{{ .values.origin }}"
 ```
 
 **`dotenv-secret`** (Compose, local dev) implements `core/secret-value`. It maps a secret to a `.env` file entry that Docker Compose resolves at runtime — an injected value, no standalone resource and no `provides`:
@@ -86,7 +86,7 @@ spec:
   implements: core/secret-value:1.0.0
   injectMapping: |
     env:
-      {{ .values.key }}: "{{ .values.source }}"
+      {{ .values.key }}: "{{ .values.origin }}"
 ```
 
 `env-secret-helm` follows the same injected-value shape for the Helm provider, writing the value into the component's inject pipe rather than producing a resource.
@@ -102,7 +102,7 @@ The six steps from developer authoring to compiled output, using the referenceab
       root_password:
         type: core/referenced-secret:1.0.0
         values:
-          source: "{{ .parameters.db_root_pass }}"
+          origin: "{{ .parameters.db_root_pass }}"
           key: mariadb-root-password
     ```
 

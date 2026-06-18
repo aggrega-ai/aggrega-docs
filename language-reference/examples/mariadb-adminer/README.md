@@ -119,10 +119,10 @@ spec:
       secrets:
         root_password:                    # black-box slot: the FeatureRecipe delivers it
           type: core/secret-value
-          values: { key: MARIADB_ROOT_PASSWORD, source: dev-root-pw-change-me }
+          values: { key: MARIADB_ROOT_PASSWORD, origin: dev-root-pw-change-me }
         user_password:                    # transparent slot: the developer delivers it
           type: core/secret-provided
-          values: { source: dev-app-pw-change-me }
+          values: { origin: dev-app-pw-change-me }
           inject:
             env: { MARIADB_PASSWORD: value }
 
