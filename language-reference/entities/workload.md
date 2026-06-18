@@ -247,13 +247,18 @@ containers:
 
 ## Secrets integration with the Component's `secretsSchema`
 
-The Workload's `containers.<name>.secrets` block references credential slots declared in the Component's `secretsSchema`; it does not declare new slots. See [../entities/component.md](../entities/component.md) for the `secretsSchema` authoring surface.
+The Workload's `containers.<name>.secrets` block references credential slots declared in the Component's `secretsSchema`; it does not declare new slots. See [../entities/component.md](../entities/component.md) for the `secretsSchema` authoring surface. `from` names the slot; it is not the generated Secret's name.
 
-Three validation rules govern the integration:
+A `containers.<name>.secrets` entry renders to a reference to a Secret resource — a Kubernetes `secretKeyRef` (for `as: env`) or a secret-backed volume (for `as: file`) — both of which point at the Secret **by name**. The synthesizer resolves that name and data key from the slot's exposed provides: the entry's rendered `secretKeyRef.name` is the slot's `.secrets.<slot>.provides.name` and the data key is `.secrets.<slot>.provides.key`. The Recipe author writes only `from: <slot>` and `as: env`; the synthesizer reads the resolved provides — it does not re-derive the name. This is the same `.secrets.<slot>.provides.<key>` read a source Recipe uses for an `existingSecret`: a single credential slot feeds both a source-Recipe consumer and a synthesized-Workload consumer identically (source/workload symmetry).
+
+Four validation rules govern the integration:
 
 - Every `secrets.<KEY>.from` value must match a slot name declared in the Component's `secretsSchema`. An unknown slot name is a load-time error.
 - The `as:` delivery mechanism (`env` or `file`) must appear in the slot's `inject:` allowlist declared by the Component. A Workload declaring `as: file` against a slot whose `secretsSchema` entry specifies `inject: [env]` is a load-time error.
 - Slots marked `inject: []` (blackbox delivery) in the Component's `secretsSchema` cannot appear in Workload `secrets:` blocks at all. Those slots are delivered by the Recipe's internal plumbing (a Helm chart's `existingSecret` parameter, for example), not by Workload exposure.
+- The referenced slot must be **referenceable** — its fill must be a credential that materializes a Secret resource and publishes a `provides` locator (`name`, `key`). A slot filled by an inject-delivered credential (one that writes a value into the inject pipe and produces no Secret resource) has nothing to point at; referencing it from a Workload `secrets:` entry is a load-time error. An inject-delivered secret reaches the container through the slot's inject pipe (a `variables` entry reading `.context.inject.env.<KEY>`), not through a `secrets:` entry.
+
+**Provider note.** Helm renders the `secretKeyRef`/secret-volume reference described above. The compose provider has no native env-from-secret primitive; an `as: env` secret on a compose-targeted Workload is a placeholder pending the compose secret-delivery path, while the referenceability rule (provider-agnostic) still applies.
 
 Example:
 
@@ -284,7 +289,7 @@ workload: |
 Every Workload is validated at Recipe load time before any rendering runs. Validation has two stages:
 
 - **Schema validation.** The Workload value is unified against the embedded `aggrega.ai/v1alpha1` Workload schema. Errors carry the field path and the constraint violated (for example, `.containers.main.health.ready: more than one probe shape declared`). Schema validation enforces every type, enum, range, and disjunction declared in the schema — including the closed-set service `type` (one of `ClusterIP`, `NodePort`, `LoadBalancer`, `Headless`), the integer port range (1..65535), the probe-shape disjunction (exactly one of `http`, `tcp`, `exec`), and the volume-variant disjunction (exactly one of `ephemeral`, `configmap`, `secret`, `persistent`, `persistentTemplate`).
-- **Cross-reference validation.** Workload secret references are checked against the Component's `secretsSchema` (rules in the next section). This is a cross-entity check that schema-only validation cannot perform.
+- **Cross-reference validation.** Workload secret references are checked against the Component's `secretsSchema` (slot membership, `as:` delivery allowlist, blackbox exclusion) and against each referenced slot's resolved provides (referenceability — the fill must publish `name`/`key`). These are cross-entity checks that schema-only validation cannot perform.
 
 Both stages produce the same `CATALOG_ERROR`-prefixed message shape; failures stop the build before any rendering output is produced. Recipe authors get pointed feedback identifying the exact field that failed and the constraint that rejected it.
 
