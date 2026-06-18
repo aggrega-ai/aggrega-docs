@@ -11,15 +11,23 @@ spec:
   # sibling boundaries, each with a distinct aggrega.ai/namespace annotation that
   # cascades to every resource in the boundary as metadata.namespace. There is
   # NO compose-bridge: the adminer→db reference crosses the namespace seam by
-  # native cross-namespace DNS (db-default.backend), which is what the compose
-  # gateway emulates on a network that has no such facility.
+  # native cross-namespace DNS. The db recipe publishes a bare service name; the
+  # consumer attaches the core/k8s-dns-resolver routing feature, which qualifies
+  # the injected host with the target's namespace caller-side (db-default.backend).
   boundaries:
     frontend:
       directory: frontend
       annotations:
         aggrega.ai/namespace: "frontend"
       components:
-        adminer: {}
+        adminer:
+          # Qualify the injected database host with the target's namespace on
+          # the consumer side: ADMINER_DEFAULT_SERVER becomes db-default.backend.
+          features:
+            dns-resolver:
+              type: core/k8s-dns-resolver:1.0.0
+              infra:
+                target_var: ADMINER_DEFAULT_SERVER
     backend:
       directory: backend
       annotations:

@@ -4,12 +4,15 @@ metadata:
   name: cross-boundary-helm-manifest
   version: "1.0.0"
   description: >
-    Ops mapping for the helm variant. The catalog loaded at build time contains
-    exactly one Recipe per component type, so recipe selection resolves
-    unambiguously by `implements` — no explicit per-type mappings are needed.
+    Ops mapping for the helm variant. Recipe and FeatureRecipe selection is by
+    explicit Manifest mapping: each component type binds to its Recipe and each
+    feature type to its FeatureRecipe.
 spec:
   mappings:
     components:
       type:
         app/adminer: adminer-helm:1.0.0
         core/datastore/postgres: db-helm:1.0.0
+    features:
+      type:
+        core/k8s-dns-resolver:1.0.0: k8s-dns-resolver-helm:1.0.0

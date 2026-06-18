@@ -11,7 +11,9 @@ contrast is the lesson**:
   cross that seam.
 - **Kubernetes (Helm):** each boundary is its own **namespace**, and a pod in
   one reaches a Service in another by **native cross-namespace DNS**
-  (`db-default.backend`) — **no bridge**.
+  (`db-default.backend`) — **no bridge**. The database publishes a bare service
+  name; the consumer's **`core/k8s-dns-resolver`** routing feature qualifies it
+  with the target namespace.
 
 **The compose-bridge is what Kubernetes namespaces + cross-namespace DNS give you
 natively.** The seam-crossing is an Ops/Operator concern that differs by target;
@@ -40,10 +42,9 @@ components:
 ```
 
 The one `uses` edge injects the database's `host` into `ADMINER_DEFAULT_SERVER`.
-What that host *resolves to* is decided by the bound Recipe's `provides.host`
-(an Ops concern), not by the Aggregate — so the same edge yields
-`aggrega-gw:5432` under compose and `db-default.backend` under helm, with no
-change to developer intent.
+What that host *resolves to* is an Ops concern decided below the Aggregate — so
+the same edge yields `aggrega-gw:5432` under compose and `db-default.backend`
+under helm, with no change to developer intent.
 
 ## Variant A — local (Docker Compose): the bridge
 
@@ -106,11 +107,14 @@ dist/backend/helm/db-deployment.yaml            # metadata.namespace: backend
 dist/backend/helm/db-default-service.yaml        # metadata.namespace: backend
 ```
 
-There is **no `aggrega-gw`**. The helm `db` recipe's `provides.host` is the
-namespace-qualified DNS name of its synthesized Service — the helm provider names
-the Service `<instance_id>-<service-key>` (`db-default`), in the `backend`
-namespace, so a consumer in another namespace dials `db-default.backend`. The
-shared inject edge pipes exactly that into Adminer:
+There is **no `aggrega-gw`**. The helm `db` recipe publishes a **bare** service
+name in `provides.host` — the helm provider names the synthesized Service
+`<instance_id>-<service-key>` (`db-default`), with no namespace. The consumer
+attaches the **`core/k8s-dns-resolver`** routing feature (the Release points it at
+`ADMINER_DEFAULT_SERVER`), and the feature qualifies that bare host with the
+target's namespace on the consumer's own side — producing the cross-namespace DNS
+name `db-default.backend` before Adminer renders. The host is **derived**, not
+hand-written into the producer:
 
 ```yaml
 # dist/frontend/helm/adminer-deployment.yaml
@@ -130,7 +134,7 @@ the wiring.
 | --- | --- | --- |
 | boundary seam | separate compose **networks** | separate **namespaces** |
 | crossing mechanism | `core/compose-bridge` gateway (`aggrega-gw`) | native cross-namespace **DNS** |
-| `ADMINER_DEFAULT_SERVER` resolves to | `aggrega-gw:5432` (rewritten) | `db-default.backend` (direct) |
+| `ADMINER_DEFAULT_SERVER` resolves to | `aggrega-gw:5432` (rewritten) | `db-default.backend` (qualified caller-side) |
 | extra resource | the `aggrega-gw` service + its config | none |
 | same `aggrega.ai/namespace` drives | compose network placement | k8s namespace placement |
 
@@ -155,14 +159,14 @@ This example **consumes the standard library**. Each variant builds with a
 repeatable `--catalog`: its own local directory first, then the standard catalog
 (`--catalog catalog-<variant> --catalog ../../../../aggrega-hub/aggrega-catalog`),
 so the first-win search stack resolves local entities before the shared ones.
-`core/datastore/postgres`, the compose `core/compose-bridge` FeatureRecipe, and the
-`compose`/`helm` providers come from the standard catalog. What stays local is the
-example-specific teaching content: the `app/adminer` UI component and its per-target
-recipes, and the helm `db` recipe — whose `provides.host` is the namespace-qualified
-`<service>-default.backend` cross-namespace DNS name. That helm recipe is kept local
-deliberately: a standard-catalog entity cannot hardcode a consumer's boundary
-namespace, so generalizing it is a separate caller-side host-qualification design;
-until then this example carries its own.
+`core/datastore/postgres`, the compose `core/compose-bridge` and helm
+`core/k8s-dns-resolver` FeatureRecipes, and the `compose`/`helm` providers come from
+the standard catalog. What stays local is the example-specific teaching content: the
+`app/adminer` UI component and its per-target recipes, and the helm `db` recipe —
+whose `provides.host` is now a **bare, self-contained** service name. The consumer
+qualifies it with the target namespace caller-side via the standard-library
+`core/k8s-dns-resolver` routing feature, so the recipe no longer hardcodes a boundary
+namespace.
 
 Two categories of file meet in a built variant: **authored** inputs (everything
 above) and **compiler-generated** output under `dist/` (the merged
