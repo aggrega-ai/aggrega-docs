@@ -258,7 +258,7 @@ spec:
     $import: ./workload/web-server.yaml.tmpl
 ```
 
-Library `$import:` (the host-less `<Library>#/mappings/<entry>` identity form recognized by `valuesMapping:`) is not available at this site — Workload bodies are Recipe-local. The target Provider must declare `workloadSchema:` to accept synthesized input; targeting a Provider that does not is rejected when the node renders, with the provider-capability diagnostic. For the full Workload grammar, the K8s-shape pass-through fields, and the per-provider translation behavior, see [entities/workload.md](workload.md). For the broader three-input-kinds model and the assembler that merges synthesis with source-rendered output and artifacts, see [architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md).
+Library `$import:` (the host-less `<Library>#/mappings/<entry>` identity form recognized by `valuesMapping:`) is not available at this site — Workload bodies are Recipe-local. The target Provider's engine must support synthesis (the standard-library catalog declares `workloadSchema` on such providers by convention); targeting a provider whose engine cannot synthesize is rejected when the node renders, with the provider-capability diagnostic — keyed on engine capability, not on `workloadSchema` presence. For the full Workload grammar, the K8s-shape pass-through fields, and the per-provider translation behavior, see [entities/workload.md](workload.md). For the broader three-input-kinds model and the assembler that merges synthesis with source-rendered output and artifacts, see [architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md).
 
 ## The `artifacts:` field — auxiliary manifests
 

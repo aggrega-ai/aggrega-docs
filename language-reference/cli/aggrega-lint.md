@@ -24,6 +24,12 @@ The entity path may be given positionally or with `--entity <path>`. `--release`
 
 It runs no render and triggers no network pull: the closure resolves from the local catalog (and the Release's lockfile pins, when present); a registry-pinned closure that needs a lockfile surfaces an honest unresolvable-reference error rather than fetching. Narrowing is surfaced as advice, never enforced — the compiler takes no position on narrow-vs-relax (that stays the opt-in `--pre-publish` discipline rule below).
 
+## Input-kind capability check
+
+Both the whole-catalog and `--release` modes report a Recipe or FeatureRecipe that declares a `workload:` block (synthesized mode) bound to a provider whose engine cannot synthesize — for example a `workload:` Recipe targeting the `helm-chart` provider, which produces an umbrella-chart scaffold rather than rendered manifests. Such a Recipe can never build: it halts at render with a provider-capability error. Lint surfaces that guaranteed failure early — at catalog-author or pre-build time — as an **error** (non-zero exit), with the same message the build emits, so a Recipe that is unbuildable on the current provider engines is caught before any build resolves it. This is an early detector, not a new rule: the build's render-time check remains the authoritative one, and lint consults the same provider-engine capability, so the two never disagree.
+
+The check fires only for a provider whose engine ships and definitively does not synthesize. A `workload:` Recipe naming a provider with no shipped engine yet — a forward-looking catalog entry for an engine that has not landed — is not flagged; lint does not reject scaffolding for engines that do not exist yet.
+
 ## Entity discipline: local and publish gate
 
 The entity-path mode runs at one of two severities:

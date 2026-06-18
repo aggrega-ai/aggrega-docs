@@ -36,22 +36,22 @@ Inline constraint violations (e.g., a developer setting a port to `80` against a
 
 ### Layer 3 — Provider source / `workloadSchema`
 
-**Scope.** Two sub-surfaces, both governed by the Provider entity:
+**Scope.** Governed by the Provider entity, with one validating sub-surface today plus the synthesized-mode capability gate:
 
 - The Provider's `baseSchema` — validates the values dictionary the Recipe passes to the provider engine for sourceless (generative) rendering. Each provider's accepted keyset for sourceless mode is declared here.
-- The Provider's `workloadSchema` — validates the Workload content a Recipe synthesises for synthesized-mode rendering. Workload-mode Recipes target only Providers that declare `workloadSchema`; absence of `workloadSchema` means synthesis is not supported on that provider.
+- Synthesized-mode (`workload:`) support is gated on the bound provider's **engine capability**, not on `workloadSchema` presence: a `workload:` Recipe bound to a provider whose engine cannot synthesize is rejected here. The standard-library catalog declares `workloadSchema` on synthesis-capable providers by convention, as the documented translation contract.
 
-**Validation runs.** At Step 5 Phase B, after the Recipe's own valuesMapping has resolved. Layer 3 validates the *output* of valuesMapping (or the synthesised Workload) against the bound Provider's schema, gating provider-engine dispatch.
+**Validation runs.** At Step 5 Phase B, after the Recipe's own valuesMapping has resolved. Layer 3 validates the *output* of valuesMapping against the bound Provider's `baseSchema` (sourceless mode) and gates synthesized-mode dispatch on engine capability.
 
-**Error shape.** Workload schema validation carries a `CATALOG_ERROR:` prefix attributing the failure to the catalog entity:
+**Error shape.** A capability decline carries a `CATALOG_ERROR:` prefix naming the node and provider:
 
 ```text
-CATALOG_ERROR: Recipe <path> (<name>:<version>) violates rule 4:
-workload: requires the bound Provider to declare workloadSchema
-Provider <provider-name> has no workloadSchema; Workload synthesis is not supported on this provider
+CATALOG_ERROR: node <node-id>: provider <provider-name> does not support synthesised recipes (this provider supports: <kinds>); declare one of the supported input kinds, or target a provider that supports synthesised
 ```
 
-Provider source-keyset violations follow the same `CATALOG_ERROR:` shape — the catalog entity (the Recipe's authored `source:` block, the Provider's declared schema) is what's at fault, not the developer's Aggregate.
+Provider source-keyset (`baseSchema`) violations follow the same `CATALOG_ERROR:` shape — the catalog entity (the Recipe's authored `source:` block, the Provider's declared schema) is what's at fault, not the developer's Aggregate.
+
+> **Honest-pending — per-provider Workload-content validation.** The Provider's `workloadSchema` does not validate Workload bodies today; it is documentation-only, and Workload bodies are validated against the platform-owned embedded Workload schema. When the Wasm-based Workload synthesizer ships (see the roadmap), `workloadSchema` becomes the per-provider content contract the synthesizer validates the Workload body against — a second Layer-3 sub-surface — including per-provider constraints such as a `min: 1024` non-privileged-port rule. The constraint-overlap examples below describe that end-state.
 
 ### Layer 4 — Annotation-binding value validation
 
@@ -73,15 +73,15 @@ For the full inventory of Aggrega-prefixed sentinels and the surfaces that produ
 
 ## Layer interaction when fields overlap
 
-The same authored field can be governed by more than one layer. The most common overlap is a Workload's `containers.<name>.ports.<port>: <number>` field:
+The same authored field can be governed by more than one layer. The most common overlap is a Workload's `containers.<name>.ports.<port>: <number>` field. **This walkthrough describes the end-state of per-provider `workloadSchema` content validation, which is honest-pending** (see the Layer 3 note above and the roadmap's Wasm-based Workload synthesizers item): today the Workload body is validated against the platform-owned embedded Workload schema, not the per-provider `workloadSchema`.
 
 - Layer 1 (envelope) accepts it as part of the Workload schema's structural shape.
 - Layer 2 (pillar schemas) does not constrain it directly — Workload content is a Recipe-internal structure, not a Component pillar.
-- Layer 3 (`workloadSchema`) validates the integer range (e.g., `>=1, <=65535`) and any provider-specific constraints declared on the bound Provider.
+- Layer 3 (`workloadSchema`) will validate the integer range (e.g., `>=1, <=65535`) and any provider-specific constraints declared on the bound Provider, once per-provider `workloadSchema` validation ships.
 
-When a developer authors `port: 80` and the Provider's `workloadSchema` declares `port: >=1024`, the Layer 3 pass rejects the value. The same field shape would have passed Layer 1 and Layer 2 (which never applied); the layer that fired tells the author where to look for the rule.
+When a developer authors `port: 80` and the Provider's `workloadSchema` declares `port: >=1024`, the Layer 3 pass will reject the value. The same field shape would have passed Layer 1 and Layer 2 (which never applied); the layer that fires tells the author where to look for the rule.
 
-A second common overlap pattern: cross-pillar constraints declared at the pillar layer that duplicate constraints in `workloadSchema`. When the pillar schema allows port 80 (no constraint) but `workloadSchema` rejects ports below 1024, the Layer 3 pass surfaces the violation at Step 5 Phase B; the developer sees the failure attributed to the Recipe + Provider pairing, not to the Component's `schema:`. The constraint-layering convention is documented at [`vocabulary/data-pillars.md`](data-pillars.md) (Cross-pillar constraint behavior section).
+A second overlap pattern: cross-pillar constraints declared at the pillar layer that duplicate constraints in `workloadSchema`. When the pillar schema allows port 80 (no constraint) but `workloadSchema` declares ports below 1024 invalid, the Layer 3 pass will surface the violation at Step 5 Phase B; the developer sees the failure attributed to the Recipe + Provider pairing, not to the Component's `schema:`. The constraint-layering convention is documented at [`vocabulary/data-pillars.md`](data-pillars.md) (Cross-pillar constraint behavior section).
 
 ## Pipeline placement summary
 
@@ -89,7 +89,7 @@ A second common overlap pattern: cross-pillar constraints declared at the pillar
 | --- | --- | --- | --- |
 | 1 — JSON Schema envelope | Structural shape (apiVersion, kind, metadata, top-level spec) | Step 1 (load) | unprefixed YAML / unmarshal error |
 | 2 — Pillar schemas (`schema:` / `secretsSchema` / `usesSchema`) | Per-pillar data validation (values, infra, secrets, uses) | Step 1 (after envelope) | unprefixed schema-validation error |
-| 3 — Provider source / `workloadSchema` | Recipe output / Workload content gates | Step 5 Phase B | `CATALOG_ERROR:` |
+| 3 — Provider `baseSchema` + engine-capability gate (per-provider `workloadSchema` content validation honest-pending) | Sourceless Recipe output (`baseSchema`); synthesized-mode support (engine capability) | Step 5 Phase B | `CATALOG_ERROR:` |
 | 4 — Annotation-binding value validation | Annotation-value contributions routed into the target Feature's `spec.schema` via the Manifest binding's `maps` paths | Step 1 annotation-expansion sub-phase, alongside Layer 2 | schema-validation error; side-vs-pillar / ambiguous-routing surfaces carry `OPS_ERROR:` |
 
 ## Cross-references

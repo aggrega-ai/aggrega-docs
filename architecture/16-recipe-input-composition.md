@@ -93,7 +93,7 @@ The Recipe schema and load validation enforce these composition rules:
 
 1. **`valuesMapping:` requires `source:`.** Without a source engine to overlay, there is nothing to receive the mapped values. A Recipe with `valuesMapping:` and no `source:` is a load-time error. (A `source:` without `valuesMapping:` is permitted — the chart or module renders with its own defaults.)
 2. **`workload:` accepts one source — inline or `$import:`, not both.** A Recipe specifies the Workload as either an inline block scalar or a `$import:` to a single file. The `$import:` form is single-source per the unified file-import vocabulary; multi-source merge is not supported at `workload:`. Load-time error on a malformed dispatch.
-3. **`workload:` requires a synthesis-capable provider.** A provider declares synthesis support by carrying `workloadSchema:`; targeting a provider that does not support synthesis with a `workload:` Recipe is rejected when the node renders — through the provider-capability gate (see the Provider Capability Matrix) — with a clear diagnostic.
+3. **`workload:` requires a synthesis-capable provider.** Synthesis support is a property of the provider's rendering engine, not of any declared field. A `workload:` Recipe bound to a provider whose engine cannot synthesize is rejected when the node renders — through the provider-capability gate (see the Provider Capability Matrix) — with a clear diagnostic. The standard-library catalog declares `workloadSchema` on synthesis-capable providers by convention, as the documented translation contract, but the gate keys on engine capability rather than on that field's presence.
 4. **At least one input kind must be present.** A Recipe with none of `source:`+`valuesMapping:`, `workload:`, or `artifacts:` produces no output and is a load-time error.
 5. **Inline and `$import:` artifact entries may coexist.** A Recipe may declare some `artifacts:` entries inline and others via per-entry `$import:` directives. Filename collision across the two forms is a load-time error.
 6. **Cross-input-kind filename collisions are render-time errors.** If two of a Recipe's input kinds — source-rendered output, workload-synthesized output, or artifact-emitted output — produce a file with the same name, the Engine emits a fatal error identifying every contributor. This check runs after Workload translation, so it's render-time rather than load-time.
@@ -358,9 +358,9 @@ spec:
     // ...
 ```
 
-The `workloadSchema` field communicates translation intent to catalog authors and IDE tooling, and its presence declares that the provider supports Workload synthesis. A Provider that omits `workloadSchema` does not support synthesis; a Recipe targeting such a provider with `workload:` is rejected when the node renders — through the provider-capability gate — with a clear error.
+The `workloadSchema` field communicates translation intent to catalog authors and IDE tooling. It is the documented translation contract, declared by convention on providers whose engine synthesizes — but synthesis support is determined by the provider's rendering engine, not by this field's presence. A Recipe targeting a provider whose engine cannot synthesize with `workload:` is rejected when the node renders — through the provider-capability gate — with a clear error, whether or not the provider declares `workloadSchema`.
 
-*The Provider schema declares `workloadSchema` today. Provider-side validation of the contract (Recipe load-time rejection when the target Provider omits `workloadSchema`) lands alongside Recipe consumption of `workload:`.*
+*The Provider schema declares `workloadSchema` today, and Recipe-side `workload:` consumption ships. Synthesis support is enforced at render time by the provider-capability gate, keyed on the bound engine's capability; `workloadSchema` is the documented contract the standard-library catalog keeps in sync with that capability, not itself the gate input. `aggrega lint` additionally surfaces a `workload:` Recipe bound to a non-synthesizing provider early, before a build.*
 
 ### Auxiliary Resources Live Outside the Workload
 

@@ -64,18 +64,18 @@ Emitted message:
 
 **How to fix:** declare a `valuesMapping:` (inline Go template, or file `$import:`, or library `$import:` to a [MappingLibrary](../entities/mappinglibrary.md) entry) that produces the values overlay for the source, or remove the `source:` and adopt the input kind that matches your authoring intent.
 
-#### Rule 4 — `workload:` requires the Provider to declare `workloadSchema`
+#### Rule 4 — `workload:` requires a provider whose engine can synthesize
 
-A Recipe declares `workload:` for a Provider that omits `workloadSchema`. Providers that do not declare `workloadSchema` do not support synthesized-mode rendering; pointing a synthesized Recipe at such a Provider has no rendering implementation behind it.
+A Recipe declares `workload:` (synthesized mode) for a provider whose rendering engine does not implement Workload synthesis. Synthesized-mode support is a property of the provider's engine — the standard-library catalog declares `workloadSchema` on synthesis-capable providers by convention, but the check keys on engine capability, not on that field's presence.
 
-Rule 4 is checked after the Manifest binds the Recipe to its Provider, so the message names both entities.
+The check runs at render time (Step 5), via the central input-kind gate, after the node's provider engine is bound; the message names the node and the provider.
 
 Emitted message:
-> CATALOG_ERROR: Recipe `<path>` (`<name>:<version>`) violates rule 4:
-> workload: requires the bound Provider to declare workloadSchema
-> Provider `<provider-name>` has no workloadSchema; Workload synthesis is not supported on this provider
+> CATALOG_ERROR: node `<node-id>`: provider `<provider-name>` does not support synthesised recipes (this provider supports: `<kinds>`); declare one of the supported input kinds, or target a provider that supports synthesised
 
-**How to fix:** either bind the Recipe to a Provider that declares `workloadSchema` (most commonly `helm`), or migrate the Recipe to a different input kind (`artifacts:` for direct manifest emission, or `source:` + `valuesMapping:` if a chart/module exists).
+**How to fix:** either bind the Recipe to a provider whose engine synthesizes (most commonly `helm` or `compose`), or migrate the Recipe to a different input kind (`artifacts:` for direct manifest emission, or `source:` + `valuesMapping:` if a chart/module exists).
+
+> **Honest-pending — per-provider Workload-content validation.** Today the provider's `workloadSchema` is documentation-only and does not validate the Workload body; bodies are validated against the platform-owned embedded Workload schema. When the Wasm-based Workload synthesizer ships, `workloadSchema` becomes the per-provider contract the synthesizer validates the Workload body against (a distinct, content-level halt). See the roadmap's Wasm-based Workload synthesizers item.
 
 #### Rule 5 — at least one input kind must be present
 

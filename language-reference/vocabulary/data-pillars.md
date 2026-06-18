@@ -262,11 +262,11 @@ For the inject grammar and collision rules, see [topology-triad.md](topology-tri
 
 ### Cross-pillar constraint duplication
 
-A field that lives in two pillars with different validation layers can carry duplicate constraints. The canonical example: a port number declared in a Component's `usesSchema` (JSON-Schema-validated, range `min: 1, max: 65535`) and the same port number consumed in a Workload's `services.<name>.ports.<port>` field (validated by the Provider's `workloadSchema`, which may add a `min: 1024` rule for non-privileged ports).
+A field that lives in two pillars with different validation layers can carry duplicate constraints. The canonical example: a port number declared in a Component's `usesSchema` (JSON-Schema-validated, range `min: 1, max: 65535`) and the same port number consumed in a Workload's `services.<name>.ports.<port>` field, which the Provider's `workloadSchema` may add a `min: 1024` rule for non-privileged ports. **This per-provider `workloadSchema` content validation is honest-pending** (see [validation-surface.md](validation-surface.md) Layer 3 and the roadmap's Wasm-based Workload synthesizers item): today `workloadSchema` is documentation-only and Workload bodies are validated against the platform-owned embedded Workload schema, so the second-layer rejection described here is the designed end-state, not current behavior.
 
-When the `usesSchema` allows port 80 but `workloadSchema` rejects ports below 1024, the runtime fires the `workloadSchema` rejection at Step 5 Phase B — the Layer 3 validation per [validation-surface.md](validation-surface.md). The first layer's constraint passed; the second layer caught the violation.
+When the `usesSchema` allows port 80 but `workloadSchema` declares ports below 1024 invalid, the runtime will fire the `workloadSchema` rejection at Step 5 Phase B — the Layer 3 validation per [validation-surface.md](validation-surface.md). The first layer's constraint passed; the second layer caught the violation.
 
-The duplication is deliberate: each layer covers a different concern. The Component's `usesSchema` governs the cognitive contract (the developer's `uses:` declaration). The Provider's `workloadSchema` governs the rendered-output contract (what the helm engine accepts). When both apply to the same field, the strictest wins; authors who hit the second layer's rejection see a `CATALOG_ERROR:` attributed to the Recipe-Provider pairing.
+The duplication is deliberate: each layer covers a different concern. The Component's `usesSchema` governs the cognitive contract (the developer's `uses:` declaration). The Provider's `workloadSchema` governs the rendered-output contract (what the engine accepts). When both apply to the same field, the strictest wins; authors who hit the second layer's rejection see a `CATALOG_ERROR:` attributed to the Recipe-Provider pairing.
 
 ### Feature attachment / Component pillar isolation
 

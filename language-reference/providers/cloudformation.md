@@ -16,7 +16,7 @@ When the CloudFormation provider ships, its capability surface is intended to co
 
 ## Provider capability declaration
 
-A Provider entity backs the `cloudformation` name. When the provider ships, the Provider entity will declare a `workloadSchema` if (and only if) the synthesized input kind is supported. Recipes targeting `cloudformation` with `workload:` require that declaration — a Recipe that uses synthesized input against a Provider without `workloadSchema` fails at Recipe load (see [../entities/recipe.md](../entities/recipe.md)).
+A Provider entity backs the `cloudformation` name, but no `cloudformation` rendering engine is registered with the compiler yet, so a Recipe targeting `cloudformation` is rejected at render time as an unknown provider (regardless of input kind). When the engine ships, whether it supports the synthesized input kind (`workload:`) will be a property of that engine; the catalog will declare `workloadSchema` on the Provider by convention if synthesis is supported, as the documented translation contract (see [../entities/recipe.md](../entities/recipe.md)).
 
 ## Output layout
 

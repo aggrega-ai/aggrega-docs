@@ -30,7 +30,7 @@ Each mechanism lives at a specific Recipe / FeatureRecipe authoring surface and 
 
 - **helm provider** — one Deployment (or StatefulSet when persistentTemplate volumes exist) + per-service Service + per-persistent-volume PVC. Files named `<nodeID>-<kind>.yaml` (e.g., `<nodeID>-deployment.yaml`, `<nodeID>-service-<svcName>.yaml`, `<nodeID>-pvc-<volName>.yaml`).
 - **compose provider** — intermediate `<nodeID>.compose-fragment.yaml` files that flow into Release-level composition.
-- **helm-chart provider** — not supported; helm-chart's role is sourced-mode chart composition only. A Recipe targeting helm-chart with `workload:` is rejected at Recipe load.
+- **helm-chart provider** — not supported; helm-chart's role is sourced-mode chart composition only. A Recipe targeting helm-chart with `workload:` is rejected at render time (the helm-chart engine reports no synthesis capability).
 
 ### 3 — FeatureRecipe Resource Generation (sourced mode for FeatureRecipes)
 
