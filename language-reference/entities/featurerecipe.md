@@ -214,7 +214,7 @@ spec:
 
 ```yaml
 spec:
-  implements: core/secret-value:^1.0.0
+  implements: core/referenced-secret:^1.0.0
   pipeline:
     - id: fetch-secret
       plugin: secret-providers/aws-secrets-manager:^1.0.0
@@ -228,6 +228,6 @@ spec:
     {{- end -}}
 ```
 
-The rule above is specific to the `aws-secrets-manager` plugin 1.x; it does not apply if a different `core/secret-value` FeatureRecipe binds. The Feature-level contract rules from the Feature definition still apply alongside.
+The rule above is specific to the `aws-secrets-manager` plugin 1.x; it does not apply if a different `core/referenced-secret` FeatureRecipe binds. The Feature-level contract rules from the Feature definition still apply alongside.
 
 FeatureRecipe assertions evaluate after FeatureRecipe binding and before Resource Generation. The template context for component-scope FRs mirrors the Recipe assertions context (entity-instance fields plus `.provides`, `.locals`, `.recipe.metadata`, `.recipe.source`); for boundary-scope FRs (`executionScope: boundary`), assertions evaluate against the boundary-scope view (`.boundary.*` fields available; per-component fields not). For the full authoring grammar and worked examples, see [templates/assertions-block.md](../templates/assertions-block.md).

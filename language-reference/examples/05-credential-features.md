@@ -1,10 +1,17 @@
 # Credential Features
 
-The credential pillar uses `secretsSchema` validation (see [entities/component.md](../entities/component.md#credential-slots-secretsschema)), the `core/secret-value` abstract Feature, and provider-specific FeatureRecipes to form a complete black-box secret pipeline. This chapter walks through the flow end-to-end using shipped standard-library entities.
+The credential pillar uses `secretsSchema` validation (see [entities/component.md](../entities/component.md#credential-slots-secretsschema)), the standard library's credential Feature family, and provider-specific FeatureRecipes to form a complete black-box secret pipeline. This chapter walks through the flow end-to-end using shipped standard-library entities.
 
-## `core/secret-value` — the Abstract Credential Feature
+## The Credential Feature Family
 
-`core/secret-value` is a provider-agnostic credential Feature. The developer references it by type in their `secrets:` block; the Manifest maps it to a provider-specific FeatureRecipe per target environment.
+A credential Feature carries the `feature.aggrega.ai/kind: secret` label. The compiler enforces a hard partition for that label: a credential Feature may appear only in a Component's `secrets:` block, never in the `features:` block. The developer references a credential Feature by type in their `secrets:` block; the Manifest maps it to a provider-specific FeatureRecipe per target environment.
+
+The standard library splits credential Features by *result* — what the FeatureRecipe ultimately does with the secret:
+
+- **`core/secret-value`** delivers a value into the inject pipe. The FeatureRecipe writes the secret into the consuming component's environment (a chart value, an env var) and contributes no standalone resource.
+- **`core/referenced-secret`** materializes a referenceable secret *resource* — a Kubernetes Secret, an AWS Secrets Manager secret, a Vault entry — and publishes that resource's identity through a `schema.provides` output contract so a consumer can point at it.
+
+**`core/secret-value` — injected value.**
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -21,13 +28,31 @@ spec:
       key:    { type: string, default: "value" }
 ```
 
-The `feature.aggrega.ai/kind: secret` label makes this a credential Feature, subject to the compiler's partition rule: it may only appear in a Component's `secrets:` block, never in the `features:` block.
+**`core/referenced-secret` — referenceable resource.** It declares the same `values` inputs plus a `provides` output contract: `name` (the produced resource's provider-neutral locator — a Kubernetes Secret name, an AWS Secrets Manager ARN, a Vault path) and `key` (the data field within it). A consumer reads these as `.secrets.<slot>.provides.name` and `.secrets.<slot>.provides.key`.
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Feature
+metadata:
+  name: core/referenced-secret
+  version: 1.0.0
+  labels:
+    feature.aggrega.ai/kind: secret
+spec:
+  schema:
+    values:
+      source: { type: string, required: true }
+      key:    { type: string, default: "value" }
+    provides:
+      name: { type: string }
+      key:  { type: string }
+```
+
+A credential Feature that declares a `provides` contract obliges every FeatureRecipe implementing it to publish those keys — the build halts if a FeatureRecipe omits one. This is the producer-side guarantee that makes the consumer's `.secrets.<slot>.provides.<key>` read safe.
 
 ## Provider-Specific FeatureRecipes
 
-Two shipped FeatureRecipes implement `core/secret-value` for different targets.
-
-**`k8s-secret-from-parameter`** (for dev and local workflows). Generates a Kubernetes Secret from a literal value passed via Release parameters:
+**`k8s-secret-from-parameter`** (for dev and local workflows) implements `core/referenced-secret`. It generates a Kubernetes Secret from a literal value passed via Release parameters, and publishes the generated Secret's identity as `provides`. The chart input derives from that same `provides`, so the name is authored exactly once:
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -37,15 +62,18 @@ metadata:
   version: 1.0.0
 spec:
   provider: helm
-  implements: core/secret-value:1.0.0
+  implements: core/referenced-secret:1.0.0
+  provides:
+    name: "{{ .context.instance_id }}-{{ .secret_name }}"
+    key:  "{{ .values.key }}"
   source: ./charts/k8s-secret
   valuesMapping: |
-    secretName: "{{ .context.instance_id }}-{{ .secret_name }}"
-    secretKey: "{{ .values.key }}"
+    secretName: "{{ .provides.name }}"
+    secretKey: "{{ .provides.key }}"
     secretValue: "{{ .values.source }}"
 ```
 
-**`dotenv-secret`** (Compose, local dev). Maps a secret to a `.env` file entry that Docker Compose resolves at runtime:
+**`dotenv-secret`** (Compose, local dev) implements `core/secret-value`. It maps a secret to a `.env` file entry that Docker Compose resolves at runtime — an injected value, no standalone resource and no `provides`:
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -61,16 +89,18 @@ spec:
       {{ .values.key }}: "{{ .values.source }}"
 ```
 
+`env-secret-helm` follows the same injected-value shape for the Helm provider, writing the value into the component's inject pipe rather than producing a resource.
+
 ## End-to-End Flow
 
-The six steps from developer authoring to compiled output:
+The six steps from developer authoring to compiled output, using the referenceable path (`k8s-secret-from-parameter`):
 
-1. **Developer writes the Aggregate** with a `secrets:` block referencing `core/secret-value`:
+1. **Developer writes the Aggregate** with a `secrets:` block referencing `core/referenced-secret`:
 
     ```yaml
     secrets:
       root_password:
-        type: core/secret-value:1.0.0
+        type: core/referenced-secret:1.0.0
         values:
           source: "{{ .parameters.db_root_pass }}"
           key: mariadb-root-password
@@ -89,7 +119,7 @@ The six steps from developer authoring to compiled output:
           # ... boundary infra ...
     ```
 
-3. **Ops writes the Manifest** mapping `core/secret-value` to the provider-specific FeatureRecipe:
+3. **Ops writes the Manifest** mapping `core/referenced-secret` to the provider-specific FeatureRecipe:
 
     ```yaml
     spec:
@@ -97,39 +127,32 @@ The six steps from developer authoring to compiled output:
         helm:
           features:
             type:
-              "core/secret-value": "k8s-secret-from-parameter:1.0.0"
+              "core/referenced-secret": "k8s-secret-from-parameter:1.0.0"
     ```
 
-4. **Base Recipe** (e.g., `mariadb-bitnami`) declares a stable name for the secret in its `locals` and consumes it in its `valuesMapping`:
+4. **Base Recipe** (e.g., `mariadb-bitnami`) references the produced Secret by reading the slot's published locator — no name re-derivation on the consuming side:
 
     ```yaml
-    locals:
-      secret_target_root_password: "{{ .context.instance_id }}-mariadb-auth"
     valuesMapping: |
       auth:
-        existingSecret: "{{ .locals.secret_target_root_password }}"
+        existingSecret: "{{ .secrets.root_password.provides.name }}"
     ```
 
 5. **Compilation runs:**
     - Step 1 validates the `secrets:` block against the auto-generated schema rules derived from the Component's `secretsSchema`.
-    - Pass 1 evaluates the base Recipe's `locals` (producing the deterministic secret name).
-    - Phase B evaluates the base Recipe's `valuesMapping` (Helm renders the MariaDB chart referencing `secret_target_root_password`).
-    - Phase B also evaluates the `k8s-secret-from-parameter` FeatureRecipe's `valuesMapping` with `.secret_name = "root_password"`, producing a Kubernetes Secret manifest with the matching name.
+    - The credential FeatureRecipe's `provides` is evaluated once, producing the slot's `name` and `key`. Because the FeatureRecipe's `valuesMapping.secretName` derives from `{{ .provides.name }}` and the consumer reads `.secrets.root_password.provides.name`, both sides resolve from that single evaluation — the rendered Secret name and the consumer's reference are the same string by construction.
+    - Phase B evaluates the base Recipe's `valuesMapping` (Helm renders the MariaDB chart referencing the published Secret name) and the `k8s-secret-from-parameter` FeatureRecipe's `valuesMapping` (producing the Kubernetes Secret manifest with the matching name).
 
-6. **Output:** `dist/boundaries/production/` contains the MariaDB Deployment and Service (from the base Recipe) plus a Kubernetes Secret (from the credential FeatureRecipe). The Deployment's `auth.existingSecret` references the same deterministic name the Secret carries.
+6. **Output:** `dist/boundaries/production/` contains the MariaDB Deployment and Service (from the base Recipe) plus a Kubernetes Secret (from the credential FeatureRecipe). The Deployment's `auth.existingSecret` references the same name the Secret carries.
 
 ## Secret Naming Across Base Recipe and FeatureRecipe
 
-The base Recipe's `valuesMapping` needs to reference the Kubernetes Secret the credential FeatureRecipe emits. Two patterns keep those names aligned:
-
-**Convention-based.** Both Recipes construct the name independently following the same convention (`{instance_id}-{component}-auth` or similar). Simple, but relies on both sides agreeing on the convention.
-
-**Export Contract.** The base Recipe declares the expected secret name in its `locals` (for example, `secret_target_root_password: "{{ .context.instance_id }}-mariadb-auth"`). The FeatureRecipe reads from that shared `locals` entry rather than constructing the name itself:
+A base Recipe's `valuesMapping` needs to reference the Kubernetes Secret the credential FeatureRecipe emits. For a `core/referenced-secret` slot, the FeatureRecipe publishes the resource's locator through its `provides` contract, and the consumer reads it as `.secrets.<slot>.provides.name`:
 
 ```gotemplate
-{{ index .locals (printf "secret_target_%s" .secret_name) }}
+existingSecret: "{{ .secrets.root_password.provides.name }}"
 ```
 
-This removes the convention coupling — changing the naming scheme only needs an edit on the base Recipe side. Standard-library FeatureRecipes use this pattern.
+The name is authored once — on the producing FeatureRecipe's `provides` — and every reader resolves from that single published value. There is no naming convention for both sides to agree on and no shared `locals` entry to keep aligned: changing the naming scheme is an edit on the FeatureRecipe's `provides` alone, and the contract guarantees the key is present for the consumer to read.
 
-*The Two-Part Plugin extension for vault-fetching FeatureRecipes — a Fetcher Wasm plugin that generates vault-specific CRDs (such as an External Secrets `ExternalSecret`) plus an Injector Wasm plugin that mounts the fetched secret into workload containers — is under active development. The architectural scaffolding ships today (FeatureRecipe `pipeline:` arrays for Wasm plugin chaining, the `.locals` Export Contract); the specific vault-fetching FeatureRecipes and their Wasm plugins land as the standard library catalog expands.*
+*The Two-Part Plugin extension for vault-fetching FeatureRecipes — a Fetcher Wasm plugin that generates vault-specific CRDs (such as an External Secrets `ExternalSecret`) plus an Injector Wasm plugin that mounts the fetched secret into workload containers — is under active development. The architectural scaffolding ships today (FeatureRecipe `pipeline:` arrays for Wasm plugin chaining, the `provides` output contract); the specific vault-fetching FeatureRecipes and their Wasm plugins land as the standard library catalog expands.*
