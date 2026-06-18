@@ -84,15 +84,19 @@ injectMapping: |
     {{ if $raw }}{{ $ns = $raw }}{{ end }}
   {{ end }}{{ end }}
 
-  # 4. Qualify the host with the namespace. An unset namespace resolves to
-  #    "default" — where the helm provider deploys an unannotated workload — so
-  #    the qualified host always matches the service's actual location and is
-  #    never malformed.
+  # 4. Qualify the host with the namespace — but only when a target connection
+  #    and a base host were actually found, so a target_var that matches no
+  #    connection injects nothing instead of a spurious variable. An unset
+  #    namespace resolves to "default", where the helm provider deploys an
+  #    unannotated workload, so the qualified host always matches the service's
+  #    actual location and is never malformed.
+  {{ if and $target_edge $base_host }}
   {{ $resolved_host := printf "%s.%s" $base_host $ns }}
 
   # 5. Emit the precise override dictionary for the compiler to deep-merge
   env:
     "{{ .infra.target_var }}": "{{ $resolved_host }}"
+  {{ end }}
 ```
 
 ## Use Cases Beyond Routing
