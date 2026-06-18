@@ -394,14 +394,14 @@ Emitted message:
 
 After every contract is validated, the compiler evaluates Go templates on Component values, FeatureRecipe `injectMapping` blocks, and Recipe sources, then hands the result to the renderer.
 
-### `provides:` template references cross-node data
+### `provides:` template references a non-self-contained root
 
-A Recipe's `provides:` template references `.context.inject` or `.context.uses`. The `provides` block is evaluated before the inject pipe is hydrated and before cross-node edges are walked — it may only reference data belonging to its own node (`.context.instance_id`, `.locals`, `.values`, `.infra`, and static strings).
+A Recipe's `provides:` template references a root outside the self-contained set. The `provides` block is evaluated in Pass 1, before the inject pipe is hydrated and before cross-node edges are walked, so it may reference only data belonging to its own node: `.context.instance_id`, `.values`, `.infra`, `.locals`, and static strings. The check is a positive allowlist, so any other root halts — `.context.inject` and `.context.uses` (cross-node), and `.context.annotations.*`, `.context.labels`, `.context.metadata`, and `.metadata.*` (placement- or deployment-coupled data the provides surface does not expose). Referencing one of these halts loudly rather than silently rendering an empty value.
 
 Emitted message:
-> node `<node-id>` provides[`<key>`]: template references `.context.inject` or `.context.uses`. The provides block is self-contained and may not reference cross-node data.
+> node `<node-id>` provides[`<key>`]: Recipe `<recipe>` provides references `<expression>` — the provides block is self-contained and may reference only .context.instance_id, .values, .infra, .locals, and static text.
 
-**How to fix:** refactor the template to pull only from the Recipe's own pillars. If the value you need depends on another node's output, that dependency belongs in a caller's `uses[].inject` block, not in the target's `provides`. Cross-node wiring is the consuming side's responsibility.
+**How to fix:** refactor the template to pull only from the Recipe's own pillars. If the value depends on another node's output, that dependency belongs in a caller's `uses[].inject` block, not in the target's `provides`. If you were reaching for the deployment namespace (or other placement data) to build a cross-namespace host, publish the bare host here and qualify it on the consumer side with a routing feature — the producer's `provides` must not depend on where it was deployed.
 
 ### Cross-node type safety violation via `selector:`
 
