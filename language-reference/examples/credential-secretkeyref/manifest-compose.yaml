@@ -1,0 +1,18 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: credential-secretkeyref-compose-manifest
+  version: "1.0.0"
+  description: >
+    Compose Ops mapping for the credential example. postgres binds to the compose
+    Recipe; the inject-value credential (core/secret-value) binds to
+    dotenv-secret, which delivers the password on the inject pipe (compose has no
+    Secret-resource / secretKeyRef primitive).
+spec:
+  mappings:
+    components:
+      type:
+        core/datastore/postgres: compose/postgres:1.0.0
+    features:
+      type:
+        core/secret-value:1.0.0: dotenv-secret:1.0.0

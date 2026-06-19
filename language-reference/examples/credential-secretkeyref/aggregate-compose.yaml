@@ -1,0 +1,23 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: credential-secretkeyref-compose
+  version: "1.0.0"
+  description: >
+    A single PostgreSQL database whose password is supplied by an inject-value
+    credential (core/secret-value). On the compose target the value is delivered
+    on the inject pipe (compose has no Secret-resource / secretKeyRef primitive),
+    and the compose Recipe reads it as POSTGRES_PASSWORD.
+spec:
+  components:
+    db:
+      type: core/datastore/postgres
+      secrets:
+        # Inject-value credential: delivers the value into the inject pipe; no
+        # Secret resource, no provides. The compose Recipe reads
+        # .context.inject.env.POSTGRES_PASSWORD.
+        password:
+          type: core/secret-value
+          values:
+            key: POSTGRES_PASSWORD
+            origin: dev-pw-change-me

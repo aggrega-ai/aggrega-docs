@@ -1,0 +1,24 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: credential-secretkeyref-helm
+  version: "1.0.0"
+  description: >
+    A single PostgreSQL database whose password is supplied by a referenceable
+    credential (core/referenced-secret). On the helm target this materializes a
+    real Kubernetes Secret, and the database StatefulSet references it via an env
+    secretKeyRef — the reference name is read from .secrets.password.provides.name,
+    byte-identical to the generated Secret's metadata.name (single source).
+spec:
+  components:
+    db:
+      type: core/datastore/postgres
+      secrets:
+        # Referenceable credential: materializes a Secret resource and publishes
+        # its locator (name/key) as provides. The postgres helm Recipe reads the
+        # slot via containers.secrets → env secretKeyRef.
+        password:
+          type: core/referenced-secret
+          values:
+            key: POSTGRES_PASSWORD
+            origin: dev-pw-change-me

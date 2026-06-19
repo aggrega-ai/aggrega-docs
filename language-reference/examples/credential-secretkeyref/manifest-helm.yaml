@@ -1,0 +1,22 @@
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: credential-secretkeyref-helm-manifest
+  version: "1.0.0"
+  description: >
+    Helm Ops mapping for the credential example. postgres binds to the helm synth
+    Recipe; the referenceable credential (core/referenced-secret) binds to
+    k8s-secret-from-parameter, which materializes a Kubernetes Secret the
+    database StatefulSet references via an env secretKeyRef. core/secret-value is
+    also mapped (to env-secret-helm) only so the negative case can attach a
+    non-referenceable credential and show it is rejected from a secretKeyRef
+    reference.
+spec:
+  mappings:
+    components:
+      type:
+        core/datastore/postgres: helm/postgres:1.0.0
+    features:
+      type:
+        core/referenced-secret:1.0.0: k8s-secret-from-parameter:1.0.0
+        core/secret-value:1.0.0: env-secret-helm:1.0.0
