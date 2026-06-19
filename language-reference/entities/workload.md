@@ -110,6 +110,8 @@ volumes:
 
 The `persistentTemplate` translation triggers automatic StatefulSet promotion on the helm engine — when any container declares a `persistentTemplate` volume, helm emits a StatefulSet rather than a Deployment; the per-pod identity that StatefulSet provides is required for the per-replica volume lifecycle. Authors who want StatefulSet semantics without `persistentTemplate` cannot opt in; the helm engine's promotion rule is volume-driven only.
 
+A promoted StatefulSet requires a headless governing Service: declare **exactly one** service with `type: Headless` in the same Workload, alongside the `persistentTemplate` volume. The engine wires the StatefulSet's `serviceName` to that headless Service (it provides the stable per-pod network identities a StatefulSet needs). The build halts if no headless service is declared — a StatefulSet has no governing Service to name — or if more than one is, leaving the governing Service ambiguous. A StatefulSet workload may still declare additional non-headless services (for example a `ClusterIP` service for client access) beside the one headless governing service.
+
 ### `services`
 
 An ordered map of service exposures. Each service declares its type (`ClusterIP`, `NodePort`, `LoadBalancer`, `Headless`) and a named-port map. Port names must match container port names declared elsewhere in the Workload:
@@ -414,7 +416,7 @@ The three patterns map to distinct shipping-shape concerns:
 - **Batch job** — bounded execution; no Service exposure; relies on Recipe-emitted ConfigMap or external state for input.
 - **Sidecar pair** — multi-container pod with shared network namespace; the sidecar's Service exposes the cross-cutting concern.
 
-A fourth pattern — **stateful server with persistent volume** — uses the Workload's `volumes.<name>.persistentTemplate` field to declare per-replica persistent storage; the helm provider's StatefulSet promotion rule (see [providers/helm.md](../providers/helm.md)) emits StatefulSet rather than Deployment when this volume variant is present. The pattern is identical in shape to "server with metrics" with an additional `persistentTemplate` volume; authors needing it adapt Pattern 1 with the volume declaration.
+A fourth pattern — **stateful server with persistent volume** — uses the Workload's `volumes.<name>.persistentTemplate` field to declare per-replica persistent storage; the helm provider's StatefulSet promotion rule (see [providers/helm.md](../providers/helm.md)) emits StatefulSet rather than Deployment when this volume variant is present. The pattern is identical in shape to "server with metrics" with an additional `persistentTemplate` volume **and** exactly one `type: Headless` service to govern the StatefulSet (the build halts without it); authors needing it adapt Pattern 1 with both declarations.
 
 ## Cross-references
 

@@ -52,7 +52,7 @@ A Recipe with `workload:` (inline or `$import:`-loaded) synthesises Kubernetes r
 
 For each node:
 
-- One **Deployment** carrying the Workload's containers, environment variables, ports, and replica count. When any container declares a `volumes[].persistentTemplate` volume, the engine promotes the resource to a **StatefulSet** instead — the volume's lifecycle requires per-pod identity that StatefulSet provides.
+- One **Deployment** carrying the Workload's containers, environment variables, ports, and replica count. When any container declares a `volumes[].persistentTemplate` volume, the engine promotes the resource to a **StatefulSet** instead — the volume's lifecycle requires per-pod identity that StatefulSet provides. A promoted StatefulSet requires exactly one `type: Headless` Service declared in the Workload to govern it; the engine wires the StatefulSet's `serviceName` to that Service's rendered name, and the build halts if no headless Service is declared (or if more than one is).
 - One **Service** per declared `services:` entry on the Workload, exposing the named ports the service spec lists.
 - One **PersistentVolumeClaim** per `persistentTemplate` volume, sized and shaped from the volume's spec.
 
