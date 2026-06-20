@@ -22,8 +22,8 @@ through Service DNS.
 
 This example consumes the standard catalog: `core/datastore/mariadb`,
 `core/secret-value`, `core/secret-provided`, and `core/shared-config` (with their
-helm FeatureRecipes `env-secret-helm`, `provided-secret-helm`, and
-`shared-config-helm`), the `mariadb-bitnami` recipe, and the `helm` provider all
+helm FeatureRecipes `env-secret`, `provided-secret`, and
+`shared-config`), the `mariadb-bitnami` recipe, and the `helm` provider all
 ship in the standard library.
 
 Only this example's own teaching scaffolding is local, under `./catalog`:

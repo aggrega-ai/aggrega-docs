@@ -89,7 +89,7 @@ spec:
       {{ .values.key }}: "{{ .values.origin }}"
 ```
 
-`env-secret-helm` follows the same injected-value shape for the Helm provider, writing the value into the component's inject pipe rather than producing a resource.
+`env-secret` follows the same injected-value shape for the Helm provider, writing the value into the component's inject pipe rather than producing a resource.
 
 ## End-to-End Flow
 
