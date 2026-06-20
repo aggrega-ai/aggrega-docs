@@ -52,7 +52,7 @@ A credential Feature that declares a `provides` contract obliges every FeatureRe
 
 ## Provider-Specific FeatureRecipes
 
-**`k8s-secret-from-parameter`** (for dev and local workflows) implements `core/referenced-secret`. It generates a Kubernetes Secret from a literal value passed via Release parameters, and publishes the generated Secret's identity as `provides`. The chart input derives from that same `provides`, so the name is authored exactly once:
+**`k8s-secret-from-parameter`** (for dev and local workflows) implements `core/referenced-secret`. It generates a Kubernetes Secret from a literal value passed via Release parameters, and publishes the generated Secret's identity as `provides`. The emitted Secret derives its name and data key from that same `provides`, so the name is authored exactly once — and it emits the resource inline via `artifacts:`, with no chart to ship:
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -66,11 +66,17 @@ spec:
   provides:
     name: "{{ .context.instance_id }}-{{ .secret_name }}"
     key:  "{{ .values.key }}"
-  source: ./charts/k8s-secret
-  valuesMapping: |
-    secretName: "{{ .provides.name }}"
-    secretKey: "{{ .provides.key }}"
-    secretValue: "{{ .values.origin }}"
+  # Emit a standalone Secret whose name and data key derive from the
+  # published provides, so the rendered Secret and the consumer's
+  # .secrets.<slot>.provides are one authored source. Self-contained.
+  artifacts:
+    secret.yaml: |
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: "{{ .provides.name }}"
+      stringData:
+        "{{ .provides.key }}": "{{ .values.origin }}"
 ```
 
 **`dotenv-secret`** (Compose, local dev) implements `core/secret-value`. It maps a secret to a `.env` file entry that Docker Compose resolves at runtime — an injected value, no standalone resource and no `provides`:
@@ -140,8 +146,8 @@ The six steps from developer authoring to compiled output, using the referenceab
 
 5. **Compilation runs:**
     - Step 1 validates the `secrets:` block against the auto-generated schema rules derived from the Component's `secretsSchema`.
-    - The credential FeatureRecipe's `provides` is evaluated once, producing the slot's `name` and `key`. Because the FeatureRecipe's `valuesMapping.secretName` derives from `{{ .provides.name }}` and the consumer reads `.secrets.root_password.provides.name`, both sides resolve from that single evaluation — the rendered Secret name and the consumer's reference are the same string by construction.
-    - Phase B evaluates the base Recipe's `valuesMapping` (Helm renders the MariaDB chart referencing the published Secret name) and the `k8s-secret-from-parameter` FeatureRecipe's `valuesMapping` (producing the Kubernetes Secret manifest with the matching name).
+    - The credential FeatureRecipe's `provides` is evaluated once, producing the slot's `name` and `key`. Because the FeatureRecipe's emitted Secret derives its `metadata.name` from `{{ .provides.name }}` and the consumer reads `.secrets.root_password.provides.name`, both sides resolve from that single evaluation — the rendered Secret name and the consumer's reference are the same string by construction.
+    - Phase B evaluates the base Recipe's `valuesMapping` (Helm renders the MariaDB chart referencing the published Secret name) and the `k8s-secret-from-parameter` FeatureRecipe's `artifacts:` (emitting the Kubernetes Secret manifest with the matching name).
 
 6. **Output:** `dist/boundaries/production/` contains the MariaDB Deployment and Service (from the base Recipe) plus a Kubernetes Secret (from the credential FeatureRecipe). The Deployment's `auth.existingSecret` references the same name the Secret carries.
 
