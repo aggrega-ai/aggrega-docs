@@ -18,6 +18,24 @@ aggrega build --release <path> [--catalog <dir>]... [--trace] [--detail] [other 
 - `--trace` — write per-pass intermediate state to `.trace/` (sibling to `dist/`) for post-mortem inspection. See [Trace output](#trace-output) below.
 - `--detail` — when build performs the implicit auto-pull (no lockfile present and `auto_pull` enabled), print per resolved entity what that pull did: fetched fresh from a registry, reused a cache slot, found in a local catalog, or external. This is the same transient pull-event diagnostic that [`aggrega pull --detail`](aggrega-pull.md) emits, written to stdout and never persisted to the lockfile. When a lockfile already exists, build does not pull, so there is nothing to report: the flag prints a one-line note to stderr and proceeds — it never fabricates a resolution tier the committed lockfile does not carry. For the post-pull resolution *state* of a closure, use [`aggrega inspect`](aggrega-inspect.md).
 
+## Workspace resolution and determinism
+
+A relative `catalog_dirs` entry (and a relative filesystem plugin path) resolves
+against the directory of the `.aggrega-config.yaml` that declared it — "relative"
+always means relative to the file you wrote it in, so a path means the same
+thing wherever you invoke `aggrega` from. A `--catalog` flag, which has no
+declaring file, resolves against the current working directory. Registry
+references (`oci://…`, a hub reference) are left as-is.
+
+The workspace root is the directory of the nearest ancestor `.aggrega-config.yaml`
+carrying a `workspace:` block, or the directory `--workspace-root` names. When the
+root is pinned this way, a build is **invocation-location-independent**: running
+`aggrega build` from the project root and from a subdirectory produces
+byte-identical IR and rendered artifacts, because the catalog searched and the
+source paths recorded in the output do not shift with the working directory. (With
+no `workspace:` marker and no `--workspace-root`, the working directory is the
+root, so output is anchored there instead.)
+
 ## Output
 
 Rendered artifacts land under `dist/`. The default output structure is per-boundary, per-provider: `dist/<boundary-path>/<provider>/<files>`. Operator-authored `directory:` and `subDirectory:` overrides on Release boundaries change the target path; per-`(path, provider)` collapse merges contributors that resolve to the same evaluated path.
