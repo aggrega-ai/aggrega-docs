@@ -41,7 +41,9 @@ Operations are cache-driven: call `aggrega/validate` for a file before `hover` /
 
 ## Workspace root and active Release
 
-The daemon discovers the workspace root by walking up from its working directory for a marker, in priority order: an `.aggrega-config.yaml` file, an `.aggrega/` directory, then `aggregate*.yaml`, `release*.yaml`, and `manifest*.yaml` globs. `--workspace-root` bypasses the walk. A global config under the XDG config path layers beneath the workspace config.
+The daemon resolves its workspace the same way every `aggrega` command does. Discovery walks up from the working directory: a `.aggrega-config.yaml` carrying a `workspace:` block anchors the root, and failing that a heuristic marker does — an `.aggrega/` directory, then `aggregate*.yaml`, `release*.yaml`, or `manifest*.yaml`. A `.aggrega-config.yaml` *without* a `workspace:` block does not anchor; it still contributes its settings, but a bare settings file cannot turn every parent directory into a workspace root. `--workspace-root` overrides discovery. When no marker is found, the working directory is used — the daemon starts and operations simply resolve nothing, rather than refusing to run.
+
+Configuration is a cascade. Every `.aggrega-config.yaml` from the workspace root down to the working directory contributes, with a nearer file overriding a farther one; beneath the tree, `$AGGREGA_CONFIG` (when set) supplies a base layer, and built-in defaults sit under that. The full precedence for the workspace root is: `--workspace-root`, then the nearest `workspace:`-marked config, then a heuristic marker, then the working directory.
 
 Operations that need a Release pick the active one through a four-step cascade: the `build.authoring_release` config field, then a single-Release-in-the-workspace heuristic, then an `.aggrega/active-release` marker file, then an Aggregate-only fallback.
 
