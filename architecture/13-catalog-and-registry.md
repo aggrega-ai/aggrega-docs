@@ -252,6 +252,23 @@ auto_pull: true               # Default; build performs the implicit pull when n
 artifact_cache_dir: .aggrega/cache  # On-disk artifact cache root
 ```
 
+A `signing:` block carries the artifact-signing defaults used by `aggrega push --sign` and `aggrega sign`, at both the top level (global) and per-registry:
+
+```yaml
+# .aggrega-config.yaml
+signing:                              # Global signing defaults
+  fulcio_url: https://fulcio.sigstore.dev    # Keyless certificate authority (defaults to public-good)
+  rekor_url: https://rekor.sigstore.dev      # Keyless transparency log (defaults to public-good)
+  timestamp_url: https://timestamp.sigstore.dev  # RFC3161 timestamp authority (defaults to public-good)
+  key_path: ./keys/signing.pem        # Optional: path to a held keyed-key PEM (a pointer, never inline material)
+registries:
+  - host: hub.example.com
+    signing:                          # Per-registry override of the global signing block
+      key_path: ./keys/hub.pem
+```
+
+Precedence per field is CLI flag > per-registry `signing` > global `signing` > public-good default. The keyless service URLs default to the public-good Sigstore instances, so they are optional. **Security:** the `signing:` block carries no secret material — the OIDC identity token is never a config field (a short-lived secret, supplied only at signing time via flag or the ambient OIDC environment), and the private key is never inline; `key_path` is a path to a key file. This is the deliberate asymmetry with the verify side, which pins an inline public key but only ever a key path on the sign side.
+
 Mark a root with no vendored catalogs by writing `workspace: {}`. The `catalog_dirs` list supports monorepo setups where a shared catalog lives in a sibling directory. The compiler checks each directory in sequence. The `offline: true` flag prevents any network access — the compiler only uses local paths and the cache, halting if an entity is not found locally. The `build`, `plugins`, `lint`, `parse_cache`, and `concurrency` sections carry the build dials, the Wasm attachment sockets (`mutator`, `policy`, `linter`, `importer`), the publishing-discipline policy switches, parse-cache tuning, and the daemon's request-dispatch worker-pool size. (`artifact_cache_dir` names the on-disk content cache; `parse_cache` caps the daemon's in-memory parse cache — two distinct caches.)
 
 The `artifact_cache_dir` root carries two parallel subtrees that the future `aggrega pull` command populates uniformly in a single invocation: `<artifact_cache_dir>/entities/<URI-encoded>/<version>/` for catalog entities (Components, Features, Recipes, FeatureRecipes, Providers) and `<artifact_cache_dir>/source-artifacts/<kind>/<host>/<path>/<version>/<digest-prefix>/` for source artifacts pulled from Recipe / FeatureRecipe `spec.source` fields (Helm charts, terraform modules, compose fragments). Each source-artifact cache slot carries the authoritative `.tgz` archive, a derived `extracted/` directory regenerated on every build read, and a `metadata.yaml` file recording the artifact's `{kind, url, version, digest, mediatype, pulled_at}` identity. The 12-character `<digest-prefix>` segment namespaces the same `{kind, url, version}` re-tagged at different upstream digests into distinct slots.
