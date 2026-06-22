@@ -17,7 +17,7 @@ The signature is a Sigstore (cosign-compatible) bundle, the same format `aggrega
 
 ## Signing modes
 
-- **Keyless** (default) — an ephemeral key bound to an OIDC identity by a short-lived Fulcio certificate, recorded in the Rekor transparency log. The service URLs default to the public-good Sigstore instances (`https://fulcio.sigstore.dev`, `https://rekor.sigstore.dev`, `https://timestamp.sigstore.dev`). At an **interactive terminal** keyless signing needs no flags: the CLI opens a browser to acquire a short-lived OIDC identity token. For **non-interactive / CI** use, export `AGGREGA_IDENTITY_TOKEN` (or `SIGSTORE_ID_TOKEN`), or pass `--identity-token`; with no token and no terminal the command is refused.
+- **Keyless** (default) — an ephemeral key bound to an OIDC identity by a short-lived Fulcio certificate, recorded in the Rekor transparency log. Fulcio and Rekor default to the public-good Sigstore instances (`https://fulcio.sigstore.dev`, `https://rekor.sigstore.dev`). The keyless trusted timestamp comes from Rekor's transparency-log inclusion; a separate RFC3161 timestamp authority is **optional** — supply `--timestamp-url` with a full endpoint to enable one. At an **interactive terminal** keyless signing needs no flags: the CLI opens a browser to acquire a short-lived OIDC identity token. For **non-interactive / CI** use, export `AGGREGA_IDENTITY_TOKEN` (or `SIGSTORE_ID_TOKEN`), or pass `--identity-token`; with no token and no terminal the command is refused.
 - **Keyed** (`--key`) — an offline held ECDSA P-256 key (cosign-compatible PEM). No network is contacted.
 
 The keyless URLs and the keyed key path can also come from the `.aggrega-config.yaml` `signing:` block (global and per-registry); a flag overrides the config, and the config overrides the public-good default. The OIDC identity token is never a config field, and the private key is never inline — only a path to it.
@@ -31,7 +31,7 @@ The construction and the sign-and-attach behaviour are shared with `aggrega push
 - `--identity-token <token>` — OIDC identity token for keyless signing. Optional at an interactive terminal (the CLI acquires one through a browser flow); required for non-interactive / CI use, where it may instead be exported as `AGGREGA_IDENTITY_TOKEN` or `SIGSTORE_ID_TOKEN`.
 - `--fulcio-url <url>` — Fulcio certificate-authority URL for keyless signing. Defaults to the public-good Fulcio instance (`https://fulcio.sigstore.dev`).
 - `--rekor-url <url>` — Rekor transparency-log URL for keyless signing. Defaults to the public-good Rekor instance (`https://rekor.sigstore.dev`).
-- `--timestamp-url <url>` — RFC3161 timestamp-authority URL for keyless signing. Defaults to the public-good timestamp authority (`https://timestamp.sigstore.dev`).
+- `--timestamp-url <url>` — optional RFC3161 timestamp-authority URL for keyless signing. None by default: the keyless trusted timestamp comes from Rekor's transparency-log inclusion. Supply a full endpoint to additionally stamp the signature with an RFC3161 timestamp authority.
 
 ## Environment variables
 
