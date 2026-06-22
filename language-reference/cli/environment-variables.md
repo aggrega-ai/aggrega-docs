@@ -55,6 +55,25 @@ Secrets are supplied by environment variable or flag and are **never** config fi
 
 `SIGSTORE_ID_TOKEN` is honored as a sigstore-ecosystem interop alias for the identity token, after `AGGREGA_IDENTITY_TOKEN`. It is the variable the broader sigstore tooling already sets.
 
+The identity-token variables are the **non-interactive** keyless path: at an interactive terminal `aggrega push --sign` and `aggrega sign` acquire a short-lived token through a browser flow with no flags, but a CI job or other non-interactive run has no terminal and must supply the token explicitly (export it, or pass `--identity-token`). With neither a token nor a terminal, keyless signing is refused rather than left to hang.
+
+### CI guidance (GitHub Actions)
+
+GitHub Actions can mint a workflow OIDC token and export it for keyless signing in a few lines:
+
+```yaml
+permissions:
+  id-token: write   # allow the job to mint a workflow OIDC token
+# ...
+- run: |
+    AGGREGA_IDENTITY_TOKEN=$(curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+      "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sigstore" | jq -r .value)
+    export AGGREGA_IDENTITY_TOKEN
+    aggrega push <entity> --sign
+```
+
+Automatic CI-provider detection across multiple CI platforms is not yet available, so the token is exported explicitly as shown.
+
 **Prefer `--password-stdin` over `AGGREGA_REGISTRY_PASSWORD`.** An environment variable is readable by child processes and may persist in a shell; stdin is the more secure path for the password. The environment variable exists as a CI convenience.
 
 ## See also
