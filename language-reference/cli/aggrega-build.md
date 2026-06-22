@@ -36,6 +36,10 @@ source paths recorded in the output do not shift with the working directory. (Wi
 no `workspace:` marker and no `--workspace-root`, the working directory is the
 root, so output is anchored there instead.)
 
+## Environment variables
+
+The workspace settings build reads can be overridden through the environment, above the committed config and below any flag: `AGGREGA_OFFLINE`, `AGGREGA_AUTO_PULL`, `AGGREGA_CATALOG_DIRS` (OS-path-list separated; supply absolute paths), `AGGREGA_ARTIFACT_CACHE_DIR`, `AGGREGA_DEFAULT_REGISTRY`, and `AGGREGA_WORKSPACE_ROOT`. See [environment-variables.md](environment-variables.md) for the full list and the precedence model.
+
 ## Output
 
 Rendered artifacts land under `dist/`. The default output structure is per-boundary, per-provider: `dist/<boundary-path>/<provider>/<files>`. Operator-authored `directory:` and `subDirectory:` overrides on Release boundaries change the target path; per-`(path, provider)` collapse merges contributors that resolve to the same evaluated path.

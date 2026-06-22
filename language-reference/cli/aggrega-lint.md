@@ -74,6 +74,8 @@ The `x-aggrega-*` discouragement rule also runs during `aggrega build`, where it
 - `--plugin <path>` — the publishing-linter Wasm plugin to run. When omitted, the plugin is taken from the `plugins.linter` entry in `.aggrega-config.yaml`.
 - Per-rule overrides, each with a `--no-` counterpart: `--allow-dynamic-refs`, `--allow-id-overrides`, `--allow-direct-x-aggrega-extensions`, `--allow-aggrega-ai-prefix`, `--allow-nonstandard-names`, `--allow-category-mismatches`, `--enforce-monotonic-narrowing`, `--enforce-immutability`. Precedence is `--no-<flag>` over `--<flag>` over the workspace-config value. (`narrowing_exemptions` is workspace-config-only.)
 
+The per-rule override flags are per-invocation gates and intentionally have **no** environment variable — they are already config-backed in `.aggrega-config.yaml` under `lint.publishing_discipline`. The general `AGGREGA_*` precedence model is described in [environment-variables.md](environment-variables.md).
+
 ## Choosing the linter
 
 The rules ship as a standard publishing-linter Wasm plugin. Because the rules live in a plugin rather than in the compiler, an enterprise can point `aggrega lint` at a different plugin to enforce its own catalog discipline without changing the compiler.

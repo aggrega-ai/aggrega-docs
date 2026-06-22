@@ -56,6 +56,17 @@ The keyless service URLs and the keyed key path can also be set in `.aggrega-con
 - `--rekor-url <url>` — Rekor transparency-log URL for keyless signing. Defaults to the public-good Rekor instance (`https://rekor.sigstore.dev`).
 - `--timestamp-url <url>` — RFC3161 timestamp-authority URL for keyless signing. Defaults to the public-good timestamp authority (`https://timestamp.sigstore.dev`).
 
+## Environment variables
+
+The signing inputs and the destination registry can be supplied through the environment, overriding `.aggrega-config.yaml` while a flag still wins:
+
+- `AGGREGA_IDENTITY_TOKEN` — the keyless OIDC identity token (the env counterpart of `--identity-token`). `SIGSTORE_ID_TOKEN` is honored as a sigstore-ecosystem interop alias, after `AGGREGA_IDENTITY_TOKEN`. The token is never a config field.
+- `AGGREGA_SIGNING_FULCIO_URL`, `AGGREGA_SIGNING_REKOR_URL`, `AGGREGA_SIGNING_TIMESTAMP_URL` — the keyless service URLs.
+- `AGGREGA_SIGNING_KEY_PATH` — a path pointer to a keyed-key PEM (never key material).
+- `AGGREGA_DEFAULT_REGISTRY` — the destination registry when `--registry` is omitted.
+
+Precedence is flag > environment > config > default. See [environment-variables.md](environment-variables.md) for the full list and the precedence model.
+
 ## Authentication
 
 `aggrega push` uses the same standard registry authentication as `aggrega pull` — Docker / Podman / Helm config files and credential helpers. Run `docker login <registry>` (or `helm registry login <registry>` for Helm-specific OCI) before pushing to a private registry. See [`aggrega-pull.md`](aggrega-pull.md#authentication) for the full priority order.

@@ -33,6 +33,16 @@ The construction and the sign-and-attach behaviour are shared with `aggrega push
 - `--rekor-url <url>` — Rekor transparency-log URL for keyless signing. Defaults to the public-good Rekor instance (`https://rekor.sigstore.dev`).
 - `--timestamp-url <url>` — RFC3161 timestamp-authority URL for keyless signing. Defaults to the public-good timestamp authority (`https://timestamp.sigstore.dev`).
 
+## Environment variables
+
+The signing inputs can be supplied through the environment, overriding the `.aggrega-config.yaml` `signing:` block while a flag still wins:
+
+- `AGGREGA_IDENTITY_TOKEN` — the keyless OIDC identity token (the env counterpart of `--identity-token`). `SIGSTORE_ID_TOKEN` is honored as a sigstore-ecosystem interop alias, after `AGGREGA_IDENTITY_TOKEN`. The token is never a config field.
+- `AGGREGA_SIGNING_FULCIO_URL`, `AGGREGA_SIGNING_REKOR_URL`, `AGGREGA_SIGNING_TIMESTAMP_URL` — the keyless service URLs.
+- `AGGREGA_SIGNING_KEY_PATH` — a path pointer to a keyed-key PEM (never key material).
+
+`aggrega sign` resolves the signing config and these variables for the artifact's registry host, the same way `aggrega push` does. Precedence is flag > environment > config > default. See [environment-variables.md](environment-variables.md) for the full list.
+
 ## See also
 
 - [./aggrega-push.md](./aggrega-push.md) — publish, optionally signing at push time (sign-before-push).
