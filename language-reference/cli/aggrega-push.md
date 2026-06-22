@@ -39,7 +39,7 @@ A registry that requires signatures (its `requires_signatures` policy) signs by 
 
 Two signing modes:
 
-- **Keyless** (default) — an ephemeral key bound to an OIDC identity by a short-lived Fulcio certificate, recorded in the Rekor transparency log. The service URLs default to the public-good Sigstore instances; supply `--identity-token` (or let it read the ambient OIDC environment) for the identity.
+- **Keyless** (default) — an ephemeral key bound to an OIDC identity by a short-lived Fulcio certificate, recorded in the Rekor transparency log. The service URLs default to the public-good Sigstore instances (`https://fulcio.sigstore.dev`, `https://rekor.sigstore.dev`, `https://timestamp.sigstore.dev`). The identity token is required: supply it with `--identity-token`. Automatic OIDC-token acquisition is not yet available.
 - **Keyed** (`--key`) — an offline held ECDSA P-256 key (cosign-compatible PEM), the escape hatch for environments with no OIDC identity provider. No network is contacted.
 
 The keyless service URLs and the keyed key path can also be set in `.aggrega-config.yaml` under a `signing:` block (global and per-registry); a flag overrides the config, and the config overrides the public-good default. The OIDC identity token is never a config field (it is a short-lived secret), and the private key is never inline in config — only a path to it.
@@ -51,10 +51,10 @@ The keyless service URLs and the keyed key path can also be set in `.aggrega-con
 - `--dry-run` — report what would be pushed without contacting the registry.
 - `--sign` — sign the artifact and attach the signature as a referrer. When omitted, signing follows the destination registry's policy.
 - `--key <pem>` — path to a held ECDSA P-256 private-key PEM for offline keyed signing. When omitted, keyless signing is used.
-- `--identity-token <token>` — OIDC identity token for keyless signing (or read from the ambient OIDC environment).
-- `--fulcio-url <url>` — Fulcio certificate-authority URL for keyless signing. Defaults to the public-good Fulcio instance.
-- `--rekor-url <url>` — Rekor transparency-log URL for keyless signing. Defaults to the public-good Rekor instance.
-- `--timestamp-url <url>` — RFC3161 timestamp-authority URL for keyless signing. Defaults to the public-good timestamp authority.
+- `--identity-token <token>` — OIDC identity token for keyless signing. Required for keyless signing; automatic OIDC-token acquisition is not yet available.
+- `--fulcio-url <url>` — Fulcio certificate-authority URL for keyless signing. Defaults to the public-good Fulcio instance (`https://fulcio.sigstore.dev`).
+- `--rekor-url <url>` — Rekor transparency-log URL for keyless signing. Defaults to the public-good Rekor instance (`https://rekor.sigstore.dev`).
+- `--timestamp-url <url>` — RFC3161 timestamp-authority URL for keyless signing. Defaults to the public-good timestamp authority (`https://timestamp.sigstore.dev`).
 
 ## Authentication
 
