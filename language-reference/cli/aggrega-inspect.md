@@ -1,84 +1,283 @@
 # aggrega inspect
 
-`aggrega inspect` renders a human-readable view of a catalog Component, an authored Component file, or a fully-resolved Release. It is the canonical debug surface for understanding what the compiler will produce — which Components extend which bases, which Features attach to each node, and exactly where each Feature's contributions came from.
+`aggrega inspect` renders a human-readable view of any Aggrega entity — a catalog Component, an authored entity file, or a fully-resolved Release. It is the canonical debug surface for understanding what the compiler will produce: which Components extend which bases, which Recipe maps to each type, which Features attach to each node, and exactly where each Feature's contributions came from.
+
+Each entity kind has a natural "contract" view. `inspect` shows that contract — the schema a Component publishes, the mappings a Manifest declares, the topology an Aggregate builds, the per-node Feature attachments a Release resolves to. Tutorial and conceptual material lives elsewhere; `inspect` answers "what does this entity actually resolve to?"
 
 ## Synopsis
 
 ```text
-aggrega inspect <identifier> [--catalog <dir>]...
+aggrega inspect <identifier> [flags]
 ```
 
-A single positional argument routes by content shape; no subcommand is needed. The compiler dispatches per the following heuristic:
+A single positional argument routes by content shape; no subcommand is needed. The command dispatches per the following heuristic:
 
 | Identifier shape | Dispatch | Output |
 | --- | --- | --- |
-| Starts with `./` or `../`, or ends with `.yaml` / `.yml` | **File branch** | Per-file inspection based on the file's `kind:` header (Component file or Release file). |
-| Starts with `oci://` | **OCI branch** | Reserved for catalog distribution; currently not implemented. |
-| Anything else | **Catalog branch** | Look up the named Component in the catalog directory; resolve `extends:` chains; render the merged schema. |
-
-The single positional argument design keeps the command terse for the common cases (`aggrega inspect CoreAPI`, `aggrega inspect ./prod.yaml`); flags are reserved for cross-cutting overrides.
+| Starts with `./`, `../`, or `/`, or ends with `.yaml` / `.yml` | **File branch** | Per-file inspection keyed off the file's `kind:` header. |
+| Starts with `oci://` | **OCI branch** | Reserved for catalog distribution; not yet implemented. Resolve to a local path or use a catalog name. |
+| Anything else | **Catalog branch** | Look up the named Component in the catalog search stack; resolve `extends:` chains; render the merged schema. |
 
 ## Flags
 
 | Flag | Default | Effect |
 | --- | --- | --- |
-| `--catalog <dir>` | `.` | Catalog directory to load. **Repeatable**, and **prepended** to the workspace's `catalog_dirs` (an ordered first-win search stack — an earlier directory wins an entity identity, a later one's copy is shadowed). Honors `catalog_dirs` from `.aggrega-config.yaml` even with no flag; defaults to the current directory when neither is set. The catalog branch resolves the named Component against this stack; the file and release branches still load referenced catalog entities from it when needed (e.g., resolving the parent in an `extends:` chain). |
+| `--catalog <dir>` | `.` | Catalog directory to load. **Repeatable**, and **prepended** to the workspace's `catalog_dirs` (an ordered first-win search stack — an earlier directory wins an entity identity, a later one's copy is shadowed). Honors `catalog_dirs` from `.aggrega-config.yaml` even with no flag; defaults to the current directory when neither is set. |
+| `--list` | off | Render identifiers only — the names a reader scans to find a thing. Mutually exclusive with `--detail`. |
+| `--detail` | off | Render full field bodies — every field a kind carries, including template bodies. Mutually exclusive with `--list`. |
+| `--raw` | off | Render the entity as authored, with no resolution. Mutually exclusive with `--resolved`. |
+| `--resolved` | off | Render the entity fully resolved (its kind's default resolution depth). Mutually exclusive with `--raw`. |
+| `--output <fmt>` | `text` | Output format: `text` (per-kind pretty-print) or `yaml` (the render subject emitted as YAML). |
+| `--color <when>` | `auto` | Colorize output: `auto` (color only on an interactive terminal), `always`, or `never`. Mutually exclusive with `--no-color`. |
+| `--no-color` | off | Disable colorized output. Alias for `--color=never`. The `NO_COLOR` environment variable is honored as the cross-tool convention. |
+| `--show-implements` | off | For a Recipe or FeatureRecipe, resolve `spec.implements` against the catalog and render the bound Component or Feature. |
+| `--flat` | off | Render a tree-shaped entity (Aggregate, Release) as a flat list, each node prefixed with its full dotted path. No effect on tabular kinds. |
 
-The flag is the only override; the dispatch heuristic above is otherwise fixed.
+### Three detail levels
 
-## Three inspection modes
+`--list`, the default, and `--detail` form a uniform three-level verbosity discipline that every kind honors:
 
-### Catalog Component name
+- **`--list`** — identifiers only. A Component lists its name and its uses-socket names; a MappingLibrary lists its mapping names; an Aggregate lists its component names with their types.
+- **default** — a structured overview tuned for interactive use. The shape is per-kind: a Component shows its schema and sockets; an Aggregate shows components, their values and edges, and the dependency graph; a Release shows the per-boundary node tree with Feature attachments.
+- **`--detail`** — full field bodies. Everything the kind carries: a Component adds its self-inject mechanisms, required Features, and labels; a MappingLibrary expands each mapping's full template body; a Recipe adds its workload body, provides, and assertions.
+
+A few kinds use the levels to surface progressively more of an authored body. A MappingLibrary at `--list` shows mapping names; at the default level it adds each mapping's synthesized usage example; at `--detail` it expands the full template body.
+
+### Resolution: `--raw` and `--resolved`
+
+Each kind has a natural default resolution depth (see the table below). `--raw` and `--resolved` are always-available overrides:
+
+- **`--raw`** opts out of all resolution — the entity is emitted as authored, straight from the file.
+- **`--resolved`** opts in to the kind's full resolution depth.
+
+For kinds that default as-authored, `--raw` is a no-op and `--resolved` triggers what resolution the kind supports. For kinds that default resolved, `--raw` is the as-authored bypass.
+
+## Per-kind defaults
+
+`inspect` knows ten standalone-inspectable kinds. The catalog kinds render as-authored by default — their files are self-contained contracts. The instance kinds default to a resolved view, because their authored YAML is only the starting point for a cascade or a pipeline.
+
+| Kind | Default | What "resolved" means |
+| --- | --- | --- |
+| Component | as-authored | The file is a self-contained contract; resolution is against a Manifest binding, surfaced via `--show-implements`. |
+| Feature | as-authored | Same as Component. |
+| Recipe | as-authored | `--show-implements` resolves the `spec.implements` Component reference. |
+| FeatureRecipe | as-authored | `--show-implements` resolves the `spec.implements` Feature reference. |
+| Provider | as-authored | A Provider is a static registrar; nothing to resolve. |
+| MappingLibrary | as-authored | Entries are opaque Go-template strings; rendering happens at consumption time. |
+| SchemaLibrary | as-authored | Entries are reusable schema and template definitions resolved at consumption time. |
+| Manifest | resolved | The `extends:` chain is applied; the resolved component and feature mappings are laid out. |
+| Aggregate | resolved | The topology is built — the uses-graph and ordering are computed. |
+| Release | resolved | The full pipeline runs: resolve, expand annotations, run guards, build topology, build IR. |
+
+A file whose `kind:` is `Workload` is rejected: a Workload exists only embedded in a Recipe and is not a standalone inspectable entity. Inspect a Recipe to see its Workload.
+
+## Resolution depth per kind
+
+Most kinds have no pipeline — `inspect` reads the file and renders it. Three instance kinds resolve meaningfully:
+
+- **Manifest** applies its `extends:` chain — file-import following — and renders the merged component and feature mappings. `--raw` shows the file as authored.
+- **Aggregate** builds its topology: the uses-graph is constructed and the dependency ordering is computed. The default view shows components with their values and edges, followed by the dependency graph. `--raw` shows the authored subsystem tree.
+- **Release** runs the entire compilation pipeline up to the IR — resolve, expand annotations, run guards, build topology, build IR — and renders the per-boundary node tree with each node's Feature attachments and their provenance. `--raw` emits the Release file verbatim with no pipeline.
+
+There is no separate depth flag; the `--raw` / `--resolved` toggle is the only resolution control, layered on each kind's natural default.
+
+## Error behavior
+
+`inspect` aborts on the first error. When a referenced sibling file fails to load — a Release pointing at a missing Aggregate, a broken catalog entity in the search stack — the command stops with a clear message rather than rendering partial output. There is no continue-on-error mode.
+
+A file whose `kind:` is unrecognized reports the unknown kind and the file it came from. A `Workload` file reports that the kind is embedded-only and names the entity it embeds under. An `oci://` identifier reports that OCI inspection is not yet implemented and suggests resolving to a local path or a catalog name.
+
+## Catalog resolution
+
+The catalog search stack is assembled with a layered precedence: `--catalog` flags (prepended, in order) come first, then the workspace's `catalog_dirs` from `.aggrega-config.yaml`, then a default of the current directory when neither is set. The stack is first-win — the earliest directory to declare an entity identity owns it; a later directory's copy is shadowed. The catalog branch resolves a named Component against this stack; the file and release branches load referenced catalog entities from it when a Manifest mapping or `extends:` parent must be resolved.
+
+## Worked examples
+
+### Catalog Component lookup
 
 ```text
-aggrega inspect CoreAPI --catalog ./catalog
+$ aggrega inspect core/server:1.0.0 --catalog ./catalog
+
+Component: core/server:1.0.0
+Schema:
+  |
+      values: { port?: int | *8080 }
+Uses sockets:
+  db: selector="component.aggrega.ai/type=stateful-server"
 ```
 
-Loads the catalog, finds the Component named `CoreAPI`, resolves any `extends:` chain bottom-up, merges the parent specs into the child to produce a single resolved Component, then renders:
+The default view shows the resolved schema (after any `extends:` merge) and the declared uses-sockets. `--detail` adds the self-inject mechanisms, required Features, and labels; `--list` shows just the Component identifier and its socket names.
 
-* The Component's metadata header (name, version, labels) including the `extends:` lineage with each parent's `(name, version)` tuple.
-* The resolved `schema:` block in YAML — the unified JSON Schema 2020-12 declaration covering `values:`, `infra:`, and `provides:` after compact-form expansion and `$ref:` resolution against SchemaLibrary entries.
-* The Component's `usesSchema` and `secretsSchema` declarations carried through unchanged.
-
-This is the canonical debug surface for understanding what the developer's Aggregate will see when wiring a `core/CoreAPI` instance. The output shows the contract surface the Component publishes; the resolved schema is the same one the compiler validates the developer's `values:` against.
-
-### Component file path
+### Feature
 
 ```text
-aggrega inspect ./components/api-server.yaml
+$ aggrega inspect ./features/metrics.yaml
+
+Feature: core/metrics:1.0.0
+Schema:
+  |
+      values: { port?: int | *9090 }
+Uses sockets:
+  backend: selector="component.aggrega.ai/type=stateful-server"
+    inject: [env]
+Secret slots:
+  token (required)
+Targeting:
+  appliesTo: component.aggrega.ai/type=server
+Labels:
+  feature.aggrega.ai/category: observability
 ```
 
-Loads the YAML preamble, peeks at the `kind:` field, dispatches per-kind. For a Component file, the output shape matches the catalog branch (header + resolved schema + sockets), with one important caveat: the file branch reads a single file in isolation — **the `extends:` chain is not resolved** when the parent lives in the catalog but the user runs inspect against a local file. The output shows the authored content as-is. To see the inheritance-merged view, place the file in a catalog directory and use the catalog-name branch.
+### Recipe with `--show-implements`
 
-### Release file path
+A Recipe's default view shows its mode (synthesized or sourced), its provider, and its value mapping. `--show-implements` resolves the `spec.implements` reference against the catalog and renders the bound Component:
 
 ```text
-aggrega inspect ./prod-release.yaml --catalog ./catalog
+$ aggrega inspect ./recipes/api-server-recipe.yaml --show-implements --catalog ./catalog
+
+Recipe: core/api-server-recipe:1.0.0
+Implements: core/api-server:1.0.0
+Provider: helm
+## Synthesized
+  workload: inline
+valuesMapping: (none)
+Implements Component: core/api-server:1.0.0
+  required features:
+    - core/metrics
 ```
 
-The highest-stakes inspection mode. Loads the Release, resolves the referenced Aggregate and Manifest, runs the entire pipeline (Resolve → ExpandAnnotations → RunGuards → Topology → IR), then renders per-node what the IR carries: every Component node, every Feature attached to that node, and **per-attachment provenance brackets** revealing exactly where each Feature contribution came from.
-
-Output shape (abbreviated):
+### Provider
 
 ```text
-Release: prod-release v1.0.0
-Aggregate: my-app
-Manifest: prod-manifest
+$ aggrega inspect ./providers/helm.yaml
 
-Component: api-server
-  Features:
-    - core/audit-logging    [explicit]
-    - core/rate-limiter     [annotation: business.aggrega.ai/team from aggregate]
-    - core/data-masking
-        values.fields_to_mask: ["ssn", "email"]   [explicit]
-        infra.classifier_endpoint: "..."          [annotation: compliance.aggrega.ai/data-class from release; overridden by explicit at this leaf]
-
-Component: db
-  Features:
-    - core/backup-policy    [annotation: state.aggrega.ai/backup-tier from release]
+Provider: helm:1.0.0
+Plugin: hub.aggrega.ai/providers/helm-renderer:1.0.0
+Recipe-hosting: synthesized
+Well-known annotations:
+  aggrega.ai/replicas
+    purpose: Desired replica count.
+    default: One replica.
+  aggrega.ai/ingress-host
+    purpose: External hostname.
 ```
 
-The bracketed strings are the **IR provenance brackets** — the load-bearing reason `aggrega inspect` exists. Debugging "why did this Feature attach to this Component?" or "which annotation wired this leaf?" is answerable only by reading the provenance; the bracket grammar is what the compiler emits to make the answer legible.
+A Provider that declares well-known annotations renders them with each annotation's purpose and, where declared, its default. A Provider declaring none reports `(none declared)`.
+
+### Manifest (resolved by default)
+
+```text
+$ aggrega inspect ./prod-manifest.yaml
+
+Manifest: prod-manifest:1.0.0
+
+Component Mappings:
+  Type                                     → Recipe
+  core/compute/api-server                  helm-api-server-synthesized-with-artifacts:1.0.0
+  core/compute/web-ui                      helm-web-ui-synthesized-with-artifacts:1.0.0
+  core/datastore/postgres                  helm-postgres-synthesized-with-artifacts:1.0.0
+
+Feature Mappings:
+  Type                                     → FeatureRecipe
+  core/k8s-dns-resolver                    k8s-dns-patcher:1.0.0
+
+Annotation Bindings:
+  (none)
+```
+
+The default view applies the Manifest's `extends:` chain and lays out the resolved component and feature mappings plus the annotation bindings. `--raw` shows the file as authored, before extends resolution.
+
+### Aggregate (resolved by default)
+
+```text
+$ aggrega inspect ./fullstack-app.yaml
+
+Aggregate: fullstack-app:1.0.0
+
+Components:
+  backend  (type: core/compute/api-server)
+    Values: (none)
+    Uses:
+      databases:
+        - data.main-db
+  frontend  (type: core/compute/web-ui)
+    Values: (none)
+    Uses:
+      apis:
+        - my-api → backend
+    main-db  (type: core/datastore/postgres)
+      Values:
+        database_name: app_production
+      Uses: (none)
+
+Dependency Graph:
+  data.main-db
+    ↑ backend
+  backend
+    ↑ frontend
+```
+
+The default view builds the topology and shows each component with its values and uses-edges, followed by the computed dependency graph. The subsystem tree is rendered with nesting; `--flat` renders one section per node, each keyed by its full dotted path.
+
+### Release (resolved by default)
+
+The Release view is the highest-stakes inspection. It runs the full pipeline and renders, per boundary, every Component node, its uses-edges, and every Feature attached to that node with **provenance brackets** revealing where each Feature came from:
+
+```text
+$ aggrega inspect ./prod-release.yaml --catalog ./catalog
+
+Release: prod-release:1.0.0
+
+Boundary: backend-ns
+  Directory: ./dist/backend
+  Annotations (provider-consumed):
+    aggrega.ai/namespace: backend-zone
+  Component: backend  (type: core/compute/api-server:1.0.0)
+    Uses:
+      data.main-db → data.main-db  [cross-boundary]
+    Features: (none)
+
+Boundary: frontend-ns
+  Directory: ./dist/frontend
+  Annotations (provider-consumed):
+    aggrega.ai/namespace: frontend-zone
+  Component: frontend  (type: core/compute/web-ui:1.0.0)
+    Uses:
+      my-api → backend  [cross-boundary]
+    Features:
+    - cross-namespace-routing (core/k8s-dns-resolver:1.0.0)    [explicit]
+
+Boundary: data-ns
+  Directory: ./dist/data
+  Annotations (provider-consumed):
+    aggrega.ai/namespace: database-zone
+  Component: data.main-db  (type: core/datastore/postgres:1.0.0)
+    Features: (none)
+```
+
+Each boundary carries its output directory and its provider-consumed annotations; each component under a boundary carries its Aggregate component type, its uses-edges (cross-boundary edges marked), and its Feature attachments with provenance brackets. `--flat` collapses the boundary tree to one section per boundary keyed by its full path. `--raw` emits the Release file verbatim with no pipeline.
+
+### YAML output
+
+```text
+$ aggrega inspect core/server:1.0.0 --output yaml --catalog ./catalog
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Component
+metadata:
+    name: core/server
+    version: "1.0.0"
+    labels:
+        component.aggrega.ai/type: server
+spec:
+    schema: |
+        values: { port?: int | *8080 }
+    usesSchema:
+        db:
+            selector: 'component.aggrega.ai/type=stateful-server'
+```
+
+`--output yaml` emits the render subject — the as-authored entity for catalog kinds, the resolved structure for instance kinds — as YAML, suitable for piping and diffing.
 
 ## IR provenance bracket grammar
 
@@ -86,11 +285,11 @@ Each Feature attachment in the Release view carries a provenance bracket. The br
 
 ### The three bracket bodies
 
-* **`[explicit]`** — the Feature attachment is **author-declared**. The Aggregate or Release explicitly named the Feature on the affected node (`features: { audit-logging: { type: core/audit-logging } }` in the Aggregate, or the equivalent Release-side declaration). Explicit attachments are the highest-priority source; they always win over annotation-driven contributions at the same leaf.
+- **`[explicit]`** — the Feature attachment is **author-declared**. The Aggregate or Release explicitly named the Feature on the affected node. Explicit attachments are the highest-priority source; they always win over annotation-driven contributions at the same leaf.
 
-* **`[annotation: <key> from <source>]`** — the Feature attachment is **annotation-driven**. The compiler synthesised it because an annotation on `<source>` matched a Manifest binding declaring this Feature. `<key>` is the annotation key that fired the binding (e.g., `business.aggrega.ai/team`); `<source>` is the entity that carried the annotation (`aggregate`, `release`, `component`, or `manifest`). The synthesised attachment is structurally identical to an explicit one — downstream rendering treats both the same way — but the provenance bracket distinguishes them so debugging stays decidable.
+- **`[annotation: <key> from <source>]`** — the Feature attachment is **annotation-driven**. The compiler synthesised it because an annotation on `<source>` matched a Manifest binding declaring this Feature. `<key>` is the annotation key that fired the binding (e.g., `business.aggrega.ai/team`); `<source>` is the entity that carried the annotation (`aggregate`, `release`, `component`, or `manifest`). The synthesised attachment is structurally identical to an explicit one — downstream rendering treats both the same way — but the provenance bracket distinguishes them so debugging stays decidable.
 
-* **`[explicit; overrides annotation: <key> from <source>]`** — a per-leaf form that fires when an **explicit author declaration** at one leaf is suppressing an **annotation contribution** that would otherwise have set the same leaf. Cross-side composition produces this case: an Aggregate annotation might supply a Feature's `values:` pillar, a Release annotation supplies its `infra:` pillar, and an explicit Release declaration on the same Feature overrides one infra leaf. The leaf bracket records both the explicit author and the annotation that was suppressed; the suppressed annotation does not contribute to the rendered output but its presence appears in the inspect view so the operator can see which annotation was overridden and where.
+- **`[explicit; overrides annotation: <key> from <source>]`** — a per-leaf form that fires when an **explicit author declaration** at one leaf is suppressing an **annotation contribution** that would otherwise have set the same leaf. Cross-side composition produces this case: an Aggregate annotation might supply a Feature's `values:` pillar, a Release annotation supplies its `infra:` pillar, and an explicit Release declaration on the same Feature overrides one infra leaf. The leaf bracket records both the explicit author and the annotation that was suppressed; the suppressed annotation does not contribute to the rendered output, but its presence appears in the inspect view so the operator can see which annotation was overridden and where.
 
 ### Compact form vs per-leaf form
 
@@ -104,98 +303,18 @@ When provenance **diverges** — a typical case is cross-side composition, where
 
 ```text
 - core/data-masking
-    values.fields_to_mask: ["ssn", "email"]     [explicit]
-    values.classifier_endpoint: "tls13"          [annotation: compliance.aggrega.ai/data-class from aggregate]
-    infra.audit_destination: "..."               [annotation: compliance.aggrega.ai/audit-bucket from release]
+    values.fields_to_mask: ["ssn", "card_number"]     [annotation: compliance.aggrega.ai/data-class from aggregate]
+    values.classifier_endpoint: "redact-v2"            [explicit; overrides annotation: compliance.aggrega.ai/data-class from aggregate]
+    infra.audit_bucket: "s3://..."                     [annotation: compliance.aggrega.ai/audit-bucket from release]
 ```
 
 The walk order is values pillar first (in author order), then infra pillar (same discipline). The pillar prefix (`values.` / `infra.`) and the dotted path inside the pillar pinpoint exactly which leaf each bracket annotates.
 
-## Worked examples
-
-### Example 1 — Catalog Component lookup
-
-```text
-$ aggrega inspect ContentLibrary --catalog ./catalog
-
-Component: ContentLibrary
-  Version: 2.1.0
-  Extends:
-    > core/datastore/postgres (1.0.0)
-  Labels:
-    component.aggrega.ai/type: server
-    datastore.aggrega.ai/engine: relational
-
-Schema (resolved):
-  values:
-    library_name:    { type: string, required: true }
-    article_format:  { type: string, enum: [markdown, html], default: markdown }
-    archive_window:  { type: integer, min: 1, default: 90 }
-  infra:
-    compute:         { cpu, memory, ... }
-    storage:         { size, type, ... }
-    overrides:       { type: object, additionalProperties: true }
-  provides:
-    host:            { type: string }
-    port:            { type: integer }
-    database:        { type: string }
-
-usesSchema:
-  primary_datastore: { selector: { datastore.aggrega.ai/engine: relational }, required: true, inject: [env] }
-
-secretsSchema:
-  root_password: { required: true, inject: [] }
-```
-
-The output shows the `extends:` lineage explicitly, the resolved schema after the `extends:` merge, and the declarative tables.
-
-### Example 2 — Release with uniform provenance
-
-```text
-$ aggrega inspect ./prod-release.yaml --catalog ./catalog
-
-Release: prod-release v1.0.0
-Aggregate: my-app
-Manifest: prod-manifest
-
-Boundary: prod (directory: deploy/prod)
-  Component: api-server
-    Features:
-      - core/audit-logging         [explicit]
-      - core/rate-limiter          [explicit]
-      - core/team-cost-attribution [annotation: business.aggrega.ai/team from aggregate]
-
-  Component: db
-    Features:
-      - core/backup-policy         [annotation: state.aggrega.ai/backup-tier from release]
-```
-
-Each Feature on each Component carries one bracket because each Feature's leaves come from a single source. The reader can see at a glance which Features the author declared explicitly (the `[explicit]` bracket), which were synthesised by Aggregate-side annotations cascading down (`business.aggrega.ai/team from aggregate`), and which were synthesised by Release-side annotations (`state.aggrega.ai/backup-tier from release`).
-
-### Example 3 — Release with cross-side composition
-
-```text
-$ aggrega inspect ./prod-release.yaml --catalog ./catalog
-
-Release: prod-release v1.0.0
-
-Component: payment-processor
-  Features:
-    - core/data-masking
-        values.fields_to_mask:      ["ssn", "card_number"]
-                                                  [annotation: compliance.aggrega.ai/data-class from aggregate]
-        values.classifier_endpoint: "redact-v2"   [explicit; overrides annotation: compliance.aggrega.ai/data-class from aggregate]
-        infra.audit_bucket:         "s3://..."    [annotation: compliance.aggrega.ai/audit-bucket from release]
-        infra.kms_key_id:           "alias/prod"  [annotation: compliance.aggrega.ai/audit-bucket from release]
-```
-
-The `core/data-masking` Feature's leaves come from three sources: two `values.*` leaves were synthesised by the Aggregate-side `compliance.aggrega.ai/data-class` annotation; one of those (`classifier_endpoint`) was overridden by an explicit Release-side declaration (the bracket records both the override and the suppressed annotation); two `infra.*` leaves were synthesised by the Release-side `compliance.aggrega.ai/audit-bucket` annotation. Reading this output, an operator can trace every contribution to its source and decide whether to add an explicit override at the appropriate authoring surface or adjust the annotation cascade.
-
 ## When to reach for inspect
 
-* **Debugging "why is this Feature here?"** — annotation-driven attachments are invisible in the Aggregate and Release YAML files (the annotations are there, but the Feature attachments they synthesise live only in the IR). Inspect surfaces them with provenance.
-* **Verifying schema inheritance** — `aggrega inspect <ComponentName>` shows the merged schema after the `extends:` chain resolves; the authored file alone shows only the local delta.
-* **Diagnosing cross-side composition surprises** — when an Aggregate annotation and a Release annotation both supply pillar payloads on the same Feature, the resolved leaves can be confusing to reconstruct mentally. The per-leaf bracket form makes the resolution explicit.
-* **Pre-deployment verification check** — `aggrega inspect ./prod-release.yaml` lists every Feature on every Component before `aggrega build` produces artifacts; the operator can confirm the topology matches intent before committing the rendered manifests to GitOps.
+- **Debugging "why is this Feature here?"** — annotation-driven attachments are invisible in the Aggregate and Release YAML files (the annotations are there, but the Feature attachments they synthesise live only in the IR). Inspect surfaces them with provenance.
+- **Verifying schema inheritance** — `aggrega inspect <ComponentName>` shows the merged schema after the `extends:` chain resolves; the authored file alone shows only the local delta.
+- **Diagnosing cross-side composition surprises** — when an Aggregate annotation and a Release annotation both supply pillar payloads on the same Feature, the resolved leaves can be confusing to reconstruct mentally. The per-leaf bracket form makes the resolution explicit.
+- **Pre-deployment verification check** — `aggrega inspect ./prod-release.yaml` lists every Feature on every Component before `aggrega build` produces artifacts; the operator can confirm the topology matches intent before committing the rendered manifests to GitOps.
 
 For the underlying mechanics — how annotations cascade, how the side-vs-pillar partition routes annotation values into Feature pillars, and how the explicit-attachment-wins discipline interacts with annotation-driven contributions — see [providers/well-known-annotations.md](../providers/well-known-annotations.md) and [entities/manifest.md](../entities/manifest.md) "Annotation-Driven Feature Bindings".
