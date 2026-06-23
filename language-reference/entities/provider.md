@@ -71,4 +71,18 @@ A Provider declares two distinct JSON Schema 2020-12 declarations that validate 
 
 The two schemas are independent JSON Schema 2020-12 declarations — they cover distinct surfaces and don't unify into one schema. A Provider whose engine supports both sourced and synthesized modes declares both by convention; a sourced-only provider declares only `baseSchema:`, and a synthesized-mode Recipe bound to it is rejected at render time.
 
+## The `wellKnownAnnotations:` field
+
+A Provider MAY declare an optional `wellKnownAnnotations:` array enumerating the platform-native well-known annotation keys — those under the reserved `aggrega.ai/` namespace — that its rendering engine reads, together with the behavior applied when each is absent. Each entry carries a `key` (the engine-read annotation, e.g. `aggrega.ai/namespace`), a `purpose` (what the annotation controls when present), and an optional `defaultBehavior` (what the engine does when the annotation is absent). `key` and `purpose` are required; entries preserve author order.
+
+The field is documentation-of-contract: it describes which platform directives the engine recognises, for catalog readers and the `aggrega inspect` surface. The compiler does not consume it to gate, branch, or reject a build — it never cross-checks the annotations a deployment actually carries against this list. Schema validation checks only the shape of each entry (the key sits under the `aggrega.ai/` namespace, `purpose` is present); it is distinct from the runtime check that governs binding a value into the reserved namespace.
+
+```yaml
+spec:
+  wellKnownAnnotations:
+    - key: aggrega.ai/namespace
+      purpose: Overrides the target namespace the engine renders into.
+      defaultBehavior: Renders into the boundary's default namespace.
+```
+
 For the four-layer validation model that places these schemas alongside the JSON Schema envelope at higher entity boundaries, the per-pillar declarations, and the annotation-binding fragments, see [`vocabulary/validation-surface.md`](../vocabulary/validation-surface.md). For the per-provider schema content the standard-library Providers ship today, see [`providers/helm.md`](../providers/helm.md), [`providers/helm-chart.md`](../providers/helm-chart.md), and [`providers/compose.md`](../providers/compose.md).
