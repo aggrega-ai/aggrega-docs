@@ -1,19 +1,51 @@
 # aggrega sign
 
-`aggrega sign` signs an already-published catalog artifact and attaches the signature as an OCI referrer. It is the post-publish counterpart of `aggrega push --sign`: use it to sign an artifact that was published unsigned, or to add a signature from a different identity.
+`aggrega sign` signs one or more already-published catalog artifacts and attaches each signature as an OCI referrer. It is the post-publish counterpart of `aggrega push --sign`: use it to sign an artifact that was published unsigned, to add a signature from a different identity, or to sign a whole batch of artifacts in one invocation.
 
 ## Synopsis
 
 ```
-aggrega sign <reference> [--key <pem>] [--identity-token <token>]
+aggrega sign <reference>... [--key <pem>] [--identity-token <token>]
               [--fulcio-url <url>] [--rekor-url <url>] [--timestamp-url <url>]
 ```
 
 ## What it does
 
-`aggrega sign` resolves the digest the registry already holds for `<reference>`, signs that digest, and attaches the signature bundle as a referrer. It never re-pushes, re-tags, or otherwise mutates the published bytes — the artifact is immutable, and the signature is a sibling manifest pointing back at it. So an artifact can be signed after the fact with no version bump.
+`aggrega sign` resolves the digest the registry already holds for each `<reference>`, signs that digest, and attaches the signature bundle as a referrer. It never re-pushes, re-tags, or otherwise mutates the published bytes — the artifact is immutable, and the signature is a sibling manifest pointing back at it. So an artifact can be signed after the fact with no version bump.
 
 The signature is a Sigstore (cosign-compatible) bundle, the same format `aggrega push --sign` attaches and `aggrega pull` verifies.
+
+## Batch signing
+
+Pass several references to sign them in one invocation:
+
+```
+aggrega sign \
+  hub.example.com/component/core/api-server:1.0.0 \
+  hub.example.com/component/core/worker:1.0.0 \
+  hub.example.com/feature/core/telemetry:2.1.0
+```
+
+Keyless signing acquires the OIDC identity **once** for the whole batch and reuses it across every artifact — one interactive authentication, many signatures — while issuing a fresh short-lived Fulcio certificate per artifact. References may target different registries; the per-registry signing endpoints are resolved independently, but the identity is acquired a single time. The keyed path (`--key`) signs the batch with no authentication at all.
+
+Signing is **continue-and-report**: every signable reference is signed, a reference that fails to resolve, sign, or attach is recorded, and the batch proceeds to the next reference rather than halting on the first failure. After the batch, if any reference failed, a summary listing the failed references is printed to stderr and the command exits non-zero. References that succeeded are signed regardless of others' failures.
+
+### Identity-token expiry mid-batch
+
+A long batch can outlive a short-lived identity token. The behaviour depends on how the token was obtained:
+
+- **Interactively acquired** (no token supplied — the CLI ran the browser flow): if signing a reference fails in a way consistent with a rejected token, the CLI re-acquires a fresh identity once for the batch and retries that reference. Re-acquisition happens at most once per batch.
+- **Operator-supplied** (`--identity-token`, `AGGREGA_IDENTITY_TOKEN`, or `SIGSTORE_ID_TOKEN`): a supplied credential is never silently re-prompted. The batch fails loudly with a message asking you to export a fresh `AGGREGA_IDENTITY_TOKEN` or pass a fresh `--identity-token`.
+
+For scripted batches, acquire the token once up front and export it, signing each reference without a browser round-trip:
+
+```
+export AGGREGA_IDENTITY_TOKEN=$(aggrega auth token)
+aggrega sign hub.example.com/component/core/api-server:1.0.0
+aggrega sign hub.example.com/component/core/worker:1.0.0
+```
+
+See [./aggrega-auth.md](./aggrega-auth.md) for `aggrega auth token`.
 
 ## Signing modes
 
@@ -26,7 +58,7 @@ The construction and the sign-and-attach behaviour are shared with `aggrega push
 
 ## Flags
 
-- `<reference>` — the published artifact reference to sign (e.g. `hub.example.com/component/core/api-server:1.0.0`).
+- `<reference>...` — one or more published artifact references to sign (e.g. `hub.example.com/component/core/api-server:1.0.0`). At least one is required.
 - `--key <pem>` — path to a held ECDSA P-256 private-key PEM for offline keyed signing. When omitted, keyless signing is used.
 - `--identity-token <token>` — OIDC identity token for keyless signing. Optional at an interactive terminal (the CLI acquires one through a browser flow); required for non-interactive / CI use, where it may instead be exported as `AGGREGA_IDENTITY_TOKEN` or `SIGSTORE_ID_TOKEN`.
 - `--fulcio-url <url>` — Fulcio certificate-authority URL for keyless signing. Defaults to the public-good Fulcio instance (`https://fulcio.sigstore.dev`).
@@ -45,5 +77,6 @@ The signing inputs can be supplied through the environment, overriding the `.agg
 
 ## See also
 
+- [./aggrega-auth.md](./aggrega-auth.md) — acquire an OIDC identity token once for a batch of keyless signs.
 - [./aggrega-push.md](./aggrega-push.md) — publish, optionally signing at push time (sign-before-push).
 - [./aggrega-pull.md](./aggrega-pull.md) — the consuming side, which verifies signatures against the per-registry trust policy.

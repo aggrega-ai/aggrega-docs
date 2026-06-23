@@ -74,11 +74,20 @@ permissions:
 
 Automatic CI-provider detection across multiple CI platforms is not yet available, so the token is exported explicitly as shown.
 
+For an **interactive** batch the counterpart is `aggrega auth token`, which runs the browser OIDC flow once and prints the identity token to stdout so it can be exported the same way:
+
+```bash
+export AGGREGA_IDENTITY_TOKEN=$(aggrega auth token)
+```
+
+See [aggrega-auth.md](aggrega-auth.md). Either path lets a batch of `aggrega sign` invocations reuse one identity with no per-artifact browser round-trip.
+
 **Prefer `--password-stdin` over `AGGREGA_REGISTRY_PASSWORD`.** An environment variable is readable by child processes and may persist in a shell; stdin is the more secure path for the password. The environment variable exists as a CI convenience.
 
 ## See also
 
 - [global-flags.md](global-flags.md) — `--workspace-root` and `AGGREGA_CONFIG`.
 - [aggrega-push.md](aggrega-push.md) and [aggrega-sign.md](aggrega-sign.md) — signing variables and the identity-token alias.
+- [aggrega-auth.md](aggrega-auth.md) — `aggrega auth token` for acquiring the identity token interactively.
 - [aggrega-pull.md](aggrega-pull.md) and [aggrega-build.md](aggrega-build.md) — offline, auto-pull, catalog-dir, and cache variables.
 - [../../architecture/13-catalog-and-registry.md](../../architecture/13-catalog-and-registry.md) — the `.aggrega-config.yaml` model these variables override.
