@@ -547,12 +547,11 @@ The compact form's compactness, measured against the same schema surface authore
 
 | Form | Lines | Notes |
 | --- | --- | --- |
-| Equivalent CUE authoring | ~85 | The schema content as it would be written in CUE, including disjunction syntax |
 | JSON Schema YAML | ~198 | Same schema content authored in JSON Schema YAML directly |
 | **Compact form** | **~79** | Same schema content; equivalent expressivity |
 | Compact form + library extraction | **~30** (Component) + ~50 (library) = ~80 total, **~30 per consumer** | The pattern when the library is shared across multiple Components; per-Component cost drops |
 
-The compact form is comparable to CUE in compactness while using YAML throughout (familiar to Helm/Kubernetes users) and producing a JSON Schema 2020-12 sidecar consumable by external tooling. The library extraction pattern is where the catalog pays back: as more Components share the schema, the per-Component authoring cost drops.
+The compact form stays compact while using YAML throughout (familiar to Helm/Kubernetes users) and producing a JSON Schema 2020-12 sidecar consumable by external tooling. The library extraction pattern is where the catalog pays back: as more Components share the schema, the per-Component authoring cost drops.
 
 The MariaDB example covers the full surface needed for production usage. **No `$jsonschema:` escape hatch is needed** for this realistic catalog content. The compact form's vocabulary covers everything this Component requires.
 
