@@ -2,7 +2,7 @@
 
 Aggrega's compilation pipeline includes designated socket points where WebAssembly (Wasm) plugins extend the engine's behaviour: a Step 2 Mutation Gate, a Step 4 Validation Gate, a Step 5 Phase C plugin pipeline for FeatureRecipe execution, an out-of-band linting socket, and a planned provider-rendering socket. This page documents the public Wasm plugin contract: which sockets exist, what each socket consumes and produces, and where each socket sits in the compilation pipeline.
 
-Aggrega embeds a Wasm host runtime — Extism on top of the Wazero engine — that loads and executes plugins behind an AOT-purity firewall: the host denies runtime-access capabilities (network, filesystem, walltime, environment, stdio) so a plugin cannot break the compiler's ahead-of-time guarantees. Plugin authors target the host through the three-language PDK (Go, Rust, TypeScript). The first socket dispatched through the host in a shipping command is the **linter socket** — the standard publishing-linter, executed by [`aggrega lint`](../cli/aggrega-lint.md). The in-band build sockets (the Step 2 mutator, the Step 4 policy-validator, the Step 5 Phase C pipeline) are **accepted but inert**: their Go type definitions compile, and the policy-validator payload is assembled on every build, but `aggrega build` does not yet dispatch them through the host. See [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases).
+Aggrega embeds a Wasm host runtime — Extism on top of the Wazero engine — that loads and executes plugins behind an AOT-purity firewall: the host denies runtime-access capabilities (network, filesystem, walltime, environment, stdio) so a plugin cannot break the compiler's ahead-of-time guarantees. A plugin's language runtime bootstraps against a deterministic, capability-denied WASI configuration — a fixed observable wall clock, zero entropy, discarded stdio, and no filesystem, argument, or environment access — so a guest observes nothing that varies across builds. Plugin authors target the host through the three-language PDK (Go, Rust, TypeScript). The first socket dispatched through the host in a shipping command is the **linter socket** — the standard publishing-linter, executed by [`aggrega lint`](../cli/aggrega-lint.md). The in-band build sockets (the Step 2 mutator, the Step 4 policy-validator, the Step 5 Phase C pipeline) are **accepted but inert**: their Go type definitions compile, and the policy-validator payload is assembled on every build, but `aggrega build` does not yet dispatch them through the host. See [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases).
 
 ## Pipeline placement of Wasm sockets
 
@@ -47,9 +47,10 @@ Each patch addresses a specific node's labels via [JSON Pointer (RFC 6901)](http
 
 **Input shape (host → guest).** A `PolicyValidatorInput` document carrying:
 
-- `graph` — a `PolicyGraph` projection with per-node `Component`, `ResolvedVersion`, `Labels`, `Features`, plus per-edge data including `OriginFeature` markers (which feature attachment, if any, synthesised the edge).
+- `graph` — the full target-agnostic IR graph (the same shape the Topology Builder emits), with every node, edge, and attachment detail the compiler holds.
+- `precalculated_paths` — the routing paths the analyzer enumerates alongside, so a policy can reason about reachability without re-walking the graph.
 
-The graph carries enough surface to evaluate compliance / topological / feature-attachment policies without exposing the full IR.
+The graph is the versioned IR graph, single-sourced from the `ir-v1alpha1` schema; a policy plugin reasons over the complete topology and tracks the IR schema version like any other ABI it consumes. The IR shape is not secret — it is the same graph `aggrega inspect` emits — and secrets in it are pointers, never plaintext.
 
 **Output shape (guest → host).** A `PolicyValidatorOutput` document carrying:
 
@@ -57,7 +58,7 @@ The graph carries enough surface to evaluate compliance / topological / feature-
 
 The host collects all rule results, halts the build with all failed-rule messages if any `Pass` is false, and continues to Step 5 only if every result passed. Policy plugins evaluate per-rule; one rejection halts the build.
 
-**Type definitions.** [`internal/compiler/analyzer/wasm_types.go`](../../../aggrega-cli/internal/compiler/analyzer/wasm_types.go) carries `PolicyValidatorInput`, `PolicyGraph`, `PolicyNode`, `PolicyEdge`, `PolicyValidatorOutput`, `PolicyResult`. [`internal/compiler/analyzer/doc.go`](../../../aggrega-cli/internal/compiler/analyzer/doc.go) explicitly documents the `accepted but inert` state: "PolicyInput is computed on every build but is not consumed by Step 5 today; the policy-validator Wasm runtime that would read them is not yet wired into the pipeline."
+**Type definitions.** [`internal/compiler/analyzer/wasm_types.go`](../../../aggrega-cli/internal/compiler/analyzer/wasm_types.go) carries `PolicyValidatorInput` (whose `Graph` field is the full IR graph), `PolicyValidatorOutput`, and `PolicyResult`. [`internal/compiler/analyzer/doc.go`](../../../aggrega-cli/internal/compiler/analyzer/doc.go) explicitly documents the `accepted but inert` state: PolicyInput is computed on every build but is not consumed by Step 5 today; the policy-validator Wasm runtime that would read it is not yet wired into the pipeline.
 
 ## Output shape contract — design targets
 
