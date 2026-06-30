@@ -101,6 +101,8 @@ The corpus carries ten entity kinds across four domains plus the Tier 3 library 
 
 The Workload kind is platform-owned content embedded inside a Recipe's synthesized input rather than a standalone catalog entity (see chapter 16).
 
+The Plugin kind is a compiler-structural construct rather than a standalone authoring entity in this taxonomy: it is a content-addressed reference to a WebAssembly artifact. The compiler pins and routes the reference; the WebAssembly runtime executes the bytes; the compiler is blind to what the plugin does. A Plugin carries no developer-authored application intent and owns no domain in the four-domain split — it is the transport for the domain-specific intelligence that lives in WebAssembly. Its authoring and metadata surface is documented at [language-reference/entities/plugin.md](../language-reference/entities/plugin.md).
+
 ## Domain 1: Developer Intent (The "What")
 
 * **Role:** The Developer. Focuses purely on AI architecture, cognitive loops, and application survival requirements. They know nothing about CEL, OPA, or physical ports.

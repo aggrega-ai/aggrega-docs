@@ -4,17 +4,17 @@ The conceptual role of the Provider entity (Domain 3 — the global plugin regis
 
 ## The Provider's Role
 
-A Provider acts as an "Engine Format Instruction" mapping a logical name (e.g., `helm`) to a concrete Wasm rendering plugin (e.g., `helm-renderer.wasm`). It is the routing contract between the Go compiler and the downstream format-specific rendering logic.
+A Provider acts as an "Engine Format Instruction" mapping a logical name (e.g., `helm`) to the rendering engine that produces the target format. It is the routing contract between the Go compiler and the downstream format-specific rendering logic. The `spec.plugin` field records the Wasm rendering plugin intended for that format (e.g., `helm-renderer.wasm`) as a reserved routing primitive; see [The `plugin:` field](#the-plugin-field) for what the compiler binds today.
 
 When a Recipe declares `spec.provider: helm`, the compiler:
 
-1. Resolves the Provider entry to locate its associated Wasm rendering plugin.
-2. Consults the Provider's Wasm socket to dynamically validate the Recipe's `source` block (because Recipe source schemas are target-agnostic — see [entities/recipe](recipe.md) §A Wasm-Driven Source Schemas).
-3. Passes the rendered AST to the Wasm rendering socket for final stringification to the native format (YAML for Helm, `.tf.json` for Terraform, etc.).
+1. Resolves the Provider entry by its logical name (the Provider's `metadata.name`).
+2. Validates the Recipe's `source` block against the Provider's source-schema contract (because Recipe source schemas are target-agnostic — see [entities/recipe](recipe.md) §A Wasm-Driven Source Schemas).
+3. Renders the IR to the native format (YAML for Helm, `.tf.json` for Terraform, etc.) through the per-provider rendering engine built into the compiler.
 
 ## Versioning
 
-Recipes should reference the exact version of the provider they were authored for (e.g., `spec.provider: "helm:1.0.0"`). If the version tag is omitted (e.g., `spec.provider: "helm"`), the compiler dynamically falls back to fetching the `latest` available version of the Wasm plugin from the registry. The IDE Language Server (LSP) runs this resolved Wasm plugin in the background, extracting its native JSON schema to provide real-time autocomplete and linting directly to the developer.
+Recipes should reference the exact version of the provider they were authored for (e.g., `spec.provider: "helm:1.0.0"`). If the version tag is omitted (e.g., `spec.provider: "helm"`), the reference resolves to the `latest` available version of the Provider entity in the registry.
 
 ## The `plugin:` field
 
@@ -33,9 +33,9 @@ spec:
     ...
 ```
 
-`plugin:` is the routing primitive that ties the logical provider name (the Provider's `metadata.name`, e.g. `helm`) to the concrete Wasm artifact (`hub.aggrega.ai/providers/helm-renderer:1.0.0`). The compiler resolves a Recipe's `spec.provider: helm` value to the matching Provider entity, then dereferences `spec.plugin` to load the Wasm socket. The Recipe never names the Wasm plugin directly; it names the logical provider, and the Provider catalog entry supplies the indirection.
+`plugin:` is the reserved routing primitive that records, for the logical provider name (the Provider's `metadata.name`, e.g. `helm`), the concrete Wasm artifact (`hub.aggrega.ai/providers/helm-renderer:1.0.0`) intended to render that format. It is documentation-only today: the compiler does not dereference it. Provider dispatch is by provider name, and the per-provider rendering engine is built into the compiler — the compiler resolves a Recipe's `spec.provider: helm` value to the matching Provider entity by name and renders through the engine bound to that name. The field becomes runtime-driven when the Wasm translator ships, at which point the compiler binds the named Wasm artifact instead of the built-in engine. The Recipe never names the Wasm plugin directly; it names the logical provider, and the Provider catalog entry records the intended indirection.
 
-The plugin URI uses the same OCI registry conventions as the rest of the catalog. The version tag may be omitted at the Recipe authoring surface (per **Versioning** above); the resolved Provider entity still carries an explicit `plugin:` URI with a concrete version, captured at catalog publish time.
+The plugin URI uses the same OCI registry conventions as the rest of the catalog. The resolved Provider entity carries an explicit `plugin:` URI with a concrete version, captured at catalog publish time.
 
 `plugin:` is distinct from FeatureRecipe `spec.pipeline[].plugin` — the latter is a Wasm mutation socket attached to a single FeatureRecipe pipeline step, not the format-renderer the whole Provider routes to. See [entities/featurerecipe.md](featurerecipe.md) for the FeatureRecipe pipeline shape.
 

@@ -92,6 +92,8 @@ A pipeline step or a plugin socket references a plugin by its **`Plugin` entity 
 
 A bare `.wasm` path or a raw artifact reference left in a `plugin` field is rejected at load: no `Plugin` entity matches it, so plugin resolution fails loudly. The entity URI is mandatory — the indirection through the entity is the contract, not an optional convenience. A FeatureRecipe pipeline step names the entity in `pipeline[].plugin`; see [`../entities/featurerecipe.md`](../entities/featurerecipe.md) for the pipeline authoring surface.
 
+When two or more plugins are coupled — they must agree on a shared hand-off contract, as in a Fetcher and Injector pair where one plugin's output is the other's input (the Two-Part Plugin Principle described in [`plugin-contract.md`](plugin-contract.md)) — author that contract once and have each plugin depend on the single definition rather than restating the JSON hand-off shape independently in each plugin. The shared shape is the JSON structure the plugins exchange, which can live in a single SchemaLibrary entry both plugins reference. A single source for the contract keeps coupled plugins in sync as it evolves; independent restatements drift, and the drift surfaces only when the two no longer agree at runtime. The recommendation is to share the contract, not the Wasm code — each plugin remains its own artifact.
+
 ## 7. The publish → pull → build lifecycle
 
 A plugin moves from a `.wasm` file on disk to a build-consumable, verified artifact through three stages.
