@@ -1,6 +1,6 @@
 # Wasm plugin developer guide
 
-This is the canonical guide for authoring an Aggrega WebAssembly (Wasm) plugin and publishing it as a catalog entity. It teaches the plugin author's contract end to end: what a plugin is, how a plugin describes itself to the host, how to author its exports and capability claims, the runtime limits and host functions the host applies, the `WasmPlugin` entity that carries a plugin into the catalog, how a Recipe or FeatureRecipe references a plugin, and the publish→pull→build lifecycle that gets a plugin from a `.wasm` file on disk to a verified, digest-pinned artifact a build consumes.
+This is the canonical guide for authoring an Aggrega WebAssembly (Wasm) plugin and publishing it as a catalog entity. It teaches the plugin author's contract end to end: what a plugin is, how a plugin describes itself to the host, how to author its exports and capability claims, the runtime limits and host functions the host applies, the `Plugin` entity that carries a plugin into the catalog, how a Recipe or FeatureRecipe references a plugin, and the publish→pull→build lifecycle that gets a plugin from a `.wasm` file on disk to a verified, digest-pinned artifact a build consumes.
 
 The companion page [`plugin-contract.md`](plugin-contract.md) documents the *sockets* — the pipeline points where plugins attach and the input/output shapes each socket consumes and produces. This guide documents the *plugin* — the entity, the capability surface, and the lifecycle. Read the contract page to learn which socket your plugin targets; read this page to learn how to author and ship it.
 
@@ -18,7 +18,7 @@ You author the guest against the host through the three-language plugin developm
 
 Every plugin exports a `describe()` function that returns the plugin's self-report: the socket type(s) it implements, the ABI version it targets, the provider engines it claims compatibility with, the host functions it imports, and the per-export capability of each entry point it offers. `describe()` is the plugin's own account of what it is and what it does.
 
-The self-report is the anchor of the trust model. The `WasmPlugin` entity that carries the plugin into the catalog (Section 5) restates the same facts as authored claims, and the host cross-checks the entity's claims against the plugin's `describe()` output at two moments — at publish, before any bytes land in the registry, and at load, before the plugin runs. A mismatch halts loudly. The entity is the human-readable, catalog-visible surface; `describe()` is the machine-of-record the host verifies it against. Author both to agree; the cross-check exists precisely to catch the case where they drift.
+The self-report is the anchor of the trust model. The `Plugin` entity that carries the plugin into the catalog (Section 5) restates the same facts as authored claims, and the host cross-checks the entity's claims against the plugin's `describe()` output at two moments — at publish, before any bytes land in the registry, and at load, before the plugin runs. A mismatch halts loudly. The entity is the human-readable, catalog-visible surface; `describe()` is the machine-of-record the host verifies it against. Author both to agree; the cross-check exists precisely to catch the case where they drift.
 
 ## 3. Authoring exports and their capability claims
 
@@ -43,13 +43,13 @@ There is no host-allowlist field for outbound network access. A plugin never rea
 
 **Configuration.** `configKV` is a string-to-string map the runtime hands the plugin at start. Entries preserve author order so the emitted record is byte-identical across runs. Absent leaves the runtime's default empty configuration in effect.
 
-## 5. The `WasmPlugin` entity
+## 5. The `Plugin` entity
 
-A plugin enters the catalog as a `WasmPlugin` entity — the authoring and metadata surface for the plugin. The entity declares what the plugin is and points at the `.wasm` artifact; the compiler is blind to the plugin's behaviour and routes the pinned reference, while the Wasm runtime executes the bytes.
+A plugin enters the catalog as a `Plugin` entity — the authoring and metadata surface for the plugin. The entity declares what the plugin is and points at the `.wasm` artifact; the compiler is blind to the plugin's behaviour and routes the pinned reference, while the Wasm runtime executes the bytes.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
-kind: WasmPlugin
+kind: Plugin
 metadata:
   name: secret-providers/aws-secrets-manager
   version: 1.2.0
@@ -85,29 +85,29 @@ The fields:
 - **`spec.runtime`** — the optional execution-constraints block from Section 4 (`maxMemoryPages`, `timeoutMs`, `declaredHostFunctions`, `configKV`).
 - **`spec.exports`** — the per-export capability claims from Section 3 (`name`, `operates`, `scope`, `selector`).
 
-For the field-by-field reference, see the entity page [`../entities/wasmplugin.md`](../entities/wasmplugin.md).
+For the field-by-field reference, see the entity page [`../entities/plugin.md`](../entities/plugin.md).
 
 ## 6. Referencing a plugin
 
-A pipeline step or a plugin socket references a plugin by its **`WasmPlugin` entity URI** — the entity's identity, not the `.wasm` artifact directly. The entity is the layer that carries the digest pin, the capability claims, the runtime limits, and the signature; referencing the entity is how a consumer picks up all of it.
+A pipeline step or a plugin socket references a plugin by its **`Plugin` entity URI** — the entity's identity, not the `.wasm` artifact directly. The entity is the layer that carries the digest pin, the capability claims, the runtime limits, and the signature; referencing the entity is how a consumer picks up all of it.
 
-A bare `.wasm` path or a raw artifact reference left in a `plugin` field is rejected at load: no `WasmPlugin` entity matches it, so plugin resolution fails loudly. The entity URI is mandatory — the indirection through the entity is the contract, not an optional convenience. A FeatureRecipe pipeline step names the entity in `pipeline[].plugin`; see [`../entities/featurerecipe.md`](../entities/featurerecipe.md) for the pipeline authoring surface.
+A bare `.wasm` path or a raw artifact reference left in a `plugin` field is rejected at load: no `Plugin` entity matches it, so plugin resolution fails loudly. The entity URI is mandatory — the indirection through the entity is the contract, not an optional convenience. A FeatureRecipe pipeline step names the entity in `pipeline[].plugin`; see [`../entities/featurerecipe.md`](../entities/featurerecipe.md) for the pipeline authoring surface.
 
 ## 7. The publish → pull → build lifecycle
 
 A plugin moves from a `.wasm` file on disk to a build-consumable, verified artifact through three stages.
 
-**Publish.** `aggrega push` publishes a `WasmPlugin` entity together with its `.wasm` artifact as two ordered OCI artifacts. The `.wasm` lands first, addressed by its content digest; the entity lands second, referencing the `.wasm` by that digest in `spec.plugin`. The ordering plus the content-digest pin makes a partial push safe: a failed entity push leaves only an orphan `.wasm` addressed by digest, with no entity tag, so a retry is clean.
+**Publish.** `aggrega push` publishes a `Plugin` entity together with its `.wasm` artifact as two ordered OCI artifacts. The `.wasm` lands first, addressed by its content digest; the entity lands second, referencing the `.wasm` by that digest in `spec.plugin`. The ordering plus the content-digest pin makes a partial push safe: a failed entity push leaves only an orphan `.wasm` addressed by digest, with no entity tag, so a retry is clean.
 
 Before any bytes land, publish runs two checks. The `.wasm` is loaded and its `describe()` self-report is cross-checked against the entity's authored capability and host-function claims — a mismatch halts loudly, so a published entity never disagrees with the plugin it ships. And the `.wasm` content digest is computed once and stamped into `spec.plugin`; if the on-disk `spec.plugin` already pins a digest, it must equal the computed one or the publish halts. The published entity carries the resolved, digest-pinned reference.
 
-**Pull.** `aggrega pull` resolves a Release's full dependency closure and writes a per-Release lockfile pinning every catalog entity and remote artifact to a version and content digest. A published `WasmPlugin` resolves through this closure; its `.wasm` is fetched by the content-digest pin in `spec.plugin` and the bytes are verified against that digest. If the registry's trust policy requires signatures, the entity's signature is fetched and verified at this stage and recorded as a verified fact in the lockfile (Section 8). Verification happens at pull, never at build — the build stays ahead-of-time-pure.
+**Pull.** `aggrega pull` resolves a Release's full dependency closure and writes a per-Release lockfile pinning every catalog entity and remote artifact to a version and content digest. A published `Plugin` resolves through this closure; its `.wasm` is fetched by the content-digest pin in `spec.plugin` and the bytes are verified against that digest. If the registry's trust policy requires signatures, the entity's signature is fetched and verified at this stage and recorded as a verified fact in the lockfile (Section 8). Verification happens at pull, never at build — the build stays ahead-of-time-pure.
 
 **Build.** `aggrega build` consumes the pinned, verified plugin from the closure. The compiler routes the digest-pinned reference and the Wasm runtime executes the bytes; the load gate re-runs the `describe()` cross-check and the host-function and runtime-limit enforcement before the plugin runs.
 
 ## 8. Signing and trust
 
-A `WasmPlugin` entity is signed exactly as every other catalog entity: the entity manifest's digest is signed and attached as an OCI referrer. The `.wasm` artifact is not signed separately — the signed entity commits to the `.wasm` content digest through `spec.plugin`, so the entity signature transitively covers the artifact: tampering with the `.wasm` breaks the digest pin the signed entity asserts.
+A `Plugin` entity is signed exactly as every other catalog entity: the entity manifest's digest is signed and attached as an OCI referrer. The `.wasm` artifact is not signed separately — the signed entity commits to the `.wasm` content digest through `spec.plugin`, so the entity signature transitively covers the artifact: tampering with the `.wasm` breaks the digest pin the signed entity asserts.
 
 Signing is opt-in at publish; verification is enforced by the per-registry trust policy at pull. A registry configured to require signatures halts the pull when a required signature is missing, untrusted, or invalid. The `spec.signature` block on the entity is a documentation pointer to where the signature lives and how it was produced; it records facts for catalog readers and does not itself gate admission. The gate is the pull-time policy.
 
@@ -115,17 +115,17 @@ The commands and their flags are documented with the publishing and consume surf
 
 ## 9. Versioning the entity
 
-A `WasmPlugin` entity carries a strict Semantic Version in `metadata.version`. A published version is immutable: re-publishing a version that already exists in the registry is rejected at the publish gate.
+A `Plugin` entity carries a strict Semantic Version in `metadata.version`. A published version is immutable: re-publishing a version that already exists in the registry is rejected at the publish gate.
 
 When you change a plugin entity and re-publish, the publishing discipline classifies the change against the previously published version and requires the version bump to match. The classification is the version-bump rubric: a documentation- or comment-only change is `PATCH`; a strictly additive change (a new optional field, a new entry) is `MINOR`; a removal, a type narrowing, or a previously-optional field becoming required is `MAJOR`. Over-bumping is always allowed; under-bumping halts with a diagnostic naming the required bump. The first publication of an entity skips the bump check and surfaces a warning that no verification was performed. Run the check before publishing with `aggrega lint --pre-publish`; see [`../cli/aggrega-lint.md`](../cli/aggrega-lint.md) for the full rubric and the per-rule settings.
 
-The monotonic-narrowing rule that applies to entities using `extends` does not apply to a `WasmPlugin`: the entity has no `extends` surface, so there is no parent schema to narrow against. The version-bump rubric and immutability are the versioning discipline that governs a plugin entity.
+The monotonic-narrowing rule that applies to entities using `extends` does not apply to a `Plugin`: the entity has no `extends` surface, so there is no parent schema to narrow against. The version-bump rubric and immutability are the versioning discipline that governs a plugin entity.
 
 ## 10. Cross-references
 
 - [`plugin-contract.md`](plugin-contract.md) — the socket points a plugin targets and the per-socket input/output shapes.
-- [`../entities/wasmplugin.md`](../entities/wasmplugin.md) — the `WasmPlugin` entity field-by-field reference.
+- [`../entities/plugin.md`](../entities/plugin.md) — the `Plugin` entity field-by-field reference.
 - [`../entities/featurerecipe.md`](../entities/featurerecipe.md) — the FeatureRecipe `pipeline:` authoring surface that references a plugin by entity URI.
 - [`../cli/aggrega-lint.md`](../cli/aggrega-lint.md) — the publishing-linter, the version-bump rubric, and immutability enforcement.
-- [`../cli/aggrega-inspect.md`](../cli/aggrega-inspect.md) — inspecting a `WasmPlugin` entity's capabilities, runtime limits, and signature.
+- [`../cli/aggrega-inspect.md`](../cli/aggrega-inspect.md) — inspecting a `Plugin` entity's capabilities, runtime limits, and signature.
 - [`../cli/aggrega-push.md`](../cli/aggrega-push.md), [`../cli/aggrega-pull.md`](../cli/aggrega-pull.md), [`../cli/aggrega-sign.md`](../cli/aggrega-sign.md) — the publish, consume, and signing command surfaces.

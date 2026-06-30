@@ -1,16 +1,16 @@
-# WasmPlugin
+# Plugin
 
-A `WasmPlugin` is a content-addressed WebAssembly plugin: an OCI-hosted `.wasm` artifact pinned by `sha256` digest, declaring the socket type(s) it implements, the ABI version it targets, an optional signature pointer, and an optional runtime block. The entity is the authoring and metadata surface for a plugin; the closure pins the artifact by digest and the per-registry trust policy verifies its signature at pull. The compiler is blind to the plugin's behaviour — it routes the pinned reference; the WebAssembly runtime executes the bytes.
+A `Plugin` is a content-addressed WebAssembly plugin: an OCI-hosted `.wasm` artifact pinned by `sha256` digest, declaring the socket type(s) it implements, the ABI version it targets, an optional signature pointer, and an optional runtime block. The entity is the authoring and metadata surface for a plugin; the closure pins the artifact by digest and the per-registry trust policy verifies its signature at pull. The compiler is blind to the plugin's behaviour — it routes the pinned reference; the WebAssembly runtime executes the bytes.
 
-This page covers the `WasmPlugin` catalog authoring surface field by field. For the end-to-end author workflow — what a plugin is, the `describe()` self-report, the publish→pull→build lifecycle, signing, and versioning — see the [Wasm plugin developer guide](../wasm/plugin-developer-guide.md). For the socket points a plugin attaches to and their input/output shapes, see the [Wasm plugin contract](../wasm/plugin-contract.md).
+This page covers the `Plugin` catalog authoring surface field by field. For the end-to-end author workflow — what a plugin is, the `describe()` self-report, the publish→pull→build lifecycle, signing, and versioning — see the [Wasm plugin developer guide](../wasm/plugin-developer-guide.md). For the socket points a plugin attaches to and their input/output shapes, see the [Wasm plugin contract](../wasm/plugin-contract.md).
 
-## The WasmPlugin's role
+## The Plugin's role
 
-A `WasmPlugin` ties a logical plugin identity to a concrete `.wasm` artifact and to the capability and runtime metadata the host needs to load and run it safely. A pipeline step or a plugin socket references the entity by its URI; the entity carries the digest pin, the declared capabilities, the runtime limits, and the signature. The indirection through the entity is mandatory — a bare `.wasm` or artifact reference left in a `plugin` field is rejected at load because no entity matches it.
+A `Plugin` ties a logical plugin identity to a concrete `.wasm` artifact and to the capability and runtime metadata the host needs to load and run it safely. A pipeline step or a plugin socket references the entity by its URI; the entity carries the digest pin, the declared capabilities, the runtime limits, and the signature. The indirection through the entity is mandatory — a bare `.wasm` or artifact reference left in a `plugin` field is rejected at load because no entity matches it.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
-kind: WasmPlugin
+kind: Plugin
 metadata:
   name: secret-providers/aws-secrets-manager
   version: 1.2.0
@@ -94,13 +94,13 @@ The exports the plugin offers, each with its declared capability, as an ordered 
 | `scope` | The document root the export operates on: `own` (the node's own rendered documents) or `host` (the documents of the component a component-scope FeatureRecipe is attached to). The host reads the declared scope ahead of the step to enforce provider compatibility against the provider rendering that scope. Absent defaults to `own`. |
 | `selector` | A free-form, human-readable description of what the export acts on (for example `workloads carrying a pod template`). Documentation for catalog readers and the inspect surface; the compiler does not interpret it. |
 
-## Inspecting a WasmPlugin
+## Inspecting a Plugin
 
-`aggrega inspect <path-to-WasmPlugin.yaml>` renders a `WasmPlugin` file: its identity and socket types, its `compatibleProviders`, the per-export capability table in author order, the runtime constraints, and — at `--detail` — the signature pointer and the runtime config keys. A `WasmPlugin` is inspectable by file path; the bare-name catalog lookup resolves Components only. See [`../cli/aggrega-inspect.md`](../cli/aggrega-inspect.md).
+`aggrega inspect <path-to-Plugin.yaml>` renders a `Plugin` file: its identity and socket types, its `compatibleProviders`, the per-export capability table in author order, the runtime constraints, and — at `--detail` — the signature pointer and the runtime config keys. A `Plugin` is inspectable by file path; the bare-name catalog lookup resolves Components only. See [`../cli/aggrega-inspect.md`](../cli/aggrega-inspect.md).
 
 ## Cross-references
 
 - [Wasm plugin developer guide](../wasm/plugin-developer-guide.md) — the end-to-end author workflow: `describe()`, capability claims, runtime limits, lifecycle, signing, versioning.
 - [Wasm plugin contract](../wasm/plugin-contract.md) — the socket points a plugin attaches to and their input/output shapes.
 - [`entities/featurerecipe.md`](featurerecipe.md) — the FeatureRecipe `pipeline:` surface that references a plugin by entity URI.
-- [`cli/aggrega-lint.md`](../cli/aggrega-lint.md) — the publishing-linter, the version-bump rubric, and immutability enforcement that govern publishing a `WasmPlugin`.
+- [`cli/aggrega-lint.md`](../cli/aggrega-lint.md) — the publishing-linter, the version-bump rubric, and immutability enforcement that govern publishing a `Plugin`.

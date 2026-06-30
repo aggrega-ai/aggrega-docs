@@ -65,7 +65,7 @@ For kinds that default as-authored, `--raw` is a no-op and `--resolved` triggers
 | Provider | as-authored | A Provider is a static registrar; nothing to resolve. |
 | MappingLibrary | as-authored | Entries are opaque Go-template strings; rendering happens at consumption time. |
 | SchemaLibrary | as-authored | Entries are reusable schema and template definitions resolved at consumption time. |
-| WasmPlugin | as-authored | The file is a self-contained plugin contract: socket types, per-export capabilities, runtime constraints, and signature pointer. Inspectable by file path; the bare-name catalog lookup resolves Components only. |
+| Plugin | as-authored | The file is a self-contained plugin contract: socket types, per-export capabilities, runtime constraints, and signature pointer. Inspectable by file path; the bare-name catalog lookup resolves Components only. |
 | Manifest | resolved | The `extends:` chain is applied; the resolved component and feature mappings are laid out. |
 | Aggregate | resolved | The topology is built — the uses-graph and ordering are computed. |
 | Release | resolved | The full pipeline runs: resolve, expand annotations, run guards, build topology, build IR. |

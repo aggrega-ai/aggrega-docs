@@ -290,11 +290,11 @@ entities:
       - manifest.spec.mappings.components.type.core/datastore/mariadb:1.0.0
 generated_at: "2026-06-11T16:48:15Z"
 mapping_libraries: []
+plugins: []
 release: release.yaml
 schema_libraries: []
 source_artifacts: []
 version: 1
-wasm_plugins: []
 ```
 
 Each pinned entry carries the URI + resolved version + content-addressable digest. The digest is verified at every fetch; bytes that do not match the pinned digest halt the build with an integrity error.
