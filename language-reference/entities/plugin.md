@@ -27,8 +27,7 @@ spec:
   runtime:
     maxMemoryPages: 256
     timeoutMs: 5000
-    declaredHostFunctions:
-      - log
+    # hostFunctions is stamped by publish from the .wasm — do not author it.
   exports:
     - name: fetch
       operates: emit
@@ -80,7 +79,7 @@ Optional execution constraints the host applies when loading and running the plu
 | --- | --- |
 | `maxMemoryPages` | Caps the plugin's linear memory in Wasm pages (64 KiB per page). Zero or absent applies the platform default cap, so a load is never unbounded; an attachment that needs more raises this value. |
 | `timeoutMs` | Caps per-call execution wall time in milliseconds. Zero or absent applies the platform default cap, so a call is never uncancellable; an attachment that runs longer raises this value. |
-| `declaredHostFunctions` | The host function names the plugin imports. The host validates every entry against the curated allowlist and registers only the declared functions, giving each plugin the least-privilege host surface it needs. A declared function outside the allowlist is rejected loudly at load. |
+| `hostFunctions` | The host function names the plugin imports. Machine-derived and read-only — do not author it: publish reads the host functions from the `.wasm` import section and stamps this field, and the value reflects the published binary, validated against the curated allowlist. The host registers exactly this set, giving each plugin the least-privilege host surface its binary needs; pull re-derives and verifies the stamp against the binary. To preview the value before publishing, run `aggrega inspect --plugin <file.wasm>`. |
 | `configKV` | Plugin-specific configuration the runtime hands the plugin at start, as string-to-string key/value pairs. Entries preserve author order so the emitted record is byte-identical across runs. Absent leaves the runtime's default empty configuration in effect. |
 
 ## `spec.exports`
