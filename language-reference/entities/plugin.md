@@ -2,7 +2,7 @@
 
 A `Plugin` is a content-addressed WebAssembly plugin: an OCI-hosted `.wasm` artifact pinned by `sha256` digest, declaring the socket type(s) it implements, the ABI version it targets, an optional signature pointer, and an optional runtime block. The entity is the authoring and metadata surface for a plugin; the closure pins the artifact by digest and the per-registry trust policy verifies its signature at pull. The compiler is blind to the plugin's behaviour — it routes the pinned reference; the WebAssembly runtime executes the bytes.
 
-This page covers the `Plugin` catalog authoring surface field by field. For the end-to-end author workflow — what a plugin is, the `describe()` self-report, the publish→pull→build lifecycle, signing, and versioning — see the [Wasm plugin developer guide](../wasm/plugin-developer-guide.md). For the socket points a plugin attaches to and their input/output shapes, see the [Wasm plugin contract](../wasm/plugin-contract.md).
+This page covers the `Plugin` catalog authoring surface field by field. For the end-to-end author workflow — what a plugin is, the `describe()` self-report, the publish→pull→build lifecycle, signing, and versioning — see the [Wasm plugin developer guide](../plugins/plugin-developer-guide.md). For the socket points a plugin attaches to and their input/output shapes, see the [Wasm plugin contract](../plugins/plugin-contract.md).
 
 ## The Plugin's role
 
@@ -98,7 +98,7 @@ The exports the plugin offers, each with its declared capability, as an ordered 
 
 ## Cross-references
 
-- [Wasm plugin developer guide](../wasm/plugin-developer-guide.md) — the end-to-end author workflow: `describe()`, capability claims, runtime limits, lifecycle, signing, versioning.
-- [Wasm plugin contract](../wasm/plugin-contract.md) — the socket points a plugin attaches to and their input/output shapes.
+- [Wasm plugin developer guide](../plugins/plugin-developer-guide.md) — the end-to-end author workflow: `describe()`, capability claims, runtime limits, lifecycle, signing, versioning.
+- [Wasm plugin contract](../plugins/plugin-contract.md) — the socket points a plugin attaches to and their input/output shapes.
 - [`entities/featurerecipe.md`](featurerecipe.md) — the FeatureRecipe `pipeline:` surface that references a plugin by entity URI.
 - [`cli/aggrega-lint.md`](../cli/aggrega-lint.md) — the publishing-linter, the version-bump rubric, and immutability enforcement that govern publishing a `Plugin`.

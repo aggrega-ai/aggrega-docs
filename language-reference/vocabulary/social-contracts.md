@@ -22,7 +22,7 @@ The discipline is enforced by a Wasm plugin running at one of the documented soc
 
 Class B disciplines today are mostly **future-shipping** — the Wasm runtime is `accepted but inert` per [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases), so plugins exist as contract surfaces but are not invoked. When a Wasm plugin ships, the discipline it enforces transitions from Class C (convention-enforced) to Class B (Wasm-enforced). Examples currently chartered for future Class B status: hermeticity enforcement (the Sprig FuncMap exposes deterministic-output-breaking helpers per the determinism caveat at [`templates/sprig-functions.md`](../templates/sprig-functions.md), and a future `linter.wasm` plugin could flag their use); cloud-resource naming pattern matching (a future `linter.wasm` plugin could flag Recipes whose `valuesMapping:` outputs reference cloud-resource-name fields without `release_name` / `instance_id` interpolation per [`entities/recipe.md`](../entities/recipe.md) "Cloud-resource naming discipline").
 
-For the Wasm plugin contract surface and the placement criterion (`linter.wasm` vs `policy-validator.wasm`), see [`wasm/plugin-contract.md`](../wasm/plugin-contract.md).
+For the Wasm plugin contract surface and the placement criterion (`linter.wasm` vs `policy-validator.wasm`), see [`plugins/plugin-contract.md`](../plugins/plugin-contract.md).
 
 ### Class C — convention-enforced
 
@@ -161,5 +161,5 @@ The remaining Class C contracts (1, 2, 4, 6, 7) are likely to remain Class C. Th
 - [`entities/recipe.md`](../entities/recipe.md) — Cloud-resource naming discipline + worked examples.
 - [`entities/workload.md`](../entities/workload.md) — Workload `variables:` dual-source semantic.
 - [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) — Recipe `provides:` self-containment as engine-enforced rule.
-- [`wasm/plugin-contract.md`](../wasm/plugin-contract.md) — `linter.wasm` placement criterion + the future Class B promotion path.
+- [`plugins/plugin-contract.md`](../plugins/plugin-contract.md) — `linter.wasm` placement criterion + the future Class B promotion path.
 - [`10-status.md`](../10-status.md) — readiness state for chartered Wasm-linter rules.

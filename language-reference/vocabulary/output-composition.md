@@ -55,7 +55,7 @@ Each mechanism lives at a specific Recipe / FeatureRecipe authoring surface and 
 - **Strategic Merge Patches** that the host applies to the parent Component's rendered AST (e.g., appending a sidecar container, mounting a secret volume, rewriting an env var on the synthesised Deployment).
 - **Resource Generation** — full new resources emitted alongside the patch (typically the Fetcher's vault-fetch CRD that the Injector then references).
 
-**Status today:** Phase C runtime is `accepted but inert` per [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases). The schema accepts `pipeline:` declarations; the Wazero runtime that would execute the plugins is not yet wired. See [`wasm/plugin-contract.md`](../wasm/plugin-contract.md) for the plugin contract surface.
+**Status today:** Phase C runtime is `accepted but inert` per [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases). The schema accepts `pipeline:` declarations; the Wazero runtime that would execute the plugins is not yet wired. See [`plugins/plugin-contract.md`](../plugins/plugin-contract.md) for the plugin contract surface.
 
 ### 5 — Release-level composition (per-provider Boundary Composer)
 
@@ -148,7 +148,7 @@ Service-name collisions across boundaries are therefore real and detected at the
 - [`providers/compose.md`](../providers/compose.md) — compose provider's per-node fragmentation + Release-level composition (mechanism 5).
 - [`errors/fatal-halts.md`](../errors/fatal-halts.md) — Recipe shape rules 6 + 7 (collision detection at Recipe load + emit time).
 - [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) — per-template-site evaluation timing across the rendering order.
-- [`wasm/plugin-contract.md`](../wasm/plugin-contract.md) — Phase C plugin contract surface (mechanism 4 design target).
+- [`plugins/plugin-contract.md`](../plugins/plugin-contract.md) — Phase C plugin contract surface (mechanism 4 design target).
 - [`10-status.md`](../10-status.md) — current readiness state for mechanism 6 (`artifacts:` `accepted but blocked`) and mechanism 4 Phase C runtime (`accepted but inert`).
 - [`architecture/10-compilation-pipeline.md`](../../architecture/10-compilation-pipeline.md) — full compilation pipeline including the rendering order across Step 5 phases.
 - [`architecture/16-recipe-input-composition.md`](../../architecture/16-recipe-input-composition.md) — three Recipe input kinds (the upstream framing for mechanisms 1 + 2 + 6).

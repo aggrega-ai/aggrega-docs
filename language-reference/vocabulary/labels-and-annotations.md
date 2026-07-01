@@ -39,7 +39,7 @@ When authors honour the separation, downstream tooling can read the right bucket
 
 ### `linter.wasm` opportunity — cross-bucket reads
 
-A future `linter.wasm` plugin (out-of-band advisory; see [`wasm/plugin-contract.md`](../wasm/plugin-contract.md) for the placement criterion) can flag cross-bucket reads where a Recipe's template pulls from a bucket whose intent doesn't match the field being routed. The criterion:
+A future `linter.wasm` plugin (out-of-band advisory; see [`plugins/plugin-contract.md`](../plugins/plugin-contract.md) for the placement criterion) can flag cross-bucket reads where a Recipe's template pulls from a bucket whose intent doesn't match the field being routed. The criterion:
 
 - Reading `.context.annotations.release` to populate a `values:` field — flag (cognitive metadata should come from the `aggregate` bucket).
 - Reading `.context.annotations.aggregate` to populate an `infra:` field — flag (physical metadata should come from the `release` bucket).
@@ -131,6 +131,6 @@ For the canonical cascading-annotation design, see [`architecture/06-data-taxono
 - [`providers/well-known-annotations.md`](../providers/well-known-annotations.md) — per-provider boundary annotation matrix and provenance label emission asymmetry.
 - [`entities/manifest.md`](../entities/manifest.md) — Manifest's `features.annotations` binding surface (Surface 6).
 - [`vocabulary/publishing-surface.md`](publishing-surface.md) — uniform metadata vocabulary that complements labels/annotations on the publishing side.
-- [`wasm/plugin-contract.md`](../wasm/plugin-contract.md) — `linter.wasm` placement criterion for advisory checks on cross-bucket reads.
+- [`plugins/plugin-contract.md`](../plugins/plugin-contract.md) — `linter.wasm` placement criterion for advisory checks on cross-bucket reads.
 - [`architecture/06-data-taxonomy-and-composition.md`](../../architecture/06-data-taxonomy-and-composition.md) — canonical cascading-annotation design.
 - [`architecture/10-compilation-pipeline.md`](../../architecture/10-compilation-pipeline.md) — 5-Tier Onion Model that orders Feature attachment.
