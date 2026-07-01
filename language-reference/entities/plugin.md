@@ -16,8 +16,7 @@ metadata:
   version: 1.2.0
 spec:
   plugin: "oci://hub.aggrega.ai/wasm/secret-providers/aws-secrets-manager@sha256:<64-hex-digest>"
-  pluginTypes:
-    - frp_step
+  pluginType: frp_step
   abiVersion: v1alpha1
   compatibleProviders:
     - helm
@@ -43,15 +42,15 @@ Standard catalog metadata. `name` and `version` are required; `version` is a str
 
 The canonical content-addressed reference to the `.wasm` artifact, in the form `oci://<repository>@sha256:<digest>`. The reference is the plugin's identity; the digest is what the closure pins and the build verifies against the fetched bytes. A tag-form reference (`oci://<repository>:<tag>`) authored elsewhere resolves to its `sha256` digest at pull and pins to this canonical digest form — the published entity's `plugin` field carries the resolved, digest-pinned reference. Required.
 
-## `spec.pluginTypes`
+## `spec.pluginType`
 
-The socket type(s) this plugin implements, as an ordered list that preserves author order. A plugin may implement more than one socket. The value set matches the plugin-type taxonomy the runtime recognises:
+The socket type this plugin implements. A plugin implements exactly one socket type, drawn from the plugin-type taxonomy the runtime recognises:
 
 - `provider` — renders IR nodes into provider-native artifacts.
 - `linter` — inspects authored content and raises diagnostics.
 - `frp_step` — a feature-recipe-pipeline step that transforms IR within a pipeline.
 
-Required, with at least one entry.
+Required.
 
 ## `spec.abiVersion`
 
