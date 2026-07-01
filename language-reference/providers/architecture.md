@@ -9,7 +9,6 @@ What this chapter does **not** cover: the three-input-kinds composition model (`
 A Provider is an authored catalog entity — a YAML document with `kind: Provider` — that declares:
 
 - **`plugin`** — the URI of the Wasm rendering socket that implements the provider's translation from Recipe input into provider-native output. Different providers bind different plugins (`helm-renderer.wasm`, `compose-renderer.wasm`, and so on).
-- **`baseSchema`** — a JSON Schema 2020-12 declaration describing the keys the provider understands when a Recipe uses the sourceless sub-mode of the sourced input kind (a Recipe with `valuesMapping:` but no external `source:`). Sourceless Recipes have their `valuesMapping` output validated against this schema.
 - **`workloadSchema`** — a JSON Schema 2020-12 declaration documenting how the platform-owned Workload kind translates into this provider's native output. It is the documented translation contract; the standard-library catalog declares it on providers whose engine synthesizes by convention. Synthesized-input (`workload:`) support is a property of the provider's rendering engine, enforced at render time — not determined by this field's presence.
 
 See [../entities/provider.md](../entities/provider.md) for the full field-level authoring surface of the Provider entity.
@@ -57,6 +56,6 @@ The [reference matrix](reference-matrix.md) summarises per-provider input-kind s
 
 ## Custom providers
 
-Enterprise teams authoring their own providers follow the same pattern as the standard library: author a Provider YAML entity declaring `plugin:`, `baseSchema:`, and optionally `workloadSchema:`, then ship a Wasm plugin implementing the JSON-in / JSON-out rendering contract. The compiler treats custom Providers identically to standard-library Providers; per-provider dispatch works on the provider name declared by the Recipe, not on any standard-library enumeration.
+Enterprise teams authoring their own providers follow the same pattern as the standard library: author a Provider YAML entity declaring `plugin:` and optionally `workloadSchema:`, then ship a Wasm plugin implementing the JSON-in / JSON-out rendering contract. The compiler treats custom Providers identically to standard-library Providers; per-provider dispatch works on the provider name declared by the Recipe, not on any standard-library enumeration.
 
 Plugin authoring conventions (Rust, Go, or TypeScript targeting the Aggrega JSON-in / JSONPatch-out handshake) and the SDK that supports them are tracked in the project roadmap.

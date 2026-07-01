@@ -348,8 +348,6 @@ metadata:
   name: helm
 spec:
   plugin: ./plugins/helm-renderer.wasm
-  baseSchema: |       # existing: for chart values validation
-    # ...
   workloadSchema: |   # how Workload translates to K8s manifests
     // Each Workload produces: 1 Deployment (or StatefulSet if persistentTemplate used)
     // + 1..N Services (one per workload.services entry)

@@ -66,7 +66,7 @@ The current required-fields state per entity (excluding `apiVersion` / `kind` / 
 | Feature | `spec.schema` | No reserved-label requirement; Features identify by name + namespace |
 | Recipe | `spec.provider`, `spec.implements` | Provider gates engine dispatch; implements gates Component-binding |
 | FeatureRecipe | `spec.provider`, `spec.implements` | Same as Recipe |
-| Provider | `spec.baseSchema` (provider's own values-validation contract) | Used to validate the values dict the renderer passes to the engine |
+| Provider | none beyond the universal `apiVersion` / `kind` / `metadata` / `spec` | The provider's engine capability and translation contract are conveyed by convention (`workloadSchema`), not by an additional required field |
 | Aggregate | `spec.components` (or `spec.aggregates` for module-shape Aggregates) | An Aggregate without component-shape declarations is a no-op |
 | Manifest | `spec.mappings` | The mapping tiers are the Manifest's only purpose |
 | Release | `spec.aggregate`, `spec.manifest`; *`metadata.environment` (current — moving to optional)* | The first two anchor the build to a specific Aggregate + Manifest; environment is in transition |
@@ -91,7 +91,7 @@ For the environment-field relaxation framing and use cases, see [`10-status.md`]
 
 ### Other asymmetries are not in transition
 
-The remaining asymmetries (Recipe vs Component required fields, Provider's `baseSchema` requirement, Aggregate's `components`-or-`aggregates` requirement, Manifest's `mappings` requirement) reflect each entity's role and are not slated for change. Authors who want a uniform required-fields contract across every entity kind will not find it; the asymmetries are deliberate per the role-driven design.
+The remaining asymmetries (Recipe vs Component required fields, Aggregate's `components`-or-`aggregates` requirement, Manifest's `mappings` requirement) reflect each entity's role and are not slated for change. Authors who want a uniform required-fields contract across every entity kind will not find it; the asymmetries are deliberate per the role-driven design.
 
 ## Cross-references
 

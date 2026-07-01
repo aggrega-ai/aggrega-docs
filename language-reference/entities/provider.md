@@ -27,8 +27,6 @@ metadata:
   name: helm
 spec:
   plugin: "hub.aggrega.ai/providers/helm-renderer:1.0.0"
-  baseSchema: |
-    ...
   workloadSchema: |
     ...
 ```
@@ -56,20 +54,17 @@ Community and enterprise providers are registered via additional Wasm plugins pu
 
 Some Recipe input kinds depend on Provider engine capability. For example, the synthesized input kind (`workload:`) requires a provider whose rendering engine can synthesize; a Recipe using `workload:` against a provider whose engine cannot is rejected at render time. The standard-library catalog declares `workloadSchema` on synthesis-capable providers by convention, as the documented translation contract — support is keyed on engine capability, not on that field's presence. See [providers/reference-matrix](../providers/reference-matrix.md) for the per-provider capability matrix.
 
-## The two schemas — `baseSchema` vs `workloadSchema`
+## The `workloadSchema:` field
 
-A Provider declares two distinct JSON Schema 2020-12 declarations that validate two distinct surfaces. The schemas are independent — they cover different validation scopes, run at different points in the compilation pipeline, and apply to different Recipe input kinds.
+A Provider MAY declare a `workloadSchema:` — a JSON Schema 2020-12 declaration documenting how its engine translates a Workload into native output.
 
-| Schema | Validates | Required? | Pipeline placement |
+| Schema | Documents | Required? | Pipeline placement |
 | --- | --- | --- | --- |
-| `baseSchema` | The values dictionary the renderer assembles before invoking the provider engine for sourceless (generative) rendering | Required on every Provider | Step 5 Phase B, before the engine renders |
-| `workloadSchema` | Documents how the provider's engine translates a Workload into native output — the translation contract, not a body validator (Workload bodies are validated against the platform-owned Workload schema, not this field) | Declared by convention on providers whose engine synthesizes; not compiler-required, and not the synthesis-capability gate (engine capability is) | Documentation-only today; consumed by the Wasm translator when it ships |
-
-**`baseSchema:`** is the Recipe-output validation contract — what the values dict the renderer hands to the engine must look like. The values dict is assembled from the Recipe's `valuesMapping:` template output (sourced mode) or from the developer's component `values:` dictionary (sourceless mode). Each provider declares the keys + types its engine expects; sourceless-mode Recipes targeting a Provider whose `baseSchema` rejects the values dict halt at the Provider validation pass with a `CATALOG_ERROR:` attributing the failure to the Recipe + Provider pairing.
+| `workloadSchema` | How the provider's engine translates a Workload into native output — the translation contract, not a body validator (Workload bodies are validated against the platform-owned Workload schema, not this field) | Declared by convention on providers whose engine synthesizes; not compiler-required, and not the synthesis-capability gate (engine capability is) | Documentation-only today; consumed by the Wasm translator when it ships |
 
 **`workloadSchema:`** is the Workload-to-native-output translation contract. Synthesized-mode Recipes (those declaring `workload:`) emit a Workload body that the bound Provider's engine translates into provider-native resources (Deployment + Services + PVCs for helm; service + volumes + networks for compose). A synthesis-capable Provider declares `workloadSchema` by convention to document how its engine reads the Workload — what fields it consumes, what closed sets each enum-shape field accepts, what range constraints apply. The field is documentation-only today: the per-provider synthesizer is hardcoded in the engine, informed by but not driven by the schema text, and it becomes the translator's rule set when the Wasm translator ships. Workload bodies themselves are validated against the platform-owned Workload schema (embedded in the compiler), not against this per-provider field.
 
-The two schemas are independent JSON Schema 2020-12 declarations — they cover distinct surfaces and don't unify into one schema. A Provider whose engine supports both sourced and synthesized modes declares both by convention; a sourced-only provider declares only `baseSchema:`, and a synthesized-mode Recipe bound to it is rejected at render time.
+The keys a provider understands in the values dictionary are not declared on the Provider entity. The Recipe's `valuesMapping:` is the sole bridge from a component's authored surface to the provider engine's vocabulary — it names exactly the keys the bound engine consumes. A synthesis-capable Provider declares `workloadSchema` by convention; a sourced-only provider declares no schema, and a synthesized-mode Recipe bound to it is rejected at render time.
 
 ## The `wellKnownAnnotations:` field
 

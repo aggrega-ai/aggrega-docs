@@ -34,14 +34,13 @@ usesSchema composition failed: child <child-uri> socket <socket-name> conflicts 
 
 Inline constraint violations (e.g., a developer setting a port to `80` against a schema rule requiring `>=1024`) surface at the same stage with the field path and the rule that rejected the value.
 
-### Layer 3 — Provider source / `workloadSchema`
+### Layer 3 — Provider synthesized-mode capability
 
-**Scope.** Governed by the Provider entity, with one validating sub-surface today plus the synthesized-mode capability gate:
+**Scope.** Governed by the Provider entity's synthesized-mode capability gate:
 
-- The Provider's `baseSchema` — validates the values dictionary the Recipe passes to the provider engine for sourceless (generative) rendering. Each provider's accepted keyset for sourceless mode is declared here.
 - Synthesized-mode (`workload:`) support is gated on the bound provider's **engine capability**, not on `workloadSchema` presence: a `workload:` Recipe bound to a provider whose engine cannot synthesize is rejected here. The standard-library catalog declares `workloadSchema` on synthesis-capable providers by convention, as the documented translation contract.
 
-**Validation runs.** At Step 5 Phase B, after the Recipe's own valuesMapping has resolved. Layer 3 validates the *output* of valuesMapping against the bound Provider's `baseSchema` (sourceless mode) and gates synthesized-mode dispatch on engine capability.
+**Validation runs.** At Step 5 Phase B, after the Recipe's own valuesMapping has resolved. Layer 3 gates synthesized-mode dispatch on engine capability.
 
 **Error shape.** A capability decline carries a `CATALOG_ERROR:` prefix naming the node and provider:
 
@@ -49,7 +48,7 @@ Inline constraint violations (e.g., a developer setting a port to `80` against a
 CATALOG_ERROR: node <node-id>: provider <provider-name> does not support synthesised recipes (this provider supports: <kinds>); declare one of the supported input kinds, or target a provider that supports synthesised
 ```
 
-Provider source-keyset (`baseSchema`) violations follow the same `CATALOG_ERROR:` shape — the catalog entity (the Recipe's authored `source:` block, the Provider's declared schema) is what's at fault, not the developer's Aggregate.
+The `CATALOG_ERROR:` shape signals the catalog entity is at fault, not the developer's Aggregate.
 
 > **Honest-pending — per-provider Workload-content validation.** The Provider's `workloadSchema` does not validate Workload bodies today; it is documentation-only, and Workload bodies are validated against the platform-owned embedded Workload schema. When the Wasm-based Workload synthesizer ships (see the roadmap), `workloadSchema` becomes the per-provider content contract the synthesizer validates the Workload body against — a second Layer-3 sub-surface — including per-provider constraints such as a `min: 1024` non-privileged-port rule. The constraint-overlap examples below describe that end-state.
 
@@ -89,7 +88,7 @@ A second overlap pattern: cross-pillar constraints declared at the pillar layer 
 | --- | --- | --- | --- |
 | 1 — JSON Schema envelope | Structural shape (apiVersion, kind, metadata, top-level spec) | Step 1 (load) | unprefixed YAML / unmarshal error |
 | 2 — Pillar schemas (`schema:` / `secretsSchema` / `usesSchema`) | Per-pillar data validation (values, infra, secrets, uses) | Step 1 (after envelope) | unprefixed schema-validation error |
-| 3 — Provider `baseSchema` + engine-capability gate (per-provider `workloadSchema` content validation honest-pending) | Sourceless Recipe output (`baseSchema`); synthesized-mode support (engine capability) | Step 5 Phase B | `CATALOG_ERROR:` |
+| 3 — Provider engine-capability gate (per-provider `workloadSchema` content validation honest-pending) | Synthesized-mode support (engine capability) | Step 5 Phase B | `CATALOG_ERROR:` |
 | 4 — Annotation-binding value validation | Annotation-value contributions routed into the target Feature's `spec.schema` via the Manifest binding's `maps` paths | Step 1 annotation-expansion sub-phase, alongside Layer 2 | schema-validation error; side-vs-pillar / ambiguous-routing surfaces carry `OPS_ERROR:` |
 
 ## Cross-references
@@ -98,6 +97,6 @@ A second overlap pattern: cross-pillar constraints declared at the pillar layer 
 - [`errors/fatal-halts.md`](../errors/fatal-halts.md) — per-error catalog of every fatal halt the compiler emits.
 - [`vocabulary/data-pillars.md`](data-pillars.md) — the four data pillars (`values`, `infra`, `parameters`, `locals`) plus `secrets:` and `uses:` that Layer 2 validates.
 - [`entities/component.md`](../entities/component.md) — Component authoring surface for `schema:` / `secretsSchema` / `usesSchema`.
-- [`entities/provider.md`](../entities/provider.md) — Provider authoring surface for `baseSchema` / `workloadSchema`.
+- [`entities/provider.md`](../entities/provider.md) — Provider authoring surface for `workloadSchema`.
 - [`entities/manifest.md`](../entities/manifest.md) — Manifest's `features.annotations` binding surface (Layer 4).
 - [`providers/well-known-annotations.md`](../providers/well-known-annotations.md) — annotation-value parsing, structured-value subkey routing, per-subkey null opt-out, and cross-side composition that Layer 4 validates.

@@ -306,7 +306,7 @@ The pillars carry validation across three tiers. Each tier covers a different co
 | --- | --- | --- |
 | 1 — JSON Schema envelope | Structural shape (which keys are present, types match the field declarations) | Step 1, per file load |
 | 2 — Per-pillar schema (`schema` / `secretsSchema` / `usesSchema`) | Per-pillar typed content validated as JSON Schema 2020-12 with monotonic narrowing on `extends:` chains enforced by the publishing-discipline policy plugin | Step 1, after envelope passes |
-| 3 — Provider `workloadSchema` / `baseSchema` | Recipe output and Workload content gated by the bound Provider's schema | Step 5 Phase B, after valuesMapping resolves |
+| 3 — Provider `workloadSchema` | Workload content gated by the bound Provider's engine-capability, documented by `workloadSchema` | Step 5 Phase B, after valuesMapping resolves |
 
 For the four-layer error-shape table and per-layer error prefixes, see [validation-surface.md](validation-surface.md).
 
@@ -321,12 +321,8 @@ Default values appear across the corpus through several distinct mechanisms. Aut
 | 3 | Go template `\| default <expr>` | Recipe `valuesMapping:`, Workload body, FeatureRecipe templates | Inline pipeline that fires on "empty" (Sprig's emptiness check — zero, empty string, false, nil). Conflates absent-from-map with present-but-zero/empty/false. Appropriate for per-call-site override semantics (the binding's fallback differs from the field's schema-level default) where the conflation is acceptable. Not appropriate for absent-field-fallback where authored zero / empty / false is a legitimate intent — use `optional` (mechanism 2) for that case. |
 | 4 | Sprig `default` function (`{{ default <expr> .field }}`) | Same as 3 | Function form of mechanism 3 with the same emptiness conflation. |
 | 5 | Recipe `locals:` fallback | Recipe `locals:` template | A locals entry computes a default-bearing string the rest of the Recipe consumes |
-| 6 | Provider `baseSchema` defaults | Provider entity `baseSchema:` JSON Schema | Provider engine populates missing values per its own schema defaults |
-| 7 | Per-engine generative defaults | Provider engine code (e.g., helm sourceless mode) | Engine-internal defaults for unauthored fields (e.g., `replicas: 1`, `image: aggrega/placeholder:latest`) |
 
 **Recommended placement guidance.** When a default value is genuinely part of the type contract (e.g., "this port is 5432 by default unless the developer overrides it"), the **JSON Schema `default:`** (mechanism 1) is canonical — IDE autocomplete surfaces the default; validation tooling honours it; the contract carries with the Component / Feature catalog entity OR with the Aggregate parameter declaration. When a Recipe template needs a fallback for an optional map key, the **`optional`** helper (mechanism 2) is the canonical absent-field-fallback shape — it distinguishes authored zero / empty / false from absence. The Go template **`| default`** (mechanism 3) is reserved for the per-call-site override case where the conflation between absent and falsy values is acceptable; reach for it only when the override semantic is the explicit intent.
-
-Mechanism 6 (engine generative defaults) is the lowest-priority surface. Authors should not rely on engine defaults silently — the helm sourceless mode's `aggrega/placeholder:latest` image default exists as a guardrail against missing-image-key crashes, not as a production value.
 
 ## Cross-references
 
