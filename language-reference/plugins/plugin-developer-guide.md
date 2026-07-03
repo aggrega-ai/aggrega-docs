@@ -8,7 +8,7 @@ The companion page [`plugin-contract.md`](plugin-contract.md) documents the *soc
 
 A Wasm plugin is a WebAssembly module that extends the compiler at a designated socket. The Go host binary contains no cloud-specific or infrastructure logic; all domain-specific intelligence — template rendering, format translation, policy evaluation, linting — lives inside plugins. The host orchestrates the pipeline and passes JSON payloads across the ABI boundary to the guest; the guest does the domain work and returns a JSON result.
 
-A plugin runs behind an ahead-of-time-purity firewall. The host loads and executes the module through an embedded Wasm runtime under a capability-denied configuration: no network, no filesystem, no wall clock that varies across runs, no entropy, no environment, no stdio. A guest observes nothing that changes between builds, so a plugin cannot break the compiler's deterministic-output guarantee or reach for runtime state. Author plugins with this firewall in mind: a plugin transforms the JSON it is handed and returns a result; it never fetches, resolves, or queries anything live.
+A plugin runs behind an ahead-of-time-purity firewall. The host loads and executes the module through an embedded Wasm runtime under a capability-denied configuration: no network sockets, no filesystem, no environment, discarded stdio, and an observable wall clock frozen to a build-invariant instant. Any I/O call a guest attempts fails at the call boundary, so a plugin cannot reach for runtime state. Author plugins with this firewall in mind: a plugin transforms the JSON it is handed and returns a result the host consumes verbatim, and determinism is your responsibility — identical input must produce identical output bytes. The one sanctioned channel for remote content is the host-mediated external-input fetch (Section 4), which serves bytes under a digest-pinned discipline rather than giving the guest live network access.
 
 The sockets a plugin can target — the Step 2 mutation gate, the Step 4 validation gate, the FeatureRecipe pipeline, the out-of-band linter, and the provider-rendering socket — and their per-socket input/output shapes are documented in [`plugin-contract.md`](plugin-contract.md). The plugin-type taxonomy the runtime recognises is `provider` (renders IR nodes into provider-native artifacts), `linter` (inspects authored content and raises diagnostics), and `frp_step` (a feature-recipe-pipeline step that transforms IR within a pipeline).
 
@@ -39,7 +39,40 @@ A plugin entity may carry an optional `runtime` block that constrains how the ho
 
 **Host functions.** `hostFunctions` records the host function names the plugin imports. It is a **machine-derived field — do not author it.** Publish reads the host functions directly from the `.wasm` import section and stamps the field into the entity for you; the value reflects the published binary, so a plugin gets exactly the host functions its binary actually imports, validated against a curated allowlist (an import outside the allowlist is rejected loudly). The stamp is a snapshot of the published binary, the same way the content-addressed `plugin:` reference is a snapshot of the published bytes: it reflects the binary at publish time and is re-derived and verified when the plugin is pulled. To see the host functions a local `.wasm` imports before publishing — the value publish will stamp — run `aggrega inspect --plugin <file.wasm>`.
 
-There is no host-allowlist field for outbound network access. A plugin never reaches the network at build time — that is the ahead-of-time boundary — so no such field exists to author.
+**The curated host surface.** Three host functions exist: `aggrega_log` (a level and a message, emitted as one log line on the host's log destination), `aggrega_emit_warning` (a code, a message, and a path, accumulated as a structured warning the host surfaces after the call), and `aggrega_fetch_external_input` (a URL, answered with the input's bytes under the pin discipline below). The PDK wraps all three in each language — Go: `aggrega.Log`, `aggrega.EmitWarning`, `aggrega.FetchExternalInput`; Rust: `log`, `emit_warning`, `fetch_external_input`; TypeScript: `log`, `emitWarning`, `fetchExternalInput` — so a guest calls a typed function rather than the raw ABI.
+
+**Local source content comes in the payload — never from the filesystem.** A provider render plugin never reads its source from disk; a filesystem call fails at the call boundary. The host reads the local source (for example a Helm chart's directory) at compile time and hands it to the guest inside the render payload as a **source projection**: every file's source-root-relative path and raw bytes, in the host's deterministic walk order. The guest reconstructs the source in memory and renders from the payload alone. The per-socket payload shapes are documented in [`plugin-contract.md`](plugin-contract.md).
+
+**Remote content comes through the external-input fetch.** A plugin that needs remote content — a chart archive, a remote schema document — calls the PDK's fetch wrapper. On the wire the guest passes a URL to `aggrega_fetch_external_input` and receives a JSON envelope carrying either the content (base64-encoded) or an error message; the wrapper decodes the envelope into bytes-or-error. The host serves the URL under the external-input pin discipline:
+
+- A URL already pinned in the Release's lockfile is served from the local content-addressed store and verified against its recorded digest on every read. A missing store blob is refilled from the network by the recorded digest in every mode — a digest-verified refill cannot change output.
+- An unpinned URL is fetched, pinned into the store under its digest, and recorded for the lockfile when acquisition is enabled — the `aggrega build` default.
+- Under `aggrega build --no-acquire-inputs` the closure is frozen: an unpinned URL is refused with an error naming the URL and the remedy. Pinned inputs are still served.
+- `aggrega acquire` runs only the acquisition pass: it fetches and pins every external input the Release's render requests, discarding the rendered output, so a subsequent frozen build serves everything from the store.
+
+Allowed schemes are `https`, `http` to loopback hosts only, and `oci` (pinned by manifest digest). The lockfile records every pinned input — its URL, `sha256` digest, size, and the plugins that required it — so a re-build serves the same bytes from the local store: reproducible, and offline once pinned.
+
+With the Go PDK:
+
+```go
+import "github.com/aggrega-ai/aggrega-pdk-go/pkg/aggrega"
+
+chart, err := aggrega.FetchExternalInput("https://charts.example.com/postgresql-16.3.2.tgz")
+if err != nil {
+    // The error names the URL and the remedy — under a frozen closure an
+    // unpinned URL reports exactly what to pin and how. Surface it as a
+    // render failure; do not mask it.
+    return fmt.Errorf("fetching chart archive: %w", err)
+}
+```
+
+**What fails, and why.**
+
+- A filesystem or network call fails at the call boundary: the guest holds no preopened directories and no sockets. This applies to every code path, including a library dependency that tries to read a file — read the source projection instead.
+- An import under a module outside `wasi_snapshot_preview1`, `extism:host/env`, and `extism:host/user` fails at load, with a diagnostic naming the module and the import. Individual WASI function names within an allowed module are never censored — a statically-linked language runtime's unused filesystem and socket imports are fine, because naming an import grants nothing.
+- An unpinned fetch in a frozen build (`--no-acquire-inputs`) fails with an error naming the URL; the remedy is to rebuild with acquisition enabled or run `aggrega acquire` for the Release.
+
+There is no host-allowlist field for outbound network access. A plugin never reaches the network at build time — that is the ahead-of-time boundary — so no such field exists to author. Remote content arrives through the host-mediated, digest-pinned external-input channel above, never through ambient network access.
 
 **Configuration.** `configKV` is a string-to-string map the runtime hands the plugin at start. Entries preserve author order so the emitted record is byte-identical across runs. Absent leaves the runtime's default empty configuration in effect.
 

@@ -72,7 +72,7 @@ An optional descriptive pointer to the plugin's attached signature. The block is
 
 ## `spec.runtime`
 
-Optional execution constraints the host applies when loading and running the plugin. Outbound network access is not an authoring field: a plugin never reaches the network at build time — the ahead-of-time boundary — so there is no host-allowlist field here.
+Optional execution constraints the host applies when loading and running the plugin. Outbound network access is not an authoring field: a plugin never reaches the network at build time — the ahead-of-time boundary — so there is no host-allowlist field here. Remote content a plugin needs arrives through the host-mediated, digest-pinned external-input channel recorded in the Release's lockfile, never through ambient network access; the [developer guide](../plugins/plugin-developer-guide.md) documents the acquisition workflow.
 
 | Field | Effect |
 | --- | --- |
