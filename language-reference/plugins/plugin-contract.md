@@ -40,7 +40,7 @@ The compilation pipeline reserves the following socket points. The shape labels 
 | `mutator.wasm` | Step 2 (Topology Builder) | `accepted but inert` — types defined; no runtime invocation |
 | `policy-validator.wasm` | Step 4 (Static Analyzer) | `accepted but inert` — types defined; payload assembled every build, never read |
 | FeatureRecipe `pipeline:` plugins | Step 5 Phase C (Post-Render Mutation) | `accepted but inert` per Status page Phase C classification |
-| Provider rendering plugins (e.g., `helm-renderer.wasm`) | Step 5 (Phase B engines) | `planned` — declared design target; native Go engines ship today |
+| Provider rendering plugins (e.g., `helm-renderer.wasm`) | Step 5 (Phase B engines) | **available for helm** — the helm provider renders through its Wasm engine when the catalog binds it; the other providers' engines are native Go |
 | `linter.wasm` (publishing-linter) | Out-of-band (`aggrega lint`) | **available** — the publishing-linter ships and runs through the host via `aggrega lint` |
 
 The annotation-driven Feature expansion sub-phase (Step 1) is a native Go pipeline pass, not a Wasm socket. It validates annotation values against the target Feature's `spec.schema` and injects synthetic Feature attachments at IR build time. See [`vocabulary/labels-and-annotations.md`](../vocabulary/labels-and-annotations.md) for the six annotation- and label-bearing surfaces and [`providers/well-known-annotations.md`](../providers/well-known-annotations.md) for the binding-shape and authoring teaching.
@@ -111,9 +111,9 @@ Phase C plugin steps are designed to publish named outputs that subsequent steps
 
 ### Provider rendering output (`helm-renderer.wasm` and friends)
 
-The architecture's Wasm Engine future implementation will replace native Go provider engines with Wasm rendering plugins. Each plugin's output is the same flat-YAML shape the native engine produces today; the contract is the same `Render` interface, but the implementation lives in a `.wasm` binary rather than Go code. Documented at [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md) and tracked in roadmap.
+A provider engine can be a Wasm rendering plugin instead of a native Go engine. Each plugin's output is the same flat-YAML shape the native engine produces; the contract is the same `Render` interface, but the implementation lives in a `.wasm` binary rather than Go code. A catalog binds a provider to its Wasm engine through the Provider entity's `plugin` field, which names a Plugin entity advertising a `render_node` export; the compiler then renders that provider's nodes through the Wasm engine, and a provider left unbound renders through its native Go engine. Documented at [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md) and tracked in roadmap.
 
-**Status today:** `planned`. Native Go engines ship today (`helm`, `helm-chart`, `compose`); the Wasm-renderer transition is a planned future capability.
+**Status today:** the helm provider ships a Wasm rendering engine (`helm-renderer.wasm`), which renders both sourced charts and synthesized workloads byte-for-byte identically to the native Go engine; a catalog that binds the helm Provider to it renders through it. The `helm-chart` and `compose` providers render through native Go engines; their Wasm engines are planned.
 
 ### `linter.wasm` (publishing-linter)
 
