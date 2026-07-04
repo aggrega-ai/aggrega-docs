@@ -28,9 +28,9 @@ Kubernetes **namespace** placement in the other.
 ```yaml
 components:
   adminer:
-    type: app/adminer
+    type: core/devtool/adminer
     uses:
-      backend:
+      databases:
         primary:
           target: db
           inject:
@@ -149,20 +149,20 @@ cross-boundary-networking/
 ├── aggregate.yaml            # SHARED developer intent (both variants)
 ├── release-compose.yaml      # Variant A: parent bridge boundary + two networks
 ├── manifest-compose.yaml
-├── catalog-compose/          # local app/adminer + its compose recipe (the rest from standard)
+├── catalog-compose/          # local adminer compose recipe (the component + the rest from standard)
 ├── release-helm.yaml         # Variant B: two namespace boundaries, no bridge
 ├── manifest-helm.yaml
-└── catalog-helm/             # local app/adminer + adminer/db helm recipes (the rest from standard)
+└── catalog-helm/             # local adminer/db helm recipes (the components + the rest from standard)
 ```
 
 This example **consumes the standard library**. Each variant builds with a
 repeatable `--catalog`: its own local directory first, then the standard catalog
 (`--catalog catalog-<variant> --catalog ../../../../aggrega-hub/aggrega-catalog`),
 so the first-win search stack resolves local entities before the shared ones.
-`core/datastore/postgres`, the compose `core/compose-bridge` and helm
-`core/k8s-dns-resolver` FeatureRecipes, and the `compose`/`helm` providers come from
-the standard catalog. What stays local is the example-specific teaching content: the
-`app/adminer` UI component and its per-target recipes, and the helm `db` recipe —
+`core/datastore/postgres`, the shared `core/devtool/adminer` UI component, the compose
+`core/compose-bridge` and helm `core/k8s-dns-resolver` FeatureRecipes, and the
+`compose`/`helm` providers come from the standard catalog. What stays local is the
+example-specific teaching content: the per-target Adminer recipes and the helm `db` recipe —
 whose `provides.host` is now a **bare, self-contained** service name. The consumer
 qualifies it with the target namespace caller-side via the standard-library
 `core/k8s-dns-resolver` routing feature, so the recipe no longer hardcodes a boundary

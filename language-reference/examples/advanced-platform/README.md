@@ -21,17 +21,15 @@ through Service DNS.
 ## Consumes the standard library
 
 This example consumes the standard catalog: `core/datastore/mariadb`,
-`core/secret-value`, `core/secret-provided`, and `core/shared-config` (with their
-helm FeatureRecipes `env-secret`, `provided-secret`, and
-`shared-config`), the `mariadb-bitnami` recipe, and the `helm` provider all
-ship in the standard library.
+`core/devtool/adminer`, `core/secret-value`, `core/secret-provided`, and
+`core/shared-config` (with their helm FeatureRecipes `env-secret`,
+`provided-secret`, and `shared-config`), the `mariadb-bitnami` and `adminer`
+recipes, and the `helm` provider all ship in the standard library.
 
 This example's own teaching scaffolding lives in the shared catalog under the
-`app/` namespace, alongside the standard library:
+`example/` namespace, alongside the standard library:
 
-- `app/adminer` — a demo database-UI component (with its helm recipe), app-scoped
-  to this example rather than a general-purpose catalog entity;
-- `app/db-binding` — a Feature (and its FeatureRecipe) that carries the
+- `example/db-binding` — a Feature (and its FeatureRecipe) that carries the
   `databases` use-edge wiring Adminer to the database, specific to this stack's
   binding lesson.
 

@@ -13,7 +13,7 @@ annotation that cascades down the boundary tree.
 
 ## The shape
 
-- **Developer intent (`aggregate.yaml`)** declares only six `app/service`
+- **Developer intent (`aggregate.yaml`)** declares only six `example/compute/service`
   components — `gateway`, and `api`/`worker`/`ledger`/`etl`/`reconcile`. **No
   component carries a monitoring `features:` block.**
 - **The Manifest (`manifest.yaml`)** binds the annotation to the Feature:
@@ -53,8 +53,8 @@ aggrega build --release release.yaml
 
 This example consumes `core/prometheus-exporter` and its ServiceMonitor
 FeatureRecipe (plus the `helm` provider) from the **standard library**. The
-`app/service` demo component and its recipe live in the shared catalog under the
-`app/` namespace, alongside those standard-library entities. Its
+`example/compute/service` demo component and its recipe live in the shared catalog
+under the `example/` namespace, alongside those standard-library entities. Its
 `.aggrega-config.yaml` lists the catalog checkout under `catalog_dirs` and
 declares `hub.aggrega.ai` as the default registry, so a standalone consumer
 resolves the entities from the hub — the build command needs no `--catalog` flag.

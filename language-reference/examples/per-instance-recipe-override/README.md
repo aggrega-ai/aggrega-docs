@@ -6,17 +6,17 @@ instance of the same type keeps the bulk `type`-tier Recipe.
 
 ## What it shows
 
-The Aggregate declares two instances of one component type (`app/greeter`):
+The Aggregate declares two instances of one component type (`example/compute/greeter`):
 
 ```yaml
 components:
   greeter-default:
-    type: app/greeter
+    type: example/compute/greeter
   greeter-special:
-    type: app/greeter
+    type: example/compute/greeter
 ```
 
-The catalog ships two Recipes that both implement `app/greeter` — `greeter-blue`
+The catalog ships two Recipes that both implement `example/compute/greeter` — `greeter-blue`
 (the default build) and `greeter-green` (an alternate build). The Manifest maps
 the type in bulk and overrides one instance by name:
 
@@ -24,7 +24,7 @@ the type in bulk and overrides one instance by name:
 mappings:
   components:
     type:
-      app/greeter:1.0.0: greeter-blue:1.0.0     # every greeter instance...
+      example/compute/greeter:1.0.0: greeter-blue:1.0.0   # every greeter instance...
     name:
       greeter-special: greeter-green:1.0.0      # ...except this one
 ```
@@ -40,9 +40,9 @@ aggrega build --release release.yaml
 
 This example consumes the standard library for its provider: the `compose`
 provider ships in the standard catalog. The override lesson's own toys — the
-`app/greeter` demo component and its two recipes (`greeter-blue` /
+`example/compute/greeter` demo component and its two recipes (`greeter-blue` /
 `greeter-green`), which exist purely to make the per-instance override visible —
-live in the shared catalog under the `app/` namespace, alongside the
+live in the shared catalog under the `example/` namespace, alongside the
 standard-library entities. The catalog checkout is listed under `catalog_dirs`
 in `.aggrega-config.yaml`, which also declares `hub.aggrega.ai` as the default
 registry, so a standalone consumer resolves the entities from the hub — the
