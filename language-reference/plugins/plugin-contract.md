@@ -1,10 +1,10 @@
 # Wasm plugin contract
 
-Aggrega's compilation pipeline includes designated socket points where WebAssembly (Wasm) plugins extend the engine's behaviour: a Step 2 Mutation Gate, a Step 4 Validation Gate, a Step 5 Phase C plugin pipeline for FeatureRecipe execution, an out-of-band linting socket, and a planned provider-rendering socket. This page documents the public Wasm plugin contract: which sockets exist, what each socket consumes and produces, where each socket sits in the compilation pipeline, and the sandbox every plugin executes inside.
+Aggrega's compilation pipeline includes designated socket points where WebAssembly (Wasm) plugins extend the engine's behaviour: a Step 2 Mutation Gate, a Step 4 Validation Gate, a Step 5 Phase C plugin pipeline for FeatureRecipe execution, an out-of-band linting socket, and a provider-rendering socket. This page documents the public Wasm plugin contract: which sockets exist, what each socket consumes and produces, where each socket sits in the compilation pipeline, and the sandbox every plugin executes inside.
 
 This page covers the *sockets* — the pipeline points and their input/output shapes. For the *plugin* — the `Plugin` entity, the per-export capability claims, the runtime limits, and the publish→pull→build lifecycle — see the [Wasm plugin developer guide](plugin-developer-guide.md).
 
-Aggrega embeds a Wasm host runtime — Extism on top of the Wazero engine — that loads and executes plugins behind an AOT-purity firewall: the host grants a guest zero ambient capability — no network, no filesystem, no environment, discarded stdio, an observable wall clock frozen to a build-invariant instant — so a plugin cannot break the compiler's ahead-of-time guarantees. The full capability surface — the import-module rule at load, the instantiation-time denials, and the curated host functions — is [the sandbox contract](#the-sandbox-contract) below. Plugin authors target the host through the three-language PDK (Go, Rust, TypeScript). The first socket dispatched through the host in a shipping command is the **linter socket** — the standard publishing-linter, executed by [`aggrega lint`](../cli/aggrega-lint.md). The in-band build sockets (the Step 2 mutator, the Step 4 policy-validator, the Step 5 Phase C pipeline) are **accepted but inert**: their Go type definitions compile, and the policy-validator payload is assembled on every build, but `aggrega build` does not yet dispatch them through the host. See [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases).
+Aggrega embeds a Wasm host runtime — Extism on top of the Wazero engine — that loads and executes plugins behind an AOT-purity firewall: the host grants a guest zero ambient capability — no network, no filesystem, no environment, discarded stdio, an observable wall clock frozen to a build-invariant instant — so a plugin cannot break the compiler's ahead-of-time guarantees. The full capability surface — the import-module rule at load, the instantiation-time denials, and the curated host functions — is [the sandbox contract](#the-sandbox-contract) below. Plugin authors target the host through the three-language PDK (Go, Rust, TypeScript). The first socket dispatched through the host in a shipping command is the **linter socket** — the standard publishing-linter, executed by [`aggrega lint`](../cli/aggrega-lint.md). `aggrega build` dispatches two in-band build sockets when a workspace configures them: the Step 2 mutator and the Step 4 policy-validator. Both are no-ops when no plugin is attached, so a build with no socket configuration is unchanged. The Step 5 Phase C FeatureRecipe pipeline is **accepted but inert** — its Go type definitions compile, but `aggrega build` does not yet dispatch it through the host. See [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases).
 
 ## The sandbox contract
 
@@ -37,8 +37,8 @@ The compilation pipeline reserves the following socket points. The shape labels 
 
 | Socket | Pipeline placement | Status today |
 | --- | --- | --- |
-| `mutator.wasm` | Step 2 (Topology Builder) | `accepted but inert` — types defined; no runtime invocation |
-| `policy-validator.wasm` | Step 4 (Static Analyzer) | `accepted but inert` — types defined; payload assembled every build, never read |
+| `mutator.wasm` | Step 2 (Topology Builder) | **available** — dispatched when a workspace configures a mutator plugin; auto-tags node labels via JSON Patch |
+| `policy-validator.wasm` | Step 4 (Static Analyzer) | **available** — dispatched when a workspace configures a policy plugin; a failed rule halts the build |
 | FeatureRecipe `pipeline:` plugins | Step 5 Phase C (Post-Render Mutation) | `accepted but inert` per Status page Phase C classification |
 | Provider rendering plugins (e.g., `helm-renderer.wasm`, `compose-renderer.wasm`) | Step 5 (Phase B engines) | **available for helm and compose** — those providers render through their Wasm engines when the catalog binds them; the other providers' engines are native Go |
 | `linter.wasm` (publishing-linter) | Out-of-band (`aggrega lint`) | **available** — the publishing-linter ships and runs through the host via `aggrega lint` |
@@ -47,7 +47,7 @@ The annotation-driven Feature expansion sub-phase (Step 1) is a native Go pipeli
 
 ## Output shape contract — what exists today
 
-Two sockets carry typed contract surfaces in the compiler today. Plugin authors implement guest-side code that produces the documented shapes; the host-side reader will consume them when the runtime is wired.
+Two sockets carry typed contract surfaces the compiler dispatches today. Plugin authors implement guest-side code that produces the documented shapes; the host reads them at build time, once per configured plugin, when a workspace attaches a plugin to the socket.
 
 ### `mutator.wasm` — JSONPatch output
 
@@ -55,7 +55,7 @@ Two sockets carry typed contract surfaces in the compiler today. Plugin authors 
 
 **Input shape (host → guest).** A `MutatorInput` document carrying:
 
-- `compilation_context` — release identity (`release_name`, `environment`, `aggregate_name`).
+- `compilation_context` — release identity (`release_name`, `environment`, `release_destination`).
 - `graph` — a `MutatorGraph` projection of topology nodes with their compiler-assigned labels.
 
 The graph is a labels-only projection (nodes carry their resolved label sets; the full IR graph stays inside the compiler).
@@ -64,13 +64,13 @@ The graph is a labels-only projection (nodes carry their resolved label sets; th
 
 - `patches` — an array of opaque JSONPatch documents (RFC 6902) that the host applies to the labels-only projection.
 
-Each patch addresses a specific node's labels via [JSON Pointer (RFC 6901)](https://datatracker.ietf.org/doc/html/rfc6901); the host applies the patches in array order and re-ingests the mutated label set into the IR graph. The mutator's role is enterprise auto-tagging — adding compliance / observability / cost-attribution labels declared by enterprise policy without modifying catalog content. RFC 6901 is the path-grammar baseline for every document-path surface in Aggrega — the Wasm plugin contract here, plus `.locals` `*_path` exports, plus the `*Path` schema fields elsewhere in the corpus. See [`02-naming-conventions.md`](../02-naming-conventions.md) "Document-path naming-suffix discipline" for the canonical baseline declaration and the `*Path` / `*_path` suffix discipline that distinguishes the two authoring sides.
+Each patch addresses a specific node's labels via [JSON Pointer (RFC 6901)](https://datatracker.ietf.org/doc/html/rfc6901); the host applies the patches in array order and re-ingests the mutated label set into the IR graph. The mutator's role is enterprise auto-tagging — adding compliance / observability / cost-attribution labels declared by enterprise policy without modifying catalog content. The label surface is the mutator's only sanctioned target: a patch that touches a node field other than its labels, adds or removes a node, or sets a non-string label value halts the build rather than being silently absorbed. RFC 6901 is the path-grammar baseline for every document-path surface in Aggrega — the Wasm plugin contract here, plus `.locals` `*_path` exports, plus the `*Path` schema fields elsewhere in the corpus. See [`02-naming-conventions.md`](../02-naming-conventions.md) "Document-path naming-suffix discipline" for the canonical baseline declaration and the `*Path` / `*_path` suffix discipline that distinguishes the two authoring sides.
 
-**Type definitions.** [`internal/compiler/topology/wasm_types.go`](../../../aggrega-cli/internal/compiler/topology/wasm_types.go) carries `MutatorInput`, `MutatorOutput`, `CompilationContext`, `MutatorGraph`, `MutatorNode`. [`internal/compiler/topology/doc.go`](../../../aggrega-cli/internal/compiler/topology/doc.go) explicitly documents the `accepted but inert` state: "contract definitions only — the Wasm plugin that consumes them has no production caller yet."
+**Type definitions.** [`internal/compiler/topology/wasm_types_gen.go`](../../../aggrega-cli/internal/compiler/topology/wasm_types_gen.go) carries `MutatorInput`, `MutatorOutput`, `CompilationContext`, `MutatorGraph`, `MutatorNode`; [`internal/compiler/topology/mutator.go`](../../../aggrega-cli/internal/compiler/topology/mutator.go) carries the host-side assembler and patch application.
 
 ### `policy-validator.wasm` — PolicyResult array output
 
-**Pipeline placement.** Step 4 (Static Analyzer), before Step 5 Phase B rendering. The analyzer assembles the input payload on every build via [`internal/compiler/analyzer/analyzer.go`](../../../aggrega-cli/internal/compiler/analyzer/analyzer.go) `assemblePolicyInput()`; today the result is computed but never consumed by Step 5.
+**Pipeline placement.** Step 4 (Static Analyzer), before Step 5 Phase B rendering. The analyzer assembles the input payload on every build via [`internal/compiler/analyzer/analyzer.go`](../../../aggrega-cli/internal/compiler/analyzer/analyzer.go) `assemblePolicyInput()`; when a workspace configures a policy plugin, the pipeline marshals that payload to the plugin and reads its verdicts back.
 
 **Input shape (host → guest).** A `PolicyValidatorInput` document carrying:
 
@@ -85,7 +85,7 @@ The graph is the versioned IR graph, single-sourced from the `ir-v1alpha1` schem
 
 The host collects all rule results, halts the build with all failed-rule messages if any `Pass` is false, and continues to Step 5 only if every result passed. Policy plugins evaluate per-rule; one rejection halts the build.
 
-**Type definitions.** [`internal/compiler/analyzer/wasm_types.go`](../../../aggrega-cli/internal/compiler/analyzer/wasm_types.go) carries `PolicyValidatorInput` (whose `Graph` field is the full IR graph), `PolicyValidatorOutput`, and `PolicyResult`. [`internal/compiler/analyzer/doc.go`](../../../aggrega-cli/internal/compiler/analyzer/doc.go) explicitly documents the `accepted but inert` state: PolicyInput is computed on every build but is not consumed by Step 5 today; the policy-validator Wasm runtime that would read it is not yet wired into the pipeline.
+**Type definitions.** [`internal/compiler/analyzer/wasm_types.go`](../../../aggrega-cli/internal/compiler/analyzer/wasm_types.go) carries `PolicyValidatorInput` (whose `Graph` field is the full IR graph), `PolicyValidatorOutput`, and `PolicyResult`. The pipeline marshals the assembled `PolicyValidatorInput` to a configured policy plugin at Step 4 and appends each failed verdict to the analyzer's error set, so a rejection halts the build through the same gate a selector or `appliesTo` violation uses.
 
 ## Output shape contract — design targets
 

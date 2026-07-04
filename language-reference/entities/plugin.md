@@ -49,6 +49,8 @@ The socket type this plugin implements. A plugin implements exactly one socket t
 - `provider` — renders IR nodes into provider-native artifacts.
 - `linter` — inspects authored content and raises diagnostics.
 - `frp_step` — a feature-recipe-pipeline step that transforms IR within a pipeline.
+- `mutator` — auto-tags topology-graph node labels at Step 2, returning JSON Patch documents the host applies to a labels-only projection of the graph.
+- `policy-validator` — evaluates the full IR graph at Step 4 and returns one pass/fail verdict per rule; a failed rule halts the build.
 
 Required.
 
