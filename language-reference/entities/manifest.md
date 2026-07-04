@@ -6,7 +6,7 @@ The conceptual role of the Manifest entity (Domain 4 — the dependency lockfile
 
 The Manifest and the Release carry non-overlapping responsibilities:
 
-* **The Manifest** dictates the *provider engine* (e.g., Helm, Terraform, Compose, Eval) per catalog type. It is the software lockfile — a per-project Git-committed record of which concrete Recipe implements each abstract interface.
+* **The Manifest** dictates the *provider engine* (e.g., Helm, Helm-chart, Compose) per catalog type. It is the software lockfile — a per-project Git-committed record of which concrete Recipe implements each abstract interface.
 * **The Release** dictates the *destination* (e.g., the physical output folder for GitOps artifact generation). It is the deployment router — a per-environment description of where the compiled artifacts land.
 
 The Release schema carries no `provider` field at any nesting level; provider dispatch belongs exclusively to the Manifest.
@@ -74,8 +74,8 @@ Subsequent builds use the lockfile-pinned version regardless of the user-typed f
 
 Recipe identity in the catalog is provider-scoped: two providers may each ship a recipe of the same `metadata.name` and version (the catalog tree places them at `recipe/{provider}/{name}/`, and the registry identity is `recipe/{provider}/{name}:{version}`). A Manifest mapping value names the recipe at either precision:
 
-* **Bare** — `mariadb-rds:1.0.0`. Resolves when exactly one provider ships the name; the common case for single-provider catalogs.
-* **Provider-qualified** — `terraform/mariadb-rds:1.0.0`. The segment before the first `/` names the provider (`spec.provider`). Required when more than one provider ships the same recipe name: a bare reference that matches recipes under two providers is ambiguous and halts loudly at resolution rather than silently picking one.
+* **Bare** — `mariadb:1.0.0`. Resolves when exactly one provider ships the name; the common case for single-provider catalogs.
+* **Provider-qualified** — `compose/mariadb:1.0.0`. The segment before the first `/` names the provider (`spec.provider`). Required when more than one provider ships the same recipe name: a bare reference that matches recipes under two providers is ambiguous and halts loudly at resolution rather than silently picking one.
 
 The version-segment forms above apply to both shapes.
 

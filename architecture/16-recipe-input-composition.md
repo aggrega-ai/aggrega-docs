@@ -4,7 +4,7 @@ A Recipe produces manifest files for its target provider. This chapter covers ho
 
 ## Rationale
 
-Each provider's native rendering tool — Helm, Docker Compose, Terraform, CloudFormation — already knows how to render provider-native manifests. A Recipe's job is to declare WHAT those manifests should say: which container images, which ports, which environment variables, which volumes, which services, which resource limits.
+Each provider's native rendering tool — Helm, Docker Compose — already knows how to render provider-native manifests. A Recipe's job is to declare WHAT those manifests should say: which container images, which ports, which environment variables, which volumes, which services, which resource limits.
 
 An early approach extracts a fixed key set (e.g., `image`, `environment`, `ports`, `replicas`) from a Recipe's `valuesMapping` output and constructs a Kubernetes Deployment + Service from scratch. That approach is structurally unable to express:
 
@@ -25,7 +25,7 @@ The abstraction layer needs to describe a full workload shape, not a fixed key s
 
 There are three ways to produce provider-native manifest files from a Recipe, and they compose by addition rather than by mutual exclusion:
 
-1. **`source:`** — an externally-loaded artifact (Helm chart, Terraform module, compose file) that the provider's native engine renders, with `valuesMapping:` supplying the overlay values.
+1. **`source:`** — an externally-loaded artifact (Helm chart, compose file) that the provider's native engine renders, with `valuesMapping:` supplying the overlay values.
 2. **`workload:`** — an abstract Workload specification (platform-owned kind) that the Engine synthesizes into provider-native manifests. The field accepts an inline YAML block scalar or a `$import:` to a single local file or library entry; the dispatch is content-shape driven.
 3. **`artifacts:`** — a map of inline or `$import:`-loaded provider-native manifests, Go-templated against the full pillar context. Each entry may be authored inline (the entry's value is a block scalar) or via `$import:` to a single file or library content.
 
@@ -53,7 +53,7 @@ metadata:
   name: ...
   version: 1.0.0
 spec:
-  provider: helm | compose | terraform | cloudformation | helm-chart | ...
+  provider: helm | compose | helm-chart | ...
   implements: core/...:1.0.0
 
   locals: { ... }
@@ -339,26 +339,32 @@ Service names in K8s output are prefixed with the component's `instance_id` for 
 
 ### Provider-Side Translation Contract: `workloadSchema`
 
-Each Provider entity declares a `workloadSchema` — a JSON Schema 2020-12 declaration documenting how Workload fields translate to that provider's native output. This is the self-documenting translation contract. See [../language-reference/entities/provider.md](../language-reference/entities/provider.md) for the Provider authoring surface.
+A provider-rendering Plugin (`pluginType: provider`) declares a `spec.provider.workloadSchema` — a JSON Schema 2020-12 declaration documenting how Workload fields translate to that provider's native output. This is the self-documenting translation contract. See [../language-reference/entities/plugin.md](../language-reference/entities/plugin.md) for the Plugin authoring surface, including the `spec.provider` block.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
-kind: Provider
+kind: Plugin
 metadata:
-  name: helm
+  name: providers/helm-renderer
+  version: 1.0.0
 spec:
-  plugin: ./plugins/helm-renderer.wasm
-  workloadSchema: |   # how Workload translates to K8s manifests
-    // Each Workload produces: 1 Deployment (or StatefulSet if persistentTemplate used)
-    // + 1..N Services (one per workload.services entry)
-    // + 1..N PVCs (one per workload.volumes.*.persistent entry)
-    // + 1..N ConfigMap volume refs (from workload.volumes.*.configmap.source)
-    // ...
+  plugin: "oci://hub.aggrega.ai/wasm/providers/helm-renderer@sha256:<64-hex-digest>"
+  pluginType: provider
+  abiVersion: v1alpha1
+  compatibleProviders:
+    - helm
+  provider:
+    workloadSchema: |   # how Workload translates to K8s manifests
+      // Each Workload produces: 1 Deployment (or StatefulSet if persistentTemplate used)
+      // + 1..N Services (one per workload.services entry)
+      // + 1..N PVCs (one per workload.volumes.*.persistent entry)
+      // + 1..N ConfigMap volume refs (from workload.volumes.*.configmap.source)
+      // ...
 ```
 
 The `workloadSchema` field communicates translation intent to catalog authors and IDE tooling. It is the documented translation contract, declared by convention on providers whose engine synthesizes — but synthesis support is determined by the provider's rendering engine, not by this field's presence. A Recipe targeting a provider whose engine cannot synthesize with `workload:` is rejected when the node renders — through the provider-capability gate — with a clear error, whether or not the provider declares `workloadSchema`.
 
-*The Provider schema declares `workloadSchema` today, and Recipe-side `workload:` consumption ships. Synthesis support is enforced at render time by the provider-capability gate, keyed on the bound engine's capability; `workloadSchema` is the documented contract the standard-library catalog keeps in sync with that capability, not itself the gate input. `aggrega lint` additionally surfaces a `workload:` Recipe bound to a non-synthesizing provider early, before a build.*
+*The Plugin schema declares `spec.provider.workloadSchema` today — its body is compiled to JSON Schema 2020-12 when the Plugin loads — and Recipe-side `workload:` consumption ships. Synthesis support is enforced at render time by the provider-capability gate, keyed on the bound engine's capability; `workloadSchema` is the documented contract the standard-library catalog keeps in sync with that capability, not itself the gate input. `aggrega lint` additionally surfaces a `workload:` Recipe bound to a non-synthesizing provider early, before a build.*
 
 ### Auxiliary Resources Live Outside the Workload
 
@@ -469,15 +475,11 @@ This split is uniform across all three input kinds. (The Compose provider has no
 
 ### Per-Provider Artifact Semantics
 
-*The per-provider semantics below describe how each provider integrates artifacts into its native output. The artifacts render path ships today; the terraform and cloudformation rows are forward-looking, pending those provider engines.*
+*The per-provider semantics below describe how each provider integrates artifacts into its native output. The artifacts render path ships today.*
 
 **helm provider:** artifacts are Kubernetes YAML documents written directly to the output directory, alongside manifests rendered from the chart and manifests synthesized from the Workload.
 
 **compose provider:** artifacts are compose fragments. Top-level keys (`services:`, `networks:`, `volumes:`, `configs:`) are merged into the per-boundary combined `docker-compose.yaml` during the boundary composition step.
-
-**terraform provider:** artifacts are `.tf.json` files written alongside any module output.
-
-**cloudformation provider:** artifacts are CFN resource snippets or sub-stack definitions written alongside template output.
 
 **helm-chart provider (special case):** artifacts are not written to the output directory as standalone files — Helm owns the rendering pipeline. Instead, the helm-chart provider treats each `artifacts:` entry as a pre-Helm template file: the entry is Go-templated with Aggrega's pillar context FIRST, then injected into the chart's `templates/` directory BEFORE Helm rendering. This gives the helm-chart provider an extension mechanism equivalent to what `artifacts:` provides for the plain helm provider, while respecting Helm's chart model. In the helm-chart case, each `artifacts:` entry must use `$import:` to a file path — inline block scalars are rejected at Recipe load because Helm requires template files to be physical files in the chart structure.
 
@@ -493,9 +495,9 @@ Inline-block-scalar `artifacts:` entries for helm-chart are rejected at Recipe l
 
 Three structural distinctions:
 
-**Not cross-provider within a single Recipe.** A Recipe declares exactly one `provider:` at its top level. Everything the Recipe produces — source-rendered output, workload-synthesized output, and artifact emissions — is in that provider's native format. A helm Recipe's artifacts contain Kubernetes YAML. A compose Recipe's artifacts contain compose fragments. A terraform Recipe's artifacts contain `.tf.json`. A Recipe targets one provider; every output is in that provider's native format.
+**Not cross-provider within a single Recipe.** A Recipe declares exactly one `provider:` at its top level. Everything the Recipe produces — source-rendered output, workload-synthesized output, and artifact emissions — is in that provider's native format. A helm Recipe's artifacts contain Kubernetes YAML. A compose Recipe's artifacts contain compose fragments. A Recipe targets one provider; every output is in that provider's native format.
 
-Multi-provider composition happens at the Release level. Boundaries hold mixed-provider components; each provider's contributors at a boundary's evaluated path are dispatched and assembled per-(path, provider) independently. A Release with three components targeting helm, compose, and terraform respectively can place all three in one boundary; the dispatch grouping partitions them per provider, each provider's contributors land in their own assembled output under the boundary's path, and the operator authors the cross-provider coordination via the boundary structure they choose. Cross-provider coordination is the Release author's responsibility.
+Multi-provider composition happens at the Release level. Boundaries hold mixed-provider components; each provider's contributors at a boundary's evaluated path are dispatched and assembled per-(path, provider) independently. A Release with components targeting helm, helm-chart, and compose respectively can place all three in one boundary; the dispatch grouping partitions them per provider, each provider's contributors land in their own assembled output under the boundary's path, and the operator authors the cross-provider coordination via the boundary structure they choose. Cross-provider coordination is the Release author's responsibility.
 
 **Not Recipes-in-Recipes.** Artifacts do not load or compose other Recipes. They are inline manifests (or file paths to inline manifests), templated with this Recipe's pillars, emitted to this Recipe's output. Recipe reuse happens through three mechanisms: `extends:` (inheritance of metadata and schemas, not of output files); the Manifest's flat-URI mapping (the same Component can resolve to different Recipes across catalogs — see [../language-reference/entities/manifest.md](../language-reference/entities/manifest.md)); and Features + FeatureRecipes (cross-cutting concerns attached orthogonally).
 
@@ -505,18 +507,10 @@ Multi-provider composition happens at the Release level. Boundaries hold mixed-p
 
 Each provider engine declares which input kinds it renders; a central input-kind gate accepts the supported combinations and rejects the rest with a uniform diagnostic when the node renders. Capability is a property of the engine, not the Recipe — a provider engine renders a subset of the three kinds. The `artifacts:` column distinguishes artifacts riding *alongside* a sourced/synthesized primary from a *standalone* artifacts-only Recipe (no `source:`, no `workload:`).
 
-### Shipping Today
-
 | Provider | `source:` + `valuesMapping:` | `workload:` | `artifacts:` (alongside) | artifacts-only (standalone) |
 | --- | --- | --- | --- | --- |
 | helm | ✅ Helm chart via the Helm SDK | ✅ synthesizes Deployment/StatefulSet + Services + PVCs + ConfigMap/Secret volume refs | ✅ flat Kubernetes YAML under the boundary output | ✅ emits the declared artifacts as the node's whole output |
 | compose | ✅ compose file → per-node fragment | ✅ synthesizes a compose service fragment | ✅ merged into the combined `docker-compose.yaml` | ❌ declined at the gate (no service fragment to contribute) |
 | helm-chart | ✅ umbrella-chart composition | ❌ not supported — use the helm provider | ✅ `$import`-only, injected at `templates/<basename>` with `[[ ]]` Aggrega delimiters; inline rejected | ❌ declined at the gate (no chart to inject into) |
-| terraform | ⏳ not yet shipped — engine not registered | ⏳ not yet shipped | ⏳ not yet shipped | ⏳ not yet shipped |
-| cloudformation | ⏳ not yet shipped — engine not registered | ⏳ not yet shipped | ⏳ not yet shipped | ⏳ not yet shipped |
 
-*Cells marked `✅` ship today; `❌` is a provider-capability decline surfaced by the gate; `⏳` awaits the provider engine. The per-node compose fragments are merged per boundary today; a further Release-level cross-boundary merge is a future refinement.*
-
-### Not Yet Shipped (designed target)
-
-*When the terraform and cloudformation provider engines ship, each renders the three input kinds in its native format — sourced (module / template), synthesized (target-resource selection — ECS, Fargate, Cloud Run, App Runner, etc. — resolved in a future design iteration), and artifacts (`.tf.json` / CFN resource snippets). The Release-level cross-boundary compose merge lands here as well.*
+*Cells marked `✅` ship; `❌` is a provider-capability decline surfaced by the gate. The per-node compose fragments are merged per boundary today; a further Release-level cross-boundary merge is a future refinement.*

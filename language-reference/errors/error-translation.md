@@ -10,8 +10,8 @@ Every CLI-bubbling error carries one of five category tags. The tag identifies t
 
 - **`[DEVELOPER_ERROR]`** — the failure attaches to Aggregate authoring. The fix is in the Aggregate YAML or in the developer-authored portion of the catalog (Component values, `uses` sockets, Feature attachments). Example surfaces: resolver halts on Aggregate-side issues; analyzer selector and `appliesTo` violations.
 - **`[OPS_ERROR]`** — the failure attaches to Release authoring. The fix is in the Release YAML (boundary topology, parameter values, Feature attachments at the Release level). Example surfaces: Release schema validation; boundary-path template evaluation; `subDirectory` collisions across providers.
-- **`[CATALOG_ERROR]`** — the failure attaches to a catalog entity (Recipe, FeatureRecipe, Component, Feature, Provider, Manifest). The fix is in the catalog content. Example surfaces: Recipe shape rules; Workload `secretsSchema` cross-checks; template parse errors in catalog-authored templates.
-- **`[TRANSLATION_ERROR]`** — the failure attaches to provider-side synthesis (the helm, helm-chart, compose, terraform, or cloudformation engine attempting to translate a Workload, valuesMapping output, or sourced overlay into provider-native artifacts). The fix is typically in the Workload's `services` / `containers` / `volumes` shape, the Recipe's `valuesMapping` template output, or the source-mode overlay structure.
+- **`[CATALOG_ERROR]`** — the failure attaches to a catalog entity (Recipe, FeatureRecipe, Component, Feature, Plugin, Manifest). The fix is in the catalog content. Example surfaces: Recipe shape rules; Workload `secretsSchema` cross-checks; template parse errors in catalog-authored templates.
+- **`[TRANSLATION_ERROR]`** — the failure attaches to provider-side synthesis (the helm, helm-chart, or compose engine attempting to translate a Workload, valuesMapping output, or sourced overlay into provider-native artifacts). The fix is typically in the Workload's `services` / `containers` / `volumes` shape, the Recipe's `valuesMapping` template output, or the source-mode overlay structure.
 - **`[FETCH_ERROR]`** — the failure attaches to fetching a pinned dependency from a registry or remote source, not to any authoring surface. The fix is usually operational: authenticate to the registry (`docker login <registry>`), restore connectivity, or re-pin a drifted or tampered artifact (`aggrega pull --regenerate`). Example surfaces: a catalog entity or chart not found at the registry; authentication required or failed; the network unreachable; a cached artifact's digest not matching the lockfile. Fetch errors carry a concrete remediation pointer in the message.
 
 ## Output shape
@@ -45,8 +45,8 @@ An error often crosses more than one surface on its way to the CLI: a load phase
 ```text
 [CATALOG_ERROR] aggrega-catalog
   catalog load
-  caused by: [CATALOG_ERROR] aggrega-catalog/recipe/terraform/mariadb-rds-copy/recipe.yaml
-    recipe identity "terraform/mariadb-rds:1.0.0" already declared
+  caused by: [CATALOG_ERROR] aggrega-catalog/recipe/compose/mariadb-copy/recipe.yaml
+    recipe identity "compose/mariadb:1.0.0" already declared
     caused by: duplicate recipe identity (spec.provider + metadata.name + version) in the catalog
 ```
 
@@ -58,7 +58,7 @@ When the failure forks beneath a frame — a phase that collected several indepe
 [CATALOG_ERROR]
   Step 4c (recipe resolution)
   caused by (2):
-    multiple recipes implement this type and the Manifest does not map it; pin the instance or type in the Manifest to disambiguate: component "db" (type "core/datastore/mariadb:1.0.0"): recipes [cloudformation/mariadb-rds:1.0.0 terraform/mariadb-rds:1.0.0] all implement it
+    multiple recipes implement this type and the Manifest does not map it; pin the instance or type in the Manifest to disambiguate: component "db" (type "core/datastore/mariadb:1.0.0"): recipes [compose/mariadb:1.0.0 helm/mariadb-bitnami:1.0.0] all implement it
     ---
     no recipe resolved for component/feature instance; map its type in the Manifest or add a recipe implementing it: feature "metrics" (type "core/metrics:1.0.0"): no Manifest mapping and no feature recipe implements it
 ```

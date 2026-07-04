@@ -50,14 +50,13 @@ spec:
 When the Infrastructure Rendering Engine (Step 5) generates artifacts, it propagates each boundary's wave value to every rendered manifest in that boundary. Provider engines emit native sequencing primitives:
 
 * **For Kubernetes (ArgoCD/Flux):** the helm and helm-chart engines emit `argocd.argoproj.io/sync-wave: "<N>"` as a `metadata.annotations` entry on every rendered manifest. Helm hook resources additionally receive `helm.sh/hook-weight: "<N>"` for native Helm hook ordering.
-* **For Terraform / CloudFormation (when those providers ship synthesis):** cross-resource `depends_on` chains derived from per-boundary wave values plus the IR's `uses` edges.
 * **For Compose:** no per-resource sequencing primitive exists; operators sequence at the `docker compose up` invocation layer, applying per-boundary compose projects in declared order.
 
 The Aggrega-internal `aggrega.ai/sync-wave: "<N>"` label continues to ship alongside the ArgoCD annotation for observability and provenance use (queryable via `kubectl get -l aggrega.ai/sync-wave=1`); the annotation is what GitOps controllers consume.
 
 #### Wave-authoring vs deployable unit
 
-The boundary is the **wave-authoring unit**. The deployable unit is the **assembly path** — the on-disk output produced by the compiler that a CI/CD pipeline orchestrates against. By default, one boundary maps to one assembly path: each boundary's components emit under `boundaries/<boundary-name>/<provider>/`, and `helm install` / `terraform apply` / `docker compose up` runs against that path.
+The boundary is the **wave-authoring unit**. The deployable unit is the **assembly path** — the on-disk output produced by the compiler that a CI/CD pipeline orchestrates against. By default, one boundary maps to one assembly path: each boundary's components emit under `boundaries/<boundary-name>/<provider>/`, and `helm install` / `docker compose up` runs against that path.
 
 Operators can collapse this 1:1 mapping. Boundaries may declare `directory:` (and `subDirectory:`) path-template fields that, when shared across boundaries, route those boundaries' components into a single assembled output at the shared path. Two boundaries declaring `directory: "deploy/cluster"` produce one assembled output containing components from both — the deployable becomes the assembly path, not the boundary identity.
 

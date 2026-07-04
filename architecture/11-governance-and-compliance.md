@@ -122,7 +122,7 @@ Developers do not write network policies directly; the required network boundari
 
 The compiler builds a provenance record during compilation, capturing compiler version, catalog digests, and the build timestamp. Helm and helm-chart renderers emit this as the `aggrega.ai/compiler-version` label on generated Kubernetes manifests; enterprise security teams use this to identify which deployments were built by which compiler version — critical when a vulnerability is discovered in a specific compiler release and affected deployments need to be audited.
 
-*Other providers (Terraform, Compose, CloudFormation) stamp provenance in their native tagging mechanisms as their renderers add that capability; the in-memory provenance record exists for every compilation today.*
+*The compose provider stamps provenance in its native tagging mechanism as its renderer adds that capability; the in-memory provenance record exists for every compilation today.*
 
 ### 6. Metadata and Annotations as the Extension Surface
 

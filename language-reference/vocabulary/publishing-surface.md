@@ -6,7 +6,7 @@ This page documents the publishing surface fields, the description-field invento
 
 ## The publishing surface fields
 
-The following fields appear on every Domain 2 (Component, Feature) and Domain 3 (Recipe, FeatureRecipe, Provider) entity, plus on Aggregate as a reusable module. They appear on Manifest and Release as well, with reduced semantics (workspace-attribution rather than catalog-publication).
+The following fields appear on every Domain 2 (Component, Feature) and Domain 3 (Recipe, FeatureRecipe, Plugin) entity, plus on Aggregate as a reusable module. They appear on Manifest and Release as well, with reduced semantics (workspace-attribution rather than catalog-publication).
 
 | Field | Type | Purpose | Consumer |
 | --- | --- | --- | --- |
@@ -66,7 +66,7 @@ The current required-fields state per entity (excluding `apiVersion` / `kind` / 
 | Feature | `spec.schema` | No reserved-label requirement; Features identify by name + namespace |
 | Recipe | `spec.provider`, `spec.implements` | Provider gates engine dispatch; implements gates Component-binding |
 | FeatureRecipe | `spec.provider`, `spec.implements` | Same as Recipe |
-| Provider | none beyond the universal `apiVersion` / `kind` / `metadata` / `spec` | The provider's engine capability and translation contract are conveyed by convention (`workloadSchema`), not by an additional required field |
+| Plugin | `spec.plugin`, `spec.pluginType`, `spec.abiVersion` | The content-addressed artifact reference, the socket type the plugin implements, and the ABI version it targets; a provider-rendering plugin (`pluginType: provider`) additionally carries its translation contract under `spec.provider` |
 | Aggregate | `spec.components` (or `spec.aggregates` for module-shape Aggregates) | An Aggregate without component-shape declarations is a no-op |
 | Manifest | `spec.mappings` | The mapping tiers are the Manifest's only purpose |
 | Release | `spec.aggregate`, `spec.manifest`; *`metadata.environment` (current — moving to optional)* | The first two anchor the build to a specific Aggregate + Manifest; environment is in transition |

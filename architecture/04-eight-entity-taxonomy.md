@@ -46,8 +46,8 @@ graph LR
     subgraph D3 ["Domain 3: Infrastructure Base"]
         P3["Infrastructure Engineer / Ops"]:::role
         CD["Recipe<br/>The Implementation"]:::baseNode
-        CapD["FeatureRecipe<br/>The Wasm Plugin<br/>(operational + credential)"]:::baseNode
-        T["Provider<br/>Wasm Rendering Plugin"]:::baseNode
+        CapD["FeatureRecipe<br/>The Binding<br/>(operational + credential)"]:::baseNode
+        T["Plugin<br/>Wasm Rendering /<br/>Pipeline / Linter Plugin"]:::baseNode
         P3 ~~~ CD
         CD ~~~ CapD
         CapD ~~~ T
@@ -72,7 +72,7 @@ graph LR
     ENV -->|"Resolves Interfaces to"| CD
     ENV -->|"Resolves Interfaces to"| CapD
 
-    EB -->|"Ships via"| T
+    EB -->|"Renders via"| T
 
     %% Library references (Tier 3 — opt-in for catalogs needing cross-Component reuse)
     CC -.->|"$ref: &lt;Library&gt;#/schemas/&lt;name&gt;"| SL
@@ -93,7 +93,7 @@ The corpus carries ten entity kinds across four domains plus the Tier 3 library 
 | 3 | Feature | D2 — Platform Catalog | Operational trait (including credential Features) |
 | 4 | Recipe | D3 — Infrastructure Base | Component implementation, per provider |
 | 5 | FeatureRecipe | D3 — Infrastructure Base | Feature implementation, per provider |
-| 6 | Provider | D3 — Infrastructure Base | Wasm rendering-plugin registrar |
+| 6 | Plugin | D3 — Infrastructure Base | Content-addressed WebAssembly plugin (provider rendering, pipeline steps, linting) |
 | 7 | Manifest | D4 — Routing & Policy | Dependency lockfile mapping interfaces to Recipes |
 | 8 | Release | D4 — Routing & Policy | Deployment router binding Aggregate to Manifest |
 | 9 | SchemaLibrary | Tier 3 — Libraries | Reusable JSON Schema 2020-12 definitions |
@@ -101,7 +101,7 @@ The corpus carries ten entity kinds across four domains plus the Tier 3 library 
 
 The Workload kind is platform-owned content embedded inside a Recipe's synthesized input rather than a standalone catalog entity (see chapter 16).
 
-The Plugin kind is a compiler-structural construct rather than a standalone authoring entity in this taxonomy: it is a content-addressed reference to a WebAssembly artifact. The compiler pins and routes the reference; the WebAssembly runtime executes the bytes; the compiler is blind to what the plugin does. A Plugin carries no developer-authored application intent and owns no domain in the four-domain split — it is the transport for the domain-specific intelligence that lives in WebAssembly. Its authoring and metadata surface is documented at [language-reference/entities/plugin.md](../language-reference/entities/plugin.md).
+The Plugin is a first-class authoring entity — its own kind, JSON Schema, and catalog directory — owned by Platform Ops in Domain 3. A Plugin is a content-addressed reference to a WebAssembly artifact, declaring the socket type it implements: `provider` (rendering IR nodes into provider-native artifacts), `linter` (raising diagnostics on authored content), or `frp_step` (a feature-recipe-pipeline step). A provider-rendering Plugin (`pluginType: provider`) is the unit that serves provider rendering: it declares the provider name(s) it renders in `compatibleProviders` and carries its provider-socket metadata in `spec.provider`. The compiler pins and routes the reference; the WebAssembly runtime executes the bytes; the compiler is blind to what the plugin does — the plugin is the transport for the domain-specific intelligence that lives in WebAssembly. Its authoring and metadata surface is documented at [language-reference/entities/plugin.md](../language-reference/entities/plugin.md).
 
 ## Domain 1: Developer Intent (The "What")
 
@@ -121,12 +121,12 @@ The Plugin kind is a compiler-structural construct rather than a standalone auth
 
 * **Role:** The Infrastructure Engineer / Ops. Owns the physical reality, network port assignment, and templating logic.
 * **4. Recipe:** The multi-provider translation template (e.g., Helm or Docker Compose). It establishes a strict 1:1 API Contract with the catalog component via the `implements` keyword. The Recipe maps the developer's `.values` into the physical format. It hardcodes the physical network ports (e.g., `5432`) and utilizes the `.context.uses` pipe to dynamically resolve the target's `provides`, satisfying the Injection Contract without hardcoding database names.
-* **5. FeatureRecipe:** Explicitly maps a `Feature` to a concrete infrastructure implementation via the `implements` keyword. It mandates a target `provider` (e.g., `helm`, `terraform`). Because the platform unifies credential management into the Feature entity, FeatureRecipes handle both operational features (data masking, DNS routing, sidecar injection) and credential features (vault CRD generation, secret volume mounting). To support this full spectrum, it supports three distinct execution blocks:
+* **5. FeatureRecipe:** Explicitly maps a `Feature` to a concrete infrastructure implementation via the `implements` keyword. It mandates a target `provider` (e.g., `helm`, `compose`). Because the platform unifies credential management into the Feature entity, FeatureRecipes handle both operational features (data masking, DNS routing, sidecar injection) and credential features (vault CRD generation, secret volume mounting). To support this full spectrum, it supports three distinct execution blocks:
   1. **`pipeline`:** A sequential array of WebAssembly (Wasm) plugins for Post-Render Workload Mutation (e.g., injecting an Envoy sidecar via JSONPatch, or mounting a secret volume).
   2. **`source` & `valuesMapping`:** Used for Resource Generation, allowing Ops to render static templates natively (e.g., generating a new `HTTPRoute` CRD or an `ExternalSecret` CRD) alongside the base component.
   3. **`injectMapping` (Pre-Render Interception):** A native Go template block executed *before* the Base Recipe renders. It outputs a JSON dictionary that the compiler natively deep-merges over the Caller's `.context.inject` memory pipe, allowing Wasm-free, Caller-Side mutation of environment variables and connection strings.
   * **The Credential FeatureRecipe Pattern:** When a FeatureRecipe implements a credential Feature (labeled `feature.aggrega.ai/kind: secret`), the standard Two-Part Plugin Principle applies: the `pipeline` chains a Fetcher plugin (generating the vault-specific CRD) followed by an Injector plugin (mounting the secret to the target container). The Fetcher/Injector split maximizes reusability — swapping from AWS Secrets Manager to HashiCorp Vault only requires replacing the Fetcher plugin; the Injector remains identical.
-* **6. Provider:** The global plugin registrar acting as an "Engine Format Instruction" (e.g., mapping the name `helm` to a `helm-renderer.wasm` plugin) which handles the final stringified file format.
+* **6. Plugin:** The content-addressed WebAssembly plugin. A provider-rendering Plugin (`pluginType: provider`) is the unit that turns a Recipe's input kinds into the final stringified file format: it declares the provider name(s) it serves in `compatibleProviders` (e.g., `helm`), advertising a `render_node` export the compiler dispatches to, and carries its provider-socket metadata (`workloadSchema`, `wellKnownAnnotations`) in `spec.provider`. Plugins also carry the pipeline-step (`frp_step`) and linting (`linter`) roles. The compiler routes the pinned reference; the WebAssembly runtime executes the bytes.
 
 ## Domain 4: Routing & Policy (The "Glue")
 

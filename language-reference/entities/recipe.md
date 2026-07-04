@@ -18,7 +18,7 @@ Because a Recipe is strictly 1:1 with a physical execution engine, the `provider
 To keep implementation biases out of the core engine, the `source` block is not a fixed set of infrastructure fields. The `source` field supports two formats:
 
 * **The Universal String (Fast & Clean):** Best for local paths, OCI artifacts, and Git repositories. The compiler deduces the fetch method via the prefix (`./src`, `git::https://...`, `oci://...`).
-* **The Open Structured Object:** An open dictionary (`additionalProperties: true`) whose keys are provider-defined and are exposed to the Recipe's templates as `.source.*` (for example `.source.chart`). The design intent is that each provider's WebAssembly socket defines and validates its own source shape (e.g., `registry`/`chart`/`appVersion` for Helm, or `workspace` for Terraform).
+* **The Open Structured Object:** An open dictionary (`additionalProperties: true`) whose keys are provider-defined and are exposed to the Recipe's templates as `.source.*` (for example `.source.chart`). The design intent is that each provider's WebAssembly socket defines and validates its own source shape (e.g., `registry`/`chart`/`appVersion` for Helm).
 
 **What the core resolves today.** Per-provider Wasm source validation is not yet implemented. A *fetched* source is resolved by the `{ kind, url, version }` form, where `kind` selects a built-in resolver — today `helm-oci-chart`, `helm-https-chart`, and `compose-https-fragment`. A fetch-intended source must use `{ kind, url, version }`; a structured source that omits `kind`/`url` is not fetched, and if a fetch was intended the build halts loudly at lock-time source descent rather than silently resolving to nothing. When the per-provider Wasm socket ships, it validates provider-specific shapes and translates them ahead-of-time into a deterministic `{ kind, url, version }` fetch identity — the version always pins ahead-of-time; the compiler never fetches live runtime state.
 
@@ -92,7 +92,9 @@ The compiler resolves the reference against the resolved MappingLibrary set (the
 
 ### C. Native IaC Support & In-Memory Transpilation
 
-If an Ops team wants to bring their own Terraform or CloudFormation code, they simply bundle their raw `.tf` (HCL) or `.yaml` files into a `src/` directory inside the Recipe package. To bridge this human-readable code with the Wasm JSONPatch security plugins and rendering sockets, the compiler uses a transparent transpilation pipeline:
+> **Status: native IaC transpilation is a designed capability. No `terraform` or `cloudformation` rendering engine is registered with the production dispatch today; the pipeline below describes the designed flow. See [Status of the Language](../10-status.md#provider-engines) for the shipping provider set.**
+
+If an Ops team wants to bring their own raw infrastructure-as-code, they bundle their source files into a `src/` directory inside the Recipe package. To bridge this human-readable code with the Wasm JSONPatch security plugins and rendering sockets, the compiler uses a transparent transpilation pipeline:
 
 1. **Parse:** The compiler reads the raw files into an in-memory representation.
 2. **Inject:** It evaluates the mapping layer (`valuesMapping:` — inline, file-import, or library-import) to inject the abstract context (e.g., mapping `{{ .values.storage_size }}` to `TF_VAR_db_size`).
@@ -258,7 +260,7 @@ spec:
     $import: ./workload/web-server.yaml.tmpl
 ```
 
-Library `$import:` (the host-less `<Library>#/mappings/<entry>` identity form recognized by `valuesMapping:`) is not available at this site — Workload bodies are Recipe-local. The target Provider's engine must support synthesis (the standard-library catalog declares `workloadSchema` on such providers by convention); targeting a provider whose engine cannot synthesize is rejected when the node renders, with the provider-capability diagnostic — keyed on engine capability, not on `workloadSchema` presence. For the full Workload grammar, the K8s-shape pass-through fields, and the per-provider translation behavior, see [entities/workload.md](workload.md). For the broader three-input-kinds model and the assembler that merges synthesis with source-rendered output and artifacts, see [architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md).
+Library `$import:` (the host-less `<Library>#/mappings/<entry>` identity form recognized by `valuesMapping:`) is not available at this site — Workload bodies are Recipe-local. The target provider's engine must support synthesis (the standard-library catalog declares `workloadSchema` on such providers by convention); targeting a provider whose engine cannot synthesize is rejected when the node renders, with the provider-capability diagnostic — keyed on engine capability, not on `workloadSchema` presence. For the full Workload grammar, the K8s-shape pass-through fields, and the per-provider translation behavior, see [entities/workload.md](workload.md). For the broader three-input-kinds model and the assembler that merges synthesis with source-rendered output and artifacts, see [architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md).
 
 ## The `artifacts:` field — auxiliary manifests
 

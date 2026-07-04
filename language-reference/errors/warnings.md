@@ -63,6 +63,6 @@ Each unread key emits its own warning naming the Component instance, the bound R
 
 ## Per-entity partial-coverage warnings
 
-The standard library defines metadata.labels and metadata.annotations as authoring surfaces on every entity kind. Today the compiler renders these annotations through to provider output uniformly only on Components and Features; per-entity rendering coverage on Aggregate, Release, Manifest, Recipe, FeatureRecipe, Provider, SchemaLibrary, and MappingLibrary is partial — see [Status of the Language](../10-status.md) for the per-entity matrix.
+The standard library defines metadata.labels and metadata.annotations as authoring surfaces on every entity kind. Today the compiler renders these annotations through to provider output uniformly only on Components and Features; per-entity rendering coverage on Aggregate, Release, Manifest, Recipe, FeatureRecipe, Plugin, SchemaLibrary, and MappingLibrary is partial — see [Status of the Language](../10-status.md) for the per-entity matrix.
 
 When an entity-level `metadata.labels` or `metadata.annotations` declaration on an entity whose rendering coverage is partial reaches the renderer, the compiler emits a one-line warning naming the entity, the unrendered surface, and a link to the status page so the author knows the declaration was accepted by the schema but not consumed by today's rendering. The warning is informational; rendered output is produced regardless. The warning's emit shape and the per-entity coverage table track the rendering work as it lands.

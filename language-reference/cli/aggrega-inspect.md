@@ -54,7 +54,7 @@ For kinds that default as-authored, `--raw` is a no-op and `--resolved` triggers
 
 ## Per-kind defaults
 
-`inspect` knows eleven standalone-inspectable kinds. The catalog kinds render as-authored by default — their files are self-contained contracts. The instance kinds default to a resolved view, because their authored YAML is only the starting point for a cascade or a pipeline.
+`inspect` knows ten standalone-inspectable kinds. The catalog kinds render as-authored by default — their files are self-contained contracts. The instance kinds default to a resolved view, because their authored YAML is only the starting point for a cascade or a pipeline.
 
 | Kind | Default | What "resolved" means |
 | --- | --- | --- |
@@ -62,7 +62,6 @@ For kinds that default as-authored, `--raw` is a no-op and `--resolved` triggers
 | Feature | as-authored | Same as Component. |
 | Recipe | as-authored | `--show-implements` resolves the `spec.implements` Component reference. |
 | FeatureRecipe | as-authored | `--show-implements` resolves the `spec.implements` Feature reference. |
-| Provider | as-authored | A Provider is a static registrar; nothing to resolve. |
 | MappingLibrary | as-authored | Entries are opaque Go-template strings; rendering happens at consumption time. |
 | SchemaLibrary | as-authored | Entries are reusable schema and template definitions resolved at consumption time. |
 | Plugin | as-authored | The file is a self-contained plugin contract: socket types, per-export capabilities, runtime constraints, and signature pointer. Inspectable by file path; the bare-name catalog lookup resolves Components only. |
@@ -146,24 +145,6 @@ Implements Component: core/api-server:1.0.0
   required features:
     - core/metrics
 ```
-
-### Provider
-
-```text
-$ aggrega inspect ./providers/helm.yaml
-
-Provider: helm:1.0.0
-Plugin: hub.aggrega.ai/providers/helm-renderer:1.0.0
-Recipe-hosting: synthesized
-Well-known annotations:
-  aggrega.ai/replicas
-    purpose: Desired replica count.
-    default: One replica.
-  aggrega.ai/ingress-host
-    purpose: External hostname.
-```
-
-A Provider that declares well-known annotations renders them with each annotation's purpose and, where declared, its default. A Provider declaring none reports `(none declared)`.
 
 ### Manifest (resolved by default)
 

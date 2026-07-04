@@ -66,7 +66,7 @@ graph TD
     
     E -->|"Stringified Artifacts"| F["Helm Charts"]
     E -->|"Stringified Artifacts"| G["Docker Compose"]
-    E -->|"Stringified Artifacts"| H["Terraform Resources"]
+    E -->|"Stringified Artifacts"| H["Kubernetes Manifests"]
 ```
 
 ### Infrastructure Source Map

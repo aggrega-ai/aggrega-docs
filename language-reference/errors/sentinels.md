@@ -101,7 +101,7 @@ Step 5 — renderer dispatch and per-engine rendering.
 
 | Sentinel | Wrapped message | User-facing surface |
 | --- | --- | --- |
-| `ErrUnknownProvider` | `unknown provider` | Surfaces as "Unregistered provider" in fatal-halts. |
+| `ErrUnknownProvider` | `unknown provider` | Surfaces as "Unknown provider" in fatal-halts. |
 
 ## Fetch sentinels (`pkg/oci`, re-exported by `pkg/sourceresolver`)
 

@@ -91,11 +91,8 @@ aggrega-catalog/
 │   │   │   └── recipe.yaml
 │   │   └── postgres-bitnami/
 │   │       └── recipe.yaml
-│   ├── terraform/
-│   │   └── mariadb-rds/
-│   │       └── recipe.yaml
-│   ├── cloudformation/
-│   │   └── mariadb-rds/
+│   ├── helm-chart/
+│   │   └── mariadb/
 │   │       └── recipe.yaml
 │   ├── compose/
 │   │   └── mariadb/
@@ -226,7 +223,7 @@ usesSchema:
 
 To provide both strict validation and standard catalog metadata (author, version, description), Domain 2 (Interfaces) and Domain 3 (Implementations) definitions are written as YAML envelopes. Domain 2 utilises embedded `schema:` declarations expressed in compact form (the default; ~15 keywords, mechanically transformed to JSON Schema 2020-12) or in full JSON Schema YAML.
 
-**Why every catalog YAML repeats the envelope.** The envelope (`apiVersion`, `kind`, `metadata` block) appears at the top of every catalog file — Component, Feature, Recipe, FeatureRecipe, Aggregate, Manifest, Release, Provider — regardless of how short the body is. The repetition is deliberate: each file is designed to parse, validate, lint, and inspect as a standalone artefact. A single file pulled from the OCI registry, dropped into a CI sandbox, or opened in a third-party editor must carry enough self-description that downstream tooling can identify what kind of entity it represents and which schema version applies. Catalog-relative-path inference (where the directory location implies the entity kind and the envelope could be omitted) is not implemented today — every parser, validator, and linter consumes the envelope explicitly. The cost is mechanical boilerplate per file; the benefit is that the standalone-tooling guarantee holds across the OCI distribution surface, the local filesystem, and the IDE / CI / inspect surfaces. Authors copy the envelope from existing files when authoring new catalog content; future scaffolders are expected to ship the boilerplate as starter templates.
+**Why every catalog YAML repeats the envelope.** The envelope (`apiVersion`, `kind`, `metadata` block) appears at the top of every catalog file — Component, Feature, Recipe, FeatureRecipe, Aggregate, Manifest, Release, Plugin — regardless of how short the body is. The repetition is deliberate: each file is designed to parse, validate, lint, and inspect as a standalone artefact. A single file pulled from the OCI registry, dropped into a CI sandbox, or opened in a third-party editor must carry enough self-description that downstream tooling can identify what kind of entity it represents and which schema version applies. Catalog-relative-path inference (where the directory location implies the entity kind and the envelope could be omitted) is not implemented today — every parser, validator, and linter consumes the envelope explicitly. The cost is mechanical boilerplate per file; the benefit is that the standalone-tooling guarantee holds across the OCI distribution surface, the local filesystem, and the IDE / CI / inspect surfaces. Authors copy the envelope from existing files when authoring new catalog content; future scaffolders are expected to ship the boilerplate as starter templates.
 
 To maintain the DRY (Don't Repeat Yourself) principle, the Catalog employs two distinct composition mechanisms:
 
@@ -271,7 +268,7 @@ Precedence per field is CLI flag > per-registry `signing` > global `signing` > p
 
 Mark a root with no vendored catalogs by writing `workspace: {}`. The `catalog_dirs` list supports monorepo setups where a shared catalog lives in a sibling directory. The compiler checks each directory in sequence. The `offline: true` flag prevents any network access — the compiler only uses local paths and the cache, halting if an entity is not found locally. The `build`, `plugins`, `lint`, `parse_cache`, and `concurrency` sections carry the build dials, the Wasm attachment sockets (`mutator`, `policy`, `linter`, `importer`), the publishing-discipline policy switches, parse-cache tuning, and the daemon's request-dispatch worker-pool size. (`artifact_cache_dir` names the on-disk content cache; `parse_cache` caps the daemon's in-memory parse cache — two distinct caches.)
 
-The `artifact_cache_dir` root carries two parallel subtrees that the future `aggrega pull` command populates uniformly in a single invocation: `<artifact_cache_dir>/entities/<URI-encoded>/<version>/` for catalog entities (Components, Features, Recipes, FeatureRecipes, Providers) and `<artifact_cache_dir>/source-artifacts/<kind>/<host>/<path>/<version>/<digest-prefix>/` for source artifacts pulled from Recipe / FeatureRecipe `spec.source` fields (Helm charts, terraform modules, compose fragments). Each source-artifact cache slot carries the authoritative `.tgz` archive, a derived `extracted/` directory regenerated on every build read, and a `metadata.yaml` file recording the artifact's `{kind, url, version, digest, mediatype, pulled_at}` identity. The 12-character `<digest-prefix>` segment namespaces the same `{kind, url, version}` re-tagged at different upstream digests into distinct slots.
+The `artifact_cache_dir` root carries two parallel subtrees that the future `aggrega pull` command populates uniformly in a single invocation: `<artifact_cache_dir>/entities/<URI-encoded>/<version>/` for catalog entities (Components, Features, Recipes, FeatureRecipes, Plugins) and `<artifact_cache_dir>/source-artifacts/<kind>/<host>/<path>/<version>/<digest-prefix>/` for source artifacts pulled from Recipe / FeatureRecipe `spec.source` fields (Helm charts, compose fragments). Each source-artifact cache slot carries the authoritative `.tgz` archive, a derived `extracted/` directory regenerated on every build read, and a `metadata.yaml` file recording the artifact's `{kind, url, version, digest, mediatype, pulled_at}` identity. The 12-character `<digest-prefix>` segment namespaces the same `{kind, url, version}` re-tagged at different upstream digests into distinct slots.
 
 The lockfile is per-Release: resolving `release.yaml` writes `release.lock` next to it (the Release file's stem plus `.lock`). `aggrega pull` resolves dependencies and writes the lockfile; `aggrega build` reads it and uses the pinned versions regardless of registry state at build time. Workspaces commit the lockfile when build reproducibility across machines matters; after catalog identities or content change, `aggrega pull --regenerate` refreshes it. The lockfile records every resolved entity with its URI as authored, the resolved version, the content digest, and the referencing sites:
 
@@ -330,20 +327,19 @@ The OCI taxonomy covers all entity types. URI segments map 1:1 to filesystem pat
 * `hub.aggrega.ai/feature/core/data-masking:1.0.0` — Feature, namespace `core` (flat, no categories)
 * `hub.aggrega.ai/aggregate/core/db-module:1.0.0` — Reusable Aggregate module
 * `hub.aggrega.ai/recipe/helm/mariadb-bitnami:1.0.0` — Recipe, provider `helm`
-* `hub.aggrega.ai/recipe/terraform/mariadb-rds:1.0.0` — Recipe, provider `terraform`
+* `hub.aggrega.ai/recipe/helm-chart/mariadb:1.0.0` — Recipe, provider `helm-chart`
 * `hub.aggrega.ai/recipe/compose/mariadb:1.0.0` — Recipe, provider `compose`
 * `hub.aggrega.ai/feature-recipe/helm/k8s-secret-from-parameter:1.0.0` — FeatureRecipe
 * `hub.aggrega.ai/schema-library/aggrega/datastores:1.0.0` — SchemaLibrary, shared schema definitions
 * `hub.aggrega.ai/mapping-library/aggrega/bitnami-helpers:1.0.0` — MappingLibrary, shared Go-template mapping fragments
 * `hub.aggrega.ai/plugin/security/lakera-guard:1.0.0` — Wasm plugin
 
-The publishable kinds are the seven catalog kinds — Component, Feature, Recipe, FeatureRecipe, Provider, SchemaLibrary, and MappingLibrary — plus the Aggregate, a reusable module (publishable whether it is later referenced as a Release's top-level `spec.aggregate` or nested in another Aggregate's `aggregates:` block), and the Plugin, a content-addressed reference to a WebAssembly artifact the compiler routes and the runtime executes. The Plugin is a structural publishable artifact rather than a catalog authoring kind. Release and Manifest are deployment-side inputs that live in source control and are never pushed — `aggrega push` rejects them — so they have no publish mediatype. Each publishable kind has a distinct OCI mediatype:
+The publishable kinds are the six catalog kinds — Component, Feature, Recipe, FeatureRecipe, SchemaLibrary, and MappingLibrary — plus the Aggregate, a reusable module (publishable whether it is later referenced as a Release's top-level `spec.aggregate` or nested in another Aggregate's `aggregates:` block), and the Plugin, a content-addressed reference to a WebAssembly artifact the compiler routes and the runtime executes. The Plugin is a structural publishable artifact rather than a catalog authoring kind. Release and Manifest are deployment-side inputs that live in source control and are never pushed — `aggrega push` rejects them — so they have no publish mediatype. Each publishable kind has a distinct OCI mediatype:
 
 | Entity kind | Mediatype |
 | --- | --- |
 | Component | `application/vnd.aggrega.component.v1alpha1+yaml` |
 | Feature | `application/vnd.aggrega.feature.v1alpha1+yaml` |
-| Provider | `application/vnd.aggrega.provider.v1alpha1+yaml` |
 | Aggregate | `application/vnd.aggrega.aggregate.v1alpha1+yaml` |
 | Recipe | `application/vnd.aggrega.recipe.v1alpha1+tar+gz` |
 | FeatureRecipe | `application/vnd.aggrega.featurerecipe.v1alpha1+tar+gz` |
@@ -351,7 +347,7 @@ The publishable kinds are the seven catalog kinds — Component, Feature, Recipe
 | MappingLibrary | `application/vnd.aggrega.mappinglibrary.v1+json` |
 | Plugin | `application/vnd.aggrega.wasmplugin.v1alpha1+yaml` |
 
-The encoding suffix reflects how each kind ships. Component, Feature, Provider, Aggregate, and Plugin are single documents, published as bare YAML (`+yaml`). Recipe and FeatureRecipe bundle their co-located sources — the `source:` tree, `$import:`-referenced templates, and inline `artifacts:` — so they ship as a gzipped tar (`+tar+gz`). SchemaLibrary and MappingLibrary ship as JSON (`+json`). The version segment is `v1alpha1` for the YAML and tar+gz kinds and `v1` for the two libraries; downstream tooling dispatches on the full mediatype string — kind, version, and encoding together.
+The encoding suffix reflects how each kind ships. Component, Feature, Aggregate, and Plugin are single documents, published as bare YAML (`+yaml`). Recipe and FeatureRecipe bundle their co-located sources — the `source:` tree, `$import:`-referenced templates, and inline `artifacts:` — so they ship as a gzipped tar (`+tar+gz`). SchemaLibrary and MappingLibrary ship as JSON (`+json`). The version segment is `v1alpha1` for the YAML and tar+gz kinds and `v1` for the two libraries; downstream tooling dispatches on the full mediatype string — kind, version, and encoding together.
 
 Recipe names do NOT include the `ops/` prefix or the provider name. The entity type directory and provider directory provide all context needed.
 
@@ -382,7 +378,7 @@ Immutability matters for two consequences:
 1. **Lockfile pins are honest.** When the lockfile records `mariadb:1.0.0` at digest `D`, a build that fetches by digest receives `D`'s bytes. Without immutability, a registry-side mutation could replace `D`'s bytes underneath the lockfile pin, undermining lock-time-to-build-time stability. Reproducible builds rest on this guarantee.
 2. **Post-publication metadata changes have a clear pathway.** Marking a published version as deprecated, rotating signing keys, or amending attestations cannot be done by mutating the published artifact (the rule forbids it). It must be done by publishing a new patch version or a sidecar artifact recording the metadata change separately. Either pathway is auditable — a new version or sidecar appears as a distinct registry entry — and neither alters the bytes of the original artifact.
 
-The immutability rule applies uniformly to every OCI-published Aggrega artifact (entities, SchemaLibrary, MappingLibrary, Wasm plugins referenced by Recipe `pipeline[].plugin:` / FeatureRecipe `pipeline[].plugin:` / Provider `plugin:` / workspace config `plugins.{mutator,policy,linter,importer}[]:`). Anything pinned by `name:version` plus a content digest in the lockfile is subject to immutability.
+The immutability rule applies uniformly to every OCI-published Aggrega artifact (entities, SchemaLibrary, MappingLibrary, Wasm plugins referenced by Recipe `pipeline[].plugin:` / FeatureRecipe `pipeline[].plugin:` / workspace config `plugins.{mutator,policy,linter,importer}[]:`). Anything pinned by `name:version` plus a content digest in the lockfile is subject to immutability.
 
 Workspace configuration permits a forensic opt-out:
 
@@ -399,7 +395,7 @@ Re-resolution to a newer version requires explicit user action (`aggrega catalog
 
 ### 10. Catalog entity name-shape enforcement
 
-Catalog entity names follow per-entity-kind patterns documented at [`../language-reference/02-naming-conventions.md`](../language-reference/02-naming-conventions.md) "Catalog Entity Naming" and detailed in the per-entity reference pages at [`../language-reference/entities/`](../language-reference/entities/). The `metadata.name` field a catalog YAML declares is not always identical to the entity's canonical reference URI: Component and Feature embed namespace and grouping segments directly in `metadata.name`; Recipe, FeatureRecipe, and Provider declare a leaf-only `metadata.name` and the canonical URI is constructed at catalog load from the entity's filesystem path under `<catalog-root>/<kind>/...` plus the leaf; SchemaLibrary and MappingLibrary declare a PascalCase token in `metadata.name`.
+Catalog entity names follow per-entity-kind patterns documented at [`../language-reference/02-naming-conventions.md`](../language-reference/02-naming-conventions.md) "Catalog Entity Naming" and detailed in the per-entity reference pages at [`../language-reference/entities/`](../language-reference/entities/). The `metadata.name` field a catalog YAML declares is not always identical to the entity's canonical reference URI: Component and Feature embed namespace and grouping segments directly in `metadata.name`; Recipe and FeatureRecipe declare a leaf-only `metadata.name` and the canonical URI is constructed at catalog load from the entity's filesystem path under `<catalog-root>/<kind>/...` plus the leaf; SchemaLibrary and MappingLibrary declare a PascalCase token in `metadata.name`.
 
 Per-entity-kind shapes:
 
@@ -407,10 +403,9 @@ Per-entity-kind shapes:
 * **Feature** — two kebab-case segments `{namespace}/{name}` declared in `metadata.name`. Example: `core/data-masking`.
 * **Recipe** — a single kebab-case leaf in `metadata.name` (e.g., `postgres-bitnami`). The canonical reference URI `{provider}/{name}` (per §6 above) is derived at catalog load from the recipe's filesystem path under `<catalog-root>/recipe/<provider>/<name>/recipe.yaml`: the `<provider>` segment of the path and the leaf `metadata.name` combine into the two-segment canonical form. No additional namespace component appears in the canonical Recipe URI.
 * **FeatureRecipe** — single kebab-case leaf in `metadata.name` (e.g., `k8s-secret-from-parameter`), symmetric with Recipe. Canonical URI `{provider}/{name}` derived from `<catalog-root>/feature-recipe/<provider>/<name>/recipe.yaml` the same way.
-* **Provider** — single kebab-case leaf in `metadata.name` (e.g., `helm`, `compose`, `terraform`). The canonical URI is the leaf itself; the filesystem path `<catalog-root>/provider/<name>.yaml` and the OCI repository name match the `metadata.name` directly.
 * **SchemaLibrary** and **MappingLibrary** — a PascalCase single token in `metadata.name` matching `^[A-Z][A-Za-z0-9]*$` (e.g., `BaseComponents`, `AIDatastores`). This pattern is enforced by the JSON Schema envelope itself; structural validation rejects non-conforming names at parse time.
 
-Structural JSON Schema validation enforces the SchemaLibrary and MappingLibrary PascalCase pattern at the envelope. For the other entity kinds (Component, Feature, Recipe, FeatureRecipe, Provider), the JSON Schema for `metadata.name` accepts any non-empty string and the per-entity-kind shapes above are enforced separately by two complementary mechanisms with a single shared regex source-of-truth:
+Structural JSON Schema validation enforces the SchemaLibrary and MappingLibrary PascalCase pattern at the envelope. For the other entity kinds (Component, Feature, Recipe, FeatureRecipe), the JSON Schema for `metadata.name` accepts any non-empty string and the per-entity-kind shapes above are enforced separately by two complementary mechanisms with a single shared regex source-of-truth:
 
 * **Publishing-discipline plugin (publish time): rejects.** `aggrega push` invokes the publishing-discipline plugin, which checks every artifact's `metadata.name` against the per-entity-kind regex. A name that does not match the documented pattern halts the publish with a clear error pointing at the convention documentation.
 * **`linter.wasm` (build time): warns.** `aggrega build` invokes `linter.wasm` per the extensibility-page architecture. The build-time linter emits a warning for the same name-shape violations the publishing-discipline plugin rejects:

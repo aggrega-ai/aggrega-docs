@@ -96,7 +96,7 @@ The compose provider derives `depends_on` automatically from the IR's `uses` edg
 
 The current emit shape is the **short-form list**: `depends_on: [<service-name>]`. The long-form with `service_healthy` condition gating (which would let the compose runtime block startup until the target's healthcheck reports healthy) is planned for a future iteration — today's emit always has `service_started` semantics regardless of whether the target declares a healthcheck.
 
-`depends_on` entries are emitted in alphabetical target order for output stability. Edges whose source or target are served by a different provider (helm, helm-chart, terraform, cloudformation) are skipped — `depends_on` only applies within the compose-served subset of the Release.
+`depends_on` entries are emitted in alphabetical target order for output stability. Edges whose source or target are served by a different provider (helm or helm-chart) are skipped — `depends_on` only applies within the compose-served subset of the Release.
 
 ## Sourced mode
 
@@ -153,7 +153,6 @@ The asymmetry is structural: `services:` and `volumes:` carry per-Recipe content
 - **Native env-from-secret resolution.** Workload `secrets[as: env]` entries emit environment placeholders rather than runtime-resolved secret references. The `compose-bridge` Feature is the future home for compose-side secret resolution.
 - **Compose `deploy:` block.** Replicas, placement constraints, and update strategy under `deploy:` are swarm-mode features; the compose provider targets single-host compose only and does not emit `deploy:` content.
 - **Health-condition-gated `depends_on`.** The long-form `{ <target>: { condition: service_healthy } }` shape is planned for a future iteration; today's emit always uses the short-form list with `service_started` semantics.
-- **Workload synthesis for terraform / cloudformation.** Workload-mode is supported by helm and compose only; terraform and cloudformation Recipes use sourced mode exclusively.
 
 ## Authoring example
 

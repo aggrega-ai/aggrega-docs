@@ -8,7 +8,7 @@ Authors encounter labels and annotations on six distinct surfaces. Each carries 
 
 | # | Surface | Scope | Cascade rule | Primary consumer |
 | --- | --- | --- | --- | --- |
-| 1 | Catalog entity `metadata.labels` | Per-entity identity (Component, Feature, Aggregate, Provider) | Does not cascade to instances; carried on the catalog entity itself | Catalog discovery, Studio filtering, `policy-validator.wasm` (when shipped) |
+| 1 | Catalog entity `metadata.labels` | Per-entity identity (Component, Feature, Aggregate) | Does not cascade to instances; carried on the catalog entity itself | Catalog discovery, Studio filtering, `policy-validator.wasm` (when shipped) |
 | 2 | Component `metadata.labels` (intrinsic) | Per-Component-instance properties (`component.aggrega.ai/type` etc.) | Cascades into IR per-node `.context.labels` after `mutator.wasm` mutations | Selector matching (`usesSchema` `selector:` declarations, carried as `x-aggrega-selector:` in the synthesized JSON Schema), Recipe template logic |
 | 3 | Component `metadata.annotations` | Per-Component-instance traits authored by the Architect | Cascades into IR per-node `.context.annotations.catalog` bucket | `policy-validator.wasm` (intrinsic-trait policies), Recipe template logic |
 | 4 | Aggregate / Subsystem `annotations:` | Aggregate-side cognitive metadata | Cascades into IR per-node `.context.annotations.aggregate` bucket | Recipe `valuesMapping:` for cognitive routing |
@@ -100,7 +100,7 @@ The five surfaces are deliberate per the architecture's separation of concerns â
 
 ## Per-entity expansion of `metadata.labels` and `metadata.annotations`
 
-The current pre-expansion state has `metadata.labels` on Component / Feature / Aggregate / Provider; `metadata.annotations` on Component / Feature only. Manifest, Release, Recipe, FeatureRecipe currently lack one or both. Expanding both fields uniformly across every entity kind (with use-case documentation per entity) is the documented design target; the schema change is small per entity and the per-entity examples are introduced as the design lands.
+The current pre-expansion state has `metadata.labels` on Component / Feature / Aggregate; `metadata.annotations` on Component / Feature only. Manifest, Release, Recipe, FeatureRecipe, Plugin currently lack one or both. Expanding both fields uniformly across every entity kind (with use-case documentation per entity) is the documented design target; the schema change is small per entity and the per-entity examples are introduced as the design lands.
 
 The expansion is gradual â€” schema additions are additive and per-entity, so authors can ignore the additions until a use case applies. Each entity's intended use cases for the new fields:
 

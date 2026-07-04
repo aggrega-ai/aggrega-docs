@@ -231,7 +231,7 @@ It is critical to note that the semantic label (e.g., `untrusted-external`) dict
 
 * **Scenario A (Public SaaS API):** Labeled `untrusted-external` in the Catalog (triggers Policy Egress Guardrails). Executed via the `formatter.wasm` plugin (no compute provisioned).
 * **Scenario B (Internal Legacy Database):** Labeled `internal-trusted` (bypasses Egress Guardrails, stays inside the VPC). Executed via the `formatter.wasm` plugin (no compute provisioned).
-* **Scenario C (AWS RDS Database):** Labeled `internal-trusted`. Executed via the `terraform-renderer.wasm` plugin (physically provisioned by the generated IaC).
+* **Scenario C (Self-Hosted Database):** Labeled `internal-trusted`. Executed via the `helm-renderer.wasm` plugin (physically provisioned as a Kubernetes StatefulSet).
 
 ### 10. The `eval` Provider: Virtual Components via Wasm Formatters
 
@@ -269,7 +269,7 @@ components:
 ```
 
 **2. Domain 4 (The Manifest): The Routing**
-Ops maps the legacy database explicitly to the `eval` format engine. The word `eval` acts as a sibling to `helm` and `terraform`, keeping the Manifest routing perfectly flat and predictable.
+Ops maps the legacy database explicitly to the `eval` format engine. The word `eval` acts as a sibling to `helm` and `compose`, keeping the Manifest routing perfectly flat and predictable.
 
 ```yaml
 spec:
@@ -346,5 +346,5 @@ Aggrega solves this using the principle of "Turtles All the Way Down." We do not
 Because an AWS EKS Cluster, an Istio Control Plane, and an AWS VPC are ultimately just physical cloud resources, they are modeled exactly like application components.
 
 1. **The Platform Aggregate:** The Infrastructure team writes a standard `Aggregate.yaml` where the components are `core/aws-vpc`, `core/eks-cluster`, and `core/istio-base`.
-2. **The Platform Release:** They deploy this aggregate. The `terraform-renderer.wasm` plugin outputs the raw Terraform files required to stand up the base infrastructure.
+2. **The Platform Release:** They deploy this aggregate. The renderer bound for these platform components outputs the artifacts required to stand up the base infrastructure.
 3. **The Application Release:** When the Application Developer is ready to deploy their AI Agent, the Ops team simply targets the newly created cluster as an `environment` inside the App's `Release` file.

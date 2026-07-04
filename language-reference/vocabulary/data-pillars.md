@@ -262,11 +262,11 @@ For the inject grammar and collision rules, see [topology-triad.md](topology-tri
 
 ### Cross-pillar constraint duplication
 
-A field that lives in two pillars with different validation layers can carry duplicate constraints. The canonical example: a port number declared in a Component's `usesSchema` (JSON-Schema-validated, range `min: 1, max: 65535`) and the same port number consumed in a Workload's `services.<name>.ports.<port>` field, which the Provider's `workloadSchema` may add a `min: 1024` rule for non-privileged ports. **This per-provider `workloadSchema` content validation is honest-pending** (see [validation-surface.md](validation-surface.md) Layer 3 and the roadmap's Wasm-based Workload synthesizers item): today `workloadSchema` is documentation-only and Workload bodies are validated against the platform-owned embedded Workload schema, so the second-layer rejection described here is the designed end-state, not current behavior.
+A field that lives in two pillars with different validation layers can carry duplicate constraints. The canonical example: a port number declared in a Component's `usesSchema` (JSON-Schema-validated, range `min: 1, max: 65535`) and the same port number consumed in a Workload's `services.<name>.ports.<port>` field, for which the provider-rendering plugin's `spec.provider.workloadSchema` may add a `min: 1024` rule for non-privileged ports. **This per-provider `workloadSchema` content validation is honest-pending** (see [validation-surface.md](validation-surface.md) Layer 3 and the roadmap's Wasm-based Workload synthesizers item): today `workloadSchema` is documentation-only and Workload bodies are validated against the platform-owned embedded Workload schema, so the second-layer rejection described here is the designed end-state, not current behavior.
 
 When the `usesSchema` allows port 80 but `workloadSchema` declares ports below 1024 invalid, the runtime will fire the `workloadSchema` rejection at Step 5 Phase B — the Layer 3 validation per [validation-surface.md](validation-surface.md). The first layer's constraint passed; the second layer caught the violation.
 
-The duplication is deliberate: each layer covers a different concern. The Component's `usesSchema` governs the cognitive contract (the developer's `uses:` declaration). The Provider's `workloadSchema` governs the rendered-output contract (what the engine accepts). When both apply to the same field, the strictest wins; authors who hit the second layer's rejection see a `CATALOG_ERROR:` attributed to the Recipe-Provider pairing.
+The duplication is deliberate: each layer covers a different concern. The Component's `usesSchema` governs the cognitive contract (the developer's `uses:` declaration). The provider-rendering plugin's `spec.provider.workloadSchema` governs the rendered-output contract (what the engine accepts). When both apply to the same field, the strictest wins; authors who hit the second layer's rejection see a `CATALOG_ERROR:` attributed to the Recipe and the provider engine that rendered it.
 
 ### Feature attachment / Component pillar isolation
 
@@ -306,7 +306,7 @@ The pillars carry validation across three tiers. Each tier covers a different co
 | --- | --- | --- |
 | 1 — JSON Schema envelope | Structural shape (which keys are present, types match the field declarations) | Step 1, per file load |
 | 2 — Per-pillar schema (`schema` / `secretsSchema` / `usesSchema`) | Per-pillar typed content validated as JSON Schema 2020-12 with monotonic narrowing on `extends:` chains enforced by the publishing-discipline policy plugin | Step 1, after envelope passes |
-| 3 — Provider `workloadSchema` | Workload content gated by the bound Provider's engine-capability, documented by `workloadSchema` | Step 5 Phase B, after valuesMapping resolves |
+| 3 — provider engine-capability gate | Workload content gated by the bound provider engine's synthesized-mode capability, documented by the provider-rendering plugin's `spec.provider.workloadSchema` | Step 5 Phase B, after valuesMapping resolves |
 
 For the four-layer error-shape table and per-layer error prefixes, see [validation-surface.md](validation-surface.md).
 

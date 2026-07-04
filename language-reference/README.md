@@ -13,7 +13,7 @@ Aggrega has ten entity kinds organised into three tiers reflecting adoption prog
 | Tier | Entity kinds | When to adopt |
 | --- | --- | --- |
 | **Tier 1 — the minimum viable surface** | Aggregate, Component, Recipe, Manifest, Release | Day 1 — solo founders and small teams ship working software with only Tier 1. The mental model: "I have an app; I want to deploy it; here's how." |
-| **Tier 2 — role separation** | Feature, FeatureRecipe, Provider | Day 30 — small teams where roles split (developer + Ops + sometimes Security). Tier 2 enters via Provider plugins (Ops choose Helm vs Terraform vs Compose), Features (Security manages credentials separately from app config), and FeatureRecipes (binding-time customisation per provider). |
+| **Tier 2 — role separation** | Feature, FeatureRecipe, Plugin | Day 30 — small teams where roles split (developer + Ops + sometimes Security). Tier 2 enters via provider-rendering Plugins (Ops choose Helm vs Compose vs helm-chart), Features (Security manages credentials separately from app config), and FeatureRecipes (binding-time customisation per provider). |
 | **Tier 3 — cross-Component reuse** | SchemaLibrary, MappingLibrary | Day 365 — mature catalogs where common shapes recur across many entities. The threshold is informal: when a shape (e.g., `PodResources`) appears in 5+ Components and coordinating updates is friction, a SchemaLibrary entry justifies itself. |
 
 Each progression is opt-in. A solo founder is never forced to look at Tier 3; an enterprise catalog has full access to Tier 3 as needed. Tier 1 is *complete* for the solo-founder use case — a developer can ship working applications using only Tier 1 entities. This is a strong design property: Tier 1 is not a "subset that compiles"; it is a "subset that ships software."
@@ -28,7 +28,7 @@ Within Tier 3, the `$templates:` / `$instantiate:` mechanic (parametric helpers 
 2. [Naming Conventions](02-naming-conventions.md)
 3. [Entity Reference Overview](03-entities.md)
    - **Tier 1**: [aggregate](entities/aggregate.md), [component](entities/component.md), [recipe](entities/recipe.md), [manifest](entities/manifest.md), [release](entities/release.md)
-   - **Tier 2**: [feature](entities/feature.md), [featurerecipe](entities/featurerecipe.md), [provider](entities/provider.md)
+   - **Tier 2**: [feature](entities/feature.md), [featurerecipe](entities/featurerecipe.md), [plugin](entities/plugin.md)
    - **Tier 3**: [schemalibrary](entities/schemalibrary.md), [mappinglibrary](entities/mappinglibrary.md)
    - Cross-cutting: [workload](entities/workload.md) (platform-owned compiler kind consumed inside Recipe `workload:`)
 4. [Vocabulary Overview](04-vocabulary.md)
@@ -36,7 +36,7 @@ Within Tier 3, the `$templates:` / `$instantiate:` mechanic (parametric helpers 
 5. [Templates Overview](05-templates.md)
    - Templates reference: [expansion-matrix](templates/expansion-matrix.md), [template-context-contract](templates/template-context-contract.md), [sprig-functions](templates/sprig-functions.md), [parameters-context](templates/parameters-context.md), [assertions-block](templates/assertions-block.md)
 6. [Providers Overview](06-providers.md)
-   - Providers reference: [architecture](providers/architecture.md), [well-known-annotations](providers/well-known-annotations.md), [reference-matrix](providers/reference-matrix.md), [helm](providers/helm.md), [helm-chart](providers/helm-chart.md), [compose](providers/compose.md), [terraform](providers/terraform.md), [cloudformation](providers/cloudformation.md)
+   - Providers reference: [architecture](providers/architecture.md), [well-known-annotations](providers/well-known-annotations.md), [reference-matrix](providers/reference-matrix.md), [helm](providers/helm.md), [helm-chart](providers/helm-chart.md), [compose](providers/compose.md)
 7. [CLI Overview](07-cli.md)
    - CLI reference: [aggrega-build](cli/aggrega-build.md), [aggrega-inspect](cli/aggrega-inspect.md), [aggrega-pull](cli/aggrega-pull.md), [aggrega-lint](cli/aggrega-lint.md), [global-flags](cli/global-flags.md)
 8. [Errors Overview](08-errors.md)

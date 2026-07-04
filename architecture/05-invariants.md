@@ -93,7 +93,7 @@ Aggrega's design guidance separates authoring into four domains:
 
 - **Developer Intent** — Aggregate.
 - **Platform Architect** — Component and Feature catalog entities.
-- **Platform Ops** — Recipe, FeatureRecipe, Provider.
+- **Platform Ops** — Recipe, FeatureRecipe, Plugin (including the provider-rendering Plugin).
 - **Platform Operator** — Manifest, Release.
 
 The typical well-functioning deployment follows this split: developers write application intent, not physical infrastructure; Ops write physical infrastructure, not application logic. Aggrega is designed to be used this way, and official documentation, examples, and the standard-library catalog are authored against this split.

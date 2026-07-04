@@ -6,7 +6,7 @@ This catalog is organized by the stage of compilation at which each halt fires. 
 
 ## When loading your files
 
-The compiler reads every Aggregate, Manifest, Component, Feature, Recipe, FeatureRecipe, Provider, and Release referenced by your build, validates each against its schema, and interpolates typed parameters from the Release into the Aggregate.
+The compiler reads every Aggregate, Manifest, Component, Feature, Recipe, FeatureRecipe, Plugin, and Release referenced by your build, validates each against its schema, and interpolates typed parameters from the Release into the Aggregate.
 
 ### Parameter type mismatch / contract violation
 
@@ -40,7 +40,7 @@ Every Recipe-shape error carries the same message shape:
 > `<rule description>`
 > `<rule-specific detail>`
 
-The `CATALOG_ERROR:` prefix signals that the failure is attributable to the catalog entity (the Recipe, or the Provider it binds to), not to the Aggregate or the Release.
+The `CATALOG_ERROR:` prefix signals that the failure is attributable to the catalog entity (the Recipe, or the provider it binds to), not to the Aggregate or the Release.
 
 #### Rule 1 — `valuesMapping` requires `source`
 
@@ -412,14 +412,23 @@ Emitted message:
 
 **How to fix:** either route the `uses:` edge to a Component whose labels satisfy the selector, or adjust the selector expression in the catalog entity to accept the intended target class. Review the target Component's `metadata.labels` with `aggrega inspect` to confirm which labels it carries.
 
-### Unregistered provider
+### Unknown provider
 
-A Recipe declares `provider: <name>` where `<name>` does not match any registered Provider entity in the catalog. The compiler cannot dispatch rendering to a provider it has never heard of.
+A Recipe declares `provider: <name>` where `<name>` names no rendering engine the compiler serves. The compiler cannot dispatch rendering to a provider it has never heard of.
 
 Emitted message:
-> unsupported provider: `<provider-name>` — no Provider entity is registered under this name.
+> unknown provider: `<provider-name>`
 
-**How to fix:** confirm the provider name is spelled correctly (`helm`, `helm-chart`, `compose`, `terraform`, `cloudformation` are the standard-library names). If you intended a custom enterprise provider, ensure the Provider entity is present in the catalog workspace the build is pointed at. If you're evaluating a future provider that has not shipped yet, pick one of the standard-library providers until the target provider is available.
+**How to fix:** confirm the provider name is spelled correctly — `helm`, `helm-chart`, and `compose` are the standard-library names. If you intended a custom enterprise provider, ensure a provider-rendering Plugin serving that name (`pluginType: provider` with the name in its `compatibleProviders`) is present in the catalog workspace the build is pointed at.
+
+### A provider is claimed by more than one provider plugin
+
+Two distinct provider-rendering Plugins (`pluginType: provider`) both list the same provider name in `compatibleProviders`. Exactly one Plugin may serve a given provider name; two claimants make render dispatch ambiguous, so the catalog load halts rather than resolving to an arbitrary engine.
+
+Emitted message:
+> provider `<provider-name>` is claimed by more than one provider plugin (`<plugin-1>, <plugin-2>`); exactly one Plugin may serve a provider
+
+**How to fix:** remove or retarget one of the conflicting Plugins so each provider name is served by exactly one provider-rendering Plugin. If you meant to ship two engines for the same target, choose distinct provider names for them and point each Recipe at the name it intends.
 
 ### Path-template references a variable outside the allowlist
 

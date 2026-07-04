@@ -16,7 +16,7 @@ The Release dictates the destination for compiled artifacts; provider-engine dis
 
 ## Environment Metadata
 
-Every Release metadata block accepts an `environment:` field — a free-form string identifying the deployment environment (typical values: `production`, `staging`, `dev`). The field is informational: it carries no enumeration, no schema-level pattern, and no cross-entity validation beyond `type: string`. The compiler emits its value as the `aggrega.ai/environment` label on every rendered Kubernetes manifest produced by the helm and helm-chart providers, alongside the rest of the Aggrega provenance label suite. Other providers (terraform, compose, cloudformation) translate the same identifier into their native tagging mechanisms as their renderers add that capability.
+Every Release metadata block accepts an `environment:` field — a free-form string identifying the deployment environment (typical values: `production`, `staging`, `dev`). The field is informational: it carries no enumeration, no schema-level pattern, and no cross-entity validation beyond `type: string`. The compiler emits its value as the `aggrega.ai/environment` label on every rendered Kubernetes manifest produced by the helm and helm-chart providers, alongside the rest of the Aggrega provenance label suite. The compose provider translates the same identifier into its native tagging mechanism as its renderer adds that capability.
 
 Five practical patterns drive `environment:` authoring:
 
@@ -119,7 +119,7 @@ See [architecture/06-data-taxonomy-and-composition.md §7](../../architecture/06
 
 Each boundary declares a physical output `directory` for its compiled artifacts; components within a boundary may override via a per-component `subDirectory`. The compiler computes the final artifact path by joining them: `Final_Path = filepath.Join(Evaluated(directory), Evaluated(subDirectory))`.
 
-* **Safe default.** If `subDirectory` is omitted, the compiler applies `subDirectory: "{{ .provider }}"` automatically — each provider's artifacts (Helm, Terraform, Compose, Eval) end up in its own sub-folder, preventing mixed-artifact collisions in downstream CI/CD tools.
+* **Safe default.** If `subDirectory` is omitted, the compiler applies `subDirectory: "{{ .provider }}"` automatically — each provider's artifacts (Helm, Helm-chart, Compose) end up in its own sub-folder, preventing mixed-artifact collisions in downstream CI/CD tools.
 * **Flat override.** To disable sub-directories entirely (all artifacts directly under `directory`), set `subDirectory: "."` or `subDirectory: ""`.
 * **Template variables.** `directory` evaluates with `{{ .provider }}`, `{{ .boundary_name }}`, `{{ .parameters.X }}`, `{{ .manifest.recipe_name }}`, and `{{ .parent_boundary.* }}` for cascading data from an enclosing boundary. `subDirectory` evaluates with the same set plus `{{ .component_id }}` (per-component overrides only). The compiler evaluates path templates with `missingkey=error` — referencing an undeclared variable halts the build with a precise diagnostic. See [path-template variables](../path-template-variables.md) for the per-context matrix and parent-boundary cascade rules.
 
@@ -295,7 +295,6 @@ spec:
 **Per-provider emission.** The compiler emits the boundary's wave value into rendered output in provider-native form:
 
 * **Kubernetes (helm / helm-chart provider).** Every Kubernetes resource produced for the boundary carries the GitOps-standard `argocd.argoproj.io/sync-wave: "<N>"` annotation; Helm hooks additionally carry the `helm.sh/hook-weight: "<N>"` annotation so the same wave value drives Helm's own pre/post-install ordering. ArgoCD, Flux, and Helm read these annotations natively and order resource application accordingly.
-* **Terraform / CloudFormation.** Provider engines emit `depends_on` chains that reflect the wave ordering across resources within the boundary's rendered output.
 * **Compose.** The compose provider does not translate `syncWave:` into compose-native ordering; the docker-compose `depends_on` mechanism (per [`providers/compose.md`](../providers/compose.md) "depends_on inference") handles per-edge ordering rather than wave-based ordering. Authors targeting compose should rely on `uses:` edges for inter-component dependencies.
 
 **Wave-authoring vs deployable unit.** The boundary is the wave-authoring unit. The deployable unit is whichever assembly path the components emit into — by default 1:1 with the boundary, but two sibling boundaries that share a `directory:` collapse into one assembled output (one `Chart.yaml`, one `docker-compose.yaml`). When that happens, the assembled output may carry resources from multiple waves; an ArgoCD Application reading the rendered chart sees per-resource `sync-wave` annotations and orders application accordingly within the Application. Cross-Application sequencing across paths is the operator's CI concern.

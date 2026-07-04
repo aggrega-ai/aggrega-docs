@@ -90,4 +90,4 @@ providers.
   structured-annotation per-subkey deep merge.
 
 *Planned — Wasm policy/mutator plugins, `pipeline:` execution, and the
-`terraform` / `eval` providers join this tier as those capabilities ship.*
+`eval` provider join this tier as those capabilities ship.*

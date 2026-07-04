@@ -62,6 +62,43 @@ The provider engines this plugin is tested-compatible with, as provider names su
 
 The list is render-enforced. When a pipeline step touches a scope, the provider rendering that scope's documents must appear in this list, or the build halts. An empty or absent list declares no compatibility claim: it matches no provider, so the runtime halts any pipeline step that uses the plugin. Declare every provider whose output the plugin is tested against.
 
+For a `pluginType: provider` plugin, `compatibleProviders` carries a second, stronger meaning: it declares the provider name(s) the plugin *renders*. The provider name a Recipe targets (`spec.provider: helm`) binds to the provider-rendering Plugin whose `compatibleProviders` lists that name. Exactly one Plugin may serve a given provider name — two provider-rendering Plugins both claiming the same provider name make render dispatch ambiguous and halt the catalog load with a clear error naming the contested provider and both plugins.
+
+## `spec.provider`
+
+The provider-socket metadata for a `pluginType: provider` plugin: how its rendering engine translates the platform-owned `aggrega.ai/v1alpha1` Workload kind, and which platform-native annotations the engine reads. The block is present only on provider-rendering plugins; it is absent on `linter` and `frp_step` plugins, and on provider plugins whose engine renders only sourced or artifact content with no Workload synthesis.
+
+### `spec.provider.workloadSchema`
+
+A JSON Schema 2020-12 declaration documenting how this provider translates the `aggrega.ai/v1alpha1` Workload kind into provider-native manifests. Its presence marks a provider whose engine synthesizes: a synthesis-capable provider declares `workloadSchema` as the documented translation contract, describing what Workload fields the provider consumes, what closed sets each enum-shape field accepts, and what range constraints apply.
+
+The body is compiled to JSON Schema 2020-12 when the Plugin loads — a structural guardrail that rejects a malformed schema at load rather than at render. Whether a `workload:` Recipe is supported is determined by the bound engine's synthesis capability, not by this field's presence: a synthesized-mode Recipe bound to a provider whose engine cannot synthesize halts loudly at render time. The standard-library catalog keeps `workloadSchema` in sync with engine capability. Today the field acts as a documented contract and a presence flag; it becomes executable input to Wasm translators in a future iteration. Workload bodies themselves are validated against the platform-owned embedded Workload schema, not against this per-provider field.
+
+### `spec.provider.wellKnownAnnotations`
+
+An ordered array enumerating the platform-native well-known annotation keys — those under the reserved `aggrega.ai/` namespace — that this provider's rendering engine reads, together with the behavior applied when each is absent. Each entry carries a `key` (the engine-read annotation, e.g. `aggrega.ai/namespace`), a `purpose` (what the annotation controls when present), and an optional `defaultBehavior` (what the engine does when the annotation is absent). `key` and `purpose` are required; entries preserve author order.
+
+The field is documentation-of-contract: it describes which platform directives the engine recognises, for catalog readers and the `aggrega inspect` surface. The compiler does not consume it to gate, branch, or reject a build — it never cross-checks the annotations a deployment actually carries against this list. Schema validation checks only the shape of each entry (the key sits under the `aggrega.ai/` namespace, `purpose` is present); it is distinct from the runtime check that governs binding a value into the reserved namespace.
+
+```yaml
+spec:
+  plugin: "oci://hub.aggrega.ai/wasm/providers/helm-renderer@sha256:<64-hex-digest>"
+  pluginType: provider
+  abiVersion: v1alpha1
+  compatibleProviders:
+    - helm
+  provider:
+    workloadSchema: |
+      # how the Workload kind translates to this provider's native output
+      ...
+    wellKnownAnnotations:
+      - key: aggrega.ai/namespace
+        purpose: Overrides the target namespace the engine renders into.
+        defaultBehavior: Renders into the boundary's default namespace.
+```
+
+The per-provider annotation sets and `workloadSchema` content the standard-library providers ship are documented at [`../providers/well-known-annotations.md`](../providers/well-known-annotations.md), [`../providers/helm.md`](../providers/helm.md), [`../providers/helm-chart.md`](../providers/helm-chart.md), and [`../providers/compose.md`](../providers/compose.md).
+
 ## `spec.signature`
 
 An optional descriptive pointer to the plugin's attached signature. The block is documentation only — it records where the signature lives and how it was produced for catalog readers; it does not itself admit the plugin. The enforcing check is the per-registry trust policy applied at pull: a signature is fetched as an OCI referrer, verified against the registry's trusted identities or pinned key, and recorded as a verified fact in the lockfile. A registry that requires signatures halts the pull when a required signature is missing, untrusted, or invalid.

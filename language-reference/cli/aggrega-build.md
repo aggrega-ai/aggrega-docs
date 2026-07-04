@@ -1,6 +1,6 @@
 # aggrega build
 
-`aggrega build` compiles an Aggregate + Release pair into provider-native artifacts (Helm manifests, docker-compose YAML, Terraform plans, CloudFormation templates) under the configured output directory.
+`aggrega build` compiles an Aggregate + Release pair into provider-native artifacts (Helm manifests, redistributable Helm charts, docker-compose YAML) under the configured output directory.
 
 ## Synopsis
 

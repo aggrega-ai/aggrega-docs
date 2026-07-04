@@ -47,7 +47,7 @@ In `--pre-publish` mode the change is compared against the previous published ve
 - **`MINOR`** — strictly additive changes (a new optional field, a new entry).
 - **`MAJOR`** — removals, type narrowing, or a previously-optional field becoming required.
 
-The comparison is per entity kind: Component, Feature, Provider, and SchemaLibrary are compared with awareness of their schema-bearing fields; MappingLibrary is compared at the entry-key level (entry bodies are opaque, so a changed body is treated conservatively as `MAJOR`); Recipe and FeatureRecipe are compared on their load-bearing fields. Under-bumping halts with a diagnostic naming the required bump.
+The comparison is per entity kind: Component, Feature, and SchemaLibrary are compared with awareness of their schema-bearing fields; MappingLibrary is compared at the entry-key level (entry bodies are opaque, so a changed body is treated conservatively as `MAJOR`); Recipe and FeatureRecipe are compared on their load-bearing fields. Under-bumping halts with a diagnostic naming the required bump.
 
 ## The discipline rules
 

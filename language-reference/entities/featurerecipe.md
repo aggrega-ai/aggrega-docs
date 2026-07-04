@@ -132,7 +132,7 @@ When a FeatureRecipe implements a credential Feature (one labeled `feature.aggre
 
 ## Provider & `implements`
 
-The `provider` field is mandatory at the root level and declares which Wasm rendering plugin will execute the FeatureRecipe's output (`helm`, `compose`, `terraform`, `cloudformation`, `eval`, etc.). The `implements` field binds the FeatureRecipe to its Feature interface and supports exact, major-compatible range, or unversioned matching — see [vocabulary/inheritance-and-interface](../vocabulary/inheritance-and-interface.md) for `implements` Version Matching semantics.
+The `provider` field is mandatory at the root level and declares which Wasm rendering plugin will execute the FeatureRecipe's output (`helm`, `helm-chart`, `compose`, etc.). The `implements` field binds the FeatureRecipe to its Feature interface and supports exact, major-compatible range, or unversioned matching — see [vocabulary/inheritance-and-interface](../vocabulary/inheritance-and-interface.md) for `implements` Version Matching semantics.
 
 ## Execution Scope — `spec.executionScope`
 

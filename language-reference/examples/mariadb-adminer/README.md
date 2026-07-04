@@ -95,8 +95,8 @@ mariadb-adminer/
 └── catalog-helm-chart/         # Recipe layer: helm-chart (umbrella composition)
 ```
 
-Each `catalog-*` directory is a self-contained catalog: the shared Component,
-Feature, and Provider definitions plus the Recipes for that one target. A
+Each `catalog-*` directory is a self-contained catalog: the shared Component
+and Feature definitions plus the Recipes for that one target. A
 build loads exactly one layer, so each component type resolves to exactly one
 Recipe.
 

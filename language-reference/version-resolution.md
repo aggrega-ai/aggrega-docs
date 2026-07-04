@@ -1,7 +1,7 @@
 # Version resolution
 
-Catalog artifacts — Components, Features, Providers, Recipes, FeatureRecipes, and
-Aggregates — carry a `metadata.version`, and a catalog may hold more than one
+Catalog artifacts — Components, Features, Recipes, FeatureRecipes, Plugins,
+and Aggregates — carry a `metadata.version`, and a catalog may hold more than one
 version of the same artifact at once. When something references an artifact, the
 reference selects which version to use. This page describes how that selection
 works.

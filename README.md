@@ -6,7 +6,7 @@ User-facing documentation for the Aggrega language and compiler. English is the 
 
 Aggrega is an open-source language, ecosystem, and compiler for defining and rendering enterprise architectures, featuring a standard library highly specialized for AI applications. It serves as a bridge between abstract developer intent (including cognitive AI frameworks like LangGraph or CrewAI) and secure, physical cloud-native reality.
 
-Rather than manually writing complex infrastructure-as-code or hardcoding network ports, developers simply declare *what* their application needs to survive. The Aggrega compiler deterministically generates the physical infrastructure configurations (Helm, Terraform, Cloudformation, Docker Compose) required to run it. It translates abstract requests into the exact static artifacts required for the target environment to establish hardware-enforced security, zero-trust network boundaries, and L7 data-plane proxies.
+Rather than manually writing complex infrastructure-as-code or hardcoding network ports, developers simply declare *what* their application needs to survive. The Aggrega compiler deterministically generates the physical infrastructure configurations (Helm charts, Kubernetes manifests, Docker Compose) required to run it. It translates abstract requests into the exact static artifacts required for the target environment to establish hardware-enforced security, zero-trust network boundaries, and L7 data-plane proxies.
 
 The ecosystem is built on four pillars:
 

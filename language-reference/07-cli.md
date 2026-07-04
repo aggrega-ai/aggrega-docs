@@ -9,7 +9,7 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 - [`aggrega build`](cli/aggrega-build.md) — the primary compile command. Reads a Release pointer, resolves the Aggregate and Manifest it references, and emits per-boundary compiled artifacts.
 - [`aggrega inspect`](cli/aggrega-inspect.md) — catalog and IR inspection. Produces the compiled IR Graph as a machine-readable stream, and exposes catalog-entity inspection for authoring-time validation.
 - [`aggrega pull`](cli/aggrega-pull.md) — resolve a Release's dependency closure and write a per-Release lockfile pinning every dependency; cache catalog entities and source artifacts.
-- [`aggrega push`](cli/aggrega-push.md) — publish a catalog entity (Component, Feature, Recipe, FeatureRecipe, Provider, SchemaLibrary, MappingLibrary) to an OCI registry, optionally signing it at push time.
+- [`aggrega push`](cli/aggrega-push.md) — publish a catalog entity (Component, Feature, Recipe, FeatureRecipe, Plugin, SchemaLibrary, MappingLibrary) to an OCI registry, optionally signing it at push time.
 - [`aggrega sign`](cli/aggrega-sign.md) — sign one or more already-published artifacts and attach each signature as an OCI referrer.
 - [`aggrega auth token`](cli/aggrega-auth.md) — acquire an OIDC identity token interactively and print it to stdout, for one authentication across a batch of keyless signs.
 - [`aggrega lint`](cli/aggrega-lint.md) — run the publishing-discipline rules over a catalog entity; `--pre-publish` adds the registry-aware version-bump gate.

@@ -1,6 +1,6 @@
 # Well-Known Annotations
 
-Provider engines read specific boundary annotations from the Release to configure platform-specific deployment context. The compiler itself is blind to these annotations — it passes them through as opaque strings. Each provider documents which annotations it reads and what defaults it applies when the annotation is absent.
+Provider engines read specific boundary annotations from the Release to configure platform-specific deployment context. The compiler itself is blind to these annotations — it passes them through as opaque strings. Each provider documents which annotations it reads and what defaults it applies when the annotation is absent; a provider-rendering Plugin declares this set on its `spec.provider.wellKnownAnnotations`, and the `aggrega inspect` surface renders it for catalog readers.
 
 ## The Invariants
 
@@ -19,8 +19,6 @@ Provider engines read specific boundary annotations from the Release to configur
 | Annotation | Consumed By | Purpose | Default |
 | --- | --- | --- | --- |
 | `aggrega.ai/namespace` | `helm`, `helm-chart`, `compose` | Kubernetes namespace (helm / helm-chart); per-boundary Docker network name (compose) | Not injected if absent (helm / helm-chart); sanitised boundary path (compose) |
-| `aggrega.ai/region` | `terraform`, `cloudformation` | Cloud provider region | Provider-specific or fatal halt |
-| `aggrega.ai/account-id` | `terraform`, `cloudformation` | Cloud account / project | Provider reads from environment |
 | `aggrega.ai/project-name` | `compose` | Docker Compose project name | Leaf boundary name |
 
 `aggrega.ai/namespace` is dual-purpose by design. It expresses the same logical-isolation intent — *"this boundary's resources live in their own addressable scope"* — in each target's native form: a Kubernetes `metadata.namespace` for helm and helm-chart, a Docker network name for compose. Recipe authors set one annotation; each provider materialises it appropriately for the target. For the compose case, the per-boundary derivation reads the alphabetically-first node's annotation; when unset on every node in the boundary, the network name falls back to the sanitised boundary path (lowercased, with non-`[a-z0-9._-]` characters replaced by `_`).
@@ -46,7 +44,6 @@ Provider engines read specific boundary annotations from the Release to configur
 | --- | --- | --- | --- |
 | `aggrega.ai/service-account` | `helm`, `helm-chart` | Kubernetes `ServiceAccount` for Pods | `default` |
 | `aggrega.ai/pod-security-standard` | `helm`, `helm-chart` | Pod Security Standards level | None |
-| `aggrega.ai/iam-role` | `terraform`, `cloudformation` | Execution role ARN | Provider reads from environment |
 
 ### Category 5 — Packaging
 
@@ -54,8 +51,6 @@ Provider engines read specific boundary annotations from the Release to configur
 | --- | --- | --- | --- |
 | `aggrega.ai/chart-name` | `helm-chart` | Helm chart name | Leaf boundary name |
 | `aggrega.ai/chart-version` | `helm-chart` | Helm chart version | `0.1.0` |
-| `aggrega.ai/stack-name` | `cloudformation` | CloudFormation stack name | Leaf boundary name |
-| `aggrega.ai/tf-backend` | `terraform` | Terraform state backend key | None |
 
 > Note: Manifest `features.annotations` bindings using the `aggrega.ai/`
 > prefix are rejected at load time; the prefix is reserved exclusively
@@ -92,7 +87,6 @@ The shipping emit set, attached to every rendered Kubernetes manifest by helm an
 - **`helm`** — labels land in `metadata.labels` on every rendered Kubernetes resource (Deployment, Service, PVC, etc.). Both sourced-mode (Helm SDK render with post-render label injection) and synthesised-mode (workload synthesis) paths produce the same set.
 - **`helm-chart`** — labels land in `metadata.labels` on every sub-chart resource via the same label-injection mechanism as helm.
 - **`compose`** — labels land in `services.<name>.labels` on every emitted compose service. Sourced-mode (post-merge label injection on the merged base + valuesMapping document) and synthesised-mode (workload synthesis directly setting the service's labels block) both produce the same set. The Kubernetes-specific `app.kubernetes.io/name` is omitted from compose output.
-- **`terraform` / `cloudformation`** — `planned`; the engines do not ship today, so there is no emission discipline yet. When the engines ship, the design target is to emit equivalent tags via each cloud's native tagging mechanism (Terraform `tags` block, CloudFormation `Tags`).
 
 For resources emitted by a boundary-scope FeatureRecipe (the `compose-bridge` gateway service is the canonical example), the `aggrega.ai/component-id` value carries a sanitised form of the FR-instance attachment identifier rather than a regular component name; the value remains a valid Kubernetes label string in all cases. The `aggrega.ai/recipe-uri` resolves to the FeatureRecipe's own `name:version`, not the consuming Recipe's identity — downstream tooling reading the label to identify the producing entity gets the correct provenance for both component-emitted and FR-emitted output.
 
@@ -352,7 +346,7 @@ The cross-side composition pattern is the canonical authoring shape for Features
 
 ## Related references
 
-- [Provider architecture](architecture.md) — the provider-plugin architecture and the Provider entity's role.
+- [Provider architecture](architecture.md) — the provider-plugin architecture and the provider-rendering Plugin's role.
 - [../entities/release.md](../entities/release.md) — the Release authoring surface where boundary and component annotations live.
 - [../entities/aggregate.md](../entities/aggregate.md) — the Aggregate authoring surface where subsystem and component-level annotations live.
 - [../entities/manifest.md](../entities/manifest.md) — the Manifest's `mappings.features.annotations` map where annotation bindings declare their `maps:` routing.

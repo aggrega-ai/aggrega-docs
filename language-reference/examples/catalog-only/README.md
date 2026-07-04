@@ -47,11 +47,11 @@ how the layer underneath is made.
 - **Provider-qualified Recipe routing.** The Manifest maps
   `core/datastore/mariadb:1.0.0` to `compose/mariadb:1.0.0` — qualified by
   provider — because the standard library ships a mariadb Recipe under
-  *four* providers (compose, helm, terraform, cloudformation). The
-  Operator's mapping is what disambiguates the target: a bare
-  `mariadb:1.0.0` would match all four and the build halts loudly rather
-  than silently picking one. Re-target the stack by re-pointing these
-  mappings; the Aggregate does not change.
+  more than one provider (compose and helm among them). The
+  Operator's mapping is what disambiguates the target: a bare, unqualified
+  reference that matches more than one provider's Recipe halts the build
+  loudly rather than silently picking one. Re-target the stack by re-pointing
+  these mappings; the Aggregate does not change.
 
 ## Build
 

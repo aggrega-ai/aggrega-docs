@@ -8,7 +8,7 @@ This page documents the four layers, their pipeline placement, the error-shape c
 
 ### Layer 1 — JSON Schema envelope
 
-**Scope.** The structural shape of every catalog YAML: `apiVersion`, `kind`, `metadata.{name, version, description, maintainers, license, ...}`, the top-level `spec:` block, and the per-entity required fields the schema declares. Each entity kind (Aggregate, Component, Feature, Recipe, FeatureRecipe, Manifest, Provider, Release) has its own JSON Schema at [`aggrega-schemas/json/`](../../../aggrega-schemas/json/).
+**Scope.** The structural shape of every catalog YAML: `apiVersion`, `kind`, `metadata.{name, version, description, maintainers, license, ...}`, the top-level `spec:` block, and the per-entity required fields the schema declares. Each entity kind (Aggregate, Component, Feature, Recipe, FeatureRecipe, Manifest, Plugin, Release) has its own JSON Schema at [`aggrega-schemas/json/`](../../../aggrega-schemas/json/).
 
 **Validation runs.** At Step 1 (resolver / load), per file. The compiler unmarshals each YAML into the corresponding Go struct; YAML keys outside the struct's declared fields surface as parse errors before any further validation runs.
 
@@ -36,9 +36,9 @@ Inline constraint violations (e.g., a developer setting a port to `80` against a
 
 ### Layer 3 — Provider synthesized-mode capability
 
-**Scope.** Governed by the Provider entity's synthesized-mode capability gate:
+**Scope.** Governed by the bound provider's synthesized-mode capability gate:
 
-- Synthesized-mode (`workload:`) support is gated on the bound provider's **engine capability**, not on `workloadSchema` presence: a `workload:` Recipe bound to a provider whose engine cannot synthesize is rejected here. The standard-library catalog declares `workloadSchema` on synthesis-capable providers by convention, as the documented translation contract.
+- Synthesized-mode (`workload:`) support is gated on the bound provider's **engine capability**, not on `workloadSchema` presence: a `workload:` Recipe bound to a provider whose engine cannot synthesize is rejected here. The standard-library catalog declares `workloadSchema` on synthesis-capable providers by convention — on the provider-rendering Plugin's `spec.provider.workloadSchema` — as the documented translation contract. That `workloadSchema` body is itself compiled to JSON Schema 2020-12 when the Plugin loads, a structural acceptance gate that rejects a malformed schema at load rather than at render.
 
 **Validation runs.** At Step 5 Phase B, after the Recipe's own valuesMapping has resolved. Layer 3 gates synthesized-mode dispatch on engine capability.
 
@@ -50,7 +50,9 @@ CATALOG_ERROR: node <node-id>: provider <provider-name> does not support synthes
 
 The `CATALOG_ERROR:` shape signals the catalog entity is at fault, not the developer's Aggregate.
 
-> **Honest-pending — per-provider Workload-content validation.** The Provider's `workloadSchema` does not validate Workload bodies today; it is documentation-only, and Workload bodies are validated against the platform-owned embedded Workload schema. When the Wasm-based Workload synthesizer ships (see the roadmap), `workloadSchema` becomes the per-provider content contract the synthesizer validates the Workload body against — a second Layer-3 sub-surface — including per-provider constraints such as a `min: 1024` non-privileged-port rule. The constraint-overlap examples below describe that end-state.
+A related load-time guardrail protects provider dispatch itself: exactly one provider-rendering Plugin may serve a given provider name. When two provider-rendering Plugins both list the same provider in `compatibleProviders`, dispatch is ambiguous and the catalog load halts with a `CATALOG_ERROR` naming the contested provider and both plugins.
+
+> **Honest-pending — per-provider Workload-content validation.** The provider-Plugin's `spec.provider.workloadSchema` does not validate Workload bodies today; it is a documented contract and a synthesis-support marker, and Workload bodies are validated against the platform-owned embedded Workload schema. When the Wasm-based Workload synthesizer ships (see the roadmap), `workloadSchema` becomes the per-provider content contract the synthesizer validates the Workload body against — a second Layer-3 sub-surface — including per-provider constraints such as a `min: 1024` non-privileged-port rule. The constraint-overlap examples below describe that end-state.
 
 ### Layer 4 — Annotation-binding value validation
 
@@ -76,9 +78,9 @@ The same authored field can be governed by more than one layer. The most common 
 
 - Layer 1 (envelope) accepts it as part of the Workload schema's structural shape.
 - Layer 2 (pillar schemas) does not constrain it directly — Workload content is a Recipe-internal structure, not a Component pillar.
-- Layer 3 (`workloadSchema`) will validate the integer range (e.g., `>=1, <=65535`) and any provider-specific constraints declared on the bound Provider, once per-provider `workloadSchema` validation ships.
+- Layer 3 (`workloadSchema`) will validate the integer range (e.g., `>=1, <=65535`) and any provider-specific constraints declared on the bound provider-Plugin's `spec.provider.workloadSchema`, once per-provider `workloadSchema` validation ships.
 
-When a developer authors `port: 80` and the Provider's `workloadSchema` declares `port: >=1024`, the Layer 3 pass will reject the value. The same field shape would have passed Layer 1 and Layer 2 (which never applied); the layer that fires tells the author where to look for the rule.
+When a developer authors `port: 80` and the provider-Plugin's `spec.provider.workloadSchema` declares `port: >=1024`, the Layer 3 pass will reject the value. The same field shape would have passed Layer 1 and Layer 2 (which never applied); the layer that fires tells the author where to look for the rule.
 
 A second overlap pattern: cross-pillar constraints declared at the pillar layer that duplicate constraints in `workloadSchema`. When the pillar schema allows port 80 (no constraint) but `workloadSchema` declares ports below 1024 invalid, the Layer 3 pass will surface the violation at Step 5 Phase B; the developer sees the failure attributed to the Recipe + Provider pairing, not to the Component's `schema:`. The constraint-layering convention is documented at [`vocabulary/data-pillars.md`](data-pillars.md) (Cross-pillar constraint behavior section).
 
@@ -97,6 +99,6 @@ A second overlap pattern: cross-pillar constraints declared at the pillar layer 
 - [`errors/fatal-halts.md`](../errors/fatal-halts.md) — per-error catalog of every fatal halt the compiler emits.
 - [`vocabulary/data-pillars.md`](data-pillars.md) — the four data pillars (`values`, `infra`, `parameters`, `locals`) plus `secrets:` and `uses:` that Layer 2 validates.
 - [`entities/component.md`](../entities/component.md) — Component authoring surface for `schema:` / `secretsSchema` / `usesSchema`.
-- [`entities/provider.md`](../entities/provider.md) — Provider authoring surface for `workloadSchema`.
+- [`entities/plugin.md`](../entities/plugin.md) — provider-rendering Plugin authoring surface for `spec.provider.workloadSchema`.
 - [`entities/manifest.md`](../entities/manifest.md) — Manifest's `features.annotations` binding surface (Layer 4).
 - [`providers/well-known-annotations.md`](../providers/well-known-annotations.md) — annotation-value parsing, structured-value subkey routing, per-subkey null opt-out, and cross-side composition that Layer 4 validates.
