@@ -26,3 +26,9 @@ A flag wins over everything; an environment variable overrides the committed con
 
 - [environment-variables.md](environment-variables.md) — the full `AGGREGA_*` variable reference and precedence model.
 - [aggrega-serve.md](aggrega-serve.md) — the daemon resolves its workspace through the same root-discovery path.
+
+<!-- BEGIN GENERATED: global-flags -->
+| Flag | Default | Description |
+| --- | --- | --- |
+| `--workspace-root` | — | absolute path to use as the workspace root (skips discovery) |
+<!-- END GENERATED: global-flags -->

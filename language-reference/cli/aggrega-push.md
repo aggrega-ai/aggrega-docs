@@ -77,3 +77,26 @@ Precedence is flag > environment > config > default. See [environment-variables.
 - [./aggrega-lint.md](./aggrega-lint.md) — the publish gate (`--pre-publish`) that should precede a push.
 - [./aggrega-pull.md](./aggrega-pull.md) — the consuming side, which resolves and pins what `push` publishes.
 - [../../architecture/13-catalog-and-registry.md](../../architecture/13-catalog-and-registry.md) — the catalog, registry, and OCI mediatype model.
+
+<!-- BEGIN GENERATED: cli-push -->
+**Synopsis**
+
+```
+aggrega push <entity-path> [flags]
+```
+
+**Flags**
+
+| Flag | Default | Description |
+| --- | --- | --- |
+| `--dry-run` | `false` | Compute the bundle and print the proposed <reference>:<tag>; skip the network call |
+| `--entity` | — | Path to the entity YAML to publish (alternatively pass as the positional arg) |
+| `--fulcio-url` | — | Fulcio certificate-authority URL for keyless signing. When omitted, the public-good Fulcio instance is used. |
+| `--identity-token` | — | OIDC identity token for keyless signing. Optional at an interactive terminal (a browser flow acquires one); required for non-interactive/CI use, where it may instead be exported as AGGREGA_IDENTITY_TOKEN or SIGSTORE_ID_TOKEN. |
+| `--key` | — | Path to a held ECDSA P-256 private key PEM for offline keyed signing. When omitted, keyless signing is used. |
+| `--plugin` | — | Path to the local .wasm artifact for a Plugin entity. Required when publishing a Plugin: publish pushes the .wasm artifact, computes its content digest, stamps spec.plugin, and pushes the entity. |
+| `--registry` | — | Destination registry host (overrides the workspace's default_registry) |
+| `--rekor-url` | — | Rekor transparency-log URL for keyless signing. When omitted, the public-good Rekor instance is used. |
+| `--sign` | `false` | Sign the published artifact and attach the signature as an OCI referrer. When omitted, signing follows the destination registry's policy. |
+| `--timestamp-url` | — | Optional RFC3161 timestamp-authority URL for keyless signing. |
+<!-- END GENERATED: cli-push -->

@@ -64,3 +64,11 @@ Responses use the standard JSON-RPC error codes plus an application-level range 
 - [./aggrega-build.md](./aggrega-build.md) — the daemon runs the same compiler pipeline the build command does; the build command remains the authoritative, lockfile-verified surface.
 - [./aggrega-version.md](./aggrega-version.md) — the version command an editor extension uses to check daemon compatibility.
 - [./aggrega-pull.md](./aggrega-pull.md) — the lockfile the daemon's drift surface reads.
+
+<!-- BEGIN GENERATED: cli-serve -->
+**Synopsis**
+
+```
+aggrega serve
+```
+<!-- END GENERATED: cli-serve -->

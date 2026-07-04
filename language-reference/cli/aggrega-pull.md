@@ -86,3 +86,24 @@ The workspace settings pull reads can be overridden through the environment, abo
 - [./aggrega-push.md](./aggrega-push.md) — publishes catalog entities to a registry.
 - [./aggrega-lint.md](./aggrega-lint.md) — the publish gate that precedes `aggrega push`.
 - [../../architecture/13-catalog-and-registry.md](../../architecture/13-catalog-and-registry.md) — the catalog, lockfile, and cache model in full.
+
+<!-- BEGIN GENERATED: cli-pull -->
+**Synopsis**
+
+```
+aggrega pull [flags]
+```
+
+**Flags**
+
+| Flag | Default | Description |
+| --- | --- | --- |
+| `--catalog` | `[]` | Catalog directory; repeatable. Each --catalog is prepended to the workspace catalog_dirs search stack (first match wins). Defaults to the current directory. |
+| `--detail` | `false` | Print, per resolved entity, what this pull did — fetched fresh from a registry, reused a cache slot, found in a local catalog, or external. Stdout only; not written to the lockfile |
+| `--include-prerelease` | `false` | Reserved for future version-selection logic; currently a no-op |
+| `--progress` | `false` | Force the pull-progress surface on even when stderr is not a terminal, printing plain static phase lines. The default is auto: the interactive phase checklist is shown only when stderr is a terminal |
+| `--quiet` | `false` | Silence the pull-progress surface on stderr. Does not affect stdout. Takes precedence over --progress |
+| `--regenerate` | `false` | Discard any existing lockfile and re-resolve every entity from current registry state, floating each dependency to the highest available version (ignores existing pins) |
+| `--release` | — | Path to Release YAML file (required) |
+| `--verify` | `false` | Verify the existing lockfile against the current closure without writing; exits non-zero on drift or missing lockfile |
+<!-- END GENERATED: cli-pull -->

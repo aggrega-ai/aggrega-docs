@@ -133,3 +133,25 @@ After the compile, inspect `.trace/boundaries/<boundary>/<instance>/` for per-pa
 - [`aggrega-lint`](aggrega-lint.md) — validate catalog entities and Aggregates without rendering.
 - [`aggrega-inspect`](aggrega-inspect.md) — query the IR graph after Step 3 without proceeding to render.
 - [Errors](../errors/error-translation.md) — the categorized error rendering format that surfaces at the CLI.
+
+<!-- BEGIN GENERATED: cli-build -->
+**Synopsis**
+
+```
+aggrega build [flags]
+```
+
+**Flags**
+
+| Flag | Default | Description |
+| --- | --- | --- |
+| `--catalog` | `[]` | Catalog directory; repeatable. Each --catalog is prepended to the workspace catalog_dirs search stack (first match wins). Defaults to the current directory. |
+| `--debug` | `false` | Emit human-readable verbose diagnostics on stderr — per-phase wall-clock timing and entity/closure counts. Wins over --quiet: verbose output always emits. Distinct from --trace, which writes machine-readable per-node intermediate files to .trace/ |
+| `--detail` | `false` | When build performs the implicit auto-pull (no lockfile present, auto_pull enabled), print per resolved entity what that pull did — fetched fresh from a registry, reused a cache slot, found in a local catalog, or external. Stdout only; not persisted. No-op when a lockfile already exists (no pull this build) |
+| `--disable-plugin-cache` | `false` | Skip the persistent on-disk plugin compile cache for this build and compile plugin guests fresh in an in-memory cache that is discarded when the build ends. Off by default, which reuses the shared on-disk cache across builds. Does not change rendered output |
+| `--no-acquire-inputs` | `false` | Freeze the external-input closure: a render that requests an unpinned external URL halts with a diagnostic instead of fetching and pinning it. Pinned inputs are still served from the content-addressed store (and refilled by digest when the blob is missing) |
+| `--progress` | `false` | Force the build-progress surface on even when stderr is not a terminal, printing plain static phase lines. The default is auto: the interactive phase checklist is shown only when stderr is a terminal. --quiet and --debug both override --progress |
+| `--quiet` | `false` | Silence the build-progress surface on stderr. Does not affect stdout. Takes precedence over --progress |
+| `--release` | — | Path to Release YAML file (required) |
+| `--trace` | `false` | write per-node intermediate files to .trace/ (sibling to dist/) for post-mortem inspection |
+<!-- END GENERATED: cli-build -->

@@ -41,3 +41,17 @@ The identity token is short-lived and is **not persisted** by this command — p
 - [./aggrega-sign.md](./aggrega-sign.md) — sign one or more artifacts; batch signing acquires the identity once.
 - [./aggrega-push.md](./aggrega-push.md) — publish, optionally signing at push time.
 - [environment-variables.md](environment-variables.md) — `AGGREGA_IDENTITY_TOKEN` and the other signing inputs.
+
+<!-- BEGIN GENERATED: cli-auth -->
+**Synopsis**
+
+```
+aggrega auth
+```
+
+**Subcommands**
+
+| Command | Description |
+| --- | --- |
+| `aggrega auth token` | Acquire an OIDC identity token interactively and print it to stdout |
+<!-- END GENERATED: cli-auth -->

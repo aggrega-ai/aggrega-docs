@@ -33,3 +33,17 @@ The fields come from the binary's embedded build metadata. A development build t
 ## See also
 
 - [./aggrega-serve.md](./aggrega-serve.md) — the daemon whose version a client checks for compatibility.
+
+<!-- BEGIN GENERATED: cli-version -->
+**Synopsis**
+
+```
+aggrega version [flags]
+```
+
+**Flags**
+
+| Flag | Default | Description |
+| --- | --- | --- |
+| `--json` | `false` | emit a structured JSON object instead of the human-readable line |
+<!-- END GENERATED: cli-version -->

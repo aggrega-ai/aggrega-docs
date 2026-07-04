@@ -80,3 +80,21 @@ The signing inputs can be supplied through the environment, overriding the `.agg
 - [./aggrega-auth.md](./aggrega-auth.md) — acquire an OIDC identity token once for a batch of keyless signs.
 - [./aggrega-push.md](./aggrega-push.md) — publish, optionally signing at push time (sign-before-push).
 - [./aggrega-pull.md](./aggrega-pull.md) — the consuming side, which verifies signatures against the per-registry trust policy.
+
+<!-- BEGIN GENERATED: cli-sign -->
+**Synopsis**
+
+```
+aggrega sign <reference>... [flags]
+```
+
+**Flags**
+
+| Flag | Default | Description |
+| --- | --- | --- |
+| `--fulcio-url` | — | Fulcio certificate-authority URL for keyless signing. |
+| `--identity-token` | — | OIDC identity token for keyless signing. Optional at an interactive terminal (a browser flow acquires one); required for non-interactive/CI use, where it may instead be exported as AGGREGA_IDENTITY_TOKEN or SIGSTORE_ID_TOKEN. |
+| `--key` | — | Path to a held ECDSA P-256 private key PEM for offline keyed signing. When omitted, keyless signing is used. |
+| `--rekor-url` | — | Rekor transparency-log URL for keyless signing. |
+| `--timestamp-url` | — | Optional RFC3161 timestamp-authority URL for keyless signing. |
+<!-- END GENERATED: cli-sign -->

@@ -106,3 +106,36 @@ aggrega lint core/datastore/postgres/component.yaml --pre-publish --enforce-mono
 - [./aggrega-push.md](./aggrega-push.md) — publishes an entity to the registry; `aggrega lint --pre-publish` is the gate that precedes it.
 - [./aggrega-pull.md](./aggrega-pull.md) — resolves and pins dependencies.
 - [../errors/warnings.md](../errors/warnings.md) — non-fatal warnings, including the local-mode lint findings.
+
+<!-- BEGIN GENERATED: cli-lint -->
+**Synopsis**
+
+```
+aggrega lint [entity-path] [flags]
+```
+
+**Flags**
+
+| Flag | Default | Description |
+| --- | --- | --- |
+| `--allow-aggrega-ai-prefix` | `false` | Force allow_aggrega_ai_prefix=true |
+| `--allow-category-mismatches` | `false` | Force allow_category_mismatches=true |
+| `--allow-direct-x-aggrega-extensions` | `false` | Force allow_direct_x_aggrega_extensions=true |
+| `--allow-dynamic-refs` | `false` | Force allow_dynamic_refs=true for this invocation |
+| `--allow-id-overrides` | `false` | Force allow_id_overrides=true for this invocation |
+| `--allow-nonstandard-names` | `false` | Force allow_nonstandard_names=true |
+| `--enforce-immutability` | `false` | Force enforce_immutability=true |
+| `--enforce-monotonic-narrowing` | `false` | Force enforce_monotonic_narrowing=true |
+| `--entity` | — | Path to the entity YAML to lint (alternatively pass as the positional arg) |
+| `--no-allow-aggrega-ai-prefix` | `false` | Force allow_aggrega_ai_prefix=false |
+| `--no-allow-category-mismatches` | `false` | Force allow_category_mismatches=false |
+| `--no-allow-direct-x-aggrega-extensions` | `false` | Force allow_direct_x_aggrega_extensions=false |
+| `--no-allow-dynamic-refs` | `false` | Force allow_dynamic_refs=false for this invocation |
+| `--no-allow-id-overrides` | `false` | Force allow_id_overrides=false for this invocation |
+| `--no-allow-nonstandard-names` | `false` | Force allow_nonstandard_names=false |
+| `--no-enforce-immutability` | `false` | Force enforce_immutability=false |
+| `--no-enforce-monotonic-narrowing` | `false` | Force enforce_monotonic_narrowing=false |
+| `--plugin` | — | Filesystem path to the publishing-linter .wasm artifact (overrides workspace plugins.linter[0].uri) |
+| `--pre-publish` | `false` | Fetch the previous registry version and verify the proposed bump against the schema-evolution classification |
+| `--release` | — | Path to a Release YAML to lint over its resolved closure (closure-scoped schema-pillar overlap + pillar validation; mutually exclusive with an entity argument) |
+<!-- END GENERATED: cli-lint -->

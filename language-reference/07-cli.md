@@ -16,3 +16,22 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 - [`aggrega serve`](cli/aggrega-serve.md) — a long-running compiler-as-service daemon (JSON-RPC over stdin/stdout) for IDE integration.
 - [`aggrega version`](cli/aggrega-version.md) — print the CLI version; `--json` emits a machine-readable object.
 - [Global flags](cli/global-flags.md) — flags shared across subcommands (workspace location, registry configuration, offline mode, output verbosity).
+
+<!-- BEGIN GENERATED: command-list -->
+| Command | Description |
+| --- | --- |
+| `aggrega acquire` | Pin the external inputs a Release's render consumes |
+| `aggrega auth` | Manage the signing identity |
+| `aggrega build` | Compile Aggregate + Release into Helm artifacts via the 5-step pipeline |
+| `aggrega deprecate` | Attach a signed deprecation marker to an already-published artifact |
+| `aggrega inspect` | Inspect a catalog Component or a Release file (resolves by entity kind) |
+| `aggrega lint` | Validate the whole catalog, or run the publishing-linter over one entity |
+| `aggrega login` | Authenticate to an OCI registry and store the credential |
+| `aggrega logout` | Remove a stored registry credential |
+| `aggrega pull` | Resolve catalog and source dependencies into the cache and write the per-Release lockfile |
+| `aggrega push` | Bundle and publish a catalog entity to an OCI registry |
+| `aggrega registry` | Manage registries and their signature trust policy |
+| `aggrega serve` | Run as a long-running compiler-as-service over JSON-RPC 2.0 on stdin/stdout |
+| `aggrega sign` | Sign one or more already-published artifacts and attach their signatures |
+| `aggrega version` | Print the aggrega CLI version |
+<!-- END GENERATED: command-list -->

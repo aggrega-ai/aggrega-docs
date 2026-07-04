@@ -300,3 +300,27 @@ The walk order is values pillar first (in author order), then infra pillar (same
 - **Pre-deployment verification check** — `aggrega inspect ./prod-release.yaml` lists every Feature on every Component before `aggrega build` produces artifacts; the operator can confirm the topology matches intent before committing the rendered manifests to GitOps.
 
 For the underlying mechanics — how annotations cascade, how the side-vs-pillar partition routes annotation values into Feature pillars, and how the explicit-attachment-wins discipline interacts with annotation-driven contributions — see [providers/well-known-annotations.md](../providers/well-known-annotations.md) and [entities/manifest.md](../entities/manifest.md) "Annotation-Driven Feature Bindings".
+
+<!-- BEGIN GENERATED: cli-inspect -->
+**Synopsis**
+
+```
+aggrega inspect [identifier] [flags]
+```
+
+**Flags**
+
+| Flag | Default | Description |
+| --- | --- | --- |
+| `--catalog` | `[]` | Catalog directory; repeatable. Each --catalog is prepended to the workspace catalog_dirs search stack (first match wins). Defaults to the current directory. |
+| `--color` | `auto` | Colorize output: auto\|always\|never. |
+| `--detail` | `false` | Render full field bodies. |
+| `--flat` | `false` | Render a tree-shaped entity (Aggregate, Release) as a flat list, each node prefixed with its full dotted path. No effect on tabular kinds. |
+| `--list` | `false` | Render identifiers only. |
+| `--no-color` | `false` | Disable colorized output (alias for --color=never). |
+| `--output` | `text` | Output format: text\|yaml. |
+| `--plugin` | — | Filesystem path to a raw .wasm artifact; derives and prints the host functions it imports (the pre-publish, not-yet-stamped view). Takes no identifier argument. |
+| `--raw` | `false` | Render the entity as authored, without resolution. |
+| `--resolved` | `false` | Render the entity fully resolved. |
+| `--show-implements` | `false` | For a Recipe or FeatureRecipe, resolve spec.implements against the catalog and render the bound Component or Feature. |
+<!-- END GENERATED: cli-inspect -->
