@@ -55,7 +55,7 @@ Two sockets carry typed contract surfaces the compiler dispatches today. Plugin 
 
 **Input shape (host → guest).** A `MutatorInput` document carrying:
 
-- `compilation_context` — release identity (`release_name`, `environment`, `release_destination`).
+- `compilation_context` — release identity (`release_name`, `environment`).
 - `graph` — a `MutatorGraph` projection of topology nodes with their compiler-assigned labels.
 
 The graph is a labels-only projection (nodes carry their resolved label sets; the full IR graph stays inside the compiler).
