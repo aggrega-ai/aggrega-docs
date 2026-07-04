@@ -6,6 +6,21 @@ subsystem, shown per provider. The same `password` slot on
 developer attaches decides how the password is delivered, and the database
 Recipe reads the slot the way its provider supports.
 
+## Building
+
+This example has three releases. Build one per run with the helper script, which
+echoes the equivalent direct `aggrega build` command before running it:
+
+```bash
+./build-release.sh helm       # release-helm.yaml
+./build-release.sh compose    # release-compose.yaml
+./build-release.sh negative   # release-negative.yaml — expected to fail (see below)
+```
+
+The `helm` and `compose` releases resolve their catalog entities from the
+configured/hub catalog, so no `--catalog` flag is needed. The commands shown per
+provider below spell the invocation out in full for reference.
+
 ## Helm — a referenceable Secret + `secretKeyRef`
 
 `aggregate-helm.yaml` attaches **`core/referenced-secret`** to the `password`
@@ -61,6 +76,17 @@ halts loudly:
 ```bash
 aggrega build --release release-negative.yaml --catalog ../../../../aggrega-hub/aggrega-catalog
 # halts: workload secret slot is not a referenceable secret
+```
+
+This release is expected to fail — the halt is the lesson. `./build-release.sh
+negative` surfaces the compiler's raw non-zero exit code unchanged rather than
+reporting success, so the guardrail is visible to a reader and to any wrapping
+script:
+
+```bash
+./build-release.sh negative
+# ... halts: workload secret slot is not a referenceable secret
+# exit status: 1
 ```
 
 The fix is to attach a referenceable credential (`core/referenced-secret`), as in

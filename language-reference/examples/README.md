@@ -22,6 +22,11 @@ The examples come in two modes — the two ends of one curriculum:
   `mariadb-adminer` is the worked authoring example; the entities it builds are
   the same kind the consumption examples consume.
 
+Each workspace carries a `build-release.sh` helper that picks the right catalog
+source and builds one release per run, echoing the equivalent direct `aggrega
+build` command first. Run `./build-release.sh` in a single-release example, or
+name the release for a multi-release one (`./build-release.sh helm`).
+
 These complement the numbered walkthrough chapters in
 [Examples Overview](../09-examples.md): the chapters teach one pattern at a time
 inline; the workspaces here are whole stacks you can build, read, and adapt.
