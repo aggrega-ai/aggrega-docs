@@ -14,7 +14,7 @@ if errors.Is(err, resolver.ErrParameterContractViolation) {
 }
 ```
 
-The sentinels listed below are stable across patch releases; renames or removals are signalled by a release-notes entry and a deprecation cycle. Adding a new sentinel within a package is additive and does not break existing matchers. The message text on the right-hand column is the literal wrapped string; the user-facing diagnostic adds a category prefix (`DEVELOPER_ERROR:` / `OPS_ERROR:` / `CATALOG_ERROR:` / `TRANSLATION_ERROR:` / `FETCH_ERROR:` per [error-translation.md](./error-translation.md)) and the source location ahead of the sentinel's text.
+The sentinels listed below are stable across patch releases; renames or removals are signalled by a release-notes entry and a deprecation cycle. Adding a new sentinel within a package is additive and does not break existing matchers. The message text on the right-hand column is the literal wrapped string; the user-facing diagnostic adds a category prefix (`DEVELOPER_ERROR:` / `OPS_ERROR:` / `CATALOG_ERROR:` / `TRANSLATION_ERROR:` / `FETCH_ERROR:` / `POLICY_ERROR:` per [error-translation.md](./error-translation.md)) and the source location ahead of the sentinel's text.
 
 ## Resolver-stage sentinels (`pkg/resolver`)
 
@@ -94,6 +94,7 @@ Step 4 — selector evaluation, cross-node type-safety checks.
 | --- | --- | --- |
 | `ErrSelectorViolation` | `selector violation` | Surfaces as "Cross-node type safety violation via `selector:`" in fatal-halts. |
 | `ErrCatalogLookup` | `catalog lookup failed` | A catalog-resolution miss the analyzer cannot proceed past; the message names the unreachable entity. |
+| `ErrPolicyViolation` | `policy violation` | A policy-validator plugin attached to the policy socket rejected the assembled build; surfaces under the `POLICY_ERROR` category with the rejecting plugin named and the rule message it supplied. |
 
 ## Provider-engine sentinels
 
@@ -168,4 +169,4 @@ case err != nil:
 
 Sentinels declared in different packages with the same short name (e.g., `ErrSchemaValidation` in both `pkg/resolver` and `pkg/validator`) are distinct values — they live in separate `var` blocks in separate packages and `errors.Is` distinguishes them by identity, not by name. Match against the fully-qualified package path the wrap chain carries; the wrapped message text is shared by both sentinels but the identity is the discriminator.
 
-For the user-facing diagnostic catalogue (the messages developers see in their terminal when a build halts), see [fatal-halts.md](./fatal-halts.md). For the advisory-warning catalogue (non-halting `LINT:` and `WARN:` output), see [warnings.md](./warnings.md). For the category-prefix taxonomy (`DEVELOPER_ERROR:` / `OPS_ERROR:` / `CATALOG_ERROR:` / `TRANSLATION_ERROR:` / `FETCH_ERROR:`), see [error-translation.md](./error-translation.md).
+For the user-facing diagnostic catalogue (the messages developers see in their terminal when a build halts), see [fatal-halts.md](./fatal-halts.md). For the advisory-warning catalogue (non-halting `LINT:` and `WARN:` output), see [warnings.md](./warnings.md). For the category-prefix taxonomy (`DEVELOPER_ERROR:` / `OPS_ERROR:` / `CATALOG_ERROR:` / `TRANSLATION_ERROR:` / `FETCH_ERROR:` / `POLICY_ERROR:`), see [error-translation.md](./error-translation.md).
