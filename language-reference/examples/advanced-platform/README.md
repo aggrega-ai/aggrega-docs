@@ -26,7 +26,8 @@ helm FeatureRecipes `env-secret`, `provided-secret`, and
 `shared-config`), the `mariadb-bitnami` recipe, and the `helm` provider all
 ship in the standard library.
 
-Only this example's own teaching scaffolding is local, under `./catalog`:
+This example's own teaching scaffolding lives in the shared catalog under the
+`app/` namespace, alongside the standard library:
 
 - `app/adminer` — a demo database-UI component (with its helm recipe), app-scoped
   to this example rather than a general-purpose catalog entity;
@@ -34,9 +35,10 @@ Only this example's own teaching scaffolding is local, under `./catalog`:
   `databases` use-edge wiring Adminer to the database, specific to this stack's
   binding lesson.
 
-It builds offline against both its local `./catalog` and the standard catalog
-checkout, listed under `catalog_dirs` in `.aggrega-config.yaml` — so the build
-command needs no `--catalog` flag:
+It builds against the catalog checkout listed under `catalog_dirs` in
+`.aggrega-config.yaml`; the same file declares `hub.aggrega.ai` as the default
+registry, so a standalone consumer without that checkout resolves the entities
+from the hub. Either way the build command needs no `--catalog` flag:
 
 ```bash
 aggrega build --release release.yaml

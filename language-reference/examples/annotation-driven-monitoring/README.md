@@ -52,10 +52,12 @@ aggrega build --release release.yaml
 ```
 
 This example consumes `core/prometheus-exporter` and its ServiceMonitor
-FeatureRecipe (plus the `helm` provider) from the **standard library** — its
-`.aggrega-config.yaml` lists both the local `./catalog` and the standard catalog
-under `catalog_dirs`, so the build command needs no `--catalog` flag. Only the
-`app/service` demo component and its recipe are local.
+FeatureRecipe (plus the `helm` provider) from the **standard library**. The
+`app/service` demo component and its recipe live in the shared catalog under the
+`app/` namespace, alongside those standard-library entities. Its
+`.aggrega-config.yaml` lists the catalog checkout under `catalog_dirs` and
+declares `hub.aggrega.ai` as the default registry, so a standalone consumer
+resolves the entities from the hub — the build command needs no `--catalog` flag.
 
 | Component | Boundary | interval | port | path |
 | --- | --- | --- | --- | --- |

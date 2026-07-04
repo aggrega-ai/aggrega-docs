@@ -39,12 +39,14 @@ aggrega build --release release.yaml
 ```
 
 This example consumes the standard library for its provider: the `compose`
-provider ships in the standard catalog. Only the override lesson's own toys are
-local, under `./catalog` — the `app/greeter` demo component and its two recipes
-(`greeter-blue` / `greeter-green`), which exist purely to make the per-instance
-override visible. Both the local `./catalog` and the standard catalog checkout
-are listed under `catalog_dirs` in `.aggrega-config.yaml`, so the build command
-needs no `--catalog` flag.
+provider ships in the standard catalog. The override lesson's own toys — the
+`app/greeter` demo component and its two recipes (`greeter-blue` /
+`greeter-green`), which exist purely to make the per-instance override visible —
+live in the shared catalog under the `app/` namespace, alongside the
+standard-library entities. The catalog checkout is listed under `catalog_dirs`
+in `.aggrega-config.yaml`, which also declares `hub.aggrega.ai` as the default
+registry, so a standalone consumer resolves the entities from the hub — the
+build command needs no `--catalog` flag.
 
 The rendered `dist/app/compose/docker-compose.yaml` shows the override firing —
 `greeter-default` runs `image: greeter:blue`, `greeter-special` runs
