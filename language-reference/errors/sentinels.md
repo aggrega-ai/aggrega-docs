@@ -128,16 +128,16 @@ The per-Release lockfile reader and the build-time drift verifier.
 | `ErrLockfileInvalid` | `lockfile: file failed schema validation` | The `<release-stem>.lock` file is structurally malformed (older and partial shapes load with diagnostics rather than this error). |
 | `ErrLockfileDrift` | `lockfile: out of date; it no longer matches the current catalog` | A build's resolved dependencies do not match the lockfile; remediation: `aggrega pull --regenerate`. |
 
-## Dependency-closure sentinels (`pkg/closure`)
+## Dependency-resolution sentinels (`pkg/closure`)
 
-The closure walk that `aggrega pull` runs to compute the lockfile.
+The dependency resolution that `aggrega pull` runs to compute the lockfile.
 
 | Sentinel | Wrapped message | User-facing surface |
 | --- | --- | --- |
-| `ErrMVSConflict` | `closure: minimum version selection conflict — incompatible library version requirements` | Two consumers require incompatible versions of the same library. |
-| `ErrUnresolvableURI` | `closure: URI not resolvable via Lookup` | A referenced URI resolves through no tier (local, cache, or registry). |
-| `ErrInvalidLibraryRef` | `closure: invalid library reference URI` | A malformed schema / mapping library `$import:` or `$ref:` URI. |
-| `ErrSourceTemplateAtLockTime` | `closure: source-template evaluation failure at lock time` | A Recipe `source:` version template failed at lock time — typically by referencing `.provides`, which does not exist until build. |
+| `ErrMVSConflict` | `resolve: minimum version selection conflict — incompatible library version requirements` | Two consumers require incompatible versions of the same library. |
+| `ErrUnresolvableURI` | `resolve: URI not resolvable via Lookup` | A referenced URI resolves through no tier (local, cache, or registry). |
+| `ErrInvalidLibraryRef` | `resolve: invalid library reference URI` | A malformed schema / mapping library `$import:` or `$ref:` URI. |
+| `ErrSourceTemplateAtLockTime` | `resolve: source-template evaluation failure at lock time` | A Recipe `source:` version template failed at lock time — typically by referencing `.provides`, which does not exist until build. |
 
 ## Workspace-config sentinel (`pkg/workspaceconfig`)
 

@@ -28,7 +28,7 @@ Per-registry settings (`registries[].*`) have **no** environment variable: a lis
 | --- | --- | --- |
 | `AGGREGA_DEFAULT_REGISTRY` | `default_registry` | Destination/registry host (`hub.aggrega.ai` by default). |
 | `AGGREGA_OFFLINE` | `offline` | Boolean. Never contacts the network; builds against the existing lockfile. |
-| `AGGREGA_AUTO_PULL` | `auto_pull` | Boolean. Auto-fetch missing closure entities at build time. |
+| `AGGREGA_AUTO_PULL` | `auto_pull` | Boolean. Auto-fetch missing dependencies at build time. |
 | `AGGREGA_ARTIFACT_CACHE_DIR` | `artifact_cache_dir` | On-disk content cache directory. |
 | `AGGREGA_CATALOG_DIRS` | `workspace.catalog_dirs` | OS-path-list separated (`:` on Unix). Supply absolute paths. Replaces the configured list. |
 | `AGGREGA_SIGNING_FULCIO_URL` | `signing.fulcio_url` | Keyless Fulcio CA URL. |

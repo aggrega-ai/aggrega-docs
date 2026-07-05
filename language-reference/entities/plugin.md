@@ -1,6 +1,6 @@
 # Plugin
 
-A `Plugin` is a content-addressed WebAssembly plugin: an OCI-hosted `.wasm` artifact pinned by `sha256` digest, declaring the socket type(s) it implements, the ABI version it targets, an optional signature pointer, and an optional runtime block. The entity is the authoring and metadata surface for a plugin; the closure pins the artifact by digest and the per-registry trust policy verifies its signature at pull. The compiler is blind to the plugin's behaviour — it routes the pinned reference; the WebAssembly runtime executes the bytes.
+A `Plugin` is a content-addressed WebAssembly plugin: an OCI-hosted `.wasm` artifact pinned by `sha256` digest, declaring the socket type(s) it implements, the ABI version it targets, an optional signature pointer, and an optional runtime block. The entity is the authoring and metadata surface for a plugin; dependency resolution pins the artifact by digest and the per-registry trust policy verifies its signature at pull. The compiler is blind to the plugin's behaviour — it routes the pinned reference; the WebAssembly runtime executes the bytes.
 
 This page covers the `Plugin` catalog authoring surface field by field. For the end-to-end author workflow — what a plugin is, the `describe()` self-report, the publish→pull→build lifecycle, signing, and versioning — see the [Wasm plugin developer guide](../plugins/plugin-developer-guide.md). For the socket points a plugin attaches to and their input/output shapes, see the [Wasm plugin contract](../plugins/plugin-contract.md).
 
@@ -40,7 +40,7 @@ Standard catalog metadata. `name` and `version` are required; `version` is a str
 
 ## `spec.plugin`
 
-The canonical content-addressed reference to the `.wasm` artifact, in the form `oci://<repository>@sha256:<digest>`. The reference is the plugin's identity; the digest is what the closure pins and the build verifies against the fetched bytes. A tag-form reference (`oci://<repository>:<tag>`) authored elsewhere resolves to its `sha256` digest at pull and pins to this canonical digest form — the published entity's `plugin` field carries the resolved, digest-pinned reference. Required.
+The canonical content-addressed reference to the `.wasm` artifact, in the form `oci://<repository>@sha256:<digest>`. The reference is the plugin's identity; the digest is what dependency resolution pins and the build verifies against the fetched bytes. A tag-form reference (`oci://<repository>:<tag>`) authored elsewhere resolves to its `sha256` digest at pull and pins to this canonical digest form — the published entity's `plugin` field carries the resolved, digest-pinned reference. Required.
 
 ## `spec.pluginType`
 

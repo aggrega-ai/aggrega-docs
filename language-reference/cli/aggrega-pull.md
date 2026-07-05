@@ -1,6 +1,6 @@
 # aggrega pull
 
-`aggrega pull` resolves a Release's full dependency closure and writes a **lockfile** that pins every dependency to an exact version and content digest. A subsequent `aggrega build` reads the lockfile and verifies against it, so builds are reproducible and offline-capable. `aggrega pull` is the one step that touches the network; build does not.
+`aggrega pull` resolves all of a Release's dependencies and writes a **lockfile** that pins every dependency to an exact version and content digest. A subsequent `aggrega build` reads the lockfile and verifies against it, so builds are reproducible and offline-capable. `aggrega pull` is the one step that touches the network; build does not.
 
 ## Synopsis
 
@@ -28,7 +28,7 @@ Commit `<release-stem>.lock` alongside the Release, the way you commit any pinne
 
 By default `aggrega pull` **honors** an existing lockfile: a dependency already pinned resolves to its exact pinned version (verified against its pinned digest), only references that are not yet pinned are resolved and added, and pins for references the Release no longer reaches are pruned. So a re-pull of an unchanged Release is a no-op — it reproduces the same lockfile byte-for-byte (including `generated_at`). Adding a new dependency, or pulling after a hand-edit removed a pin, resolves just that gap and leaves every other pin untouched.
 
-**To update pinned versions, run `aggrega pull --regenerate`** — it discards the existing pins and re-resolves the whole closure to the latest satisfying versions. Updating is the explicit act; the default never floats a pinned dependency. This mirrors the convention of `npm ci` / `cargo` / `go build` (the default realizes the lock; updating is opt-in), and it is what makes `aggrega build`'s automatic pull safe — build resolves exactly what the lockfile pins, never silently moving a version.
+**To update pinned versions, run `aggrega pull --regenerate`** — it discards the existing pins and re-resolves all dependencies to the latest satisfying versions. Updating is the explicit act; the default never floats a pinned dependency. This mirrors the convention of `npm ci` / `cargo` / `go build` (the default realizes the lock; updating is opt-in), and it is what makes `aggrega build`'s automatic pull safe — build resolves exactly what the lockfile pins, never silently moving a version.
 
 If a pinned version's bytes in the registry no longer match the digest the lockfile recorded (an immutability violation upstream), `pull` halts with an integrity error rather than silently adopting the changed bytes — run `--regenerate` to deliberately re-pin.
 
@@ -45,12 +45,12 @@ Pulled content is stored under `.aggrega/cache`, split into an `entities/` subtr
 ## Flags
 
 - `--release <path>` — the Release to resolve (required).
-- `--catalog <dir>` — a catalog directory, loaded recursively. **Repeatable**, and **prepended** to the workspace's `catalog_dirs` (an ordered first-win search stack — an earlier directory wins an entity identity, a later one's copy is shadowed). Pull honors `catalog_dirs` from `.aggrega-config.yaml` even with no `--catalog`, and resolves the same stack `aggrega build` does, so the closure it pins matches what build searches. Defaults to the current working directory when neither is set.
-- `--regenerate` — discard the existing pins and re-resolve the whole closure to the latest satisfying versions. This is how you **update** pinned versions (the default pull honors existing pins and never floats them), and the remediation named in drift diagnostics.
+- `--catalog <dir>` — a catalog directory, loaded recursively. **Repeatable**, and **prepended** to the workspace's `catalog_dirs` (an ordered first-win search stack — an earlier directory wins an entity identity, a later one's copy is shadowed). Pull honors `catalog_dirs` from `.aggrega-config.yaml` even with no `--catalog`, and resolves the same stack `aggrega build` does, so the dependencies it pins match what build searches. Defaults to the current working directory when neither is set.
+- `--regenerate` — discard the existing pins and re-resolve all dependencies to the latest satisfying versions. This is how you **update** pinned versions (the default pull honors existing pins and never floats them), and the remediation named in drift diagnostics.
 - `--include-prerelease` — include pre-release versions during selection (reserved; no effect today).
-- `--dry-run` — compute and report the closure without writing the lockfile.
+- `--dry-run` — compute and report the dependency resolution without writing the lockfile.
 - `--verify` — read-only: check the existing lockfile against the current state and report drift without writing anything.
-- `--detail` — print, per resolved entity, what this pull run did: fetched fresh from a registry, reused a cache slot, found in a local catalog, or external. This is a transient pull-event diagnostic written to stdout, never to the lockfile — the resolution tier depends on the pulling machine's local state and so is deliberately not persisted (it would break the lockfile's byte-identity across machines). It reports what *this pull* did, which is unrecoverable afterward (a freshly-pulled entity is cached by the next run); for the post-pull resolution *state* of a closure, use `aggrega inspect`.
+- `--detail` — print, per resolved entity, what this pull run did: fetched fresh from a registry, reused a cache slot, found in a local catalog, or external. This is a transient pull-event diagnostic written to stdout, never to the lockfile — the resolution tier depends on the pulling machine's local state and so is deliberately not persisted (it would break the lockfile's byte-identity across machines). It reports what *this pull* did, which is unrecoverable afterward (a freshly-pulled entity is cached by the next run); for the post-pull resolution *state* of a Release's dependencies, use `aggrega inspect`.
 
 ## Determinism and integrity
 
@@ -105,5 +105,5 @@ aggrega pull [flags]
 | `--quiet` | `false` | Silence the pull-progress surface on stderr. Does not affect stdout. Takes precedence over --progress |
 | `--regenerate` | `false` | Discard any existing lockfile and re-resolve every entity from current registry state, floating each dependency to the highest available version (ignores existing pins) |
 | `--release` | — | Path to Release YAML file (required) |
-| `--verify` | `false` | Verify the existing lockfile against the current closure without writing; exits non-zero on drift or missing lockfile |
+| `--verify` | `false` | Verify the existing lockfile against the current dependency resolution without writing; exits non-zero on drift or missing lockfile |
 <!-- END GENERATED: cli-pull -->

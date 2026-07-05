@@ -47,7 +47,7 @@ A plugin entity may carry an optional `runtime` block that constrains how the ho
 
 - A URL already pinned in the Release's lockfile is served from the local content-addressed store and verified against its recorded digest on every read. A missing store blob is refilled from the network by the recorded digest in every mode — a digest-verified refill cannot change output.
 - An unpinned URL is fetched, pinned into the store under its digest, and recorded for the lockfile when acquisition is enabled — the `aggrega build` default.
-- Under `aggrega build --no-acquire-inputs` the closure is frozen: an unpinned URL is refused with an error naming the URL and the remedy. Pinned inputs are still served.
+- Under `aggrega build --no-acquire-inputs` the external-input set is frozen: an unpinned URL is refused with an error naming the URL and the remedy. Pinned inputs are still served.
 - `aggrega acquire` runs only the acquisition pass: it fetches and pins every external input the Release's render requests, discarding the rendered output, so a subsequent frozen build serves everything from the store.
 
 Allowed schemes are `https`, `http` to loopback hosts only, and `oci` (pinned by manifest digest). The lockfile records every pinned input — its URL, `sha256` digest, size, and the plugins that required it — so a re-build serves the same bytes from the local store: reproducible, and offline once pinned.
@@ -59,7 +59,7 @@ import "github.com/aggrega-ai/aggrega-pdk-go/pkg/aggrega"
 
 chart, err := aggrega.FetchExternalInput("https://charts.example.com/postgresql-16.3.2.tgz")
 if err != nil {
-    // The error names the URL and the remedy — under a frozen closure an
+    // The error names the URL and the remedy — under a frozen external-input set an
     // unpinned URL reports exactly what to pin and how. Surface it as a
     // render failure; do not mask it.
     return fmt.Errorf("fetching chart archive: %w", err)
@@ -108,7 +108,7 @@ spec:
 
 The fields:
 
-- **`spec.plugin`** — the canonical content-addressed reference to the `.wasm` artifact, in the form `oci://<repository>@sha256:<digest>`. The reference is the plugin's identity; the digest is what the closure pins and the build verifies. A tag-form reference authored elsewhere resolves to its `sha256` digest at pull and pins to this canonical digest form. Required.
+- **`spec.plugin`** — the canonical content-addressed reference to the `.wasm` artifact, in the form `oci://<repository>@sha256:<digest>`. The reference is the plugin's identity; the digest is what dependency resolution pins and the build verifies. A tag-form reference authored elsewhere resolves to its `sha256` digest at pull and pins to this canonical digest form. Required.
 - **`spec.pluginType`** — the socket type this plugin implements, drawn from `provider`, `linter`, `frp_step`. A plugin implements exactly one. Required.
 - **`spec.abiVersion`** — the host/guest ABI version the plugin targets. `v1alpha1` is the accepted value; a future ABI revision adds an accepted value. Required.
 - **`spec.compatibleProviders`** — the provider engines this plugin is tested-compatible with (provider names such as `helm` or `compose`). A plugin is generic across artifacts that share a provider's output shape, not across all providers, so this is an explicit, tested-compatibility claim. The list is render-enforced: when a pipeline step touches a scope, the provider rendering that scope's documents must appear here, or the build halts. An empty or absent list declares no compatibility claim, matches no provider, and halts any pipeline step that uses the plugin. Entries preserve author order.
@@ -134,9 +134,9 @@ A plugin moves from a `.wasm` file on disk to a build-consumable, verified artif
 
 Before any bytes land, publish runs its checks. The `.wasm` is loaded and its `describe()` self-report is cross-checked against the entity's authored capability claims — a mismatch halts loudly, so a published entity never disagrees with the plugin it ships. The `.wasm` content digest is computed once and stamped into `spec.plugin`; if the on-disk `spec.plugin` already pins a digest, it must equal the computed one or the publish halts. The host functions the `.wasm` imports are derived from the binary and stamped into `spec.runtime.hostFunctions` (a divergent on-disk value is overwritten with a warning, since the field is machine-owned). The published entity carries the resolved, digest-pinned reference and the stamped host-function record.
 
-**Pull.** `aggrega pull` resolves a Release's full dependency closure and writes a per-Release lockfile pinning every catalog entity and remote artifact to a version and content digest. A published `Plugin` resolves through this closure; its `.wasm` is fetched by the content-digest pin in `spec.plugin` and the bytes are verified against that digest. Pull also re-derives the host functions from the verified `.wasm` and checks them against the stamped `hostFunctions` record, halting if the two disagree — a defense-in-depth check over the digest pin that catches a binary whose stamp was not produced from its own imports. If the registry's trust policy requires signatures, the entity's signature is fetched and verified at this stage and recorded as a verified fact in the lockfile (Section 8). Verification happens at pull, never at build — the build stays ahead-of-time-pure.
+**Pull.** `aggrega pull` resolves all of a Release's dependencies and writes a per-Release lockfile pinning every catalog entity and remote artifact to a version and content digest. A published `Plugin` resolves through this dependency resolution; its `.wasm` is fetched by the content-digest pin in `spec.plugin` and the bytes are verified against that digest. Pull also re-derives the host functions from the verified `.wasm` and checks them against the stamped `hostFunctions` record, halting if the two disagree — a defense-in-depth check over the digest pin that catches a binary whose stamp was not produced from its own imports. If the registry's trust policy requires signatures, the entity's signature is fetched and verified at this stage and recorded as a verified fact in the lockfile (Section 8). Verification happens at pull, never at build — the build stays ahead-of-time-pure.
 
-**Build.** `aggrega build` consumes the pinned, verified plugin from the closure. The compiler routes the digest-pinned reference and the Wasm runtime executes the bytes; the load gate re-runs the `describe()` cross-check and the host-function and runtime-limit enforcement before the plugin runs.
+**Build.** `aggrega build` consumes the pinned, verified plugin from the resolved dependencies. The compiler routes the digest-pinned reference and the Wasm runtime executes the bytes; the load gate re-runs the `describe()` cross-check and the host-function and runtime-limit enforcement before the plugin runs.
 
 ## 8. Signing and trust
 
