@@ -55,22 +55,26 @@ in to the live database.
   component is chosen by the component *type* it implements, drawn from
   whichever catalog layer the build loads.
 
-## Authoring and consumption — two ends of one curriculum
+## Authoring and consumption — a mixed workspace
 
-This is the **authoring tier**: here you build the catalog entities — the
-Component, the Features, and the per-target Recipes — from scratch in local
-`catalog-*/` directories, and watch one Aggregate render across four providers.
-The entities you build here are the same *kind* that ship in Aggrega's standard
-library: a database Component, credential Features, provider Recipes.
+This example works both ends of the catalog at once: it **authors** some entities
+locally and **consumes** others from Aggrega's standard library. The MariaDB
+database Component, its credential Features, and the per-target Recipes are built
+from scratch in the local `catalog-*/` directories — one Aggregate renders that
+locally-authored database across four providers. The Adminer web UI, by contrast,
+is **consumed**: the `web` component references the shipped `core/devtool/adminer`
+Component directly, and each target authors only a local Recipe that implements
+it. The same workspace therefore shows entity *authoring* on the database side
+next to catalog *consumption* on the UI side. The entities you build here are the
+same *kind* that ship in the standard library: a database Component, credential
+Features, provider Recipes.
 
-The **consumption tier** is the other end of the same curriculum. The
-[catalog-only](../catalog-only/) example assembles this very stack — a MariaDB
-database with an Adminer UI — by *referencing* standard-library entities, authoring
-none of its own; the other runnable workspaces likewise consume the shipped
-catalog and keep only their teaching-specific pieces local. Read this example to
-learn how the entities are **built**; read the consumption examples to learn how
-they are **used**. The split is navigable in both directions — what you author
-here is what you consume there.
+The [catalog-only](../catalog-only/) example sits at the pure-consumption end of
+the same curriculum: it assembles this very stack — a MariaDB database with an
+Adminer UI — by *referencing* standard-library entities, authoring none of its
+own. Read the database side of this example to learn how catalog entities are
+**built**; read the consumption examples to learn how a whole stack is **used**
+from the shipped catalog.
 
 ## Layout
 
@@ -95,10 +99,11 @@ mariadb-adminer/
 └── catalog-helm-chart/         # Recipe layer: helm-chart (umbrella composition)
 ```
 
-Each `catalog-*` directory is a self-contained catalog: the shared Component
-and Feature definitions plus the Recipes for that one target. A
-build loads exactly one layer, so each component type resolves to exactly one
-Recipe.
+Each `catalog-*` directory carries the locally-authored MariaDB Component and
+Feature definitions plus the Recipes for that one target. The Adminer Component
+is not among them — it resolves from the standard library. A build loads one
+`catalog-*` layer over that standard library, so each component type resolves to
+exactly one Recipe.
 
 The Release, its `aggregate:`, and its `manifest:` are siblings in this
 directory; the `--catalog` directory is separate.
