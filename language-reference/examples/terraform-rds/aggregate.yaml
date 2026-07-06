@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: aggregate
+  version: "1.0.0"
+  description: >
+    A single MariaDB database, authored once as developer intent and targeted
+    at AWS RDS. The same component type compiles to a Helm chart or a Compose
+    service under a different Recipe layer; here the loaded Recipe renders it as
+    a Terraform HCL file that provisions a managed RDS instance.
+spec:
+  components:
+    # ── Database ────────────────────────────────────────────────────────
+    # The developer states intent — a database named appdb — and nothing about
+    # the physical target. Which cloud, which instance class, and how much
+    # storage are operator concerns, set Release-side.
+    db:
+      type: core/datastore/mariadb
+      values:
+        database: appdb
+        user: appuser
+        charset: utf8mb4
+        collation: utf8mb4_general_ci
