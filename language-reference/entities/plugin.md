@@ -131,6 +131,35 @@ The exports the plugin offers, each with its declared capability, as an ordered 
 | `scope` | The document root the export operates on: `own` (the node's own rendered documents) or `host` (the documents of the component a component-scope FeatureRecipe is attached to). The host reads the declared scope ahead of the step to enforce provider compatibility against the provider rendering that scope. Absent defaults to `own`. |
 | `selector` | A free-form, human-readable description of what the export acts on (for example `workloads carrying a pod template`). Documentation for catalog readers and the inspect surface; the compiler does not interpret it. |
 
+## `spec.capabilities`
+
+A provider-rendering plugin's self-declared compile-time render behaviors, authored as the claim the host cross-checks against the plugin's own `describe()` self-report at publish and at load. The block mirrors the capabilities the guest reports; a disagreement halts. Absent declares no plugin-level capability claim, and the cross-check compares only the per-export claims. All fields are optional.
+
+| Field | Effect |
+| --- | --- |
+| `inputKinds` | Which of the three Recipe input kinds the plugin renders, each an independent boolean claim: `sourced` (a sourced file set — a chart, a module, a compose file), `synthesized` (a synthesized Workload), and `artifactsStandalone` (a standalone node carrying imported artifact documents and no source or workload). The host gates a node's input kind against this set. |
+| `boundaryAssembly` | How the plugin combines a dispatch group's per-node render output: `none` writes each node's output directly at the dispatch path; `merge` folds the per-node fragments into one document; `nest` places each node's output under its own position in an umbrella structure. Absent carries no assembly claim. |
+| `artifactDelimiters` | The Go-template delimiter pair the plugin applies to imported artifact files, as `left` and `right`. Absent means the default `{{`/`}}` pair; a plugin whose target syntax collides with that pair declares an alternate pair (for example `[[`/`]]`). |
+| `sourceFilter` | The source-file paths the plugin consumes when a node supplies a file set, in author order. Absent means the plugin consumes every file in the set. |
+| `reusableInstance` | Whether one loaded plugin instance may serve every render, assemble, and validate crossing of a build rather than a fresh instance per crossing. Declared `true` only when the plugin holds no state across crossings, so a single instance produces byte-identical output whether reused or freshly loaded. Absent (`false`) loads a fresh instance per crossing, isolating a plugin that carries state by construction. `aggrega build --verify-determinism` proves a reusable plugin's output is stable by rendering each node twice and halting on any difference. |
+
+```yaml
+spec:
+  pluginType: provider
+  compatibleProviders:
+    - helm-chart
+  capabilities:
+    inputKinds:
+      sourced: true
+      synthesized: false
+      artifactsStandalone: false
+    boundaryAssembly: nest
+    artifactDelimiters:
+      left: "[["
+      right: "]]"
+    reusableInstance: true
+```
+
 ## Inspecting a Plugin
 
 `aggrega inspect <path-to-Plugin.yaml>` renders a `Plugin` file: its identity and socket types, its `compatibleProviders`, the per-export capability table in author order, the runtime constraints, and — at `--detail` — the signature pointer and the runtime config keys. A `Plugin` is inspectable by file path; the bare-name catalog lookup resolves Components only. See [`../cli/aggrega-inspect.md`](../cli/aggrega-inspect.md).

@@ -25,7 +25,15 @@ Every socket dispatches its plugin through the same host sandbox. The sandbox ha
 
 An I/O call a guest actually makes — opening a file, dialing a socket — fails at the call boundary. This is WASI's own capability-based security model: the sandbox denies the capability rather than policing the code.
 
-**Inputs arrive only through the payload and the curated host functions.** A plugin receives everything it renders or evaluates in the JSON payload its socket carries — graph and node projections, values, render context, and, for a sourced provider render, the source files themselves, read by the host at compile time and handed over as a source projection. Beyond the payload, the host binds exactly three curated host functions: `aggrega_log` (a log line on the host's log destination), `aggrega_emit_warning` (a structured warning the host surfaces after the call), and `aggrega_fetch_external_input` (the external-input fetch channel below). The host derives the set a plugin imports from its `.wasm` binary, validates it against the curated allowlist, and stamps it on the published entity's `spec.runtime.hostFunctions`, so every plugin's host surface is visible in the catalog.
+**Inputs arrive only through the payload and the curated host functions.** A plugin receives everything it renders or evaluates in the JSON payload its socket carries — graph and node projections, values, and render context. For a sourced provider render, the payload carries a **source listing** rather than the source bytes: a sorted set of `{path, is_dir}` entries under the node's source root, with no provider-layout interpretation by the host. The guest applies its own layout logic — select the single compose file, descend to a chart root, require a `Chart.yaml`, vendor a module recursively — and reads back exactly the slice it selects through a host callback. Beyond the payload, the host binds a curated, least-privilege set of host functions, and grants a plugin exactly the ones its binary imports:
+
+- `aggrega_log` — a log line on the host's log destination.
+- `aggrega_emit_warning` — a structured warning the host surfaces after the call.
+- `aggrega_fetch_external_input` — the external-input fetch channel (below).
+- `aggrega_pack_source` — the source-selection callback: the guest names a `{file | dir | tree, path}` selection under the source root and the host reads and packs exactly that under a sandbox that resolves paths under the root and rejects `..`.
+- `aggrega_read_source_file` — a single-file content read under the same sandbox, for content-dependent source selection.
+
+The host derives the set a plugin imports from its `.wasm` binary, validates it against the curated allowlist, cross-checks it against the host functions the guest's `describe()` declares, and stamps it on the published entity's `spec.runtime.hostFunctions`, so every plugin's host surface is visible in the catalog and cannot drift from the binary.
 
 **Determinism is the plugin author's responsibility.** The host consumes a guest's output bytes verbatim and runs no serializer over them, so the contract every plugin must uphold is: identical input produces identical output bytes. The sandbox removes the ambient sources of nondeterminism — wall time, environment, filesystem state — but deliberately does not mask the rest: a guest that encodes entropy or elapsed monotonic time into its output produces visibly differing bytes across runs rather than a stably-hidden defect.
 
@@ -40,7 +48,7 @@ The compilation pipeline reserves the following socket points. The shape labels 
 | `mutator.wasm` | Step 2 (Topology Builder) | **available** — dispatched when a workspace configures a mutator plugin; auto-tags node labels via JSON Patch |
 | `policy-validator.wasm` | Step 4 (Static Analyzer) | **available** — dispatched when a workspace configures a policy plugin; a failed rule halts the build |
 | FeatureRecipe `pipeline:` plugins | Step 5 Phase C (Post-Render Mutation) | `accepted but inert` per Status page Phase C classification |
-| Provider rendering plugins (e.g., `helm-renderer.wasm`, `compose-renderer.wasm`) | Step 5 (Phase B engines) | **available for helm and compose** — those providers render through their Wasm engines when the catalog binds them; the other providers' engines are native Go |
+| Provider rendering plugins (helm, helm-chart, compose, terraform) | Step 5 (Phase B engines) | **available** — every provider renders through its Wasm guest; rendering is Wasm-only, with no native Go engine fallback |
 | `linter.wasm` (publishing-linter) | Out-of-band (`aggrega lint`) | **available** — the publishing-linter ships and runs through the host via `aggrega lint` |
 
 The annotation-driven Feature expansion sub-phase (Step 1) is a native Go pipeline pass, not a Wasm socket. It validates annotation values against the target Feature's `spec.schema` and injects synthetic Feature attachments at IR build time. See [`vocabulary/labels-and-annotations.md`](../vocabulary/labels-and-annotations.md) for the six annotation- and label-bearing surfaces and [`providers/well-known-annotations.md`](../providers/well-known-annotations.md) for the binding-shape and authoring teaching.
@@ -109,11 +117,32 @@ Phase C plugin steps are designed to publish named outputs that subsequent steps
 
 **Status today:** `accepted but inert`.
 
-### Provider rendering output (`helm-renderer.wasm` and friends)
+### Provider rendering — the guest-driven socket
 
-A provider engine can be a Wasm rendering plugin instead of a native Go engine. Each plugin's output is the same flat-YAML shape the native engine produces; the contract is the same `Render` interface, but the implementation lives in a `.wasm` binary rather than Go code. A catalog binds a provider to its Wasm engine through a provider-rendering Plugin (`pluginType: provider`) that lists the provider name in its `compatibleProviders` and advertises a `render_node` export (and, for a provider that merges its per-node output into one artifact per boundary, an `assemble_boundary` export); the compiler then renders that provider's nodes through the Wasm engine, and a provider with no such Plugin renders through its native Go engine. Documented at [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md) and tracked in roadmap.
+A provider is a Wasm guest. Rendering is Wasm-only: a Recipe's `provider:` name resolves to the provider-rendering Plugin (`pluginType: provider`) that lists the name in its `compatibleProviders` and advertises a `render_node` export, and that plugin's guest renders the node. There is no native Go engine to fall back to; a provider name that resolves to no serving Plugin halts the build at routing time. Adding a standard provider is shipping a `.wasm` guest and a catalog `Plugin` entity — the host carries no per-provider code.
 
-**Status today:** the helm and compose providers ship Wasm rendering engines (`helm-renderer.wasm`, `compose-renderer.wasm`) that render byte-for-byte identically to their native Go engines: helm renders sourced charts and synthesized workloads; compose renders sourced compose files, synthesized workloads, and the merged per-boundary `docker-compose.yaml`. A catalog that includes either provider-rendering Plugin renders through its Wasm engine. The `helm-chart` provider renders through a native Go engine; its Wasm engine is planned.
+The host is a generic router. It reads the guest's `describe()` self-report — including a **capabilities block** — and dispatches the guest's exports without understanding any provider format. The capabilities block drives dispatch as data:
+
+- `input_kinds` (`sourced`, `synthesized`, `artifacts_standalone`) — which Recipe input kinds the guest renders; the host gates a node's input kind against this set.
+- `boundary_assembly` (`none` | `merge` | `nest`) — how the guest combines a dispatch group's output: `merge` classifies per-node output as fragments the assembler merges into one artifact, `nest` nests per-node files under an assembled wrapper, `none` writes each node's output directly.
+- `artifact_delimiters` (optional) — the Go-template delimiter pair the guest applies to artifact bodies.
+- `reusable_instance` (optional) — whether one loaded instance may serve every crossing of the build (see [Determinism and instance reuse](#determinism-and-instance-reuse) below).
+
+The socket is a fixed export set — one mandatory, the rest optional and advertised in `describe()`:
+
+- `render_node` (mandatory) — render one IR node into provider-native files.
+- `assemble_boundary` (optional) — merge a dispatch group's per-node output into one artifact per path (present when `boundary_assembly` is `merge` or `nest`).
+- `validate_node_input` (optional) — structural pre-render validation of a node's input; an error-severity diagnostic halts the build, a warning surfaces to the build result.
+- `carve` / `reassemble` (optional, paired) — the guest's own byte-faithful patch codec for post-render pipeline steps, used only when both are advertised.
+- `boundary_env_overrides` (optional) — the guest computes per-consumer boundary environment overrides the host then applies.
+
+Recipe `artifacts:` fold into `render_node` through an artifacts projection on the input: the host does the `$import` read, the Go-template evaluation, and the provenance key/value computation, and hands the guest each entry already read and evaluated; the guest owns placement and emission in the format only it knows. Documented at [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md).
+
+**Status today:** **available** for all four providers. The helm guest renders sourced charts (resolving the chart root), synthesized workloads, and standalone artifacts as flat Kubernetes manifests. The helm-chart guest assembles an umbrella chart, nesting each node's sourced chart as a sub-chart, and carries a byte-faithful patch codec and bracket (`[[ ]]`) artifact delimiters. The compose guest renders sourced compose files and synthesized workloads and merges a dispatch group into one `docker-compose.yaml`, and bridges cross-network consumers through a gateway. The terraform guest emits Terraform configuration verbatim (HCL or JSON) or vendors a sourced module with a `.tfvars.json` overlay, and validates a sourced module's HCL structurally before render. Each renders offline and deterministically.
+
+#### Determinism and instance reuse
+
+The host consumes a guest's output bytes verbatim, so a guest must produce identical output from identical input. By default a guest is loaded fresh per node — zero state carried across nodes by construction. A guest that self-declares `reusable_instance` is instead loaded once per build and its single instance serves every crossing, which recovers the dominant per-node instantiation cost. Because reuse is safe only for a stateless guest, `aggrega build --verify-determinism` renders each node twice through the same instance and halts the build if any node's two renders differ; the default build renders once and trusts the declaration. The Wasm compilation cache is disk-backed and process-wide, so a guest compiles once and warm builds skip recompilation.
 
 ### `linter.wasm` (publishing-linter)
 
@@ -138,7 +167,7 @@ The criterion matters once both sockets are usable. The `linter.wasm` socket shi
 
 Two design surfaces named elsewhere in the corpus do not have current code anchors today:
 
-- **Additional output shapes.** Current code types three (JSONPatch via the mutator, a PolicyResult array via the policy-validator, and the linter's findings plus version-bump classification). The architecture chapters and worked examples describe further shapes (Strategic Merge Patch, Resource Generation, Step output, Provider rendering output) that do not carry Go type definitions in the compiler today.
+- **Additional output shapes.** Current code types the mutator's JSONPatch output, the policy-validator's PolicyResult array, the linter's findings plus version-bump classification, and the provider render socket's node output and artifacts. The architecture chapters and worked examples describe further FeatureRecipe-pipeline shapes (Strategic Merge Patch, Resource Generation, Step output) that do not carry Go type definitions in the compiler today.
 - **Six Wasm-socket roles enumeration.** The current typed surface is three sockets (mutator, policy-validator, linter); the broader six-role design (adding helm-renderer, policy-formatter, fetcher/injector) is documented across architecture chapters but not centralized in a Go type registry.
 
 The `linter.wasm` socket, previously listed here as design-only, now ships as the publishing-linter — a typed contract with host dispatch via `aggrega lint`.
