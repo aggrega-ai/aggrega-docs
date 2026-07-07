@@ -193,7 +193,7 @@ spec:
 
   provides:
     host: "{{ .context.instance_id }}"
-    port: "{{ .values.port }}"
+    port: "{{ .infra.port }}"
     protocol: mariadb
 
   source:

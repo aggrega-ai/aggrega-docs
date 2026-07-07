@@ -170,7 +170,7 @@ Two design surfaces named elsewhere in the corpus do not have current code ancho
 - **Additional output shapes.** Current code types the mutator's JSONPatch output, the policy-validator's PolicyResult array, the linter's findings plus version-bump classification, and the provider render socket's node output and artifacts. The architecture chapters and worked examples describe further FeatureRecipe-pipeline shapes (Strategic Merge Patch, Resource Generation, Step output) that do not carry Go type definitions in the compiler today.
 - **Six Wasm-socket roles enumeration.** The current typed surface is three sockets (mutator, policy-validator, linter); the broader six-role design (adding helm-renderer, policy-formatter, fetcher/injector) is documented across architecture chapters but not centralized in a Go type registry.
 
-The `linter.wasm` socket, previously listed here as design-only, now ships as the publishing-linter — a typed contract with host dispatch via `aggrega lint`.
+The `linter.wasm` socket, by contrast, is fully anchored in current code: it is the publishing-linter, a typed contract with host dispatch via `aggrega lint`.
 
 The pipeline placement table at the top of this page reflects today's state plus the planned placements; readers interested in the full architectural design target should consult [`architecture/09-ai-features.md`](../../architecture/09-ai-features.md) and [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md).
 
