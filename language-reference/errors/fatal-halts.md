@@ -419,16 +419,16 @@ A Recipe declares `provider: <name>` where `<name>` names no rendering engine th
 Emitted message:
 > unknown provider: `<provider-name>`
 
-**How to fix:** confirm the provider name is spelled correctly — `helm`, `helm-chart`, and `compose` are the standard-library names. If you intended a custom enterprise provider, ensure a provider-rendering Plugin serving that name (`pluginType: provider` with the name in its `compatibleProviders`) is present in the catalog workspace the build is pointed at.
+**How to fix:** confirm the provider name is spelled correctly — `helm`, `helm-chart`, and `compose` are the standard-library names. If you intended a custom enterprise provider, ensure a provider-rendering Plugin serving that name (`pluginType: provider` with the name in its `targets`) is present in the catalog workspace the build is pointed at.
 
-### A provider is claimed by more than one provider plugin
+### A render target is served by more than one provider plugin
 
-Two distinct provider-rendering Plugins (`pluginType: provider`) both list the same provider name in `compatibleProviders`. Exactly one Plugin may serve a given provider name; two claimants make render dispatch ambiguous, so the catalog load halts rather than resolving to an arbitrary engine.
+A build reaches a render target — or a pull resolves one — served by more than one provider-rendering Plugin (`pluginType: provider`, each listing that target in its `targets`), and the workspace has not selected which one renders it. Rather than pick a rendering engine arbitrarily, the build halts and names both candidates. A catalog that carries two plugins for the same target is legal — two publishers may each ship a plugin for `helm` or `compose`, and the catalog accepts both. The ambiguity surfaces only at the point of use: the halt fires when a build or pull actually reaches the contested target, not at load time.
 
 Emitted message:
-> provider `<provider-name>` is claimed by more than one provider plugin (`<plugin-1>, <plugin-2>`); exactly one Plugin may serve a provider
+> target `<target-name>` is served by more than one provider plugin (`<plugin-1>, <plugin-2>`); add a provider_bindings entry for `<target-name>` selecting one
 
-**How to fix:** remove or retarget one of the conflicting Plugins so each provider name is served by exactly one provider-rendering Plugin. If you meant to ship two engines for the same target, choose distinct provider names for them and point each Recipe at the name it intends.
+**How to fix:** add a `provider_bindings` entry in the workspace config keyed by the render target, whose value selects the plugin identity that renders it. Keep both plugins in the federated catalog; the binding tells this workspace which one to dispatch to for the contested target.
 
 ### Path-template references a variable outside the allowlist
 
