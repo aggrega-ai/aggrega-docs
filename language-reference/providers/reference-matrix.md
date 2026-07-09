@@ -9,6 +9,7 @@ This page summarises the provider-side nuances that matter for Recipe authors ch
 - **`helm`** supports all three input kinds: sourced (Helm chart via the Helm SDK), synthesized (Workload → Deployment/StatefulSet + Services + PVCs), and artifacts (standalone Kubernetes YAML files). See [helm.md](helm.md).
 - **`helm-chart`** packages multiple components into a single umbrella Helm chart per boundary. Sourced mode (umbrella-chart composition) ships; the synthesized input kind is not applicable to this provider by architecture (umbrella orchestrates sub-charts; the Workload kind is a leaf concept belonging inside each sub-chart, which is the `helm` provider's domain). Artifacts in this provider take a special shape — `$import:`-loaded `artifacts:` entries are pre-Helm-templated and injected into the chart's `templates/` directory before Helm rendering; inline-content entries are placed verbatim at the chart root for `.Files.Get` / `.Files.Glob` consumption. See [helm-chart.md](helm-chart.md).
 - **`compose`** supports all three input kinds: sourced (compose fragment overlay), synthesized (Workload → compose service + volumes + networks), and artifacts (compose fragments merged into the combined `docker-compose.yaml`). See [compose.md](compose.md).
+- **`terraform`** supports sourced (vendors a Terraform module verbatim, overlaying `valuesMapping` as an auto-loaded `.tfvars.json`) and artifacts (emits an authored HCL or `.tf.json` body byte-for-byte); the synthesized input kind is not applicable (no faithful Workload-to-Terraform mapping). The provider emits configuration and never runs Terraform. Only JSON-authored bodies (`.tf.json`) and the `.tfvars.json` overlay are FeatureRecipe-pipeline patchable; native HCL is opaque. See [terraform.md](terraform.md).
 
 ## Where to look for what
 
@@ -16,7 +17,7 @@ This page summarises the provider-side nuances that matter for Recipe authors ch
 | --- | --- |
 | Which provider supports which input kind | [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md) Provider Capability Matrix section |
 | How a provider's plugin socket receives input and returns output | [architecture.md](architecture.md) |
-| Per-provider authoring shape (chart structure, compose top-level keys) | The matching per-provider page ([helm.md](helm.md), [helm-chart.md](helm-chart.md), [compose.md](compose.md)) |
+| Per-provider authoring shape (chart structure, compose top-level keys, Terraform bodies) | The matching per-provider page ([helm.md](helm.md), [helm-chart.md](helm-chart.md), [compose.md](compose.md), [terraform.md](terraform.md)) |
 | Which boundary annotations each provider consumes and their defaults | [well-known-annotations.md](well-known-annotations.md) |
 | The Workload kind's authoring surface | [../entities/workload.md](../entities/workload.md) |
 | The three-input-kinds composition model conceptually | [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md) |

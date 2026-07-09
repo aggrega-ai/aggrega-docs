@@ -40,13 +40,15 @@ The plugin-socket architecture at the broader extensibility level, including the
 
 ## Aggrega's standard-library providers
 
-The `helm`, `helm-chart`, and `compose` providers together form the standard-library provider set. They cover the common deployment targets without requiring enterprise teams to author their own providers.
+The `helm`, `helm-chart`, `compose`, and `terraform` providers together form the standard-library provider set. They cover the common deployment targets without requiring enterprise teams to author their own providers.
 
 [`helm`](helm.md) supports all three input kinds: **sourced** (Helm chart wrapping via the Helm SDK with the Recipe's `valuesMapping` output as the chart's overrides), **synthesized** (flat Kubernetes YAML — Deployment or StatefulSet plus Services and PVCs — emitted from a parsed Workload), and **artifacts** (standalone YAML files alongside the chart output). See the Provider Capability Matrix in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md) for current shipping status across the three kinds.
 
 [`helm-chart`](helm-chart.md) supports sourced mode (umbrella-chart composition: one chart per boundary, one sub-chart per component) and both artifact forms. An `$import:`-loaded `artifacts:` entry is Go-templated by Aggrega first, then injected into the chart's `templates/` directory pre-render; an inline-content `artifacts:` entry is placed verbatim at the sub-chart root, where the chart's own templates read it via Helm's `.Files.Get` / `.Files.Glob`. The synthesized input kind is not applicable: the umbrella orchestrates sub-charts, while the Workload kind is a leaf concept that belongs inside each sub-chart (the `helm` provider's domain).
 
 [`compose`](compose.md) supports all three input kinds: **sourced** (loads a compose file and deep-merges the `valuesMapping` overlay), **synthesized** (emits compose `services:` + `volumes:` + `networks:` from a parsed Workload, with degraded volume handling for `persistentTemplate` — per-replica PVCs collapse to a single shared named volume with a warning), and **artifacts** (compose fragments whose top-level keys `services:` / `networks:` / `volumes:` / `configs:` merge into the per-boundary combined `docker-compose.yaml`).
+
+[`terraform`](terraform.md) supports **sourced** (vendors a Terraform module verbatim and overlays the `valuesMapping` output as an auto-loaded `.tfvars.json`) and **artifacts** (emits an authored HCL or `.tf.json` body byte-for-byte). It does not offer the synthesized input kind — there is no faithful mapping from the platform Workload kind to arbitrary Terraform resources. The provider emits configuration and never runs Terraform; runtime-dependent values stay as `${ ... }` interpolation strings the Terraform runtime resolves at apply time.
 
 The [reference matrix](reference-matrix.md) summarises per-provider input-kind support at a glance; the canonical matrix lives in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md).
 
