@@ -72,7 +72,7 @@ metadata:
   name: lakera-guard-sidecar
   version: 1.0.0
 spec:
-  provider: helm
+  target: helm
   implements: core/data-masking:1.0.0
   pipeline:
     - id: "policy_gen"

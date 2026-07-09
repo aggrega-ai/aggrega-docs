@@ -255,7 +255,7 @@ Component's values onto the chart's value schema:
 
 ```yaml
 spec:
-  provider: helm
+  target: helm
   implements: core/datastore/mariadb
   source:
     kind: helm-oci-chart
@@ -300,7 +300,7 @@ Recipe sources a small local chart:
 
 ```yaml
 spec:
-  provider: helm-chart
+  target: helm-chart
   implements: core/datastore/mariadb
   source: ./charts/mariadb          # copied verbatim as the sub-chart
   valuesMapping: |
@@ -371,6 +371,6 @@ output is a chart to `helm install` or vendor — not a set of applied manifests
 Recipe selection is by **component type**. Each catalog layer contains exactly
 one Recipe per type, so loading `catalog-compose` binds `core/datastore/mariadb`
 to the compose Recipe, while loading `catalog-helm-synth` binds it to the
-Kubernetes one. The provider engine that renders a node is the `spec.provider`
+Kubernetes one. The provider engine that renders a node is the `spec.target`
 of whichever Recipe was bound. Swapping targets is swapping the `--catalog`
 directory — the Aggregate never changes.

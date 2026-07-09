@@ -119,7 +119,7 @@ Phase C plugin steps are designed to publish named outputs that subsequent steps
 
 ### Provider rendering — the guest-driven socket
 
-A provider is a Wasm guest. Rendering is Wasm-only: a Recipe's `provider:` name resolves to the provider-rendering Plugin (`pluginType: provider`) that lists the name in its `compatibleProviders` and advertises a `render_node` export, and that plugin's guest renders the node. There is no native Go engine to fall back to; a provider name that resolves to no serving Plugin halts the build at routing time. Adding a standard provider is shipping a `.wasm` guest and a catalog `Plugin` entity — the host carries no per-provider code.
+A provider is a Wasm guest. Rendering is Wasm-only: a Recipe's `target:` name resolves to the provider-rendering Plugin (`pluginType: provider`) that lists the name in its `targets` and advertises a `render_node` export, and that plugin's guest renders the node. There is no native Go engine to fall back to; a provider name that resolves to no serving Plugin halts the build at routing time. Adding a standard provider is shipping a `.wasm` guest and a catalog `Plugin` entity — the host carries no per-provider code.
 
 The host is a generic router. It reads the guest's `describe()` self-report — including a **capabilities block** — and dispatches the guest's exports without understanding any provider format. The capabilities block drives dispatch as data:
 

@@ -28,7 +28,7 @@ metadata:
   name: ingress-helm
   version: 1.0.0
 spec:
-  provider: helm
+  target: helm
   implements: core/ingress:1.0.0
   source: "./charts/generic-ingress"
   valuesMapping: |

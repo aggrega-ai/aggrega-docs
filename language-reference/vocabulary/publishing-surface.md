@@ -64,8 +64,8 @@ The current required-fields state per entity (excluding `apiVersion` / `kind` / 
 | --- | --- | --- |
 | Component | `spec.schema`; `metadata.labels.component.aggrega.ai/type` | The label requirement is **load-bearing for selector matching**: `usesSchema` `x-aggrega-selector:` annotations filter target Components by this label; absent, the selector cannot match anything and the build halts at edge-typing time |
 | Feature | `spec.schema` | No reserved-label requirement; Features identify by name + namespace |
-| Recipe | `spec.provider`, `spec.implements` | Provider gates engine dispatch; implements gates Component-binding |
-| FeatureRecipe | `spec.provider`, `spec.implements` | Same as Recipe |
+| Recipe | `spec.target`, `spec.implements` | Provider gates engine dispatch; implements gates Component-binding |
+| FeatureRecipe | `spec.target`, `spec.implements` | Same as Recipe |
 | Plugin | `spec.plugin`, `spec.pluginType`, `spec.abiVersion` | The content-addressed artifact reference, the socket type the plugin implements, and the ABI version it targets; a provider-rendering plugin (`pluginType: provider`) additionally carries its translation contract under `spec.provider` |
 | Aggregate | `spec.components` (or `spec.aggregates` for module-shape Aggregates) | An Aggregate without component-shape declarations is a no-op |
 | Manifest | `spec.mappings` | The mapping tiers are the Manifest's only purpose |

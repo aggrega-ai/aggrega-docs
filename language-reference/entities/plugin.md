@@ -15,10 +15,10 @@ metadata:
   name: secret-providers/aws-secrets-manager
   version: 1.2.0
 spec:
-  plugin: "oci://hub.aggrega.ai/wasm/secret-providers/aws-secrets-manager@sha256:<64-hex-digest>"
+  plugin: "oci://hub.aggrega.ai/wasm/secret-providers/aws-secrets-manager"
   pluginType: frp_step
   abiVersion: v1alpha1
-  compatibleProviders:
+  targets:
     - helm
     - compose
   signature:
@@ -40,7 +40,7 @@ Standard catalog metadata. `name` and `version` are required; `version` is a str
 
 ## `spec.plugin`
 
-The canonical content-addressed reference to the `.wasm` artifact, in the form `oci://<repository>@sha256:<digest>`. The reference is the plugin's identity; the digest is what dependency resolution pins and the build verifies against the fetched bytes. A tag-form reference (`oci://<repository>:<tag>`) authored elsewhere resolves to its `sha256` digest at pull and pins to this canonical digest form — the published entity's `plugin` field carries the resolved, digest-pinned reference. Required.
+The reference to the `.wasm` artifact, in the digest-free form `oci://<repository>`. This is the plugin's identity; its version is `metadata.version`. The reference carries no digest — the plugin's content digest is recorded in the release lockfile (where dependency resolution pins it and the build verifies the fetched bytes against it), the same way every other entity records its verified bytes in the lockfile rather than embedding a hash in the entity. Identity lives here; the verified bytes live in the lockfile. Required.
 
 ## `spec.pluginType`
 
@@ -58,13 +58,13 @@ Required.
 
 The host/guest ABI version the plugin targets. `v1alpha1` is the only accepted value; a future ABI revision adds an accepted value. Required.
 
-## `spec.compatibleProviders`
+## `spec.targets`
 
-The provider engines this plugin is tested-compatible with, as provider names such as `helm` or `compose`. A plugin is generic across artifacts that share a provider's output shape, not across all providers; the list is an explicit, tested-compatibility claim, and entries preserve author order.
+A single top-level field declaring what this plugin *applies to*, as target names such as `helm` or `compose`; entries preserve author order. Its meaning is discriminated by `spec.pluginType`: for a `provider` plugin it names the render targets (formats) the plugin renders; for an `frp_step` plugin it names the provider scopes the step operates against; a cross-cutting socket leaves it empty. The meaning stays uniform — "what this plugin applies to" — and does not drift to unrelated per-socket semantics.
 
-The list is render-enforced. When a pipeline step touches a scope, the provider rendering that scope's documents must appear in this list, or the build halts. An empty or absent list declares no compatibility claim: it matches no provider, so the runtime halts any pipeline step that uses the plugin. Declare every provider whose output the plugin is tested against.
+For an `frp_step` plugin the list is render-enforced. When a pipeline step touches a scope, the provider rendering that scope's documents must appear in this list, or the build halts. An empty or absent list matches no provider, so the runtime halts any pipeline step that uses the plugin. Declare every provider whose output the plugin is tested against.
 
-For a `pluginType: provider` plugin, `compatibleProviders` carries a second, stronger meaning: it declares the provider name(s) the plugin *renders*. The provider name a Recipe targets (`spec.provider: helm`) binds to the provider-rendering Plugin whose `compatibleProviders` lists that name. Exactly one Plugin may serve a given provider name — two provider-rendering Plugins both claiming the same provider name make render dispatch ambiguous and halt the catalog load with a clear error naming the contested provider and both plugins.
+For a `pluginType: provider` plugin, `targets` declares the render target(s) the plugin *renders*. The target a Recipe selects (`spec.target: helm`) binds to the provider-rendering Plugin whose `targets` lists that name. When more than one Plugin serves the same target, the workspace chooses: a provider binding in `.aggrega-config.yaml` (resolved at `aggrega pull` and recorded in the lockfile) selects one; with no binding and exactly one candidate, that candidate is used; with no binding and more than one candidate, the build halts loudly naming every candidate. Ambiguity is resolved per workspace at the point of use, not by a catalog-wide uniqueness rule.
 
 ## `spec.provider`
 
@@ -84,10 +84,10 @@ The field is documentation-of-contract: it describes which platform directives t
 
 ```yaml
 spec:
-  plugin: "oci://hub.aggrega.ai/wasm/providers/helm-renderer@sha256:<64-hex-digest>"
+  plugin: "oci://hub.aggrega.ai/plugins/core/helm-renderer"
   pluginType: provider
   abiVersion: v1alpha1
-  compatibleProviders:
+  targets:
     - helm
   provider:
     workloadSchema: |
@@ -146,7 +146,7 @@ A provider-rendering plugin's self-declared compile-time render behaviors, autho
 ```yaml
 spec:
   pluginType: provider
-  compatibleProviders:
+  targets:
     - helm-chart
   capabilities:
     inputKinds:
@@ -162,7 +162,7 @@ spec:
 
 ## Inspecting a Plugin
 
-`aggrega inspect <path-to-Plugin.yaml>` renders a `Plugin` file: its identity and socket types, its `compatibleProviders`, the per-export capability table in author order, the runtime constraints, and — at `--detail` — the signature pointer and the runtime config keys. A `Plugin` is inspectable by file path; the bare-name catalog lookup resolves Components only. See [`../cli/aggrega-inspect.md`](../cli/aggrega-inspect.md).
+`aggrega inspect <path-to-Plugin.yaml>` renders a `Plugin` file: its identity and socket types, its `targets`, the per-export capability table in author order, the runtime constraints, and — at `--detail` — the signature pointer and the runtime config keys. A `Plugin` is inspectable by file path; the bare-name catalog lookup resolves Components only. See [`../cli/aggrega-inspect.md`](../cli/aggrega-inspect.md).
 
 ## Cross-references
 

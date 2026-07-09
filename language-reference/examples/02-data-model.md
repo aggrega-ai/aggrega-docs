@@ -80,7 +80,7 @@ metadata:
   name: postgres-bitnami-v2
   version: 1.0.0
 spec:
-  provider: helm
+  target: helm
   implements: core/postgres:2.0.0
   source:
     # Planned: provider-declared source keys, validated by the provider's Wasm plugin.

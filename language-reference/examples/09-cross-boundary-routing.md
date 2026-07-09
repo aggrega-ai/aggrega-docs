@@ -41,7 +41,7 @@ metadata:
   name: k8s-dns-rewriter
   version: 1.0.0
 spec:
-  provider: helm
+  target: helm
   implements: core/k8s-dns-resolver:1.0.0
 
   # Native Deep-Merge: Evaluates first, permanently rewrites .context.inject.env
@@ -161,7 +161,7 @@ metadata:
   name: python-worker-helm
   version: 1.0.0
 spec:
-  provider: helm
+  target: helm
   implements: core/python-worker:2.0.0
   source: "./charts/worker"
   locals:

@@ -22,7 +22,7 @@ The helm engine accepts `source:` as a **bare filesystem path string only**. The
 
 ```yaml
 spec:
-  provider: helm
+  target: helm
   source: ./charts/api-server     # filesystem path to a chart directory
   valuesMapping: |
     image: "{{ .values.image }}"
@@ -93,7 +93,7 @@ metadata:
   name: api-server-helm
   version: 1.0.0
 spec:
-  provider: helm
+  target: helm
   implements: core/api-server
   source: ./vendor/charts/api-server
   valuesMapping: |
@@ -115,7 +115,7 @@ metadata:
   name: api-server-workload
   version: 1.0.0
 spec:
-  provider: helm
+  target: helm
   implements: core/api-server
   workload: |
     apiVersion: aggrega.ai/v1alpha1

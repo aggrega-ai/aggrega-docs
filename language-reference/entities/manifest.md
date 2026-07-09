@@ -21,7 +21,7 @@ The Release schema carries no `provider` field at any nesting level; provider di
 
 ## Flat URI mapping
 
-The Manifest's `mappings:` block is a flat map from **component-type URI** to **Recipe URI** (and from **feature-type URI** to **FeatureRecipe URI**). The mapping is provider-agnostic at the Manifest level; provider determination flows from each resolved Recipe's `spec.provider` field at orchestrator-time, not from the Manifest's structural shape. The block organises mappings under two top-level keys:
+The Manifest's `mappings:` block is a flat map from **component-type URI** to **Recipe URI** (and from **feature-type URI** to **FeatureRecipe URI**). The mapping is provider-agnostic at the Manifest level; provider determination flows from each resolved Recipe's `spec.target` field at orchestrator-time, not from the Manifest's structural shape. The block organises mappings under two top-level keys:
 
 * **`components.type`** maps a component-type URI to a Recipe URI. Every component instance of the declared type resolves to the specified Recipe. The mapping is one-to-one per component-type.
 * **`features.type`** maps a feature-type URI to a FeatureRecipe URI. Every Feature attachment of the declared type resolves to the specified FeatureRecipe. Credential Features (labeled `feature.aggrega.ai/kind: secret`) live in the same `features.type` map as operational Features — the unified Feature entity model.
@@ -50,7 +50,7 @@ spec:
         core/aws-secrets-manager: core/helm/eso-aws-fetcher:1.0.0
 ```
 
-**Provider determination at orchestrator-time.** The Manifest entry binds a component-type to a Recipe URI; the Recipe URI's `<namespace>/<provider>/<name>` path segment carries the provider. At orchestrator time, the resolver loads the Recipe via direct URI lookup against the lockfile and catalog, and each Recipe's `spec.provider` field determines the per-(path, provider) dispatch grouping. The Manifest's structural shape stays flat regardless of how many providers the broader catalog supports.
+**Provider determination at orchestrator-time.** The Manifest entry binds a component-type to a Recipe URI; the Recipe URI's `<namespace>/<provider>/<name>` path segment carries the provider. At orchestrator time, the resolver loads the Recipe via direct URI lookup against the lockfile and catalog, and each Recipe's `spec.target` field determines the per-(path, provider) dispatch grouping. The Manifest's structural shape stays flat regardless of how many providers the broader catalog supports.
 
 ### Direct URI lookup, no `matchImplements` walking
 
@@ -75,7 +75,7 @@ Subsequent builds use the lockfile-pinned version regardless of the user-typed f
 Recipe identity in the catalog is provider-scoped: two providers may each ship a recipe of the same `metadata.name` and version (the catalog tree places them at `recipe/{provider}/{name}/`, and the registry identity is `recipe/{provider}/{name}:{version}`). A Manifest mapping value names the recipe at either precision:
 
 * **Bare** — `mariadb:1.0.0`. Resolves when exactly one provider ships the name; the common case for single-provider catalogs.
-* **Provider-qualified** — `compose/mariadb:1.0.0`. The segment before the first `/` names the provider (`spec.provider`). Required when more than one provider ships the same recipe name: a bare reference that matches recipes under two providers is ambiguous and halts loudly at resolution rather than silently picking one.
+* **Provider-qualified** — `compose/mariadb:1.0.0`. The segment before the first `/` names the provider (`spec.target`). Required when more than one provider ships the same recipe name: a bare reference that matches recipes under two providers is ambiguous and halts loudly at resolution rather than silently picking one.
 
 The version-segment forms above apply to both shapes.
 

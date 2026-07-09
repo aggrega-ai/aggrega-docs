@@ -51,7 +51,7 @@ metadata:
   name: web-server-helm
   version: 1.0.0
 spec:
-  provider: helm
+  target: helm
   implements: core/web-server:1.0.0
   source: "./charts/web-server"
   locals:
@@ -97,7 +97,7 @@ spec:
         my-site: {}
 ```
 
-**Compilation:** `aggrega build release.yaml` → The compiler resolves `my-site` (type `core/web-server:1.0.0`) → looks up `core/web-server` in the Manifest's `components.type` map → finds `core/helm/web-server-helm:1.0.0` → loads the Recipe (its `spec.provider: helm` carries the provider) → renders the chart into `dist/boundaries/default-cluster/`.
+**Compilation:** `aggrega build release.yaml` → The compiler resolves `my-site` (type `core/web-server:1.0.0`) → looks up `core/web-server` in the Manifest's `components.type` map → finds `core/helm/web-server-helm:1.0.0` → loads the Recipe (its `spec.target: helm` carries the provider) → renders the chart into `dist/boundaries/default-cluster/`.
 
 ---
 
@@ -195,7 +195,7 @@ metadata:
   name: postgres-bitnami
   version: 1.0.0
 spec:
-  provider: helm
+  target: helm
   implements: core/postgres:1.0.0
   source:
     # Planned: provider-declared source keys, validated by the provider's Wasm plugin.
@@ -225,7 +225,7 @@ metadata:
   name: web-server-helm
   version: 1.0.0
 spec:
-  provider: helm
+  target: helm
   implements: core/web-server:1.0.0
   source: "./charts/web-server"
   locals:

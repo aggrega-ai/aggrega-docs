@@ -79,7 +79,7 @@ The Aggrega standard library ships three rendering providers — `helm`, `helm-c
 - **`helm` — available.** Sourced mode (Helm chart rendering via the Helm SDK) and synthesised mode (Workload → Deployment/StatefulSet + Services + PVCs) both ship.
 - **`helm-chart` — available.** Sourced mode (umbrella-chart composition) ships. The synthesised input kind is not applicable to this provider; authors needing K8s manifest synthesis use the `helm` provider with `workload:`.
 - **`compose` — available.** Sourced mode (compose fragment overlay) and synthesised mode (Workload → compose service + volumes + networks) both ship. Per-boundary `docker-compose.yaml` output assembles via the Release-level composer.
-- **`eval` — planned.** The eval virtual-component provider (Wasm-formatter + `.locals` export contract) is documented in [`../architecture/06-data-taxonomy-and-composition.md`](../architecture/06-data-taxonomy-and-composition.md) §10. No engine is registered with the production dispatch; a Recipe declaring `provider: eval` halts at render with an `unknown provider` error.
+- **`eval` — planned.** The eval virtual-component provider (Wasm-formatter + `.locals` export contract) is documented in [`../architecture/06-data-taxonomy-and-composition.md`](../architecture/06-data-taxonomy-and-composition.md) §10. No engine is registered with the production dispatch; a Recipe declaring `target: eval` halts at render with an `unknown provider` error.
 
 Provider rendering is served by a Plugin with `pluginType: provider`; see [`entities/plugin.md`](entities/plugin.md) for the provider-rendering Plugin authoring surface and [`providers/`](providers/) for per-provider reference pages.
 

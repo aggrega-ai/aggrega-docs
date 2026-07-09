@@ -53,7 +53,7 @@ metadata:
   name: ...
   version: 1.0.0
 spec:
-  provider: helm | compose | helm-chart | ...
+  target: helm | compose | helm-chart | ...
   implements: core/...:1.0.0
 
   locals: { ... }
@@ -348,10 +348,10 @@ metadata:
   name: providers/helm-renderer
   version: 1.0.0
 spec:
-  plugin: "oci://hub.aggrega.ai/wasm/providers/helm-renderer@sha256:<64-hex-digest>"
+  plugin: "oci://hub.aggrega.ai/wasm/providers/helm-renderer"
   pluginType: provider
   abiVersion: v1alpha1
-  compatibleProviders:
+  targets:
     - helm
   provider:
     workloadSchema: |   # how Workload translates to K8s manifests
@@ -495,7 +495,7 @@ Inline-block-scalar `artifacts:` entries for helm-chart are rejected at Recipe l
 
 Three structural distinctions:
 
-**Not cross-provider within a single Recipe.** A Recipe declares exactly one `provider:` at its top level. Everything the Recipe produces — source-rendered output, workload-synthesized output, and artifact emissions — is in that provider's native format. A helm Recipe's artifacts contain Kubernetes YAML. A compose Recipe's artifacts contain compose fragments. A Recipe targets one provider; every output is in that provider's native format.
+**Not cross-provider within a single Recipe.** A Recipe declares exactly one `target:` at its top level. Everything the Recipe produces — source-rendered output, workload-synthesized output, and artifact emissions — is in that provider's native format. A helm Recipe's artifacts contain Kubernetes YAML. A compose Recipe's artifacts contain compose fragments. A Recipe targets one provider; every output is in that provider's native format.
 
 Multi-provider composition happens at the Release level. Boundaries hold mixed-provider components; each provider's contributors at a boundary's evaluated path are dispatched and assembled per-(path, provider) independently. A Release with components targeting helm, helm-chart, and compose respectively can place all three in one boundary; the dispatch grouping partitions them per provider, each provider's contributors land in their own assembled output under the boundary's path, and the operator authors the cross-provider coordination via the boundary structure they choose. Cross-provider coordination is the Release author's responsibility.
 

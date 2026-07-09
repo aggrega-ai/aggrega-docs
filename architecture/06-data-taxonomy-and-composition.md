@@ -290,7 +290,7 @@ metadata:
   name: oracle-dsn-formatter
   version: 1.0.0
 spec:
-  provider: eval 
+  target: eval 
   implements: core/legacy-database:1.0.0
   
   # The programmatic logic executed in-memory by the Wasm sandbox

@@ -22,7 +22,7 @@ To keep implementation biases out of the core engine, the `source` block is not 
 
 **What the core resolves today.** Per-provider Wasm source validation is not yet implemented. A *fetched* source is resolved by the `{ kind, url, version }` form, where `kind` selects a built-in resolver — today `helm-oci-chart`, `helm-https-chart`, and `compose-https-fragment`. A fetch-intended source must use `{ kind, url, version }`; a structured source that omits `kind`/`url` is not fetched, and if a fetch was intended the build halts loudly at lock-time source descent rather than silently resolving to nothing. When the per-provider Wasm socket ships, it validates provider-specific shapes and translates them ahead-of-time into a deterministic `{ kind, url, version }` fetch identity — the version always pins ahead-of-time; the compiler never fetches live runtime state.
 
-To guarantee predictable validation, Recipes should reference the exact version of the provider they were authored for (e.g., `spec.provider: "helm:1.0.0"`). If the version tag is omitted (e.g., `spec.provider: "helm"`), the compiler dynamically falls back to fetching the `latest` available version of the Wasm plugin from the registry. The IDE Language Server (LSP) runs this resolved Wasm plugin in the background, extracting its native JSON schema to provide real-time autocomplete and linting directly to the developer.
+To guarantee predictable validation, Recipes should reference the exact version of the provider they were authored for (e.g., `spec.target: "helm:1.0.0"`). If the version tag is omitted (e.g., `spec.target: "helm"`), the compiler dynamically falls back to fetching the `latest` available version of the Wasm plugin from the registry. The IDE Language Server (LSP) runs this resolved Wasm plugin in the background, extracting its native JSON schema to provide real-time autocomplete and linting directly to the developer.
 
 ### B. Context Injection: The Semantic Mapping Layer
 
@@ -112,7 +112,7 @@ metadata:
   name: postgres-bitnami
   version: 1.0.0
 spec:
-  provider: helm # Unpinned version, compiler will fetch 'latest'
+  target: helm # Unpinned version, compiler will fetch 'latest'
   implements: core/postgres-db:1.0.0
   source:
     # The shipped fetch form: { kind, url, version }. 'kind' selects a built-in
@@ -153,7 +153,7 @@ metadata:
   name: aws-s3-tf
   version: 1.0.0
 spec:
-  provider: terraform
+  target: terraform
   implements: aws/s3-bucket:1.0.0
   source: "./src"
   
@@ -178,7 +178,7 @@ metadata:
   name: kong-gateway
   version: 1.0.0
 spec:
-  provider: helm
+  target: helm
   implements: core/gateway/ai-gateway:1.0.0
   source:
     # Planned: provider-declared source keys, validated by the provider's Wasm plugin.
@@ -236,7 +236,7 @@ The field accepts two content-shape-dispatched authoring modes:
 
 ```yaml
 spec:
-  provider: helm
+  target: helm
   implements: core/web-server:1.0.0
   workload: |
     apiVersion: aggrega.ai/v1alpha1
@@ -270,7 +270,7 @@ Map keys become output filenames verbatim; each entry's value carries one of two
 
 ```yaml
 spec:
-  provider: helm
+  target: helm
   implements: core/web-server:1.0.0
   artifacts:
     extra-configmap.yaml: |
@@ -294,7 +294,7 @@ Each artifact entry's template evaluates with the same template context as `valu
 
 ```yaml
 spec:
-  provider: helm
+  target: helm
   implements: core/postgres-db:1.0.0
   locals:
     primary_compute: postgresql
@@ -317,7 +317,7 @@ For the public-API counterpart, see [The `provides:` block](#the-provides-block)
 
 ```yaml
 spec:
-  provider: helm
+  target: helm
   implements: core/postgres-db:1.0.0
   provides:
     host: "{{ .context.instance_id }}-postgresql.{{ .context.annotations.release.\"aggrega.ai/namespace\" }}.svc.cluster.local"
@@ -335,7 +335,7 @@ Each entry's template evaluates with the per-instance template context (`.contex
 
 ```yaml
 spec:
-  provider: helm
+  target: helm
   implements: core/web-server:1.0.0
   source: { registry: "...", chart: "..." }
   pipeline:

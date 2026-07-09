@@ -16,7 +16,7 @@ metadata:
     - name: Example Author
       email: e@example.com
 spec:
-  provider: helm
+  target: helm
   implements: core/compute/api:1.0.0
 
   locals:
@@ -79,7 +79,7 @@ metadata:
   name: api-with-envoy-helm
   version: 1.0.0
 spec:
-  provider: helm
+  target: helm
   implements: core/compute/api:1.0.0
 
   locals:
@@ -185,7 +185,7 @@ metadata:
   name: mariadb-bitnami-enhanced
   version: 1.0.0
 spec:
-  provider: helm
+  target: helm
   implements: core/datastore/mariadb:1.0.0
 
   locals:
@@ -237,7 +237,7 @@ Pattern: **synthesized with artifacts**, using `$import:` on the `workload:` fie
 ```yaml
 # recipe.yaml
 spec:
-  provider: helm
+  target: helm
   implements: core/compute/api:1.0.0
   workload:
     $import: ./workload.yaml

@@ -50,7 +50,7 @@ CATALOG_ERROR: node <node-id>: provider <provider-name> does not support synthes
 
 The `CATALOG_ERROR:` shape signals the catalog entity is at fault, not the developer's Aggregate.
 
-A related load-time guardrail protects provider dispatch itself: exactly one provider-rendering Plugin may serve a given provider name. When two provider-rendering Plugins both list the same provider in `compatibleProviders`, dispatch is ambiguous and the catalog load halts with a `CATALOG_ERROR` naming the contested provider and both plugins.
+A related guardrail protects provider dispatch itself: when more than one provider-rendering Plugin serves the same target, the workspace resolves the ambiguity via a provider binding in `.aggrega-config.yaml`, chosen at `aggrega pull` and recorded in the lockfile. With no binding and exactly one candidate Plugin, that candidate is used; with no binding and more than one candidate, the build halts loudly, naming the candidate plugins. Ambiguity is resolved per workspace at the point of use, not by a catalog-wide uniqueness rule.
 
 > **Honest-pending — per-provider Workload-content validation.** The provider-Plugin's `spec.provider.workloadSchema` does not validate Workload bodies today; it is a documented contract and a synthesis-support marker, and Workload bodies are validated against the platform-owned embedded Workload schema. When the Wasm-based Workload synthesizer ships (see the roadmap), `workloadSchema` becomes the per-provider content contract the synthesizer validates the Workload body against — a second Layer-3 sub-surface — including per-provider constraints such as a `min: 1024` non-privileged-port rule. The constraint-overlap examples below describe that end-state.
 

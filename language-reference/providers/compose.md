@@ -104,7 +104,7 @@ The compose engine accepts `source:` as a **bare filesystem path string only**. 
 
 ```yaml
 spec:
-  provider: compose
+  target: compose
   source: ./docker-compose.base.yaml     # filesystem path to the base compose file
   valuesMapping: |
     services:
@@ -178,7 +178,7 @@ metadata:
   name: api
   version: 1.0.0
 spec:
-  provider: compose
+  target: compose
   workload: |
     apiVersion: aggrega.ai/v1alpha1
     kind: Workload

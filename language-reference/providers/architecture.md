@@ -1,6 +1,6 @@
 # Provider Architecture
 
-A provider is a rendering engine that turns a Recipe's input kinds into provider-native manifest files. When a Recipe declares `provider: helm`, `provider: compose`, or any other provider name, the compiler dispatches rendering to the engine that serves that name. This chapter covers how a provider is realised as a provider-rendering Plugin, how dispatch works, and the plugin-socket contract that binds the Go compiler to each rendering engine.
+A provider is a rendering engine that turns a Recipe's input kinds into provider-native manifest files. When a Recipe declares `target: helm`, `target: compose`, or any other provider name, the compiler dispatches rendering to the engine that serves that name. This chapter covers how a provider is realised as a provider-rendering Plugin, how dispatch works, and the plugin-socket contract that binds the Go compiler to each rendering engine.
 
 What this chapter does **not** cover: the three-input-kinds composition model (`source:` + `valuesMapping:`, `workload:`, `artifacts:` — each accepting inline content or `$import:` per the unified file-import vocabulary) that a Recipe uses to produce its output. That model is cross-cutting across every provider and lives in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md), including the Provider Capability Matrix that maps which input kind each provider supports.
 
@@ -8,19 +8,19 @@ What this chapter does **not** cover: the three-input-kinds composition model (`
 
 Provider rendering is served by a Plugin with `pluginType: provider`. The provider-rendering Plugin:
 
-- **serves one or more provider names** — declared in `compatibleProviders`. The provider name a Recipe targets (`spec.provider: helm`) binds to the provider-rendering Plugin whose `compatibleProviders` lists that name. Exactly one Plugin may serve a given provider name; a name claimed by two provider-rendering Plugins halts the catalog load.
+- **serves one or more provider names** — declared in `targets`. The provider name a Recipe targets (`spec.target: helm`) binds to the provider-rendering Plugin whose `targets` list includes that name. When more than one Plugin serves the same target, the workspace chooses between them via a provider binding in `.aggrega-config.yaml`, resolved at `aggrega pull` and recorded in the lockfile; with no binding and exactly one candidate that candidate is used, and with no binding and more than one candidate the build halts loudly, naming the candidate plugins.
 - **carries its provider-socket metadata** — in a `spec.provider` block. `spec.provider.workloadSchema` is a JSON Schema 2020-12 declaration documenting how the platform-owned Workload kind translates into this provider's native output; the standard-library catalog declares it on providers whose engine synthesizes, as the documented translation contract. `spec.provider.wellKnownAnnotations` enumerates the `aggrega.ai/` boundary annotations the engine reads. Synthesized-input (`workload:`) support is a property of the provider's rendering engine, enforced at render time — not determined by `workloadSchema`'s presence.
 
 See [../entities/plugin.md](../entities/plugin.md) for the full field-level authoring surface of the Plugin entity, including the `spec.provider` block.
 
 ## Per-provider dispatch
 
-Every Recipe declares exactly one `provider:` at the top of its `spec`. The compiler reads this field and dispatches rendering through the engine that serves the named provider. A Recipe cannot target multiple providers at once. Multi-provider composition happens at the Release level: a boundary can hold mixed-provider components, and each provider's contributors at the boundary's evaluated assembly path are assembled independently — one assembly per `(path, provider)` tuple.
+Every Recipe declares exactly one `target:` at the top of its `spec`. The compiler reads this field and dispatches rendering through the engine that serves the named provider. A Recipe cannot target multiple providers at once. Multi-provider composition happens at the Release level: a boundary can hold mixed-provider components, and each provider's contributors at the boundary's evaluated assembly path are assembled independently — one assembly per `(path, provider)` tuple.
 
 The dispatch path for a single node:
 
 1. The compiler resolves the Recipe URI for this node through the Manifest's three-tier lookup under the target provider's mapping section. The Manifest's provider-axis grouping is what makes "the same Component, different Recipes for different providers" a natural pattern.
-2. The resolved Recipe's `spec.provider` identifies the provider name to dispatch to.
+2. The resolved Recipe's `spec.target` identifies the provider name to dispatch to.
 3. The compiler binds the engine for that provider name: if a provider-rendering Plugin serves the name, rendering runs through that Plugin's Wasm engine; otherwise the provider's built-in engine renders it.
 4. The engine is invoked with the per-node render context (pillar values, `.context.*` projections, the Recipe's input kinds).
 5. The engine returns rendered output. The compiler routes the rendered files to the per-`(path, provider)` assembler keyed on the boundary's evaluated `directory:` joined with the per-component `subDirectory:`. Two boundaries that evaluate to the same path under the same provider share an assembler — the canonical pattern is a parent boundary plus two child boundaries with `directory: "{{ .parent_boundary.directory }}"` collapsing into one merged assembly.
@@ -52,6 +52,6 @@ The [reference matrix](reference-matrix.md) summarises per-provider input-kind s
 
 ## Custom providers
 
-Enterprise teams authoring their own providers follow the same pattern as the standard library: author a provider-rendering Plugin (`pluginType: provider`) declaring the provider name(s) it serves in `compatibleProviders` and its `spec.provider` metadata, then ship the Wasm artifact implementing the JSON-in / JSON-out rendering contract. The compiler treats custom providers identically to standard-library providers; per-provider dispatch works on the provider name declared by the Recipe.
+Enterprise teams authoring their own providers follow the same pattern as the standard library: author a provider-rendering Plugin (`pluginType: provider`) declaring the provider name(s) it serves in `targets` and its `spec.provider` metadata, then ship the Wasm artifact implementing the JSON-in / JSON-out rendering contract. The compiler treats custom providers identically to standard-library providers; per-provider dispatch works on the provider name declared by the Recipe.
 
 Plugin authoring conventions (Rust, Go, or TypeScript targeting the Aggrega JSON-in / JSONPatch-out handshake) and the SDK that supports them are tracked in the project roadmap.

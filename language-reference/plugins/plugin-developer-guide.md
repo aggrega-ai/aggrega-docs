@@ -26,7 +26,7 @@ A plugin offers one or more **exports** — named entry points the host dispatch
 
 - **`name`** — the export's ABI name, the name the host dispatches to. Required.
 - **`operates`** — the pipeline operation the export performs: `patch` (modify an existing rendered document) or `emit` (add a new document). This is a declared capability claim. The host cross-checks it against the plugin's `describe()` self-report at publish and at load, so the entity's authored claim and the plugin's own account must agree. It is a validated claim about the export, not a dispatch switch: at render time the operation a step actually performs is carried by the guest's returned result, not selected from this field. Absent carries no operation claim.
-- **`scope`** — the document root the export operates on: `own` (the node's own rendered documents) or `host` (the documents of the component a component-scope FeatureRecipe is attached to). Before a pipeline step's plugin runs, the host reads the step's declared export scope and enforces that the provider rendering that scope's documents appears in the plugin's `compatibleProviders` (Section 5) — an `own`-scope export is checked against the provider rendering the node's own documents, a `host`-scope export against the host component's provider, and an empty scope defaults to `own` for this check. This is the provider-compatibility gate, run ahead of the step; the document a guest operation actually touches is named per-operation in the guest's returned result, not selected from this declared field. Absent defaults to `own`.
+- **`scope`** — the document root the export operates on: `own` (the node's own rendered documents) or `host` (the documents of the component a component-scope FeatureRecipe is attached to). Before a pipeline step's plugin runs, the host reads the step's declared export scope and enforces that the provider rendering that scope's documents appears in the plugin's `targets` (Section 5) — an `own`-scope export is checked against the provider rendering the node's own documents, a `host`-scope export against the host component's provider, and an empty scope defaults to `own` for this check. This is the provider-compatibility gate, run ahead of the step; the document a guest operation actually touches is named per-operation in the guest's returned result, not selected from this declared field. Absent defaults to `own`.
 - **`selector`** — a free-form, human-readable description of what the export acts on (for example `workloads carrying a pod template`). Documentation for catalog readers and the `aggrega inspect` surface; the compiler does not interpret it.
 
 Author exports in the order you want them read; entries preserve author order on the entity and in `inspect`. A plugin with no authored exports declares no export surface — valid for a plugin whose socket does not need a per-export capability claim.
@@ -87,10 +87,10 @@ metadata:
   name: secret-providers/aws-secrets-manager
   version: 1.2.0
 spec:
-  plugin: "oci://hub.aggrega.ai/wasm/secret-providers/aws-secrets-manager@sha256:<64-hex-digest>"
+  plugin: "oci://hub.aggrega.ai/wasm/secret-providers/aws-secrets-manager"
   pluginType: frp_step
   abiVersion: v1alpha1
-  compatibleProviders:
+  targets:
     - helm
     - compose
   signature:
@@ -108,10 +108,10 @@ spec:
 
 The fields:
 
-- **`spec.plugin`** — the canonical content-addressed reference to the `.wasm` artifact, in the form `oci://<repository>@sha256:<digest>`. The reference is the plugin's identity; the digest is what dependency resolution pins and the build verifies. A tag-form reference authored elsewhere resolves to its `sha256` digest at pull and pins to this canonical digest form. Required.
+- **`spec.plugin`** — the digest-free content reference to the `.wasm` artifact, in the form `oci://<repository>`. Together with `metadata.version` it is the plugin's identity. The content digest is not carried in the entity; it is resolved at `aggrega pull` and recorded in the release lockfile, and the build verifies the fetched bytes against the recorded digest — identity in the entity, verified bytes in the lockfile. Required.
 - **`spec.pluginType`** — the socket type this plugin implements, drawn from `provider`, `linter`, `frp_step`. A plugin implements exactly one. Required.
 - **`spec.abiVersion`** — the host/guest ABI version the plugin targets. `v1alpha1` is the accepted value; a future ABI revision adds an accepted value. Required.
-- **`spec.compatibleProviders`** — the provider engines this plugin is tested-compatible with (provider names such as `helm` or `compose`). A plugin is generic across artifacts that share a provider's output shape, not across all providers, so this is an explicit, tested-compatibility claim. The list is render-enforced: when a pipeline step touches a scope, the provider rendering that scope's documents must appear here, or the build halts. An empty or absent list declares no compatibility claim, matches no provider, and halts any pipeline step that uses the plugin. Entries preserve author order.
+- **`spec.targets`** — the provider engines this plugin is tested-compatible with (provider names such as `helm` or `compose`). A plugin is generic across artifacts that share a provider's output shape, not across all providers, so this is an explicit, tested-compatibility claim. The list is render-enforced: when a pipeline step touches a scope, the provider rendering that scope's documents must appear here, or the build halts. An empty or absent list declares no compatibility claim, matches no provider, and halts any pipeline step that uses the plugin. Entries preserve author order.
 - **`spec.signature`** — an optional descriptive pointer to the plugin's attached signature (Section 8). This block is documentation only: it records where the signature lives and how it was produced for catalog readers; it does not itself admit the plugin. The enforcing check is the per-registry trust policy applied at pull.
 - **`spec.runtime`** — the optional execution-constraints block from Section 4. The author writes `maxMemoryPages`, `timeoutMs`, and `configKV`; `hostFunctions` is machine-derived and stamped by publish, not authored.
 - **`spec.exports`** — the per-export capability claims from Section 3 (`name`, `operates`, `scope`, `selector`).
