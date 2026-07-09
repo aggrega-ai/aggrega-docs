@@ -18,7 +18,7 @@ This page summarises the provider-side nuances that matter for Recipe authors ch
 | --- | --- |
 | Which provider supports which input kind | [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md) Provider Capability Matrix section |
 | How a provider's plugin socket receives input and returns output | [architecture.md](architecture.md) |
-| Per-provider authoring shape (chart structure, compose top-level keys, Terraform bodies) | The matching per-provider page ([helm.md](helm.md), [helm-chart.md](helm-chart.md), [compose.md](compose.md), [terraform.md](terraform.md)) |
+| Per-provider authoring shape (chart structure, compose top-level keys, Terraform bodies, CloudFormation fragments) | The matching per-provider page ([helm.md](helm.md), [helm-chart.md](helm-chart.md), [compose.md](compose.md), [terraform.md](terraform.md), [cloudformation.md](cloudformation.md)) |
 | Which boundary annotations each provider consumes and their defaults | [well-known-annotations.md](well-known-annotations.md) |
 | The Workload kind's authoring surface | [../entities/workload.md](../entities/workload.md) |
 | The three-input-kinds composition model conceptually | [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md) |
