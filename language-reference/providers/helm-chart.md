@@ -19,11 +19,12 @@ A Recipe targeting helm-chart that declares `workload:` is rejected at render ti
 
 The split is deliberate: workload synthesis (translating an abstract Workload into Kubernetes resources) is the helm provider's exclusive concern. helm-chart's role is umbrella + sub-chart composition for charts the author has already produced.
 
-A Recipe targeting helm-chart that declares **inline-content `artifacts:` entries** (entries whose value is a block scalar carrying the file body inline in the Recipe rather than an `$import:`-loaded reference) is rejected at Recipe load with a `CATALOG_ERROR`:
+A Recipe targeting helm-chart may also declare **inline-content `artifacts:` entries** (entries whose value is a block scalar carrying the file body inline in the Recipe rather than an `$import:`-loaded reference). An inline-content entry is placed verbatim at the sub-chart root under its authored key — no `templates/` prefix, no provenance splice, no Go-template evaluation. A chart's own templates read such a loose file through Helm's `.Files.Get` / `.Files.Glob` (the canonical ConfigMap-from-files pattern), so a chart-root file is a legitimate, first-class shape rather than an error.
 
-> helm-chart provider rejects inline-content `artifacts:` entries; author each entry with `$import:` referencing a file path so Helm's `{{ }}` template syntax inside the file content survives the dual-delimiter pre-template pass
+The two artifact forms serve different roles:
 
-Inline-content entries would force Aggrega's Go-template engine to evaluate the body using `{{ }}` delimiters — which would conflict with Helm's own `{{ }}` syntax inside chart-author-managed template files. The `$import:`-loaded form sidesteps the conflict by reading the referenced file's content as-is and pre-templating with `[[ ]]` delimiters (Aggrega's interpolation) before the file lands in the sub-chart's `templates/` directory, where Helm's `{{ }}` syntax then evaluates at downstream `helm install` time.
+- An **`$import:`-loaded entry** is a template file: it is pre-templated with `[[ ]]` delimiters (see "`artifacts:` injection rule" below) and injected into the sub-chart's `templates/` directory, where its own `{{ }}` Helm directives then evaluate at downstream `helm install` time.
+- An **inline-content entry** is a loose data file: it lands byte-for-byte at the chart root for `.Files`-based consumption, so any `{{ }}` in its body is preserved untouched.
 
 ## `artifacts:` injection rule
 
