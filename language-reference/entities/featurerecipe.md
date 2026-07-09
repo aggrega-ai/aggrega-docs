@@ -126,6 +126,8 @@ injectMapping: |
 
 **The boundary of `injectMapping`.** The mechanism is limited to mutating the `.context.inject` memory pipe (the Delivery Contract). It cannot append new containers, mount volumes, or alter the base Recipe's `valuesMapping` output. Any mutation that requires structural changes to the rendered AST (like JSON or YAML arrays) belongs in the FeatureRecipe's `pipeline` array, executed via WebAssembly plugins.
 
+**The patch-target boundary of `pipeline`.** A `pipeline` step patches only output the provider renders into a structured tree. YAML- and JSON-shaped output is structured — including JSON-authored Terraform `.tf.json` modules and the auto-loaded `.tfvars.json` variables overlay — so a step's JSONPatch edits the addressed values in place, leaving every other byte (comments, ordering, formatting) untouched. Output the provider emits as an opaque body, such as native-HCL Terraform configuration, is not a patch target: a patch against an opaque body halts the build with a diagnostic rather than mutating text it cannot address structurally. Authoring a `pipeline` step against opaque output is therefore a design error surfaced as a loud halt, not a silent no-op.
+
 ## Credential FeatureRecipe Pattern
 
 When a FeatureRecipe implements a credential Feature (one labeled `feature.aggrega.ai/kind: secret`), it follows the Two-Part Plugin Principle: the `pipeline` chains a Fetcher plugin (generating the vault-specific CRD) followed by an Injector plugin (mounting the secret to the target container). See [examples/05-credential-features](../examples/05-credential-features.md) for the complete worked example with JSON input/output handshake.
