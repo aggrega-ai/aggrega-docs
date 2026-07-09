@@ -512,5 +512,6 @@ Each provider engine declares which input kinds it renders; a central input-kind
 | helm | ✅ Helm chart via the Helm SDK | ✅ synthesizes Deployment/StatefulSet + Services + PVCs + ConfigMap/Secret volume refs | ✅ flat Kubernetes YAML under the boundary output | ✅ emits the declared artifacts as the node's whole output |
 | compose | ✅ compose file → per-node fragment | ✅ synthesizes a compose service fragment | ✅ merged into the combined `docker-compose.yaml` | ❌ declined at the gate (no service fragment to contribute) |
 | helm-chart | ✅ umbrella-chart composition | ❌ not supported — use the helm provider | ✅ `$import`-only, injected at `templates/<basename>` with `[[ ]]` Aggrega delimiters; inline rejected | ❌ declined at the gate (no chart to inject into) |
+| cloudformation | ✅ sourced template normalized to pure-JSON long-form intrinsics and structurally validated | ❌ not supported — no Workload synthesis | ✅ CloudFormation fragments merged into the boundary's assembled stack template | ✅ emits the declared CloudFormation fragments, merged into the boundary's assembled stack |
 
 *Cells marked `✅` ship; `❌` is a provider-capability decline surfaced by the gate. The per-node compose fragments are merged per boundary today; a further Release-level cross-boundary merge is a future refinement.*
