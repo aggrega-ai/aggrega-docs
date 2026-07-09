@@ -52,6 +52,26 @@ Provider engines read specific boundary annotations from the Release to configur
 | `aggrega.ai/chart-name` | `helm-chart` | Helm chart name | Leaf boundary name |
 | `aggrega.ai/chart-version` | `helm-chart` | Helm chart version | `0.1.0` |
 
+### Category 6 — Cloud target
+
+| Annotation | Consumed By | Purpose | Default |
+| --- | --- | --- | --- |
+| `aggrega.ai/aws-account` | `cloudformation` | AWS account the stack (boundary) deploys into | Same-account — a cross-stack reference resolves through a same-account stack-export import |
+| `aggrega.ai/aws-region` | `cloudformation` | AWS region the stack (boundary) deploys into | Same-region — a cross-stack reference resolves through a same-region stack-export import |
+| `aggrega.ai/aws-assume-role-arn` | `cloudformation` | IAM role ARN a cross-account stack read assumes to reach a peer stack's exported values | No role is supplied on a cross-account reference |
+
+Each CloudFormation boundary renders into one stack. When a `uses` edge crosses
+from one boundary to another, the `cloudformation` engine needs to know where the
+peer stack lives to shape the reference: two stacks in the same account and region
+exchange values through a stack export and import; a peer in a different account or
+region needs a cross-account stack-output read, optionally under an assumed role.
+These annotations carry that placement context. They are opaque scalar pointer
+strings — the engine pipes them into the reference it builds and never resolves
+them against live AWS state; the account, region, and role are supplied by the
+Release, and the runtime environment resolves the final physical read. When every
+annotation is absent, the engine treats the peer as same-account and same-region
+and supplies no role.
+
 > Note: Manifest `features.annotations` bindings using the `aggrega.ai/`
 > prefix are rejected at load time; the prefix is reserved exclusively
 > for the provider well-known annotations documented in this chapter.
