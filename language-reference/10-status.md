@@ -76,7 +76,7 @@ The 5-step Aggrega compilation pipeline is documented in [`../architecture/10-co
 
 The Aggrega standard library ships three rendering providers — `helm`, `helm-chart`, and `compose` — plus the eval virtual-component provider. Per-provider status:
 
-- **`helm` — available.** Sourced mode (Helm chart rendering via the Helm SDK) and synthesised mode (Workload → Deployment/StatefulSet + Services + PVCs) both ship.
+- **`helm` — available.** Sourced mode (Helm chart rendering via the Helm SDK) and synthesised mode (Workload → a controller object chosen by the Workload's `form` — Deployment, StatefulSet, DaemonSet, or Job — plus Services and PVCs) both ship.
 - **`helm-chart` — available.** Sourced mode (umbrella-chart composition) ships. The synthesised input kind is not applicable to this provider; authors needing K8s manifest synthesis use the `helm` provider with `workload:`.
 - **`compose` — available.** Sourced mode (compose fragment overlay) and synthesised mode (Workload → compose service + volumes + networks) both ship. Per-boundary `docker-compose.yaml` output assembles via the Release-level composer.
 - **`eval` — planned.** The eval virtual-component provider (Wasm-formatter + `.locals` export contract) is documented in [`../architecture/06-data-taxonomy-and-composition.md`](../architecture/06-data-taxonomy-and-composition.md) §10. No engine is registered with the production dispatch; a Recipe declaring `target: eval` halts at render with an `unknown provider` error.

@@ -127,6 +127,8 @@ metadata:
   labels: {}           # merged with the label-safe aggrega.ai/* provenance at emission
   annotations: {}      # merged with the charset-unsafe aggrega.ai/* provenance (recipe-uri, boundary-path, sync-wave)
 
+form: stateless        # controller shape: stateless (default) | stateful | daemon | scheduled | task
+
 replicas: 1            # default 1
 
 initContainers:        # ordered list; runs before main containers
@@ -309,9 +311,9 @@ Five volume types; no compound:
 | `configmap` | Read-only config files | ConfigMap volume reference | bind mount from generated config file |
 | `secret` | Read-only secret files | Secret volume reference | env_file or bind-mounted secret file |
 | `persistent` | Single PVC; survives pod restarts | PVC resource + `volume.persistentVolumeClaim` | named volume |
-| `persistentTemplate` | Per-replica PVC for StatefulSet | `StatefulSet.volumeClaimTemplates` | named volume (degraded; warning emitted) |
+| `persistentTemplate` | Per-replica PVC; companion of `form: stateful` | `StatefulSet.volumeClaimTemplates` | named volume (degraded; warning emitted) |
 
-Compose cannot express per-replica templates. When `persistentTemplate` is translated to compose, a single named volume is emitted with a warning comment.
+Compose cannot express per-replica templates. When `persistentTemplate` is translated to compose, a single named volume is emitted with a warning comment. A `persistentTemplate` volume requires `form: stateful`; declaring it on any other form halts the build.
 
 ### Multi-Service Exposures
 
@@ -355,7 +357,8 @@ spec:
     - helm
   provider:
     workloadSchema: |   # how Workload translates to K8s manifests
-      // Each Workload produces: 1 Deployment (or StatefulSet if persistentTemplate used)
+      // Each Workload produces: 1 controller object chosen by workload.form
+      //   (stateless -> Deployment, stateful -> StatefulSet, daemon -> DaemonSet, task -> Job)
       // + 1..N Services (one per workload.services entry)
       // + 1..N PVCs (one per workload.volumes.*.persistent entry)
       // + 1..N ConfigMap volume refs (from workload.volumes.*.configmap.source)

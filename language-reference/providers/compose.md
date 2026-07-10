@@ -63,7 +63,11 @@ Compose has no Kubernetes-equivalent for ConfigMap, Secret, or per-replica volum
 | `secret as: file` | `volumes` long-form bind-mount, read-only | Same caveat as configmap: the secret file must be reachable on the host |
 | `secret as: env` | `environment` entry with empty value | Placeholder. Compose has no native env-from-secret primitive; the `compose-bridge` Feature is the future home for secret-resolution at compose runtime |
 | `persistent` | named volume + top-level `volumes: { <name>: {} }` declaration | Storage class and size are not preserved (compose has no equivalent shape) |
-| `persistentTemplate` | named volume + top-level declaration (same as `persistent`) | Compose has no per-replica volume templating primitive; the per-replica behaviour is silently lost |
+| `persistentTemplate` | named volume + top-level declaration (same as `persistent`) | Companion of `form: stateful`; compose has no per-replica volume templating primitive, so the per-replica behaviour is lost |
+
+### Controller form
+
+The Workload's `form` selects an abstract controller shape (see [entities/workload.md](../entities/workload.md)). Compose renders `stateless` and `stateful` (and the empty default, treated as `stateless`) as long-running services; the `stateful` form adds the named volume for a `persistentTemplate` companion. The `daemon`, `scheduled`, and `task` forms have no clean single-host compose mapping, so a Workload declaring one of them targeting a compose boundary halts with a `TRANSLATION_ERROR` naming the form and the supported set — compose does not degrade an unsupported form into a plain service that misrepresents the intent.
 
 ### Service exposure
 

@@ -55,6 +55,65 @@ See [../vocabulary/data-pillars.md](../vocabulary/data-pillars.md) for the full 
 
 The full Workload schema is in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md) under "The Workload Kind." The authoring conventions below cover the field-level decisions a Recipe author makes.
 
+### `form`
+
+`form` declares the workload's abstract controller shape — the kind of runtime lifecycle it has, independent of any target platform. It is a single string, one of `stateless`, `stateful`, `daemon`, `scheduled`, `task`, and defaults to `stateless` when omitted:
+
+- `stateless` — interchangeable, horizontally-scaled replicas with no per-replica identity (the common long-running service).
+- `stateful` — replicas with stable per-replica identity and per-replica storage. A `persistentTemplate` volume is a companion of this form.
+- `daemon` — one instance per eligible host.
+- `scheduled` — recurring, time-triggered runs.
+- `task` — a single run to completion.
+
+The form carries no platform-native resource kinds itself. Each target Engine maps the form to its own native shape:
+
+| `form` | Kubernetes (helm) | Compose | CloudFormation | Terraform |
+| --- | --- | --- | --- | --- |
+| `stateless` | Deployment | service (no persistent volume) | ECS Service | `aws_ecs_service` |
+| `stateful` | StatefulSet | service + named volume | ECS Service + EBS/RDS | `aws_ecs_service` + volume |
+| `daemon` | DaemonSet | (n/a → loud unsupported) | ECS daemon scheduling | ECS daemon scheduling |
+| `scheduled` | CronJob | (n/a) | EventBridge Scheduler | `aws_cloudwatch_event_rule` |
+| `task` | Job | one-shot container | ECS RunTask / Lambda | ECS task / Lambda invoke |
+
+When a target Engine has no clean mapping for a form, the build halts loudly rather than degrade the workload into a shape that misrepresents the intent — choosing a form a target boundary cannot express is a build-time error, not a silent downgrade. The compose Engine halts on `daemon`, `scheduled`, and `task`. The helm Engine emits a CronJob for `scheduled` (see [`schedule`](#schedule) below) and halts only when its schedule is absent or malformed.
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Workload
+form: stateful
+containers:
+  db: { image: "postgres:16" }
+volumes:
+  data:
+    persistentTemplate:
+      size: "20Gi"
+services:
+  headless:
+    type: Headless
+    ports:
+      db: 5432
+```
+
+### `schedule`
+
+`schedule` is the cron schedule for a `form: scheduled` workload — the companion field that gives the recurring form its recurrence. It is a single string in one canonical format:
+
+- a standard 5-field crontab expression — minute, hour, day-of-month, month, day-of-week (for example `0 0 * * *` for daily at midnight, `*/15 * * * *` for every fifteen minutes), or
+- one of the macros `@hourly`, `@daily`, `@weekly`, `@monthly`, `@yearly`.
+
+`schedule` is **required** when `form: scheduled` and only meaningful then. A `form: scheduled` workload with no schedule, a schedule that is neither a 5-field expression nor a recognised macro (a 6-field seconds-prefixed expression, an unrecognised `@`-token, or a field with illegal characters), or a `schedule` set on any other form is a build-time halt naming the fix. The helm Engine pipes the value verbatim into the emitted CronJob's `spec.schedule`.
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Workload
+form: scheduled
+schedule: "0 2 * * *"        # daily at 02:00
+containers:
+  report:
+    image: "reporter:1.0"
+    command: ["/report"]
+```
+
 ### `replicas`
 
 A single integer for the workload's replica count. Defaults to 1 when omitted. Use a template expression to drive replicas from Ops-declared sizing:
@@ -106,11 +165,11 @@ volumes:
 | `configmap` | ConfigMap volume reference (consumes a ConfigMap resource emitted by the Recipe's `artifacts:` or by a Feature) | Bind mount from a generated config file at the boundary's output directory | Compose has no direct ConfigMap equivalent; the engine generates a config file locally and bind-mounts it, which works for static config but loses K8s ConfigMap's update-on-rollout semantics. |
 | `secret` | Secret volume reference (consumes a Secret resource emitted by a credential FeatureRecipe) | `env_file:` for env-shaped secrets, or a bind-mounted secret file for path-shaped secrets | Compose lacks first-class Kubernetes Secret semantics; secrets are local files outside any vault-fetch CRD lifecycle. |
 | `persistent` | PVC resource + `volume.persistentVolumeClaim` | Named volume | Compose named volumes are a flat host-side abstraction; helm's PVC supports storage class, access mode, and capacity declaration that compose ignores. |
-| `persistentTemplate` | `StatefulSet.volumeClaimTemplates` (per-replica PVC, automatic StatefulSet promotion) | Named volume (degraded — single shared volume across replicas with a warning emitted) | Compose cannot express per-replica templates. When `persistentTemplate` is translated to compose, a single named volume is emitted with a warning comment. Workloads relying on per-replica volume isolation should not target compose-only boundaries. |
+| `persistentTemplate` | `StatefulSet.volumeClaimTemplates` (per-replica PVC; companion of `form: stateful`) | Named volume (degraded — single shared volume across replicas with a warning emitted) | Compose cannot express per-replica templates. When `persistentTemplate` is translated to compose, a single named volume is emitted with a warning comment. Workloads relying on per-replica volume isolation should not target compose-only boundaries. |
 
-The `persistentTemplate` translation triggers automatic StatefulSet promotion on the helm engine — when any container declares a `persistentTemplate` volume, helm emits a StatefulSet rather than a Deployment; the per-pod identity that StatefulSet provides is required for the per-replica volume lifecycle. Authors who want StatefulSet semantics without `persistentTemplate` cannot opt in; the helm engine's promotion rule is volume-driven only.
+The controller shape is chosen by the workload's `form`, not by its volumes. A StatefulSet is emitted when `form: stateful`; a `persistentTemplate` volume is a **companion** of that form — it declares per-replica storage on a workload that already has the per-replica identity a StatefulSet provides. Declaring a `persistentTemplate` volume on any other form (or on the default `stateless`) is a build-time error naming the fix: `declare form: stateful`. The reverse is allowed — a `form: stateful` workload need not declare a `persistentTemplate` volume. Authors who want StatefulSet semantics set `form: stateful` directly.
 
-A promoted StatefulSet requires a headless governing Service: declare **exactly one** service with `type: Headless` in the same Workload, alongside the `persistentTemplate` volume. The engine wires the StatefulSet's `serviceName` to that headless Service (it provides the stable per-pod network identities a StatefulSet needs). The build halts if no headless service is declared — a StatefulSet has no governing Service to name — or if more than one is, leaving the governing Service ambiguous. A StatefulSet workload may still declare additional non-headless services (for example a `ClusterIP` service for client access) beside the one headless governing service.
+A `form: stateful` workload on the helm engine requires a headless governing Service: declare **exactly one** service with `type: Headless` in the same Workload. The engine wires the StatefulSet's `serviceName` to that headless Service (it provides the stable per-pod network identities a StatefulSet needs). The build halts if no headless service is declared — a StatefulSet has no governing Service to name — or if more than one is, leaving the governing Service ambiguous. A StatefulSet workload may still declare additional non-headless services (for example a `ClusterIP` service for client access) beside the one headless governing service.
 
 ### `services`
 
@@ -290,7 +349,7 @@ workload: |
 
 Every Workload is validated at Recipe load time before any rendering runs. Validation has two stages:
 
-- **Schema validation.** The Workload value is unified against the embedded `aggrega.ai/v1alpha1` Workload schema. Errors carry the field path and the constraint violated (for example, `.containers.main.health.ready: more than one probe shape declared`). Schema validation enforces every type, enum, range, and disjunction declared in the schema — including the closed-set service `type` (one of `ClusterIP`, `NodePort`, `LoadBalancer`, `Headless`), the integer port range (1..65535), the probe-shape disjunction (exactly one of `http`, `tcp`, `exec`), and the volume-variant disjunction (exactly one of `ephemeral`, `configmap`, `secret`, `persistent`, `persistentTemplate`).
+- **Schema validation.** The Workload value is unified against the embedded `aggrega.ai/v1alpha1` Workload schema. Errors carry the field path and the constraint violated (for example, `.containers.main.health.ready: more than one probe shape declared`). Schema validation enforces every type, enum, range, and disjunction declared in the schema — including the closed-set controller `form` (one of `stateless`, `stateful`, `daemon`, `scheduled`, `task`), the closed-set service `type` (one of `ClusterIP`, `NodePort`, `LoadBalancer`, `Headless`), the integer port range (1..65535), the probe-shape disjunction (exactly one of `http`, `tcp`, `exec`), and the volume-variant disjunction (exactly one of `ephemeral`, `configmap`, `secret`, `persistent`, `persistentTemplate`).
 - **Cross-reference validation.** Workload secret references are checked against the Component's `secretsSchema` (slot membership, `as:` delivery allowlist, blackbox exclusion) and against each referenced slot's resolved provides (referenceability — the fill must publish `name`/`key`). These are cross-entity checks that schema-only validation cannot perform.
 
 Both stages produce the same `CATALOG_ERROR`-prefixed message shape; failures stop the build before any rendering output is produced. Recipe authors get pointed feedback identifying the exact field that failed and the constraint that rejected it.
@@ -352,12 +411,12 @@ The metrics service is typically annotated for Prometheus discovery via a Featur
 
 ### Pattern 2 — Batch job
 
-A workload that runs to completion rather than serving traffic indefinitely. The pattern omits `services:` entirely — batch jobs do not expose ports — and uses `replicas: 1` since K8s Jobs (which the helm provider may emit when it detects this shape) handle parallelism via the Job spec rather than Deployment replicas. Authors who need K8s `Job` semantics rather than `Deployment` semantics rely on the provider engine's promotion rule (today: helm emits Deployment unconditionally for Workloads; Job emission is a future provider extension).
+A workload that runs to completion rather than serving traffic indefinitely. The pattern sets `form: task`, omits `services:` entirely — batch jobs do not expose ports — and relies on the target Engine's task shape (a Kubernetes Job on the helm engine, a one-shot container on compose). The helm engine pins a Job-valid pod `restartPolicy` (`Never` unless the container declares `OnFailure`), since a Job pod cannot use the `Always` default.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Workload
-replicas: 1
+form: task
 containers:
   worker:
     image: "{{ .values.image }}"
@@ -416,7 +475,7 @@ The three patterns map to distinct shipping-shape concerns:
 - **Batch job** — bounded execution; no Service exposure; relies on Recipe-emitted ConfigMap or external state for input.
 - **Sidecar pair** — multi-container pod with shared network namespace; the sidecar's Service exposes the cross-cutting concern.
 
-A fourth pattern — **stateful server with persistent volume** — uses the Workload's `volumes.<name>.persistentTemplate` field to declare per-replica persistent storage; the helm provider's StatefulSet promotion rule (see [providers/helm.md](../providers/helm.md)) emits StatefulSet rather than Deployment when this volume variant is present. The pattern is identical in shape to "server with metrics" with an additional `persistentTemplate` volume **and** exactly one `type: Headless` service to govern the StatefulSet (the build halts without it); authors needing it adapt Pattern 1 with both declarations.
+A fourth pattern — **stateful server with persistent volume** — sets `form: stateful` and declares per-replica storage via `volumes.<name>.persistentTemplate`; the helm provider emits a StatefulSet for the stateful form (see [providers/helm.md](../providers/helm.md)). The pattern is identical in shape to "server with metrics" with `form: stateful`, an additional `persistentTemplate` volume, **and** exactly one `type: Headless` service to govern the StatefulSet (the build halts without it); authors needing it adapt Pattern 1 with all three declarations.
 
 ## Cross-references
 
