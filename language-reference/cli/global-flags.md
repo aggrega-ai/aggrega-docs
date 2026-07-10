@@ -30,5 +30,7 @@ A flag wins over everything; an environment variable overrides the committed con
 <!-- BEGIN GENERATED: global-flags -->
 | Flag | Default | Description |
 | --- | --- | --- |
+| `--no-color` | `false` | Disable ANSI color in all output. Also honored via the NO_COLOR environment variable |
+| `--plain` | `false` | Accessible mode: disable color and draw plain, static progress lines with no spinner animation or cursor repaint, even on a terminal. Intended for screen readers |
 | `--workspace-root` | — | absolute path to use as the workspace root (skips discovery) |
 <!-- END GENERATED: global-flags -->

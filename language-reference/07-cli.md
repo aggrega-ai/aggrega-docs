@@ -23,6 +23,7 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 | `aggrega acquire` | Pin the external inputs a Release's render consumes |
 | `aggrega auth` | Manage the signing identity |
 | `aggrega build` | Compile Aggregate + Release into Helm artifacts via the 5-step pipeline |
+| `aggrega cache` | Inspect and maintain the on-disk caches |
 | `aggrega deprecate` | Attach a signed deprecation marker to an already-published artifact |
 | `aggrega inspect` | Inspect a catalog Component or a Release file (resolves by entity kind) |
 | `aggrega lint` | Validate the whole catalog, or run the publishing-linter over one entity |

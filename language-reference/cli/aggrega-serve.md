@@ -69,6 +69,12 @@ Responses use the standard JSON-RPC error codes plus an application-level range 
 **Synopsis**
 
 ```
-aggrega serve
+aggrega serve [flags]
 ```
+
+**Flags**
+
+| Flag | Default | Description |
+| --- | --- | --- |
+| `--render-diagnostics` | `false` | Run the render pass on IR-graph inspection so render-time warnings are produced. Off by default (faster; the returned graph is identical either way, only render-stage advisory warnings are dropped). When set, overrides the serve.render_diagnostics config key. |
 <!-- END GENERATED: cli-serve -->

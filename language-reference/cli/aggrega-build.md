@@ -154,4 +154,5 @@ aggrega build [flags]
 | `--quiet` | `false` | Silence the build-progress surface on stderr. Does not affect stdout. Takes precedence over --progress |
 | `--release` | — | Path to Release YAML file (required) |
 | `--trace` | `false` | write per-node intermediate files to .trace/ (sibling to dist/) for post-mortem inspection |
+| `--verify-determinism` | `false` | Render every node twice and compare the emitted bytes, halting the build if any node's two renders differ. Off by default. Use it to confirm a provider renders deterministically — identical input yields byte-identical output — which the GitOps-diff and byte-identical-output guarantees rely on |
 <!-- END GENERATED: cli-build -->
