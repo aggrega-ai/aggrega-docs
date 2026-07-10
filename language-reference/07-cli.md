@@ -36,3 +36,61 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 | `aggrega sign` | Sign one or more already-published artifacts and attach their signatures |
 | `aggrega version` | Print the aggrega CLI version |
 <!-- END GENERATED: command-list -->
+
+## Shell completion
+
+`aggrega completion <shell>` prints a completion script to stdout for `bash`, `zsh`, `fish`, or `powershell`. The script is generated from the CLI's live command tree at the moment you run it, so it always reflects the commands and flags of the binary that produced it — there is no static file to regenerate as the CLI grows.
+
+To try completion in your current session without installing anything, source the script directly:
+
+```bash
+source <(aggrega completion bash)
+```
+
+To install completion permanently, write the script to the location your shell reads on startup.
+
+### bash
+
+Bash completion relies on the `bash-completion` package; install it through your OS package manager if it is not already present.
+
+```bash
+# Linux
+aggrega completion bash > /etc/bash_completion.d/aggrega
+
+# macOS (Homebrew)
+aggrega completion bash > $(brew --prefix)/etc/bash_completion.d/aggrega
+```
+
+### zsh
+
+If completion is not yet enabled in your shell, enable it once:
+
+```zsh
+echo "autoload -U compinit; compinit" >> ~/.zshrc
+```
+
+Then write the completion script into a directory on your `fpath`:
+
+```zsh
+# Linux
+aggrega completion zsh > "${fpath[1]}/_aggrega"
+
+# macOS (Homebrew)
+aggrega completion zsh > $(brew --prefix)/share/zsh/site-functions/_aggrega
+```
+
+### fish
+
+```fish
+aggrega completion fish > ~/.config/fish/completions/aggrega.fish
+```
+
+### powershell
+
+Append the generated script to your PowerShell profile so it loads in every session:
+
+```powershell
+aggrega completion powershell >> $PROFILE
+```
+
+Start a new shell for the installed completion to take effect.
