@@ -142,6 +142,42 @@ One developer intent; the seam-crossing is provider-specific Ops/Operator
 machinery. The compose bridge exists because a flat compose network has no
 namespace-scoped DNS; Kubernetes gives you that natively.
 
+## When the two ends render under different providers
+
+Both variants above keep one developer intent and let the crossing ride on a
+**deterministic pointer string**: the database's `provides.host` flows across the
+boundary seam as a stable pointer, and each target resolves that pointer its own
+way — a compose gateway address, or a cross-namespace DNS name. The pointer
+always crosses, because the compiler pipes strings between a producer and a
+consumer without interpreting them.
+
+A provider can go further and wire a **native cross-reference** between two of its
+*own* assembled artifacts on either side of the seam — a reference in that
+provider's own vocabulary that the target platform resolves at deploy time. The
+CloudFormation provider does this for a `uses` edge that crosses stacks: the
+producer stack publishes an `Export` and the consumer stack reads it with
+`Fn::ImportValue` (see [providers/cloudformation.md](../../providers/cloudformation.md)).
+A native cross-reference is a **same-provider** upgrade — it works because both
+ends speak the same artifact vocabulary, so one side can publish a reference the
+other side knows how to resolve.
+
+When a `uses` edge crosses a boundary **between two different providers** — the
+producer assembles under one provider and the consumer under another — no native
+cross-reference is possible. A reference minted in one provider's vocabulary means
+nothing to the other, and the compiler does not translate between them: it pipes
+strings, it does not infer meaning or rewrite one provider's reference into
+another's form. So the producer's deterministic pointer crosses the seam
+unchanged, the compiler emits a **warning** naming both endpoints, both provider
+names, and the socket, and the build completes on that pointer. The compiler
+trusts the author and does not halt: a deterministic pointer the author supplied
+may well be resolvable across the seam — a stable DNS name or an infrastructure
+interpolation string — and only the author knows the target topology.
+
+This keeps the seam-crossing where it belongs. Whether a cross-provider pointer is
+usable is a deployment concern the author owns; translating one provider's native
+reference into another provider's consumer form is opinionated, provider-specific
+work that lives outside the neutral core.
+
 ## Layout
 
 ```text
