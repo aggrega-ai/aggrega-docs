@@ -26,6 +26,7 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 | `aggrega cache` | Inspect and maintain the on-disk caches |
 | `aggrega catalog` | Work with the catalog registry |
 | `aggrega deprecate` | Attach a signed deprecation marker to an already-published artifact |
+| `aggrega get-schema` | Print the JSON Schema for an entity or contract kind |
 | `aggrega inspect` | Inspect a catalog Component or a Release file (resolves by entity kind) |
 | `aggrega lint` | Validate the whole catalog, or run the publishing-linter over one entity |
 | `aggrega login` | Authenticate to an OCI registry and store the credential |
