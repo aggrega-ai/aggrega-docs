@@ -19,6 +19,10 @@ The ecosystem is built on four pillars:
 
 [architecture/](architecture/README.md) — the "why" of Aggrega. Vision, positioning, mental model, compiler pipeline at conceptual level, enterprise governance, catalog, extensibility, design choices. Follow the numbered chapters 01 through 16 in order for first-time reading.
 
+## Authoring Guide
+
+[authoring/](authoring/README.md) — the "how to sit down and author" of Aggrega. The authoring loop, the four collaborating roles, the kind-to-role map, and how to connect an AI assistant through the Model Context Protocol server. Start with [Getting Started](authoring/getting-started.md).
+
 ## Language Reference
 
 [language-reference/](language-reference/README.md) — the "what" and "how to use" of Aggrega. Start with [Status of the Language](language-reference/10-status.md) for the current state of readiness, then follow the numbered chapters 01 through 09 in order for first-time reading. Unnumbered subdirectories (entities/, vocabulary/, templates/, providers/, cli/, errors/, examples/) are reference catalogs — jump to specific items as needed.

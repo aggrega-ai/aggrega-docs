@@ -15,6 +15,8 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 - [`aggrega lint`](cli/aggrega-lint.md) — run the publishing-discipline rules over a catalog entity; `--pre-publish` adds the registry-aware version-bump gate.
 - [`aggrega serve`](cli/aggrega-serve.md) — a long-running compiler-as-service daemon (JSON-RPC over stdin/stdout) for IDE integration.
 - [`aggrega version`](cli/aggrega-version.md) — print the CLI version; `--json` emits a machine-readable object.
+- [`aggrega get-schema`](cli/aggrega-get-schema.md) — print the canonical JSON Schema for an entity or contract kind; `--list` names every kind. The authoritative shape to author a file against.
+- [`aggrega mcp`](cli/aggrega-mcp.md) — run a Model Context Protocol server over stdio so an MCP-capable client becomes an Aggrega-aware authoring assistant. See the [Authoring Guide](../authoring/getting-started.md).
 - [Global flags](cli/global-flags.md) — flags shared across subcommands (workspace location, registry configuration, offline mode, output verbosity).
 
 <!-- BEGIN GENERATED: command-list -->

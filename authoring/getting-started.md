@@ -1,0 +1,64 @@
+# Getting Started with Authoring
+
+Authoring in Aggrega is a short, repeatable loop. Whichever entity you are writing — a developer's Aggregate, an architect's Component, an operations Recipe, or an operator's Release — the same five moves get you from a blank file to a validated one:
+
+1. **Pick the entity your role owns.**
+2. **Learn its shape** from the JSON Schema and the reference page.
+3. **Start from a skeleton** rather than a blank file.
+4. **Fill in the fields your role owns**, leaving the rest to their owners.
+5. **Validate**, then compile.
+
+This page walks the loop once, both for a person authoring by hand and for an AI assistant authoring through the Model Context Protocol server. The two paths are the same loop over the same reference surfaces.
+
+## 1. Pick the entity your role owns
+
+Aggrega separates authoring into four collaborating roles — developer intent, the platform catalog, infrastructure recipes, and deployment wiring. Each role typically owns a specific set of entity kinds. If you already know your role, jump to the entity you need; if not, read [Personas](personas.md) for the four roles and [Entities by Role](entities-by-role.md) for the full kind-to-role map.
+
+The separation is guidance, not a rule the compiler enforces. A solo author is free to wear every hat and write all the entities in one sitting; the compiler accepts any authoring pattern that passes schema validation. The roles exist to keep concerns clear, not to gate what you may write.
+
+## 2. Learn its shape
+
+Every entity kind has a canonical JSON Schema and a field-by-field reference page. Read both before you write:
+
+- **The schema** is the exact structure: required fields, allowed values, and nesting. From the command line, `aggrega get-schema <kind>` prints it; `aggrega get-schema --list` names every kind you can ask for. An assistant reads the same bytes from the `schema://<kind>` resource. See the [`aggrega get-schema`](../language-reference/cli/aggrega-get-schema.md) reference.
+- **The reference page** explains what each field *means* and how the fields relate. The entity pages live under [`language-reference/entities/`](../language-reference/entities/) — for example [component](../language-reference/entities/component.md) or [aggregate](../language-reference/entities/aggregate.md). An assistant reads the same page from the `langref://entities/<kind>` resource.
+
+The schema tells you what is structurally valid; the reference tells you what is *sensible*. Read the schema to avoid rejection at validation time and the reference to author something that does what you intend.
+
+## 3. Start from a skeleton
+
+Starting from a correct skeleton is faster and less error-prone than a blank file. An assistant connected to the MCP server calls the `scaffold` tool with a kind and a name to get a minimal, schema-correct starting point. Authoring by hand, copy the closest [worked example](../language-reference/examples/) and pare it down to what you need.
+
+Either way, the skeleton already carries the required top-level fields (`apiVersion`, `kind`, `metadata.name`) in the right shape, so you spend your attention on the fields your role owns rather than on boilerplate.
+
+## 4. Fill in the fields your role owns
+
+Fill only the pillars your role is responsible for, and leave the others to their owners. A developer supplies application intent and values; an architect declares the contract — the values a developer may supply, the outputs a component provides, the sockets it exposes; operations map that contract onto a specific provider without changing the developer-facing surface; an operator wires the deployment. [Entities by Role](entities-by-role.md) spells out which pillars belong to which role for every kind.
+
+Keeping each value in the pillar its owner controls is what lets the same developer intent target different infrastructure across environments without the developer's file changing. It is the reason the authoring surface is split at all.
+
+## 5. Validate, then compile
+
+Check the file before you rely on it:
+
+- An assistant calls the `validate` tool, which reports schema and reference errors inline so it can correct the draft before handing it back.
+- By hand, `aggrega lint` runs the publishing-discipline rules over a catalog entity, and `aggrega inspect` resolves and shows what the compiler sees. When the whole topology is ready, `aggrega build` compiles the Release into per-boundary artifacts — a failed build names exactly what to fix.
+
+Validation early is cheaper than a failed build late. Author, validate, correct, and only then compile.
+
+## Authoring with an AI assistant
+
+The `aggrega mcp` command runs a Model Context Protocol server that turns any MCP-capable client into an Aggrega-aware authoring assistant. Once connected, the assistant can:
+
+- **Adopt a role** through the built-in authoring prompts — one per persona (developer, architect, operations) plus a focused per-entity template. Each prompt frames the role and points the assistant at the schema, the reference page, and this guide, so its suggestions stay inside the pillars the role owns.
+- **Read the reference** through resources: `schema://<kind>` for a kind's JSON Schema, `langref://<path>` for any reference page, and `authoring://<topic>` for this guide.
+- **Act on your workspace** through tools: `scaffold` to start a correct skeleton, `validate` to check a draft, `describe` to inspect a catalog entity, and `get-schema` to fetch a schema by kind.
+
+Everything the assistant reads is served offline from your local documentation bundle and the schemas built into the binary — the server does not reach the network to author. To connect a client, follow [Setup](setup.md). For the command itself, see the [`aggrega mcp`](../language-reference/cli/aggrega-mcp.md) reference.
+
+## Where to go next
+
+- [Personas](personas.md) — understand the four roles before you pick an entity.
+- [Entities by Role](entities-by-role.md) — the full kind-to-role map.
+- [Setup](setup.md) — install the binary and connect your assistant.
+- [CLI Overview](../language-reference/07-cli.md) — every `aggrega` subcommand.
