@@ -8,7 +8,7 @@ Before reading the chapter sequence, consult [Status of the Language](10-status.
 
 ## Entity tier model
 
-Aggrega has ten entity kinds organised into three tiers reflecting adoption progression. **Tiering is a documentation and onboarding mechanism, not a runtime constraint**: every entity kind is a first-class language citizen; the compiler treats them uniformly; the open-source Aggrega supports all tiers without licensing or feature gating. The tier markers signal "advanced; skip if not needed" for navigation, not capability.
+Aggrega has eleven entity kinds. Ten are organised into three tiers reflecting adoption progression (below); the eleventh, Workload, expresses compute shape through the `form:` vocabulary (stateless, stateful, daemon, scheduled, task). **Tiering is a documentation and onboarding mechanism, not a runtime constraint**: every entity kind is a first-class language citizen; the compiler treats them uniformly; the open-source Aggrega supports all tiers without licensing or feature gating. The tier markers signal "advanced; skip if not needed" for navigation, not capability.
 
 | Tier | Entity kinds | When to adopt |
 | --- | --- | --- |
