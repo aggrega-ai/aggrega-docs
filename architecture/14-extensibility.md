@@ -62,3 +62,25 @@ The compiler passes the full IR-graph `labels` dictionary into the Wasm sandbox 
 
 This autonomy keeps domain-specific intelligence — which labels matter for observability, which map to native tagging conventions, which are platform-internal — inside the Wasm plugin layer, where the ecosystem evolves independently of the Go compiler's release cadence.
 
+### 5. CLI Extensions: Runtime Commands
+
+The sockets above run **inside a build** — the compiler dispatches them as it parses, mutates, validates, and renders an Aggregate. The **CLI-extension socket** is different in kind: it runs **at the terminal, outside any build**, when an operator types `aggrega <command>`. It is how the `aggrega` command surface itself grows without a core release.
+
+**What a CLI extension is.** A CLI extension is a drop-in `aggrega <command>` contributed by a signed, sandboxed Wasm plugin. It takes the same guest-owned drop-in stance the rendering socket takes: the domain logic lives entirely in the guest, and the Go host contributes zero per-command code. Adding a new top-level command needs only three things — a `.wasm` binary, one `Plugin` entity declaring `pluginType: cli` (see [`Plugin`](../language-reference/entities/plugin.md)), and an explicit [`aggrega plugin install`](../language-reference/cli/aggrega-plugin.md). The host discovers the command from the installed plugin's self-report; no command is compiled into the binary.
+
+**Why a runtime socket can do what a build socket cannot.** Because the compile-time sockets run *during* a build, they stay capability-denied and deterministic: Aggrega is an ahead-of-time compiler, and the same input must always produce the same output (see [Architectural Invariants](05-invariants.md)). A render or policy plugin therefore cannot reach the network, read the clock, or stream to the terminal — anything that varies across runs would break that guarantee. A CLI extension runs *after* and *outside* that boundary, driven by a human at a prompt rather than by the deterministic pipeline. That is precisely why a CLI plugin **may** stream standard output and standard error as it runs and return a process exit code: there is no build artifact whose byte-for-byte stability those effects could threaten.
+
+**Install, run, and discover.** [`aggrega plugin install <ref>`](../language-reference/cli/aggrega-plugin.md) resolves the reference, verifies the plugin against the registry's trust policy, and installs it as a top-level command — printing the plugin's declared capabilities first, so the operator confirms exactly what the command is allowed to do before it lands. Once installed, `aggrega <command>` runs it like any built-in. To find installable commands and catalog content, [`aggrega plugin search`](../language-reference/cli/aggrega-plugin.md) searches the registry for CLI plugins and [`aggrega catalog search`](../language-reference/cli/aggrega-catalog.md) searches it for catalog entities; [`aggrega plugin list`](../language-reference/cli/aggrega-plugin.md) shows what is already installed. The per-command flags and output shapes live on those reference pages.
+
+**The capability model.** A CLI extension starts from a fixed **baseline** that every command receives with no declaration and no prompt:
+
+| Baseline capability | Granted |
+| --- | --- |
+| Command-line arguments in | Always |
+| Streamed standard output and standard error | Always |
+| Process exit code out | Always |
+
+Anything beyond the baseline is **off by default**. A plugin that needs more declares each additional capability explicitly, and the host grants it only after showing it at install time for the operator to confirm. Further capability classes — environment access, filesystem access, network access, interactive input — are the direction the model grows toward; they are granted as they are wired, each behind the same declare-and-confirm gate, so a command can never silently acquire a reach the operator did not approve.
+
+**Built-ins always win.** An installed plugin can never shadow a built-in command. A reserved-name guard backed by a denylist protects both the commands that ship today and the names reserved for future built-ins, and a collision is refused at install rather than allowed to override core behavior. The command surface an operator relies on stays stable no matter what is installed on top of it.
+
