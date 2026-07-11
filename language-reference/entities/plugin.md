@@ -52,6 +52,7 @@ The socket type this plugin implements. A plugin implements exactly one socket t
 - `mutator` — auto-tags topology-graph node labels at Step 2, returning JSON Patch documents the host applies to a labels-only projection of the graph.
 - `policy-validator` — evaluates the full IR graph at Step 4 and returns one pass/fail verdict per rule; a failed rule halts the build.
 - `cli` — contributes a runtime `aggrega <cmd>` subcommand an operator invokes at the command line. A runtime socket, distinct from the compile-time render and pipeline sockets.
+- `search` — answers a ranked full-text query over an indexed content set. A cross-cutting runtime socket that leaves `targets` empty.
 
 Required.
 
@@ -101,6 +102,32 @@ spec:
 ```
 
 The per-provider annotation sets and `workloadSchema` content the standard-library providers ship are documented at [`../providers/well-known-annotations.md`](../providers/well-known-annotations.md), [`../providers/helm.md`](../providers/helm.md), [`../providers/helm-chart.md`](../providers/helm-chart.md), and [`../providers/compose.md`](../providers/compose.md).
+
+## `spec.search`
+
+The search-socket metadata for a `pluginType: search` plugin: the index format and format version the plugin's `describe()` self-report stamps, and the ranked-query capabilities it advertises. The block is the publish-time record of the guest's self-report — the host reads it from `describe()` at publish and cross-checks it at load — the same way the `provider` block records a provider guest's self-report. The block is present only on search plugins; it is absent on every other plugin type. All fields are optional.
+
+| Field | Effect |
+| --- | --- |
+| `indexFormat` | The index format the plugin reports it reads, a free-form identifier the host records and does not interpret. It documents which index shape the plugin is built against, for catalog readers and the inspect surface; the compiler routes the query and does not parse the index itself. |
+| `indexVersion` | The index format version the plugin reports, paired with `indexFormat` to pin the exact index contract the plugin reads. Absent carries no version claim. |
+| `capabilities` | The ranked-query capabilities the plugin advertises through its self-report — for example phrase matching, fuzzy matching, or field filtering — as free-form capability identifiers the host records for catalog readers and the inspect surface. Entries preserve author order. The compiler does not act on the values; the plugin realizes whichever capabilities it advertises. |
+
+```yaml
+spec:
+  plugin: "oci://hub.aggrega.ai/wasm/search/docs-search"
+  pluginType: search
+  abiVersion: v1alpha1
+  search:
+    indexFormat: docs-corpus
+    indexVersion: "1"
+    capabilities:
+      - phrase
+      - fuzzy
+      - filter
+  exports:
+    - name: search
+```
 
 ## `spec.signature`
 
