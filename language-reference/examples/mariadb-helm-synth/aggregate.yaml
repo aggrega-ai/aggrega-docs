@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: mariadb-helm-synth
+  version: "1.0.0"
+  description: >
+    A single MariaDB database rendered on Kubernetes by the helm provider's
+    Workload synthesis (no external chart). The database exercises MariaDB's
+    two-slot credential model on the synthesized helm target: the required
+    root_password is a Black-Box slot delivered on the inject pipe, and the
+    optional user_password is a transparent slot delivered as a Kubernetes
+    Secret the StatefulSet references via an env secretKeyRef.
+spec:
+  components:
+    db:
+      type: core/datastore/mariadb
+      # values — the Developer-intent pillar. charset/collation take the
+      # Component schema defaults; database and user are set here.
+      values:
+        database: appdb
+        user: appuser
+      # Two credential slots, each filled by the family its delivery needs.
+      secrets:
+        # root_password is BLACK-BOX (secretsSchema inject: []): the Recipe
+        # controls delivery. An inject-value credential (core/secret-value)
+        # puts the value on the inject pipe under the chosen key, and the
+        # Recipe reads .context.inject.env.MARIADB_ROOT_PASSWORD. A Black-Box
+        # slot may not be referenced from the workload's secrets block.
+        root_password:
+          type: core/secret-value
+          values:
+            key: MARIADB_ROOT_PASSWORD
+            origin: dev-root-pw-change-me
+        # user_password is TRANSPARENT (secretsSchema inject: [env, file]). A
+        # referenceable credential (core/referenced-secret) materializes a
+        # Kubernetes Secret and publishes its locator (name/key) as provides;
+        # the Recipe references it via containers.secrets, which the
+        # synthesizer renders as an env secretKeyRef on the database container.
+        user_password:
+          type: core/referenced-secret
+          values:
+            key: MARIADB_PASSWORD
+            origin: dev-user-pw-change-me

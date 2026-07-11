@@ -1,0 +1,79 @@
+# MariaDB on Kubernetes — synthesized helm (StatefulSet), two-slot credentials
+
+A single MariaDB database rendered on Kubernetes by the helm provider's Workload
+synthesis — no external chart. The `core/datastore/mariadb` Component binds to the
+`helm/mariadb` Recipe, which declares a `form: stateful` Workload; the helm engine
+translates it into a **StatefulSet**, a **ClusterIP Service**, a **Headless
+Service** (the StatefulSet's stable network identity), and a
+**volumeClaimTemplate** for the data directory.
+
+The example's purpose is MariaDB's **two-slot credential model** on the
+synthesized helm target. The two password slots are delivered by different
+mechanisms because the Component declares them differently, and the Recipe wires
+each the way its slot demands.
+
+## Building
+
+```bash
+./build-release.sh
+# equivalent to: aggrega build --release release.yaml
+```
+
+The catalog resolves from the sibling hub catalog named in `.aggrega-config.yaml`,
+so no `--catalog` flag is needed. Four manifests land under `dist/helm/helm/`.
+
+## root_password — Black-Box, delivered on the inject pipe
+
+`root_password` is a **Black-Box** slot: the Component's `secretsSchema` declares
+`inject: []`, so the Recipe controls delivery and the developer cannot dictate it.
+The Aggregate attaches `core/secret-value`, which the Manifest maps to
+`env-secret`. That FeatureRecipe puts the value on the component's inject pipe
+under the chosen key, and the Recipe reads it as
+`.context.inject.env.MARIADB_ROOT_PASSWORD`, emitting a plain container env var:
+
+```yaml
+# db-statefulset.yaml (container env)
+- name: MARIADB_ROOT_PASSWORD
+  value: dev-root-pw-change-me
+```
+
+A Black-Box slot is never referenced from the workload's `secrets` block, and no
+Kubernetes Secret resource is generated for it — the value reaches the container
+straight through the inject pipe.
+
+## user_password — transparent, delivered as a Secret + `secretKeyRef`
+
+`user_password` is a **transparent** slot (`inject: [env, file]`). The Aggregate
+attaches `core/referenced-secret`, which the Manifest maps to
+`k8s-secret-from-parameter`. That FeatureRecipe materializes a Kubernetes Secret
+and publishes the Secret's identity as `provides {name, key}`. The Recipe
+references the slot through `containers.secrets`, which the synthesizer renders as
+an env `secretKeyRef`. The generated Secret and the container's reference name the
+**same** resource because both read `.secrets.user_password.provides.name` — there
+is no re-derivation and no convention for the two sides to agree on:
+
+```yaml
+# secrets/user_password/secret.yaml
+metadata:
+  name: "db-user_password"
+stringData:
+  "MARIADB_PASSWORD": "dev-user-pw-change-me"
+
+# db-statefulset.yaml (container env)
+- name: MARIADB_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      name: db-user_password    # == the Secret's metadata.name
+      key: MARIADB_PASSWORD      # == the Secret's data key
+```
+
+Leaving `user_password` unattached is also valid: the Recipe falls back to an
+inline development default (`MARIADB_PASSWORD: apppass`) and no Secret is
+generated, so a minimal deployment still renders and runs.
+
+## Operator sizing
+
+`release.yaml` fulfills the operator-sizing pillar per environment: the container
+image tag comes from `infra.engine_version` (`mariadb:11.4`), and the
+volumeClaimTemplate's request and storage class come from `infra.storage`
+(`5Gi`, `standard`). The developer's Aggregate never carries these fields.
