@@ -15,7 +15,7 @@ metadata:
   name: secret-providers/aws-secrets-manager
   version: 1.2.0
 spec:
-  plugin: "oci://hub.aggrega.ai/wasm/secret-providers/aws-secrets-manager"
+  plugin: "oci://hub.aggrega.ai/plugin/secret-providers/aws-secrets-manager"
   pluginType: frp_step
   abiVersion: v1alpha1
   targets:
@@ -86,7 +86,7 @@ The field is documentation-of-contract: it describes which platform directives t
 
 ```yaml
 spec:
-  plugin: "oci://hub.aggrega.ai/wasm/<socket>/helm-renderer"
+  plugin: "oci://hub.aggrega.ai/plugin/<socket>/helm-renderer"
   pluginType: provider
   abiVersion: v1alpha1
   targets:
@@ -115,7 +115,7 @@ The search-socket metadata for a `pluginType: search` plugin: the index format a
 
 ```yaml
 spec:
-  plugin: "oci://hub.aggrega.ai/wasm/search/docs-search"
+  plugin: "oci://hub.aggrega.ai/plugin/search/docs-search"
   pluginType: search
   abiVersion: v1alpha1
   search:

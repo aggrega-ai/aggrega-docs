@@ -350,7 +350,7 @@ metadata:
   name: providers/helm-renderer
   version: 1.0.0
 spec:
-  plugin: "oci://hub.aggrega.ai/wasm/providers/helm-renderer"
+  plugin: "oci://hub.aggrega.ai/plugin/providers/helm-renderer"
   pluginType: provider
   abiVersion: v1alpha1
   targets:

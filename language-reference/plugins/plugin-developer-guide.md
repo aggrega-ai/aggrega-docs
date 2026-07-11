@@ -87,7 +87,7 @@ metadata:
   name: secret-providers/aws-secrets-manager
   version: 1.2.0
 spec:
-  plugin: "oci://hub.aggrega.ai/wasm/secret-providers/aws-secrets-manager"
+  plugin: "oci://hub.aggrega.ai/plugin/secret-providers/aws-secrets-manager"
   pluginType: frp_step
   abiVersion: v1alpha1
   targets:

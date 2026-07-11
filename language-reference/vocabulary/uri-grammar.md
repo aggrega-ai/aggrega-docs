@@ -28,7 +28,7 @@ The same URI string carries different entity-kind meaning depending on where it 
 | `Release.spec.extends` | Release (parent in deployment inheritance chain) | `/release/{namespace}/{name}` |
 | `Release.spec.aggregate` | Aggregate (the Release's deployment target) | `/aggregate/{namespace}/{name}` |
 | `Release.spec.manifest` | Manifest (the Release's mapping lockfile) | `/manifest/{namespace}/{name}` |
-| `FeatureRecipe.spec.pipeline.<step>.plugin` | Wasm plugin | `/wasm/{socket}/{name}` |
+| `FeatureRecipe.spec.pipeline.<step>.plugin` | Wasm plugin | `/plugin/{socket}/{name}` |
 
 The inference rule: **the YAML schema position determines the entity kind**. There is no surface marker (sigil, prefix, schema-level annotation) telling the author which entity kind a particular `type:` field references. Authors hold the position-based rules in mind when reading YAML; tooling (IDE autocomplete, `aggrega inspect`, hub UI) reads the same rules to surface entity-kind-specific suggestions.
 
@@ -65,7 +65,7 @@ type: hub.aggrega.ai/component/core/postgres:1.0.0
 
 ### Rule 2 — Contextual entity expansion
 
-The compiler appends the correct entity-type segment based on the schema position. The mapping is the same as the position-inference table above (`/component/`, `/aggregate/`, `/recipe/`, `/featurerecipe/`, `/feature/`, `/wasm/`).
+The compiler appends the correct entity-type segment based on the schema position. The mapping is the same as the position-inference table above (`/component/`, `/aggregate/`, `/recipe/`, `/featurerecipe/`, `/feature/`, `/plugin/`).
 
 ```yaml
 # Same string, two positions, two expansions
