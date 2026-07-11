@@ -1,0 +1,261 @@
+name: Publish and sign documentation
+
+# Tag-driven publisher for the documentation bundle. On a documentation release
+# tag it packs the reader-facing docs into a deterministic gzipped tar and
+# publishes that bundle as a standalone OCI data artifact at docs/aggrega-docs,
+# then signs the published reference with an offline key.
+#
+# The documentation bundle is NOT a catalog entity: it carries no entity
+# envelope and no kind, so it rides the generic data-artifact transport
+# (`aggrega push-artifact`) rather than the kind-dispatched `aggrega push`. The
+# bytes are opaque to the transport; determinism comes entirely from the bundle
+# build script, and the transport pins its manifest's creation annotation so
+# byte-identical bytes yield a byte-identical digest.
+#
+# This workflow NEVER creates or pushes a git tag and never writes git at all.
+# Deciding the version and cutting the tag is a human action; this workflow only
+# publishes and signs OCI artifacts.
+#
+# NOT YET LIVE. The destination registry, its pull/push credentials, the offline
+# signing key, and the tooling-image tag are all operator-configured and are not
+# wired here. Until they exist this workflow is authored but unexercised — it has
+# never run against a real registry. The manual-dispatch entry defaults to a dry
+# run, so an unconfigured or accidental invocation prints what it would do
+# without building a real publish, signing, or contacting any registry.
+
+on:
+  # A documentation release tag is the trigger and the human gate: a person
+  # decides the version and pushes the tag. The pattern matches a plain
+  # vMAJOR.MINOR.PATCH tag; a pre-release suffix is intentionally excluded from
+  # automatic publishing.
+  push:
+    tags:
+      - "v[0-9]+.[0-9]+.[0-9]+"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Pack the bundle and print the proposed reference and sign command without publishing, signing, or contacting the registry."
+        required: false
+        default: true
+        type: boolean
+      version:
+        description: "Version to publish the bundle under on a manual run (required for a real manual publish; ignored on a tag push, which uses the tag)."
+        required: false
+        default: ""
+        type: string
+
+# Keyed (offline-key) signing only. No id-token / keyless path: a public
+# transparency log would leak the existence and metadata of private artifacts.
+# The workflow reads only from the repository it checks out and writes nothing
+# back to git, so read access is all it needs.
+permissions:
+  contents: read
+
+jobs:
+  publish-sign:
+    # Configurable runner label. Packing a docs bundle is light; the default
+    # hosted runner is fine. Point the DOCS_PUBLISH_RUNNER repository variable at
+    # a self-hosted label to move the work off metered hosted minutes.
+    runs-on: ${{ vars.DOCS_PUBLISH_RUNNER || 'ubuntu-latest' }}
+
+    # Run inside the published tooling image so `aggrega` is already on PATH — no
+    # toolchain build here. The image must also provide git (for checkout), bash,
+    # tar and gzip, which the bundle build script uses to pack the docs.
+    #
+    # PIN SEAM — the single reviewed home for the tooling-image version. The tag
+    # below is the one place the pinned version lives; the job derives its
+    # execution image from exactly this line. The tag here is still a placeholder
+    # until a real image is published.
+    #
+    # A dependency-update bot watches this reference and opens a pull request when
+    # a newer tag appears; it never auto-merges. Adoption of a new tag is a
+    # deliberate, human-merged change. New tags are never auto-adopted.
+    #
+    # The registry is authenticated even on pull, so the image is pulled with the
+    # same registry credentials used to push.
+    container:
+      image: hub.aggrega.ai/tools/aggrega:v0.0.0-placeholder
+      credentials:
+        username: ${{ secrets.REGISTRY_USERNAME }}
+        password: ${{ secrets.REGISTRY_PASSWORD }}
+
+    env:
+      # Destination registry host:port. A repository variable the operator sets
+      # once; the placeholder default cannot publish anywhere real.
+      REGISTRY: ${{ vars.DOCS_PUBLISH_REGISTRY || 'registry.invalid:0' }}
+      # Registry credentials — needed on EVERY job because the registry is
+      # authenticated on push AND pull. Read via the environment (not
+      # interpolated into a run script) to avoid expression injection. The
+      # username feeds `aggrega login`; the password is read by login from
+      # AGGREGA_REGISTRY_PASSWORD.
+      REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+      AGGREGA_REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
+      # Offline signing key material, supplied as a secret and written to a
+      # private file for the --key path. Empty until configured, which makes a
+      # real signing run fail safely rather than publish unsigned.
+      SIGNING_KEY: ${{ secrets.DOCS_SIGNING_KEY }}
+      # Dispatch inputs surfaced as env so run scripts read them from the
+      # environment rather than interpolating expressions into shell.
+      EVENT_NAME: ${{ github.event_name }}
+      DISPATCH_DRY_RUN: ${{ inputs.dry_run }}
+      DISPATCH_VERSION: ${{ inputs.version }}
+      # The pushed ref name (the tag on a push event). Surfaced as env so the
+      # version is read from the environment, never interpolated into a script.
+      REF_NAME: ${{ github.ref_name }}
+      # Reserved artifact name within the docs/ namespace. The bundle publishes
+      # at docs/<DOCS_ARTIFACT_NAME>.
+      DOCS_ARTIFACT_NAME: aggrega-docs
+
+    steps:
+      - name: Check out the documentation
+        uses: actions/checkout@v4
+
+      - name: Authenticate to the registry
+        # Only a real publish contacts the registry. A dry run does no network,
+        # so it skips login and stays runnable without live credentials.
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.dry_run == false) }}
+        run: |
+          # login reads the password from AGGREGA_REGISTRY_PASSWORD; the username
+          # comes from the environment. No secret is placed on the command line
+          # or interpolated from an expression.
+          aggrega login "$REGISTRY" --username "$REGISTRY_USERNAME"
+
+      - name: Build, publish and sign the documentation bundle
+        run: |
+          set -euo pipefail
+
+          # A push event is always a real publish at the tag's version; a manual
+          # dispatch honors its dry-run input and supplies its own version. All
+          # inputs are read from the environment, never interpolated into shell.
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            DRY="$DISPATCH_DRY_RUN"
+            VERSION="$DISPATCH_VERSION"
+          else
+            DRY="false"
+            # A plain vX.Y.Z tag; publish the bundle under the v-less version to
+            # match the tooling-image and catalog-entity version convention.
+            VERSION="${REF_NAME#v}"
+          fi
+
+          if [ -z "$VERSION" ]; then
+            if [ "$DRY" = "true" ]; then
+              # A manual dry run with no version still previews the reference
+              # shape; use an obvious placeholder that never reaches a registry.
+              VERSION="0.0.0-dryrun"
+            else
+              echo "publish-docs: a real manual publish needs a version (set the 'version' dispatch input)" >&2
+              exit 2
+            fi
+          fi
+
+          # Pack the deterministic bundle. The script pins every source of
+          # tar/gzip non-determinism, so the same tree always yields the same
+          # bytes — and therefore the same manifest digest through the transport.
+          BUNDLE="dist/aggrega-docs.tar.gz"
+          scripts/build-docs-bundle.sh --output "$BUNDLE"
+
+          if [ "$DRY" = "true" ]; then
+            # Dry run: print the proposed reference (and the sign command that
+            # would follow) without any network call, publish, or signing.
+            aggrega push-artifact "$BUNDLE" \
+              --name "$DOCS_ARTIFACT_NAME" \
+              --tag "$VERSION" \
+              --registry "$REGISTRY" \
+              --dry-run
+            echo "publish-docs (dry-run): would sign $REGISTRY/docs/$DOCS_ARTIFACT_NAME:$VERSION with the offline key"
+            exit 0
+          fi
+
+          # Real publish: push the opaque bundle bytes at docs/<name>:<version>.
+          aggrega push-artifact "$BUNDLE" \
+            --name "$DOCS_ARTIFACT_NAME" \
+            --tag "$VERSION" \
+            --registry "$REGISTRY"
+
+          # Sign the published artifact by reference with the offline key. Signing
+          # is kind-agnostic — it needs only the reference this publish landed.
+          # The reference is composed deterministically from the same inputs the
+          # publish used (registry + reserved docs/ namespace + name + version).
+          KEY_PATH="$RUNNER_TEMP/docs-signing.key"
+          umask 077
+          printf '%s' "$SIGNING_KEY" > "$KEY_PATH"
+
+          aggrega sign "$REGISTRY/docs/$DOCS_ARTIFACT_NAME:$VERSION" --key "$KEY_PATH"
+
+      - name: Publish and sign the knowledge/search plugin
+        # WIRED BUT GATED — cross-arc dependency, do not enable here.
+        #
+        # The reader-facing knowledge/search WebAssembly plugin publishes at the
+        # plugin namespace wasm/<socket>/<name> through the generic plugin
+        # publisher, signed with the same offline key. That path is wired below
+        # and left intact so enabling it later is a one-line flag flip plus the
+        # inputs it names — but it is GATED OFF because two prerequisites are
+        # owned by another workstream and are not present yet:
+        #
+        #   1. The plugin's declared type is not part of the set of plugin types
+        #      the CLI accepts. That set is a closed, validated enumeration: a
+        #      Plugin entity declaring an unrecognised type is rejected at load,
+        #      so a publish attempt would fail validation, not silently succeed.
+        #      The new type value is authored elsewhere, not here.
+        #   2. The plugin itself — its module and its Plugin entity, including
+        #      which socket it binds — is built and owned elsewhere. This
+        #      workflow must not invent the module, the entity, or the socket.
+        #
+        # So this step is a deliberate early-exit. The documentation bundle above
+        # publishes and signs completely independently of it; the plugin half
+        # lights up only when the flag below is set true AND the two inputs it
+        # names exist. Until then, flipping the flag halts loudly on the missing
+        # inputs rather than guessing them.
+        env:
+          # Default OFF. Do not set this true until the plugin type is accepted
+          # by the CLI and the plugin's entity + module exist.
+          PUBLISH_KNOWLEDGE_PLUGIN: "false"
+          # Where the built plugin's Plugin entity YAML and its compiled module
+          # are expected once the owning workstream produces them. Referenced
+          # here, not invented — the step halts loudly if the flag is on but
+          # either input is absent.
+          PLUGIN_ENTITIES_DIR: knowledge-plugin/entities
+          PLUGIN_WASM_DIR: knowledge-plugin/wasm
+        run: |
+          set -euo pipefail
+
+          if [ "$PUBLISH_KNOWLEDGE_PLUGIN" != "true" ]; then
+            echo "publish-docs: knowledge/search plugin publish is not yet enabled; skipping."
+            echo "publish-docs: its plugin type is not part of the CLI's accepted set, and the"
+            echo "publish-docs: plugin's entity and module are produced by another workstream."
+            echo "publish-docs: the documentation bundle published independently above."
+            exit 0
+          fi
+
+          # --- Below here: the wired publish path, reachable only once enabled ---
+
+          if [ ! -d "$PLUGIN_ENTITIES_DIR" ] || [ ! -d "$PLUGIN_WASM_DIR" ]; then
+            echo "publish-docs: knowledge/search plugin enabled but its inputs are missing:" >&2
+            echo "publish-docs:   entities: $PLUGIN_ENTITIES_DIR" >&2
+            echo "publish-docs:   module:   $PLUGIN_WASM_DIR" >&2
+            echo "publish-docs: these are produced by the owning workstream; refusing to guess them." >&2
+            exit 2
+          fi
+
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            DRY="$DISPATCH_DRY_RUN"
+          else
+            DRY="false"
+          fi
+
+          # publish-plugins.sh derives each wasm/<socket>/<name> reference from
+          # the Plugin entity's own identity, so the socket is never hardcoded
+          # here — it comes from the entity the owning workstream authors.
+          args=(glob-dir "$PLUGIN_ENTITIES_DIR" --wasm-dir "$PLUGIN_WASM_DIR" --registry "$REGISTRY")
+          if [ "$DRY" = "true" ]; then
+            args+=(--dry-run)
+          else
+            KEY_PATH="$RUNNER_TEMP/docs-signing.key"
+            if [ ! -s "$KEY_PATH" ]; then
+              umask 077
+              printf '%s' "$SIGNING_KEY" > "$KEY_PATH"
+            fi
+            args+=(--sign --key "$KEY_PATH")
+          fi
+
+          publish-plugins.sh "${args[@]}"
