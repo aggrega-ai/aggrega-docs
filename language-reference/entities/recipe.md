@@ -24,6 +24,8 @@ To keep implementation biases out of the core engine, the `source` block is not 
 
 To guarantee predictable validation, Recipes should reference the exact version of the provider they were authored for (e.g., `spec.target: "helm:1.0.0"`). If the version tag is omitted (e.g., `spec.target: "helm"`), the compiler dynamically falls back to fetching the `latest` available version of the Wasm plugin from the registry. The IDE Language Server (LSP) runs this resolved Wasm plugin in the background, extracting its native JSON schema to provide real-time autocomplete and linting directly to the developer.
 
+Mental model: `spec.target` names the output format you want (e.g. `helm`, `terraform`, `compose`); the compiler resolves it to the Wasm plugin that renders that format (e.g. `helm-renderer`). You declare the format; Aggrega binds the tool.
+
 ### B. Context Injection: The Semantic Mapping Layer
 
 To prevent the compiler from performing dangerous, non-deterministic deep-merges across multiple environments, a Recipe allows only a **single source of truth** for its mapping layer.
