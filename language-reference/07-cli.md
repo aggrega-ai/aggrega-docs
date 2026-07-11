@@ -32,6 +32,7 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 | `aggrega plugin` | Inspect the Wasm plugins the CLI can resolve |
 | `aggrega pull` | Resolve catalog and source dependencies into the cache and write the per-Release lockfile |
 | `aggrega push` | Bundle and publish a catalog entity to an OCI registry |
+| `aggrega push-artifact` | Publish a standalone data artifact (such as a documentation bundle) to an OCI registry |
 | `aggrega registry` | Manage registries and their signature trust policy |
 | `aggrega serve` | Run as a long-running compiler-as-service over JSON-RPC 2.0 on stdin/stdout |
 | `aggrega sign` | Sign one or more already-published artifacts and attach their signatures |
