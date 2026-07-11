@@ -31,6 +31,7 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 | `aggrega lint` | Validate the whole catalog, or run the publishing-linter over one entity |
 | `aggrega login` | Authenticate to an OCI registry and store the credential |
 | `aggrega logout` | Remove a stored registry credential |
+| `aggrega mcp` | Run a Model Context Protocol server over stdio for AI-assistant integration |
 | `aggrega plugin` | Inspect the Wasm plugins the CLI can resolve |
 | `aggrega pull` | Resolve catalog and source dependencies into the cache and write the per-Release lockfile |
 | `aggrega push` | Bundle and publish a catalog entity to an OCI registry |
