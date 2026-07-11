@@ -153,9 +153,9 @@ The socket carries one mandatory export, `search`, and two wire shapes:
 - `SearchInput` — the query the host hands the guest: a `query` string, an optional `limit` capping how many results to return, and an optional `filters` map that narrows the search by field. The guest owns the query grammar and the filter vocabulary; the host carries both verbatim.
 - `SearchOutput` — the ranked results the guest returns, in descending relevance order. Each result carries the matched document's `doc_id`, a `title`, an optional in-document `anchor`, an optional `snippet` of matching context, and a `score` the guest assigned. The host preserves the order the guest returns, so identical input yields identical results in identical order.
 
-Like a provider guest, a search guest reports itself through `describe()`; the plugin's [`spec.search`](../entities/plugin.md#specsearch) block records that self-report at publish — the index format and version the guest reads and the ranked-query capabilities it advertises — and the host cross-checks the block against the guest's `describe()` at load.
+Like a provider guest, a search guest reports itself through `describe()`; the plugin's [`spec.search`](../entities/plugin.md#specsearch) block records that self-report at publish — the index format and version the guest reads and the ranked-query capabilities it advertises. The host records the block and routes queries to the guest without interpreting the index.
 
-**Status today:** the wire contract is defined — `SearchInput` and `SearchOutput` are typed and carry a byte-identical codec across the Go, Rust, and TypeScript plugin ABIs — and a search plugin passes the load-time descriptor check. The host does not yet dispatch a query to a search guest; the runner that carries a query across the socket is not yet wired.
+**Status today:** the wire contract is defined — `SearchInput` and `SearchOutput` are typed and carry a byte-identical codec across the Go, Rust, and TypeScript plugin ABIs — a search plugin passes the load-time descriptor check, and the host dispatches a query to a search guest through the socket runner under the capability-denied sandbox. A dedicated user-facing search command is not part of the socket contract.
 
 ### `linter.wasm` (publishing-linter)
 

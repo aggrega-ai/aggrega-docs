@@ -105,7 +105,7 @@ The per-provider annotation sets and `workloadSchema` content the standard-libra
 
 ## `spec.search`
 
-The search-socket metadata for a `pluginType: search` plugin: the index format and format version the plugin's `describe()` self-report stamps, and the ranked-query capabilities it advertises. The block is the publish-time record of the guest's self-report — the host reads it from `describe()` at publish and cross-checks it at load — the same way the `provider` block records a provider guest's self-report. The block is present only on search plugins; it is absent on every other plugin type. All fields are optional.
+The search-socket metadata for a `pluginType: search` plugin: the index format and format version the plugin's `describe()` self-report stamps, and the ranked-query capabilities it advertises. The block is the publish-time record of the guest's `describe()` self-report — it documents which index the guest is built against and the ranked-query capabilities it advertises, for catalog readers and the inspect surface. The host records the block and does not interpret the index; it routes the query to the guest and leaves ranking to it. The block is present only on search plugins; it is absent on every other plugin type. All fields are optional.
 
 | Field | Effect |
 | --- | --- |
