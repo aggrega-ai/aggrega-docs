@@ -14,7 +14,7 @@ aggrega-catalog/
             └── recipe.yaml
 ```
 
-OCI URI: `hub.aggrega.ai/feature-recipe/{provider}/{name}:{version}` (e.g., `hub.aggrega.ai/feature-recipe/helm/k8s-secret-from-parameter:1.0.0`).
+OCI URI: `hub.aggrega.ai/featurerecipe/{provider}/{name}:{version}` (e.g., `hub.aggrega.ai/featurerecipe/helm/k8s-secret-from-parameter:1.0.0`).
 
 ## Authoring Contract
 

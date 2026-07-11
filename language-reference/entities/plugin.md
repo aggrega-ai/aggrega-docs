@@ -84,7 +84,7 @@ The field is documentation-of-contract: it describes which platform directives t
 
 ```yaml
 spec:
-  plugin: "oci://hub.aggrega.ai/plugins/core/helm-renderer"
+  plugin: "oci://hub.aggrega.ai/wasm/<socket>/helm-renderer"
   pluginType: provider
   abiVersion: v1alpha1
   targets:

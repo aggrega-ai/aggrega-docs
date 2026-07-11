@@ -17,18 +17,18 @@ The same URI string carries different entity-kind meaning depending on where it 
 | `Aggregate.spec.components.<id>.secrets.<id>.type` | Feature (credential — labeled `feature.aggrega.ai/kind: secret`) | `/feature/{namespace}/{name}` |
 | `Manifest.spec.mappings.components.type.<key>` | Component (the URI used as the lookup key); the value is a Recipe URI | key: `/component/`; value: `/recipe/{provider}/{name}` |
 | `Manifest.spec.mappings.components.name.<id>` | Recipe (granular override binding) | `/recipe/{provider}/{name}` |
-| `Manifest.spec.mappings.features.type.<key>` | Feature (lookup key); the value is a FeatureRecipe URI | key: `/feature/`; value: `/feature-recipe/{provider}/{name}` |
-| `Manifest.spec.mappings.features.name.<id>` | FeatureRecipe (granular override binding) | `/feature-recipe/{provider}/{name}` |
+| `Manifest.spec.mappings.features.type.<key>` | Feature (lookup key); the value is a FeatureRecipe URI | key: `/feature/`; value: `/featurerecipe/{provider}/{name}` |
+| `Manifest.spec.mappings.features.name.<id>` | FeatureRecipe (granular override binding) | `/featurerecipe/{provider}/{name}` |
 | `Manifest.spec.mappings.features.annotations.<key>.feature` | Feature (annotation-bound) | `/feature/{namespace}/{name}` |
 | `Recipe.spec.implements` | Component (interface contract) | `/component/{namespace}/{category}/{name}` |
 | `FeatureRecipe.spec.implements` | Feature (interface contract) | `/feature/{namespace}/{name}` |
-| `Recipe.spec.extends` / `FeatureRecipe.spec.extends` | Recipe / FeatureRecipe (parent in inheritance chain) | `/recipe/{provider}/{name}` or `/feature-recipe/{provider}/{name}` |
+| `Recipe.spec.extends` / `FeatureRecipe.spec.extends` | Recipe / FeatureRecipe (parent in inheritance chain) | `/recipe/{provider}/{name}` or `/featurerecipe/{provider}/{name}` |
 | `Component.spec.extends` / `Feature.spec.extends` | Component / Feature (parent in inheritance chain) | `/component/{namespace}/{category}/{name}` or `/feature/{namespace}/{name}` |
 | `Manifest.spec.extends` | Manifest (parent in mapping inheritance chain) | `/manifest/{namespace}/{name}` |
 | `Release.spec.extends` | Release (parent in deployment inheritance chain) | `/release/{namespace}/{name}` |
 | `Release.spec.aggregate` | Aggregate (the Release's deployment target) | `/aggregate/{namespace}/{name}` |
 | `Release.spec.manifest` | Manifest (the Release's mapping lockfile) | `/manifest/{namespace}/{name}` |
-| `FeatureRecipe.spec.pipeline.<step>.plugin` | Wasm plugin | `/plugin/{category}/{name}` |
+| `FeatureRecipe.spec.pipeline.<step>.plugin` | Wasm plugin | `/wasm/{socket}/{name}` |
 
 The inference rule: **the YAML schema position determines the entity kind**. There is no surface marker (sigil, prefix, schema-level annotation) telling the author which entity kind a particular `type:` field references. Authors hold the position-based rules in mind when reading YAML; tooling (IDE autocomplete, `aggrega inspect`, hub UI) reads the same rules to surface entity-kind-specific suggestions.
 
@@ -65,7 +65,7 @@ type: hub.aggrega.ai/component/core/postgres:1.0.0
 
 ### Rule 2 — Contextual entity expansion
 
-The compiler appends the correct entity-type segment based on the schema position. The mapping is the same as the position-inference table above (`/component/`, `/aggregate/`, `/recipe/`, `/feature-recipe/`, `/feature/`, `/plugin/`).
+The compiler appends the correct entity-type segment based on the schema position. The mapping is the same as the position-inference table above (`/component/`, `/aggregate/`, `/recipe/`, `/featurerecipe/`, `/feature/`, `/wasm/`).
 
 ```yaml
 # Same string, two positions, two expansions
