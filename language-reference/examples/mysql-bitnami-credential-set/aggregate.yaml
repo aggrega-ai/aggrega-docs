@@ -1,0 +1,42 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: mysql-bitnami-credential-set
+  version: "1.0.0"
+  description: >
+    A single MySQL database realized by the Bitnami Helm chart, whose
+    credentials are supplied by one multi-key referenceable secret
+    (core/referenced-secret-set). The Bitnami chart reads passwords from a
+    single Kubernetes Secret named by auth.existingSecret, and expects that
+    Secret to carry fixed data keys (mysql-root-password, mysql-password).
+    The developer attaches a multi-key credential carrying exactly those keys;
+    the chart Recipe reads the produced Secret's name from
+    .secrets.root_password.provides.name — byte-identical to the generated
+    Secret's metadata.name (single source, no re-derivation).
+spec:
+  components:
+    db:
+      type: core/datastore/mysql
+      # values — the Developer-intent pillar. charset/collation take the
+      # Component schema defaults; database and user are set here. Setting a
+      # user makes the chart expect a mysql-password key in the auth Secret.
+      values:
+        database: appdb
+        user: appuser
+      secrets:
+        # The Bitnami chart authenticates from ONE Secret (auth.existingSecret)
+        # carrying several fixed keys. A multi-key referenceable credential
+        # fills the required root_password slot with exactly that Secret: the
+        # caller supplies the chart's fixed key names as data, and the credential
+        # publishes the produced Secret's name for the chart Recipe to reference.
+        root_password:
+          type: core/referenced-secret-set
+          values:
+            entries:
+              - key: mysql-root-password
+                value: dev-root-pw-change-me
+              - key: mysql-password
+                value: dev-user-pw-change-me
