@@ -1,0 +1,104 @@
+# Aggrega Infrastructure Base (FeatureRecipe) schema
+
+_Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
+
+Schema id: `https://aggrega.ai/schemas/featurerecipe-v1alpha1.schema.json`
+
+Ops-authored definitions mapping Dev abstract features to concrete, versioned Go plugin pipelines. Strictly 1:1 with a physical provider and catalog feature.
+
+See the [featurerecipe authoring reference](../../../entities/featurerecipe/) for prose guidance on authoring featurerecipe entities; this page documents the structural schema that reference describes.
+
+**Top-level type:** `object`
+
+## Properties
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `apiVersion` | const "aggrega.ai/v1alpha1" | yes | Constant: `"aggrega.ai/v1alpha1"` |
+| `kind` | const "FeatureRecipe" | yes | Constant: `"FeatureRecipe"` |
+| `metadata` | object | yes |  |
+| `spec` | object | yes | The render-engine target binding, mapping, pipeline, and inject mapping for a FeatureRecipe. Carries the same three input kinds as a Recipe (sourced, synthesized, artifacts) plus the FeatureRecipe-only injectMapping; a pure-wiring FeatureRecipe declaring only target and implements is valid and renders nothing. |
+
+_Additional properties are not permitted._
+
+#### `featurerecipe.metadata`
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | string | yes |  |
+| `version` | string | yes | Strict Semantic Versioning of the feature plugin pipeline (e.g., 1.2.5). |
+| `description` | string | no | A concise, one-sentence summary of what the entity does. |
+| `maintainers` | object[] | no | List of maintainers who own this entity. |
+| `license` | string | no | Legal compliance license (e.g., Apache-2.0). |
+| `repository` | string | no | The URL to the Git repository where the source files live. |
+| `home` | string | no | The URL of this entity's home page, wiki, or documentation. |
+| `keywords` | string[] | no | A list of descriptive keywords for UI discoverability. |
+| `deprecated` | boolean | no | Indicates whether this entity is deprecated and should no longer be used. |
+
+_Additional properties are not permitted._
+
+##### `featurerecipe.metadata.maintainers[]`
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | string | yes |  |
+| `email` | string | no |  |
+| `url` | string | no |  |
+
+_Additional properties are not permitted._
+
+#### `featurerecipe.spec`
+
+The render-engine target binding, mapping, pipeline, and inject mapping for a FeatureRecipe. Carries the same three input kinds as a Recipe (sourced, synthesized, artifacts) plus the FeatureRecipe-only injectMapping; a pure-wiring FeatureRecipe declaring only target and implements is valid and renders nothing.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `target` | string | yes | The explicit render-engine target this recipe binds to (e.g., 'helm', 'terraform', 'compose') — the provider engine kind that renders it. |
+| `implements` | string | yes | Declares which catalog Feature type this recipe is able to implement (including credential Features labeled feature.aggrega.ai/kind: secret; exact version, major-compatible range '^', or unversioned). The compiler uses it to verify Manifest mappings and to suggest candidates in diagnostics and editor completion; it never resolves a build. The Manifest mapping is the user's explicit deployment choice, pinned in the lockfile. |
+| `locals` | map of string | no | The Private Ops State. Internal computation results available only within this FeatureRecipe's templates. Used to export physical realities (e.g., target containers, JSON paths) for downstream Wasm plugins. Never exposed to callers — use provides for the public API. |
+| `provides` | map of string | no | The Public Developer API. Contractual output variables available for downstream Caller inject resolution. |
+| `source` | string or object | no | Optional path to infrastructure code. Accepts a Universal URI string or an open structured object. If provided alongside valuesMapping, the compiler renders it and appends the objects to the base AST before Wasm plugins execute. |
+| `valuesMapping` | string or object | no | Values mapping content with three authoring modes via content-shape dispatch. Mode 1 (inline): a Go template string scalar producing the provider's expected values format. Mode 2 (file import): a YAML map of exactly one key, `$import: ./relative/path.tmpl`, pointing at a local Go-template file. Mode 3 (library import): a YAML map of exactly one key, `$import: <Library>#/mappings/<entry>`, referencing a MappingLibrary entry by bare-name identity (the version is supplied by the per-Release lockfile; no registry host appears in the reference). |
+| `workload` | string or object | no | Workload YAML producer with two authoring modes via content-shape dispatch. Mode 1 (inline): a Go template string scalar whose output parses as 'aggrega.ai/v1alpha1 Workload'. Mode 2 (file import): a YAML map of exactly one key, `$import: ./relative/path.yaml`, pointing at a local Go-template file. Library imports are not supported at this site — use a local file path. The target Provider's engine must support workload synthesis; the standard-library catalog declares workloadSchema on such providers as the documented contract. A workload: FeatureRecipe bound to a provider whose engine cannot synthesize halts loudly at render time. A synthesized FeatureRecipe workload emits its provider-native manifests under the feature's output directory. |
+| `artifacts` | map of string or object | no | Map of output filename to artifact-content authoring. Each entry's value carries one of two modes via content-shape dispatch. Mode 1 (inline): a Go template string scalar whose output is the artifact body. Mode 2 (file import): a YAML map of exactly one key, `$import: ./relative/path.yaml`, pointing at a local Go-template file. Library imports are not supported at this site — use a local file path. Map keys become output filenames verbatim. The auxiliary resources a resource-generating FeatureRecipe emits (ConfigMap, ServiceMonitor, NetworkPolicy, ExternalSecret CRD, etc.) are artifact-shaped; artifacts: is the primary resource-generation mechanism. Collisions across artifact entries, source output, and workload synthesis are load-time or render-time errors. |
+| `injectMapping` | string | no | Optional inline Go template evaluated during the Pre-Render Interception phase. Outputs a JSON/YAML dictionary that the Go compiler natively deep-merges over the Caller's '.context.inject' memory pipe. Used for Wasm-free Caller-Side mutation of environment variables and delivery contracts. |
+| `pipeline` | object[] | no | Sequential list of Wasm plugins to execute for stateful AST mutation. |
+| `executionScope` | string (enum) | no | Whether this FeatureRecipe's Resource Generation runs per-component (default, today's behavior) or once per boundary attachment. Boundary-scope FeatureRecipes deduplicate by (boundary_path, FR-instance) and receive a different TemplateContext shape (.boundary.* pillars instead of per-component .context.* pillars). Phase A injectMapping continues to fan per-consumer regardless of executionScope. Allowed values: `"component"`, `"boundary"` Default: `"component"` |
+| `assertions` | map of string | no | Build-time cross-field validation. Each entry is a named assertion: the key is a stable rule identifier surfaced in error messages; the value is a Go template string with `{{ fail "message" }}` halt semantics. Multiple named assertions per entity evaluate per-instance in author-declared order; the first failing assertion halts the build. FeatureRecipe assertions evaluate at Step 5b (post-binding, post-allProvides-evaluation, pre-render) and express implementation invariants of the specific wrapped chart or module. Template context: .values / .infra / .uses / .secrets / .metadata plus .provides / .locals / .recipe. The evaluator uses missingkey=error: references to undefined keys halt with a no-such-key diagnostic; optional-field idioms use Sprig default / hasKey. |
+| `sourceDigests` | object[] | no | Content pins for the remote sources this feature recipe references, frozen at resolution from the fetched bytes and read back at build to verify the cached source has not drifted. Each entry mirrors the resolved-source identity {kind, url, version} plus the content digest (and, for an OCI-distributed source, the manifest digest). One entry per distinct resolved-source identity the recipe fetches. Local (filesystem-relative) sources are never pinned. Written by the resolution phase into a writable recipe file; a recipe fetched from a registry arrives pre-pinned. |
+| `artifactDigests` | object[] | no | Content pins for the external files this feature recipe's artifacts import via $import, frozen at resolution and read back at build to verify the imported file has not drifted. One entry per artifact whose value is a file import; an inline (literal) artifact is already part of the entity and carries no separate pin. Written by the resolution phase into a writable recipe file. |
+
+_Additional properties are not permitted._
+
+##### `featurerecipe.spec.pipeline[]`
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes | A unique programmatic identifier for this step, allowing downstream plugins to reference its outputs. |
+| `plugin` | string | yes | The URI of the Plugin entity this step runs (e.g. `name:version` or `provider/name:version`). The entity's spec.plugin is the content-addressed .wasm artifact; the build resolves the entity to its artifact and loads the bytes. A bare .wasm or artifact reference is not accepted here. |
+| `function` | string | yes | The exported Wasm function to invoke. |
+| `with` | string | no | Inline Go template evaluating to a JSON/YAML map that strictly satisfies this plugin's explicit input schema. |
+| `optional` | boolean | no | When true, a failure of this step (a guest trap, a patch targeting a document not present in the set, a malformed patch, or an error-severity diagnostic) is downgraded to a loud warning: the pre-step document set is restored, this step's output is discarded, and the pipeline continues. When false or absent, any step failure halts the build after restoring the pre-step document set. |
+
+_Additional properties are not permitted._
+
+##### `featurerecipe.spec.sourceDigests[]`
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `kind` | string | yes | The resolved source kind (e.g. helm-oci-chart, helm-https-chart, compose-https-fragment, terraform-module-git). |
+| `url` | string | yes | The canonical resolved source URL the digest pins. |
+| `version` | string | yes | The concrete pinned version the source resolved to. |
+| `digest` | string | yes | The SHA-256 content digest (sha256:<hex>) of the fetched source archive, verified against the cached bytes at build. |
+| `manifestDigest` | string | no | The OCI manifest digest for an OCI-distributed source — the independent root of trust. Present only for an OCI source (a helm-oci-chart); absent for an https or git source, which carries no manifest by construction. |
+
+_Additional properties are not permitted._
+
+##### `featurerecipe.spec.artifactDigests[]`
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | string | yes | The artifact key (the artifacts: map key) whose $import file this entry pins. |
+| `digest` | string | yes | The SHA-256 content digest (sha256:<hex>) of the imported file's bytes, verified at build. |
+
+_Additional properties are not permitted._

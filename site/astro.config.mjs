@@ -1,0 +1,217 @@
+import { fileURLToPath } from "node:url";
+import { defineConfig } from "astro/config";
+import starlight from "@astrojs/starlight";
+import { resolveVersioning } from "./src/versioning.mjs";
+import rewriteRelativeMdLinks from "./src/plugins/rewrite-relative-md-links.mjs";
+
+// The site is served under the /docs subdirectory of the main domain. Content
+// is single-sourced from the repository's Markdown corpus via the docs
+// collection defined in src/content.config.ts. The sidebar order and labels are
+// supplied here; each page's visible title comes from its first heading.
+//
+// A single source tree is built once per documentation version. The latest
+// version is served at /docs; every other version is served under a
+// version-prefixed base such as /docs/v0.1. The base and the latest flag are
+// derived from the environment (see src/versioning.mjs); with no environment
+// set this is the default /docs build.
+const { base } = resolveVersioning();
+
+// The corpus root the content loader reads from (the parent of this project).
+// It is the anchor for rewriting source-relative Markdown cross-links to their
+// route form; see src/plugins/rewrite-relative-md-links.mjs.
+const contentRoot = fileURLToPath(new URL("..", import.meta.url));
+
+// Locale routing is off by default: the shipped site is English-only, served
+// unprefixed at /docs. Setting DOCS_I18N_PROOF=1 turns on the multilingual
+// machinery — a root English locale that stays unprefixed plus one placeholder
+// locale served under /docs/xx — which exercises locale routing, hreflang
+// alternates, the language picker, per-locale sitemap entries, and the
+// machine-translation notice. The placeholder locale ships no authored
+// content; Starlight serves the English source at its localized paths. No real
+// translations are activated in either build.
+const i18nProof = process.env.DOCS_I18N_PROOF === "1";
+const i18nLocales = i18nProof
+  ? {
+      root: { label: "English", lang: "en" },
+      xx: { label: "Stub", lang: "xx" },
+    }
+  : undefined;
+
+export default defineConfig({
+  site: "https://aggrega.ai",
+  base,
+  markdown: {
+    remarkPlugins: [[rewriteRelativeMdLinks, { contentRoot }]],
+  },
+  integrations: [
+    starlight({
+      title: "Aggrega",
+      // A version switcher is mounted above the sidebar, and the document head
+      // adds per-version canonical and noindex handling for non-latest builds.
+      // The banner override adds the machine-translation notice; it is wired
+      // only when locale routing is on, so the English-only build is untouched.
+      components: {
+        Head: "./src/components/Head.astro",
+        Sidebar: "./src/components/Sidebar.astro",
+        ...(i18nProof ? { Banner: "./src/components/Banner.astro" } : {}),
+      },
+      ...(i18nLocales ? { locales: i18nLocales } : {}),
+      // Fenced code blocks render on the dark functional surface in both the
+      // light and dark site themes. A single dark syntax theme is pinned and
+      // the light/dark auto-switch is disabled, so code never flips to a light
+      // surface in light mode. The syntax theme supplies only the token
+      // colours; the surface behind the code, the editor/terminal frame, and
+      // the frame chrome are bound to the brand neutral surface tokens so every
+      // code surface across the site is the one shared dark surface. Inline code
+      // and callouts already use that same surface.
+      expressiveCode: {
+        themes: ["github-dark"],
+        useStarlightDarkModeSwitch: false,
+        styleOverrides: {
+          codeBackground: "var(--color-neutral-900)",
+          frames: {
+            editorBackground: "var(--color-neutral-900)",
+            terminalBackground: "var(--color-neutral-900)",
+            editorTabBarBackground: "var(--color-neutral-800)",
+            terminalTitlebarBackground: "var(--color-neutral-800)",
+          },
+        },
+      },
+      logo: {
+        light: "@aggrega-ai/brand/logo/mark-primary.svg",
+        dark: "@aggrega-ai/brand/logo/mark-dark.svg",
+        alt: "Aggrega",
+      },
+      customCss: [
+        "@aggrega-ai/brand/tokens.css",
+        "@aggrega-ai/brand/fonts.css",
+        "@aggrega-ai/brand/typography.css",
+        "./src/styles/brand.css",
+      ],
+      sidebar: [
+        { label: "Start Here", link: "/" },
+        {
+          label: "Getting Started",
+          items: ["language-reference/01-getting-started"],
+        },
+        {
+          label: "Concepts & Architecture",
+          items: [
+            "architecture",
+            "architecture/01-vision-and-positioning",
+            "architecture/02-ecosystem-philosophy",
+            "architecture/03-team-topologies-and-domains",
+            "architecture/04-eight-entity-taxonomy",
+            "architecture/05-invariants",
+            "architecture/06-data-taxonomy-and-composition",
+            "architecture/07-dependency-resolution",
+            "architecture/08-credential-model",
+            "architecture/09-ai-features",
+            "architecture/10-compilation-pipeline",
+            "architecture/11-governance-and-compliance",
+            "architecture/12-day-two-lifecycles",
+            "architecture/13-catalog-and-registry",
+            "architecture/14-extensibility",
+            "architecture/15-aggrega-studio",
+            "architecture/16-recipe-input-composition",
+          ],
+        },
+        {
+          label: "Authoring",
+          items: [{ autogenerate: { directory: "authoring" } }],
+        },
+        {
+          label: "Language Reference",
+          items: [
+            "language-reference",
+            "language-reference/02-naming-conventions",
+            "language-reference/03-entities",
+            "language-reference/04-vocabulary",
+            "language-reference/05-templates",
+            "language-reference/06-providers",
+            "language-reference/07-cli",
+            "language-reference/08-errors",
+            "language-reference/09-examples",
+            "language-reference/10-status",
+            "language-reference/path-template-variables",
+            "language-reference/version-resolution",
+            {
+              label: "Entities",
+              items: [
+                { autogenerate: { directory: "language-reference/entities" } },
+              ],
+            },
+            {
+              label: "Vocabulary",
+              items: [
+                { autogenerate: { directory: "language-reference/vocabulary" } },
+              ],
+            },
+            {
+              label: "Templates",
+              items: [
+                { autogenerate: { directory: "language-reference/templates" } },
+              ],
+            },
+            {
+              label: "Providers",
+              items: [
+                { autogenerate: { directory: "language-reference/providers" } },
+              ],
+            },
+            {
+              label: "Plugins",
+              items: [
+                { autogenerate: { directory: "language-reference/plugins" } },
+              ],
+            },
+          ],
+        },
+        {
+          label: "CLI Reference",
+          items: [{ autogenerate: { directory: "language-reference/cli" } }],
+        },
+        {
+          label: "Errors",
+          items: [{ autogenerate: { directory: "language-reference/errors" } }],
+        },
+        {
+          label: "Examples",
+          items: [
+            { autogenerate: { directory: "language-reference/examples" } },
+          ],
+        },
+        {
+          label: "Schema Reference",
+          items: [
+            "language-reference/schema",
+            {
+              label: "Entities",
+              items: [
+                { autogenerate: { directory: "language-reference/schema/entities" } },
+              ],
+            },
+            {
+              label: "Plugin ABI & payload schemas",
+              items: [
+                { autogenerate: { directory: "language-reference/schema/plugins" } },
+              ],
+            },
+            {
+              label: "Other & workspace schemas",
+              items: [
+                { autogenerate: { directory: "language-reference/schema/other" } },
+              ],
+            },
+          ],
+        },
+        {
+          label: "Catalog",
+          link: "https://aggrega.ai/catalog",
+          attrs: { target: "_blank", rel: "noopener" },
+          badge: "External",
+        },
+      ],
+    }),
+  ],
+});

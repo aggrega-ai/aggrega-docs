@@ -1,0 +1,74 @@
+# Aggrega Catalog (Component) schema
+
+_Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
+
+Schema id: `https://aggrega.ai/schemas/component-v1alpha1.schema.json`
+
+The abstract definition of an atomic building block.
+
+See the [component authoring reference](../../../entities/component/) for prose guidance on authoring component entities; this page documents the structural schema that reference describes.
+
+**Top-level type:** `object`
+
+## Properties
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `apiVersion` | const "aggrega.ai/v1alpha1" | yes | Constant: `"aggrega.ai/v1alpha1"` |
+| `kind` | const "Component" | yes | Constant: `"Component"` |
+| `metadata` | object | yes |  |
+| `spec` | object | yes | Validation and schema definitions governing the developer's opaque values payload. |
+
+_Additional properties are not permitted._
+
+#### `component.metadata`
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | string | yes |  |
+| `version` | string | yes | Strict Semantic Versioning of the interface (e.g., 1.0.0). |
+| `description` | string | no | A concise, one-sentence summary of what the entity does. |
+| `maintainers` | object[] | no | List of maintainers who own this entity. |
+| `license` | string | no | Legal compliance license (e.g., Apache-2.0). |
+| `repository` | string | no | The URL to the Git repository where the source files live. |
+| `home` | string | no | The URL of this entity's home page, wiki, or documentation. |
+| `keywords` | string[] | no | A list of descriptive keywords for UI discoverability. |
+| `deprecated` | boolean | no | Indicates whether this entity is deprecated and should no longer be used. |
+| `labels` | object | yes | Duck-typing labels to declare characteristics. Must include the reserved 'component.aggrega.ai/type' key. |
+| `annotations` | map of string | no | Immutable, intrinsic component characteristics authored by the Platform Architect in Domain 2. Cascades down to the .context.annotations.catalog bucket. |
+
+_Additional properties are not permitted._
+
+##### `component.metadata.maintainers[]`
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | string | yes |  |
+| `email` | string | no |  |
+| `url` | string | no |  |
+
+_Additional properties are not permitted._
+
+##### `component.metadata.labels`
+
+Duck-typing labels to declare characteristics. Must include the reserved 'component.aggrega.ai/type' key.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `component.aggrega.ai/type` | string (enum) | yes | The foundational 7-Type Cloud-Native Ontology mapping. Allowed values: `"server"`, `"worker"`, `"task"`, `"function"`, `"stateful-server"`, `"resource"`, `"messaging"` |
+
+#### `component.spec`
+
+Validation and schema definitions governing the developer's opaque values payload.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `extends` | string | no | URI of a base Component to inherit YAML metadata from and auto-merge JSON Schema 2020-12 declarations with. |
+| `secretsSchema` | map of object | no | Declarative credential slot definitions. Parallel to usesSchema. The compiler generates JSON Schema 2020-12 validation rules from this schema. |
+| `requiredFeatures` | string[] | no | A list of Feature types that must be attached to this component instance in the Aggregate. |
+| `inject` | string[] | no | Allowlisted self-inject delivery mechanisms (e.g., ['env', 'file', 'arg']). When present, developers may use the inject: block at the component level in the Aggregate to inject their own values or provides keys directly into the delivery pipe. If omitted, component-level self-inject is forbidden (Black-Box pattern — the Recipe handles all internal wiring). Same semantics as usesSchema[].inject but governs the component's own values rather than cross-component topology. |
+| `usesSchema` | object | no | Native YAML schema defining the topology. The Go CLI natively reads this to validate selectors and allowed inject paradigms. |
+| `schema` | object | no | JSON Schema 2020-12 content covering the free-form pillars: values (the Developer's domain — application-shape parameters the Developer configures per Component instance in the Aggregate); infra (the Operator's domain — physical sizing knobs supplied by the Release); and provides (downstream context keys this Component exposes to consumers via the topology pipe). Accepts three authoring modes via content-shape dispatch: (1) inline content (a YAML map carrying compact form, JSON Schema YAML, or mixed); (2) single-file replacement via {$import: <path>}; (3) cross-document reference via {$ref: <Library>#/schemas/<name>} into a SchemaLibrary entry by bare-name identity (the version is supplied by the per-Release lockfile; no registry host appears in the reference). The companion fields usesSchema and secretsSchema cover the fixed-shape pillars (dependency sockets, credential bindings); the bridge synthesis composes the three into the entity's unified validation surface. |
+| `assertions` | map of string | no | Build-time cross-field validation. Each entry is a named assertion: the key is a stable rule identifier surfaced in error messages; the value is a Go template string with `{{ fail "message" }}` halt semantics. Multiple named assertions per entity evaluate per-instance in author-declared order; the first failing assertion halts the build. Component assertions evaluate at Step 4b (post-resolution, post-analyzer-gate, pre-render) and express architectural invariants of the contract that hold regardless of which Recipe binds. Template context: .values / .infra / .uses / .secrets / .metadata. The evaluator uses missingkey=error: references to undefined keys halt with a no-such-key diagnostic; optional-field idioms use Sprig default / hasKey. |
+
+_Additional properties are not permitted._

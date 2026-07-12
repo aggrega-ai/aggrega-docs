@@ -1,0 +1,201 @@
+# Aggrega Workspace Config schema
+
+_Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
+
+Schema id: `https://aggrega.ai/schemas/aggrega-config-v1alpha1.schema.json`
+
+Per-workspace configuration file consumed by the aggrega CLI. Lives at `.aggrega-config.yaml`. The `workspace` block is the root marker (its presence marks the workspace root; it holds only `catalog_dirs`). Pure settings live at the top level: `default_registry`, `offline`, `auto_pull`, `artifact_cache_dir`, plus the `build` (authoring-release hint + deprecation strictness dials), `plugins` (workspace-level Wasm plugin attachments: mutator, policy, linter, importer), `provider_bindings` (per-target render-engine selection), `lint` (per-rule strictness dials), and `parse_cache` (daemon parse-cache eviction caps) blocks. Flat top-level shape, no apiVersion/kind envelope, distinct from catalog content. Schema evolution discipline: adding a new top-level key is a SemVer-MINOR bump (additive); removing or relocating a key, or tightening a constraint, is a SemVer-MAJOR break.
+
+**Top-level type:** `object`
+
+## Properties
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `workspace` | object | no | Workspace root marker. Its PRESENCE marks the directory as the workspace root; it carries only the root-defining catalog directories. Settings that are not root-defining (`default_registry`, `offline`, `auto_pull`, `artifact_cache_dir`) live at the top level. Write `workspace: {}` to mark a root with no vendored catalog directories. |
+| `default_registry` | string | no | Default OCI registry host the build pushes published artifacts to and pulls dependencies from when an entity does not name a registry explicitly. Defaults to `hub.aggrega.ai`. Default: `"hub.aggrega.ai"` |
+| `offline` | boolean | no | When true, the build does not contact any registry; only cached artifacts and vendored catalog content are consulted. Defaults to false. Default: `false` |
+| `auto_pull` | boolean | no | When true (default), `aggrega build` invokes `aggrega pull` in-process whenever the per-release lockfile is missing, so a first-time build against a Release does not require an explicit pull step. When false, missing lockfile halts the build with a diagnostic asking the operator to run pull explicitly. Independent of `offline`: `offline: true` ignores `auto_pull` and always halts on missing lockfile. Default: `true` |
+| `artifact_cache_dir` | string | no | Local artifact/content cache directory (registry pulls, OCI manifests, compiled fixtures). Defaults to `.aggrega/cache`. Should be gitignored by convention. Distinct from `parse_cache`, which caps the daemon's in-memory parse cache. Default: `".aggrega/cache"` |
+| `plugin_sidecar_dir` | string | no | On-disk directory the Wasm-plugin resolver checks ahead of the local, cache, and registry tiers (and behind the binary's embedded built-ins): drop a `.wasm` here to override an embedded core plugin or to supply a third-party local plugin without publishing it. Layout is flat — a plugin URI resolves to `<plugin_sidecar_dir>/<uri-leaf>.wasm`. A relative path resolves against the declaring config file's directory at load. Empty disables the sidecar tier. The resolved bytes are still verified against the lockfile digest pin, so a sidecar override is determinism-safe when it matches the pin and halts the build when it does not. |
+| `skip_signature_verification` | boolean | no | Global, loud opt-out from signature verification. When true, signature verification is disabled across every registry, including the mandatory hub baseline. Intended for break-glass and development scenarios; it is never silent — every pull logs a prominent warning that verification was globally disabled. Defaults to false. Default: `false` |
+| `build` | object | no | Build-time strictness dials and authoring hints. `authoring_release` provides the LSP a `current Release` hint for inline diagnostics; `halt_on_deprecated` and `halt_on_deprecated_severity` control how the build reacts to deprecated-entity consumption; `yaml_indent` sets the indentation width of every rendered YAML artifact. |
+| `plugins` | object | no | Workspace-level Wasm plugin attachments. Each socket (mutator, policy, linter, importer) takes an array of plugin references; the build invokes each plugin's documented entry function per its socket contract. |
+| `provider_bindings` | map of string | no | Per-target render-engine selection: a flat map from a render target kind (the bare engine name a Recipe binds through `spec.target`, e.g. `helm` or `compose`) to the digest-free OCI identity of the provider-rendering plugin that serves it (matching a Plugin entity's `spec.plugin`, e.g. `oci://hub.aggrega.ai/plugins/core/helm`), with an optional trailing `:version` in the same three forms as a version pin (bare, exact `:1.0.0`, or major-compatible range `:^1.0.0`). This is the disambiguation and override surface for a federated catalog where more than one provider plugin serves the same target: the binding selects which publisher's plugin renders that target. When a target is served by exactly one provider plugin no entry is needed. Resolution is at pull: the pull records the resolved binding into the per-Release lockfile, and the build reads the lockfile — a change to this map after a pull is not adopted until the next pull, so build output is invariant to it (deterministic output). A missing entry for an unambiguously-served target is not an error; a missing entry for an ambiguously-served target halts the pull loudly, listing the candidate plugins. Version coexistence is preserved: the binding selects the plugin repository per target, and each Recipe's own `spec.target` version pin selects the version within that repository, so two Recipes pinning different versions of one engine still coexist. Default: `{}` |
+| `lint` | object | no | Per-rule strictness dials. Future lint sub-categories (build-time discouragement, FinOps lint, etc.) land as peer sub-blocks of `publishing_discipline`. |
+| `parse_cache` | object | no | Daemon parse-cache eviction caps. Both caps apply simultaneously — the LRU eviction loop runs after every cache insertion and removes least-recently-used entries until both the entry count and the byte total are within bounds. Either-zero means `unbounded on that axis`, useful for CI scenarios where the cache lives only for one invocation. Distinct from `artifact_cache_dir`, which is the on-disk content cache. |
+| `concurrency` | object | no | Daemon request-dispatch concurrency settings. The daemon reads requests off a single stdin stream and runs each through a worker pool that drains a bounded request queue; responses are emitted in request arrival order regardless of completion order. |
+| `serve` | object | no | Daemon (`aggrega serve`) behavior settings for the compiler-as-service consumed by IDE integrations. |
+| `registries` | RegistryConfig[] | no | Per-registry settings and signature trust policy, keyed by registry host. A registry not listed here uses the defaults: a present signature is verified and an absent signature is tolerated, except for `hub.aggrega.ai`, whose embedded baseline mandates a verified signature even with no explicit entry. An explicit entry for a host overrides that host's baseline. Default: `[]` |
+| `signing` | SigningConfig | no | Global signing-side defaults: the keyless service URLs and an optional keyed-key path. A per-registry `signing` block overrides these for that host; a CLI flag overrides both. SECURITY: this block holds no secret material — the OIDC identity token is never a config field (it is supplied at runtime via flag or the ambient OIDC environment) and `key_path` is a path to a key file, never inline key bytes. |
+
+_Additional properties are not permitted._
+
+#### `aggrega-config.workspace`
+
+Workspace root marker. Its PRESENCE marks the directory as the workspace root; it carries only the root-defining catalog directories. Settings that are not root-defining (`default_registry`, `offline`, `auto_pull`, `artifact_cache_dir`) live at the top level. Write `workspace: {}` to mark a root with no vendored catalog directories.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `catalog_dirs` | string[] | no | Optional vendored catalog directories the resolver consults before falling back to the registry. Each entry is a filesystem path. Root-scoped: local vendored catalogs belong to this workspace root, so they live on the root marker rather than at the top level. Default: `[]` |
+| `catalog_dirs_append` | string[] | no | Optional append-only addition to the effective `catalog_dirs` list. At each precedence layer the entries here are concatenated onto the resolved base list, letting workspace and global configs compose catalog directories rather than shadow them. Same-layer interaction: when both `catalog_dirs` and `catalog_dirs_append` are specified at one layer, the resolved value at that layer is the base list followed by the append list. Default: `[]` |
+
+_Additional properties are not permitted._
+
+#### `aggrega-config.build`
+
+Build-time strictness dials and authoring hints. `authoring_release` provides the LSP a `current Release` hint for inline diagnostics; `halt_on_deprecated` and `halt_on_deprecated_severity` control how the build reacts to deprecated-entity consumption; `yaml_indent` sets the indentation width of every rendered YAML artifact.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `authoring_release` | string | no | Path to a Release YAML file the LSP treats as the `current Release` context for inline diagnostics. Optional. |
+| `yaml_indent` | integer | no | Indentation width (in spaces) for every rendered YAML artifact — docker-compose files, Helm chart templates and values, and Kubernetes manifests. Defaults to 2, the conventional width for those formats. Default: `2` |
+| `halt_on_deprecated` | boolean | no | When true, consuming an entity its author marked `metadata.deprecated: true` halts the build instead of emitting an advisory. Default: `false` |
+| `halt_on_deprecated_severity` | string (enum) | no | Threshold, in the ordered set `warning` < `error` < `retracted`, at or above which a retroactive deprecation marker recorded in the lockfile halts the build; below it the marker emits an advisory and the build proceeds. Defaults to `error`. Allowed values: `"warning"`, `"error"`, `"retracted"` Default: `"error"` |
+
+_Additional properties are not permitted._
+
+#### `aggrega-config.plugins`
+
+Workspace-level Wasm plugin attachments. Each socket (mutator, policy, linter, importer) takes an array of plugin references; the build invokes each plugin's documented entry function per its socket contract.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `mutator` | PluginRef[] | no | Mutator-socket plugins. Default entry function: `mutate`. Default: `[]` |
+| `mutator_append` | PluginRef[] | no | Append-only addition to the effective `mutator` list. Entries here are concatenated onto the resolved base list at each precedence layer, letting workspace and global configs compose mutator attachments rather than shadow them. Default: `[]` |
+| `policy` | PluginRef[] | no | Policy-validator-socket plugins. Default entry function: `validate`. Default: `[]` |
+| `policy_append` | PluginRef[] | no | Append-only addition to the effective `policy` list. Same compose-don't-shadow semantic as `mutator_append`. Default: `[]` |
+| `linter` | PluginRef[] | no | Linter-socket plugins. Default entry function: `lint`. Default: `[]` |
+| `linter_append` | PluginRef[] | no | Append-only addition to the effective `linter` list. Same compose-don't-shadow semantic as `mutator_append`. Default: `[]` |
+| `importer` | PluginRef[] | no | Importer-socket plugins. Default entry function: `import`. Default: `[]` |
+| `importer_append` | PluginRef[] | no | Append-only addition to the effective `importer` list. Same compose-don't-shadow semantic as `mutator_append`. Default: `[]` |
+
+_Additional properties are not permitted._
+
+#### `aggrega-config.lint`
+
+Per-rule strictness dials. Future lint sub-categories (build-time discouragement, FinOps lint, etc.) land as peer sub-blocks of `publishing_discipline`.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `publishing_discipline` | object | no | Workspace-wide gates for the publishing-linter's rule set. `enforce_monotonic_narrowing` and `enforce_immutability` are workspace-wide rule gates (default true each); `narrowing_exemptions` carries per-entity escape hatches for legitimate narrowing cases. The remaining `allow_*` flags relax individual discouragement checks. |
+
+_Additional properties are not permitted._
+
+##### `aggrega-config.lint.publishing_discipline`
+
+Workspace-wide gates for the publishing-linter's rule set. `enforce_monotonic_narrowing` and `enforce_immutability` are workspace-wide rule gates (default true each); `narrowing_exemptions` carries per-entity escape hatches for legitimate narrowing cases. The remaining `allow_*` flags relax individual discouragement checks.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `enforce_monotonic_narrowing` | boolean | no | When true (default), the publishing-linter and discouragement walker enforce the monotonic-narrowing rule: a child schema's constraint must narrow (not widen) vs the parent's. Set to false for the rare workspace-wide opt-out; per-entity exemptions are the recommended pattern for legitimate cases. Default: `true` |
+| `enforce_immutability` | boolean | no | When true (default), the publishing-linter enforces the artifact-immutability rule: a published `name:version` plus content digest is treated as final; `aggrega push` rejects overwrites. Set to false only for forensic reproduction of historical builds where overwrites occurred prior to the rule's introduction; routine use is discouraged. Required for production catalogs. Default: `true` |
+| `narrowing_exemptions` | NarrowingExemption[] | no | Per-entity exemptions from the narrowing-violation rule. Used when `enforce_monotonic_narrowing` stays true (the default) but specific entity/path pairs need exemption with a documented reason. Each entry names the catalog entity, the specific schema paths exempted, and the human-readable justification. Default: `[]` |
+| `narrowing_exemptions_append` | NarrowingExemption[] | no | Append-only addition to the effective `narrowing_exemptions` list. Entries here are concatenated onto the resolved base list at each precedence layer, so workspace and global configs compose exemptions rather than shadow them. Default: `[]` |
+| `allow_dynamic_refs` | boolean | no | When true, the publishing-linter accepts $dynamicRef / $dynamicAnchor JSON Schema constructs in catalog content. Default false; these constructs are discouraged because they make compile-time schema composition non-local. Default: `false` |
+| `allow_id_overrides` | boolean | no | When true, the publishing-linter accepts $id overrides on subschemas within an entity's schema content. Default false; $id overrides break the canonical-identifier-per-schema convention the resolver and the JSON Schema validator both rely on. Default: `false` |
+| `allow_direct_x_aggrega_extensions` | boolean | no | When true, the build-time discouragement walker accepts x-aggrega-selector and x-aggrega-inject keywords authored directly in schema content. Default false; the recommended authoring path is usesSchema (for dependency sockets) or secretsSchema (for credential bindings), which the schema-composition layer then synthesises into the inline extension form. Default: `false` |
+| `allow_aggrega_ai_prefix` | boolean | no | When true, the publishing-linter accepts annotation keys using the reserved aggrega.ai/ and feature.aggrega.ai/ namespaces outside their canonical contexts. The reserved-prefix rule polices catalog-entity metadata.annotations: the bare aggrega.ai/ prefix is platform-native (well-known annotation keys are exempt regardless of this flag); the feature.aggrega.ai/ prefix is canonical on Feature kind only. Default false. Operators set this when enterprise tooling legitimately needs to use a reserved prefix; per-prefix granularity is deferred to a future iteration. Default: `false` |
+| `allow_nonstandard_names` | boolean | no | When true, the publishing-linter accepts catalog entity names that do not follow the project's documented naming conventions. Default false; consistent naming is load-bearing for the resolver, the selector engine, and reviewer ergonomics. Default: `false` |
+| `allow_category_mismatches` | boolean | no | When true, the publishing-linter suppresses the category-matches-directory rule. The standard-catalog convention requires Components under core/<category>/ to declare component.aggrega.ai/category={category} matching the directory segment, where {category} is one of the closed-set values (like ai-agent, ai-model, ai-tool, datastore, gateway, compute, ...). Workspaces with legitimate persistent exceptions opt out here. Default false. Default: `false` |
+
+_Additional properties are not permitted._
+
+#### `aggrega-config.parse_cache`
+
+Daemon parse-cache eviction caps. Both caps apply simultaneously — the LRU eviction loop runs after every cache insertion and removes least-recently-used entries until both the entry count and the byte total are within bounds. Either-zero means `unbounded on that axis`, useful for CI scenarios where the cache lives only for one invocation. Distinct from `artifact_cache_dir`, which is the on-disk content cache.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `max_entries` | integer | no | Cap on the number of cached parses. Default 1000. `0` disables the entry-count axis (no eviction triggered by entry count). Default: `1000` |
+| `max_bytes` | integer | no | Cap on the cumulative len(content) bytes the cache holds. Default 100000000 (100 MB). `0` disables the byte axis (no eviction triggered by byte total). Default: `100000000` |
+
+_Additional properties are not permitted._
+
+#### `aggrega-config.concurrency`
+
+Daemon request-dispatch concurrency settings. The daemon reads requests off a single stdin stream and runs each through a worker pool that drains a bounded request queue; responses are emitted in request arrival order regardless of completion order.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `pool_size` | integer | no | Number of worker goroutines servicing the request queue. Default 1, which runs requests serially in arrival order. Default: `1` |
+
+_Additional properties are not permitted._
+
+#### `aggrega-config.serve`
+
+Daemon (`aggrega serve`) behavior settings for the compiler-as-service consumed by IDE integrations.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `render_diagnostics` | boolean | no | Whether the IR-graph inspection request runs the render pass to surface render-time diagnostics. Default false skips render: the daemon returns the intermediate graph without loading rendering plugins, which is faster and drops only render-stage advisory warnings (those warnings are not part of the client-facing diagnostics, which come from the earlier resolution and analysis stages; the returned graph is identical either way). Set true to run render on the inspection path so render-time warnings are produced, at the cost of loading rendering plugins and the extra work. Default: `false` |
+
+_Additional properties are not permitted._
+
+## Definitions
+
+### `RegistryConfig`
+
+Settings and signature trust policy scoped to one OCI registry host.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `host` | string | yes | The registry host these settings apply to (e.g. `hub.aggrega.ai`). Matched against the registry host of the push/pull target. |
+| `requires_signatures` | boolean | no | When true, pushing an unsigned artifact to this registry is refused outright, and a push to this registry signs by default. There is no override flag: an unsigned push to a signature-requiring registry always halts. Defaults to false. Default: `false` |
+| `trusted_identities` | TrustedIdentity[] | no | OR-set of keyless signing identities accepted for artifacts pulled from this registry. A signature verifies when its certificate matches any one entry. Used by the keyless verification path. Default: `[]` |
+| `trusted_deprecation_identities` | TrustedIdentity[] | no | OR-set of keyless identities additionally accepted to sign a retroactive deprecation marker for an artifact pulled from this registry. A deprecation marker is honored when its signature matches the original artifact's signer OR any entry here — so a registry owner or a security team can retract an artifact the original publisher can no longer reach, without being trusted to sign the artifacts themselves. Used only by the deprecation discovery path; it never widens the trust set for artifact signatures. Default: `[]` |
+| `public_key` | string | no | Pinned cosign-compatible public-key PEM (inline) for a keyed-mode registry. When set, signatures from this registry are verified offline against this key rather than against keyless identities. |
+| `trusted_root` | string | no | Optional path to a pinned Sigstore trust-root bundle for air-gapped keyless verification. When set, the keyless trust anchor is loaded from this file with no network; when empty, the public-good trust root is fetched and cached. |
+| `advisory` | boolean | no | When true, a signature verification failure for this registry is downgraded to a warning rather than halting the pull. Verification still runs and the failure is reported; the pull proceeds. Defaults to false. Default: `false` |
+| `skip_verification` | boolean | no | When true, signature verification is skipped for this registry entirely. Scoped to one host, unlike the global `skip_signature_verification` opt-out. Defaults to false. Default: `false` |
+| `signing` | SigningConfig | no | Signing-side defaults scoped to this registry: the keyless service URLs and an optional keyed-key path. Overrides the global `signing` block for pushes to this host; a CLI flag overrides both. |
+
+_Additional properties are not permitted._
+
+### `SigningConfig`
+
+Signing-side endpoint defaults: the keyless service URLs and an optional pointer to a keyed-key file. The sign counterpart of the verify-side trust policy. SECURITY: holds no secret material — the OIDC identity token is never a config field (short-lived, supplied at runtime), and `key_path` is a path to a key file, never inline key bytes. This mirrors the verify side's asymmetry: an inline `public_key` is allowed there, but the sign side carries only a key PATH.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `fulcio_url` | string | no | Fulcio certificate-authority URL for keyless signing. When unset, the public-good Fulcio instance is used. |
+| `rekor_url` | string | no | Rekor transparency-log URL for keyless signing. When unset, the public-good Rekor instance is used. |
+| `timestamp_url` | string | no | RFC3161 timestamp-authority URL for keyless signing. When unset, the public-good timestamp authority is used. |
+| `key_path` | string | no | Path to a held ECDSA P-256 private-key PEM file for offline keyed signing. A POINTER to a file, never inline key material. When unset, the keyless path is used. |
+
+_Additional properties are not permitted._
+
+### `TrustedIdentity`
+
+One acceptable keyless signing identity: a certificate subject (the OIDC identity) paired with the OIDC issuer that vouched for it.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `identity` | string | no | Exact certificate subject alternative name — the OIDC identity bound into the short-lived signing certificate (e.g. a maintainer email or a CI workflow URI). |
+| `identity_regexp` | string | no | Regular expression matched against the certificate subject, used instead of an exact `identity` (e.g. to accept any workflow under an organization). |
+| `issuer` | string | yes | OIDC issuer URL that issued the identity token (e.g. `https://accounts.google.com` or `https://token.actions.githubusercontent.com`). |
+
+_Additional properties are not permitted._
+
+### `PluginRef`
+
+Reference to a Wasm plugin attached at a workspace-level socket. `uri` identifies the plugin (OCI reference, local path, or registry alias). `function` overrides the socket's default entry function (`mutate`, `validate`, `lint`, `import` per socket); when omitted, the socket's documented default applies.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `uri` | string | yes | Plugin identifier: OCI reference (e.g. `oci://hub.aggrega.ai/aggrega-team/mutator-bundle@v1`), local filesystem path, or registry alias. |
+| `function` | string | no | Optional override for the socket's default entry function. When omitted, the socket's documented default applies (mutator → `mutate`, policy → `validate`, linter → `lint`, importer → `import`). |
+
+_Additional properties are not permitted._
+
+### `NarrowingExemption`
+
+Per-entity exemption from the narrowing-violation rule.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entity` | string | yes | Catalog entity identifier the exemption applies to (e.g. `my-team/datastore/mariadb-eu`). |
+| `paths` | string[] | yes | JSON-Pointer-style schema paths the exemption covers (e.g. `spec.schema.values.primary.replicaCount`). Each path is a fully-qualified path into the entity's schema content. |
+| `reason` | string | yes | Human-readable justification for the exemption. Surfaced to reviewers; should explain why this specific narrowing violation is intentional. |
+
+_Additional properties are not permitted._

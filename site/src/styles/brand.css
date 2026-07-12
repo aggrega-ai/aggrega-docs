@@ -1,0 +1,87 @@
+/* Binds the Starlight docs theme to the shared Aggrega design system. Every
+   value below is a var() reference into the brand token custom properties
+   supplied by the design-system package; no colour, size, or font value is
+   retyped here. The brand tokens carry per-theme values scoped under :root
+   (light) and [data-theme="dark"] (dark) — the same attribute the Starlight
+   theme toggle sets — so each mapping resolves to the correct value in both
+   themes automatically. These declarations are unlayered and therefore take
+   precedence over Starlight's layered defaults in both light and dark. */
+
+:root {
+  /* Fonts. */
+  --sl-font: var(--font-sans);
+  --sl-font-mono: var(--font-mono);
+
+  /* Foreground text. Starlight's strongest foreground (headings, emphasis,
+     table headers) and its body text both draw from the brand text role;
+     secondary and faint text draw from the muted role. */
+  --sl-color-white: var(--color-text);
+  --sl-color-gray-1: var(--color-text);
+  --sl-color-gray-2: var(--color-text);
+  --sl-color-gray-3: var(--color-text-muted);
+  --sl-color-gray-4: var(--color-text-muted);
+
+  /* Borders, hairlines, and subtle chrome surfaces. */
+  --sl-color-gray-5: var(--color-border);
+  --sl-color-gray-6: var(--color-surface);
+  --sl-color-gray-7: var(--color-surface);
+  --sl-color-hairline: var(--color-border);
+  --sl-color-hairline-light: var(--color-border);
+  --sl-color-hairline-shade: var(--color-border);
+
+  /* Page and chrome backgrounds. */
+  --sl-color-black: var(--color-bg);
+  --sl-color-bg: var(--color-bg);
+  --sl-color-bg-nav: var(--color-surface);
+  --sl-color-bg-sidebar: var(--color-surface);
+
+  /* Links resolve to the petrol link role — never lime. This drives content
+     link text and the fill behind the active navigation item. */
+  --sl-color-text-accent: var(--color-link);
+
+  /* Accent = lime. Used for highlight lines and active-state marks: focus
+     rings, the active table-of-contents marker, and selected-tab borders —
+     never for body or link text. */
+  --sl-color-accent: var(--color-primary);
+
+  /* Higher-contrast accent, used for hover accents and thin outlines. The
+     lime-text role is AA on light backgrounds and bright lime on dark, so
+     lime-coloured text never falls below contrast on a light background. */
+  --sl-color-accent-high: var(--color-lime-text);
+
+  /* Subtle accent surface (badge and search-selection backgrounds). A neutral
+     surface keeps this readable in both themes, where a saturated lime tint
+     would either wash out on light or glare on dark. */
+  --sl-color-accent-low: var(--color-surface);
+
+  /* Text drawn on top of a filled accent/link surface (e.g. the active
+     sidebar item, whose fill is the petrol link colour). The page-background
+     role is light in the light theme and near-black in the dark theme, so it
+     contrasts with the fill in both themes. */
+  --sl-color-text-invert: var(--color-bg);
+}
+
+/* Inline code sits on the dark functional surface with light text, so code
+   reads as a dark surface in both themes. Scoped to inline code only; fenced
+   code blocks keep their own theme-aware syntax rendering. */
+.sl-markdown-content :not(pre) > code:not(:where(.not-content *)) {
+  background-color: var(--color-neutral-900);
+  color: var(--color-neutral-50);
+}
+
+/* Callouts share the dark functional surface with light text. The semantic
+   left border (note/tip/caution/danger) is preserved and carries the type
+   distinction; inline links inside a callout use a light petrol so they stay
+   legible on the dark surface. */
+.starlight-aside {
+  background-color: var(--color-neutral-900);
+  color: var(--color-neutral-50);
+}
+
+.starlight-aside__title {
+  color: var(--color-neutral-50);
+}
+
+.starlight-aside a {
+  color: var(--color-petrol-300);
+}
