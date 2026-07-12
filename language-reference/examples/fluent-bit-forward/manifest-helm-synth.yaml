@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: manifest-helm-synth
+  version: "1.0.0"
+  description: >
+    Ops mapping for the Kubernetes target backed by the synthesized helm Recipe
+    (helm/fluent-bit), which runs the official upstream fluent/fluent-bit image
+    directly with no external chart. The recipe reference is provider-scoped
+    because a compose Recipe of the same name also exists. The forwarder renders
+    as a stateless Deployment and a ClusterIP Service; the downstream sink is
+    rendered by the Adminer helm Recipe. Recipe selection at build time is by
+    component type against the loaded catalog.
+spec:
+  mappings:
+    components:
+      type:
+        core/observability/fluent-bit:1.0.0: helm/fluent-bit:1.0.0
+        core/devtool/adminer:1.0.0: helm/adminer:1.0.0

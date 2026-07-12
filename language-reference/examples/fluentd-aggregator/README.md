@@ -1,13 +1,19 @@
 # Fluentd — a log aggregator, two targets
 
 This example compiles a **Fluentd** log aggregator — the receiving end of a log
-pipeline — from one Developer-authored `Aggregate` to two deployment targets:
+pipeline — from one Developer-authored `Aggregate` to two deployment
+realizations:
 
 - **Docker Compose** for local development, and
-- the **Bitnami Fluentd Helm chart** (aggregator mode) for Kubernetes.
+- the **synthesized helm Recipe** running the official upstream `fluent/fluentd`
+  image directly on Kubernetes (no external chart).
+
+The synthesized helm Recipe is the preferred Kubernetes path: it depends only on
+an official image tag rather than a third-party chart, and its rendered resource
+set is exactly what the workload declares.
 
 The same `aggregate.yaml` drives both. Only the Recipe layer selected by the
-Manifest changes per target.
+Manifest changes per realization.
 
 ## The aggregator role
 
@@ -28,9 +34,14 @@ conventional Fluentd forward port.
 | File | Role |
 | --- | --- |
 | `aggregate.yaml` | Developer intent: an `aggregator` component (`core/observability/fluentd`) listening on the forward input. |
-| `manifest-compose.yaml` | Maps the Fluentd type to the Compose Recipe (`fluentd`). |
-| `manifest-bitnami.yaml` | Maps the Fluentd type to the Bitnami chart-wrap Recipe (`fluentd-bitnami`, aggregator mode). |
-| `release-compose.yaml` / `release-bitnami.yaml` | Operator records for the two targets. |
+| `manifest-compose.yaml` | Maps the Fluentd type to the Compose Recipe (`compose/fluentd`). |
+| `manifest-helm-synth.yaml` | Maps the Fluentd type to the synthesized helm Recipe (`helm/fluentd`). |
+| `release-compose.yaml` / `release-helm-synth.yaml` | Operator records for the two realizations. |
+| `release-helm-synth-buffer.yaml` | The synthesized helm realization with durable buffering enabled (`infra.storage.size` set). |
+
+Because both a Compose and a synthesized helm Recipe carry the name `fluentd`,
+the Manifests reference them provider-scoped as `compose/fluentd` and
+`helm/fluentd`.
 
 ## What it demonstrates
 
@@ -41,18 +52,22 @@ conventional Fluentd forward port.
   (24224) on the `forward` protocol. A forwarder that binds this component pipes
   those strings into its own forward output; the compiler routes them without
   interpreting them.
-- **Aggregator mode on Kubernetes.** The chart-wrap Recipe disables the
-  forwarder daemonset, so the chart renders only the aggregator: a StatefulSet,
-  its primary and headless Services, its configuration ConfigMap, a
-  NetworkPolicy, a PodDisruptionBudget, and a ServiceAccount — nothing else.
+- **Workload synthesis (Kubernetes).** The synthesized helm Recipe declares a
+  Workload — a Deployment plus a ClusterIP Service running the official
+  `fluent/fluentd` image — that the helm provider translates into Kubernetes
+  manifests with no external chart. The rendered resource set is exactly what
+  the Workload declares.
 - **Developer-controlled routing.** The developer's output match selects which
   received records are routed to the aggregator's output. It defaults to `**`,
   which routes every received record.
-- **Ephemeral buffer by default.** The aggregator buffers in memory, so the
-  render carries no persistent volume. Set `infra.storage.size` to back the
-  buffer with a durable volume.
-- **Reproducible images.** Both Recipes pin the Fluentd image so the rendered
-  workload references a fixed image.
+- **Ephemeral buffer by default, durable on request.** The aggregator buffers in
+  memory, so the default render carries no persistent volume. Setting
+  `infra.storage.size` (see `release-helm-synth-buffer.yaml`) backs the buffer
+  with a durable volume mounted at `/fluentd/log`; the workload stays a
+  single-replica Deployment.
+- **Reproducible images.** `infra.engine_version` pins the Fluentd image tag, so
+  the rendered workload references a fixed image and the synthesized Recipe
+  renders no floating tag.
 
 ## Build
 
@@ -63,13 +78,14 @@ catalog flag is needed:
 # Local development (Docker Compose)
 aggrega build --release release-compose.yaml
 
-# Kubernetes (Bitnami Fluentd Helm chart)
-aggrega pull  --release release-bitnami.yaml
-aggrega build --release release-bitnami.yaml
+# Kubernetes (synthesized helm Recipe, official image)
+aggrega build --release release-helm-synth.yaml
+
+# Kubernetes with a durable buffer volume
+aggrega build --release release-helm-synth-buffer.yaml
 ```
 
-Rendered artifacts land under `dist/`. The Kubernetes build resolves the
-upstream chart by OCI reference on `aggrega pull` and pins it in a lockfile.
+Rendered artifacts land under `dist/`.
 
 ## What the forward endpoint looks like
 
@@ -87,28 +103,31 @@ bound to the forward port, and routes matched records to standard output:
 </match>
 ```
 
-On Kubernetes, the same forward input arrives in the aggregator's configuration
-ConfigMap, and the primary Service exposes the forward port:
+On Kubernetes, the synthesized helm Recipe writes the same `fluent.conf` at
+start-up, and the ClusterIP Service exposes the forward port:
 
 ```yaml
-ports:
-  - name: http
-    port: 9880
-    targetPort: http
-  - name: tcp
-    port: 24224
-    targetPort: tcp
+spec:
+  type: ClusterIP
+  ports:
+    - name: forward
+      port: 24224
+      targetPort: forward
 ```
 
-The StatefulSet references the pinned image and exposes the forward port on the
+The Deployment references the pinned image and exposes the forward port on the
 container:
 
 ```yaml
-image: docker.io/bitnami/fluentd:1.19.0-debian-12-r1
+image: fluent/fluentd:v1.19.3-debian-2.1
 ports:
-  - name: tcp
+  - name: forward
     containerPort: 24224
 ```
+
+When `infra.storage.size` is set, the Recipe additionally renders a
+PersistentVolumeClaim and mounts it at `/fluentd/log`, backing a file buffer so
+buffered records survive restarts.
 
 ## Run it (Compose)
 

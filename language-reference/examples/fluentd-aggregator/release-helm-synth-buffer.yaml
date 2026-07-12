@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: k8s-helm-synth-buffer
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: aggregate
+  manifest: manifest-helm-synth
+  boundaries:
+    app:
+      directory: app-buffer
+      components:
+        aggregator:
+          # The same synthesized helm realization with durable buffering: setting
+          # storage.size renders a persistent volume backing a file buffer mounted
+          # at /fluentd/log, so buffered records survive restarts. The workload
+          # stays a single-replica Deployment — the volume is a plain claim, not a
+          # per-replica template.
+          infra:
+            engine_version: "v1.19.3-debian-2.1"
+            compute:
+              cpu: 500m
+              memory: 512Mi
+            storage:
+              size: 5Gi

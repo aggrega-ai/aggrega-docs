@@ -2,23 +2,30 @@
 
 This example compiles a real log pipeline — a **Fluent Bit** forwarder shipping
 records to a **Fluentd** aggregator over the forward protocol — from one
-Developer-authored `Aggregate` to two deployment targets:
+Developer-authored `Aggregate` to two deployment realizations:
 
 - **Docker Compose** for local development, and
-- the **Bitnami** Fluent Bit and Fluentd Helm charts for Kubernetes.
+- the **synthesized helm Recipes** running the official upstream
+  `fluent/fluent-bit` and `fluent/fluentd` images directly on Kubernetes (no
+  external charts).
+
+The synthesized helm Recipes are the preferred Kubernetes path: they depend only
+on official image tags rather than third-party charts, and their rendered
+resource set is exactly what the workloads declare.
 
 The same `aggregate.yaml` drives both. Only the Recipe layer selected by the
-Manifest changes per target.
+Manifest changes per realization.
 
 ## The pipeline
 
 Two components form a forwarder-to-aggregator pipeline:
 
 - `forwarder` (`core/observability/fluent-bit`) collects log records and ships
-  them on a `forward` output. It renders as a stateless server.
+  them on a `forward` output. It is typed as a stateless server.
 - `aggregator` (`core/observability/fluentd`) listens on the `forward` input
-  protocol, receives the records, and routes them to its output. It buffers
-  records and renders as a stateful server.
+  protocol, receives the records, and routes them to its output. It is typed as
+  a stateful server; the synthesized helm Recipe buffers in memory by default,
+  so it renders as a single-replica Deployment.
 
 The forwarder declares a `forward_target` use of the aggregator. The
 aggregator's `provides.host` and `provides.port` — the host and port of its
@@ -32,9 +39,13 @@ ahead of time from a single edge.
 | File | Role |
 | --- | --- |
 | `aggregate.yaml` | Developer intent: an `aggregator` sink (`core/observability/fluentd`) and a `forwarder` (`core/observability/fluent-bit`) that declares a `forward_target` use of the aggregator. |
-| `manifest-compose.yaml` | Maps the Fluent Bit type to the Compose Recipe (`fluent-bit`) and the Fluentd type to the Compose Recipe (`fluentd`). |
-| `manifest-bitnami.yaml` | Maps the Fluent Bit type to the Bitnami chart-wrap Recipe (`fluent-bit-bitnami`) and the Fluentd type to the Bitnami chart-wrap Recipe (`fluentd-bitnami`). |
-| `release-compose.yaml` / `release-bitnami.yaml` | Operator records for the two targets. |
+| `manifest-compose.yaml` | Maps the Fluent Bit type to the Compose Recipe (`compose/fluent-bit`) and the Fluentd type to the Compose Recipe (`compose/fluentd`). |
+| `manifest-helm-synth.yaml` | Maps the Fluent Bit type to the synthesized helm Recipe (`helm/fluent-bit`) and the Fluentd type to the synthesized helm Recipe (`helm/fluentd`). |
+| `release-compose.yaml` / `release-helm-synth.yaml` | Operator records for the two realizations. |
+
+Because both a Compose and a synthesized helm Recipe carry the names
+`fluent-bit` and `fluentd`, the Manifests reference them provider-scoped
+(`compose/…` and `helm/…`).
 
 ## What it demonstrates
 
@@ -48,17 +59,16 @@ ahead of time from a single edge.
   service name and the Kubernetes build wires a Service name, from the same
   edge.
 - **A stateful sink on a stateless forwarder's socket.** The forwarder's
-  `forward_target` socket accepts either a stateless or a stateful server as
-  its sink. Fluentd is a stateful server (it renders a StatefulSet), and it
-  binds the socket cleanly — the socket selects on the operational server role,
-  not on whether the sink holds state.
-- **Provider-idiomatic configuration.** On Compose the forwarder writes a
-  minimal `fluent-bit.conf` at start-up whose `forward` output targets the
-  injected aggregator. On Kubernetes the chart-wrap Recipe feeds the same
-  output into the chart's `config.outputs` value, which the chart writes into
-  the Fluent Bit configuration ConfigMap.
-- **Reproducible images.** The chart-wrap Recipes pin their image tags so the
-  rendered workloads reference fixed images.
+  `forward_target` socket selects a `server` or a `stateful-server`. Fluentd is
+  typed as a stateful server, and it binds the socket cleanly — the socket
+  selects on the operational server role, not on whether the sink holds state.
+- **Workload synthesis (Kubernetes).** Each synthesized helm Recipe declares a
+  Workload — a Deployment plus a ClusterIP Service running the official image —
+  that the helm provider translates into Kubernetes manifests with no external
+  chart. The rendered resource set is exactly what the Workloads declare.
+- **Reproducible images.** `infra.engine_version` pins each image tag, so the
+  rendered workloads reference fixed images and the synthesized Recipes render
+  no floating tag.
 
 ## Build
 
@@ -69,13 +79,11 @@ catalog flag is needed:
 # Local development (Docker Compose)
 aggrega build --release release-compose.yaml
 
-# Kubernetes (Bitnami Helm charts)
-aggrega pull  --release release-bitnami.yaml
-aggrega build --release release-bitnami.yaml
+# Kubernetes (synthesized helm Recipes, official images)
+aggrega build --release release-helm-synth.yaml
 ```
 
-Rendered artifacts land under `dist/`. The Kubernetes build resolves the
-upstream charts by OCI reference on `aggrega pull` and pins them in a lockfile.
+Rendered artifacts land under `dist/`.
 
 ## What the injected forward target looks like
 
@@ -90,14 +98,14 @@ targets the aggregator's compose service name and forward port:
     Port   24224
 ```
 
-On Kubernetes, the same output arrives in the forwarder's config ConfigMap:
+On Kubernetes, the same output targets the aggregator's in-cluster Service name:
 
 ```ini
 [OUTPUT]
-    Name  forward
-    Match *
-    Host  aggregator
-    Port  24224
+    Name   forward
+    Match  *
+    Host   aggregator-default
+    Port   24224
 ```
 
 Both resolve from the same Aggregate edge — the aggregator host and port travel

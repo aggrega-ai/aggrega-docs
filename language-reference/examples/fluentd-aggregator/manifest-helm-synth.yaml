@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: manifest-helm-synth
+  version: "1.0.0"
+  description: >
+    Ops mapping for the Kubernetes target backed by the synthesized helm Recipe
+    (helm/fluentd), which runs the official upstream fluent/fluentd image
+    directly with no external chart. The recipe reference is provider-scoped
+    because a compose Recipe of the same name also exists. The aggregator renders
+    as a stateless Deployment and a ClusterIP Service; the buffer is in-memory
+    unless infra.storage.size is set, in which case a durable volume backs it.
+    Recipe selection at build time is by component type against the loaded
+    catalog.
+spec:
+  mappings:
+    components:
+      type:
+        core/observability/fluentd:1.0.0: helm/fluentd:1.0.0

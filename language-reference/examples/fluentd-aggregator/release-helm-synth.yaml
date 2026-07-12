@@ -4,20 +4,22 @@
 apiVersion: aggrega.ai/v1alpha1
 kind: Release
 metadata:
-  name: k8s-bitnami
+  name: k8s-helm-synth
   environment: production
   version: "1.0.0"
 spec:
   aggregate: aggregate
-  manifest: manifest-bitnami
+  manifest: manifest-helm-synth
   boundaries:
     app:
       directory: app
       components:
         aggregator:
-          # Operational sizing owned by the operator. Set explicitly so the
-          # Bitnami chart values render without relying on schema defaults.
+          # Operational sizing owned by the operator. engine_version pins the
+          # official image tag; the synthesized Recipe renders no floating tag.
+          # No storage.size, so the buffer is in-memory and no volume renders.
           infra:
+            engine_version: "v1.19.3-debian-2.1"
             compute:
               cpu: 500m
               memory: 512Mi

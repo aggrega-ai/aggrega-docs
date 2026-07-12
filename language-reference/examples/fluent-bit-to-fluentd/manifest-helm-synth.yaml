@@ -1,0 +1,24 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: manifest-helm-synth
+  version: "1.0.0"
+  description: >
+    Ops mapping for the Kubernetes target backed by the synthesized helm
+    Recipes. The Fluent Bit forwarder is realized by helm/fluent-bit and the
+    Fluentd aggregator by helm/fluentd, both running the official upstream
+    images directly with no external chart. Both references are provider-scoped
+    because compose Recipes of the same names also exist. Each renders as a
+    stateless Deployment and a ClusterIP Service, and the aggregator's forward
+    endpoint host and port are piped into the forwarder's `forward` output.
+    Recipe selection at build time is by component type against the loaded
+    catalog.
+spec:
+  mappings:
+    components:
+      type:
+        core/observability/fluent-bit:1.0.0: helm/fluent-bit:1.0.0
+        core/observability/fluentd:1.0.0: helm/fluentd:1.0.0
