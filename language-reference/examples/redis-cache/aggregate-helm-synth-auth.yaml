@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: aggregate-helm-synth-auth
+  version: "1.0.0"
+  description: >
+    The same Redis cache, this time with a referenceable password credential
+    attached to the component's optional `password` slot for the synthesized
+    helm target. A referenced-secret credential materializes a Kubernetes Secret
+    and publishes its locator; the synthesized Recipe references it as an env
+    secretKeyRef and starts Redis with --requirepass to enforce authentication,
+    so the plaintext password never lands in the rendered manifest. Credentials
+    live in the secrets: pillar (each Feature is labeled
+    feature.aggrega.ai/kind: secret), kept apart from application values.
+spec:
+  components:
+    cache:
+      type: core/datastore/redis
+      secrets:
+        password:
+          type: core/referenced-secret
+          values:
+            key: REDIS_PASSWORD
+            origin: dev-cache-pw-change-me
