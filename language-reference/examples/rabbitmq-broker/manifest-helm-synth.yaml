@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: manifest-helm-synth
+  version: "1.0.0"
+  description: >
+    Ops mapping for the Kubernetes target backed by the synthesized helm Recipe
+    (helm/rabbitmq), which runs the official upstream rabbitmq image directly
+    with no external chart, rendering a StatefulSet with a per-replica
+    persistent volume. The recipe reference is provider-scoped because a compose
+    Recipe of the same name also exists. The optional password credential is
+    realized by the k8s-secret-from-parameter FeatureRecipe, which materializes
+    a Kubernetes Secret the StatefulSet references via an env secretKeyRef; when
+    no credential is attached the mapping is inert and the broker renders with a
+    deterministic inline development password.
+spec:
+  mappings:
+    components:
+      type:
+        core/messaging/rabbitmq:1.0.0: helm/rabbitmq:1.0.0
+    features:
+      type:
+        core/referenced-secret:1.0.0: k8s-secret-from-parameter:1.0.0

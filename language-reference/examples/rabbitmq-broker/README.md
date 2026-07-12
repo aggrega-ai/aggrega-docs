@@ -4,41 +4,54 @@ This example compiles a single **RabbitMQ** message broker (AMQP) from one
 Developer-authored `Aggregate` to two deployment targets:
 
 - **Docker Compose** for local development, and
-- the **Bitnami RabbitMQ Helm chart** for Kubernetes.
+- **Kubernetes**, via the synthesized helm Recipe that runs the official
+  upstream `rabbitmq` image directly (a StatefulSet with a persistent volume,
+  no external chart).
 
 The same `aggregate.yaml` drives both. Only the Recipe layer selected by the
-Manifest changes per target. A second Aggregate, `aggregate-auth.yaml`, shows
-the same broker with a password credential attached.
+Manifest changes per target. A second Aggregate, `aggregate-helm-synth-auth.yaml`,
+shows the same broker on Kubernetes with a referenceable password credential
+attached.
 
 ## Files
 
 | File | Role |
 | --- | --- |
 | `aggregate.yaml` | Developer intent: one `broker` component of type `core/messaging/rabbitmq`, no credential — the Recipe supplies a deterministic inline development password. |
-| `aggregate-auth.yaml` | The same broker with a password credential attached to the component's optional `password` slot. |
-| `manifest-compose.yaml` | Maps the RabbitMQ type to the Compose Recipe (`rabbitmq`) and the credential to `dotenv-secret`. |
-| `manifest-bitnami.yaml` | Maps the RabbitMQ type to the Bitnami chart-wrap Recipe (`rabbitmq-bitnami`) and the credential to `env-secret`. |
-| `release-compose.yaml` / `release-bitnami.yaml` | Operator records for the two targets, inline development password. |
-| `release-compose-auth.yaml` / `release-bitnami-auth.yaml` | Operator records that deploy `aggregate-auth.yaml`, supplying the password through the credential slot. |
+| `aggregate-auth.yaml` | The same broker with an inject-value password credential attached to the component's optional `password` slot (used by the Compose target). |
+| `aggregate-helm-synth-auth.yaml` | The same broker with a referenceable password credential attached, materialized as a Kubernetes Secret and referenced by the StatefulSet (used by the Kubernetes target). |
+| `manifest-compose.yaml` | Maps the RabbitMQ type to the Compose Recipe (`compose/rabbitmq`) and the credential to `dotenv-secret`. |
+| `manifest-helm-synth.yaml` | Maps the RabbitMQ type to the synthesized helm Recipe (`helm/rabbitmq`) and the credential to `k8s-secret-from-parameter`. |
+| `release-compose.yaml` / `release-helm-synth.yaml` | Operator records for the two targets, inline development password. |
+| `release-compose-auth.yaml` / `release-helm-synth-auth.yaml` | Operator records that supply the password through the credential slot. |
+
+The Recipe references in the Manifests are provider-scoped (`compose/rabbitmq`,
+`helm/rabbitmq`) because a Recipe of the same name exists for each provider.
 
 ## What it demonstrates
 
 - **One authoring surface, many targets.** A single Aggregate is the source of
   truth for *what* the stack is. Each Manifest says *how* to realize it.
 - **A durable broker.** RabbitMQ persists queues and messages, so the component
-  is typed as a `stateful-server`. On Kubernetes the chart renders a
-  **StatefulSet** with a persistent volume; the Compose service exposes the
-  broker for local development.
-- **Chart wrapping (Kubernetes).** The Bitnami target sources the upstream
-  RabbitMQ chart by OCI reference and maps the component's `infra` onto the
-  chart's own value structure — `auth`, `containerPorts`, `service.ports`,
-  `persistence`, and `resources`.
+  is typed as a `stateful-server`. On Kubernetes the synthesized Recipe renders
+  a **StatefulSet** with a per-replica persistent volume mounted at the RabbitMQ
+  data directory and a Headless Service for stable network identity; the Compose
+  service exposes the broker for local development.
+- **Chart-free synthesis (Kubernetes).** The Kubernetes target runs the official
+  `rabbitmq` image directly. The compiler synthesizes the StatefulSet, the
+  ClusterIP Service, and the Headless Service from the component's `infra`
+  sizing — no external chart to source or track. The image tag is pinned through
+  `infra.engine_version`, so the render carries no floating tag.
+- **Both broker ports.** The image is management-enabled, so the broker exposes
+  the AMQP port (5672) and the management dashboard (15672) on the container and
+  on the ClusterIP Service.
 - **Deterministic credentials.** RabbitMQ always authenticates. When no
   credential is attached, each Recipe supplies a fixed inline development
-  password (and the chart-wrap Recipe pins the Erlang cookie) so the render is
-  byte-identical across runs rather than relying on the chart's random
-  password generation. When a credential is attached (`aggregate-auth.yaml`),
-  the injected value sets the broker password on both targets.
+  password so the render is byte-identical across runs. When a credential is
+  attached, the injected value sets the broker password: on Compose it becomes
+  the `RABBITMQ_DEFAULT_PASS` service environment variable; on Kubernetes it is
+  materialized as a Secret and referenced by an env `secretKeyRef`, so the
+  plaintext never lands in the rendered manifest.
 
 ## Build
 
@@ -49,26 +62,24 @@ catalog flag is needed:
 # Local development (Docker Compose), inline development password
 aggrega build --release release-compose.yaml
 
-# Kubernetes (Bitnami RabbitMQ Helm chart), inline development password
-aggrega build --release release-bitnami.yaml
+# Kubernetes (synthesized helm Recipe, official rabbitmq image), inline password
+aggrega build --release release-helm-synth.yaml
 
 # The same targets with a password credential attached
 aggrega build --release release-compose-auth.yaml
-aggrega build --release release-bitnami-auth.yaml
+aggrega build --release release-helm-synth-auth.yaml
 ```
 
-Rendered artifacts land under `dist/`. The Kubernetes build resolves the
-upstream chart by OCI reference on first run and pins it in a lockfile.
+Rendered artifacts land under `dist/`.
 
 ## Credential delivery note
 
-On both targets the credential is an inject-value secret: its value is delivered
-on the component's environment pipe. On Compose it becomes the
-`RABBITMQ_DEFAULT_PASS` service environment variable. On Kubernetes the
-chart-wrap Recipe feeds the value into the chart's `auth.password`, and the
-chart provisions the Kubernetes Secret and mounts it into the workload — so the
-authenticated stack renders complete, with no out-of-band Secret to supply. The
-`origin` value in `aggregate-auth.yaml` is a development placeholder; supply a
-real value through your credential source for any real deployment. The inline
-development password used when no credential is attached is likewise for local
-use only.
+On Compose the credential is an inject-value secret: its value is delivered on
+the component's environment pipe and becomes the `RABBITMQ_DEFAULT_PASS` service
+environment variable. On Kubernetes the credential is referenceable: it is
+materialized as a Kubernetes Secret, and the StatefulSet references it via an
+env `secretKeyRef`, so the plaintext password never appears in the workload
+manifest. The `origin` value in the auth Aggregates is a development
+placeholder; supply a real value through your credential source for any real
+deployment. The inline development password used when no credential is attached
+is likewise for local use only.
