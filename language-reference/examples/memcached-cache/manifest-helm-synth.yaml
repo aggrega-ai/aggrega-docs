@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: manifest-helm-synth
+  version: "1.0.0"
+  description: >
+    Ops mapping for the Kubernetes target backed by the synthesized helm Recipe
+    (helm/memcached), which runs the official upstream memcached image directly
+    with no external chart. The recipe reference is provider-scoped because a
+    compose Recipe of the same name also exists. The optional password
+    credential is realized by the k8s-secret-from-parameter FeatureRecipe, which
+    materializes a Kubernetes Secret the Deployment references via an env
+    secretKeyRef; when no credential is attached the mapping is inert and the
+    cache renders without authentication.
+spec:
+  mappings:
+    components:
+      type:
+        core/datastore/memcached:1.0.0: helm/memcached:1.0.0
+    features:
+      type:
+        core/referenced-secret:1.0.0: k8s-secret-from-parameter:1.0.0
