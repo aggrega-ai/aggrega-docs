@@ -4,20 +4,23 @@
 apiVersion: aggrega.ai/v1alpha1
 kind: Release
 metadata:
-  name: k8s-bitnami-auth
+  name: k8s-helm-synth
   environment: production
   version: "1.0.0"
 spec:
-  aggregate: aggregate-auth
-  manifest: manifest-bitnami
+  aggregate: aggregate
+  manifest: manifest-helm-synth
   boundaries:
     app:
       directory: app
       components:
-        store:
+        dashboards:
+          # Operational sizing owned by the operator. engine_version pins the
+          # official image tag; the synthesized Recipe renders no floating tag.
           infra:
+            engine_version: "12.1.1"
             compute:
               cpu: 500m
               memory: 512Mi
             storage:
-              size: 8Gi
+              size: 10Gi

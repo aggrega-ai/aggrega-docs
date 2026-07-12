@@ -1,14 +1,22 @@
 # MinIO — one Aggregate, two targets, optional root credential
 
 This example compiles a single **MinIO** S3-compatible object-storage server
-from one Developer-authored `Aggregate` to two deployment targets:
+from one Developer-authored `Aggregate` to two deployment realizations:
 
 - **Docker Compose** for local development, and
-- the **Bitnami MinIO Helm chart** for Kubernetes.
+- the **synthesized helm Recipe** running the official upstream `minio/minio`
+  image directly on Kubernetes (no external chart).
+
+The synthesized helm Recipe is the Kubernetes path: it depends only on an
+official image tag rather than a third-party chart, and its rendered resource
+set is exactly what the workload declares.
 
 The same `aggregate.yaml` drives both. Only the Recipe layer selected by the
-Manifest changes per target. A second Aggregate, `aggregate-auth.yaml`, shows
-the same server with a root-password credential attached.
+Manifest changes per realization. Two further Aggregates show the same server
+with an optional root-password credential attached: `aggregate-auth.yaml` for
+the Compose path (an inject-value credential surfaced as an environment
+variable), and `aggregate-helm-synth-auth.yaml` for the synthesized helm path (a
+referenceable credential materialized as a Kubernetes Secret).
 
 The packaged MinIO server is **AGPL-3.0**.
 
@@ -17,11 +25,12 @@ The packaged MinIO server is **AGPL-3.0**.
 | File | Role |
 | --- | --- |
 | `aggregate.yaml` | Developer intent: one `store` component of type `core/storage/minio`, no credential — the root account uses the Recipe's deterministic development password. |
-| `aggregate-auth.yaml` | The same server with a root-password credential attached to the component's optional `root_password` slot. |
-| `manifest-compose.yaml` | Maps the MinIO type to the Compose Recipe (`minio`) and the credential to `dotenv-secret`. |
-| `manifest-bitnami.yaml` | Maps the MinIO type to the Bitnami chart-wrap Recipe (`minio-bitnami`) and the credential to `env-secret`. |
-| `release-compose.yaml` / `release-bitnami.yaml` | Operator records for the two targets, no attached credential. |
-| `release-compose-auth.yaml` / `release-bitnami-auth.yaml` | Operator records that deploy `aggregate-auth.yaml`, supplying the root password. |
+| `aggregate-auth.yaml` | The same server with a root-password credential attached to the component's optional `root_password` slot (Compose path). |
+| `aggregate-helm-synth-auth.yaml` | The same server with a referenceable credential attached for the synthesized helm path — the value is materialized as a Kubernetes Secret the Deployment references. |
+| `manifest-compose.yaml` | Maps the MinIO type to the Compose Recipe (`compose/minio`) and the credential to `dotenv-secret`. |
+| `manifest-helm-synth.yaml` | Maps the MinIO type to the synthesized helm Recipe (`helm/minio`) and the credential to `k8s-secret-from-parameter`. |
+| `release-compose.yaml` / `release-helm-synth.yaml` | Operator records for the two realizations, no attached credential. |
+| `release-compose-auth.yaml` / `release-helm-synth-auth.yaml` | Operator records that enable authentication. |
 
 ## What it demonstrates
 
@@ -29,28 +38,26 @@ The packaged MinIO server is **AGPL-3.0**.
   truth for *what* the stack is. Each Manifest says *how* to realize it.
 - **A self-hosted object store, not a managed bucket.** MinIO runs and owns the
   storage process, so the component is a `server` backed by a data volume — not
-  a managed-cloud storage resource. On Kubernetes the chart renders a
-  **Deployment** with a PersistentVolumeClaim; on Compose the service mounts a
-  named volume at `/data` and starts the server with `minio server /data`.
-- **Chart wrapping (Kubernetes).** The Bitnami target sources the upstream MinIO
-  chart by OCI reference and maps the component's `infra` onto the chart's own
-  value structure — `image`, `auth`, `containerPorts`, `resources`, `service`,
-  and `persistence`. The chart publishes a resolvable image tag for this
-  appVersion, so the Recipe pins that tag for a reproducible render.
-- **A single standalone server.** The chart-wrap Recipe pins `mode: standalone`
-  and disables the separate MinIO Console application, so the chart renders
-  exactly one workload of each kind — a complete, unambiguous render rather than
-  the two-application shape the chart emits with the Console enabled.
+  a managed-cloud storage resource. On Kubernetes the synthesized helm Recipe
+  renders a **Deployment** with a PersistentVolumeClaim mounted at `/data`; on
+  Compose the service mounts a named volume at the same path and starts the
+  server with `minio server /data`.
+- **Workload synthesis (Kubernetes).** The synthesized helm Recipe declares a
+  Workload — a Deployment plus a ClusterIP Service running the official
+  `minio/minio` image, started with `minio server /data --address :9000` — that
+  the helm provider translates into Kubernetes manifests with no external chart.
+  The rendered resource set is exactly what the Workload declares. Because both a
+  Compose and a synthesized helm Recipe carry the name `minio`, the Manifests
+  reference them provider-scoped as `compose/minio` and `helm/minio`.
 - **A deterministic root password.** The MinIO root account is always present.
-  Left to itself, the chart generates a fresh random root password on every
-  render, which is non-deterministic. This component instead wires the password
-  through an optional `root_password` credential slot: when no credential is
-  attached (the base Aggregate) the Recipe sets a deterministic development
-  password, so the render is byte-identical across runs; when a credential is
-  attached (`aggregate-auth.yaml`) the injected value becomes the root password
-  — feeding the chart's `auth.rootPassword` on Kubernetes (the chart provisions
-  its own Secret from it) and the `MINIO_ROOT_PASSWORD` environment variable on
-  Compose.
+  This component wires the password through an optional `root_password`
+  credential slot: when no credential is attached (the base Aggregate) the Recipe
+  sets a deterministic development password, so the render is byte-identical
+  across runs; when a credential is attached, the injected value becomes the root
+  password. On Compose it surfaces as the `MINIO_ROOT_PASSWORD` environment
+  variable; on Kubernetes the synthesized helm path materializes it as a Secret
+  the Deployment references through an env `secretKeyRef`, so the plaintext never
+  appears in the Deployment manifest.
 
 ## Not modelled here
 
@@ -68,29 +75,30 @@ catalog flag is needed:
 # Local development (Docker Compose), development root password
 aggrega build --release release-compose.yaml
 
-# Kubernetes (Bitnami MinIO Helm chart), development root password
-aggrega pull  --release release-bitnami.yaml
-aggrega build --release release-bitnami.yaml
+# Kubernetes (synthesized helm Recipe, official image), development root password
+aggrega build --release release-helm-synth.yaml
 
-# The same targets with an operator-supplied root credential
+# The same realizations with authentication enabled
 aggrega build --release release-compose-auth.yaml
-aggrega pull  --release release-bitnami-auth.yaml
-aggrega build --release release-bitnami-auth.yaml
+aggrega build --release release-helm-synth-auth.yaml
 ```
 
-Rendered artifacts land under `dist/`. The Kubernetes build resolves the
-upstream chart by OCI reference on first run and pins it in a lockfile.
+Rendered artifacts land under `dist/`.
 
 ## Credential delivery note
 
-On both targets the credential is an inject-value secret: its value is delivered
-on the component's environment pipe. On Compose it becomes the
-`MINIO_ROOT_PASSWORD` service environment variable directly. On Kubernetes the
-chart-wrap Recipe feeds the value into the chart's `auth.rootPassword`, and the
-chart provisions the Kubernetes Secret and mounts it into the workload — so the
-authenticated stack renders complete, with no out-of-band Secret to supply. The
-`origin` value in `aggregate-auth.yaml` is a development placeholder; supply a
-real value through your credential source for any real deployment.
+On the Compose path the credential is an inject-value secret
+(`aggregate-auth.yaml`): its value is delivered on the component's environment
+pipe and becomes the `MINIO_ROOT_PASSWORD` service environment variable.
+
+The synthesized helm path uses a referenceable credential
+(`aggregate-helm-synth-auth.yaml`): the value is materialized as a Kubernetes
+Secret, and the Deployment references it through an env `secretKeyRef` bound to
+`MINIO_ROOT_PASSWORD`. The plaintext password therefore never appears in the
+Deployment manifest — only in the Secret.
+
+The `origin` value in the authenticated Aggregates is a development placeholder;
+supply a real value through your credential source for any real deployment.
 
 ## Run it (Compose)
 
