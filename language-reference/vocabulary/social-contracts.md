@@ -125,6 +125,16 @@ The compiler does not inspect `valuesMapping:` outputs for cloud-resource-name f
 
 A future Wasm-linter rule could flag cloud-resource-name fields without the required interpolations; the discipline transitions from Class C to Class B when the rule ships.
 
+### 9. Component granularity — one coherent service per Component
+
+A Component models one coherent service — a single exposed service, or the workload(s) of one service together with its internal-only helper workloads. When a chart bundles services that another component could meaningfully `use` on their own — especially foreign infrastructure such as a database, cache, or message broker that Aggrega already models as its own Component — the standard library composes per-service Components into a sub-aggregate Module (`spec.aggregates` + `exportedComponents`) rather than wrapping the whole product as one opaque Component. The discipline: multi-workload is fine within a Component; independent usability is the line that splits one Component into a stack.
+
+The compiler is blind to this granularity. It renders whatever passes schema validation — it does not inspect how many services a Component's Recipe bundles, nor whether one of them is independently usable. An author who wraps a five-service product as a single Component produces a Component the engine accepts and renders without complaint; the convention is upheld by authoring discipline and reviewer attention.
+
+**Documented at:** [`../../architecture/06-data-taxonomy-and-composition.md`](../../architecture/06-data-taxonomy-and-composition.md) (One coherent service per Component — the single-workload boundary).
+
+**Failure mode:** A monolithic multi-service wrap builds successfully, but the bundled services are invisible to the topology, the selector, and policy — they cannot be scaled, replaced, or depended-upon independently. Refactoring the monolith into per-service Components later is a breaking change to every consumer that referenced the single wrapped node.
+
 ## Why Class C exists
 
 Each Class C contract's classification is a deliberate choice. The architecture could have schema-enforced or Wasm-enforced any of them; instead the choice was made to leave them as authoring discipline. The reasoning per contract type:
@@ -133,7 +143,7 @@ Each Class C contract's classification is a deliberate choice. The architecture 
 
 **AOT purity.** The cloud-resource naming discipline (contract 8) and the determinism discipline (contract 5) require introspecting template content to determine whether a field is a cloud-resource name or a non-hermetic helper invocation. AOT purity (Invariant 2) keeps the compiler ignorant of runtime state; static template introspection is feasible (the Wasm-linter plan demonstrates this) but doing it inside the core compiler couples engine-internal logic to per-domain authoring concerns. The architecture moves these checks out of the engine and into Wasm plugins per Invariant 6 (the Wasm ABI Boundary).
 
-**Authoring-flexibility.** The pillar-boundaries discipline (contract 6) and the dual-source `variables` semantic (contract 7) describe authoring patterns rather than runtime constraints. The same template syntax can express a discipline-honouring pattern or a discipline-violating one; making the discipline a runtime check would require the engine to interpret authoring intent it can't access. The architecture treats the convention as documentation that authors learn from rather than as a runtime invariant.
+**Authoring-flexibility.** The pillar-boundaries discipline (contract 6) and the dual-source `variables` semantic (contract 7) describe authoring patterns rather than runtime constraints. The same template syntax can express a discipline-honouring pattern or a discipline-violating one; making the discipline a runtime check would require the engine to interpret authoring intent it can't access. The architecture treats the convention as documentation that authors learn from rather than as a runtime invariant. Component granularity (contract 9) sits here too: enterprises may wrap a product at whatever granularity their catalog favours, and the compiler — dumb and unopinionated per Invariant 1 — has no way to know whether a bundled workload is independently usable, so the one-coherent-service boundary stays authoring discipline rather than a schema wall.
 
 **Hybrid enforcement.** The Recipe `provides:` self-containment (contract 4) is partly engine-enforced — the Phase B sub-pass detects `.context.inject` / `.context.uses` reads in `provides:` templates and halts. The broader public-vs-private discipline (don't expose internal state) is convention-anchored because the compiler can't determine which strings should remain Recipe-internal without authoring intent.
 
@@ -149,7 +159,7 @@ Three Class C contracts have chartered Wasm-linter rules planned today:
 
 Each is `planned` per the four-label taxonomy at [`10-status.md`](../10-status.md). When each ships, the entry above's classification updates from Class C to Class B; the documentation alignment lands in lockstep with the plugin shipping.
 
-The remaining Class C contracts (1, 2, 4, 6, 7) are likely to remain Class C. The 7-Type Cloud-Native Ontology and the bucket separation are extensibility-driven (enterprise catalogs override) — schema enforcement would conflict with that flexibility. The pillar-boundaries discipline and the dual-source `variables` semantic are authoring-intent driven — the engine cannot determine intent from template syntax alone. Recipe `provides:` self-containment is already partially enforced; the broader public-vs-private discipline is unlikely to gain runtime enforcement.
+The remaining Class C contracts (1, 2, 4, 6, 7, 9) are likely to remain Class C. The 7-Type Cloud-Native Ontology and the bucket separation are extensibility-driven (enterprise catalogs override) — schema enforcement would conflict with that flexibility. The pillar-boundaries discipline and the dual-source `variables` semantic are authoring-intent driven — the engine cannot determine intent from template syntax alone. Recipe `provides:` self-containment is already partially enforced; the broader public-vs-private discipline is unlikely to gain runtime enforcement. Component granularity is authoring-intent driven as well — whether a bundled workload is independently usable is a modelling judgment the engine cannot read from Recipe content.
 
 ## Cross-references
 
