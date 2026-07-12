@@ -2,25 +2,33 @@
 
 This example compiles a single **NATS** messaging server (pub-sub,
 request-reply, queueing) from one Developer-authored `Aggregate` to two
-deployment targets:
+deployment realizations:
 
 - **Docker Compose** for local development, and
-- the **Bitnami NATS Helm chart** for Kubernetes.
+- the **synthesized helm Recipe** running the official upstream `nats` image
+  directly on Kubernetes (no external chart).
+
+The synthesized helm Recipe is the preferred Kubernetes path: it depends only on
+an official image tag rather than a third-party chart, and its rendered resource
+set is exactly what the workload declares.
 
 The same `aggregate.yaml` drives both. Only the Recipe layer selected by the
-Manifest changes per target. A second Aggregate, `aggregate-auth.yaml`, shows
-the same server with a password credential attached.
+Manifest changes per realization. A second Aggregate, `aggregate-auth.yaml`,
+shows the same server with an inject-value password credential attached for the
+Compose path; `aggregate-helm-synth-auth.yaml` attaches a referenceable
+credential for the synthesized helm path.
 
 ## Files
 
 | File | Role |
 | --- | --- |
 | `aggregate.yaml` | Developer intent: one `bus` component of type `core/messaging/nats`, no credential — the server runs without authentication. |
-| `aggregate-auth.yaml` | The same server with a password credential attached to the component's optional `password` slot. |
-| `manifest-compose.yaml` | Maps the NATS type to the Compose Recipe (`nats`) and the credential to `dotenv-secret`. |
-| `manifest-bitnami.yaml` | Maps the NATS type to the Bitnami chart-wrap Recipe (`nats-bitnami`) and the credential to `env-secret`. |
-| `release-compose.yaml` / `release-bitnami.yaml` | Operator records for the two targets, no authentication. |
-| `release-compose-auth.yaml` / `release-bitnami-auth.yaml` | Operator records that deploy `aggregate-auth.yaml`, supplying the password through the credential slot. |
+| `aggregate-auth.yaml` | The same server with an inject-value password credential attached to the component's optional `password` slot (Compose path). |
+| `aggregate-helm-synth-auth.yaml` | The same server with a referenceable credential attached for the synthesized helm path — the value is materialized as a Kubernetes Secret the Deployment references. |
+| `manifest-compose.yaml` | Maps the NATS type to the Compose Recipe (`compose/nats`) and the credential to `dotenv-secret`. |
+| `manifest-helm-synth.yaml` | Maps the NATS type to the synthesized helm Recipe (`helm/nats`) and the credential to `k8s-secret-from-parameter`. |
+| `release-compose.yaml` / `release-helm-synth.yaml` | Operator records for the two realizations, no authentication. |
+| `release-compose-auth.yaml` / `release-helm-synth-auth.yaml` | Operator records that enable authentication. |
 
 ## What it demonstrates
 
@@ -28,19 +36,21 @@ the same server with a password credential attached.
   truth for *what* the stack is. Each Manifest says *how* to realize it.
 - **A stateless messaging server.** In this lean shape NATS routes subjects in
   memory with JetStream file storage disabled, so the component is typed as a
-  `server`. On Kubernetes the chart renders a single-replica **Deployment**
-  with no persistent volume; the Compose service exposes the server for local
-  development.
-- **Chart wrapping (Kubernetes).** The Bitnami target sources the upstream NATS
-  chart by OCI reference and maps the component's `infra` onto the chart's own
-  value structure — `resourceType`, `replicaCount`, `containerPorts`,
-  `service.ports`, `resources`, and `auth`.
+  `server`. On Kubernetes the synthesized Recipe renders a single-replica
+  **Deployment** with no persistent volume; the Compose service exposes the
+  server for local development.
+- **Workload synthesis (Kubernetes).** The synthesized helm Recipe declares a
+  Workload — a Deployment plus a ClusterIP Service running the official `nats`
+  image — that the helm provider translates into Kubernetes manifests with no
+  external chart. The rendered resource set is exactly what the Workload
+  declares. Because both a Compose and a synthesized helm Recipe carry the name
+  `nats`, the Manifests reference them provider-scoped as `compose/nats` and
+  `helm/nats`.
 - **Optional authentication, deterministic either way.** NATS authentication is
-  off by default. When no credential is attached, neither target enables
-  authentication and the render is byte-identical across runs — leaving auth
-  off also avoids the chart's random-password generation. When a credential is
-  attached (`aggregate-auth.yaml`), the injected value enables user/password
-  authentication on both targets.
+  off by default. When no credential is attached, neither realization enables
+  authentication and the render is byte-identical across runs. When a credential
+  is attached, the injected value enables user/password authentication on both
+  realizations.
 
 ## Build
 
@@ -51,24 +61,28 @@ catalog flag is needed:
 # Local development (Docker Compose), no authentication
 aggrega build --release release-compose.yaml
 
-# Kubernetes (Bitnami NATS Helm chart), no authentication
-aggrega build --release release-bitnami.yaml
+# Kubernetes (synthesized helm Recipe, official image), no authentication
+aggrega build --release release-helm-synth.yaml
 
-# The same targets with a password credential attached
+# The same realizations with authentication enabled
 aggrega build --release release-compose-auth.yaml
-aggrega build --release release-bitnami-auth.yaml
+aggrega build --release release-helm-synth-auth.yaml
 ```
 
-Rendered artifacts land under `dist/`. The Kubernetes build resolves the
-upstream chart by OCI reference on first run and pins it in a lockfile.
+Rendered artifacts land under `dist/`.
 
 ## Credential delivery note
 
-On both targets the credential is an inject-value secret: its value is delivered
-on the component's environment pipe. On Compose it starts the server with
-user/password authentication flags. On Kubernetes the chart-wrap Recipe feeds
-the value into the chart's `auth` credentials, and the chart provisions the
-server configuration Secret and mounts it into the workload — so the
-authenticated stack renders complete, with no out-of-band Secret to supply. The
-`origin` value in `aggregate-auth.yaml` is a development placeholder; supply a
-real value through your credential source for any real deployment.
+On the Compose path the credential is an inject-value secret
+(`aggregate-auth.yaml`): its value is delivered on the component's environment
+pipe and the server is started with user/password authentication flags.
+
+The synthesized helm path uses a referenceable credential
+(`aggregate-helm-synth-auth.yaml`): the value is materialized as a Kubernetes
+Secret, the Deployment references it through an env `secretKeyRef`, and the
+server is started with `--user`/`--pass` flags reading that environment
+variable. The plaintext password therefore never appears in the Deployment
+manifest — only in the Secret.
+
+The `origin` value in the authenticated Aggregates is a development placeholder;
+supply a real value through your credential source for any real deployment.
