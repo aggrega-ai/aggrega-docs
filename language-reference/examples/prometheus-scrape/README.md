@@ -5,7 +5,7 @@ scraping a **web backend** — from one Developer-authored `Aggregate` to two
 deployment targets:
 
 - **Docker Compose** for local development, and
-- the **Bitnami Prometheus Helm chart** for Kubernetes.
+- **Kubernetes** via Workload synthesis on the official `prom/prometheus` image.
 
 The same `aggregate.yaml` drives both. Only the Recipe layer selected by the
 Manifest changes per target.
@@ -15,9 +15,9 @@ Manifest changes per target.
 | File | Role |
 | --- | --- |
 | `aggregate.yaml` | Developer intent: a `web` backend (`core/devtool/adminer`) and a `metrics` server (`core/observability/prometheus`) that declares a `scrape_target` use of the backend. |
-| `manifest-compose.yaml` | Maps the Prometheus type to the Compose Recipe (`prometheus`) and the backend to the Compose Adminer Recipe. |
-| `manifest-bitnami.yaml` | Maps the Prometheus type to the Bitnami chart-wrap Recipe (`prometheus-bitnami`) and the backend to the offline Adminer Recipe. |
-| `release-compose.yaml` / `release-bitnami.yaml` | Operator records for the two targets. |
+| `manifest-compose.yaml` | Maps the Prometheus type to the Compose Recipe (`compose/prometheus`) and the backend to the Compose Adminer Recipe. |
+| `manifest-helm-synth.yaml` | Maps the Prometheus type to the synthesized helm Recipe (`helm/prometheus`) and the backend to the offline Adminer helm Recipe. |
+| `release-compose.yaml` / `release-helm-synth.yaml` | Operator records for the two targets. |
 
 ## What it demonstrates
 
@@ -29,19 +29,18 @@ Manifest changes per target.
   of a scrape job. The compiler routes the strings without interpreting them —
   so the Compose build wires a compose service name and the Kubernetes build
   wires a Service name, from the same edge.
-- **Provider-idiomatic configuration.** On Compose the server writes a minimal
-  `prometheus.yml` at start-up whose scrape job targets the injected backend. On
-  Kubernetes the chart-wrap Recipe feeds the same scrape job into the chart's
-  `server.extraScrapeConfigs` value, which the chart merges into the Prometheus
-  configuration and renders into a ConfigMap.
+- **Provider-idiomatic configuration.** On both targets the server writes a
+  minimal `prometheus.yml` at start-up whose scrape job targets the injected
+  backend, then execs Prometheus against it. On Compose this runs as a service;
+  on Kubernetes the same container renders into a StatefulSet.
 - **Persistent time-series database.** Prometheus stores its samples on a data
   volume so they survive restarts — a named Compose volume locally, and a
-  PersistentVolumeClaim sized from `infra.storage` on Kubernetes.
-- **Reproducible images.** The chart-wrap Recipe pins the Prometheus image tag
-  so the rendered workload references a fixed image.
-- **Lean single-purpose shape.** Alertmanager is disabled on the chart target,
-  so the Kubernetes render is the Prometheus server, its Service, config, RBAC,
-  and data volume — nothing else.
+  per-replica PersistentVolumeClaim sized from `infra.storage` on Kubernetes.
+- **Reproducible images.** Both Recipes pin the Prometheus image tag from
+  `infra.engine_version`, so the rendered workload references a fixed image.
+- **Lean single-purpose shape.** The Kubernetes render is the Prometheus
+  StatefulSet, its ClusterIP and Headless Services, and its data volume claim —
+  nothing else.
 
 ## Build
 
@@ -52,13 +51,13 @@ catalog flag is needed:
 # Local development (Docker Compose)
 aggrega build --release release-compose.yaml
 
-# Kubernetes (Bitnami Prometheus Helm chart)
-aggrega pull  --release release-bitnami.yaml
-aggrega build --release release-bitnami.yaml
+# Kubernetes (Workload synthesis on prom/prometheus)
+aggrega build --release release-helm-synth.yaml
 ```
 
-Rendered artifacts land under `dist/`. The Kubernetes build resolves the
-upstream chart by OCI reference on `aggrega pull` and pins it in a lockfile.
+Rendered artifacts land under `dist/`. The synthesized target needs no external
+chart fetch — the Recipe renders the official image directly into a StatefulSet,
+Services, and a data volume.
 
 ## What the injected scrape target looks like
 
@@ -74,14 +73,16 @@ scrape_configs:
           - web:8080
 ```
 
-On Kubernetes, the same job arrives in the server's config ConfigMap:
+On Kubernetes, the same job is written by the synthesized StatefulSet's
+start-up command:
 
 ```yaml
-- job_name: scrape-target
-  metrics_path: /metrics
-  static_configs:
-  - targets:
-    - web:8080
+scrape_configs:
+  - job_name: scrape-target
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+          - web:8080
 ```
 
 Both resolve from the same Aggregate edge — the backend host and port travel
