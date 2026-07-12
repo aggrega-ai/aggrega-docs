@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: multikey-secret-synth
+  version: "1.0.0"
+  description: >
+    A single stateless app rendered on Kubernetes by the helm provider's
+    Workload synthesis (no external chart). The app reads two data keys —
+    a username and a password — from one credential secret. The credential
+    slot is filled by a multi-key referenceable credential that materializes
+    one Kubernetes Secret carrying both data keys and publishes the Secret's
+    locator; the synthesized Deployment references that one slot twice, once
+    per key, so both env vars are backed by the same Secret.
+spec:
+  components:
+    app:
+      type: local/compute/app
+      values:
+        greeting: hi
+      secrets:
+        # app_credentials is a transparent slot (secretsSchema inject: [env]).
+        # A multi-key referenceable credential (core/referenced-secret-set)
+        # materializes one Kubernetes Secret carrying the caller-supplied data
+        # keys and publishes the Secret's locator (name) as provides. The
+        # Recipe references the slot twice — once per key — and the synthesizer
+        # renders one env secretKeyRef per reference, all naming the same Secret.
+        app_credentials:
+          type: core/referenced-secret-set
+          values:
+            entries:
+              - key: db_username
+                value: appuser
+              - key: db_password
+                value: dev-pw-change-me

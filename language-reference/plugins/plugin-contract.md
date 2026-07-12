@@ -46,7 +46,7 @@ The compilation pipeline reserves the following socket points. The shape labels 
 | Socket | Pipeline placement | Status today |
 | --- | --- | --- |
 | `mutator.wasm` | Step 2 (Topology Builder) | **available** — dispatched when a workspace configures a mutator plugin; auto-tags node labels via JSON Patch |
-| `policy-validator.wasm` | Step 4 (Static Analyzer) | **available** — dispatched when a workspace configures a policy plugin; a failed rule halts the build |
+| `policy-validator.wasm` | Step 4 (Static Analyzer, `ir` stage) or post-render (`render` stage) | **available** — dispatched when a workspace configures a policy plugin; a `deny` verdict halts the build |
 | FeatureRecipe `pipeline:` plugins | Step 5 Phase C (Post-Render Mutation) | `accepted but inert` per Status page Phase C classification |
 | Provider rendering plugins (helm, helm-chart, compose, terraform) | Step 5 (Phase B engines) | **available** — every provider renders through its Wasm guest; rendering is Wasm-only, with no native Go engine fallback |
 | `linter.wasm` (publishing-linter) | Out-of-band (`aggrega lint`) | **available** — the publishing-linter ships and runs through the host via `aggrega lint` |
@@ -76,24 +76,36 @@ Each patch addresses a specific node's labels via [JSON Pointer (RFC 6901)](http
 
 **Type definitions.** [`internal/compiler/topology/wasm_types_gen.go`](../../../aggrega-cli/internal/compiler/topology/wasm_types_gen.go) carries `MutatorInput`, `MutatorOutput`, `CompilationContext`, `MutatorGraph`, `MutatorNode`; [`internal/compiler/topology/mutator.go`](../../../aggrega-cli/internal/compiler/topology/mutator.go) carries the host-side assembler and patch application.
 
-### `policy-validator.wasm` — PolicyResult array output
+### `policy-validator.wasm` — verdict array output
 
-**Pipeline placement.** Step 4 (Static Analyzer), before Step 5 Phase B rendering. The analyzer assembles the input payload on every build via [`internal/compiler/analyzer/analyzer.go`](../../../aggrega-cli/internal/compiler/analyzer/analyzer.go) `assemblePolicyInput()`; when a workspace configures a policy plugin, the pipeline marshals that payload to the plugin and reads its verdicts back.
+A policy guest inspects a build and returns a list of verdicts; the host acts on
+each verdict's severity and never interprets the policy itself. The full
+treatment — stages, severities, the operator-supplied input channel, wrapping a
+foreign policy engine, the reference guests, and how an operator attaches a
+policy — is on the [policy socket page](policy-socket.md). This section records
+the pipeline placement and the typed wire shapes.
 
-**Input shape (host → guest).** A `PolicyValidatorInput` document carrying:
+**Pipeline placement.** A policy plugin declares exactly one stage in its `describe()` self-report:
 
-- `graph` — the full target-agnostic IR graph (the same shape the Topology Builder emits), with every node, edge, and attachment detail the compiler holds.
-- `precalculated_paths` — the routing paths the analyzer enumerates alongside, so a policy can reason about reachability without re-walking the graph.
+- `ir` — evaluated at Step 4 (Static Analyzer), before Step 5 Phase B rendering. The analyzer assembles the payload on every build via [`internal/compiler/analyzer/analyzer.go`](../../../aggrega-cli/internal/compiler/analyzer/analyzer.go) `assemblePolicyInput()`.
+- `render` — evaluated after render, over the emitted artifacts.
 
-The graph is the versioned IR graph, single-sourced from the `ir-v1alpha1` schema; a policy plugin reasons over the complete topology and tracks the IR schema version like any other ABI it consumes. The IR shape is not secret — it is the same graph `aggrega inspect` emits — and secrets in it are pointers, never plaintext.
+When a workspace configures a policy plugin, the pipeline marshals the stage's payload to the plugin and reads its verdicts back.
+
+**Input shape (host → guest).** The stage selects the payload:
+
+- The `ir`-stage `PolicyValidatorInput` carries `graph` — the full target-agnostic IR graph (the same shape the Topology Builder emits), with every node, edge, and attachment detail the compiler holds — and `precalculated_paths`, the routing paths the analyzer enumerates alongside, so a policy can reason about reachability without re-walking the graph. The graph is the versioned IR graph, single-sourced from the `ir-v1alpha1` schema; the IR shape is not secret (it is the same graph `aggrega inspect` emits) and secrets in it are pointers, never plaintext.
+- The `render`-stage `RenderPolicyValidatorInput` carries `artifacts` — the rendered output files as a `{path, content}` list sorted by path, so the wire is byte-identical across runs of identical input.
+
+Both stages additionally carry the attachment's `sources` (policy-definition files the host reads at build time and hands the guest verbatim, paths as base names, content opaque) and `settings` (a free-form object handed through untouched). Both are absent when the attachment declares none.
 
 **Output shape (guest → host).** A `PolicyValidatorOutput` document carrying:
 
-- `results` — an array of `PolicyResult` entries, each with `Pass` (boolean) and `Message` (string).
+- `results` — an array of `PolicyResult` entries, each with a `severity` (`deny`, `warn`, or `audit`) and a `message` string.
 
-The host collects all rule results, halts the build with all failed-rule messages if any `Pass` is false, and continues to Step 5 only if every result passed. Policy plugins evaluate per-rule; one rejection halts the build.
+Only fired verdicts appear; an allowing evaluation returns an empty array. The host walks the verdicts and maps each severity to an action: `deny` halts the build (surfacing every `deny` message), `warn` flags the verdict and lets the build proceed, `audit` records it without affecting the outcome. A `deny` halts through the same gate a selector or `appliesTo` violation uses.
 
-**Type definitions.** [`internal/compiler/analyzer/wasm_types.go`](../../../aggrega-cli/internal/compiler/analyzer/wasm_types.go) carries `PolicyValidatorInput` (whose `Graph` field is the full IR graph), `PolicyValidatorOutput`, and `PolicyResult`. The pipeline marshals the assembled `PolicyValidatorInput` to a configured policy plugin at Step 4 and appends each failed verdict to the analyzer's error set, so a rejection halts the build through the same gate a selector or `appliesTo` violation uses.
+**Type definitions.** [`internal/compiler/analyzer/wasm_types.go`](../../../aggrega-cli/internal/compiler/analyzer/wasm_types.go) carries `PolicyValidatorInput` (IR stage) and `RenderPolicyValidatorInput` (render stage), the shared `PolicySource`, `PolicyValidatorOutput`, `PolicyResult`, and the `deny` / `warn` / `audit` severity constants.
 
 ## Output shape contract — design targets
 
@@ -167,14 +179,14 @@ The linter is opt-in catalog discipline: the compiler does not run it during `ag
 
 ## Placement criterion: `linter.wasm` vs `policy-validator.wasm`
 
-Two of the documented sockets share a similar surface — both consume a graph projection and emit per-rule results — but differ in pipeline placement and gating semantics. When both sockets ship, the criterion for deciding which socket carries a given check:
+Two of the documented sockets share a similar surface — both emit per-rule results — but differ in pipeline placement and gating semantics. The criterion for deciding which socket carries a given check:
 
-- **`policy-validator.wasm` (in-band, Step 4, mandatory).** Reserved for **build-halting policies**: a failed rule stops the compilation pipeline before Step 5 rendering runs. Use cases are policies whose violation makes the rendered output unsafe to apply: compliance gates (PCI / SOC2 boundary placement), topology invariants (zero-trust ingress, cross-boundary auth), credential-flow shape (no plaintext secrets in IR), etc. Failure produces `CATALOG_ERROR:`-shaped messages; the build does not produce artifacts.
+- **`policy-validator.wasm` (in-band, build-halting).** Reserved for **build-halting policies**: a `deny` verdict stops the compilation pipeline and the build produces no artifacts. Use cases are policies whose violation makes the output unsafe to apply: compliance gates (PCI / SOC2 boundary placement), topology invariants (zero-trust ingress, cross-boundary auth), credential-flow shape (no plaintext secrets in IR), etc. A policy reasons over the IR graph (`ir` stage, before render) or the rendered artifacts (`render` stage, after render).
 - **`linter.wasm` (out-of-band, CI / IDE, advisory).** Reserved for **best-practice and discoverability checks**: rules whose violation is suspicious but not unsafe — orphaned secrets, unused parameters, deprecated label vocabulary, tag completeness for cost attribution, naming-convention drift. Failure produces advisory output; the build still produces artifacts.
 
 The placement criterion phrased as a single rule: **if the check should halt the build, it belongs in `policy-validator.wasm`; if the check should warn an author or a reviewer without blocking the pipeline, it belongs in `linter.wasm`**.
 
-The criterion matters once both sockets are usable. The `linter.wasm` socket ships today (the publishing-linter, run via `aggrega lint`); the `policy-validator.wasm` socket is typed but inert — its payload is assembled on every build, but `aggrega build` does not yet dispatch it. Authors with build-halting policies are targeting the policy-validator socket's eventual in-band activation; authors with advisory or publish-time checks can run them through the linter socket today.
+Both sockets are usable today. The `linter.wasm` socket runs the publishing-linter via `aggrega lint`; the `policy-validator.wasm` socket is dispatched in-band during `aggrega build` when a workspace attaches a policy plugin. Note that the policy socket carries its own severities — a policy may itself emit `warn` and `audit` verdicts that advise without halting — so the halt-versus-advise line above is the placement guidance for whole checks, not a claim that a policy can only halt. See the [policy socket page](policy-socket.md) for the severity model.
 
 ## Design surfaces without current code anchors
 
@@ -189,6 +201,7 @@ The pipeline placement table at the top of this page reflects today's state plus
 
 ## Cross-references
 
+- [`policy-socket.md`](policy-socket.md) — the comprehensive policy-socket treatment: stages, verdict severities, the operator input channel, wrapping a foreign policy engine, and the reference guests.
 - [`10-status.md#compilation-pipeline-phases`](../10-status.md#compilation-pipeline-phases) — Status page Phase C classification (Wasm plugin pipeline runtime readiness).
 - [`architecture/09-ai-features.md`](../../architecture/09-ai-features.md) — Two-Part Plugin Principle for credential FeatureRecipes (Fetcher + Injector pattern).
 - [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md) — Wasm Engine target and provider-as-namespace OCI taxonomy.

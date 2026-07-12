@@ -1,0 +1,54 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Component
+metadata:
+  name: local/compute/app
+  version: 1.0.0
+  description: >
+    A minimal stateless application component that reads two data keys —
+    a username and a password — from one credential secret. It declares a
+    single transparent credential slot; its helm Recipe references that one
+    slot twice, once per data key, so both values arrive from a single
+    multi-key secret.
+  labels:
+    component.aggrega.ai/type: server
+    component.aggrega.ai/category: compute
+  maintainers:
+    - name: Massimiliano Ferrero
+      email: m.ferrero@cognitio.it
+spec:
+  # Self-inject allowlist: the component may inject its own provides keys
+  # into the env delivery mechanism.
+  inject: [env]
+
+  # One transparent credential slot. The selector is secret-kind-pinned but
+  # family-agnostic, so either a single-key or a multi-key referenceable
+  # credential may fill it. inject: [env] lets the synthesized Workload
+  # reference it as an env secret.
+  secretsSchema:
+    app_credentials:
+      selector: "feature.aggrega.ai/kind=secret"
+      inject: [env]
+      description: >
+        Application datastore credentials — a single secret carrying the
+        username and password data keys the container reads.
+
+  schema:
+    values:
+      # Developer Intent — filled by the Developer in the Aggregate.
+      greeting:
+        type: string
+        default: hello
+        description: Greeting string the container prints on startup.
+    infra:
+      # Operational Sizing — filled by the Operator in the Release.
+      image_tag:
+        type: string
+        default: "1.0"
+        description: Container image tag.
+    provides:
+      # Public API Contract — keys exported to consumers via uses edges.
+      host:
+        type: string
