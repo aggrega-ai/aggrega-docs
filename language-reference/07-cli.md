@@ -1,8 +1,10 @@
 # CLI Overview
 
-The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega — compiling an Aggregate into deployable artifacts, inspecting the catalog or the IR, resolving and pinning dependencies, publishing catalog entities, linting against publishing-discipline rules, and serving an IDE — runs through a subcommand of `aggrega`. This chapter set covers each subcommand's flags, inputs, and outputs.
+The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega — compiling an Aggregate into deployable artifacts, inspecting the catalog or the IR, resolving and pinning dependencies, publishing catalog entities, checking correctness with `validate`, checking publishing conventions with `lint`, and serving an IDE — runs through a subcommand of `aggrega`. This chapter set covers each subcommand's flags, inputs, and outputs.
 
-`aggrega build` follows the Single Entry Point Principle: the Release is the sole compilation input. `aggrega build release.yaml` reads the Release's `aggregate:` and `manifest:` pointers to locate the rest of the topology, and produces per-boundary output under `dist/boundaries/`. `aggrega inspect` and `aggrega pull` share the Release-as-input shape; `aggrega push` and `aggrega lint` take a catalog entity; `aggrega serve` runs as a long-lived process. The global flags page documents flags that apply across subcommands.
+`aggrega validate` and `aggrega lint` are complementary checkers that mirror each other's three scopes — the whole catalog, a Release's dependency closure, or one entity. `aggrega validate` checks **correctness** (schema, pillars, reference resolution, `extends`, provider input-kind capability, and — for a rendering entity — an isolated render); `aggrega lint` checks **publishing conventions** (naming, category-directory alignment, annotation prefixes, and version-bump size). Neither emits artifacts; use `validate` to answer "is this correct?" and `lint` to answer "does this follow the catalog's publishing discipline?".
+
+`aggrega build` follows the Single Entry Point Principle: the Release is the sole compilation input. `aggrega build release.yaml` reads the Release's `aggregate:` and `manifest:` pointers to locate the rest of the topology, and produces per-boundary output under `dist/boundaries/`. `aggrega inspect` and `aggrega pull` share the Release-as-input shape; `aggrega push` takes a catalog entity; `aggrega validate` and `aggrega lint` accept a catalog entity, a Release (via `--release`), or the whole catalog; `aggrega serve` runs as a long-lived process. The global flags page documents flags that apply across subcommands.
 
 ## Per-command reference
 
@@ -12,7 +14,8 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 - [`aggrega push`](cli/aggrega-push.md) — publish a catalog entity (Component, Feature, Recipe, FeatureRecipe, Plugin, SchemaLibrary, MappingLibrary) to an OCI registry, optionally signing it at push time.
 - [`aggrega sign`](cli/aggrega-sign.md) — sign one or more already-published artifacts and attach each signature as an OCI referrer.
 - [`aggrega auth token`](cli/aggrega-auth.md) — acquire an OIDC identity token interactively and print it to stdout, for one authentication across a batch of keyless signs.
-- [`aggrega lint`](cli/aggrega-lint.md) — run the publishing-discipline rules over a catalog entity; `--pre-publish` adds the registry-aware version-bump gate.
+- [`aggrega validate`](cli/aggrega-validate.md) — check correctness (schema, pillars, reference resolution, `extends`, input-kind capability, isolated render) across the whole catalog, a Release's dependency closure (`--release`), or one entity.
+- [`aggrega lint`](cli/aggrega-lint.md) — check publishing conventions across the whole catalog, a Release's dependency closure (`--release`), or one entity; `--pre-publish` adds the registry-aware version-bump gate.
 - [`aggrega serve`](cli/aggrega-serve.md) — a long-running compiler-as-service daemon (JSON-RPC over stdin/stdout) for IDE integration.
 - [`aggrega version`](cli/aggrega-version.md) — print the CLI version; `--json` emits a machine-readable object.
 - [`aggrega get-schema`](cli/aggrega-get-schema.md) — print the canonical JSON Schema for an entity or contract kind; `--list` names every kind. The authoritative shape to author a file against.
@@ -30,7 +33,7 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 | `aggrega deprecate` | Attach a signed deprecation marker to an already-published artifact |
 | `aggrega get-schema` | Print the JSON Schema for an entity or contract kind |
 | `aggrega inspect` | Inspect a catalog Component or a Release file (resolves by entity kind) |
-| `aggrega lint` | Validate the whole catalog, or run the publishing-linter over one entity |
+| `aggrega lint` | Check catalog publishing conventions across the catalog, a Release, or one entity |
 | `aggrega login` | Authenticate to an OCI registry and store the credential |
 | `aggrega logout` | Remove a stored registry credential |
 | `aggrega mcp` | Run a Model Context Protocol server over stdio for AI-assistant integration |
@@ -41,6 +44,7 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 | `aggrega registry` | Manage registries and their signature trust policy |
 | `aggrega serve` | Run as a long-running compiler-as-service over JSON-RPC 2.0 on stdin/stdout |
 | `aggrega sign` | Sign one or more already-published artifacts and attach their signatures |
+| `aggrega validate` | Check correctness across the catalog, a Release, or one entity |
 | `aggrega version` | Print the aggrega CLI version |
 <!-- END GENERATED: command-list -->
 

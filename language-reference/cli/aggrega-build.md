@@ -130,7 +130,8 @@ After the compile, inspect `.trace/boundaries/<boundary>/<instance>/` for per-pa
 ## Cross-references
 
 - [`aggrega-pull`](aggrega-pull.md) — fetch catalog entities from an OCI registry into the local catalog.
-- [`aggrega-lint`](aggrega-lint.md) — validate catalog entities and Aggregates without rendering.
+- [`aggrega-validate`](aggrega-validate.md) — check catalog, Release-closure, or single-entity correctness without emitting artifacts; the dependency validation a build runs, without the render.
+- [`aggrega-lint`](aggrega-lint.md) — check catalog publishing conventions across the same three scopes.
 - [`aggrega-inspect`](aggrega-inspect.md) — query the IR graph after Step 3 without proceeding to render.
 - [Errors](../errors/error-translation.md) — the categorized error rendering format that surfaces at the CLI.
 
