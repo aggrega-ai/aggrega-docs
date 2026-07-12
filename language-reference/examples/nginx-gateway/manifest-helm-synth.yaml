@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: manifest-helm-synth
+  version: "1.0.0"
+  description: >
+    Ops mapping for the Kubernetes target backed by synthesized manifests. The
+    NGINX gateway type is realized by the synth helm Recipe, which runs the
+    official upstream nginx image and renders a stateless Deployment plus a
+    ClusterIP Service with no external Helm chart; the web backend is rendered
+    offline by the Adminer helm Recipe. Recipe selection at build time is by
+    component type against the loaded catalog.
+spec:
+  mappings:
+    components:
+      type:
+        core/gateway/nginx:1.0.0: helm/nginx:1.0.0
+        core/devtool/adminer:1.0.0: helm/adminer:1.0.0

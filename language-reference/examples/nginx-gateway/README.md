@@ -5,7 +5,7 @@ fronting a **web backend** — from one Developer-authored `Aggregate` to two
 deployment targets:
 
 - **Docker Compose** for local development, and
-- the **Bitnami NGINX Helm chart** for Kubernetes.
+- **synthesized Kubernetes manifests** for a cluster.
 
 The same `aggregate.yaml` drives both. Only the Recipe layer selected by the
 Manifest changes per target.
@@ -15,9 +15,9 @@ Manifest changes per target.
 | File | Role |
 | --- | --- |
 | `aggregate.yaml` | Developer intent: a `web` backend (`core/devtool/adminer`) and a `proxy` gateway (`core/gateway/nginx`) that declares an `upstream` use of the backend. |
-| `manifest-compose.yaml` | Maps the gateway type to the Compose Recipe (`nginx`) and the backend to the Compose Adminer Recipe. |
-| `manifest-bitnami.yaml` | Maps the gateway type to the Bitnami chart-wrap Recipe (`nginx-bitnami`) and the backend to the offline Adminer Recipe. |
-| `release-compose.yaml` / `release-bitnami.yaml` | Operator records for the two targets. |
+| `manifest-compose.yaml` | Maps the gateway type to the Compose Recipe (`compose/nginx`) and the backend to the Compose Adminer Recipe. |
+| `manifest-helm-synth.yaml` | Maps the gateway type to the synth helm Recipe (`helm/nginx`) and the backend to the offline Adminer helm Recipe. |
+| `release-compose.yaml` / `release-helm-synth.yaml` | Operator records for the two targets. |
 
 ## What it demonstrates
 
@@ -29,16 +29,14 @@ Manifest changes per target.
   target. The compiler routes the strings without interpreting them — so the
   Compose build wires a compose service name and the Kubernetes build wires a
   Service name, from the same edge.
-- **Provider-idiomatic configuration.** On Compose the gateway writes a minimal
-  NGINX server block at start-up whose `proxy_pass` forwards to the injected
-  upstream. On Kubernetes the chart-wrap Recipe feeds the same server block into
-  the chart's `serverBlock` value, which the chart renders into a ConfigMap and
-  mounts into the workload.
-- **Reproducible images.** The Bitnami chart floats its image tag at `latest`;
-  the chart-wrap Recipe pins the NGINX image by digest so the rendered
-  Deployment references an immutable image.
-- **Plain HTTP by default.** TLS is disabled for a plain reverse proxy; a
-  certificate can be supplied through `infra.overrides` to enable chart TLS.
+- **Provider-idiomatic configuration.** On both targets the gateway writes a
+  minimal NGINX server block at container start whose `proxy_pass` forwards to
+  the injected upstream, then starts nginx in the foreground. The Kubernetes
+  target realizes this as a stateless Deployment plus a ClusterIP Service, with
+  no external Helm chart.
+- **Reproducible images.** The Kubernetes target runs the official upstream
+  nginx image pinned to an explicit tag, so the rendered Deployment references
+  a stable image.
 
 ## Build
 
@@ -49,13 +47,12 @@ catalog flag is needed:
 # Local development (Docker Compose)
 aggrega build --release release-compose.yaml
 
-# Kubernetes (Bitnami NGINX Helm chart)
-aggrega pull  --release release-bitnami.yaml
-aggrega build --release release-bitnami.yaml
+# Kubernetes (synthesized manifests)
+aggrega build --release release-helm-synth.yaml
 ```
 
-Rendered artifacts land under `dist/`. The Kubernetes build resolves the
-upstream chart by OCI reference on `aggrega pull` and pins it in a lockfile.
+Rendered artifacts land under `dist/`. The Kubernetes target renders plain
+manifests offline — no chart pull is required.
 
 ## What the injected upstream looks like
 
@@ -66,15 +63,11 @@ backend's compose service name and port:
 server { listen 8080; location / { proxy_pass http://web:8080; } }
 ```
 
-On Kubernetes, the same routing arrives in the chart's server-block ConfigMap:
+On Kubernetes, the same routing arrives in the container command that writes
+the server config before starting nginx:
 
 ```conf
-server {
-  listen 0.0.0.0:8080;
-  location / {
-    proxy_pass http://web:8080;
-  }
-}
+server { listen 8080; location / { proxy_pass http://web:8080; } }
 ```
 
 Both resolve from the same Aggregate edge — the backend host and port travel
