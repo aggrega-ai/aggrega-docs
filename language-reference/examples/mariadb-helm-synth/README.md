@@ -50,12 +50,14 @@ and publishes the Secret's identity as `provides {name, key}`. The Recipe
 references the slot through `containers.secrets`, which the synthesizer renders as
 an env `secretKeyRef`. The generated Secret and the container's reference name the
 **same** resource because both read `.secrets.user_password.provides.name` — there
-is no re-derivation and no convention for the two sides to agree on:
+is no re-derivation and no convention for the two sides to agree on. The published
+name normalizes underscores in the slot name to hyphens, so `user_password`
+becomes the valid Kubernetes resource name `db-user-password`:
 
 ```yaml
-# secrets/user_password/secret.yaml
+# secrets/user_password/db-secret.yaml
 metadata:
-  name: "db-user_password"
+  name: "db-user-password"
 stringData:
   "MARIADB_PASSWORD": "dev-user-pw-change-me"
 
@@ -63,7 +65,7 @@ stringData:
 - name: MARIADB_PASSWORD
   valueFrom:
     secretKeyRef:
-      name: db-user_password    # == the Secret's metadata.name
+      name: db-user-password    # == the Secret's metadata.name
       key: MARIADB_PASSWORD      # == the Secret's data key
 ```
 
