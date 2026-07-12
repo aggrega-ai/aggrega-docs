@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: aggregate-helm-synth
+  version: "1.0.0"
+  description: >
+    A single MySQL database rendered on Kubernetes by the helm provider's
+    Workload synthesis (no external chart). This base variant attaches only the
+    required root_password credential; the optional user_password slot is left
+    unattached, so the synthesized StatefulSet falls back to an inline
+    development password for the application user.
+spec:
+  components:
+    db:
+      type: core/datastore/mysql
+      # values — the Developer-intent pillar. charset/collation are set
+      # explicitly here; the synthesized recipe honors them as mysqld server
+      # command-line arguments on the official mysql image.
+      values:
+        database: appdb
+        user: appuser
+        charset: utf8mb4
+        collation: utf8mb4_general_ci
+      secrets:
+        # root_password is BLACK-BOX (secretsSchema inject: []): the Recipe
+        # controls delivery. An inject-value credential (core/secret-value)
+        # puts the value on the inject pipe under the chosen key, and the
+        # Recipe reads .context.inject.env.MYSQL_ROOT_PASSWORD. A Black-Box slot
+        # may not be referenced from the workload's secrets block.
+        root_password:
+          type: core/secret-value
+          values:
+            key: MYSQL_ROOT_PASSWORD
+            origin: dev-root-pw-change-me

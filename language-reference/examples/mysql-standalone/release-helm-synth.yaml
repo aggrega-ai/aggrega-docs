@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: k8s-helm-synth
+  environment: development
+  version: "1.0.0"
+spec:
+  aggregate: aggregate-helm-synth
+  manifest: manifest-helm-synth
+  boundaries:
+    app:
+      directory: app
+      components:
+        # infra — the Operator-sizing pillar, fulfilled per environment. The
+        # Developer's Aggregate never carries these fields; they flow into the
+        # rendered StatefulSet's volumeClaimTemplate and container image tag.
+        db:
+          infra:
+            engine_version: "8.4"
+            storage:
+              size: 5Gi
+              type: standard

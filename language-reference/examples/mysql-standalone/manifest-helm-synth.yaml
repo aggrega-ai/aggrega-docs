@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: manifest-helm-synth
+  version: "1.0.0"
+  description: >
+    Ops mapping for the Kubernetes target rendered by the helm provider's
+    Workload synthesis. core/datastore/mysql binds to the synthesized helm
+    Recipe (helm/mysql), which renders a StatefulSet directly with no external
+    chart. The two credential Features route to the FeatureRecipes that realize
+    each delivery mechanism on Kubernetes: core/secret-value to env-secret
+    (inject-pipe delivery for the Black-Box root_password), and
+    core/referenced-secret to k8s-secret-from-parameter (a materialized Secret
+    the StatefulSet references via secretKeyRef for the transparent
+    user_password).
+spec:
+  mappings:
+    components:
+      type:
+        core/datastore/mysql:1.0.0: helm/mysql:1.0.0
+    features:
+      type:
+        core/secret-value:1.0.0: env-secret:1.0.0
+        core/referenced-secret:1.0.0: k8s-secret-from-parameter:1.0.0
