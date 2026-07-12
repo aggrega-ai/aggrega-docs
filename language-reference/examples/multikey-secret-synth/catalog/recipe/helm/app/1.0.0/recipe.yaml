@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Recipe
+metadata:
+  name: app
+  version: 1.0.0
+  description: >
+    The stateless app on Kubernetes via the helm provider's Workload
+    synthesis (a Deployment + ClusterIP Service, no external chart). The
+    container reads two data keys from one credential slot: it references the
+    app_credentials slot twice under two env-var names, each naming a
+    different data key of the slot's secret. Both references resolve to the
+    same secret resource (provides.name) with different keys, so a single
+    multi-key secret backs both env vars.
+  maintainers:
+    - name: Massimiliano Ferrero
+      email: m.ferrero@cognitio.it
+spec:
+  target: helm
+  implements: local/compute/app:1.0.0
+  provides:
+    host: "{{ .context.instance_id }}-app"
+  workload: |
+    apiVersion: aggrega.ai/v1alpha1
+    kind: Workload
+    form: stateless
+    replicas: 1
+    containers:
+      main:
+        image: myapp:{{ .infra.image_tag }}
+        variables:
+          GREETING: {{ .values.greeting }}
+        # Two env entries reference the SAME slot (app_credentials) with two
+        # different data keys. The slot is filled by a multi-key referenceable
+        # credential whose provides publishes only the resource locator (name);
+        # each entry supplies the data key it reads, so both env vars resolve to
+        # one secret resource under distinct keys.
+        secrets:
+          APP_DB_USER:
+            from: app_credentials
+            as: env
+            key: db_username
+          APP_DB_PASSWORD:
+            from: app_credentials
+            as: env
+            key: db_password
+        ports:
+          web: 8080
+    services:
+      web:
+        type: ClusterIP
+        ports:
+          web: 8080
