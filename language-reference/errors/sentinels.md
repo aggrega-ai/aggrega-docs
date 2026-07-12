@@ -22,21 +22,21 @@ Step 1 of the compilation pipeline — workspace load, parameter interpolation, 
 
 | Sentinel | Wrapped message | User-facing surface |
 | --- | --- | --- |
-| `ErrInvalidParameterRef` | `invalid parameter reference` | Subsumed under "Parameter type mismatch / contract violation" in fatal-halts. |
+| `ErrInvalidParameterRef` | `invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template` | Subsumed under "Parameter type mismatch / contract violation" in fatal-halts. |
 | `ErrParametersImportLoad` | `parameters $import: load failed` | Surfaces as "External parameters file cannot be loaded" in fatal-halts. |
-| `ErrInvalidInstanceName` | `invalid instance name` | Surfaces as "Instance name fails the naming pattern" in fatal-halts. |
-| `ErrInvalidTargetRef` | `invalid target reference` | Surfaces as "Dangling `uses` target" in fatal-halts. |
-| `ErrYAMLLoad` | `YAML load failed` | YAML-load failures present through schema-validation paths covered under "When loading your files" in fatal-halts. |
+| `ErrInvalidInstanceName` | `invalid instance name: names must match ^[a-zA-Z0-9_-]+$ (letters, digits, hyphen, underscore; no dots)` | Surfaces as "Instance name fails the naming pattern" in fatal-halts. |
+| `ErrInvalidTargetRef` | `invalid target reference: each dot-separated segment must match ^[a-zA-Z0-9_-]+$` | Surfaces as "Dangling `uses` target" in fatal-halts. |
+| `ErrYAMLLoad` | `YAML load failed: check the file exists, is readable, and contains well-formed YAML` | YAML-load failures present through schema-validation paths covered under "When loading your files" in fatal-halts. |
 | `ErrManifestReservedPrefix` | `manifest annotation binding uses reserved prefix` | Surfaces during Manifest validation; reserved annotation namespaces (`aggrega.ai/`, `feature.aggrega.ai/`) cannot be redefined by ad-hoc bindings. |
 | `ErrManifestCrossBindingPillarCollision` | `manifest annotation bindings collide on same Feature path+pillar` | Two bindings route different annotation keys into the same Feature path through the same pillar — collision halts catalog load. |
-| `ErrInvalidInjectKey` | `invalid inject key` | Surfaces as "Inject `from` key is not in the target's `provides`" in fatal-halts. |
+| `ErrInvalidInjectKey` | `invalid inject key: the from-key must name a declared provides key of the target component type` | Surfaces as "Inject `from` key is not in the target's `provides`" in fatal-halts. |
 | `ErrCredentialLabelPartition` | `credential label partition violated` | Surfaces as "Credential label partition violated" in fatal-halts. |
-| `ErrMissingRequiredFeature` | `missing required feature` | Surfaces as "Required feature not attached" in fatal-halts. |
-| `ErrFeatureMergeConflict` | `feature merge conflict` | Surfaces under "Manifest merge strategy" in fatal-halts. |
-| `ErrUnknownUsesSocket` | `unknown uses socket` | Surfaces as "`uses:` socket not declared in the target's `usesSchema`" in fatal-halts. |
+| `ErrMissingRequiredFeature` | `missing required feature: attach a Feature of the required type to the component` | Surfaces as "Required feature not attached" in fatal-halts. |
+| `ErrFeatureMergeConflict` | `feature merge conflict: reconcile the Aggregate and Release declarations for the feature` | Surfaces under "Manifest merge strategy" in fatal-halts. |
+| `ErrUnknownUsesSocket` | `unknown uses socket: declare the socket in the component type's usesSchema, or use a socket it already declares` | Surfaces as "`uses:` socket not declared in the target's `usesSchema`" in fatal-halts. |
 | `ErrSelfInjectForbidden` | `self-inject on component without spec.inject allowlist` | Surfaces as "Self-inject on a component without an allowlist" in fatal-halts. |
 | `ErrInjectKeyCollision` | `duplicate delivery key across inject sources` | Surfaces as "Duplicate delivery key across inject sources" in fatal-halts. |
-| `ErrSchemaValidation` | `schema validation failed` | Generic JSON Schema validation failure — the user-facing message attached to the error names the failing field and the constraint violated. |
+| `ErrSchemaValidation` | `schema validation failed: correct the flagged field to satisfy its declared schema` | Generic JSON Schema validation failure — the user-facing message attached to the error names the failing field and the constraint violated. |
 | `ErrMissingRequiredSocket` | `required uses socket not populated` | Surfaces as "Required `uses:` socket not populated" in fatal-halts. |
 | `ErrParameterMissing` | `required parameter not supplied` | Surfaces as the missing-parameter branch of "Parameter type mismatch / contract violation" in fatal-halts. |
 | `ErrParameterContractViolation` | `parameter contract violated` | Surfaces as the contract-violation branch of "Parameter type mismatch / contract violation" in fatal-halts. |
@@ -47,10 +47,10 @@ Catalog-side validation — `extends:` inheritance chain walks, `usesSchema` com
 
 | Sentinel | Wrapped message | User-facing surface |
 | --- | --- | --- |
-| `ErrSchemaValidation` | `schema validation failed` | Same generic surface as the resolver-stage copy; distinguish by package on the wrap path when matching. |
-| `ErrInheritanceMerge` | `inheritance merge failed` | Surfaces as the merge-failure branch of "Cyclic extends chain" / "`usesSchema` composition failure on `extends` chain" in fatal-halts. |
+| `ErrSchemaValidation` | `schema validation failed: correct the flagged field to satisfy its declared schema` | Same generic surface as the resolver-stage copy; distinguish by package on the wrap path when matching. |
+| `ErrInheritanceMerge` | `inheritance merge failed: resolve the conflicting field definitions across the extends chain` | Surfaces as the merge-failure branch of "Cyclic extends chain" / "`usesSchema` composition failure on `extends` chain" in fatal-halts. |
 | `ErrCyclicExtension` | `cyclic extends chain` | Surfaces as "Cyclic extends on Components or Features" in fatal-halts. |
-| `ErrUsesSchemaUnification` | `usesSchema unification failed` | Surfaces as "`usesSchema` composition failure on `extends` chain" in fatal-halts. |
+| `ErrUsesSchemaUnification` | `usesSchema unification failed: reconcile the conflicting socket definitions across the extends chain` | Surfaces as "`usesSchema` composition failure on `extends` chain" in fatal-halts. |
 
 ## Compact-form sentinels (`pkg/compactform`)
 
@@ -74,9 +74,9 @@ Step 2 — topology graph construction, sub-aggregate flattening.
 | Sentinel | Wrapped message | User-facing surface |
 | --- | --- | --- |
 | `ErrSubAggregateLoad` | `sub-aggregate load failed` | A sub-Aggregate referenced via `spec.aggregates.<name>.type:` could not be loaded; the message names the unreachable Aggregate URI. |
-| `ErrInvalidUsesFormat` | `invalid uses format` | A `uses:` declaration's structural shape did not match the schema (e.g., a string where a map was expected). |
+| `ErrInvalidUsesFormat` | `invalid uses format: a uses socket value must be a string array of target names or a verbose alias-keyed map` | A `uses:` declaration's structural shape did not match the schema (e.g., a string where a map was expected). |
 | `ErrMaxDepth` | `max sub-aggregate nesting depth exceeded` | Surfaces as "Sub-aggregate nesting depth exceeded" in fatal-halts. |
-| `ErrSubAggregateNameCollision` | `flattened node ID collision` | Two sub-Aggregates flatten to the same node ID after compilation; rename one of the sub-Aggregate instance names to disambiguate. |
+| `ErrSubAggregateNameCollision` | `flattened node ID collision: rename one of the colliding instances so their flattened IDs differ` | Two sub-Aggregates flatten to the same node ID after compilation; rename one of the sub-Aggregate instance names to disambiguate. |
 
 ## IR-stage sentinels (`internal/compiler/ir`)
 

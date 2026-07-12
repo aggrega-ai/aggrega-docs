@@ -73,7 +73,7 @@ Every entity document — catalog entities, Aggregates, Manifests, Releases — 
 ```text
 [OPS_ERROR] release.yaml
   Release: release.yaml: Release document violates its envelope schema; spec.boundaries.main: unexpected additional properties ["values"]
-  caused by: document envelope validation failed
+  caused by: document envelope validation failed: correct the document to match its kind's schema
 ```
 
 The category follows the authoring surface: `[CATALOG_ERROR]` for catalog entities, `[DEVELOPER_ERROR]` for Aggregates, `[OPS_ERROR]` for Releases and Manifests. The same gate runs at every surface that loads entities — build, lint, and the serve daemon's editor diagnostics — so a stray or misspelled key is rejected wherever the document is first read instead of being silently dropped.
