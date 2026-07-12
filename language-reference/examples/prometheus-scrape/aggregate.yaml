@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: aggregate
+  version: "1.0.0"
+  description: >
+    A Prometheus metrics server scraping a web backend, authored once and
+    compiled to two targets: a Docker Compose stack for local development and
+    the Bitnami Prometheus Helm chart for Kubernetes. Prometheus declares a
+    `scrape_target` use of the backend; the backend Recipe's provides host and
+    port are piped into Prometheus and rendered into a scrape job. The same
+    developer intent drives both; only the Recipe layer selected by the Manifest
+    differs.
+spec:
+  components:
+    web:
+      type: core/devtool/adminer
+    metrics:
+      type: core/observability/prometheus
+      uses:
+        scrape_target:
+          web:
+            target: web
+            inject:
+              env:
+                - in: PROM_SCRAPE_HOST
+                  from: host
+                - in: PROM_SCRAPE_PORT
+                  from: port
