@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: aggregate-auth
+  version: "1.0.0"
+  description: >
+    The same NATS server, this time with a password credential attached to the
+    component's `password` slot. When the credential is present each Recipe
+    enables user/password authentication from the injected value: it feeds the
+    chart's auth credentials on Kubernetes and starts the server with
+    authentication flags on Compose. Credentials live in the secrets: pillar
+    (each Feature is labeled feature.aggrega.ai/kind: secret), kept apart from
+    application values.
+spec:
+  components:
+    bus:
+      type: core/messaging/nats
+      secrets:
+        password:
+          type: core/secret-value
+          values:
+            key: NATS_PASSWORD
+            origin: dev-nats-pw-change-me
