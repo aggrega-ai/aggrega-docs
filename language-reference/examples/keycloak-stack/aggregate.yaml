@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: aggregate
+  version: "1.0.0"
+  description: >
+    A database-backed identity server, imported as a reusable module. The module
+    is a sub-aggregate that composes two single-workload components — a stateless
+    identity server and a PostgreSQL backend that holds its realms, clients, and
+    users — and wires its own internal edge from the server to the backend. The
+    server provisions and migrates its own schema on startup, so no separate
+    migration step is needed. The module exports the server as its public
+    endpoint `http`. This top-level Aggregate imports the module by name; the
+    operator sizes the module's internal components in the Release.
+spec:
+  aggregates:
+    server:
+      type: core/keycloak
