@@ -65,7 +65,7 @@ Maps abstract interfaces to concrete implementations. Two authoring shapes are a
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `components` | mapping_tier | no | Flat-shape component-type to Recipe URI mapping. Recipe URIs support exact ('core/helm/postgres-bitnami:1.2.0'), range ('core/helm/postgres-bitnami:^1.2.0'), or unversioned ('core/helm/postgres-bitnami') forms; the resolver pins the resolved version in the lockfile at first resolve. A reference may additionally be provider-qualified ('terraform/mariadb-rds:1.0.0', the segment before the first '/' naming the recipe's spec.provider) — required when more than one provider ships the same recipe name; an ambiguous bare reference halts resolution loudly rather than silently picking a provider. |
+| `components` | mapping_tier | no | Flat-shape component-type to Recipe URI mapping. Recipe URIs support exact ('core/helm/postgres:1.2.0'), range ('core/helm/postgres:^1.2.0'), or unversioned ('core/helm/postgres') forms; the resolver pins the resolved version in the lockfile at first resolve. A reference may additionally be provider-qualified ('terraform/mariadb-rds:1.0.0', the segment before the first '/' naming the recipe's spec.provider) — required when more than one provider ships the same recipe name; an ambiguous bare reference halts resolution loudly rather than silently picking a provider. |
 | `features` | mapping_tier | no | Flat-shape feature-type to FeatureRecipe URI mapping. Includes both operational Features and credential Features (labeled feature.aggrega.ai/kind: secret). |
 
 ## Definitions

@@ -199,13 +199,13 @@ spec:
 ```
 
 **3. Ops Domain: The Base Recipe**
-Ops dictates the exact physical secret name. The Bitnami chart's native `existingSecret` mechanism handles injection internally.
+Ops dictates the exact physical secret name. The chart's native `existingSecret` mechanism handles injection internally.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Recipe
 metadata:
-  name: redis-bitnami
+  name: redis-chart
   version: 1.0.0
 spec:
   target: helm
@@ -213,7 +213,7 @@ spec:
   source:
     # Planned: provider-declared source keys, validated by the provider's Wasm plugin.
     # The built-in resolver today uses the { kind, url, version } form.
-    registry: https://charts.bitnami.com/bitnami
+    registry: https://charts.example.com
     chart: redis
     version: 18.0.0
   locals:
@@ -228,6 +228,8 @@ spec:
       existingSecret: "{{ .context.instance_id }}-redis-auth"
       existingSecretPasswordKey: "redis-password"
 ```
+
+For a runnable end-to-end walkthrough of the `.secrets.<slot>.provides.name` → chart `existingSecret` flow — a chart-wrap Recipe consuming a multi-key credential Secret by its published name — see the [`mariadb-bitnami-credential-set`](mariadb-bitnami-credential-set/) example.
 
 **4. Ops Domain: The FeatureRecipe**
 The Fetcher plugin dynamically indexes the Base Recipe's exported key using the `.secret_name` context variable (`"admin_password"`) to extract the dictated physical name.

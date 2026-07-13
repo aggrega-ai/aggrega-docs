@@ -192,7 +192,7 @@ Ops hardcodes the physical port and exports it via `provides`. The `provides` bl
 apiVersion: aggrega.ai/v1alpha1
 kind: Recipe
 metadata:
-  name: postgres-bitnami
+  name: postgres-chart
   version: 1.0.0
 spec:
   target: helm
@@ -200,7 +200,7 @@ spec:
   source:
     # Planned: provider-declared source keys, validated by the provider's Wasm plugin.
     # The built-in resolver today uses the { kind, url, version } form.
-    registry: https://charts.bitnami.com/bitnami
+    registry: https://charts.example.com
     chart: postgresql
     version: 12.1.0
   locals:
@@ -253,7 +253,7 @@ spec:
       components:
         type:
           "core/web-server": "web-server-helm:1.0.0"
-          "core/postgres": "postgres-bitnami:1.0.0"
+          "core/postgres": "postgres-chart:1.0.0"
 ---
 apiVersion: aggrega.ai/v1alpha1
 kind: Release

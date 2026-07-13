@@ -89,7 +89,7 @@ aggrega-catalog/
 │   ├── helm/
 │   │   ├── mariadb-bitnami/
 │   │   │   └── recipe.yaml
-│   │   └── postgres-bitnami/
+│   │   └── postgres/
 │   │       └── recipe.yaml
 │   ├── helm-chart/
 │   │   └── mariadb/
@@ -401,7 +401,7 @@ Per-entity-kind shapes:
 
 * **Component** — three kebab-case segments `{namespace}/{category}/{name}` declared in `metadata.name`. Example: `core/datastore/postgres`.
 * **Feature** — two kebab-case segments `{namespace}/{name}` declared in `metadata.name`. Example: `core/data-masking`.
-* **Recipe** — a single kebab-case leaf in `metadata.name` (e.g., `postgres-bitnami`). The canonical reference URI `{provider}/{name}` (per §6 above) is derived at catalog load from the recipe's filesystem path under `<catalog-root>/recipe/<provider>/<name>/recipe.yaml`: the `<provider>` segment of the path and the leaf `metadata.name` combine into the two-segment canonical form. No additional namespace component appears in the canonical Recipe URI.
+* **Recipe** — a single kebab-case leaf in `metadata.name` (e.g., `postgres`). The canonical reference URI `{provider}/{name}` (per §6 above) is derived at catalog load from the recipe's filesystem path under `<catalog-root>/recipe/<provider>/<name>/recipe.yaml`: the `<provider>` segment of the path and the leaf `metadata.name` combine into the two-segment canonical form. No additional namespace component appears in the canonical Recipe URI.
 * **FeatureRecipe** — single kebab-case leaf in `metadata.name` (e.g., `k8s-secret-from-parameter`), symmetric with Recipe. Canonical URI `{provider}/{name}` derived from `<catalog-root>/feature-recipe/<provider>/<name>/recipe.yaml` the same way.
 * **SchemaLibrary** and **MappingLibrary** — a PascalCase single token in `metadata.name` matching `^[A-Z][A-Za-z0-9]*$` (e.g., `BaseComponents`, `AIDatastores`). This pattern is enforced by the JSON Schema envelope itself; structural validation rejects non-conforming names at parse time.
 

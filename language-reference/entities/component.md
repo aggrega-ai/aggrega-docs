@@ -220,7 +220,7 @@ spec:
 apiVersion: aggrega.ai/v1alpha1
 kind: Recipe
 metadata:
-  name: postgres-bitnami
+  name: mariadb-bitnami
 spec:
   target: helm
   implements: core/datastore/mariadb:1.0.0

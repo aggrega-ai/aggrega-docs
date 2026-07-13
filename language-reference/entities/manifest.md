@@ -39,7 +39,7 @@ spec:
     components:
       type:
         # Component-type → Recipe URI. The Recipe URI's path segment carries the provider.
-        core/datastore/postgres: core/helm/postgres-bitnami:1.2.0
+        core/datastore/postgres: helm/postgres:1.2.0
         core/api-server: core/helm/api-helm:0.5.0
         core/python-worker: core/helm/standard-python-worker:2.0.0
 
@@ -64,9 +64,9 @@ The Manifest's mapping value is a Recipe URI. The catalog walker resolves the UR
 
 A Recipe URI in the Manifest may carry the version in any of three forms:
 
-* **Exact** — `core/helm/postgres-bitnami:1.2.0`. The lockfile must pin exactly this version; at first lockfile resolve, the resolver pins this version; if the catalog or registry does not contain this version at resolve time, the workspace load halts with an error.
-* **Range** — `core/helm/postgres-bitnami:^1.2.0`. Semver range with the standard MVS rule; at first lockfile resolve, the resolver pins the highest available version satisfying the range.
-* **Unversioned** — `core/helm/postgres-bitnami`. No `:version` suffix; at first lockfile resolve, the resolver pins the latest available version.
+* **Exact** — `helm/postgres:1.2.0`. The lockfile must pin exactly this version; at first lockfile resolve, the resolver pins this version; if the catalog or registry does not contain this version at resolve time, the workspace load halts with an error.
+* **Range** — `helm/postgres:^1.2.0`. Semver range with the standard MVS rule; at first lockfile resolve, the resolver pins the highest available version satisfying the range.
+* **Unversioned** — `helm/postgres`. No `:version` suffix; at first lockfile resolve, the resolver pins the latest available version.
 
 Subsequent builds use the lockfile-pinned version regardless of the user-typed form. Re-resolving to a newer version requires explicit user action (`aggrega catalog upgrade <URI>` or similar) — the lockfile is the source of truth for builds; the user-typed form is how the user expresses the version constraint at authoring time.
 
@@ -126,7 +126,7 @@ spec:
     components:
       type:
         core/python-worker: *python_worker_recipe
-        core/postgres: core/helm/postgres-bitnami:1.2.0
+        core/postgres: helm/postgres:1.2.0
 ```
 
 ### Feature negotiation
@@ -167,11 +167,11 @@ The Aggrega compiler utilizes **Context-Aware Inference** when resolving OCI URI
 
 ```yaml
 # Verbose (allowed for custom private registries):
-"core/postgres": "oci://private-registry.corp.com/recipe/postgres-bitnami:2.0"
+"core/postgres": "oci://private-registry.corp.com/recipe/postgres:2.0"
 
 # Shorthand (standard ecosystem):
-"core/postgres": "postgres-bitnami:2.0"
-# Compiler resolves via Tier 2 local catalog, or Tier 3: hub.aggrega.ai/recipe/helm/postgres-bitnami:2.0
+"core/postgres": "postgres:2.0"
+# Compiler resolves via Tier 2 local catalog, or Tier 3: hub.aggrega.ai/recipe/helm/postgres:2.0
 ```
 
 **Legacy `ops/` prefix.** Older catalog conventions placed an `ops/` prefix before Recipe names. This prefix is no longer used — the `recipe/` entity type directory in the OCI taxonomy already identifies the domain, and Recipes ship under `recipe/{provider}/{name}` without additional prefixing. Manifests should reference Recipes by `{provider}/{name}` (or via the bare shorthand for context-aware inference). See [architecture/13-catalog-and-registry.md](../../architecture/13-catalog-and-registry.md) §6 for the full OCI taxonomy.

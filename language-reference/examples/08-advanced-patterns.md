@@ -73,7 +73,7 @@ spec:
         type:
           # Bulk DRY mapping — all python-workers use the standard Recipe
           "core/python-worker": *standard_worker
-          "core/postgres": "postgres-bitnami:1.0.0"
+          "core/postgres": "postgres:1.0.0"
         name:
           # Granular override — this specific instance uses a custom Recipe
           "legacy-billing-agent": "custom/legacy-worker:3.0.0"

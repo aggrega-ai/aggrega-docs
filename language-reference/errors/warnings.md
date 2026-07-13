@@ -51,8 +51,8 @@ LINT: Manifest annotation binding 'compliance.aggrega.ai/data-class' on Feature 
 **Emit shape:**
 
 ```text
-WARN: Component 'customer-db' (Recipe 'postgres-bitnami') — unread key: values.tls_version
-WARN: Component 'customer-db' (Recipe 'postgres-bitnami') — unread key: infra.metrics.enabled
+WARN: Component 'customer-db' (Recipe 'postgres') — unread key: values.tls_version
+WARN: Component 'customer-db' (Recipe 'postgres') — unread key: infra.metrics.enabled
 ```
 
 Each unread key emits its own warning naming the Component instance, the bound Recipe, and the dotted path to the key.

@@ -38,7 +38,7 @@ A catalog-entity URI carries no kind sigil (the previous section). Plugin URIs a
 
 **Plugins path-encode the socket.** A plugin reference is `oci://hub.aggrega.ai/plugin/<socket>/<name>`. The socket segment is path-encoded into the plugin's identity — its `metadata.name` — so the registry (and the embedded plugin set) organize plugins by socket. The segment IS the registry/embed key. Core plugins ship at paths like `plugin/provider/helm`, `plugin/linter/publishing`, and `plugin/cli/moo`. The segment is a socket/grouping path-encoded into the name, not a closed enum equal to the `pluginType` string: a core plugin's segment is its socket type, but a plugin may publish under a socket-family segment (for example, an `frp_step` plugin under `plugin/secret-providers/<name>`). Because the segment is part of the name, the same `<name>` under a different socket segment is a different plugin — the segment travels wherever the plugin's identity travels. For the full socket taxonomy — the plugin socket types a URI segment classifies against — see [`entities/plugin.md`](../entities/plugin.md).
 
-**Catalog entities carry the kind in metadata.** The authored reference is `<namespace>/<category>/<name>` (for example, `core/datastore/postgres`). The entity `kind:` lives in the file; the URI's entity-kind is inferred from schema position, per [Position-based entity-kind inference](#position-based-entity-kind-inference) above. The path organizes by category, not by kind: a Component carries a category segment (`core/datastore/postgres`); a Recipe or FeatureRecipe carries its execution engine as the first segment (`helm/postgres-bitnami`); the remaining kinds are flat `<namespace>/<name>`. Nothing in the path spells the entity kind.
+**Catalog entities carry the kind in metadata.** The authored reference is `<namespace>/<category>/<name>` (for example, `core/datastore/postgres`). The entity `kind:` lives in the file; the URI's entity-kind is inferred from schema position, per [Position-based entity-kind inference](#position-based-entity-kind-inference) above. The path organizes by category, not by kind: a Component carries a category segment (`core/datastore/postgres`); a Recipe or FeatureRecipe carries its execution engine as the first segment (`helm/postgres`); the remaining kinds are flat `<namespace>/<name>`. Nothing in the path spells the entity kind.
 
 **Why the two shapes differ.** Plugins are registry-organized by socket, so the socket segment is the natural registry key and is present in every plugin URI. Catalog entities are registry-organized by category, so the category — not the kind — is what the path spells. A URI therefore tells you the socket for a plugin from the path alone, but tells you a catalog entity's kind only after you read the file (the kind lives in `metadata`, the position supplies it at a reference site). This asymmetry is intentional: each family's path mirrors how that family is organized in the registry, not a single uniform grammar imposed across both.
 
@@ -82,9 +82,9 @@ The compiler appends the correct entity-type segment based on the schema positio
 Aggregate.spec.components.foo.type: core/postgres:1.0.0
 # → hub.aggrega.ai/component/core/postgres:1.0.0
 
-Manifest.spec.mappings.components.type."core/postgres:1.0.0": helm/postgres-bitnami:1.0.0
+Manifest.spec.mappings.components.type."core/postgres:1.0.0": helm/postgres:1.0.0
 # Key: hub.aggrega.ai/component/core/postgres:1.0.0
-# Value: hub.aggrega.ai/recipe/helm/postgres-bitnami:1.0.0
+# Value: hub.aggrega.ai/recipe/helm/postgres:1.0.0
 ```
 
 ### Rule 3 — Three-Tier Precedence

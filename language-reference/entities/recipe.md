@@ -111,37 +111,42 @@ Because Terraform and CloudFormation natively accept JSON as first-class citizen
 apiVersion: aggrega.ai/v1alpha1
 kind: Recipe
 metadata:
-  name: postgres-bitnami
+  name: mariadb-chart
   version: 1.0.0
 spec:
-  target: helm # Unpinned version, compiler will fetch 'latest'
-  implements: core/postgres-db:1.0.0
+  target: helm
+  implements: core/datastore/mariadb:1.0.0
   source:
     # The shipped fetch form: { kind, url, version }. 'kind' selects a built-in
     # resolver (helm-oci-chart, helm-https-chart, compose-https-fragment).
     kind: helm-oci-chart
-    url: oci://registry-1.docker.io/bitnamicharts/postgresql
-    version: 12.1.0
+    url: oci://registry-1.docker.io/bitnamicharts/mariadb
+    # Default chart version. Override via infra.source_version.
+    version: "{{ optional .infra `source_version` \"25.0.8\" }}"
     # Planned (not yet implemented): a provider's Wasm socket may instead validate
     # provider-declared keys like registry/chart/appVersion and translate them
     # ahead-of-time into this { kind, url, version } fetch identity. See "Source
     # Schemas" above.
-    
+
   locals:
-    primary_compute: postgresql
-    listen_port: "5432"
+    primary_compute: mariadb
+    listen_port: "3306"
     volumes_path: "/spec/template/spec/volumes"
     root_path: "/-"
     # The Base Recipe EXPLICITLY dictates the physical secret name to the Wasm pipeline
-    secret_target_db_password: "{{ .context.instance_id }}-postgres-auth"
-    
+    secret_target_db_password: "{{ .context.instance_id }}-mariadb-auth"
+
+  provides:
+    host: "{{ .context.instance_id }}"
+    port: "3306"
+
   valuesMapping: |
     primary:
       persistence:
         size: "{{ .infra.storage_size }}"
       auth:
         # Uses the exact string defined in locals, preserving AOT execution
-        existingSecret: "{{ .context.instance_id }}-postgres-auth"
+        existingSecret: "{{ .context.instance_id }}-mariadb-auth"
 ```
 
 **Example B: The Local Terraform Module (File Mapping)**
