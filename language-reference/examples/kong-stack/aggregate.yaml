@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: aggregate
+  version: "1.0.0"
+  description: >
+    A database-backed API gateway, imported as a reusable module. The module is
+    a sub-aggregate that composes two single-workload components — a stateless
+    gateway and a PostgreSQL backend that holds its configuration — and wires its
+    own internal edge from the gateway to the backend. The gateway provisions its
+    database schema through a migrations step that runs before it serves. The
+    module exports the gateway as its public endpoint `proxy`. This top-level
+    Aggregate imports the module by name; the operator sizes the module's
+    internal components in the Release.
+spec:
+  aggregates:
+    gateway:
+      type: core/kong

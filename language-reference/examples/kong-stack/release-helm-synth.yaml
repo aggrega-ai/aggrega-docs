@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: k8s-helm-synth
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: aggregate
+  manifest: manifest-helm-synth
+  boundaries:
+    app:
+      directory: app
+      components:
+        # The module's internal components are addressed by their dotted
+        # module-scoped IDs. Compute sizing is owned by the operator; storage
+        # and everything else is left to the components' schema defaults, so the
+        # stack renders self-contained.
+        gateway.backend:
+          infra:
+            compute:
+              cpu: 500m
+              memory: 512Mi
+        gateway.gateway:
+          infra:
+            compute:
+              cpu: 250m
+              memory: 256Mi

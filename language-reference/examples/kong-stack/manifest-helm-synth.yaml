@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: manifest-helm-synth
+  version: "1.0.0"
+  description: >
+    Ops mapping for the Kubernetes target backed by synthesized manifests. The
+    backend and gateway types are realized by their synth helm Recipes — the
+    backend as a StatefulSet with a persistent volume, the gateway as a stateless
+    Deployment with a migrations init container. Recipe selection at build time
+    is by component type against the loaded catalog.
+spec:
+  mappings:
+    components:
+      type:
+        core/datastore/postgres:1.0.0: helm/postgres:1.0.0
+        core/gateway/kong:1.0.0: helm/kong:1.0.0
