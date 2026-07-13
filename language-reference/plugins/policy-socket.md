@@ -94,12 +94,32 @@ fields:
   never parses a source, and the path it hands the guest is the file's base name,
   never an absolute host path. What the bytes mean is entirely the guest's
   business — a `.rego` file to one guest, some other policy format to another.
-- **`settings`** — a free-form configuration map the guest maps onto its engine.
-  The host hands it through verbatim without acting on it. A guest reads its
-  tunables (a replica ceiling, a required label key) from this map.
+- **`settings`** — a configuration map the guest maps onto its engine. A guest
+  reads its tunables (a replica ceiling, a required label key) from this map. By
+  default the host hands it through verbatim without acting on it; a guest may
+  additionally declare a schema for it (see below), in which case the host
+  validates the map against that schema before running the guest.
 
 A fully-baked guest — one whose rules are compiled in rather than supplied at
 attach time — omits `with` entirely. The channel is optional on both stages.
+
+### Typed settings
+
+A guest may declare a JSON Schema for the `settings` it expects. When it does,
+the host validates the attachment's `settings` against that schema **before it
+runs the guest**. Settings that do not conform halt the build with a message
+naming the offending key and what the schema expected — a missing required key, a
+value of the wrong type, an unknown key, or a value out of range is caught up
+front rather than surfacing as an obscure guest failure or, worse, a
+wrong-but-successful build.
+
+Typed settings are optional and declared by the guest, not the host. A guest that
+declares no settings schema keeps the free-form behavior: the host passes its
+`settings` through unchecked. The host runs ordinary JSON Schema validation
+against whatever schema the guest declared; it does not interpret what the
+settings mean. This keeps the check engine-neutral — each guest describes the
+shape of the settings it reads, and the host enforces exactly that shape and
+nothing more.
 
 ## The ABI is Aggrega's own
 
