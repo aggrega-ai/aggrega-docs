@@ -231,6 +231,6 @@ spec:
 
 ## Tooling integration
 
-- `aggrega lint` validates that assertion templates parse and reference only known fields from the entity's schema.
-- `aggrega test` runs assertions against catalog testdata fixtures, reporting pass/fail per assertion.
+- `aggrega build` evaluates assertions between schema validation and rendering; a failing assertion halts the build with the assertion's `{{ fail }}` message.
+- `aggrega validate` applies the same correctness ahead of render without writing artifacts — for a Recipe it drives the real compilation pipeline around a synthesized minimal deployment, so a malformed assertion template or an assertion that references an unknown field surfaces as a correctness error. (`aggrega lint` covers publishing conventions, not assertion correctness.)
 - IDEs with Sprig-template support highlight `.values.X` references; hover documentation resolves to the schema definition when the IDE integration is configured.
