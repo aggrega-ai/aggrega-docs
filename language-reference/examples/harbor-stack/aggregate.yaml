@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: aggregate
+  version: "1.0.0"
+  description: >
+    A container registry, imported as a reusable module. The module is a
+    sub-aggregate that composes six single-workload components — a Harbor core,
+    a distribution registry, a static portal, a job service, a PostgreSQL
+    backend, and a Redis-compatible cache — and wires its own internal edges
+    among them. The core is the token issuer the registry basic-authenticates
+    against; the stack shares one set of pinned development credentials so it
+    runs self-contained. The module exports the core as `registry`, the endpoint
+    image clients and the API talk to, and the portal as `ui`. This top-level
+    Aggregate imports the module by name; the operator sizes the module's
+    internal components in the Release.
+spec:
+  aggregates:
+    harbor:
+      type: core/harbor
