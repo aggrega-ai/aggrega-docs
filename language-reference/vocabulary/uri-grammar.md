@@ -32,6 +32,16 @@ The same URI string carries different entity-kind meaning depending on where it 
 
 The inference rule: **the YAML schema position determines the entity kind**. There is no surface marker (sigil, prefix, schema-level annotation) telling the author which entity kind a particular `type:` field references. Authors hold the position-based rules in mind when reading YAML; tooling (IDE autocomplete, `aggrega inspect`, hub UI) reads the same rules to surface entity-kind-specific suggestions.
 
+## Two URI shapes — socket-encoded plugins vs metadata-kinded catalog entities
+
+A catalog-entity URI carries no kind sigil (the previous section). Plugin URIs are the deliberate counterpoint: a plugin URI *does* spell a classifying segment — its socket — directly in the path. The two reference families read differently on purpose, and knowing which family a URI belongs to tells you where to look for its classification.
+
+**Plugins path-encode the socket.** A plugin reference is `oci://hub.aggrega.ai/plugin/<socket>/<name>`. The socket segment is path-encoded into the plugin's identity — its `metadata.name` — so the registry (and the embedded plugin set) organize plugins by socket. The segment IS the registry/embed key. Core plugins ship at paths like `plugin/provider/helm`, `plugin/linter/publishing`, and `plugin/cli/moo`. The segment is a socket/grouping path-encoded into the name, not a closed enum equal to the `pluginType` string: a core plugin's segment is its socket type, but a plugin may publish under a socket-family segment (for example, an `frp_step` plugin under `plugin/secret-providers/<name>`). Because the segment is part of the name, the same `<name>` under a different socket segment is a different plugin — the segment travels wherever the plugin's identity travels. For the full socket taxonomy — the plugin socket types a URI segment classifies against — see [`entities/plugin.md`](../entities/plugin.md).
+
+**Catalog entities carry the kind in metadata.** The authored reference is `<namespace>/<category>/<name>` (for example, `core/datastore/postgres`). The entity `kind:` lives in the file; the URI's entity-kind is inferred from schema position, per [Position-based entity-kind inference](#position-based-entity-kind-inference) above. The path organizes by category, not by kind: a Component carries a category segment (`core/datastore/postgres`); a Recipe or FeatureRecipe carries its execution engine as the first segment (`helm/postgres-bitnami`); the remaining kinds are flat `<namespace>/<name>`. Nothing in the path spells the entity kind.
+
+**Why the two shapes differ.** Plugins are registry-organized by socket, so the socket segment is the natural registry key and is present in every plugin URI. Catalog entities are registry-organized by category, so the category — not the kind — is what the path spells. A URI therefore tells you the socket for a plugin from the path alone, but tells you a catalog entity's kind only after you read the file (the kind lives in `metadata`, the position supplies it at a reference site). This asymmetry is intentional: each family's path mirrors how that family is organized in the registry, not a single uniform grammar imposed across both.
+
 ## URI shape — versioned vs unversioned
 
 Every URI position above accepts two shape variants:
@@ -117,6 +127,7 @@ A future LSP / scaffolders integration could validate every format at authoring 
 ## Cross-references
 
 - [`entities/manifest.md`](../entities/manifest.md) — Manifest mapping tier resolution + Context-Aware Shorthand URIs section.
+- [`entities/plugin.md`](../entities/plugin.md) — Plugin socket taxonomy + the `plugin/<socket>/<name>` socket-encoded URI shape.
 - [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md) — Three-Tier Entity Resolution Model + canonical OCI taxonomy for catalog distribution.
 - [`vocabulary/inheritance-and-interface.md`](inheritance-and-interface.md) — `implements:` Interface Binding + Cross-entity version consumption.
 - [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) — per-template-site availability rules for Go template format strings.

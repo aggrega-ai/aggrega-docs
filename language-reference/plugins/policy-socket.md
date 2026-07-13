@@ -44,7 +44,7 @@ which fixes where in the pipeline the host evaluates it and what payload it
 receives.
 
 - **`ir`** — the guest reasons over the intermediate-representation graph,
-  before rendering. The payload carries the full target-agnostic IR graph (every
+  before rendering. The payload carries the full provider-agnostic IR graph (every
   node, edge, and attachment the compiler holds) plus the routing paths the
   analyzer enumerates, so a policy can reason about topology and reachability
   without re-walking the graph. An `ir`-stage policy runs at the static-analysis
@@ -55,8 +55,8 @@ receives.
   The payload carries the emitted artifacts as a `{path, content}` list, sorted
   by path so the wire is byte-identical across runs of identical input. A
   `render`-stage policy sees exactly what the build produced. Use it for policies
-  about the concrete output — a rule that inspects rendered Kubernetes objects,
-  for example.
+  about the concrete output — a rule that inspects rendered Docker Compose
+  services or Kubernetes objects, for example.
 
 The two stages carry different payloads because they reason over different
 things: the `ir` stage over topology, the `render` stage over emitted files.
@@ -94,12 +94,32 @@ fields:
   never parses a source, and the path it hands the guest is the file's base name,
   never an absolute host path. What the bytes mean is entirely the guest's
   business — a `.rego` file to one guest, some other policy format to another.
-- **`settings`** — a free-form configuration map the guest maps onto its engine.
-  The host hands it through verbatim without acting on it. A guest reads its
-  tunables (a replica ceiling, a required label key) from this map.
+- **`settings`** — a configuration map the guest maps onto its engine. A guest
+  reads its tunables (a replica ceiling, a required label key) from this map. By
+  default the host hands it through verbatim without acting on it; a guest may
+  additionally declare a schema for it (see below), in which case the host
+  validates the map against that schema before running the guest.
 
 A fully-baked guest — one whose rules are compiled in rather than supplied at
 attach time — omits `with` entirely. The channel is optional on both stages.
+
+### Typed settings
+
+A guest may declare a JSON Schema for the `settings` it expects. When it does,
+the host validates the attachment's `settings` against that schema **before it
+runs the guest**. Settings that do not conform halt the build with a message
+naming the offending key and what the schema expected — a missing required key, a
+value of the wrong type, an unknown key, or a value out of range is caught up
+front rather than surfacing as an obscure guest failure or, worse, a
+wrong-but-successful build.
+
+Typed settings are optional and declared by the guest, not the host. A guest that
+declares no settings schema keeps the free-form behavior: the host passes its
+`settings` through unchecked. The host runs ordinary JSON Schema validation
+against whatever schema the guest declared; it does not interpret what the
+settings mean. This keeps the check engine-neutral — each guest describes the
+shape of the settings it reads, and the host enforces exactly that shape and
+nothing more.
 
 ## The ABI is Aggrega's own
 
@@ -144,46 +164,93 @@ a thin adapter guest. The adapter absorbs OPA's Wasm ABI entirely inside itself
 (per [The ABI is Aggrega's own](#the-abi-is-aggregas-own) above): it
 instantiates the OPA-built module, sets the input, invokes evaluation, and maps
 the decision back to the verdict shape. The host sees only the standard
-policy-validator surface. This road is heavier to stand up but gives a policy
-the exact engine it targets.
+policy-validator surface.
+
+A reference adapter guest ships as a worked example. It embeds a policy authored
+in Rego and pre-compiled with `opa build -t wasm` into a WebAssembly module — a
+pinned, checked-in artifact, so evaluation runs entirely in-guest with no OPA
+process and nothing fetched. On each build the adapter instantiates that baked
+module inside itself with an embedded Wasm interpreter, satisfies the module's
+own imports (its linear memory and its builtin callbacks), reads the payload as
+the OPA `input` document and the attachment's `settings` as the OPA `data`
+document, evaluates each compiled entrypoint, and maps each entrypoint's
+`deny` / `warn` / `audit` name to a verdict of the matching severity. If a baked
+policy needs a host-provided builtin the adapter does not implement, the adapter
+**fails loudly** — refusing the module rather than returning an allow — so an
+unevaluable policy stops the build instead of passing silently. Regenerating the
+baked module from its Rego source is an authoring step run with the OPA CLI, not
+a build-time dependency.
 
 The two roads share the same host contract, so moving a policy from the embedded
 evaluator to the full engine is an attachment change.
 
-## The Kubewarden render adapter
+## Render-stage policy adapters
 
-The Kubewarden render adapter is a reference `render`-stage guest that runs
-Kubewarden-style admission policies over rendered Kubernetes manifests. It is an
-adapter in the sense above: it speaks the Aggrega ABI outward and absorbs the
-Kubernetes admission-control contract inward, so the compiler stays free of any
-admission-control logic.
+A render-stage adapter reasons over the build's **rendered output** rather than
+its IR graph. The render payload carries the emitted artifacts — each a path and
+its rendered content — plus the attachment's own sources and settings. An adapter
+parses that content for the output shape it targets, evaluates a policy over the
+structured result, and maps the outcome to `deny` / `warn` / `audit` verdicts.
+Because the payload is shape-agnostic (a list of path/content pairs), one adapter
+pattern serves any render target; a new output shape is a new adapter, not a host
+change.
 
-Kubewarden policies are written against the Kubernetes admission-review
-contract: a policy receives a request wrapping a single object and returns an
-accept-or-reject response. At the render stage the build's output already *is* a
-set of Kubernetes resources, which makes that stage the natural place to run an
-admission-shaped policy. For each rendered object the adapter derives the
-admission fields from the parsed object itself, wraps the object in an
-admission-review-shaped request inside the guest, runs the policy, and maps the
-response to a verdict: a rejection becomes one verdict; an acceptance emits
+Each render-stage adapter is an adapter in the sense above: it speaks the Aggrega
+ABI outward and absorbs a target-specific format or a foreign policy engine's
+contract inward, so the compiler stays free of any output-format or policy logic.
+Two reference render-stage adapters ship, one per common output shape.
+
+### YAML/JSON output — the embedded-Rego render adapter
+
+The embedded-Rego render adapter runs operator-supplied Rego over any YAML or
+JSON render output. It is the render-stage sibling of the embedded Regorus-backed
+`ir`-stage guest: the same Wasm-native Rego evaluator, the same `deny` / `warn` /
+`audit` collection convention, moved to the render stage.
+
+It is **output-shape independent** across YAML/JSON targets. The adapter parses
+each artifact's content as one or more YAML or JSON documents — YAML is a
+superset of JSON, so a JSON template such as a CloudFormation stack parses
+through the same parser — and exposes the parsed documents to the policy
+alongside the raw content. A policy reasons over the structured render output of
+any such target with ordinary Rego: `input.artifacts[_].documents[_]` yields the
+parsed documents (a Docker Compose file's `services`, a CloudFormation template's
+`Resources`), `input.artifacts[_].content` yields the raw text, and the
+attachment's `settings` object is the Rego `data` document. A require-approved-
+registry policy over Docker Compose output, for instance, denies any service
+whose image carries no registry prefix.
+
+When an artifact's content does not parse, the adapter does not silently allow it:
+it keeps the raw content, exposes no parsed documents for that artifact, and
+records the parser's message under `input.artifacts[_].parse_error`, so a policy
+can `deny` on a malformed artifact explicitly. As with the `ir`-stage guest, a
+policy that calls a builtin the embedded evaluator does not implement **fails
+loudly** — a fault naming the plugin, never a silent allow.
+
+### Kubernetes output — the Kubewarden render adapter
+
+The Kubewarden render adapter runs Kubewarden-style admission policies over
+rendered Kubernetes manifests. It absorbs the Kubernetes admission-review
+contract inward: a Kubewarden policy receives a request wrapping a single object
+and returns an accept-or-reject response. At the render stage the build's output
+already *is* a set of Kubernetes resources, which makes that stage the natural
+place to run an admission-shaped policy. For each rendered object the adapter
+derives the admission fields from the parsed object itself, wraps the object in
+an admission-review-shaped request inside the guest, runs the policy, and maps
+the response to a verdict: a rejection becomes one verdict; an acceptance emits
 nothing. The bundled reference policy is a require-label rule — every object must
 carry a label key named by `settings` — a common Kubewarden pattern.
 
-The adapter is deliberately scoped:
+### Scope shared by render-stage adapters
 
-- **Render stage, Kubernetes output only.** It reasons over rendered manifests,
-  not the IR graph, and over Kubernetes objects, not other render output such as
-  compose or Terraform. A graph-stage policy, or a policy over a different output
-  shape, is a different guest.
-- **Validating only.** The adapter accepts or rejects; it never returns a
-  mutated object. A mutating policy's mutated object is ignored — the compiler
-  never rewrites rendered output from a policy verdict. A policy decides; it does
-  not edit.
-
-Present it as a reusable pattern: a render-stage adapter that wraps each rendered
-object in the shape a foreign admission engine expects, runs that engine, and
-maps its decision to a verdict. Adapters for other output shapes follow the same
-pattern.
+- **Render stage, one output shape per adapter.** A render-stage adapter reasons
+  over rendered artifacts, not the IR graph, and targets the output shape it
+  parses — YAML/JSON for the embedded-Rego adapter, Kubernetes objects for the
+  Kubewarden adapter. A graph-stage policy, or a policy over an output shape no
+  shipped adapter parses, is a different guest.
+- **Validating only.** A render-stage adapter accepts or rejects; it never
+  returns a mutated object. A mutating policy's mutated object is ignored — the
+  compiler never rewrites rendered output from a policy verdict. A policy decides;
+  it does not edit.
 
 ## Attaching a policy
 
