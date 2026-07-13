@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: manifest-helm-synth
+  version: "1.0.0"
+  description: >
+    Ops mapping for the Kubernetes target backed by synthesized manifests. The
+    object store, Store Gateway, and Query types are realized by their synth helm
+    Recipes — the object store as a Deployment with a persistent volume, the Store
+    Gateway and Query as stateless Deployments. Recipe selection at build time is
+    by component type against the loaded catalog.
+spec:
+  mappings:
+    components:
+      type:
+        core/storage/minio:1.0.0: helm/minio:1.0.0
+        core/observability/thanos-store:1.0.0: helm/thanos-store:1.0.0
+        core/observability/thanos-query:1.0.0: helm/thanos-query:1.0.0

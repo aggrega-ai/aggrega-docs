@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: aggregate
+  version: "1.0.0"
+  description: >
+    A Thanos metrics read tier over object storage, imported as a reusable
+    module. The module is a sub-aggregate that composes three single-workload
+    components — a MinIO object store, a Thanos Store Gateway that reads metric
+    blocks from it, and a Thanos Query front end that fans PromQL out over the
+    gateway's StoreAPI — and wires its own internal edges from the gateway to the
+    object store and from the query to the gateway. The module exports the query
+    front end as its public endpoint `query`. This top-level Aggregate imports the
+    module by name; the operator sizes the module's internal components in the
+    Release. The bucket pre-creation and the block-writing tier are runtime
+    prerequisites documented in the README.
+spec:
+  aggregates:
+    metrics:
+      type: core/thanos
