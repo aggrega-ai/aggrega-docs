@@ -55,7 +55,7 @@ Aggrega expresses a strong Separation of Concerns between Domain 1 and Domain 4:
 For cases where a specific infrastructure constraint is an intrinsic part of a component's contract — a high-throughput trading database that must have 10,000 provisioned IOPS, an ML workload that must run on exactly 4 GPUs — Platform Architects expose the constraint through a specialized child component built with the **schema-bridge cross-pillar piping** pattern.
 
 **The schema-bridge pattern for infrastructure-aware components.**
-The child component extends a target-agnostic base, exposes the specific infrastructure dial inside the developer's `values` block through the `schema:` declaration, and the bound Recipe's `valuesMapping:` template pipes the value into the rendered `infra:`-shaped output. The result is a typed bridge between cognitive intent and physical sizing: the developer dictates the hardware constraint through a validated field, and the constraint flows to Ops without either side writing raw infrastructure code.
+The child component extends a provider-agnostic base, exposes the specific infrastructure dial inside the developer's `values` block through the `schema:` declaration, and the bound Recipe's `valuesMapping:` template pipes the value into the rendered `infra:`-shaped output. The result is a typed bridge between cognitive intent and physical sizing: the developer dictates the hardware constraint through a validated field, and the constraint flows to Ops without either side writing raw infrastructure code.
 
 ```yaml
 # Domain 2: The Platform Catalog (the schema-bridge Component)
@@ -92,7 +92,7 @@ spec:
 ```
 
 ```yaml
-# Domain 1: The Developer Intent (remains target-agnostic)
+# Domain 1: The Developer Intent (remains provider-agnostic)
 components:
   trading-db:
     type: core/high-perf-postgres:1.0.0
@@ -133,4 +133,4 @@ This mechanism is protected by the strict execution order of the compiler (Step 
 1. **Parameter contract validation.** Each Release-supplied parameter value validates against the Aggregate's typed `parameters:` declaration. A Prod value of `25000` validates (within `min: 1000, max: 100000`); a value of `500` would halt with a clear error.
 2. **Interpolation.** The compiler reads the Prod `Release`'s parameter values and interpolates `25000` into the `Aggregate` YAML string at `values.required_iops`. The merged parameter map remains alive through Step 5 so path-template surfaces can read `.parameters.<slot>` directly; value-template surfaces consume the post-interpolation literal already written into the Aggregate's `values:` block. The map is actively purged at end-of-pipeline.
 3. **Schema validation.** The Component's `schema:` declaration validates the resulting `values:` dictionary; `values.required_iops: 25000` satisfies the schema's `min: 1000, max: 100000`.
-4. **Recipe valuesMapping rendering.** The bound Recipe's `valuesMapping:` template pipes `values.required_iops` into the provider's `infra`-shaped output (`iops: 25000`). The Wasm renderer plugin generates the correct physical database configuration. The developer gets their explicit hardware control, Ops gets their environment-specific scaling, and the `Aggregate` remains target-agnostic.
+4. **Recipe valuesMapping rendering.** The bound Recipe's `valuesMapping:` template pipes `values.required_iops` into the provider's `infra`-shaped output (`iops: 25000`). The Wasm renderer plugin generates the correct physical database configuration. The developer gets their explicit hardware control, Ops gets their environment-specific scaling, and the `Aggregate` remains provider-agnostic.
