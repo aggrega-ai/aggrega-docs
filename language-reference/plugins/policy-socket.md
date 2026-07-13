@@ -164,8 +164,22 @@ a thin adapter guest. The adapter absorbs OPA's Wasm ABI entirely inside itself
 (per [The ABI is Aggrega's own](#the-abi-is-aggregas-own) above): it
 instantiates the OPA-built module, sets the input, invokes evaluation, and maps
 the decision back to the verdict shape. The host sees only the standard
-policy-validator surface. This road is heavier to stand up but gives a policy
-the exact engine it targets.
+policy-validator surface.
+
+A reference adapter guest ships as a worked example. It embeds a policy authored
+in Rego and pre-compiled with `opa build -t wasm` into a WebAssembly module — a
+pinned, checked-in artifact, so evaluation runs entirely in-guest with no OPA
+process and nothing fetched. On each build the adapter instantiates that baked
+module inside itself with an embedded Wasm interpreter, satisfies the module's
+own imports (its linear memory and its builtin callbacks), reads the payload as
+the OPA `input` document and the attachment's `settings` as the OPA `data`
+document, evaluates each compiled entrypoint, and maps each entrypoint's
+`deny` / `warn` / `audit` name to a verdict of the matching severity. If a baked
+policy needs a host-provided builtin the adapter does not implement, the adapter
+**fails loudly** — refusing the module rather than returning an allow — so an
+unevaluable policy stops the build instead of passing silently. Regenerating the
+baked module from its Rego source is an authoring step run with the OPA CLI, not
+a build-time dependency.
 
 The two roads share the same host contract, so moving a policy from the embedded
 evaluator to the full engine is an attachment change.
