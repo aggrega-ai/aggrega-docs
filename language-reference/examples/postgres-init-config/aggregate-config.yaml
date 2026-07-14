@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: postgres-config
+  version: "1.0.0"
+  description: >
+    A single PostgreSQL database that bootstraps its schema and tunes its server
+    configuration. The developer supplies init_scripts (SQL run once on first
+    initialization from /docker-entrypoint-initdb.d) and custom_config (a
+    postgresql.conf fragment). The helm Recipe carries both in one ConfigMap and
+    mounts them into the container; the config-file argument points the server at
+    the mounted postgresql.conf.
+spec:
+  components:
+    db:
+      type: core/datastore/postgres
+      values:
+        database: appdb
+        user: appuser
+        # Bootstrap scripts. Keys are filenames; the server runs them in
+        # alphabetical key order on first initialization only.
+        init_scripts:
+          01-schema.sql: |
+            CREATE TABLE app_users (
+              id    serial PRIMARY KEY,
+              email text NOT NULL UNIQUE
+            );
+          02-seed.sql: |
+            INSERT INTO app_users (email) VALUES ('founder@example.com');
+        # Custom server configuration. Applied as postgresql.conf; unspecified
+        # settings keep their built-in defaults.
+        custom_config: |
+          max_connections = 200
+          shared_buffers = 256MB

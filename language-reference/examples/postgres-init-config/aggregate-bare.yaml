@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: postgres-bare
+  version: "1.0.0"
+  description: >
+    A single PostgreSQL database with no bootstrap scripts and no custom server
+    configuration. The developer leaves init_scripts and custom_config unset, so
+    the database renders exactly as a minimal deployment does: no ConfigMap, no
+    configmap volume, and no config-file command override. This is the baseline
+    that proves the two optional values are additive — a deployment that does not
+    use them is unchanged.
+spec:
+  components:
+    db:
+      type: core/datastore/postgres
+      values:
+        database: appdb
+        user: appuser
