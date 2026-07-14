@@ -24,7 +24,7 @@ in to the live database.
   service name and the Kubernetes build wires a Service DNS name, from the
   same edge.
 - **Workload synthesis.** The compose and self-contained Kubernetes Recipes
-  declare a provider-agnostic `Workload`; the provider engine synthesises a
+  declare a capability-agnostic `Workload`; the provider engine synthesises a
   `docker-compose.yaml` service or a `Deployment` + `Service` + `PersistentVolumeClaim`.
 - **The credential subsystem.** Database passwords are attached in the
   component's `secrets:` pillar — each a `Feature` labeled

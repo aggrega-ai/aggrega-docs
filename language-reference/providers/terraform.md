@@ -11,7 +11,7 @@ The terraform provider accepts two of the three Recipe input kinds:
 - **Artifacts mode.** A Recipe authors Terraform configuration as a templated body; the provider evaluates the Aggrega template and emits the result verbatim, byte-for-byte. HCL (`main.tf`) is the ergonomic default, and Terraform JSON (`.tf.json`) is accepted equivalently. Build provenance is stamped as a Terraform comment; for a JSON body — which has no comment syntax — provenance is written as a companion file rather than inline.
 - **Sourced mode.** A Recipe references a Terraform module with `source:`. The module's files are vendored verbatim into the node's output, and the Recipe's `valuesMapping:` overlays the module's input variables as an auto-loaded `aggrega.auto.tfvars.json`. The module body is preserved exactly as authored; only the generated `.tfvars.json` carries Aggrega-supplied values.
 
-The **synthesized** input kind is not offered. There is no faithful, provider-agnostic mapping from the platform Workload kind to arbitrary Terraform resources, so a Recipe that declares `workload:` against the terraform provider is a loud error rather than an invented translation.
+The **synthesized** input kind is not offered. There is no faithful, capability-agnostic mapping from the platform Workload kind to arbitrary Terraform resources, so a Recipe that declares `workload:` against the terraform provider is a loud error rather than an invented translation.
 
 ## Verbatim emission and vendoring
 

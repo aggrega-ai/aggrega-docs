@@ -2,7 +2,7 @@
 
 ## Day-2 Lifecycles & Temporal Execution
 
-A provider-agnostic Ahead-of-Time (AOT) compiler inherently creates a gap between declarative intent (Day-1) and operational reality (Day-2). The cloud is not perfectly deterministic, deployment requires temporal sequencing, and developers require imperative triggers for maintenance tasks.
+A capability-agnostic Ahead-of-Time (AOT) compiler inherently creates a gap between declarative intent (Day-1) and operational reality (Day-2). The cloud is not perfectly deterministic, deployment requires temporal sequencing, and developers require imperative triggers for maintenance tasks.
 
 Aggrega structurally bridges these gaps through specific architectural polyfills and GitOps-native routing, ensuring the generated configurations are fully equipped to handle real-world enterprise chaos without compromising the purity of the core compiler.
 

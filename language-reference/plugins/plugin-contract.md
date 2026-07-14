@@ -94,7 +94,7 @@ When a workspace configures a policy plugin, the pipeline marshals the stage's p
 
 **Input shape (host → guest).** The stage selects the payload:
 
-- The `ir`-stage `PolicyValidatorInput` carries `graph` — the full provider-agnostic IR graph (the same shape the Topology Builder emits), with every node, edge, and attachment detail the compiler holds — and `precalculated_paths`, the routing paths the analyzer enumerates alongside, so a policy can reason about reachability without re-walking the graph. The graph is the versioned IR graph, single-sourced from the `ir-v1alpha1` schema; the IR shape is not secret (it is the same graph `aggrega inspect` emits) and secrets in it are pointers, never plaintext.
+- The `ir`-stage `PolicyValidatorInput` carries `graph` — the full capability-agnostic IR graph (the same shape the Topology Builder emits), with every node, edge, and attachment detail the compiler holds — and `precalculated_paths`, the routing paths the analyzer enumerates alongside, so a policy can reason about reachability without re-walking the graph. The graph is the versioned IR graph, single-sourced from the `ir-v1alpha1` schema; the IR shape is not secret (it is the same graph `aggrega inspect` emits) and secrets in it are pointers, never plaintext.
 - The `render`-stage `RenderPolicyValidatorInput` carries `artifacts` — the rendered output files as a `{path, content}` list sorted by path, so the wire is byte-identical across runs of identical input.
 
 Both stages additionally carry the attachment's `sources` (policy-definition files the host reads at build time and hands the guest verbatim, paths as base names, content opaque) and `settings` (a free-form object handed through untouched). Both are absent when the attachment declares none.

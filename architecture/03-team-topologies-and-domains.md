@@ -24,7 +24,7 @@ Each domain has a single responsibility:
 
 | Domain | Entity | What it Does | Architectural Role |
 | :--- | :--- | :--- | :--- |
-| **Domain 2** | `core/postgres` | Validates that the developer asked for `storage_size` using a JSON Schema 2020-12 `schema:` declaration. | The Developer's `Aggregate.yaml` remains provider-agnostic, completely blind to whether it will run on AWS or a local laptop. |
+| **Domain 2** | `core/postgres` | Validates that the developer asked for `storage_size` using a JSON Schema 2020-12 `schema:` declaration. | The Developer's `Aggregate.yaml` remains capability-agnostic, completely blind to whether it will run on AWS or a local laptop. |
 | **Domain 3** | `aws-rds` | Maps `storage_size` into a Terraform `.tf.json` payload. | The Ops engineer writes highly specific, vendor-locked infrastructure code in its own file, decoupled from the developer's authoring surface. |
 | **Domain 4** | The `Manifest` | Instructs the compiler: *"When the dev asks for `core/postgres`, use the `aws-rds` recipe."* | Ops can swap the Manifest for local testing, routing `core/postgres` to a Docker Compose recipe instead, and the developer's code remains untouched. |
 

@@ -319,7 +319,7 @@ Four validation rules govern the integration:
 - Slots marked `inject: []` (blackbox delivery) in the Component's `secretsSchema` cannot appear in Workload `secrets:` blocks at all. Those slots are delivered by the Recipe's internal plumbing (a Helm chart's `existingSecret` parameter, for example), not by Workload exposure.
 - The referenced slot must be **referenceable** — its fill must be a credential that materializes a Secret resource and publishes a `provides` locator (`name`, `key`). A slot filled by an inject-delivered credential (one that writes a value into the inject pipe and produces no Secret resource) has nothing to point at; referencing it from a Workload `secrets:` entry is a load-time error. An inject-delivered secret reaches the container through the slot's inject pipe (a `variables` entry reading `.context.inject.env.<KEY>`), not through a `secrets:` entry.
 
-**Provider note.** Helm renders the `secretKeyRef`/secret-volume reference described above. The compose provider has no native env-from-secret primitive; an `as: env` secret on a compose-targeted Workload is a placeholder pending the compose secret-delivery path, while the referenceability rule (provider-agnostic) still applies.
+**Provider note.** Helm renders the `secretKeyRef`/secret-volume reference described above. The compose provider has no native env-from-secret primitive; an `as: env` secret on a compose-targeted Workload is a placeholder pending the compose secret-delivery path, while the referenceability rule (capability-agnostic) still applies.
 
 Example:
 

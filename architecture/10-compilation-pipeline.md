@@ -27,7 +27,7 @@ Next, it performs an in-memory interpolation in three sub-steps: parameter contr
 **3. Graph Finalization**
 
 * **Mechanism:** Edge Inference & Normalization.
-* **Action:** The engine finalizes the flat Intermediate Representation (IR) Graph, preserving the explicit topological edges drawn in Step 2. It then normalizes the attached Features and their `values` payloads into a flat dictionary mapped by node ID, preparing the provider-agnostic graph for validation.
+* **Action:** The engine finalizes the flat Intermediate Representation (IR) Graph, preserving the explicit topological edges drawn in Step 2. It then normalizes the attached Features and their `values` payloads into a flat dictionary mapped by node ID, preparing the capability-agnostic graph for validation.
   * **IR Payload Normalization:** The IR's structural shape enforces a Single Source of Truth for configuration: the topology layer carries only the graph structure (node identity, edges, metadata labels), and the normalized configuration state lives in a separate in-memory dictionary the compiler passes to downstream plugins. Mutators that change configuration change it in one place; the Provider Engine reads the normalized state without risk of drift from redundant storage.
 
 **4. The Static Analyzer & Validation Gate**

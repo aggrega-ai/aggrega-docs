@@ -14,7 +14,7 @@ Every entity kind has a role that typically authors it. This page is the complet
 
 ## Developer
 
-**[Aggregate](../language-reference/entities/aggregate.md)** — the developer's single authoring surface and the single source of truth for application topology. It declares the components the application is built from, the `values` each one takes, the `parameters` exposed for per-environment variation, and the `uses` edges wiring components together. It stays deliberately blind to physical infrastructure: nothing in the Aggregate names a cloud, a cluster, or a provider. That provider-agnosticism is what lets one Aggregate deploy anywhere.
+**[Aggregate](../language-reference/entities/aggregate.md)** — the developer's single authoring surface and the single source of truth for application topology. It declares the components the application is built from, the `values` each one takes, the `parameters` exposed for per-environment variation, and the `uses` edges wiring components together. It stays deliberately blind to physical infrastructure: nothing in the Aggregate names a cloud, a cluster, or a provider. That capability-agnosticism is what lets one Aggregate deploy anywhere.
 
 ## Platform architect
 

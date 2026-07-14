@@ -191,9 +191,9 @@ The compiler and the core schemas enforce the following structural rules.
   * **Unsupported pattern:** Developer writes `values: { password: "123" }` under a `secrets` block.
   * **Why:** The schema requires strictly typed credential Features mapped to the component. Secrets must reference a credential Feature `type` (labeled `feature.aggrega.ai/kind: secret`) and use `values` to query an external vault. The compiler enforces the partition: only credential-labeled Features are accepted in the `secrets:` block.
 
-* **Constraint 2: Provider-Agnostic Components**
+* **Constraint 2: Capability-Agnostic Components**
   * **Unsupported pattern:** Architect writes `aws_instance_type: string` in the Component's `schema:` declaration.
-  * **Why:** Components are provider-agnostic by convention. Physical hardware targets live in Ops Recipes or generic `.context` annotations, not inside the core cognitive application logic.
+  * **Why:** Components are capability-agnostic by convention. Physical hardware targets live in Ops Recipes or generic `.context` annotations, not inside the core cognitive application logic.
 
 * **Constraint 3: Conditional Logic on Metadata**
   * **Unsupported pattern:** Ops writes `{{ if eq .context.labels.gpu "true" }}` in a `Recipe` to fundamentally change the deployment strategy.

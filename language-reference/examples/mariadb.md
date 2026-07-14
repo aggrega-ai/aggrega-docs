@@ -441,7 +441,7 @@ spec:
         core/secret-value: my-org/feature-recipe/vault-secret/k8s:1.0.0
 ```
 
-The Manifest's flat URI mapping binds component-type URIs to Recipe URIs; the Recipe URI's `<namespace>/<provider>/<name>` path carries the provider. The Manifest itself is provider-agnostic; provider determination flows from each resolved Recipe's `spec.target` field at orchestrator-time.
+The Manifest's flat URI mapping binds component-type URIs to Recipe URIs; the Recipe URI's `<namespace>/<provider>/<name>` path carries the provider. The Manifest itself is capability-agnostic; provider determination flows from each resolved Recipe's `spec.target` field at orchestrator-time.
 
 ## The Release
 

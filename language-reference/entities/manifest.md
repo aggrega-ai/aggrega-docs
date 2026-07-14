@@ -21,7 +21,7 @@ The Release schema carries no `provider` field at any nesting level; provider di
 
 ## Flat URI mapping
 
-The Manifest's `mappings:` block is a flat map from **component-type URI** to **Recipe URI** (and from **feature-type URI** to **FeatureRecipe URI**). The mapping is provider-agnostic at the Manifest level; provider determination flows from each resolved Recipe's `spec.target` field at orchestrator-time, not from the Manifest's structural shape. The block organises mappings under two top-level keys:
+The Manifest's `mappings:` block is a flat map from **component-type URI** to **Recipe URI** (and from **feature-type URI** to **FeatureRecipe URI**). The mapping is capability-agnostic at the Manifest level; provider determination flows from each resolved Recipe's `spec.target` field at orchestrator-time, not from the Manifest's structural shape. The block organises mappings under two top-level keys:
 
 * **`components.type`** maps a component-type URI to a Recipe URI. Every component instance of the declared type resolves to the specified Recipe. The mapping is one-to-one per component-type.
 * **`features.type`** maps a feature-type URI to a FeatureRecipe URI. Every Feature attachment of the declared type resolves to the specified FeatureRecipe. Credential Features (labeled `feature.aggrega.ai/kind: secret`) live in the same `features.type` map as operational Features — the unified Feature entity model.
@@ -146,7 +146,7 @@ A Manifest may declare a single `extends:` URI pointing to a base Manifest whose
 
 **Merge semantics.** When a local Manifest extends a base Manifest, the compiler performs a **shallow key replacement** per tier — the `type` and `name` dictionaries are merged independently, not deep-merged — which guarantees O(1) dictionary lookups and keeps inheritance behavior predictable. Within each tier, child keys overwrite parent keys.
 
-**The local-development bridge pattern.** A common use of `extends` is swapping a credential FeatureRecipe for local prototyping without touching the Aggregate. In production, the base Manifest maps the credential Feature `core/aws-secrets-manager` to a production FeatureRecipe under the `features.type` tier. For local prototyping, the platform team provides a `local-manifest` that extends the base and surgically overrides the credential Feature mapping to use `host-env-injector` — a local FeatureRecipe that outputs native Docker Compose syntax (`env_file: [".env"]` or `${SECRET_NAME}`). The developer gets a standard local workflow, and the Aggregate remains provider-agnostic for production.
+**The local-development bridge pattern.** A common use of `extends` is swapping a credential FeatureRecipe for local prototyping without touching the Aggregate. In production, the base Manifest maps the credential Feature `core/aws-secrets-manager` to a production FeatureRecipe under the `features.type` tier. For local prototyping, the platform team provides a `local-manifest` that extends the base and surgically overrides the credential Feature mapping to use `host-env-injector` — a local FeatureRecipe that outputs native Docker Compose syntax (`env_file: [".env"]` or `${SECRET_NAME}`). The developer gets a standard local workflow, and the Aggregate remains capability-agnostic for production.
 
 ## Context-Aware Shorthand URIs
 

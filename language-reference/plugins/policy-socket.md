@@ -44,7 +44,7 @@ which fixes where in the pipeline the host evaluates it and what payload it
 receives.
 
 - **`ir`** — the guest reasons over the intermediate-representation graph,
-  before rendering. The payload carries the full provider-agnostic IR graph (every
+  before rendering. The payload carries the full capability-agnostic IR graph (every
   node, edge, and attachment the compiler holds) plus the routing paths the
   analyzer enumerates, so a policy can reason about topology and reachability
   without re-walking the graph. An `ir`-stage policy runs at the static-analysis
