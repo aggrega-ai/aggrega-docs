@@ -57,13 +57,23 @@ For the per-entity version-consumption regime (which entities actually have thei
 
 For the readiness state of three-form `implements:` matching (exact / caret-range / unversioned with precedence iteration), see [`10-status.md`](../10-status.md) "Version matching" — exact form is `available` for verbatim string match; caret-range form is `planned`; precedence iteration with fallback ships alongside the caret implementation.
 
+## Identity, not location
+
+A canonical entity reference — including a plugin reference — is an *identity*, not a location: it names *what* the entity is, never *where* it currently lives.
+
+The identity is **bare and host-free**. It carries no registry host; the host is a resolution coordinate supplied by configuration through `default_registry` and bound at resolution time. Relocating a registry, or mirroring the same entity elsewhere, is a configuration change — the references that name the entity are untouched.
+
+The identity is also **version-free**. A reference may carry an optional `:version` floor to constrain which versions satisfy it, and each Release records the exact resolved version as a pin in its lockfile, but the version is supplied alongside the identity rather than baked into it.
+
+At resolution time the compiler joins the bare identity to the configured host and the pinned version to reach concrete bytes. Because both are supplied separately, the same reference resolves against a different registry or a different pinned version with no edit to the source that names it.
+
 ## OCI URI shorthand inference
 
 Authors do not have to spell every URI as a fully-qualified OCI URI. The compiler applies four orthogonal inference rules to expand shorthand authoring forms into canonical OCI URIs at resolution time. The rules:
 
 ### Rule 1 — Domain default
 
-Any URI lacking a domain is prefixed with the configured `default_registry` from `aggrega.yaml` (default: `hub.aggrega.ai/`).
+Any URI lacking a domain is prefixed with the configured `default_registry` from `.aggrega-config.yaml` (default: `hub.aggrega.ai/`).
 
 ```yaml
 # Shorthand
@@ -91,7 +101,7 @@ Manifest.spec.mappings.components.type."core/postgres:1.0.0": helm/postgres-bitn
 
 Before applying the OCI inference, the compiler resolves the URI through the Three-Tier Entity Resolution Model documented at [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md):
 
-1. **Tier 1 — Local catalog paths.** The `aggrega.yaml` workspace's `catalog_dirs:` directories are searched first. A URI matching a local path resolves to the local file; OCI inference does not run.
+1. **Tier 1 — Local catalog paths.** The `.aggrega-config.yaml` workspace's `catalog_dirs:` directories are searched first. A URI matching a local path resolves to the local file; OCI inference does not run.
 2. **Tier 2 — Workspace catalog directory.** The workspace's default `aggrega-catalog/` (or configured equivalent) is searched second. Same handling — local match short-circuits OCI inference.
 3. **Tier 3 — Remote OCI registry.** When Tier 1 and Tier 2 miss, the OCI inference rules apply and the URI resolves to a remote registry pull.
 
@@ -114,7 +124,7 @@ Beyond URI strings, Aggrega's authoring surface carries several distinct format-
 | JSON Schema 2020-12 (compact or full form) | Component / Feature `schema:` content (or `schemaRef:` pointing at a SchemaLibrary entry) | JSON Schema validator at Step 1 entity load |
 | JSON Pointer (RFC 6901) | Recipe `locals.<*_path>:` keys (`volumes_path`, `containers_path`, etc.); FeatureRecipe `pipeline:` step output references; Wasm plugin JSONPatch payloads | RFC 6901 baseline per the Wasm plugin contract; declared in `plugins/plugin-contract.md` |
 | SemVer regex | `metadata.version` fields on every entity; URI version segments | JSON Schema regex `^(0\|[1-9]\d*)\.(0\|[1-9]\d*)\.(0\|[1-9]\d*)(?:-...)?$` per entity schema |
-| Glob pattern (filesystem path) | Catalog-relative paths (e.g., `aggrega.yaml` `catalog_dirs:` entries); Recipe `$import:` file paths in `workload:` / `artifacts:` / `valuesMapping:` | Filesystem-walk semantics at Step 1 |
+| Glob pattern (filesystem path) | Catalog-relative paths (e.g., `.aggrega-config.yaml` `catalog_dirs:` entries); Recipe `$import:` file paths in `workload:` / `artifacts:` / `valuesMapping:` | Filesystem-walk semantics at Step 1 |
 | Label selector expression | `Component.spec.usesSchema.<socket>.selector`; Feature `appliesTo:` / `appliesToAnyOf:` | Aggrega selector parser per [`pkg/selector/`](../../../aggrega-cli/pkg/selector/); selector grammar documented at [`vocabulary/topology-triad.md`](topology-triad.md) |
 | Annotation-key shape (`<namespace>/<name>`) | `metadata.annotations` keys; Manifest `features.annotations` keys; boundary annotation cascade | JSON Schema regex per entity; reserved-prefix discipline at [`vocabulary/labels-and-annotations.md`](labels-and-annotations.md) |
 | Provider name (bare string) | `Recipe.spec.target`; `FeatureRecipe.spec.target` | Engine-factory dispatch lookup at Step 5 Phase B |

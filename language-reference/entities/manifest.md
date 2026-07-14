@@ -150,7 +150,7 @@ A Manifest may declare a single `extends:` URI pointing to a base Manifest whose
 
 ## Context-Aware Shorthand URIs
 
-The Aggrega compiler utilizes **Context-Aware Inference** when resolving OCI URIs in Manifests. If an engineer omits the Fully Qualified Domain Name (FQDN) and the architectural entity type, the compiler automatically falls back to the default registry (configured in `aggrega.yaml`) and infers the entity type based on where the string is located in the schema.
+The Aggrega compiler utilizes **Context-Aware Inference** when resolving OCI URIs in Manifests. If an engineer omits the Fully Qualified Domain Name (FQDN) and the architectural entity type, the compiler automatically falls back to the default registry (configured in `.aggrega-config.yaml`) and infers the entity type based on where the string is located in the schema.
 
 **The Inference Rules:**
 

@@ -35,7 +35,7 @@ Publish computes a content digest over the entity's authoring tree and embeds it
 
 Signing is **sign-before-push**: the manifest digest is known before publishing, so `aggrega push` constructs the signer and signs the digest **before any bytes reach the registry**. If the signer cannot be constructed or signing fails, the push is refused before the network call — nothing is published. This means an unsigned artifact can never leak onto a registry that requires signatures: there is no window in which content is published but unsigned.
 
-A registry that requires signatures (its `requires_signatures` policy) signs by default; `--sign` requests signing explicitly. There is no flag to push unsigned content to a signature-requiring registry — that push always halts.
+A registry requires signatures when its per-registry `signing` block sets `required: true`; such a registry signs by default, and `--sign` requests signing explicitly. There is no flag to push unsigned content to a signature-requiring registry — that push always halts.
 
 Two signing modes:
 
