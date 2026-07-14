@@ -46,4 +46,5 @@ aggrega version [flags]
 | Flag | Default | Description |
 | --- | --- | --- |
 | `--json` | `false` | emit a structured JSON object instead of the human-readable line |
+| `--verbose` | `false` | include the embedded-plugin set in the output |
 <!-- END GENERATED: cli-version -->
