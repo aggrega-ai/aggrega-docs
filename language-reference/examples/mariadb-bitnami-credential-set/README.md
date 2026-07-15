@@ -23,8 +23,12 @@ there is no re-derivation and no convention for the two sides to agree on.
 # equivalent: aggrega build --release release.yaml
 ```
 
-The catalog entities resolve from the sibling hub catalog named in
-`.aggrega-config.yaml`; the Bitnami chart is pulled from its OCI source.
+The `mariadb-bitnami` Recipe resolves from this example's own local `catalog/`
+copy — an enterprise-authored local chart-wrap — while the
+`core/datastore/mariadb` Component and the credential features resolve from the
+sibling hub catalog. Both directories are listed under `catalog_dirs` in
+`.aggrega-config.yaml`, where the local `catalog/` takes precedence. The Bitnami
+chart is pulled from its OCI source.
 
 ## What the credential produces
 

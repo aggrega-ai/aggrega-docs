@@ -75,10 +75,10 @@ The compiler loads the file's content (a Go template), template-renders it again
 ```yaml
 spec:
   valuesMapping:
-    $import: BitnamiHelpers#/mappings/MariaDBBitnamiCore
+    $import: DatastoreHelpers#/mappings/MariaDBCore
 ```
 
-The compiler resolves the reference against the resolved MappingLibrary set (the local catalog plus any lockfile-pinned libraries), loads the entry's content, and treats it as the mapping output; an entry whose body is itself a field-root `$import:` resolves recursively. The reference carries no registry host — the library name resolves by identity and the version comes from the per-Release lockfile, with an optional `:<version>` minimum-version floor (`<Library>:<version>#/mappings/<entry>`). Library content shares the standard Recipe template context. Library mode suits cross-Recipe reuse — mapping patterns that recur across many Recipes (multiple datastore Recipes sharing Bitnami helper logic; multiple Helm-provider Recipes sharing pod-template patterns). The MappingLibrary entity provides versioning, lockfile pinning, and hub-UI surfacing.
+The compiler resolves the reference against the resolved MappingLibrary set (the local catalog plus any lockfile-pinned libraries), loads the entry's content, and treats it as the mapping output; an entry whose body is itself a field-root `$import:` resolves recursively. The reference carries no registry host — the library name resolves by identity and the version comes from the per-Release lockfile, with an optional `:<version>` minimum-version floor (`<Library>:<version>#/mappings/<entry>`). Library content shares the standard Recipe template context. Library mode suits cross-Recipe reuse — mapping patterns that recur across many Recipes (multiple datastore Recipes sharing datastore helper logic; multiple Helm-provider Recipes sharing pod-template patterns). The MappingLibrary entity provides versioning, lockfile pinning, and hub-UI surfacing.
 
 **Dispatch rules.** The compiler walks the YAML node and dispatches by content shape:
 

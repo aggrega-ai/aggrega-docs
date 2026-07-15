@@ -23,8 +23,10 @@ through Service DNS.
 This example consumes the standard catalog: `core/datastore/mariadb`,
 `core/devtool/adminer`, `core/secret-value`, `core/secret-provided`, and
 `core/shared-config` (with their helm FeatureRecipes `env-secret`,
-`provided-secret`, and `shared-config`), the `mariadb-bitnami` and `adminer`
-recipes, and the `helm` provider all ship in the standard library.
+`provided-secret`, and `shared-config`), the `adminer` recipe, and the `helm`
+provider all ship in the standard library. The `mariadb-bitnami` Recipe is
+carried locally by this example — an enterprise-authored chart-wrap under its
+own `catalog/` directory.
 
 This example's own teaching scaffolding lives in the shared catalog under the
 `example/` namespace, alongside the standard library:
@@ -33,10 +35,13 @@ This example's own teaching scaffolding lives in the shared catalog under the
   `databases` use-edge wiring Adminer to the database, specific to this stack's
   binding lesson.
 
-It builds against the catalog checkout listed under `catalog_dirs` in
-`.aggrega-config.yaml`; the same file declares `hub.aggrega.ai` as the default
-registry, so a standalone consumer without that checkout resolves the entities
-from the hub. Either way the build command needs no `--catalog` flag:
+It builds against the catalog directories listed under `catalog_dirs` in
+`.aggrega-config.yaml`: the example's own local `catalog/` — which carries the
+`mariadb-bitnami` chart-wrap Recipe and takes precedence — followed by the
+sibling hub checkout that supplies the Component, features, and remaining
+recipes. The same file declares `hub.aggrega.ai` as the default registry, so a
+standalone consumer without that checkout resolves the shared entities from the
+hub. Either way the build command needs no `--catalog` flag:
 
 ```bash
 aggrega build --release release.yaml
