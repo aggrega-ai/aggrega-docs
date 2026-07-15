@@ -69,6 +69,7 @@ _Additional properties are not permitted._
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
+| `name` | string | no | Optional container name. For a positional initContainers entry it sets the emitted container name, falling back to a generated init-<index> name (the entry's position in the list) when omitted. For a containers map entry the map key is the container name and this field is ignored. |
 | `image` | string | yes | Container image reference (e.g., 'nginx:1.27-alpine', 'ghcr.io/example/app:v1.2.3'). |
 | `command` | string[] | no | Override the image's entrypoint. K8s: .command. Compose: entrypoint. |
 | `args` | string[] | no | Arguments passed to command (or image entrypoint if command is absent). K8s: .args. Compose: command. |
@@ -111,6 +112,7 @@ _Additional properties are not permitted._
 | --- | --- | --- | --- |
 | `name` | string | yes | Must match a key in top-level volumes: map. |
 | `path` | string | yes | Mount point inside the container. |
+| `subPath` | string | no | Mounts a single file or subdirectory from the volume at path, without masking other files in the target directory. |
 | `readonly` | boolean | no | Default: `false` |
 
 _Additional properties are not permitted._
@@ -152,6 +154,7 @@ _Additional properties are not permitted._
 | --- | --- | --- | --- |
 | `from` | string | yes | Name of a slot declared in the Component's secretsSchema. |
 | `as` | string (enum) | yes | Delivery mechanism. Must be allowlisted in the slot's inject: array. Allowed values: `"env"`, `"file"` |
+| `key` | string | no | For as: env, the specific data key of the referenced slot's secret this entry reads. Set it when the slot's secret carries several data keys, so this entry selects one of them by name; two entries may reference the same slot with different keys to read several keys from one secret. When omitted, the entry reads the slot's single published key. Ignored for as: file, which mounts the whole secret. |
 | `path` | string | no | File path inside the container (required when as: file). |
 
 _Additional properties are not permitted._

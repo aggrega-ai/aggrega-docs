@@ -104,6 +104,7 @@ _Additional properties are not permitted._
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `type` | string | yes | The abstract Component requested (e.g., core/api-server:1.0.0). Resolved via the Three-Tier Entity Resolution Model (local path → workspace dir → registry). |
+| `active` | boolean or string | no | Whether this component is present in the compiled topology. A boolean, or a string template over .parameters that must resolve to a boolean. When it resolves to false the component is pruned from the topology, cascading to its uses edges and its feature and secret attachments. Driving the value from a parameter lets a Release toggle the component's presence by fulfilling that parameter. Defaults to true when omitted. Default: `true` |
 | `description` | string | no | Optional documentation describing this component instance's role in the application. Passed through to the IR graph for augmenting rendering. |
 | `annotations` | map of string or object or null | no | Developer-authored annotations on this component. Values are strings or null; explicit null on a key inherited from a parent subsystem removes the inherited binding from this component (annotation-driven Feature opt-out). Component-level annotations override inherited subsystem-level annotations per key; sibling components in the same subsystem retain their own annotation maps independently. |
 | `values` | object | no | Opaque cognitive properties passed to the Component, validated by its schema. |

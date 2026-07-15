@@ -18,6 +18,7 @@ The payload the host hands a CLI plugin on each invocation: the argument vector 
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
+| `command` | string | yes | The resolved subcommand name the host dispatched to this invocation. A plugin that contributes several commands routes on this name to select the behavior to run; a single-command plugin receives its own command name here. The host resolves the name from the command line before invoking the guest and carries it verbatim. |
 | `args` | string[] | yes | The argument vector the guest receives, in invocation order — the tokens that follow the resolved subcommand name on the command line. Order is preserved so the payload is byte-identical across runs of identical input. |
 
 _Additional properties are not permitted._

@@ -51,7 +51,7 @@ Every URI position above accepts two shape variants:
 | Versioned | `core/postgres:1.0.0` | Pins to one specific version |
 | Unversioned | `core/postgres` | Resolves to "any version" or "latest registered", depending on the position's resolution semantics |
 
-The two variants coexist in the same position. Authors choose based on whether they need version pinning or version flexibility. The Manifest's `mappings.{components,features}.type` tier supports both variants as distinct dictionary keys with **versioned-wins-over-unversioned** precedence — a versioned key (`core/api-server:1.0.0`) takes precedence over the unversioned key (`core/api-server`) when both match the same lookup. The two variants are not exclusive; both can sit in the same `type:` map and the resolver picks the most specific. Provider dispatch flows from the resolved Recipe's `spec.target` field at orchestrator time; the Manifest's mapping shape is flat (no per-provider tier).
+The two variants coexist in the same position. Authors choose based on whether they need version pinning or version flexibility. The Manifest's `mappings.{components,features}.type` tier supports both variants as distinct dictionary keys with **versioned-wins-over-unversioned** precedence — a versioned key (`core/api-server:1.0.0`) takes precedence over the unversioned key (`core/api-server`) when both match the same lookup. The two variants are not exclusive; both can sit in the same `type:` map and the resolver picks the most specific. Provider dispatch flows from the resolved Recipe's `spec.capability` field at orchestrator time; the Manifest's mapping shape is flat (no per-provider tier).
 
 For the per-entity version-consumption regime (which entities actually have their version field consumed by resolution dispatch vs descriptive provenance), see [`vocabulary/inheritance-and-interface.md`](inheritance-and-interface.md) "Cross-entity version consumption".
 
@@ -127,7 +127,7 @@ Beyond URI strings, Aggrega's authoring surface carries several distinct format-
 | Glob pattern (filesystem path) | Catalog-relative paths (e.g., `.aggrega-config.yaml` `catalog_dirs:` entries); Recipe `$import:` file paths in `workload:` / `artifacts:` / `valuesMapping:` | Filesystem-walk semantics at Step 1 |
 | Label selector expression | `Component.spec.usesSchema.<socket>.selector`; Feature `appliesTo:` / `appliesToAnyOf:` | Aggrega selector parser per [`pkg/selector/`](../../../aggrega-cli/pkg/selector/); selector grammar documented at [`vocabulary/topology-triad.md`](topology-triad.md) |
 | Annotation-key shape (`<namespace>/<name>`) | `metadata.annotations` keys; Manifest `features.annotations` keys; boundary annotation cascade | JSON Schema regex per entity; reserved-prefix discipline at [`vocabulary/labels-and-annotations.md`](labels-and-annotations.md) |
-| Provider name (bare string) | `Recipe.spec.target`; `FeatureRecipe.spec.target` | Engine-factory dispatch lookup at Step 5 Phase B |
+| Provider name (bare string) | `Recipe.spec.capability`; `FeatureRecipe.spec.capability` | Engine-factory dispatch lookup at Step 5 Phase B |
 | Inject delivery key (`env.<KEY>`, `file.<path>`, `arg.<flag>`) | Aggregate `inject:` blocks; FeatureRecipe `injectMapping:` output | Inject schema at [`vocabulary/topology-triad.md`](topology-triad.md) |
 
 Each format has its own grammar, its own validator, and its own error-reporting shape. Authors who hit a format-string parse error read the per-format reference for the syntax rules.

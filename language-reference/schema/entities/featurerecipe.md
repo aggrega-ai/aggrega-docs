@@ -17,7 +17,7 @@ See the [featurerecipe authoring reference](../../../entities/featurerecipe/) fo
 | `apiVersion` | const "aggrega.ai/v1alpha1" | yes | Constant: `"aggrega.ai/v1alpha1"` |
 | `kind` | const "FeatureRecipe" | yes | Constant: `"FeatureRecipe"` |
 | `metadata` | object | yes |  |
-| `spec` | object | yes | The render-engine target binding, mapping, pipeline, and inject mapping for a FeatureRecipe. Carries the same three input kinds as a Recipe (sourced, synthesized, artifacts) plus the FeatureRecipe-only injectMapping; a pure-wiring FeatureRecipe declaring only target and implements is valid and renders nothing. |
+| `spec` | object | yes | The render-engine capability binding, mapping, pipeline, and inject mapping for a FeatureRecipe. Carries the same three input kinds as a Recipe (sourced, synthesized, artifacts) plus the FeatureRecipe-only injectMapping; a pure-wiring FeatureRecipe declaring only capability and implements is valid and renders nothing. |
 
 _Additional properties are not permitted._
 
@@ -49,11 +49,11 @@ _Additional properties are not permitted._
 
 #### `featurerecipe.spec`
 
-The render-engine target binding, mapping, pipeline, and inject mapping for a FeatureRecipe. Carries the same three input kinds as a Recipe (sourced, synthesized, artifacts) plus the FeatureRecipe-only injectMapping; a pure-wiring FeatureRecipe declaring only target and implements is valid and renders nothing.
+The render-engine capability binding, mapping, pipeline, and inject mapping for a FeatureRecipe. Carries the same three input kinds as a Recipe (sourced, synthesized, artifacts) plus the FeatureRecipe-only injectMapping; a pure-wiring FeatureRecipe declaring only capability and implements is valid and renders nothing.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `target` | string | yes | The explicit render-engine target this recipe binds to (e.g., 'helm', 'terraform', 'compose') — the provider engine kind that renders it. |
+| `capability` | string | yes | The explicit render-engine capability this recipe binds to (e.g., 'helm', 'terraform', 'compose') — the provider engine kind that renders it. |
 | `implements` | string | yes | Declares which catalog Feature type this recipe is able to implement (including credential Features labeled feature.aggrega.ai/kind: secret; exact version, major-compatible range '^', or unversioned). The compiler uses it to verify Manifest mappings and to suggest candidates in diagnostics and editor completion; it never resolves a build. The Manifest mapping is the user's explicit deployment choice, pinned in the lockfile. |
 | `locals` | map of string | no | The Private Ops State. Internal computation results available only within this FeatureRecipe's templates. Used to export physical realities (e.g., target containers, JSON paths) for downstream Wasm plugins. Never exposed to callers — use provides for the public API. |
 | `provides` | map of string | no | The Public Developer API. Contractual output variables available for downstream Caller inject resolution. |
@@ -65,7 +65,7 @@ The render-engine target binding, mapping, pipeline, and inject mapping for a Fe
 | `pipeline` | object[] | no | Sequential list of Wasm plugins to execute for stateful AST mutation. |
 | `executionScope` | string (enum) | no | Whether this FeatureRecipe's Resource Generation runs per-component (default, today's behavior) or once per boundary attachment. Boundary-scope FeatureRecipes deduplicate by (boundary_path, FR-instance) and receive a different TemplateContext shape (.boundary.* pillars instead of per-component .context.* pillars). Phase A injectMapping continues to fan per-consumer regardless of executionScope. Allowed values: `"component"`, `"boundary"` Default: `"component"` |
 | `assertions` | map of string | no | Build-time cross-field validation. Each entry is a named assertion: the key is a stable rule identifier surfaced in error messages; the value is a Go template string with `{{ fail "message" }}` halt semantics. Multiple named assertions per entity evaluate per-instance in author-declared order; the first failing assertion halts the build. FeatureRecipe assertions evaluate at Step 5b (post-binding, post-allProvides-evaluation, pre-render) and express implementation invariants of the specific wrapped chart or module. Template context: .values / .infra / .uses / .secrets / .metadata plus .provides / .locals / .recipe. The evaluator uses missingkey=error: references to undefined keys halt with a no-such-key diagnostic; optional-field idioms use Sprig default / hasKey. |
-| `sourceDigests` | object[] | no | Content pins for the remote sources this feature recipe references, frozen at resolution from the fetched bytes and read back at build to verify the cached source has not drifted. Each entry mirrors the resolved-source identity {kind, url, version} plus the content digest (and, for an OCI-distributed source, the manifest digest). One entry per distinct resolved-source identity the recipe fetches. Local (filesystem-relative) sources are never pinned. Written by the resolution phase into a writable recipe file; a recipe fetched from a registry arrives pre-pinned. |
+| `sourceDigests` | object[] | no | Content pins for the remote sources this feature recipe references, frozen at resolution from the fetched bytes and read back at build to verify the cached source has not drifted. Each entry mirrors the resolved-source identity {kind, url, chart, version} plus the content digest (and, for an OCI-distributed source, the manifest digest). One entry per distinct resolved-source identity the recipe fetches. Local (filesystem-relative) sources are never pinned. Written by the resolution phase into a writable recipe file; a recipe fetched from a registry arrives pre-pinned. |
 | `artifactDigests` | object[] | no | Content pins for the external files this feature recipe's artifacts import via $import, frozen at resolution and read back at build to verify the imported file has not drifted. One entry per artifact whose value is a file import; an inline (literal) artifact is already part of the entity and carries no separate pin. Written by the resolution phase into a writable recipe file. |
 
 _Additional properties are not permitted._
@@ -87,7 +87,8 @@ _Additional properties are not permitted._
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `kind` | string | yes | The resolved source kind (e.g. helm-oci-chart, helm-https-chart, compose-https-fragment, terraform-module-git). |
-| `url` | string | yes | The canonical resolved source URL the digest pins. |
+| `url` | string | yes | The authored source URL the digest pins — the identity URL as written in spec.source.url (a repo root or a direct .tgz for helm-https). Build reconstructs this same URL offline, so it is the stable identity the pin is keyed on, not a resolved artifact location. |
+| `chart` | string | no | The chart name for a repo-root helm source (spec.source.chart), part of the resolved-source identity so two charts served from one repo root at the same version pin distinctly. Absent for a direct .tgz, OCI, compose, or git source, where the URL alone identifies the artifact. |
 | `version` | string | yes | The concrete pinned version the source resolved to. |
 | `digest` | string | yes | The SHA-256 content digest (sha256:<hex>) of the fetched source archive, verified against the cached bytes at build. |
 | `manifestDigest` | string | no | The OCI manifest digest for an OCI-distributed source — the independent root of trust. Present only for an OCI source (a helm-oci-chart); absent for an https or git source, which carries no manifest by construction. |

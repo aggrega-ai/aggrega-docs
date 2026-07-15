@@ -1,4 +1,4 @@
-# Aggrega Target-Agnostic Graph (IR) schema
+# Aggrega Capability-Agnostic Graph (IR) schema
 
 _Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
 

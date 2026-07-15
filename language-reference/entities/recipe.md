@@ -9,7 +9,7 @@ A Recipe serves exactly two functions:
 1. **The Pointer (`source`):** Tells the compiler exactly where the infrastructure code lives.
 2. **The Mapper (`valuesMapping`):** Injects Aggrega's abstract context into the specific variables the underlying code expects. The field is a single Go template surface with three authoring modes — inline block scalar, file `$import:`, or library `$import:` — dispatched by content shape. See [The `valuesMapping` field — three authoring modes](#the-valuesmapping-field--three-authoring-modes) below.
 
-Because a Recipe is strictly 1:1 with a physical execution engine, the `provider` is explicitly declared at the root level, ensuring the Go compiler knows exactly which downstream Wasm rendering plugin to invoke.
+Because a Recipe is strictly 1:1 with a physical execution engine, the render capability (`spec.capability`) is explicitly declared at the root level, ensuring the Go compiler knows exactly which downstream Wasm rendering plugin to invoke.
 
 `spec.implements` declares which catalog component type the Recipe is able to implement. The compiler uses it to verify Manifest mappings (a mapped Recipe's `implements` must match the mapped type) and to suggest candidates — the recipes listed in a no-mapping diagnostic and ranked first in editor completion. It never resolves a build: the Manifest mapping is the user's explicit deployment choice, pinned in the lockfile. A Recipe whose `implements` is unversioned, exact, or a major-compatible range still only *offers* itself for a type; the user pins the choice. `FeatureRecipe.spec.implements` carries the identical role for feature types.
 
@@ -22,9 +22,9 @@ To keep implementation biases out of the core engine, the `source` block is not 
 
 **What the core resolves today.** Per-provider Wasm source validation is not yet implemented. A *fetched* source is resolved by the `{ kind, url, version }` form, where `kind` selects a built-in resolver — today `helm-oci-chart`, `helm-https-chart`, and `compose-https-fragment`. A fetch-intended source must use `{ kind, url, version }`; a structured source that omits `kind`/`url` is not fetched, and if a fetch was intended the build halts loudly at lock-time source descent rather than silently resolving to nothing. When the per-provider Wasm socket ships, it validates provider-specific shapes and translates them ahead-of-time into a deterministic `{ kind, url, version }` fetch identity — the version always pins ahead-of-time; the compiler never fetches live runtime state.
 
-To guarantee predictable validation, Recipes should reference the exact version of the provider they were authored for (e.g., `spec.target: "helm:1.0.0"`). If the version tag is omitted (e.g., `spec.target: "helm"`), the compiler dynamically falls back to fetching the `latest` available version of the Wasm plugin from the registry. The IDE Language Server (LSP) runs this resolved Wasm plugin in the background, extracting its native JSON schema to provide real-time autocomplete and linting directly to the developer.
+To guarantee predictable validation, Recipes should reference the exact version of the provider they were authored for (e.g., `spec.capability: "helm:1.0.0"`). If the version tag is omitted (e.g., `spec.capability: "helm"`), the compiler dynamically falls back to fetching the `latest` available version of the Wasm plugin from the registry. The IDE Language Server (LSP) runs this resolved Wasm plugin in the background, extracting its native JSON schema to provide real-time autocomplete and linting directly to the developer.
 
-Mental model: `spec.target` names the output format you want (e.g. `helm`, `terraform`, `compose`); the compiler resolves it to the Wasm plugin that renders that format (e.g. `helm-renderer`). You declare the format; Aggrega binds the tool.
+Mental model: `spec.capability` names the output format you want (e.g. `helm`, `terraform`, `compose`); the compiler resolves it to the Wasm plugin that renders that format (e.g. `helm-renderer`). You declare the format; Aggrega binds the tool.
 
 ### B. Context Injection: The Semantic Mapping Layer
 
@@ -114,7 +114,7 @@ metadata:
   name: mariadb-chart
   version: 1.0.0
 spec:
-  target: helm
+  capability: helm
   implements: core/datastore/mariadb:1.0.0
   source:
     # The shipped fetch form: { kind, url, version }. 'kind' selects a built-in
@@ -160,7 +160,7 @@ metadata:
   name: aws-s3-tf
   version: 1.0.0
 spec:
-  target: terraform
+  capability: terraform
   implements: aws/s3-bucket:1.0.0
   source: "./src"
   
@@ -185,7 +185,7 @@ metadata:
   name: kong-gateway
   version: 1.0.0
 spec:
-  target: helm
+  capability: helm
   implements: core/gateway/ai-gateway:1.0.0
   source:
     # Planned: provider-declared source keys, validated by the provider's Wasm plugin.
@@ -243,7 +243,7 @@ The field accepts two content-shape-dispatched authoring modes:
 
 ```yaml
 spec:
-  target: helm
+  capability: helm
   implements: core/web-server:1.0.0
   workload: |
     apiVersion: aggrega.ai/v1alpha1
@@ -277,7 +277,7 @@ Map keys become output filenames verbatim; each entry's value carries one of two
 
 ```yaml
 spec:
-  target: helm
+  capability: helm
   implements: core/web-server:1.0.0
   artifacts:
     extra-configmap.yaml: |
@@ -301,7 +301,7 @@ Each artifact entry's template evaluates with the same template context as `valu
 
 ```yaml
 spec:
-  target: helm
+  capability: helm
   implements: core/postgres-db:1.0.0
   locals:
     primary_compute: postgresql
@@ -324,7 +324,7 @@ For the public-API counterpart, see [The `provides:` block](#the-provides-block)
 
 ```yaml
 spec:
-  target: helm
+  capability: helm
   implements: core/postgres-db:1.0.0
   provides:
     host: "{{ .context.instance_id }}-postgresql.{{ .context.annotations.release.\"aggrega.ai/namespace\" }}.svc.cluster.local"
@@ -342,7 +342,7 @@ Each entry's template evaluates with the per-instance template context (`.contex
 
 ```yaml
 spec:
-  target: helm
+  capability: helm
   implements: core/web-server:1.0.0
   source: { registry: "...", chart: "..." }
   pipeline:

@@ -6,7 +6,12 @@ This page covers the `Plugin` catalog authoring surface field by field. For the 
 
 ## The Plugin's role
 
-A `Plugin` ties a logical plugin identity to a concrete `.wasm` artifact and to the capability and runtime metadata the host needs to load and run it safely. A pipeline step or a plugin socket references the entity by its URI; the entity carries the digest pin, the declared capabilities, the runtime limits, and the signature. The indirection through the entity is mandatory — a bare `.wasm` or artifact reference left in a `plugin` field is rejected at load because no entity matches it.
+A `Plugin` ties a logical plugin identity to a concrete `.wasm` artifact and to the capability and runtime metadata the host needs to load and run it safely. A pipeline step or a plugin socket references the entity by its URI; the entity carries the declared capabilities, the runtime limits, and the signature pointer, while the resolved content digest lives in the release lockfile. The `.wasm` location is derived from the plugin's identity — `metadata.name` (the `<socket>/<name>` path) plus the configured registry — and is not an authored field. The indirection through the entity is mandatory — a bare `.wasm` or artifact reference is rejected at load because no entity matches it.
+
+A Plugin declares two distinct render surfaces, and keeping them apart is the key to reading the entity:
+
+- **`spec.capabilities`** — a top-level served-list naming the capabilities this plugin serves. A *capability* is the render dimension a consumer requests — a provider engine kind such as `helm` or `compose`. It is monomorphic: every entry means the same thing, discriminated only by `spec.pluginType`. A Recipe or FeatureRecipe requests one capability (`spec.capability`); the plugin whose `spec.capabilities` list includes that name serves it.
+- **`spec.provider.contract`** — a per-type render-behavior contract (input kinds, boundary assembly, artifact delimiters, source filter, instance reuse). Unlike a capability, the contract is polymorphic render *behavior*, not a served dimension, so it sits under `spec.provider` beside the other provider-socket metadata.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -15,10 +20,9 @@ metadata:
   name: secret-providers/aws-secrets-manager
   version: 1.2.0
 spec:
-  plugin: "oci://hub.aggrega.ai/plugin/secret-providers/aws-secrets-manager"
   pluginType: frp_step
   abiVersion: v1alpha1
-  targets:
+  capabilities:
     - helm
     - compose
   signature:
@@ -38,10 +42,6 @@ spec:
 
 Standard catalog metadata. `name` and `version` are required; `version` is a strict Semantic Version (e.g. `1.2.0`). The optional fields — `description`, `maintainers`, `license`, `repository`, `home`, `keywords`, `deprecated` — follow the same shape every catalog entity carries. A published version is immutable: re-publishing an existing version is rejected at the publish gate.
 
-## `spec.plugin`
-
-The reference to the `.wasm` artifact, in the digest-free form `oci://<repository>`. This is the plugin's identity; its version is `metadata.version`. The reference carries no digest — the plugin's content digest is recorded in the release lockfile (where dependency resolution pins it and the build verifies the fetched bytes against it), the same way every other entity records its verified bytes in the lockfile rather than embedding a hash in the entity. Identity lives here; the verified bytes live in the lockfile. Required.
-
 ## `spec.pluginType`
 
 The socket type this plugin implements. A plugin implements exactly one socket type, drawn from the plugin-type taxonomy the runtime recognises:
@@ -52,7 +52,7 @@ The socket type this plugin implements. A plugin implements exactly one socket t
 - `mutator` — auto-tags topology-graph node labels at Step 2, returning JSON Patch documents the host applies to a labels-only projection of the graph.
 - `policy-validator` — evaluates the full IR graph at Step 4 and returns one pass/fail verdict per rule; a failed rule halts the build.
 - `cli` — contributes a runtime `aggrega <cmd>` subcommand an operator invokes at the command line. A runtime socket, distinct from the compile-time render and pipeline sockets.
-- `search` — answers a ranked full-text query over an indexed content set. A cross-cutting runtime socket that leaves `targets` empty.
+- `search` — answers a ranked full-text query over an indexed content set. A cross-cutting runtime socket that leaves `capabilities` empty.
 
 Required.
 
@@ -60,13 +60,13 @@ Required.
 
 The host/guest ABI version the plugin targets. `v1alpha1` is the only accepted value; a future ABI revision adds an accepted value. Required.
 
-## `spec.targets`
+## `spec.capabilities`
 
-A single top-level field declaring what this plugin *applies to*, as target names such as `helm` or `compose`; entries preserve author order. Its meaning is discriminated by `spec.pluginType`: for a `provider` plugin it names the render targets (formats) the plugin renders; for an `frp_step` plugin it names the provider scopes the step operates against; a cross-cutting socket leaves it empty. The meaning stays uniform — "what this plugin applies to" — and does not drift to unrelated per-socket semantics.
+A single top-level field declaring the capabilities this plugin *serves*, as capability names such as `helm` or `compose`; entries preserve author order. A capability is the render dimension a consumer requests. Its meaning is discriminated by `spec.pluginType`: for a `provider` plugin it names the render-engine capabilities (the provider engine kinds whose output shape the plugin renders); for an `frp_step` plugin it names the provider capabilities the step is compatible with; a cross-cutting socket (`linter`, `mutator`, `policy-validator`, `search`) leaves it empty. The meaning stays uniform — "what this plugin serves" — and does not drift to unrelated per-socket semantics.
 
-For an `frp_step` plugin the list is render-enforced. When a pipeline step touches a scope, the provider rendering that scope's documents must appear in this list, or the build halts. An empty or absent list matches no provider, so the runtime halts any pipeline step that uses the plugin. Declare every provider whose output the plugin is tested against.
+For an `frp_step` plugin the list is render-enforced. When a pipeline step touches a scope, the provider rendering that scope's documents must appear in this list, or the build halts. An empty or absent list matches nothing, so the runtime halts any pipeline step that uses the plugin. Declare every provider whose output the plugin is tested against.
 
-For a `pluginType: provider` plugin, `targets` declares the render target(s) the plugin *renders*. The target a Recipe selects (`spec.target: helm`) binds to the provider-rendering Plugin whose `targets` lists that name. When more than one Plugin serves the same target, the workspace chooses: a provider binding in `.aggrega-config.yaml` (resolved at `aggrega pull` and recorded in the lockfile) selects one; with no binding and exactly one candidate, that candidate is used; with no binding and more than one candidate, the build halts loudly naming every candidate. Ambiguity is resolved per workspace at the point of use, not by a catalog-wide uniqueness rule.
+For a `pluginType: provider` plugin, `capabilities` declares the render capability(-ies) the plugin *serves*. The capability a Recipe requests (`spec.capability: helm`) binds to the provider-rendering Plugin whose `capabilities` list includes that name. When more than one Plugin serves the same capability, the workspace chooses: a provider binding in `.aggrega-config.yaml` (resolved at `aggrega pull` and recorded in the lockfile) selects one; with no binding and exactly one candidate, that candidate is used; with no binding and more than one candidate, the build halts loudly naming every candidate. Ambiguity is resolved per workspace at the point of use, not by a catalog-wide uniqueness rule.
 
 ## `spec.provider`
 
@@ -86,10 +86,9 @@ The field is documentation-of-contract: it describes which platform directives t
 
 ```yaml
 spec:
-  plugin: "oci://hub.aggrega.ai/plugin/<socket>/helm-renderer"
   pluginType: provider
   abiVersion: v1alpha1
-  targets:
+  capabilities:
     - helm
   provider:
     workloadSchema: |
@@ -103,6 +102,36 @@ spec:
 
 The per-provider annotation sets and `workloadSchema` content the standard-library providers ship are documented at [`../providers/well-known-annotations.md`](../providers/well-known-annotations.md), [`../providers/helm.md`](../providers/helm.md), [`../providers/helm-chart.md`](../providers/helm-chart.md), and [`../providers/compose.md`](../providers/compose.md).
 
+### `spec.provider.contract`
+
+A provider-rendering plugin's self-declared compile-time render-behavior contract: the input kinds it renders, how it assembles a dispatch group's per-node output, the template-delimiter pair it applies to imported artifact files, any restriction on which source files it consumes, and whether one loaded instance may serve every crossing. Unlike a served `capability` (a render dimension), the contract is per-type render *behavior*, so it lives here under `spec.provider`. It is authored as the claim the host cross-checks against the plugin's own `describe()` self-report at publish and at load; a disagreement halts. Absent declares no render-behavior contract, and the cross-check compares only the per-export claims. All fields are optional.
+
+| Field | Effect |
+| --- | --- |
+| `inputKinds` | Which of the three Recipe input kinds the plugin renders, each an independent boolean claim: `sourced` (a sourced file set — a chart, a module, a compose file), `synthesized` (a synthesized Workload), and `artifactsStandalone` (a standalone node carrying imported artifact documents and no source or workload). The host gates a node's input kind against this set. |
+| `boundaryAssembly` | How the plugin combines a dispatch group's per-node render output: `none` writes each node's output directly at the dispatch path; `merge` folds the per-node fragments into one document; `nest` places each node's output under its own position in an umbrella structure. Absent carries no assembly claim. |
+| `artifactDelimiters` | The Go-template delimiter pair the plugin applies to imported artifact files, as `left` and `right`. Absent means the default `{{`/`}}` pair; a plugin whose target syntax collides with that pair declares an alternate pair (for example `[[`/`]]`). |
+| `sourceFilter` | The source-file paths the plugin consumes when a node supplies a file set, in author order. Absent means the plugin consumes every file in the set. |
+| `reusableInstance` | Whether one loaded plugin instance may serve every render, assemble, and validate crossing of a build rather than a fresh instance per crossing. Declared `true` only when the plugin holds no state across crossings, so a single instance produces byte-identical output whether reused or freshly loaded. Absent (`false`) loads a fresh instance per crossing, isolating a plugin that carries state by construction. `aggrega build --verify-determinism` proves a reusable plugin's output is stable by rendering each node twice and halting on any difference. |
+
+```yaml
+spec:
+  pluginType: provider
+  capabilities:
+    - helm-chart
+  provider:
+    contract:
+      inputKinds:
+        sourced: true
+        synthesized: false
+        artifactsStandalone: false
+      boundaryAssembly: nest
+      artifactDelimiters:
+        left: "[["
+        right: "]]"
+      reusableInstance: true
+```
+
 ## `spec.search`
 
 The search-socket metadata for a `pluginType: search` plugin: the index format and format version the plugin's `describe()` self-report stamps, and the ranked-query capabilities it advertises. The block is the publish-time record of the guest's `describe()` self-report — it documents which index the guest is built against and the ranked-query capabilities it advertises, for catalog readers and the inspect surface. The host records the block and does not interpret the index; it routes the query to the guest and leaves ranking to it. The block is present only on search plugins; it is absent on every other plugin type. All fields are optional.
@@ -115,7 +144,6 @@ The search-socket metadata for a `pluginType: search` plugin: the index format a
 
 ```yaml
 spec:
-  plugin: "oci://hub.aggrega.ai/plugin/search/docs-search"
   pluginType: search
   abiVersion: v1alpha1
   search:
@@ -159,38 +187,9 @@ The exports the plugin offers, each with its declared capability, as an ordered 
 | `scope` | The document root the export operates on: `own` (the node's own rendered documents) or `host` (the documents of the component a component-scope FeatureRecipe is attached to). The host reads the declared scope ahead of the step to enforce provider compatibility against the provider rendering that scope. Absent defaults to `own`. |
 | `selector` | A free-form, human-readable description of what the export acts on (for example `workloads carrying a pod template`). Documentation for catalog readers and the inspect surface; the compiler does not interpret it. |
 
-## `spec.capabilities`
-
-A provider-rendering plugin's self-declared compile-time render behaviors, authored as the claim the host cross-checks against the plugin's own `describe()` self-report at publish and at load. The block mirrors the capabilities the guest reports; a disagreement halts. Absent declares no plugin-level capability claim, and the cross-check compares only the per-export claims. All fields are optional.
-
-| Field | Effect |
-| --- | --- |
-| `inputKinds` | Which of the three Recipe input kinds the plugin renders, each an independent boolean claim: `sourced` (a sourced file set — a chart, a module, a compose file), `synthesized` (a synthesized Workload), and `artifactsStandalone` (a standalone node carrying imported artifact documents and no source or workload). The host gates a node's input kind against this set. |
-| `boundaryAssembly` | How the plugin combines a dispatch group's per-node render output: `none` writes each node's output directly at the dispatch path; `merge` folds the per-node fragments into one document; `nest` places each node's output under its own position in an umbrella structure. Absent carries no assembly claim. |
-| `artifactDelimiters` | The Go-template delimiter pair the plugin applies to imported artifact files, as `left` and `right`. Absent means the default `{{`/`}}` pair; a plugin whose target syntax collides with that pair declares an alternate pair (for example `[[`/`]]`). |
-| `sourceFilter` | The source-file paths the plugin consumes when a node supplies a file set, in author order. Absent means the plugin consumes every file in the set. |
-| `reusableInstance` | Whether one loaded plugin instance may serve every render, assemble, and validate crossing of a build rather than a fresh instance per crossing. Declared `true` only when the plugin holds no state across crossings, so a single instance produces byte-identical output whether reused or freshly loaded. Absent (`false`) loads a fresh instance per crossing, isolating a plugin that carries state by construction. `aggrega build --verify-determinism` proves a reusable plugin's output is stable by rendering each node twice and halting on any difference. |
-
-```yaml
-spec:
-  pluginType: provider
-  targets:
-    - helm-chart
-  capabilities:
-    inputKinds:
-      sourced: true
-      synthesized: false
-      artifactsStandalone: false
-    boundaryAssembly: nest
-    artifactDelimiters:
-      left: "[["
-      right: "]]"
-    reusableInstance: true
-```
-
 ## Inspecting a Plugin
 
-`aggrega inspect <path-to-Plugin.yaml>` renders a `Plugin` file: its identity and socket types, its `targets`, the per-export capability table in author order, the runtime constraints, and — at `--detail` — the signature pointer and the runtime config keys. A `Plugin` is inspectable by file path; the bare-name catalog lookup resolves Components only. See [`../cli/aggrega-inspect.md`](../cli/aggrega-inspect.md).
+`aggrega inspect <path-to-Plugin.yaml>` renders a `Plugin` file: its identity and socket types, its `capabilities`, the per-export capability table in author order, the runtime constraints, and — at `--detail` — the signature pointer and the runtime config keys. A `Plugin` is inspectable by file path; the bare-name catalog lookup resolves Components only. See [`../cli/aggrega-inspect.md`](../cli/aggrega-inspect.md).
 
 ## Cross-references
 
