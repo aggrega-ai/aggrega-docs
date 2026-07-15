@@ -18,4 +18,5 @@ aggrega plugin
 | `aggrega plugin install` | Install a CLI plugin as a top-level aggrega command |
 | `aggrega plugin list` | List the embedded built-in and workspace-configured plugins with their describe() metadata |
 | `aggrega plugin search` | Search the registry for installable CLI plugins |
+| `aggrega plugin stamp` | Record a plugin's machine-owned records (host functions, CLI commands) into its entity file |
 <!-- END GENERATED: cli-plugin -->
