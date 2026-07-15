@@ -18,7 +18,7 @@ The server exposes three surfaces to the connected assistant:
 
 - **Prompts** — one authoring persona per role (developer, architect, operations) plus a focused per-entity template. Each prompt frames the role and points the assistant at the right schema, reference page, and authoring guide, so its suggestions stay inside the pillars that role owns.
 - **Resources** — read-only reference material served inline: `schema://<kind>` for an entity's JSON Schema, `langref://<path>` for any language-reference page, and `authoring://<topic>` for the authoring guide.
-- **Tools** — actions against your workspace: `scaffold` a schema-correct skeleton, `validate` a draft, `describe` a catalog entity, `get-schema` for a kind, and `search` across catalog content.
+- **Tools** — actions against your workspace: `scaffold` a schema-correct skeleton, `validate` a draft, `describe` a catalog entity, and `get-schema` for a kind.
 
 Everything the server reads is served offline — the JSON Schemas are built into the binary and the documentation is read from the local documentation-bundle cache. The server does not reach the network to author.
 

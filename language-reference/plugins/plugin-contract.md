@@ -156,19 +156,6 @@ Recipe `artifacts:` fold into `render_node` through an artifacts projection on t
 
 The host consumes a guest's output bytes verbatim, so a guest must produce identical output from identical input. By default a guest is loaded fresh per node — zero state carried across nodes by construction. A guest that self-declares `reusable_instance` is instead loaded once per build and its single instance serves every crossing, which recovers the dominant per-node instantiation cost. Because reuse is safe only for a stateless guest, `aggrega build --verify-determinism` renders each node twice through the same instance and halts the build if any node's two renders differ; the default build renders once and trusts the declaration. The Wasm compilation cache is disk-backed and process-wide, so a guest compiles once and warm builds skip recompilation.
 
-### Search — the cross-cutting query socket
-
-A search plugin (`pluginType: search`) answers a ranked full-text query over an indexed content set. It is a cross-cutting socket: it renders nothing and belongs to no provider, so its `targets` is empty. The plugin owns the index and the ranking; the host routes a query to it and carries the results back without interpreting them.
-
-The socket carries one mandatory export, `search`, and two wire shapes:
-
-- `SearchInput` — the query the host hands the guest: a `query` string, an optional `limit` capping how many results to return, and an optional `filters` map that narrows the search by field. The guest owns the query grammar and the filter vocabulary; the host carries both verbatim.
-- `SearchOutput` — the ranked results the guest returns, in descending relevance order. Each result carries the matched document's `doc_id`, a `title`, an optional in-document `anchor`, an optional `snippet` of matching context, and a `score` the guest assigned. The host preserves the order the guest returns, so identical input yields identical results in identical order.
-
-Like a provider guest, a search guest reports itself through `describe()`; the plugin's [`spec.search`](../entities/plugin.md#specsearch) block records that self-report at publish — the index format and version the guest reads and the ranked-query capabilities it advertises. The host records the block and routes queries to the guest without interpreting the index.
-
-**Status today:** the wire contract is defined — `SearchInput` and `SearchOutput` are typed and carry a byte-identical codec across the Go, Rust, and TypeScript plugin ABIs — a search plugin passes the load-time descriptor check, and the host dispatches a query to a search guest through the socket runner under the capability-denied sandbox. A dedicated user-facing search command is not part of the socket contract.
-
 ### `linter.wasm` (publishing-linter)
 
 The `linter.wasm` socket ships as the standard **publishing-linter**, an out-of-band gate that runs through `aggrega lint` rather than at compile time. It consumes a catalog entity (and, in `--pre-publish` mode, the entity's currently-published version) and returns a list of findings, each with a severity and a message; in `--pre-publish` mode it also returns a version-bump classification. The host dispatches it through the embedded Wasm runtime, behind the same AOT-purity firewall as every other socket. The full rule set, severities, and per-rule opt-outs are documented at [`cli/aggrega-lint.md`](../cli/aggrega-lint.md).

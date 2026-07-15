@@ -52,7 +52,6 @@ The socket type this plugin implements. A plugin implements exactly one socket t
 - `mutator` — auto-tags topology-graph node labels at Step 2, returning JSON Patch documents the host applies to a labels-only projection of the graph.
 - `policy-validator` — evaluates the full IR graph at Step 4 and returns one pass/fail verdict per rule; a failed rule halts the build.
 - `cli` — contributes a runtime `aggrega <cmd>` subcommand an operator invokes at the command line. A runtime socket, distinct from the compile-time render and pipeline sockets.
-- `search` — answers a ranked full-text query over an indexed content set. A cross-cutting runtime socket that leaves `capabilities` empty.
 
 Required.
 
@@ -62,7 +61,7 @@ The host/guest ABI version the plugin targets. `v1alpha1` is the only accepted v
 
 ## `spec.capabilities`
 
-A single top-level field declaring the capabilities this plugin *serves*, as capability names such as `helm` or `compose`; entries preserve author order. A capability is the render dimension a consumer requests. Its meaning is discriminated by `spec.pluginType`: for a `provider` plugin it names the render-engine capabilities (the provider engine kinds whose output shape the plugin renders); for an `frp_step` plugin it names the provider capabilities the step is compatible with; a cross-cutting socket (`linter`, `mutator`, `policy-validator`, `search`) leaves it empty. The meaning stays uniform — "what this plugin serves" — and does not drift to unrelated per-socket semantics.
+A single top-level field declaring the capabilities this plugin *serves*, as capability names such as `helm` or `compose`; entries preserve author order. A capability is the render dimension a consumer requests. Its meaning is discriminated by `spec.pluginType`: for a `provider` plugin it names the render-engine capabilities (the provider engine kinds whose output shape the plugin renders); for an `frp_step` plugin it names the provider capabilities the step is compatible with; a cross-cutting socket (`linter`, `mutator`, `policy-validator`) leaves it empty. The meaning stays uniform — "what this plugin serves" — and does not drift to unrelated per-socket semantics.
 
 For an `frp_step` plugin the list is render-enforced. When a pipeline step touches a scope, the provider rendering that scope's documents must appear in this list, or the build halts. An empty or absent list matches nothing, so the runtime halts any pipeline step that uses the plugin. Declare every provider whose output the plugin is tested against.
 
@@ -130,31 +129,6 @@ spec:
         left: "[["
         right: "]]"
       reusableInstance: true
-```
-
-## `spec.search`
-
-The search-socket metadata for a `pluginType: search` plugin: the index format and format version the plugin's `describe()` self-report stamps, and the ranked-query capabilities it advertises. The block is the publish-time record of the guest's `describe()` self-report — it documents which index the guest is built against and the ranked-query capabilities it advertises, for catalog readers and the inspect surface. The host records the block and does not interpret the index; it routes the query to the guest and leaves ranking to it. The block is present only on search plugins; it is absent on every other plugin type. All fields are optional.
-
-| Field | Effect |
-| --- | --- |
-| `indexFormat` | The index format the plugin reports it reads, a free-form identifier the host records and does not interpret. It documents which index shape the plugin is built against, for catalog readers and the inspect surface; the compiler routes the query and does not parse the index itself. |
-| `indexVersion` | The index format version the plugin reports, paired with `indexFormat` to pin the exact index contract the plugin reads. Absent carries no version claim. |
-| `capabilities` | The ranked-query capabilities the plugin advertises through its self-report — for example phrase matching, fuzzy matching, or field filtering — as free-form capability identifiers the host records for catalog readers and the inspect surface. Entries preserve author order. The compiler does not act on the values; the plugin realizes whichever capabilities it advertises. |
-
-```yaml
-spec:
-  pluginType: search
-  abiVersion: v1alpha1
-  search:
-    indexFormat: docs-corpus
-    indexVersion: "1"
-    capabilities:
-      - phrase
-      - fuzzy
-      - filter
-  exports:
-    - name: search
 ```
 
 ## `spec.signature`

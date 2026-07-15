@@ -26,7 +26,6 @@ This section documents the JSON Schemas that define every Aggrega entity, plugin
 - [wasm-mutator](plugins/wasm-mutator.md)
 - [wasm-policy-validator](plugins/wasm-policy-validator.md)
 - [wasm-provider](plugins/wasm-provider.md)
-- [wasm-search](plugins/wasm-search.md)
 
 ## Other & workspace schemas
 
