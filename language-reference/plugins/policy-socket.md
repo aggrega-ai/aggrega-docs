@@ -200,12 +200,13 @@ ABI outward and absorbs a target-specific format or a foreign policy engine's
 contract inward, so the compiler stays free of any output-format or policy logic.
 Two reference render-stage adapters ship, one per common output shape.
 
-### YAML/JSON output — the embedded-Rego render adapter
+### YAML, JSON, and Terraform HCL output — the embedded-Rego render adapter
 
 The embedded-Rego render adapter runs operator-supplied Rego over any YAML or
-JSON render output. It is the render-stage sibling of the embedded Regorus-backed
-`ir`-stage guest: the same Wasm-native Rego evaluator, the same `deny` / `warn` /
-`audit` collection convention, moved to the render stage.
+JSON render output, and over Terraform's native-HCL output. It is the
+render-stage sibling of the embedded Regorus-backed `ir`-stage guest: the same
+Wasm-native Rego evaluator, the same `deny` / `warn` / `audit` collection
+convention, moved to the render stage.
 
 It is **output-shape independent** across YAML/JSON targets. The adapter parses
 each artifact's content as one or more YAML or JSON documents — YAML is a
@@ -218,6 +219,20 @@ parsed documents (a Docker Compose file's `services`, a CloudFormation template'
 attachment's `settings` object is the Rego `data` document. A require-approved-
 registry policy over Docker Compose output, for instance, denies any service
 whose image carries no registry prefix.
+
+The adapter also reasons over Terraform's **native-HCL** render output. A native
+`.tf` file is neither YAML nor JSON, so the adapter projects it into the same
+canonical object a Terraform-JSON (`.tf.json`) file already parses to: a policy
+reads a resource attribute at
+`input.artifacts[_].documents[_].resource.<type>.<name>.<attr>` — for an RDS
+instance, `input.artifacts[_].documents[_].resource.aws_db_instance[_].allocated_storage`
+— the same way whichever Terraform form the compiler emitted. Attribute types are
+preserved (a number stays a number, a boolean a boolean), and an unresolved
+Terraform expression stays a string in its `${ ... }` form. Terraform-JSON bodies
+(`.tf.json`, `.auto.tfvars.json`) parse through the YAML/JSON path unchanged, and
+a Terraform template file (`.tftpl`) — template text rather than standalone
+configuration — is not projected and surfaces `parse_error` like any
+non-structured content.
 
 When an artifact's content does not parse, the adapter does not silently allow it:
 it keeps the raw content, exposes no parsed documents for that artifact, and
@@ -244,9 +259,9 @@ carry a label key named by `settings` — a common Kubewarden pattern.
 
 - **Render stage, one output shape per adapter.** A render-stage adapter reasons
   over rendered artifacts, not the IR graph, and targets the output shape it
-  parses — YAML/JSON for the embedded-Rego adapter, Kubernetes objects for the
-  Kubewarden adapter. A graph-stage policy, or a policy over an output shape no
-  shipped adapter parses, is a different guest.
+  parses — YAML/JSON and Terraform native HCL for the embedded-Rego adapter,
+  Kubernetes objects for the Kubewarden adapter. A graph-stage policy, or a
+  policy over an output shape no shipped adapter parses, is a different guest.
 - **Validating only.** A render-stage adapter accepts or rejects; it never
   returns a mutated object. A mutating policy's mutated object is ignored — the
   compiler never rewrites rendered output from a policy verdict. A policy decides;
