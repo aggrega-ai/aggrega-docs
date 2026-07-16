@@ -8,9 +8,13 @@ Use `<path>` as the workspace root, skipping discovery. When omitted, `aggrega` 
 
 `AGGREGA_WORKSPACE_ROOT` is the environment counterpart: when `--workspace-root` is not given, the variable supplies the root. The flag wins when set.
 
-## `AGGREGA_CONFIG`
+## Global config file
 
-Points at an explicit global `.aggrega-config.yaml` to load beneath the workspace cascade. Unlike the `AGGREGA_*` setting variables, it selects which config file applies rather than overriding a single setting.
+A global config file loads beneath the workspace cascade — the home for machine-wide "declare once, use in every workspace" settings such as registries. It loads automatically from the XDG default location, `$XDG_CONFIG_HOME/aggrega/config.yaml` (falling back to `~/.config/aggrega/config.yaml`), when present.
+
+`AGGREGA_CONFIG` overrides that path: set it to point at an explicit global `.aggrega-config.yaml` instead of the XDG default. Unlike the `AGGREGA_*` setting variables, it selects which config file applies rather than overriding a single setting; a path it names that does not exist is a loud error.
+
+Config-mutating commands choose where they write from the nature of the setting: machine-wide tool config (a registry) defaults to the global file, while build-participating config (a provider binding or a mutator/policy/linter/importer socket attachment) defaults to the committed workspace file. Pass `--global` or `--workspace` to override, and the command prints where it wrote.
 
 ## Configuration precedence
 

@@ -30,6 +30,7 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 | `aggrega build` | Compile Aggregate + Release into Helm artifacts via the 5-step pipeline |
 | `aggrega cache` | Inspect and maintain the on-disk caches |
 | `aggrega catalog` | Work with the catalog registry |
+| `aggrega config` | Inspect and manage the workspace configuration |
 | `aggrega deprecate` | Attach a signed deprecation marker to an already-published artifact |
 | `aggrega get-schema` | Print the JSON Schema for an entity or contract kind |
 | `aggrega inspect` | Inspect a catalog Component or a Release file (resolves by entity kind) |
