@@ -54,7 +54,7 @@ Recipe-level paths are authoring-time declarations one step removed: the Recipe 
 
 Synthesis transforms author-declared shapes into provider-specific output formats. A Workload spec authored as a map of containers may render as a Kubernetes Pod spec, a Compose service block, or a Terraform module — the transformation is provider-driven, but the resources trace back to the author's Workload declaration.
 
-Wasm policy sockets may reject a build. They may not silently mutate it into compliance. If a policy wants to add a resource, it must fail the build with a remediation pointer so the author adds the resource themselves.
+A verdict-only Wasm policy socket may reject a build; it may not silently mutate it into compliance. If such a policy wants a resource added, it fails the build with a remediation pointer so the author adds the resource themselves — an uninvited rewrite of the graph into compliance is exactly the ghost infrastructure this invariant forbids. A mutator socket is the narrow, explicit exception: an operator who attaches one — opt-in, through the workspace `plugins.mutator` configuration — has declared that transformation, so the changes it makes are explicit declaration, the same standing annotation-driven expansion has, not silent injection. The distinction is invitation: an unrequested policy may not rewrite the build, while an explicitly-attached mutator may, because the operator asked for it. The mutator socket's type contract ships; its runtime dispatch is not yet wired, so no mutator transforms a build today.
 
 ## 5. The Aggregate is the authoring surface; Release cannot declare `values:`
 
