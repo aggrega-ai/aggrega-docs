@@ -357,6 +357,8 @@ Recipes utilize the `implements` keyword to bind to the interface they fulfill. 
 
 When an Ops engineer runs `aggrega push`, the CLI bundles the entity YAML and its associated source files into an immutable `.tar.gz` package. The compiler downloads this tarball via the Three-Tier Resolution Model, extracts it, and caches it in `.aggrega/cache/` locally.
 
+**Searchable manifest annotations.** Every publish stamps a small set of searchable annotations onto the artifact's OCI manifest so a registry index or a catalog browser can filter artifacts by their catalog metadata without fetching and parsing each entity body. Every entity carries its human-readable description (the standard OCI description annotation) plus its catalog category and kind. A Plugin additionally carries its socket type and the capabilities it serves. These annotations are what `aggrega registry update` reads back into the local searchable index (§8).
+
 ### 7. The Recipe Architecture: Pointers and Mappers
 
 See [entities/recipe](../language-reference/entities/recipe.md) for the complete Recipe authoring surface — `source:` (pointer), `valuesMapping:` (mapper, with three authoring modes: inline block scalar, file `$import:`, library `$import:` to a MappingLibrary entry), Wasm-driven source schemas, native IaC support, and worked examples.
@@ -366,6 +368,23 @@ See [entities/recipe](../language-reference/entities/recipe.md) for the complete
 To eliminate YAML bloat, the compiler resolves shorthand URIs context-aware against the schema position in which they appear. The default registry is configured in `.aggrega-config.yaml` (defaulting to `hub.aggrega.ai`).
 
 Shorthand URIs resolve context-aware against the Manifest; see [`../language-reference/entities/manifest.md`](../language-reference/entities/manifest.md) §Context-Aware Shorthand URIs for the specific inference rules.
+
+#### Managing registries
+
+`aggrega registry` manages the registries the workspace knows and their signature trust policy. A registry's identity is its host; the subcommands share one addressing model:
+
+* `aggrega registry add <host>` registers a registry and pins its trust policy, fetching the registry's advertised policy on first contact unless trust flags supply one by hand. An optional `--name <alias>` attaches a friendly alias to the same host-keyed entry — the host stays the identity, and the alias resolves to it wherever a registry is named. An alias is unique across registries.
+* `aggrega registry list` prints every configured registry — host, alias, a short trust-posture summary, and a marker on the default — in ascending host order. It reads the resolved configuration and contacts no network.
+* `aggrega registry remove <name|host>` drops a registry's trust-policy entry, addressed by its host or its alias. It removes the trust policy only: the `default_registry` pointer is left untouched and the ability to push to that host is unaffected, so the host reverts to default trust rather than becoming unreachable.
+* `aggrega registry update` refreshes the local searchable index, described below.
+
+Wherever a registry is named — a `registry` subcommand argument or the `--registry` flag on `aggrega push` and `aggrega push-artifact` — the same resolver interprets the token: a configured alias resolves to its host, and any other token is treated as a host and passed through. An unregistered host is a legitimate destination and is accepted as-is.
+
+#### The local searchable index
+
+`aggrega registry update [<name|host>]` builds a local searchable index of the registries the workspace knows. It walks each configured registry's repositories, selects the highest released version of each, reads that version's searchable manifest annotations (§6), and writes a per-registry index to the artifact cache. With no argument it indexes every configured registry; with a single registry argument (a host or an alias) it indexes only that one.
+
+The index follows the explicit-refresh model familiar from package managers: `registry update` is the command that contacts the registries, and a later search reads the written index offline. A registry's records file is deterministic — two updates against the same registry state produce byte-identical bytes, and the freshness timestamp lives in a sibling file so it never perturbs the records. A repository with no released version, or one that cannot be read, is skipped so a single unreadable repository never abandons the whole index.
 
 ### 9. Lockfile pinning and artifact immutability
 

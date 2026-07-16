@@ -14,6 +14,7 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 - [`aggrega push`](cli/aggrega-push.md) — publish a catalog entity (Component, Feature, Recipe, FeatureRecipe, Plugin, SchemaLibrary, MappingLibrary) to an OCI registry, optionally signing it at push time.
 - [`aggrega sign`](cli/aggrega-sign.md) — sign one or more already-published artifacts and attach each signature as an OCI referrer.
 - [`aggrega auth token`](cli/aggrega-auth.md) — acquire an OIDC identity token interactively and print it to stdout, for one authentication across a batch of keyless signs.
+- [`aggrega registry`](cli/aggrega-registry.md) — manage the registries the workspace knows and their signature trust policy: add, list, and remove entries, and build a local searchable index of published catalog metadata with `registry update`.
 - [`aggrega validate`](cli/aggrega-validate.md) — check correctness (schema, pillars, reference resolution, `extends`, input-kind capability, isolated render) across the whole catalog, a Release's dependency closure (`--release`), or one entity.
 - [`aggrega lint`](cli/aggrega-lint.md) — check publishing conventions across the whole catalog, a Release's dependency closure (`--release`), or one entity; `--pre-publish` adds the registry-aware version-bump gate.
 - [`aggrega serve`](cli/aggrega-serve.md) — a long-running compiler-as-service daemon (JSON-RPC over stdin/stdout) for IDE integration.
