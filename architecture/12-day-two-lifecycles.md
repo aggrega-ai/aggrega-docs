@@ -98,14 +98,14 @@ Aggrega solves this by preserving strict AOT purity. It generates configurations
 **The Solution:**
 A pure AOT compiler cannot ping Active Directory or fetch cloud credentials to figure out who is running the build. To prevent unauthorized generation before CI/CD ever runs, the architecture relies on explicit context injection.
 
-When `aggrega build` is invoked by a CI/CD runner, the pipeline explicitly passes the execution context (e.g., `--context approval=standard`) to the CLI. The enterprise's custom `policy-validator.wasm` plugin evaluates this injected context against the enterprise's `Workspace` rules and the `Release` mapping (e.g., returning a failure array if `context.approval !== "platform-approved" && release.environment === "production-aws"`). This isolates RBAC from the compiler's native logic, ensuring the compiler acts purely as a deterministic evaluator of the provided data.
+When `aggrega build` is invoked by a CI/CD runner, the pipeline explicitly passes the execution context (e.g., `--context approval=standard`) to the CLI. The enterprise's custom `policy.wasm` plugin evaluates this injected context against the enterprise's `Workspace` rules and the `Release` mapping (e.g., returning a failure array if `context.approval !== "platform-approved" && release.environment === "production-aws"`). This isolates RBAC from the compiler's native logic, ensuring the compiler acts purely as a deterministic evaluator of the provided data.
 
 ### 5. Shift-Left FinOps (Cost Estimation via Policies)
 
 **The Problem:** Accidental misconfigurations (e.g., requesting `workers: 500`) can bypass financial safeguards and trigger massive cloud overruns.
 
 **The Solution (Enterprise Wasm Policies):**
-Because the IR Graph contains the complete topology and the `Release` contains the physical mapping (`.infra`), enterprises can evaluate exact deployment costs prior to generation without needing a hardcoded compiler feature. Enterprises simply author a custom FinOps WebAssembly plugin and slot it into their `policy-validator.wasm` or `linter.wasm` CI/CD gates. This custom plugin can read the `.infra` payloads, calculate the estimated monthly cost, and return a fatal failure to the compiler if the calculated cost exceeds the enterprise's internally defined budget limits.
+Because the IR Graph contains the complete topology and the `Release` contains the physical mapping (`.infra`), enterprises can evaluate exact deployment costs prior to generation without needing a hardcoded compiler feature. Enterprises simply author a custom FinOps WebAssembly plugin and slot it into their `policy.wasm` or `linter.wasm` CI/CD gates. This custom plugin can read the `.infra` payloads, calculate the estimated monthly cost, and return a fatal failure to the compiler if the calculated cost exceeds the enterprise's internally defined budget limits.
 
 ### 6. The "Brownfield" Import Lifecycle
 

@@ -18,11 +18,11 @@ Class A disciplines are the strongest guarantees the language carries. The compi
 
 ### Class B — Wasm-enforced
 
-The discipline is enforced by a Wasm plugin running at one of the documented socket points (Step 2 `mutator.wasm`; Step 4 `policy-validator.wasm`; out-of-band `linter.wasm`). A violation produces either a build-halting policy failure (in-band sockets) or an advisory warning (out-of-band sockets), depending on the socket's gating semantics.
+The discipline is enforced by a Wasm plugin running at one of the documented socket points (Step 2 `mutator.wasm`; Step 4 `policy.wasm`; out-of-band `linter.wasm`). A violation produces either a build-halting policy failure (in-band sockets) or an advisory warning (out-of-band sockets), depending on the socket's gating semantics.
 
 Class B disciplines today are mostly **future-shipping** — the Wasm runtime is `accepted but inert` per [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases), so plugins exist as contract surfaces but are not invoked. When a Wasm plugin ships, the discipline it enforces transitions from Class C (convention-enforced) to Class B (Wasm-enforced). Examples currently chartered for future Class B status: hermeticity enforcement (the Sprig FuncMap exposes deterministic-output-breaking helpers per the determinism caveat at [`templates/sprig-functions.md`](../templates/sprig-functions.md), and a future `linter.wasm` plugin could flag their use); cloud-resource naming pattern matching (a future `linter.wasm` plugin could flag Recipes whose `valuesMapping:` outputs reference cloud-resource-name fields without `release_name` / `instance_id` interpolation per [`entities/recipe.md`](../entities/recipe.md) "Cloud-resource naming discipline").
 
-For the Wasm plugin contract surface and the placement criterion (`linter.wasm` vs `policy-validator.wasm`), see [`plugins/plugin-contract.md`](../plugins/plugin-contract.md).
+For the Wasm plugin contract surface and the placement criterion (`linter.wasm` vs `policy.wasm`), see [`plugins/plugin-contract.md`](../plugins/plugin-contract.md).
 
 ### Class C — convention-enforced
 

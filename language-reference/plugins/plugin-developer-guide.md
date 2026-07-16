@@ -84,11 +84,11 @@ A plugin enters the catalog as a `Plugin` entity — the authoring and metadata 
 apiVersion: aggrega.ai/v1alpha1
 kind: Plugin
 metadata:
-  name: secret-providers/aws-secrets-manager
+  name: aws-secrets-manager
   version: 1.2.0
-spec:
-  plugin: "oci://hub.aggrega.ai/plugin/secret-providers/aws-secrets-manager"
   pluginType: frp_step
+spec:
+  plugin: "oci://hub.aggrega.ai/plugin/frp_step/aws-secrets-manager"
   abiVersion: v1alpha1
   targets:
     - helm
@@ -108,8 +108,8 @@ spec:
 
 The fields:
 
-- **`spec.plugin`** — the digest-free content reference to the `.wasm` artifact, in the form `oci://<repository>`. Together with `metadata.version` it is the plugin's identity. The content digest is not carried in the entity; it is resolved at `aggrega pull` and recorded in the release lockfile, and the build verifies the fetched bytes against the recorded digest — identity in the entity, verified bytes in the lockfile. Required.
-- **`spec.pluginType`** — the socket type this plugin implements, drawn from `provider`, `linter`, `frp_step`. A plugin implements exactly one. Required.
+- **`spec.plugin`** — the digest-free content reference to the `.wasm` artifact, in the form `oci://<repository>`. The repository path is the plugin's derived coordinate `plugin/<pluginType>/<name>`. Together with `metadata.version` it is the plugin's identity. The content digest is not carried in the entity; it is resolved at `aggrega pull` and recorded in the release lockfile, and the build verifies the fetched bytes against the recorded digest — identity in the entity, verified bytes in the lockfile. Required.
+- **`metadata.pluginType`** — the socket type this plugin implements, drawn from `provider`, `linter`, `frp_step`. A plugin implements exactly one. It sits in the addressing block beside `name` and `version` and supplies the `<pluginType>` segment of the derived coordinate. Required.
 - **`spec.abiVersion`** — the host/guest ABI version the plugin targets. `v1alpha1` is the accepted value; a future ABI revision adds an accepted value. Required.
 - **`spec.targets`** — the provider engines this plugin is tested-compatible with (provider names such as `helm` or `compose`). A plugin is generic across artifacts that share a provider's output shape, not across all providers, so this is an explicit, tested-compatibility claim. The list is render-enforced: when a pipeline step touches a scope, the provider rendering that scope's documents must appear here, or the build halts. An empty or absent list declares no compatibility claim, matches no provider, and halts any pipeline step that uses the plugin. Entries preserve author order.
 - **`spec.signature`** — an optional descriptive pointer to the plugin's attached signature (Section 8). This block is documentation only: it records where the signature lives and how it was produced for catalog readers; it does not itself admit the plugin. The enforcing check is the per-registry trust policy applied at pull.

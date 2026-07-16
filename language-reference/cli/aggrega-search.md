@@ -17,7 +17,7 @@ aggrega search [query] [flags]
 | `--kind` | `[]` | Entity kind to match (component\|feature\|recipe\|featurerecipe\|workload\|plugin). Repeatable; a record matching any one is kept. Case-insensitive. |
 | `--limit` | `0` | Cap the number of results (0 means no cap). |
 | `--output`, `-o` | `table` | Output format: table\|json\|names. |
-| `--plugin-type` | — | Plugin socket type to match (for example provider, policy-validator, mutator). |
+| `--plugin-type` | — | Plugin socket type to match (for example provider, policy, mutator). |
 | `--registry` | — | Search only this registry, addressed by host or friendly alias. Default searches every configured registry. |
 | `--selector`, `-l` | — | Label selector over the entity's catalog labels. Category is a label: -l component.aggrega.ai/category=compute. |
 <!-- END GENERATED: cli-search -->

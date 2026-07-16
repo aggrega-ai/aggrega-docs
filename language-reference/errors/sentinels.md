@@ -94,7 +94,7 @@ Step 4 — selector evaluation, cross-node type-safety checks.
 | --- | --- | --- |
 | `ErrSelectorViolation` | `selector violation` | Surfaces as "Cross-node type safety violation via `selector:`" in fatal-halts. |
 | `ErrCatalogLookup` | `catalog lookup failed` | A catalog-resolution miss the analyzer cannot proceed past; the message names the unreachable entity. |
-| `ErrPolicyViolation` | `policy violation` | A policy-validator plugin attached to the policy socket rejected the assembled build; surfaces under the `POLICY_ERROR` category with the rejecting plugin named and the rule message it supplied. |
+| `ErrPolicyViolation` | `policy violation` | A policy plugin attached to the policy socket rejected the assembled build; surfaces under the `POLICY_ERROR` category with the rejecting plugin named and the rule message it supplied. |
 
 ## Provider-engine sentinels
 

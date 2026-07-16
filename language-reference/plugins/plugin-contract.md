@@ -4,7 +4,7 @@ Aggrega's compilation pipeline includes designated socket points where WebAssemb
 
 This page covers the *sockets* — the pipeline points and their input/output shapes. For the *plugin* — the `Plugin` entity, the per-export capability claims, the runtime limits, and the publish→pull→build lifecycle — see the [Wasm plugin developer guide](plugin-developer-guide.md).
 
-Aggrega embeds a Wasm host runtime — Extism on top of the Wazero engine — that loads and executes plugins behind an AOT-purity firewall: the host grants a guest zero ambient capability — no network, no filesystem, no environment, discarded stdio, an observable wall clock frozen to a build-invariant instant — so a plugin cannot break the compiler's ahead-of-time guarantees. The full capability surface — the import-module rule at load, the instantiation-time denials, and the curated host functions — is [the sandbox contract](#the-sandbox-contract) below. Plugin authors target the host through the three-language PDK (Go, Rust, TypeScript). The first socket dispatched through the host in a shipping command is the **linter socket** — the standard publishing-linter, executed by [`aggrega lint`](../cli/aggrega-lint.md). `aggrega build` dispatches two in-band build sockets when a workspace configures them: the Step 2 mutator and the Step 4 policy-validator. Both are no-ops when no plugin is attached, so a build with no socket configuration is unchanged. The Step 5 Phase C FeatureRecipe pipeline is **accepted but inert** — its Go type definitions compile, but `aggrega build` does not yet dispatch it through the host. See [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases).
+Aggrega embeds a Wasm host runtime — Extism on top of the Wazero engine — that loads and executes plugins behind an AOT-purity firewall: the host grants a guest zero ambient capability — no network, no filesystem, no environment, discarded stdio, an observable wall clock frozen to a build-invariant instant — so a plugin cannot break the compiler's ahead-of-time guarantees. The full capability surface — the import-module rule at load, the instantiation-time denials, and the curated host functions — is [the sandbox contract](#the-sandbox-contract) below. Plugin authors target the host through the three-language PDK (Go, Rust, TypeScript). The first socket dispatched through the host in a shipping command is the **linter socket** — the standard publishing-linter, executed by [`aggrega lint`](../cli/aggrega-lint.md). `aggrega build` dispatches two in-band build sockets when a workspace configures them: the Step 2 mutator and the Step 4 policy. Both are no-ops when no plugin is attached, so a build with no socket configuration is unchanged. The Step 5 Phase C FeatureRecipe pipeline is **accepted but inert** — its Go type definitions compile, but `aggrega build` does not yet dispatch it through the host. See [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases).
 
 ## The sandbox contract
 
@@ -46,7 +46,7 @@ The compilation pipeline reserves the following socket points. The shape labels 
 | Socket | Pipeline placement | Status today |
 | --- | --- | --- |
 | `mutator.wasm` | Step 2 (Topology Builder) | **available** — dispatched when a workspace configures a mutator plugin; auto-tags node labels via JSON Patch |
-| `policy-validator.wasm` | Step 4 (Static Analyzer, `ir` stage) or post-render (`render` stage) | **available** — dispatched when a workspace configures a policy plugin; a `deny` verdict halts the build |
+| `policy.wasm` | Step 4 (Static Analyzer, `ir` stage) or post-render (`render` stage) | **available** — dispatched when a workspace configures a policy plugin; a `deny` verdict halts the build |
 | FeatureRecipe `pipeline:` plugins | Step 5 Phase C (Post-Render Mutation) | `accepted but inert` per Status page Phase C classification |
 | Provider rendering plugins (helm, helm-chart, compose, terraform) | Step 5 (Phase B engines) | **available** — every provider renders through its Wasm guest; rendering is Wasm-only, with no native Go engine fallback |
 | `linter.wasm` (publishing-linter) | Out-of-band (`aggrega lint`) | **available** — the publishing-linter ships and runs through the host via `aggrega lint` |
@@ -76,7 +76,7 @@ Each patch addresses a specific node's labels via [JSON Pointer (RFC 6901)](http
 
 **Type definitions.** [`internal/compiler/topology/wasm_types_gen.go`](../../../aggrega-cli/internal/compiler/topology/wasm_types_gen.go) carries `MutatorInput`, `MutatorOutput`, `CompilationContext`, `MutatorGraph`, `MutatorNode`; [`internal/compiler/topology/mutator.go`](../../../aggrega-cli/internal/compiler/topology/mutator.go) carries the host-side assembler and patch application.
 
-### `policy-validator.wasm` — verdict array output
+### `policy.wasm` — verdict array output
 
 A policy guest inspects a build and returns a list of verdicts; the host acts on
 each verdict's severity and never interprets the policy itself. The full
@@ -94,18 +94,18 @@ When a workspace configures a policy plugin, the pipeline marshals the stage's p
 
 **Input shape (host → guest).** The stage selects the payload:
 
-- The `ir`-stage `PolicyValidatorInput` carries `graph` — the full capability-agnostic IR graph (the same shape the Topology Builder emits), with every node, edge, and attachment detail the compiler holds — and `precalculated_paths`, the routing paths the analyzer enumerates alongside, so a policy can reason about reachability without re-walking the graph. The graph is the versioned IR graph, single-sourced from the `ir-v1alpha1` schema; the IR shape is not secret (it is the same graph `aggrega inspect` emits) and secrets in it are pointers, never plaintext.
-- The `render`-stage `RenderPolicyValidatorInput` carries `artifacts` — the rendered output files as a `{path, content}` list sorted by path, so the wire is byte-identical across runs of identical input.
+- The `ir`-stage `PolicyInput` carries `graph` — the full capability-agnostic IR graph (the same shape the Topology Builder emits), with every node, edge, and attachment detail the compiler holds — and `precalculated_paths`, the routing paths the analyzer enumerates alongside, so a policy can reason about reachability without re-walking the graph. The graph is the versioned IR graph, single-sourced from the `ir-v1alpha1` schema; the IR shape is not secret (it is the same graph `aggrega inspect` emits) and secrets in it are pointers, never plaintext.
+- The `render`-stage `RenderPolicyInput` carries `artifacts` — the rendered output files as a `{path, content}` list sorted by path, so the wire is byte-identical across runs of identical input.
 
 Both stages additionally carry the attachment's `sources` (policy-definition files the host reads at build time and hands the guest verbatim, paths as base names, content opaque) and `settings` (a free-form object handed through untouched). Both are absent when the attachment declares none.
 
-**Output shape (guest → host).** A `PolicyValidatorOutput` document carrying:
+**Output shape (guest → host).** A `PolicyOutput` document carrying:
 
 - `results` — an array of `PolicyResult` entries, each with a `severity` (`deny`, `warn`, or `audit`) and a `message` string.
 
 Only fired verdicts appear; an allowing evaluation returns an empty array. The host walks the verdicts and maps each severity to an action: `deny` halts the build (surfacing every `deny` message), `warn` flags the verdict and lets the build proceed, `audit` records it without affecting the outcome. A `deny` halts through the same gate a selector or `appliesTo` violation uses.
 
-**Type definitions.** [`internal/compiler/analyzer/wasm_types.go`](../../../aggrega-cli/internal/compiler/analyzer/wasm_types.go) carries `PolicyValidatorInput` (IR stage) and `RenderPolicyValidatorInput` (render stage), the shared `PolicySource`, `PolicyValidatorOutput`, `PolicyResult`, and the `deny` / `warn` / `audit` severity constants.
+**Type definitions.** [`internal/compiler/analyzer/wasm_types.go`](../../../aggrega-cli/internal/compiler/analyzer/wasm_types.go) carries `PolicyInput` (IR stage) and `RenderPolicyInput` (render stage), the shared `PolicySource`, `PolicyOutput`, `PolicyResult`, and the `deny` / `warn` / `audit` severity constants.
 
 ## Output shape contract — design targets
 
@@ -164,23 +164,23 @@ The linter is opt-in catalog discipline: the compiler does not run it during `ag
 
 **Status today:** **available**. The publishing-linter ships and runs through the host via `aggrega lint`.
 
-## Placement criterion: `linter.wasm` vs `policy-validator.wasm`
+## Placement criterion: `linter.wasm` vs `policy.wasm`
 
 Two of the documented sockets share a similar surface — both emit per-rule results — but differ in pipeline placement and gating semantics. The criterion for deciding which socket carries a given check:
 
-- **`policy-validator.wasm` (in-band, build-halting).** Reserved for **build-halting policies**: a `deny` verdict stops the compilation pipeline and the build produces no artifacts. Use cases are policies whose violation makes the output unsafe to apply: compliance gates (PCI / SOC2 boundary placement), topology invariants (zero-trust ingress, cross-boundary auth), credential-flow shape (no plaintext secrets in IR), etc. A policy reasons over the IR graph (`ir` stage, before render) or the rendered artifacts (`render` stage, after render).
+- **`policy.wasm` (in-band, build-halting).** Reserved for **build-halting policies**: a `deny` verdict stops the compilation pipeline and the build produces no artifacts. Use cases are policies whose violation makes the output unsafe to apply: compliance gates (PCI / SOC2 boundary placement), topology invariants (zero-trust ingress, cross-boundary auth), credential-flow shape (no plaintext secrets in IR), etc. A policy reasons over the IR graph (`ir` stage, before render) or the rendered artifacts (`render` stage, after render).
 - **`linter.wasm` (out-of-band, CI / IDE, advisory).** Reserved for **best-practice and discoverability checks**: rules whose violation is suspicious but not unsafe — orphaned secrets, unused parameters, deprecated label vocabulary, tag completeness for cost attribution, naming-convention drift. Failure produces advisory output; the build still produces artifacts.
 
-The placement criterion phrased as a single rule: **if the check should halt the build, it belongs in `policy-validator.wasm`; if the check should warn an author or a reviewer without blocking the pipeline, it belongs in `linter.wasm`**.
+The placement criterion phrased as a single rule: **if the check should halt the build, it belongs in `policy.wasm`; if the check should warn an author or a reviewer without blocking the pipeline, it belongs in `linter.wasm`**.
 
-Both sockets are usable today. The `linter.wasm` socket runs the publishing-linter via `aggrega lint`; the `policy-validator.wasm` socket is dispatched in-band during `aggrega build` when a workspace attaches a policy plugin. Note that the policy socket carries its own severities — a policy may itself emit `warn` and `audit` verdicts that advise without halting — so the halt-versus-advise line above is the placement guidance for whole checks, not a claim that a policy can only halt. See the [policy socket page](policy-socket.md) for the severity model.
+Both sockets are usable today. The `linter.wasm` socket runs the publishing-linter via `aggrega lint`; the `policy.wasm` socket is dispatched in-band during `aggrega build` when a workspace attaches a policy plugin. Note that the policy socket carries its own severities — a policy may itself emit `warn` and `audit` verdicts that advise without halting — so the halt-versus-advise line above is the placement guidance for whole checks, not a claim that a policy can only halt. See the [policy socket page](policy-socket.md) for the severity model.
 
 ## Design surfaces without current code anchors
 
 Two design surfaces named elsewhere in the corpus do not have current code anchors today:
 
-- **Additional output shapes.** Current code types the mutator's JSONPatch output, the policy-validator's PolicyResult array, the linter's findings plus version-bump classification, and the provider render socket's node output and artifacts. The architecture chapters and worked examples describe further FeatureRecipe-pipeline shapes (Strategic Merge Patch, Resource Generation, Step output) that do not carry Go type definitions in the compiler today.
-- **Six Wasm-socket roles enumeration.** The current typed surface is three sockets (mutator, policy-validator, linter); the broader six-role design (adding helm-renderer, policy-formatter, fetcher/injector) is documented across architecture chapters but not centralized in a Go type registry.
+- **Additional output shapes.** Current code types the mutator's JSONPatch output, the policy socket's PolicyResult array, the linter's findings plus version-bump classification, and the provider render socket's node output and artifacts. The architecture chapters and worked examples describe further FeatureRecipe-pipeline shapes (Strategic Merge Patch, Resource Generation, Step output) that do not carry Go type definitions in the compiler today.
+- **Six Wasm-socket roles enumeration.** The current typed surface is three sockets (mutator, policy, linter); the broader six-role design (adding helm-renderer, policy-formatter, fetcher/injector) is documented across architecture chapters but not centralized in a Go type registry.
 
 The `linter.wasm` socket, by contrast, is fully anchored in current code: it is the publishing-linter, a typed contract with host dispatch via `aggrega lint`.
 

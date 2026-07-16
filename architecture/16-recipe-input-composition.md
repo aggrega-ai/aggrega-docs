@@ -347,11 +347,11 @@ A provider-rendering Plugin (`pluginType: provider`) declares a `spec.provider.w
 apiVersion: aggrega.ai/v1alpha1
 kind: Plugin
 metadata:
-  name: providers/helm-renderer
+  name: helm-renderer
   version: 1.0.0
-spec:
-  plugin: "oci://hub.aggrega.ai/plugin/providers/helm-renderer"
   pluginType: provider
+spec:
+  plugin: "oci://hub.aggrega.ai/plugin/provider/helm-renderer"
   abiVersion: v1alpha1
   targets:
     - helm

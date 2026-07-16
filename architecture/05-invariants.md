@@ -83,7 +83,7 @@ The Go host binary contains zero cloud-specific or infrastructure logic. All dom
 Two corollaries follow:
 
 - Provider-specific logic (Helm-specific rendering, Terraform-specific formatting, Compose-specific merging) never lives in the Go compiler core. Provider engines orchestrate; the actual translation is a Wasm guest call.
-- Policy logic (security rules, compliance checks, FinOps calculations) never lives in the Go compiler core. Policy belongs in Wasm policy sockets (`policy-validator.wasm`, `mutator.wasm`) that enterprises opt into.
+- Policy logic (security rules, compliance checks, FinOps calculations) never lives in the Go compiler core. Policy belongs in Wasm policy sockets (`policy.wasm`, `mutator.wasm`) that enterprises opt into.
 
 The ABI boundary keeps the Go core compact, auditable, and cloud-agnostic. Swapping a provider's rendering logic is a Wasm artifact swap, not a recompile of Aggrega itself.
 

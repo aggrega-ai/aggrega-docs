@@ -66,7 +66,7 @@ The current required-fields state per entity (excluding `apiVersion` / `kind` / 
 | Feature | `spec.schema` | No reserved-label requirement; Features identify by name + namespace |
 | Recipe | `spec.target`, `spec.implements` | Provider gates engine dispatch; implements gates Component-binding |
 | FeatureRecipe | `spec.target`, `spec.implements` | Same as Recipe |
-| Plugin | `spec.plugin`, `spec.pluginType`, `spec.abiVersion` | The content-addressed artifact reference, the socket type the plugin implements, and the ABI version it targets; a provider-rendering plugin (`pluginType: provider`) additionally carries its translation contract under `spec.provider` |
+| Plugin | `metadata.pluginType`, `spec.plugin`, `spec.abiVersion` | The socket type the plugin implements (part of the addressing block, supplying the `<pluginType>` segment of the derived `plugin/<pluginType>/<name>` coordinate), the content-addressed artifact reference, and the ABI version it targets; a provider-rendering plugin (`pluginType: provider`) additionally carries its translation contract under `spec.provider` |
 | Aggregate | `spec.components` (or `spec.aggregates` for module-shape Aggregates) | An Aggregate without component-shape declarations is a no-op |
 | Manifest | `spec.mappings` | The mapping tiers are the Manifest's only purpose |
 | Release | `spec.aggregate`, `spec.manifest`; *`metadata.environment` (current — moving to optional)* | The first two anchor the build to a specific Aggregate + Manifest; environment is in transition |

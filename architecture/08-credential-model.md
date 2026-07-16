@@ -9,7 +9,7 @@ In the Aggrega architecture, we strictly differentiate between **Business Data**
 Aggrega does not model data schemas (rows, columns, or files), as these are application-layer concerns. Instead, we model the **Governance and Gravity** of data using labels.
 
 * **Stateful Nodes:** Data resides exclusively in components with cloud primitives such as `stateful-server`, `resource`, or `messaging`.
-* **Identity via Labels:** Platform Architects use the `compliance.aggrega.ai/data-class` label (e.g., `public`, `internal`, `restricted`) to give the data a semantic identity. This label informs the `policy-validator.wasm` socket and instructs Wasm rendering plugins on how to physically protect the storage configuration.
+* **Identity via Labels:** Platform Architects use the `compliance.aggrega.ai/data-class` label (e.g., `public`, `internal`, `restricted`) to give the data a semantic identity. This label informs the `policy.wasm` socket and instructs Wasm rendering plugins on how to physically protect the storage configuration.
 
 ### 2. Encryption at Rest: An Ops Baseline
 

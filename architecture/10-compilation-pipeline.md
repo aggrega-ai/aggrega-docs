@@ -6,7 +6,7 @@ This chapter details the internal physics of the Go engine, defining how abstrac
 
 Aggrega drops hardcoded orchestration logic in favor of a strict 5-step Ahead-of-Time (AOT) compiler pipeline. Triggered by the **CLI Orchestrator**, the Go engine acts as a high-speed traffic cop, passing the flat graph between isolated WebAssembly (Wasm) sockets to evaluate the architecture before rendering physical artifacts.
 
-The Wasm sockets run on an embedded host — the Extism toolkit on top of the Wazero engine — behind an **AOT-purity firewall** that denies a plugin any runtime-access capability (network, filesystem, wall-clock, environment, standard I/O), so a plugin cannot break the deterministic, ahead-of-time guarantee. The host ships and runs the publishing-linter today, out of band, via [`aggrega lint`](../language-reference/cli/aggrega-lint.md). The in-band gates described below — the Step 2 mutator, the Step 4 policy-validator, and the Step 5 Phase C pipeline — carry stable contracts and assemble their payloads, but `aggrega build` does not yet dispatch them through the host; each activates one socket at a time. The descriptions that follow teach the pipeline's design; [Status of the Language](../language-reference/10-status.md) tracks which sockets execute today.
+The Wasm sockets run on an embedded host — the Extism toolkit on top of the Wazero engine — behind an **AOT-purity firewall** that denies a plugin any runtime-access capability (network, filesystem, wall-clock, environment, standard I/O), so a plugin cannot break the deterministic, ahead-of-time guarantee. The host ships and runs the publishing-linter today, out of band, via [`aggrega lint`](../language-reference/cli/aggrega-lint.md). The in-band gates described below — the Step 2 mutator, the Step 4 policy, and the Step 5 Phase C pipeline — carry stable contracts and assemble their payloads, but `aggrega build` does not yet dispatch them through the host; each activates one socket at a time. The descriptions that follow teach the pipeline's design; [Status of the Language](../language-reference/10-status.md) tracks which sockets execute today.
 
 The pipeline executes entirely in-memory in a strict, fixed order:
 
@@ -32,8 +32,8 @@ Next, it performs an in-memory interpolation in three sub-steps: parameter contr
 
 **4. The Static Analyzer & Validation Gate**
 
-* **Mechanism:** Topological Purity Checks + The `policy-validator.wasm` Socket.
-* **Action:** The compiler runs abstract static analysis over the IR Graph. First, it extracts the `selector` strings from the `usesSchema` definitions and evaluates them using a native Go label-matching engine (supporting Kubernetes-style `AND`, `OR` via `in()`, and `NOT` via `!=` semantics) across the explicitly defined graph edges to guarantee cross-node type safety. It also evaluates Feature `appliesTo` and `appliesToAnyOf` selectors to verify that attached features are compatible with their target component's labels. Second, it executes the **Validation Gate**, passing the complete graph structure (including all nodes, edges, attached features, and precalculated DFS paths) to the `policy-validator.wasm` socket. The enterprise's custom Wasm policy evaluates the topology. If the Wasm plugin returns a failure array (e.g., detecting a continuous path from a `public` node to a `restricted` node without a specific proxy feature), the build halts.
+* **Mechanism:** Topological Purity Checks + The `policy.wasm` Socket.
+* **Action:** The compiler runs abstract static analysis over the IR Graph. First, it extracts the `selector` strings from the `usesSchema` definitions and evaluates them using a native Go label-matching engine (supporting Kubernetes-style `AND`, `OR` via `in()`, and `NOT` via `!=` semantics) across the explicitly defined graph edges to guarantee cross-node type safety. It also evaluates Feature `appliesTo` and `appliesToAnyOf` selectors to verify that attached features are compatible with their target component's labels. Second, it executes the **Validation Gate**, passing the complete graph structure (including all nodes, edges, attached features, and precalculated DFS paths) to the `policy.wasm` socket. The enterprise's custom Wasm policy evaluates the topology. If the Wasm plugin returns a failure array (e.g., detecting a continuous path from a `public` node to a `restricted` node without a specific proxy feature), the build halts.
 
 **5. The Infrastructure Rendering Engine**
 
@@ -59,7 +59,7 @@ graph TD
         
         B -->|"Emits IR Graph"| C["Step 3: Graph Finalization<br/>(Edge Inference & Normalization)"]
         
-        C -->|"Flat IR Graph"| D["Step 4: The Static Analyzer<br/>(Selectors + policy-validator.wasm Gate)"]
+        C -->|"Flat IR Graph"| D["Step 4: The Static Analyzer<br/>(Selectors + policy.wasm Gate)"]
         
         D -->|"Validated Topology"| E["Step 5: The Infrastructure Rendering Engine<br/>Phase A: Pre-Render Interception (injectMapping)<br/>Phase B: Base Rendering (valuesMapping)<br/>Phase C: Wasm Mutation (pipeline)"]
     end

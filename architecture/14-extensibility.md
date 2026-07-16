@@ -17,7 +17,7 @@ This universal `function` and `with` interface supports every programmable socke
 | Execution Phase | Plugin Type | Purpose | Expected Output |
 | :--- | :--- | :--- | :--- |
 | **Step 2 (Topology)** | **Metadata Mutator** (`mutator.wasm`) | Silently auto-tags nodes with compliance or environmental labels based on context. | Array of JSONPatches targeting `metadata.labels`. |
-| **Step 4 (Validation)** | **Policy Validator** (`policy-validator.wasm`) | Acts as the Loud Guardrail. Evaluates graph edges, paths, and labels for security boundaries. | Array of Failure Objects (e.g., `pass: false, msg: "..."`). Halts compilation. |
+| **Step 4 (Validation)** | **Policy Validator** (`policy.wasm`) | Acts as the Loud Guardrail. Evaluates graph edges, paths, and labels for security boundaries. | Array of Failure Objects (e.g., `pass: false, msg: "..."`). Halts compilation. |
 | **Step 5 (Formatting)**| **Eval Formatter** (`eval` provider) | Builds complex connection strings (DSNs, URIs) for out-of-perimeter legacy DBs or SaaS APIs. | A flat JSON Dictionary (mapped directly to the node's `.locals`). |
 | **Step 5 (Modifiers)** | **Pipeline Mutators** (`Feature/Secret`) | The core pipeline plugins. Fetches secrets or injects sidecars into Base ASTs sequentially. | The Universal JSONPatch Handshake (`root_objects`, `patch`, `env_vars`). |
 | **Step 5 (Generation)**| **Renderer** (`renderer.wasm`) | Translates the final in-memory JSON into physical stringified files (Helm, Terraform). | Array of Stringified Files. |
@@ -29,7 +29,7 @@ This universal `function` and `with` interface supports every programmable socke
 
 **Authoring against the host: the PDK.** Plugin authors do not hand-write the Wasm memory ABI. Aggrega ships a Plugin Development Kit in three languages — Go, Rust, and TypeScript — thin wrappers that present each socket's typed input and output so the author writes ordinary functions. The `function` / `with` interface above is what an Aggregate or FeatureRecipe uses to *invoke* a plugin; the PDK is what a plugin author *builds against*.
 
-**Which sockets run today.** The host runtime ships, and the first socket dispatched through it in a shipping command is the **linter socket** — the standard publishing-linter, run by [`aggrega lint`](../language-reference/cli/aggrega-lint.md). The in-band build sockets — the Step 2 mutator, the Step 4 policy-validator, and the Step 5 Phase C pipeline — carry stable contracts but are not yet dispatched during `aggrega build`; they activate one socket at a time against the same host. See [Status of the Language](../language-reference/10-status.md) for the per-socket readiness.
+**Which sockets run today.** The host runtime ships, and the first socket dispatched through it in a shipping command is the **linter socket** — the standard publishing-linter, run by [`aggrega lint`](../language-reference/cli/aggrega-lint.md). The in-band build sockets — the Step 2 mutator, the Step 4 policy, and the Step 5 Phase C pipeline — carry stable contracts but are not yet dispatched during `aggrega build`; they activate one socket at a time against the same host. See [Status of the Language](../language-reference/10-status.md) for the per-socket readiness.
 
 ### 2. FeatureRecipe Plugin Pipelines
 

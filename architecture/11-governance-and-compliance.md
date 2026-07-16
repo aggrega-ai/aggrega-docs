@@ -12,7 +12,7 @@ To solve this, Aggrega provides the **Wasm socket mechanisms** for compliance, w
 
 ### 1. The "Bring Your Own Baseline" (BYOB) + Wasm Validation Gate
 
-For static, developer-provided data (such as team ownership or data classification), enterprises should never rely on the raw open-source catalog directly. Instead, the Platform Architect authors a corporate baseline component that enforces their specific schema constraints, and uses the `policy-validator.wasm` socket to enforce its use.
+For static, developer-provided data (such as team ownership or data classification), enterprises should never rely on the raw open-source catalog directly. Instead, the Platform Architect authors a corporate baseline component that enforces their specific schema constraints, and uses the `policy.wasm` socket to enforce its use.
 
 **The Catalog Contract:**
 The enterprise creates a baseline that requires specific tags but provisions no infrastructure.
@@ -39,7 +39,7 @@ All internal components (e.g., `acme/postgres`) must use `extends: "acme/corpora
 To prevent a developer from bypassing the internal catalog and pulling a naked `core/postgres` component directly from the public hub, the enterprise registers a topological validation plugin (executed in Step 4).
 
 ```javascript
-// Evaluated by policy-validator.wasm in Step 4
+// Evaluated by policy.wasm in Step 4
 export function validate(graph) {
     let failures = [];
     for (const [id, node] of Object.entries(graph.nodes)) {
@@ -57,7 +57,7 @@ export function validate(graph) {
 If the plugin returns a failure, the compiler instantly halts.
 
 **Centralized Enterprise Governance (Evaluating Complete Reality):**
-Relying on out-of-band mechanisms (like `CODEOWNERS` on a git repository) to govern architecture is a weak workaround. All governance is localized in the compiler's `policy-validator.wasm` socket. Because the AOT compiler builds the IR Graph by flattening *both* the Developer's `Aggregate` and the Ops Engineer's `Release`, the policy engine evaluates the complete reality before physical artifacts are generated. Policies can fatally halt the build if a developer requests an unapproved Component, if Ops maps a component to an unapproved Recipe in the Manifest, or if an insecure Wasm mutation is attached to a Component carrying a `restricted` subsystem label.
+Relying on out-of-band mechanisms (like `CODEOWNERS` on a git repository) to govern architecture is a weak workaround. All governance is localized in the compiler's `policy.wasm` socket. Because the AOT compiler builds the IR Graph by flattening *both* the Developer's `Aggregate` and the Ops Engineer's `Release`, the policy engine evaluates the complete reality before physical artifacts are generated. Policies can fatally halt the build if a developer requests an unapproved Component, if Ops maps a component to an unapproved Recipe in the Manifest, or if an insecure Wasm mutation is attached to a Component carrying a `restricted` subsystem label.
 
 ### 2. The Wasm Mutator Gate (Dynamic Compliance)
 
@@ -116,7 +116,7 @@ To protect fragile workloads from conflicting infrastructure mutations, the gene
 Developers do not write network policies directly; the required network boundaries are mapped by the compiler's Intermediate Representation (IR) graph, which carries every topological edge between components declared in the Aggregate.
 
 * **Internal boundaries.** The compiler draws the flat IR graph, and the standard-library convention assumes every connection is unreachable by default. A Wasm rendering plugin generates an `allow_ingress_from` / `allow_egress_to` configuration rule only if the compiler detected a direct topological edge between the two nodes. Nodes without a declared edge produce no allow rule.
-* **Public ingress (agnostic perimeter control).** Public ingress is governed by the enterprise's custom rules in the `policy-validator.wasm` socket. A corporate security team can author a policy that evaluates a node's cloud-native ontology type and rejects the build if a developer attempts to attach a `public-ingress` feature to a `worker` or `task` node. The compiler is blind to what "public" means; it enforces the Boolean output of the Wasm validation gate.
+* **Public ingress (agnostic perimeter control).** Public ingress is governed by the enterprise's custom rules in the `policy.wasm` socket. A corporate security team can author a policy that evaluates a node's cloud-native ontology type and rejects the build if a developer attempts to attach a `public-ingress` feature to a `worker` or `task` node. The compiler is blind to what "public" means; it enforces the Boolean output of the Wasm validation gate.
 
 ### 5. Compile-Time Provenance Stamping
 
@@ -128,7 +128,7 @@ The compiler builds a provenance record during compilation, capturing compiler v
 
 The Go compiler is blind to domain-specific concepts — AI frameworks, database engines, Kubernetes idioms — and works only on flat graph-level operations against the IR. To drive the ecosystem without hardcoding domain-specific logic into the Go binary, the platform uses standard metadata labels and annotations as the extension surface for domain intelligence.
 
-The compiler reads no domain-specific annotations. It bundles all developer-provided annotations and duck-typing labels into the flat IR graph and passes this metadata blindly to the `policy-validator.wasm`, `mutator.wasm`, and rendering plugins. The WebAssembly ecosystem interprets the metadata and executes the required logic — evaluating compliance policies, injecting tags into cloud-native artifacts, or triggering feature expansion — independently of the core compiler.
+The compiler reads no domain-specific annotations. It bundles all developer-provided annotations and duck-typing labels into the flat IR graph and passes this metadata blindly to the `policy.wasm`, `mutator.wasm`, and rendering plugins. The WebAssembly ecosystem interprets the metadata and executes the required logic — evaluating compliance policies, injecting tags into cloud-native artifacts, or triggering feature expansion — independently of the core compiler.
 
 This keeps the extensibility surface wide (anyone can author a Wasm plugin that reads a new annotation prefix) while keeping the core compiler stable: no core release is required for the ecosystem to add a new domain-specific annotation.
 

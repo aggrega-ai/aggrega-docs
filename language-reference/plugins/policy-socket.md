@@ -24,7 +24,7 @@ plugin as a catalog entity, see the
 
 ## The mental model: the host routes, the guest decides
 
-A policy plugin is a `policy-validator` guest. On a build the host assembles the
+A policy plugin is a `policy` guest. On a build the host assembles the
 payload for the plugin's declared stage, hands it across the ABI boundary, and
 reads back a list of verdicts. Each verdict carries a severity and a
 human-readable message. The host maps each severity to a build action; it does
@@ -132,7 +132,7 @@ A guest that wraps a foreign policy engine **absorbs that engine's ABI inside
 itself**. If the engine has its own Wasm ABI, its own entrypoints, or its own
 host-callback protocol, the wrapping guest instantiates and drives it internally
 and maps the engine's decision back to the socket's verdict shape. The compiler
-host sees only the standard policy-validator surface; it never learns which
+host sees only the standard policy socket surface; it never learns which
 engine is involved and carries no engine-specific code. Switching a policy from
 one engine to another is an attachment change, not a host change.
 
@@ -164,7 +164,7 @@ a thin adapter guest. The adapter absorbs OPA's Wasm ABI entirely inside itself
 (per [The ABI is Aggrega's own](#the-abi-is-aggregas-own) above): it
 instantiates the OPA-built module, sets the input, invokes evaluation, and maps
 the decision back to the verdict shape. The host sees only the standard
-policy-validator surface.
+policy socket surface.
 
 A reference adapter guest ships as a worked example. It embeds a policy authored
 in Rego and pre-compiled with `opa build -t wasm` into a WebAssembly module — a

@@ -89,7 +89,7 @@ spec:
 When an Aggregate is published to the catalog as a reusable module, it may carry `metadata.labels` on its YAML envelope. These labels describe the **module's identity** for two specific consumers:
 
 * **Catalog discovery and Studio filtering.** Labels like `aggregate.aggrega.ai/tier: infrastructure` or `aggregate.aggrega.ai/compliance: pci-dss` allow the Studio, the IDE, and the CLI to filter and search reusable modules by semantic category.
-* **Policy evaluation.** The `policy-validator.wasm` socket receives the full IR graph. If a parent imports a sub-aggregate labeled `aggregate.aggrega.ai/compliance: pci-dss`, the policy can enforce that all components from that module land in a PCI-compliant boundary, targeting the module's catalog identity rather than fragile name-string matching.
+* **Policy evaluation.** The `policy.wasm` socket receives the full IR graph. If a parent imports a sub-aggregate labeled `aggregate.aggrega.ai/compliance: pci-dss`, the policy can enforce that all components from that module land in a PCI-compliant boundary, targeting the module's catalog identity rather than fragile name-string matching.
 
 **The critical distinction.** Aggregate labels describe the *reusable module's identity* in the catalog. They do **not** cascade down to child component nodes. Component labels come exclusively from the `Component` catalog entity in Domain 2. If a developer imports a module labeled `aggregate.aggrega.ai/tier: infrastructure`, the individual components inside that module retain only their own Catalog-defined labels (e.g., `component.aggrega.ai/type: stateful-server`). The Aggregate label is never injected into the IR node's `labels` dictionary.
 
