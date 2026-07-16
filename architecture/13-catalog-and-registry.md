@@ -384,7 +384,7 @@ Wherever a registry is named — a `registry` subcommand argument or the `--regi
 
 `aggrega registry update [<name|host>]` builds a local searchable index of the registries the workspace knows. It walks each configured registry's repositories, selects the highest released version of each, reads that version's searchable manifest annotations (§6), and writes a per-registry index to the artifact cache. With no argument it indexes every configured registry; with a single registry argument (a host or an alias) it indexes only that one.
 
-The index follows the explicit-refresh model familiar from package managers: `registry update` is the command that contacts the registries, and a later search reads the written index offline. A registry's records file is deterministic — two updates against the same registry state produce byte-identical bytes, and the freshness timestamp lives in a sibling file so it never perturbs the records. A repository with no released version, or one that cannot be read, is skipped so a single unreadable repository never abandons the whole index.
+The index follows the explicit-refresh model familiar from package managers: `registry update` is the command that contacts the registries, and a later `aggrega search` reads the written index offline. A registry's records file is deterministic — two updates against the same registry state produce byte-identical bytes, and the freshness timestamp lives in a sibling file so it never perturbs the records. A repository with no released version, or one that cannot be read, is skipped so a single unreadable repository never abandons the whole index.
 
 ### 9. Lockfile pinning and artifact immutability
 

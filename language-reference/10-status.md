@@ -124,15 +124,15 @@ The Aggrega CLI (`aggrega-cli/cmd/aggrega/`) registers the build pipeline plus i
 - **`aggrega version` — available.** Prints the CLI version; `--json` emits a machine-readable version object.
 - **`aggrega validate` — available.** Checks correctness across the whole catalog, a Release, or a single entity, reporting diagnostics without rendering artifacts.
 - **`aggrega acquire` — available.** Runs a Release's build pipeline in acquisition mode with rendered output discarded: every external input the render requests is fetched, pinned into the content-addressed input store, and recorded in the lockfile, so a later build serves those inputs offline.
-- **`aggrega catalog` — available.** Works with the catalog registry; `catalog search` queries published entities.
-- **`aggrega registry` — available.** Manages registries and their signature trust policy; `registry add` records a registry, and `registry search` queries across configured registries.
+- **`aggrega search` — available.** Searches the local index of configured registries for published entities; the index is built and refreshed by `aggrega registry update`.
+- **`aggrega registry` — available.** Manages registries and their signature trust policy; `registry add` records a registry, and `registry update` builds the local index that `aggrega search` queries.
 - **`aggrega push-artifact` — available.** Publishes a standalone data artifact (such as a documentation bundle) to an OCI registry, alongside the entity-publishing `push`.
 - **`aggrega sign` — available.** Signs one or more already-published artifacts and attaches their signatures.
 - **`aggrega deprecate` — available.** Attaches a signed deprecation marker to an already-published artifact.
 - **`aggrega login` and `aggrega logout` — available.** Authenticate to an OCI registry and store the credential, or remove a stored credential.
 - **`aggrega auth` — available.** Manages the local signing identity used to sign artifacts.
 - **`aggrega get-schema` — available.** Prints the JSON Schema for an entity or contract kind.
-- **`aggrega plugin` — available.** Inspects the Wasm plugins the CLI can resolve; subcommands list, install, search, and generate a catalog view of them.
+- **`aggrega plugin` — available.** Inspects the Wasm plugins the CLI can resolve; subcommands list them, add and remove configured plugins, sync a plugin's machine-owned records, and generate a catalog view of them.
 - **`aggrega cache` — available.** Inspects and maintains the on-disk caches; subcommands report status, prune, evict, and clear.
 - **`aggrega mcp` — available.** Runs a Model Context Protocol server over stdio, exposing the compiler's introspection to AI-assistant integrations.
 - **`aggrega completion` — available.** Generates the shell autocompletion script for the CLI.
