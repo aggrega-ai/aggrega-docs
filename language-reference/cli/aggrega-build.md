@@ -154,8 +154,8 @@ aggrega build [flags]
 | `--no-acquire-inputs` | `false` | Freeze the external-input set: a render that requests an unpinned external URL halts with a diagnostic instead of fetching and pinning it. Pinned inputs are still served from the content-addressed store (and refilled by digest when the blob is missing) |
 | `--progress` | `false` | Force the build-progress surface on even when stderr is not a terminal, printing plain static phase lines. The default is auto: the interactive phase checklist is shown only when stderr is a terminal. --quiet and --debug both override --progress |
 | `--quiet` | `false` | Silence the build-progress surface on stderr. Does not affect stdout. Takes precedence over --progress |
-| `--regenerate` | `false` | Make the --auto-pull step a full refresh: discard the existing lockfile and re-resolve every dependency from current registry state, floating each to the highest available version instead of honoring existing pins. Requires --auto-pull or workspace auto_pull; on its own it is a usage error |
 | `--release` | — | Path to Release YAML file (required) |
 | `--trace` | `false` | write per-node intermediate files to .trace/ (sibling to dist/) for post-mortem inspection |
+| `--upgrade` | `false` | Make the auto-pull step a full refresh: discard the existing lockfile and re-resolve every dependency from current registry state, floating each to the highest available version instead of honoring existing pins. Implies --auto-pull — on its own it runs a full-refresh pull before the build |
 | `--verify-determinism` | `false` | Render every node twice and compare the emitted bytes, halting the build if any node's two renders differ. Off by default. Use it to confirm a provider renders deterministically — identical input yields byte-identical output — which the GitOps-diff and byte-identical-output guarantees rely on |
 <!-- END GENERATED: cli-build -->

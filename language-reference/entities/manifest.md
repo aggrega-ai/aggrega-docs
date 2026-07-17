@@ -68,7 +68,7 @@ A Recipe URI in the Manifest may carry the version in any of three forms:
 * **Range** — `helm/postgres:^1.2.0`. Semver range with the standard MVS rule; at first lockfile resolve, the resolver pins the highest available version satisfying the range.
 * **Unversioned** — `helm/postgres`. No `:version` suffix; at first lockfile resolve, the resolver pins the latest available version.
 
-Subsequent builds use the lockfile-pinned version regardless of the user-typed form. Re-resolving to a newer version requires explicit user action (`aggrega catalog upgrade <URI>` or similar) — the lockfile is the source of truth for builds; the user-typed form is how the user expresses the version constraint at authoring time.
+Subsequent builds use the lockfile-pinned version regardless of the user-typed form. Re-resolving to a newer version requires explicit user action — `aggrega pull --upgrade <uri>` re-resolves a single dependency while holding every other pin, or `aggrega pull --upgrade` re-resolves all — the lockfile is the source of truth for builds; the user-typed form is how the user expresses the version constraint at authoring time.
 
 ### Provider-qualified references
 
