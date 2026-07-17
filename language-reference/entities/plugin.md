@@ -165,6 +165,47 @@ The exports the plugin offers, each with its declared capability, as an ordered 
 | `scope` | The document root the export operates on: `own` (the node's own rendered documents) or `host` (the documents of the component a component-scope FeatureRecipe is attached to). The host reads the declared scope ahead of the step to enforce provider compatibility against the provider rendering that scope. Absent defaults to `own`. |
 | `selector` | A free-form, human-readable description of what the export acts on (for example `workloads carrying a pod template`). Documentation for catalog readers and the inspect surface; the compiler does not interpret it. |
 
+## `spec.commands`
+
+The top-level `aggrega <command>` verbs a `cli` plugin contributes, as an ordered list that preserves the order the plugin's `describe()` self-report declares. **Machine-owned and read-only — do not author it.** Publish reads the command surface from the plugin's `describe()` self-report and records it here, so the commands a CLI plugin installs are readable from the entity without loading the `.wasm`. A non-`cli` plugin contributes no commands and records an empty list. The host installs exactly this set; a recorded set that diverges from the plugin's `describe()` self-report halts at load, and publish refuses a set out of sync with the binary and directs the author to re-record it. To resync the record after changing the plugin, run [`aggrega plugin sync`](../cli/aggrega-plugin.md).
+
+Each command entry carries:
+
+| Field | Effect |
+| --- | --- |
+| `name` | The command verb the host registers — the `aggrega <name>` token an operator invokes, and the discriminator the host hands the plugin at invocation so a single plugin backing several commands routes on which command was called. Required for each entry. |
+| `description` | The command's one-line short-help text, shown in the command listing and help output. Documentation only; the host does not act on it. |
+| `flags` | The command's flags, in declared order. Each entry registers one flag on the command so `aggrega help <command>` renders it like a core command's flag. A command with no flags leaves it empty. |
+
+Each `flags` entry declares one flag:
+
+| Field | Effect |
+| --- | --- |
+| `name` | The flag's long name — the `--name` token an operator passes on the command line. Required for each entry. |
+| `shorthand` | The flag's optional single-character short alias — the `-x` form an operator may pass instead of the long name. Absent means the flag has no short alias. |
+| `description` | The flag's one-line help text, shown in the command's help output. Optional documentation; the host neither validates nor acts on it. |
+| `type` | The flag's value type — for example `string`, `bool`, or `int`. Absent carries no type claim. |
+| `default` | The flag's default value when the operator does not pass it, expressed as a string. Absent means the flag declares no default. |
+
+A CLI plugin declares its commands and their flags in `describe()`; the host registers exactly that surface and renders each command's flags in `aggrega help <command>` the same way it renders a built-in command's flags.
+
+```yaml
+metadata:
+  pluginType: cli
+spec:
+  abiVersion: v1alpha1
+  # commands is recorded by publish from the plugin's describe() — do not author it.
+  commands:
+    - name: greet
+      description: Print a friendly greeting
+      flags:
+        - name: name
+          shorthand: n
+          description: Who to greet
+          type: string
+          default: world
+```
+
 ## Inspecting a Plugin
 
 `aggrega inspect <path-to-Plugin.yaml>` renders a `Plugin` file: its identity and socket types, its `capabilities`, the per-export capability table in author order, the runtime constraints, and — at `--detail` — the signature pointer and the runtime config keys. A `Plugin` is inspectable by file path; the bare-name catalog lookup resolves Components only. See [`../cli/aggrega-inspect.md`](../cli/aggrega-inspect.md).
