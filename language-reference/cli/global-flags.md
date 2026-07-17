@@ -14,7 +14,11 @@ A global config file loads beneath the workspace cascade — the home for machin
 
 `AGGREGA_CONFIG` overrides that path: set it to point at an explicit global `.aggrega-config.yaml` instead of the XDG default. Unlike the `AGGREGA_*` setting variables, it selects which config file applies rather than overriding a single setting; a path it names that does not exist is a loud error.
 
+The `--config <path>` global flag is the per-invocation form of the same override, and it wins over both: `--config` beats `$AGGREGA_CONFIG`, which beats the XDG default location. Whichever file the global layer resolves to, the workspace-tree cascade still layers on top of it.
+
 Config-mutating commands choose where they write from the nature of the setting: machine-wide tool config (a registry) defaults to the global file, while build-participating config (a provider binding or a mutator/policy/linter/importer socket attachment) defaults to the committed workspace file. Pass `--global` or `--workspace` to override, and the command prints where it wrote.
+
+To seed a global config on a fresh machine — registering a registry and its signature trust policy so signed artifacts pull and verify without hand-editing YAML — run [`aggrega config init`](aggrega-config.md). To see the configuration that applies right now — the ordered cascade of files and environment overrides that contributed, the effective merged result, and, with `--origin`, the layer each setting came from — run [`aggrega config show`](aggrega-config.md).
 
 ## Configuration precedence
 
@@ -34,6 +38,7 @@ A flag wins over everything; an environment variable overrides the committed con
 <!-- BEGIN GENERATED: global-flags -->
 | Flag | Default | Description |
 | --- | --- | --- |
+| `--config` | — | path to the global config file, overriding $AGGREGA_CONFIG and the default location. Workspace-tree config files still layer on top |
 | `--no-color` | `false` | Disable ANSI color in all output. Also honored via the NO_COLOR environment variable |
 | `--plain` | `false` | Accessible mode: disable color and draw plain, static progress lines with no spinner animation or cursor repaint, even on a terminal. Intended for screen readers |
 | `--workspace-root` | — | absolute path to use as the workspace root (skips discovery) |

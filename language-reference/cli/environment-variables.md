@@ -14,7 +14,7 @@ CLI flag  >  environment variable  >  .aggrega-config.yaml  >  built-in default
 - An **environment variable** sits above the committed config file (a runtime override) and below the flag (an explicit command-line value is never silently overridden by the ambient environment).
 - The **`.aggrega-config.yaml` cascade** is below the environment, and the **built-in default** is the base.
 
-A variable that is unset (or empty) falls through to the layer below — it never overwrites a configured value with a blank. When the CLI applies an environment override, it reports it alongside the loaded config files so the effective configuration is always visible.
+A variable that is unset (or empty) falls through to the layer below — it never overwrites a configured value with a blank. To see the configuration that applies right now — the ordered cascade of config files and environment overrides that contributed, then the effective merged result — run [`aggrega config show`](aggrega-config.md); its `--origin` view attributes each effective setting to the layer it came from.
 
 ## Naming
 
