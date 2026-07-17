@@ -222,7 +222,7 @@ kind: Recipe
 metadata:
   name: mariadb-bitnami
 spec:
-  target: helm
+  capability: helm
   implements: core/datastore/mariadb:1.0.0
   provides:
     host: "{{ .context.instance_id }}-mariadb.{{ .context.annotations.release.\"aggrega.ai/namespace\" }}.svc.cluster.local"

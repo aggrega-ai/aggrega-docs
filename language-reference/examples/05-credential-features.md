@@ -61,7 +61,7 @@ metadata:
   name: k8s-secret-from-parameter
   version: 1.0.0
 spec:
-  target: helm
+  capability: helm
   implements: core/referenced-secret:1.0.0
   provides:
     name: "{{ .context.instance_id }}-{{ .secret_name }}"
@@ -88,7 +88,7 @@ metadata:
   name: dotenv-secret
   version: 1.0.0
 spec:
-  target: compose
+  capability: compose
   implements: core/secret-value:1.0.0
   injectMapping: |
     env:

@@ -51,7 +51,7 @@ metadata:
   name: web-server-helm
   version: 1.0.0
 spec:
-  target: helm
+  capability: helm
   implements: core/web-server:1.0.0
   source: "./charts/web-server"
   locals:
@@ -195,7 +195,7 @@ metadata:
   name: postgres-chart
   version: 1.0.0
 spec:
-  target: helm
+  capability: helm
   implements: core/postgres:1.0.0
   source:
     # Planned: provider-declared source keys, validated by the provider's Wasm plugin.
@@ -225,7 +225,7 @@ metadata:
   name: web-server-helm
   version: 1.0.0
 spec:
-  target: helm
+  capability: helm
   implements: core/web-server:1.0.0
   source: "./charts/web-server"
   locals:

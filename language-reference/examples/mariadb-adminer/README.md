@@ -255,7 +255,7 @@ Component's values onto the chart's value schema:
 
 ```yaml
 spec:
-  target: helm
+  capability: helm
   implements: core/datastore/mariadb
   source:
     kind: helm-oci-chart
@@ -300,7 +300,7 @@ Recipe sources a small local chart:
 
 ```yaml
 spec:
-  target: helm-chart
+  capability: helm-chart
   implements: core/datastore/mariadb
   source: ./charts/mariadb          # copied verbatim as the sub-chart
   valuesMapping: |

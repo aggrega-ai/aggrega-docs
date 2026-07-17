@@ -105,7 +105,7 @@ metadata:
   name: eso-aws-fetcher
   version: 1.0.0
 spec:
-  target: helm
+  capability: helm
   implements: core/aws-secrets-manager:1.0.0
   pipeline:
     - id: "eso_fetcher"
@@ -208,7 +208,7 @@ metadata:
   name: redis-chart
   version: 1.0.0
 spec:
-  target: helm
+  capability: helm
   implements: core/redis:1.0.0
   source:
     # Planned: provider-declared source keys, validated by the provider's Wasm plugin.
@@ -243,7 +243,7 @@ metadata:
   name: eso-aws-blackbox
   version: 1.0.0
 spec:
-  target: helm
+  capability: helm
   implements: core/aws-secrets-manager:1.0.0
   pipeline:
     - id: "eso_fetcher"

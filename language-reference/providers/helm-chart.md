@@ -44,7 +44,7 @@ The helm-chart engine accepts `source:` as a **bare filesystem path string only*
 
 ```yaml
 spec:
-  target: helm-chart
+  capability: helm-chart
   source: ./charts/api-server     # filesystem path to a chart directory
   valuesMapping: |
     image: "{{ .values.image }}"
@@ -120,7 +120,7 @@ metadata:
   name: api-server-helmchart
   version: 1.0.0
 spec:
-  target: helm-chart
+  capability: helm-chart
   implements: core/api-server
   source: ./charts/api-server
   valuesMapping: |

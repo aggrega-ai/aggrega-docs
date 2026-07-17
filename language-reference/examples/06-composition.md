@@ -121,7 +121,7 @@ metadata:
   name: external-formatter
   version: 1.0.0
 spec:
-  target: eval
+  capability: eval
   implements: core/external-service:1.0.0
   locals:
     primary_compute: "virtual"

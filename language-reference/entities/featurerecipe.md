@@ -195,7 +195,7 @@ metadata:
   name: regional-router
 spec:
   implements: core/regional-router:^1.0.0
-  target: helm
+  capability: helm
   locals: |
     region_prefix: "{{ index .context.annotations.release "cloud.aggrega.ai/region" | lower }}"
     fqdn_suffix: "{{ printf "%s.svc.cluster.local" .infra.namespace }}"

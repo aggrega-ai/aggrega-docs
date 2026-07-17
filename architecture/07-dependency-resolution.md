@@ -146,7 +146,7 @@ metadata:
   name: generic-worker
   version: 1.0.0
 spec:
-  target: helm
+  capability: helm
   implements: core/python-worker:1.0.0
   source: "./charts/internal/python-runner"
   

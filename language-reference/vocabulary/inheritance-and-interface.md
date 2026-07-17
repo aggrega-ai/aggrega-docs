@@ -83,7 +83,7 @@ metadata:
   version: 1.0.0
 spec:
   implements: core/high-perf-postgres:^1.0.0
-  target: terraform
+  capability: terraform
   valuesMapping:
     # The Recipe pipes the developer's values.required_iops into the provider's infra-side knob.
     iops: "{{ .values.required_iops }}"
