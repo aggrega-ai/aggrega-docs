@@ -25,6 +25,7 @@ This section documents the JSON Schemas that define every Aggrega entity, plugin
 - [wasm-frp-step](plugins/wasm-frp-step.md)
 - [wasm-linter](plugins/wasm-linter.md)
 - [wasm-mutator](plugins/wasm-mutator.md)
+- [wasm-parse](plugins/wasm-parse.md)
 - [wasm-policy](plugins/wasm-policy.md)
 - [wasm-provider](plugins/wasm-provider.md)
 

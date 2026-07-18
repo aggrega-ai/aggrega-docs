@@ -53,6 +53,7 @@ The socket type this plugin implements. It sits in the addressing block beside `
 - `frp_step` — a feature-recipe-pipeline step that transforms IR within a pipeline.
 - `mutator` — auto-tags topology-graph node labels at Step 2, returning JSON Patch documents the host applies to a labels-only projection of the graph.
 - `policy` — evaluates the full IR graph at Step 4 and returns one pass/fail verdict per rule; a failed rule halts the build.
+- `parser` — parses a foreign source format (HCL, TOML, YAML, JSON, …) into a structured JSON tree, so a consumer that needs to read a format the compiler does not parse natively works from a parsed tree rather than the raw text.
 - `cli` — contributes a runtime `aggrega <cmd>` subcommand an operator invokes at the command line. A runtime socket, distinct from the compile-time render and pipeline sockets.
 
 Required.

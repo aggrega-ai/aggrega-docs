@@ -57,6 +57,7 @@ One rendered output file: its path and the rendered content at that path.
 | --- | --- | --- | --- |
 | `path` | string | yes | The output path of the rendered file, relative to the render root. |
 | `content` | string | yes | The rendered content at this path. |
+| `tree` | any | no | The parsed structured tree of this artifact, present when the host parsed the content before handing it to the plugin — the canonical JSON view of a source format the plugin does not read natively (an HCL artifact parsed to JSON, for example). The top level may be an object, an array, or a scalar, matching the parsed document's own shape. Absent when the host did not parse the artifact, in which case the plugin reads the native content directly. The host pipes the tree through opaquely, carrying it verbatim without interpreting its content. |
 
 _Additional properties are not permitted._
 
