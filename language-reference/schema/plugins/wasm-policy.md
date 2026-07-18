@@ -1,22 +1,22 @@
-# Aggrega Wasm Policy Validator Socket schema
+# Aggrega Wasm Policy Socket schema
 
 _Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
 
-Schema id: `https://aggrega.ai/schemas/wasm-policy-validator-v1alpha1.schema.json`
+Schema id: `https://aggrega.ai/schemas/wasm-policy-v1alpha1.schema.json`
 
-The JSON wire shapes the policy-validator.wasm plugin socket consumes (PolicyValidatorInput for the IR stage, RenderPolicyValidatorInput for the render stage) and emits (PolicyValidatorOutput). The policy validator runs during compilation; a deny verdict halts the build with a build-time diagnostic. The IR-stage input graph is the full capability-agnostic IR graph, referenced from ir-v1alpha1.schema.json rather than re-declared here, so the policy plugin sees the same node, edge, and attachment detail the compiler does; plugin authors track the IR schema version. The render-stage input carries the rendered output files instead of the graph. The wire shapes are co-canonical with the host types in aggrega-cli (the IR graph) and the generated codec in aggrega-abi.
+The JSON wire shapes the policy.wasm plugin socket consumes (PolicyInput for the IR stage, RenderPolicyInput for the render stage) and emits (PolicyOutput). The policy validator runs during compilation; a deny verdict halts the build with a build-time diagnostic. The IR-stage input graph is the full capability-agnostic IR graph, referenced from ir-v1alpha1.schema.json rather than re-declared here, so the policy plugin sees the same node, edge, and attachment detail the compiler does; plugin authors track the IR schema version. The render-stage input carries the rendered output files instead of the graph. The wire shapes are co-canonical with the host types in aggrega-cli (the IR graph) and the generated codec in aggrega-abi.
 
 ## One of the following shapes
 
-- `PolicyValidatorInput`
-- `RenderPolicyValidatorInput`
-- `PolicyValidatorOutput`
+- `PolicyInput`
+- `RenderPolicyInput`
+- `PolicyOutput`
 
 ## Definitions
 
-### `PolicyValidatorInput`
+### `PolicyInput`
 
-The payload Step 4 hands to the policy-validator socket: the full IR graph (the same shape the Topology Builder emits) plus the precalculated routing paths the analyzer enumerates alongside.
+The payload Step 4 hands to the policy socket: the full IR graph (the same shape the Topology Builder emits) plus the precalculated routing paths the analyzer enumerates alongside.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -27,9 +27,9 @@ The payload Step 4 hands to the policy-validator socket: the full IR graph (the 
 
 _Additional properties are not permitted._
 
-### `PolicyValidatorOutput`
+### `PolicyOutput`
 
-The response shape the policy-validator plugin emits: the verdicts that fired during evaluation, one PolicyResult per fired verdict. An allowing rule emits nothing, so an empty results array means no verdicts fired.
+The response shape the policy plugin emits: the verdicts that fired during evaluation, one PolicyResult per fired verdict. An allowing rule emits nothing, so an empty results array means no verdicts fired.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -37,9 +37,9 @@ The response shape the policy-validator plugin emits: the verdicts that fired du
 
 _Additional properties are not permitted._
 
-### `RenderPolicyValidatorInput`
+### `RenderPolicyInput`
 
-The payload the render stage hands to a policy-validator socket that declares the render stage: the rendered output files the policy reasons over. The render stage carries the rendered artifacts instead of the IR graph.
+The payload the render stage hands to a policy socket that declares the render stage: the rendered output files the policy reasons over. The render stage carries the rendered artifacts instead of the IR graph.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |

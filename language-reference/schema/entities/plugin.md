@@ -4,7 +4,7 @@ _Generated reference. Do not edit by hand — regenerate from the published JSON
 
 Schema id: `https://aggrega.ai/schemas/plugin-v1alpha1.schema.json`
 
-A Wasm plugin: a WebAssembly module published to an OCI registry and identified by its `metadata.name` — the `<socket>/<name>` path — declaring the socket type it implements, the ABI version it targets, an optional signature pointer, and an optional runtime block. The entity and its `.wasm` publish as one OCI manifest tagged by metadata.version — the entity YAML as the manifest's config blob, the `.wasm` as an inline layer, signed once. Identity is `metadata.name` plus the entity's metadata.version — the same shape every other entity carries; the `.wasm` location is derived from that identity plus the configured registry, and the resolved content digest lives in the lockfile, not in the entity. The closure records the digest and the per-registry trust policy verifies the artifact's signature at pull. The compiler is blind to the plugin's behavior — it routes the reference; the WebAssembly runtime executes the bytes.
+A Wasm plugin: a WebAssembly module published to an OCI registry and identified by its `metadata.pluginType` — the socket it implements — plus its bare `metadata.name`, declaring the ABI version it targets, an optional signature pointer, and an optional runtime block. The entity and its `.wasm` publish as one OCI manifest tagged by metadata.version — the entity YAML as the manifest's config blob, the `.wasm` as an inline layer, signed once. Identity is the `metadata.pluginType`/`metadata.name` coordinate plus the entity's metadata.version; the `.wasm` location is derived from that coordinate plus the configured registry, and the resolved content digest lives in the lockfile, not in the entity. The closure records the digest and the per-registry trust policy verifies the artifact's signature at pull. The compiler is blind to the plugin's behavior — it routes the reference; the WebAssembly runtime executes the bytes.
 
 See the [plugin authoring reference](../../../entities/plugin/) for prose guidance on authoring plugin entities; this page documents the structural schema that reference describes.
 
@@ -17,7 +17,7 @@ See the [plugin authoring reference](../../../entities/plugin/) for prose guidan
 | `apiVersion` | const "aggrega.ai/v1alpha1" | yes | Constant: `"aggrega.ai/v1alpha1"` |
 | `kind` | const "Plugin" | yes | Constant: `"Plugin"` |
 | `metadata` | object | yes |  |
-| `spec` | object | yes | The socket type the plugin implements, the ABI version it targets, an optional signature pointer, and an optional runtime block. The plugin's `.wasm` location is derived from its identity — `metadata.name` (the `<socket>/<name>` path) plus the configured registry — not carried in the spec. |
+| `spec` | object | yes | The ABI version the plugin targets, an optional signature pointer, and an optional runtime block. The plugin's `.wasm` location is derived from the plugin's identity — its `metadata.pluginType` (the socket) plus its bare `metadata.name` — and the configured registry; it is not carried in the spec. |
 
 _Additional properties are not permitted._
 
@@ -27,6 +27,7 @@ _Additional properties are not permitted._
 | --- | --- | --- | --- |
 | `name` | string | yes |  |
 | `version` | string | yes | Strict Semantic Versioning of the Plugin entity (e.g., 1.0.0). |
+| `pluginType` | string (enum) | yes | The socket type this plugin implements. A plugin implements exactly one socket type, drawn from the plugin-type taxonomy the runtime recognises: `provider` (renders IR nodes into provider-native artifacts), `linter` (inspects authored content and raises diagnostics), `frp_step` (a feature-recipe-pipeline step that transforms IR within a pipeline), `mutator` (auto-tags topology-graph node labels at Step 2 via JSON Patch), `policy` (evaluates the full IR graph at Step 4 and halts the build on a failed rule), `cli` (contributes a runtime `aggrega <cmd>` subcommand an operator invokes at the command line — a runtime socket, distinct from the compile-time render and pipeline sockets). Allowed values: `"provider"`, `"linter"`, `"frp_step"`, `"mutator"`, `"policy"`, `"cli"` |
 | `description` | string | no | A concise, one-sentence summary of what the entity does. |
 | `maintainers` | object[] | no | List of maintainers who own this entity. |
 | `license` | string | no | Legal compliance license (e.g., Apache-2.0). |
@@ -49,17 +50,17 @@ _Additional properties are not permitted._
 
 #### `plugin.spec`
 
-The socket type the plugin implements, the ABI version it targets, an optional signature pointer, and an optional runtime block. The plugin's `.wasm` location is derived from its identity — `metadata.name` (the `<socket>/<name>` path) plus the configured registry — not carried in the spec.
+The ABI version the plugin targets, an optional signature pointer, and an optional runtime block. The plugin's `.wasm` location is derived from the plugin's identity — its `metadata.pluginType` (the socket) plus its bare `metadata.name` — and the configured registry; it is not carried in the spec.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `pluginType` | string (enum) | yes | The socket type this plugin implements. A plugin implements exactly one socket type, drawn from the plugin-type taxonomy the runtime recognises: `provider` (renders IR nodes into provider-native artifacts), `linter` (inspects authored content and raises diagnostics), `frp_step` (a feature-recipe-pipeline step that transforms IR within a pipeline), `mutator` (auto-tags topology-graph node labels at Step 2 via JSON Patch), `policy-validator` (evaluates the full IR graph at Step 4 and halts the build on a failed rule), `cli` (contributes a runtime `aggrega <cmd>` subcommand an operator invokes at the command line — a runtime socket, distinct from the compile-time render and pipeline sockets). Allowed values: `"provider"`, `"linter"`, `"frp_step"`, `"mutator"`, `"policy-validator"`, `"cli"` |
 | `abiVersion` | string (enum) | yes | The host/guest ABI version the plugin targets. `v1alpha1` is the only accepted value in this iteration; a future ABI revision adds an accepted value. Allowed values: `"v1alpha1"` |
-| `capabilities` | string[] | no | The capabilities this plugin serves, interpreted per pluginType. A `provider` plugin lists the render-engine capabilities — provider engine names such as `helm` or `compose` — whose output shape it renders; an `frp_step` plugin lists the provider capabilities its pipeline step is compatible with; the cross-cutting sockets (`linter`, `mutator`, `policy-validator`) leave it empty. A plugin is generic across artifacts that share a capability's output shape, not across all capabilities; this list is an explicit, tested-compatibility claim. Entries preserve author order. The runtime consults the list when a pipeline step touches a scope: the provider rendering that scope's documents must appear here, or the build halts. An empty or absent list declares no capability claim, so it matches nothing and the runtime halts any pipeline step that uses the plugin. |
+| `capabilities` | string[] | no | The capabilities this plugin serves, interpreted per pluginType. A `provider` plugin lists the render-engine capabilities — provider engine names such as `helm` or `compose` — whose output shape it renders; an `frp_step` plugin lists the provider capabilities its pipeline step is compatible with; the cross-cutting sockets (`linter`, `mutator`, `policy`) leave it empty. A plugin is generic across artifacts that share a capability's output shape, not across all capabilities; this list is an explicit, tested-compatibility claim. Entries preserve author order. The runtime consults the list when a pipeline step touches a scope: the provider rendering that scope's documents must appear here, or the build halts. An empty or absent list declares no capability claim, so it matches nothing and the runtime halts any pipeline step that uses the plugin. |
 | `signature` | object | no | An optional descriptive pointer to the plugin's attached signature. This block is documentation only — it records where the signature lives and how it was produced for catalog readers; it does not itself gate or admit the plugin. The enforcing check is the per-registry trust policy applied at pull: a signature is fetched as an OCI referrer, verified against the registry's trusted identities or pinned key, and recorded as a verified fact in the lockfile. A registry that requires signatures halts the pull when a required signature is missing, untrusted, or invalid. |
 | `runtime` | object | no | Optional execution constraints the host applies when loading and running the plugin. The fields are field-aligned with the loader's plugin input so a catalog-loaded entity maps to the loader's runtime block without field reinvention. Outbound network access is not an authoring field: a plugin never reaches the network at build time (the ahead-of-time boundary), so there is no host-allowlist field to author here. |
 | `exports` | object[] | no | The exports this plugin offers, each with its declared capability. An export is one named entry point the host dispatches to (for example `render_node`, `lint_naming`, `step`); the per-export capability block is the authored claim of what that export does, which the host cross-checks against the plugin's self-report at publish and at load. Entries preserve author order. Absent declares no authored export surface. |
-| `provider` | object | no | The provider-socket metadata for a `pluginType: provider` plugin: how its rendering engine translates the aggrega.ai/v1alpha1 Workload kind and which platform-native annotations the engine reads. Present only on provider-rendering plugins; absent on `linter`, `frp_step`, `mutator`, and `policy-validator` plugins, and on provider plugins whose engine renders only sourced or artifact content (no Workload synthesis). |
+| `commands` | object[] | no | Derived from the plugin's `.wasm` describe() self-report at publish, recorded by the stamp step, verified at load; machine-owned, do not author. The top-level `aggrega <command>` verbs a CLI plugin contributes are read from the plugin's describe() self-report and recorded here in describe()-declared order, so the command surface a CLI plugin installs as is readable from the entity without loading the plugin. A non-CLI plugin contributes no commands and records an empty list. The host installs exactly this set; a recorded set that diverges from the plugin's describe() self-report halts at load, and publish refuses a set out of sync with the binary and directs the author to re-record it. |
+| `provider` | object | no | The provider-socket metadata for a `pluginType: provider` plugin: how its rendering engine translates the aggrega.ai/v1alpha1 Workload kind and which platform-native annotations the engine reads. Present only on provider-rendering plugins; absent on `linter`, `frp_step`, `mutator`, and `policy` plugins, and on provider plugins whose engine renders only sourced or artifact content (no Workload synthesis). |
 
 _Additional properties are not permitted._
 
@@ -99,9 +100,31 @@ _Additional properties are not permitted._
 
 _Additional properties are not permitted._
 
+##### `plugin.spec.commands[]`
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | string | yes | The command verb the host registers — the `aggrega <name>` token an operator invokes, and the discriminator the host hands the plugin at invocation so a single plugin backing several commands routes on which command was called. |
+| `description` | string | no | The command's one-line short-help text, shown in the command listing and help output. Documentation only; the host does not act on it. |
+| `flags` | object[] | no | The command's flags, in declared order. Each entry contributes one flag the host registers on the command so aggrega help <command> renders it like a core command's flag. A command with no flags leaves it empty. |
+
+_Additional properties are not permitted._
+
+###### `plugin.spec.commands[].flags[]`
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | string | yes | The flag's long name — the --name token an operator passes on the command line. Every declared flag must name it. |
+| `shorthand` | string | no | The flag's optional single-character short alias — the -x form an operator may pass instead of the long name. Absent means the flag has no short alias. |
+| `description` | string | no | The flag's one-line help text, shown in the command's help output. It is optional documentation; the host neither validates nor acts on it. |
+| `type` | string | no | The flag's value type — for example string, bool, or int. Absent carries no type claim. |
+| `default` | string | no | The flag's default value when the operator does not pass it, expressed as a string. Absent means the flag declares no default. |
+
+_Additional properties are not permitted._
+
 ##### `plugin.spec.provider`
 
-The provider-socket metadata for a `pluginType: provider` plugin: how its rendering engine translates the aggrega.ai/v1alpha1 Workload kind and which platform-native annotations the engine reads. Present only on provider-rendering plugins; absent on `linter`, `frp_step`, `mutator`, and `policy-validator` plugins, and on provider plugins whose engine renders only sourced or artifact content (no Workload synthesis).
+The provider-socket metadata for a `pluginType: provider` plugin: how its rendering engine translates the aggrega.ai/v1alpha1 Workload kind and which platform-native annotations the engine reads. Present only on provider-rendering plugins; absent on `linter`, `frp_step`, `mutator`, and `policy` plugins, and on provider plugins whose engine renders only sourced or artifact content (no Workload synthesis).
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |

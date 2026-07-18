@@ -8,6 +8,7 @@
 // Usage:
 //   node scripts/gen-schema-reference.mjs
 //   AGGREGA_BIN=/path/to/aggrega node scripts/gen-schema-reference.mjs
+//   AGGREGA_SCHEMA_OUT=/path/to/out node scripts/gen-schema-reference.mjs
 //
 // The generator is deterministic: given the same binary it produces
 // byte-identical output. Schema kinds are processed in sorted order, object
@@ -27,7 +28,13 @@ const BIN = process.env.AGGREGA_BIN || "aggrega";
 // Repository root is the parent of this script's directory.
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = dirname(SCRIPT_DIR);
-const SCHEMA_DIR = join(REPO_ROOT, "language-reference", "schema");
+
+// Output directory for the generated pages. Defaults to the committed
+// language-reference/schema tree; set AGGREGA_SCHEMA_OUT to redirect the whole
+// generation elsewhere. The directory is rebuilt from scratch on every run, so
+// an override into an empty directory yields a complete, self-contained set of
+// pages built solely from the binary's output.
+const SCHEMA_DIR = process.env.AGGREGA_SCHEMA_OUT || join(REPO_ROOT, "language-reference", "schema");
 
 // How deep nested inline objects are expanded before the reference stops
 // recursing. Deep enough to be useful, shallow enough to stay readable.

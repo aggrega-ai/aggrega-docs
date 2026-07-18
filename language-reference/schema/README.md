@@ -21,10 +21,11 @@ This section documents the JSON Schemas that define every Aggrega entity, plugin
 ## Plugin ABI & payload schemas
 
 - [wasm-cli](plugins/wasm-cli.md)
+- [wasm-describe](plugins/wasm-describe.md)
 - [wasm-frp-step](plugins/wasm-frp-step.md)
 - [wasm-linter](plugins/wasm-linter.md)
 - [wasm-mutator](plugins/wasm-mutator.md)
-- [wasm-policy-validator](plugins/wasm-policy-validator.md)
+- [wasm-policy](plugins/wasm-policy.md)
 - [wasm-provider](plugins/wasm-provider.md)
 
 ## Other & workspace schemas

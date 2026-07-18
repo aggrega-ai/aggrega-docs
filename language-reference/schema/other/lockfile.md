@@ -16,6 +16,7 @@ Machine-generated lockfile pinning every URI resolved from a Release for determi
 | `external_inputs` | ExternalInput[] | no | Remote inputs pinned into the content-addressed input store at acquisition time — content a provider plugin's render consumes from beyond the workspace, such as remote schema documents or non-vendored chart dependencies. Each entry pins one URL to the digest that names its bytes in the store. Build serves pinned inputs from the store and reads this section without network access. Default: `[]` |
 | `generated_at` | string | yes | ISO-8601 timestamp of the pull that produced this lockfile. Diagnostic provenance — records the wall-clock moment of resolution. Intentionally changes between pulls; not part of the WriteLockfile byte-identity guarantee. |
 | `mapping_libraries` | LibraryEntry[] | no | MappingLibrary entries the closure references via Recipe / FeatureRecipe `valuesMapping: { $import: ... }` sites. Each entry's `consumers` list records which catalog entity references which `<entry-name>` fragments of the library — a structured record that makes library-version-bump impact diffs traceable without re-running closure. Default: `[]` |
+| `mutators` | object[] | no | Resolved mutator-socket attachments, in authored order. The mutator rewrites the IR and therefore shapes the rendered output bytes, so the attachment set — the ordered list, plus per attachment the plugin coordinate and export function — is a byte-determining input pinned here. Build reads this section — never `.aggrega-config.yaml` — to reconstruct the mutator set, order, and export function, so build output is invariant to a `plugins.mutator` change made after the pull (adopted only on the next pull). Order is SEMANTIC: the runner applies attachments in list order, so unlike the URI-sorted `plugins` / `providers` sections this list is never reordered. The plugin's content digest is NOT duplicated here: it is single-sourced in the `plugins` and `entities` sections, which this record points into by identity. Default: `[]` |
 | `plugins` | object[] | no | Wasm plugins the closure references — workspace-level plugin pins from `.aggrega-config.yaml` `plugins.{mutator,policy,linter,importer}[]:` plus any embedded plugin URIs from referenced Recipes / FeatureRecipes / Providers. Default: `[]` |
 | `providers` | object[] | no | Resolved per-capability render-engine selections. Each entry pins one capability (e.g. `helm`) to the digest-free OCI identity of the provider-rendering plugin that renders it, resolved at pull from the `.aggrega-config.yaml` `plugins.providers` list (when the capability is ambiguously served) or from the sole serving plugin (when unambiguous). Build reads this section — never `.aggrega-config.yaml` — to select the render engine, so build output is invariant to workspace-config changes made after the pull. The plugin's content digest is NOT duplicated here: it is single-sourced in the `plugins` and `entities` sections, which this record points into by identity. Version coexistence is preserved: this record selects the plugin repository per capability; the concrete versions live in `entities` (one entry per resolved plugin version), and each Recipe's `spec.capability` version pin selects among them at render. Default: `[]` |
 | `release` | string | yes | Path to the Release this lockfile corresponds to, resolved relative to the lockfile's own directory (e.g. `./release-prod.yaml`). The per-Release naming convention places `<release-stem>.lock` next to `<release-stem>.yaml`; the relative path makes the lockfile self-describing without machine-specific absolute paths. |
@@ -49,6 +50,15 @@ Verified-signature fact recorded when this entity's signature was verified at pu
 | `identity` | string | no | Verified certificate subject for a keyless signature (which trusted identity matched). Empty for a keyed signature. |
 | `issuer` | string | no | Verified OIDC issuer for a keyless signature. Empty for a keyed signature. |
 | `mode` | string (enum) | yes | Verification mode that admitted the signature. Allowed values: `"keyless"`, `"keyed"` |
+
+_Additional properties are not permitted._
+
+#### `lockfile.mutators[]`
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `plugin` | string | yes | Resolved plugin coordinate of the mutator — a Plugin entity's `<pluginType>/<name>` identity (e.g. `mutator/tag-injector`). Joins by identity into the `plugins` and `entities` sections for the pinned digest and version set. |
+| `function` | string | no | Export override the attachment names. Absent selects the mutator socket's default `mutate` export. |
 
 _Additional properties are not permitted._
 
