@@ -131,6 +131,7 @@ The Aggrega CLI (`aggrega-cli/cmd/aggrega/`) registers the build pipeline plus i
 - **`aggrega deprecate` — available.** Attaches a signed deprecation marker to an already-published artifact.
 - **`aggrega login` and `aggrega logout` — available.** Authenticate to an OCI registry and store the credential, or remove a stored credential.
 - **`aggrega auth` — available.** Manages the local signing identity used to sign artifacts.
+- **`aggrega config` — available.** Inspects and manages the workspace configuration; subcommands show the effective merged configuration and where each setting came from, seed a working configuration with a registry and its signature trust policy, and freeze the effective build-critical configuration into the workspace so it builds identically without relying on the machine's global configuration.
 - **`aggrega get-schema` — available.** Prints the JSON Schema for an entity or contract kind.
 - **`aggrega plugin` — available.** Inspects the Wasm plugins the CLI can resolve; subcommands list them, add and remove configured plugins, sync a plugin's machine-owned records, and generate a catalog view of them.
 - **`aggrega cache` — available.** Inspects and maintains the on-disk caches; subcommands report status, prune, evict, and clear.

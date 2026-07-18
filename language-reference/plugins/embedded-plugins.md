@@ -6,9 +6,15 @@ Aggrega ships a set of provider and linter Wasm plugins compiled directly into t
 
 | Type | Name | Capabilities | Version |
 | --- | --- | --- | --- |
-| linter | `linter/publishing` | — | 0.4.0-98-g3a7f314 (commit 3a7f314) |
-| provider | `provider/cloudformation` | cloudformation | 0.4.0-98-g3a7f314 (commit 3a7f314) |
-| provider | `provider/compose` | compose | 0.4.0-98-g3a7f314 (commit 3a7f314) |
-| provider | `provider/helm` | helm | 0.4.0-98-g3a7f314 (commit 3a7f314) |
-| provider | `provider/helm-chart` | helm-chart | 0.4.0-98-g3a7f314 (commit 3a7f314) |
-| provider | `provider/terraform` | terraform | 0.4.0-98-g3a7f314 (commit 3a7f314) |
+| linter | `linter/publishing` | — | 0.5.0-22-g3608d761 (commit 3608d761) |
+| mutator | `mutator/label-injector` | — | 0.5.0-22-g3608d761 (commit 3608d761) |
+| mutator | `mutator/selector-tagger` | — | 0.5.0-22-g3608d761 (commit 3608d761) |
+| parser | `parser/hcl` | parse:hcl | 0.5.0-22-g3608d761 (commit 3608d761) |
+| parser | `parser/json` | parse:json | 0.5.0-22-g3608d761 (commit 3608d761) |
+| parser | `parser/toml` | parse:toml | 0.5.0-22-g3608d761 (commit 3608d761) |
+| parser | `parser/yaml` | parse:yaml | 0.5.0-22-g3608d761 (commit 3608d761) |
+| provider | `provider/cloudformation` | cloudformation | 0.5.0-22-g3608d761 (commit 3608d761) |
+| provider | `provider/compose` | compose | 0.5.0-22-g3608d761 (commit 3608d761) |
+| provider | `provider/helm` | helm | 0.5.0-22-g3608d761 (commit 3608d761) |
+| provider | `provider/helm-chart` | helm-chart | 0.5.0-22-g3608d761 (commit 3608d761) |
+| provider | `provider/terraform` | terraform | 0.5.0-22-g3608d761 (commit 3608d761) |
