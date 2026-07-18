@@ -41,7 +41,12 @@ Two focused views narrow the output:
 
 ### `config capture` — freeze build-critical settings
 
-`aggrega config capture` writes the effective build-critical configuration — the provider bindings, the mutator/policy/linter/importer socket attachments, the plugin sidecar directory, and the catalog directories — into this project's workspace config file, so the workspace builds identically without relying on the machine's global configuration. Machine-wide tooling settings such as a registry's trust policy are not captured; they stay in the global config by their nature. Running it again on an unchanged configuration rewrites the same file byte-for-byte.
+`aggrega config capture` writes the effective build-critical configuration into this project's workspace config file, so the workspace builds identically without relying on the machine's global configuration. Machine-wide tooling settings such as a registry's trust policy are not captured; they stay in the global config by their nature. Running it again on an unchanged configuration rewrites the same file byte-for-byte.
+
+The captured subset is a set of plugin socket attachments, the plugin sidecar directory, and the catalog directories:
+
+- By default capture freezes only the sockets that determine the rendered output — the provider bindings and the mutator — since only those must travel with the project for byte-identical builds. The plugin sidecar directory and catalog directories are always captured.
+- `--all-plugins` widens the captured sockets to include the policy, linter, and importer sockets as well. Without it those three stay free to vary by environment.
 
 ## See also
 
