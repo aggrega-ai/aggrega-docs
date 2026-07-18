@@ -338,7 +338,7 @@ Each entry's template evaluates with the per-instance template context (`.contex
 
 ## The `pipeline:` field
 
-`Recipe.spec.pipeline:` is a sequential array of Wasm plugin invocations for stateful AST mutation directly on the base infrastructure. Each entry declares an `id` (per-step identifier), a `plugin` URI (the Wasm artifact), a `function` (the plugin export to invoke), and an optional `with:` Go template body supplying the plugin's payload:
+`Recipe.spec.pipeline:` is a sequential array of Wasm plugin invocations for stateful AST mutation directly on the base infrastructure. Each entry declares an `id` (per-step identifier), a `plugin` URI (the Wasm artifact), a `function` (the plugin export to invoke), an optional `with:` Go template body supplying the plugin's payload, and an optional `when:` Go template that gates whether the step runs — a falsy result skips the step as a pass-through, leaving the document set unchanged. The `when:` gate, its independence from `optional:`, and its truthiness rule are covered in full under [entities/featurerecipe.md](featurerecipe.md) "Conditional steps — `when:`":
 
 ```yaml
 spec:
@@ -354,9 +354,9 @@ spec:
         envoy_version: "{{ .values.envoy_version | default \"1.30.0\" }}"
 ```
 
-**Status: accepted but inert.** The schema accepts the `pipeline:` array shape on base Recipes (parallel to the FeatureRecipe `pipeline:` field), but the base-Recipe pipeline executor is not yet wired in production dispatch; the schema-accepted entries pass through to the rendered output unchanged. The FeatureRecipe `pipeline:` field shares the same schema shape and is the standard catalog home for Wasm AST mutation today — see [entities/featurerecipe.md](featurerecipe.md) "Authoring Contract" and [Status of the Language](../10-status.md#compilation-pipeline-phases) for the current execution state of each surface.
+The compiler executes a base Recipe's `pipeline:` steps in declared order, the same way it executes a FeatureRecipe's `pipeline:`: it dispatches each step's named Wasm plugin against the rendered output, applies the returned JSON Patch operations to the addressed documents, and emits the step's side effects. The FeatureRecipe `pipeline:` field shares the same schema shape and the same execution — see [entities/featurerecipe.md](featurerecipe.md) "Authoring Contract" and [Status of the Language](../10-status.md#compilation-pipeline-phases) for the execution state of each surface.
 
-When base-Recipe pipeline execution lands, the field's mechanics will mirror the FeatureRecipe semantics: sequential evaluation in declared order, per-step output addressable by `id` from later steps, JSON Patch operations applied to the in-memory rendered AST, errors surfaced with provenance pointing at the offending step.
+The field's mechanics mirror the FeatureRecipe semantics: sequential evaluation in declared order, JSON Patch operations applied to the rendered documents, side effects emitted alongside them, and errors surfaced with provenance pointing at the offending step. A step whose `when:` gate renders falsy is skipped as a pass-through, leaving the document set unchanged for the next step.
 
 ## The `assertions:` block
 

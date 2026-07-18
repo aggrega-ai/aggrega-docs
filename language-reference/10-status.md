@@ -70,7 +70,7 @@ The 5-step Aggrega compilation pipeline is documented in [`../architecture/10-co
 
 - **Steps 1-5 (Resolver, Topology Builder, Graph Finalization, Static Analyzer, Rendering Engine) — available.**
 - **Phase A (`injectMapping` Pre-Render Interception) and Phase B sub-passes (B.0 preamble through B.6 credential FeatureRecipe Resource Generation) — available.**
-- **Phase C (`pipeline:` Wasm execution) — accepted but inert.** A Recipe declaring non-empty `pipeline:` steps validates the array shape at load time; the compiler emits a warning naming the unexecuted steps and continues without invoking the Wasm plugins. Authors targeting JSONPatch-style mutations (Envoy sidecar injection, secret VolumeMount, etc.) cannot achieve the behaviour today.
+- **Phase C (`pipeline:` Wasm execution) — available.** A Recipe or FeatureRecipe declaring non-empty `pipeline:` steps has each step executed in declared order: the compiler dispatches the step's named Wasm plugin against the rendered output, applies the returned JSON Patch operations to the addressed documents, and emits the step's side effects. A step whose `when:` gate renders falsy is skipped as a pass-through, leaving the document set unchanged. Authors targeting JSONPatch-style mutations (Envoy sidecar injection, secret VolumeMount, etc.) achieve them through this surface.
 
 ## Provider engines
 
