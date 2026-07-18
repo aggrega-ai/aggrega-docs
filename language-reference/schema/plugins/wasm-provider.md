@@ -115,6 +115,7 @@ One output file a Provider guest emitted: its on-disk path relative to the node'
 | --- | --- | --- | --- |
 | `path` | string | yes | The output file's path relative to the node's output root (for example Chart.yaml or templates/deployment.yaml). |
 | `content` | string | yes | The file's serialized bytes exactly as the guest produced them; the host writes these bytes verbatim and runs no serializer, so output is byte-identical to what the guest emitted (base64 on the JSON wire). |
+| `format` | string | no | The format the guest declares the emitted file was rendered in, so the host can route the file to a matching parser. Absent when the guest declares no format, in which case the host infers the format from the file extension. |
 
 _Additional properties are not permitted._
 
