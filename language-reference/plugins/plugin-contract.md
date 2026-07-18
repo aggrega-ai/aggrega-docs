@@ -65,8 +65,10 @@ Two sockets carry typed contract surfaces the compiler dispatches today. Plugin 
 
 - `compilation_context` — release identity (`release_name`, `environment`).
 - `graph` — a `MutatorGraph` projection of topology nodes with their compiler-assigned labels.
+- `settings` — the free-form settings object the attachment declared under `with.settings`, handed to the guest verbatim.
+- `sources` — the definition files the attachment declared under `with.sources`, each carrying its base-name path and content, so a mutator can be driven by a checked-in rules or mapping file rather than inline settings.
 
-The graph is a labels-only projection (nodes carry their resolved label sets; the full IR graph stays inside the compiler).
+The graph is a labels-only projection (nodes carry their resolved label sets; the full IR graph stays inside the compiler). `settings` and `sources` are the same engine-agnostic `with` channel the policy socket reads; the host passes them through and never interprets their content. Because a mutator's output shapes the build, the attachment's settings and source content are pinned in the release lockfile at pull and reconstructed from it at build, so the mutator input is invariant to a post-pull change to either until the next pull.
 
 **Output shape (guest → host).** A `MutatorOutput` document carrying:
 

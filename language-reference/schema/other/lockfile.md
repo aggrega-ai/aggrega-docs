@@ -59,6 +59,18 @@ _Additional properties are not permitted._
 | --- | --- | --- | --- |
 | `plugin` | string | yes | Resolved plugin coordinate of the mutator — a Plugin entity's `<pluginType>/<name>` identity (e.g. `mutator/tag-injector`). Joins by identity into the `plugins` and `entities` sections for the pinned digest and version set. |
 | `function` | string | no | Export override the attachment names. Absent selects the mutator socket's default `mutate` export. |
+| `settings` | object | no | Free-form settings object the attachment declared, pinned as authored and handed to the plugin verbatim. Build reads settings from here — never live config — so a post-pull settings change does not move build output. Absent when the attachment declares none. |
+| `sources` | object[] | no | Content-addressed pins of the attachment's declared source files, in base-name order. Build reconstructs the source the plugin reads from each pin's recorded content rather than a live host read, so build output stays invariant to a post-pull change to the source file. Absent when the attachment declares none. |
+
+_Additional properties are not permitted._
+
+##### `lockfile.mutators[].sources[]`
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `content` | string | yes | The source file's content, carried verbatim so build reconstructs the plugin's source input from the lockfile. |
+| `digest` | string | yes | The `sha256:...` content-address of the recorded content. A re-pull compares the underlying file against this digest to detect drift. |
+| `path` | string | yes | The base name of the source file — never an absolute host path, so the pin is portable and deterministic. |
 
 _Additional properties are not permitted._
 

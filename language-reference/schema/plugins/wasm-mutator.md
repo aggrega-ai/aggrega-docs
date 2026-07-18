@@ -21,6 +21,8 @@ The payload the host hands the mutator plugin on each invocation: release-level 
 | --- | --- | --- | --- |
 | `compilation_context` | CompilationContext | yes |  |
 | `graph` | MutatorGraph | yes |  |
+| `sources` | MutatorSource[] | no | Definition files the host reads and hands to the plugin verbatim, as an ordered list sorted by path. The host reads the bytes as opaque content and does not parse them. Absent when the attachment declares no sources. |
+| `settings` | object | no | A free-form settings object the host hands to the plugin verbatim. The host does not parse or act on its content. Absent when the attachment declares no settings. |
 
 _Additional properties are not permitted._
 
@@ -64,5 +66,16 @@ The minimum per-node projection the mutator plugin needs to evaluate compliance 
 | `component` | string | yes | The name of the underlying Component the node instantiates. |
 | `resolved_version` | string | yes | The exact Semantic Version of the Component the resolver pinned for this node. |
 | `labels` | map of string | yes | The node's duck-typing and ontology labels. |
+
+_Additional properties are not permitted._
+
+### `MutatorSource`
+
+One definition file handed to the plugin: its base-name path and the file's content. Both are carried verbatim; the host does not parse the content.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `path` | string | yes | The base name of the source file. The host supplies the base name only, never an absolute host path, so the wire is portable and deterministic. |
+| `content` | string | yes | The source file's content, carried verbatim as an opaque string. |
 
 _Additional properties are not permitted._
