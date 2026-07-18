@@ -319,7 +319,7 @@ uses:
     replica: { target: orders-db-ro, inject: { env: { DB_URL: url } } }
 ```
 
-Each entry — list element or map alias — becomes one edge, preserved in authoring order. The socket's `selector:` applies to every target wired through it (each edge is type-checked independently at Step 4), and `required: true` means at least one target must be wired. A bare string in the verbose map (`primary: orders-db`) is shorthand for `{ target: orders-db }`.
+Each entry — list element or map alias — becomes one edge, preserved in authoring order. The socket's `selector:` applies to every target wired through it (each edge is type-checked independently at Step 4), and `required: true` means at least one target must be wired.
 
 **Field semantics:**
 

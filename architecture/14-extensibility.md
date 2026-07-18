@@ -11,17 +11,18 @@ The YAML interface for invoking *any* plugin relies on two explicitly chosen key
 * **Why `function` (Not `command`):** Aggrega embeds a Wasm runtime (the Extism toolkit on top of the Wazero engine), executing Wasm directly in memory. Using `command` implies an OS-level CLI execution (e.g., `docker run`). Using `function` correctly aligns the DSL with the underlying WebAssembly physics: the Go host is invoking an explicitly exported function from the Wasm module.
 * **Why `with` (Not `values` or `parameters`):** Using `values` would conflate the Plugin's inputs with the Developer's cognitive payload. Using `parameters` would conflate them with the Release's environment variables. By adopting the GitHub Actions standard (`with:`), the schema clearly designates an explicit mapping contract that is validated against the plugin's own embedded JSON schema before execution.
 
-**The 6 Types of Wasm Plugins:**
+**The 7 Types of Wasm Plugins:**
 This universal `function` and `with` interface supports every programmable socket in the compiler:
 
-| Execution Phase | Plugin Type | Purpose | Expected Output |
+| Plugin Type | Where it runs | Purpose | Expected Output |
 | :--- | :--- | :--- | :--- |
-| **Step 2 (Topology)** | **Metadata Mutator** (`mutator.wasm`) | Silently auto-tags nodes with compliance or environmental labels based on context. | Array of JSONPatches targeting `metadata.labels`. |
-| **Step 4 (Validation)** | **Policy Validator** (`policy.wasm`) | Acts as the Loud Guardrail. Evaluates graph edges, paths, and labels for security boundaries. | Array of Failure Objects (e.g., `pass: false, msg: "..."`). Halts compilation. |
-| **Step 5 (Formatting)**| **Eval Formatter** (`eval` provider) | Builds complex connection strings (DSNs, URIs) for out-of-perimeter legacy DBs or SaaS APIs. | A flat JSON Dictionary (mapped directly to the node's `.locals`). |
-| **Step 5 (Modifiers)** | **Pipeline Mutators** (`Feature/Secret`) | The core pipeline plugins. Fetches secrets or injects sidecars into Base ASTs sequentially. | The Universal JSONPatch Handshake (`root_objects`, `patch`, `env_vars`). |
-| **Step 5 (Generation)**| **Renderer** (`renderer.wasm`) | Translates the final in-memory JSON into physical stringified files (Helm, Terraform). | Array of Stringified Files. |
-| **Out of Band** | **Linter/Estimator** (`linter.wasm`) | Optional FinOps or hygiene checks (e.g., calculating cloud costs based on `.infra`). | Warning Strings or Fatal Halts. |
+| **Provider** (`provider`) | Step 5 (Generation) | Translates the final in-memory IR into physical stringified files for a target format (Helm, Terraform, Compose). | An array of stringified files. |
+| **FeatureRecipe pipeline step** (`frp_step`) | FeatureRecipe pipeline (Phase C) | Sequential steps that fetch secrets or inject sidecars into base ASTs. | The Universal JSONPatch handshake (`root_objects`, `patch`, `env_vars`). |
+| **Metadata Mutator** (`mutator`) | Step 2 (Topology) | Auto-tags nodes with compliance or environmental labels; an operator opts one in. | An array of JSONPatches targeting `metadata.labels`. |
+| **Policy Validator** (`policy`) | Step 4 (Validation) or the render stage | Acts as the Loud Guardrail: evaluates graph edges, paths, and labels — or the rendered artifacts — against security boundaries. | `deny` / `warn` / `audit` verdicts; a `deny` halts the build. |
+| **Linter** (`linter`) | Out of band | Optional FinOps or hygiene checks (e.g. cloud-cost estimation from `.infra`) and publish-time discipline. | Warning strings or fatal halts. |
+| **CLI extension** (`cli`) | Runtime (`aggrega <command>`) | A drop-in top-level command contributed by a signed, sandboxed plugin, with zero per-command Go in the host. | Streamed standard output and error, plus the guest's exit code. |
+| **Parser** (`parser`) | On demand, wherever a foreign format is read | Turns foreign source text (HCL, TOML, YAML, JSON) into a canonical JSON tree. | `tree` plus `diagnostics`, and optional source `spans`. |
 
 *The full engineering mandates governing how these sockets integrate with the Go compiler's pipeline and data-flow integrity rules live in the internal Wasm-sockets reference.*
 
