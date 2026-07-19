@@ -4,7 +4,7 @@ Aggrega's compilation pipeline includes designated socket points where WebAssemb
 
 This page covers the *sockets* — the pipeline points and their input/output shapes. For the *plugin* — the `Plugin` entity, the per-export capability claims, the runtime limits, and the publish→pull→build lifecycle — see the [Wasm plugin developer guide](plugin-developer-guide.md).
 
-Aggrega embeds a Wasm host runtime — Extism on top of the Wazero engine — that loads and executes plugins behind an AOT-purity firewall: the host grants a guest zero ambient capability — no network, no filesystem, no environment, discarded stdio, an observable wall clock frozen to a build-invariant instant — so a plugin cannot break the compiler's ahead-of-time guarantees. The full capability surface — the import-module rule at load, the instantiation-time denials, and the curated host functions — is [the sandbox contract](#the-sandbox-contract) below. Plugin authors target the host through the three-language PDK (Go, Rust, TypeScript). The first socket dispatched through the host in a shipping command is the **linter socket** — the standard publishing-linter, executed by [`aggrega lint`](../cli/aggrega-lint.md). `aggrega build` dispatches two in-band build sockets when a workspace configures them: the Step 2 mutator and the Step 4 policy. Both are no-ops when no plugin is attached, so a build with no socket configuration is unchanged. The Step 5 Phase C FeatureRecipe pipeline is **accepted but inert** — its Go type definitions compile, but `aggrega build` does not yet dispatch it through the host. See [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases).
+Aggrega embeds a Wasm host runtime — Extism on top of the Wazero engine — that loads and executes plugins behind an AOT-purity firewall: the host grants a guest zero ambient capability — no network, no filesystem, no environment, discarded stdio, an observable wall clock frozen to a build-invariant instant — so a plugin cannot break the compiler's ahead-of-time guarantees. The full capability surface — the import-module rule at load, the instantiation-time denials, and the curated host functions — is [the sandbox contract](#the-sandbox-contract) below. Plugin authors target the host through the three-language PDK (Go, Rust, TypeScript). The first socket dispatched through the host in a shipping command is the **linter socket** — the standard publishing-linter, executed by [`aggrega lint`](../cli/aggrega-lint.md). `aggrega build` dispatches two in-band build sockets when a workspace configures them: the Step 2 mutator and the Step 4 policy. Both are no-ops when no plugin is attached, so a build with no socket configuration is unchanged. `aggrega build` also dispatches the Step 5 Phase C FeatureRecipe and Recipe `pipeline:` — each declared step runs through the host against the rendered document set, applying the step's RFC 6902 patches and emitting its side effects. See [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases).
 
 ## The sandbox contract
 
@@ -47,7 +47,7 @@ The compilation pipeline reserves the following socket points. The shape labels 
 | --- | --- | --- |
 | `mutator.wasm` | Step 2 (Topology Builder) | **available** — dispatched when a workspace configures a mutator plugin; auto-tags node labels via JSON Patch |
 | `policy.wasm` | Step 4 (Static Analyzer, `ir` stage) or post-render (`render` stage) | **available** — dispatched when a workspace configures a policy plugin; a `deny` verdict halts the build |
-| FeatureRecipe `pipeline:` plugins | Step 5 Phase C (Post-Render Mutation) | `accepted but inert` per Status page Phase C classification |
+| FeatureRecipe `pipeline:` plugins | Step 5 Phase C (Post-Render Mutation) | **available** — each declared step runs against the rendered document set, applying RFC 6902 patches and emitting side effects |
 | Provider rendering plugins (helm, helm-chart, compose, terraform) | Step 5 (Phase B engines) | **available** — every provider renders through its Wasm guest; rendering is Wasm-only, with no native Go engine fallback |
 | `linter.wasm` (publishing-linter) | Out-of-band (`aggrega lint`) | **available** — the publishing-linter ships and runs through the host via `aggrega lint` |
 
@@ -109,27 +109,27 @@ Only fired verdicts appear; an allowing evaluation returns an empty array. The h
 
 **Type definitions.** [`internal/compiler/analyzer/wasm_types.go`](../../../aggrega-cli/internal/compiler/analyzer/wasm_types.go) carries `PolicyInput` (IR stage) and `RenderPolicyInput` (render stage), the shared `PolicySource`, `PolicyOutput`, `PolicyResult`, and the `deny` / `warn` / `audit` severity constants.
 
-## Output shape contract — design targets
+## Output shape contract — the FeatureRecipe pipeline and provider sockets
 
-The architecture also names additional shapes that current code does not type yet. These are documented here so plugin authors building ahead of their availability know what's coming; the documentation does not imply current code support.
+The sockets below carry typed contract surfaces the compiler dispatches at build. The FeatureRecipe and Recipe `pipeline:` steps run at Step 5 Phase C over the rendered document set; the provider-rendering socket runs at Step 5 Phase B; the publishing-linter runs out of band.
 
-### Strategic Merge Patch (Phase C plugin pipeline)
+### RFC 6902 patches (Phase C plugin pipeline)
 
-FeatureRecipe `pipeline:` plugins running at Step 5 Phase C are designed to emit Strategic Merge Patches against the rendered AST. The host-side merger applies the patch to the relevant resource's spec — typically appending a sidecar container, mounting a secret volume, or rewriting an env var. The full handshake (JSON-in / JSONPatch-or-StrategicMergePatch-out) is documented at [`architecture/09-ai-features.md`](../../architecture/09-ai-features.md) and demonstrated at [`examples/04-secrets.md`](../examples/04-secrets.md).
+FeatureRecipe and Recipe `pipeline:` steps running at Step 5 Phase C emit RFC 6902 JSON Patch operations against the rendered document set. The host hands each step the keyed document set whole; the step selects the documents it targets by content and returns key-addressed patches, which the apply engine applies to the addressed documents — typically appending a sidecar container, mounting a secret volume, or rewriting an env var. A step also returns `side_effects` (below), `diagnostics`, and `outputs` (below). Demonstrated at [`examples/04-secrets.md`](../examples/04-secrets.md).
 
-**Status today:** `accepted but inert`. The schema accepts FeatureRecipe `pipeline:` arrays; the Phase C runtime that would execute them is not yet wired.
+**Status today:** **available**. Each declared step runs during `aggrega build`.
 
-### Resource Generation (Phase C credential plugins)
+### Side effects — emitting resources (Phase C credential plugins)
 
-Credential FeatureRecipe pipelines (Two-Part Plugin Principle: Fetcher + Injector) are designed to emit full Kubernetes resources alongside the patch — an `ExternalSecret` or `VaultSecret` CRD that the cluster fetches at runtime. The Fetcher's output is a complete resource; the Injector's output is a patch that mounts the resulting Kubernetes Secret. Documented at [`architecture/09-ai-features.md`](../../architecture/09-ai-features.md) and [`examples/04-secrets.md`](../examples/04-secrets.md).
+Credential FeatureRecipe pipelines (Two-Part Plugin Principle: Fetcher + Injector) emit full resources alongside a patch through a step's `side_effects` — for example an `ExternalSecret` or `VaultSecret` CRD (`emit_crd`) that the cluster fetches at runtime, or a written file (`emit_file`). The Fetcher's step emits the complete resource; the Injector's step returns a patch that mounts the resulting Kubernetes Secret. Demonstrated at [`examples/04-secrets.md`](../examples/04-secrets.md).
 
-**Status today:** `accepted but inert`.
+**Status today:** **available**.
 
 ### Step output (`pipeline:` step `outputs` map)
 
-Phase C plugin steps are designed to publish named outputs that subsequent steps consume via `{{ .steps.<id>.outputs.<key> }}`. The output shape is provider-defined per plugin; the host-side rule is that step outputs are scoped to the same Recipe's pipeline and visible only to subsequent steps in declaration order. Documented at [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) row 11.
+A Phase C step publishes named outputs that subsequent steps consume via `{{ .steps.<id>.outputs.<key> }}`. The output shape is provider-defined per plugin; step outputs are scoped to the same pipeline and visible only to subsequent steps in declaration order. Documented at [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) row 11.
 
-**Status today:** `accepted but inert`.
+**Status today:** **available**.
 
 ### Provider rendering — the guest-driven socket
 
@@ -179,9 +179,9 @@ Both sockets are usable today. The `linter.wasm` socket runs the publishing-lint
 
 ## Design surfaces without current code anchors
 
-Two design surfaces named elsewhere in the corpus do not have current code anchors today:
+A few design surfaces named elsewhere in the corpus are not yet fully anchored in current code today:
 
-- **Additional output shapes.** Current code types the mutator's JSONPatch output, the policy socket's PolicyResult array, the linter's findings plus version-bump classification, and the provider render socket's node output and artifacts. The architecture chapters and worked examples describe further FeatureRecipe-pipeline shapes (Strategic Merge Patch, Resource Generation, Step output) that do not carry Go type definitions in the compiler today.
+- **Additional output shapes.** Current code types the mutator's JSONPatch output, the policy socket's PolicyResult array, the linter's findings plus version-bump classification, the provider render socket's node output and artifacts, and the FeatureRecipe-pipeline step shapes (RFC 6902 patches, side effects, and step outputs). A step's per-diagnostic element shape stays opaque at this layer for now, with a structured diagnostic definition a follow-on.
 - **Six Wasm-socket roles enumeration.** The current typed surface is three sockets (mutator, policy, linter); the broader six-role design (adding helm-renderer, policy-formatter, fetcher/injector) is documented across architecture chapters but not centralized in a Go type registry.
 
 The `linter.wasm` socket, by contrast, is fully anchored in current code: it is the publishing-linter, a typed contract with host dispatch via `aggrega lint`.
@@ -195,6 +195,7 @@ The pipeline placement table at the top of this page reflects today's state plus
 - [`architecture/09-ai-features.md`](../../architecture/09-ai-features.md) — Two-Part Plugin Principle for credential FeatureRecipes (Fetcher + Injector pattern).
 - [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md) — Wasm Engine target and provider-as-namespace OCI taxonomy.
 - [`entities/featurerecipe.md`](../entities/featurerecipe.md) — FeatureRecipe `pipeline:` authoring surface.
+- [`when-to-use-a-pipeline-step.md`](when-to-use-a-pipeline-step.md) — decision guide: a pipeline step vs a templated FeatureRecipe.
 - [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) — Phase C `pipeline:` `with:` block template-evaluation rules and `.steps` access semantics.
 - [`examples/04-secrets.md`](../examples/04-secrets.md) — worked credential FeatureRecipe with Fetcher + Injector pipeline shape.
 - [`errors/error-translation.md`](../errors/error-translation.md) — error-translation discipline that future plugin guests participate in.

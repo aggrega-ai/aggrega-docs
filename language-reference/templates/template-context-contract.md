@@ -4,7 +4,7 @@ This page documents the runtime view the compiler injects into Recipe and Featur
 
 ## Overview
 
-The compiler assembles a `TemplateContext` per node during Step 5 and injects it into every Go template the renderer evaluates for that node. The context is in-memory only — it never persists to disk and never crosses the Wasm ABI as a single payload. Each template site receives a view of the same context object; some fields are populated late (`.workload` arrives at Phase B.2; `.source` at Phase B.0; `.steps` is reserved for `pipeline:` execution and is empty today, see [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases)).
+The compiler assembles a `TemplateContext` per node during Step 5 and injects it into every Go template the renderer evaluates for that node. The context is in-memory only — it never persists to disk and never crosses the Wasm ABI as a single payload. Each template site receives a view of the same context object; some fields are populated late (`.workload` arrives at Phase B.2; `.source` at Phase B.0; `.steps` is populated by `pipeline:` execution as each step completes, see [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases)).
 
 The schema for the runtime shape is `template-context-v1alpha1.schema.json` (shipped with the Aggrega schema distribution).
 
@@ -21,7 +21,7 @@ The top-level fields live at the root of the template context — accessed as `.
 - **`.metadata` (struct).** Release identity for deterministic naming: `release_name`, `release_version`, `environment`, `aggregate_name`. Populated for every render; values originate in the Release's `metadata:` block.
 - **`.source`.** The resolved `Recipe.Spec.Source` after Phase B.0 template evaluation. `nil` for sourceless Recipes; `nil` before Phase B.0 runs.
 - **`.workload`.** The parsed Workload object after Phase B.2 (yaml-unmarshal + `ValidateWorkload` + `ValidateWorkloadSecrets` succeed). `nil` for non-synthesized Recipes; `nil` before Phase B.2 runs.
-- **`.steps` (map of step outputs).** Populated by `pipeline:` execution as Wasm plugins run, exposing previous-step outputs to subsequent steps via `.steps.<id>.outputs`. Currently `accepted but inert` — `pipeline:` execution is not yet wired (see [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases)). Reserved field; empty in today's renders.
+- **`.steps` (map of step outputs).** Populated by `pipeline:` execution as Wasm plugins run, exposing a completed step's returned outputs to subsequent steps via `.steps.<id>.outputs`. A step reads a preceding step's outputs from its own `with` template; a step's `outputs` become visible only to steps declared after it. Empty when the node declares no pipeline, and before the node's first step completes.
 
 ## The `.context` block
 

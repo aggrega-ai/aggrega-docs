@@ -17,7 +17,7 @@ This universal `function` and `with` interface supports every programmable socke
 | Plugin Type | Where it runs | Purpose | Expected Output |
 | :--- | :--- | :--- | :--- |
 | **Provider** (`provider`) | Step 5 (Generation) | Translates the final in-memory IR into physical stringified files for a target format (Helm, Terraform, Compose). | An array of stringified files. |
-| **FeatureRecipe pipeline step** (`frp_step`) | FeatureRecipe pipeline (Phase C) | Sequential steps that fetch secrets or inject sidecars into base ASTs. | The Universal JSONPatch handshake (`root_objects`, `patch`, `env_vars`). |
+| **FeatureRecipe pipeline step** (`frp_step`) | FeatureRecipe pipeline (Phase C) | Sequential steps that fetch secrets or inject sidecars into base ASTs. | RFC 6902 `patches` against the keyed document set, plus `side_effects` (emit a new document or file), `diagnostics`, and `outputs` a later step can read. The step input carries that keyed document set and the step's rendered `with` input. |
 | **Metadata Mutator** (`mutator`) | Step 2 (Topology) | Auto-tags nodes with compliance or environmental labels; an operator opts one in. | An array of JSONPatches targeting `metadata.labels`. |
 | **Policy Validator** (`policy`) | Step 4 (Validation) or the render stage | Acts as the Loud Guardrail: evaluates graph edges, paths, and labels — or the rendered artifacts — against security boundaries. | `deny` / `warn` / `audit` verdicts; a `deny` halts the build. |
 | **Linter** (`linter`) | Out of band | Optional FinOps or hygiene checks (e.g. cloud-cost estimation from `.infra`) and publish-time discipline. | Warning strings or fatal halts. |

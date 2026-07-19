@@ -124,7 +124,7 @@ spec:
 
 ## Example 19: The Complete Wasm Handshake (stdin/stdout)
 
-This traces the exact JSON payload the Go compiler sends to a WebAssembly plugin and the Strategic Merge Patch it receives back.
+This traces the JSON payload the Go compiler sends to a WebAssembly plugin and the patch it receives back.
 
 **1. Dev Domain: The Aggregate**
 
@@ -173,7 +173,7 @@ spec:
 ```
 
 **3. The Wasm Input (Go Compiler → Wasm `stdin`)**
-During Step 5 Phase C, the compiler is designed to feed the Injector plugin this precise JSON payload. Note how the `with:` template has already been evaluated. *Phase C is currently `accepted but inert`; see [Status of the Language](../10-status.md#compilation-pipeline-phases) for current behaviour.*
+During Step 5 Phase C, the compiler feeds the Injector plugin its step input, with the `with:` template already evaluated. The JSON below illustrates the payload; the exact wire contract is the step-input shape documented in the [Wasm plugin contract](../plugins/plugin-contract.md). Phase C runs during `aggrega build`; see [Status of the Language](../10-status.md#compilation-pipeline-phases).
 
 ```json
 {
@@ -210,7 +210,7 @@ During Step 5 Phase C, the compiler is designed to feed the Injector plugin this
 ```
 
 **4. The Wasm Output (Wasm `stdout` → Go Compiler)**
-The plugin returns a Strategic Merge Patch appending the Volume and VolumeMount.
+The plugin returns its patch appending the Volume and VolumeMount. The JSON below illustrates the intent; the shipped return is RFC 6902 patches against the keyed document set, per the [Wasm plugin contract](../plugins/plugin-contract.md).
 
 ```json
 {
