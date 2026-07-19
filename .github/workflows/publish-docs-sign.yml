@@ -38,8 +38,8 @@ on:
         required: false
         default: true
         type: boolean
-      version:
-        description: "Version to publish the bundle under on a manual run (required for a real manual publish; ignored on a tag push, which uses the tag)."
+      tag:
+        description: "The release tag (vMAJOR.MINOR.PATCH) to build and publish on a manual run; required for a real manual publish, ignored on a tag push (which uses the pushed tag)."
         required: false
         default: ""
         type: string
@@ -105,7 +105,10 @@ jobs:
       # environment rather than interpolating expressions into shell.
       EVENT_NAME: ${{ github.event_name }}
       DISPATCH_DRY_RUN: ${{ inputs.dry_run }}
-      DISPATCH_VERSION: ${{ inputs.version }}
+      # The release tag requested by a manual dispatch (empty on a tag push).
+      # Surfaced as env so the effective tag is read from the environment, never
+      # interpolated into a script.
+      DISPATCH_TAG: ${{ inputs.tag }}
       # The pushed ref name (the tag on a push event). Surfaced as env so the
       # version is read from the environment, never interpolated into a script.
       REF_NAME: ${{ github.ref_name }}
@@ -115,7 +118,29 @@ jobs:
 
     steps:
       - name: Check out the documentation
+        # Full history and tags are fetched so a run that targets a past release
+        # tag can check that tag's source out before packing the bundle.
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Pin the documentation source to the release tag
+        # Move the docs tree onto the release tag before packing so the bundle
+        # carries that tag's documentation, not whatever ref the workflow was
+        # launched from. On a tag push the effective tag is the pushed tag (a
+        # no-op re-affirm of the already-checked-out ref); on a manual dispatch
+        # that supplies a tag input the effective tag is that input. A manual dry
+        # run with no tag input skips this and packs the launched ref.
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.tag != '') }}
+        run: |
+          set -euo pipefail
+          if [ "$EVENT_NAME" = "push" ]; then
+            TAG="$REF_NAME"
+          else
+            TAG="$DISPATCH_TAG"
+          fi
+          git fetch --force --tags origin
+          git checkout --force "refs/tags/${TAG}"
 
       - name: Authenticate to the registry
         # Only a real publish contacts the registry. A dry run does no network,
@@ -149,25 +174,27 @@ jobs:
           set -euo pipefail
 
           # A push event is always a real publish at the tag's version; a manual
-          # dispatch honors its dry-run input and supplies its own version. All
+          # dispatch honors its dry-run input and supplies its own tag. All
           # inputs are read from the environment, never interpolated into shell.
+          # The effective tag is the pushed tag (push) or the tag input
+          # (dispatch); the bundle publishes under the v-less version to match the
+          # tooling-image and catalog-entity version convention.
           if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
             DRY="$DISPATCH_DRY_RUN"
-            VERSION="$DISPATCH_VERSION"
+            TAG="$DISPATCH_TAG"
           else
             DRY="false"
-            # A plain vX.Y.Z tag; publish the bundle under the v-less version to
-            # match the tooling-image and catalog-entity version convention.
-            VERSION="${REF_NAME#v}"
+            TAG="$REF_NAME"
           fi
+          VERSION="${TAG#v}"
 
           if [ -z "$VERSION" ]; then
             if [ "$DRY" = "true" ]; then
-              # A manual dry run with no version still previews the reference
-              # shape; use an obvious placeholder that never reaches a registry.
+              # A manual dry run with no tag still previews the reference shape;
+              # use an obvious placeholder that never reaches a registry.
               VERSION="0.0.0-dryrun"
             else
-              echo "publish-docs: a real manual publish needs a version (set the 'version' dispatch input)" >&2
+              echo "publish-docs: a real manual publish needs a tag (set the 'tag' dispatch input)" >&2
               exit 2
             fi
           fi
