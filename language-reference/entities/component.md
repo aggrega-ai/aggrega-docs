@@ -55,7 +55,7 @@ While `labels` define the immutable Catalog DNA, dynamic business contexts (like
 
 The `Component` schema (and its `Feature` counterpart, including credential Features labeled `feature.aggrega.ai/kind: secret`) declares the validation contract for developer-authored `values` through a `spec.schema:` block. The block accepts JSON Schema 2020-12 expressed either in the compact-form YAML shorthand (the default; about 15 keywords, mechanically transformed to JSON Schema at compile time) or in full JSON Schema YAML (the verbose form), with cross-document references via `$ref:` for SchemaLibrary entries shared across multiple Components.
 
-* **Inline compact form (default authoring surface):** an embedded YAML block carrying compact-form leaves directly in the Component YAML. Fits ~95% of catalog schema content in a fraction of the line count of full JSON Schema. See [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md) for the keyword vocabulary and authoring conventions.
+* **Inline compact form (default authoring surface):** an embedded YAML block carrying compact-form leaves directly in the Component YAML. Fits the large majority of catalog schema content in a fraction of the line count of full JSON Schema. See [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md) for the keyword vocabulary and authoring conventions.
 * **Inline JSON Schema YAML:** the verbose form, suitable when the schema needs JSON Schema 2020-12 keywords the compact form does not carry directly (`$dynamicRef`, deep `unevaluatedProperties`, complex `not:` composition). Compact form and JSON Schema can be mixed at any node boundary within a single `schema:` block via the `$jsonschema:` escape hatch.
 * **Cross-document reference (`$ref:` to a SchemaLibrary entry):** a JSON Schema-native `$ref:` pointing at a SchemaLibrary entry by identity (`Datastores#/schemas/MariaDBValues` or similar). Enterprise schemas spanning hundreds of lines and reused across multiple Components live in SchemaLibrary entities; the consumer Component references the entry without inlining the content. See [`entities/schemalibrary.md`](schemalibrary.md) and [`vocabulary/cross-document-ref.md`](../vocabulary/cross-document-ref.md) for the library entity and the resolution semantics.
 
@@ -110,7 +110,7 @@ Three `infra` conventions matter across every capability-agnostic Component in t
 
 ### `infra.overrides`
 
-Universal `infra` fields — `compute`, `storage`, `ha`, `backup` — cover roughly 95% of operational sizing across providers. The remaining slice is irreducibly provider-specific: a Kubernetes Recipe needs a `nodeSelector`, an RDS Terraform Recipe needs an `instance_class`, a CloudFormation RDS Recipe needs a `DBInstanceClass`, a Compose Recipe needs an `image` override. The Component schema exposes a genuinely-open map as the escape hatch so these knobs flow through without bloating the schema:
+Universal `infra` fields — `compute`, `storage`, `ha`, `backup` — cover most operational sizing across providers. The remaining slice is irreducibly provider-specific: a Kubernetes Recipe needs a `nodeSelector`, an RDS Terraform Recipe needs an `instance_class`, a CloudFormation RDS Recipe needs a `DBInstanceClass`, a Compose Recipe needs an `image` override. The Component schema exposes a genuinely-open map as the escape hatch so these knobs flow through without bloating the schema:
 
 ```yaml
 infra:

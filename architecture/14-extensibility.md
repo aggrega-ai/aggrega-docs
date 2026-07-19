@@ -99,3 +99,35 @@ The compiler routinely needs to read text written in a format it did not author 
 
 **The first consumer: policy over Terraform HCL.** A render-stage policy that needs to inspect the Terraform a build produces does not learn HCL itself. The host parses the HCL artifact through the parser socket and hands the policy plugin the JSON tree it already reads, so the policy reasons over structured data in the shape every other socket receives. New readers of foreign formats compose the same way — ask the host for the tree, then work in JSON — so the compiler's ability to understand a format grows by adding parser plugins rather than by growing the core.
 
+## Seeding and Growing a Catalog
+
+A catalog does not have to be built from nothing. Most of the work of seeding
+Recipes and plugins for a new environment is scaffolding and reuse rather than
+writing every binary by hand.
+
+**Importing existing modules is a planned capability, not yet available.** The
+intent behind `aggrega import` is to read an existing Helm, Terraform, or
+CloudFormation module — each of which carries machine-readable structure — and
+scaffold a first-draft Recipe and its `.locals` contract for an author to review
+and finish. This lets a team carry forward work it already has rather than
+re-authoring it. It does not ship today; treat it as a direction the tooling is
+growing toward, not a command you can run now.
+
+**Most plugin work is templates, not compiled code.** A large share of features
+only inject a static sidecar, environment variable, or label — a plain JSONPatch
+with no conditional logic. A configurable patcher plugin that takes a declarative
+JSONPatch template as its `with` input covers that common case without a unique
+compiled binary per feature: the author writes a template, and for many CRD-style
+targets a `valuesMapping` template (often referencing shared fragments in a
+MappingLibrary entry) is enough on its own. Purpose-written PDK plugins are for
+the genuinely conditional remainder.
+
+**Referencing established tools.** When writing new plugin logic, authors can
+consult the publicly documented output *shapes* of established open-source tools —
+the structure of the CRDs, patches, or templates those tools are known to emit —
+as a reference for the target shape a new plugin must produce, while respecting
+each project's license. Sidecar-injection webhooks, higher-level construct
+libraries, operator CRD generators, and trait or composition catalogs all publish
+output structures that map closely to what a comparable FeatureRecipe or plugin
+needs to emit. The goal is matching a well-understood output contract, not copying
+any project's implementation.

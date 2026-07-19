@@ -93,7 +93,7 @@ Aggrega solves this by preserving strict AOT purity. It generates configurations
 
 ### 4. Pre-Analysis: The Workspace Hook (Platform RBAC & Quotas)
 
-**The Problem:** In an enterprise environment, Some changes provision expensive or production-critical infrastructure — a large GPU cluster, say — and must not flow into the GitOps pipeline unreviewed. *Which* contributors may promote *which* changes to *which* environments is an organizational policy decision; the compiler must not hard-code it.
+**The Problem:** Some changes provision expensive or production-critical infrastructure — a large GPU cluster, say — and must not flow into the GitOps pipeline unreviewed. *Which* contributors may promote *which* changes to *which* environments is an organizational policy decision; the compiler must not hard-code it.
 
 **The Solution:**
 A pure AOT compiler cannot ping Active Directory or fetch cloud credentials to figure out who is running the build. To prevent unauthorized generation before CI/CD ever runs, the architecture relies on explicit context injection.

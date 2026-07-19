@@ -249,7 +249,7 @@ To solve this without polluting the architecture with placeholder Helm charts, A
 
 The `eval.wasm` plugin tells the Go compiler: *"Do not provision physical compute. Do not output physical IaC files. Simply execute this WebAssembly logic to construct complex URIs, parse cryptographic hashes, or build connection strings, save the resulting formatted string in memory, and pass it to the component's dependents."*
 
-This creates an broadly extensible, native mechanism for Platform Ops to format complex Database Source Names (DSNs), custom API URIs, or Kafka bootstrap strings without relying on the brittleness of standard Go text templates.
+This creates a broadly extensible, native mechanism for Platform Ops to format complex Database Source Names (DSNs), custom API URIs, or Kafka bootstrap strings without relying on the brittleness of standard Go text templates.
 
 #### The Step-by-Step Execution Pipeline
 

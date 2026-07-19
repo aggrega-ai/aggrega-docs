@@ -1,6 +1,6 @@
 # Vision and Positioning
 
-This chapter establishes the foundational problem space, the strict anti-goals of the platform, its market positioning, and the overarching philosophies that govern the Aggrega ecosystem.
+This chapter establishes the foundational problem space, the strict anti-goals of the platform, how it relates to the broader ecosystem, and the overarching philosophies that govern the Aggrega ecosystem.
 
 ## The Infrastructure Semantic Gap & How Aggrega Bridges It
 
@@ -94,11 +94,32 @@ Aggrega strictly enforces Conway's Law and rejects the paradigm of proprietary l
 
 ### 5. Relationship to Adjacent Tools
 
-Aggrega's pluggable WebAssembly (Wasm) rendering socket means the community can author a `renderer.wasm` plugin for any target tool. The core project ships rendering plugins for Helm, Helm-chart, and Compose — covering Kubernetes GitOps, redistributable chart distribution, and local development — while the open socket lets teams target other static-artifact surfaces without touching the core. Teams evaluating Aggrega often come from ecosystems built around tools that sit in nearby but distinct parts of the stack. This section maps how Aggrega relates to each.
+Aggrega's pluggable WebAssembly (Wasm) rendering socket means the community can author a `renderer.wasm` plugin for any target tool. The core project ships rendering plugins for Helm, Helm-chart, and Compose — covering Kubernetes GitOps, redistributable chart distribution, and local development — while the open socket lets teams target other static-artifact surfaces without touching the core. Teams evaluating Aggrega often come from ecosystems built around tools that sit in nearby but distinct parts of the stack. The tools below are grouped by how they relate to Aggrega: the artifact formats it renders to today, the AOT-compiler space it shares, the control planes that consume its output, and the adjacent configuration-management domain it does not target.
 
-* **Ansible** is an imperative configuration-management tool for sequential playbooks on long-lived VMs and on-premise fleets. Aggrega emits declarative topology artifacts for container and cloud-API targets. The two address adjacent problem domains — teams running Ansible for server-state management alongside containerized workloads typically keep it for that role and use Aggrega for the application topology.
-* **Pulumi** lets developers author infrastructure in general-purpose languages (TypeScript, Python, Go); its core value is treating infrastructure as executable code. Aggrega's authoring surface is a declarative YAML blueprint — the abstraction, not the API surface, is what developers write against. Each reflects a different philosophy about where the developer's contract with infrastructure lives.
+**Artifact formats Aggrega renders to today.** These are the outputs the shipped renderer plugins produce.
+
+* **Helm** is the standard packaging and templating format for Kubernetes software. Aggrega emits both rendered Helm YAML and umbrella charts as first-class output targets, so Helm-based workflows consume Aggrega's output directly.
+* **Docker Compose** is the standard for local multi-container development. Aggrega's Compose renderer targets it directly, so a single blueprint runs locally without a separate authoring surface.
+
+**The AOT-compiler space.** These tools also compile abstract or code-level intent into static artifacts and stop before deployment. Aggrega targets several of the same final artifacts through its open renderer socket; where a renderer plugin does not ship today, the target is reachable by authoring one rather than by changing the core.
+
+* **Terraform / OpenTofu** provision cloud resources from declarative HCL and manage state through a CLI engine. Aggrega compiles to static artifacts and leaves state execution to the runtime; a Terraform render target is reachable through the open socket.
+* **AWS CloudFormation**, **Azure Resource Manager (ARM) / Bicep**, and **Google Cloud Deployment Manager** are the native declarative provisioning formats for their respective clouds. Each is a static-artifact target an author can render to through the open socket.
 * **AWS CDK and CDKTF** are static AOT compilers that translate general-purpose code into CloudFormation JSON and Terraform JSON respectively. Aggrega targets those same final static artifacts through the same open renderer socket, which is why placing one tool upstream of the other adds a compilation layer without adding capability.
-* **Crossplane and KubeVela** are active Kubernetes control-plane operators that reconcile desired state from inside a cluster. Aggrega is strictly ahead-of-time — it produces manifests, and GitOps tools (ArgoCD, Flux) or a Crossplane / KubeVela control plane apply them. A Crossplane or KubeVela cluster can consume Aggrega's Kubernetes output like any other declarative YAML; the two layers complement each other.
-* **Score.dev** is a declarative abstraction for basic workload capacity — CPU, memory, ports — rendered into Docker Compose or Helm. It addresses a focused subset of what Aggrega covers: cross-component topology, policy sockets, Wasm adapters, and AI-specific capabilities are outside Score's scope. Teams whose needs begin and end with per-workload capacity typically reach for Score; teams needing topological wiring and policy enforcement reach for Aggrega.
+* **Pulumi** lets developers author infrastructure in general-purpose languages (TypeScript, Python, Go); its core value is treating infrastructure as executable code. Aggrega's authoring surface is a declarative YAML blueprint — the abstraction, not the API surface, is what developers write against. Each reflects a different philosophy about where the developer's contract with infrastructure lives.
+* **AWS SAM and the Serverless Framework** statically translate a YAML spec into serverless function and API-gateway resources — a focused subset of the artifact space Aggrega's socket can target.
+* **Nitric, Klotho, and Winglang** are cloud-aware programming models whose AOT compilers emit standard infrastructure files from application code, rather than from a declarative topology blueprint.
+* **Score.dev** is a declarative abstraction for basic workload capacity — CPU, memory, ports — rendered into Docker Compose or Helm. It addresses a focused subset of what Aggrega covers: cross-component topology, policy sockets, Wasm adapters, and AI-specific capabilities are outside Score's scope.
 
+**Control planes that consume Aggrega's output.** These operate inside a running cluster and apply declarative artifacts. Aggrega is strictly ahead-of-time — it produces the manifests these systems reconcile.
+
+* **ArgoCD and Flux** are GitOps controllers that reconcile Git-stored manifests into a cluster. They apply Aggrega's Kubernetes output like any other declarative YAML.
+* **Crossplane and KubeVela** are active Kubernetes control-plane operators that reconcile desired state from inside a cluster. A Crossplane or KubeVela cluster can consume Aggrega's Kubernetes output like any other declarative YAML; the two layers complement each other.
+* **Microsoft Radius** is an app-to-infrastructure control plane that reconciles desired state from inside a cluster, consuming declarative artifacts of the kind Aggrega produces.
+* **Spinnaker** is a continuous-delivery engine that deploys artifacts to VM and Kubernetes targets, downstream of the artifact-generation step Aggrega occupies.
+
+**Adjacent configuration management.** These address server-state and YAML-patching problems distinct from topology compilation, and Aggrega does not target their domain.
+
+* **Ansible** is an imperative configuration-management tool for sequential playbooks on long-lived VMs and on-premise fleets. Aggrega emits declarative topology artifacts for container and cloud-API targets. Teams running Ansible for server-state management alongside containerized workloads typically keep it for that role and use Aggrega for the application topology.
+* **Chef, Puppet, and SaltStack** are agent-based configuration-management systems that converge server state across fleets — a different problem domain from static topology compilation.
+* **Kustomize** patches Kubernetes YAML without templating and is built into `kubectl`. It transforms existing manifests rather than compiling a topology blueprint into them.
