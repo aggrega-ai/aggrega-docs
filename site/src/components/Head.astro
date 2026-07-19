@@ -1,5 +1,6 @@
 ---
 import { resolveVersioning } from "../versioning.mjs";
+import favicon from "@aggrega-ai/brand/logo/favicon-simple.svg?url";
 
 // The default document head already emits a self-referential canonical link and
 // an og:url for the current page. For any version other than the latest, those
@@ -9,7 +10,14 @@ import { resolveVersioning } from "../versioning.mjs";
 // the site emits by default.
 const { isLatest, base, latestBase, site } = resolveVersioning();
 
-const head = Astro.locals.starlightRoute.head.map((entry) => {
+// The default head carries a favicon link pointing at an unversioned path that
+// the site does not ship. Drop it here so the only tab icon is the brand one
+// pushed below, single-sourced from the brand package.
+const head = Astro.locals.starlightRoute.head
+  .filter(
+    (entry) => !(entry.tag === "link" && entry.attrs?.rel === "shortcut icon"),
+  )
+  .map((entry) => {
   if (isLatest) return entry;
   if (
     entry.tag === "link" &&
@@ -82,6 +90,13 @@ head.push({
 head.push({
   tag: "meta",
   attrs: { name: "twitter:image", content: ogImage },
+});
+// Single-source the tab icon from the brand package (the logo above is already
+// single-sourced the same way); Vite inlines the small SVG as a data URI, or
+// emits a hashed asset for one above its inline-size threshold.
+head.push({
+  tag: "link",
+  attrs: { rel: "icon", type: "image/svg+xml", href: favicon },
 });
 
 // Structured data: a site-level WebSite record, a documentation-article record
