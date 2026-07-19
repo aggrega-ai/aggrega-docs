@@ -3,7 +3,8 @@ name: Publish and sign documentation
 # Tag-driven publisher for the documentation bundle. On a documentation release
 # tag it packs the reader-facing docs into a deterministic gzipped tar and
 # publishes that bundle as a standalone OCI data artifact at docs/aggrega-docs,
-# then signs the published reference with an offline key.
+# then signs the published reference keyless via the GitHub Actions OIDC identity
+# against public Sigstore (Fulcio + Rekor).
 #
 # The documentation bundle is NOT a catalog entity: it carries no entity
 # envelope and no kind, so it rides the generic data-artifact transport
@@ -16,9 +17,8 @@ name: Publish and sign documentation
 # Deciding the version and cutting the tag is a human action; this workflow only
 # publishes and signs OCI artifacts.
 #
-# NOT YET LIVE. The destination registry, its pull/push credentials, the offline
-# signing key, and the tooling-image tag are all operator-configured and are not
-# wired here. Until they exist this workflow is authored but unexercised — it has
+# NOT YET LIVE. The destination registry, its pull/push credentials, and the
+# tooling-image tag are all operator-configured and are not wired here. Until they exist this workflow is authored but unexercised — it has
 # never run against a real registry. The manual-dispatch entry defaults to a dry
 # run, so an unconfigured or accidental invocation prints what it would do
 # without building a real publish, signing, or contacting any registry.
@@ -44,12 +44,16 @@ on:
         default: ""
         type: string
 
-# Keyed (offline-key) signing only. No id-token / keyless path: a public
-# transparency log would leak the existence and metadata of private artifacts.
-# The workflow reads only from the repository it checks out and writes nothing
-# back to git, so read access is all it needs.
+# Keyless signing via the GitHub Actions OIDC identity. The workflow mints a
+# short-lived identity token from the Actions runtime and signs against public
+# Sigstore (Fulcio + Rekor); no offline key is stored. The docs bundle publishes
+# to the public hub, so recording the reference in the public transparency log is
+# expected, not a leak. id-token:write lets the job mint the OIDC token; the
+# workflow reads only from the repository it checks out and writes nothing back
+# to git, so contents:read is all the git access it needs.
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   publish-sign:
@@ -60,7 +64,9 @@ jobs:
 
     # Run inside the published tooling image so `aggrega` is already on PATH — no
     # toolchain build here. The image must also provide git (for checkout), bash,
-    # tar and gzip, which the bundle build script uses to pack the docs.
+    # tar and gzip, which the bundle build script uses to pack the docs, plus
+    # curl, which the OIDC-token step uses to mint the keyless signing identity
+    # from the Actions runtime.
     #
     # PIN SEAM — the single reviewed home for the tooling-image version. The tag
     # below is the one place the pinned version lives; the job derives its
@@ -76,7 +82,7 @@ jobs:
     container:
       image: hub.aggrega.ai/tools/aggrega:v0.0.0-placeholder
       credentials:
-        username: ${{ secrets.REGISTRY_USERNAME }}
+        username: ${{ vars.REGISTRY_USERNAME }}
         password: ${{ secrets.REGISTRY_PASSWORD }}
 
     env:
@@ -88,12 +94,13 @@ jobs:
       # interpolated into a run script) to avoid expression injection. The
       # username feeds `aggrega login`; the password is read by login from
       # AGGREGA_REGISTRY_PASSWORD.
-      REGISTRY_USERNAME: ${{ secrets.REGISTRY_USERNAME }}
+      REGISTRY_USERNAME: ${{ vars.REGISTRY_USERNAME }}
       AGGREGA_REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}
-      # Offline signing key material, supplied as a secret and written to a
-      # private file for the --key path. Empty until configured, which makes a
-      # real signing run fail safely rather than publish unsigned.
-      SIGNING_KEY: ${{ secrets.DOCS_SIGNING_KEY }}
+      # Public-good Sigstore endpoints for keyless signing. The binary already
+      # defaults to these; they are named here so the `aggrega sign` call states
+      # the trust roots explicitly.
+      FULCIO_URL: https://fulcio.sigstore.dev
+      REKOR_URL: https://rekor.sigstore.dev
       # Dispatch inputs surfaced as env so run scripts read them from the
       # environment rather than interpolating expressions into shell.
       EVENT_NAME: ${{ github.event_name }}
@@ -119,6 +126,23 @@ jobs:
           # comes from the environment. No secret is placed on the command line
           # or interpolated from an expression.
           aggrega login "$REGISTRY" --username "$REGISTRY_USERNAME"
+
+      - name: Mint the Sigstore OIDC identity token
+        # Keyless signing needs a short-lived OIDC identity token. Request one
+        # from the Actions runtime (available because id-token:write is granted),
+        # audience-scoped to sigstore, and export it as SIGSTORE_ID_TOKEN so the
+        # `aggrega sign` call reads it non-interactively — no browser, no offline
+        # key. Only a real publish signs, so a dry run skips this.
+        if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.dry_run == false) }}
+        run: |
+          set -euo pipefail
+          token_json="$(curl -sSL \
+            -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
+            "${ACTIONS_ID_TOKEN_REQUEST_URL}&audience=sigstore")"
+          id_token="$(printf '%s' "$token_json" | grep -o '"value":"[^"]*"' | head -1 | cut -d'"' -f4)"
+          [ -n "$id_token" ] || { echo "OIDC: runtime returned no token value" >&2; exit 1; }
+          echo "::add-mask::$id_token"
+          echo "SIGSTORE_ID_TOKEN=$id_token" >> "$GITHUB_ENV"
 
       - name: Build, publish and sign the documentation bundle
         run: |
@@ -162,7 +186,7 @@ jobs:
               --tag "$VERSION" \
               --registry "$REGISTRY" \
               --dry-run
-            echo "publish-docs (dry-run): would sign $REGISTRY/docs/$DOCS_ARTIFACT_NAME:$VERSION with the offline key"
+            echo "publish-docs (dry-run): would sign $REGISTRY/docs/$DOCS_ARTIFACT_NAME:$VERSION keyless against public Sigstore"
             exit 0
           fi
 
@@ -172,12 +196,11 @@ jobs:
             --tag "$VERSION" \
             --registry "$REGISTRY"
 
-          # Sign the published artifact by reference with the offline key. Signing
-          # is kind-agnostic — it needs only the reference this publish landed.
-          # The reference is composed deterministically from the same inputs the
-          # publish used (registry + reserved docs/ namespace + name + version).
-          KEY_PATH="$RUNNER_TEMP/docs-signing.key"
-          umask 077
-          printf '%s' "$SIGNING_KEY" > "$KEY_PATH"
-
-          aggrega sign "$REGISTRY/docs/$DOCS_ARTIFACT_NAME:$VERSION" --key "$KEY_PATH"
+          # Sign the published artifact by reference, keyless against public
+          # Sigstore. Signing is kind-agnostic — it needs only the reference this
+          # publish landed. The reference is composed deterministically from the
+          # same inputs the publish used (registry + reserved docs/ namespace +
+          # name + version). The identity token is read from SIGSTORE_ID_TOKEN
+          # (minted above).
+          aggrega sign "$REGISTRY/docs/$DOCS_ARTIFACT_NAME:$VERSION" \
+            --fulcio-url "$FULCIO_URL" --rekor-url "$REKOR_URL"
