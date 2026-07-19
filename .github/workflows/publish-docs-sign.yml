@@ -25,12 +25,13 @@ name: Publish and sign documentation
 
 on:
   # A documentation release tag is the trigger and the human gate: a person
-  # decides the version and pushes the tag. The pattern matches a plain
-  # MAJOR.MINOR.PATCH tag (no v prefix); a pre-release suffix is intentionally
-  # excluded from automatic publishing.
+  # decides the version and pushes the tag. The pattern matches a
+  # vMAJOR.MINOR.PATCH tag; a pre-release suffix is intentionally excluded from
+  # automatic publishing. The tag is v-prefixed; the bundle publishes under the
+  # v-less version (see below).
   push:
     tags:
-      - "[0-9]+.[0-9]+.[0-9]+"
+      - "v[0-9]+.[0-9]+.[0-9]+"
   workflow_dispatch:
     inputs:
       dry_run:
@@ -39,7 +40,7 @@ on:
         default: true
         type: boolean
       tag:
-        description: "The release tag (MAJOR.MINOR.PATCH) to build and publish on a manual run; required for a real manual publish, ignored on a tag push (which uses the pushed tag)."
+        description: "The release tag (vMAJOR.MINOR.PATCH) to build and publish on a manual run; required for a real manual publish, ignored on a tag push (which uses the pushed tag)."
         required: false
         default: ""
         type: string
