@@ -105,5 +105,6 @@ aggrega validate [entity-path] [flags]
 | `--catalog` | `[]` | Catalog directory; repeatable. Each --catalog is prepended to the workspace catalog_dirs search stack (first match wins). Defaults to the current directory. |
 | `--plugin` | — | Path to a raw .wasm to validate against its describe() self-report — the pre-publish authoring check. Alone it needs --type; with a Plugin entity argument it cross-checks the binary against the entity's declared type, capability claim, command mirror, and host-function record. |
 | `--release` | — | Path to a Release YAML to validate over its resolved dependency closure (mutually exclusive with an entity argument) |
+| `--response-format` | `detailed` | Output volume for the --release scope: `detailed` (default) reports every diagnostic plus advisory lines; `concise` reports the diagnostic count and the first diagnostic only. The verdict and exit code are identical for both. |
 | `--type` | — | Plugin type for a binary-only --plugin check, verified against the binary's self-reported type. Only meaningful with --plugin; when a Plugin entity supplies the type, omit it (a disagreeing value halts). |
 <!-- END GENERATED: cli-validate -->
