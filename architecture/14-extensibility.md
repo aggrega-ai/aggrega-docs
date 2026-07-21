@@ -23,6 +23,7 @@ This universal `function` and `with` interface supports every programmable socke
 | **Linter** (`linter`) | Out of band | Optional FinOps or hygiene checks (e.g. cloud-cost estimation from `.infra`) and publish-time discipline. | Warning strings or fatal halts. |
 | **CLI extension** (`cli`) | Runtime (`aggrega <command>`) | A drop-in top-level command contributed by a signed, sandboxed plugin, with zero per-command Go in the host. | Streamed standard output and error, plus the guest's exit code. |
 | **Parser** (`parser`) | On demand, wherever a foreign format is read | Turns foreign source text (HCL, TOML, YAML, JSON) into a canonical JSON tree. | `tree` plus `diagnostics`, and optional source `spans`. |
+| **Importer** (`importer`) | On demand (`aggrega import`) | Turns a foreign infrastructure or agent-definition source (Langflow, Flowise) into draft Aggrega authoring files, advertising the formats it handles as `import:<format>` capabilities. | Draft `Aggregate` / `Component` entities, the mapping decisions behind them, diagnostics, and the scaffold files to write. |
 
 *The full engineering mandates governing how these sockets integrate with the Go compiler's pipeline and data-flow integrity rules live in the internal Wasm-sockets reference.*
 
@@ -99,19 +100,39 @@ The compiler routinely needs to read text written in a format it did not author 
 
 **The first consumer: policy over Terraform HCL.** A render-stage policy that needs to inspect the Terraform a build produces does not learn HCL itself. The host parses the HCL artifact through the parser socket and hands the policy plugin the JSON tree it already reads, so the policy reasons over structured data in the shape every other socket receives. New readers of foreign formats compose the same way — ask the host for the tree, then work in JSON — so the compiler's ability to understand a format grows by adding parser plugins rather than by growing the core.
 
+### 7. Importer Plugins: Drafting Authoring Files From Foreign Sources
+
+A team rarely starts from a blank page. Its agent architecture often already exists somewhere else — a Langflow or Flowise flow, a graph of nodes wired together in another tool. The **importer socket** turns that foreign source into a running start on Aggrega authoring: it reads the source and scaffolds first-draft `Aggregate` and `Component` entities for an author to review and finish, so a team carries a flow it already has forward into Aggrega rather than re-authoring it by hand. An importer maps *meaning* — it reads what a source node is and proposes the Aggrega entity that stands for it; the compiler pipes the emitted entities through opaquely, exactly as it stays blind to what any plugin produces.
+
+**A format is a capability, not a compiler feature.** An importer advertises the formats it handles as capabilities — `import:langflow`, `import:flowise`, and so on — and the host resolves an importer by the requested format, runs it, and takes back the entities it drafted. This is the same drop-in, capability-advertised model the parser socket takes with `parse:<format>`: the compiler core holds no built-in list of importable formats, so supporting a new one is shipping an importer plugin that advertises it, never a core release.
+
+**An importer reads through the parser socket; it does not re-parse.** An importer needs the structured shape of its source, but it does not re-implement the reading of a format the ecosystem already parses. When it needs the tree, it asks the host to run the matching parser through the same host-mediated parse capability the rest of the pipeline uses, and works from the JSON tree that comes back. Reading (syntax to tree) stays the parser's job; mapping (tree to Aggrega entities) is the importer's. The two sockets compose without duplicating each other: an importer adds the mapping intelligence for a source and leans on the existing parser for the bytes.
+
+**Mapping is deterministic and confidence-scored.** For each node in the source, an importer scores the catalog's components with a deterministic, no-model confidence model and records the decision — the candidates it weighed, the match tier it assigned, and the choice it made — as reviewable hints an author can read and revise. The default is hints only: the import proposes, and the author decides. A high-confidence match can be written as a reference to an existing catalog component instead of a freshly drafted body, but only when the operator opts in — always as an explicit, reversible suggestion the author gates, never a silent rewrite. Because the scoring carries no model and no runtime lookup, the same source scored against the same catalog always produces the same hints.
+
+**The command.** [`aggrega import <file>`](../language-reference/cli/aggrega-import.md) runs an import from the terminal. `--format` names the source format explicitly — for example `langflow` or `flowise` — for a source whose shape the command cannot read off on its own; `--stdout` writes the drafted files to standard output instead of to disk, so an author can preview the scaffold before committing anything to the working tree. The command drives the importer the workspace resolves for the named format and lays down the entities and any scaffold files the import produced.
+
+**What ships today.** The importer socket and the `aggrega import` command are in place, and the first version targets declarative agent-definition formats — Langflow and Flowise flows. The format-specific mapping intelligence lives in the importer plugin, not in the core, so running the command end to end needs a catalog-published importer plugin that advertises the source format. A standard-library Langflow/Flowise importer is still forthcoming; until one is published, the command has the socket and the workflow but not yet a plugin to resolve for those formats.
+
 ## Seeding and Growing a Catalog
 
 A catalog does not have to be built from nothing. Most of the work of seeding
 Recipes and plugins for a new environment is scaffolding and reuse rather than
 writing every binary by hand.
 
-**Importing existing modules is a planned capability, not yet available.** The
-intent behind `aggrega import` is to read an existing Helm, Terraform, or
-CloudFormation module — each of which carries machine-readable structure — and
-scaffold a first-draft Recipe and its `.locals` contract for an author to review
-and finish. This lets a team carry forward work it already has rather than
-re-authoring it. It does not ship today; treat it as a direction the tooling is
-growing toward, not a command you can run now.
+**Importing a foreign source into draft authoring files.** `aggrega import <file>`
+reads a declarative agent-definition source — a Langflow or Flowise flow — and
+scaffolds first-draft `Aggregate` and `Component` YAML for an author to review and
+finish, so a team carries forward a flow it already has rather than re-authoring it
+by hand. For each node in the source it scores catalog components with a
+deterministic, no-model confidence model and records the decision — the candidates
+it weighed, the tier it assigned, and the choice it made — as reviewable hints; a
+high-confidence match can be written as a catalog reference when the operator opts
+in, always as an explicit, reversible suggestion the author gates rather than a
+silent rewrite. The format-specific mapping intelligence lives in an importer plugin
+the workspace resolves for the source format; a catalog-published Langflow/Flowise
+importer is still forthcoming, so running the command end to end needs an importer
+plugin that advertises the source format.
 
 **Most plugin work is templates, not compiled code.** A large share of features
 only inject a static sidecar, environment variable, or label — a plain JSONPatch

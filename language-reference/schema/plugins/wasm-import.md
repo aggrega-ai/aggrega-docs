@@ -1,0 +1,157 @@
+# Aggrega Wasm Importer Socket schema
+
+_Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
+
+Schema id: `https://aggrega.ai/schemas/wasm-import-v1alpha1.schema.json`
+
+The JSON wire shapes an importer plugin socket consumes (ImportInput) and emits (ImportOutput). An importer turns a foreign infrastructure description into Aggrega entities: it reads the source bytes for a named format, maps each source node to a catalog entity, and returns the entities it emitted, the mapping decisions it made, any diagnostics it raised, and any scaffold files it produced. An importer declares the formats it handles as import:<format> capabilities in its descriptor. The importer maps meaning from the source to entities; the compiler pipes the emitted entities through opaquely.
+
+## One of the following shapes
+
+- `ImportInput`
+- `ImportOutput`
+
+## Definitions
+
+### `ImportInput`
+
+The payload an importer guest receives: the source format that selects how to read the bytes, the primary source bytes, any named sources for a multi-file import, and an optional opaque options document the consumer supplies for importer-specific behavior.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `format` | string | yes | The name of the source format to import, matching one of the importer's advertised import:<format> capabilities. The importer reads the sources as this format. |
+| `bytes` | string | yes | The primary source bytes to import, base64-encoded on the wire. The importer decodes the base64 to recover the original bytes and reads them as the named format. |
+| `sources` | ImportSource[] | no | Named sources for a multi-file or directory import, each carrying its own bytes. Absent for a single-file import, where the primary bytes carry the whole source. |
+| `settings` | any | no | An opaque import-options document the consumer supplies for importer-specific behavior. The host pipes it through without interpreting it; the importer reads whatever shape it documents. Absent when the consumer supplies no options. |
+
+_Additional properties are not permitted._
+
+### `ImportSource`
+
+One named source within a multi-file or directory import: a name locating the source and its own bytes.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | string | yes | The name of this source within the import, such as a relative file path. |
+| `bytes` | string | yes | This source's bytes, base64-encoded on the wire. The importer decodes the base64 to recover the original bytes. |
+
+_Additional properties are not permitted._
+
+### `ImportOutput`
+
+The payload an importer guest returns: the entities the import produced, the mapping decisions behind them, any diagnostics the import raised, and any scaffold files it produced. Every field is optional, so an import that resolved nothing may return diagnostics alone.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entities` | EmittedEntity[] | no | The entities the import produced, each either a reference to an existing catalog entity or a drafted entity body. Absent when the import emitted no entities. |
+| `decisions` | ImportDecision[] | no | The mapping decisions the import made, one per source node it resolved, recording the candidates it weighed and the choice it made. Absent when the import recorded no decisions. |
+| `diagnostics` | Diagnostic[] | no | Diagnostics the import raised — for example an unresolved source node or an ambiguous mapping. Absent when the import produced none. |
+| `files` | ScaffoldFile[] | no | Scaffold files the import produced alongside the entities, such as a starter aggregate or a readme. Absent when the import produced no files. |
+
+_Additional properties are not permitted._
+
+### `EmittedEntity`
+
+One entity the import produced: its kind, its name, and how it is emitted — a reference to an existing catalog entity or a newly drafted entity body.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `kind` | string | yes | The kind of entity emitted. In v1 this is Component or Aggregate; additional kinds may appear as the emission surface grows, so a reader tolerates an unrecognized kind. |
+| `name` | string | yes | The name of the emitted entity. |
+| `mode` | string (enum) | yes | How the entity is emitted: reference points at an existing catalog entity by name, and draft carries a newly drafted entity body. Allowed values: `"reference"`, `"draft"` |
+| `body` | string | no | The raw YAML body of a drafted entity. Empty for a pure reference, which names an existing entity rather than drafting one. |
+| `labels` | map of string | no | Labels to attach to the emitted entity, as a string-to-string map. Empty in v1; reserved for a future label-driven emission axis. |
+| `annotations` | map of string | no | Annotations to attach to the emitted entity, as a string-to-string map. Empty in v1; reserved for a future annotation-driven emission axis. |
+| `sourceRef` | string | no | A reference to the source node this entity was emitted from, so a reader can trace the entity back to its origin in the imported source. |
+| `decisionRef` | string | no | A reference to the mapping decision that produced this entity, linking it to the candidates weighed and the choice made. |
+
+_Additional properties are not permitted._
+
+### `ImportDecision`
+
+One mapping decision: the source node the importer resolved, the candidate catalog entities it weighed, the candidate it chose, and the reasoning behind the choice.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `sourceNode` | DecisionSourceNode | yes | The source node this decision resolved: the node the importer read from the source and mapped to a catalog entity. |
+| `candidates` | ImportCandidate[] | no | The candidate catalog entities the importer weighed for this source node, each with its score and the per-signal breakdown behind that score. Absent when the importer weighed no candidates. |
+| `chosen` | DecisionChoice | no | The candidate the importer chose for this source node, and how it emitted it. Absent when the importer made no choice. |
+| `rationale` | string | no | A human-readable explanation of why the importer made this choice. |
+| `swapHint` | string | no | A hint describing how to swap the chosen mapping for an alternative, so a reader can revise the decision. |
+
+_Additional properties are not permitted._
+
+### `DecisionSourceNode`
+
+The source node a mapping decision resolved: an identifier, the type the source names it, and a human-readable summary of its parameters.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes | The identifier of the source node within the imported source. |
+| `type` | string | yes | The type of the source node as the source names it. |
+| `paramsSummary` | string | yes | A human-readable summary of the source node's parameters, for display alongside the decision. |
+
+_Additional properties are not permitted._
+
+### `ImportCandidate`
+
+One candidate catalog entity the importer weighed for a source node: the candidate component, its overall score, the match tier the score falls into, and the per-signal breakdown behind the score.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `componentName` | string | yes | The name of the candidate catalog component. |
+| `score` | number | yes | The candidate's overall match score, aggregated from the per-signal breakdown. |
+| `tier` | string | yes | The match tier the candidate falls into, a coarse band over the score. |
+| `signals` | CandidateSignals | yes | The per-signal breakdown behind the candidate's score. |
+
+_Additional properties are not permitted._
+
+### `CandidateSignals`
+
+The per-signal breakdown behind a candidate's score: one contribution per matching signal. A fixed-field object, so the set of signals is stable and the wire is deterministic.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `table` | number | yes | The score contribution from the mapping-table signal. |
+| `category` | number | yes | The score contribution from the category signal. |
+| `domainLabels` | number | yes | The score contribution from the domain-labels signal. |
+| `shape` | number | yes | The score contribution from the shape signal. |
+| `name` | number | yes | The score contribution from the name signal. |
+
+_Additional properties are not permitted._
+
+### `DecisionChoice`
+
+The candidate a mapping decision chose: the target catalog entity, how it is emitted, and the match tier of the choice.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `target` | string | yes | The name of the chosen target catalog entity. |
+| `mode` | string | yes | How the chosen target is emitted, mirroring an emitted entity's mode: a reference to an existing entity or a newly drafted body. |
+| `tier` | string | yes | The match tier of the chosen target. |
+
+_Additional properties are not permitted._
+
+### `Diagnostic`
+
+One diagnostic the import raised: a severity, an optional stable code, a human-readable message, and an optional reference to the source node it concerns.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `severity` | string (enum) | yes | The diagnostic's severity: error, warning, or info. Allowed values: `"error"`, `"warning"`, `"info"` |
+| `code` | string | no | A short stable code identifying the diagnostic class, for programmatic handling. Absent when the importer attaches no code. |
+| `message` | string | yes | The human-readable diagnostic message. |
+| `sourceRef` | string | no | A reference to the source node the diagnostic concerns. Absent when the diagnostic is not tied to a specific node. |
+
+_Additional properties are not permitted._
+
+### `ScaffoldFile`
+
+One scaffold file the import produced: a path relative to the import output root and the file's content.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `path` | string | yes | The path of the scaffold file, relative to the import output root. |
+| `content` | string | yes | The scaffold file's content. |
+
+_Additional properties are not permitted._

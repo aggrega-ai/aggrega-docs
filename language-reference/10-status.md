@@ -138,7 +138,8 @@ The Aggrega CLI (`aggrega-cli/cmd/aggrega/`) registers the build pipeline plus i
 - **`aggrega mcp` — available.** Runs a Model Context Protocol server over stdio, exposing the compiler's introspection to AI-assistant integrations.
 - **`aggrega completion` — available.** Generates the shell autocompletion script for the CLI.
 - **CLI-extension subcommands — available.** A Wasm plugin published as a `pluginType: cli` guest is resolved and registered as an `aggrega` subcommand, so an installed extension runs as `aggrega <extension>` alongside the built-in commands.
-- **`aggrega create` and `aggrega import` — planned.** Recipe scaffolders documented in some vocabulary references; no commands are registered today.
+- **`aggrega import` — available.** Turns a foreign declarative agent-definition source (Langflow, Flowise) into draft Aggregate and Component authoring files, with a deterministic confidence-scored catalog-reuse decision recorded per node. The format-specific mapping is supplied by an importer plugin the workspace resolves for the source format; a catalog-published starter importer is still forthcoming, so running the command end to end needs an importer plugin that advertises the source format.
+- **`aggrega create` — planned.** A Recipe scaffolder documented in some vocabulary references; not registered today.
 
 See [`07-cli.md`](07-cli.md) for the CLI overview and [`cli/`](cli/) for per-command reference pages.
 
