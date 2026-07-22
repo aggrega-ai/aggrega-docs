@@ -199,6 +199,8 @@ Mechanism vocabulary (`infra.primary.replicas`) reads naturally for one provider
 
 `provides` is the **Recipe-authored public API** — the values a Component's resolved Recipe contributes to downstream callers via their `.context.uses.<alias>.<provided-name>` surface. The Component schema declares the shape (key names plus types); the bound Recipe's `provides:` block supplies the values. The Developer authoring an Aggregate sees the `provides` shape on the Component page as the contract callers can rely on; the Recipe author fulfills the contract for the specific implementation they wrap.
 
+Fulfillment is enforced as a Loud Guardrail: a bound Recipe must produce every `provides` key its Component declares. If the bound Recipe omits a declared key, the build halts and names the missing key, rather than silently delivering nothing to the callers that reference it. Producing extra keys beyond the declared set is allowed. Only key presence is checked — the produced values are opaque strings the compiler pipes through, so their declared types remain a contract callers read, not a value the compiler validates.
+
 ```yaml
 # Component schema declares the provides contract:
 apiVersion: aggrega.ai/v1alpha1
