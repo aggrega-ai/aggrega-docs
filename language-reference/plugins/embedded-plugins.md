@@ -6,15 +6,15 @@ Aggrega ships a set of provider and linter Wasm plugins compiled directly into t
 
 | Type | Name | Capabilities | Version |
 | --- | --- | --- | --- |
-| linter | `linter/publishing` | — | 0.5.0-22-g3608d761 (commit 3608d761) |
-| mutator | `mutator/label-injector` | — | 0.5.0-22-g3608d761 (commit 3608d761) |
-| mutator | `mutator/selector-tagger` | — | 0.5.0-22-g3608d761 (commit 3608d761) |
-| parser | `parser/hcl` | parse:hcl | 0.5.0-22-g3608d761 (commit 3608d761) |
-| parser | `parser/json` | parse:json | 0.5.0-22-g3608d761 (commit 3608d761) |
-| parser | `parser/toml` | parse:toml | 0.5.0-22-g3608d761 (commit 3608d761) |
-| parser | `parser/yaml` | parse:yaml | 0.5.0-22-g3608d761 (commit 3608d761) |
-| provider | `provider/cloudformation` | cloudformation | 0.5.0-22-g3608d761 (commit 3608d761) |
-| provider | `provider/compose` | compose | 0.5.0-22-g3608d761 (commit 3608d761) |
-| provider | `provider/helm` | helm | 0.5.0-22-g3608d761 (commit 3608d761) |
-| provider | `provider/helm-chart` | helm-chart | 0.5.0-22-g3608d761 (commit 3608d761) |
-| provider | `provider/terraform` | terraform | 0.5.0-22-g3608d761 (commit 3608d761) |
+| governance | `governance/label-injector` | — | 0.6.1-12-gef5ad3a7 (commit ef5ad3a7) |
+| governance | `governance/selector-tagger` | — | 0.6.1-12-gef5ad3a7 (commit ef5ad3a7) |
+| linter | `linter/publishing` | — | 0.6.1-12-gef5ad3a7 (commit ef5ad3a7) |
+| parser | `parser/hcl` | parse:hcl | 0.6.1-12-gef5ad3a7 (commit ef5ad3a7) |
+| parser | `parser/json` | parse:json | 0.6.1-12-gef5ad3a7 (commit ef5ad3a7) |
+| parser | `parser/toml` | parse:toml | 0.6.1-12-gef5ad3a7 (commit ef5ad3a7) |
+| parser | `parser/yaml` | parse:yaml | 0.6.1-12-gef5ad3a7 (commit ef5ad3a7) |
+| provider | `provider/cloudformation` | cloudformation | 0.6.1-12-gef5ad3a7 (commit ef5ad3a7) |
+| provider | `provider/compose` | compose | 0.6.1-12-gef5ad3a7 (commit ef5ad3a7) |
+| provider | `provider/helm` | helm | 0.6.1-12-gef5ad3a7 (commit ef5ad3a7) |
+| provider | `provider/helm-chart` | helm-chart | 0.6.1-12-gef5ad3a7 (commit ef5ad3a7) |
+| provider | `provider/terraform` | terraform | 0.6.1-12-gef5ad3a7 (commit ef5ad3a7) |

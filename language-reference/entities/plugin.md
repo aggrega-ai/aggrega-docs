@@ -51,9 +51,9 @@ The socket type this plugin implements. It sits in the addressing block beside `
 - `provider` — renders IR nodes into provider-native artifacts.
 - `linter` — inspects authored content and raises diagnostics.
 - `frp_step` — a feature-recipe-pipeline step that transforms IR within a pipeline.
-- `mutator` — auto-tags topology-graph node labels at Step 2, returning JSON Patch documents the host applies to a labels-only projection of the graph.
-- `policy` — evaluates the full IR graph at Step 4 and returns one pass/fail verdict per rule; a failed rule halts the build.
+- `governance` — serves the build-pipeline governance roles. At Step 2 it auto-tags topology-graph node labels, returning JSON Patch documents the host applies to a labels-only projection of the graph. At Step 4 or the render stage it evaluates the IR graph or the rendered artifacts and returns an accept/reject verdict; a failed rule halts the build. The role it is attached at, not its kind, fixes what it may emit.
 - `parser` — parses a foreign source format (HCL, TOML, YAML, JSON, …) into a structured JSON tree, so a consumer that needs to read a format the compiler does not parse natively works from a parsed tree rather than the raw text.
+- `importer` — turns a foreign infrastructure or agent-definition source into draft Aggrega authoring files, advertising the formats it handles as `import:<format>` capabilities.
 - `cli` — contributes a runtime `aggrega <cmd>` subcommand an operator invokes at the command line. A runtime socket, distinct from the compile-time render and pipeline sockets.
 
 Required.
@@ -64,7 +64,7 @@ The host/guest ABI version the plugin targets. `v1alpha1` is the only accepted v
 
 ## `spec.capabilities`
 
-A single top-level field declaring the capabilities this plugin *serves*, as capability names such as `helm` or `compose`; entries preserve author order. A capability is the render dimension a consumer requests. Its meaning is discriminated by `metadata.pluginType`: for a `provider` plugin it names the render-engine capabilities (the provider engine kinds whose output shape the plugin renders); for an `frp_step` plugin it names the provider capabilities the step is compatible with; a cross-cutting socket (`linter`, `mutator`, `policy`) leaves it empty. The meaning stays uniform — "what this plugin serves" — and does not drift to unrelated per-socket semantics.
+A single top-level field declaring the capabilities this plugin *serves*, as capability names such as `helm` or `compose`; entries preserve author order. A capability is the render dimension a consumer requests. Its meaning is discriminated by `metadata.pluginType`: for a `provider` plugin it names the render-engine capabilities (the provider engine kinds whose output shape the plugin renders); for an `frp_step` plugin it names the provider capabilities the step is compatible with; a cross-cutting socket (`linter`, `governance`) leaves it empty. The meaning stays uniform — "what this plugin serves" — and does not drift to unrelated per-socket semantics.
 
 For an `frp_step` plugin the list is render-enforced. When a pipeline step touches a scope, the provider rendering that scope's documents must appear in this list, or the build halts. An empty or absent list matches nothing, so the runtime halts any pipeline step that uses the plugin. Declare every provider whose output the plugin is tested against.
 

@@ -24,7 +24,7 @@ plugin as a catalog entity, see the
 
 ## The mental model: the host routes, the guest decides
 
-A policy plugin is a `policy` guest. On a build the host assembles the
+A policy plugin is a `governance` guest attached in a verdict role (`ir-verdict` or `render-verdict`). On a build the host assembles the
 payload for the plugin's declared stage, hands it across the ABI boundary, and
 reads back a list of verdicts. Each verdict carries a severity and a
 human-readable message. The host maps each severity to a build action; it does
@@ -269,14 +269,16 @@ carry a label key named by `settings` — a common Kubewarden pattern.
 
 ## Attaching a policy
 
-An operator attaches a policy through the `plugins.policy` list in the
-workspace configuration (`.aggrega-config.yaml`). Each entry names a plugin and,
+An operator attaches a policy through the `plugins.governance` list in the
+workspace configuration (`.aggrega-config.yaml`). Each entry names a plugin, the
+verdict `role` it is attached at (`ir-verdict` or `render-verdict`), and,
 optionally, the `with` channel that supplies its rules and tunables:
 
 ```yaml
 plugins:
-  policy:
+  governance:
     - uri: <resolvable-plugin-reference>
+      role: ir-verdict
       with:
         sources:
           - ./policies/replicas.rego
@@ -290,8 +292,8 @@ to the guest, and passes `settings` through verbatim. A build with no policy
 attached runs the socket as a no-op, so policy attachment is purely additive to a
 workspace.
 
-The `plugins.policy` list has an additive companion, `plugins.policy_append`:
-entries in the companion are concatenated onto the resolved `policy` list at each
+The `plugins.governance` list has an additive companion, `plugins.governance_append`:
+entries in the companion are concatenated onto the resolved `governance` list at each
 configuration layer, so a workspace or a global config composes policy
 attachments rather than shadowing a base list.
 
@@ -339,5 +341,5 @@ plugins:
 - [`../cli/aggrega-build.md`](../cli/aggrega-build.md) — the build command that
   dispatches the socket.
 - [`../schema/other/aggrega-config.md`](../schema/other/aggrega-config.md) — the
-  workspace configuration schema, including the `plugins.policy` attachment
+  workspace configuration schema, including the `plugins.governance` attachment
   surface.
