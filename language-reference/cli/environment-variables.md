@@ -50,21 +50,27 @@ Secrets are supplied by environment variable or flag and are **never** config fi
 
 | Variable | Purpose | Precedence |
 | --- | --- | --- |
-| `AGGREGA_IDENTITY_TOKEN` | Keyless OIDC identity token. | `--identity-token` flag > `AGGREGA_IDENTITY_TOKEN` > `SIGSTORE_ID_TOKEN`. |
+| `AGGREGA_IDENTITY_TOKEN` | Keyless OIDC identity token. | `--identity-token` flag > `AGGREGA_IDENTITY_TOKEN` > ambient GitHub Actions OIDC > `SIGSTORE_ID_TOKEN`. |
 | `AGGREGA_REGISTRY_PASSWORD` | Registry password for non-interactive `aggrega login`. | `--password-stdin` > `AGGREGA_REGISTRY_PASSWORD` > interactive prompt. |
 
-`SIGSTORE_ID_TOKEN` is honored as a sigstore-ecosystem interop alias for the identity token, after `AGGREGA_IDENTITY_TOKEN`. It is the variable the broader sigstore tooling already sets.
+`SIGSTORE_ID_TOKEN` is honored as a sigstore-ecosystem interop alias for the identity token, ranked below `AGGREGA_IDENTITY_TOKEN` and the ambient GitHub Actions endpoint. It is the variable the broader sigstore tooling already sets.
 
-The identity-token variables are the **non-interactive** keyless path: at an interactive terminal `aggrega push --sign` and `aggrega sign` acquire a short-lived token through a browser flow with no flags, but a CI job or other non-interactive run has no terminal and must supply the token explicitly (export it, or pass `--identity-token`). With neither a token nor a terminal, keyless signing is refused rather than left to hang.
+The same identity resolution serves all three signing verbs — `aggrega push --sign`, `aggrega sign`, and `aggrega deprecate`. At an interactive terminal each acquires a short-lived token through a browser flow with no flags. On GitHub Actions each mints a fresh workflow OIDC token automatically from the runner's ambient endpoint, so no token export is needed. Any other non-interactive run has no terminal and no ambient endpoint, so it must supply the token explicitly (export `AGGREGA_IDENTITY_TOKEN`, or pass `--identity-token`). With no supplied token, no ambient endpoint, and no terminal, keyless signing is refused rather than left to hang.
 
 ### CI guidance (GitHub Actions)
 
-GitHub Actions can mint a workflow OIDC token and export it for keyless signing in a few lines:
+On GitHub Actions the CLI detects the runner's ambient OIDC endpoint and mints a fresh workflow token for each signature automatically. Grant the job permission to mint a token and sign with no token export:
 
 ```yaml
 permissions:
   id-token: write   # allow the job to mint a workflow OIDC token
 # ...
+- run: aggrega push <entity> --sign
+```
+
+The same holds for `aggrega sign` and `aggrega deprecate`. To pin a specific identity instead of the automatically-minted one, export `AGGREGA_IDENTITY_TOKEN` explicitly; an explicit token (or `--identity-token`) always wins over the ambient endpoint:
+
+```yaml
 - run: |
     AGGREGA_IDENTITY_TOKEN=$(curl -s -H "Authorization: bearer $ACTIONS_ID_TOKEN_REQUEST_TOKEN" \
       "$ACTIONS_ID_TOKEN_REQUEST_URL&audience=sigstore" | jq -r .value)
@@ -72,7 +78,7 @@ permissions:
     aggrega push <entity> --sign
 ```
 
-Automatic CI-provider detection across multiple CI platforms is not yet available, so the token is exported explicitly as shown.
+CI that is not GitHub Actions has no ambient endpoint: export `AGGREGA_IDENTITY_TOKEN` from that provider's OIDC mechanism, or pass `--identity-token`.
 
 For an **interactive** batch the counterpart is `aggrega auth token`, which runs the browser OIDC flow once and prints the identity token to stdout so it can be exported the same way:
 
