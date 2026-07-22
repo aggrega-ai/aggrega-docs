@@ -182,6 +182,7 @@ The pack-source host function's reply: on success the packed source, on failure 
 | --- | --- | --- | --- |
 | `source_projection` | SourceProjection | no | The packed source on success; absent on failure. |
 | `error` | string | no | The failure message on failure, naming the selection and the reason; absent on success. |
+| `error_code` | string | no | The machine-matchable failure identity on failure, from the closed host-function error-code catalog, set beside the human error message; absent on success. A guest branches on this code without parsing the message, tolerating an absent code (older host) or an unrecognized one (newer host) by falling back to the message. |
 
 _Additional properties are not permitted._
 
@@ -203,6 +204,19 @@ The read-source-file host function's reply: on success the file's bytes, on fail
 | --- | --- | --- | --- |
 | `content` | string | no | The file's raw bytes on success; absent on failure (base64 on the JSON wire). |
 | `error` | string | no | The failure message on failure, naming the file and the reason; absent on success. |
+| `error_code` | string | no | The machine-matchable failure identity on failure, from the closed host-function error-code catalog, set beside the human error message; absent on success. A guest branches on this code without parsing the message, tolerating an absent code (older host) or an unrecognized one (newer host) by falling back to the message. |
+
+_Additional properties are not permitted._
+
+### `FetchExternalInputResponse`
+
+The fetch-external-input host function's reply: on success the fetched content, on failure an error message. Exactly one of content or error is populated. Failure is delivered in-band rather than by trapping, so a guest carries an unresolvable URL or a fetch failure into its own diagnostics as a deterministic render failure. The request is a bare URL string rather than a JSON payload, so only the reply has a wire shape.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `content` | string | no | The fetched content on success (base64 on the JSON wire); absent on failure. A pointer so a zero-length payload still emits the content key and stays distinguishable from a failure. |
+| `error` | string | no | The failure message on failure, naming the URL and the remedy; absent on success. |
+| `error_code` | string | no | The machine-matchable failure identity on failure, from the closed host-function error-code catalog, set beside the human error message; absent on success. A guest branches on this code without parsing the message, tolerating an absent code (older host) or an unrecognized one (newer host) by falling back to the message. |
 
 _Additional properties are not permitted._
 

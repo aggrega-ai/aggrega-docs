@@ -83,5 +83,6 @@ The parse-source host function's reply: on success the canonical structured tree
 | --- | --- | --- | --- |
 | `tree` | any | no | The canonical structured tree the resolved parser produced on success, as a JSON document carried verbatim; absent on failure. |
 | `error` | string | no | The failure message on failure, naming the format and the reason; absent on success. |
+| `error_code` | string | no | The machine-matchable failure identity on failure, from the closed host-function error-code catalog, set beside the human error message; absent on success. A guest branches on this code without parsing the message, tolerating an absent code (older host) or an unrecognized one (newer host) by falling back to the message. |
 
 _Additional properties are not permitted._
