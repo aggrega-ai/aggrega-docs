@@ -1,8 +1,8 @@
 # Tempo — Kubernetes distributed-tracing server
 
 This example compiles a small, real stack — a **Grafana Tempo** distributed-tracing
-server — from one Developer-authored `Aggregate` to Kubernetes, backed by the
-**official Grafana Tempo Helm chart** in its single-binary shape.
+server — from one Developer-authored `Aggregate` to Kubernetes via Workload
+synthesis on the official `grafana/tempo` image, in its single-binary shape.
 
 Tempo is a trace backend: it receives spans over the OpenTelemetry protocol (and
 other tracing wire formats), stores them in a trace object store, and answers
@@ -17,24 +17,24 @@ dashboards server reads them back over the query API.
 | File | Role |
 | --- | --- |
 | `aggregate.yaml` | Developer intent: a single `tracing` component (`core/observability/tempo`) keeping traces for seven days. |
-| `manifest.yaml` | Maps the component type to the Tempo chart-wrap Recipe (`tempo`). |
+| `manifest.yaml` | Maps the component type to the synthesized Tempo Recipe (`tempo`). |
 | `release.yaml` | Operator record for the Kubernetes target: the server compute and trace-store volume size. |
 
 ## What it demonstrates
 
 - **One authoring surface.** A single Aggregate is the source of truth for
   *what* Tempo is; the Manifest says *how* to realize it.
-- **A single-binary trace backend.** The chart-wrap Recipe renders Tempo as one
-  `StatefulSet` with a data volume, one `ConfigMap` carrying the Tempo config,
-  one `Service` exposing the trace receivers and the HTTP query API, and a
-  `ServiceAccount` — a single self-contained workload.
+- **A single-binary trace backend.** The synthesized Recipe renders Tempo as one
+  `StatefulSet` with a per-replica data volume, one `ConfigMap` carrying the
+  Tempo config, and a `ClusterIP` and `Headless` `Service` exposing the trace
+  receivers and the HTTP query API — a single self-contained workload.
 - **Developer-set retention.** The developer's `retention_period` flows into the
   in-process compactor, which deletes stored trace blocks once they age past it.
 - **An exported ingestion contract.** The component exports its OTLP gRPC
   receiver host and port through the `uses` topology, so a trace producer wires
   to it and pushes spans there.
-- **Reproducible images.** The Recipe pins the Tempo server image to a
-  resolvable tag so the rendered workload references an immutable version.
+- **Reproducible images.** The Recipe pins the Tempo server image tag from
+  `infra.engine_version` so the rendered workload references an immutable version.
 
 ## Build
 
@@ -42,24 +42,24 @@ The workspace catalog supplies the standard-library entities, so no explicit
 catalog flag is needed:
 
 ```sh
-aggrega pull  --release release.yaml
 aggrega build --release release.yaml
 ```
 
-Rendered artifacts land under `dist/`. The build resolves the upstream chart by
-OCI reference on `aggrega pull` and pins it in a lockfile.
+Rendered artifacts land under `dist/`. The synthesized target needs no external
+chart fetch — the Recipe renders the official image directly into a StatefulSet,
+Services, and a data volume.
 
 ## What renders
 
 The build emits the Tempo server as four Kubernetes objects:
 
 - a `StatefulSet` — the single-binary Tempo process, with its trace store on a
-  persistent volume,
+  per-replica persistent volume,
 - a `ConfigMap` — the Tempo configuration,
-- a `Service` — exposing the trace receivers (OTLP gRPC on 4317, OTLP HTTP on
-  4318, and the other supported tracing wire formats) alongside the HTTP query
-  API on 3200,
-- a `ServiceAccount` for the workload.
+- a `ClusterIP Service` — exposing the OTLP gRPC receiver on 4317, the OTLP HTTP
+  receiver on 4318, and the HTTP query API on 3200,
+- a `Headless Service` — the StatefulSet's stable network identity, exposing the
+  same ports.
 
-The Tempo image is pinned to its release tag, so the workload references an
-immutable image.
+The Tempo image tag is pinned from `infra.engine_version`, so the workload
+references an immutable image.
