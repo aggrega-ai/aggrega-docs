@@ -27,7 +27,7 @@ Per-registry settings (`registries[].*`) have **no** environment variable: a lis
 | Variable | Config path | Notes |
 | --- | --- | --- |
 | `AGGREGA_DEFAULT_REGISTRY` | `default_registry` | Destination/registry host (`hub.aggrega.ai` by default). |
-| `AGGREGA_OFFLINE` | `offline` | Boolean. Never contacts the network; builds against the existing lockfile. |
+| `AGGREGA_OFFLINE` | `offline` | Boolean. Forbids all network egress: every command that would fetch, pull, acquire, push, sign, or contact a registry refuses loudly instead of dialing, and a build runs only against the existing lockfile and cache. Verification of already-cached or pinned material still runs — offline forbids the fetch, not the local check. |
 | `AGGREGA_AUTO_PULL` | `auto_pull` | Boolean. Auto-fetch missing dependencies at build time. |
 | `AGGREGA_ARTIFACT_CACHE_DIR` | `artifact_cache_dir` | On-disk content cache directory. |
 | `AGGREGA_CATALOG_DIRS` | `workspace.catalog_dirs` | OS-path-list separated (`:` on Unix). Supply absolute paths. Replaces the configured list. |
