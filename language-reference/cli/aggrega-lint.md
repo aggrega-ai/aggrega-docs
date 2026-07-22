@@ -127,6 +127,7 @@ aggrega lint [entity-path] [flags]
 | `--allow-dynamic-refs` | `false` | Force allow_dynamic_refs=true for this invocation |
 | `--allow-id-overrides` | `false` | Force allow_id_overrides=true for this invocation |
 | `--allow-nonstandard-names` | `false` | Force allow_nonstandard_names=true |
+| `--baseline` | — | Diff the pre-publish evolution check against this specific already-published version instead of the auto-selected highest version below the one being published; must be a strict-SemVer tag present in the registry (requires --pre-publish) |
 | `--catalog` | `[]` | Catalog directory; repeatable. Each --catalog is prepended to the workspace catalog_dirs search stack (first match wins). Used by the whole-catalog and --release conventions passes. |
 | `--enforce-immutability` | `false` | Force enforce_immutability=true |
 | `--enforce-monotonic-narrowing` | `false` | Force enforce_monotonic_narrowing=true |
