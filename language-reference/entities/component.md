@@ -25,7 +25,6 @@ These labels describe the *cognitive* identity of the workload, allowing the arc
 | Label Prefix | Allowed Values (Convention) | Why Platform Ops needs it (The Policy Hook) |
 | :--- | :--- | :--- |
 | `model.aggrega.ai/capability` | `generative`, `embedding`, `transcription` | Used by the `usesSchema` selector strings (evaluated natively by the Go compiler in Step 4) to guarantee a developer doesn't accidentally route a generative text payload to an embedding endpoint. |
-| `model.aggrega.ai/hosting` | `saas`, `local` | Allows policy engines to calculate Data Exfiltration risk (e.g., routing internal data to a SaaS LLM). |
 | `agent.aggrega.ai/autonomy` | `autonomous`, `copilot` | Identifies the execution risk of the cognitive loop, allowing policies to mandate human-approval features for fully autonomous agents. |
 | `cognitive.aggrega.ai/memory` | `semantic`, `episodic`, `working` | Natively supports the CoALA framework. Policy engines read this label on a database to mandate `read/write` scopes for episodic logs, but strict `read-only` access for semantic enterprise facts. |
 
@@ -34,6 +33,7 @@ These represent the foundational enterprise tags that drive Zero-Trust validatio
 
 | Label Prefix | Allowed Values (Convention) | Why Platform Ops needs it (The Policy Hook) |
 | :--- | :--- | :--- |
+| `component.aggrega.ai/hosting` | `self-hosted`, `managed`, `external` | Records who operates a component's underlying resource — the trust-boundary axis. Policy engines read it to calculate Data Exfiltration risk (e.g., internal data routed to a `managed` third-party API leaves the operator's boundary). Cross-cutting: the same values describe a managed database, a managed model API, and a self-run inference server alike. |
 | `compliance.aggrega.ai/data-class` | `public`, `internal`, `restricted` | Tracked topologically by the policy engine. If a continuous path exists from a `public` node to a `restricted` database without a masking proxy feature attached, the policy halts the build. |
 | `compliance.aggrega.ai/contains-pii` | `true`, `false` | Explicitly flags workloads for GDPR/CCPA. Policy engines use this to mandate the attachment of specific L7 data-redaction proxies. |
 | `hardware.aggrega.ai/accelerator` | `gpu`, `tpu`, `npu` | Used by DevOps in the `Release` file. They explicitly route these components into physical hardware pool boundaries (e.g., a GPU-capable cluster) via the `components: {}` map, while `policy.wasm` can enforce that GPU-labeled components are never placed in non-GPU boundaries. |

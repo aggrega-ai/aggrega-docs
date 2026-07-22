@@ -54,11 +54,11 @@ To enforce the Separation of Concerns, Developers are **strictly forbidden** fro
 * **Who consumes it?** The Static Analyzer (via JSON Schema 2020-12 `usesSchema` selectors).
 * **Compiler Use Case:** When an Architect authors a `usesSchema` selector naming the required capability label, the compiler's native label-matching engine rejects wiring that does not satisfy the selector before artifacts are generated. The compiler treats these labels as opaque strings; the semantic meaning of "text-generation" vs "embedding" lives in the Architect's selector authoring.
 
-**3. `model.aggrega.ai/hosting`**
+**3. `component.aggrega.ai/hosting`**
 
 * **Who writes it?** The Platform Architect.
 * **Who consumes it?** The Policy Engine (`policy.wasm`) and Wasm Rendering Plugins.
-* **Compiler Use Case:** It allows the policy engine to calculate Data Exfiltration risk. If a local Agent holding "Internal" data connects to a Model labeled `saas`, the policy evaluates that the data is leaving the corporate VPC. It can automatically halt the build unless a data-masking feature is explicitly attached to the connection.
+* **Compiler Use Case:** It records who operates the component's underlying resource, letting the policy engine calculate Data Exfiltration risk. When an Agent holding "Internal" data connects to a Model labeled `managed` — a service operated outside the deployment's own boundary — the policy evaluates that the data is leaving the corporate VPC, and can halt the build unless a data-masking feature is attached to the connection. This is a cross-cutting trait: the same `self-hosted | managed | external` values describe a managed database or a self-run inference server just as they describe a model, so the label lives under the shared `component.aggrega.ai/` namespace rather than the model-specific one.
 
 **4. `agent.aggrega.ai/autonomy`**
 
