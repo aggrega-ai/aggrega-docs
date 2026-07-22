@@ -54,6 +54,7 @@ The per-node IR data a Provider guest renders — a bounded projection of the fu
 | `recipe_name` | string | no | The bound Recipe's name, paired with recipe_version to form the aggrega.ai/recipe-uri annotation; when either half is empty the annotation is not stamped. |
 | `recipe_version` | string | no | The bound Recipe's version, paired with recipe_name to form the aggrega.ai/recipe-uri annotation; when either half is empty the annotation is not stamped. |
 | `label_component_id` | string | no | The Kubernetes-safe component identity. When non-empty it overrides the node id as the app.kubernetes.io/name and aggrega.ai/component-id label value, for resources whose node id carries marker syntax that needs sanitization; empty means the node id is already label-valid and is used directly. |
+| `output_labels` | map of string | no | The recipe-author-declared output labels (recipe.spec.outputLabels) the guest stamps onto every emitted manifest alongside the build-identity provenance, keyed by label name. Disjoint from the provenance keyspace by load-time validation (no aggrega.ai/ or app.kubernetes.io/ key), so stamping never collides with a provenance label. A guest whose output is not Kubernetes YAML translates them onto its own label surface (Compose service labels) or ignores them. |
 | `provenance` | NodeProvenance | yes | The build-identity provenance the guest stamps onto every emitted manifest as aggrega.ai labels. |
 
 _Additional properties are not permitted._

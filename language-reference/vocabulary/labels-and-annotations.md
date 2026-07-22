@@ -82,6 +82,12 @@ For resources emitted by a boundary-scope FeatureRecipe (such as the `compose-br
 
 For per-provider emission specifics (where on the rendered output the labels land, and how each provider serialises them), see [`providers/well-known-annotations.md`](../providers/well-known-annotations.md) "Provenance labels emitted by providers".
 
+## Recipe-declared output labels
+
+Alongside the compiler-owned provenance set, a Recipe author can declare their own labels to stamp onto the Recipe's rendered output, via `Recipe.spec.outputLabels:`. These ride the same emission rail as the provenance labels — they are merged into the same label set and land wherever provenance lands — but they are author-owned rather than compiler-owned. The intended use is a *realization trait*: a property of how a specific Recipe realizes a component (for example `hosting: managed` versus `hosting: self-hosted` for a managed-service Recipe versus a self-hosted-chart Recipe of the same component type), surfaced on the output so cost, policy, and inventory tooling can query it.
+
+The `aggrega.ai/` and `app.kubernetes.io/` namespaces are reserved for the provenance set; an `outputLabels` key under either prefix is rejected at load. A validated `outputLabels` map is therefore always disjoint from the provenance keys, so the two never collide on the merged output. Per-engine surfacing (helm object and pod-template on synthesis; object on source-render and artifacts; compose service labels; terraform per-resource tags on `.tf.json` artifact bodies) matches the provenance placement, and is documented in full on the [Recipe entity page](../entities/recipe.md) under "The `outputLabels:` field".
+
 ## Feature attachment — five surfaces
 
 Features attach to Components through five distinct authoring surfaces, each with different scope, intended user, and ordering precedence within the 5-Tier Onion Model. The full attachment ordering and the Onion Model itself are documented at [`architecture/10-compilation-pipeline.md`](../../architecture/10-compilation-pipeline.md); the table below enumerates the five surfaces side-by-side.

@@ -295,6 +295,32 @@ Each artifact entry's template evaluates with the same template context as `valu
 
 **Use cases.** `artifacts:` is the home for auxiliary resources that the primary chart or module does not produce: a `NetworkPolicy` accompanying a workload, an `HPA` paired with a Deployment, a sidecar `ConfigMap` keyed off `instance_id`. Cross-cutting auxiliary resources that apply across many components (a backup sidecar attached to every datastore, for example) belong on FeatureRecipe Resource Generation rather than per-Recipe `artifacts:` — see [entities/featurerecipe.md](featurerecipe.md) for the FeatureRecipe extension surface.
 
+## The `outputLabels:` field — author-declared labels on rendered output
+
+`Recipe.spec.outputLabels:` is a map of label key → value that the provider stamps onto every object the Recipe's rendered output produces. It is the honest home for a *realization trait* — a property of how a particular Recipe realizes a component, as opposed to what the component is. The motivating case is `hosting: managed | self-hosted`: a managed-service Recipe and a self-hosted-chart Recipe for the same component type carry different `outputLabels`, so downstream tooling (cost allocation, policy, inventory) can tell them apart on the emitted resources.
+
+```yaml
+spec:
+  capability: helm
+  implements: core/datastore/postgres:1.0.0
+  outputLabels:
+    hosting: self-hosted
+    example.io/team: platform
+```
+
+Output labels ride the same rail as the fixed build-provenance labels: they are merged into the label set every emitting surface stamps, so they land wherever provenance lands. What differs is ownership — provenance keys are compiler-owned, `outputLabels` are Recipe-author-owned.
+
+**Reserved namespaces.** The `aggrega.ai/` and `app.kubernetes.io/` namespaces are reserved for platform-native provenance. A Recipe that declares an `outputLabels` key under either prefix is rejected at load with a clear catalog error naming the offending key. Every other key is accepted. The core does not otherwise police the key or value — a key or value that is not valid for the target engine's label surface is the author's responsibility, and the downstream runtime rejects it; the compiler stays out of the way beyond the reserved-namespace rule.
+
+**Per-engine surfacing.** Each provider translates the labels onto its own output surface:
+
+* **helm, workload synthesis** — on both the object `metadata.labels` and the pod-template `metadata.labels`, matching where synthesis places provenance.
+* **helm, source-render and artifacts** — on the object `metadata.labels`.
+* **compose** — on each service's `labels:` map.
+* **terraform** — as per-resource tags on structurally addressable `.tf.json` artifact bodies, best-effort: a resource block that already declares a `tags` (AWS/azurerm) or `labels` (Google) map receives the output labels there, an author-declared key is never overwritten, and a resource with no such attribute is left untouched (an attribute is never invented). Native-HCL bodies (`main.tf`, `*.tf`) and vendored modules emit verbatim and carry no injected tags. Terraform provenance continues to travel in its companion comment file, separate from the tag rail.
+
+Output labels are labels only; there is no separate output-annotation surface. `outputLabels` is declared by the Recipe author (the ops-authored realization layer), not by the Aggregate — it describes the realization, never the developer's abstract-graph identity.
+
 ## The `locals:` block
 
 `Recipe.spec.locals:` is the **Private Ops State** — a map of named Go template strings whose rendered output exposes a `.locals.*` map to every other template in the same Recipe. It is the workspace for computing physical realities (target containers, JSON paths, derived hostnames) once and reusing them across `valuesMapping:`, `provides:`, and `pipeline[].with` payloads without recomputation.
