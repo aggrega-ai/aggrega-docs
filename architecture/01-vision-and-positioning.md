@@ -28,7 +28,7 @@ Aggrega solves this by acting as an **Ahead-of-Time (AOT) Topological Compiler**
 ### 4. Infrastructure-Enforced Guardrails & MCP Defense
 
 * **The Problem:** Software-level guardrails fail if an application is compromised or an AI hallucinates while having access to internal tools via the Model Context Protocol (MCP).
-* **The Solution:** Aggrega moves trust boundaries out of the application code and into the network infrastructure through a strict **Execution Handoff**. After validating the static application graph via pluggable WebAssembly policy sockets, the compiler executes rendering plugins to generate the exact configurations required for L7 interception proxies (like data masking or human-approval webhooks). It then hands these artifacts off to the runtime orchestrator, which physically enforces the rules and blocks unauthorized actions.
+* **The Solution:** Aggrega moves trust boundaries out of the application code and into the network infrastructure through a strict **Execution Handoff**. After validating the static application graph via the pluggable WebAssembly governance socket, the compiler executes rendering plugins to generate the exact configurations required for L7 interception proxies (like data masking or human-approval webhooks). It then hands these artifacts off to the runtime orchestrator, which physically enforces the rules and blocks unauthorized actions.
 
 ### 5. Centralizing AI Traffic & Gateway Governance
 
@@ -109,7 +109,7 @@ Aggrega's pluggable WebAssembly (Wasm) rendering socket means the community can 
 * **Pulumi** lets developers author infrastructure in general-purpose languages (TypeScript, Python, Go); its core value is treating infrastructure as executable code. Aggrega's authoring surface is a declarative YAML blueprint — the abstraction, not the API surface, is what developers write against. Each reflects a different philosophy about where the developer's contract with infrastructure lives.
 * **AWS SAM and the Serverless Framework** statically translate a YAML spec into serverless function and API-gateway resources — a focused subset of the artifact space Aggrega's socket can target.
 * **Nitric, Klotho, and Winglang** are cloud-aware programming models whose AOT compilers emit standard infrastructure files from application code, rather than from a declarative topology blueprint.
-* **Score.dev** is a declarative abstraction for basic workload capacity — CPU, memory, ports — rendered into Docker Compose or Helm. It addresses a focused subset of what Aggrega covers: cross-component topology, policy sockets, Wasm adapters, and AI-specific capabilities are outside Score's scope.
+* **Score.dev** is a declarative abstraction for basic workload capacity — CPU, memory, ports — rendered into Docker Compose or Helm. It addresses a focused subset of what Aggrega covers: cross-component topology, a governance socket for policy, Wasm adapters, and AI-specific capabilities are outside Score's scope.
 
 **Control planes that consume Aggrega's output.** These operate inside a running cluster and apply declarative artifacts. Aggrega is strictly ahead-of-time — it produces the manifests these systems reconcile.
 

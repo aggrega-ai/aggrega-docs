@@ -272,13 +272,13 @@ spec:
 
 ## Example 10: Programmable Policies — Wasm Mutators & OPA Validators
 
-The compiler pipeline executes two Wasm gates. The `mutator.wasm` auto-tags the graph. The `policy.wasm` evaluates security boundaries. Both are authored by the Platform Architect in Domain 2.
+The compiler pipeline executes two Wasm gates. The `label-transform` role auto-tags the graph. A governance verdict role evaluates security boundaries. Both are authored by the Platform Architect in Domain 2.
 
 **1. The Wasm Mutator (Step 2 — Graph Enrichment)**
 Auto-tags stateful servers with a `restricted` data classification label.
 
 ```javascript
-// mutator.wasm (compiled from JS/Go/Rust into WebAssembly)
+// governance label-transform guest (compiled from JS/Go/Rust into WebAssembly)
 // Input: each node from the flat IR graph
 // Output: mutated labels dictionary
 if (node.labels["component.aggrega.ai/type"] === "stateful-server") {
@@ -290,7 +290,7 @@ if (node.labels["component.aggrega.ai/type"] === "stateful-server") {
 Traces precalculated topological paths and blocks any connection to restricted data without a masking Feature attached.
 
 ```rego
-# policy.wasm (compiled from Rego into WebAssembly)
+# governance verdict guest (compiled from Rego into WebAssembly)
 package aggrega.security
 
 deny[msg] {

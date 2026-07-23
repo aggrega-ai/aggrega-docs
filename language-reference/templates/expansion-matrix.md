@@ -17,7 +17,7 @@ Step 1: Resolver & Syntax Validator
 
 Step 2: Topology Builder
   ├── .context.instance_id    → Flattened node ID (e.g., "data-layer.main-db")
-  └── .context.labels         → From Catalog + mutator.wasm mutations
+  └── .context.labels         → From Catalog + label-transform mutations
 
 Step 3: Graph Finalization
   ├── .context.annotations.release    → Cascaded from boundary hierarchy

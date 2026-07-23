@@ -36,7 +36,7 @@ Provider rendering runs inside a WebAssembly sandbox. The Go compiler is the hos
 - **No network access.** Plugins are deterministic and hermetic. Any external resources the plugin needs arrive as inputs in the JSON payload or in the pre-staged virtual filesystem.
 - **Deterministic output.** Given the same JSON input and the same plugin version, the plugin must produce byte-identical JSON output. This is the contract that makes the compiler's byte-identical output guarantee hold end-to-end through the plugin layer.
 
-The plugin-socket architecture at the broader extensibility level, including the other Wasm sockets in the compilation pipeline (the `mutator.wasm` and `policy.wasm` gates), lives in [../../architecture/14-extensibility.md](../../architecture/14-extensibility.md).
+The plugin-socket architecture at the broader extensibility level, including the other Wasm sockets in the compilation pipeline (the governance socket's transform and verdict roles), lives in [../../architecture/14-extensibility.md](../../architecture/14-extensibility.md).
 
 ## Aggrega's standard-library providers
 

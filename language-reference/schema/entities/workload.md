@@ -17,16 +17,25 @@ See the [workload authoring reference](../../../entities/workload/) for prose gu
 | `apiVersion` | const "aggrega.ai/v1alpha1" | yes | Constant: `"aggrega.ai/v1alpha1"` |
 | `kind` | const "Workload" | yes | Constant: `"Workload"` |
 | `metadata` | object | no |  |
-| `form` | string (enum) | no | Abstract controller-shape intent for the workload. Chooses the kind of runtime lifecycle the workload has, independent of any target platform: stateless (interchangeable long-running replicas), stateful (replicas with stable per-replica identity and per-replica storage), daemon (one instance per eligible host), scheduled (recurring, time-triggered runs), task (a single run to completion). Empty is treated as stateless. Each target Engine maps the form to its own native shape; the form carries no platform-native resource kinds itself. A persistentTemplate volume is a companion of stateful and is only valid on a stateful workload. Allowed values: `"stateless"`, `"stateful"`, `"daemon"`, `"scheduled"`, `"task"` Default: `"stateless"` |
+| `form` | string (enum) | no | Abstract controller-shape intent for the workload. Chooses the kind of runtime lifecycle the workload has, independent of any target platform: stateless (interchangeable long-running replicas), stateful (replicas with stable per-replica identity and per-replica storage), daemon (one instance per eligible host), scheduled (recurring, time-triggered runs), task (a single run to completion), reference (an external endpoint with no compute — no controller; helm emits an ExternalName Service, compose carries the endpoint through the injection contract). Empty is treated as stateless. Each target Engine maps the form to its own native shape; the form carries no platform-native resource kinds itself. A persistentTemplate volume is a companion of stateful and is only valid on a stateful workload. A reference workload declares endpoint (and optionally port and credential) and no containers. Allowed values: `"stateless"`, `"stateful"`, `"daemon"`, `"scheduled"`, `"task"`, `"reference"` Default: `"stateless"` |
+| `endpoint` | string | no | External endpoint for form: reference — a host or URL. The compiler pipes it through as a deterministic pointer string; it is never resolved at compile time (AOT). Required when form is reference and only meaningful then. helm emits it as an ExternalName Service's externalName (the host portion); compose carries it to consumers through the recipe's provides. |
+| `port` | integer | no | Optional port for the reference endpoint (form: reference). helm emits it as a port on the ExternalName Service. |
+| `credential` | object | no | Optional credential for a reference endpoint (form: reference): a secretsSchema slot delivered to consumers as an environment variable. Per the AOT boundary the secret value is never resolved here; the credential is a pointer carried to consumers through the recipe's provides. |
 | `schedule` | string | no | Cron schedule for form: scheduled — a standard 5-field crontab expression (for example '0 0 * * *') or one of the macros @hourly, @daily, @weekly, @monthly, @yearly. Required when form is scheduled and only meaningful then; the target Engine pipes it verbatim into the scheduled resource's schedule field. |
 | `replicas` | integer | no | Number of replicas. Default 1. Compose ignores values > 1 unless the target compose spec supports scaling. Default: `1` |
 | `initContainers` | container[] | no | Ordered list of containers that run to completion before the main containers start. |
-| `containers` | map of container | yes | Ordered map of container name → container spec. At least one entry required. YAML author order is preserved by the Go parser. |
+| `containers` | map of container | no | Ordered map of container name → container spec. At least one entry required. YAML author order is preserved by the Go parser. |
 | `volumes` | map of volume | no | Ordered map of volume name → volume spec. Each volume spec declares exactly one of: ephemeral, configmap, secret, persistent, persistentTemplate. |
 | `services` | map of service | no | Ordered map of service name → service spec. Each becomes a separate K8s Service (helm) or port-publishing rule on the compose service (compose). Service names are suffixed by aggrega instance_id for K8s resource-name uniqueness. |
 | `scheduling` | object | no | K8s-native scheduling constraints. Translated directly for helm; ignored (with warning) for compose except where compose has analogs. |
 | `podSecurityContext` | object | no |  |
 | `serviceAccount` | string | no | Name of the ServiceAccount this workload runs under. Actual RBAC (ServiceAccount/Role/RoleBinding resources) should be emitted via Features or artifacts, not via this field. |
+| `imagePullSecrets` | string[] | no | Names of image-pull Secrets for pulling images from private registries. helm emits pod.imagePullSecrets. compose has no in-file analog — registry authentication is configured out-of-band via docker login — and omits it. |
+| `priorityClassName` | string | no | Name of the PriorityClass governing this workload's scheduling priority. helm emits pod.priorityClassName. compose has no single-host scheduling-priority analog and omits it. |
+| `terminationGracePeriodSeconds` | integer | no | Seconds between SIGTERM and SIGKILL on shutdown. helm emits pod.terminationGracePeriodSeconds; compose emits stop_grace_period. |
+| `dnsPolicy` | string (enum) | no | Pod DNS policy. helm emits pod.dnsPolicy. compose has no DNS-policy analog and omits it (compose maps dnsConfig nameservers/searches directly instead). Allowed values: `"Default"`, `"ClusterFirst"`, `"ClusterFirstWithHostNet"`, `"None"` |
+| `dnsConfig` | object | no | Custom pod DNS configuration. helm emits pod.dnsConfig. compose maps nameservers to dns and searches to dns_search; options have no compose analog and are omitted there. |
+| `hostAliases` | object[] | no | Static hostname-to-IP mappings injected into the pod's hosts file. helm emits pod.hostAliases; compose emits extra_hosts (one hostname:ip entry per hostname). |
 
 _Additional properties are not permitted._
 
@@ -36,6 +45,17 @@ _Additional properties are not permitted._
 | --- | --- | --- | --- |
 | `labels` | map of string | no | Author-declared labels. Merged with aggrega.ai/* provenance labels at emission (author values preserved; aggrega keys overwrite on collision). |
 | `annotations` | map of string | no | Author-declared annotations on the workload. Translated to pod template annotations for helm, compose labels for compose. |
+
+_Additional properties are not permitted._
+
+#### `workload.credential`
+
+Optional credential for a reference endpoint (form: reference): a secretsSchema slot delivered to consumers as an environment variable. Per the AOT boundary the secret value is never resolved here; the credential is a pointer carried to consumers through the recipe's provides.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `from` | string | yes | Name of a secretsSchema slot supplying the credential. |
+| `env` | string | yes | Environment variable name the credential is delivered as by the consuming workload. |
 
 _Additional properties are not permitted._
 
@@ -63,6 +83,27 @@ _Additional properties are not permitted._
 
 _Additional properties are not permitted._
 
+#### `workload.dnsConfig`
+
+Custom pod DNS configuration. helm emits pod.dnsConfig. compose maps nameservers to dns and searches to dns_search; options have no compose analog and are omitted there.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `nameservers` | string[] | no |  |
+| `searches` | string[] | no |  |
+| `options` | object[] | no |  |
+
+_Additional properties are not permitted._
+
+#### `workload.hostAliases[]`
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `ip` | string | yes |  |
+| `hostnames` | string[] | yes |  |
+
+_Additional properties are not permitted._
+
 ## Definitions
 
 ### `container`
@@ -71,17 +112,29 @@ _Additional properties are not permitted._
 | --- | --- | --- | --- |
 | `name` | string | no | Optional container name. For a positional initContainers entry it sets the emitted container name, falling back to a generated init-<index> name (the entry's position in the list) when omitted. For a containers map entry the map key is the container name and this field is ignored. |
 | `image` | string | yes | Container image reference (e.g., 'nginx:1.27-alpine', 'ghcr.io/example/app:v1.2.3'). |
+| `imagePullPolicy` | string (enum) | no | Image pull policy. helm emits it as container.imagePullPolicy. compose maps it to the service pull_policy (Always to always, Never to never, IfNotPresent to if_not_present). Allowed values: `"Always"`, `"Never"`, `"IfNotPresent"` |
 | `command` | string[] | no | Override the image's entrypoint. K8s: .command. Compose: entrypoint. |
 | `args` | string[] | no | Arguments passed to command (or image entrypoint if command is absent). K8s: .args. Compose: command. |
 | `variables` | map of string | no | Environment variables as string key-value pairs. K8s: spec.template.spec.containers[].env[]. Compose: services.<name>.environment. |
 | `secrets` | map of containerSecret | no | Ordered map of env-or-file name → { from, as, path? }. Each entry references a slot declared in the Component's secretsSchema. The 'as' field selects the delivery mechanism, which must be allowlisted in the slot's inject: array. Blackbox slots (inject: []) MAY NOT appear here. |
+| `envFrom` | any or any[] | no | Bulk environment imported from a ConfigMap or Secret source. helm emits container.envFrom (configMapRef/secretRef). compose has no env-from-object primitive — a source reference is not a host file, so an env_file reinterpretation would silently change meaning; a workload declaring envFrom halts loudly on a compose target. |
 | `ports` | map of integer | no | Named container ports. Port names referenced by services.*.ports and by probe http intent (port resolution). K8s: containerPort. Compose: expose/ports. |
 | `resources` | object | no |  |
 | `health` | object | no | Probe intents (http/tcp/exec). Translated to K8s httpGet/tcpSocket/exec for helm; CMD-SHELL healthchecks for compose (degraded — warning emitted). |
 | `volumeMounts` | object[] | no |  |
 | `restartPolicy` | string (enum) | no | Allowed values: `"Always"`, `"OnFailure"`, `"Never"` |
-| `lifecycle` | object | no |  |
+| `lifecycle` | object | no | Container lifecycle hooks. Translated to K8s container.lifecycle (postStart/preStop) for helm. compose has no lifecycle-hook primitive; a workload declaring lifecycle halts loudly on a compose target rather than silently dropping the hook. |
 | `securityContext` | object | no |  |
+
+_Additional properties are not permitted._
+
+#### `container.envFrom[]`
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `configMap` | string | no | Name of a ConfigMap source emitted by this Recipe's artifacts input or an attached Feature. |
+| `secret` | string | no | Name of a secretsSchema slot; the imported Secret's name is resolved from the slot's provides. |
+| `prefix` | string | no | Optional prefix prepended to every imported environment variable name. |
 
 _Additional properties are not permitted._
 
@@ -118,6 +171,8 @@ _Additional properties are not permitted._
 _Additional properties are not permitted._
 
 #### `container.lifecycle`
+
+Container lifecycle hooks. Translated to K8s container.lifecycle (postStart/preStop) for helm. compose has no lifecycle-hook primitive; a workload declaring lifecycle halts loudly on a compose target rather than silently dropping the hook.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -163,8 +218,8 @@ _Additional properties are not permitted._
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `cpu` | string | no | K8s quantity (e.g., '100m', '0.5', '2'). Compose translates to cpus fractional. |
-| `memory` | string | no | K8s quantity (e.g., '128Mi', '1Gi'). Compose translates to mem_limit bytes. |
+| `cpu` | string | no | CPU quantity (e.g., '100m', '0.5', '2'). helm emits it verbatim under resources.{requests,limits}.cpu. compose maps it to deploy.resources.{reservations,limits}.cpus as fractional cores — a millicpu quantity is converted (500m becomes 0.5); a plain core quantity passes through. A quantity compose cannot convert halts loudly rather than emitting a wrong value. |
+| `memory` | string | no | Memory quantity (e.g., '128Mi', '1Gi'). helm emits it verbatim under resources.{requests,limits}.memory. compose maps it to deploy.resources.{reservations,limits}.memory as an exact byte count. Integer quantities with a binary (Ki/Mi/Gi/Ti/Pi) or decimal (k/M/G/T/P) suffix, or a plain byte integer, are converted exactly; a fractional or otherwise unconvertible quantity halts loudly rather than rounding. |
 
 _Additional properties are not permitted._
 
@@ -236,6 +291,7 @@ _Additional properties are not permitted._
 | --- | --- | --- | --- |
 | `size` | string | yes | K8s quantity (e.g., '10Gi'). |
 | `class` | string | no | StorageClassName. Optional. |
+| `accessModes` | string (enum)[] | no | PVC access modes. helm emits spec.accessModes, defaulting to [ReadWriteOnce] when omitted. compose volumes have no access-mode concept and omit it. |
 
 _Additional properties are not permitted._
 
@@ -247,6 +303,7 @@ Per-replica claim template. Requires form: stateful, because only the stateful s
 | --- | --- | --- | --- |
 | `size` | string | yes |  |
 | `class` | string | no |  |
+| `accessModes` | string (enum)[] | no | PVC access modes for the per-replica claim template. helm emits spec.accessModes, defaulting to [ReadWriteOnce] when omitted. compose has no access-mode concept and omits it. |
 
 _Additional properties are not permitted._
 

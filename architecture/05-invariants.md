@@ -10,7 +10,7 @@ The Aggrega compiler is an Ahead-Of-Time (AOT) text-router. It parses YAML, trav
 
 Many rules that sound like compiler rules — the Zero-Port Contract, the 7-Type Cloud-Native Ontology, Naked-Base / Flavored-Edges catalog style — are **Social Contracts**: best practices with escape hatches, upheld by Platform Architects authoring the standard-library catalog. The compiler is blind to them.
 
-What the compiler does enforce is narrow: schema validation, YAML parsing, graph construction, template evaluation, and the dumb text-routing of the Injection Contract. Everything else is convention, enforced at catalog authoring time or inside opt-in Wasm policy sockets.
+What the compiler does enforce is narrow: schema validation, YAML parsing, graph construction, template evaluation, and the dumb text-routing of the Injection Contract. Everything else is convention, enforced at catalog authoring time or inside the opt-in Wasm governance socket.
 
 Enterprises authoring their own internal catalogs are explicitly free to break standard-library conventions. The compiler accepts whatever they write provided it passes schema validation. The architecture promotes best practices; it does not build prisons.
 
@@ -104,7 +104,7 @@ The Four-Domain Split is **guidance and design framing, not compiler enforcement
 - Mix concerns (Architects hardcoding compliance labels directly onto `core/*` Components when enterprise catalogs demand it).
 - Cross domain boundaries (Developers using Parameter Hoisting to inject infrastructure concerns into the Aggregate when legacy code demands it).
 
-The compiler accepts any authoring pattern that passes schema validation. The architecture promotes best practices; schema-level constraints (such as the Release `values:` ban in Invariant 5) are the only domain crossings the compiler actually rejects. All other separation is a Social Contract upheld by catalog authors and, where enterprises opt in, by Wasm policy sockets.
+The compiler accepts any authoring pattern that passes schema validation. The architecture promotes best practices; schema-level constraints (such as the Release `values:` ban in Invariant 5) are the only domain crossings the compiler actually rejects. All other separation is a Social Contract upheld by catalog authors and, where enterprises opt in, by the Wasm governance socket.
 
 ## 8. Deterministic Output
 

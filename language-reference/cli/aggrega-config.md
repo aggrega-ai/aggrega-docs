@@ -45,8 +45,8 @@ Two focused views narrow the output:
 
 The captured subset is a set of plugin socket attachments and the catalog directories:
 
-- By default capture freezes only the sockets that determine the rendered output — the provider bindings and the mutator — since only those must travel with the project for byte-identical builds. The catalog directories are always captured.
-- `--all-plugins` widens the captured sockets to include the policy, linter, and importer sockets as well. Without it those three stay free to vary by environment.
+- By default capture freezes only the sockets that determine the rendered output — the provider bindings and the transform-role governance attachments — since only those must travel with the project for byte-identical builds. The catalog directories are always captured.
+- `--all-plugins` widens the captured sockets to include the verdict-role governance, linter, and importer sockets as well. Without it those three stay free to vary by environment.
 
 ## See also
 

@@ -4,7 +4,7 @@ Aggrega's compilation pipeline includes designated socket points where WebAssemb
 
 This page covers the *sockets* — the pipeline points and their input/output shapes. For the *plugin* — the `Plugin` entity, the per-export capability claims, the runtime limits, and the publish→pull→build lifecycle — see the [Wasm plugin developer guide](plugin-developer-guide.md).
 
-Aggrega embeds a Wasm host runtime — Extism on top of the Wazero engine — that loads and executes plugins behind an AOT-purity firewall: the host grants a guest zero ambient capability — no network, no filesystem, no environment, discarded stdio, an observable wall clock frozen to a build-invariant instant — so a plugin cannot break the compiler's ahead-of-time guarantees. The full capability surface — the import-module rule at load, the instantiation-time denials, and the curated host functions — is [the sandbox contract](#the-sandbox-contract) below. Plugin authors target the host through the three-language PDK (Go, Rust, TypeScript). The first socket dispatched through the host in a shipping command is the **linter socket** — the standard publishing-linter, executed by [`aggrega lint`](../cli/aggrega-lint.md). `aggrega build` dispatches two in-band build sockets when a workspace configures them: the Step 2 mutator and the Step 4 policy. Both are no-ops when no plugin is attached, so a build with no socket configuration is unchanged. `aggrega build` also dispatches the Step 5 Phase C FeatureRecipe and Recipe `pipeline:` — each declared step runs through the host against the rendered document set, applying the step's RFC 6902 patches and emitting its side effects. See [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases).
+Aggrega embeds a Wasm host runtime — Extism on top of the Wazero engine — that loads and executes plugins behind an AOT-purity firewall: the host grants a guest zero ambient capability — no network, no filesystem, no environment, discarded stdio, an observable wall clock frozen to a build-invariant instant — so a plugin cannot break the compiler's ahead-of-time guarantees. The full capability surface — the import-module rule at load, the instantiation-time denials, and the curated host functions — is [the sandbox contract](#the-sandbox-contract) below. Plugin authors target the host through the three-language PDK (Go, Rust, TypeScript). The first socket dispatched through the host in a shipping command is the **linter socket** — the standard publishing-linter, executed by [`aggrega lint`](../cli/aggrega-lint.md). `aggrega build` dispatches the governance socket's build-time roles when a workspace configures them: the Step-1 annotation-transform and Step-2 label-transform (which shape output) and the Step-4 IR verdict and Step-5 render verdict. Each is a no-op when no plugin is attached at that role, so a build with no governance configuration is unchanged. `aggrega build` also dispatches the Step 5 Phase C FeatureRecipe and Recipe `pipeline:` — each declared step runs through the host against the rendered document set, applying the step's RFC 6902 patches and emitting its side effects. See [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases).
 
 ## The sandbox contract
 
@@ -47,8 +47,10 @@ The compilation pipeline reserves the following socket points. The shape labels 
 
 | Socket | Pipeline placement | Status today |
 | --- | --- | --- |
-| `mutator.wasm` | Step 2 (Topology Builder) | **available** — dispatched when a workspace configures a mutator plugin; auto-tags node labels via JSON Patch |
-| `policy.wasm` | Step 4 (Static Analyzer, `ir` stage) or post-render (`render` stage) | **available** — dispatched when a workspace configures a policy plugin; a `deny` verdict halts the build |
+| Governance socket, `annotation-transform` role | Step 1 (before annotation expansion) | **available** — dispatched when a workspace attaches an annotation-transform plugin; injects annotations that expansion turns into Feature attachments |
+| Governance socket, `label-transform` role | Step 2 (Topology Builder) | **available** — dispatched when a workspace attaches a label-transform plugin; auto-tags node labels via JSON Patch |
+| Governance socket, `ir-verdict` role | Step 4 (Static Analyzer, over the IR graph) | **available** — dispatched when a workspace attaches an ir-verdict plugin; a `deny` verdict halts the build |
+| Governance socket, `render-verdict` role | Step 5 (over the rendered artifacts) | **available** — dispatched when a workspace attaches a render-verdict plugin; a `deny` verdict halts the build |
 | FeatureRecipe `pipeline:` plugins | Step 5 Phase C (Post-Render Mutation) | **available** — each declared step runs against the rendered document set, applying RFC 6902 patches and emitting side effects |
 | Provider rendering plugins (helm, helm-chart, compose, terraform) | Step 5 (Phase B engines) | **available** — every provider renders through its Wasm guest; rendering is Wasm-only, with no native Go engine fallback |
 | `linter.wasm` (publishing-linter) | Out-of-band (`aggrega lint`) | **available** — the publishing-linter ships and runs through the host via `aggrega lint` |
@@ -59,7 +61,7 @@ The annotation-driven Feature expansion sub-phase (Step 1) is a native Go pipeli
 
 Two sockets carry typed contract surfaces the compiler dispatches today. Plugin authors implement guest-side code that produces the documented shapes; the host reads them at build time, once per configured plugin, when a workspace attaches a plugin to the socket.
 
-### `mutator.wasm` — JSONPatch output
+### The `label-transform` role — JSONPatch output
 
 **Pipeline placement.** Step 2 (Topology Builder), after IR graph construction but before the analyzer runs.
 
@@ -70,38 +72,38 @@ Two sockets carry typed contract surfaces the compiler dispatches today. Plugin 
 - `settings` — the free-form settings object the attachment declared under `with.settings`, handed to the guest verbatim.
 - `sources` — the definition files the attachment declared under `with.sources`, each carrying its base-name path and content, so a mutator can be driven by a checked-in rules or mapping file rather than inline settings.
 
-The graph is a labels-only projection (nodes carry their resolved label sets; the full IR graph stays inside the compiler). `settings` and `sources` are the same engine-agnostic `with` channel the policy socket reads; the host passes them through and never interprets their content. Because a mutator's output shapes the build, the attachment's settings and source content are pinned in the release lockfile at pull and reconstructed from it at build, so the mutator input is invariant to a post-pull change to either until the next pull.
+The graph is a labels-only projection (nodes carry their resolved label sets; the full IR graph stays inside the compiler). `settings` and `sources` are the same engine-agnostic `with` channel the verdict roles read; the host passes them through and never interprets their content. Because a mutator's output shapes the build, the attachment's settings and source content are pinned in the release lockfile at pull and reconstructed from it at build, so the mutator input is invariant to a post-pull change to either until the next pull.
 
 **Output shape (guest → host).** A `MutatorOutput` document carrying:
 
 - `patches` — an array of opaque JSONPatch documents (RFC 6902) that the host applies to the labels-only projection.
 
-Each patch addresses a specific node's labels via [JSON Pointer (RFC 6901)](https://datatracker.ietf.org/doc/html/rfc6901); the host applies the patches in array order and re-ingests the mutated label set into the IR graph. The mutator's role is enterprise auto-tagging — adding compliance / observability / cost-attribution labels declared by enterprise policy without modifying catalog content. The label surface is the mutator's only sanctioned target: a patch that touches a node field other than its labels, adds or removes a node, or sets a non-string label value halts the build rather than being silently absorbed. RFC 6901 is the path-grammar baseline for every document-path surface in Aggrega — the Wasm plugin contract here, plus `.locals` `*_path` exports, plus the `*Path` schema fields elsewhere in the corpus. See [`02-naming-conventions.md`](../02-naming-conventions.md) "Document-path naming-suffix discipline" for the canonical baseline declaration and the `*Path` / `*_path` suffix discipline that distinguishes the two authoring sides.
+Each patch addresses a specific node's labels via [JSON Pointer (RFC 6901)](https://datatracker.ietf.org/doc/html/rfc6901); the host applies the patches in array order and re-ingests the mutated label set into the IR graph. The label-transform role's job is enterprise auto-tagging — adding compliance / observability / cost-attribution labels declared by enterprise policy without modifying catalog content. The label surface is this role's only sanctioned target: a patch that touches a node field other than its labels, adds or removes a node, or sets a non-string label value halts the build rather than being silently absorbed. RFC 6901 is the path-grammar baseline for every document-path surface in Aggrega — the Wasm plugin contract here, plus `.locals` `*_path` exports, plus the `*Path` schema fields elsewhere in the corpus. See [`02-naming-conventions.md`](../02-naming-conventions.md) "Document-path naming-suffix discipline" for the canonical baseline declaration and the `*Path` / `*_path` suffix discipline that distinguishes the two authoring sides.
 
 **Type definitions.** [`internal/compiler/topology/wasm_types_gen.go`](../../../aggrega-cli/internal/compiler/topology/wasm_types_gen.go) carries `MutatorInput`, `MutatorOutput`, `CompilationContext`, `MutatorGraph`, `MutatorNode`; [`internal/compiler/topology/mutator.go`](../../../aggrega-cli/internal/compiler/topology/mutator.go) carries the host-side assembler and patch application.
 
-### `policy.wasm` — verdict array output
+### The verdict roles — verdict array output
 
 A policy guest inspects a build and returns a list of verdicts; the host acts on
 each verdict's severity and never interprets the policy itself. The full
 treatment — stages, severities, the operator-supplied input channel, wrapping a
 foreign policy engine, the reference guests, and how an operator attaches a
-policy — is on the [policy socket page](policy-socket.md). This section records
+policy — is on the [governance socket page](policy-socket.md). This section records
 the pipeline placement and the typed wire shapes.
 
-**Pipeline placement.** A policy plugin declares exactly one stage in its `describe()` self-report:
+**Pipeline placement.** A policy is attached at exactly one verdict role, which fixes where it evaluates:
 
-- `ir` — evaluated at Step 4 (Static Analyzer), before Step 5 Phase B rendering. The analyzer assembles the payload on every build via [`internal/compiler/analyzer/analyzer.go`](../../../aggrega-cli/internal/compiler/analyzer/analyzer.go) `assemblePolicyInput()`.
-- `render` — evaluated after render, over the emitted artifacts.
+- `ir-verdict` — evaluated at Step 4 (Static Analyzer), before Step 5 Phase B rendering. The analyzer assembles the payload on every build via [`internal/compiler/analyzer/analyzer.go`](../../../aggrega-cli/internal/compiler/analyzer/analyzer.go) `assemblePolicyInput()`.
+- `render-verdict` — evaluated after render, over the emitted artifacts.
 
-When a workspace configures a policy plugin, the pipeline marshals the stage's payload to the plugin and reads its verdicts back.
+When a workspace attaches a verdict-role plugin, the pipeline marshals that role's payload to the plugin and reads its verdicts back.
 
-**Input shape (host → guest).** The stage selects the payload:
+**Input shape (host → guest).** The role selects the payload:
 
-- The `ir`-stage `PolicyInput` carries `graph` — the full capability-agnostic IR graph (the same shape the Topology Builder emits), with every node, edge, and attachment detail the compiler holds — and `precalculated_paths`, the routing paths the analyzer enumerates alongside, so a policy can reason about reachability without re-walking the graph. The graph is the versioned IR graph, single-sourced from the `ir-v1alpha1` schema; the IR shape is not secret (it is the same graph `aggrega inspect` emits) and secrets in it are pointers, never plaintext.
-- The `render`-stage `RenderPolicyInput` carries `artifacts` — the rendered output files as a `{path, content}` list sorted by path, so the wire is byte-identical across runs of identical input.
+- The `ir-verdict` `PolicyInput` carries `graph` — the full capability-agnostic IR graph (the same shape the Topology Builder emits), with every node, edge, and attachment detail the compiler holds — and `precalculated_paths`, the routing paths the analyzer enumerates alongside, so a policy can reason about reachability without re-walking the graph. The graph is the versioned IR graph, single-sourced from the `ir-v1alpha1` schema; the IR shape is not secret (it is the same graph `aggrega inspect` emits) and secrets in it are pointers, never plaintext.
+- The `render-verdict` `RenderPolicyInput` carries `artifacts` — the rendered output files as a `{path, content}` list sorted by path, so the wire is byte-identical across runs of identical input.
 
-Both stages additionally carry the attachment's `sources` (policy-definition files the host reads at build time and hands the guest verbatim, paths as base names, content opaque) and `settings` (a free-form object handed through untouched). Both are absent when the attachment declares none.
+Both roles additionally carry the attachment's `sources` (policy-definition files the host reads at build time and hands the guest verbatim, paths as base names, content opaque) and `settings` (a free-form object handed through untouched). Both are absent when the attachment declares none.
 
 **Output shape (guest → host).** A `PolicyOutput` document carrying:
 
@@ -109,7 +111,7 @@ Both stages additionally carry the attachment's `sources` (policy-definition fil
 
 Only fired verdicts appear; an allowing evaluation returns an empty array. The host walks the verdicts and maps each severity to an action: `deny` halts the build (surfacing every `deny` message), `warn` flags the verdict and lets the build proceed, `audit` records it without affecting the outcome. A `deny` halts through the same gate a selector or `appliesTo` violation uses.
 
-**Type definitions.** [`internal/compiler/analyzer/wasm_types.go`](../../../aggrega-cli/internal/compiler/analyzer/wasm_types.go) carries `PolicyInput` (IR stage) and `RenderPolicyInput` (render stage), the shared `PolicySource`, `PolicyOutput`, `PolicyResult`, and the `deny` / `warn` / `audit` severity constants.
+**Type definitions.** [`internal/compiler/analyzer/wasm_types.go`](../../../aggrega-cli/internal/compiler/analyzer/wasm_types.go) carries `PolicyInput` (ir-verdict role) and `RenderPolicyInput` (render-verdict role), the shared `PolicySource`, `PolicyOutput`, `PolicyResult`, and the `deny` / `warn` / `audit` severity constants.
 
 ## Output shape contract — the FeatureRecipe pipeline and provider sockets
 
@@ -168,23 +170,23 @@ The linter is opt-in catalog discipline: the compiler does not run it during `ag
 
 **Status today:** **available**. The publishing-linter ships and runs through the host via `aggrega lint`.
 
-## Placement criterion: `linter.wasm` vs `policy.wasm`
+## Placement criterion: the linter socket vs the governance verdict roles
 
 Two of the documented sockets share a similar surface — both emit per-rule results — but differ in pipeline placement and gating semantics. The criterion for deciding which socket carries a given check:
 
-- **`policy.wasm` (in-band, build-halting).** Reserved for **build-halting policies**: a `deny` verdict stops the compilation pipeline and the build produces no artifacts. Use cases are policies whose violation makes the output unsafe to apply: compliance gates (PCI / SOC2 boundary placement), topology invariants (zero-trust ingress, cross-boundary auth), credential-flow shape (no plaintext secrets in IR), etc. A policy reasons over the IR graph (`ir` stage, before render) or the rendered artifacts (`render` stage, after render).
+- **The governance verdict roles (in-band, build-halting).** Reserved for **build-halting policies**: a `deny` verdict stops the compilation pipeline and the build produces no artifacts. Use cases are policies whose violation makes the output unsafe to apply: compliance gates (PCI / SOC2 boundary placement), topology invariants (zero-trust ingress, cross-boundary auth), credential-flow shape (no plaintext secrets in IR), etc. A policy reasons over the IR graph (`ir-verdict`, before render) or the rendered artifacts (`render-verdict`, after render).
 - **`linter.wasm` (out-of-band, CI / IDE, advisory).** Reserved for **best-practice and discoverability checks**: rules whose violation is suspicious but not unsafe — orphaned secrets, unused parameters, deprecated label vocabulary, tag completeness for cost attribution, naming-convention drift. Failure produces advisory output; the build still produces artifacts.
 
-The placement criterion phrased as a single rule: **if the check should halt the build, it belongs in `policy.wasm`; if the check should warn an author or a reviewer without blocking the pipeline, it belongs in `linter.wasm`**.
+The placement criterion phrased as a single rule: **if the check should halt the build, it belongs at a governance verdict role; if the check should warn an author or a reviewer without blocking the pipeline, it belongs in `linter.wasm`**.
 
-Both sockets are usable today. The `linter.wasm` socket runs the publishing-linter via `aggrega lint`; the `policy.wasm` socket is dispatched in-band during `aggrega build` when a workspace attaches a policy plugin. Note that the policy socket carries its own severities — a policy may itself emit `warn` and `audit` verdicts that advise without halting — so the halt-versus-advise line above is the placement guidance for whole checks, not a claim that a policy can only halt. See the [policy socket page](policy-socket.md) for the severity model.
+Both are usable today. The `linter.wasm` socket runs the publishing-linter via `aggrega lint`; the governance verdict roles are dispatched in-band during `aggrega build` when a workspace attaches a verdict-role plugin. Note that a verdict role carries its own severities — a policy may itself emit `warn` and `audit` verdicts that advise without halting — so the halt-versus-advise line above is the placement guidance for whole checks, not a claim that a policy can only halt. See the [governance socket page](policy-socket.md) for the severity model.
 
 ## Design surfaces without current code anchors
 
 A few design surfaces named elsewhere in the corpus are not yet fully anchored in current code today:
 
-- **Additional output shapes.** Current code types the mutator's JSONPatch output, the policy socket's PolicyResult array, the linter's findings plus version-bump classification, the provider render socket's node output and artifacts, and the FeatureRecipe-pipeline step shapes (RFC 6902 patches, side effects, and step outputs). A step's per-diagnostic element shape stays opaque at this layer for now, with a structured diagnostic definition a follow-on.
-- **Six Wasm-socket roles enumeration.** The current typed surface is three sockets (mutator, policy, linter); the broader six-role design (adding helm-renderer, policy-formatter, fetcher/injector) is documented across architecture chapters but not centralized in a Go type registry.
+- **Additional output shapes.** Current code types the label-transform role's JSONPatch output, the verdict roles' PolicyResult array, the linter's findings plus version-bump classification, the provider render socket's node output and artifacts, and the FeatureRecipe-pipeline step shapes (RFC 6902 patches, side effects, and step outputs). A step's per-diagnostic element shape stays opaque at this layer for now, with a structured diagnostic definition a follow-on.
+- **Full Wasm-socket role enumeration.** The current typed surface is the governance socket (its transform and verdict roles) plus the linter socket; the broader role design documented across architecture chapters is not centralized in a Go type registry.
 
 The `linter.wasm` socket, by contrast, is fully anchored in current code: it is the publishing-linter, a typed contract with host dispatch via `aggrega lint`.
 

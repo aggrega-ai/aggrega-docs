@@ -8,9 +8,9 @@ Authors encounter labels and annotations on six distinct surfaces. Each carries 
 
 | # | Surface | Scope | Cascade rule | Primary consumer |
 | --- | --- | --- | --- | --- |
-| 1 | Catalog entity `metadata.labels` | Per-entity identity (Component, Feature, Aggregate) | Does not cascade to instances; carried on the catalog entity itself | Catalog discovery, Studio filtering, `policy.wasm` (when shipped) |
-| 2 | Component `metadata.labels` (intrinsic) | Per-Component-instance properties (`component.aggrega.ai/type` etc.) | Cascades into IR per-node `.context.labels` after `mutator.wasm` mutations | Selector matching (`usesSchema` `selector:` declarations, carried as `x-aggrega-selector:` in the synthesized JSON Schema), Recipe template logic |
-| 3 | Component `metadata.annotations` | Per-Component-instance traits authored by the Architect | Cascades into IR per-node `.context.annotations.catalog` bucket | `policy.wasm` (intrinsic-trait policies), Recipe template logic |
+| 1 | Catalog entity `metadata.labels` | Per-entity identity (Component, Feature, Aggregate) | Does not cascade to instances; carried on the catalog entity itself | Catalog discovery, Studio filtering, governance verdict roles (when shipped) |
+| 2 | Component `metadata.labels` (intrinsic) | Per-Component-instance properties (`component.aggrega.ai/type` etc.) | Cascades into IR per-node `.context.labels` after `label-transform` mutations | Selector matching (`usesSchema` `selector:` declarations, carried as `x-aggrega-selector:` in the synthesized JSON Schema), Recipe template logic |
+| 3 | Component `metadata.annotations` | Per-Component-instance traits authored by the Architect | Cascades into IR per-node `.context.annotations.catalog` bucket | governance verdict roles (intrinsic-trait policies), Recipe template logic |
 | 4 | Aggregate / Subsystem `annotations:` | Aggregate-side cognitive metadata | Cascades into IR per-node `.context.annotations.aggregate` bucket | Recipe `valuesMapping:` for cognitive routing |
 | 5 | Release boundary `annotations:` | Ops-side physical metadata, including `aggrega.ai/*` well-known annotations | Cascades into IR per-node `.context.annotations.release` bucket | Provider engines (helm reads `aggrega.ai/namespace`; compose derives network name from same key); FeatureRecipe `injectMapping:` for cross-boundary routing |
 | 6 | Manifest `features.annotations` bindings | Annotation-key → Feature-type binding with pillar-grouped subkey routing (`maps.infra` / `maps.values`) for annotation-driven Feature attachment | Step 1 annotation-expansion sub-phase walks Release boundaries (outer-to-inner) and Aggregate subsystems (outer-to-inner); per-component override and whole-value / per-subkey null opt-out apply; side-vs-pillar enforcement gates which pillar fires per authoring side | Annotation-driven Feature expansion (synthetic Feature attachments tagged `Origin: "annotation"`) |
@@ -123,7 +123,7 @@ The current asymmetry (3 entities have labels; 2 have annotations; 5 lack one or
 The cascade rules across the six surfaces, as evaluated by the compiler:
 
 1. **Catalog entity labels (Surface 1)** stay on the catalog entity. They do not flow to instances; consumers read them by inspecting catalog content directly.
-2. **Component `metadata.labels` (Surface 2)** flow into the per-node `.context.labels` after Step 2's optional `mutator.wasm` pass.
+2. **Component `metadata.labels` (Surface 2)** flow into the per-node `.context.labels` after Step 2's optional `label-transform` pass.
 3. **Component `metadata.annotations` (Surface 3)** flow into the per-node `.context.annotations.catalog` bucket.
 4. **Aggregate / Subsystem `annotations:` (Surface 4)** cascade through the subsystem hierarchy, accumulating from outer subsystems inward, into the per-node `.context.annotations.aggregate` bucket.
 5. **Release boundary `annotations:` (Surface 5)** cascade through the boundary hierarchy from outer boundaries inward, into the per-node `.context.annotations.release` bucket.

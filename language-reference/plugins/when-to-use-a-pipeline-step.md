@@ -20,9 +20,9 @@ Both triggers share a shape: they need information that exists only *after* rend
 
 ## A step transforms; a policy validates
 
-A pipeline step is a *transformer*: it changes the rendered set. It is not the place to check whether a result is acceptable. To *validate* a build — to assert that a patched workload has the sidecar, that no plaintext secret reached the output, that a required label is present — attach a **render-stage policy**: a policy plugin declaring `stage: render`, which runs after render over the emitted artifacts and returns a verdict. A `deny` halts the build; a `warn` or `audit` advises without blocking.
+A pipeline step is a *transformer*: it changes the rendered set. It is not the place to check whether a result is acceptable. To *validate* a build — to assert that a patched workload has the sidecar, that no plaintext secret reached the output, that a required label is present — attach a **render-stage policy**: a governance plugin at the `render-verdict` role, which runs after render over the emitted artifacts and returns a verdict. A `deny` halts the build; a `warn` or `audit` advises without blocking.
 
-Keep the two roles separate. Do not build validation logic into a pipeline step, and do not use a policy to mutate output — a policy returns verdicts, never patches. A step shapes the output; a render-stage policy judges it. The [policy socket page](policy-socket.md) covers the stages and severities.
+Keep the two roles separate. Do not build validation logic into a pipeline step, and do not use a policy to mutate output — a policy returns verdicts, never patches. A step shapes the output; a render-verdict policy judges it. The [governance socket page](policy-socket.md) covers the verdict roles and severities.
 
 ## Steps compose
 

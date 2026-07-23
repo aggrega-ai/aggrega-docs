@@ -28,7 +28,7 @@ The top-level fields live at the root of the template context — accessed as `.
 `.context` is the compiler-assembled execution context for a single node — the identity, topology, and delivery-pipe data the renderer threads through every template site. Five fields:
 
 - **`.context.instance_id` (string).** The node's flattened instance ID (e.g., `data-layer.main-db` for a node imported from a sub-aggregate). Used for resource-name prefixing.
-- **`.context.labels` (string-valued map).** Catalog-authored labels plus any `mutator.wasm` Step-2 additions.
+- **`.context.labels` (string-valued map).** Catalog-authored labels plus any `label-transform` Step-2 additions.
 - **`.context.annotations` (three buckets, see below).** Cascaded annotations grouped by origin.
 - **`.context.inject` (InjectPipe, see below).** The pre-hydrated, intercepted delivery pipe — the standard surface Recipe templates read for cross-component values.
 - **`.context.uses` (map of EnrichedEdge, see below).** The JOIN projection over outbound topological edges.

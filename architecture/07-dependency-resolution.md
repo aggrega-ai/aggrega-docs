@@ -41,7 +41,7 @@ The following two examples demonstrate the two distinct superpowers of the expli
 
 #### Example A: Topological Validation & Cross-Node Type Safety
 
-This scenario traces how a `policy.wasm` socket — when Ops has configured the Release to invoke it — detects that an AI Agent is about to connect to a database lacking required compliance labels, and halts the build. The core Go compiler pipes labels opaquely; the detection logic lives inside the Wasm plugin that Ops has chosen to wire in.
+This scenario traces how a governance verdict role — when Ops has configured the Release to invoke it — detects that an AI Agent is about to connect to a database lacking required compliance labels, and halts the build. The core Go compiler pipes labels opaquely; the detection logic lives inside the Wasm plugin that Ops has chosen to wire in.
 
 **1. The Standard Library (The Unified `schema:` in the Catalog)**
 The Platform Architect defines the schema structure, separating cognitive logic from topological targets natively.

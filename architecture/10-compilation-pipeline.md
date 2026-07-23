@@ -6,7 +6,7 @@ This chapter details the internal physics of the Go engine, defining how abstrac
 
 Aggrega drops hardcoded orchestration logic in favor of a strict 5-step Ahead-of-Time (AOT) compiler pipeline. Triggered by the **CLI Orchestrator**, the Go engine acts as a high-speed traffic cop, passing the flat graph between isolated WebAssembly (Wasm) sockets to evaluate the architecture before rendering physical artifacts.
 
-The Wasm sockets run on an embedded host — the Extism toolkit on top of the Wazero engine — behind an **AOT-purity firewall** that denies a plugin any runtime-access capability (network, filesystem, wall-clock, environment, standard I/O), so a plugin cannot break the deterministic, ahead-of-time guarantee. The host ships and runs the publishing-linter today, out of band, via [`aggrega lint`](../language-reference/cli/aggrega-lint.md). The in-band gates described below — the Step 2 mutator, the Step 4 policy, and the Step 5 Phase C pipeline — carry stable contracts and assemble their payloads, but `aggrega build` does not yet dispatch them through the host; each activates one socket at a time. The descriptions that follow teach the pipeline's design; [Status of the Language](../language-reference/10-status.md) tracks which sockets execute today.
+The Wasm sockets run on an embedded host — the Extism toolkit on top of the Wazero engine — behind an **AOT-purity firewall** that denies a plugin any runtime-access capability (network, filesystem, wall-clock, environment, standard I/O), so a plugin cannot break the deterministic, ahead-of-time guarantee. The host ships and runs the publishing-linter today, out of band, via [`aggrega lint`](../language-reference/cli/aggrega-lint.md). The in-band gates described below — the governance socket's Step-2 label-transform and Step-4 IR-verdict roles, and the Step 5 Phase C pipeline — carry stable contracts and assemble their payloads. The descriptions that follow teach the pipeline's design; [Status of the Language](../language-reference/10-status.md) tracks which sockets execute today.
 
 The pipeline executes entirely in-memory in a strict, fixed order:
 
@@ -21,8 +21,8 @@ Next, it performs an in-memory interpolation in three sub-steps: parameter contr
 
 **2. The Topology Builder & Mutation Gate**
 
-* **Mechanism:** AST Expansion + The `mutator.wasm` Socket.
-* **Action:** The compiler natively reads the explicitly declared `uses` structs from the validated components to deterministically draw topological edges between nodes in the graph, leaving the `values` block completely opaque. It then evaluates the **Mutation Gate**, passing the early-stage AST Graph to the `mutator.wasm` plugin. This plugin evaluates the context and returns JSONPatches to dynamically auto-tag the graph (e.g., injecting the label `compliance.aggrega.ai/data-class: restricted` based on environment scopes).
+* **Mechanism:** AST Expansion + the governance socket's `label-transform` role.
+* **Action:** The compiler natively reads the explicitly declared `uses` structs from the validated components to deterministically draw topological edges between nodes in the graph, leaving the `values` block completely opaque. It then evaluates the **Mutation Gate**, passing the early-stage AST Graph to a governance plugin attached at the `label-transform` role. The plugin evaluates the context and returns JSONPatches to dynamically auto-tag the graph (e.g., injecting the label `compliance.aggrega.ai/data-class: restricted` based on environment scopes).
 
 **3. Graph Finalization**
 
@@ -32,8 +32,8 @@ Next, it performs an in-memory interpolation in three sub-steps: parameter contr
 
 **4. The Static Analyzer & Validation Gate**
 
-* **Mechanism:** Topological Purity Checks + The `policy.wasm` Socket.
-* **Action:** The compiler runs abstract static analysis over the IR Graph. First, it extracts the `selector` strings from the `usesSchema` definitions and evaluates them using a native Go label-matching engine (supporting Kubernetes-style `AND`, `OR` via `in()`, and `NOT` via `!=` semantics) across the explicitly defined graph edges to guarantee cross-node type safety. It also evaluates Feature `appliesTo` and `appliesToAnyOf` selectors to verify that attached features are compatible with their target component's labels. Second, it executes the **Validation Gate**, passing the complete graph structure (including all nodes, edges, attached features, and precalculated DFS paths) to the `policy.wasm` socket. The enterprise's custom Wasm policy evaluates the topology. If the Wasm plugin returns a failure array (e.g., detecting a continuous path from a `public` node to a `restricted` node without a specific proxy feature), the build halts.
+* **Mechanism:** Topological Purity Checks + the governance socket's `ir-verdict` role.
+* **Action:** The compiler runs abstract static analysis over the IR Graph. First, it extracts the `selector` strings from the `usesSchema` definitions and evaluates them using a native Go label-matching engine (supporting Kubernetes-style `AND`, `OR` via `in()`, and `NOT` via `!=` semantics) across the explicitly defined graph edges to guarantee cross-node type safety. It also evaluates Feature `appliesTo` and `appliesToAnyOf` selectors to verify that attached features are compatible with their target component's labels. Second, it executes the **Validation Gate**, passing the complete graph structure (including all nodes, edges, attached features, and precalculated DFS paths) to a governance plugin attached at the `ir-verdict` role. The enterprise's custom Wasm policy evaluates the topology. If the Wasm plugin returns a failure array (e.g., detecting a continuous path from a `public` node to a `restricted` node without a specific proxy feature), the build halts.
 
 **5. The Infrastructure Rendering Engine**
 
@@ -55,11 +55,11 @@ To remain strictly unopinionated about deployment execution, the rendering plugi
 ```mermaid
 graph TD
     subgraph CLI_Orchestrator ["The Aggrega Compiler Pipeline"]
-        A["Step 1: The Resolver & Syntax Validator<br/>(Inheritance Merge + Parameter Interpolation + JSON Schema 2020-12 Validation)"] --> B["Step 2: The Topology Builder<br/>(AST Expansion + mutator.wasm)"]
+        A["Step 1: The Resolver & Syntax Validator<br/>(Inheritance Merge + Parameter Interpolation + JSON Schema 2020-12 Validation)"] --> B["Step 2: The Topology Builder<br/>(AST Expansion + governance label-transform)"]
         
         B -->|"Emits IR Graph"| C["Step 3: Graph Finalization<br/>(Edge Inference & Normalization)"]
         
-        C -->|"Flat IR Graph"| D["Step 4: The Static Analyzer<br/>(Selectors + policy.wasm Gate)"]
+        C -->|"Flat IR Graph"| D["Step 4: The Static Analyzer<br/>(Selectors + governance ir-verdict Gate)"]
         
         D -->|"Validated Topology"| E["Step 5: The Infrastructure Rendering Engine<br/>Phase A: Pre-Render Interception (injectMapping)<br/>Phase B: Base Rendering (valuesMapping)<br/>Phase C: Wasm Mutation (pipeline)"]
     end

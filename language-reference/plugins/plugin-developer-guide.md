@@ -160,7 +160,7 @@ The monotonic-narrowing rule that applies to entities using `extends` does not a
 ## 10. Cross-references
 
 - [`plugin-contract.md`](plugin-contract.md) — the socket points a plugin targets and the per-socket input/output shapes.
-- [`policy-socket.md`](policy-socket.md) — the policy socket in depth: stages, verdict severities, the operator input channel, and the reference policy guests.
+- [`policy-socket.md`](policy-socket.md) — the governance socket's verdict roles in depth: the roles, verdict severities, the operator input channel, and the reference policy guests.
 - [`../entities/plugin.md`](../entities/plugin.md) — the `Plugin` entity field-by-field reference.
 - [`../entities/featurerecipe.md`](../entities/featurerecipe.md) — the FeatureRecipe `pipeline:` authoring surface that references a plugin by entity URI.
 - [`../cli/aggrega-lint.md`](../cli/aggrega-lint.md) — the publishing-linter, the version-bump rubric, and immutability enforcement.

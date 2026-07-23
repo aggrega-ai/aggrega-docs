@@ -1,4 +1,4 @@
-# The policy socket
+# The governance socket: policy verdicts
 
 An operator attaches a Wasm policy plugin to inspect a build and return a
 decision. The compiler host stays dumb and unopinionated: it routes the build
@@ -13,8 +13,9 @@ A policy plugin adds nothing to that surface except a decision. The host learns
 nothing about the policy language the guest speaks, carries no policy-engine
 code of its own, and takes exactly one of three actions per returned verdict.
 
-This page is the comprehensive treatment of the policy socket: the two stages a
-plugin evaluates, the verdict severities the host acts on, the engine-agnostic
+This page is the comprehensive treatment of the governance socket's verdict
+roles: the two verdict roles a policy is attached at, the verdict severities the
+host acts on, the engine-agnostic
 input channel an operator supplies, how a guest wraps a foreign policy engine,
 the reference guests that ship, and how an operator attaches a policy to a
 workspace. For the socket's place in the pipeline and its typed wire shapes, see
@@ -25,7 +26,7 @@ plugin as a catalog entity, see the
 ## The mental model: the host routes, the guest decides
 
 A policy plugin is a `governance` guest attached in a verdict role (`ir-verdict` or `render-verdict`). On a build the host assembles the
-payload for the plugin's declared stage, hands it across the ABI boundary, and
+payload for the attachment's verdict role, hands it across the ABI boundary, and
 reads back a list of verdicts. Each verdict carries a severity and a
 human-readable message. The host maps each severity to a build action; it does
 not read the message for meaning, does not know what the policy checked, and
@@ -34,33 +35,34 @@ does not know which engine produced the decision.
 Because the host is blind to policy content, the entire policy surface is the
 guest's: which language the rules are written in, which engine evaluates them,
 and how a violation becomes a verdict. The socket contract is narrow by design —
-a stage, a set of inputs, and a verdict list — so that any policy technology
+a role, a set of inputs, and a verdict list — so that any policy technology
 that compiles to Wasm can serve it.
 
-## Stages: `ir` and `render`
+## Verdict roles: `ir-verdict` and `render-verdict`
 
-A policy plugin declares exactly one stage in its `describe()` self-report,
-which fixes where in the pipeline the host evaluates it and what payload it
-receives.
+A policy is attached at exactly one verdict role, and the role fixes where in
+the pipeline the host evaluates it and what payload it receives. A guest that
+should judge both moments is attached twice — once at each role.
 
-- **`ir`** — the guest reasons over the intermediate-representation graph,
-  before rendering. The payload carries the full capability-agnostic IR graph (every
+- **`ir-verdict`** — the guest reasons over the intermediate-representation
+  graph, before rendering. The payload carries the full capability-agnostic IR graph (every
   node, edge, and attachment the compiler holds) plus the routing paths the
   analyzer enumerates, so a policy can reason about topology and reachability
-  without re-walking the graph. An `ir`-stage policy runs at the static-analysis
+  without re-walking the graph. An `ir-verdict` policy runs at the static-analysis
   gate, before any artifacts are produced. Use it for policies about
   architecture and wiring — topology invariants, cross-boundary auth,
   credential-flow shape — that should halt a build before it renders anything.
-- **`render`** — the guest reasons over the rendered output, after rendering.
-  The payload carries the emitted artifacts as a `{path, content}` list, sorted
+- **`render-verdict`** — the guest reasons over the rendered output, after
+  rendering. The payload carries the emitted artifacts as a `{path, content}` list, sorted
   by path so the wire is byte-identical across runs of identical input. A
-  `render`-stage policy sees exactly what the build produced. Use it for policies
+  `render-verdict` policy sees exactly what the build produced. Use it for policies
   about the concrete output — a rule that inspects rendered Docker Compose
   services or Kubernetes objects, for example.
 
-The two stages carry different payloads because they reason over different
-things: the `ir` stage over topology, the `render` stage over emitted files.
-Both stages carry the same operator-supplied input channel described below.
+The two roles carry different payloads because they reason over different
+things: the `ir-verdict` role over topology, the `render-verdict` role over
+emitted files. Both roles carry the same operator-supplied input channel
+described below.
 
 ## Verdicts and severities
 
@@ -132,7 +134,7 @@ A guest that wraps a foreign policy engine **absorbs that engine's ABI inside
 itself**. If the engine has its own Wasm ABI, its own entrypoints, or its own
 host-callback protocol, the wrapping guest instantiates and drives it internally
 and maps the engine's decision back to the socket's verdict shape. The compiler
-host sees only the standard policy socket surface; it never learns which
+host sees only the standard governance verdict surface; it never learns which
 engine is involved and carries no engine-specific code. Switching a policy from
 one engine to another is an attachment change, not a host change.
 
@@ -164,7 +166,7 @@ a thin adapter guest. The adapter absorbs OPA's Wasm ABI entirely inside itself
 (per [The ABI is Aggrega's own](#the-abi-is-aggregas-own) above): it
 instantiates the OPA-built module, sets the input, invokes evaluation, and maps
 the decision back to the verdict shape. The host sees only the standard
-policy socket surface.
+governance verdict surface.
 
 A reference adapter guest ships as a worked example. It embeds a policy authored
 in Rego and pre-compiled with `opa build -t wasm` into a WebAssembly module — a
@@ -323,8 +325,9 @@ never in place of it.
 ```yaml
 # .aggrega-config-append-ci.yaml — owned by the pipeline, additive only
 plugins:
-  policy_append:
+  governance_append:
     - uri: <organization-policy-plugin-reference>
+      role: render-verdict
       with:
         settings:
           required_label: app.kubernetes.io/name
