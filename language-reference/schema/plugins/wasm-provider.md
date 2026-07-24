@@ -94,7 +94,8 @@ The payload a Provider guest returns from its render_node export: the serialized
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `files` | RenderedFile[] | yes | The output files the guest emitted, in emission order. Each names its on-disk path and carries the serialized bytes the host writes verbatim. |
-| `diagnostics` | any[] | no | Diagnostics the guest raised while rendering. Each element carries the shared Wasm-plugin diagnostic shape; the element shape is opaque at this schema layer so a guest emits the shared diagnostic without the provider socket schema rebinding it. |
+| `diagnostics` | Diagnostic[] | no | Diagnostics the guest raised while rendering. Each element is the shared Wasm-plugin diagnostic shape. |
+| `error` | string | no | A failure message set when the guest ran but could not complete the operation; absent on success. It is distinct from any diagnostics the output carries: diagnostics report issues found during a run that still produced a result, while error reports that the operation itself did not complete. The host surfaces a present error as a failed plugin invocation. |
 
 _Additional properties are not permitted._
 
@@ -104,7 +105,8 @@ The payload a Provider guest returns from its optional validate_node_input expor
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `diagnostics` | any[] | no | Diagnostics the guest raised while validating the node's input. Each element carries the shared Wasm-plugin diagnostic shape; the element shape is opaque at this schema layer so a guest emits the shared diagnostic without the provider socket schema rebinding it. Empty when the input passed the structural check. |
+| `diagnostics` | Diagnostic[] | no | Diagnostics the guest raised while validating the node's input. Each element is the shared Wasm-plugin diagnostic shape. Empty when the input passed the structural check. |
+| `error` | string | no | A failure message set when the guest ran but could not complete the operation; absent on success. It is distinct from any diagnostics the output carries: diagnostics report issues found during a run that still produced a result, while error reports that the operation itself did not complete. The host surfaces a present error as a failed plugin invocation. |
 
 _Additional properties are not permitted._
 
@@ -315,8 +317,9 @@ The payload a Provider guest returns from its assemble_boundary export: the seri
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `files` | RenderedFile[] | yes | The assembled output files the guest emitted, in emission order. Each names its on-disk path and carries the serialized bytes the host writes verbatim. |
-| `diagnostics` | any[] | no | Diagnostics the guest raised while assembling. Each element carries the shared Wasm-plugin diagnostic shape; the element shape is opaque at this schema layer so a guest emits the shared diagnostic without the provider socket schema rebinding it. |
+| `diagnostics` | Diagnostic[] | no | Diagnostics the guest raised while assembling. Each element is the shared Wasm-plugin diagnostic shape. |
 | `nest_per_node` | boolean | no | Whether the orchestrator nests each contributor's per-node files under charts/<nodeID>/ rather than emitting them flat; the assembler signals this per provider (compose emits flat, so false; an umbrella-chart assembler nests, so true). |
+| `error` | string | no | A failure message set when the guest ran but could not complete the operation; absent on success. It is distinct from any diagnostics the output carries: diagnostics report issues found during a run that still produced a result, while error reports that the operation itself did not complete. The host surfaces a present error as a failed plugin invocation. |
 
 _Additional properties are not permitted._
 

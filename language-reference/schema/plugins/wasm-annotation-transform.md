@@ -33,6 +33,7 @@ The response shape the annotation-transform plugin emits: a list of annotation i
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `injections` | AnnotationInjection[] | yes | Annotation injections to apply, in order. Each names an existing target coordinate and the annotation key and string value to add there. |
+| `error` | string | no | A failure message set when the guest ran but could not complete the operation; absent on success. It is distinct from any diagnostics the output carries: diagnostics report issues found during a run that still produced a result, while error reports that the operation itself did not complete. The host surfaces a present error as a failed plugin invocation. |
 
 _Additional properties are not permitted._
 

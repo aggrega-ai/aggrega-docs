@@ -47,6 +47,7 @@ The payload an importer guest returns: the entities the import produced, the map
 | `decisions` | ImportDecision[] | no | The mapping decisions the import made, one per source node it resolved, recording the candidates it weighed and the choice it made. Absent when the import recorded no decisions. |
 | `diagnostics` | Diagnostic[] | no | Diagnostics the import raised — for example an unresolved source node or an ambiguous mapping. Absent when the import produced none. |
 | `files` | ScaffoldFile[] | no | Scaffold files the import produced alongside the entities, such as a starter aggregate or a readme. Absent when the import produced no files. |
+| `error` | string | no | A failure message set when the guest ran but could not complete the operation; absent on success. It is distinct from any diagnostics the output carries: diagnostics report issues found during a run that still produced a result, while error reports that the operation itself did not complete. The host surfaces a present error as a failed plugin invocation. |
 
 _Additional properties are not permitted._
 
@@ -129,19 +130,6 @@ The candidate a mapping decision chose: the target catalog entity, how it is emi
 | `target` | string | yes | The name of the chosen target catalog entity. |
 | `mode` | string | yes | How the chosen target is emitted, mirroring an emitted entity's mode: a reference to an existing entity or a newly drafted body. |
 | `tier` | string | yes | The match tier of the chosen target. |
-
-_Additional properties are not permitted._
-
-### `Diagnostic`
-
-One diagnostic the import raised: a severity, an optional stable code, a human-readable message, and an optional reference to the source node it concerns.
-
-| Property | Type | Required | Description |
-| --- | --- | --- | --- |
-| `severity` | string (enum) | yes | The diagnostic's severity: error, warning, or info. Allowed values: `"error"`, `"warning"`, `"info"` |
-| `code` | string | no | A short stable code identifying the diagnostic class, for programmatic handling. Absent when the importer attaches no code. |
-| `message` | string | yes | The human-readable diagnostic message. |
-| `sourceRef` | string | no | A reference to the source node the diagnostic concerns. Absent when the diagnostic is not tied to a specific node. |
 
 _Additional properties are not permitted._
 

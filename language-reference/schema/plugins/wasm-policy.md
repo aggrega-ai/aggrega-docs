@@ -29,11 +29,12 @@ _Additional properties are not permitted._
 
 ### `PolicyOutput`
 
-The response shape the policy plugin emits: the verdicts that fired during evaluation, one PolicyResult per fired verdict. An allowing rule emits nothing, so an empty results array means no verdicts fired.
+The response shape the policy plugin emits: the verdicts that fired during evaluation, one diagnostic per fired verdict. An allowing rule emits nothing, so an empty results array means no verdicts fired.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `results` | PolicyResult[] | yes | The fired verdicts, one PolicyResult each, in the order the plugin emits them. Empty when no verdict fired. |
+| `results` | Diagnostic[] | yes | The fired verdicts, one diagnostic each, in the order the plugin emits them. Empty when no verdict fired. |
+| `error` | string | no | A failure message set when the guest ran but could not complete the operation; absent on success. It is distinct from any diagnostics the output carries: diagnostics report issues found during a run that still produced a result, while error reports that the operation itself did not complete. The host surfaces a present error as a failed plugin invocation. |
 
 _Additional properties are not permitted._
 
@@ -82,16 +83,5 @@ One pre-enumerated routing path the analyzer materializes so policy rules can re
 | `path_id` | string | yes | Stable identifier for this path; deterministic across runs of identical input. |
 | `nodes` | string[] | yes | Ordered sequence of node IDs the path traverses, from source to terminal. |
 | `attached_features` | string[] | yes | Alphabetically sorted union of Feature type URIs attached to any node along the path. Set-membership semantics: a Feature appears once even if multiple nodes carry it. Empty when no node along the path carries any Feature attachment. |
-
-_Additional properties are not permitted._
-
-### `PolicyResult`
-
-One fired policy verdict: its severity and a human-readable message. Only fired verdicts appear in the output; an allowing rule emits no result. Severity governs the build outcome: deny halts the build, warn flags the verdict and lets the build proceed, audit records the verdict without affecting the outcome.
-
-| Property | Type | Required | Description |
-| --- | --- | --- | --- |
-| `severity` | string (enum) | yes | The verdict's severity: deny halts the build, warn flags the verdict and lets the build proceed, audit records the verdict without affecting the build outcome. Allowed values: `"deny"`, `"warn"`, `"audit"` |
-| `message` | string | yes | Human-readable diagnostic for the fired verdict, surfaced to the operator. |
 
 _Additional properties are not permitted._

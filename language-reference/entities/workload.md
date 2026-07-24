@@ -135,6 +135,7 @@ Container field authoring follows these conventions:
 - **`secrets`** references slots declared in the Component's `secretsSchema` (see the integration section below).
 - **`ports`** is a named-port map (`web: 8080`, `admin: 9901`); port names match container-scoped port names and are referenced by `services.<service>.ports.<portname>`.
 - **`volumeMounts`** references volumes declared elsewhere in the Workload's `volumes:` section by name.
+- **`resources`** declares the container's `requests` and `limits` — the `cpu` and `memory` quantities, and optionally extended-resource keys for GPUs and other devices (see [GPU and device workloads](#gpu-and-device-workloads) below).
 - **`health`** uses the intent shape (`http: /path`, `tcp: <port>`, `exec: [cmd, ...]`) — see the Health Probes section below.
 
 ### `volumes`
@@ -305,6 +306,42 @@ containers:
 **Field semantics.** All four fields are integers (numeric UIDs/GIDs, not strings); `runAsUser` and `runAsGroup` set the container processes' effective UID/GID; `fsGroup` sets the group ownership for volumes mounted into the pod; `supplementalGroups` adds additional GIDs to each container's process group.
 
 **Provider translation.** The helm provider passes the block verbatim into the rendered pod spec. The compose provider has no equivalent for `fsGroup` or `supplementalGroups`; `runAsUser`/`runAsGroup` translate to the Compose `user: "1000:3000"` form. Per-container `securityContext:` (a separate K8s pod-spec field on individual containers) is not part of the Workload schema today; that lives on the helm provider's per-container overlay path and is an authoring concern at the chart level, not at the Workload-grammar level.
+
+## GPU and device workloads
+
+A workload that needs specialised hardware — a GPU, or another vendor-provided device — expresses two independent concerns: the pod-level runtime the device-enabled node exposes (`runtimeClassName`), and the per-container quantity of the device the workload claims (an extended-resource key under a container's `resources`). A typical GPU workload declares both together, but each stands on its own and either may appear without the other.
+
+Both fields describe compute — the pod and the container that runs on the device — so they belong on a workload that runs containers. A workload that carries only an external endpoint and declares no containers of its own has no pod or container to attach them to: setting `runtimeClassName` on such an endpoint-only workload is a build-time halt naming the fix, and with no containers there is nowhere to place a device resource request.
+
+### `runtimeClassName`
+
+`runtimeClassName` is a single string naming the RuntimeClass the pod runs under — the container runtime a device-enabled node exposes, for example a GPU runtime named `nvidia`. It is a pod-level selector: it applies to every container in the workload. The compiler pipes the name through verbatim as a deterministic pointer; the cluster resolves it to a RuntimeClass its administrator has configured, at schedule time. Aggrega does not check that a matching RuntimeClass exists — it has no compile-time access to cluster state — so a name with no configured RuntimeClass surfaces as a scheduling error at apply time, not a build-time error.
+
+### Extended-resource keys
+
+A container's `resources.requests` and `resources.limits` carry the ordinary `cpu` and `memory` quantities and, alongside them, **extended-resource keys**: vendor- or domain-scoped device quantities keyed by a fully-qualified `<domain>/<name>` name such as `nvidia.com/gpu` or `amd.com/gpu`. The domain segment carries at least one dot, and that dot is what distinguishes an extended key (`nvidia.com/gpu`) from the bare `cpu` and `memory` quantities. Each value is a string quantity (`"1"`, `"2"`) the compiler pipes through verbatim; the cluster's device plugin resolves and allocates the device at schedule time.
+
+### Worked example — a GPU inference workload
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Workload
+runtimeClassName: nvidia
+containers:
+  inference:
+    image: "{{ .values.image }}"
+    resources:
+      requests:
+        cpu: "2"
+        memory: "8Gi"
+        nvidia.com/gpu: "1"
+      limits:
+        nvidia.com/gpu: "1"
+```
+
+The workload selects the `nvidia` runtime for its pod and claims one GPU for the `inference` container. The GPU quantity appears in both `requests` and `limits`: a device is not oversubscribable, so its request and limit are set to the same value.
+
+**Provider translation.** These are Kubernetes-native concepts. The helm provider emits `runtimeClassName` on the rendered pod spec and each extended-resource key verbatim under the container's `resources.requests` / `resources.limits`, so they reach the cluster through the Kubernetes output. A single host has no runtime-class or extended-device concept: the compose provider carries neither field, and a workload declaring `runtimeClassName` or an extended-resource key renders on a compose target without it.
 
 ## Secrets integration with the Component's `secretsSchema`
 

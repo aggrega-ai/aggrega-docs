@@ -35,20 +35,8 @@ The response shape the publishing-linter plugin emits. findings carries one entr
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `findings` | LinterFinding[] | yes | Per-rule findings produced by the plugin invocation, in plugin emit order. |
-
-_Additional properties are not permitted._
-
-### `LinterFinding`
-
-One rule's verdict. rule_id names the rule that produced it. severity distinguishes errors (publish-time halt) from warnings (informational). classification carries the PATCH/MINOR/MAJOR verdict for the schema-evolution rule; omitted for rules whose finding does not carry a classification (structural rules typically). message carries the human-readable diagnostic surfaced in CLI output.
-
-| Property | Type | Required | Description |
-| --- | --- | --- | --- |
-| `rule_id` | string | yes | The rule that emitted the finding. For the schema-evolution rule the value is 'schema-evolution'. Unknown rule_ids requested via LinterInput.rule_id produce a finding with rule_id 'unknown_rule'. |
-| `severity` | string (enum) | yes | Diagnostic severity. 'error' halts the publish-time gate; 'warning' is informational and does not affect the gate. Allowed values: `"error"`, `"warning"` |
-| `classification` | string (enum) | no | PATCH / MINOR / MAJOR verdict from the schema-evolution rule. Omitted for rules that do not carry a classification. Allowed values: `"PATCH"`, `"MINOR"`, `"MAJOR"` |
-| `message` | string | yes | Human-readable diagnostic surfaced in CLI output. Names the offending field(s) for evolution findings; names the policy condition for structural findings. |
+| `findings` | Diagnostic[] | yes | Per-rule findings produced by the plugin invocation, in plugin emit order. |
+| `error` | string | no | A failure message set when the guest ran but could not complete the operation; absent on success. It is distinct from any diagnostics the output carries: diagnostics report issues found during a run that still produced a result, while error reports that the operation itself did not complete. The host surfaces a present error as a failed plugin invocation. |
 
 _Additional properties are not permitted._
 

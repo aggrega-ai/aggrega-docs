@@ -32,20 +32,9 @@ The payload a parser guest returns: the canonical structured tree of the parsed 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `tree` | any | yes | The canonical structured view of the parsed source, as a JSON document. The top level may be an object, an array, or a scalar, matching the parsed document's own shape (a JSON file, for example, may parse to any of these). The host pipes the tree through opaquely, carrying it verbatim without interpreting its content. |
-| `diagnostics` | ParseDiagnostic[] | no | Diagnostics the parse raised — for example a syntax error or a warning. Absent when the parse produced none. |
+| `diagnostics` | Diagnostic[] | no | Diagnostics the parse raised — for example a syntax error or a warning. Absent when the parse produced none. |
 | `spans` | NodeSpan[] | no | Source spans locating tree nodes back to their position in the original bytes, so a consumer can map a finding on a tree node to a source location. Absent when the parser reports no spans. |
-
-_Additional properties are not permitted._
-
-### `ParseDiagnostic`
-
-One diagnostic the parse raised: a severity, a human-readable message, and an optional source span locating the diagnostic in the original bytes.
-
-| Property | Type | Required | Description |
-| --- | --- | --- | --- |
-| `severity` | string | yes | The diagnostic's severity — for example error or warning. An open string so a parser can report its own severity vocabulary. |
-| `message` | string | yes | The human-readable diagnostic message. |
-| `span` | SourceSpan | no | The source span locating the diagnostic in the original bytes. Absent when the parser attaches no location to the diagnostic. |
+| `error` | string | no | A failure message set when the guest ran but could not complete the operation; absent on success. It is distinct from any diagnostics the output carries: diagnostics report issues found during a run that still produced a result, while error reports that the operation itself did not complete. The host surfaces a present error as a failed plugin invocation. |
 
 _Additional properties are not permitted._
 
