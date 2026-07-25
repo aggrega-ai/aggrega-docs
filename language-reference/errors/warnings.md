@@ -75,7 +75,7 @@ The distinction from a fatal halt is the granularity. An unsupported *form* halt
 
 On the compose target the class currently covers `scheduling`, `serviceAccount`, `initContainers`, `replicas`, `runtimeClassName`, `priorityClassName`, `imagePullSecrets`, `dnsPolicy`, `dnsConfig.options`, container `runAsNonRoot`, and extended-resource keys such as `nvidia.com/gpu`. One field, `persistentTemplate`, emits a partial variant of the same class: per-replica volume templating is unavailable, so the volume collapses to a single shared persistent volume rather than disappearing.
 
-Each warning carries a stable, machine-matchable class code, so tooling can match the class rather than parse the message text. The warnings travel out-of-band from the rendered artifacts, which means **rendered bytes are byte-identical whether or not the warnings surface** — suppressing them cannot change your output.
+Each warning carries the stable, machine-matchable class code `unsupported-field`, so tooling can match the class rather than parse the message text. Both the omitted-outright and the reduced-form variants carry that one code, which is what lets a single filter suppress the whole class. The warnings travel out-of-band from the rendered artifacts, which means **rendered bytes are byte-identical whether or not the warnings surface** — suppressing them cannot change your output.
 
 ### Suppressing the class
 
