@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Recipe
+metadata:
+  name: web-service
+  version: "1.0.0"
+spec:
+  capability: helm
+  implements: example/compute/web-service
+  # Mode 3 — library import. Instead of restating the whole Workload body, the
+  # Recipe imports a shared entry from the BaseWorkloads WorkloadLibrary by its
+  # bare-name identity. The version is supplied by the per-Release lockfile; no
+  # registry host appears in the reference. The imported body is a Go template
+  # evaluated in this Recipe's render context, so `.values.image` and the infra
+  # sizing below flow into it exactly as an inline body would.
+  workload:
+    $import: BaseWorkloads#/workloads/StatelessService

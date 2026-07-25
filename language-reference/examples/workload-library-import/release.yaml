@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: workload-library-import
+  environment: development
+  version: "1.0.0"
+spec:
+  aggregate: workload-library-import
+  manifest: workload-library-import-manifest
+  boundaries:
+    main:
+      directory: app
+      components:
+        # infra — the Operator-sizing pillar. These fields flow into the
+        # imported Workload body's `.infra.*` references (replicas, port,
+        # compute) exactly as they would an inline body.
+        web:
+          infra:
+            replicas: 2
+            port: 8080
+            compute:
+              cpu: "250m"
+              memory: "256Mi"
