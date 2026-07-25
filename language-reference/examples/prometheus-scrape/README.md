@@ -66,7 +66,8 @@ backend's compose service name and port:
 
 ```yaml
 scrape_configs:
-  - job_name: scrape-target
+  - job_name: web
+    scrape_interval: 15s
     metrics_path: /metrics
     static_configs:
       - targets:
@@ -78,7 +79,8 @@ start-up command:
 
 ```yaml
 scrape_configs:
-  - job_name: scrape-target
+  - job_name: web
+    scrape_interval: 15s
     metrics_path: /metrics
     static_configs:
       - targets:
@@ -87,6 +89,13 @@ scrape_configs:
 
 Both resolve from the same Aggregate edge — the backend host and port travel
 through the `scrape_target` use, and each target renders them in its own idiom.
+
+The `job_name` is the edge's alias — `web` here, the name this Aggregate gave
+the connection — because the Aggregate declares no `job_name` for this target.
+The `scrape_interval` and `metrics_path` values are the defaults the Component's
+`scrape_target` socket declares, filled into the edge for the keys the Aggregate
+omitted. Setting any of the three on the edge overrides that key and leaves the
+others alone.
 
 ## Run it (Compose)
 
