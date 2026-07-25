@@ -66,3 +66,26 @@ Each unread key emits its own warning naming the Component instance, the bound R
 The standard library defines metadata.labels and metadata.annotations as authoring surfaces on every entity kind. Today the compiler renders these annotations through to provider output uniformly only on Components and Features; per-entity rendering coverage on Aggregate, Release, Manifest, Recipe, FeatureRecipe, Plugin, SchemaLibrary, and MappingLibrary is partial — see [Status of the Language](../10-status.md) for the per-entity matrix.
 
 When an entity-level `metadata.labels` or `metadata.annotations` declaration on an entity whose rendering coverage is partial reaches the renderer, the compiler emits a one-line warning naming the entity, the unrendered surface, and a link to the status page so the author knows the declaration was accepted by the schema but not consumed by today's rendering. The warning is informational; rendered output is produced regardless. The warning's emit shape and the per-entity coverage table track the rendering work as it lands.
+
+## Unsupported-field warnings
+
+Targets differ in fidelity. A Workload field that one target expresses natively may have no equivalent on another — Docker Compose has no notion of a scheduling constraint, an init container, or a service account, for instance. When a Workload declares such a field and the target cannot express it, the field is **omitted with a warning**, one warning per authored field. It is neither dropped silently nor treated as a fatal error.
+
+The distinction from a fatal halt is the granularity. An unsupported *form* halts the build loudly — the target cannot produce that shape of workload at all. A supported form that carries an *unexpressible field* renders, minus that field, and says so.
+
+On the compose target the class currently covers `scheduling`, `serviceAccount`, `initContainers`, `replicas`, `runtimeClassName`, `priorityClassName`, `imagePullSecrets`, `dnsPolicy`, `dnsConfig.options`, container `runAsNonRoot`, and extended-resource keys such as `nvidia.com/gpu`. One field, `persistentTemplate`, emits a partial variant of the same class: per-replica volume templating is unavailable, so the volume collapses to a single shared persistent volume rather than disappearing.
+
+Each warning carries a stable, machine-matchable class code, so tooling can match the class rather than parse the message text. The warnings travel out-of-band from the rendered artifacts, which means **rendered bytes are byte-identical whether or not the warnings surface** — suppressing them cannot change your output.
+
+### Suppressing the class
+
+Both commands that render accept `--no-unsupported-field-warnings`, which silences this class alone while every other render warning still surfaces:
+
+```bash
+aggrega build --release release.yaml --no-unsupported-field-warnings
+aggrega validate ./catalog/recipe/compose/mariadb/1.0.0/recipe.yaml --no-unsupported-field-warnings
+```
+
+The flag is display-only and does not change the rendered output. `aggrega lint` has no equivalent flag because it runs no render pass — it checks publishing conventions only, so no render warning can arise there.
+
+Reach for the flag when you have accepted the reduced fidelity deliberately — a compose target used for local development, where the production Workload's scheduling and service-account fields are expected to be inert. Leave it off otherwise: the warning is how you learn that a field you authored is not reaching the target.
