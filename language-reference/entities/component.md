@@ -341,7 +341,7 @@ Each entry — list element or map alias — becomes one edge, preserved in auth
 
 Both accept JSON Schema 2020-12 in the same content-shape forms as the `schema:` field — inline compact form, inline JSON Schema YAML, or a cross-document `$ref:` into a SchemaLibrary entry. They are **per-edge** contracts validated against each edge's config independently; they are not composed into the consuming Component's own `values` schema. A socket that omits a per-edge schema for a pillar declares no contract there, and any config authored for that pillar is unvalidated. Per-edge config is validated closed, and validation is default-aware in both pillars: a key the schema gives a `default:` counts as supplied even when the author omits it.
 
-A `valueSchema` default also **materialises**. A key the developer omits reaches the consuming Recipe's render context carrying its declared default, exactly as an omitted component `value` does — so declaring the default on the socket is enough, and the Recipe template needs no fallback expression for it. An `infraSchema` default participates in validation but does not materialise into the render context, so a per-edge `infra` value a Recipe reads is authored in the Release.
+A declared `default:` also **materialises**, in both pillars. A key the author omits reaches the consuming Recipe's render context carrying its declared default, exactly as an omitted component `value` or `infra` key does — so declaring the default on the socket is enough, and the Recipe template needs no fallback expression for it. An authored value always wins over the declared default, and it fills only the key it supplies: an edge that authors one key of a socket's contract still receives the declared defaults for that contract's other keys. Defaults attach to edges, so a socket left unwired contributes nothing.
 
 ```yaml
 spec:
@@ -354,8 +354,10 @@ spec:
         pool_size: { type: integer, minimum: 1, maximum: 100, default: 10 }
         tls_mode:  { type: string, enum: [disable, require, verify-full], default: require }
       infraSchema:                       # operator per-edge infra, authored in the Release
-        storage_class: { type: string }
+        storage_class: { type: string, default: standard }
 ```
+
+With that socket declared, an edge whose Aggregate omits `pool_size` renders `10`, and an edge whose Release omits `storage_class` renders `standard`. Authoring wins per key, within its own pillar: an Aggregate that sets `pool_size: 42` renders `42` while `tls_mode` still fills to `require`, and a Release that sets `storage_class: gp3` renders `gp3` without disturbing either developer key.
 
 A Recipe for the consuming Component reads the resolved per-edge config from the enriched topology pipe at `.context.uses.<alias>.values.<key>` and `.context.uses.<alias>.infra.<key>` — see [`vocabulary/topology-triad.md`](../vocabulary/topology-triad.md).
 
