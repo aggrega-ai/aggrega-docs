@@ -1,6 +1,6 @@
 # Well-Known Annotations
 
-Provider engines read specific boundary annotations from the Release to configure platform-specific deployment context. The compiler itself is blind to these annotations — it passes them through as opaque strings. Each provider documents which annotations it reads and what defaults it applies when the annotation is absent. A provider-rendering Plugin declares the annotation vocabulary it recognises on its `spec.provider.wellKnownAnnotations`, and the `aggrega inspect` surface renders that declaration for catalog readers. The declaration is the reserved vocabulary; the matrix in this chapter states which of those keys a provider actually reads today and which are reserved for future use.
+Provider engines read specific boundary annotations from the Release to configure platform-specific deployment context. The compiler itself is blind to these annotations — it passes them through as opaque strings. Each provider documents which annotations it reads and what defaults it applies when the annotation is absent. A provider-rendering Plugin declares the annotation vocabulary its engine reads on its `spec.provider.wellKnownAnnotations`, and `aggrega inspect` renders that declaration for catalog readers. That declaration is deliberately narrow: a provider lists a key only when its engine actually reads it, so a key you find declared there is a key that does something. The **reserved vocabulary** is the wider set, and it lives in two places instead — the matrix in this chapter, which names every reserved key including the ones no engine reads yet, and the reserved-prefix set the publishing lint checks.
 
 ## The Invariants
 
@@ -86,11 +86,19 @@ that needs a cluster domain must supply it as an ordinary value rather than rely
 on this annotation. A Recipe author who needs one of these behaviours today
 expresses it as a Recipe value or a component `infra` field.
 
-The names remain listed because the `aggrega.ai/` prefix is reserved: an
-enterprise catalog must not reuse one of these keys for its own meaning, because
-doing so would collide when the annotation becomes live. Each key is also carried
-in the reserved-prefix set the publishing lint checks, so authoring one does not
-trip the "do not use the bare `aggrega.ai/` prefix" rule.
+**No provider declares these six.** A provider's `wellKnownAnnotations` lists only
+what its engine reads, so none of the six appears there — a reader inspecting the
+helm, helm-chart or compose Plugin sees the keys that work and nothing else. That
+is the point of the narrow declaration: a declared key is a working key.
+
+The names remain reserved, and remain listed *here*, because the `aggrega.ai/`
+prefix is reserved: an enterprise catalog must not reuse one of these keys for its
+own meaning, because doing so would collide when the annotation becomes live. This
+matrix and the reserved-prefix set the publishing lint checks are together the
+reservation register. Authoring one of the six therefore neither fails validation
+nor trips the "do not use the bare `aggrega.ai/` prefix" rule — it simply has no
+effect. If one of them gains an engine that reads it, that provider's declaration
+gains the key at the same time.
 
 The umbrella chart version a `helm-chart` boundary emits is currently always
 `0.1.0`; it is a fixed value rather than an `aggrega.ai/chart-version` default.
