@@ -68,7 +68,7 @@ A future Wasm-linter plugin (`linter.wasm`) could enforce reserved-prefix discip
 
 ### 4. Recipe `provides:` self-containment
 
-Recipe `provides:` templates close over the node's own data only — `.values`, `.infra`, `.locals`, `.metadata`, `.context.instance_id`, plus static strings. References to `.context.inject` and `.context.uses` are forbidden because Pass 1 evaluates provides templates in any order; reading cross-node data would couple Pass 1 to topological iteration order, which the design deliberately avoids.
+Recipe `provides:` templates close over the node's own data only — `.values`, `.infra`, `.context.instance_id`, plus static strings. References to `.context.inject` and `.context.uses` are forbidden because Pass 1 evaluates provides templates in any order; reading cross-node data would couple Pass 1 to topological iteration order, which the design deliberately avoids. `.locals` is likewise unavailable, for an ordering reason rather than a topological one: locals resolve after provides, because a local may itself read `.provides`.
 
 This is a hybrid — the engine's Phase B sub-pass catches `.context.inject` / `.context.uses` reads at template evaluation time and surfaces an explicit error; the convention is also documented at [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) row 6. The discipline is enforced where the engine can detect the violation; the broader pattern (provides-is-public; locals-is-private) is convention-anchored.
 

@@ -186,7 +186,7 @@ spec:
 > ```
 
 **4. Ops Domain: The Postgres Recipe**
-Ops hardcodes the physical port and exports it via `provides`. The `provides` block is the Public API — it can only reference self-contained data (`.context.instance_id`, `.locals`, `.values`, `.infra`, and static strings). This invariant enables cyclic dependency safety.
+Ops hardcodes the physical port and exports it via `provides`. The `provides` block is the Public API — it can only reference self-contained data (`.context.instance_id`, `.values`, `.infra`, and static strings). This invariant enables cyclic dependency safety.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1

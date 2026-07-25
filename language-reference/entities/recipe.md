@@ -323,7 +323,7 @@ Output labels are labels only; there is no separate output-annotation surface. `
 
 ## The `locals:` block
 
-`Recipe.spec.locals:` is the **Private Ops State** — a map of named Go template strings whose rendered output exposes a `.locals.*` map to every other template in the same Recipe. It is the workspace for computing physical realities (target containers, JSON paths, derived hostnames) once and reusing them across `valuesMapping:`, `provides:`, and `pipeline[].with` payloads without recomputation.
+`Recipe.spec.locals:` is the **Private Ops State** — a map of named Go template strings whose rendered output exposes a `.locals.*` map to the Recipe's later templates. It is the workspace for computing physical realities (target containers, JSON paths, derived hostnames) once and reusing them across `valuesMapping:`, `workload:`, `artifacts:`, `assertions:`, and `pipeline[].with` payloads without recomputation. `provides:` is the exception — it is resolved before `locals:` and cannot read one; see below.
 
 ```yaml
 spec:
@@ -340,7 +340,9 @@ spec:
         existingSecret: "{{ .locals.secret_target_db_password }}"
 ```
 
-`locals:` is never exposed to callers — downstream components consuming this Recipe via `uses:` see only `provides:`. The Recipe's own templates (`valuesMapping:`, `provides:`, `pipeline[].with`, `assertions:`) all see the resolved `.locals.*` map. Per-key values may be plain strings or Go templates; the compiler evaluates `locals:` early in Phase B so all downstream templates observe stable resolved values.
+`locals:` is never exposed to callers — downstream components consuming this Recipe via `uses:` see only `provides:`. The Recipe's own `valuesMapping:`, `workload:`, `artifacts:`, `assertions:`, and `pipeline[].with` templates all see the resolved `.locals.*` map. Per-key values may be plain strings or Go templates; the compiler evaluates `locals:` early in Phase B so all downstream templates observe stable resolved values. Every entry evaluates against the same context — `.context.instance_id`, `.values`, `.infra`, and the node's resolved `.provides`. That context does not carry `.locals`, so the entries cannot read one another: an entry reaching for a sibling through `.locals` halts rather than resolving. An entry that needs a sibling's value repeats the expression instead of chaining.
+
+`provides:` does **not** see `.locals`. Because a local may itself read `.provides`, provides is resolved first, and a `provides:` template referencing `.locals` halts the build. A `provides` entry that needs a computed value inlines the expression the local computes — the same expression then appears in both places, which the ordering forces. (A FeatureRecipe orders the two the other way round: its `locals:` resolve before its `provides:`, so a FeatureRecipe `provides` entry may read `.locals`.)
 
 For the public-API counterpart, see [The `provides:` block](#the-provides-block) below. For the FeatureRecipe equivalent, see [entities/featurerecipe.md](featurerecipe.md) "The `locals:` block".
 
@@ -358,7 +360,7 @@ spec:
     database: "{{ .values.db_name }}"
 ```
 
-Each entry's template evaluates with the per-instance template context (`.context.*`, `.values`, `.infra`, `.locals`). The Pass 1 / Pass 2 split is load-bearing: a Recipe's `provides:` cannot reference any caller's state because callers haven't been resolved yet at Pass 1 — `provides:` is self-contained per the architectural invariant. Callers then read these values via `.context.uses.<alias>.provides.<provided-name>` in their own templates — the provided names nest under `provides` on the edge, alongside the edge's other fields. A caller that declares an `inject:` allowlist on the edge reaches the same values through its `.context.inject` pipe instead.
+Each entry's template evaluates against the self-contained Pass 1 surface — `.context.instance_id`, `.values`, `.infra`, and static text. `.locals` is not on it: locals resolve after provides, so a `provides` template referencing one halts. The Pass 1 / Pass 2 split is load-bearing: a Recipe's `provides:` cannot reference any caller's state because callers haven't been resolved yet at Pass 1 — `provides:` is self-contained per the architectural invariant. Callers then read these values via `.context.uses.<alias>.provides.<provided-name>` in their own templates — the provided names nest under `provides` on the edge, alongside the edge's other fields. A caller that declares an `inject:` allowlist on the edge reaches the same values through its `.context.inject` pipe instead.
 
 `provides:` keys are part of the Recipe's contract surface. Renaming or removing a key is a breaking change for every caller relying on the old name; the `implements:` interface version should reflect the contract evolution. For the cascade resolution semantics, the inject-pipe contract, and worked examples covering cross-namespace and cross-region routing, see [architecture/06-data-taxonomy-and-composition.md §3](../../architecture/06-data-taxonomy-and-composition.md) and [templates/expansion-matrix.md](../templates/expansion-matrix.md).
 

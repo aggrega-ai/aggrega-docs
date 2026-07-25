@@ -232,7 +232,7 @@ spec:
     database: "{{ .values.database_name }}"
 ```
 
-**Pass 1 / Pass 2 evaluation split.** The compiler evaluates `provides:` templates in Pass 1 against the self-contained template context (`.context.instance_id`, `.values`, `.infra`, `.locals` on the same node) — no caller state is visible. In Pass 2 the compiler walks `uses:` edges and resolves each caller's `.context.uses.<alias>.provides.<provided-name>` against the resolved provides values. The two-pass discipline guarantees acyclic resolution: `provides:` cannot reference a caller, and a caller's `inject:` cannot reference a not-yet-resolved provider's output until Pass 2 runs.
+**Pass 1 / Pass 2 evaluation split.** The compiler evaluates `provides:` templates in Pass 1 against the self-contained template context (`.context.instance_id`, `.values`, `.infra` on the same node) — no caller state is visible, and neither are the Recipe's `locals:`, which resolve later. In Pass 2 the compiler walks `uses:` edges and resolves each caller's `.context.uses.<alias>.provides.<provided-name>` against the resolved provides values. The two-pass discipline guarantees acyclic resolution: `provides:` cannot reference a caller, and a caller's `inject:` cannot reference a not-yet-resolved provider's output until Pass 2 runs.
 
 **Contract evolution.** Renaming or removing a `provides` field is a breaking change for every caller relying on the old name. The Component's `implements:` interface version (and the Recipe's `implements:` declaration) carries the contract evolution signal; downstream callers pinned to a specific major version see a stable `provides` shape.
 

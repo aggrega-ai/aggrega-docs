@@ -87,7 +87,7 @@ The phrase "strictly localized" overstates the localization — it implies a wal
 
 The `provides:` pillar is **derived** — a Recipe declares it, but unlike `values` / `infra`, the developer does not author it directly. Recipes compute the public output strings the topology pipe will consume.
 
-A Recipe's `provides:` block is a map of `<key>: <template>` pairs. Each template evaluates against the Recipe's own pillars (`.values`, `.infra`, `.locals`, `.metadata`, `.context.instance_id`) at Step 5 Pass 1. The resulting strings are exposed via `.provides` and consumed by callers' `uses[].inject` blocks via `from: "<key>"` references.
+A Recipe's `provides:` block is a map of `<key>: <template>` pairs. Each template evaluates against the Recipe's own self-contained surface (`.values`, `.infra`, `.context.instance_id`) at Step 5 Pass 1. The resulting strings are exposed via `.provides` and consumed by callers' `uses[].inject` blocks via `from: "<key>"` references. `.locals` is not available here — locals resolve after Pass 1 (see [Locals](#locals) below).
 
 **Self-containment invariant.** Recipe `provides:` templates must not reference `.context.inject` or `.context.uses`. Pass 1 evaluates provides templates in any order — they close over the node's own data only, so the order does not matter. Cross-node references would couple Pass 1 evaluation to topological iteration order, which the design deliberately avoids. See [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) row 6 for the rule and its rationale.
 
@@ -122,9 +122,9 @@ For the six-touchpoint authoring checklist, see [examples/04-secrets.md](../exam
 
 ## Locals
 
-The `locals:` pillar is Recipe-private state. A Recipe declares `locals:` at Phase B preamble; the resulting strings are visible only inside the Recipe's own subsequent templates (`provides:`, `valuesMapping:`, `workload:`, `artifacts:`).
+The `locals:` pillar is Recipe-private state. A Recipe declares `locals:` at Phase B preamble; the resulting strings are visible only inside the Recipe's own subsequent templates (`valuesMapping:`, `workload:`, `artifacts:`, `assertions:`, `pipeline[].with`). `provides:` is not among them — it is resolved at Pass 1, before the preamble runs, so a `provides:` template referencing `.locals` halts.
 
-**Authored at:** Recipe `spec.locals:` block — a map of `<key>: <template>` pairs evaluated at Phase B preamble against `.values` / `.infra` / `.context.*` / `.metadata`.
+**Authored at:** Recipe `spec.locals:` block — a map of `<key>: <template>` pairs evaluated at Phase B preamble against `.values` / `.infra` / `.provides` / `.context.*` / `.metadata`. A local may read the node's resolved `.provides`, which is why the two cannot be ordered the other way round.
 
 **Visibility:** Recipe-private. `.locals` does not appear on caller `.context.uses[].locals` (no such field exists); other entities cannot read this Recipe's locals.
 
@@ -140,6 +140,8 @@ The two Recipe-side pillars carry a deliberate visibility split that authors sho
 
 - **`provides:` is the public face.** Every key is the canonical topology pipe surface — downstream callers' `uses[].inject` blocks consume them via `from: "<key>"` references. The `provides:` dictionary is a typed contract that callers depend on; renaming or removing a key is a breaking change to every Recipe whose `uses[].inject` declarations reference it.
 - **`locals:` is the private face.** Every key is Recipe-internal state visible only inside the Recipe's own subsequent templates. No caller can read a Recipe's locals; the names in `locals:` are not part of any published interface and renaming them is a Recipe-internal refactor with no downstream effect.
+
+The two are also ordered: `provides:` resolves first, so `locals:` may read `.provides` but `provides:` may not read `.locals`. Promoting a key from `locals:` to `provides:` therefore means moving the expression, not referencing the local from the new `provides` entry.
 
 The split is deliberate per the architectural separation of Recipe internals (private) from Recipe interface (public). Authors treating `provides:` and `locals:` as one namespace lose the visibility distinction and risk exposing internal state through the topology pipe — every key declared in `provides:` becomes part of the Recipe's contract surface, whether or not the author intended it. The discipline target: declare a key in `locals:` first; promote to `provides:` only when a downstream caller actually needs it.
 

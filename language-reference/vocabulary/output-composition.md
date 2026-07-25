@@ -82,8 +82,8 @@ Each mechanism lives at a specific Recipe / FeatureRecipe authoring surface and 
 
 The six mechanisms run in a defined order so downstream mechanisms can read upstream outputs. The order:
 
-1. **Phase B preamble** — Recipe `locals:` evaluate; provides templates evaluate (Pass 1).
-2. **Phase B.0** — Recipe `source:` URI templates evaluate (resolving the source pointer if templated).
+1. **Pass 1** — Recipe `provides:` templates evaluate, for every node, in any order (self-contained: `.context.instance_id`, `.values`, `.infra`, static text — not `.locals`, which has not been resolved yet).
+2. **Phase B.0 preamble** — Recipe `locals:` and `source:` URI templates evaluate (resolving the source pointer if templated). Both read the node's resolved `.provides`, which is why they run after Pass 1 rather than before it.
 3. **Phase A** — FeatureRecipe `injectMapping:` blocks evaluate (the inject pipe is intercepted before Recipe rendering).
 4. **Phase B.1** — Recipe `valuesMapping:` evaluates (sourced mode + sourceless mode produce values dictionaries).
 5. **Phase B.2** — Recipe Workload synthesis (mechanism 2 emits manifests for synthesised mode).
