@@ -143,6 +143,8 @@ The rendered `when:` text is judged by the shared boolean-template rule: the str
 
 When a FeatureRecipe implements a credential Feature (one labeled `feature.aggrega.ai/kind: secret`), it follows the Two-Part Plugin Principle: the `pipeline` chains a Fetcher plugin (generating the vault-specific CRD) followed by an Injector plugin (mounting the secret to the target container). See [examples/05-credential-features](../examples/05-credential-features.md) for the complete worked example with JSON input/output handshake.
 
+A credential FeatureRecipe renders through the same Resource Generation pass as any other attachment's, and **its `pipeline:` executes on the same terms**: the compiler walks every resource-generating attachment on a component as one ordered sequence and runs each one's declared pipeline, with the same `/own` and `/host` document-set semantics. A credential attachment can therefore reach into the host component's rendered documents — mounting a secret volume, adding an env reference — exactly as an operational attachment can, and the only difference between the two is the directory its own generated files land in.
+
 ## The `provides:` block — publishing to the consumer
 
 A FeatureRecipe's `provides:` block is its published output: a string-valued map of Go templates evaluated against the attachment's own scope (`.values`, `.infra`, the FeatureRecipe's `.locals`, and the host node's `.context.instance_id`). It is how an attachment tells its consumer what it produced — an emitted resource's name, a generated data key, a cloud identity — without the consumer re-deriving that identity from the same inputs.
