@@ -197,7 +197,7 @@ Mechanism vocabulary (`infra.primary.replicas`) reads naturally for one provider
 
 ## The `provides` Pillar
 
-`provides` is the **Recipe-authored public API** — the values a Component's resolved Recipe contributes to downstream callers via their `.context.uses.<alias>.<provided-name>` surface. The Component schema declares the shape (key names plus types); the bound Recipe's `provides:` block supplies the values. The Developer authoring an Aggregate sees the `provides` shape on the Component page as the contract callers can rely on; the Recipe author fulfills the contract for the specific implementation they wrap.
+`provides` is the **Recipe-authored public API** — the values a Component's resolved Recipe contributes to downstream callers via their `.context.uses.<alias>.provides.<provided-name>` surface (or, when the caller declares an `inject:` allowlist on the edge, via its `.context.inject` pipe). The Component schema declares the shape (key names plus types); the bound Recipe's `provides:` block supplies the values. The Developer authoring an Aggregate sees the `provides` shape on the Component page as the contract callers can rely on; the Recipe author fulfills the contract for the specific implementation they wrap.
 
 Fulfillment is enforced as a Loud Guardrail: a bound Recipe must produce every `provides` key its Component declares. If the bound Recipe omits a declared key, the build halts and names the missing key, rather than silently delivering nothing to the callers that reference it. Producing extra keys beyond the declared set is allowed. Only key presence is checked — the produced values are opaque strings the compiler pipes through, so their declared types remain a contract callers read, not a value the compiler validates.
 
@@ -232,7 +232,7 @@ spec:
     database: "{{ .values.database_name }}"
 ```
 
-**Pass 1 / Pass 2 evaluation split.** The compiler evaluates `provides:` templates in Pass 1 against the self-contained template context (`.context.instance_id`, `.values`, `.infra`, `.locals` on the same node) — no caller state is visible. In Pass 2 the compiler walks `uses:` edges and resolves each caller's `.context.uses.<alias>.<provided-name>` against the resolved provides values. The two-pass discipline guarantees acyclic resolution: `provides:` cannot reference a caller, and a caller's `inject:` cannot reference a not-yet-resolved provider's output until Pass 2 runs.
+**Pass 1 / Pass 2 evaluation split.** The compiler evaluates `provides:` templates in Pass 1 against the self-contained template context (`.context.instance_id`, `.values`, `.infra`, `.locals` on the same node) — no caller state is visible. In Pass 2 the compiler walks `uses:` edges and resolves each caller's `.context.uses.<alias>.provides.<provided-name>` against the resolved provides values. The two-pass discipline guarantees acyclic resolution: `provides:` cannot reference a caller, and a caller's `inject:` cannot reference a not-yet-resolved provider's output until Pass 2 runs.
 
 **Contract evolution.** Renaming or removing a `provides` field is a breaking change for every caller relying on the old name. The Component's `implements:` interface version (and the Recipe's `implements:` declaration) carries the contract evolution signal; downstream callers pinned to a specific major version see a stable `provides` shape.
 

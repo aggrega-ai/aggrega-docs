@@ -71,6 +71,12 @@ The InjectPipe is the post-interception state — FeatureRecipe `injectMapping` 
 - **`.resolved_version` (string)** — target's Component version after Manifest resolution.
 - **`.boundary_path` (string)** — target's Release boundary path (set when the target lives in a different boundary than the caller).
 - **`.origin_feature` (string)** — set when the edge was synthesised by a Feature attachment (e.g., a sidecar Feature contributing a `uses` edge to a credential Feature).
+- **`.values` (map)** — resolved per-edge developer configuration for this connection, authored on the Aggregate's `uses` entry. Present only when the edge carries per-edge values.
+- **`.infra` (map)** — resolved per-edge operator configuration for this connection, authored on the Release's `uses` entry. Present only when the edge carries per-edge infra.
+
+Both per-edge config maps are consumer-scoped: they land in the consuming node's render context only, never the target's.
+
+A provided value is read at `.provides.<name>` — the provided names nest under `.provides` rather than sitting directly on the edge, so `.context.uses.<alias>.<name>` addresses no field and yields nothing.
 
 Recipe templates consume this projection to look up target-side state without walking the IR graph. FeatureRecipe `injectMapping` templates use it to reach into target annotations for cross-boundary routing decisions (the K8s DNS resolver pattern documented in [entities/featurerecipe.md](../entities/featurerecipe.md) is the canonical worked example).
 

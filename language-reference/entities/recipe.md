@@ -358,7 +358,7 @@ spec:
     database: "{{ .values.db_name }}"
 ```
 
-Each entry's template evaluates with the per-instance template context (`.context.*`, `.values`, `.infra`, `.locals`). The Pass 1 / Pass 2 split is load-bearing: a Recipe's `provides:` cannot reference any caller's state because callers haven't been resolved yet at Pass 1 — `provides:` is self-contained per the architectural invariant. Callers then read these values via `.context.uses.<alias>.<provided-name>` in their own templates.
+Each entry's template evaluates with the per-instance template context (`.context.*`, `.values`, `.infra`, `.locals`). The Pass 1 / Pass 2 split is load-bearing: a Recipe's `provides:` cannot reference any caller's state because callers haven't been resolved yet at Pass 1 — `provides:` is self-contained per the architectural invariant. Callers then read these values via `.context.uses.<alias>.provides.<provided-name>` in their own templates — the provided names nest under `provides` on the edge, alongside the edge's other fields. A caller that declares an `inject:` allowlist on the edge reaches the same values through its `.context.inject` pipe instead.
 
 `provides:` keys are part of the Recipe's contract surface. Renaming or removing a key is a breaking change for every caller relying on the old name; the `implements:` interface version should reflect the contract evolution. For the cascade resolution semantics, the inject-pipe contract, and worked examples covering cross-namespace and cross-region routing, see [architecture/06-data-taxonomy-and-composition.md §3](../../architecture/06-data-taxonomy-and-composition.md) and [templates/expansion-matrix.md](../templates/expansion-matrix.md).
 

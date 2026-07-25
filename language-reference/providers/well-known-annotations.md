@@ -1,6 +1,6 @@
 # Well-Known Annotations
 
-Provider engines read specific boundary annotations from the Release to configure platform-specific deployment context. The compiler itself is blind to these annotations — it passes them through as opaque strings. Each provider documents which annotations it reads and what defaults it applies when the annotation is absent; a provider-rendering Plugin declares this set on its `spec.provider.wellKnownAnnotations`, and the `aggrega inspect` surface renders it for catalog readers.
+Provider engines read specific boundary annotations from the Release to configure platform-specific deployment context. The compiler itself is blind to these annotations — it passes them through as opaque strings. Each provider documents which annotations it reads and what defaults it applies when the annotation is absent. A provider-rendering Plugin declares the annotation vocabulary it recognises on its `spec.provider.wellKnownAnnotations`, and the `aggrega inspect` surface renders that declaration for catalog readers. The declaration is the reserved vocabulary; the matrix in this chapter states which of those keys a provider actually reads today and which are reserved for future use.
 
 ## The Invariants
 
@@ -10,7 +10,7 @@ Provider engines read specific boundary annotations from the Release to configur
 4. Provider well-known annotations never duplicate component labels. Component labels describe *what a component is*. Boundary annotations describe *where a component deploys*.
 5. Recipes do not handle provider well-known annotations. The provider engine applies placement context (namespace, registry prefix, service account) automatically after the Recipe produces its content.
 6. The `aggrega.ai/` prefix is reserved for the standard library. Custom enterprise annotations use their own prefix.
-7. Component-level annotations in the Release override boundary-level annotations (deep-merge, component wins). The provider validates consistency when grouping — for example, the `helm-chart` provider rejects components with different `aggrega.ai/namespace` values in the same chart.
+7. Component-level annotations in the Release override boundary-level annotations (deep-merge, component wins). Where a provider assembles the output of several boundaries into one artifact, it may require an annotation to resolve uniformly across them — the `helm-chart` provider takes the umbrella chart's name from `aggrega.ai/chart-name`, and when more than one boundary contributes to the same chart and they resolve that annotation to different values, the build halts naming the disagreeing boundaries, because one chart cannot carry two names.
 
 ## The Complete Annotation Matrix
 
@@ -18,39 +18,39 @@ Provider engines read specific boundary annotations from the Release to configur
 
 | Annotation | Consumed By | Purpose | Default |
 | --- | --- | --- | --- |
-| `aggrega.ai/namespace` | `helm`, `helm-chart`, `compose` | Kubernetes namespace (helm / helm-chart); per-boundary Docker network name (compose) | Not injected if absent (helm / helm-chart); sanitised boundary path (compose) |
-| `aggrega.ai/project-name` | `compose` | Docker Compose project name | Leaf boundary name |
+| `aggrega.ai/namespace` | `helm`, `compose` | Kubernetes namespace (helm); per-boundary Docker network name (compose) | Not injected if absent (helm); network derived from the boundary path (compose) |
+| `aggrega.ai/project-name` | not yet consumed | Reserved for a Docker Compose project name | — |
 
-`aggrega.ai/namespace` is dual-purpose by design. It expresses the same logical-isolation intent — *"this boundary's resources live in their own addressable scope"* — in each target's native form: a Kubernetes `metadata.namespace` for helm and helm-chart, a Docker network name for compose. Recipe authors set one annotation; each provider materialises it appropriately for the target. For the compose case, the per-boundary derivation reads the alphabetically-first node's annotation; when unset on every node in the boundary, the network name falls back to the sanitised boundary path (lowercased, with non-`[a-z0-9._-]` characters replaced by `_`).
+`aggrega.ai/namespace` is dual-purpose by design. It expresses the same logical-isolation intent — *"this boundary's resources live in their own addressable scope"* — in each target's native form: a Kubernetes `metadata.namespace` for helm, a Docker network name for compose. Recipe authors set one annotation; each provider materialises it appropriately for the target. For the compose case, the network name is resolved per node in three branches: a non-empty annotation value is sanitised (lowercased, with non-`[a-z0-9._-]` characters replaced by `_`); otherwise, when the boundary path is empty, the network is named `default`; otherwise the sanitised boundary path is used.
 
 ### Category 2 — Registry
 
 | Annotation | Consumed By | Purpose | Default |
 | --- | --- | --- | --- |
-| `aggrega.ai/image-registry` | `helm`, `helm-chart`, `compose` | Registry prefix for container images | No prefix |
-| `aggrega.ai/image-pull-secret` | `helm`, `helm-chart` | Kubernetes `imagePullSecrets` name | None |
+| `aggrega.ai/image-registry` | `helm`, `compose` | Registry prefix for container images, applied to every synthesised container image reference | No prefix |
+| `aggrega.ai/image-pull-secret` | `helm` | Kubernetes `imagePullSecrets` name, unioned into the synthesised pod's existing entries | None |
 
 ### Category 3 — Networking
 
 | Annotation | Consumed By | Purpose | Default |
 | --- | --- | --- | --- |
-| `aggrega.ai/cluster-domain` | `helm`, `helm-chart` | DNS suffix for cross-namespace service discovery | `cluster.local` |
-| `aggrega.ai/ingress-class` | `helm`, `helm-chart` | Kubernetes IngressClass for Ingress resources | Provider default or omitted |
-| `aggrega.ai/service-mesh` | `helm`, `helm-chart` | Mesh sidecar injection annotations | None |
+| `aggrega.ai/cluster-domain` | not yet consumed | Reserved for a DNS suffix for cross-namespace service discovery | — |
+| `aggrega.ai/ingress-class` | not yet consumed | Reserved for a Kubernetes IngressClass on Ingress resources | — |
+| `aggrega.ai/service-mesh` | not yet consumed | Reserved for mesh sidecar injection annotations | — |
 
 ### Category 4 — Security
 
 | Annotation | Consumed By | Purpose | Default |
 | --- | --- | --- | --- |
-| `aggrega.ai/service-account` | `helm`, `helm-chart` | Kubernetes `ServiceAccount` for Pods | `default` |
-| `aggrega.ai/pod-security-standard` | `helm`, `helm-chart` | Pod Security Standards level | None |
+| `aggrega.ai/service-account` | `helm` | Kubernetes `ServiceAccount` for synthesised Pods; overrides the Recipe's `workload.serviceAccount` when both are set | The Recipe's `workload.serviceAccount`, or unset when the Recipe declares none |
+| `aggrega.ai/pod-security-standard` | not yet consumed | Reserved for a Pod Security Standards level | — |
 
 ### Category 5 — Packaging
 
 | Annotation | Consumed By | Purpose | Default |
 | --- | --- | --- | --- |
-| `aggrega.ai/chart-name` | `helm-chart` | Helm chart name | Leaf boundary name |
-| `aggrega.ai/chart-version` | `helm-chart` | Helm chart version | `0.1.0` |
+| `aggrega.ai/chart-name` | `helm-chart` | Umbrella chart name | Aggregate name and boundary name joined, or the boundary name alone when the Aggregate is unnamed |
+| `aggrega.ai/chart-version` | not yet consumed | Reserved for a Helm chart version | — |
 
 ### Category 6 — Cloud target
 
@@ -71,6 +71,29 @@ them against live AWS state; the account, region, and role are supplied by the
 Release, and the runtime environment resolves the final physical read. When every
 annotation is absent, the engine treats the peer as same-account and same-region
 and supplies no role.
+
+### Reserved names no provider reads yet
+
+Six keys in the matrix above are marked *not yet consumed*:
+`aggrega.ai/project-name`, `aggrega.ai/cluster-domain`,
+`aggrega.ai/ingress-class`, `aggrega.ai/service-mesh`,
+`aggrega.ai/pod-security-standard`, and `aggrega.ai/chart-version`.
+
+Setting one of these on a Release today has **no effect on rendered output**. No
+provider engine reads them, and no default is applied on their behalf — in
+particular, no DNS suffix is applied for `aggrega.ai/cluster-domain`, so a Recipe
+that needs a cluster domain must supply it as an ordinary value rather than rely
+on this annotation. A Recipe author who needs one of these behaviours today
+expresses it as a Recipe value or a component `infra` field.
+
+The names remain listed because the `aggrega.ai/` prefix is reserved: an
+enterprise catalog must not reuse one of these keys for its own meaning, because
+doing so would collide when the annotation becomes live. Each key is also carried
+in the reserved-prefix set the publishing lint checks, so authoring one does not
+trip the "do not use the bare `aggrega.ai/` prefix" rule.
+
+The umbrella chart version a `helm-chart` boundary emits is currently always
+`0.1.0`; it is a fixed value rather than an `aggrega.ai/chart-version` default.
 
 > Note: Manifest `features.annotations` bindings using the `aggrega.ai/`
 > prefix are rejected at load time; the prefix is reserved exclusively
@@ -139,7 +162,7 @@ spec:
       annotations:
         aggrega.ai/namespace: prod-zone
         aggrega.ai/image-registry: registry.corp.com
-        aggrega.ai/cluster-domain: cluster.prod.internal
+        aggrega.ai/image-pull-secret: corp-registry-creds
       components:
         api: {}
         worker: {}

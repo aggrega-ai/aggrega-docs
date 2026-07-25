@@ -36,8 +36,10 @@ This section documents the JSON Schemas that define every Aggrega entity, plugin
 ## Other & workspace schemas
 
 - [aggrega-config](other/aggrega-config.md)
+- [artifactslibrary](other/artifactslibrary.md)
 - [cache-metadata](other/cache-metadata.md)
 - [ir](other/ir.md)
 - [lockfile](other/lockfile.md)
 - [path-template-context](other/path-template-context.md)
 - [template-context](other/template-context.md)
+- [workloadlibrary](other/workloadlibrary.md)
