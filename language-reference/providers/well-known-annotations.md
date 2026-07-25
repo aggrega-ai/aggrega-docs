@@ -20,6 +20,8 @@ Provider engines read specific boundary annotations from the Release to configur
 | --- | --- | --- | --- |
 | `aggrega.ai/namespace` | `helm`, `compose` | Kubernetes namespace (helm); per-boundary Docker network name (compose) | Not injected if absent (helm); network derived from the boundary path (compose) |
 | `aggrega.ai/project-name` | not yet consumed | Reserved for a Docker Compose project name | — |
+| `aggrega.ai/region` | not yet consumed | Reserved for a cloud region at placement scope | — |
+| `aggrega.ai/account-id` | not yet consumed | Reserved for a cloud account identifier at placement scope | — |
 
 `aggrega.ai/namespace` is dual-purpose by design. It expresses the same logical-isolation intent — *"this boundary's resources live in their own addressable scope"* — in each target's native form: a Kubernetes `metadata.namespace` for helm, a Docker network name for compose. Recipe authors set one annotation; each provider materialises it appropriately for the target. For the compose case, the network name is resolved per node in three branches: a non-empty annotation value is sanitised (lowercased, with non-`[a-z0-9._-]` characters replaced by `_`); otherwise, when the boundary path is empty, the network is named `default`; otherwise the sanitised boundary path is used.
 
@@ -44,6 +46,7 @@ Provider engines read specific boundary annotations from the Release to configur
 | --- | --- | --- | --- |
 | `aggrega.ai/service-account` | `helm` | Kubernetes `ServiceAccount` for synthesised Pods; overrides the Recipe's `workload.serviceAccount` when both are set | The Recipe's `workload.serviceAccount`, or unset when the Recipe declares none |
 | `aggrega.ai/pod-security-standard` | not yet consumed | Reserved for a Pod Security Standards level | — |
+| `aggrega.ai/iam-role` | not yet consumed | Reserved for a cloud identity role bound to a workload | — |
 
 ### Category 5 — Packaging
 
@@ -51,6 +54,8 @@ Provider engines read specific boundary annotations from the Release to configur
 | --- | --- | --- | --- |
 | `aggrega.ai/chart-name` | `helm-chart` | Umbrella chart name | Aggregate name and boundary name joined, or the boundary name alone when the Aggregate is unnamed |
 | `aggrega.ai/chart-version` | not yet consumed | Reserved for a Helm chart version | — |
+| `aggrega.ai/stack-name` | not yet consumed | Reserved for an explicitly named deployment stack | — |
+| `aggrega.ai/tf-backend` | not yet consumed | Reserved for a Terraform state backend identifier | — |
 
 ### Category 6 — Cloud target
 
@@ -74,10 +79,12 @@ and supplies no role.
 
 ### Reserved names no provider reads yet
 
-Six keys in the matrix above are marked *not yet consumed*:
-`aggrega.ai/project-name`, `aggrega.ai/cluster-domain`,
-`aggrega.ai/ingress-class`, `aggrega.ai/service-mesh`,
-`aggrega.ai/pod-security-standard`, and `aggrega.ai/chart-version`.
+Eleven keys in the matrix above are marked *not yet consumed*:
+`aggrega.ai/project-name`, `aggrega.ai/region`, `aggrega.ai/account-id`,
+`aggrega.ai/cluster-domain`, `aggrega.ai/ingress-class`,
+`aggrega.ai/service-mesh`, `aggrega.ai/pod-security-standard`,
+`aggrega.ai/iam-role`, `aggrega.ai/chart-version`, `aggrega.ai/stack-name`,
+and `aggrega.ai/tf-backend`.
 
 Setting one of these on a Release today has **no effect on rendered output**. No
 provider engine reads them, and no default is applied on their behalf — in
@@ -86,19 +93,35 @@ that needs a cluster domain must supply it as an ordinary value rather than rely
 on this annotation. A Recipe author who needs one of these behaviours today
 expresses it as a Recipe value or a component `infra` field.
 
-**No provider declares these six.** A provider's `wellKnownAnnotations` lists only
-what its engine reads, so none of the six appears there — a reader inspecting the
-helm, helm-chart or compose Plugin sees the keys that work and nothing else. That
-is the point of the narrow declaration: a declared key is a working key.
+**No provider declares these eleven.** A provider's `wellKnownAnnotations` lists
+only what its engine reads, so none of the eleven appears there — a reader
+inspecting the helm, helm-chart, compose or cloudformation Plugin sees the keys
+that work and nothing else. That is the point of the narrow declaration: a
+declared key is a working key.
+
+Two of the reserved names sit close to live keys and are not
+interchangeable with them. `aggrega.ai/region` and `aggrega.ai/account-id` name a
+region and an account at placement scope and reach no engine; the keys the
+`cloudformation` engine reads are the cloud-namespaced `aggrega.ai/aws-region`
+and `aggrega.ai/aws-account` in Category 6. When you mean the CloudFormation
+cross-stack placement context, author the `aws-` form — the unprefixed pair is
+held against collision, not wired to anything. Two further reserved names are
+covered today by other surfaces rather than by an annotation:
+`aggrega.ai/stack-name` is reserved, while the stack name a `cloudformation`
+boundary renders into is derived deterministically from the deployment and
+boundary identity; and a workload's cloud identity role is supplied as an
+ordinary operator-set field on the Feature that emits the binding, not through
+`aggrega.ai/iam-role`.
 
 The names remain reserved, and remain listed *here*, because the `aggrega.ai/`
 prefix is reserved: an enterprise catalog must not reuse one of these keys for its
 own meaning, because doing so would collide when the annotation becomes live. This
 matrix and the reserved-prefix set the publishing lint checks are together the
-reservation register. Authoring one of the six therefore neither fails validation
-nor trips the "do not use the bare `aggrega.ai/` prefix" rule — it simply has no
-effect. If one of them gains an engine that reads it, that provider's declaration
-gains the key at the same time.
+reservation register, and the two are held to the same set of names by a check
+that reads both and fails when they diverge. Authoring one of the eleven
+therefore neither fails validation nor trips the "do not use the bare
+`aggrega.ai/` prefix" rule — it simply has no effect. If one of them gains an
+engine that reads it, that provider's declaration gains the key at the same time.
 
 The umbrella chart version a `helm-chart` boundary emits is currently always
 `0.1.0`; it is a fixed value rather than an `aggrega.ai/chart-version` default.
