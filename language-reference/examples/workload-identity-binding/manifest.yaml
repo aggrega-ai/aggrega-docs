@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: workload-identity-binding-manifest
+  version: "1.0.0"
+  description: >
+    Helm Ops mapping. local/compute/identity-app binds to the synthesized helm
+    Recipe (helm/identity-app), which renders a Deployment directly with no
+    external chart. The cloud-identity Feature routes to the FeatureRecipe that
+    emits the annotated ServiceAccount (core/gcp-workload-identity to
+    gcp-workload-identity).
+spec:
+  mappings:
+    components:
+      type:
+        local/compute/identity-app: helm/identity-app:1.0.0
+    features:
+      type:
+        core/gcp-workload-identity:1.0.0: gcp-workload-identity:1.0.0

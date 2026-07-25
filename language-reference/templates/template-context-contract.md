@@ -16,12 +16,30 @@ The top-level fields live at the root of the template context — accessed as `.
 - **`.infra` (map).** Ops-authored physical sizing from the Release. Validated by the Catalog's `schema:` (the Component's or Feature's JSON Schema 2020-12 declaration) at Step 1. The same `optional`-vs-`default` guidance as for `.values` applies — prefer `optional` when an authored zero or false is a legitimate intent (scale-to-zero, no-retries, feature-flag-off).
 - **`.locals` (string-valued map).** Recipe-private state — names declared in the Recipe's `locals:` block, populated at the Phase B preamble. Accessible only within the Recipe's own templates; never exposed to callers.
 - **`.provides` (string-valued map).** The Recipe's public output strings — the contract callers' `inject:` blocks resolve `from:` references against. Populated at Pass 1.
-- **`.features` (map of feature attachments).** Each entry has `.type`, `.values`, and `.infra`. Iterates the Features attached to this Component (Aggregate-level + subsystem-level + Release-level + Manifest-annotation-driven, per the 5-Tier Onion Model).
-- **`.secrets` (map of credential feature attachments).** Each entry has `.type`, `.values`, and `.provides`. The `.provides` (string-valued map) is the resolved public contract of the credential producer filling the slot — the generated Secret's `name`, its `key`, and any additional produced keys — read as `.secrets.<slot>.provides.<key>` so a consumer references the credential without re-deriving its physical identity. Iterates the credential Features attached to this Component (Features labeled `feature.aggrega.ai/kind: secret`).
+- **`.features` (map of attachments).** Iterates the Features attached to this Component (Aggregate-level + subsystem-level + Release-level + Manifest-annotation-driven, per the 5-Tier Onion Model), keyed by the instance name the author gave the attachment. Every entry carries the same four fields — see [the attachment shape](#the-attachment-shape) below.
+- **`.secrets` (map of credential attachments).** Iterates the credential Features attached to this Component (Features labeled `feature.aggrega.ai/kind: secret`), keyed by slot name. Same attachment shape as `.features`: what differs between an attachment in one map and the other is what it produces, not how it is read.
 - **`.metadata` (struct).** Release identity for deterministic naming: `release_name`, `release_version`, `environment`, `aggregate_name`. Populated for every render; values originate in the Release's `metadata:` block.
 - **`.source`.** The resolved `Recipe.Spec.Source` after Phase B.0 template evaluation. `nil` for sourceless Recipes; `nil` before Phase B.0 runs.
 - **`.workload`.** The parsed Workload object after Phase B.2 (yaml-unmarshal + `ValidateWorkload` + `ValidateWorkloadSecrets` succeed). `nil` for non-synthesized Recipes; `nil` before Phase B.2 runs.
 - **`.steps` (map of step outputs).** Populated by `pipeline:` execution as Wasm plugins run, exposing a completed step's returned outputs to subsequent steps via `.steps.<id>.outputs`. A step reads a preceding step's outputs from its own `with` template; a step's `outputs` become visible only to steps declared after it. Empty when the node declares no pipeline, and before the node's first step completes.
+
+## The attachment shape
+
+`.features.<name>` and `.secrets.<slot>` are the same shape — one attachment, read one way. Four fields:
+
+- **`.type` (string).** The attached Feature's catalog URI.
+- **`.values` (map).** The attachment's own developer-intent pillar, authored on the attachment declaration in the Aggregate. Distinct from the host component's top-level `.values`.
+- **`.infra` (map).** The attachment's own operational-sizing pillar, authored on the attachment declaration in the Release. Distinct from the host component's top-level `.infra`.
+- **`.provides` (string-valued map).** The resolved public contract of the FeatureRecipe bound to this attachment — the emitted resource's name, its data key, a cloud identity, and any additional keys the FeatureRecipe publishes. Read as `.features.<name>.provides.<key>`, mirroring `.context.uses.<alias>.provides`: the consumer reads what the producer published instead of re-deriving it. Empty when the bound FeatureRecipe publishes nothing.
+
+`.provides` is what makes an attachment consumable rather than merely present. A Feature that declares a `schema.provides` contract has that contract enforced against the FeatureRecipe realizing it — the FeatureRecipe must publish every declared key — and the consumer reads the result here. So an identity Feature that emits a ServiceAccount and publishes its name lets the consuming Recipe bind to it:
+
+```yaml
+workload: |
+  serviceAccount: "{{ .features.identity.provides.name }}"
+```
+
+The emitted name is stated once, by the producer, and consumed — never restated on the consuming side where the two could disagree. The [`workload-identity-binding`](../examples/workload-identity-binding/) example renders this end-to-end.
 
 ## The `.context` block
 

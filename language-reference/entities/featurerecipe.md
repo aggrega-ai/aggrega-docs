@@ -143,6 +143,28 @@ The rendered `when:` text is judged by the shared boolean-template rule: the str
 
 When a FeatureRecipe implements a credential Feature (one labeled `feature.aggrega.ai/kind: secret`), it follows the Two-Part Plugin Principle: the `pipeline` chains a Fetcher plugin (generating the vault-specific CRD) followed by an Injector plugin (mounting the secret to the target container). See [examples/05-credential-features](../examples/05-credential-features.md) for the complete worked example with JSON input/output handshake.
 
+## The `provides:` block — publishing to the consumer
+
+A FeatureRecipe's `provides:` block is its published output: a string-valued map of Go templates evaluated against the attachment's own scope (`.values`, `.infra`, the FeatureRecipe's `.locals`, and the host node's `.context.instance_id`). It is how an attachment tells its consumer what it produced — an emitted resource's name, a generated data key, a cloud identity — without the consumer re-deriving that identity from the same inputs.
+
+The consumer reads it at `.features.<instance-name>.provides.<key>` (or `.secrets.<slot>.provides.<key>` for a credential attachment), mirroring `.context.uses.<alias>.provides` for a `uses` edge. The attachment's own `inject:` block resolves its `from:` references against the same map, so an author may choose either channel: `provides` for a template read, `inject` for delivery into an env var, file, or arg.
+
+```yaml
+# FeatureRecipe: emits a ServiceAccount and publishes its name.
+provides:
+  name: "{{ .infra.service_account_name }}"
+```
+
+```yaml
+# Consuming Recipe: binds the pod to what the attachment published.
+workload: |
+  serviceAccount: "{{ .features.identity.provides.name }}"
+```
+
+When the Feature this FeatureRecipe `implements` declares a `schema.provides` contract, the contract is enforced against the FeatureRecipe: every key the Feature declares must appear in the FeatureRecipe's `provides:`, or the build halts naming the missing key. Extra published keys are permitted — the contract is a floor, not a ceiling. Values are never inspected; they are opaque deterministic pointers the runtime resolves.
+
+Resolution happens once per attachment, before the consumer renders, and the same resolved map feeds the consumer's read, the contract check, and the attachment's own Resource Generation — so what the consumer reads and what the attachment emits cannot disagree.
+
 ## Provider & `implements`
 
 The `provider` field is mandatory at the root level and declares which Wasm rendering plugin will execute the FeatureRecipe's output (`helm`, `helm-chart`, `compose`, etc.). The `implements` field binds the FeatureRecipe to its Feature interface and supports exact, major-compatible range, or unversioned matching — see [vocabulary/inheritance-and-interface](../vocabulary/inheritance-and-interface.md) for `implements` Version Matching semantics.

@@ -19,8 +19,8 @@ Phase B sub-pass availability: Pass 1 (provides): partial pillars (self-ref bann
 | `infra` | object | yes | The physical sizing payload injected from the Release for this node. Bypasses the Developer entirely. |
 | `locals` | map of string | yes | The Recipe's own private state (e.g., primary_compute, volumes_path). Populated by Phase B.0, which evaluates every locals entry against the same self-contained context — so the entries cannot read one another, and peer locals are NOT readable from a locals template. Available afterwards in valuesMapping, workload, artifacts, assertions, and to downstream Wasm plugins via pipeline[].with (and pipeline[].when). NOT available within a provides template: provides is resolved first (a local may read .provides), so a provides template referencing .locals halts. Never exposed to callers. |
 | `provides` | map of string | no | The Recipe's public API contract. Populated from Pass 1 evaluation. Available in Phase B valuesMapping for self-reference (e.g., {{ .provides.host }}). NOT available within the provides template itself (Pass 1 self-containment invariant). Callers resolve inject keys against these values. |
-| `features` | map of object | no | The attached features for this node, keyed by instance name. Available for Base Recipes to conditionally adapt rendering based on attached capabilities. |
-| `secrets` | map of object | no | The attached credential Features for this node, keyed by instance name. |
+| `features` | map of template_attachment | no | The attachments on this node, keyed by instance name. A Recipe reads them to adapt its rendering to the attached capabilities and to consume what an attachment publishes. |
+| `secrets` | map of template_attachment | no | The credential attachments on this node, keyed by instance name. Same attachment shape as .features — what differs is what the attachment produces, not how it is read. |
 | `metadata` | object | no | Release and compilation metadata providing global identity for deterministic naming. Available in all template blocks (valuesMapping, injectMapping, pipeline with). |
 | `secret_name` | string | no | Only populated when rendering a credential FeatureRecipe. Contains the logical secret key name from the Component's secretsSchema or the Developer's secrets: block (e.g., 'admin_password', 'db_credentials'). Used to construct deterministic physical secret names (e.g., '{{ .context.instance_id }}-{{ .secret_name }}'). |
 | `inject` | object | no | Only populated when rendering a credential FeatureRecipe. Contains the secret-specific inject block from the Developer's secrets entry (e.g., { env: { OPENAI_API_KEY: 'api_token' } }). Distinct from .context.inject which is the base component's pre-hydrated delivery pipe from uses edges. Evaluates to null/absent for non-credential FeatureRecipes and base Recipes. |
@@ -108,11 +108,24 @@ Boundary-scope context — populated only when evaluating a FeatureRecipe whose 
 | `cross_boundary_uses_edges` | object[] | no | Convenience union of outgoing and incoming cross-boundary edges. |
 | `labels` | map of string | no | Union of components' labels in the subtree, with author-order preservation. |
 | `annotations` | map of string | no | The boundary's own annotations after the cascade resolves. |
-| `feature_attachments` | object[] | no | List of features directly attached to this boundary (for cross-feature reference within boundary scope). |
+| `feature_attachments` | template_attachment[] | no | The attachments directly attached to this boundary (for cross-attachment reference within boundary scope), in the same attachment shape .features carries. |
 
 _Additional properties are not permitted._
 
 ## Definitions
+
+### `template_attachment`
+
+One attachment as a template reads it: the per-instance view of an attached Feature. Every attachment exposes the same fields regardless of what it produces, so .features.<name> and .secrets.<slot> are read the same way.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `type` | string | no | The Catalog Feature URI of the attached Feature. |
+| `values` | object | no | The attachment's own developer-intent pillar, carried verbatim from the attachment declaration. |
+| `infra` | object | no | The attachment's own operational-sizing pillar, carried verbatim from the attachment declaration. |
+| `provides` | map of string | no | The resolved public contract of the FeatureRecipe bound to this attachment — the emitted resource's name, its key, an identity, and any additional produced keys — exposed to the consumer as .features.<name>.provides.<key>. The consumer reads these values instead of re-deriving the attachment's physical identity. Empty when the bound FeatureRecipe publishes nothing. |
+
+_Additional properties are not permitted._
 
 ### `enriched_edge`
 

@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Component
+metadata:
+  name: local/compute/identity-app
+  version: 1.0.0
+  description: >
+    A minimal stateless application component that runs under a cloud identity
+    supplied by an attached Feature. The component declares no identity fields
+    of its own: the attachment emits the ServiceAccount and publishes its name,
+    and the component's Recipe binds the pod to that published name.
+  labels:
+    component.aggrega.ai/type: server
+    component.aggrega.ai/category: compute
+  maintainers:
+    - name: Massimiliano Ferrero
+      email: m.ferrero@cognitio.it
+spec:
+  schema:
+    values:
+      # Developer Intent — filled by the Developer in the Aggregate.
+      greeting:
+        type: string
+        default: hello
+        description: Greeting string the container prints on startup.
+    infra:
+      # Operational Sizing — filled by the Operator in the Release.
+      image_tag:
+        type: string
+        default: "1.0"
+        description: Container image tag.
+    provides:
+      # Public API Contract — keys exported to consumers via uses edges.
+      host:
+        type: string

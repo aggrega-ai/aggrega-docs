@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Recipe
+metadata:
+  name: identity-app
+  version: 1.0.0
+  description: >
+    The stateless app on Kubernetes via the helm provider's Workload synthesis
+    (a Deployment + ClusterIP Service, no external chart). The pod runs under
+    the ServiceAccount the attached cloud-identity Feature emits: the Recipe
+    reads that ServiceAccount's name from the attachment's published provides,
+    so the name is stated once — by the producer — and consumed rather than
+    restated here.
+  maintainers:
+    - name: Massimiliano Ferrero
+      email: m.ferrero@cognitio.it
+spec:
+  capability: helm
+  implements: local/compute/identity-app:1.0.0
+  provides:
+    host: "{{ .context.instance_id }}-app"
+  workload: |
+    apiVersion: aggrega.ai/v1alpha1
+    kind: Workload
+    form: stateless
+    replicas: 1
+    # The identity attachment emits the ServiceAccount and publishes its name as
+    # provides.name. Reading it here binds the pod to the emitted ServiceAccount
+    # without restating the name, so the two can never disagree.
+    serviceAccount: "{{ .features.identity.provides.name }}"
+    containers:
+      main:
+        image: myapp:{{ .infra.image_tag }}
+        variables:
+          GREETING: {{ .values.greeting }}
+          # The same published name, delivered to the process as an env var.
+          IDENTITY_SERVICE_ACCOUNT: {{ .features.identity.provides.name }}
+        ports:
+          web: 8080
+    services:
+      web:
+        type: ClusterIP
+        ports:
+          web: 8080

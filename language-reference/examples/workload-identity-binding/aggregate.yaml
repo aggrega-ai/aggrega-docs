@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: workload-identity-binding
+  version: "1.0.0"
+  description: >
+    A single stateless app rendered on Kubernetes by the helm provider's
+    Workload synthesis (no external chart). The app runs under a cloud identity:
+    an attached identity Feature emits one Kubernetes ServiceAccount and
+    publishes its name, and the app's Recipe binds the pod to that published
+    name. The Developer states only that the app needs an identity; the
+    ServiceAccount's name and the Google service account it impersonates are
+    operational sizing the Release fulfils.
+spec:
+  components:
+    app:
+      type: local/compute/identity-app
+      values:
+        greeting: hi
+      features:
+        # The identity attachment. The Developer declares that this component
+        # runs under a cloud identity; every field the identity needs is
+        # operational sizing, fulfilled by the Operator in the Release.
+        identity:
+          type: core/gcp-workload-identity

@@ -364,6 +364,25 @@ Each entry's template evaluates against the self-contained Pass 1 surface — `.
 
 `provides:` keys are part of the Recipe's contract surface. Renaming or removing a key is a breaking change for every caller relying on the old name; the `implements:` interface version should reflect the contract evolution. For the cascade resolution semantics, the inject-pipe contract, and worked examples covering cross-namespace and cross-region routing, see [architecture/06-data-taxonomy-and-composition.md §3](../../architecture/06-data-taxonomy-and-composition.md) and [templates/expansion-matrix.md](../templates/expansion-matrix.md).
 
+## Reading an attachment's published values
+
+A Recipe reads the Features attached to its component at `.features.<instance-name>` and the credential Features at `.secrets.<slot>`. Both are the same attachment shape — `.type`, `.values`, `.infra`, `.provides` — so an attachment is read the same way whichever map carries it; what differs between them is what the attachment produces.
+
+`.provides` is the attachment's published output, resolved from the FeatureRecipe bound to it. It is the counterpart of the `provides:` block above, seen from the consuming side: where a Recipe *publishes* to its callers, an attachment publishes to its host component.
+
+```yaml
+workload: |
+  # The identity attachment emits a ServiceAccount and publishes its name;
+  # the pod binds to that published name rather than restating it.
+  serviceAccount: "{{ .features.identity.provides.name }}"
+  containers:
+    main:
+      env:
+        DB_SECRET: "{{ .secrets.app_credentials.provides.name }}"
+```
+
+Reading the published value rather than recomputing it from the same `values`/`infra` inputs is the difference between one statement of a name and two that can drift apart. The full field-by-field shape, including the availability rules, is at [templates/template-context-contract.md](../templates/template-context-contract.md#the-attachment-shape).
+
 ## The `pipeline:` field
 
 `Recipe.spec.pipeline:` is a sequential array of Wasm plugin invocations for stateful AST mutation directly on the base infrastructure. Each entry declares an `id` (per-step identifier), a `plugin` URI (the Wasm artifact), a `function` (the plugin export to invoke), an optional `with:` Go template body supplying the plugin's payload, and an optional `when:` Go template that gates whether the step runs — a falsy result skips the step as a pass-through, leaving the document set unchanged. The `when:` gate, its independence from `optional:`, and its truthiness rule are covered in full under [entities/featurerecipe.md](featurerecipe.md) "Conditional steps — `when:`":
