@@ -16,3 +16,14 @@ spec:
     components:
       type:
         core/datastore/mariadb:1.0.0: terraform/mariadb-rds-module:1.0.0
+    features:
+      type:
+        # The credential Feature routes like any other. The reference is
+        # provider-qualified because the standard-library catalog ships a
+        # generated-secret FeatureRecipe under more than one provider: a bare
+        # name resolves only when exactly one provider carries it, so with
+        # several carriers a bare `generated-secret:1.0.0` does not resolve at
+        # all and the build halts loudly rather than silently picking one. This
+        # FeatureRecipe renders nothing — RDS owns the master password, and the
+        # module the Recipe copies carries the directive that says so.
+        core/generated-secret:1.0.0: terraform/generated-secret:1.0.0

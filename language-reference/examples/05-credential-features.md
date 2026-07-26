@@ -9,7 +9,12 @@ A credential Feature carries the `feature.aggrega.ai/kind: secret` label. The la
 The standard library splits credential Features by *result* — what the FeatureRecipe ultimately does with the secret:
 
 - **`core/secret-value`** delivers a value into the inject pipe. The FeatureRecipe writes the secret into the consuming component's environment (a chart value, an env var) and contributes no standalone resource.
+- **`core/secret-provided`** also results in a delivered value, but exposes it as a `provides` key instead of injecting it directly, so the attachment dictates delivery with its own `secret.inject` block on a transparent slot.
 - **`core/referenced-secret`** materializes a referenceable secret *resource* — a Kubernetes Secret, an AWS Secrets Manager secret, a Vault entry — and publishes that resource's identity through a `schema.provides` output contract so a consumer can point at it.
+- **`core/referenced-secret-set`** materializes one such resource carrying a caller-supplied *set* of data keys, and publishes the resource's locator alone. It suits a consumer whose target already fixes the key names it reads — a chart expecting a Secret with several named keys — so there is no per-key locator to publish. See [`mariadb-bitnami-credential-set/`](mariadb-bitnami-credential-set/README.md) and [`multikey-secret-synth/`](multikey-secret-synth/README.md).
+- **`core/generated-secret`** produces nothing at all, because the target engine generates and manages the credential itself. The deployment uses it to say that a slot is delegated to the engine.
+
+Two things separate the members: who supplies the material — the deployment authors it or names where to fetch it, or the target engine owns it outright as with `core/generated-secret` — and what the attachment yields, which is the *result* the list above groups by. They are peers — same label, same attachment surface, same slot — so a credential slot is always bound, and what varies between deployments is *what* binds it.
 
 **`core/secret-value` — injected value.**
 
@@ -49,6 +54,21 @@ spec:
 ```
 
 A credential Feature that declares a `provides` contract obliges every FeatureRecipe implementing it to publish those keys — the build halts if a FeatureRecipe omits one. This is the producer-side guarantee that makes the consumer's `.features.<slot>.provides.<key>` read safe.
+
+**`core/generated-secret` — engine-managed.** It declares neither `values` nor `provides`: the deployment supplies no material, and the attachment publishes nothing for a consumer to read. Attaching it states that the credential's whole lifecycle belongs to the target — a managed cloud database that generates and rotates its own master password, for example.
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Feature
+metadata:
+  name: core/generated-secret
+  version: 1.0.0
+  labels:
+    feature.aggrega.ai/kind: secret
+spec: {}
+```
+
+The directive that turns engine management on is the component's Recipe's, not the Feature's: a Terraform RDS Recipe sets `manage_master_user_password`, a CloudFormation one sets `ManageMasterUserPassword`. So the FeatureRecipes implementing `core/generated-secret` are pure wiring — `capability` and `implements` and nothing else — and render no bytes. The standard library ships them for the `terraform` and `cloudformation` capabilities, matching the managed-database Recipes that carry the directive. The [`terraform-rds`](terraform-rds/) example binds a required slot this way, and its rendered HCL is identical to the same example with no attachment at all: the slot is bound, and nothing is emitted for it.
 
 ## Provider-Specific FeatureRecipes
 

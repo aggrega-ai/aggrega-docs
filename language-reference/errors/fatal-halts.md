@@ -363,6 +363,24 @@ Emitted messages:
 
 **How to fix:** correct the Component catalog entity. The remediation is in the catalog, not in the Aggregate — which is why this halt is distinct from "Required feature not attached", where the deployment is what needs changing.
 
+### Required attachment slot not bound
+
+A catalog entity declares an attachment slot with `required: true` in its `featuresSchema`, and nothing binds that slot's name on an instance of the entity. The check runs against the attachments the instance ends up with after every scope has folded — the Aggregate's component-level and subsystem-level `features:` blocks, the Release's boundary-level and component-level blocks, and attachments produced by annotation-driven expansion — so a credential attached once at a scope the instance inherits from binds the slot exactly as a fill authored on the instance does.
+
+Emitted message:
+> component type `<component-type>` declares the attachment slot `<slot>` as required, but no attachment binds it; attach a Feature under that name on the component, or at a scope it inherits from
+
+**How to fix:** attach a Feature under the slot's name — on the component, or at a broader scope every consumer of the slot shares. An attachment under a different name does not bind the slot: a slot is a named binding point, so the name is the binding. If the slot should no longer be required, update the catalog entity's `featuresSchema` to drop the `required` declaration.
+
+### Attachment does not conform to its declared slot shape
+
+An attachment binds a declared slot but does not match the shape that slot declares. The common case is delivery: a slot's `inject` allowlist names the mechanisms a fill may deliver its material through, and an empty allowlist is blackbox — the Recipe delivers the material internally and a fill may dictate no delivery at all. An attachment under a name no slot declares is a free attachment and carries no slot constraint.
+
+Emitted message:
+> Aggregate `<name>` at `.spec.components.<component>.features.<attachment>.<key>`: attachment does not conform to the declared slot shape: this key is not part of the slot's declaration — remove it, or declare it on the slot in the entity's featuresSchema
+
+**How to fix:** remove the offending key from the attachment, or widen the slot's declaration in the catalog entity — adding the delivery mechanism to the slot's `inject` allowlist where the material is genuinely meant to reach the workload. The diagnostic's field path names the exact key.
+
 ### Duplicate delivery key across inject sources
 
 The same delivery key (for example, the same env var name) is declared in two developer-authored inject sources — one at the Component level and one under a `uses[]` entry.
@@ -404,6 +422,19 @@ Emitted message:
 **How to fix:** refactor the template to pull only from the Recipe's own pillars. If the value depends on another node's output, that dependency belongs in a caller's `uses[].inject` block, not in the target's `provides`. If the reference was to a `locals:` entry, inline into the `provides` entry the expression that local computes; the two then carry the same expression in two places, which the Pass 1 ordering forces. If you were reaching for the deployment namespace (or other placement data) to build a cross-namespace host, publish the bare host here and qualify it on the consumer side with a routing feature — the producer's `provides` must not depend on where it was deployed.
 
 A FeatureRecipe is not subject to this rule: its own `locals:` are resolved before its `provides:`, so a FeatureRecipe `provides` entry may read `.locals`.
+
+### Template references a root the render context does not define
+
+A template references a top-level root — the first path segment after the leading dot — that its render context does not define: a misspelling such as `{{ .valeus.port }}`, or a root that does not exist on the surface being authored. The check is a positive allowlist over root *names*, and the admitted set is derived from the render context's own shape rather than kept as a separate list beside it, so the set the build refuses and the set the context actually delivers cannot drift apart. The diagnostic names the offending reference and lists the roots that context does define.
+
+The halt fires identically whether the reference is bare or wrapped in a `default`, `if`, `with`, or `range` fallback, and the wrapped spelling is the one that matters most: a wrapper can supply a fallback for an absent *key* under a defined root, but never for an absent *root*, so without this halt the wrapped form would resolve quietly to an empty value and let the build finish successfully. An absent key under a defined root is untouched and still follows the `missingkey=zero` policy for value templates described in "Missing template key" below, so optional-key idioms such as `{{ .values.optional_field | default "fallback" }}` keep working exactly as before.
+
+Emitted message:
+> template `<template-name>` references `<dotted-path>` — the render context defines `<the roots that context defines>`
+
+**How to fix:** correct the root to one the diagnostic lists — most reports are a misspelling of `.values`, `.infra`, or `.context`. Removing the fallback wrapper will not clear the halt, and adding one never suppressed it; the wrapper only ever hid which root was wrong. If the data genuinely belongs to another node, it reaches this template through the inject pipe — wire it with a `uses[].inject` entry on the consumer and read it from `.context.inject` — rather than through a root of its own.
+
+The check covers the value templates the renderer evaluates: Recipe `valuesMapping` and `source:`, `locals:` and `provides:` entries, FeatureRecipe `injectMapping`, and `artifacts:` bodies. Two neighbouring surfaces are validated differently and never report this halt — path templates (`directory:` / `subDirectory:`) check their references against their own closed allowlist and report `PATH_TEMPLATE_INVALID_FIELD` instead, and `assertions` evaluate under a stricter `missingkey=error` policy that rejects an unknown reference at execution with its own diagnostic.
 
 ### Cross-node type safety violation via `selector:`
 
@@ -490,16 +521,17 @@ Emitted message:
 
 ### Missing template key — asymmetric policy
 
-The renderer's missing-key handling depends on the template surface:
+The renderer's missing-key handling depends on the template surface. Where an empty rendering lands somewhere bounded — a manifest field the author can read back — the miss substitutes the type's zero value. Where an empty rendering would instead produce a wrong *structure* or a wrong *verdict*, the surface refuses the reference rather than resolve it to nothing.
 
 - **Path templates** (Release boundary `directory:` / `subDirectory:`) evaluate with `missingkey=error` against a closed allowlist. A reference to an undeclared variable halts at parse time with `PATH_TEMPLATE_INVALID_FIELD`; an in-allowlist-but-undefined-at-eval-time reference produces an explicit error rather than silently rendering an empty string into a directory path.
-- **Value templates** (Recipe `valuesMapping`, FeatureRecipe `injectMapping` / `provides` / `pipeline.with`, Workload bodies, Component / Feature `assertions`) evaluate with `missingkey=zero`. A reference to an undefined key renders as the type's zero value (empty string / `0` / `false`) without erroring. Catalog idioms like `{{ .values.optional_field | default "fallback" }}` continue to work; authors who need the absent-vs-zero discriminator use the `optional` helper documented at [`templates/sprig-functions.md`](../templates/sprig-functions.md).
+- **`assertions`** (on a Component, Feature, Recipe, or FeatureRecipe) evaluate with `missingkey=error`. A reference to an undefined key halts with a no-such-key diagnostic naming the entity, the instance, and the assertion. The strictness is what makes an assertion trustworthy: a predicate whose reference rendered as an empty value would compare against nothing and pass, so a single typo would silently retire the rule the assertion was written to enforce. Because the bare reference halts before any fallback can run, a plain `default` does not supply an optional-field fallback on this surface — gate the reference with `hasKey`, or read it through `index` and then apply `default`. The `optional` helper is registered here and performs the presence check directly.
+- **Value templates** (Recipe `valuesMapping` and `source:`, `locals:` and `provides:` entries, `artifacts:` bodies, Workload bodies, FeatureRecipe `injectMapping` and `pipeline.with`, and component-level self-inject `value:` templates) evaluate with `missingkey=zero`. A reference to an undefined key renders as the type's zero value (empty string / `0` / `false`) without erroring. Catalog idioms like `{{ .values.optional_field | default "fallback" }}` continue to work; authors who need the absent-vs-zero discriminator use the `optional` helper documented at [`templates/sprig-functions.md`](../templates/sprig-functions.md).
 - **Typed parameter contracts** catch missing-required-parameter and contract-violation cases at Step 1a (parameter-contract layer) with `ErrParameterContractViolation` / `ErrParameterMissing` — see "Parameter type mismatch / contract violation" above.
 
 Path-template missing-key emit shape:
 > PATH_TEMPLATE_INVALID_FIELD: `<directory|subDirectory>` template on boundary `<boundary-name>` references `<dotted-path>` which is not in the path-template variable allowlist.
 
-**How to fix:** for path-template misses, correct the field name to one in the allowlist documented at [`path-template-variables.md`](../path-template-variables.md). For value-template misses where empty rendering is undesired, use the `optional` helper or supply the missing key as a typed `parameters.*` declaration on the Aggregate with a Release value, as an upstream Component's `provides:` entry wired through `uses[].inject`, or as a `locals:` entry on the same entity.
+**How to fix:** for path-template misses, correct the field name to one in the allowlist documented at [`path-template-variables.md`](../path-template-variables.md). For an assertion miss, correct the reference — most reports are a misspelled key — or, where the field is genuinely optional, gate it with `hasKey`, read it through `index` before applying `default`, or use the `optional` helper; wrapping the bare reference in a `default` will not clear the halt, because the reference resolves before the fallback runs. For value-template misses where empty rendering is undesired, use the `optional` helper or supply the missing key as a typed `parameters.*` declaration on the Aggregate with a Release value, as an upstream Component's `provides:` entry wired through `uses[].inject`, or as a `locals:` entry on the same entity.
 
 ## The linter domain (not fatal)
 

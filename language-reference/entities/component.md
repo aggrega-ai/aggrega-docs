@@ -276,6 +276,9 @@ Both diagnostics are documented at [`errors/fatal-halts.md`](../errors/fatal-hal
 | Cardinality | exactly one fill per slot | at least one attachment of the type |
 | Constrains the fill | `selector`, `inject`, `sensitive` | nothing beyond the type |
 | Satisfied by a free attachment | no — a slot is filled by name | yes — at any scope, under any name |
+| When the demand is unmet | halts when `required: true` and nothing binds the slot's name | halts when no attachment carries the type |
+
+Both demands are checked against the same input — the instance's final attachment set — and both halt with their own diagnostic, because they ask different questions of it: whether one named binding point is bound, versus whether some attachment carries a named type. Neither answers for the other.
 
 Reach for a slot when the Recipe needs to *read* what was attached. Reach for a mandate when the Component's contract demands a capability be present and does not care which instance supplies it. A payment-processing Component that mandates `core/audit-logging` gets audit logging in every deployment whether or not the developer remembered to attach it; a PCI-compliant Component that mandates `core/pci-compliance` cannot ship without the compliance Feature attached somewhere in the deployment.
 
@@ -416,7 +419,7 @@ spec:
 
 | Field | Type | Default | Meaning |
 | --- | --- | --- | --- |
-| `required` | bool | `false` | Declares the slot as expected to be filled. A declaration of intent for readers and tooling: no build-time check currently rejects a deployment that leaves the slot unfilled. |
+| `required` | bool | `false` | Declares that the slot must end up bound. The build halts when nothing binds the slot's name on an instance of this Component, checked against the attachment set the instance holds after the whole attachment cascade — so an attachment declared at a scope the instance inherits from satisfies the slot exactly as a fill authored on the instance itself does. The diagnostic names the component and the slot. |
 | `inject` | string[] | — | Allowlist of allowed inject delivery mechanisms. `[]` (empty) means blackbox — the Recipe controls delivery internally and the material is never delivered to the workload. `[env, file]` means transparent — the fill's material may be delivered through the listed mechanisms. Same semantics as `usesSchema[].inject`. |
 | `description` | string | — | Human documentation, rendered by IDE and hub. |
 | `selector` | string | — | Optional Kubernetes-style label selector constraining which Feature may fill this slot — the slot analog of a `usesSchema` socket's `selector`, with the same grammar and the same native label-matching engine. Evaluated against the attached Feature's own labels at Step 4; a fill whose labels do not satisfy it halts. Omit to place no constraint on the fill. |
@@ -429,7 +432,7 @@ The slot `selector` is how a Component narrows which Feature may fill a slot —
 
 ### Schema projection from `featuresSchema`
 
-Declared slots project into a JSON Schema 2020-12 fragment describing the shape of the attachment block. The projection never touches disk; it exists only in memory, and a Component's `schema:` never needs to hand-author the attachment pillar.
+Declared slots project into a JSON Schema 2020-12 fragment describing the shape of the attachment block, and an authored block is validated against it when the Aggregate loads. The projection never touches disk; it exists only in memory, and a Component's `schema:` never needs to hand-author the attachment pillar.
 
 Input `featuresSchema`:
 
@@ -448,28 +451,36 @@ Projected fragment (in memory; compact-form representation):
 # admitted, because a free attachment is legal authoring.
 root_password:
   type: { type: string }
+  description: { type: string }
   values:
     type: object
     additionalProperties: true
   # inject is ABSENT — inject: [] means the Recipe controls delivery
 user_password:
   type: { type: string }
+  description: { type: string }
   values:
     type: object
     additionalProperties: true
   inject:
-    env: { type: object, valuesType: string }
-    file: { type: object, valuesType: string }
+    env: { type: array }
+    file: { type: array }
     # arg is absent — not in the inject allowlist
 ```
 
 The two depths are independent. The **outer** object is open, so a declared slot never forbids the attachments the entity did not enumerate. Each **declared slot's** own fragment is closed, so a fill that does bind a declared slot is still constrained to that slot's shape.
 
+The fragment describes SHAPE only. It carries no statement about which slots must be bound, because a slot marked `required` may be bound by an attachment cascading in from a broader scope — which leaves the block this fragment describes empty. The requirement is therefore checked against the attachment set a component ends up with rather than against what any one block declares, and the two questions never contradict each other because only one of them is ever asked of the authored block.
+
+The permitted keys mirror the keys an attachment may carry anywhere, so a key that is legal on a free attachment stays legal on a slot fill. Each allowlisted delivery mechanism is a list of delivery entries — the same shape `inject:` takes everywhere; the slot narrows which mechanism NAMES may appear, not what an entry looks like.
+
 ### Where the `inject` allowlist is enforced
 
-The allowlist is enforced against the **Recipe's Workload**, at the render step. A Workload that references a slot through its container attachment entries must name a slot the entity declares, and must select a delivery mechanism the slot's `inject` allowlist permits; a reference to a blackbox slot (`inject: []`), to a mechanism outside the allowlist, or to a slot the entity never declared halts the build. The diagnostic names the Recipe, the container path, and the offending slot, and is classified as a catalog fault — the Recipe is what got it wrong.
+The allowlist binds both sides of the slot, at two different steps.
 
-The developer-facing side of the same allowlist is a catalog-authoring convention rather than a build-time check: a blackbox slot signals "the Recipe delivers this internally; do not dictate delivery," and an Aggregate that nonetheless authors an `inject:` block on such an attachment is not itself rejected. The load-bearing enforcement is the Workload cross-check above, which is what actually prevents a blackbox credential reaching a container.
+Against the **Recipe's Workload**, at the render step: a Workload that references a slot through its container attachment entries must name a slot the entity declares, and must select a delivery mechanism the slot's `inject` allowlist permits; a reference to a blackbox slot (`inject: []`), to a mechanism outside the allowlist, or to a slot the entity never declared halts the build. The diagnostic names the Recipe, the container path, and the offending slot, and is classified as a catalog fault — the Recipe is what got it wrong.
+
+Against the **Aggregate's own attachment**, when the Aggregate loads: an `inject:` block on a fill that binds a declared slot may name only mechanisms the slot's allowlist permits, and a blackbox slot permits none — its empty allowlist says "the Recipe delivers this internally; do not dictate delivery," and authoring delivery for it halts with a diagnostic positioned on the offending key. A free attachment — one under a name no slot declares — carries no such constraint, because the allowlist belongs to the slot and not to the block.
 
 The end-to-end flow through the compilation pipeline — how an Aggregate attachment connects to a credential Feature (such as `core/secret-value`) and then to a provider-specific FeatureRecipe that delivers the credential to the running workload — is worked through in [examples/05-credential-features](../examples/05-credential-features.md).
 
