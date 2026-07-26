@@ -1,6 +1,6 @@
 # Component
 
-The conceptual role of the Component entity (the abstract compute-node interface in Domain 2) lives in [architecture/04-eight-entity-taxonomy.md](../../architecture/04-eight-entity-taxonomy.md). This page covers the Component authoring surface: the Semantic Label Taxonomy that Architects use to layer cognitive identity on top of the 7-type base ontology, the `schema:` declaration for the data pillars, the `usesSchema` and `featuresSchema` declarative tables for topology sockets and attachment slots, `requiredFeatures`, the `extends:` inheritance mechanism, and the `assertions:` cross-field rule block.
+The conceptual role of the Component entity (the abstract compute-node interface in Domain 2) lives in [architecture/04-eight-entity-taxonomy.md](../../architecture/04-eight-entity-taxonomy.md). This page covers the Component authoring surface: the Semantic Label Taxonomy that Architects use to layer cognitive identity on top of the 7-type base ontology, the `schema:` declaration for the data pillars, the `usesSchema` and `featuresSchema` declarative tables for topology sockets and attachment slots, presence mandates, the `extends:` inheritance mechanism, and the `assertions:` cross-field rule block.
 
 ## The Semantic Label Taxonomy (The Standard Library Convention)
 
@@ -238,9 +238,9 @@ spec:
 
 **Recipe-side teaching.** For the `provides:` template authoring grammar, the per-template availability matrix, and worked examples of cross-namespace and cross-region routing, see [entities/recipe.md](recipe.md) "The `provides:` block" and [architecture/06-data-taxonomy-and-composition.md §3](../../architecture/06-data-taxonomy-and-composition.md).
 
-## Required Features: `requiredFeatures`
+## Presence mandates: `features.aggrega.ai/requiredType.<label>`
 
-A Component may declare a list of Feature types that **must** be attached to every instance of that Component. The `spec.requiredFeatures` field carries an array of Feature type URIs; the compiler verifies that every required type appears in the resolved feature set for each Component instance after the 5-Tier Onion Model attachment cascade completes.
+A Component may declare that every instance of it **must** carry an attachment of a given Feature type. This is a **presence mandate**, and it is authored as a repeatable annotation on the Component's own metadata:
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -250,20 +250,36 @@ metadata:
   version: 1.0.0
   labels:
     component.aggrega.ai/type: server
+  annotations:
+    features.aggrega.ai/requiredType.audit: core/audit-logging
+    features.aggrega.ai/requiredType.compliance: core/pci-compliance
 spec:
-  requiredFeatures:
-    - core/audit-logging:1.0.0
-    - core/pci-compliance:1.0.0
   schema:
     values:
       processor_endpoint: { type: string, required: true }
 ```
 
-The compiler walks every Feature attached to a `core/payment-processor` instance — across the Aggregate component-level and subsystem-level features blocks, the Release boundary-level and component-level features blocks, and the Manifest annotation-driven expansion — and confirms each `requiredFeatures:` entry has a matching attachment. A missing required Feature halts the build with a fatal diagnostic naming the component instance, the missing Feature type, and the attachment surfaces the compiler searched.
+The key is the prefix `features.aggrega.ai/requiredType.` followed by a label you choose; the value is the Feature type URI at least one attachment must carry. The label names the requirement in the diagnostic an unmet mandate produces — `audit` and `compliance` above — and that is its whole job. Labelled keys are how a Component declares more than one mandate at once: annotations are a flat string map and cannot carry a duplicate key.
 
-The mechanism enforces architectural invariants the Component contract demands. A payment-processing Component that requires `core/audit-logging` ensures every deployment carries the audit-logging Feature regardless of whether the developer remembered to attach it; a PCI-compliant Component requiring `core/pci-compliance` cannot ship without the compliance Feature being explicitly attached at the Release surface.
+The compiler evaluates each mandate against the instance's **final** attachment set, after the 5-Tier Onion Model cascade has folded every scope: the Aggregate's component-level and subsystem-level `features:` blocks, the Release's boundary-level and component-level `features:` blocks, and attachments produced by annotation-driven expansion. Any of them satisfies the mandate — the rule tests what is present, never how it got there. So a Component whose mandate is met only because an operator set a monitoring annotation in the Release passes exactly as one whose developer attached the Feature by hand.
 
-The diagnostic message is documented at [`errors/fatal-halts.md`](../errors/fatal-halts.md) "Required feature not attached".
+A mandate that no attachment satisfies halts the build with a diagnostic naming the component instance, the requirement's label, and the required type. An annotation value is an opaque string, so nothing validates its shape before the compiler reads it; a value that is not a Feature type URI, or a key with no label after the prefix, therefore halts with a **separate** diagnostic saying the declaration is malformed. The two are deliberately distinct: a broken declaration is corrected in the catalog entity, while an unmet requirement is resolved by attaching the Feature — and a typo must never read as a satisfied requirement.
+
+Both diagnostics are documented at [`errors/fatal-halts.md`](../errors/fatal-halts.md) "Required feature not attached".
+
+**A mandate is not a slot.** The two surfaces answer different questions and the difference is not cosmetic:
+
+| | `featuresSchema` slot | presence mandate |
+|---|---|---|
+| Declares | a named binding point | a constraint on what must be present |
+| Name is dereferenceable | yes — `from: <slot>` and `.features.<slot>.provides.*` | no — the label names the requirement, nothing else |
+| Cardinality | exactly one fill per slot | at least one attachment of the type |
+| Constrains the fill | `selector`, `inject`, `sensitive` | nothing beyond the type |
+| Satisfied by a free attachment | no — a slot is filled by name | yes — at any scope, under any name |
+
+Reach for a slot when the Recipe needs to *read* what was attached. Reach for a mandate when the Component's contract demands a capability be present and does not care which instance supplies it. A payment-processing Component that mandates `core/audit-logging` gets audit logging in every deployment whether or not the developer remembered to attach it; a PCI-compliant Component that mandates `core/pci-compliance` cannot ship without the compliance Feature attached somewhere in the deployment.
+
+**Inheritance.** A mandate declared on a base Component is inherited by every Component that `extends:` it, because metadata annotations merge along the extends chain with the child winning per key. A child may therefore retarget an inherited mandate by re-declaring the same label with a different type, or add mandates of its own under new labels; it cannot drop one the base declared.
 
 ## Topology Sockets: `usesSchema`
 

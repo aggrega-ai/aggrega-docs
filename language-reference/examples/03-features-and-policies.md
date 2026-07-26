@@ -196,8 +196,8 @@ spec:
       strict_mode: { type: boolean, default: true }
 ```
 
-**4. Platform Catalog: Component with `requiredFeatures`**
-The Architect mandates that any instance of this Component must have an audit logger attached. The compiler halts if the developer omits it.
+**4. Platform Catalog: Component with a presence mandate**
+The Architect mandates that any instance of this Component must have an audit logger attached. The compiler halts if no attachment of that type is present, at any scope.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -208,13 +208,15 @@ metadata:
   labels:
     component.aggrega.ai/type: "server"
     compliance.aggrega.ai/scope: "pci-dss"
+  annotations:
+    features.aggrega.ai/requiredType.audit: core/enterprise-audit-logger
 spec:
-  requiredFeatures:
-    - "core/enterprise-audit-logger"
   schema:
     values:
       merchant_id: { type: string, required: true }
 ```
+
+The `audit` suffix names the requirement in the halt's message; repeat the key with another suffix to mandate a second type. See [entities/component.md](../entities/component.md) "Presence mandates" for how a mandate differs from a `featuresSchema` slot.
 
 ---
 

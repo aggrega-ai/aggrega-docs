@@ -139,6 +139,18 @@ The umbrella chart version a `helm-chart` boundary emits is currently always
 > not opt out retain the inherited binding; absent keys continue to
 > inherit from the parent cascade as normal.
 
+## Catalog-authored annotations the compiler reads
+
+Everything above is a *provider* annotation: authored on the Release, passed through by the compiler as an opaque string, read by a provider engine. A second, much smaller vocabulary runs the other way — authored by the Architect on a **catalog entity's own** `metadata.annotations`, read by the **compiler**, and never seen by a provider engine. Invariant 1 above is about the provider vocabulary and does not extend to these; the compiler reads exactly the keys listed here and no others.
+
+These keys sit under a `<scope>.aggrega.ai/` sub-prefix, not the bare `aggrega.ai/` prefix, so they are outside the reservation register the matrix above carries and outside the reserved-prefix rule the publishing lint applies to bare-prefix keys.
+
+| Annotation | Authored on | Read by | Purpose |
+| --- | --- | --- | --- |
+| `features.aggrega.ai/requiredType.<label>` | Component `metadata.annotations` | the compiler, over the finalised graph | Declares a **presence mandate**: every instance of this Component must carry at least one attachment whose type equals the annotation's value. `<label>` is an author-chosen suffix that names the requirement in the diagnostic; it is not a slot name and nothing dereferences it. Repeat the key with different labels to declare several mandates. |
+
+The mandate is satisfied by an attachment at any scope — a component-level or subsystem-level `features:` block, a Release boundary-level or component-level block, or annotation-driven expansion — because it tests the instance's final attachment set rather than where each attachment came from. An unmet mandate halts the build naming the label and the required type; a value that is not a Feature type URI, or a key with no label after the prefix, halts with a distinct malformed-declaration diagnostic. Full authoring treatment, and how a mandate differs from a `featuresSchema` slot, is at [`entities/component.md`](../entities/component.md) "Presence mandates".
+
 ## Provenance labels emitted by providers
 
 The annotations above flow *into* the build — the Release authors them, providers consume them. Providers also emit a parallel set of labels *out of* the build, attaching them to the rendered output so downstream tooling can attribute runtime resources back to the catalog content that produced them. These provenance labels are not authored on the Release; they are derived from the build's own state (Recipe identity, boundary path, aggregate name, environment, sync wave, compiler version) and emitted by the provider at render time.
