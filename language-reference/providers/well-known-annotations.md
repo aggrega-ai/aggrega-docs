@@ -1,6 +1,8 @@
 # Well-Known Annotations
 
-Provider engines read specific boundary annotations from the Release to configure platform-specific deployment context. The compiler itself is blind to these annotations — it passes them through as opaque strings. Each provider documents which annotations it reads and what defaults it applies when the annotation is absent. A provider-rendering Plugin declares the annotation vocabulary its engine reads on its `spec.provider.wellKnownAnnotations`, and `aggrega inspect` renders that declaration for catalog readers. That declaration is deliberately narrow: a provider lists a key only when its engine actually reads it, so a key you find declared there is a key that does something. The **reserved vocabulary** is the wider set, and it lives in two places instead — the matrix in this chapter, which names every reserved key including the ones no engine reads yet, and the reserved-prefix set the publishing lint checks.
+Provider engines read specific boundary annotations from the Release to configure platform-specific deployment context. The compiler itself is blind to these annotations — it passes them through as opaque strings. Each provider documents which annotations it reads and what defaults it applies when the annotation is absent. A provider-rendering Plugin declares the annotation vocabulary its engine reads on its `spec.provider.wellKnownAnnotations`, and `aggrega inspect` renders that declaration for catalog readers. That declaration is deliberately narrow: a provider lists a key only when its engine reads it.
+
+The matrix in this chapter describes those provider declarations, and states each key at a finer grain than the declaration itself carries — per provider **per input kind**, because an engine can read a key when it synthesizes a deployment unit and have no way to read it when it renders a vendored artifact. Author against the matrix here: where a provider's declaration is broader than what its engine reads, this page is the statement of what you actually get. The **reserved vocabulary** is the wider set, and it lives in two places instead — this chapter, which names every reserved key including the ones no engine reads yet, and the reserved-prefix set the publishing lint checks.
 
 ## The Invariants
 
@@ -14,11 +16,26 @@ Provider engines read specific boundary annotations from the Release to configur
 
 ## The Complete Annotation Matrix
 
+### How to read this matrix
+
+The six category tables below name every annotation in the reserved `aggrega.ai/` vocabulary, what it controls, and what the engine does when it is absent. Whether a given provider honours a given key is a finer question, because a provider engine renders more than one **input kind** — a vendored artifact (`sourced`), a Workload the engine synthesizes itself (`synthesized`), or a Recipe's `artifacts:` as a node's whole output (`artifacts-only`) — and a key can be read on one of those paths while being unreachable on another. Which provider renders which input kind is at [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md); what each one honours is [Support by provider and input kind](#support-by-provider-and-input-kind) below, which is this page's authoritative statement.
+
+Every cell in that grid carries one of three tiers:
+
+- **Honoured** — the engine reads the key on this input kind and it changes the rendered output deterministically.
+- **Honoured conditionally** — the compiler emits an *additive* override beside the target artifact instead of editing the artifact, so whether the value takes effect depends on that artifact exposing a matching key of its own. Effective in practice, never a guarantee. **No provider implements a conditional cell today.** The tier is named because the route genuinely exists for a vendored artifact, and a two-tier vocabulary would force the matrix either to claim a guarantee it cannot make or to deny that the route exists at all.
+- **Not honoured** — no engine code reads the key on this path. The value travels through the build as an opaque string and shapes no rendered output there; the category table's **Default** column says what you get instead.
+
+Two scopes, and only one of them makes input kind a meaningful axis:
+
+- **Node-scoped** — `aggrega.ai/namespace`, `aggrega.ai/image-registry`, `aggrega.ai/image-pull-secret` and `aggrega.ai/service-account` shape one component's own rendered output, which the path its input kind selects produces. These are the grid's columns.
+- **Assembly- and reference-scoped** — `aggrega.ai/chart-name` is resolved once when an umbrella chart is assembled, and the three `aggrega.ai/aws-*` keys are resolved when a reference crosses a boundary. Input kind is not an axis for either: the value is read at the assembly or at the reference, however each contributing node was rendered. They have their own table at [Keys resolved per assembly and per reference](#keys-resolved-per-assembly-and-per-reference).
+
 ### Category 1 — Placement
 
-| Annotation | Consumed By | Purpose | Default |
+| Annotation | Honoured by | Purpose | Default |
 | --- | --- | --- | --- |
-| `aggrega.ai/namespace` | `helm`, `compose` | Kubernetes namespace (helm); per-boundary Docker network name (compose) | Not injected if absent (helm); network derived from the boundary path (compose) |
+| `aggrega.ai/namespace` | `helm` (sourced, synthesized); `compose` (sourced, synthesized) | Kubernetes namespace (helm); per-boundary Docker network name (compose) | Not injected if absent (helm); network derived from the boundary path (compose) |
 | `aggrega.ai/project-name` | not yet consumed | Reserved for a Docker Compose project name | — |
 | `aggrega.ai/region` | not yet consumed | Reserved for a cloud region at placement scope | — |
 | `aggrega.ai/account-id` | not yet consumed | Reserved for a cloud account identifier at placement scope | — |
@@ -27,14 +44,14 @@ Provider engines read specific boundary annotations from the Release to configur
 
 ### Category 2 — Registry
 
-| Annotation | Consumed By | Purpose | Default |
+| Annotation | Honoured by | Purpose | Default |
 | --- | --- | --- | --- |
-| `aggrega.ai/image-registry` | `helm`, `compose` | Registry prefix for container images, applied to every synthesised container image reference | No prefix |
-| `aggrega.ai/image-pull-secret` | `helm` | Kubernetes `imagePullSecrets` name, unioned into the synthesised pod's existing entries | None |
+| `aggrega.ai/image-registry` | `helm`, `compose` — synthesized only | Registry prefix for container images, applied to every synthesised container image reference | No prefix |
+| `aggrega.ai/image-pull-secret` | `helm` — synthesized only | Kubernetes `imagePullSecrets` name, unioned into the synthesised pod's existing entries | None |
 
 ### Category 3 — Networking
 
-| Annotation | Consumed By | Purpose | Default |
+| Annotation | Honoured by | Purpose | Default |
 | --- | --- | --- | --- |
 | `aggrega.ai/cluster-domain` | not yet consumed | Reserved for a DNS suffix for cross-namespace service discovery | — |
 | `aggrega.ai/ingress-class` | not yet consumed | Reserved for a Kubernetes IngressClass on Ingress resources | — |
@@ -42,40 +59,81 @@ Provider engines read specific boundary annotations from the Release to configur
 
 ### Category 4 — Security
 
-| Annotation | Consumed By | Purpose | Default |
+| Annotation | Honoured by | Purpose | Default |
 | --- | --- | --- | --- |
-| `aggrega.ai/service-account` | `helm` | Kubernetes `ServiceAccount` for synthesised Pods; overrides the Recipe's `workload.serviceAccount` when both are set | The Recipe's `workload.serviceAccount`, or unset when the Recipe declares none |
+| `aggrega.ai/service-account` | `helm` — synthesized only | Kubernetes `ServiceAccount` for synthesised Pods; overrides the Recipe's `workload.serviceAccount` when both are set | The Recipe's `workload.serviceAccount`, or unset when the Recipe declares none |
 | `aggrega.ai/pod-security-standard` | not yet consumed | Reserved for a Pod Security Standards level | — |
 | `aggrega.ai/iam-role` | not yet consumed | Reserved for a cloud identity role bound to a workload | — |
 
 ### Category 5 — Packaging
 
-| Annotation | Consumed By | Purpose | Default |
+| Annotation | Honoured by | Purpose | Default |
 | --- | --- | --- | --- |
-| `aggrega.ai/chart-name` | `helm-chart` | Umbrella chart name | Aggregate name and boundary name joined, or the boundary name alone when the Aggregate is unnamed |
+| `aggrega.ai/chart-name` | `helm-chart` — per assembly | Umbrella chart name | Aggregate name and boundary name joined, or the boundary name alone when the Aggregate is unnamed |
 | `aggrega.ai/chart-version` | not yet consumed | Reserved for a Helm chart version | — |
 | `aggrega.ai/stack-name` | not yet consumed | Reserved for an explicitly named deployment stack | — |
 | `aggrega.ai/tf-backend` | not yet consumed | Reserved for a Terraform state backend identifier | — |
 
 ### Category 6 — Cloud target
 
-| Annotation | Consumed By | Purpose | Default |
+| Annotation | Honoured by | Purpose | Default |
 | --- | --- | --- | --- |
-| `aggrega.ai/aws-account` | `cloudformation` | AWS account the stack (boundary) deploys into | Same-account — a cross-stack reference resolves through a same-account stack-export import |
-| `aggrega.ai/aws-region` | `cloudformation` | AWS region the stack (boundary) deploys into | Same-region — a cross-stack reference resolves through a same-region stack-export import |
-| `aggrega.ai/aws-assume-role-arn` | `cloudformation` | IAM role ARN a cross-account stack read assumes to reach a peer stack's exported values | No role is supplied on a cross-account reference |
+| `aggrega.ai/aws-account` | `cloudformation` — per cross-boundary reference | AWS account the stack (boundary) deploys into | Same-account — a cross-stack reference resolves through a same-account stack-export import |
+| `aggrega.ai/aws-region` | `cloudformation` — per cross-boundary reference | AWS region the stack (boundary) deploys into | Same-region — a cross-stack reference resolves through a same-region stack-export import |
+| `aggrega.ai/aws-assume-role-arn` | `cloudformation` — per cross-boundary reference | IAM role ARN a cross-account stack read assumes to reach a peer stack's exported values | No role is supplied on a cross-account reference |
 
 Each CloudFormation boundary renders into one stack. When a `uses` edge crosses
 from one boundary to another, the `cloudformation` engine needs to know where the
 peer stack lives to shape the reference: two stacks in the same account and region
 exchange values through a stack export and import; a peer in a different account or
 region needs a cross-account stack-output read, optionally under an assumed role.
-These annotations carry that placement context. They are opaque scalar pointer
+These annotations carry that placement context. Each is read at the moment the
+engine shapes such a reference, and resolved through the ordinary annotation
+cascade at that moment — a value set on the component wins over a value set on
+the boundary. A boundary-level value is therefore the common way to express
+them, not the only one. They are opaque scalar pointer
 strings — the engine pipes them into the reference it builds and never resolves
 them against live AWS state; the account, region, and role are supplied by the
 Release, and the runtime environment resolves the final physical read. When every
 annotation is absent, the engine treats the peer as same-account and same-region
 and supplies no role.
+
+### Support by provider and input kind
+
+The node-scoped keys, per provider per input kind. `honoured` and `—` carry the tiers defined above, `—` being *not honoured*; `n/a` means the provider does not render that input kind at all, so no path exists there for the key to be honoured on or missed on.
+
+| Provider | Input kind | `namespace` | `image-registry` | `image-pull-secret` | `service-account` |
+| --- | --- | --- | --- | --- | --- |
+| `helm` | sourced | honoured | — | — | — |
+| `helm` | synthesized | honoured | honoured | honoured | honoured |
+| `helm` | artifacts-only | — | — | — | — |
+| `compose` | sourced | honoured (network name) | — | — | — |
+| `compose` | synthesized | honoured (network name) | honoured | — | — |
+| `compose` | artifacts-only | n/a | n/a | n/a | n/a |
+| `helm-chart` | sourced | — | — | — | — |
+| `helm-chart` | synthesized | n/a | n/a | n/a | n/a |
+| `helm-chart` | artifacts-only | n/a | n/a | n/a | n/a |
+| `terraform` | sourced | — | — | — | — |
+| `terraform` | synthesized | n/a | n/a | n/a | n/a |
+| `terraform` | artifacts-only | — | — | — | — |
+| `cloudformation` | sourced | — | — | — | — |
+| `cloudformation` | synthesized | n/a | n/a | n/a | n/a |
+| `cloudformation` | artifacts-only | — | — | — | — |
+
+A Recipe may declare more than one input kind at once — a `workload:` with `artifacts:` alongside it, for instance. Read the grid per kind: the synthesized output of such a node is the `synthesized` row, and its artifact files are the artifacts case. The `artifacts-only` row is the input kind where a Recipe declares `artifacts:` and nothing else.
+
+**Why a vendored artifact honours fewer keys.** A node-scoped annotation is honoured where the engine has a render slot for it. When the engine synthesizes the deployment unit itself it owns every field of the result, so a registry prefix, a pull secret and a service account all have somewhere to land. A vendored artifact — a Helm chart, a compose file, a Terraform module — carries its own configuration interface instead, and the compiler does not read that interface, so it cannot know which of the artifact's own keys a registry prefix or a service account would correspond to. Placement that the surrounding render call controls still applies, which is why a chart rendered from source honours `aggrega.ai/namespace`. Placement that would mean deciding where inside someone else's artifact a value belongs does not, and an author supplies it through that artifact's own values. This is why the sourced rows are sparse where the synthesized rows are full, and it is the shape to expect of any key added later.
+
+### Keys resolved per assembly and per reference
+
+Four of the shipped keys are not node-scoped, so they sit outside the grid above rather than being folded into it: input kind is not a meaningful axis for them, and giving each one a row per input kind would repeat a single cell three times and imply a distinction that does not exist.
+
+| Annotation | Honoured by | Resolved | Behaviour |
+| --- | --- | --- | --- |
+| `aggrega.ai/chart-name` | `helm-chart` | once per umbrella-chart assembly, from the boundary annotation cascade | Names the umbrella chart. Every contributor to one assembly must resolve the key to the same value; disagreement halts the build naming the boundaries. |
+| `aggrega.ai/aws-account` | `cloudformation` | per cross-boundary reference, component value over boundary value | Shapes the reference to a peer stack — see Category 6 above. |
+| `aggrega.ai/aws-region` | `cloudformation` | per cross-boundary reference, component value over boundary value | Shapes the reference to a peer stack — see Category 6 above. |
+| `aggrega.ai/aws-assume-role-arn` | `cloudformation` | per cross-boundary reference, component value over boundary value | Supplies the role a cross-account read assumes — see Category 6 above. |
 
 ### Reserved names no provider reads yet
 
