@@ -4,7 +4,7 @@ The conceptual role of the Release entity (Domain 4 — the deployment router bi
 
 ## The Release's Role
 
-The Release binds an `aggregate` to a `manifest` and maps components to physical deployment boundaries (e.g., `aws-eks-production`). It is the single entry point for compilation: `aggrega build release.yaml`.
+The Release binds an `aggregate` to a `manifest` and maps components to physical deployment boundaries (e.g., `aws-eks-production`). It is the single entry point for compilation: `aggrega build --release release.yaml`.
 
 The Release fulfills the abstract aggregate contract by injecting physical realities strictly into the `parameters` block, and injects physical sizing (like CPUs or ports) via the `infra` parallel namespace.
 
@@ -354,7 +354,7 @@ spec:
     db_size: 1Gi
 ```
 
-`local-release` inherits the parent's boundary topology, Feature attachments, and component overrides; the developer sees one `local-release.yaml` and runs `aggrega build local-release.yaml` with no production-config duplication.
+`local-release` inherits the parent's boundary topology, Feature attachments, and component overrides; the developer sees one `local-release.yaml` and runs `aggrega build --release local-release.yaml` with no production-config duplication.
 
 **Multi-file parameter layering.** Release inheritance is the home for multi-file parameter layering. A base Release supplies the common parameter set; per-environment children `extends:` the base and override the slots that differ:
 

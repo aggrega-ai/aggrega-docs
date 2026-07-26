@@ -195,7 +195,7 @@ spec:
 ```
 
 **4. Routing Domain: The Local Dev Release (Permissive Escape Hatch)**
-A flat, single boundary with compose-friendly parameters. The developer runs `aggrega build local-release.yaml` and gets a Docker Compose file.
+A flat, single boundary with compose-friendly parameters. The developer runs `aggrega build --release local-release.yaml` and gets a Docker Compose file.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1

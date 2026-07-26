@@ -476,7 +476,7 @@ The Release supplies parameter values for production. The Aggregate's typed-para
 
 ## End-to-end build
 
-`aggrega build releases/prod-release.yaml` runs the compilation pipeline:
+`aggrega build --release releases/prod-release.yaml` runs the compilation pipeline:
 
 1. **Step 1.** Parameter contract validation against the Aggregate's typed `parameters:` declarations; Release overrides applied; defaults filled; interpolation into the Aggregate's `components.X.values:` templates; parameter purge.
 2. **Step 2.** Graph assembly; `db` and `api` Components instantiated; dependency edge `api → db` recorded.

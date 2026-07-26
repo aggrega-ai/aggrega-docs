@@ -78,7 +78,7 @@ spec:
 ```
 
 **5. Routing Domain: The Release (Deployment Router)**
-The Release binds the Aggregate to the Manifest and routes Components into physical boundaries. This is the single entry point for the compiler: `aggrega build release.yaml`.
+The Release binds the Aggregate to the Manifest and routes Components into physical boundaries. This is the single entry point for the compiler: `aggrega build --release release.yaml`.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -97,7 +97,7 @@ spec:
         my-site: {}
 ```
 
-**Compilation:** `aggrega build release.yaml` → The compiler resolves `my-site` (type `core/web-server:1.0.0`) → looks up `core/web-server` in the Manifest's `components.type` map → finds `core/helm/web-server-helm:1.0.0` → loads the Recipe (its `spec.target: helm` carries the provider) → renders the chart into `dist/boundaries/default-cluster/`.
+**Compilation:** `aggrega build --release release.yaml` → The compiler resolves `my-site` (type `core/web-server:1.0.0`) → looks up `core/web-server` in the Manifest's `components.type` map → finds `core/helm/web-server-helm:1.0.0` → loads the Recipe (its `spec.target: helm` carries the provider) → renders the chart into `dist/boundaries/default-cluster/`.
 
 ---
 

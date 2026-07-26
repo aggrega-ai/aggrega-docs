@@ -112,7 +112,7 @@ Step 5 — renderer dispatch and per-engine rendering.
 | `ErrFetchNotFound` | `oci: artifact not found at remote source` | A pinned entity, chart, or module is not present at the registry / remote source — or, under offline mode, not in the local cache. |
 | `ErrFetchUnauthorized` | `oci: authentication required or failed` | The registry or source rejected the request; the message carries a remediation pointer (e.g. `docker login <registry>`). |
 | `ErrFetchNetworkUnreachable` | `oci: network unreachable` | A transport-layer failure — DNS, connection refused, TLS, or a retry-class status. |
-| `ErrFetchIntegrity` | `oci: content digest mismatch` | A cached artifact's digest does not match the lockfile entry; remediation: `aggrega pull --upgrade`. |
+| `ErrFetchIntegrity` | `oci: content digest mismatch` | A cached artifact's digest does not match the lockfile entry; remediation: `aggrega pull --upgrade --release <release>`. |
 | `ErrUnknownEntityKind` | `oci: unknown entity kind for mediatype dispatch` | `aggrega push` was given a non-publishable kind (Aggregate, Release, Manifest). |
 | `ErrEntityVersionPathMismatch` | `oci: entity per-version subdirectory mismatch` | A published entity's `metadata.version` does not match its versioned-directory path. |
 
@@ -125,7 +125,7 @@ The per-Release lockfile reader and the build-time drift verifier.
 | Sentinel | Wrapped message | User-facing surface |
 | --- | --- | --- |
 | `ErrLockfileInvalid` | `lockfile: file failed schema validation` | The `<release-stem>.lock` file is structurally malformed (older and partial shapes load with diagnostics rather than this error). |
-| `ErrLockfileDrift` | `lockfile: out of date; it no longer matches the current catalog` | A build's resolved dependencies do not match the lockfile; remediation: `aggrega pull --upgrade`. |
+| `ErrLockfileDrift` | `lockfile: out of date; it no longer matches the current catalog` | A build's resolved dependencies do not match the lockfile; remediation: `aggrega pull --upgrade --release <release>`. |
 
 ## Dependency-resolution sentinels (`pkg/closure`)
 
