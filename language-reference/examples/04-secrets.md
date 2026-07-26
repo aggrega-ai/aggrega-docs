@@ -6,14 +6,14 @@ Implementing a credential pattern end-to-end touches six surfaces across the fou
 
 | Step | Surface | Action |
 | --- | --- | --- |
-| 1 | Component `featuresSchema:` (or `schema.secrets`) | **Declare** the credential slot. Slot definitions specify the slot name, whether it is `required`, the `inject:` allowlist (`[env]`, `[file]`, `[]` for blackbox), and a description. The Component author chooses White-Box (transparent: developer dictates delivery) or Black-Box (opaque: Recipe controls delivery) by setting the `inject:` allowlist accordingly. |
+| 1 | Component `featuresSchema:` | **Declare** the credential slot. Slot definitions specify the slot name, whether it is `required`, the `inject:` allowlist (`[env]`, `[file]`, `[]` for blackbox), and a description. The Component author chooses White-Box (transparent: developer dictates delivery) or Black-Box (opaque: Recipe controls delivery) by setting the `inject:` allowlist accordingly. |
 | 2 | Credential Feature `schema:` | **Define** the vault-query contract for the credential type. The Feature carries the `feature.aggrega.ai/kind: secret` label and declares the values keys (e.g., `path`, `key`) that authors supply when requesting the credential. |
-| 3 | Aggregate component instance `secrets:` block | **Request** the credential at the developer's authoring surface. The block specifies the credential Feature `type`, the vault-query `values`, and (for White-Box slots only) the `inject:` mapping that wires the resolved credential to the application's expected delivery shape. |
+| 3 | Aggregate component instance `features:` block | **Request** the credential at the developer's authoring surface — the one attachment keyword, the same one an operational Feature uses. The attachment specifies the credential Feature `type`, the store-query `values`, and (for White-Box slots only) the `inject:` mapping that wires the resolved credential to the application's expected delivery shape. |
 | 4 | FeatureRecipe `pipeline:` (Two-Part Plugin Principle) | **Implement** the credential's runtime resolution. The Fetcher plugin generates the cloud-specific CRD (`ExternalSecret`, `VaultSecret`, etc.) referencing the developer's vault path; the Injector plugin mounts the resolved Kubernetes Secret to the target container at the developer's requested key. Swapping vaults (AWS → HashiCorp) only replaces the Fetcher; the Injector is reusable. |
-| 5 | Manifest `mappings.features.type` | **Bind** the credential Feature type to its FeatureRecipe, in the same `features.type` tier as operational Features. There is no separate `secrets` mapping section. Provider dispatch flows from each resolved FeatureRecipe's `spec.target` field at orchestrator time, not from a per-provider Manifest tier. |
-| 6 | Recipe `valuesMapping:` template (Black-Box only) | **Reference** the dictated physical secret name when the slot is Black-Box. The Recipe's `valuesMapping:` consumes `{{ .locals.secret_target_<slot> }}` (or the equivalent Recipe-published pointer) and feeds the chart's native secret-mount mechanism (`existingSecret`, etc.). White-Box slots skip this step — the Workload's `secrets:` block carries the delivery directly. |
+| 5 | Manifest `mappings.features.type` | **Bind** the credential Feature type to its FeatureRecipe, in the same `features.type` tier as operational Features. Provider dispatch flows from each resolved FeatureRecipe's capability at orchestrator time, not from a per-provider Manifest tier. |
+| 6 | Recipe `valuesMapping:` template (Black-Box only) | **Reference** the dictated physical secret name when the slot is Black-Box. The Recipe's `valuesMapping:` consumes `{{ .locals.secret_target_<slot> }}` (or the equivalent Recipe-published pointer) and feeds the chart's native secret-mount mechanism (`existingSecret`, etc.). White-Box slots skip this step — the Workload's `attachments:` block carries the delivery directly. |
 
-The split between White-Box (Steps 1, 2, 3, 4, 5) and Black-Box (Steps 1, 2, 3, 4, 5, 6) determines how many touch-points a particular credential pattern requires. White-Box is five surfaces; Black-Box is six. The audit's "six artefact touches" framing covers the Black-Box case, which is the heavier of the two and the one Recipe authors most often implement when wrapping packaged infrastructure (Bitnami charts, managed services, etc.).
+The split between White-Box (Steps 1, 2, 3, 4, 5) and Black-Box (Steps 1, 2, 3, 4, 5, 6) determines how many touch-points a particular credential pattern requires. White-Box is five surfaces; Black-Box is six — the heavier of the two, and the one Recipe authors most often implement when wrapping packaged infrastructure (Bitnami charts, managed services, etc.).
 
 The three worked examples below demonstrate the pattern across the canonical scenarios: White-Box (Example 11), Black-Box (Example 12), and Feature-Level isolation (Example 13).
 
@@ -36,7 +36,7 @@ spec:
     values:
       image: { type: string, required: true }
     # White-Box: developer MUST dictate delivery
-    secrets:
+    features:
       type: object
       additionalProperties:
         type: object
@@ -50,7 +50,7 @@ spec:
 ```
 
 **2. Platform Catalog: The Credential Feature**
-A Feature labeled as a credential feature. The compiler enforces the partition: this Feature can only appear in `secrets:` blocks, never in `features:`.
+A Feature labeled as a credential feature. The label is metadata describing what the attachment produces; it is attached under `features:` like any other Feature.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -59,7 +59,7 @@ metadata:
   name: core/aws-secrets-manager
   version: 1.0.0
   labels:
-    feature.aggrega.ai/kind: "secret"       # The credential partition label
+    feature.aggrega.ai/kind: "secret"       # Opaque metadata: names what the attachment produces
 spec:
   schema:
     values:
@@ -82,7 +82,7 @@ spec:
       type: core/python-worker:2.0.0
       values:
         image: "corp/finance-agent:v2"
-      secrets:
+      features:
         openai_key:
           type: core/aws-secrets-manager:1.0.0
           values:
@@ -113,7 +113,7 @@ spec:
       function: generate_external_secret
       with: |
         secret_path: "{{ .values.path }}"
-        k8s_secret_name: "{{ .context.instance_id }}-{{ .secret_name }}"
+        k8s_secret_name: "{{ .context.instance_id }}-{{ .attachment_name }}"
         remote_key: "{{ .values.key }}"
 
     - id: "workload_injector"
@@ -153,7 +153,7 @@ spec:
 When deploying packaged infrastructure (e.g., Bitnami Redis), the developer provides the vault location but is blocked from dictating how the chart internally consumes the credential.
 
 **1. Platform Catalog: The Component (Black-Box Enforcement)**
-The `featuresSchema` declares the credential slot as required and blackbox (`inject: []`). The compiler auto-generates the schema rules that validate the developer's `secrets:` block — no `secrets:` pillar needed inside `schema:`.
+The `featuresSchema` declares the credential slot as required and blackbox (`inject: []`). The compiler auto-generates the schema rules that validate the developer's attachment — no separate pillar needed inside `schema:`.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -188,7 +188,7 @@ spec:
   components:
     cache-db:
       type: core/redis:1.0.0
-      secrets:
+      features:
         admin_password:
           type: core/aws-secrets-manager:1.0.0   # Uses credential Feature from Example 11
           values:
@@ -229,10 +229,10 @@ spec:
       existingSecretPasswordKey: "redis-password"
 ```
 
-For a runnable end-to-end walkthrough of the `.secrets.<slot>.provides.name` → chart `existingSecret` flow — a chart-wrap Recipe consuming a multi-key credential Secret by its published name — see the [`mariadb-bitnami-credential-set`](mariadb-bitnami-credential-set/) example.
+For a runnable end-to-end walkthrough of the `.features.<slot>.provides.name` → chart `existingSecret` flow — a chart-wrap Recipe consuming a multi-key credential Secret by its published name — see the [`mariadb-bitnami-credential-set`](mariadb-bitnami-credential-set/) example.
 
 **4. Ops Domain: The FeatureRecipe**
-The Fetcher plugin dynamically indexes the Base Recipe's exported key using the `.secret_name` context variable (`"admin_password"`) to extract the dictated physical name.
+The Fetcher plugin dynamically indexes the Base Recipe's exported key using the `.attachment_name` context variable (`"admin_password"`) to extract the dictated physical name.
 
 > **The `pipeline:` field executes during `aggrega build`: the compiler runs each declared step in order against the rendered document set. See [Status of the Language](../10-status.md#compilation-pipeline-phases) for the per-phase readiness.**
 
@@ -252,7 +252,7 @@ spec:
       with: |
         secret_path: "{{ .values.path }}"
         # Dynamically reads the target name dictated by the Base Recipe
-        k8s_secret_name: '{{ index .locals (printf "secret_target_%s" .secret_name) }}'
+        k8s_secret_name: '{{ index .locals (printf "secret_target_%s" .attachment_name) }}'
         remote_key: "{{ .values.key }}"
 ```
 
@@ -302,7 +302,7 @@ spec:
           type: core/lakera-guard:1.0.0
           values:
             action: "redact"
-          secrets:
+          features:
             lakera_api_key:
               type: core/aws-secrets-manager:1.0.0
               values:

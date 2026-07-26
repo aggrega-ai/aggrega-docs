@@ -40,7 +40,7 @@ the Manifest changes per target.
   capability-agnostic `Workload`; the compose engine synthesizes a
   `docker-compose.yaml` service with the MySQL image, its environment, a named
   data volume, and health checks.
-- **Two-slot credential model.** Passwords live in the component's `secrets:`
+- **Two-slot credential model.** Passwords are attachments on the component's `features:`
   pillar, each a Feature labeled `feature.aggrega.ai/kind: secret`, kept apart
   from application `values`. The Component's `featuresSchema` declares a Black-Box
   `root_password` slot and a transparent `user_password` slot.
@@ -56,9 +56,9 @@ Kubernetes Secret is generated for it.
 `user_password` is a **transparent** slot (`inject: [env, file]`). The full
 variant attaches a referenceable credential, which materializes a Kubernetes
 Secret and publishes its identity; the Recipe references the slot through
-`containers.secrets`, which the synthesizer renders as an env `secretKeyRef`. The
+`containers.attachments`, which the synthesizer renders as an env `secretKeyRef`. The
 generated Secret and the container's reference name the same resource because
-both read `.secrets.user_password.provides.name`. Leaving `user_password`
+both read `.features.user_password.provides.name`. Leaving `user_password`
 unattached (the base variant) is also valid: the Recipe falls back to an inline
 development default (`MYSQL_PASSWORD: apppass`) and no Secret is generated, so a
 minimal deployment still renders and runs.

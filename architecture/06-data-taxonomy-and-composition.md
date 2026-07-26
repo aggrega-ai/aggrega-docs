@@ -187,9 +187,9 @@ The compiler and the core schemas enforce the following structural rules.
   * **Example:** Developer writes `workers: "{{ .parameters.env_workers }}"` in their `values` block.
   * **Why:** If the Aggregate declares `env_workers` as a typed parameter (`type: integer`), the compiler first validates the Release-provided value against the contract. Parameter contract validation happens *before* interpolation; interpolation happens *before* the surrounding `values:` schema validation. This preserves the reusability of the Aggregate: Ops supplies the integer via the `Release`'s `parameters:`, the compiler validates it against the typed `parameters:` declaration, interpolates the resolved value into the surrounding `values:` string, and the Component's `schema:` declaration successfully validates the resulting integer.
 
-* **Constraint 1: Strict Credential Scoping**
-  * **Unsupported pattern:** Developer writes `values: { password: "123" }` under a `secrets` block.
-  * **Why:** The schema requires strictly typed credential Features mapped to the component. Secrets must reference a credential Feature `type` (labeled `feature.aggrega.ai/kind: secret`) and use `values` to query an external vault. The compiler enforces the partition: only credential-labeled Features are accepted in the `secrets:` block.
+* **Constraint 1: Credentials Are Attachments, Not Values**
+  * **Discouraged pattern:** Developer writes `values: { password: "123" }` on a component.
+  * **Why:** the standard-library convention is that a credential is requested as an attachment under `features:`, naming a credential Feature `type` (one labeled `feature.aggrega.ai/kind: secret`) and using that attachment's own `values` to describe the query against a secret store. This is a convention, not a compiler check — the compiler is blind to what a `values` leaf means and will carry an inline literal verbatim. The attachment surface is what makes the well-authored form available and typed.
 
 * **Constraint 2: Capability-Agnostic Components**
   * **Unsupported pattern:** Architect writes `aws_instance_type: string` in the Component's `schema:` declaration.

@@ -100,7 +100,7 @@ compilation notices, because both spellings are valid strings.
 
 Reading `.features.identity.provides.name` removes the second spelling. The same
 shape applies to every attachment: a credential publishes its Secret's locator at
-`.secrets.<slot>.provides.name`, a sidecar publishes its port, an identity
+`.features.<slot>.provides.name`, a sidecar publishes its port, an identity
 publishes its name. The full field-by-field attachment shape is at
 [templates/template-context-contract.md](../../templates/template-context-contract.md#the-attachment-shape).
 

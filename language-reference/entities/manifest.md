@@ -107,7 +107,7 @@ guesses a host for them.
 
 ### Completeness check
 
-After all mappings resolve, the compiler verifies that every component and feature instance (including credential Features attached via the Aggregate's `secrets:` block) in the developer's Aggregate has a resolved Recipe or FeatureRecipe. Unmapped entities cause a fatal halt with an explicit diagnostic listing every missing entity and suggesting which `components.type` or `features.type` key to add to close the gap.
+After all mappings resolve, the compiler verifies that every component and attachment instance (a credential Feature is an attachment like any other) in the developer's Aggregate has a resolved Recipe or FeatureRecipe. Unmapped entities cause a fatal halt with an explicit diagnostic listing every missing entity and suggesting which `components.type` or `features.type` key to add to close the gap.
 
 ### YAML anchors for DRY manifests
 

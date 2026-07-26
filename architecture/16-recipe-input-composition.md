@@ -137,7 +137,7 @@ initContainers:        # ordered list; runs before main containers
     command: []
     args: []
     variables: {}
-    secrets: {}
+    attachments: {}
     volumeMounts: []
     resources: { ... }
     securityContext: { ... }
@@ -149,9 +149,9 @@ containers:            # ordered map (YAML author order preserved)
     args: []
     variables:         # string → string environment variables
       KEY: "value"
-    secrets:           # env/file name → { from: slot_name, as: env|file, path?: /path }
+    attachments:       # env/file name → { from: slot_name, as: env|file, path?: /path }
       ENV_NAME:
-        from: secret_slot_name
+        from: slot_name
         as: env | file
         path: /path/here       # required when as: file
     ports:             # named port → port number
@@ -239,13 +239,13 @@ The Workload entity authoring page at [../language-reference/entities/workload.m
 
 ### Secrets Integration with `featuresSchema`
 
-The Workload's `containers.<name>.secrets` block *references* slots declared by the Component's `featuresSchema`; it does not declare new slots. See [../language-reference/entities/component.md](../language-reference/entities/component.md) for the `featuresSchema` authoring surface.
+The Workload's `containers.<name>.attachments` block *references* slots declared by the Component's `featuresSchema`; it does not declare new slots. See [../language-reference/entities/component.md](../language-reference/entities/component.md) for the `featuresSchema` authoring surface.
 
 The validation contract:
 
-- Every `secrets.<KEY>.from` value must match a slot name declared in the Component's `featuresSchema`.
+- Every `attachments.<KEY>.from` value must match a slot name declared in the Component's `featuresSchema`.
 - The `as:` delivery mechanism (`env` or `file`) must be allowlisted in that slot's `inject:` array.
-- Slots marked `inject: []` (blackbox) in the Component's `featuresSchema` cannot appear in Workload `secrets:` blocks — those slots are delivered by the Recipe's internal plumbing (e.g., via Helm `existingSecret`), not via Workload exposure.
+- Slots marked `inject: []` (blackbox) in the Component's `featuresSchema` cannot appear in Workload `attachments:` blocks — those slots are delivered by the Recipe's internal plumbing (e.g., via Helm `existingSecret`), not via Workload exposure.
 
 Example:
 
@@ -264,7 +264,7 @@ spec:
 workload: |
   containers:
     main:
-      secrets:
+      attachments:
         DB_PASSWORD:                 # OK — db_password slot allows env inject
           from: db_password
           as: env
@@ -440,7 +440,7 @@ Produces `.../monitor.yaml` and `.../netpol.yaml`. Filename collisions across `a
 
 Artifact templates have access to the full pillar context:
 
-- `.values`, `.infra`, `.context.*`, `.locals`, `.provides`, `.features`, `.secrets`, `.metadata` — the standard Aggrega pillars described in [06-data-taxonomy-and-composition.md](06-data-taxonomy-and-composition.md).
+- `.values`, `.infra`, `.context.*`, `.locals`, `.provides`, `.features`, `.metadata` — the standard Aggrega pillars described in [06-data-taxonomy-and-composition.md](06-data-taxonomy-and-composition.md).
 - `.workload` — the parsed Workload spec for this Recipe (if present). Allows artifacts to reference Workload values without duplication, e.g., a ServiceMonitor referencing `.workload.services.metrics.ports.prom`.
 - `.source` — the resolved `source:` field content (if present).
 
@@ -504,7 +504,7 @@ Multi-provider composition happens at the Release level. Boundaries hold mixed-p
 
 **Not Recipes-in-Recipes.** Artifacts do not load or compose other Recipes. They are inline manifests (or file paths to inline manifests), templated with this Recipe's pillars, emitted to this Recipe's output. Recipe reuse happens through three mechanisms: `extends:` (inheritance of metadata and schemas, not of output files); the Manifest's flat-URI mapping (the same Component can resolve to different Recipes across catalogs — see [../language-reference/entities/manifest.md](../language-reference/entities/manifest.md)); and Features + FeatureRecipes (cross-cutting concerns attached orthogonally).
 
-**Not a cross-Recipe glue layer.** Artifacts cannot reference names, resources, or state that the Recipe did not itself declare. A ConfigMap artifact referenced by the Recipe's Workload must be emitted by this Recipe. An artifact that expects an externally-provisioned Secret must get that Secret's name via the `.secrets` pillar, not assume it exists. This is the self-containment invariant (above) stated from the artifact-authoring perspective: each Recipe emits files in one format, applied by one tool, into one boundary's output directory.
+**Not a cross-Recipe glue layer.** Artifacts cannot reference names, resources, or state that the Recipe did not itself declare. A ConfigMap artifact referenced by the Recipe's Workload must be emitted by this Recipe. An artifact that expects an externally-provisioned Secret must get that Secret's name via the `.features` pillar — from the resolved `provides` of the attachment that emits it — not assume it exists. This is the self-containment invariant (above) stated from the artifact-authoring perspective: each Recipe emits files in one format, applied by one tool, into one boundary's output directory.
 
 ## Provider Capability Matrix
 

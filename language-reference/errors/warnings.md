@@ -48,12 +48,12 @@ LINT: Manifest annotation binding 'compliance.aggrega.ai/data-class' on Feature 
 
 **Why it exists.** Declaring a slot does not close the attachment surface: an attachment under a name no slot declares is legal, because that openness is what lets one catalog entity serve both a slot-filled attachment and a credential shared at a broader scope. The cost is that a misspelled slot name is silently a *free attachment* rather than a fill of the slot the author meant — the build succeeds and the slot simply stays empty. The lint is the disclosed mitigation for exactly that case.
 
-**Pipeline placement.** The lint runs at Step 1, in the same pass as the catalog-aware semantic guards, over the resolved Aggregate. It walks every component instance's attachment names in both authoring blocks against the declared slot names of that instance's Component type, and emits one warning per near-miss pair.
+**Pipeline placement.** The lint runs at Step 1, in the same pass as the catalog-aware semantic guards, over the resolved Aggregate. It walks every component instance's attachment names against the declared slot names of that instance's Component type, and emits one warning per near-miss pair.
 
 **Emit shape:**
 
 ```text
-LINT: Aggregate 'nearmiss' at .spec.components["db"].secrets["app_user_passwrod"]: attachment "app_user_passwrod" on component "db" is not a declared slot of type "core/datastore/postgres", but the type declares the slot "app_user_password" — if "app_user_password" was meant, the attachment is currently a free attachment and does not fill it
+LINT: Aggregate 'nearmiss' at .spec.components["db"].features["app_user_passwrod"]: attachment "app_user_passwrod" on component "db" is not a declared slot of type "core/datastore/postgres", but the type declares the slot "app_user_password" — if "app_user_password" was meant, the attachment is currently a free attachment and does not fill it
 ```
 
 **Editor visibility.** The warning also reaches editor diagnostics through the language server, at warning severity, positioned on the offending authoring site. An author who never reads terminal output still sees the pair.

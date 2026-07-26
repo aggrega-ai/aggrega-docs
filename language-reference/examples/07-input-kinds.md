@@ -1,10 +1,10 @@
 # Recipe Input Kinds — Worked Examples
 
-Four worked Recipes exercising the three input kinds (sourced, synthesized, artifacts) in different combinations. The conceptual composition model — how the three kinds compose by addition — lives in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md). The Workload kind's authoring surface lives in [../entities/workload.md](../entities/workload.md); the Recipe entity's keyword surface in [../entities/recipe.md](../entities/recipe.md); and the pillar context (`.values`, `.infra`, `.context`, `.locals`, `.secrets`) in [../vocabulary/data-pillars.md](../vocabulary/data-pillars.md).
+Four worked Recipes exercising the three input kinds (sourced, synthesized, artifacts) in different combinations. The conceptual composition model — how the three kinds compose by addition — lives in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md). The Workload kind's authoring surface lives in [../entities/workload.md](../entities/workload.md); the Recipe entity's keyword surface in [../entities/recipe.md](../entities/recipe.md); and the pillar context (`.values`, `.infra`, `.context`, `.locals`, `.features`) in [../vocabulary/data-pillars.md](../vocabulary/data-pillars.md).
 
 ## Example 22: Minimal synthesized Recipe (stateless HTTP service)
 
-Pattern: **synthesized mode** — no `source:`, no `artifacts:`; the Workload alone drives all output. Pillars exercised: `.values`, `.infra`, `.context.inject`, `.secrets`. Expected output: one Deployment + one ClusterIP Service per node.
+Pattern: **synthesized mode** — no `source:`, no `artifacts:`; the Workload alone drives all output. Pillars exercised: `.values`, `.infra`, `.context.inject`, `.features`. Expected output: one Deployment + one ClusterIP Service per node.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -40,8 +40,8 @@ spec:
           {{ $k }}: "{{ $v }}"
           {{- end }}
           LOG_LEVEL: "{{ optional .values `log_level` `info` }}"
-        secrets:
-          {{- range $name, $secret := .secrets }}
+        attachments:
+          {{- range $name, $attachment := .features }}
           {{ upper $name | replace "-" "_" }}:
             from: {{ $name }}
             as: env

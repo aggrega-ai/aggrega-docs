@@ -471,7 +471,7 @@ The allowlist is enforced against the **Recipe's Workload**, at the render step.
 
 The developer-facing side of the same allowlist is a catalog-authoring convention rather than a build-time check: a blackbox slot signals "the Recipe delivers this internally; do not dictate delivery," and an Aggregate that nonetheless authors an `inject:` block on such an attachment is not itself rejected. The load-bearing enforcement is the Workload cross-check above, which is what actually prevents a blackbox credential reaching a container.
 
-The end-to-end flow through the compilation pipeline — how the Aggregate's `secrets:` block connects to a credential Feature (such as `core/secret-value`) and then to a provider-specific FeatureRecipe that delivers the secret to the running workload — is worked through in [examples/05-credential-features](../examples/05-credential-features.md).
+The end-to-end flow through the compilation pipeline — how an Aggregate attachment connects to a credential Feature (such as `core/secret-value`) and then to a provider-specific FeatureRecipe that delivers the credential to the running workload — is worked through in [examples/05-credential-features](../examples/05-credential-features.md).
 
 ### Credential delegation through typed reference fields
 

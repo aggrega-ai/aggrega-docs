@@ -18,7 +18,7 @@ The sentinels listed below are stable across patch releases; renames or removals
 
 ## Resolver-stage sentinels (`pkg/resolver`)
 
-Step 1 of the compilation pipeline — workspace load, parameter interpolation, target-reference validation, inject-contract checks, credential-partition guards, required-feature completeness.
+Step 1 of the compilation pipeline — workspace load, parameter interpolation, target-reference validation, inject-contract checks, attachment-presence completeness.
 
 | Sentinel | Wrapped message | User-facing surface |
 | --- | --- | --- |

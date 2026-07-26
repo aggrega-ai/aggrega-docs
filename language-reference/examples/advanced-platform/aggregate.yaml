@@ -33,9 +33,10 @@ spec:
         user: appuser
         charset: utf8mb4
         collation: utf8mb4_general_ci
-      # Credentials live in the secrets: pillar (each Feature is labeled
-      # feature.aggrega.ai/kind: secret), never features:. The two slots the
-      # Component's featuresSchema declares demonstrate both delivery models:
+      # Credentials are attachments on the features: pillar like any other
+      # Feature; the feature.aggrega.ai/kind: secret label names what they
+      # produce. The two slots the Component's featuresSchema declares
+      # demonstrate both delivery models:
       #
       #   - root_password is a BLACK-BOX slot (featuresSchema inject: []): the
       #     FeatureRecipe controls delivery, injecting the value straight into
@@ -47,7 +48,7 @@ spec:
       #
       # Either way the value lands on .context.inject.env.<VAR>, which the
       # database Recipe reads.
-      secrets:
+      features:
         root_password:
           type: core/secret-value
           values:

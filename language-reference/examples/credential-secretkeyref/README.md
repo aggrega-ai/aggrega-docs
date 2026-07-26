@@ -26,20 +26,20 @@ provider below spell the invocation out in full for reference.
 `aggregate-helm.yaml` attaches **`core/referenced-secret`** to the `password`
 slot. The Manifest maps that to `k8s-secret-from-parameter`, which materializes a
 Kubernetes Secret and publishes the Secret's identity as `provides {name, key}`.
-The postgres helm Recipe references the slot through `containers.secrets`, which
+The postgres helm Recipe references the slot through `containers.attachments`, which
 the synthesizer renders as an env `secretKeyRef`.
 
 ```bash
 aggrega build --release release-helm.yaml --catalog ../../../../aggrega-hub/aggrega-catalog
 ```
 
-The generated Secret (`dist/helm/helm/secrets/password/secret.yaml`) and the
+The generated Secret (`dist/helm/helm/features/password/db-secret-db-password.yaml`) and the
 database's `secretKeyRef` (`dist/helm/helm/db-statefulset.yaml`) name the **same**
-resource, because both read `.secrets.password.provides.name` — there is no
+resource, because both read `.features.password.provides.name` — there is no
 re-derivation and no convention for the two sides to agree on:
 
 ```yaml
-# secrets/password/secret.yaml
+# features/password/db-secret-db-password.yaml
 metadata:
   name: "db-password"
 stringData:
@@ -69,7 +69,7 @@ aggrega build --release release-compose.yaml --catalog ../../../../aggrega-hub/a
 
 `aggregate-negative.yaml` attaches the inject-value `core/secret-value` to the
 `password` slot, then builds on **helm**, where the postgres Recipe references the
-slot via `containers.secrets` (a `secretKeyRef`). A `secretKeyRef` needs a Secret
+slot via `containers.attachments` (a `secretKeyRef`). A `secretKeyRef` needs a Secret
 resource to point at, but an inject-value credential publishes none — so the build
 halts loudly:
 
@@ -91,4 +91,4 @@ script:
 
 The fix is to attach a referenceable credential (`core/referenced-secret`), as in
 `aggregate-helm.yaml`. An inject-value credential reaches the container through
-the inject pipe instead, never a `containers.secrets` reference.
+the inject pipe instead, never a `containers.attachments` reference.

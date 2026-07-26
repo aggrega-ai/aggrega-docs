@@ -36,6 +36,12 @@ spec:
   provides:
     host: "{{ .context.instance_id }}"
     port: "{{ .infra.port }}"
+    # user and database are part of core/datastore/mariadb's declared
+    # schema.provides contract, so this realizer publishes them from the
+    # developer's own values — the same keys the standard-library mariadb
+    # Recipe publishes. A realizer that omits a declared key halts.
+    user: "{{ .values.user }}"
+    database: "{{ .values.database }}"
     protocol: "mariadb"
 
   valuesMapping: |
@@ -63,8 +69,8 @@ spec:
     ## ── Authentication (Black-Box) ─────────────────────────────
     auth:
       database: "{{ .values.database }}"
-      {{- if hasKey (default dict (default dict (default dict .secrets).root_password).provides) "name" }}
-      existingSecret: "{{ .secrets.root_password.provides.name }}"
+      {{- if hasKey (default dict (default dict (default dict .features).root_password).provides) "name" }}
+      existingSecret: "{{ .features.root_password.provides.name }}"
       {{- end }}
       {{- if .values.user }}
       username: "{{ .values.user }}"

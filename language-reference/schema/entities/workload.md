@@ -117,7 +117,7 @@ _Additional properties are not permitted._
 | `command` | string[] | no | Override the image's entrypoint. K8s: .command. Compose: entrypoint. |
 | `args` | string[] | no | Arguments passed to command (or image entrypoint if command is absent). K8s: .args. Compose: command. |
 | `variables` | map of string | no | Environment variables as string key-value pairs. K8s: spec.template.spec.containers[].env[]. Compose: services.<name>.environment. |
-| `secrets` | map of containerSecret | no | Ordered map of env-or-file name → { from, as, path? }. Each entry references a slot declared in the Component's featuresSchema. The 'as' field selects the delivery mechanism, which must be allowlisted in the slot's inject: array. Blackbox slots (inject: []) MAY NOT appear here. |
+| `attachments` | map of containerAttachment | no | Ordered map of env-or-file name → { from, as, path? }. Each entry references a slot declared in the Component's featuresSchema and delivers what the attachment filling that slot published. The 'as' field selects the delivery mechanism, which must be allowlisted in the slot's inject: array. Blackbox slots (inject: []) MAY NOT appear here. |
 | `envFrom` | any or any[] | no | Bulk environment imported from a ConfigMap or Secret source. helm emits container.envFrom (configMapRef/secretRef). compose has no env-from-object primitive — a source reference is not a host file, so an env_file reinterpretation would silently change meaning; a workload declaring envFrom halts loudly on a compose target. |
 | `ports` | map of integer | no | Named container ports. Port names referenced by services.*.ports and by probe http intent (port resolution). K8s: containerPort. Compose: expose/ports. |
 | `resources` | object | no |  |
@@ -204,7 +204,7 @@ _Additional properties are not permitted._
 
 _Additional properties are not permitted._
 
-### `containerSecret`
+### `containerAttachment`
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |

@@ -47,15 +47,15 @@ straight through the inject pipe.
 attaches `core/referenced-secret`, which the Manifest maps to
 `k8s-secret-from-parameter`. That FeatureRecipe materializes a Kubernetes Secret
 and publishes the Secret's identity as `provides {name, key}`. The Recipe
-references the slot through `containers.secrets`, which the synthesizer renders as
+references the slot through `containers.attachments`, which the synthesizer renders as
 an env `secretKeyRef`. The generated Secret and the container's reference name the
-**same** resource because both read `.secrets.user_password.provides.name` — there
+**same** resource because both read `.features.user_password.provides.name` — there
 is no re-derivation and no convention for the two sides to agree on. The published
 name normalizes underscores in the slot name to hyphens, so `user_password`
 becomes the valid Kubernetes resource name `db-user-password`:
 
 ```yaml
-# secrets/user_password/db-secret.yaml
+# features/user_password/db-secret-db-user-password.yaml
 metadata:
   name: "db-user-password"
 stringData:

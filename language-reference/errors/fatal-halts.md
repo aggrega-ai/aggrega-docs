@@ -242,7 +242,7 @@ Emitted message:
 > Aggregate `<name>` at `.spec.components.<component>.values.<field>`: values pillar does not conform to the Component schema: `<constraint failure>`.
 > Aggregate `<name>` at `.spec.components.<component>.infra.<field>`: infra pillar does not conform to the declared infra schema: `<constraint failure>`.
 > Aggregate `<name>` at `.spec.components.<component>.features.<attachment>.values.<field>`: values pillar does not conform to the Feature schema: `<constraint failure>`.
-> Aggregate `<name>` at `.spec.components.<component>.secrets.<attachment>.values.<field>`: values pillar does not conform to the Secret schema: `<constraint failure>`.
+> Aggregate `<name>` at `.spec.components.<component>.features.<attachment>.values.<field>`: values pillar does not conform to the Secret schema: `<constraint failure>`.
 > Aggregate `<name>` at `.spec.components.<component>.uses.<socket>.<alias>.values.<field>`: values pillar does not conform to the socket valueSchema: `<constraint failure>`.
 
 **How to fix:** correct the offending value to satisfy the declared schema, or — if the value is legitimate — widen the declaring schema (the Component's `schema.values`/`schema.infra`, or the attached Feature's/Secret's) to declare it. Inspect a Component's declared schema with `aggrega inspect <component-type>` to see the exact types, ranges, defaults, and required fields each pillar expects.
@@ -362,17 +362,6 @@ Emitted messages:
 > component type `<component-type>` declares a malformed attachment requirement in annotation `<key>`: the key needs a label naming the requirement, as in `features.aggrega.ai/requiredType.database`
 
 **How to fix:** correct the Component catalog entity. The remediation is in the catalog, not in the Aggregate — which is why this halt is distinct from "Required feature not attached", where the deployment is what needs changing.
-
-### Credential label partition violated
-
-A Feature's placement does not match its `feature.aggrega.ai/kind` label. Features labeled `secret` must go in the Component's `secrets:` block; features without that label must go in the `features:` block.
-
-Emitted messages:
-> Feature `<feature-instance>` has label `feature.aggrega.ai/kind=secret` and must be in `secrets:` block, not `features:`.
->
-> Feature `<feature-instance>` does not have label `feature.aggrega.ai/kind=secret` and cannot be in `secrets:` block.
-
-**How to fix:** move the Feature to the block that matches its label. If the Feature is mislabeled in the catalog, correct the label at the source.
 
 ### Duplicate delivery key across inject sources
 

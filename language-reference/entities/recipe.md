@@ -366,7 +366,7 @@ Each entry's template evaluates against the self-contained Pass 1 surface — `.
 
 ## Reading an attachment's published values
 
-A Recipe reads the Features attached to its component at `.features.<instance-name>` and the credential Features at `.secrets.<slot>`. Both are the same attachment shape — `.type`, `.values`, `.infra`, `.provides` — so an attachment is read the same way whichever map carries it; what differs between them is what the attachment produces.
+A Recipe reads the Features attached to its component at `.features.<instance-name>` and the credential Features at `.features.<slot>`. Both are the same attachment shape — `.type`, `.values`, `.infra`, `.provides` — so an attachment is read the same way whichever map carries it; what differs between them is what the attachment produces.
 
 `.provides` is the attachment's published output, resolved from the FeatureRecipe bound to it. It is the counterpart of the `provides:` block above, seen from the consuming side: where a Recipe *publishes* to its callers, an attachment publishes to its host component.
 
@@ -378,7 +378,7 @@ workload: |
   containers:
     main:
       env:
-        DB_SECRET: "{{ .secrets.app_credentials.provides.name }}"
+        DB_SECRET: "{{ .features.app_credentials.provides.name }}"
 ```
 
 Reading the published value rather than recomputing it from the same `values`/`infra` inputs is the difference between one statement of a name and two that can drift apart. The full field-by-field shape, including the availability rules, is at [templates/template-context-contract.md](../templates/template-context-contract.md#the-attachment-shape).
@@ -427,4 +427,4 @@ spec:
 
 The rule above is specific to Bitnami chart 20.x; it does not apply if a different MariaDB Recipe binds. The Component-level rules from the contract still apply alongside, evaluated at an earlier pipeline phase.
 
-Recipe assertions evaluate after Recipe binding and before rendering. The template context includes the Recipe's `.provides`, `.locals`, and `.recipe.source` in addition to the entity-instance fields (`.values`, `.infra`, `.uses`, `.secrets`). For the full authoring grammar, the responsibility split between contract-level and implementation-level rules, and worked examples, see [templates/assertions-block.md](../templates/assertions-block.md).
+Recipe assertions evaluate after Recipe binding and before rendering. The template context includes the Recipe's `.provides`, `.locals`, and `.recipe.source` in addition to the entity-instance fields (`.values`, `.infra`, `.uses`, `.features`). For the full authoring grammar, the responsibility split between contract-level and implementation-level rules, and worked examples, see [templates/assertions-block.md](../templates/assertions-block.md).

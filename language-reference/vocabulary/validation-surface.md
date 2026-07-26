@@ -22,9 +22,9 @@ Required-field omissions and type mismatches surface in the same shape; the spec
 
 ### Layer 2 — Pillar schemas (`schema:` / `featuresSchema` / `usesSchema`)
 
-**Scope.** The data pillars an entity carries — `values`, `infra`, `parameters`, plus the `secrets:` block populated by `featuresSchema` and the `uses:` block governed by `usesSchema`. Domain 2 entities (Component, Feature) embed JSON Schema 2020-12 declarations in their YAML envelope (`spec.schema` inline — compact or full form — or `spec.schemaRef` pointing at a shared SchemaLibrary entry); Domain 3 entities (Recipe, FeatureRecipe) consume the resolved schemas during their own validation pass.
+**Scope.** The data pillars an entity carries — `values`, `infra`, `parameters`, plus the `features:` attachment block whose slots `featuresSchema` declares and the `uses:` block governed by `usesSchema`. Domain 2 entities (Component, Feature) embed JSON Schema 2020-12 declarations in their YAML envelope (`spec.schema` inline — compact or full form — or `spec.schemaRef` pointing at a shared SchemaLibrary entry); Domain 3 entities (Recipe, FeatureRecipe) consume the resolved schemas during their own validation pass.
 
-**Validation runs.** At Step 1, after the JSON Schema envelope passes. The compiler composes the entity's authored `schema:` with auto-generated bases derived from `usesSchema` and `featuresSchema` declarations; the composed schema validates the developer-supplied `values:` / `infra:` / `secrets:` / `uses:` blocks on every component instance in the Aggregate.
+**Validation runs.** At Step 1, after the JSON Schema envelope passes. The compiler composes the entity's authored `schema:` with auto-generated bases derived from `usesSchema` and `featuresSchema` declarations; the composed schema validates the developer-supplied `values:` / `infra:` / `features:` / `uses:` blocks on every component instance in the Aggregate.
 
 **Error shape.** Schema composition failures and constraint violations surface as messages naming the entity, the path inside the pillar, and the constraint detail:
 
@@ -97,7 +97,7 @@ A second overlap pattern: cross-pillar constraints declared at the pillar layer 
 
 - [`errors/error-translation.md`](../errors/error-translation.md) — Aggrega-prefixed sentinel inventory and the surfaces that produce them.
 - [`errors/fatal-halts.md`](../errors/fatal-halts.md) — per-error catalog of every fatal halt the compiler emits.
-- [`vocabulary/data-pillars.md`](data-pillars.md) — the four data pillars (`values`, `infra`, `parameters`, `locals`) plus `secrets:` and `uses:` that Layer 2 validates.
+- [`vocabulary/data-pillars.md`](data-pillars.md) — the four data pillars (`values`, `infra`, `parameters`, `locals`) plus `features:` and `uses:` that Layer 2 validates.
 - [`entities/component.md`](../entities/component.md) — Component authoring surface for `schema:` / `featuresSchema` / `usesSchema`.
 - [`entities/plugin.md`](../entities/plugin.md) — provider-rendering Plugin authoring surface for `spec.provider.workloadSchema`.
 - [`entities/manifest.md`](../entities/manifest.md) — Manifest's `features.annotations` binding surface (Layer 4).

@@ -219,4 +219,4 @@ The bridging is one-directional: a parameter value flows from the Release-suppli
 - For the broader template context that Recipes consume at Phase B (`.values`, `.infra`, `.uses`, `.context.*`, etc.): [template-context-contract.md](template-context-contract.md).
 - For per-template-site availability across the compilation pipeline (which fields are present at which evaluation site): [expansion-matrix.md](expansion-matrix.md).
 - For the parameter-hoisting checklist (the four sequential authoring touchpoints — Aggregate declaration, values reference, Release fulfilment, Recipe consumption): [`vocabulary/data-pillars.md`](../vocabulary/data-pillars.md) §"The parameter-hoisting checklist".
-- For the broader data-pillar set (`values:`, `infra:`, `provides:`, `uses:`, `secrets:`, `locals:`, `parameters:`): [`vocabulary/data-pillars.md`](../vocabulary/data-pillars.md).
+- For the broader data-pillar set (`values:`, `infra:`, `provides:`, `uses:`, `features:`, `locals:`, `parameters:`): [`vocabulary/data-pillars.md`](../vocabulary/data-pillars.md).

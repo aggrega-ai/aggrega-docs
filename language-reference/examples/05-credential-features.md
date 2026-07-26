@@ -4,7 +4,7 @@ The credential pillar uses `featuresSchema` validation (see [entities/component.
 
 ## The Credential Feature Family
 
-A credential Feature carries the `feature.aggrega.ai/kind: secret` label. The compiler enforces a hard partition for that label: a credential Feature may appear only in a Component's `secrets:` block, never in the `features:` block. The developer references a credential Feature by type in their `secrets:` block; the Manifest maps it to a provider-specific FeatureRecipe per target environment.
+A credential Feature carries the `feature.aggrega.ai/kind: secret` label. The label is catalog metadata describing what the attachment produces; no compiler branch reads it, and a credential Feature is attached under `features:` like any other Feature. The developer references a credential Feature by type in a `features:` attachment; the Manifest maps it to a provider-specific FeatureRecipe per target environment.
 
 The standard library splits credential Features by *result* — what the FeatureRecipe ultimately does with the secret:
 
@@ -28,7 +28,7 @@ spec:
       key:    { type: string, default: "value" }
 ```
 
-**`core/referenced-secret` — referenceable resource.** It declares the same `values` inputs plus a `provides` output contract: `name` (the produced resource's provider-neutral locator — a Kubernetes Secret name, an AWS Secrets Manager ARN, a Vault path) and `key` (the data field within it). A consumer reads these as `.secrets.<slot>.provides.name` and `.secrets.<slot>.provides.key`.
+**`core/referenced-secret` — referenceable resource.** It declares the same `values` inputs plus a `provides` output contract: `name` (the produced resource's provider-neutral locator — a Kubernetes Secret name, an AWS Secrets Manager ARN, a Vault path) and `key` (the data field within it). A consumer reads these as `.features.<slot>.provides.name` and `.features.<slot>.provides.key`.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -48,7 +48,7 @@ spec:
       key:  { type: string }
 ```
 
-A credential Feature that declares a `provides` contract obliges every FeatureRecipe implementing it to publish those keys — the build halts if a FeatureRecipe omits one. This is the producer-side guarantee that makes the consumer's `.secrets.<slot>.provides.<key>` read safe.
+A credential Feature that declares a `provides` contract obliges every FeatureRecipe implementing it to publish those keys — the build halts if a FeatureRecipe omits one. This is the producer-side guarantee that makes the consumer's `.features.<slot>.provides.<key>` read safe.
 
 ## Provider-Specific FeatureRecipes
 
@@ -64,11 +64,11 @@ spec:
   capability: helm
   implements: core/referenced-secret:1.0.0
   provides:
-    name: "{{ .context.instance_id }}-{{ .secret_name }}"
+    name: "{{ .context.instance_id }}-{{ .attachment_name }}"
     key:  "{{ .values.key }}"
   # Emit a standalone Secret whose name and data key derive from the
   # published provides, so the rendered Secret and the consumer's
-  # .secrets.<slot>.provides are one authored source. Self-contained.
+  # .features.<slot>.provides are one authored source. Self-contained.
   artifacts:
     secret.yaml: |
       apiVersion: v1
@@ -101,10 +101,10 @@ spec:
 
 The six steps from developer authoring to compiled output, using the referenceable path (`k8s-secret-from-parameter`):
 
-1. **Developer writes the Aggregate** with a `secrets:` block referencing `core/referenced-secret`:
+1. **Developer writes the Aggregate** with a `features:` attachment referencing `core/referenced-secret`:
 
     ```yaml
-    secrets:
+    features:
       root_password:
         type: core/referenced-secret:1.0.0
         values:
@@ -141,22 +141,22 @@ The six steps from developer authoring to compiled output, using the referenceab
     ```yaml
     valuesMapping: |
       auth:
-        existingSecret: "{{ .secrets.root_password.provides.name }}"
+        existingSecret: "{{ .features.root_password.provides.name }}"
     ```
 
 5. **Compilation runs:**
-    - Step 1 validates the `secrets:` block against the auto-generated schema rules derived from the Component's `featuresSchema`.
-    - The credential FeatureRecipe's `provides` is evaluated once, producing the slot's `name` and `key`. Because the FeatureRecipe's emitted Secret derives its `metadata.name` from `{{ .provides.name }}` and the consumer reads `.secrets.root_password.provides.name`, both sides resolve from that single evaluation — the rendered Secret name and the consumer's reference are the same string by construction.
+    - Step 1 validates the attachment against the auto-generated schema rules derived from the Component's `featuresSchema`.
+    - The credential FeatureRecipe's `provides` is evaluated once, producing the slot's `name` and `key`. Because the FeatureRecipe's emitted Secret derives its `metadata.name` from `{{ .provides.name }}` and the consumer reads `.features.root_password.provides.name`, both sides resolve from that single evaluation — the rendered Secret name and the consumer's reference are the same string by construction.
     - Phase B evaluates the base Recipe's `valuesMapping` (Helm renders the MariaDB chart referencing the published Secret name) and the `k8s-secret-from-parameter` FeatureRecipe's `artifacts:` (emitting the Kubernetes Secret manifest with the matching name).
 
 6. **Output:** `dist/boundaries/production/` contains the MariaDB Deployment and Service (from the base Recipe) plus a Kubernetes Secret (from the credential FeatureRecipe). The Deployment's `auth.existingSecret` references the same name the Secret carries.
 
 ## Secret Naming Across Base Recipe and FeatureRecipe
 
-A base Recipe's `valuesMapping` needs to reference the Kubernetes Secret the credential FeatureRecipe emits. For a `core/referenced-secret` slot, the FeatureRecipe publishes the resource's locator through its `provides` contract, and the consumer reads it as `.secrets.<slot>.provides.name`:
+A base Recipe's `valuesMapping` needs to reference the Kubernetes Secret the credential FeatureRecipe emits. For a `core/referenced-secret` slot, the FeatureRecipe publishes the resource's locator through its `provides` contract, and the consumer reads it as `.features.<slot>.provides.name`:
 
 ```gotemplate
-existingSecret: "{{ .secrets.root_password.provides.name }}"
+existingSecret: "{{ .features.root_password.provides.name }}"
 ```
 
 The name is authored once — on the producing FeatureRecipe's `provides` — and every reader resolves from that single published value. There is no naming convention for both sides to agree on and no shared `locals` entry to keep aligned: changing the naming scheme is an edit on the FeatureRecipe's `provides` alone, and the contract guarantees the key is present for the consumer to read.

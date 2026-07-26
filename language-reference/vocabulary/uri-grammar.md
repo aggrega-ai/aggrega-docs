@@ -14,7 +14,7 @@ The same URI string carries different entity-kind meaning depending on where it 
 | `Aggregate.spec.subsystems.<name>.<id>.type` | Component (same as components — subsystems are component grouping) | `/component/{namespace}/{category}/{name}` |
 | `Aggregate.spec.aggregates.<id>.type` | Aggregate (sub-aggregate module) | `/aggregate/{namespace}/{name}` |
 | `Aggregate.spec.components.<id>.features.<id>.type` | Feature | `/feature/{namespace}/{name}` |
-| `Aggregate.spec.components.<id>.secrets.<id>.type` | Feature (credential — labeled `feature.aggrega.ai/kind: secret`) | `/feature/{namespace}/{name}` |
+| `Aggregate.spec.components.<id>.features.<id>.type` | Feature (credential — labeled `feature.aggrega.ai/kind: secret`) | `/feature/{namespace}/{name}` |
 | `Manifest.spec.mappings.components.type.<key>` | Component (the URI used as the lookup key); the value is a Recipe URI | key: `/component/`; value: `/recipe/{provider}/{name}` |
 | `Manifest.spec.mappings.components.name.<id>` | Recipe (granular override binding) | `/recipe/{provider}/{name}` |
 | `Manifest.spec.mappings.features.type.<key>` | Feature (lookup key); the value is a FeatureRecipe URI | key: `/feature/`; value: `/featurerecipe/{provider}/{name}` |

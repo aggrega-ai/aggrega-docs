@@ -28,7 +28,7 @@ Secret's locator (`provides.name`). Here the caller supplies two keys:
 
 ```yaml
 # aggregate.yaml
-secrets:
+features:
   app_credentials:
     type: core/referenced-secret-set
     values:
@@ -43,7 +43,7 @@ The Manifest maps `core/referenced-secret-set` to the `k8s-secret-set`
 FeatureRecipe, which renders one Secret carrying both keys:
 
 ```yaml
-# secrets/app_credentials/app-secret-app-app-credentials.yaml
+# features/app_credentials/app-secret-app-app-credentials.yaml
 metadata:
   name: app-app-credentials
 stringData:
@@ -59,7 +59,7 @@ is the env-var name:
 
 ```yaml
 # helm/app recipe workload
-secrets:
+attachments:
   APP_DB_USER:
     from: app_credentials
     as: env

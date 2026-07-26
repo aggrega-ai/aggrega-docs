@@ -15,7 +15,7 @@ how the layer underneath is made.
 
 - **[`aggregate.yaml`](aggregate.yaml)** — the Developer's intent: *what*
   the stack is. Two components picked from the catalog by `type:`, a
-  required credential in the `secrets:` pillar, and one `uses` edge wiring
+  required credential as a slot-filling attachment, and one `uses` edge wiring
   the database into Adminer's `databases` socket.
 - **[`release.yaml`](release.yaml)** — the Operator's per-environment
   fulfillment: *how big and where*. The `infra:` blocks (engine version,
@@ -40,7 +40,7 @@ how the layer underneath is made.
   compiler routes the string without interpreting it — on this target it is
   a compose service name; the same edge on a Kubernetes target would carry
   a Service DNS name.
-- **The secrets pillar.** The database Component's `featuresSchema` requires
+- **The attachment pillar.** The database Component's `featuresSchema` requires
   a `root_password` slot, filled with the catalog's `core/secret-value`
   Feature. The slot is *black-box*: the FeatureRecipe selected by the
   Manifest controls delivery, and the Developer cannot dictate it.
@@ -94,7 +94,7 @@ docker compose up -d
 
 Open <http://localhost:8080>: the server field is pre-filled with `db`.
 Log in as `root` with the development password from the Aggregate's
-`secrets:` block (`dev-root-pw-change-me` — a placeholder to replace in
+attachment (`dev-root-pw-change-me` — a placeholder to replace in
 anything beyond local development), database `appdb`.
 
 ## Where next

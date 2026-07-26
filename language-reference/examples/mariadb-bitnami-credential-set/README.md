@@ -12,7 +12,7 @@ knob to rename those keys; they are fixed by the chart.
 
 Rather than have the database Recipe guess the Secret's name, the developer
 attaches a multi-key credential that carries exactly those fixed keys, and the
-Recipe reads the produced Secret's name from `.secrets.root_password.provides.name`.
+Recipe reads the produced Secret's name from `.features.root_password.provides.name`.
 The reference name and the generated Secret's `metadata.name` are one value —
 there is no re-derivation and no convention for the two sides to agree on.
 
@@ -38,7 +38,7 @@ Manifest maps that credential to `k8s-secret-set`, which materializes one
 Kubernetes Secret and publishes its name as `provides.name`:
 
 ```yaml
-# dist/app/helm/secrets/root_password/db-secret-db-root-password.yaml
+# dist/app/helm/features/root_password/db-secret-db-root-password.yaml
 metadata:
   name: db-root-password
 stringData:
@@ -50,7 +50,7 @@ stringData:
 
 The `mariadb-bitnami` Recipe wires `auth.existingSecret` from the slot's
 published name, so the rendered StatefulSet mounts the **same** Secret the
-credential produced — both sides read `.secrets.root_password.provides.name`:
+credential produced — both sides read `.features.root_password.provides.name`:
 
 ```yaml
 # dist/app/helm/db-statefulset-default-db-mariadb.yaml (credential volume)

@@ -28,14 +28,25 @@ spec:
 
   locals:
     primary_compute: "mariadb"
-    # Black-Box: the credential filling the root_password slot generates a
-    # K8s Secret and publishes its name. The Bitnami chart reads that name
-    # via auth.existingSecret below — the recipe references the producer's
-    # published name rather than re-deriving it, so the two never drift.
+    # Credential delivery, in precedence order. When the attachment filling
+    # the root_password slot generates a K8s Secret and publishes its name,
+    # the chart reads that name via auth.existingSecret below — the recipe
+    # references the producer's published name rather than re-deriving it, so
+    # the two never drift. Otherwise the credential values arrive on this
+    # component's inject pipe as .context.inject.env.<VAR> and are mapped
+    # onto the chart's own auth.rootPassword and auth.password. Both are
+    # supplied: the chart mints a random password for each one it is not
+    # given, and a minted value differs on every build.
 
   provides:
     host: "{{ .context.instance_id }}"
     port: "{{ .infra.port }}"
+    # user and database are part of core/datastore/mariadb's declared
+    # schema.provides contract, so this realizer publishes them from the
+    # developer's own values — the same keys the standard-library mariadb
+    # Recipe publishes. A realizer that omits a declared key halts.
+    user: "{{ .values.user }}"
+    database: "{{ .values.database }}"
     protocol: "mariadb"
 
   valuesMapping: |
@@ -60,15 +71,20 @@ spec:
     {{- end }}
     {{- end }}
 
-    ## ── Authentication (Black-Box) ─────────────────────────────
+    ## ── Authentication ─────────────────────────────────────────
     auth:
       database: "{{ .values.database }}"
-      {{- if hasKey (default dict (default dict (default dict .secrets).root_password).provides) "name" }}
-      existingSecret: "{{ .secrets.root_password.provides.name }}"
+      {{- if hasKey (default dict (default dict (default dict .features).root_password).provides) "name" }}
+      existingSecret: "{{ .features.root_password.provides.name }}"
+      {{- else if .context.inject.env.MARIADB_ROOT_PASSWORD }}
+      rootPassword: "{{ .context.inject.env.MARIADB_ROOT_PASSWORD }}"
       {{- end }}
       {{- if .values.user }}
       username: "{{ .values.user }}"
       usePasswordFiles: true
+      {{- if .context.inject.env.MARIADB_PASSWORD }}
+      password: "{{ .context.inject.env.MARIADB_PASSWORD }}"
+      {{- end }}
       {{- end }}
 
     ## ── Primary ────────────────────────────────────────────────

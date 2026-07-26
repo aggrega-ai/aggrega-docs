@@ -27,7 +27,7 @@ in to the live database.
   declare a capability-agnostic `Workload`; the provider engine synthesises a
   `docker-compose.yaml` service or a `Deployment` + `Service` + `PersistentVolumeClaim`.
 - **The credential subsystem.** Database passwords are attached in the
-  component's `secrets:` pillar — each a `Feature` labeled
+  component's `features:` pillar — each a `Feature` labeled
   `feature.aggrega.ai/kind: secret`, kept apart from application `values`. The
   Component's `featuresSchema` declares two slot kinds, and the example exercises
   both: a *black-box* slot whose FeatureRecipe delivers the value internally, and
@@ -121,7 +121,7 @@ spec:
         charset: utf8mb4
         collation: utf8mb4_general_ci
         chart_version: "25.0.8"          # selects the managed-chart target's chart
-      secrets:
+      features:
         root_password:                    # black-box slot: the FeatureRecipe delivers it
           type: core/secret-value
           values: { key: MARIADB_ROOT_PASSWORD, origin: dev-root-pw-change-me }
@@ -153,7 +153,7 @@ that choice lives entirely in the catalog layer the build loads.
 ### A note on credentials
 
 The MariaDB image needs a root password to start, and the application user needs
-its own. Both are attached in the database component's `secrets:` pillar — kept
+its own. Both are attached in the database component's `features:` pillar — kept
 apart from application `values` — as Features labeled
 `feature.aggrega.ai/kind: secret`. The `core/datastore/mariadb` Component's
 `featuresSchema` declares the two slots, and the example exercises both delivery
@@ -168,7 +168,7 @@ models:
 
 The values here are inline literals so the stack runs from a single command —
 suitable for local development and demos. For shared or production environments,
-the same `secrets:` attachments resolve their values from a secret store: the
+the same attachments resolve their values from a secret store: the
 target's catalog loads a FeatureRecipe that fetches them, and the Aggregate does
 not change.
 

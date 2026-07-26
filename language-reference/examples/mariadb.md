@@ -165,7 +165,7 @@ spec:
 
     {{- /* Architectural rule: replication requires replication_credentials secret */ -}}
     {{- if eq .values.architecture "replication" -}}
-      {{- if not .secrets.replication_credentials -}}
+      {{- if not .features.replication_credentials -}}
         {{- fail "architecture=replication requires replication_credentials secret to be supplied" -}}
       {{- end -}}
     {{- end -}}
@@ -234,11 +234,11 @@ spec:
         {{- if .auth.existingSecret }}
         existingSecret: {{ .auth.existingSecret | quote }}
         {{- end }}
-        rootUser: {{ $.secrets.root_credentials.username | quote }}
-        rootPassword: {{ $.secrets.root_credentials.password | quote }}
+        rootUser: {{ $.features.root_credentials.username | quote }}
+        rootPassword: {{ $.features.root_credentials.password | quote }}
         {{- if .secondary }}
-        replicationUser: {{ $.secrets.replication_credentials.username | quote }}
-        replicationPassword: {{ $.secrets.replication_credentials.password | quote }}
+        replicationUser: {{ $.features.replication_credentials.username | quote }}
+        replicationPassword: {{ $.features.replication_credentials.password | quote }}
         {{- end }}
       primary:
         name: primary
@@ -277,7 +277,7 @@ spec:
       {{- end }}
 ```
 
-The mapping uses two helper templates (`BitnamiPodResources`, `BitnamiPersistence`) defined within the library and the main `MariaDBBitnamiCore` entry references them via `include`. The mapping handles the standalone-vs-replication architecture variants, credential injection from `.secrets.*`, and the metrics block. Consumer Recipes import the entire `MariaDBBitnamiCore` entry via library-form `$import:`.
+The mapping uses two helper templates (`BitnamiPodResources`, `BitnamiPersistence`) defined within the library and the main `MariaDBBitnamiCore` entry references them via `include`. The mapping handles the standalone-vs-replication architecture variants, credential injection from `.features.*`, and the metrics block. Consumer Recipes import the entire `MariaDBBitnamiCore` entry via library-form `$import:`.
 
 *Note on the `| default` filter, the `.Values` capital-V convention, and the `include` directive in this MappingLibrary: the fragments shown above are shaped for downstream consumption by Helm's chart-template engine, where Helm conventions are the established idiom — `.Values.X` for chart values, `default` for absent-field fallback, `include` for composing helper templates. The `optional` helper that Aggrega adds for absent-field fallback on its own renderer (Recipe `valuesMapping:` content, FeatureRecipe `injectMapping:`, and similar) is not registered in Helm's template engine. Likewise `include` is not registered in Aggrega's renderer. The MappingLibrary entity stores fragments verbatim; the authoring shape follows where the fragment is meant to render. The Bitnami-flavored library above renders Helm chart values; the Aggrega-side authoring shape uses lowercase `.values.X` and the presence-aware `optional` helper for fallback — see [sprig-functions.md](../templates/sprig-functions.md#optional--presence-aware-fallback) for the Aggrega convention.*
 

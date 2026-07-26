@@ -36,8 +36,7 @@ _Additional properties are not permitted._
 | `feature_markers` | string[] | yes | Explicit canonical strings (e.g., semantic_routing, data_masking) derived from annotations, utilized for downstream Feature Negotiation. |
 | `values_mapping` | object | yes | The single source of truth for opaque pass-through cognitive payloads, mapped by node ID. |
 | `infra_mapping` | object | yes | The physical sizing payload injected from the Release, mapped by node ID. |
-| `feature_values_mapping` | object | yes | Normalized map of Node IDs to their attached Feature configurations. |
-| `secrets` | object | yes | Validated credential requests mapped by component node ID, cleanly separated from the standard payload. |
+| `feature_values_mapping` | object | yes | Normalized map of Node IDs to their attached Feature configurations. One bucket carries every attachment on a node whatever it produces — operational Features, credential Features, identity Features — keyed by the instance name the author gave each attachment. |
 | `boundary_features` | object | no | Un-folded projection of each boundary's Feature attachments, keyed by boundary path then by instance name. Mirrors the boundaries' feature attachments as the single source both lock-time source resolution and the render-time boundary-scope dispatch read, so neither re-walks the routing tree. Present only when the graph has boundary-level Feature attachments. |
 | `provenance` | object | yes | Traceability metadata for diagnostics and auditing. |
 
@@ -111,16 +110,15 @@ _Additional properties are not permitted._
 
 ### `IRFeatureEntry`
 
-One resolved attachment for a node. Shared shape for a Feature (in feature_values_mapping) and a credential request (in the secrets bucket): a credential is a Feature labeled kind=secret, partitioned into the secrets bucket rather than given a lossier shape. Values carries vault pointers for credentials, never resolved plaintext.
+One resolved attachment for a node, carried in feature_values_mapping. Every attachment family shares this shape — an operational Feature, a credential Feature (labeled kind=secret), an identity Feature — so no family gets a lossier projection than another. For a credential, values carries pointers into a secret store, never resolved plaintext.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `type` | string | yes | URI of the Catalog Feature; in the secrets bucket, the credential Feature interface. |
+| `type` | string | yes | URI of the Catalog Feature this attachment requests. |
 | `resolved_version` | string | yes | The exact semantic version resolved during compilation. |
 | `values` | object | no | Operational configuration payload for the attachment; vault pointers for credentials. |
 | `infra` | object | no | Per-instance physical sizing for this attachment. |
 | `inject` | object | no | Agnostic injection routing. Maps local variables to Target provides keys. |
-| `secrets` | object | no | Credentials scoped explicitly to this attachment. |
 | `origin` | string (enum) | no | Distinguishes attachments authored in a features: block (explicit) from synthetic attachments produced by the annotation-driven expansion pass (annotation), or mixed when the attachment's value/infra leaves carry a mix of both (per-leaf detail then lives in the provenance maps). Allowed values: `"explicit"`, `"annotation"`, `"mixed"` |
 | `annotation_key` | string | no | Annotation name that triggered a synthetic attachment. Empty when origin is explicit. |
 | `annotation_source` | string | no | Source location of the annotation declaration as <release-file-path>:<dotted-yaml-key-path>. Empty when origin is explicit. |
@@ -246,8 +244,7 @@ _Additional properties are permitted._
 | `feature_markers` | string[] | yes | Explicit canonical strings (e.g., semantic_routing, data_masking) derived from annotations, utilized for downstream Feature Negotiation. |
 | `values_mapping` | object | yes | The single source of truth for opaque pass-through cognitive payloads, mapped by node ID. |
 | `infra_mapping` | object | yes | The physical sizing payload injected from the Release, mapped by node ID. |
-| `feature_values_mapping` | object | yes | Normalized map of Node IDs to their attached Feature configurations. |
-| `secrets` | object | yes | Validated credential requests mapped by component node ID, cleanly separated from the standard payload. |
+| `feature_values_mapping` | object | yes | Normalized map of Node IDs to their attached Feature configurations. One bucket carries every attachment on a node whatever it produces — operational Features, credential Features, identity Features — keyed by the instance name the author gave each attachment. |
 | `boundary_features` | object | no | Un-folded projection of each boundary's Feature attachments, keyed by boundary path then by instance name. Mirrors the boundaries' feature attachments as the single source both lock-time source resolution and the render-time boundary-scope dispatch read, so neither re-walks the routing tree. Present only when the graph has boundary-level Feature attachments. |
 | `provenance` | IRProvenance | yes |  |
 

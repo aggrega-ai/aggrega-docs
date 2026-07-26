@@ -44,7 +44,7 @@ developer surface and the String Pipe with zero platform authoring.
 - **[catalog-only](catalog-only/)** — a MariaDB database with an Adminer web
   UI, assembled entirely from standard-library entities and compiled to
   Docker Compose. Three short YAML files teach the developer surface: catalog
-  references by `type:`, schema defaults, the secrets pillar, the String Pipe
+  references by `type:`, schema defaults, the attachment pillar, the String Pipe
   through a `uses` socket, Release `infra:` fulfillment, and provider-qualified
   Recipe routing in the Manifest. Builds against the standard-library catalog
   it references; the same stack reappears in the Authoring tier below, built

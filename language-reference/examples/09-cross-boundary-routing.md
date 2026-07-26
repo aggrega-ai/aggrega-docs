@@ -140,7 +140,7 @@ spec:
       type: core/python-worker:2.0.0        # Uses Component from Example 11
       values:
         image: "corp/finance-worker:v2"
-      secrets:
+      features:
         db_credentials:
           type: core/aws-secrets-manager:1.0.0
           values:

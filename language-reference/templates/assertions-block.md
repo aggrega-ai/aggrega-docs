@@ -39,7 +39,7 @@ For Component and Feature `assertions:`, the template context exposes the resolv
 - `.values` — the developer's `values` content.
 - `.infra` — the Ops `infra` content (from Aggregate or Release).
 - `.uses` — the resolved `uses:` sockets (post-selector-resolution).
-- `.secrets` — the resolved credential bindings.
+- `.features` — the resolved attachments, each carrying its `type`, `values`, `infra`, and resolved `provides`.
 - `.metadata` — the entity's metadata.
 
 For Recipe and FeatureRecipe `assertions:`, the context adds Recipe-specific fields:

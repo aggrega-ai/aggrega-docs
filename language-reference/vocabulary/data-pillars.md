@@ -8,15 +8,15 @@ Aggrega entities carry seven named data pillars. Five participate in the IR data
 
 | Pillar | Lives on | Lifecycle | Role |
 | --- | --- | --- | --- |
-| `values` | Aggregate component / feature / secret instances | Live through Step 5 | Developer-authored cognitive payload |
-| `infra` | Release component / boundary / feature / secret instances | Live through Step 5 | Operator-authored physical sizing |
+| `values` | Aggregate component / attachment instances | Live through Step 5 | Developer-authored cognitive payload |
+| `infra` | Release component / boundary / attachment instances | Live through Step 5 | Operator-authored physical sizing |
 | `provides` | Recipe `provides:` block | Live through Step 5 (derived pillar — see below) | Recipe-computed public output strings the topology pipe consumes |
 | `uses` | Aggregate component / feature instances | Live through Step 5 | Topological edges to other components / features |
-| `secrets` | Component `featuresSchema` declarations + four authoring surfaces (Aggregate / Recipe / Workload / FeatureRecipe) — see "Secrets pillar" below | Live through Step 5 | Credential pillar with four parallel authoring surfaces |
+| `features` | Aggregate + Release component instances; slots declared in a catalog entity's `featuresSchema` — see "Features pillar" below | Live through Step 5 | Attachment pillar — one shape for every attachment family |
 | `parameters` | Aggregate + Release roots | Alive through end-of-pipeline (purged after every render phase completes); accessible to path templates at Step 5 via the asymmetric grant; value-template TemplateContexts consume the post-interpolation literals rather than `.parameters` directly | Per-environment slots fulfilled by the Release |
 | `locals` | Recipe `locals:` block | Recipe-private — visible only inside the Recipe's own templates | Computed string state Recipes derive at Phase B preamble |
 
-`values` / `infra` / `provides` / `uses` / `secrets` are the **five live pillars** the runtime template context exposes through `.values`, `.infra`, `.provides`, `.context.uses`, and `.secrets` respectively. `parameters` and `locals` are off the live-pillar list — `parameters` because it does not survive Step 1; `locals` because it is Recipe-private and never crosses entity boundaries.
+`values` / `infra` / `provides` / `uses` / `features` are the **five live pillars** the runtime template context exposes through `.values`, `.infra`, `.provides`, `.context.uses`, and `.features` respectively. `parameters` and `locals` are off the live-pillar list — `parameters` because it does not survive Step 1; `locals` because it is Recipe-private and never crosses entity boundaries.
 
 The pillar-walls-vs-signposts question resolves with **signposts**: the template engine permits cross-pillar reads at every site unless explicitly forbidden by self-containment rules (Recipe `provides:` and Recipe `source:` block reading `.context.inject` / `.context.uses`; documented at [`templates/expansion-matrix.md`](../templates/expansion-matrix.md)). Pillar boundaries are authoring discipline, not language enforcement.
 
@@ -41,8 +41,7 @@ The `values:` pillar carries Developer-authored cognitive payload — the applic
 
 - Aggregate `components.<id>.values:` — per-component-instance cognitive payload.
 - Aggregate `subsystems.<name>.<id>.values:` — same, inside subsystem-grouped components.
-- Aggregate `features.<id>.values:` — Feature attachment values payload.
-- Aggregate `secrets.<id>.values:` — credential Feature attachment values (vault-query parameters).
+- Aggregate `features.<id>.values:` — attachment values payload, whatever family the attached Feature belongs to (a credential attachment's vault-query parameters are authored here like any other).
 
 **Forbidden in:**
 
@@ -65,7 +64,7 @@ Authors encounter `infra:` at four distinct surfaces, each with different scope 
 | 1 | Release boundary `infra:` | Per-boundary defaults | Lowest (overridden by surfaces 2-4) |
 | 2 | Release boundary `components.<id>.infra:` | Per-component-instance under that boundary | Overrides boundary defaults for the named component |
 | 3 | Release boundary `features.<id>.infra:` | Per-feature-attachment under that boundary | Same precedence as 2 — feature-attachment-scoped |
-| 4 | Release boundary `components.<id>.features.<id>.infra:` (and equivalent for `secrets`) | Per-attachment-on-component | Highest specificity — overrides surfaces 1-3 for that exact attachment |
+| 4 | Release boundary `components.<id>.features.<id>.infra:` | Per-attachment-on-component | Highest specificity — overrides surfaces 1-3 for that exact attachment |
 
 Surfaces 1 and 2 are the most-authored pair: an Operator declares boundary-level defaults (e.g., `replicas: 3` for production) and overrides per-component where a specific instance needs different sizing. Surfaces 3 and 4 cover Feature-attachment sizing — Features carry their own infra payload that the FeatureRecipe consumes when synthesising sidecars or per-Feature resources.
 
@@ -91,7 +90,7 @@ A Recipe's `provides:` block is a map of `<key>: <template>` pairs. Each templat
 
 **Self-containment invariant.** Recipe `provides:` templates must not reference `.context.inject` or `.context.uses`. Pass 1 evaluates provides templates in any order — they close over the node's own data only, so the order does not matter. Cross-node references would couple Pass 1 evaluation to topological iteration order, which the design deliberately avoids. See [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) row 6 for the rule and its rationale.
 
-**Why `provides:` is a pillar.** The output strings are the canonical public surface of every Recipe; downstream consumers (caller `uses[].inject`, FeatureRecipe `injectMapping` blocks reading the target's resolved provides via `.context.uses`) treat the dictionary as a typed contract. Naming `provides:` as a pillar acknowledges its first-class status alongside `values` / `infra` / `uses` / `secrets`. Treating it as "just a Recipe internal" understates its role as the topology pipe's primary data source.
+**Why `provides:` is a pillar.** The output strings are the canonical public surface of every Recipe; downstream consumers (caller `uses[].inject`, FeatureRecipe `injectMapping` blocks reading the target's resolved provides via `.context.uses`) treat the dictionary as a typed contract. Naming `provides:` as a pillar acknowledges its first-class status alongside `values` / `infra` / `uses` / `features`. Treating it as "just a Recipe internal" understates its role as the topology pipe's primary data source.
 
 ## Uses
 
@@ -99,26 +98,22 @@ The `uses:` pillar is the topological-edge declaration. A component instance's `
 
 `uses:` lives on Aggregate component instances + feature attachments; the runtime template context exposes the JOIN projection over outbound edges as `.context.uses`. The projection carries each edge's resolved target metadata (target's `provides`, labels, annotations) so callers' Recipes can read cross-component pointer strings at Phase B template evaluation.
 
-## Secrets pillar
+## Features pillar
 
-The `secrets:` keyword appears at four distinct authoring surfaces in the corpus. The design question — whether the four surfaces form one logical pillar or four distinct concepts — resolves as: **one logical pillar with four authoring surfaces**.
+`features:` is the attachment pillar: one keyword, one shape, every attachment. An operational Feature, a credential Feature and an identity Feature are all declared here under the instance name the author chooses. The runtime template context exposes the node's attachments as `.features.<name>`, each carrying `type`, `values`, `infra` and the attachment's resolved `provides`.
 
-The four surfaces:
+An attachment whose instance name matches a slot the entity declares in `featuresSchema` **fills** that slot; any other instance name is a **free** attachment. Filling a slot is what connects the four surfaces a slot-based credential travels:
 
 | Surface | Where authored | Role |
 | --- | --- | --- |
-| Component `featuresSchema:` | Component catalog entity | Declares the credential slots the Component needs; gates the inject allowlist (env / file / blackbox per slot) |
-| Aggregate `components.<id>.secrets.<slot>:` | Aggregate component instance | Requests a credential Feature for the slot; supplies vault-query `values:` and (for White-Box slots) `inject:` mapping |
-| Workload `containers.<name>.secrets.<KEY>.from`/`as:` | Recipe's Workload body | References Component-declared slots and dictates per-container delivery |
-| FeatureRecipe `pipeline:` (Two-Part Plugin Principle) | Credential FeatureRecipe | Implements runtime resolution — Fetcher generates vault-fetch CRD; Injector mounts into target container |
+| Component / Feature `featuresSchema:` | catalog entity | Declares the slots the entity expects; per slot, gates the delivery allowlist (env / file / blackbox) and optionally a label selector the fill must satisfy |
+| Aggregate `components.<id>.features.<slot>:` | Aggregate component instance | Fills the slot with an attachment; supplies the attachment's own `values:` and, for a transparent slot, its `inject:` mapping |
+| Workload `containers.<name>.attachments.<KEY>.from`/`as:` | Recipe's Workload body | References a declared slot and dictates per-container delivery of what filled it |
+| FeatureRecipe (`source` / `workload` / `artifacts` / `valuesMapping`, `injectMapping`, `pipeline:`) | the bound FeatureRecipe | Produces the attachment's output — an emitted resource, a delivery rewrite, or both |
 
-The four surfaces are **the same pillar** in the sense that:
+The slot name is the load-bearing identifier across all four: surface 1 declares it, surfaces 2–4 reference it, and the data flow is single-direction (declare → fill → reference → produce).
 
-- Every credential flows through all four surfaces in the canonical pattern (Component declares → Aggregate requests → Workload references → FeatureRecipe resolves).
-- The slot name is the load-bearing identifier across all four surfaces; surface 1 declares it, surfaces 2-4 reference it.
-- The credential pillar's data flow is single-direction (declare → request → reference → resolve) rather than cross-cutting.
-
-For the six-touchpoint authoring checklist, see [examples/04-secrets.md](../examples/04-secrets.md) "The secret-delivery checklist".
+For the authoring checklist, see [examples/04-secrets.md](../examples/04-secrets.md) "The secret-delivery checklist".
 
 ## Locals
 
@@ -216,7 +211,7 @@ When a catalog entity declares `extends:` and the compiler walks the inheritance
 | `infra` (JSON Schema 2020-12 fragment) | Same as `values` — JSON Schema composition with policy-level monotonic narrowing. |
 | `provides` (Recipe template map) | Top-level shallow replacement: child key fully replaces parent key for the same name; sibling keys preserved from parent. Templates are not composed; the child's template fully owns its slot. |
 | `uses` (`usesSchema`) | JSON Schema composition per socket — child socket schema composes with parent's; monotonic at the policy layer. Child cannot widen parent's selector. |
-| `secrets` (`featuresSchema` per-slot schema) | Per-slot schema composition with monotonic narrowing at the policy layer. Child can add new slots; cannot relax parent slot constraints. |
+| `features` (`featuresSchema` per-slot schema) | Per-slot schema composition with monotonic narrowing at the policy layer. Child can add new slots; cannot relax parent slot constraints. |
 | `locals` (Recipe template map) | Top-level shallow replacement — same as `provides`. |
 | `parameters` (Aggregate root map) | Aggregate `extends:` is not currently supported (Aggregate doesn't carry an `extends:` field); the question is moot today. Release `extends:` produces deep-merge with child-wins. |
 
@@ -272,7 +267,7 @@ The duplication is deliberate: each layer covers a different concern. The Compon
 
 ### Feature attachment / Component pillar isolation
 
-A Feature attachment does **not** write into the parent Component's pillars. Each attached Feature carries its own pillar payload (its own `values:` block, its own `infra:` block, its own `secrets:` block when applicable). The FeatureRecipe synthesising the Feature's resources reads its own pillar payload independently of the Component's; the rendered output for the Feature lives alongside the Component's rendered output but does not merge into the Component's primary resources.
+A Feature attachment does **not** write into the parent Component's pillars. Each attached Feature carries its own pillar payload (its own `values:` block and its own `infra:` block). The FeatureRecipe synthesising the Feature's resources reads its own pillar payload independently of the Component's; the rendered output for the Feature lives alongside the Component's rendered output but does not merge into the Component's primary resources.
 
 Two consequences for authors:
 

@@ -4,7 +4,7 @@ _Generated reference. Do not edit by hand — regenerate from the published JSON
 
 Schema id: `https://aggrega.ai/schemas/template-context-v1alpha1.schema.json`
 
-The runtime view assembled by the Go compiler and injected into Recipe and FeatureRecipe Go templates during Step 5. For credential FeatureRecipes (implementing Features labeled feature.aggrega.ai/kind: secret), the compiler additionally populates .secret_name and .inject with the secret-specific context. For boundary-scope FeatureRecipes (spec.executionScope: boundary), the .context, .workload, .secret_name, .inject, and .inject_raw pillars are absent and a .boundary.* pillar is populated instead — see the boundary block at the bottom of properties. This is NOT persisted to disk; it exists only in compiler memory during rendering. This schema documents the contract between the compiler and Ops template authors.
+The runtime view assembled by the Go compiler and injected into Recipe and FeatureRecipe Go templates during Step 5. When rendering an attachment FeatureRecipe the compiler additionally populates .attachment_name and .inject with the attachment-scoped context. For boundary-scope FeatureRecipes (spec.executionScope: boundary), the .context, .workload, .attachment_name, .inject, and .inject_raw pillars are absent and a .boundary.* pillar is populated instead — see the boundary block at the bottom of properties. This is NOT persisted to disk; it exists only in compiler memory during rendering. This schema documents the contract between the compiler and Ops template authors.
 
 Phase B sub-pass availability: Pass 1 (provides): partial pillars (self-ref banned). Phase B.0 (locals + source eval): all pillars; .source and .workload absent. Phase B.1 (valuesMapping): all pillars + .source; .workload absent. Phase B.2 (workload eval): all pillars + .source; .workload being evaluated (absent from self-reference). Phase B.3 (artifacts): all pillars + .source + .workload (fullest context).
 
@@ -19,11 +19,10 @@ Phase B sub-pass availability: Pass 1 (provides): partial pillars (self-ref bann
 | `infra` | object | yes | The physical sizing payload injected from the Release for this node. Bypasses the Developer entirely. |
 | `locals` | map of string | yes | The Recipe's own private state (e.g., primary_compute, volumes_path). Populated by Phase B.0, which evaluates every locals entry against the same self-contained context — so the entries cannot read one another, and peer locals are NOT readable from a locals template. Available afterwards in valuesMapping, workload, artifacts, assertions, and to downstream Wasm plugins via pipeline[].with (and pipeline[].when). NOT available within a provides template: provides is resolved first (a local may read .provides), so a provides template referencing .locals halts. Never exposed to callers. |
 | `provides` | map of string | no | The Recipe's public API contract. Populated from Pass 1 evaluation. Available in Phase B valuesMapping for self-reference (e.g., {{ .provides.host }}). NOT available within the provides template itself (Pass 1 self-containment invariant). Callers resolve inject keys against these values. |
-| `features` | map of template_attachment | no | The attachments on this node, keyed by instance name. A Recipe reads them to adapt its rendering to the attached capabilities and to consume what an attachment publishes. |
-| `secrets` | map of template_attachment | no | The credential attachments on this node, keyed by instance name. Same attachment shape as .features — what differs is what the attachment produces, not how it is read. |
+| `features` | map of template_attachment | no | Every attachment on this node, keyed by the instance name the author gave it. One pillar carries them all whatever they produce — an operational Feature, a credential Feature, an identity Feature — because what differs between attachments is what they produce, not how a template reads them. A Recipe reads them to adapt its rendering to the attached capabilities and to consume what an attachment publishes. |
 | `metadata` | object | no | Release and compilation metadata providing global identity for deterministic naming. Available in all template blocks (valuesMapping, injectMapping, pipeline with). |
-| `secret_name` | string | no | Only populated when rendering a credential FeatureRecipe. Contains the logical secret key name from the Component's featuresSchema or the Developer's secrets: block (e.g., 'admin_password', 'db_credentials'). Used to construct deterministic physical secret names (e.g., '{{ .context.instance_id }}-{{ .secret_name }}'). |
-| `inject` | object | no | Only populated when rendering a credential FeatureRecipe. Contains the secret-specific inject block from the Developer's secrets entry (e.g., { env: { OPENAI_API_KEY: 'api_token' } }). Distinct from .context.inject which is the base component's pre-hydrated delivery pipe from uses edges. Evaluates to null/absent for non-credential FeatureRecipes and base Recipes. |
+| `attachment_name` | string | no | Only populated when rendering an attachment FeatureRecipe. Contains the attachment's instance name — the slot it fills in the owning entity's featuresSchema, or the free name the author gave it (e.g., 'admin_password', 'db_credentials'). Used to construct deterministic resource names (e.g., '{{ .context.instance_id }}-{{ .attachment_name }}'). |
+| `inject` | object | no | Only populated when rendering an attachment FeatureRecipe that carries an authored inject block (e.g., { env: { OPENAI_API_KEY: 'api_token' } }). Distinct from .context.inject which is the base component's pre-hydrated delivery pipe from uses edges. Evaluates to null/absent for attachments with no authored inject and for base Recipes. |
 | `inject_raw` | object or null | no | The immutable, unmutated Developer intent for the inject block. Evaluates to null if the Developer omitted the inject block entirely. Used by Ops for logical checks (e.g., {{ if not .inject_raw }}) to detect omission before Phase A mutations. |
 | `steps` | map of object | no | Pipeline inter-step communication. Only available inside Wasm pipeline 'with:' blocks. Each key is a pipeline step ID, containing the outputs exported by that step. |
 | `source` | string or object or null | no | Resolved source field content. Populated at Phase B.0 from the Recipe's source: field after Go-template evaluation. Available in Phase B.1+ (valuesMapping, workload, artifacts). Evaluates to null when the Recipe has no source:. String form = URI path; object form = structured source (e.g., OCI descriptor with resolved version). |
@@ -84,14 +83,14 @@ _Additional properties are not permitted._
 
 #### `template-context.inject`
 
-Only populated when rendering a credential FeatureRecipe. Contains the secret-specific inject block from the Developer's secrets entry (e.g., { env: { OPENAI_API_KEY: 'api_token' } }). Distinct from .context.inject which is the base component's pre-hydrated delivery pipe from uses edges. Evaluates to null/absent for non-credential FeatureRecipes and base Recipes.
+Only populated when rendering an attachment FeatureRecipe that carries an authored inject block (e.g., { env: { OPENAI_API_KEY: 'api_token' } }). Distinct from .context.inject which is the base component's pre-hydrated delivery pipe from uses edges. Evaluates to null/absent for attachments with no authored inject and for base Recipes.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `env` | map of string | no | Secret-specific environment variable delivery. |
-| `file` | map of string | no | Secret-specific file mount delivery. |
-| `arg` | map of string | no | Secret-specific argument delivery. |
-| `all` | map of string | no | Compiler-generated convenience merge of all secret inject paradigms. |
+| `env` | map of string | no | Attachment-scoped environment variable delivery. |
+| `file` | map of string | no | Attachment-scoped file mount delivery. |
+| `arg` | map of string | no | Attachment-scoped argument delivery. |
+| `all` | map of string | no | Compiler-generated convenience merge of every attachment inject paradigm. |
 
 #### `template-context.boundary`
 
@@ -116,7 +115,7 @@ _Additional properties are not permitted._
 
 ### `template_attachment`
 
-One attachment as a template reads it: the per-instance view of an attached Feature. Every attachment exposes the same fields regardless of what it produces, so .features.<name> and .secrets.<slot> are read the same way.
+One attachment as a template reads it: the per-instance view of an attached Feature. Every attachment exposes the same fields regardless of what it produces, so .features.<name> reads the same way whether that name is a slot the entity declared or a free attachment.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |

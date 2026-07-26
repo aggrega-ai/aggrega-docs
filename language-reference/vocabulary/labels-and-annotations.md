@@ -115,8 +115,6 @@ When two contributions supply the same field of the same attachment, four rules 
 
 Precedence governs field values. It does not reorder **evaluation**: the sequence in which the compiler folds the surfaces, and in which it executes each attachment's pre-render `injectMapping`, is the fixed five-tier sequence documented in [`architecture/10-compilation-pipeline.md`](../../architecture/10-compilation-pipeline.md). An attachment's authored `inject` block follows that evaluation sequence rather than the scope ranking above, so one attachment never carries two competing orderings.
 
-Credentials attached through the `secrets:` keyword are supplied as complete attachments rather than as contributions to be merged, so the rules above do not apply to them; a `secrets:` entry is the whole attachment at that instance name.
-
 ## Per-entity expansion of `metadata.labels` and `metadata.annotations`
 
 The current pre-expansion state has `metadata.labels` on Component / Feature / Aggregate; `metadata.annotations` on Component / Feature only. Manifest, Release, Recipe, FeatureRecipe, Plugin currently lack one or both. Expanding both fields uniformly across every entity kind (with use-case documentation per entity) is the documented design target; the schema change is small per entity and the per-entity examples are introduced as the design lands.

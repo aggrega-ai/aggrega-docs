@@ -299,7 +299,7 @@ spec:
       uses:
         tools: ["search-api"]                # The agent's own topology
 
-      secrets:
+      features:
         db_password:
           type: core/hashicorp-vault:1.0.0
           values:
