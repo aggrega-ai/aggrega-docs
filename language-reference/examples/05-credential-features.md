@@ -1,6 +1,6 @@
 # Credential Features
 
-The credential pillar uses `secretsSchema` validation (see [entities/component.md](../entities/component.md#credential-slots-secretsschema)), the standard library's credential Feature family, and provider-specific FeatureRecipes to form a complete black-box secret pipeline. This chapter walks through the flow end-to-end using shipped standard-library entities.
+The credential pillar uses `featuresSchema` validation (see [entities/component.md](../entities/component.md#credential-slots-secretsschema)), the standard library's credential Feature family, and provider-specific FeatureRecipes to form a complete black-box secret pipeline. This chapter walks through the flow end-to-end using shipped standard-library entities.
 
 ## The Credential Feature Family
 
@@ -112,7 +112,7 @@ The six steps from developer authoring to compiled output, using the referenceab
           key: mariadb-root-password
     ```
 
-    The `root_password` slot has no `inject:` block here. The Component's `secretsSchema` declares `inject: []` for this slot (blackbox), so the slot's auto-generated schema rule rejects any developer-authored `inject:` — delivery is the Recipe's concern.
+    The `root_password` slot has no `inject:` block here. The Component's `featuresSchema` declares `inject: []` for this slot (blackbox), so the slot's auto-generated schema rule rejects any developer-authored `inject:` — delivery is the Recipe's concern.
 
 2. **Ops writes the Release** supplying the parameter value:
 
@@ -145,7 +145,7 @@ The six steps from developer authoring to compiled output, using the referenceab
     ```
 
 5. **Compilation runs:**
-    - Step 1 validates the `secrets:` block against the auto-generated schema rules derived from the Component's `secretsSchema`.
+    - Step 1 validates the `secrets:` block against the auto-generated schema rules derived from the Component's `featuresSchema`.
     - The credential FeatureRecipe's `provides` is evaluated once, producing the slot's `name` and `key`. Because the FeatureRecipe's emitted Secret derives its `metadata.name` from `{{ .provides.name }}` and the consumer reads `.secrets.root_password.provides.name`, both sides resolve from that single evaluation — the rendered Secret name and the consumer's reference are the same string by construction.
     - Phase B evaluates the base Recipe's `valuesMapping` (Helm renders the MariaDB chart referencing the published Secret name) and the `k8s-secret-from-parameter` FeatureRecipe's `artifacts:` (emitting the Kubernetes Secret manifest with the matching name).
 

@@ -24,7 +24,7 @@ so no `--catalog` flag is needed. Four manifests land under `dist/helm/helm/`.
 
 ## root_password — Black-Box, delivered on the inject pipe
 
-`root_password` is a **Black-Box** slot: the Component's `secretsSchema` declares
+`root_password` is a **Black-Box** slot: the Component's `featuresSchema` declares
 `inject: []`, so the Recipe controls delivery and the developer cannot dictate it.
 The Aggregate attaches `core/secret-value`, which the Manifest maps to
 `env-secret`. That FeatureRecipe puts the value on the component's inject pipe

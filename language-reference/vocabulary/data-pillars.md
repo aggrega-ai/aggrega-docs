@@ -12,7 +12,7 @@ Aggrega entities carry seven named data pillars. Five participate in the IR data
 | `infra` | Release component / boundary / feature / secret instances | Live through Step 5 | Operator-authored physical sizing |
 | `provides` | Recipe `provides:` block | Live through Step 5 (derived pillar — see below) | Recipe-computed public output strings the topology pipe consumes |
 | `uses` | Aggregate component / feature instances | Live through Step 5 | Topological edges to other components / features |
-| `secrets` | Component `secretsSchema` declarations + four authoring surfaces (Aggregate / Recipe / Workload / FeatureRecipe) — see "Secrets pillar" below | Live through Step 5 | Credential pillar with four parallel authoring surfaces |
+| `secrets` | Component `featuresSchema` declarations + four authoring surfaces (Aggregate / Recipe / Workload / FeatureRecipe) — see "Secrets pillar" below | Live through Step 5 | Credential pillar with four parallel authoring surfaces |
 | `parameters` | Aggregate + Release roots | Alive through end-of-pipeline (purged after every render phase completes); accessible to path templates at Step 5 via the asymmetric grant; value-template TemplateContexts consume the post-interpolation literals rather than `.parameters` directly | Per-environment slots fulfilled by the Release |
 | `locals` | Recipe `locals:` block | Recipe-private — visible only inside the Recipe's own templates | Computed string state Recipes derive at Phase B preamble |
 
@@ -107,7 +107,7 @@ The four surfaces:
 
 | Surface | Where authored | Role |
 | --- | --- | --- |
-| Component `secretsSchema:` | Component catalog entity | Declares the credential slots the Component needs; gates the inject allowlist (env / file / blackbox per slot) |
+| Component `featuresSchema:` | Component catalog entity | Declares the credential slots the Component needs; gates the inject allowlist (env / file / blackbox per slot) |
 | Aggregate `components.<id>.secrets.<slot>:` | Aggregate component instance | Requests a credential Feature for the slot; supplies vault-query `values:` and (for White-Box slots) `inject:` mapping |
 | Workload `containers.<name>.secrets.<KEY>.from`/`as:` | Recipe's Workload body | References Component-declared slots and dictates per-container delivery |
 | FeatureRecipe `pipeline:` (Two-Part Plugin Principle) | Credential FeatureRecipe | Implements runtime resolution — Fetcher generates vault-fetch CRD; Injector mounts into target container |
@@ -216,7 +216,7 @@ When a catalog entity declares `extends:` and the compiler walks the inheritance
 | `infra` (JSON Schema 2020-12 fragment) | Same as `values` — JSON Schema composition with policy-level monotonic narrowing. |
 | `provides` (Recipe template map) | Top-level shallow replacement: child key fully replaces parent key for the same name; sibling keys preserved from parent. Templates are not composed; the child's template fully owns its slot. |
 | `uses` (`usesSchema`) | JSON Schema composition per socket — child socket schema composes with parent's; monotonic at the policy layer. Child cannot widen parent's selector. |
-| `secrets` (`secretsSchema` per-slot schema) | Per-slot schema composition with monotonic narrowing at the policy layer. Child can add new slots; cannot relax parent slot constraints. |
+| `secrets` (`featuresSchema` per-slot schema) | Per-slot schema composition with monotonic narrowing at the policy layer. Child can add new slots; cannot relax parent slot constraints. |
 | `locals` (Recipe template map) | Top-level shallow replacement — same as `provides`. |
 | `parameters` (Aggregate root map) | Aggregate `extends:` is not currently supported (Aggregate doesn't carry an `extends:` field); the question is moot today. Release `extends:` produces deep-merge with child-wins. |
 
@@ -307,7 +307,7 @@ The pillars carry validation across three tiers. Each tier covers a different co
 | Tier | What it validates | Where it runs |
 | --- | --- | --- |
 | 1 — JSON Schema envelope | Structural shape (which keys are present, types match the field declarations) | Step 1, per file load |
-| 2 — Per-pillar schema (`schema` / `secretsSchema` / `usesSchema`) | Per-pillar typed content validated as JSON Schema 2020-12 with monotonic narrowing on `extends:` chains enforced by the publishing-discipline policy plugin | Step 1, after envelope passes |
+| 2 — Per-pillar schema (`schema` / `featuresSchema` / `usesSchema`) | Per-pillar typed content validated as JSON Schema 2020-12 with monotonic narrowing on `extends:` chains enforced by the publishing-discipline policy plugin | Step 1, after envelope passes |
 | 3 — provider engine-capability gate | Workload content gated by the bound provider engine's synthesized-mode capability, documented by the provider-rendering plugin's `spec.provider.workloadSchema` | Step 5 Phase B, after valuesMapping resolves |
 
 For the four-layer error-shape table and per-layer error prefixes, see [validation-surface.md](validation-surface.md).

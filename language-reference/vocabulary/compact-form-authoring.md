@@ -369,7 +369,7 @@ The namespace prefix matters: a typo like `x-agrega-source` (missing one `g`) is
 Specific `x-aggrega-*` annotations are emitted by the compiler at well-known points in the pipeline:
 
 - `x-aggrega-source:` — populated by the cross-document `$ref:` expander to attribute each property to its origin SchemaLibrary entry. See [cross-document-ref.md](cross-document-ref.md) §"Library-to-library chain expansion".
-- `x-aggrega-selector:` — emitted by `usesSchema:` and `secretsSchema:` synthesis to carry the selector string that targets compatible provider Components.
+- `x-aggrega-selector:` — emitted by `usesSchema:` and `featuresSchema:` synthesis to carry the selector string that targets compatible provider Components.
 
 Catalog authors writing their own extension keywords use the same namespace; downstream tooling that consumes the compiled JSON Schema reads `x-aggrega-*` keys without colliding with JSON Schema's own keyword space.
 

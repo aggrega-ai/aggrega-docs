@@ -29,7 +29,7 @@ in to the live database.
 - **The credential subsystem.** Database passwords are attached in the
   component's `secrets:` pillar — each a `Feature` labeled
   `feature.aggrega.ai/kind: secret`, kept apart from application `values`. The
-  Component's `secretsSchema` declares two slot kinds, and the example exercises
+  Component's `featuresSchema` declares two slot kinds, and the example exercises
   both: a *black-box* slot whose FeatureRecipe delivers the value internally, and
   a *transparent* slot whose value the developer delivers explicitly with a
   `secret.inject` block on the attachment.
@@ -156,7 +156,7 @@ The MariaDB image needs a root password to start, and the application user needs
 its own. Both are attached in the database component's `secrets:` pillar — kept
 apart from application `values` — as Features labeled
 `feature.aggrega.ai/kind: secret`. The `core/datastore/mariadb` Component's
-`secretsSchema` declares the two slots, and the example exercises both delivery
+`featuresSchema` declares the two slots, and the example exercises both delivery
 models:
 
 - `root_password` is a **black-box** slot (`inject: []`): the FeatureRecipe

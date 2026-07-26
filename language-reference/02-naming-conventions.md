@@ -45,7 +45,7 @@ Socket names in a developer's `uses` block must match a key in the catalog entit
 
 The DSL separates developer-facing YAML (authored by humans) from internal compiler contracts (consumed by templates and tooling):
 
-* **Developer-facing YAML (camelCase):** Multi-word field names in Aggregate, Release, Component, Feature, Recipe, FeatureRecipe, Manifest, and Plugin schemas use camelCase. Examples: `exportedComponents`, `syncWave`, `subDirectory`, `secretsSchema`, `requiredFeatures`, `usesSchema`, `valuesMapping`, `injectMapping`, `executionScope`, `appliesTo`, `appliesToAnyOf`, `conflictsWith`, `componentRefPath`. Follows Kubernetes API conventions.
+* **Developer-facing YAML (camelCase):** Multi-word field names in Aggregate, Release, Component, Feature, Recipe, FeatureRecipe, Manifest, and Plugin schemas use camelCase. Examples: `exportedComponents`, `syncWave`, `subDirectory`, `featuresSchema`, `requiredFeatures`, `usesSchema`, `valuesMapping`, `injectMapping`, `executionScope`, `appliesTo`, `appliesToAnyOf`, `conflictsWith`, `componentRefPath`. Follows Kubernetes API conventions.
 * **Internal contracts (snake_case):** Multi-word field names in the IR Graph schema and the Template Context schema use snake_case. User-facing examples Recipe authors encounter: `instance_id` (in `.context.instance_id` — the Recipe's identity), `inject_raw` (in `.context.inject_raw` — the unmutated injection contract), `secret_name` (in credential FeatureRecipe context — identifies which declared secret slot the FeatureRecipe is processing). Follows JSON API conventions and aligns with Go's JSON struct tag generation.
 * **Single-word fields:** Lowercase regardless of context. Examples: `values`, `infra`, `inject`, `provides`, `locals`, `features`, `secrets`, `labels`, `annotations`, `boundaries`, `components`, `subsystems`, `pipeline`, `source`.
 
@@ -78,7 +78,7 @@ The three casings are not interchangeable. A Recipe author who writes `{{ .conte
 
 ## Document-path naming-suffix discipline
 
-A subset of fields across the language carry document-path values — strings that point at a position inside another document (a rendered Workload's volumes section, a Component's secretsSchema entry, a Manifest's mappings tier). The values follow [RFC 6901 JSON Pointer](https://datatracker.ietf.org/doc/html/rfc6901) syntax — slash-separated tokens identifying the path through the target document.
+A subset of fields across the language carry document-path values — strings that point at a position inside another document (a rendered Workload's volumes section, a Component's featuresSchema entry, a Manifest's mappings tier). The values follow [RFC 6901 JSON Pointer](https://datatracker.ietf.org/doc/html/rfc6901) syntax — slash-separated tokens identifying the path through the target document.
 
 **RFC 6901 is the path-grammar baseline for every document-path surface in Aggrega.** The Wasm plugin contract consumes RFC 6901 patches (per [`plugins/plugin-contract.md`](plugins/plugin-contract.md) `label-transform` role JSONPatch output); the URI grammar's format-string inventory names RFC 6901 alongside Go template syntax and Sprig helpers (per [`vocabulary/uri-grammar.md`](vocabulary/uri-grammar.md) "Format-string inventory"); the per-Recipe `.locals` exports use RFC 6901 to point at synthesised-Workload positions Wasm Injector plugins read at Phase C. One grammar, multiple consuming surfaces.
 
@@ -131,4 +131,4 @@ Comment characters depend on the surrounding language:
 * **YAML context** (the default authoring surface for every Aggrega entity): use `#`
 * **Go template context** (inside Recipe `valuesMapping:` block scalars, FeatureRecipe `injectMapping:` block scalars, SchemaLibrary `$templates:` bodies, MappingLibrary mapping entries, assertion-block `assertions:` bodies): use `{{/* ... */}}` for template comments that the template engine recognises and strips at render time, or `#` for YAML-level comments outside the template body.
 
-Compact-form schemas under `schema:`, `usesSchema:`, `secretsSchema:`, and `parameters:` are YAML throughout; the per-field `description:` annotation is the documented surface for inline field documentation (`port: { type: integer, description: "TCP listen port" }`).
+Compact-form schemas under `schema:`, `usesSchema:`, `featuresSchema:`, and `parameters:` are YAML throughout; the per-field `description:` annotation is the documented surface for inline field documentation (`port: { type: integer, description: "TCP listen port" }`).

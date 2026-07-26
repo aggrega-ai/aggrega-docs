@@ -2,7 +2,7 @@
 
 This page documents the resolution semantics of cross-document `$ref:` references in Aggrega's schema authoring surface — what authors of Components, Features, and SchemaLibrary entries see when a `$ref:` crosses a document boundary into a library, and the per-syntax `required:` rules that pin which authoring forms work cleanly with cross-document expansion.
 
-`$ref:` is JSON Schema 2020-12-native. It appears inside `schema:` content (Component, Feature, SchemaLibrary entries), inside compact-form schemas, and inside the synthesized JSON Schema layer that `usesSchema:` and `secretsSchema:` emit. This page focuses on the cross-document case, where `$ref:` targets a SchemaLibrary entry in a separate file or OCI artifact.
+`$ref:` is JSON Schema 2020-12-native. It appears inside `schema:` content (Component, Feature, SchemaLibrary entries), inside compact-form schemas, and inside the synthesized JSON Schema layer that `usesSchema:` and `featuresSchema:` emit. This page focuses on the cross-document case, where `$ref:` targets a SchemaLibrary entry in a separate file or OCI artifact.
 
 For entity-level inheritance (Component-extends-Component, Release-extends-Release), see [inheritance-and-interface.md](inheritance-and-interface.md). For whole-content imports at non-schema sites (`valuesMapping:`, `workload:`, `parameters:`), `$import:` is the keyword; this page does not cover that surface.
 

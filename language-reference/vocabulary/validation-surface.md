@@ -20,11 +20,11 @@ unmarshal Recipe "<path>": json: unknown field "<field>"
 
 Required-field omissions and type mismatches surface in the same shape; the specific text varies by underlying YAML library.
 
-### Layer 2 — Pillar schemas (`schema:` / `secretsSchema` / `usesSchema`)
+### Layer 2 — Pillar schemas (`schema:` / `featuresSchema` / `usesSchema`)
 
-**Scope.** The data pillars an entity carries — `values`, `infra`, `parameters`, plus the `secrets:` block populated by `secretsSchema` and the `uses:` block governed by `usesSchema`. Domain 2 entities (Component, Feature) embed JSON Schema 2020-12 declarations in their YAML envelope (`spec.schema` inline — compact or full form — or `spec.schemaRef` pointing at a shared SchemaLibrary entry); Domain 3 entities (Recipe, FeatureRecipe) consume the resolved schemas during their own validation pass.
+**Scope.** The data pillars an entity carries — `values`, `infra`, `parameters`, plus the `secrets:` block populated by `featuresSchema` and the `uses:` block governed by `usesSchema`. Domain 2 entities (Component, Feature) embed JSON Schema 2020-12 declarations in their YAML envelope (`spec.schema` inline — compact or full form — or `spec.schemaRef` pointing at a shared SchemaLibrary entry); Domain 3 entities (Recipe, FeatureRecipe) consume the resolved schemas during their own validation pass.
 
-**Validation runs.** At Step 1, after the JSON Schema envelope passes. The compiler composes the entity's authored `schema:` with auto-generated bases derived from `usesSchema` and `secretsSchema` declarations; the composed schema validates the developer-supplied `values:` / `infra:` / `secrets:` / `uses:` blocks on every component instance in the Aggregate.
+**Validation runs.** At Step 1, after the JSON Schema envelope passes. The compiler composes the entity's authored `schema:` with auto-generated bases derived from `usesSchema` and `featuresSchema` declarations; the composed schema validates the developer-supplied `values:` / `infra:` / `secrets:` / `uses:` blocks on every component instance in the Aggregate.
 
 **Error shape.** Schema composition failures and constraint violations surface as messages naming the entity, the path inside the pillar, and the constraint detail:
 
@@ -89,7 +89,7 @@ A second overlap pattern: cross-pillar constraints declared at the pillar layer 
 | Layer | Scope | Runs at | Error prefix |
 | --- | --- | --- | --- |
 | 1 — JSON Schema envelope | Structural shape (apiVersion, kind, metadata, top-level spec) | Step 1 (load) | unprefixed YAML / unmarshal error |
-| 2 — Pillar schemas (`schema:` / `secretsSchema` / `usesSchema`) | Per-pillar data validation (values, infra, secrets, uses) | Step 1 (after envelope) | unprefixed schema-validation error |
+| 2 — Pillar schemas (`schema:` / `featuresSchema` / `usesSchema`) | Per-pillar data validation (values, infra, secrets, uses) | Step 1 (after envelope) | unprefixed schema-validation error |
 | 3 — Provider engine-capability gate (per-provider `workloadSchema` content validation honest-pending) | Synthesized-mode support (engine capability) | Step 5 Phase B | `CATALOG_ERROR:` |
 | 4 — Annotation-binding value validation | Annotation-value contributions routed into the target Feature's `spec.schema` via the Manifest binding's `maps` paths | Step 1 annotation-expansion sub-phase, alongside Layer 2 | schema-validation error; side-vs-pillar / ambiguous-routing surfaces carry `OPS_ERROR:` |
 
@@ -98,7 +98,7 @@ A second overlap pattern: cross-pillar constraints declared at the pillar layer 
 - [`errors/error-translation.md`](../errors/error-translation.md) — Aggrega-prefixed sentinel inventory and the surfaces that produce them.
 - [`errors/fatal-halts.md`](../errors/fatal-halts.md) — per-error catalog of every fatal halt the compiler emits.
 - [`vocabulary/data-pillars.md`](data-pillars.md) — the four data pillars (`values`, `infra`, `parameters`, `locals`) plus `secrets:` and `uses:` that Layer 2 validates.
-- [`entities/component.md`](../entities/component.md) — Component authoring surface for `schema:` / `secretsSchema` / `usesSchema`.
+- [`entities/component.md`](../entities/component.md) — Component authoring surface for `schema:` / `featuresSchema` / `usesSchema`.
 - [`entities/plugin.md`](../entities/plugin.md) — provider-rendering Plugin authoring surface for `spec.provider.workloadSchema`.
 - [`entities/manifest.md`](../entities/manifest.md) — Manifest's `features.annotations` binding surface (Layer 4).
 - [`providers/well-known-annotations.md`](../providers/well-known-annotations.md) — annotation-value parsing, structured-value subkey routing, per-subkey null opt-out, and cross-side composition that Layer 4 validates.

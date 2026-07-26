@@ -237,22 +237,22 @@ serviceAccount: "my-sa"  # just the name; actual RBAC via Features
 
 The Workload entity authoring page at [../language-reference/entities/workload.md](../language-reference/entities/workload.md) covers field-level authoring details.
 
-### Secrets Integration with `secretsSchema`
+### Secrets Integration with `featuresSchema`
 
-The Workload's `containers.<name>.secrets` block *references* slots declared by the Component's `secretsSchema`; it does not declare new slots. See [../language-reference/entities/component.md](../language-reference/entities/component.md) for the `secretsSchema` authoring surface.
+The Workload's `containers.<name>.secrets` block *references* slots declared by the Component's `featuresSchema`; it does not declare new slots. See [../language-reference/entities/component.md](../language-reference/entities/component.md) for the `featuresSchema` authoring surface.
 
 The validation contract:
 
-- Every `secrets.<KEY>.from` value must match a slot name declared in the Component's `secretsSchema`.
+- Every `secrets.<KEY>.from` value must match a slot name declared in the Component's `featuresSchema`.
 - The `as:` delivery mechanism (`env` or `file`) must be allowlisted in that slot's `inject:` array.
-- Slots marked `inject: []` (blackbox) in the Component's `secretsSchema` cannot appear in Workload `secrets:` blocks — those slots are delivered by the Recipe's internal plumbing (e.g., via Helm `existingSecret`), not via Workload exposure.
+- Slots marked `inject: []` (blackbox) in the Component's `featuresSchema` cannot appear in Workload `secrets:` blocks — those slots are delivered by the Recipe's internal plumbing (e.g., via Helm `existingSecret`), not via Workload exposure.
 
 Example:
 
 ```yaml
 # In the Component
 spec:
-  secretsSchema:
+  featuresSchema:
     db_password:
       required: true
       inject: [env, file]      # transparent: Workload may dictate delivery

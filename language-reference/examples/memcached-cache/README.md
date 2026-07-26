@@ -46,7 +46,7 @@ the synthesized helm path.
   carry the name `memcached`, the Manifests reference them provider-scoped as
   `memcached` (compose) and `helm/memcached`.
 - **Optional authentication via a credential slot.** The component declares one
-  optional `password` slot in its `secretsSchema`. When no credential is
+  optional `password` slot in its `featuresSchema`. When no credential is
   attached (the base Aggregate), the Recipe renders the cache with
   authentication disabled — byte-identically to a Recipe with no slot. When a
   credential is attached, the Recipe emits `MEMCACHED_USERNAME` and

@@ -20,7 +20,7 @@ See the [workload authoring reference](../../../entities/workload/) for prose gu
 | `form` | string (enum) | no | Abstract controller-shape intent for the workload. Chooses the kind of runtime lifecycle the workload has, independent of any target platform: stateless (interchangeable long-running replicas), stateful (replicas with stable per-replica identity and per-replica storage), daemon (one instance per eligible host), scheduled (recurring, time-triggered runs), task (a single run to completion), reference (an external endpoint with no compute — no controller; helm emits an ExternalName Service, compose carries the endpoint through the injection contract). Empty is treated as stateless. Each target Engine maps the form to its own native shape; the form carries no platform-native resource kinds itself. A persistentTemplate volume is a companion of stateful and is only valid on a stateful workload. A reference workload declares endpoint (and optionally port and credential) and no containers. Allowed values: `"stateless"`, `"stateful"`, `"daemon"`, `"scheduled"`, `"task"`, `"reference"` Default: `"stateless"` |
 | `endpoint` | string | no | External endpoint for form: reference — a host or URL. The compiler pipes it through as a deterministic pointer string; it is never resolved at compile time (AOT). Required when form is reference and only meaningful then. helm emits it as an ExternalName Service's externalName (the host portion); compose carries it to consumers through the recipe's provides. |
 | `port` | integer | no | Optional port for the reference endpoint (form: reference). helm emits it as a port on the ExternalName Service. |
-| `credential` | object | no | Optional credential for a reference endpoint (form: reference): a secretsSchema slot delivered to consumers as an environment variable. Per the AOT boundary the secret value is never resolved here; the credential is a pointer carried to consumers through the recipe's provides. |
+| `credential` | object | no | Optional credential for a reference endpoint (form: reference): a featuresSchema slot delivered to consumers as an environment variable. Per the AOT boundary the secret value is never resolved here; the credential is a pointer carried to consumers through the recipe's provides. |
 | `schedule` | string | no | Cron schedule for form: scheduled — a standard 5-field crontab expression (for example '0 0 * * *') or one of the macros @hourly, @daily, @weekly, @monthly, @yearly. Required when form is scheduled and only meaningful then; the target Engine pipes it verbatim into the scheduled resource's schedule field. |
 | `replicas` | integer | no | Number of replicas. Default 1. Compose ignores values > 1 unless the target compose spec supports scaling. Default: `1` |
 | `initContainers` | container[] | no | Ordered list of containers that run to completion before the main containers start. |
@@ -51,11 +51,11 @@ _Additional properties are not permitted._
 
 #### `workload.credential`
 
-Optional credential for a reference endpoint (form: reference): a secretsSchema slot delivered to consumers as an environment variable. Per the AOT boundary the secret value is never resolved here; the credential is a pointer carried to consumers through the recipe's provides.
+Optional credential for a reference endpoint (form: reference): a featuresSchema slot delivered to consumers as an environment variable. Per the AOT boundary the secret value is never resolved here; the credential is a pointer carried to consumers through the recipe's provides.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `from` | string | yes | Name of a secretsSchema slot supplying the credential. |
+| `from` | string | yes | Name of a featuresSchema slot supplying the credential. |
 | `env` | string | yes | Environment variable name the credential is delivered as by the consuming workload. |
 
 _Additional properties are not permitted._
@@ -117,7 +117,7 @@ _Additional properties are not permitted._
 | `command` | string[] | no | Override the image's entrypoint. K8s: .command. Compose: entrypoint. |
 | `args` | string[] | no | Arguments passed to command (or image entrypoint if command is absent). K8s: .args. Compose: command. |
 | `variables` | map of string | no | Environment variables as string key-value pairs. K8s: spec.template.spec.containers[].env[]. Compose: services.<name>.environment. |
-| `secrets` | map of containerSecret | no | Ordered map of env-or-file name → { from, as, path? }. Each entry references a slot declared in the Component's secretsSchema. The 'as' field selects the delivery mechanism, which must be allowlisted in the slot's inject: array. Blackbox slots (inject: []) MAY NOT appear here. |
+| `secrets` | map of containerSecret | no | Ordered map of env-or-file name → { from, as, path? }. Each entry references a slot declared in the Component's featuresSchema. The 'as' field selects the delivery mechanism, which must be allowlisted in the slot's inject: array. Blackbox slots (inject: []) MAY NOT appear here. |
 | `envFrom` | any or any[] | no | Bulk environment imported from a ConfigMap or Secret source. helm emits container.envFrom (configMapRef/secretRef). compose has no env-from-object primitive — a source reference is not a host file, so an env_file reinterpretation would silently change meaning; a workload declaring envFrom halts loudly on a compose target. |
 | `ports` | map of integer | no | Named container ports. Port names referenced by services.*.ports and by probe http intent (port resolution). K8s: containerPort. Compose: expose/ports. |
 | `resources` | object | no |  |
@@ -134,7 +134,7 @@ _Additional properties are not permitted._
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `configMap` | string | no | Name of a ConfigMap source emitted by this Recipe's artifacts input or an attached Feature. |
-| `secret` | string | no | Name of a secretsSchema slot; the imported Secret's name is resolved from the slot's provides. |
+| `secret` | string | no | Name of a featuresSchema slot; the imported Secret's name is resolved from the slot's provides. |
 | `prefix` | string | no | Optional prefix prepended to every imported environment variable name. |
 
 _Additional properties are not permitted._
@@ -208,7 +208,7 @@ _Additional properties are not permitted._
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `from` | string | yes | Name of a slot declared in the Component's secretsSchema. |
+| `from` | string | yes | Name of a slot declared in the Component's featuresSchema. |
 | `as` | string (enum) | yes | Delivery mechanism. Must be allowlisted in the slot's inject: array. Allowed values: `"env"`, `"file"` |
 | `key` | string | no | For as: env, the specific data key of the referenced slot's secret this entry reads. Set it when the slot's secret carries several data keys, so this entry selects one of them by name; two entries may reference the same slot with different keys to read several keys from one secret. When omitted, the entry reads the slot's single published key. Ignored for as: file, which mounts the whole secret. |
 | `path` | string | no | File path inside the container (required when as: file). |

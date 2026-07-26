@@ -40,7 +40,7 @@ how the layer underneath is made.
   compiler routes the string without interpreting it — on this target it is
   a compose service name; the same edge on a Kubernetes target would carry
   a Service DNS name.
-- **The secrets pillar.** The database Component's `secretsSchema` requires
+- **The secrets pillar.** The database Component's `featuresSchema` requires
   a `root_password` slot, filled with the catalog's `core/secret-value`
   Feature. The slot is *black-box*: the FeatureRecipe selected by the
   Manifest controls delivery, and the Developer cannot dictate it.

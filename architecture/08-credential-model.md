@@ -104,5 +104,5 @@ In many enterprises, tools like Datadog or Lakera use a single Global Corporate 
 
 If an open-source Feature allows developers to bring their *own* API keys (e.g., a Weights & Biases tracker), the Feature must mandate it.
 
-* **The Catalog Contract:** The Platform Architect adds `secretsSchema: { api_key: { required: true, inject: [] } }` to the `Feature` catalog definition.
+* **The Catalog Contract:** The Platform Architect adds `featuresSchema: { api_key: { required: true, inject: [] } }` to the `Feature` catalog definition.
 * **The Dev UX:** The Developer must explicitly declare the `secrets` block nested directly inside the `features` object in their `Aggregate`. The AOT compiler's Syntax Validator guarantees the credential is provided before any infrastructure configuration is generated.

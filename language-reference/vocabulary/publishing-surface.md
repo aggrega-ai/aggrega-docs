@@ -33,13 +33,13 @@ The `description` field appears uniformly on the envelope, but the corpus also c
 | Type | Where it lives | Authored by | Purpose |
 | --- | --- | --- | --- |
 | Envelope description | `metadata.description` on every entity | Catalog publisher | One-line summary visible in catalog listings and IDE tooltips |
-| Instance description | `description` field next to a per-instance declaration (e.g., `secretsSchema.<slot>.description`, `usesSchema.<socket>.description`) | Schema author | Per-slot / per-socket / per-port description visible to authors of consuming entities |
-| Field description | JSON Schema 2020-12 `description:` annotation inside `schema:` / `secretsSchema:` / `usesSchema:` content (compact form or full JSON Schema YAML) | Schema author | Per-field documentation surfaced by IDE autocomplete and validation tools |
+| Instance description | `description` field next to a per-instance declaration (e.g., `featuresSchema.<slot>.description`, `usesSchema.<socket>.description`) | Schema author | Per-slot / per-socket / per-port description visible to authors of consuming entities |
+| Field description | JSON Schema 2020-12 `description:` annotation inside `schema:` / `featuresSchema:` / `usesSchema:` content (compact form or full JSON Schema YAML) | Schema author | Per-field documentation surfaced by IDE autocomplete and validation tools |
 
 The three types share the word "description" but live at structurally distinct levels. Envelope description applies to the entity as a whole; instance description applies to a declaration inside a schema slot; field description applies to a specific value inside a typed schema. Authors writing a Component:
 
 - Set `metadata.description` once for the Component entity itself.
-- Set `secretsSchema.admin_password.description` once per credential slot the Component declares.
+- Set `featuresSchema.admin_password.description` once per credential slot the Component declares.
 - Set per-field `description:` annotations inside the `schema:` block — in compact form (`port: { type: integer, description: "..." }`) or in full JSON Schema YAML — to document each field for IDE autocomplete and validation tools.
 
 The three types do not cascade and do not collide. Tooling that reads one type does not read the others — Hub UI surfaces envelope descriptions in listings; IDE autocomplete surfaces field descriptions inline; `aggrega inspect` surfaces instance descriptions when listing a Component's slots.
@@ -96,7 +96,7 @@ The remaining asymmetries (Recipe vs Component required fields, Aggregate's `com
 ## Cross-references
 
 - [`labels-and-annotations.md`](labels-and-annotations.md) — content-side metadata mechanism complementing the publishing surface.
-- [`entities/component.md`](../entities/component.md) — Component's `metadata.labels.component.aggrega.ai/type` requirement and `schema` / `usesSchema` / `secretsSchema` declarations.
+- [`entities/component.md`](../entities/component.md) — Component's `metadata.labels.component.aggrega.ai/type` requirement and `schema` / `usesSchema` / `featuresSchema` declarations.
 - [`entities/release.md`](../entities/release.md) — Release's `metadata.environment` field and its current required state.
 - [`10-status.md`](../10-status.md) — the environment-field relaxation roadmap.
 - [`architecture/02-ecosystem-philosophy.md`](../../architecture/02-ecosystem-philosophy.md) — Strict API Partitioning and the Enterprise Metadata Suite design framing.

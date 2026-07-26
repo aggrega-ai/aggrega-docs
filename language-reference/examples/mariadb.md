@@ -140,7 +140,7 @@ spec:
 
   usesSchema: {}    # MariaDB is a leaf in the dependency graph
 
-  secretsSchema:
+  featuresSchema:
     root_credentials:
       required: true
       inject:
@@ -184,7 +184,7 @@ spec:
     {{- end -}}
 ```
 
-The body schema lives in the SchemaLibrary; the Component imports it via `$ref:`. The `infra:` and `provides:` pillars are inline (small and Component-specific). The `usesSchema:` is empty — MariaDB is a leaf in the dependency graph, it does not declare outbound sockets. The `secretsSchema:` declares two slots: a required root credential and an optional replication credential. The `assertions:` block carries four rules covering architectural invariants the Component contract requires regardless of which Recipe binds.
+The body schema lives in the SchemaLibrary; the Component imports it via `$ref:`. The `infra:` and `provides:` pillars are inline (small and Component-specific). The `usesSchema:` is empty — MariaDB is a leaf in the dependency graph, it does not declare outbound sockets. The `featuresSchema:` declares two slots: a required root credential and an optional replication credential. The `assertions:` block carries four rules covering architectural invariants the Component contract requires regardless of which Recipe binds.
 
 ## The MappingLibrary entry
 
@@ -483,7 +483,7 @@ The Release supplies parameter values for production. The Aggregate's typed-para
 3. **Step 3.** Selector resolution; `api`'s `primary_db: db` resolves to the `db` Component instance.
 4. **Step 4a.** Schemas resolved (compact form → JSON Schema 2020-12; SchemaLibrary `MariaDBPayload` resolved via cross-document `$ref:` expansion); instances validated against the resolved schemas.
 5. **Step 4b.** Component assertions evaluated (the four rules from the MariaDB Component's `assertions:` block); pass.
-6. **Step 5a.** Recipes bound per the Manifest's flat URI mapping (MariaDB → bitnami/datastore/mariadb/k8s; api → my-org/server/k8s); credential Features attached per `secretsSchema:` × Manifest's `features.type` mapping.
+6. **Step 5a.** Recipes bound per the Manifest's flat URI mapping (MariaDB → bitnami/datastore/mariadb/k8s; api → my-org/server/k8s); credential Features attached per `featuresSchema:` × Manifest's `features.type` mapping.
 7. **Step 5b.** Recipe assertions evaluated (the two Bitnami-specific rules from the Recipe's `assertions:` block); pass.
 8. **Step 5c.** Rendering. MariaDB Recipe's `valuesMapping:` (loaded from the MappingLibrary entry) renders into Helm chart values:
 

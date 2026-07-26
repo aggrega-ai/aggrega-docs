@@ -22,7 +22,7 @@ The assertion evaluation phases sit between schema validation and rendering in t
 1. Parameter resolution, parameter validation, parameter purge.
 2. Graph assembly.
 3. Selector resolution: `uses:` sockets matched to provider Components.
-4. Schema validation against `schema:` / `usesSchema:` / `secretsSchema:`.
+4. Schema validation against `schema:` / `usesSchema:` / `featuresSchema:`.
 5. **Component / Feature assertions** evaluated against each instance.
 6. Recipe binding.
 7. **Recipe / FeatureRecipe assertions** evaluated against the bound instance.

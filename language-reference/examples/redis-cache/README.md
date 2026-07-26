@@ -50,7 +50,7 @@ wire protocol, the `valkey-cache` example wraps the Valkey fork instead.
   `redis`, the Manifests reference them provider-scoped as `compose/redis` and
   `helm/redis`.
 - **Optional authentication via a credential slot.** The component declares one
-  optional `password` slot in its `secretsSchema`. When no credential is
+  optional `password` slot in its `featuresSchema`. When no credential is
   attached (the base Aggregate), the Recipe renders the cache with
   authentication disabled — byte-identically to a Recipe with no slot. When a
   credential is attached, the value enables authentication for the target: on

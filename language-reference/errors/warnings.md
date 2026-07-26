@@ -42,6 +42,26 @@ LINT: Manifest annotation binding 'compliance.aggrega.ai/data-class' on Feature 
 
 **Authoring note.** Like the schema-pillar-overlap lint, this lint is advisory — the binding compiles and the runtime tie-break produces deterministic output. The lint fires because the authoring pattern is almost always unintended; a binding author who genuinely wanted both pillars to route the same path would author two separate bindings with different annotation keys.
 
+## Attachment-slot near-miss lint
+
+**Fires when** a component instance attaches a Feature under a name that is not one of its Component type's declared `featuresSchema` slots, but is within one edit of one — a single inserted, deleted, or substituted character, or two adjacent characters swapped. That is the shape a slot-name typo takes, and the lint names both spellings so the author can see the pair.
+
+**Why it exists.** Declaring a slot does not close the attachment surface: an attachment under a name no slot declares is legal, because that openness is what lets one catalog entity serve both a slot-filled attachment and a credential shared at a broader scope. The cost is that a misspelled slot name is silently a *free attachment* rather than a fill of the slot the author meant — the build succeeds and the slot simply stays empty. The lint is the disclosed mitigation for exactly that case.
+
+**Pipeline placement.** The lint runs at Step 1, in the same pass as the catalog-aware semantic guards, over the resolved Aggregate. It walks every component instance's attachment names in both authoring blocks against the declared slot names of that instance's Component type, and emits one warning per near-miss pair.
+
+**Emit shape:**
+
+```text
+LINT: Aggregate 'nearmiss' at .spec.components["db"].secrets["app_user_passwrod"]: attachment "app_user_passwrod" on component "db" is not a declared slot of type "core/datastore/postgres", but the type declares the slot "app_user_password" — if "app_user_password" was meant, the attachment is currently a free attachment and does not fill it
+```
+
+**Editor visibility.** The warning also reaches editor diagnostics through the language server, at warning severity, positioned on the offending authoring site. An author who never reads terminal output still sees the pair.
+
+**Threshold and its trade-off.** The lint pairs names only at one edit's distance, and only when both names are at least four characters long. Below that length nearly every short name sits within one edit of every other, so pairing them would produce noise rather than signal; above one edit the pairs stop resembling typos. A transposition counts as one edit rather than two, because a swapped pair of characters is the commonest slip and a stricter count would miss it.
+
+**Authoring note.** The lint is advisory and never changes the build's verdict — the compiler does not police what an author names an attachment. An author who deliberately attaches a Feature under a name that resembles a slot (a second, differently-configured credential named alongside the slot it complements) can ignore the warning; the attachment behaves exactly as authored.
+
 ## Ghost Infrastructure Tracker warnings
 
 **Fires when** a Recipe's template body — `valuesMapping:`, `workload:`, `artifacts:`, `provides:`, `pipeline[].with`, FeatureRecipe `injectMapping:` — references a strict subset of the keys present on the node's `.values` and `.infra` pillars. The "ghost" keys (keys the pillars carry but the template never reads) become silent infrastructure: configuration the developer asked for that the Recipe never wired into the rendered output. The tracker surfaces these so the developer can see configuration drift between intent and rendering.

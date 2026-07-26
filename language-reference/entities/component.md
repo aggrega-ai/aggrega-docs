@@ -1,6 +1,6 @@
 # Component
 
-The conceptual role of the Component entity (the abstract compute-node interface in Domain 2) lives in [architecture/04-eight-entity-taxonomy.md](../../architecture/04-eight-entity-taxonomy.md). This page covers the Component authoring surface: the Semantic Label Taxonomy that Architects use to layer cognitive identity on top of the 7-type base ontology, the `schema:` declaration for the data pillars, the `usesSchema` and `secretsSchema` declarative tables for topology and credential slots, `requiredFeatures`, the `extends:` inheritance mechanism, and the `assertions:` cross-field rule block.
+The conceptual role of the Component entity (the abstract compute-node interface in Domain 2) lives in [architecture/04-eight-entity-taxonomy.md](../../architecture/04-eight-entity-taxonomy.md). This page covers the Component authoring surface: the Semantic Label Taxonomy that Architects use to layer cognitive identity on top of the 7-type base ontology, the `schema:` declaration for the data pillars, the `usesSchema` and `featuresSchema` declarative tables for topology sockets and attachment slots, `requiredFeatures`, the `extends:` inheritance mechanism, and the `assertions:` cross-field rule block.
 
 ## The Semantic Label Taxonomy (The Standard Library Convention)
 
@@ -59,7 +59,7 @@ The `Component` schema (and its `Feature` counterpart, including credential Feat
 * **Inline JSON Schema YAML:** the verbose form, suitable when the schema needs JSON Schema 2020-12 keywords the compact form does not carry directly (`$dynamicRef`, deep `unevaluatedProperties`, complex `not:` composition). Compact form and JSON Schema can be mixed at any node boundary within a single `schema:` block via the `$jsonschema:` escape hatch.
 * **Cross-document reference (`$ref:` to a SchemaLibrary entry):** a JSON Schema-native `$ref:` pointing at a SchemaLibrary entry by identity (`Datastores#/schemas/MariaDBValues` or similar). Enterprise schemas spanning hundreds of lines and reused across multiple Components live in SchemaLibrary entities; the consumer Component references the entry without inlining the content. See [`entities/schemalibrary.md`](schemalibrary.md) and [`vocabulary/cross-document-ref.md`](../vocabulary/cross-document-ref.md) for the library entity and the resolution semantics.
 
-The compiler resolves the `schema:` block — expanding compact form, dereferencing `$ref:` URLs, applying SchemaLibrary library-to-library chains — and unifies the resulting JSON Schema with the auto-generated bases derived from `usesSchema` and `secretsSchema` (see the section below) during the Component's validation pass. Validation runs against the resolved schema; the authoring path is opaque to downstream pipeline stages.
+The compiler resolves the `schema:` block — expanding compact form, dereferencing `$ref:` URLs, applying SchemaLibrary library-to-library chains — and unifies the resulting JSON Schema with the auto-generated bases derived from `usesSchema` and `featuresSchema` (see the section below) during the Component's validation pass. Validation runs against the resolved schema; the authoring path is opaque to downstream pipeline stages.
 
 Authored instances are validated against this resolved schema at build time: a component instance's developer-authored `values` and the Operator's resolved `infra`, plus the `values`/`infra` on any Feature or Secret attachment, must conform to the declared pillars — a wrong-typed value, an out-of-range number, a missing required field, or (for `values`, validated closed) an undeclared property halts the build at its authored source rather than producing a broken manifest at deploy time. A child that `extends:` a parent is validated against the composed parent-plus-child schema. See [errors/fatal-halts.md](../errors/fatal-halts.md) §"Authored values or infra do not conform to the declared schema" for the diagnostics and the per-pillar rules (including how `infra` is validated against the Component-plus-provider key union).
 
@@ -267,7 +267,7 @@ The diagnostic message is documented at [`errors/fatal-halts.md`](../errors/fata
 
 ## Topology Sockets: `usesSchema`
 
-A Component may declare topological sockets through a `usesSchema:` block — a declarative YAML map parallel to `secretsSchema`. Each entry names a socket the Component accepts cross-component dependencies through and governs which Component shapes the developer may wire into the socket. The compiler auto-generates JSON Schema 2020-12 validation rules from the declared sockets and unifies them with the Component's `schema:` during Component resolution; developers do not hand-author a `uses:` pillar inside `schema:`, because the structure comes from `usesSchema`.
+A Component may declare topological sockets through a `usesSchema:` block — a declarative YAML map parallel to `featuresSchema`. Each entry names a socket the Component accepts cross-component dependencies through and governs which Component shapes the developer may wire into the socket. The compiler auto-generates JSON Schema 2020-12 validation rules from the declared sockets and unifies them with the Component's `schema:` during Component resolution; developers do not hand-author a `uses:` pillar inside `schema:`, because the structure comes from `usesSchema`.
 
 ```yaml
 # Component declares the sockets it accepts:
@@ -329,7 +329,7 @@ Each entry — list element or map alias — becomes one edge, preserved in auth
 | --- | --- | --- | --- |
 | `required` | bool | `false` | When `true`, the developer must wire at least one dependency into this socket. When `false`, the socket is optional. |
 | `selector` | object | — | Label-selector matching against candidate target Components. Translated to the `x-aggrega-selector:` JSON Schema extension keyword at validation time; the Static Analyzer (Step 4) enforces selector intersection. The matched candidate set is what the developer's `uses:` declaration must resolve into. |
-| `inject` | string[] | — | Allowlist of allowed inject delivery mechanisms (parallel to `secretsSchema[].inject`). `[]` (empty) means blackbox — no `inject:` block allowed on the developer's `uses:` entry; the Recipe controls delivery. `[env, file, arg]` (non-empty) means transparent — the developer may dictate which mechanism delivers the dependency's `provides` values. |
+| `inject` | string[] | — | Allowlist of allowed inject delivery mechanisms (parallel to `featuresSchema[].inject`). `[]` (empty) means blackbox — no `inject:` block allowed on the developer's `uses:` entry; the Recipe controls delivery. `[env, file, arg]` (non-empty) means transparent — the developer may dictate which mechanism delivers the dependency's `provides` values. |
 | `valueSchema` | object | — | Optional per-edge contract for developer-authored `values` on an edge wired through this socket (authored in the Aggregate). JSON Schema 2020-12 in the same authoring forms as `schema:`. Omission means the socket declares no `values` contract. |
 | `infraSchema` | object | — | Optional per-edge contract for operator-authored `infra` on an edge wired through this socket (authored in the Release). Same authoring forms as `valueSchema`. Omission means the socket declares no `infra` contract. |
 | `description` | string | — | Human documentation, rendered by IDE and hub. |
@@ -361,23 +361,29 @@ With that socket declared, an edge whose Aggregate omits `pool_size` renders `10
 
 A Recipe for the consuming Component reads the resolved per-edge config from the enriched topology pipe at `.context.uses.<alias>.values.<key>` and `.context.uses.<alias>.infra.<key>` — see [`vocabulary/topology-triad.md`](../vocabulary/topology-triad.md).
 
-**Schema generation from `usesSchema`.** The compiler generates a base JSON Schema 2020-12 fragment from the declared sockets and composes it with the user's `schema:` declaration — the same pattern `secretsSchema` uses. The generated schema never touches disk; it exists only in memory during the Component validation pass. The developer's `uses:` map in the Aggregate validates against the merged schema; the per-socket `selector:` evaluates against candidate Component labels at Step 4 as the cross-node type-safety check.
+**Schema generation from `usesSchema`.** The compiler generates a base JSON Schema 2020-12 fragment from the declared sockets and composes it with the user's `schema:` declaration — the same pattern `featuresSchema` uses. The generated schema never touches disk; it exists only in memory during the Component validation pass. The developer's `uses:` map in the Aggregate validates against the merged schema; the per-socket `selector:` evaluates against candidate Component labels at Step 4 as the cross-node type-safety check.
 
 **Selector semantics — the Split Schema mechanism.** `usesSchema[].selector:` is what makes Aggrega's topology more than untyped string-passing. A socket declaring `selector: "datastore.aggrega.ai/engine=vector"` only accepts wiring to Components labeled with the matching key-value pair; an agent attempting to wire its `primary_datastore` socket to a `relational` Component fails the Static Analyzer with a clear selector-violation diagnostic. The selector is a Kubernetes-style label-selector string — comma-AND requirements over `=`, `!=`, `in (...)`, `notin (...)`, bare-key, and `!key` forms — the same grammar Feature `appliesTo` uses; see [vocabulary/modifier-system.md](../vocabulary/modifier-system.md) for the grammar and [architecture/13-catalog-and-registry.md §2 "Kubernetes-Style Selectors"](../../architecture/13-catalog-and-registry.md) for the engine semantics.
 
-**The `usesSchema` vs `secretsSchema` relationship.** Both are declarative tables; both auto-generate JSON Schema bases that compose with the user's `schema:`; both carry an `inject:` allowlist with identical semantics. They differ only in what they target: `usesSchema` governs cross-component edges (the topology graph); `secretsSchema` governs credential slots (the secrets pillar). Many Components declare both; the two tables compose independently.
+**The `usesSchema` vs `featuresSchema` relationship.** Both are declarative tables and both carry an `inject:` allowlist with identical semantics, but a socket and a slot are different things and are not interchangeable. `usesSchema` governs cross-component edges — the topology graph — and a socket name the schema does not declare is an error. `featuresSchema` governs attachment slots, and a slot is a *named binding point*, not an enumeration: an attachment under a name no slot declares is legal. Many Components declare both; the two tables compose independently.
 
-## Credential Slots: `secretsSchema`
+## Attachment Slots: `featuresSchema`
 
-A Component may declare credential slots through a `secretsSchema` block — a declarative YAML map parallel to `usesSchema`. Each slot names a credential the Component needs (a root password, an API key, an auth token) and governs how the developer's Aggregate may populate it. The compiler auto-generates JSON Schema 2020-12 validation rules from the declared slots and unifies them with the Component's `schema:` during Component resolution; developers do not hand-author a `secrets:` pillar inside `schema:`, because the structure comes from `secretsSchema`.
+A Component may declare attachment slots through a `featuresSchema` block. Each slot names a binding point at which the Component expects a Feature to be attached — a root password, an API key, an auth token, an identity binding — and constrains which Feature may bind it and how the fill's material may be delivered.
+
+**Declaring a slot does not close the attachment surface.** A deployment may attach a Feature under a name no slot declares, and that attachment is a *free attachment*: perfectly legal, simply not bound to a declared slot. This openness is what lets one catalog entity serve two different deployment shapes without a catalog fork:
+
+* **Per-consumer.** Each instance fills the slot with its own Feature, so each consumer gets its own rendered credential.
+* **Shared.** No instance fills the slot; instead one credential is attached once at a broader scope (a subsystem, or a Release boundary) and cascades to every component under it, so many consumers point at one rendered Secret.
+
+The deployment chooses between them by what it attaches. The catalog entity is the same in both cases.
 
 **Schema definition on the Component:**
 
 ```yaml
 spec:
-  secretsSchema:
+  featuresSchema:
     root_password:
-      required: true
       inject: []
       description: Root database password. Recipe controls delivery (Black-Box).
     user_password:
@@ -392,83 +398,71 @@ spec:
 
 | Field | Type | Default | Meaning |
 | --- | --- | --- | --- |
-| `required` | bool | `false` | When `true`, the developer must provide this secret in their Aggregate `secrets:` block. When `false` or omitted, the secret is optional. |
-| `inject` | string[] | — | Allowlist of allowed inject delivery mechanisms. `[]` (empty) means blackbox — no `inject:` block allowed on the developer's secret, Recipe controls delivery. `[env, file]` means transparent — the developer may dictate delivery via the listed mechanisms. Same semantics as `usesSchema[].inject`. |
+| `required` | bool | `false` | Declares the slot as expected to be filled. A declaration of intent for readers and tooling: no build-time check currently rejects a deployment that leaves the slot unfilled. |
+| `inject` | string[] | — | Allowlist of allowed inject delivery mechanisms. `[]` (empty) means blackbox — the Recipe controls delivery internally and the material is never delivered to the workload. `[env, file]` means transparent — the fill's material may be delivered through the listed mechanisms. Same semantics as `usesSchema[].inject`. |
 | `description` | string | — | Human documentation, rendered by IDE and hub. |
 | `selector` | string | — | Optional Kubernetes-style label selector constraining which Feature may fill this slot — the slot analog of a `usesSchema` socket's `selector`, with the same grammar and the same native label-matching engine. Evaluated against the attached Feature's own labels at Step 4; a fill whose labels do not satisfy it halts. Omit to place no constraint on the fill. |
 
+A slot constrains *which fill may bind it*, not what the fill configures. There is deliberately no slot-level `values` or `infra` contract: the attached Feature's own `schema:` owns those pillars, so each contract has exactly one home.
+
 The slot `selector` is how a Component narrows which Feature may fill a slot — for example to a provider-specific credential Feature (`feature.aggrega.ai/kind=secret, provider=helm`) — without naming a FeatureRecipe, exactly as a `usesSchema` socket selector narrows a dependency edge's target. The compiler evaluates the selector against the attached Feature's labels and nothing else: it reads the labels the fill carries, and reports whether the selector admits them. Which labels are meaningful to require is a catalog-authoring choice, not a rule the compiler imposes.
 
-The `required: false` default matches the most common authoring pattern: most Components work fine without an explicit credential provided by the developer, because the Recipe or the underlying chart supplies a sensible default or auto-generates one. Only credentials the Component genuinely cannot boot without are marked `required: true`.
+**Slot-name typos surface as an advisory, not a halt.** Because an undeclared attachment name is legal, a misspelled slot name becomes a free attachment rather than filling the slot the author meant. The compiler reports an attachment name that is within one edit of a declared slot name as a warning naming both spellings — see [errors/warnings.md](../errors/warnings.md) "Attachment-slot near-miss lint". The warning never changes the build's verdict; the compiler does not police what an author names an attachment.
 
-### Schema generation from `secretsSchema`
+### Schema projection from `featuresSchema`
 
-The compiler generates a base JSON Schema 2020-12 fragment from the declared slots and composes it with the user's `schema:` declaration — the same pattern `usesSchema` uses for its own base schema generation. The generated schema never touches disk; it exists only in memory during the Component validation pass.
+Declared slots project into a JSON Schema 2020-12 fragment describing the shape of the attachment block. The projection never touches disk; it exists only in memory, and a Component's `schema:` never needs to hand-author the attachment pillar.
 
-Input `secretsSchema`:
+Input `featuresSchema`:
 
 ```yaml
-secretsSchema:
+featuresSchema:
   root_password:
-    required: true
     inject: []
   user_password:
     inject: [env, file]
 ```
 
-Generated base schema (in memory; compact-form representation):
+Projected fragment (in memory; compact-form representation):
 
 ```yaml
-secrets:
-  root_password:
-    type: { type: string, required: true }
-    values:
-      type: object
-      additionalProperties: true
-    # inject is ABSENT — inject: [] means no inject block allowed
-  user_password:
-    # optional at the parent — `required` defaults to false for this slot
-    type: { type: string, required: true }
-    values:
-      type: object
-      additionalProperties: true
-    inject:
-      env: { type: object, valuesType: string }
-      file: { type: object, valuesType: string }
-      # arg is absent — not in inject allowlist
+# The OUTER object is open: an attachment under a name no slot declares is
+# admitted, because a free attachment is legal authoring.
+root_password:
+  type: { type: string }
+  values:
+    type: object
+    additionalProperties: true
+  # inject is ABSENT — inject: [] means the Recipe controls delivery
+user_password:
+  type: { type: string }
+  values:
+    type: object
+    additionalProperties: true
+  inject:
+    env: { type: object, valuesType: string }
+    file: { type: object, valuesType: string }
+    # arg is absent — not in the inject allowlist
 ```
 
-The compiler composes the generated base with the user's `schema:` declaration under JSON Schema 2020-12 composition, producing a single validation schema for the Component's authored instances. The user's `schema:` does not need a `secrets:` pillar — the generated schema handles all structure and validation for the declared slots.
+The two depths are independent. The **outer** object is open, so a declared slot never forbids the attachments the entity did not enumerate. Each **declared slot's** own fragment is closed, so a fill that does bind a declared slot is still constrained to that slot's shape.
 
-### Validation behavior
+### Where the `inject` allowlist is enforced
 
-If a developer attempts to populate a blackbox slot with an `inject:` block, the compiler halts during Component validation:
+The allowlist is enforced against the **Recipe's Workload**, at the render step. A Workload that references a slot through its container attachment entries must name a slot the entity declares, and must select a delivery mechanism the slot's `inject` allowlist permits; a reference to a blackbox slot (`inject: []`), to a mechanism outside the allowlist, or to a slot the entity never declared halts the build. The diagnostic names the Recipe, the container path, and the offending slot, and is classified as a catalog fault — the Recipe is what got it wrong.
 
-```yaml
-# Developer writes in Aggregate:
-secrets:
-  root_password:
-    type: core/secret-value:1.0.0
-    values:
-      source: "{{ .parameters.db_root_pass }}"
-      key: mariadb-root-password
-    inject:                    # ← schema validation REJECTS this
-      env:                     #    because the generated base schema
-        DB_PASS: root_password #    has no inject field for root_password
-```
-
-The developer gets a clear error: *"field `inject` not allowed on secret `root_password` (blackbox: Recipe controls delivery)."*
+The developer-facing side of the same allowlist is a catalog-authoring convention rather than a build-time check: a blackbox slot signals "the Recipe delivers this internally; do not dictate delivery," and an Aggregate that nonetheless authors an `inject:` block on such an attachment is not itself rejected. The load-bearing enforcement is the Workload cross-check above, which is what actually prevents a blackbox credential reaching a container.
 
 The end-to-end flow through the compilation pipeline — how the Aggregate's `secrets:` block connects to a credential Feature (such as `core/secret-value`) and then to a provider-specific FeatureRecipe that delivers the secret to the running workload — is worked through in [examples/05-credential-features](../examples/05-credential-features.md).
 
 ### Credential delegation through typed reference fields
 
-Components whose role is to orchestrate other catalog entities — agents that compose Model and Tool entities, pipelines that chain transformer stages, gateways that fan out to downstream services — frequently carry **zero** entries in their own `secretsSchema:`. Their credential delegation flows transitively through typed reference fields in `values:`, which point to other Components or Features that carry their own `secretsSchema:` at their own scope.
+Components whose role is to orchestrate other catalog entities — agents that compose Model and Tool entities, pipelines that chain transformer stages, gateways that fan out to downstream services — frequently carry **zero** entries in their own `featuresSchema:`. Their credential delegation flows transitively through typed reference fields in `values:`, which point to other Components or Features that carry their own `featuresSchema:` at their own scope.
 
-A canonical example: a `core/ai-agent` Component declares `values:` fields like `models: [...#ModelRef]` and `tools_allowed: [...#ToolRef]`. The Model and Tool entities each carry their own `secretsSchema:` (API key for the model endpoint; per-Tool credentials for the targeted services). The agent itself does not own those credentials; the referenced entities own them at their own catalog scope.
+A canonical example: a `core/ai-agent` Component declares `values:` fields like `models: [...#ModelRef]` and `tools_allowed: [...#ToolRef]`. The Model and Tool entities each carry their own `featuresSchema:` (API key for the model endpoint; per-Tool credentials for the targeted services). The agent itself does not own those credentials; the referenced entities own them at their own catalog scope.
 
 ```yaml
-# core/ai-agent Component carries no secretsSchema — its credentials are delegated
+# core/ai-agent Component carries no featuresSchema — its credentials are delegated
 apiVersion: aggrega.ai/v1alpha1
 kind: Component
 metadata:
@@ -485,11 +479,11 @@ spec:
         type: array
         items:
           $ref: "AiTypes#/schemas/ToolRef"
-  # secretsSchema absent: agents own no secrets directly
+  # featuresSchema absent: agents own no secrets directly
 ```
 
 ```yaml
-# core/ai-model Component carries its own secretsSchema for the model endpoint's API key
+# core/ai-model Component carries its own featuresSchema for the model endpoint's API key
 apiVersion: aggrega.ai/v1alpha1
 kind: Component
 metadata:
@@ -500,22 +494,22 @@ spec:
     values:
       endpoint: { type: string, format: uri, required: true }
       capability: { type: string, enum: [generative, embedding, transcription], required: true }
-  secretsSchema:
+  featuresSchema:
     api_key:
       required: true
       inject: [env]
       description: API key for the model endpoint
 ```
 
-The convention is: **secrets co-locate with the entity that uses them, not with the entity that orchestrates them.** When the agent's Aggregate declares the agent's `values.models[0]` pointing at a specific Model instance, that Model instance's `secretsSchema:` is what enumerates the agent's transitive credential requirements. The compiler walks the topology graph and validates that every Model / Tool / downstream reference's credential slots are satisfied through their own attachments; the agent does not need to repeat them.
+The convention is: **secrets co-locate with the entity that uses them, not with the entity that orchestrates them.** When the agent's Aggregate declares the agent's `values.models[0]` pointing at a specific Model instance, that Model instance's `featuresSchema:` is what enumerates the agent's transitive credential requirements. The compiler walks the topology graph and validates that every Model / Tool / downstream reference's credential slots are satisfied through their own attachments; the agent does not need to repeat them.
 
-The pattern preserves cohesion: a Model entity that gains a new credential requirement (e.g., a region-specific authentication token) updates its own `secretsSchema:` and every consumer of that Model immediately requires the new credential. The agents that compose the Model do not need to track the change; the validation flows through the typed reference.
+The pattern preserves cohesion: a Model entity that gains a new credential requirement (e.g., a region-specific authentication token) updates its own `featuresSchema:` and every consumer of that Model immediately requires the new credential. The agents that compose the Model do not need to track the change; the validation flows through the typed reference.
 
-Aggregate-level secrets declared at the agent — credentials the agent itself owns rather than delegates — go through the standard `secretsSchema:` mechanism. The two patterns compose: an agent may carry a small `secretsSchema:` for its own operational credentials (e.g., a database connection for the agent's state store) while delegating model and tool credentials to the referenced entities.
+Aggregate-level secrets declared at the agent — credentials the agent itself owns rather than delegates — go through the standard `featuresSchema:` mechanism. The two patterns compose: an agent may carry a small `featuresSchema:` for its own operational credentials (e.g., a database connection for the agent's state store) while delegating model and tool credentials to the referenced entities.
 
 ## Self-inject: `spec.inject`
 
-A Component may declare a top-level `spec.inject:` array that allowlists self-inject delivery mechanisms. When present, developers may use an `inject:` block at the **component level** in the Aggregate to inject the Component's own `values:` or `provides:` keys directly into its own delivery pipe (its container's environment variables, mounted files, or process arguments). When `spec.inject:` is absent or empty, component-level self-inject is forbidden — the Recipe controls all internal wiring, matching the Black-Box pattern that `usesSchema[].inject: []` and `secretsSchema[].inject: []` apply to cross-component and credential delivery respectively.
+A Component may declare a top-level `spec.inject:` array that allowlists self-inject delivery mechanisms. When present, developers may use an `inject:` block at the **component level** in the Aggregate to inject the Component's own `values:` or `provides:` keys directly into its own delivery pipe (its container's environment variables, mounted files, or process arguments). When `spec.inject:` is absent or empty, component-level self-inject is forbidden — the Recipe controls all internal wiring, matching the Black-Box pattern that `usesSchema[].inject: []` and `featuresSchema[].inject: []` apply to cross-component and credential delivery respectively.
 
 ```yaml
 # Component declares its self-inject allowlist:
@@ -556,7 +550,7 @@ components:
 * `file` — mounted file paths.
 * `arg` — process command-line arguments.
 
-The semantics mirror `usesSchema[].inject` and `secretsSchema[].inject` exactly — same vocabulary, same Black-Box pattern when omitted, same authoring shape on the Aggregate side. The difference is the source: `usesSchema[].inject` governs how a cross-component dependency's `provides` flows into the consumer's delivery pipe; `secretsSchema[].inject` governs how a credential reaches a container; `spec.inject` governs how the Component's own `values` and `provides` reach the Component's own container.
+The semantics mirror `usesSchema[].inject` and `featuresSchema[].inject` exactly — same vocabulary, same Black-Box pattern when omitted, same authoring shape on the Aggregate side. The difference is the source: `usesSchema[].inject` governs how a cross-component dependency's `provides` flows into the consumer's delivery pipe; `featuresSchema[].inject` governs how a credential reaches a container; `spec.inject` governs how the Component's own `values` and `provides` reach the Component's own container.
 
 **Authoring discipline.** A `core/web-server` Component declaring `spec.inject: [env, file]` opts into transparent delivery — the Aggregate author dictates which env-var names carry which values. A Component declaring `spec.inject: []` (or omitting the field) keeps delivery opaque — the Recipe's `valuesMapping:` decides which fields flow into which container variables, and the developer cannot override at the Aggregate. The Black-Box pattern suits stable contract Components (a `core/postgres-db` Component whose Recipe knows how to wire the DB password into a `POSTGRES_PASSWORD` env var); the transparent pattern suits Components where the developer's intent legitimately names delivery details (a `core/web-server` whose application reads `LOG_LEVEL` from a non-standard variable name the developer wants to customize).
 

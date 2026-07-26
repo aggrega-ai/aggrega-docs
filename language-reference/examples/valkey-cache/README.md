@@ -47,7 +47,7 @@ referenceable credential materialized as a Kubernetes Secret).
   carry the name `valkey`, the Manifests reference them provider-scoped as
   `compose/valkey` and `helm/valkey`.
 - **Optional authentication via a credential slot.** The component declares one
-  optional `password` slot in its `secretsSchema`. When no credential is
+  optional `password` slot in its `featuresSchema`. When no credential is
   attached (the base Aggregate), the Recipe renders the cache with
   authentication disabled — byte-identically to a Recipe with no slot. When a
   credential is attached, the injected value is wired per target: on Compose it

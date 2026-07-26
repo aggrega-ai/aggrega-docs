@@ -42,7 +42,7 @@ the Manifest changes per target.
   data volume, and health checks.
 - **Two-slot credential model.** Passwords live in the component's `secrets:`
   pillar, each a Feature labeled `feature.aggrega.ai/kind: secret`, kept apart
-  from application `values`. The Component's `secretsSchema` declares a Black-Box
+  from application `values`. The Component's `featuresSchema` declares a Black-Box
   `root_password` slot and a transparent `user_password` slot.
 
 ## Kubernetes credential delivery

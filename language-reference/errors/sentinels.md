@@ -30,7 +30,6 @@ Step 1 of the compilation pipeline — workspace load, parameter interpolation, 
 | `ErrManifestReservedPrefix` | `manifest annotation binding uses reserved prefix` | Surfaces during Manifest validation; reserved annotation namespaces (`aggrega.ai/`, `feature.aggrega.ai/`) cannot be redefined by ad-hoc bindings. |
 | `ErrManifestCrossBindingPillarCollision` | `manifest annotation bindings collide on same Feature path+pillar` | Two bindings route different annotation keys into the same Feature path through the same pillar — collision halts catalog load. |
 | `ErrInvalidInjectKey` | `invalid inject key: the from-key must name a declared provides key of the target component type` | Surfaces as "Inject `from` key is not in the target's `provides`" in fatal-halts. |
-| `ErrCredentialLabelPartition` | `credential label partition violated` | Surfaces as "Credential label partition violated" in fatal-halts. |
 | `ErrMissingRequiredFeature` | `missing required feature: attach a Feature of the required type to the component` | Surfaces as "Required feature not attached" in fatal-halts. |
 | `ErrFeatureMergeConflict` | `feature merge conflict: reconcile the Aggregate and Release declarations for the feature` | Surfaces under "Manifest merge strategy" in fatal-halts. |
 | `ErrUnknownUsesSocket` | `unknown uses socket: declare the socket in the component type's usesSchema, or use a socket it already declares` | Surfaces as "`uses:` socket not declared in the target's `usesSchema`" in fatal-halts. |
@@ -160,8 +159,8 @@ case errors.Is(err, resolver.ErrParameterMissing):
     // distinct UX for missing-parameter cases
 case errors.Is(err, resolver.ErrParameterContractViolation):
     // distinct UX for contract-violation cases
-case errors.Is(err, resolver.ErrCredentialLabelPartition):
-    // distinct UX for credential-partition violations
+case errors.Is(err, resolver.ErrMissingRequiredFeature):
+    // distinct UX for an unsatisfied required-feature declaration
 case err != nil:
     // catch-all
 }
