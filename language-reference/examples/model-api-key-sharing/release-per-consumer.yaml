@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: model-api-key-sharing-per-consumer
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: model-api-key-sharing-per-consumer
+  manifest: model-api-key-sharing-manifest
+  boundaries:
+    main:
+      # Each of the three releases writes to its own directory, so all three
+      # rendered trees coexist and can be compared side by side.
+      directory: per-consumer
+      components:
+        # infra — the Operator-sizing pillar. The application image and the
+        # gateway endpoint are deployment-specific, so the Release supplies them.
+        gateway:
+          infra:
+            endpoint: https://gateway.internal.example:8080/v1
+        researcher:
+          infra:
+            image: registry.example/crew-researcher:1.4.0
+        writer:
+          infra:
+            image: registry.example/crew-writer:1.4.0

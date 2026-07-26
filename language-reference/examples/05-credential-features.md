@@ -163,4 +163,6 @@ The name is authored once — on the producing FeatureRecipe's `provides` — an
 
 A runnable end-to-end version of this flow — referenceable-secret + `secretKeyRef` on helm, inject-value on compose, and the non-referenceable rejection — is in [`credential-secretkeyref/`](credential-secretkeyref/README.md).
 
+Whether each consumer holds its own credential or several share one is a deployment choice made where the credential is attached, not a property of the catalog entity. [`model-api-key-sharing/`](model-api-key-sharing/README.md) builds both shapes with two consumers each — the multiplicity at which they differ — and shows what each renders, including how a component-scoped fill refines a subsystem-wide attachment field by field.
+
 *The Two-Part Plugin extension for vault-fetching FeatureRecipes — a Fetcher Wasm plugin that generates vault-specific CRDs (such as an External Secrets `ExternalSecret`) plus an Injector Wasm plugin that mounts the fetched secret into workload containers — is under active development. The architectural scaffolding ships today (FeatureRecipe `pipeline:` arrays for Wasm plugin chaining, the `provides` output contract); the specific vault-fetching FeatureRecipes and their Wasm plugins land as the standard library catalog expands.*

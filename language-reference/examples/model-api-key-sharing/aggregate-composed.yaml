@@ -1,0 +1,70 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: model-api-key-sharing-composed
+  version: "1.0.0"
+  description: >
+    The two forms at once: a subsystem-wide credential every agent inherits,
+    plus a component-scoped fill on the one agent that needs a different key.
+    The nearer scope wins for that agent, field by field; its sibling keeps the
+    subsystem-wide attachment untouched.
+spec:
+  subsystems:
+    model:
+      description: The model gateway the agents route through.
+      components:
+        gateway:
+          type: core/ai-model/openai-compatible
+          values:
+            model: gpt-4o-mini
+            provider_name: openai
+
+    agents:
+      description: The agent tier, with one agent overriding the shared credential.
+      features:
+        model_api_key:
+          type: core/referenced-secret
+          description: The subsystem-wide default every agent inherits.
+          values:
+            key: OPENAI_API_KEY
+            origin: team-key-change-me
+      components:
+        researcher:
+          type: core/ai-agent/crewai
+          uses:
+            model:
+              gateway:
+                target: gateway
+          values:
+            role: Researcher
+            goal: Gather and summarize source material for a topic.
+            backstory: A methodical analyst who prefers primary sources.
+            allow_delegation: false
+            verbose: true
+          # The component-scoped fill refines the subsystem-wide attachment
+          # field by field: only `origin` is restated, so `key` still comes from
+          # the subsystem scope. Restating the Feature type is required — the
+          # types must agree, and a mismatch halts the build.
+          features:
+            model_api_key:
+              type: core/referenced-secret
+              values:
+                origin: researcher-own-key-change-me
+
+        # No `features:` block: this agent keeps the subsystem-wide attachment
+        # exactly as declared, unaffected by its sibling's override.
+        writer:
+          type: core/ai-agent/crewai
+          uses:
+            model:
+              gateway:
+                target: gateway
+          values:
+            role: Writer
+            goal: Turn research notes into publishable prose.
+            backstory: An editor who values plain sentences over ornament.
+            allow_delegation: false
+            verbose: true

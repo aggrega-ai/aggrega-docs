@@ -1,0 +1,65 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: model-api-key-sharing-per-consumer
+  version: "1.0.0"
+  description: >
+    Two CrewAI agents behind one OpenAI-compatible gateway, each agent filling
+    its own model_api_key slot with its own credential. The per-consumer form:
+    every consumer holds a distinct key, so revoking one agent's key leaves the
+    other running.
+spec:
+  components:
+    # The gateway both agents talk to. A reference-form realization: no compute
+    # runs for it, and its published endpoint flows to each agent over the
+    # `model` socket.
+    gateway:
+      type: core/ai-model/openai-compatible
+      values:
+        model: gpt-4o-mini
+        provider_name: openai
+
+    researcher:
+      type: core/ai-agent/crewai
+      uses:
+        model:
+          gateway:
+            target: gateway
+      values:
+        role: Researcher
+        goal: Gather and summarize source material for a topic.
+        backstory: A methodical analyst who prefers primary sources.
+        allow_delegation: false
+        verbose: true
+      # Component-scoped fill: this agent's own credential, bound to the
+      # model_api_key slot the component type declares.
+      features:
+        model_api_key:
+          type: core/referenced-secret
+          values:
+            key: OPENAI_API_KEY
+            origin: researcher-key-change-me
+
+    writer:
+      type: core/ai-agent/crewai
+      uses:
+        model:
+          gateway:
+            target: gateway
+      values:
+        role: Writer
+        goal: Turn research notes into publishable prose.
+        backstory: An editor who values plain sentences over ornament.
+        allow_delegation: false
+        verbose: true
+      # A second, independent fill of the same slot. Same slot name, same
+      # Feature type, different credential — the two agents share nothing.
+      features:
+        model_api_key:
+          type: core/referenced-secret
+          values:
+            key: OPENAI_API_KEY
+            origin: writer-key-change-me

@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: model-api-key-sharing-shared
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: model-api-key-sharing-shared
+  manifest: model-api-key-sharing-manifest
+  boundaries:
+    main:
+      directory: shared
+      # Components are routed by their instance name. Organizing the Aggregate
+      # into subsystems scopes the developer's cascade; it does not rename the
+      # components, so the Release addresses them exactly as the single-scope
+      # form would.
+      components:
+        gateway:
+          infra:
+            endpoint: https://gateway.internal.example:8080/v1
+        researcher:
+          infra:
+            image: registry.example/crew-researcher:1.4.0
+        writer:
+          infra:
+            image: registry.example/crew-writer:1.4.0

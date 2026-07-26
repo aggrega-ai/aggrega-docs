@@ -1,0 +1,65 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: model-api-key-sharing-shared
+  version: "1.0.0"
+  description: >
+    The same two CrewAI agents and the same gateway, with neither agent filling
+    its model_api_key slot. One credential is attached once at subsystem scope
+    and cascades to both agents. The shared form: one declaration, many
+    consumers.
+spec:
+  # Subsystems exist here to scope the cascade. The credential is attached to
+  # the `agents` subsystem, so it reaches the two agents and nothing else; the
+  # gateway sits in its own subsystem and is untouched by the attachment.
+  subsystems:
+    model:
+      description: The model gateway the agents route through.
+      components:
+        gateway:
+          type: core/ai-model/openai-compatible
+          values:
+            model: gpt-4o-mini
+            provider_name: openai
+
+    agents:
+      description: The agent tier, sharing one model credential.
+      # Subsystem-scoped attachment. The instance name matches the slot the
+      # agent component type declares, so it binds that slot on every component
+      # in this subsystem. Neither agent below declares a `features:` block.
+      features:
+        model_api_key:
+          type: core/referenced-secret
+          description: One model credential for every agent in this subsystem.
+          values:
+            key: OPENAI_API_KEY
+            origin: team-key-change-me
+      components:
+        researcher:
+          type: core/ai-agent/crewai
+          uses:
+            model:
+              gateway:
+                target: gateway
+          values:
+            role: Researcher
+            goal: Gather and summarize source material for a topic.
+            backstory: A methodical analyst who prefers primary sources.
+            allow_delegation: false
+            verbose: true
+
+        writer:
+          type: core/ai-agent/crewai
+          uses:
+            model:
+              gateway:
+                target: gateway
+          values:
+            role: Writer
+            goal: Turn research notes into publishable prose.
+            backstory: An editor who values plain sentences over ornament.
+            allow_delegation: false
+            verbose: true
