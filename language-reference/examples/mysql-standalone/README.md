@@ -21,7 +21,7 @@ the Manifest changes per target.
 | `release-helm-synth-auth.yaml` | Operator record for the Kubernetes full variant. |
 | `aggregate.yaml` | Developer intent for the local Compose target: the same `db` component with both credential slots delivered as inject-value credentials. |
 | `manifest-compose.yaml` | Maps the MySQL type to the Compose Recipe (`mysql`) and the credential to `dotenv-secret`. |
-| `release-compose.yaml` | Operator record for the local Compose target. |
+| `release-compose.yaml` | Operator record for the local Compose target, including a provider-specific `infra.overrides` entry that pins the exact container image. |
 
 ## What it demonstrates
 
@@ -40,6 +40,10 @@ the Manifest changes per target.
   capability-agnostic `Workload`; the compose engine synthesizes a
   `docker-compose.yaml` service with the MySQL image, its environment, a named
   data volume, and health checks.
+- **An operator escape hatch.** The Compose release sets `infra.overrides.image`,
+  the open pillar for provider-specific facts the Component's own schema does
+  not name, and the rendered service runs that exact image reference. See
+  [Provider-specific overrides](#provider-specific-overrides).
 - **Two-slot credential model.** Passwords are attachments on the component's `features:`
   pillar, each a Feature labeled `feature.aggrega.ai/kind: secret`, kept apart
   from application `values`. The Component's `featuresSchema` declares a Black-Box
@@ -87,3 +91,36 @@ The Kubernetes releases fulfill the operator-sizing pillar per environment: the
 container image tag comes from `infra.engine_version` (`mysql:8.4`), and the
 volumeClaimTemplate's request and storage class come from `infra.storage`. The
 developer's Aggregate never carries these fields.
+
+## Provider-specific overrides
+
+Sizing pillars are named fields: the Component declares `engine_version` and
+`storage`, so an operator setting either is filling in a field the Component
+anticipated. `infra.overrides` is the pillar for what a Component cannot
+anticipate — it is declared as an object accepting any nested structure, and
+each Recipe documents which keys it reads.
+
+`release-compose.yaml` uses it. The Compose Recipe reads one key, `image`, and
+when it is set the container runs that exact reference instead of the one the
+Recipe composes from `engine_version`:
+
+```yaml
+infra:
+  engine_version: "8.4"
+  overrides:
+    image: "registry.internal.example/library/mysql:8.4"
+```
+
+The rendered service carries the override verbatim:
+
+```yaml
+services:
+  db:
+    image: registry.internal.example/library/mysql:8.4
+```
+
+This is the path to a registry-mirrored or digest-pinned build of the same
+server version — a deployment fact that belongs to the target environment, not
+to the Component's contract. Because the key set is per-Recipe rather than
+per-Component, the Recipe is where to look for which keys apply: the Compose
+Recipe here reads `image`, and a Recipe that reads none says so.
