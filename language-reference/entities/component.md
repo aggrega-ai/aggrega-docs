@@ -378,6 +378,8 @@ A Component may declare attachment slots through a `featuresSchema` block. Each 
 
 The deployment chooses between them by what it attaches. The catalog entity is the same in both cases.
 
+**The two shapes compose, and the nearer one wins.** A deployment may do both at once: attach a Feature at a broader scope so it reaches every component under that scope, and fill the slot on the one component that needs something different. The component-scoped fill wins — field by field, so it need only restate the fields it changes and the rest still come from the broader attachment. The sibling components that did not fill the slot keep the broader attachment untouched. The full precedence rule, including how it interacts with annotation-driven attachments and with composed Aggregates, is at [`vocabulary/labels-and-annotations.md`](../vocabulary/labels-and-annotations.md) "Attachment precedence".
+
 **Schema definition on the Component:**
 
 ```yaml

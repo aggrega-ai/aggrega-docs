@@ -100,9 +100,22 @@ Features attach to Components through five distinct authoring surfaces, each wit
 | 4 | Release boundary `features:` block | Ops | Boundary scope (cross-cutting within boundary) | Cascades to every component in the boundary |
 | 5 | Manifest `features.annotations` expansion | Platform Operator | Annotation-driven (synthetic attachment) | Cascades through the boundary tree (Release-side) or subsystem tree (Aggregate-side); per-component override and per-subkey null opt-out apply |
 
-The five surfaces accumulate; an attachment present at any tier contributes to the Component's resolved feature set. When the same Feature instance name appears at multiple tiers, the resolved attachment merges per pillar (Aggregate side contributes `values`; Release side contributes `infra`); type mismatches halt the build with a feature-merge-conflict error.
+The five surfaces accumulate; an attachment present at any surface contributes to the Component's resolved feature set. When the same Feature instance name appears on more than one surface, the contributions merge into one attachment rather than replacing one another, and a type mismatch between them halts the build with a feature-merge-conflict error.
 
-The five surfaces are deliberate per the architecture's separation of concerns — Developer (tiers 1-2), Ops (tiers 3-4), Platform Operator (tier 5) — rather than redundant. Authors choose the tier that matches who owns the attachment and at what scope; the Onion Model orders evaluation so that broader tiers establish baseline and narrower tiers refine.
+The five surfaces are deliberate per the architecture's separation of concerns — Developer (tiers 1-2), Ops (tiers 3-4), Platform Operator (tier 5) — rather than redundant. Authors choose the surface that matches who owns the attachment and at what scope.
+
+### Attachment precedence
+
+When two contributions supply the same field of the same attachment, four rules decide which one the rendered output carries. They are applied **in this order**, and the order is what makes the outcome predictable:
+
+1. **Origin.** An explicitly authored contribution beats an annotation-driven one, whichever scope either was declared at. Writing a field down in a `features:` block is how an author overrides what an annotation would have contributed, and an annotation never silently displaces something written by hand. The compiler records the suppressed annotation alongside the winning value and reports it as an advisory, so the override is visible rather than mysterious.
+2. **Pillar ownership.** Each domain fills its own pillar: the Aggregate surfaces contribute `values`, the Release surfaces contribute `infra`. Because the two sides never write the same pillar, a developer contribution and an operator contribution cannot contest the same field — there is no developer-versus-operator precedence question to answer.
+3. **Composition authority.** A declaration in the Aggregate you are deploying outranks a declaration inside an Aggregate it composes, even when the composed Aggregate declared at the narrower scope. Composition stays authoritative: a module cannot defeat the Aggregate that consumes it merely by choosing a narrower scope.
+4. **Specificity.** Within one authoring level and one pillar, the narrower scope refines the broader one, **field by field**. A component-scoped attachment overrides a subsystem-wide or boundary-wide attachment of the same instance name — but only for the fields it actually mentions. Fields the narrower scope leaves out keep the broader scope's values, so a shared attachment can supply the common configuration while a single component adjusts one field of it. Two contributions at the same scope resolve by author order, with the later one winning, which is what lets an inner subsystem refine an outer one and a deeper boundary refine a shallower one.
+
+Precedence governs field values. It does not reorder **evaluation**: the sequence in which the compiler folds the surfaces, and in which it executes each attachment's pre-render `injectMapping`, is the fixed five-tier sequence documented in [`architecture/10-compilation-pipeline.md`](../../architecture/10-compilation-pipeline.md). An attachment's authored `inject` block follows that evaluation sequence rather than the scope ranking above, so one attachment never carries two competing orderings.
+
+Credentials attached through the `secrets:` keyword are supplied as complete attachments rather than as contributions to be merged, so the rules above do not apply to them; a `secrets:` entry is the whole attachment at that instance name.
 
 ## Per-entity expansion of `metadata.labels` and `metadata.annotations`
 

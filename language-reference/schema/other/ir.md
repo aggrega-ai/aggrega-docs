@@ -105,7 +105,7 @@ Origin of one leaf in an attachment's values or infra payload.
 | `side` | string | no | Authoring surface the annotation was declared on; empty for explicit leaves. |
 | `annotation_key` | string | no | Annotation name that contributed this leaf; empty for explicit leaves. |
 | `annotation_source` | string | no | Source location of the annotation declaration as <file-path>:<dotted-yaml-key-path>; empty for explicit leaves. |
-| `overrides_annotation` | FieldProvenance | no | When an explicit leaf overwrote an annotation-contributed leaf, the suppressed provenance it replaced. |
+| `overridden_annotation` | FieldProvenance | no | The annotation contribution that lost this leaf to an explicit one: when an explicit leaf overwrote an annotation-contributed leaf, the suppressed provenance it replaced. Singular — exactly one suppressed contribution is ever retained. |
 
 _Additional properties are not permitted._
 
