@@ -230,7 +230,7 @@ The pre-evaluated workload content the host hands a Provider guest so the guest 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `workload` | object | yes | The host-evaluated, post-validation Workload the guest synthesizes; opaque at this schema layer so the socket schema does not rebind the Workload entity contract. |
-| `secrets` | object | no | The per-slot secret provides the synthesis consumes, keyed by secret slot; each slot's provides carries the generated Secret's identity a workload secret reference resolves to. |
+| `attachment_provides` | object | no | Every attachment on the node, projected to its resolved provides and keyed by the attachment instance name a workload attachment reference carries; absent when the node carries no attachments. The host copies the strings through without interpreting them, so the guest reads whichever entries of an attachment's provides it needs to resolve a reference to the resource that attachment produced. |
 
 _Additional properties are not permitted._
 
