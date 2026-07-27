@@ -20,14 +20,16 @@ The allowlist is closed by design: surfaces such as `.context.inject`, `.values`
 
 | Variable | `directory:` | `subDirectory:` | Description |
 | --- | :-: | :-: | --- |
-| `{{ .provider }}` | yes | yes | The provider name (`helm`, `helm-chart`, `compose`) for the artifacts emitting at this path. |
+| `{{ .capability }}` | yes | yes | The rendering capability (`helm`, `helm-chart`, `compose`) the contributing component's Recipe declares, for the artifacts emitting at this path. |
 | `{{ .boundary_name }}` | yes | yes | The boundary's authored name in the Release (e.g., `production`, `eu-prod`). |
 | `{{ .parameters.X }}` | yes | yes | Any typed parameter declared on the Aggregate and fulfilled by the Release. Strict access — referencing `.parameters.unknown` halts the build. |
 | `{{ .manifest.recipe_name }}` | yes | yes | The Recipe name resolved through the Manifest for the contributing component. Useful for routing per-Recipe artifacts into per-Recipe sub-folders. |
 | `{{ .parent_boundary.* }}` | yes | yes | Cascade access to the enclosing boundary's evaluated values. See [Parent-boundary cascade](#parent-boundary-cascade) below. |
 | `{{ .component_id }}` | — | yes | The contributing component's instance ID. Available in `subDirectory:` only because `directory:` is a per-boundary property — the directory string is computed once per boundary, before any per-component routing happens. |
 
-The `directory:` field defaults to the boundary path (a stable build-time identifier derived from the boundary tree). The `subDirectory:` field defaults to `{{ .provider }}` so that each provider's artifacts land in their own sub-folder under the boundary's directory; setting `subDirectory: "."` or `subDirectory: ""` flattens that grouping.
+The `directory:` field defaults to the boundary path (a stable build-time identifier derived from the boundary tree). The `subDirectory:` field defaults to `{{ .capability }}` so that each capability's artifacts land in their own sub-folder under the boundary's directory; setting `subDirectory: "."` or `subDirectory: ""` flattens that grouping.
+
+`.capability` is resolved per component, and a boundary's `directory:` is evaluated for two distinct purposes. The per-boundary evaluation that publishes `.parent_boundary.directory` to child boundaries runs before any component is bound, so `.capability` is empty there. The per-component evaluation that fixes where a contributor's artifacts actually land carries that component's capability. A parent authoring `directory: "d-{{ .capability }}"` therefore publishes `d-` down the cascade while its own artifacts land under `d-compose`.
 
 ## Parent-boundary cascade
 
@@ -67,11 +69,11 @@ spec:
 Each boundary evaluates to a distinct `directory:`, so each gets its own assembly:
 
 ```text
-deploy/api-prod/<provider>/...
-deploy/data-prod/<provider>/...
+deploy/api-prod/<capability>/...
+deploy/data-prod/<capability>/...
 ```
 
-The default `subDirectory: "{{ .provider }}"` segregates per-provider artifacts inside each boundary directory. Two boundaries, two assembly outputs per provider, no merging.
+The default `subDirectory: "{{ .capability }}"` segregates per-capability artifacts inside each boundary directory. Two boundaries, two assembly outputs per capability, no merging.
 
 ### Layout 2 — collapsed assembly via shared parent directory
 
@@ -98,7 +100,7 @@ spec:
             db: {}
 ```
 
-Both child boundaries evaluate `directory:` to `deploy/cluster` (the parent's directory), so all contributors merge at one assembly path. With the default `subDirectory: "{{ .provider }}"`, the compose contributors from both children land in `deploy/cluster/compose/` and produce one merged `docker-compose.yaml`. The `compose-bridge` Feature attached at the parent runs once (boundary-scope dispatch) and contributes the bridge service to the same merged file.
+Both child boundaries evaluate `directory:` to `deploy/cluster` (the parent's directory), so all contributors merge at one assembly path. With the default `subDirectory: "{{ .capability }}"`, the compose contributors from both children land in `deploy/cluster/compose/` and produce one merged `docker-compose.yaml`. The `compose-bridge` Feature attached at the parent runs once (boundary-scope dispatch) and contributes the bridge service to the same merged file.
 
 The parent's `aggrega.ai/chart-name: "cluster-umbrella"` annotation cascades to both children; if the boundaries also held helm-chart contributors, both children's helm-chart sub-charts would compose under one umbrella named `cluster-umbrella`. Mismatched chart-name values across contributors at one path raise `CHART_NAME_MISMATCH`.
 
@@ -113,9 +115,9 @@ spec:
       directory: "deploy/{{ .parameters.region }}"
       components:
         api:
-          subDirectory: "{{ .provider }}/{{ .component_id }}"
+          subDirectory: "{{ .capability }}/{{ .component_id }}"
         db:
-          subDirectory: "{{ .provider }}/{{ .component_id }}"
+          subDirectory: "{{ .capability }}/{{ .component_id }}"
         ingress:
           subDirectory: "shared"
 ```
@@ -123,8 +125,8 @@ spec:
 The boundary's `directory:` evaluates to `deploy/eu-west-1` (parameter substitution). Per-component `subDirectory:` overrides route each contributor to a per-component sub-folder, with the `ingress` component overriding to a flat `shared` sub-folder for cross-cutting artifacts:
 
 ```text
-deploy/eu-west-1/<provider>/api/...
-deploy/eu-west-1/<provider>/db/...
+deploy/eu-west-1/<capability>/api/...
+deploy/eu-west-1/<capability>/db/...
 deploy/eu-west-1/shared/...
 ```
 

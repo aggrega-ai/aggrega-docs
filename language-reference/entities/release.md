@@ -119,9 +119,9 @@ See [architecture/06-data-taxonomy-and-composition.md §7](../../architecture/06
 
 Each boundary declares a physical output `directory` for its compiled artifacts; components within a boundary may override via a per-component `subDirectory`. The compiler computes the final artifact path by joining them: `Final_Path = filepath.Join(Evaluated(directory), Evaluated(subDirectory))`.
 
-* **Safe default.** If `subDirectory` is omitted, the compiler applies `subDirectory: "{{ .provider }}"` automatically — each provider's artifacts (Helm, Helm-chart, Compose) end up in its own sub-folder, preventing mixed-artifact collisions in downstream CI/CD tools.
+* **Safe default.** If `subDirectory` is omitted, the compiler applies `subDirectory: "{{ .capability }}"` automatically — each rendering capability's artifacts (Helm, Helm-chart, Compose) end up in its own sub-folder, preventing mixed-artifact collisions in downstream CI/CD tools.
 * **Flat override.** To disable sub-directories entirely (all artifacts directly under `directory`), set `subDirectory: "."` or `subDirectory: ""`.
-* **Template variables.** `directory` evaluates with `{{ .provider }}`, `{{ .boundary_name }}`, `{{ .parameters.X }}`, `{{ .manifest.recipe_name }}`, and `{{ .parent_boundary.* }}` for cascading data from an enclosing boundary. `subDirectory` evaluates with the same set plus `{{ .component_id }}` (per-component overrides only). The compiler evaluates path templates with `missingkey=error` — referencing an undeclared variable halts the build with a precise diagnostic. See [path-template variables](../path-template-variables.md) for the per-context matrix and parent-boundary cascade rules.
+* **Template variables.** `directory` evaluates with `{{ .capability }}`, `{{ .boundary_name }}`, `{{ .parameters.X }}`, `{{ .manifest.recipe_name }}`, and `{{ .parent_boundary.* }}` for cascading data from an enclosing boundary. `subDirectory` evaluates with the same set plus `{{ .component_id }}` (per-component overrides only). The compiler evaluates path templates with `missingkey=error` — referencing an undeclared variable halts the build with a precise diagnostic. See [path-template variables](../path-template-variables.md) for the per-context matrix and parent-boundary cascade rules.
 
 Boundary annotations cascade downward to every contained component; `infra` stays strictly localized to the component targeting it. The recursive `boundaries` map allows arbitrary nesting (boundary inside boundary inside boundary) while the annotation-cascade and local-infra invariants hold at every level.
 
@@ -140,7 +140,7 @@ spec:
   boundaries:
     eu-prod:
       directory: "deploy/eu-prod"
-      # Scenario A: Safe Default. Compiler automatically applies `subDirectory: "{{ .provider }}"`.
+      # Scenario A: Safe Default. Compiler automatically applies `subDirectory: "{{ .capability }}"`.
       annotations:
         "aggrega.ai/namespace": "finance-frontend" # Merges downwards as annotations
       components:

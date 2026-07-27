@@ -128,7 +128,7 @@ spec:
     replicaCount: {{ optional .infra `replicas` 2 }}
 ```
 
-After composition, the boundary's evaluated assembly path (default `dist/<boundary-directory>/<provider>/` because `subDirectory:` defaults to `{{ .provider }}`) contains:
+After composition, the boundary's evaluated assembly path (default `dist/<boundary-directory>/<capability>/` because `subDirectory:` defaults to `{{ .capability }}`) contains:
 
 ```text
 dist/<boundary-directory>/helm-chart/

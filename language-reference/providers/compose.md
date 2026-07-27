@@ -134,7 +134,7 @@ The merged document then flows into the Release-level merge alongside any synthe
 
 ## Per-`(path, provider)` output
 
-Each compose assembly path produces one `docker-compose.yaml`. Boundaries that evaluate to distinct paths produce distinct compose files; boundaries that share an evaluated path produce one merged compose file containing every contributor at that path. The path is the boundary's `directory:` joined with the per-component `subDirectory:` (which defaults to `{{ .provider }}` so compose contributors land under a `compose/` subfolder by default).
+Each compose assembly path produces one `docker-compose.yaml`. Boundaries that evaluate to distinct paths produce distinct compose files; boundaries that share an evaluated path produce one merged compose file containing every contributor at that path. The path is the boundary's `directory:` joined with the per-component `subDirectory:` (which defaults to `{{ .capability }}` so compose contributors land under a `compose/` subfolder by default).
 
 Service-name collisions within a single assembly path raise `INSTANCE_ID_COLLISION`. When two different nodes contribute services with the same instance ID at the same `(path, provider)` tuple, the compiler halts and the diagnostic names every contributing `(boundary, node)` tuple in alphabetical order. The author resolves the collision by renaming one of the contributors (typically by adjusting the node's identifier so the synthesizer produces a different service name), or by routing the contributors to distinct paths via different `directory:` declarations.
 
@@ -214,7 +214,7 @@ spec:
     db: {}
 ```
 
-The compose provider produces one `docker-compose.yaml` at the boundary's evaluated path (default `dist/production/compose/docker-compose.yaml` because `subDirectory:` defaults to `{{ .provider }}`) containing:
+The compose provider produces one `docker-compose.yaml` at the boundary's evaluated path (default `dist/production/compose/docker-compose.yaml` because `subDirectory:` defaults to `{{ .capability }}`) containing:
 
 - `services.api` (the main api service, network `prod`, ports `8080:8080`, healthcheck via `curl`, `depends_on: [db]`)
 - `services.db` (the main db service, network `prod`)
