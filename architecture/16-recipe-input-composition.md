@@ -308,7 +308,7 @@ Five volume types; no compound:
 | Type | Semantics | K8s (helm) | Compose |
 | --- | --- | --- | --- |
 | `ephemeral` | Tmpfs / emptyDir; dies with pod | `emptyDir: { sizeLimit }` | `tmpfs: { size }` (in-memory; warning if semantics differ) |
-| `configmap` | Read-only config files | ConfigMap volume reference | bind mount from generated config file |
+| `configmap` | Read-only config files | ConfigMap volume reference | service-level `configs:` reference to a top-level config the Recipe's `artifacts:` declares |
 | `secret` | Read-only secret files | Secret volume reference | env_file or bind-mounted secret file |
 | `persistent` | Single PVC; survives pod restarts | PVC resource + `volume.persistentVolumeClaim` | named volume |
 | `persistentTemplate` | Per-replica PVC; companion of `form: stateful` | `StatefulSet.volumeClaimTemplates` | named volume (degraded; warning emitted) |

@@ -25,7 +25,7 @@ When a Recipe declares `workload:`, the provider translates the platform-owned W
 | `variables` | `environment` (map form) |
 | `secrets[as: env]` | `environment` (placeholder; see "Secrets" below) |
 | `secrets[as: file]` | `volumes` long-form bind-mount, read-only |
-| `volumeMounts` | `volumes` long-form, type per the referenced Volume variant |
+| `volumeMounts` | the compose primitive the referenced Volume variant maps to — a `volumes` long-form entry, a service-level `tmpfs:` entry, or a service-level `configs:` reference (see [Volumes](#volumes)) |
 | `ports` | implicit (compose containers expose ports the image listens on) |
 | `restartPolicy: Always` | `restart: unless-stopped` |
 | `restartPolicy: OnFailure` | `restart: on-failure` |
@@ -54,13 +54,13 @@ Probe timeout fields map to compose-style duration strings:
 
 ### Volumes
 
-Compose has no Kubernetes-equivalent for ConfigMap, Secret, or per-replica volume templates. Each Workload volume variant degrades to the closest compose primitive:
+Compose has a config primitive of its own, which is what a `configmap` volume translates to. It has no Kubernetes-equivalent for Secret or per-replica volume templates, so those variants degrade to the closest compose primitive:
 
 | Workload volume variant | Compose translation | Loss notes |
 | --- | --- | --- |
 | `ephemeral` | service-level `tmpfs:` list entry | `sizeLimit` is not preserved (compose tmpfs short-form lacks size) |
-| `configmap` | `volumes` long-form bind-mount, read-only | The bind source is the configmap's `source` name, resolved as a path on the compose host. A compose Recipe's `artifacts:` output is consumed as a compose fragment, so the build cannot place that file — the path has to be present on the host independently of the build |
-| `secret as: file` | `volumes` long-form bind-mount, read-only | Same caveat as configmap: the secret file must be reachable on the host |
+| `configmap` | service-level `configs:` reference naming the configmap, mounted at the volume mount's path | The reference is by **name**, exactly as a Kubernetes target references a ConfigMap resource — nothing reads the config's content. The matching top-level `configs:` entry comes from the Recipe's `artifacts:` input, whose compose fragment declares it with inline `content:`; a reference with no such entry halts the build (see [Artifacts-emitted compose fragments](#artifacts-emitted-compose-fragments)). A `configs:` reference carries the config name and the mount path and nothing else, so the mount's `readOnly` has no separate expression |
+| `secret as: file` | `volumes` long-form bind-mount, read-only | A secret volume deliberately does **not** follow the `configmap` translation: an inline `configs:` entry would write the secret's value into the emitted compose file in plaintext, and the compiler never resolves a secret into plaintext — a secret stays a pointer through every stage of the build. The bind source is the secret's `source` name, resolved as a path the operator makes reachable on the compose host independently of the build |
 | `secret as: env` | `environment` entry with empty value | Placeholder. Compose has no native env-from-secret primitive; the `compose-bridge` Feature is the future home for secret-resolution at compose runtime |
 | `persistent` | named volume + top-level `volumes: { <name>: {} }` declaration | Storage class and size are not preserved (compose has no equivalent shape) |
 | `persistentTemplate` | named volume + top-level declaration (same as `persistent`) | Companion of `form: stateful`; compose has no per-replica volume templating primitive, so the per-replica behaviour is lost |
@@ -125,7 +125,7 @@ Two differences from the main service follow from an init service being a non-ma
 
 Init services and sidecar services share one name namespace, so an `initContainers` entry and a `containers` entry may not carry the same name. When they do, the compiler halts with a `TRANSLATION_ERROR` naming the node, the container name, and the service name both wanted, rather than letting one service quietly replace the other.
 
-Emitting the completion condition raises no minimum Compose version. `condition` and its values belong to the base Compose Specification — unlike the `restart` and `required` fields alongside them in the same long-form block, which the specification ties to particular Compose releases. The highest version the compose provider asks for remains the **≥ 2.23.1** that inline `configs.content` needs on the `compose-bridge` path.
+Emitting the completion condition raises no minimum Compose version. `condition` and its values belong to the base Compose Specification — unlike the `restart` and `required` fields alongside them in the same long-form block, which the specification ties to particular Compose releases. The highest version the compose provider asks for remains the **≥ 2.23.1** that inline `configs.content` needs. That floor reaches any compose output carrying a config with inline `content:`, which is how the file behind a `configmap` volume and the config behind a bridged cross-network edge both arrive — not one authoring path.
 
 ## Per-boundary networking
 
@@ -188,13 +188,14 @@ Top-level volumes union within an assembly path — name collisions silently mer
 
 ### Artifacts-emitted compose fragments
 
-When a Recipe's `artifacts:` block evaluates to compose YAML — a fragment carrying its own `services:`, `volumes:`, or `networks:` blocks (each entry inline or per-entry `$import:`-loaded) — the merge into the per-`(path, provider)` assembly follows shape-specific rules:
+When a Recipe's `artifacts:` block evaluates to compose YAML — a fragment carrying its own `services:`, `volumes:`, `configs:`, or `networks:` blocks (each entry inline or per-entry `$import:`-loaded) — the merge into the per-`(path, provider)` assembly follows shape-specific rules:
 
 - **`services:` from artifacts merge into the assembled compose file alongside per-component services.** A service name contributed by two different components at the same assembly path halts, and the diagnostic names every contributor. A collision *within a single component* — between that component's own artifact fragment and the services synthesised for it — is not detected, and the later contribution replaces the earlier one, so keep an artifact-authored service name distinct from the `<component>` and `<component>-<container-name>` names the synthesiser produces.
 - **`volumes:` from artifacts merge into the top-level `volumes:` block.** Name collisions silently merge, matching the same rule as per-component volumes.
+- **`configs:` from artifacts merge into the top-level `configs:` block.** This is how the file behind a `configmap` volume reaches the assembly: the volume becomes a service-level `configs:` reference naming the configmap, and the artifact fragment declares an entry of that name with inline `content:`. Once the assembly path's fragments are unioned, every service-level reference must resolve to a declared entry, or the build halts with `TRANSLATION_ERROR` naming each unresolved reference — the service, the config name, and the mount path. The check runs over the completed union rather than per component, so one component may reference a config another component at the same assembly path declares.
 - **`networks:` from artifacts are NOT merged into the assembled compose file.** The compose provider derives networks from boundary annotations (one network per contributing boundary, named per the derivation rules above); artifact-supplied network declarations are silently dropped at the assembler boundary. Authors who need cross-network routing within a single compose file should use the `compose-bridge` Feature rather than authoring custom network entries via artifacts.
 
-The asymmetry is structural: `services:` and `volumes:` carry per-Recipe content the assembler accumulates into the assembled file; `networks:` is per-boundary infrastructure the assembler derives from boundary state. Artifacts can extend the former; only boundary annotations can shape the latter.
+The asymmetry is structural: `services:`, `volumes:` and `configs:` carry per-Recipe content the assembler accumulates into the assembled file; `networks:` is per-boundary infrastructure the assembler derives from boundary state. Artifacts can extend the former; only boundary annotations can shape the latter.
 
 ## What the compose provider does not deliver
 
