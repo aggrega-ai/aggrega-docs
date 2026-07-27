@@ -523,6 +523,21 @@ Emitted message:
 
 **How to fix:** rename one of the colliding components in the Aggregate, or split the two boundaries onto separate `directory:` paths so each component instance lands in its own assembly.
 
+### Two contributors write the same output path
+
+Two contributors to one assembly produce a file at the same output path. This is distinct from the instance-ID collision above: the components are named differently and the assembly can tell them apart — it is the *files* they emit that land on one path. It happens most often where a provider writes each contributor's output side by side rather than under a per-component position, so two components whose Recipes emit the same filename (two `artifacts:` entries both named `main.tf`, say) meet at one path. The assembler's own output can collide with a contributor's file the same way.
+
+Whether two contributors emitting one filename collide depends on where their provider places them. A provider that nests each contributor under its own position in the assembly keeps two identically-named files apart; a provider that writes contributors side by side does not. The comparison is on the final path a file would be written to, not on the name the contributor emitted, so the nested case is not reported.
+
+The build halts rather than writing one of the two files and discarding the other. There is no correct silent resolution: renaming or suffixing one file would invent a name nobody authored, and merging their contents would invent a document nobody wrote. Every colliding path is reported, and every contributor writing it is named, so one build tells you the whole picture rather than one collision at a time.
+
+Emitted message:
+> assembled output collision: two contributors write the same output path: `<output-path>` is written by `<contributor-1>` and `<contributor-2>`; rename one of the colliding files so each output path is written once
+
+When the contributors declared different formats for their file, each is named with the format it declared — a disagreement there usually means two unrelated files were meant, and one of them is misnamed.
+
+**How to fix:** rename the emitted file in whichever Recipe you control — an `artifacts:` key, or the filename a Workload translation derives — so the two no longer meet. Where the two contributors genuinely belong to separate outputs, give their boundaries distinct `directory:` paths so each assembles on its own.
+
 ### Chart-name mismatch on a merged helm-chart umbrella
 
 Two or more boundaries contribute to the same `helm-chart`-provider assembly path but their effective `aggrega.ai/chart-name` annotations (resolved through the boundary annotation cascade) do not agree. A Helm umbrella chart has exactly one chart name; the renderer cannot pick one of the conflicting candidates.
