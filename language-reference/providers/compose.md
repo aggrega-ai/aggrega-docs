@@ -59,7 +59,7 @@ Compose has no Kubernetes-equivalent for ConfigMap, Secret, or per-replica volum
 | Workload volume variant | Compose translation | Loss notes |
 | --- | --- | --- |
 | `ephemeral` | service-level `tmpfs:` list entry | `sizeLimit` is not preserved (compose tmpfs short-form lacks size) |
-| `configmap` | `volumes` long-form bind-mount, read-only | The bind source is the configmap name; the file MUST be emitted by the artifacts pass and reachable on the compose host |
+| `configmap` | `volumes` long-form bind-mount, read-only | The bind source is the configmap's `source` name, resolved as a path on the compose host. A compose Recipe's `artifacts:` output is consumed as a compose fragment, so the build cannot place that file — the path has to be present on the host independently of the build |
 | `secret as: file` | `volumes` long-form bind-mount, read-only | Same caveat as configmap: the secret file must be reachable on the host |
 | `secret as: env` | `environment` entry with empty value | Placeholder. Compose has no native env-from-secret primitive; the `compose-bridge` Feature is the future home for secret-resolution at compose runtime |
 | `persistent` | named volume + top-level `volumes: { <name>: {} }` declaration | Storage class and size are not preserved (compose has no equivalent shape) |
@@ -190,7 +190,7 @@ Top-level volumes union within an assembly path — name collisions silently mer
 
 When a Recipe's `artifacts:` block evaluates to compose YAML — a fragment carrying its own `services:`, `volumes:`, or `networks:` blocks (each entry inline or per-entry `$import:`-loaded) — the merge into the per-`(path, provider)` assembly follows shape-specific rules:
 
-- **`services:` from artifacts merge into the assembled compose file alongside per-component services.** Service-name collisions across the artifact fragments and the per-component contributions raise `INSTANCE_ID_COLLISION`; the diagnostic names every contributor.
+- **`services:` from artifacts merge into the assembled compose file alongside per-component services.** A service name contributed by two different components at the same assembly path halts, and the diagnostic names every contributor. A collision *within a single component* — between that component's own artifact fragment and the services synthesised for it — is not detected, and the later contribution replaces the earlier one, so keep an artifact-authored service name distinct from the `<component>` and `<component>-<container-name>` names the synthesiser produces.
 - **`volumes:` from artifacts merge into the top-level `volumes:` block.** Name collisions silently merge, matching the same rule as per-component volumes.
 - **`networks:` from artifacts are NOT merged into the assembled compose file.** The compose provider derives networks from boundary annotations (one network per contributing boundary, named per the derivation rules above); artifact-supplied network declarations are silently dropped at the assembler boundary. Authors who need cross-network routing within a single compose file should use the `compose-bridge` Feature rather than authoring custom network entries via artifacts.
 
