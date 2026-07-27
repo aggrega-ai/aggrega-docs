@@ -138,7 +138,7 @@ The path-template surface produces five distinct fatal halts, each documented in
 - **`PATH_COLLISION`** — assembly-time: two boundary contributors evaluate to the same path but disagree on a property that must be uniform across contributors at that path.
 - **`INSTANCE_ID_COLLISION`** — assembly-time: two boundaries that evaluate to the same `(path, provider)` tuple contribute components with identical instance IDs.
 - **`CHART_NAME_MISMATCH`** — assembly-time: a merged helm-chart assembly receives contributors with conflicting cascade-resolved `aggrega.ai/chart-name` annotations.
-- Generic missing-key: a path template references an in-allowlist field that resolves to no value (e.g., `{{ .parameters.region }}` when the Release omits `region`); `missingkey=error` produces an explicit message naming the boundary, the template field (`directory:` vs `subDirectory:`), and the missing key.
+- Generic missing-key: a path template references a field under an **open** variable that resolves to no value (e.g., `{{ .parameters.region }}` when the Release omits `region`, or a `.parent_boundary` key at a top-level boundary that has no parent); `missingkey=error` produces an explicit message naming the boundary, the template field (`directory:` vs `subDirectory:`), and the missing key. `.parameters` and `.parent_boundary` are open — their keys are authored data — while `.manifest` declares its keys, so a mistyped key under `.manifest` is refused at parse time as an unknown reference instead, with the diagnostic listing the keys `.manifest` defines.
 
 ## Cross-references
 
