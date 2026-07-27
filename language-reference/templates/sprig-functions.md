@@ -41,6 +41,8 @@ These helpers are not blocked by the engine; they are wired by Sprig's default `
 
 The signature takes the map and the key as separate arguments because a value piped through Go template's `|` operator has lost access to its parent map. Without the parent map in scope, presence cannot be checked.
 
+One bound on the presence check, and it comes from the template rather than from the helper: a value template reads an absent key as nothing, which it does by supplying an empty value at each absent key the template names as a dotted path and reads as a value. So a template that reads one key **both** through `optional` and as such a path finds that key present and empty, and gets the empty value rather than the fallback. Read a key one way per template and the two answers agree.
+
 ```yaml
 # Present and non-zero: returns 3
 {{ optional .infra `replicas` 1 }}            # .infra.replicas = 3   → 3
