@@ -241,7 +241,22 @@ spec:
 
 `.locals.*` is per-invocation: each FR invocation resolves its own `locals:` block, and the result is visible only to that invocation's downstream templates. The block resolves before the FR's other authoring-surface templates evaluate, so every one of them sees resolved values.
 
-Each entry evaluates against a self-contained context: `.context.instance_id`, `.values`, `.infra`, and the entries of this same block already resolved. That is deliberately narrower than the context the FR's *other* templates read — a `locals:` entry cannot reach `.context.annotations`, `.context.inject`, `.context.uses`, or `.provides`, and a reference to any of them halts naming the reference. Derived values that need those pillars belong in the template that reads them, not in `locals:`.
+Each entry evaluates against a self-contained context: `.context.instance_id`, `.attachment_name`, `.values`, `.infra`, and the entries of this same block already resolved. That is deliberately narrower than the context the FR's *other* templates read — a `locals:` entry cannot reach `.context.annotations`, `.context.inject`, `.context.uses`, or `.provides`, and a reference to any of them halts naming the reference. Derived values that need those pillars belong in the template that reads them, not in `locals:`.
+
+The two identities in that context answer different questions, and a `locals:` entry reads them exactly as the FeatureRecipe's other templates do:
+
+* **`.context.instance_id`** is the **host component** the attachment is resolving for. It means the host component on every template surface the compiler evaluates, so the same reference reads the same way whichever entity's block you are writing.
+* **`.attachment_name`** is the **attachment instance** being resolved — the slot it fills in the owning entity's `featuresSchema`, or the free name you gave it.
+
+So a `locals:` entry that derives a name for an emitted resource composes both, exactly as an `artifacts:` template would:
+
+```yaml
+spec:
+  locals:
+    scrape_name: "{{ .context.instance_id }}-{{ .attachment_name }}"    # api-scrape_target
+```
+
+`.values` and `.infra` in a `locals:` entry are the **attachment's own** pillars, authored on the attachment declaration — not the host component's.
 
 ### Author order is load-bearing
 
@@ -258,7 +273,7 @@ Chaining runs **downward only**. Where one entry reads another, the order of the
 
 A reference to an entry the block defines **later** halts naming the ordering fault (move the definition above its reader); a reference to a key the block **does not declare at all** halts naming the key (correct the spelling). The check reads **direct** `.locals.<key>` references — a key reached through `index .locals`, a `with .locals` block, or a variable bound to `.locals` is not analysed, so an absent key reached that way renders as an empty value rather than halting. `provides:` reads the fully resolved block, because this FeatureRecipe's locals resolve before its provides; a `provides:` template naming an undeclared key halts. These are the same rules a Recipe's `locals:` block follows — see [entities/recipe.md](recipe.md) "The `locals:` block".
 
-**Scope behavior.** For `executionScope: component` (default), `locals:` evaluates per attached component instance against the self-contained context above. For `executionScope: boundary`, `locals:` evaluates per boundary attachment against the boundary-scope view rooted at `.boundary.*`; the per-component fields (`.context.instance_id`, `.context.inject`, `.context.uses`) are not available. The boundary-scope template field allowlist applies to `locals:` the same way it applies to the other FR authoring-surface templates. The evaluation contract — author order, downward-only sibling reads, the two halts — is identical at both scopes; only the surrounding context shape differs.
+**Scope behavior.** For `executionScope: component` (default), `locals:` evaluates per attached component instance against the self-contained context above. For `executionScope: boundary`, `locals:` evaluates per boundary attachment against the boundary-scope view rooted at `.boundary.*`; the per-component fields (`.context.instance_id`, `.context.inject`, `.context.uses`) and `.attachment_name` are not available, because the FeatureRecipe runs once for the boundary rather than once per component. The boundary-scope template field allowlist applies to `locals:` the same way it applies to the other FR authoring-surface templates. The evaluation contract — author order, downward-only sibling reads, the two halts — is identical at both scopes; only the surrounding context shape differs.
 
 **Distinction from `injectMapping` overlays and `pipeline[].with` mappings.** `locals:` produces a context-visible map for downstream templates; it does not contribute output. `injectMapping` writes into the consumer's `.context.inject` pipe (caller-side mutation). `pipeline[].with` supplies the Wasm plugin's `args` payload. The three surfaces are orthogonal — a FeatureRecipe routinely uses all three together, with `locals:` carrying the shared derived strings the other two reference.
 

@@ -111,11 +111,13 @@ Authors needing the resolved post-interception delivery should read `.context.in
 
 ## Attachment FeatureRecipe surface
 
-When the renderer evaluates an attachment's Resource Generation pass at Phase B.6, an additional top-level field is set:
+When the renderer evaluates an attachment FeatureRecipe's templates, an additional top-level field is set:
 
-- **`.attachment_name` (string)** — the attachment's instance name: the slot it fills in the owning entity's `featuresSchema`, or the free name the author gave it. A FeatureRecipe's `provides:` and `valuesMapping:` read it to derive a deterministic resource identifier (`{{ .context.instance_id }}-{{ .attachment_name }}`) and to name the attachment being processed.
+- **`.attachment_name` (string)** — the attachment's instance name: the slot it fills in the owning entity's `featuresSchema`, or the free name the author gave it. A FeatureRecipe's `locals:`, `provides:`, `injectMapping:`, `valuesMapping:` and `artifacts:` read it to derive a deterministic resource identifier (`{{ .context.instance_id }}-{{ .attachment_name }}`) and to name the attachment being processed.
 
-`.attachment_name` is set only during an attachment's Resource Generation; it is empty/unset at every other template site.
+A base Recipe's own templates are not resolving an attachment, so the field is not part of their context: a Recipe `provides:`, `locals:` or `source:` template that references it halts naming the reference rather than rendering an empty value. A FeatureRecipe with `executionScope: boundary` runs once for the boundary rather than once per component, so the field is not available there either.
+
+The field is the **only** route to the attachment's instance name. `.context.instance_id` is the **host component** the attachment is resolving for — it denotes the host on every template surface the compiler evaluates, including a FeatureRecipe's own `locals:` — so the two names are not interchangeable, and neither stands in for the other.
 
 ## Per-site availability
 
