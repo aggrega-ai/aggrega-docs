@@ -78,14 +78,14 @@ The three casings are not interchangeable. A Recipe author who writes `{{ .conte
 
 A subset of fields across the language carry document-path values — strings that point at a position inside another document (a rendered Workload's volumes section, a Component's featuresSchema entry, a Manifest's mappings tier). The values follow [RFC 6901 JSON Pointer](https://datatracker.ietf.org/doc/html/rfc6901) syntax — slash-separated tokens identifying the path through the target document.
 
-**RFC 6901 is the path-grammar baseline for every document-path surface in Aggrega.** The Wasm plugin contract consumes RFC 6901 patches (per [`plugins/plugin-contract.md`](plugins/plugin-contract.md) `label-transform` role JSONPatch output); the URI grammar's format-string inventory names RFC 6901 alongside Go template syntax and Sprig helpers (per [`vocabulary/uri-grammar.md`](vocabulary/uri-grammar.md) "Format-string inventory"); the per-Recipe `.locals` exports use RFC 6901 to point at synthesised-Workload positions Wasm Injector plugins read at Phase C. One grammar, multiple consuming surfaces.
+**RFC 6901 is the path-grammar baseline for every document-path surface in Aggrega.** The Wasm plugin contract consumes RFC 6901 patches (per [`plugins/plugin-contract.md`](plugins/plugin-contract.md) `label-transform` role JSONPatch output); the URI grammar's format-string inventory names RFC 6901 alongside Go template syntax and Sprig helpers (per [`vocabulary/uri-grammar.md`](vocabulary/uri-grammar.md) "Format-string inventory"); the per-Recipe `.locals` exports use RFC 6901 to point at synthesised-Workload positions Wasm Injector plugins receive at Phase C through their step's `with` payload. One grammar, multiple consuming surfaces.
 
 **The naming-suffix discipline** distinguishes the two authoring sides of these path values via a deliberate suffix split aligned with the broader Field Casing section above:
 
 * **Schema fields** carrying RFC 6901 JSON Pointers use **camelCase `*Path`** suffix. The fields are part of the developer-facing YAML schema, so they follow the camelCase convention. Examples:
   * `componentRefPath` — a schema-defined field referencing a target component's path inside the IR Graph.
   * `targetPath` — a schema-defined field naming the path the Wasm Injector should patch.
-* **`.locals` export keys** carrying RFC 6901 JSON Pointers use **snake_case `*_path`** suffix. The keys are part of the Recipe's internal export surface (consumed by Wasm plugin pipelines reading `.context.uses[].locals` or by the Recipe's own subsequent templates), so they follow the snake_case convention. Examples:
+* **`.locals` export keys** carrying RFC 6901 JSON Pointers use **snake_case `*_path`** suffix. The keys are part of the Recipe's internal export surface — read by the Recipe's own subsequent templates, and by a Wasm plugin pipeline through the `pipeline[].with` payload that references `.locals` — so they follow the snake_case convention. Examples:
   * `volumes_path` — `.locals.volumes_path: "/spec/template/spec/volumes"` exposing the synthesised Workload's volumes-array position.
   * `containers_path` — `.locals.containers_path: "/spec/template/spec/containers"` exposing the containers-array position.
   * `resource_path` — `.locals.resource_path: "/resource/aws_s3_bucket/main"` exposing a Terraform-native resource path.
@@ -105,20 +105,21 @@ spec:
 ```
 
 ```yaml
-# Credential FeatureRecipe (Domain 3) — declares an Injector pipeline step
-# that reads the Recipe's .locals via .context.uses[].locals
+# Credential FeatureRecipe (Domain 3) — attached to the component the Recipe
+# above realizes. Its templates read `.locals`: an attachment sees the host
+# Recipe's resolved locals merged with the attachment's own block.
 spec:
   pipeline:
     - id: workload_injector
       plugin: frp_step/k8s-workload-injector:2.0.0
       function: inject_secret
       with: |
-        target_container: "{{ .context.uses[0].locals.primary_compute }}"
-        containers_path: "{{ .context.uses[0].locals.containers_path }}"
-        volumes_path: "{{ .context.uses[0].locals.volumes_path }}"
+        target_container: "{{ .locals.primary_compute }}"
+        containers_path: "{{ .locals.containers_path }}"
+        volumes_path: "{{ .locals.volumes_path }}"
 ```
 
-The `*_path` keys are Recipe-private exports; the `containers_path` / `volumes_path` values are RFC 6901 JSON Pointer strings. The Injector plugin consumes the strings to position its JSONPatch output against the rendered Workload's AST.
+The `*_path` keys are Recipe-private exports; the `containers_path` / `volumes_path` values are RFC 6901 JSON Pointer strings. The Injector plugin consumes the strings to position its JSONPatch output against the rendered Workload's AST. The attachment reaches them on its own `.locals` pillar — there is no `.context.uses[].locals` field, so a consumer cannot read its target's locals across a `uses` edge; what crosses an edge is the target's `provides`.
 
 For the broader format-string inventory (Go template syntax, Sprig functions, JSON Pointer alongside SemVer regex and label selector grammar), see [`vocabulary/uri-grammar.md`](vocabulary/uri-grammar.md) "Format-string inventory". For the Wasm plugin contract surface that consumes RFC 6901 patches, see [`plugins/plugin-contract.md`](plugins/plugin-contract.md).
 

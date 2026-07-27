@@ -147,7 +147,7 @@ A credential FeatureRecipe renders through the same Resource Generation pass as 
 
 ## The `provides:` block — publishing to the consumer
 
-A FeatureRecipe's `provides:` block is its published output: a string-valued map of Go templates evaluated against the attachment's own scope (`.values`, `.infra`, the FeatureRecipe's `.locals`, and the host node's `.context.instance_id`). It is how an attachment tells its consumer what it produced — an emitted resource's name, a generated data key, a cloud identity — without the consumer re-deriving that identity from the same inputs.
+A FeatureRecipe's `provides:` block is its published output: a string-valued map of Go templates evaluated against the attachment's own scope (`.values`, `.infra`, the FeatureRecipe's fully resolved `.locals`, and the host node's `.context.instance_id`). The locals resolve first, so a `provides:` entry reads them and receives resolved values; naming a key the `locals:` block does not declare halts. It is how an attachment tells its consumer what it produced — an emitted resource's name, a generated data key, a cloud identity — without the consumer re-deriving that identity from the same inputs.
 
 The consumer reads it at `.features.<instance-name>.provides.<key>` (or `.features.<slot>.provides.<key>` for a credential attachment), mirroring `.context.uses.<alias>.provides` for a `uses` edge. The attachment's own `inject:` block resolves its `from:` references against the same map, so an author may choose either channel: `provides` for a template read, `inject` for delivery into an env var, file, or arg.
 
@@ -221,7 +221,7 @@ The compose-bridge FeatureRecipe is the canonical boundary-scope-FR pattern. A `
 
 ## The `locals:` block
 
-`FeatureRecipe.spec.locals:` is an optional Go template body whose rendered output exposes a `.locals.*` map to every other template inside the same FeatureRecipe. It is the FeatureRecipe-private equivalent of Recipe `locals:` — a place to compute derived strings once and reference them from `injectMapping`, `valuesMapping`, `pipeline[].with`, `provides`, and `assertions:` without recomputing.
+`FeatureRecipe.spec.locals:` is an optional **map of named Go template strings** whose rendered output exposes a `.locals.*` map to every other template inside the same FeatureRecipe. It is the FeatureRecipe-private equivalent of Recipe `locals:` — a place to compute derived strings once and reference them from `injectMapping`, `valuesMapping`, `pipeline[].with`, `provides`, and `assertions:` without recomputing. The block is a map, not a single template body; a scalar in this position is schema-rejected.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -231,17 +231,34 @@ metadata:
 spec:
   implements: core/regional-router:^1.0.0
   capability: helm
-  locals: |
-    region_prefix: "{{ index .context.annotations.release "cloud.aggrega.ai/region" | lower }}"
-    fqdn_suffix: "{{ printf "%s.svc.cluster.local" .infra.namespace }}"
+  locals:
+    region_prefix: "{{ .infra.region | lower }}"
+    fqdn_suffix: "{{ printf \"%s.svc.cluster.local\" .infra.namespace }}"
   injectMapping: |
     env:
       "{{ .infra.target_var }}": "{{ .locals.region_prefix }}.{{ .infra.target_var | lower }}.{{ .locals.fqdn_suffix }}"
 ```
 
-`.locals.*` is per-invocation: each FR invocation evaluates its own `locals:` template against the invocation's template context, and `.locals` is visible only to that invocation's downstream templates. `locals:` runs after Phase A interception evaluates the `.context.*` view but before the FR's other authoring-surface templates evaluate, so every other template in the FR sees the resolved `.locals` map.
+`.locals.*` is per-invocation: each FR invocation resolves its own `locals:` block, and the result is visible only to that invocation's downstream templates. The block resolves before the FR's other authoring-surface templates evaluate, so every one of them sees resolved values.
 
-**Scope behavior.** For `executionScope: component` (default), `locals:` evaluates per attached component instance with the per-component `TemplateContext` rooted at `.context.*`. For `executionScope: boundary`, `locals:` evaluates per boundary attachment with the boundary-scope view rooted at `.boundary.*`; the per-component fields (`.context.instance_id`, `.context.inject`, `.context.uses`) are not available. The boundary-scope template field allowlist applies to `locals:` the same way it applies to the other FR authoring-surface templates.
+Each entry evaluates against a self-contained context: `.context.instance_id`, `.values`, `.infra`, and the entries of this same block already resolved. That is deliberately narrower than the context the FR's *other* templates read — a `locals:` entry cannot reach `.context.annotations`, `.context.inject`, `.context.uses`, or `.provides`, and a reference to any of them halts naming the reference. Derived values that need those pillars belong in the template that reads them, not in `locals:`.
+
+### Author order is load-bearing
+
+Entries resolve in the order they are written, and **an entry may read a sibling defined above it**, receiving that sibling's resolved value:
+
+```yaml
+spec:
+  locals:
+    region_prefix: "{{ .infra.region | lower }}"          # defined first
+    bucket: "{{ .locals.region_prefix }}-artifacts"       # reads the entry above
+```
+
+Chaining runs **downward only**. Where one entry reads another, the order of the entries decides whether the build succeeds: move `region_prefix` below `bucket` and the build halts. The compiler never reorders the block to make a reference resolve, so reordering a `locals:` block is a behavioural change, not a cosmetic one.
+
+A reference to an entry the block defines **later** halts naming the ordering fault (move the definition above its reader); a reference to a key the block **does not declare at all** halts naming the key (correct the spelling). The check reads **direct** `.locals.<key>` references — a key reached through `index .locals`, a `with .locals` block, or a variable bound to `.locals` is not analysed, so an absent key reached that way renders as an empty value rather than halting. `provides:` reads the fully resolved block, because this FeatureRecipe's locals resolve before its provides; a `provides:` template naming an undeclared key halts. These are the same rules a Recipe's `locals:` block follows — see [entities/recipe.md](recipe.md) "The `locals:` block".
+
+**Scope behavior.** For `executionScope: component` (default), `locals:` evaluates per attached component instance against the self-contained context above. For `executionScope: boundary`, `locals:` evaluates per boundary attachment against the boundary-scope view rooted at `.boundary.*`; the per-component fields (`.context.instance_id`, `.context.inject`, `.context.uses`) are not available. The boundary-scope template field allowlist applies to `locals:` the same way it applies to the other FR authoring-surface templates. The evaluation contract — author order, downward-only sibling reads, the two halts — is identical at both scopes; only the surrounding context shape differs.
 
 **Distinction from `injectMapping` overlays and `pipeline[].with` mappings.** `locals:` produces a context-visible map for downstream templates; it does not contribute output. `injectMapping` writes into the consumer's `.context.inject` pipe (caller-side mutation). `pipeline[].with` supplies the Wasm plugin's `args` payload. The three surfaces are orthogonal — a FeatureRecipe routinely uses all three together, with `locals:` carrying the shared derived strings the other two reference.
 

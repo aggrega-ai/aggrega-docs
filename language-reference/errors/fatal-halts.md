@@ -414,14 +414,36 @@ After every contract is validated, the compiler evaluates Go templates on Compon
 
 ### `provides:` template references a non-self-contained root
 
-A Recipe's `provides:` template references a root outside the self-contained set. The `provides` block is evaluated in Pass 1, before the inject pipe is hydrated and before cross-node edges are walked, so it may reference only data belonging to its own node: `.context.instance_id`, `.values`, `.infra`, and static strings. The check is a positive allowlist, so any other root halts — `.context.inject` and `.context.uses` (cross-node), `.context.annotations.*`, `.context.labels`, `.context.metadata`, and `.metadata.*` (placement- or deployment-coupled data the provides surface does not expose), and `.locals` (Recipe locals resolve *after* provides, because a local may itself read `.provides`, so no local's value exists yet at Pass 1). Referencing one of these halts loudly rather than silently rendering an empty value — or, for `.locals`, rather than delivering the local's unevaluated template text to the consumer.
+A Recipe's `provides:` template references a root outside the self-contained set. The `provides` block is evaluated in Pass 1, before the inject pipe is hydrated and before cross-node edges are walked, so it may reference only data belonging to its own node: `.context.instance_id`, `.values`, `.infra`, the node's resolved `.locals`, and static strings. The check is a positive allowlist, so any other root halts — `.context.inject` and `.context.uses` (cross-node), `.context.annotations.*`, `.context.labels`, `.context.metadata`, and `.metadata.*` (placement- or deployment-coupled data the provides surface does not expose), and `.attachment_name` (a base Recipe's provides pass resolves no attachment). Referencing one of these halts loudly rather than silently rendering an empty value.
+
+`.locals` is on the surface: a node's locals resolve in the preamble of the same pass, ahead of its provides, so a `provides` template reads them and receives resolved values.
 
 Emitted message:
-> node `<node-id>` provides[`<key>`]: Recipe `<recipe>` provides references `<expression>` — the provides block is self-contained and may reference only .context.instance_id, .values, .infra, and static text.
+> node `<node-id>` provides[`<key>`]: Recipe `<recipe>` provides references `<expression>` — the provides block is self-contained and may reference only .context.instance_id, .values, .infra, .locals, and static text
 
-**How to fix:** refactor the template to pull only from the Recipe's own pillars. If the value depends on another node's output, that dependency belongs in a caller's `uses[].inject` block, not in the target's `provides`. If the reference was to a `locals:` entry, inline into the `provides` entry the expression that local computes; the two then carry the same expression in two places, which the Pass 1 ordering forces. If you were reaching for the deployment namespace (or other placement data) to build a cross-namespace host, publish the bare host here and qualify it on the consumer side with a routing feature — the producer's `provides` must not depend on where it was deployed.
+**How to fix:** refactor the template to pull only from the Recipe's own pillars. If the value depends on another node's output, that dependency belongs in a caller's `uses[].inject` block, not in the target's `provides`. If the value is computed, put the expression in a `locals:` entry and read it from `provides` — the expression then lives in one place. If you were reaching for the deployment namespace (or other placement data) to build a cross-namespace host, publish the bare host here and qualify it on the consumer side with a routing feature — the producer's `provides` must not depend on where it was deployed.
 
-A FeatureRecipe is not subject to this rule: its own `locals:` are resolved before its `provides:`, so a FeatureRecipe `provides` entry may read `.locals`.
+A FeatureRecipe's `provides:` follows the same locals rule: its own `locals:` resolve before its `provides:`, so a FeatureRecipe `provides` entry reads `.locals` too.
+
+### `locals:` entry references a sibling defined later in the same block
+
+A `locals:` block resolves in the order its entries are written, and an entry reads only a sibling defined **above** it. A direct `.locals.<key>` reference to an entry the block defines later halts: the compiler never sorts or reorders the block to make the reference resolve, because emitted output would then follow an inference rather than what was authored. Without the halt the reference would resolve through the missing-key policy to an empty string, so a derived hostname or secret name would silently lose the segment it was built from.
+
+Emitted message:
+> Recipe `<recipe>` locals[`<key>`] references `<expression>`, but the locals block defines `<referenced>` later — entries resolve in author order and an entry reads only a sibling defined above it. Resolved at this point: `<the locals available here>`. To fix: define `<referenced>` above `<key>` in the locals block
+
+**How to fix:** move the referenced entry above its reader. Reordering a `locals:` block is a behavioural change wherever one entry reads another, so the fix is exactly the reorder the message names. A self-reference — an entry naming its own key — cannot be fixed by reordering; compute the value from `.values` and `.infra` directly instead, which the message says in place of the move-it instruction.
+
+### `locals:` key does not exist
+
+A template reads `.locals.<key>` for a key the `locals:` block does not declare at all — a misspelling, or a key that was renamed or removed. Every surface that reads the pillar raises this halt: a `locals:` entry, a `provides:` template, and a Recipe `source:` template. The locals pillar is an open keyed map, so an unknown key under it passes the root check and would otherwise resolve to an empty string; the halt is what stops that empty value from reaching an emitted artifact.
+
+Emitted message:
+> Recipe `<recipe>` provides[`<key>`] references `<expression>`, but the locals block declares no `<referenced>` — it declares `<the keys it does declare>`. To fix: correct the key name
+
+**How to fix:** correct the key name to one the block declares; the message lists them. The halt is distinct from the ordering halt above because the remedies differ — no reordering makes a key that does not exist resolve.
+
+Only **direct** `.locals.<key>` references are checked. A key reached indirectly — through `index .locals`, a `with .locals` block, or a variable bound to `.locals` — is not analysed, because recognising the key would mean reading template text and inferring what a computed key means. An absent key reached that way renders as an empty value rather than halting; the indirect form remains the way to reach a key whose name is itself computed.
 
 ### Template references a root the render context does not define
 

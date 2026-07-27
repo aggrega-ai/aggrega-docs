@@ -145,8 +145,9 @@ spec:
       persistence:
         size: "{{ .infra.storage_size }}"
       auth:
-        # Uses the exact string defined in locals, preserving AOT execution
-        existingSecret: "{{ .context.instance_id }}-mariadb-auth"
+        # Reads the local rather than restating the expression, so the secret
+        # name is authored once and every reader follows that one definition
+        existingSecret: "{{ .locals.secret_target_db_password }}"
 ```
 
 **Example B: The Local Terraform Module (File Mapping)**
@@ -323,7 +324,7 @@ Output labels are labels only; there is no separate output-annotation surface. `
 
 ## The `locals:` block
 
-`Recipe.spec.locals:` is the **Private Ops State** — a map of named Go template strings whose rendered output exposes a `.locals.*` map to the Recipe's later templates. It is the workspace for computing physical realities (target containers, JSON paths, derived hostnames) once and reusing them across `valuesMapping:`, `workload:`, `artifacts:`, `assertions:`, and `pipeline[].with` payloads without recomputation. `provides:` is the exception — it is resolved before `locals:` and cannot read one; see below.
+`Recipe.spec.locals:` is the **Private Ops State** — a map of named Go template strings whose rendered output exposes a `.locals.*` map to the Recipe's later templates. It is the workspace for computing physical realities (target containers, JSON paths, derived hostnames) once and reusing them across `provides:`, `source:`, `valuesMapping:`, `workload:`, `artifacts:`, `assertions:`, and `pipeline[].with` payloads without recomputation.
 
 ```yaml
 spec:
@@ -340,11 +341,33 @@ spec:
         existingSecret: "{{ .locals.secret_target_db_password }}"
 ```
 
-`locals:` is never exposed to callers — downstream components consuming this Recipe via `uses:` see only `provides:`. The Recipe's own `valuesMapping:`, `workload:`, `artifacts:`, `assertions:`, and `pipeline[].with` templates all see the resolved `.locals.*` map. Per-key values may be plain strings or Go templates; the compiler evaluates `locals:` early in Phase B so all downstream templates observe stable resolved values. Every entry evaluates against the same context — `.context.instance_id`, `.values`, `.infra`, and the node's resolved `.provides`. That context does not carry `.locals`, so the entries cannot read one another: an entry reaching for a sibling through `.locals` halts rather than resolving. An entry that needs a sibling's value repeats the expression instead of chaining.
+`locals:` is never exposed to callers — downstream components consuming this Recipe via `uses:` see only `provides:`. The Recipe's own `provides:`, `source:`, `valuesMapping:`, `workload:`, `artifacts:`, `assertions:`, and `pipeline[].with` templates all see the resolved `.locals.*` map. Per-key values may be plain strings or Go templates; the compiler resolves the whole block in the preamble of Pass 1, ahead of that node's `provides:`, so every later template observes stable resolved values.
 
-`provides:` does **not** see `.locals`. Because a local may itself read `.provides`, provides is resolved first, and a `provides:` template referencing `.locals` halts the build. A `provides` entry that needs a computed value inlines the expression the local computes — the same expression then appears in both places, which the ordering forces. (A FeatureRecipe orders the two the other way round: its `locals:` resolve before its `provides:`, so a FeatureRecipe `provides` entry may read `.locals`.)
+Each entry evaluates against a self-contained node-local context: `.context.instance_id`, `.values`, `.infra`, and the entries of this same block already resolved. A local cannot read `.provides` — that pillar is not on this surface, and an entry reaching for it halts.
 
-For the public-API counterpart, see [The `provides:` block](#the-provides-block) below. For the FeatureRecipe equivalent, see [entities/featurerecipe.md](featurerecipe.md) "The `locals:` block".
+### Author order is load-bearing
+
+Entries resolve in the order they are written, and **an entry may read a sibling defined above it**, receiving that sibling's resolved value:
+
+```yaml
+spec:
+  locals:
+    db_identifier: "{{ .context.instance_id }}-postgres"     # defined first
+    secret_target: "{{ .locals.db_identifier }}-auth"        # reads the entry above
+```
+
+Chaining runs **downward only**. Where one entry reads another, the order of the entries decides whether the build succeeds: move `db_identifier` below `secret_target` and the build halts. The compiler never sorts or reorders the block to make a reference resolve, so the written order is the contract — reordering a `locals:` block is a behavioural change, not a cosmetic one.
+
+Two halts separate the two mistakes an author can make, because they have different fixes:
+
+* A reference to an entry the block defines **later** halts naming the ordering fault; the fix is to move the definition above its reader.
+* A reference to a key the block **does not declare at all** halts naming the key; the fix is to correct the spelling.
+
+The check reads **direct** `.locals.<key>` references. A key reached indirectly — through `index .locals`, a `with .locals` block, or a variable bound to `.locals` — is not analysed, so an absent key reached that way renders as an empty value rather than halting. Indirect forms remain the way to reach a key whose name is itself computed, such as `{{ index .locals (printf "secret_target_%s" .values.slot) }}`; direct references are the form the ordering check covers.
+
+`provides:` reads `.locals` and receives resolved values, because a node's locals resolve before its provides. A `provides:` template naming a key the locals block does not declare halts. This means a value both a `provides:` entry and an artifact need is authored **once**, in `locals:`, and read from both places.
+
+For the public-API counterpart, see [The `provides:` block](#the-provides-block) below. The FeatureRecipe surface follows the same rules — see [entities/featurerecipe.md](featurerecipe.md) "The `locals:` block".
 
 ## The `provides:` block
 
@@ -360,7 +383,7 @@ spec:
     database: "{{ .values.db_name }}"
 ```
 
-Each entry's template evaluates against the self-contained Pass 1 surface — `.context.instance_id`, `.values`, `.infra`, and static text. `.locals` is not on it: locals resolve after provides, so a `provides` template referencing one halts. The Pass 1 / Pass 2 split is load-bearing: a Recipe's `provides:` cannot reference any caller's state because callers haven't been resolved yet at Pass 1 — `provides:` is self-contained per the architectural invariant. Callers then read these values via `.context.uses.<alias>.provides.<provided-name>` in their own templates — the provided names nest under `provides` on the edge, alongside the edge's other fields. A caller that declares an `inject:` allowlist on the edge reaches the same values through its `.context.inject` pipe instead.
+Each entry's template evaluates against the self-contained Pass 1 surface — `.context.instance_id`, `.values`, `.infra`, the node's resolved `.locals`, and static text. `.locals` is on it because the node's locals resolve in the preamble of the same pass, ahead of its provides; a `provides` template naming a key the locals block does not declare halts. The Pass 1 / Pass 2 split is load-bearing: a Recipe's `provides:` cannot reference any caller's state because callers haven't been resolved yet at Pass 1 — `provides:` is self-contained per the architectural invariant. Callers then read these values via `.context.uses.<alias>.provides.<provided-name>` in their own templates — the provided names nest under `provides` on the edge, alongside the edge's other fields. A caller that declares an `inject:` allowlist on the edge reaches the same values through its `.context.inject` pipe instead.
 
 `provides:` keys are part of the Recipe's contract surface. Renaming or removing a key is a breaking change for every caller relying on the old name; the `implements:` interface version should reflect the contract evolution. For the cascade resolution semantics, the inject-pipe contract, and worked examples covering cross-namespace and cross-region routing, see [architecture/06-data-taxonomy-and-composition.md §3](../../architecture/06-data-taxonomy-and-composition.md) and [templates/expansion-matrix.md](../templates/expansion-matrix.md).
 
