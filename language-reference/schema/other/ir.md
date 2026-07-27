@@ -124,6 +124,8 @@ One resolved attachment for a node, carried in feature_values_mapping. Every att
 | `annotation_source` | string | no | Source location of the annotation declaration as <release-file-path>:<dotted-yaml-key-path>. Empty when origin is explicit. |
 | `values_provenance` | map of FieldProvenance | no | Per-leaf origin for the values payload, keyed by dotted leaf path. |
 | `infra_provenance` | map of FieldProvenance | no | Per-leaf origin for the infra payload, keyed by dotted leaf path. |
+| `sensitive` | boolean | no | True when this attachment handles material an author declared sensitive — either the attached Feature declares a sensitive leaf in its values, infra or provides pillar, or the host Component's attachment slot of the same name declares the material it carries sensitive. Derived from those declarations over the merged attachment, never from a value's content or a name. Unset when neither declaration is present. |
+| `sensitive_inject` | map of map of string | no | The delivery keys of inject whose referenced provides key the attached Feature declares sensitive, in inject's own shape: mechanism, then delivery key, with the referenced provides key as the value. A subset of inject. Empty when the attachment declares no delivery mechanism or references no sensitive provides key. |
 
 _Additional properties are not permitted._
 
