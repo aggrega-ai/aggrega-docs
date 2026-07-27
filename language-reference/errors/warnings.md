@@ -89,11 +89,11 @@ When an entity-level `metadata.labels` or `metadata.annotations` declaration on 
 
 ## Unsupported-field warnings
 
-Targets differ in fidelity. A Workload field that one target expresses natively may have no equivalent on another — Docker Compose has no notion of a scheduling constraint, an init container, or a service account, for instance. When a Workload declares such a field and the target cannot express it, the field is **omitted with a warning**, one warning per authored field. It is neither dropped silently nor treated as a fatal error.
+Targets differ in fidelity. A Workload field that one target expresses natively may have no equivalent on another — Docker Compose has no notion of a scheduling constraint, a service account, or a priority class, for instance. When a Workload declares such a field and the target cannot express it, the field is **omitted with a warning**, one warning per authored field. It is neither dropped silently nor treated as a fatal error.
 
 The distinction from a fatal halt is the granularity. An unsupported *form* halts the build loudly — the target cannot produce that shape of workload at all. A supported form that carries an *unexpressible field* renders, minus that field, and says so.
 
-On the compose target the class currently covers `scheduling`, `serviceAccount`, `initContainers`, `replicas`, `runtimeClassName`, `priorityClassName`, `imagePullSecrets`, `dnsPolicy`, `dnsConfig.options`, container `runAsNonRoot`, and extended-resource keys such as `nvidia.com/gpu`. One field, `persistentTemplate`, emits a partial variant of the same class: per-replica volume templating is unavailable, so the volume collapses to a single shared persistent volume rather than disappearing.
+On the compose target the class currently covers `scheduling`, `serviceAccount`, `replicas`, `runtimeClassName`, `priorityClassName`, `imagePullSecrets`, `dnsPolicy`, `dnsConfig.options`, container `runAsNonRoot`, and extended-resource keys such as `nvidia.com/gpu`. One field, `persistentTemplate`, emits a partial variant of the same class: per-replica volume templating is unavailable, so the volume collapses to a single shared persistent volume rather than disappearing.
 
 Each warning carries the stable, machine-matchable class code `unsupported-field`, so tooling can match the class rather than parse the message text. Both the omitted-outright and the reduced-form variants carry that one code, which is what lets a single filter suppress the whole class. The warnings travel out-of-band from the rendered artifacts, which means **rendered bytes are byte-identical whether or not the warnings surface** — suppressing them cannot change your output.
 

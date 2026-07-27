@@ -88,6 +88,45 @@ A Workload with multiple containers becomes one main service plus one sidecar se
 
 Pod-level Workload fields (`scheduling`, `podSecurityContext`, `serviceAccount`) apply only to the main service. Compose's surface is single-host and has no equivalent for `nodeSelector`, `affinity`, `tolerations`, or `topologySpreadConstraints`; those Workload fields are silently dropped on the compose path. Container-level `securityContext` translates partially (`readOnlyRootFilesystem` → `read_only`; `capabilities.add`/`drop` → `cap_add`/`cap_drop`; `runAsUser`/`runAsGroup` → `user`).
 
+## Init containers
+
+A Workload's `initContainers` entries become services of their own, using compose's run-to-completion idiom. Each entry adds one service named `<component>-<container-name>`, on the same naming shape sidecars use; an entry that omits `name` takes the positional `init-<index>` name the [Workload reference](../entities/workload.md) documents.
+
+The ordering the authoring contract promises — the init containers run to completion in the order they are written, and every other container starts only after all of them have finished — is expressed with `depends_on`'s long form:
+
+- Each init service after the first waits on its predecessor with `condition: service_completed_successfully`.
+- The main service, and every sidecar service, waits on the **last** init service with the same condition. Waiting on the last one is sufficient because the init services form a chain.
+- Each init service carries `restart: "no"`. An init service runs once; a service that came back up would never reach the completed state its dependents are waiting on, so a `restartPolicy` authored on an init container does not change this.
+
+```yaml
+services:
+  platform:
+    image: platform:1.0
+    depends_on:
+      platform-verify-seed:
+        condition: service_completed_successfully
+  platform-import-seed:
+    image: platform:1.0
+    restart: "no"
+  platform-verify-seed:
+    image: platform:1.0
+    depends_on:
+      platform-import-seed:
+        condition: service_completed_successfully
+    restart: "no"
+```
+
+An init container is translated exactly as any other container: its `image` (including the registry rewrite an `aggrega.ai/image-registry` annotation applies), `command`, `args`, `variables`, `attachments`, `volumeMounts`, and `securityContext` all reach the init service. That is what makes the configuration an init container carries — most often a file it mounts and writes into a volume the main container also mounts — survive onto the compose target rather than being lost with the container. A shape compose cannot express fails the same way for an init container as for an ordinary one: a declared `lifecycle` or `envFrom` halts with a `TRANSLATION_ERROR` naming the init container it came from.
+
+Two differences from the main service follow from an init service being a non-main service:
+
+- **Pod-level Workload fields are not applied**, the same rule sidecars follow.
+- **An init service joins its boundary's network directly** rather than sharing the main service's network namespace the way a sidecar does. It has to: the main service waits on the init service, and sharing a namespace is itself a dependency on the main service, which would close the wait into a cycle compose refuses to start. An init container therefore reaches other services on the boundary network by service name, but it does not share the main service's `localhost`.
+
+Init services and sidecar services share one name namespace, so an `initContainers` entry and a `containers` entry may not carry the same name. When they do, the compiler halts with a `TRANSLATION_ERROR` naming the node, the container name, and the service name both wanted, rather than letting one service quietly replace the other.
+
+Emitting the completion condition raises no minimum Compose version. `condition` and its values belong to the base Compose Specification — unlike the `restart` and `required` fields alongside them in the same long-form block, which the specification ties to particular Compose releases. The highest version the compose provider asks for remains the **≥ 2.23.1** that inline `configs.content` needs on the `compose-bridge` path.
+
 ## Per-boundary networking
 
 Each compose-contributing boundary contributes one Docker network. The network name is derived from the `aggrega.ai/namespace` annotation on the alphabetically-first node in the boundary; when no node carries that annotation, the network name falls back to the sanitised boundary path (lowercased, with non-`[a-z0-9._-]` characters replaced by `_`). Every service in a boundary joins its boundary's network; sidecars inherit the network through their `network_mode` reference to the main service.
@@ -98,9 +137,16 @@ When two boundaries collapse into one assembly path (shared `directory:`), the m
 
 The compose provider derives `depends_on` automatically from the IR's `uses` edges. For each edge whose source and target both contribute services to the merged compose file, the provider adds `depends_on: [<target>]` to the source service.
 
-The current emit shape is the **short-form list**: `depends_on: [<service-name>]`. The long-form with `service_healthy` condition gating (which would let the compose runtime block startup until the target's healthcheck reports healthy) is planned for a future iteration — today's emit always has `service_started` semantics regardless of whether the target declares a healthcheck.
+Edge-derived entries are emitted **ungated**: they have `service_started` semantics regardless of whether the target declares a healthcheck. Gating them on the target's health — which would let the compose runtime block startup until the target's healthcheck reports healthy — is expressible but is not what a `uses` edge currently means.
 
-`depends_on` entries are emitted in alphabetical target order for output stability. Edges whose source or target are served by a different provider (helm or helm-chart) are skipped — `depends_on` only applies within the compose-served subset of the Release.
+Edge-derived entries are emitted in alphabetical target order for output stability. Edges whose source or target are served by a different provider (helm or helm-chart) are skipped — `depends_on` only applies within the compose-served subset of the Release.
+
+A service's `depends_on` emits in one of compose's two forms, never a mix, because compose requires a condition on every entry of the long form:
+
+- **Short-form list** (`depends_on: [<service-name>]`) when no entry on that service carries a condition. That is every service whose only dependencies come from `uses` edges.
+- **Long-form mapping** when any entry carries one — which happens when the service also waits on an [init container](#init-containers). There, the edge-derived entries emit the explicit `condition: service_started`, which the Compose Specification defines as the short form's equivalent, so their meaning is unchanged.
+
+Within a service the two sources keep their own order and do not interleave: the init-chain wait, whose order is the order the author wrote the list in, is emitted first, and the alphabetically-ordered edge-derived entries follow.
 
 ## Sourced mode
 
@@ -156,7 +202,7 @@ The asymmetry is structural: `services:` and `volumes:` carry per-Recipe content
 - **Cross-compose-file routing.** Boundaries that evaluate to distinct assembly paths produce distinct `docker-compose.yaml` files; the compose runtime treats them as independent projects. Cross-file communication is the operator's concern (publishing host ports, sharing external networks, or coalescing the boundaries onto one path via a shared `directory:`).
 - **Native env-from-secret resolution.** Workload `secrets[as: env]` entries emit environment placeholders rather than runtime-resolved secret references. The `compose-bridge` Feature is the future home for compose-side secret resolution.
 - **Compose `deploy:` block.** Replicas, placement constraints, and update strategy under `deploy:` are swarm-mode features; the compose provider targets single-host compose only and does not emit `deploy:` content.
-- **Health-condition-gated `depends_on`.** The long-form `{ <target>: { condition: service_healthy } }` shape is planned for a future iteration; today's emit always uses the short-form list with `service_started` semantics.
+- **Health-condition-gated `depends_on`.** A dependency derived from a `uses` edge is emitted ungated, with `service_started` semantics; it is not gated on the target's healthcheck reporting healthy. The long form itself is emitted — an [init container](#init-containers) wait uses it — so this is about what a `uses` edge means, not about a shape the provider cannot produce.
 
 ## Authoring example
 

@@ -126,6 +126,8 @@ replicas: {{ optional .infra `replicas` 1 }}
 
 `containers` is an ordered map keyed on container name. Container 0 (the first map key) matters for pod-spec ordering in Kubernetes output and for default-container semantics. `initContainers` is an ordered list of init-container entries, each carrying `name`, `image`, and the same variable/secret/volume-mount authoring shape as the main containers.
 
+`name` is optional on an `initContainers` entry. An entry that omits it is named `init-<index>`, where the index is the entry's position in the list, counting from `0`. Because the name identifies the container in rendered output and in any diagnostic that names it, an entry worth referring to is worth naming explicitly.
+
 Author-order preservation is a load-bearing contract of the Workload model — the compiler emits `containers`, `volumes`, `services`, container `ports`, container `variables`, and container `attachments` in the order the Recipe author declared them, regardless of whether two compilations of the same input produce different Go map iteration orderings under the hood. Recipe authors can rely on the ordered shape: when the deployment-time semantic depends on the order (sidecar startup, `$(VAR)` chaining in environment variables, `volumeMounts` referencing previously-declared volumes), authoring order IS the runtime order.
 
 Container field authoring follows these conventions:
@@ -192,7 +194,7 @@ The convention has two practical consequences. First, **cross-node collisions ar
 
 The collision risk that does remain is at the **K8s name-length boundary**: Kubernetes Service names cap at 63 characters, and the synthesised `<instance_id>-<service-key>` form can exceed that limit when both segments are long. The Aggrega compiler does not enforce the limit; the Service applies cleanly at render time but Kubernetes rejects the apply. Authors with deeply nested instance IDs (e.g., `data-layer.regional.eu-west.primary`) plus long service keys should keep the combined length under 63 characters.
 
-**Provider-specific note (compose).** The compose provider derives `depends_on` automatically from IR uses-edges and emits the short-form list (`depends_on: [<target>]`). The long-form with `service_healthy` condition gating is planned for a future iteration; today's emit always has `service_started` semantics regardless of whether the target declares a healthcheck.
+**Provider-specific note (compose).** The compose provider derives `depends_on` automatically from IR uses-edges. Those entries are emitted ungated — they carry `service_started` semantics regardless of whether the target declares a healthcheck — so a service whose dependencies all come from `uses` edges emits the short-form list (`depends_on: [<target>]`). Gating an edge-derived entry on the target's health is not implemented. The long form is emitted where an entry does carry a condition, which is how a wait on an init container is expressed; see [providers/compose.md](../providers/compose.md#init-containers).
 
 ## Health probes — intent shape
 
@@ -226,7 +228,7 @@ Compose's `CMD-SHELL` wrappers approximate HTTP and TCP probes through shell-eva
 
 The compose engine emits a warning comment in the generated `docker-compose.yaml` whenever a probe is degraded from native HTTP/TCP to a CMD-SHELL wrapper.
 
-**Provider-specific note (compose).** Authoring a `health:` block on a compose-targeted Workload does not gate `depends_on` ordering on health: the compose provider's `depends_on` entries derived from `uses:` edges always use `service_started` semantics, regardless of whether the target Workload declares health probes. Long-form `service_healthy` gating is planned for a future iteration. See [providers/compose.md](../providers/compose.md) for the full inference rules.
+**Provider-specific note (compose).** Authoring a `health:` block on a compose-targeted Workload does not gate `depends_on` ordering on health: the compose provider's `depends_on` entries derived from `uses:` edges always use `service_started` semantics, regardless of whether the target Workload declares health probes. Gating those entries on the target's health is not implemented — the long form that would carry such a condition is itself emitted, for init-container waits, so what is missing is the choice to gate an edge on health rather than the shape to express it. See [providers/compose.md](../providers/compose.md) for the full inference rules.
 
 ## K8s-shape pass-through fields — `scheduling`, `serviceAccount`, `podSecurityContext`
 
