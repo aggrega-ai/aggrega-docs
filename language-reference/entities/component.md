@@ -423,12 +423,37 @@ spec:
 | `inject` | string[] | — | Allowlist of allowed inject delivery mechanisms. `[]` (empty) means blackbox — the Recipe controls delivery internally and the material is never delivered to the workload. `[env, file]` means transparent — the fill's material may be delivered through the listed mechanisms. Same semantics as `usesSchema[].inject`. |
 | `description` | string | — | Human documentation, rendered by IDE and hub. |
 | `selector` | string | — | Optional Kubernetes-style label selector constraining which Feature may fill this slot — the slot analog of a `usesSchema` socket's `selector`, with the same grammar and the same native label-matching engine. Evaluated against the attached Feature's own labels at Step 4; a fill whose labels do not satisfy it halts. Omit to place no constraint on the fill. |
+| `sensitive` | bool | `false` | Declares that whatever binds this slot handles secret material. A statement about the binding point, not about any particular fill; see "Declaring a slot sensitive" below. |
 
 A slot constrains *which fill may bind it*, not what the fill configures. There is deliberately no slot-level `values` or `infra` contract: the attached Feature's own `schema:` owns those pillars, so each contract has exactly one home.
 
 The slot `selector` is how a Component narrows which Feature may fill a slot — for example to a provider-specific credential Feature (`feature.aggrega.ai/kind=secret, provider=helm`) — without naming a FeatureRecipe, exactly as a `usesSchema` socket selector narrows a dependency edge's target. The compiler evaluates the selector against the attached Feature's labels and nothing else: it reads the labels the fill carries, and reports whether the selector admits them. Which labels are meaningful to require is a catalog-authoring choice, not a rule the compiler imposes.
 
 **Slot-name typos surface as an advisory, not a halt.** Because an undeclared attachment name is legal, a misspelled slot name becomes a free attachment rather than filling the slot the author meant. The compiler reports an attachment name that is within one edit of a declared slot name as a warning naming both spellings — see [errors/warnings.md](../errors/warnings.md) "Attachment-slot near-miss lint". The warning never changes the build's verdict; the compiler does not police what an author names an attachment.
+
+### Declaring a slot sensitive
+
+`sensitive: true` on a slot states the consumer's own demand: *whatever binds this point handles secret material.*
+
+```yaml
+spec:
+  featuresSchema:
+    password:
+      selector: "feature.aggrega.ai/kind=secret"
+      sensitive: true
+      inject: [env]
+      description: "Optional database password credential."
+```
+
+This is genuinely different information from a schema leaf's `sensitive: true`, not a convenience duplicate of it, and the standard-library catalog needs both. A referenceable credential publishes `provides.name` and `provides.key` — the produced resource's locator and the data key within it — and **neither is sensitive**: a Kubernetes Secret's name is public, and so is the key inside it. Yet the slot that credential fills unquestionably handles secret material. A leaf says *this datum is secret material*; a slot says *this binding point handles secret material*; the two claims are about different things and can hold independently.
+
+The practical consequence is that the demand travels with the binding point rather than the fill. A Feature that declares no sensitive leaf at all — because the target engine owns the credential and the deployment authors nothing — still binds a sensitive slot as a sensitive attachment, because the slot said so. The reverse also holds: a fill declaring a sensitive leaf is a sensitive attachment even when it binds a slot that made no such declaration, or when it is a free attachment binding no slot.
+
+The declaration follows the attachment cascade rather than any one authored block. A slot's demand applies to whichever fill ends up bound after every scope has folded, so a component-level fill that displaces a broader one inherits the demand unchanged.
+
+`sensitive` on a slot carries the same ceiling the leaf-level keyword does — it annotates, it does not encrypt, validate, reject, force a delivery mechanism, or change a rendered byte. The full statement is at [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md) "What the keyword does not do".
+
+**`sensitive` and `compliance.aggrega.ai/data-class` are two different axes**, documented adjacently and never conflated. `sensitive` is a boolean on one leaf or one slot: *this datum, or this binding point, handles secret material.* `compliance.aggrega.ai/data-class` is a graded label on a whole node — `public`, `internal`, `restricted` — giving the data a component holds a governance identity. One is per-datum and binary, the other per-node and ordered; neither substitutes for the other, and an entity may carry both. The label is covered at [`vocabulary/labels-and-annotations.md`](../vocabulary/labels-and-annotations.md) and [architecture/08-credential-model.md](../../architecture/08-credential-model.md) "Data governance around credentials".
 
 ### Schema projection from `featuresSchema`
 

@@ -54,6 +54,7 @@ The compact form has about 15 keywords. Authors learn them once and apply them a
 | `validate` | Per-field Go template predicate returning boolean; false halts validation with `validateMessage:` |
 | `validateMessage` | Error message accompanying a `validate:` failure |
 | `when` | Conditional subtree application; Go template predicate gating whether the node's constraints apply |
+| `sensitive` | Declares that this leaf carries secret material. Compiles to `x-aggrega-sensitive: true`. See "Declaring a leaf sensitive" below |
 | `$jsonschema` | Escape hatch — embedded full JSON Schema sub-document at this node |
 | `$mode` | Optional dispatch annotation for ambiguous cases (rarely needed; see "Inferred vs explicit object form" below) |
 
@@ -208,7 +209,9 @@ When `type:` carries an array, the value space is the union of the named types' 
 
 ## Reserved keywords at every inferred-form scope
 
-The inferred-form dispatch recognises a small set of keywords that carry meaning at the compact-form vocabulary level: `description`, `type`, `default`, `required`, and the constraint keywords (`enum`, `min`, `max`, `pattern`, `format`, etc.). When any of these keywords appears as a field name at an inferred-form object scope, the compiler routes the enclosing scope through the constraint-emission path instead of the implicit-object path. The resulting schema would treat the keyword as a constraint declaration, not as a child property.
+The inferred-form dispatch recognises a small set of keywords that carry meaning at the compact-form vocabulary level: `description`, `type`, `default`, `required`, the constraint keywords (`enum`, `min`, `max`, `pattern`, `format`, etc.), and the Aggrega-specific keywords (`validate`, `validateMessage`, `when`, `sensitive`). When any of these keywords appears as a field name at an inferred-form object scope, the compiler routes the enclosing scope through the constraint-emission path instead of the implicit-object path. The resulting schema would treat the keyword as a constraint declaration, not as a child property.
+
+`sensitive` deserves specific mention here, because it is a far more plausible name for a real developer-authored field than the other Aggrega-specific keywords are. A schema that genuinely needs a property *named* `sensitive` — a component whose `values` expose a `sensitive` flag of their own, say — must declare the enclosing scope explicitly, exactly as it would for a property named `type` or `default`. Either the explicit form below or `$mode: jsonschema` on the enclosing scope achieves it: under `$mode: jsonschema` the whole node is read as authored JSON Schema, where `sensitive` is ordinary content rather than the compact-form keyword.
 
 For schemas that need a property named after a reserved keyword (e.g., a Component contract with a developer-authored `description:` field, or a `type:` field, or a `default:` field), use the explicit form for the offending scope:
 
@@ -300,6 +303,55 @@ The predicate runs against the field's value (accessible as `.`); the surroundin
 
 For genuinely cross-field rules with broad scope, where no single field is "the one being validated," use the dedicated `assertions:` block. See [templates/assertions-block.md](../templates/assertions-block.md).
 
+## Declaring a leaf sensitive — `sensitive:`
+
+A `values`, `infra` or `provides` leaf may declare that the datum it describes carries secret material:
+
+```yaml
+spec:
+  schema:
+    values:
+      origin:
+        type: string
+        required: true
+        sensitive: true
+        description: "The credential material itself."
+      key:
+        type: string
+        default: value
+        description: "The data key the material is stored under."
+```
+
+`sensitive: true` compiles to the extension keyword `x-aggrega-sensitive: true` on that node in the resolved JSON Schema, alongside the other `x-aggrega-*` annotations. The compiler reads it to derive which attachments in a deployment handle declared-sensitive material, and carries that derived fact on the compiled graph.
+
+**Declare it on the datum, not on its locator.** The distinction is the whole point of the keyword and it is easy to get backwards. A credential's *material* is sensitive; the *name* of the resource holding it and the *data key* within that resource are not — both are public, and both are rendered in the clear into every consumer that references the resource. Marking a locator states something untrue about it and propagates that error to everything downstream that reads the declaration. In the example above, `origin` is marked and `key` deliberately is not.
+
+The complementary statement — *whatever binds this point handles secret material*, regardless of what the fill declares about its own leaves — is not a leaf declaration at all. It is `sensitive` on an attachment slot; see [entities/component.md](../entities/component.md) "Attachment Slots".
+
+### What the keyword does not do
+
+The name invites assumptions the keyword does not earn, so state the ceiling plainly:
+
+- **It does not encrypt anything.** It is an annotation on a declaration, not a confidentiality mechanism.
+- **It does not validate or reject.** No value is accepted or refused because a leaf is declared sensitive, and no build outcome changes.
+- **It does not guarantee that rendered output is free of material.** Whether an artifact carries material depends on which fill a deployment attached and what the author wrote in its `values` — see [architecture/08-credential-model.md](../../architecture/08-credential-model.md) "What the compiler does and does not guarantee". A declared-sensitive value an author supplied inline is rendered exactly as an undeclared one is.
+- **It does not force a delivery mechanism.** It cannot turn an inline value into a store reference, and it does not narrow what a slot's `inject` allowlist permits.
+- **It changes no rendered byte today, and on most targets it never will.** No shipped render path reads the declaration, so declaring a leaf sensitive across an existing catalog leaves every rendered artifact identical. A target platform that carries a sensitivity notion of its own is where a declaration has somewhere to land; a target with none has nothing for it to change, permanently.
+
+### Where the declaration is read, and where it is not
+
+The keyword is read on the node it sits on, and the read descends only through property maps. Three shapes therefore need the marker placed deliberately:
+
+- **Beside a `$ref`**, not inside the reference's target. A marker in the referenced schema is not collected for the referring leaf.
+- **Beside a composition keyword** (`allOf` / `anyOf` / `oneOf`), not inside a branch's own `properties`.
+- **On the array leaf itself**, not on its `items` element type. An array whose elements carry material is declared sensitive at the array, because an element type is not a property map and is not descended into.
+
+### `parameters:` is a different vocabulary
+
+`sensitive` is not part of the `parameters:` typed-contract vocabulary. An Aggregate that declares it on a parameter entry is rejected when the Aggregate loads, with a document-envelope diagnostic reporting `unexpected additional properties ["sensitive"]` positioned on the offending parameter — the same treatment any key outside that vocabulary receives, since the parameter contract is a closed object.
+
+The asymmetry is deliberate: the sensitivity axis covers the three data pillars a catalog entity declares, and a parameter is an environment-contract input rather than a pillar leaf. A deployment that hoists credential material through a parameter is documented at [architecture/08-credential-model.md](../../architecture/08-credential-model.md) "Legacy charts that demand a formatted string", which states the trade-off that path makes.
+
 ## Composition with `allOf`, `anyOf`, `oneOf`
 
 Composition keywords work as in JSON Schema:
@@ -370,6 +422,7 @@ Specific `x-aggrega-*` annotations are emitted by the compiler at well-known poi
 
 - `x-aggrega-source:` — populated by the cross-document `$ref:` expander to attribute each property to its origin SchemaLibrary entry. See [cross-document-ref.md](cross-document-ref.md) §"Library-to-library chain expansion".
 - `x-aggrega-selector:` — emitted by `usesSchema:` and `featuresSchema:` synthesis to carry the selector string that targets compatible provider Components.
+- `x-aggrega-sensitive:` — emitted by a leaf declaring `sensitive: true`. See "Declaring a leaf sensitive" below.
 
 Catalog authors writing their own extension keywords use the same namespace; downstream tooling that consumes the compiled JSON Schema reads `x-aggrega-*` keys without colliding with JSON Schema's own keyword space.
 

@@ -68,6 +68,58 @@ Two consequences worth internalising:
 
 The standard-library **convention** is that a credential is requested as an attachment rather than written into a `values` block, so that swapping a local-development fill for a store-backed one is a Manifest change rather than an edit to developer intent. That is a convention the catalog follows, not a rule the compiler enforces.
 
+## Declared sensitivity
+
+The compiler cannot tell a pointer from a material value, per the section above — but an **author** can, and can say so. Sensitivity in Aggrega is an annotation on a declaration: the author of a catalog entity states what carries secret material, and the compiler derives the rest from that statement plus the wiring it already built. Nothing is inferred from a value, and nothing is guessed from a field's name.
+
+It is authored in exactly two places, and they carry genuinely different claims.
+
+**On a schema leaf — *this datum is secret material*.** A `values`, `infra` or `provides` leaf declares `sensitive: true`:
+
+```yaml
+spec:
+  schema:
+    values:
+      origin:
+        type: string
+        required: true
+        sensitive: true              # the material
+      key:
+        type: string
+        default: value               # a data key — a locator, not material
+```
+
+**On an attachment slot — *whatever binds this point handles secret material*.** A `featuresSchema` slot declares `sensitive: true`:
+
+```yaml
+spec:
+  featuresSchema:
+    password:
+      selector: "feature.aggrega.ai/kind=secret"
+      sensitive: true
+      inject: [env]
+```
+
+The two levels are not a convenience duplicate of one another, and the referenceable-credential shape is the worked case that shows why. A referenceable credential publishes `provides.name` and `provides.key` — the produced resource's locator and the data key within it — and **neither is sensitive**: a Kubernetes Secret's name is public, and so is the key inside it. Both are rendered in the clear into the consumer's own manifest as a `secretKeyRef`. Yet the slot that credential fills unquestionably handles secret material. One level alone cannot express both facts: marking the published locators to make the slot read as sensitive would state something false about them and carry that error everywhere the declaration is read.
+
+From those two declarations the compiler derives, per attachment, whether the attachment handles declared-sensitive material — true when the attached Feature declares a sensitive leaf, or when the slot it binds declares one, either alone sufficing. It derives this from the attachment as it stands after every authoring scope has folded, so a broader-scope declaration a narrower fill displaced does not linger, and a slot's demand applies to whichever fill actually won. A credential Feature that declares no sensitive leaf at all — because the target engine owns the material and the deployment authors nothing — still yields a sensitive attachment when it binds a sensitive slot.
+
+### The ceiling, stated plainly
+
+The word "sensitive" invites a reader to expect a confidentiality mechanism. It is not one, and the guarantee is narrower than the name suggests in five specific ways:
+
+- **It does not encrypt.** Nothing is wrapped, sealed, or transformed.
+- **It does not change the build's verdict.** No value is accepted or rejected because a declaration exists, and no build halts because one is missing. A catalog whose credential entities carry no declaration builds successfully, and adding declarations to an existing catalog leaves every build that succeeded still succeeding.
+- **It does not guarantee that rendered output is free of material.** The guarantee stated above is unchanged: whether an artifact carries material depends on which fill was attached and what the author put in its `values`. A declared-sensitive value supplied inline is rendered exactly as an undeclared one is, and `dist/` remains as sensitive as its most material-carrying attachment.
+- **It does not force a delivery mechanism.** A declaration cannot convert an inline value into a store reference, and it does not narrow what a slot's `inject` allowlist permits. Forcing delivery would mean emitting a resource the author never declared, which is precisely what the no-ghost-infrastructure invariant forbids — see [05-invariants.md](05-invariants.md).
+- **It changes no rendered byte today, and on most targets it never will.** No shipped render path reads the declaration, so adding declarations across an existing catalog leaves every rendered artifact identical. The ceiling beyond that is structural rather than a matter of what has been built: a declaration can only ever reach a rendered artifact on a target platform whose own language carries a sensitivity notion — a declaration that platform understands, governing how it displays a value rather than how it stores one. On a target with no such notion there is nothing for a declaration to become, so identical input renders identically with or without it, permanently.
+
+So the honest statement of what the axis buys:
+
+> A sensitivity declaration is a statement of authorial intent that travels with the entity, so tooling and policy can reason about what a deployment handles. It is not a mechanism that protects it.
+
+Protecting material remains the job of the secret store, the cluster, and the pipeline that handles the rendered tree — as the rest of this chapter says.
+
 ## How a credential reaches a container
 
 Two delivery shapes, chosen by the attachment's FeatureRecipe rather than by the developer:
@@ -152,6 +204,17 @@ Aggrega does not model data schemas — rows, columns, files are application con
 - Data lives in components whose ontology label marks them stateful or resource-like (`component.aggrega.ai/type: stateful-server`, `resource`, `messaging`).
 - `compliance.aggrega.ai/data-class` (`public`, `internal`, `restricted`) gives that data a semantic identity. It is an ordinary label: label selectors evaluate it, and a governance plugin an operator attaches may read it and reject a build. The compiler itself does not interpret it.
 
+**`data-class` and `sensitive` are two axes, and collapsing them loses information.** They sit next to each other and are easy to mistake for one surface, so hold the distinction:
+
+| | `compliance.aggrega.ai/data-class` | `sensitive` |
+|---|---|---|
+| Shape | graded — `public` / `internal` / `restricted` | boolean |
+| Granularity | a whole node | one schema leaf, or one attachment slot |
+| Says | what governance identity the data a component holds has | that this datum is secret material, or that this binding point handles it |
+| Authored as | a label in `metadata.labels` | a keyword on a declaration |
+
+Neither substitutes for the other: forcing sensitivity into the graded label would impose an ordering on a fact that has none, and forcing a data class onto a leaf would impose a granularity the classification does not have. An entity may carry both, and a component holding `restricted` data whose credential slot is declared `sensitive` is stating two separate true things. The leaf and slot keywords are taught at [../language-reference/vocabulary/compact-form-authoring.md](../language-reference/vocabulary/compact-form-authoring.md) "Declaring a leaf sensitive" and [../language-reference/entities/component.md](../language-reference/entities/component.md) "Declaring a slot sensitive".
+
 Encryption at rest is deliberately outside developer intent and outside the compiler. It belongs to the Ops Recipe for the stateful component, and to the rendering plugin that reads the node's labels and emits the encrypted storage configuration. That placement is design guidance about where the concern belongs — the compiler does not check that any Recipe honours it.
 
 ## What is distinctive here, and what is not
@@ -172,7 +235,8 @@ Public positioning is worth stating plainly and narrowly, so a reader can calibr
 
 - [05-invariants.md](05-invariants.md) — the ahead-of-time and string-pipe invariants this chapter rests on.
 - [10-compilation-pipeline.md](10-compilation-pipeline.md) — where attachment resolution and Resource Generation sit in the pipeline.
-- [../language-reference/entities/component.md](../language-reference/entities/component.md) — `featuresSchema` slot authoring.
+- [../language-reference/entities/component.md](../language-reference/entities/component.md) — `featuresSchema` slot authoring, including the slot-level `sensitive` declaration.
+- [../language-reference/vocabulary/compact-form-authoring.md](../language-reference/vocabulary/compact-form-authoring.md) — the leaf-level `sensitive` keyword, where the declaration is read, and the `parameters:` asymmetry.
 - [../language-reference/entities/workload.md](../language-reference/entities/workload.md) — the container `attachments:` map and its validation rules.
 - [../language-reference/examples/04-secrets.md](../language-reference/examples/04-secrets.md) — the authoring checklist and worked transparent / blackbox examples.
 - [../language-reference/examples/05-credential-features.md](../language-reference/examples/05-credential-features.md) — the credential Feature families and an end-to-end walkthrough.
