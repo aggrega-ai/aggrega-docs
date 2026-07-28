@@ -336,7 +336,8 @@ The name invites assumptions the keyword does not earn, so state the ceiling pla
 - **It does not validate or reject.** No value is accepted or refused because a leaf is declared sensitive, and no build outcome changes.
 - **It does not guarantee that rendered output is free of material.** Whether an artifact carries material depends on which fill a deployment attached and what the author wrote in its `values` — see [architecture/08-credential-model.md](../../architecture/08-credential-model.md) "What the compiler does and does not guarantee". A declared-sensitive value an author supplied inline is rendered exactly as an undeclared one is.
 - **It does not force a delivery mechanism.** It cannot turn an inline value into a store reference, and it does not narrow what a slot's `inject` allowlist permits.
-- **It changes no rendered byte today, and on most targets it never will.** No shipped render path reads the declaration, so declaring a leaf sensitive across an existing catalog leaves every rendered artifact identical. A target platform that carries a sensitivity notion of its own is where a declaration has somewhere to land; a target with none has nothing for it to change, permanently.
+- **It does not halt a build.** The one build-time notice it raises, described below, is an advisory: the build runs to completion and writes its artifacts. Making the notice fatal is an organisation's choice, expressed as a governance policy attached to the build, not something the keyword does on its own.
+- **It changes no rendered byte today, and on most targets it never will.** No shipped render path turns the declaration into different output, so declaring a leaf sensitive across an existing catalog leaves every rendered artifact identical. A target platform that carries a sensitivity notion of its own is where a declaration has somewhere to land; a target with none has nothing for it to change, permanently.
 
 ### What it changes in what the tool prints
 
@@ -353,6 +354,28 @@ Two boundaries on that behaviour matter more than the behaviour itself.
 **Rendered artifacts are never redacted.** Everything under `dist/` is emitted exactly as the render produced it, because it is the deployable: a placeholder written into a manifest would be a broken deployment rather than a protected one. Redaction covers what the tool *prints*, never what it *writes*. Reading a declaration as a promise that `dist/` is safe to publish is the one misreading to avoid — the ceiling above is unchanged, and `dist/` remains as sensitive as its most material-carrying attachment.
 
 **Redaction reaches what the compiler can identify by key.** A declared leaf in a `values` or `infra` pillar, and a delivery key that carries material from a `provides` key declared sensitive, are both identified by name and withheld. A value a template has already interpolated into a derived document is a different matter: nothing in the result records which declaration each character came from, and recovering it would mean inspecting the content of a value, which the compiler does not do. The trace's derived views — the resolved `source:`, the evaluated `locals:`, and the parsed `Workload` — therefore show what the template produced, declarations included.
+
+### The build advisory for a value travelling as a literal
+
+A build prints one advisory per delivery key that carries declared-sensitive material as a literal value. It fires when an attachment's `inject` block routes a `provides` key the attachment's Feature declared sensitive onto a delivery key of the consuming component, and the value is actually delivered:
+
+```text
+warning: node "db" (provider "helm"): attachment "user_password" delivers a value
+declared sensitive to env delivery key "MARIADB_PASSWORD" as a literal; where the
+target supports it, fill the slot with an attachment that delivers a reference instead
+```
+
+Three things about it are deliberate.
+
+**It reports how a value travels, not that something is wrong.** Delivering a literal is frequently the only thing a target accepts, and a whole family of attachments exists to do exactly that. The advisory tells an author which value takes that route and where, so the choice is visible rather than implicit; it does not claim the choice is a mistake.
+
+**It is a warning and never a halt.** The build succeeds and writes its artifacts unchanged. An organisation that wants a literal-delivered credential to fail the build expresses that as a governance policy over the build, which is where a rejection belongs — a rule some deployments must break is not a compiler default.
+
+**It is decided from the wiring, never from the value.** The advisory reads the sensitivity a schema declared plus the delivery the deployment authored. No value is inspected, so a field is never guessed to be a credential from its name or its contents, and an undeclared value that happens to hold a password raises nothing.
+
+Two cases deliberately stay silent. A delivery key whose referenced `provides` key publishes nothing delivers no literal and reports nothing — the advisory follows a delivery that happened. And a slot whose `inject` allowlist is empty leaves delivery to the Recipe, so the deployment authored no delivery key to report and an author has nothing to act on.
+
+The advisory is its own class, keyed on its own code, and `--no-unsupported-field-warnings` does not silence it: that flag covers a target's fidelity notices, which are a different judgement silenced for different reasons. It also reaches the editor, where it appears as a problem on the Aggregate, whenever the language server is running with `--render-diagnostics` (or the `serve.render_diagnostics` config key) turned on. That setting is off by default: producing any render-stage advisory requires the server to run a full render on each inspection, which the default trades away for responsiveness.
 
 ### Where the declaration is read, and where it is not
 

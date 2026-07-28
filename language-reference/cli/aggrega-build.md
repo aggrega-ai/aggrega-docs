@@ -108,7 +108,9 @@ Two limits are worth reading before treating `.trace/` as safe:
 - **`dist/` is not redacted.** Rendered artifacts are emitted exactly as the render produced them, because they are the deployable. Only `.trace/` is affected, and only in the slots described below.
 - **A value already interpolated into a derived document stays in the clear.** Alongside the pillars, a slot carries the derived views a pass had produced by that point — the resolved `source:`, the evaluated `locals:`, and the parsed `Workload` from the artifact and synthesis passes onward. Each of those is template output, and nothing in the result records which declaration a given character came from, so a value inside one is not identifiable for substitution. Treat `.trace/` as carrying material and handle it the way `dist/` is handled.
 
-The keyword, its two authoring sites, and the full ceiling on what declaring it achieves are at [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md) "Declaring a leaf sensitive".
+Separately from the trace, a build prints one advisory per delivery key that carries declared-sensitive material as a literal value, naming the component, the target, the attachment and the delivery key. It never halts the build and `--no-unsupported-field-warnings` does not silence it — that flag covers a target's fidelity notices, a different class.
+
+The keyword, its two authoring sites, the advisory's exact wording and the full ceiling on what declaring it achieves are at [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md) "Declaring a leaf sensitive".
 
 ## When to use `--trace`
 
