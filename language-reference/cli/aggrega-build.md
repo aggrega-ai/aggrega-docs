@@ -99,6 +99,17 @@ Each slot captures a specific compiler state:
 
 The trace writer is non-blocking: events go through a bounded channel and a dedicated goroutine drains to disk. Compile latency is unaffected by trace I/O — the same compile finishes in the same wall-clock time whether `--trace` is on or off.
 
+### Declared-sensitive values in the trace
+
+A datum an author declared sensitive — a schema leaf carrying `sensitive: true`, or a delivery key whose material came from a `provides` key that does — is written to the trace as the fixed text `<redacted>`. The key is kept and only the value is replaced, so a slot still shows which leaves and which delivery keys a node carries. An undeclared sibling in the same block prints its value verbatim; the substitution follows the declaration and nothing else.
+
+Two limits are worth reading before treating `.trace/` as safe:
+
+- **`dist/` is not redacted.** Rendered artifacts are emitted exactly as the render produced them, because they are the deployable. Only `.trace/` is affected, and only in the slots described below.
+- **A value already interpolated into a derived document stays in the clear.** Alongside the pillars, a slot carries the derived views a pass had produced by that point — the resolved `source:`, the evaluated `locals:`, and the parsed `Workload` from the artifact and synthesis passes onward. Each of those is template output, and nothing in the result records which declaration a given character came from, so a value inside one is not identifiable for substitution. Treat `.trace/` as carrying material and handle it the way `dist/` is handled.
+
+The keyword, its two authoring sites, and the full ceiling on what declaring it achieves are at [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md) "Declaring a leaf sensitive".
+
 ## When to use `--trace`
 
 - Diagnosing why a rendered manifest doesn't carry an expected value: walk the per-pass dumps to find the first slot where the value is missing.

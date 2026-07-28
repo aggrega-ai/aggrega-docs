@@ -338,6 +338,22 @@ The name invites assumptions the keyword does not earn, so state the ceiling pla
 - **It does not force a delivery mechanism.** It cannot turn an inline value into a store reference, and it does not narrow what a slot's `inject` allowlist permits.
 - **It changes no rendered byte today, and on most targets it never will.** No shipped render path reads the declaration, so declaring a leaf sensitive across an existing catalog leaves every rendered artifact identical. A target platform that carries a sensitivity notion of its own is where a declaration has somewhere to land; a target with none has nothing for it to change, permanently.
 
+### What it changes in what the tool prints
+
+The one thing a declaration does change is the CLI's own debug output. A declared-sensitive value is replaced by the fixed text `<redacted>` on the surfaces the tool prints for a human to read:
+
+- the per-pass trace `aggrega build --trace` writes to `.trace/`;
+- the per-node `Values:` block `aggrega inspect` prints for an Aggregate;
+- the per-leaf attachment block `aggrega inspect` prints for a resolved Release.
+
+The key is always kept and only its value is replaced, so a reader still sees that the leaf is authored and that something was withheld. A leaf the author did not declare prints its value verbatim beside a withheld sibling — the substitution follows the declaration and nothing else, so a field named `password` that carries no declaration is printed, and a declared field named `key` is not.
+
+Two boundaries on that behaviour matter more than the behaviour itself.
+
+**Rendered artifacts are never redacted.** Everything under `dist/` is emitted exactly as the render produced it, because it is the deployable: a placeholder written into a manifest would be a broken deployment rather than a protected one. Redaction covers what the tool *prints*, never what it *writes*. Reading a declaration as a promise that `dist/` is safe to publish is the one misreading to avoid — the ceiling above is unchanged, and `dist/` remains as sensitive as its most material-carrying attachment.
+
+**Redaction reaches what the compiler can identify by key.** A declared leaf in a `values` or `infra` pillar, and a delivery key that carries material from a `provides` key declared sensitive, are both identified by name and withheld. A value a template has already interpolated into a derived document is a different matter: nothing in the result records which declaration each character came from, and recovering it would mean inspecting the content of a value, which the compiler does not do. The trace's derived views — the resolved `source:`, the evaluated `locals:`, and the parsed `Workload` — therefore show what the template produced, declarations included.
+
 ### Where the declaration is read, and where it is not
 
 The keyword is read on the node it sits on, and the read descends only through property maps. Three shapes therefore need the marker placed deliberately:

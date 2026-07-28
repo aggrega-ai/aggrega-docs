@@ -292,6 +292,30 @@ When provenance **diverges** — a typical case is cross-side composition, where
 
 The walk order is values pillar first (in author order), then infra pillar (same discipline). The pillar prefix (`values.` / `infra.`) and the dotted path inside the pillar pinpoint exactly which leaf each bracket annotates.
 
+## Declared-sensitive values
+
+A leaf whose schema declares `sensitive: true` prints the fixed text `<redacted>` in place of its value. The key, the pillar prefix and the provenance bracket are all kept — only the value is replaced — so the layout still answers which leaves an entity carries and where each came from. Two surfaces are affected: an Aggregate's per-node `Values:` block, and a resolved Release's per-leaf attachment block.
+
+```text
+Components:
+  app  (type: core/app)
+    Values:
+      appName: demo
+      dbPassword: <redacted>
+      tuning.poolSize: 25
+      tuning.adminToken: <redacted>
+```
+
+Only a declared leaf is withheld. A credential Feature's published locators — the resource name and the data key — are public and are deliberately left undeclared in the standard-library catalog, so they print in the clear beside the material that does not:
+
+```text
+- credentials (feature.test/db-credential)
+    values.secretName: db-creds              [explicit]
+    values.literalPassword: <redacted>       [annotation: feature.test/pw from aggregate.yaml:components.app.annotations.feature.test/pw]
+```
+
+Nothing is inferred from a field's name: a field called `password` that carries no declaration prints its value, and a declared field called `key` does not. Redaction covers what the tool prints; it never reaches a rendered artifact, and `dist/` is emitted exactly as the render produced it. The keyword and the full ceiling on what declaring it achieves are at [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md) "Declaring a leaf sensitive".
+
 ## When to reach for inspect
 
 - **Debugging "why is this Feature here?"** — annotation-driven attachments are invisible in the Aggregate and Release YAML files (the annotations are there, but the Feature attachments they synthesise live only in the IR). Inspect surfaces them with provenance.
