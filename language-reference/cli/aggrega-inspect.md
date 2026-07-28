@@ -203,7 +203,7 @@ The default view builds the topology and shows each component with its values an
 
 ### Release (resolved by default)
 
-The Release view is the highest-stakes inspection. It runs the full pipeline and renders, per boundary, every Component node, its uses-edges, and every Feature attached to that node with **provenance brackets** revealing where each Feature came from:
+The Release view is the highest-stakes inspection. It runs the full pipeline and renders, per boundary, every Component node, its uses-edges, and every Feature attached to that node — each with the **attachment slot it fills** and whether it handles **declared-sensitive** material, plus a **provenance bracket** revealing where the attachment came from:
 
 ```text
 $ aggrega inspect ./prod-release.yaml --catalog ./catalog
@@ -227,7 +227,7 @@ Boundary: frontend-ns
     Uses:
       my-api → backend  [cross-boundary]
     Features:
-    - cross-namespace-routing (core/k8s-dns-resolver:1.0.0)    [explicit]
+    - cross-namespace-routing (core/k8s-dns-resolver:1.0.0)    [free]    [explicit]
 
 Boundary: data-ns
   Directory: ./dist/data
@@ -237,7 +237,7 @@ Boundary: data-ns
     Features: (none)
 ```
 
-Each boundary carries its output directory and its provider-consumed annotations; each component under a boundary carries its Aggregate component type, its uses-edges (cross-boundary edges marked), and its Feature attachments with provenance brackets. `--flat` collapses the boundary tree to one section per boundary keyed by its full path. `--raw` emits the Release file verbatim with no pipeline.
+Each boundary carries its output directory and its provider-consumed annotations; each component under a boundary carries its Aggregate component type, its uses-edges (cross-boundary edges marked), and its Feature attachments with their slot, sensitivity and provenance clauses. `--flat` collapses the boundary tree to one section per boundary keyed by its full path. `--raw` emits the Release file verbatim with no pipeline.
 
 ### YAML output
 
@@ -260,6 +260,29 @@ spec:
 ```
 
 `--output yaml` emits the render subject — the as-authored entity for catalog kinds, the resolved structure for instance kinds — as YAML, suitable for piping and diffing.
+
+## Attachment slot and sensitivity clause
+
+Each Feature attachment in the Release view carries a clause naming two facts the compiler derives about the attachment itself: which attachment slot it fills, and whether it handles declared-sensitive material. The clause sits between the attachment's name and its provenance bracket, and it reads identically in both provenance forms below.
+
+- **`[slot: <name>]`** — the attachment fills the host Component's `featuresSchema` slot called `<name>`. A slot is filled by attaching a Feature under the slot's own name, so `<name>` is the attachment's name matched against the resolved Component's declared slots.
+- **`[free]`** — the attachment fills no declared slot: the resolved Component declares no `featuresSchema` slot of that name. This is a finding, not a diagnostic. A free-form attachment is accepted, and an operator who wants to forbid one expresses that as a governance policy rather than relying on the tool to refuse it.
+- **`[sensitive]`** — the attachment handles material an author declared sensitive, because the attached Feature declares a sensitive leaf, because the slot it fills declares `sensitive: true`, or both.
+
+When both facts apply they share one clause. `core/storage/minio` declares a `root_password` slot marked `sensitive: true`, so a credential attached under that name reports both facts, while a Feature attached under a name the Component declares no slot for reports neither slot nor sensitivity:
+
+```text
+    Features:
+    - root_password (core/generated-secret:1.0.0)    [slot: root_password, sensitive]    [explicit]
+    - cross-namespace-routing (core/k8s-dns-resolver:1.0.0)    [free]    [explicit]
+```
+
+The clause is omitted entirely when neither fact applies, and each half is omitted independently:
+
+- **No slot half** means the host Component's declared slot set could not be resolved — for instance, its type matches no catalog entity. This is deliberately distinct from `[free]`: `[free]` answers "no slot of that name is declared", while an absent half means the question could not be answered at all.
+- **No `sensitive`** records that no declaration marked the attachment. That is narrower than a verdict that the attachment carries nothing secret; the axis reports declarations, and nothing is inferred from a field's name or its value.
+
+A slot whose declared name is literally `free` renders as `[free]` too, indistinguishable from a free-form attachment — nothing reserves that word against the slot namespace.
 
 ## IR provenance bracket grammar
 
@@ -306,7 +329,7 @@ Components:
       tuning.adminToken: <redacted>
 ```
 
-Only a declared leaf is withheld. A credential Feature's published locators — the resource name and the data key — are public and are deliberately left undeclared in the standard-library catalog, so they print in the clear beside the material that does not:
+Only a declared leaf is withheld, and the attachment-level `[sensitive]` clause is not a withholding instruction: it says the attachment handles secret material, not which of its leaves carry it. A credential Feature's published locators — the resource name and the data key — are public and are deliberately left undeclared in the standard-library catalog, so they print in the clear beside the material that does not:
 
 ```text
 - credentials (feature.test/db-credential)
