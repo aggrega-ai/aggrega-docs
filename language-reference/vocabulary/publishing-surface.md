@@ -10,21 +10,32 @@ The following fields appear on every Domain 2 (Component, Feature) and Domain 3 
 
 | Field | Type | Purpose | Consumer |
 | --- | --- | --- | --- |
-| `description` | string | Human-readable summary of the entity | Hub UI listings, IDE tooltips, `aggrega inspect` output |
-| `maintainers` | array of objects | Who owns the entity (name, email, url) | Catalog provenance, IR per-node `CatalogMetadata` struct |
-| `license` | string | Legal compliance (typically SPDX identifier) | Hub UI, compliance tooling, IR `CatalogMetadata` |
-| `repository` | string (URL) | Git repository where source lives | Hub UI, `aggrega inspect`, IR `CatalogMetadata` |
-| `home` | string (URL) | Documentation / wiki URL | Hub UI listings, IR `CatalogMetadata` |
-| `keywords` | array of strings | Search / discovery tags | Hub UI search index, IR `CatalogMetadata` |
-| `deprecated` | boolean | End-of-life flag | Hub UI, build-time warning (planned), IR `CatalogMetadata` |
+| `description` | string | Human-readable summary of the entity | Editor hover cards (`aggrega serve`); the `describe` tool an assistant calls (`aggrega mcp`); a searchable annotation on the published artifact (`aggrega push`); `aggrega inspect`, for the library kinds only |
+| `maintainers` | array of objects | Who owns the entity (name, email, url) | Per-node `catalog_metadata` in the IR, on Component nodes |
+| `license` | string | Legal compliance (typically SPDX identifier) | Per-node `catalog_metadata` in the IR, on Component nodes |
+| `repository` | string (URL) | Git repository where source lives | Per-node `catalog_metadata` in the IR, on Component nodes — nothing else reads it |
+| `home` | string (URL) | Documentation / wiki URL | Per-node `catalog_metadata` in the IR, on Component nodes — nothing else reads it |
+| `keywords` | array of strings | Discovery tags | Per-node `catalog_metadata` in the IR, on Component nodes — no search index consumes them |
+| `deprecated` | boolean | End-of-life flag | The build's deprecation check — advisory by default, halting when `build.halt_on_deprecated` is set; per-node `catalog_metadata` in the IR, on Component nodes |
 
 All seven fields are optional on every entity that carries them. A catalog author who omits the entire suite produces a valid YAML — the publishing surface is for entities intended for catalog distribution; internal-use entities can omit it without consequence.
 
-### IR consumption — `CatalogMetadata` struct
+The Consumer column is exhaustive for what ships today, and two of its consequences are worth stating plainly, because they change what is worth authoring:
 
-The compiler reads the publishing surface fields from each Component into a per-node `CatalogMetadata` struct that flows through the IR. The struct is populated at [`internal/compiler/ir/annotations.go:73-97`](../../../aggrega-cli/internal/compiler/ir/annotations.go#L73) (`buildCatalogMetadata` function) and surfaces in IR JSON output (`aggrega ir --blueprint`). Downstream tooling that reads the IR — Studio panels, lint rules, audit reports — consumes the metadata from this struct rather than re-reading the catalog YAML.
+- **`description` is the only field with more than one reader.** `aggrega serve` renders it into the hover card for Aggregate, Component, Feature, Recipe, FeatureRecipe, Manifest and the four library kinds (`SchemaLibrary`, `MappingLibrary`, `WorkloadLibrary`, `ArtifactsLibrary`) — not for Plugin or Release. The `describe` tool `aggrega mcp` exposes returns it for a Component or a Feature. `aggrega push` stamps it onto the published artifact as a searchable annotation. `aggrega inspect` prints it for the four library kinds only; for Component, Feature, Recipe, FeatureRecipe and Plugin, `inspect` prints no publishing-surface field at all.
+- **`repository`, `home` and `keywords` are validated and carried, and nothing reads them beyond the IR.** No listing surface, catalog site or search index consumes them. Authoring them records provenance that travels with the entity and is readable from IR output and from a governance policy; it does not make the entity findable anywhere.
 
-The struct uses an `omitempty` JSON tag plus a conditional-return pattern: when every publishing-surface field is empty / zero, `buildCatalogMetadata` returns nil and the `CatalogMetadata` field collapses out of the IR JSON entirely. The same input therefore yields the same compact output, which keeps the IR diff stable across runs.
+One clarification on `deprecated`, because two deprecation signals exist and only one of them is a publishing-surface field. `metadata.deprecated` is the author's own boolean on the entity's YAML, gated by `build.halt_on_deprecated`. Separately, a registry can record a deprecation *retroactively* after publication — a marker carrying a severity (`warning`, `error` or `retracted`), a reason and a replacement, verified at pull time and gated by `build.halt_on_deprecated_severity`. The marker is not authored on the entity and is not part of the publishing surface; the deprecation notice `aggrega inspect` prints for a Component comes from it, not from `metadata.deprecated`.
+
+### IR consumption — per-node `catalog_metadata`
+
+The compiler carries the publishing surface fields from each Component into that node's `catalog_metadata` block, visible in IR JSON output (`aggrega ir --blueprint`). The block holds `maintainers`, `license`, `repository`, `home`, `keywords` and `deprecated` — the six fields the IR carries; `description` is not among them. Tooling built against the IR graph contract reads the metadata from there rather than re-reading the catalog YAML.
+
+**Component nodes only.** The block is populated by looking the node's component type up in the catalog as a Component, so a Feature's, Recipe's, FeatureRecipe's or Plugin's publishing surface never reaches the IR — those entities carry the fields, and the fields validate, but no IR node results from them.
+
+`catalog_metadata` collapses out of the IR JSON entirely when every publishing-surface field on the source Component is empty or zero: the block is omitted rather than emitted with empty values. The same input therefore yields the same compact output, which keeps the IR diff stable across runs.
+
+A governance policy can read the block. A plugin attached under `plugins.governance` in the `ir-verdict` role receives the whole IR graph, node for node, including each Component node's `catalog_metadata` — so a policy can accept or reject a build on a node's `license`, `repository`, `home`, `keywords`, `deprecated` or `maintainers`. That reach is specific to the governance socket: a provider's rendering plugin receives a bounded per-node projection that does not include `catalog_metadata`, so rendering plugins cannot read these fields.
 
 ## The three description types
 
@@ -32,27 +43,31 @@ The `description` field appears uniformly on the envelope, but the corpus also c
 
 | Type | Where it lives | Authored by | Purpose |
 | --- | --- | --- | --- |
-| Envelope description | `metadata.description` on every entity | Catalog publisher | One-line summary visible in catalog listings and IDE tooltips |
-| Instance description | `description` field next to a per-instance declaration (e.g., `featuresSchema.<slot>.description`, `usesSchema.<socket>.description`) | Schema author | Per-slot / per-socket / per-port description visible to authors of consuming entities |
-| Field description | JSON Schema 2020-12 `description:` annotation inside `schema:` / `featuresSchema:` / `usesSchema:` content (compact form or full JSON Schema YAML) | Schema author | Per-field documentation surfaced by IDE autocomplete and validation tools |
+| Envelope description | `metadata.description` on every entity | Catalog publisher | One-line summary shown on editor hover cards and stamped onto the published artifact |
+| Instance description | `description` field next to a per-instance declaration (e.g., `featuresSchema.<slot>.description`, `usesSchema.<socket>.description`) | Schema author | Per-slot / per-socket / per-port description, for authors of consuming entities reading the declaration |
+| Field description | JSON Schema 2020-12 `description:` annotation inside `schema:` / `featuresSchema:` / `usesSchema:` content (compact form or full JSON Schema YAML) | Schema author | Per-field documentation that travels with the schema |
 
 The three types share the word "description" but live at structurally distinct levels. Envelope description applies to the entity as a whole; instance description applies to a declaration inside a schema slot; field description applies to a specific value inside a typed schema. Authors writing a Component:
 
 - Set `metadata.description` once for the Component entity itself.
 - Set `featuresSchema.admin_password.description` once per credential slot the Component declares.
-- Set per-field `description:` annotations inside the `schema:` block — in compact form (`port: { type: integer, description: "..." }`) or in full JSON Schema YAML — to document each field for IDE autocomplete and validation tools.
+- Set per-field `description:` annotations inside the `schema:` block — in compact form (`port: { type: integer, description: "..." }`) or in full JSON Schema YAML — to document each field for whoever reads the Component's schema.
 
-The three types do not cascade and do not collide. Tooling that reads one type does not read the others — Hub UI surfaces envelope descriptions in listings; IDE autocomplete surfaces field descriptions inline; `aggrega inspect` surfaces instance descriptions when listing a Component's slots.
+The three types do not cascade and do not collide, and each reaches a different surface — or none:
+
+- **Envelope description** — editor hover cards, the published artifact's searchable annotations, and `aggrega inspect` for the library kinds, per the Consumer column above.
+- **Field description** — appears verbatim in the schema excerpt a Component's or a Feature's hover card renders. The excerpt covers `spec.schema` only and is truncated to its opening lines, so a description deeper in the block — or one inside `featuresSchema:` or `usesSchema:` — does not appear there.
+- **Instance description** — declared and carried with the entity; no shipped surface renders it on its own. `aggrega inspect` lists a Component's sockets and feature slots without their descriptions.
 
 ## Maintainer field intent
 
 The `maintainers` field carries an array of objects, each with `name`, `email`, and `url`. The intent and verified consumer:
 
-**Intent (informational + IR provenance).** The field is informational for catalog publishing — Hub UI lists maintainers so consumers know who to contact; CI / governance tooling reads the field to enforce repository ownership policies. The architectural intent is "who is responsible for this catalog entity"; ownership signal that travels with the entity.
+**Intent (informational + IR provenance).** The field is informational for catalog publishing: the architectural intent is "who is responsible for this catalog entity" — an ownership signal that travels with the entity. No surface presents it as a contact list, and no built-in check compares it against anything.
 
-**Verified consumer (IR `CatalogMetadata` struct).** The compiler reads each Component's `metadata.maintainers` into the per-node `CatalogMetadata.Maintainers` field per [`internal/compiler/ir/annotations.go:88-89`](../../../aggrega-cli/internal/compiler/ir/annotations.go#L88). The IR JSON output carries the maintainer list per node when the source Component declared one; downstream tooling that reads the IR (Studio, lint plugins, audit reports) consumes the field from there rather than re-reading the catalog YAML.
+**Verified consumer (per-node `catalog_metadata`).** The compiler carries each Component's `metadata.maintainers` into that node's `catalog_metadata.maintainers` in the IR, visible in `aggrega ir --blueprint` output when the source Component declared one. That is the field's only reader. A governance policy attached under `plugins.governance` in the `ir-verdict` role sees it there, so an ownership rule — every entity names at least one maintainer, a maintainer's domain matches an approved set — is expressible against the IR rather than against the catalog YAML. No such rule ships; the socket is where one goes.
 
-The compiler does not enforce or validate maintainer content beyond JSON Schema's structural shape (name required; email and url optional, both string). Whether the listed maintainers actually own the entity, whether their email is reachable, whether a repository commit is signed by one of them — these are catalog-governance concerns enforced by `linter.wasm` (out-of-band advisory) or by enterprise publishing-discipline plugins, not by the compiler.
+The compiler does not enforce or validate maintainer content beyond JSON Schema's structural shape (name required; email and url optional, both string). Whether the listed maintainers actually own the entity, whether their email is reachable, whether a repository commit is signed by one of them — these are catalog-governance concerns, and no shipped check evaluates any of them. They belong to a governance policy an operator attaches, not to the compiler.
 
 ## Required-fields asymmetries
 
