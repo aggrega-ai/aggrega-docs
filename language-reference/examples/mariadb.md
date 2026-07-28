@@ -15,11 +15,10 @@ catalog/
 │       └── datastore/
 │           └── mariadb/
 │               └── component.yaml          # The Component definition
-├── recipes/
-│   └── bitnami/
-│       └── datastore/
-│           └── mariadb/
-│               └── recipe-k8s.yaml         # The Helm Recipe
+├── recipe/
+│   └── helm/
+│       └── mariadb-bitnami/
+│           └── recipe.yaml                 # The Helm Recipe
 ├── schemalibs/
 │   └── aggrega-datastores/
 │       └── library.yaml                    # SchemaLibrary with MariaDBPayload + helpers
@@ -284,18 +283,18 @@ The mapping uses two helper templates (`BitnamiPodResources`, `BitnamiPersistenc
 ## The Recipe
 
 ```yaml
-# recipes/bitnami/datastore/mariadb/recipe-k8s.yaml
+# recipe/helm/mariadb-bitnami/recipe.yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Recipe
 metadata:
-  name: bitnami/datastore/mariadb/k8s
+  name: mariadb-bitnami
   version: 1.0.0
   labels:
-    recipe.aggrega.ai/provider: helm
     recipe.aggrega.ai/scope: kubernetes
   description: "Bitnami MariaDB Helm chart 20.x for Kubernetes."
 
 spec:
+  capability: helm
   implements: core/datastore/mariadb:^1.0.0
 
   source:
@@ -433,15 +432,15 @@ spec:
   mappings:
     components:
       type:
-        core/datastore/mariadb: bitnami/datastore/mariadb/k8s:1.0.0
-        my-org/server/checkout-api: my-org/server/k8s:1.0.0
+        core/datastore/mariadb: helm/mariadb-bitnami:1.0.0
+        my-org/server/checkout-api: helm/checkout-api:1.0.0
 
     features:
       type:
-        core/secret-value: my-org/feature-recipe/vault-secret/k8s:1.0.0
+        core/secret-value: helm/vault-secret:1.0.0
 ```
 
-The Manifest's flat URI mapping binds component-type URIs to Recipe URIs; the Recipe URI's `<namespace>/<provider>/<name>` path carries the provider. The Manifest itself is capability-agnostic; provider determination flows from each resolved Recipe's `spec.target` field at orchestrator-time.
+The Manifest's flat URI mapping binds component-type URIs to Recipe URIs. A Recipe URI is at most two segments — an optional leading capability, then the recipe name — plus an optional `:version`; the bare one-segment form resolves whenever a single recipe carries the name. The Manifest itself is capability-agnostic; capability determination flows from each resolved Recipe's `spec.capability` field at orchestrator-time.
 
 ## The Release
 
@@ -483,7 +482,7 @@ The Release supplies parameter values for production. The Aggregate's typed-para
 3. **Step 3.** Selector resolution; `api`'s `primary_db: db` resolves to the `db` Component instance.
 4. **Step 4a.** Schemas resolved (compact form → JSON Schema 2020-12; SchemaLibrary `MariaDBPayload` resolved via cross-document `$ref:` expansion); instances validated against the resolved schemas.
 5. **Step 4b.** Component assertions evaluated (the four rules from the MariaDB Component's `assertions:` block); pass.
-6. **Step 5a.** Recipes bound per the Manifest's flat URI mapping (MariaDB → bitnami/datastore/mariadb/k8s; api → my-org/server/k8s); credential Features attached per `featuresSchema:` × Manifest's `features.type` mapping.
+6. **Step 5a.** Recipes bound per the Manifest's flat URI mapping (MariaDB → helm/mariadb-bitnami; api → helm/checkout-api); credential Features attached per `featuresSchema:` × Manifest's `features.type` mapping.
 7. **Step 5b.** Recipe assertions evaluated (the two Bitnami-specific rules from the Recipe's `assertions:` block); pass.
 8. **Step 5c.** Rendering. MariaDB Recipe's `valuesMapping:` (loaded from the MappingLibrary entry) renders into Helm chart values:
 

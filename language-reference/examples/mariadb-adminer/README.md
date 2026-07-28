@@ -371,6 +371,6 @@ output is a chart to `helm install` or vendor — not a set of applied manifests
 Recipe selection is by **component type**. Each catalog layer contains exactly
 one Recipe per type, so loading `catalog-compose` binds `core/datastore/mariadb`
 to the compose Recipe, while loading `catalog-helm-synth` binds it to the
-Kubernetes one. The provider engine that renders a node is the `spec.target`
+Kubernetes one. The provider engine that renders a node is the `spec.capability`
 of whichever Recipe was bound. Swapping targets is swapping the `--catalog`
 directory — the Aggregate never changes.

@@ -207,7 +207,7 @@ The validator runs the same template-AST walk that the path-template variable al
 
 For `executionScope: boundary`, the compiler deduplicates Resource Generation by the tuple `(boundary_path, FR-instance)`. Two components in the same boundary subtree both consuming the same boundary-attached feature trigger one FR invocation, not two. Cross-boundary attachments of the same feature run independently per boundary.
 
-A boundary-scope FR emits files under `<boundary_directory>/<fr-provider>/features/<feature-instance>/` for non-intermediate output (one set of files per `(boundary_path, FR-instance)` tuple). Intermediate output flows to the boundary's per-(path, provider) assembler at the FR's evaluated path under the FR's own `spec.target` — this is the mechanism the compose-bridge proof case uses to merge a bridge service alongside per-component compose contributors at the same assembly path.
+A boundary-scope FR emits files under `<boundary_directory>/<fr-provider>/features/<feature-instance>/` for non-intermediate output (one set of files per `(boundary_path, FR-instance)` tuple). Intermediate output flows to the boundary's per-(path, provider) assembler at the FR's evaluated path under the FR's own `spec.capability` — this is the mechanism the compose-bridge proof case uses to merge a bridge service alongside per-component compose contributors at the same assembly path.
 
 ### Cascade-aware `provides:` resolution
 

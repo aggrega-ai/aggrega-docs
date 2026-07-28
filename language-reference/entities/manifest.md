@@ -21,7 +21,7 @@ The Release schema carries no `provider` field at any nesting level; provider di
 
 ## Flat URI mapping
 
-The Manifest's `mappings:` block is a flat map from **component-type URI** to **Recipe URI** (and from **feature-type URI** to **FeatureRecipe URI**). The mapping is capability-agnostic at the Manifest level; provider determination flows from each resolved Recipe's `spec.target` field at orchestrator-time, not from the Manifest's structural shape. The block organises mappings under two top-level keys:
+The Manifest's `mappings:` block is a flat map from **component-type URI** to **Recipe URI** (and from **feature-type URI** to **FeatureRecipe URI**). The mapping is capability-agnostic at the Manifest level; capability determination flows from each resolved Recipe's `spec.capability` field at orchestrator-time, not from the Manifest's structural shape. The block organises mappings under two top-level keys:
 
 * **`components.type`** maps a component-type URI to a Recipe URI. Every component instance of the declared type resolves to the specified Recipe. The mapping is one-to-one per component-type.
 * **`features.type`** maps a feature-type URI to a FeatureRecipe URI. Every Feature attachment of the declared type resolves to the specified FeatureRecipe. Credential Features (labeled `feature.aggrega.ai/kind: secret`) live in the same `features.type` map as operational Features — the unified Feature entity model.
@@ -38,19 +38,21 @@ spec:
   mappings:
     components:
       type:
-        # Component-type → Recipe URI. The Recipe URI's path segment carries the provider.
+        # Component-type → Recipe URI. A Recipe URI is at most two segments: an
+        # optional leading capability, then the recipe name. The bare one-segment
+        # form (last line) is the common case.
         core/datastore/postgres: helm/postgres:1.2.0
-        core/api-server: core/helm/api-helm:0.5.0
-        core/python-worker: core/helm/standard-python-worker:2.0.0
+        core/api-server: helm/api-helm:0.5.0
+        core/python-worker: standard-python-worker:2.0.0
 
     features:
       type:
         # Feature-type → FeatureRecipe URI. Credential Features (e.g., aws-secrets-manager) sit alongside operational ones.
-        core/data-masking: core/helm/lakera-guard-istio:1.2.0
-        core/aws-secrets-manager: core/helm/eso-aws-fetcher:1.0.0
+        core/data-masking: helm/lakera-guard-istio:1.2.0
+        core/aws-secrets-manager: helm/eso-aws-fetcher:1.0.0
 ```
 
-**Provider determination at orchestrator-time.** The Manifest entry binds a component-type to a Recipe URI; the Recipe URI's `<namespace>/<provider>/<name>` path segment carries the provider. At orchestrator time, the resolver loads the Recipe via direct URI lookup against the lockfile and catalog, and each Recipe's `spec.target` field determines the per-(path, provider) dispatch grouping. The Manifest's structural shape stays flat regardless of how many providers the broader catalog supports.
+**Capability determination at orchestrator-time.** The Manifest entry binds a component-type to a Recipe URI. A Recipe URI carries at most two segments — an optional leading capability, then the recipe name — plus an optional `:version`; the resolver splits on the first `/` only, so a reference with a third segment names no recipe and halts resolution. At orchestrator time, the resolver loads the Recipe via direct URI lookup against the lockfile and catalog, and each Recipe's `spec.capability` field determines the per-(path, capability) dispatch grouping. The Manifest's structural shape stays flat regardless of how many providers the broader catalog supports.
 
 ### Direct URI lookup, no `matchImplements` walking
 
@@ -70,40 +72,45 @@ A Recipe URI in the Manifest may carry the version in any of three forms:
 
 Subsequent builds use the lockfile-pinned version regardless of the user-typed form. Re-resolving to a newer version requires explicit user action — `aggrega pull --upgrade <uri>` re-resolves a single dependency while holding every other pin, or `aggrega pull --upgrade` re-resolves all — the lockfile is the source of truth for builds; the user-typed form is how the user expresses the version constraint at authoring time.
 
-### Provider-qualified references
+### Capability-qualified references
 
-Recipe identity in the catalog is provider-scoped: two providers may each ship a recipe of the same `metadata.name` and version (the catalog tree places them at `recipe/{provider}/{name}/`, and the registry identity is `recipe/{provider}/{name}:{version}`). A Manifest mapping value names the recipe at either precision:
+Recipe identity in the catalog is capability-scoped: two recipes may share a `metadata.name` and version while declaring different `spec.capability` values. The registry identity is `recipe/{capability}/{name}:{version}`, derived from the recipe's kind, its `spec.capability` and its name; the standard-library catalog tree mirrors that coordinate at `recipe/{capability}/{name}/` by convention. A Manifest mapping value names the recipe at either precision:
 
-* **Bare** — `mariadb:1.0.0`. Resolves when exactly one provider ships the name; the common case for single-provider catalogs.
-* **Provider-qualified** — `compose/mariadb:1.0.0`. The segment before the first `/` names the provider (`spec.target`). Required when more than one provider ships the same recipe name: a bare reference that matches recipes under two providers is ambiguous and halts loudly at resolution rather than silently picking one.
+* **Bare** — `mariadb:1.0.0`. Resolves when exactly one recipe in the catalog carries the name; the dominant form in practice.
+* **Capability-qualified** — `compose/mariadb:1.0.0`. The segment before the first `/` names the recipe's `spec.capability`. Required when more than one recipe ships the same name: a bare reference matching two recipes is ambiguous and halts loudly at resolution rather than silently picking one.
+
+A Recipe URI has no further positions. The resolver splits on the first `/` only, so `compose/mariadb` names capability `compose` and recipe `mariadb`, and a three-segment reference matches no recipe at either precision.
 
 The version-segment forms above apply to both shapes.
 
 ### Registry-published entities in mappings
 
 An entity consumed from a registry rather than a local catalog is
-addressed by its full host-qualified URI — the registry host followed by
-the entity-kind path: `<registry>/component/<name>:<version>` for a
-Component type, and the matching form for any other published kind. The
-host-qualified URI is valid anywhere the entity is referenced: as a
-component `type:` in the Aggregate, as the Manifest mapping key for that
-type, and as a mapping value. At resolution time the three-tier cascade
-finds no local or cached copy, pulls the entity from the named registry,
-caches it, and pins the resolved version and content digest in the
-lockfile; subsequent builds consume the cache without network access.
+referenced by exactly the same identity a local one uses: the reference
+carries no registry host and no entity-kind segment. The resolver
+supplies both — the host from the workspace's configured default
+registry, the kind segment from where the reference sits in the schema
+— per the [Context-Aware Shorthand URIs](#context-aware-shorthand-uris)
+rules below. At resolution time the three-tier cascade finds no local or
+cached copy, pulls the entity from the derived location, caches it, and
+pins the resolved version and content digest in the lockfile;
+subsequent builds consume the cache without network access.
 
 ```yaml
 # Aggregate fragment — a registry-published Component as the type:
 components:
   db:
-    type: hub.aggrega.ai/component/core/datastore/mariadb:1.0.0
+    type: core/datastore/mariadb:1.0.0
 ```
 
-A bare, host-less reference resolves against the workspace's
-`default_registry` only for the entity kinds with name-to-location
-binding (libraries and Aggregates); component-type references are either
-local catalog names or full host-qualified URIs — the resolver never
-guesses a host for them.
+Because the host and the entity-kind segment are derived rather than
+authored, writing either into the reference does not address the
+published entity — it produces an identity no catalog entry carries. A
+Component or Feature reference is its `metadata.name` verbatim plus an
+optional `:version`, whether the entity resolves from the local catalog,
+from the cache, or from a registry. A workspace consuming a private
+registry names that host in its own configuration rather than in each
+reference.
 
 ### Completeness check
 
@@ -120,7 +127,7 @@ metadata:
   name: global-base-manifest
   version: 1.0.0
 defs:
-  - &python_worker_recipe "core/helm/standard-python-worker:2.0.0"
+  - &python_worker_recipe "helm/standard-python-worker:2.0.0"
 spec:
   mappings:
     components:
@@ -135,7 +142,7 @@ The capability handshake uses the same flat-URI mapping:
 
 1. The developer requests `features: [core/data-masking]` on a component in the Aggregate.
 2. The compiler looks up `core/data-masking` in the Manifest's `features.type` map.
-3. If the lookup resolves to a FeatureRecipe URI (e.g., `core/helm/lakera-guard-istio:1.2.0`), the capability exists and the FeatureRecipe's pipeline executes in the defined order.
+3. If the lookup resolves to a FeatureRecipe URI (e.g., `helm/lakera-guard-istio:1.2.0`), the capability exists and the FeatureRecipe's pipeline executes in the defined order.
 4. If `features.type` contains no matching entry, the compiler halts the build and lists the unmapped Feature.
 
 The Manifest also accepts a `features.annotations` block — a parallel authoring surface that lets a Release or Aggregate subsystem attach Features by annotation key rather than by per-component declaration. The binding shape, the side-vs-pillar partition that governs which authoring surface uses which routing paths, the explicit-attachment-wins discipline, and the schema-defaults rule live in the dedicated [Annotation-Driven Feature Bindings](#annotation-driven-feature-bindings) section further down.
@@ -166,15 +173,17 @@ The Aggrega compiler utilizes **Context-Aware Inference** when resolving OCI URI
 **The Shorthand in Action:**
 
 ```yaml
-# Verbose (allowed for custom private registries):
-"core/postgres": "oci://private-registry.corp.com/recipe/postgres:2.0"
+# Capability-qualified — required when two recipes share the name "postgres":
+"core/postgres": "helm/postgres:2.0"
 
-# Shorthand (standard ecosystem):
+# Bare — resolves when one recipe carries the name:
 "core/postgres": "postgres:2.0"
-# Compiler resolves via Tier 2 local catalog, or Tier 3: hub.aggrega.ai/recipe/helm/postgres:2.0
+# The compiler resolves via Tier 2 (local catalog), or via Tier 3 by deriving the
+# registry location from the configured default registry and the Recipe kind.
+# A private registry is named in workspace configuration, not in the reference.
 ```
 
-**Legacy `ops/` prefix.** Older catalog conventions placed an `ops/` prefix before Recipe names. This prefix is no longer used — the `recipe/` entity type directory in the OCI taxonomy already identifies the domain, and Recipes ship under `recipe/{provider}/{name}` without additional prefixing. Manifests should reference Recipes by `{provider}/{name}` (or via the bare shorthand for context-aware inference). See [architecture/13-catalog-and-registry.md](../../architecture/13-catalog-and-registry.md) §6 for the full OCI taxonomy.
+**Legacy `ops/` prefix.** Older catalog conventions placed an `ops/` prefix before Recipe names. This prefix is no longer used — the `recipe/` entity type directory in the OCI taxonomy already identifies the domain, and Recipes ship under `recipe/{capability}/{name}` without additional prefixing. Manifests reference Recipes by `{capability}/{name}`, or by the bare name for context-aware inference. See [architecture/13-catalog-and-registry.md](../../architecture/13-catalog-and-registry.md) §6 for the full OCI taxonomy.
 
 ## Annotation-Driven Feature Bindings
 
@@ -187,8 +196,8 @@ spec:
   mappings:
     features:
       type:
-        core/rewrite-host: core/helm/rewrite-host-helm:1.0.0
-        core/db-pool: core/helm/db-pool-helm:1.0.0
+        core/rewrite-host: helm/rewrite-host-helm:1.0.0
+        core/db-pool: helm/db-pool-helm:1.0.0
 
       annotations:
         feature.aggrega.ai/rewrite-host:

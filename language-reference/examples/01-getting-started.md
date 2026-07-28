@@ -74,7 +74,7 @@ spec:
   mappings:
     components:
       type:
-        core/web-server: core/helm/web-server-helm:1.0.0
+        core/web-server: helm/web-server-helm:1.0.0
 ```
 
 **5. Routing Domain: The Release (Deployment Router)**
@@ -97,7 +97,7 @@ spec:
         my-site: {}
 ```
 
-**Compilation:** `aggrega build --release release.yaml` → The compiler resolves `my-site` (type `core/web-server:1.0.0`) → looks up `core/web-server` in the Manifest's `components.type` map → finds `core/helm/web-server-helm:1.0.0` → loads the Recipe (its `spec.target: helm` carries the provider) → renders the chart into `dist/boundaries/default-cluster/`.
+**Compilation:** `aggrega build --release release.yaml` → The compiler resolves `my-site` (type `core/web-server:1.0.0`) → looks up `core/web-server` in the Manifest's `components.type` map → finds `helm/web-server-helm:1.0.0` → loads the Recipe (its `spec.capability: helm` names the engine to dispatch to) → renders the chart into `dist/boundaries/default-cluster/`.
 
 ---
 
