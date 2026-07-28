@@ -93,7 +93,10 @@ Targets differ in fidelity. A Workload field that one target expresses natively 
 
 The distinction from a fatal halt is the granularity. An unsupported *form* halts the build loudly — the target cannot produce that shape of workload at all. A supported form that carries an *unexpressible field* renders, minus that field, and says so.
 
-On the compose target the class currently covers `scheduling`, `serviceAccount`, `replicas`, `runtimeClassName`, `priorityClassName`, `imagePullSecrets`, `dnsPolicy`, `dnsConfig.options`, container `runAsNonRoot`, and extended-resource keys such as `nvidia.com/gpu`. One field, `persistentTemplate`, emits a partial variant of the same class: per-replica volume templating is unavailable, so the volume collapses to a single shared persistent volume rather than disappearing.
+On the compose target the class currently covers `scheduling`, `serviceAccount`, `replicas`, `runtimeClassName`, `priorityClassName`, `imagePullSecrets`, `dnsPolicy`, `dnsConfig.options`, container `runAsNonRoot`, and extended-resource keys such as `nvidia.com/gpu`. Two cases emit a partial variant of the same class, where the field is reduced rather than removed:
+
+- `persistentTemplate` — per-replica volume templating is unavailable, so the volume collapses to a single shared persistent volume rather than disappearing.
+- A container `attachments` entry with `as: env` — compose cannot source an environment variable from an attachment, so the variable is emitted with an empty value. The warning names the entry at its authored coordinate (`containers.<name>.attachments.<KEY>`, or `initContainers[<i>].attachments.<KEY>` for a positional init entry), so it is clear which variable arrives empty and which container it belongs to. An entry with `as: file` is bind-mounted normally and raises nothing.
 
 Each warning carries the stable, machine-matchable class code `unsupported-field`, so tooling can match the class rather than parse the message text. Both the omitted-outright and the reduced-form variants carry that one code, which is what lets a single filter suppress the whole class. The warnings travel out-of-band from the rendered artifacts, which means **rendered bytes are byte-identical whether or not the warnings surface** — suppressing them cannot change your output.
 

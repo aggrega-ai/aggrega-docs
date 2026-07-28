@@ -23,8 +23,8 @@ When a Recipe declares `workload:`, the provider translates the platform-owned W
 | `command` | `command` (list form) |
 | `args` | appended after `command` (compose has no separate `args`) |
 | `variables` | `environment` (map form) |
-| `secrets[as: env]` | `environment` (placeholder; see "Secrets" below) |
-| `secrets[as: file]` | `volumes` long-form bind-mount, read-only |
+| `attachments[as: env]` | `environment` entry with an empty value, and a warning naming the entry (see [What the compose provider does not deliver](#what-the-compose-provider-does-not-deliver)) |
+| `attachments[as: file]` | `volumes` long-form bind-mount, read-only |
 | `volumeMounts` | the compose primitive the referenced Volume variant maps to — a `volumes` long-form entry, a service-level `tmpfs:` entry, or a service-level `configs:` reference (see [Volumes](#volumes)) |
 | `ports` | implicit (compose containers expose ports the image listens on) |
 | `restartPolicy: Always` | `restart: unless-stopped` |
@@ -201,7 +201,7 @@ The asymmetry is structural: `services:`, `volumes:` and `configs:` carry per-Re
 
 - **Cross-network L4 routing within one compose file.** A service in network A reaching a service in network B by anything other than docker-compose's default DNS requires the `compose-bridge` Feature.
 - **Cross-compose-file routing.** Boundaries that evaluate to distinct assembly paths produce distinct `docker-compose.yaml` files; the compose runtime treats them as independent projects. Cross-file communication is the operator's concern (publishing host ports, sharing external networks, or coalescing the boundaries onto one path via a shared `directory:`).
-- **Native env-from-secret resolution.** Workload `secrets[as: env]` entries emit environment placeholders rather than runtime-resolved secret references. The `compose-bridge` Feature is the future home for compose-side secret resolution.
+- **Sourcing an environment variable from an attachment.** Compose has no primitive for it, so a Workload `attachments` entry with `as: env` emits the variable name with an empty value rather than a runtime-resolved reference. The placeholder is deliberate — a variable that is present but empty is visible to whoever debugs the container, where an absent one leaves nothing to look at — and the build says so rather than leaving it to be discovered: each such entry raises an `unsupported-field` warning naming the entry at its authored coordinate (`containers.<name>.attachments.<KEY>`, or `initContainers[<i>].attachments.<KEY>`), so the author knows which variable arrives empty and which container it belongs to. The warning is advisory: the build succeeds, and the rendered file is byte-for-byte what it would be without it. `--no-unsupported-field-warnings` silences the class. An `attachments` entry with `as: file` is unaffected — compose bind-mounts it, and no warning is raised. The `compose-bridge` Feature is the future home for compose-side secret resolution.
 - **Compose `deploy:` block.** Replicas, placement constraints, and update strategy under `deploy:` are swarm-mode features; the compose provider targets single-host compose only and does not emit `deploy:` content.
 - **Health-condition-gated `depends_on`.** A dependency derived from a `uses` edge is emitted ungated, with `service_started` semantics; it is not gated on the target's healthcheck reporting healthy. The long form itself is emitted — an [init container](#init-containers) wait uses it — so this is about what a `uses` edge means, not about a shape the provider cannot produce.
 
