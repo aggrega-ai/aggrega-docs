@@ -23,7 +23,7 @@ The wire protocol is JSON-RPC 2.0 with Content-Length framing, under the `aggreg
 - `aggrega/completion {uri, position}` — completion candidates at a position.
 - `aggrega/resolve {uri, position}` — resolve the entity referenced at a position (go-to-definition).
 - `aggrega/findReferences {uri, position}` / `aggrega/findImplementations {uri, position}`.
-- `aggrega/irGraph {release}` — the compiled IR graph for a Release, for editor introspection.
+- `aggrega/irGraph {release}` — the compiled IR graph for a Release, for editor introspection. The graph is returned verbatim, values an author declared sensitive included: it is a machine-readable projection, so it reproduces its input rather than withholding part of it. See [`aggrega-inspect`](aggrega-inspect.md) "Machine-readable output".
 - `aggrega/invalidate {file, granularity?}` — a cache-invalidation signal from the editor's file watcher.
 
 **Notifications:**

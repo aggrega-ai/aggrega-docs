@@ -5,7 +5,7 @@
 ## Synopsis
 
 ```
-aggrega build --release <path> [--catalog <dir>]... [--trace] [--detail] [other flags]
+aggrega build --release <path> [--catalog <dir>]... [--trace [--trace-unredacted]] [--detail] [other flags]
 ```
 
 ## Required flags
@@ -16,6 +16,7 @@ aggrega build --release <path> [--catalog <dir>]... [--trace] [--detail] [other 
 
 - `--catalog <dir>` — a directory containing catalog entities (Components, Features, Recipes, FeatureRecipes, Providers), loaded recursively. **Repeatable**, and **prepended** to the workspace's `catalog_dirs`: the resulting list is an ordered first-win search stack, so an earlier directory (each `--catalog` dir, then the configured directories in order) wins an entity identity and a later directory's copy is shadowed. Build honors `catalog_dirs` from `.aggrega-config.yaml` even when no `--catalog` is given. With neither set, the search defaults to the current working directory. To search a project-local catalog alongside a shared one, pass both (`--catalog ./catalog --catalog ../shared-catalog`) or list them under `catalog_dirs`. With `--detail`, any entity a higher-precedence directory shadows is reported.
 - `--trace` — write per-pass intermediate state to `.trace/` (sibling to `dist/`) for post-mortem inspection. See [Trace output](#trace-output) below.
+- `--trace-unredacted` — write the declared-sensitive values into those files instead of the text that stands in for them, and mark every file it writes with a header saying so. It requires `--trace`; on its own the build halts rather than doing nothing. See [Showing the withheld values](#showing-the-withheld-values) below.
 - `--detail` — when build performs the implicit auto-pull (no lockfile present and `auto_pull` enabled), print per resolved entity what that pull did: fetched fresh from a registry, reused a cache slot, found in a local catalog, or external. This is the same transient pull-event diagnostic that [`aggrega pull --detail`](aggrega-pull.md) emits, written to stdout and never persisted to the lockfile. When a lockfile already exists, build does not pull, so there is nothing to report: the flag prints a one-line note to stderr and proceeds — it never fabricates a resolution tier the committed lockfile does not carry. For the post-pull resolution *state* of a Release's dependencies, use [`aggrega inspect`](aggrega-inspect.md).
 
 ## Workspace resolution and determinism
@@ -103,10 +104,25 @@ The trace writer is non-blocking: events go through a bounded channel and a dedi
 
 A datum an author declared sensitive — a schema leaf carrying `sensitive: true`, or a delivery key whose material came from a `provides` key that does — is written to the trace as the fixed text `<redacted>`. The key is kept and only the value is replaced, so a slot still shows which leaves and which delivery keys a node carries. An undeclared sibling in the same block prints its value verbatim; the substitution follows the declaration and nothing else.
 
-Two limits are worth reading before treating `.trace/` as safe:
+A value a template computed from a declared-sensitive datum is withheld too, even though its own key carries no declaration. What identifies it is the reference the author wrote: a `locals:` entry whose template reads a declared-sensitive leaf is withheld, and so is a `source:` field that does. The reading is conservative — a template that reaches a whole object reaches every declared leaf under it, so `{{ range $k, $v := .values.creds }}` withholds its output when anything under `creds` is declared — and a `locals:` entry that reads an already-withheld sibling is withheld in turn. A sibling entry of the same shape that reads nothing declared prints verbatim.
 
-- **`dist/` is not redacted.** Rendered artifacts are emitted exactly as the render produced them, because they are the deployable. Only `.trace/` is affected, and only in the slots described below.
-- **A value already interpolated into a derived document stays in the clear.** Alongside the pillars, a slot carries the derived views a pass had produced by that point — the resolved `source:`, the evaluated `locals:`, and the parsed `Workload` from the artifact and synthesis passes onward. Each of those is template output, and nothing in the result records which declaration a given character came from, so a value inside one is not identifiable for substitution. Treat `.trace/` as carrying material and handle it the way `dist/` is handled.
+Three limits are worth reading before treating `.trace/` as safe:
+
+- **`dist/` is not redacted.** Rendered artifacts are emitted exactly as the render produced them, because they are the deployable. Only `.trace/` is affected, and only where a datum is identifiable by key or by the reference a template made to one.
+- **A value interpolated into a rendered document stays in the clear.** The parsed `Workload` a slot carries from the artifact and synthesis passes onward is a document the Recipe's template produced, and nothing in it records which declaration a given character came from — so a value inside it is not identifiable by key for substitution the way a pillar leaf or a `locals:` entry is.
+- **A view of another node is withheld against that node's declarations, not this one's.** The uses-edge view and the boundary view a slot carries reproduce what a neighbouring node published, and the substitution a slot applies is driven by the declarations of the node the slot belongs to.
+
+Treat `.trace/` as carrying material and handle it the way `dist/` is handled.
+
+### Showing the withheld values
+
+`--trace-unredacted`, alongside `--trace`, writes the declared-sensitive values into the trace files instead of the text that stands in for them. It exists because the withheld value is sometimes the one being debugged — a credential arriving from the wrong attachment looks identical to the right one when both read as withheld.
+
+Three properties bound it:
+
+- **Every file it writes says what it is.** Each trace file the run produces opens with a comment naming the flag and stating that declared-sensitive values appear below in the clear, so a file later attached to a bug report or left in a shared directory carries its own warning. The comment is valid in the file's own format, so the file still parses.
+- **It reaches `.trace/` and nothing else.** Rendered artifacts are byte-identical with and without it — it changes what a debug file shows, never what a build produces — and the `aggrega inspect` layouts and the diagnostic text a failed build prints are identical in both states.
+- **It lives on the invocation only.** There is no configuration setting for it, so it cannot be turned on once and left on for everyone who builds the workspace afterwards. Requesting it without `--trace` halts the build with a message naming both flags, rather than accepting a request it cannot honour.
 
 Separately from the trace, a build prints one advisory per delivery key that carries declared-sensitive material as a literal value, naming the component, the target, the attachment and the delivery key. It never halts the build and `--no-unsupported-field-warnings` does not silence it — that flag covers a target's fidelity notices, a different class.
 
@@ -170,6 +186,7 @@ aggrega build [flags]
 | `--quiet` | `false` | Silence the build-progress surface on stderr. Does not affect stdout. Takes precedence over --progress |
 | `--release` | — | Path to Release YAML file (required) |
 | `--trace` | `false` | write per-node intermediate files to .trace/ (sibling to dist/) for post-mortem inspection |
+| `--trace-unredacted` | `false` | Write the declared-sensitive values into the .trace/ files instead of the <redacted> text that stands in for them, and stamp every file the trace writes with a header saying so. Requires --trace. It reaches .trace/ and nothing else: rendered artifacts, `aggrega inspect` output and diagnostic text are identical with and without it. Invocation-only — there is no workspace-config setting for it, so it can never be left on for a later build |
 | `--upgrade` | `false` | Make the auto-pull step a full refresh: discard the existing lockfile and re-resolve every dependency from current registry state, floating each to the highest available version instead of honoring existing pins. Implies --auto-pull — on its own it runs a full-refresh pull before the build |
 | `--verify-determinism` | `false` | Render every node twice and compare the emitted bytes, halting the build if any node's two renders differ. Off by default. Use it to confirm a provider renders deterministically — identical input yields byte-identical output — which the GitOps-diff and byte-identical-output guarantees rely on |
 <!-- END GENERATED: cli-build -->

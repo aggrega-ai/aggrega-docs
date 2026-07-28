@@ -52,6 +52,8 @@ Each kind has a natural default resolution depth (see the table below). `--raw` 
 
 For kinds that default as-authored, `--raw` is a no-op and `--resolved` triggers what resolution the kind supports. For kinds that default resolved, `--raw` is the as-authored bypass.
 
+`--raw` reproduces the file, so a value an author declared sensitive appears in it exactly as authored. That is the contract, not a gap — an as-authored view that quietly withheld part of itself would not be as-authored. Handle `--raw` output the way you handle the entity file it came from. The same applies to `--output yaml`; see [Machine-readable output](#machine-readable-output) below.
+
 ## Per-kind defaults
 
 `inspect` knows ten standalone-inspectable kinds. The catalog kinds render as-authored by default — their files are self-contained contracts. The instance kinds default to a resolved view, because their authored YAML is only the starting point for a cascade or a pipeline.
@@ -259,7 +261,11 @@ spec:
             selector: 'component.aggrega.ai/type=stateful-server'
 ```
 
-`--output yaml` emits the render subject — the as-authored entity for catalog kinds, the resolved structure for instance kinds — as YAML, suitable for piping and diffing.
+## Machine-readable output
+
+`--output yaml` emits the render subject — the as-authored entity for catalog kinds, the resolved structure for instance kinds — as YAML, suitable for piping and diffing. For a Release the render subject is the compiled graph, so `aggrega inspect <release> --output yaml` is how that graph is read from the command line; an editor integration reads the same graph over the daemon's protocol.
+
+**Every one of these outputs is verbatim, and that includes values an author declared sensitive.** The text layouts replace such a value with `<redacted>`; the machine-readable ones do not, deliberately. They exist to be parsed and diffed, so an output that withheld part of itself would misrepresent the input it claims to reproduce and would break the round-trip its consumers depend on. Declaring a leaf sensitive is not sufficient to keep it out of them — the compiled graph carries the authored `values` as it received them, encoded rather than hidden. Pipe, store and share these outputs the way you would the Aggregate and Release files themselves.
 
 ## Attachment slot and sensitivity clause
 
