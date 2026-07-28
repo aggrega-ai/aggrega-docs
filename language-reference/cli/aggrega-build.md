@@ -92,7 +92,7 @@ Each slot captures a specific compiler state:
 - `05-phaseB-source.yaml` — the parsed `source:` content the provider engine will consume. Present only when the Recipe declares `source:`.
 - `06-phaseB-locals.yaml` — the resolved `locals:` block.
 - `07-phaseB-valuesMapping.yaml` — the rendered `valuesMapping:` output (the dictionary the provider engine receives). Present only when the Recipe declares `valuesMapping:`.
-- `08-phaseB-workload.yaml` — the parsed `Workload` document. Present only when the Recipe declares `workload:` (inline or `$import:`-loaded).
+- `08-phaseB-workload.yaml` — the context as it stood when the `workload:` template was evaluated and its output parsed. Present only when the Recipe declares `workload:` (inline or `$import:`-loaded). The parsed `Workload` itself is not in this slot: it appears from `09-phaseB-artifacts/` onward, once it is settled rather than in flight.
 - `09-phaseB-artifacts/` — one file per evaluated artifact. Present only when the Recipe declares `artifacts:` (with entries inline or per-entry `$import:`-loaded).
 - `10-engine-synthesis/` — one file per synthesised manifest the provider engine produced from the Workload (helm/compose workload-mode). Present only when the engine ran a synthesis path.
 - `11-engine-emission.log` — the post-emission summary (file count, output paths) for the node.
@@ -106,17 +106,26 @@ A datum an author declared sensitive — a schema leaf carrying `sensitive: true
 
 A value a template computed from a declared-sensitive datum is withheld too, even though its own key carries no declaration. What identifies it is the reference the author wrote: a `locals:` entry whose template reads a declared-sensitive leaf is withheld, and so is a `source:` field that does. The reading is conservative — a template that reaches a whole object reaches every declared leaf under it, so `{{ range $k, $v := .values.creds }}` withholds its output when anything under `creds` is declared — and a `locals:` entry that reads an already-withheld sibling is withheld in turn. A sibling entry of the same shape that reads nothing declared prints verbatim.
 
-Three limits are worth reading before treating `.trace/` as safe:
+A value that travels across a `uses` edge is withheld against the **target's** declarations, not the consuming node's, and it is withheld on both surfaces the edge carries it to. `.context.uses.<alias>.provides` reproduces what the target component published, so what governs those values is the target's schema: a `provides` key the target declared sensitive reads as `<redacted>` on the consumer's slot even when the consumer declares nothing at all. When the edge's own `inject` block routes that key onto a delivery key of the consuming component, `.context.inject` withholds that delivery key too — the same rule an attachment's `inject` mapping already follows, reading the same declaration. The withholding is per edge, so two edges publishing the same `provides` key name resolve independently: the one whose target declared it is withheld and the other prints verbatim. The rest of the edge — its target, its socket, its labels, the `inject` mapping's own key names, and the per-connection `values` and `infra` authored on the edge itself — is not what a target's `provides` declaration governs, and prints verbatim.
 
-- **`dist/` is not redacted.** Rendered artifacts are emitted exactly as the render produced them, because they are the deployable. Only `.trace/` is affected, and only where a datum is identifiable by key or by the reference a template made to one.
-- **A value interpolated into a rendered document stays in the clear.** The parsed `Workload` a slot carries from the artifact and synthesis passes onward is a document the Recipe's template produced, and nothing in it records which declaration a given character came from — so a value inside it is not identifiable by key for substitution the way a pillar leaf or a `locals:` entry is.
-- **A view of another node is withheld against that node's declarations, not this one's.** The uses-edge view and the boundary view a slot carries reproduce what a neighbouring node published, and the substitution a slot applies is driven by the declarations of the node the slot belongs to.
+The parsed `Workload` is a **re-render**, not a capture of the document the build emitted, and the slots that carry it — `09-phaseB-artifacts/`, `10-engine-synthesis/` and `09b-phaseB6-boundary-fr.yaml` — say so in a `workload_note` entry beside it. A rendered document records nothing about which declaration a given character came from, so there is no key at which to substitute inside it. What the trace shows instead is the same `workload:` template evaluated a second time, against a context whose declared-sensitive data already reads as `<redacted>`. Because the template sees a string where a string was, the result keeps the emitted document's shape: the same fields, in the same places, with `<redacted>` standing in the withheld datum's own position and the literal text around it unchanged.
+
+Two ways that re-render differs from what was emitted, both of which the note states:
+
+- **A template that branches on the *content* of a value renders differently.** An `eq` against a specific value, a length test, a hash or an encoding of it: each sees `<redacted>` and produces a different result — a different branch, a different length, a different digest. This is why the trace never claims to show the emitted document.
+- **Data no declaration names is carried through unchanged.** The substitution covers what the axis names — a declared `values` / `infra` leaf, a marked delivery key, a consumed target's declared `provides`, and a `locals:` or `source:` value computed from one. A datum reaching the template through anything else, such as an attachment's own pillars under `.features.<name>`, appears in the re-render exactly as it appears in the emitted document.
+
+When the re-render cannot be produced at all, the slot keeps the `workload:` key and replaces the document with a line saying so and naming `--trace-unredacted`. The statement is deliberate: a projection that simply vanished would be indistinguishable from a Recipe that declares no `workload:` at all.
+
+One limit is worth reading before treating `.trace/` as safe: **`dist/` is not redacted.** Rendered artifacts are emitted exactly as the render produced them, because they are the deployable, and the trace's re-render never reaches them — the same input renders byte-identically whether `--trace` is on or off.
 
 Treat `.trace/` as carrying material and handle it the way `dist/` is handled.
 
 ### Showing the withheld values
 
 `--trace-unredacted`, alongside `--trace`, writes the declared-sensitive values into the trace files instead of the text that stands in for them. It exists because the withheld value is sometimes the one being debugged — a credential arriving from the wrong attachment looks identical to the right one when both read as withheld.
+
+It is also how the document the build actually emitted is captured: with nothing withheld there is nothing to substitute, so the `workload:` slots carry the emitted document rather than a re-render of it, and the `workload_note` entry is absent.
 
 Three properties bound it:
 
