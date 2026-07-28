@@ -238,6 +238,8 @@ The **infra** pillar is the operator's sizing surface, and it is checked only wh
 
 **Per-edge connection config** is validated the same way against the socket's per-edge contract: an edge's developer-authored `values` against the socket's `valueSchema`, and an edge's operator-authored `infra` (from a Release) against the socket's `infraSchema`. A socket that declares no per-edge schema for a pillar accepts no validated config for it (omission = no contract, nothing to check). The diagnostic names the edge by consumer, socket, and alias.
 
+**A leaf declared `sensitive: true` has its constraint failure withheld.** The failure text quotes the offending value, and a build diagnostic is read by anyone watching the build, so on a declared-sensitive leaf — or anywhere inside a declared-sensitive object — the `<constraint failure>` below reads `<redacted>` instead. The entity, the field path, the pillar and the contract name are all still named, so the diagnostic still tells you which leaf failed; only the text that would reproduce the value is dropped. Sensitivity is read per pillar, so a leaf named the same way in `values` and `infra` is withheld only in the pillar that declares it.
+
 Emitted message:
 > Aggregate `<name>` at `.spec.components.<component>.values.<field>`: values pillar does not conform to the Component schema: `<constraint failure>`.
 > Aggregate `<name>` at `.spec.components.<component>.infra.<field>`: infra pillar does not conform to the declared infra schema: `<constraint failure>`.
