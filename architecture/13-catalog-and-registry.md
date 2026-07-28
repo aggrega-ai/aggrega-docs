@@ -422,23 +422,35 @@ Per-entity-kind shapes:
 * **Feature** — two kebab-case segments `{namespace}/{name}` declared in `metadata.name`. Example: `core/data-masking`.
 * **Recipe** — a single kebab-case leaf in `metadata.name` (e.g., `postgres`). The canonical reference URI `{capability}/{name}` (per §6 above) pairs the entity's declared `spec.capability` with that leaf; the leading segment is matched against `spec.capability`, not against the entity's location on disk, so moving a `recipe.yaml` does not change how it is referenced. The standard-library catalog places the entity at `<catalog-root>/recipe/<capability>/<name>/recipe.yaml` so the tree mirrors the coordinate, but that mirroring is a catalog convention rather than the source of the URI. A reference may also name the recipe **bare** — the leaf alone, with no capability segment — which is the dominant form in practice and resolves whenever a single recipe in the catalog carries the name. No additional namespace component appears in a Recipe URI, and a reference carrying a third segment matches no recipe.
 * **FeatureRecipe** — single kebab-case leaf in `metadata.name` (e.g., `k8s-secret-from-parameter`), symmetric with Recipe: canonical URI `{capability}/{name}` from the declared `spec.capability` plus the leaf, the bare leaf accepted the same way, and the `<catalog-root>/feature-recipe/<capability>/<name>/recipe.yaml` tree mirroring the coordinate by convention.
-* **SchemaLibrary** and **MappingLibrary** — a PascalCase single token in `metadata.name` matching `^[A-Z][A-Za-z0-9]*$` (e.g., `BaseComponents`, `AIDatastores`). This pattern is enforced by the JSON Schema envelope itself; structural validation rejects non-conforming names at parse time.
+* **SchemaLibrary** and **MappingLibrary** — a PascalCase single token in `metadata.name` matching `^[A-Z][A-Za-z0-9]*$` (e.g., `BaseComponents`, `AIDatastores`). For these two kinds the JSON Schema envelope declares the pattern as well, in addition to the check described below.
 
-Structural JSON Schema validation enforces the SchemaLibrary and MappingLibrary PascalCase pattern at the envelope. For the other entity kinds (Component, Feature, Recipe, FeatureRecipe), the JSON Schema for `metadata.name` accepts any non-empty string and the per-entity-kind shapes above are enforced separately by two complementary mechanisms with a single shared regex source-of-truth:
+For Component, Feature, Recipe and FeatureRecipe, the JSON Schema for `metadata.name` accepts any non-empty string, so nothing about the shape is structural for those kinds. Every documented shape — including the two library kinds, whose envelopes also declare their pattern — is checked by the publishing-discipline plugin, which carries the patterns as a regex source-of-truth shared with the compiler distribution.
 
-* **Publishing-discipline plugin (publish time): rejects.** `aggrega push` invokes the publishing-discipline plugin, which checks every artifact's `metadata.name` against the per-entity-kind regex. A name that does not match the documented pattern halts the publish with a clear error pointing at the convention documentation.
-* **`linter.wasm` (build time): warns.** `aggrega build` invokes `linter.wasm` per the extensibility-page architecture. The build-time linter emits a warning for the same name-shape violations the publishing-discipline plugin rejects:
+The check is opt-in: one command performs it, and it only runs when an author asks for it. The two commands most often assumed to perform it do not:
+
+* **`aggrega lint` reports name-shape violations.** The plugin compares each entity's `metadata.name` against the pattern for its kind. The check runs when an author invokes `aggrega lint` — over a single entity, over a Release's dependency closure with `--release`, or over every catalog entity when invoked with no argument — and the same rule set is reachable from the editor-facing tool surface the CLI exposes. Findings are advisory: they are reported at warning severity, and they do not halt.
 
 ```text
-WARN: catalog/<entity-kind>/<name>: name shape "<invalid-name>"
-does not match the documented per-entity-kind pattern. This
-catalog will not be publishable to the registry as-authored.
-See aggrega-docs/language-reference/02-naming-conventions.md
-for documented patterns. (To proceed without warning, set
-.aggrega-config.yaml lint.publishing_discipline.allow_nonstandard_names: true)
+[warning] name-shape: metadata.name "mariadbSynth" does not match the documented pattern for Recipe entities (^[a-z][a-z0-9-]*$)
 ```
 
-The build-time warning catches the edge case where a CI/CD pipeline succeeds (the rendered K8s / Helm output does not depend on Aggrega entity names), but a subsequent catalog publish fails because the names violate the publishing-discipline rule. Authors see the warning during local development and fix the names before CI deploys broken-state catalogs.
+  The offending file's path prints above the finding, and a whole-catalog run closes with a count of the entities checked and the advisory findings raised.
+
+* **`aggrega build` does not check name shape.** Rendered output does not depend on Aggrega entity names, so a build over a catalog carrying non-conforming names emits no warning and no diagnostic, and succeeds exactly as it would otherwise.
+* **`aggrega push` does not check name shape either.** Publishing refuses on other grounds — most notably the immutability rule above, where republishing an existing `name:version` with different content halts. Where a refusal names `aggrega lint --pre-publish`, it is telling the author which command to run; the push does not run it.
+
+Because neither building nor publishing checks the shape, a catalog that wants the convention held to runs `aggrega lint` deliberately — in a pre-commit hook, or as a pipeline step. Note that a name-shape finding is advisory: `aggrega lint` reports it and still exits successfully, so a pipeline that wants to gate on the convention reads the reported findings rather than relying on the exit status.
+
+A per-workspace policy suppresses the rule:
+
+```yaml
+# .aggrega-config.yaml — lint section
+lint:
+  publishing_discipline:
+    allow_nonstandard_names: true   # default false
+```
+
+With the policy set, the name-shape rule reports nothing at all. It can also be set for a single invocation with `aggrega lint --allow-nonstandard-names`, or forced off again with `--no-allow-nonstandard-names`. Legitimate uses are catalogs that will never be published, multi-namespace experiments, and special-purpose entities.
 
 ### 11. Annotation-driven Feature expansion
 
@@ -459,7 +471,3 @@ The Manifest's `mappings.features.annotations` block declares bindings between a
 * Per-leaf brackets — cross-side composition where each populated leaf is rendered with its own source bracket (some `[explicit]`, some `[annotation: <key> from <source>]`). This shape surfaces the IR builder's explicit-wins-per-field merge: when an explicit attachment and an annotation contribution target the same Feature instance on the same Component but write different leaves, both contributions stand on their respective leaves and the inspect output names each leaf's source individually.
 
 The inspect rendering reads the IR's per-pillar `ValuesProvenance` and `InfraProvenance` maps (each `OrderedMap[FieldProvenance]`) — populated during Step 1 expansion alongside the synthetic attachment injection — and emits the bracket form that best summarises the leaves' collective source. The inspect mechanism is the canonical introspection surface for understanding why a given Feature attachment landed on a given Component and where its values came from.
-
-The per-workspace `allow_nonstandard_names: true` opt-out suppresses build-time warnings; it does NOT bypass publishing-discipline rejections (publish-time enforcement remains in force per the discipline). Legitimate edge cases — one-off internal catalogs that will never publish, multi-namespace experiments, special-purpose entities — use the opt-out to silence the build noise without weakening the publishing rule.
-
-The two enforcement modes share the same regex source; updating the convention updates both mechanisms in lockstep.
