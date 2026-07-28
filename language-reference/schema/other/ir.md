@@ -110,13 +110,15 @@ _Additional properties are not permitted._
 
 ### `IRFeatureEntry`
 
-One resolved attachment for a node, carried in feature_values_mapping. Every attachment family shares this shape — an operational Feature, a credential Feature (labeled kind=secret), an identity Feature — so no family gets a lossier projection than another. For a credential, values carries pointers into a secret store, never resolved plaintext.
+One resolved attachment for a node, carried in feature_values_mapping. Every attachment family shares this shape — an operational Feature, a credential Feature, an identity Feature — so no family gets a lossier projection than another. What a credential attachment's values carries is the author's choice: a by-reference credential carries a pointer into a secret store, a by-value one carries the material itself, and the compiler carries whichever was written verbatim without resolving either.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `type` | string | yes | URI of the Catalog Feature this attachment requests. |
 | `resolved_version` | string | yes | The exact semantic version resolved during compilation. |
-| `values` | object | no | Operational configuration payload for the attachment; vault pointers for credentials. |
+| `labels` | map of string | no | The attached Feature's catalog labels, carried verbatim in the order its catalog entity declares them — never filtered, normalised or prefix-stripped, so a consumer reads exactly what the catalog author wrote. The compiler reads none of them. Empty when the Feature declares no labels, and when its type resolves to no catalog entity. |
+| `binding` | string | no | Names the host Component attachment slot this attachment fills, or "free" when it fills no declared slot. The pairing is by name — a deployment fills a slot by attaching a Feature under the slot's name — so the value is an exact key from the resolved Component's declared slot set, never anything read out of the name itself. The slot name is carried rather than a bare boolean because which slot was filled is the more useful half of the answer. Empty when the host Component's declared slot set could not be resolved, which is distinct from "free": free is the positive finding that no declared slot carries this name. |
+| `values` | object | no | Operational configuration payload for the attachment. For a credential, whichever form the author declared — a pointer into a secret store, or the material itself. |
 | `infra` | object | no | Per-instance physical sizing for this attachment. |
 | `inject` | object | no | Agnostic injection routing. Maps local variables to Target provides keys. |
 | `origin` | string (enum) | no | Distinguishes attachments authored in a features: block (explicit) from synthetic attachments produced by the annotation-driven expansion pass (annotation), or mixed when the attachment's value/infra leaves carry a mix of both (per-leaf detail then lives in the provenance maps). Allowed values: `"explicit"`, `"annotation"`, `"mixed"` |

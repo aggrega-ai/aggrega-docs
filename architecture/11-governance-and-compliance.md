@@ -132,6 +132,30 @@ The compiler reads no domain-specific annotations. It bundles all developer-prov
 
 This keeps the extensibility surface wide (anyone can author a Wasm plugin that reads a new annotation prefix) while keeping the core compiler stable: no core release is required for the ecosystem to add a new domain-specific annotation.
 
+## What a policy reads about an attachment
+
+A verdict role evaluating the IR graph receives the graph whole, and that includes every attachment each node carries, keyed by the name the author gave it. The point of carrying attachment detail rather than a summary is that Aggrega has no opinion to summarise: the compiler routes attachments without judging what they hold, so the facts a policy needs to judge them are the facts a policy is given.
+
+Per attachment, the graph carries:
+
+* **The Feature type it requests, and the catalog version resolved for it.** The type is the string the author wrote, verbatim — a version-pinned reference and a bare one are different strings for one referent, so a policy that compares types should expect either spelling.
+* **The attached Feature's catalog labels, verbatim.** Unfiltered, unnormalised, in the order the catalog entity declares them. A policy reads exactly what the catalog author wrote, including labels of the author's own invention that Aggrega has no knowledge of.
+* **Which declared attachment slot it fills.** A `featuresSchema` slot is filled by attaching a Feature under the slot's name, so an attachment naming a slot its Component declares reports that slot's name, and one that fills none reports `free`. The value is the slot's name rather than a flag, because which binding point was filled is usually the more useful half of the answer.
+* **Whether it handles material an author declared sensitive**, and which of its delivery keys carry that material. Both are derived from declarations — a `sensitive` leaf on a Feature's schema, a `sensitive` slot on the consuming Component — never from inspecting a value.
+* **Its `values`, its `infra`, and its delivery mapping**, plus whether the attachment was written in a `features:` block or contributed by annotation-driven expansion.
+
+An attachment's labels bind the compiler in exactly one place, and it is not a policy decision: a slot may declare a `selector`, and a fill whose labels do not satisfy it halts the build. Past that gate the labels steer nothing — how a value is routed and delivered is the same whichever labels a Feature carries. So a policy reading a label is reading metadata the compiler carried without interpreting, not second-guessing a branch inside it.
+
+Three rules this makes writable, none of which the compiler makes for you:
+
+* **Forbid free-form attachment.** An estate that requires every attachment to fill a declared binding point rejects any attachment reporting `free`. This is the counterpart of the attachment surface staying open: composition is free by default, and an operator who does not want it free says so.
+* **Refuse by-value delivery of sensitive material.** Aggrega warns when a declared-sensitive datum travels through a delivery key as a literal, and never halts — the by-value credential family is deliberate. An operator who wants that warning to be a refusal expresses it here.
+* **Decide for yourself what counts as a credential.** The standard library marks its credential Features with a family label, and reading that label is one way to reason about them. A broader or narrower predicate — an internal label, a naming rule, a set of approved types — is equally available, because the labels arrive rather than a verdict about them.
+
+A verdict role accepts or rejects; it never rewrites. The build either proceeds unchanged or halts with the verdict's message, so a policy cannot quietly bring a non-compliant graph into compliance.
+
+Attachment detail reaches a policy evaluating the **IR graph**. A policy evaluating **rendered artifacts** receives those artifacts and no graph, which is a property of that input rather than a restriction applied to it: the two stages answer different questions, and attachment topology is not among the questions rendered output can be asked.
+
 ## Inheritance and policy narrowing
 
 Inheritance via `extends:` is the catalog mechanism that lets Platform Architects build specialised child entities on top of shared baselines. The merger composes parent and child specs at workspace-load time, producing a unified schema with per-leaf provenance. The substantive governance question — what constraints a child may declare relative to the parent — is enforced not at the schema layer but at the **publishing-discipline policy plugin** (`linter.wasm` in its standard publishing-discipline mode), which gates publishes against the monotonic-narrowing rule.
