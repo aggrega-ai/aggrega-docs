@@ -53,6 +53,31 @@ Resolution precedence is exact → major-compatible range → unversioned. The c
 
 The `implements:` binding is the mechanism that makes "the same Component type, different Recipes for different providers" work: a `core/postgres` Component can have one Recipe implementing it for the `helm` provider and a different Recipe implementing it for the `compose` provider. Each Recipe declares the same `implements:` value; the Manifest's provider-axis grouping routes the request to the correct Recipe at build time.
 
+### A Recipe written against a base serves everything that extends it
+
+`implements:` names a base, and a Recipe that names one is the concrete implementation for every Component extending that base, at any depth of the chain. So a specialization built with `extends` needs no Recipe of its own — which is what makes a published wrapper cheap to consume: the team that publishes it authors a Component, and the teams that deploy it reuse the base's Recipes on every target.
+
+Two facts hold at once here, and they are separate. A reader who collapses them into "the specialization needs nothing" writes a Manifest that fails, for a reason they will look for in the wrong file:
+
+* **The Recipe matches.** The consistency check between a Manifest mapping's type key and the mapped Recipe's `implements:` accepts the mapping when the Recipe implements the mapped type itself **or** any base that type extends. The three version forms above apply to a base exactly as they apply to the type itself: a Recipe declaring `implements: core/base-server:^1.0.0` satisfies a specialization whose base is version `1.4.0`, and does not satisfy one whose base is `2.0.0`.
+* **The Manifest still maps the specialization's own type.** Recipe selection is by exact mapping key. An instance of `enterprise/labelled-server` needs its own `mappings.components.type` entry; it does not inherit the entry written for `core/base-server`. A specialization with no entry of its own halts with the unmapped-instance diagnostic even when its base is mapped.
+
+The authoring cost of a specialization is therefore one Manifest line and no new Recipe:
+
+```yaml
+# The wrapper extends core/base-server and authors no pillars.
+# core/helm/base-server declares: implements: core/base-server
+spec:
+  mappings:
+    components:
+      type:
+        enterprise/labelled-server:1.0.0: core/helm/base-server:1.0.0
+```
+
+When the mapped type's `extends` chain cannot be walked — it forms a loop, or a base it names is absent from the catalog — the build halts on that chain fault instead of on the mapping, because a mapping cannot be judged until the chain it depends on resolves.
+
+Recipe **suggestions** stay narrower than this matching rule. The candidate list a no-mapping diagnostic prints, and the ordering editor completion applies to a mapping value, name the recipes implementing the requested type itself; they do not widen to recipes implementing one of its bases.
+
 ## Cross-entity version consumption
 
 The 'Resolution precedence' framing in the section above describes the design target; the table below describes what the resolver matches against today.
