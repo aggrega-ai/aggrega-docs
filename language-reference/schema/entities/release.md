@@ -80,7 +80,7 @@ _Additional properties are not permitted._
 
 ### `release_uses_block`
 
-Release-authored per-edge uses surface, socket-keyed then alias-keyed (mirroring the Aggregate uses topology shape). Each connection may set target (to create an edge into a declared-but-unbound socket, pointing at an existing component) and/or infra (per-edge operator config, validated against the socket infraSchema by the Step-1 conformance gate). values is forbidden (the Release values: ban); retargeting a developer-declared edge is a loud guardrail at build.
+Release-authored per-edge uses surface, socket-keyed then alias-keyed (mirroring the Aggregate uses topology shape). Each connection may set target (to create an edge into a declared-but-unbound socket, pointing at an existing component) and/or infra (per-edge operator config, validated against the socket infraSchema by the conformance gate at resolution). values is forbidden (the Release values: ban); retargeting a developer-declared edge is a loud guardrail at build.
 
 _This object declares no fixed properties and permits none._
 
@@ -129,6 +129,6 @@ Agnostic injection routing. Maps local variables to target provides keys (uses[]
 
 ### `inject_delivery`
 
-A single delivery mechanism, authored as an array of entries. Each entry carries an 'in' (local identifier — env var name, file path, arg flag, or custom mechanism-specific key) plus exactly one of 'from' (a provides key to resolve) or 'value' (a literal string, optionally containing Go template expressions evaluated during Step 5 Pass 2a). 'from' resolves against the target's provides in uses[].inject context, or against the component's own provides in component.inject context.
+A single delivery mechanism, authored as an array of entries. Each entry carries an 'in' (local identifier — env var name, file path, arg flag, or custom mechanism-specific key) plus exactly one of 'from' (a provides key to resolve) or 'value' (a literal string, optionally containing Go template expressions evaluated at self-inject resolution). 'from' resolves against the target's provides in uses[].inject context, or against the component's own provides in component.inject context.
 
 **Type:** `any or any[]`

@@ -16,7 +16,7 @@ The JSON wire shapes the policy.wasm plugin socket consumes (PolicyInput for the
 
 ### `PolicyInput`
 
-The payload Step 4 hands to the policy socket: the full IR graph (the same shape the Topology Builder emits) plus the precalculated routing paths the analyzer enumerates alongside.
+The payload static analysis hands to the policy socket: the full IR graph (the same shape the Topology Builder emits) plus the precalculated routing paths the analyzer enumerates alongside.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |

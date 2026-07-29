@@ -4,7 +4,7 @@ _Generated reference. Do not edit by hand — regenerate from the published JSON
 
 Schema id: `https://aggrega.ai/schemas/wasm-mutator-v1alpha1.schema.json`
 
-The JSON wire shapes the mutator.wasm plugin socket consumes (MutatorInput) and emits (MutatorOutput). The mutator runs in Step 2 of the compilation pipeline and applies JSON Patch documents to the topology graph before the IR builder consumes it. The two wire shapes are co-canonical with the Go types in aggrega-cli/internal/compiler/topology/wasm_types_gen.go and with each per-language PDK's mirror; per-language round-trip tests catch drift.
+The JSON wire shapes the mutator.wasm plugin socket consumes (MutatorInput) and emits (MutatorOutput). The mutator runs at topology construction and applies JSON Patch documents to the topology graph before the IR builder consumes it. The two wire shapes are co-canonical with the host's Go types and with each per-language PDK's mirror; per-language round-trip tests catch drift.
 
 ## One of the following shapes
 

@@ -55,7 +55,7 @@ The Developer Intent surface: the global parameter contract, nested aggregate im
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `parameters` | map of object | no | Global environment contract. Each entry is a typed-contract object authoring the compact-form vocabulary subset (type, description, default, enum, min/max, minLength/maxLength, pattern, format, validate, validateMessage, required, items, valuesType, properties). Nested structure is expressed via the typed-form properties: sub-field. Release fulfillment may be inline (parameters: {...}) or single-source file import (parameters: {$import: <path>}); Step 1a validates the merged map against this contract before parameter interpolation. See aggrega-docs/language-reference/entities/aggregate.md for the full vocabulary. |
+| `parameters` | map of object | no | Global environment contract. Each entry is a typed-contract object authoring the compact-form vocabulary subset (type, description, default, enum, min/max, minLength/maxLength, pattern, format, validate, validateMessage, required, items, valuesType, properties). Nested structure is expressed via the typed-form properties: sub-field. Release fulfillment may be inline (parameters: {...}) or single-source file import (parameters: {$import: <path>}); The parameter-contract layer validates the merged map against this contract before parameter interpolation. See aggrega-docs/language-reference/entities/aggregate.md for the full vocabulary. |
 | `aggregates` | object | no | Nested aggregates acting as imported modules. |
 | `exportedComponents` | map of string | no | The Public API Interface. Maps an exposed public name to an internal component ID. Parent Aggregates importing this module reference components by these public names. |
 | `subsystems` | object | no | Named logical groupings of an Aggregate's components into subsystems. Mutually exclusive with top-level components — declaring both is rejected. A subsystem the author names default is an ordinary declared subsystem, distinct from the synthesized default the compiler creates for a components-only Aggregate. |
@@ -67,7 +67,7 @@ _Additional properties are not permitted._
 
 ### `inject_delivery`
 
-A single delivery mechanism, authored as an array of entries. Each entry carries an 'in' (local identifier — env var name, file path, arg flag, or custom mechanism-specific key) plus exactly one of 'from' (a provides key to resolve) or 'value' (a literal string, optionally containing Go template expressions evaluated during Step 5 Pass 2a). 'from' resolves against the target's provides in uses[].inject context, or against the component's own provides in component.inject context.
+A single delivery mechanism, authored as an array of entries. Each entry carries an 'in' (local identifier — env var name, file path, arg flag, or custom mechanism-specific key) plus exactly one of 'from' (a provides key to resolve) or 'value' (a literal string, optionally containing Go template expressions evaluated at self-inject resolution). 'from' resolves against the target's provides in uses[].inject context, or against the component's own provides in component.inject context.
 
 **Type:** `any or any[]`
 
@@ -93,7 +93,7 @@ _This object declares no fixed properties and permits none._
 | --- | --- | --- | --- |
 | `description` | string | no | Optional documentation describing this subsystem's purpose and the logical grouping it represents. |
 | `annotations` | map of string or object or null | no | Developer-authored annotations on this subsystem. Values are strings or null; explicit null on a key inherited from a parent subsystem removes the inherited binding from this subsystem (annotation-driven Feature opt-out). Annotations declared here are inherited by nested subsystems and by contained components; closer-level wins per-key. Cascades down to the .context.annotations.aggregate bucket on each derived IR node. |
-| `features` | object | no | Cross-cutting features attached to all components in this subsystem. Same schema as component-level features (type, values, uses, inject). Flattened into each component during Step 3 Graph Finalization, positioned after component-level features in execution order. |
+| `features` | object | no | Cross-cutting features attached to all components in this subsystem. Same schema as component-level features (type, values, uses, inject). Flattened into each component at graph finalization, positioned after component-level features in execution order. |
 | `subsystems` | object | no |  |
 | `components` | object | no |  |
 
