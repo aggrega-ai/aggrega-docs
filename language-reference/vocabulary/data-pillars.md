@@ -209,15 +209,17 @@ When a catalog entity declares `extends:` and the compiler walks the inheritance
 
 | Pillar | Merge behaviour on `extends:` chain |
 | --- | --- |
-| `values` (JSON Schema 2020-12) | Schemas compose via JSON Schema 2020-12 composition; the publishing-discipline policy plugin enforces monotonic narrowing — child can narrow parent constraints; cannot relax. |
-| `infra` (JSON Schema 2020-12 fragment) | Same as `values` — JSON Schema composition with policy-level monotonic narrowing. |
+| `values` (JSON Schema 2020-12) | On a Feature chain, schemas compose via JSON Schema 2020-12 composition; the publishing-discipline policy plugin enforces monotonic narrowing — child can narrow parent constraints; cannot relax. An extending Component authors no pillar content and receives its base's block exactly as the base authored it, at every depth of a chain. |
+| `infra` (JSON Schema 2020-12 fragment) | Same as `values` — composed on a Feature chain, inherited whole by an extending Component. |
 | `provides` (Recipe template map) | Top-level shallow replacement: child key fully replaces parent key for the same name; sibling keys preserved from parent. Templates are not composed; the child's template fully owns its slot. |
-| `uses` (`usesSchema`) | JSON Schema composition per socket — child socket schema composes with parent's; monotonic at the policy layer. Child cannot widen parent's selector. |
-| `features` (`featuresSchema` per-slot schema) | Per-slot schema composition with monotonic narrowing at the policy layer. Child can add new slots; cannot relax parent slot constraints. |
+| `uses` (`usesSchema`) | Per-socket whole-entry overlay by socket name. A child adds sockets its base does not declare, and a socket it redeclares under an existing name replaces that entry outright — its value and infra schemas and its `selector` together. Socket entries are not composed, and nothing compares a redeclared `selector` against the base's. |
+| `features` (`featuresSchema` per-slot schema) | Per-slot whole-entry overlay by slot name, on the same terms as `usesSchema`. A child adds slots freely; a slot it redeclares replaces the base's entry outright rather than composing with it. |
 | `locals` (Recipe template map) | Top-level shallow replacement — same as `provides`. |
 | `parameters` (Aggregate root map) | Aggregate `extends:` is not currently supported (Aggregate doesn't carry an `extends:` field); the question is moot today. Release `extends:` produces deep-merge with child-wins. |
 
-The general pattern: **schema-validated pillars use JSON Schema 2020-12 composition with policy-level monotonic narrowing**; **template-authored pillars use shallow per-key replacement**. Schema composition protects contracts (a child cannot relax a parent's compliance rule; the publishing-discipline policy plugin enforces this at publish time); template replacement gives the child full ownership of any template slot it declares.
+The general pattern turns on the kind and on the surface. **A Feature's schema-validated pillars compose** under JSON Schema 2020-12, with the publishing-discipline policy plugin enforcing monotonic narrowing at publish time. **An extending Component's pillars are inherited whole** — it authors none, so its contract is its base's exactly, and a base's constraint therefore cannot be relaxed by construction rather than by policy. **The fixed-shape surfaces — `usesSchema` and `featuresSchema` — overlay by name** on both kinds: a child adds entries, and an entry it redeclares replaces the base's outright. **Template-authored pillars use shallow per-key replacement**, giving the child full ownership of any template slot it declares.
+
+An extending Component tightens a constraint through `assertions:` rather than through a pillar — a predicate it adds, evaluated alongside the ones it inherits. See [inheritance-and-interface.md](inheritance-and-interface.md) for that mechanism.
 
 For the inheritance mechanism itself, see [inheritance-and-interface.md](inheritance-and-interface.md) "Inheritance via `extends`".
 
