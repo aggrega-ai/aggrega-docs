@@ -59,9 +59,11 @@ The `Component` schema (and its `Feature` counterpart, including credential Feat
 * **Inline JSON Schema YAML:** the verbose form, suitable when the schema needs JSON Schema 2020-12 keywords the compact form does not carry directly (`$dynamicRef`, deep `unevaluatedProperties`, complex `not:` composition). Compact form and JSON Schema can be mixed at any node boundary within a single `schema:` block via the `$jsonschema:` escape hatch.
 * **Cross-document reference (`$ref:` to a SchemaLibrary entry):** a JSON Schema-native `$ref:` pointing at a SchemaLibrary entry by identity (`Datastores#/schemas/MariaDBValues` or similar). Enterprise schemas spanning hundreds of lines and reused across multiple Components live in SchemaLibrary entities; the consumer Component references the entry without inlining the content. See [`entities/schemalibrary.md`](schemalibrary.md) and [`vocabulary/cross-document-ref.md`](../vocabulary/cross-document-ref.md) for the library entity and the resolution semantics.
 
+The three forms above author pillar content, and they are available to a Component that extends nothing. A Component that declares `extends:` authors no pillar content at all: it writes the literal marker `schema: inherited` and receives its base's pillar block exactly as the base authored it. That marker is the only value `schema:` takes on such a Component. See "Catalog Authoring: Extending Base Components" below.
+
 The compiler resolves the `schema:` block — expanding compact form, dereferencing `$ref:` URLs, applying SchemaLibrary library-to-library chains — and unifies the resulting JSON Schema with the auto-generated bases derived from `usesSchema` and `featuresSchema` (see the section below) during the Component's validation pass. Validation runs against the resolved schema; the authoring path is opaque to downstream pipeline stages.
 
-Authored instances are validated against this resolved schema at build time: a component instance's developer-authored `values` and the Operator's resolved `infra`, plus the `values`/`infra` on any Feature or Secret attachment, must conform to the declared pillars — a wrong-typed value, an out-of-range number, a missing required field, or (for `values`, validated closed) an undeclared property halts the build at its authored source rather than producing a broken manifest at deploy time. A child that `extends:` a parent is validated against the composed parent-plus-child schema. See [errors/fatal-halts.md](../errors/fatal-halts.md) §"Authored values or infra do not conform to the declared schema" for the diagnostics and the per-pillar rules (including how `infra` is validated against the Component-plus-provider key union).
+Authored instances are validated against this resolved schema at build time: a component instance's developer-authored `values` and the Operator's resolved `infra`, plus the `values`/`infra` on any Feature or Secret attachment, must conform to the declared pillars — a wrong-typed value, an out-of-range number, a missing required field, or (for `values`, validated closed) an undeclared property halts the build at its authored source rather than producing a broken manifest at deploy time. An instance of a Component that `extends:` a base is validated against the base's pillar block, which the extending Component inherits unchanged — so an instance of the base and an instance of anything extending it face the same pillar contract. See [errors/fatal-halts.md](../errors/fatal-halts.md) §"Authored values or infra do not conform to the declared schema" for the diagnostics and the per-pillar rules (including how `infra` is validated against the Component-plus-provider key union).
 
 **Declared defaults materialize into the rendered pillars.** Beyond validation, a `default:` declared on a `values` field (or an `infra` field) is filled into the rendered pillar at build time for every key the author omits — so a Recipe template reading `{{ .values.charset }}` receives the schema-declared `utf8mb4` rather than an empty value. Author-supplied values always win; nested objects fill per omitted child. Because materialization uses the same schema resolution as validation, defaults reached through a cross-document `$ref:` into a SchemaLibrary materialize too — both a whole-pillar reference (`values: {$ref: "BaseComponents#/schemas/BaseModelParameter"}`) and the base-plus-flavor shape (a base `$ref:` alongside sibling `properties`, each carrying its own defaults). Defaults declared only inside a local in-document `#/$defs/` reference, or under an `allOf` / `oneOf` / `anyOf` branch, are not materialized; the standard library composes pillars via cross-document `$ref:`, which is.
 
@@ -612,12 +614,36 @@ The semantics mirror `usesSchema[].inject` and `featuresSchema[].inject` exactly
 
 ## Catalog Authoring: Extending Base Components
 
-Platform Architects use the `extends` keyword to layer specialized interfaces on top of corporate or community baselines. The compiler recursively fetches the parent and performs a **Two-Tiered Merge**: it deep-merges the YAML metadata (overwriting labels on conflict and appending arrays) and composes the schemas via JSON Schema 2020-12 composition (the parent's `schema:` and the child's `schema:` merge under `allOf`-style narrowing semantics enforced by the publishing-discipline policy plugin). The schema composition is strictly monotonic — a child may narrow a parent's constraint (e.g., tighten an `enum:` set, shrink a numeric range), but never relax or bypass it. The publishing-discipline policy plugin rejects publishes where a child Component declares a constraint that relaxes a parent's.
+Platform Architects use the `extends` keyword to layer specialized interfaces on top of corporate or community baselines. Extending **composes structure** and **inherits the data pillars whole**. The compiler walks the chain from the base down; the two halves behave differently, and the difference is the whole authoring model.
 
-See [architecture/13-catalog-and-registry.md §3](../../architecture/13-catalog-and-registry.md) for the Schema Formats and Composition mechanism.
+**What extending composes.** These surfaces merge along the chain, with the extending Component winning per key and lists concatenating base-first without duplicates:
+
+| Surface | How it composes |
+| --- | --- |
+| `metadata.labels` | merged per key; the extending Component's value wins on a shared key |
+| `metadata.annotations` | merged per key, same precedence — which is why a base's presence mandate reaches every Component extending it |
+| `spec.featuresSchema` | attachment slots union; a slot the extending Component redeclares replaces the base's entry of that name |
+| `spec.usesSchema` | topology sockets union, same per-name replacement rule |
+| `spec.inject` | the two self-inject allowlists concatenate, base entries first, duplicates dropped |
+
+A socket the extending Component adds may carry its own per-edge `valueSchema` and `infraSchema`; those are contracts on that socket's edges, not additions to the Component's own pillars.
+
+**What extending inherits whole.** The three data pillars — `values`, `infra`, `provides` — are not composed. An extending Component authors no pillar content: it writes the literal marker `schema: inherited` and receives its base's `schema:` block exactly as the base authored it. Along a chain of any depth, every Component in it carries the chain root's block unchanged, so `aggrega inspect --resolved` on a leaf shows the same pillars as the root.
+
+The published Component schema settles which of the three possible outcomes is legal, and it rejects the other two when the document loads — with a different diagnostic for each, because they are different mistakes:
+
+* **`extends:` with pillar content under `schema:`** is rejected. The Component's contract is its base's; a second, divergent contract has nowhere to live.
+* **`extends:` with `schema:` omitted entirely** is rejected. An omission would leave a reader unable to tell an inherited pillar block from a forgotten one.
+* **`schema: inherited` with no `extends:`** is rejected. The marker names where the pillars come from, and this Component has no base to take them from.
+
+**An extending Component cannot reshape the key set.** It declares no pillar keys, so it cannot hide, drop, or retype a key its base declares, and it adds none of its own. A new pillar key belongs on the Component whose contract owns it. Whatever the base exposes, everything extending it exposes identically.
+
+**A specialization tightens through `assertions:`.** When a specialization must admit less than its base's pillars do — a narrower numeric range, a subset of an inherited `enum:` — it says so in its own `assertions:` block: a rule there rejects a value the inherited schema accepts. That is the surface where tightening lives; see "The `assertions:` block" below.
+
+See [architecture/13-catalog-and-registry.md §3](../../architecture/13-catalog-and-registry.md) for the schema content formats.
 
 **Example A: The Base Component (The Corporate Baseline)**
-The Platform Architect defines a foundational enterprise server. This base template sets the required 7-Type cloud primitive label and establishes immutable security constraints in the schema.
+The Platform Architect defines a foundational enterprise server. This base sets the required 7-Type cloud primitive label and establishes the security constraints in the schema. Because the pillar block is inherited unchanged, every constraint here reaches each extending Component exactly as authored.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -628,19 +654,20 @@ metadata:
   labels:
     component.aggrega.ai/type: "server"
 spec:
+  inject: [env]
   schema:
     values:
-      # The corporate baseline constraint: child Components must not relax this constraint.
-      # The publishing-discipline policy plugin rejects any child that declares
-      # tls_enabled with a value space wider than {true}.
+      # The corporate baseline constraint. Every Component extending this base
+      # receives this leaf verbatim; none of them can restate or loosen it.
       tls_enabled: { type: boolean, enum: [true], default: true }
 
-      # Default fallback for application logic; children may narrow this integer's range.
+      # An open range at the baseline. A specialization that needs a tighter
+      # bound expresses it as an assertion, not as a redeclared schema leaf.
       timeout_ms: { type: integer, default: 5000 }
 ```
 
-**Example B: The Child Component (Extending the Baseline)**
-A specialized AI Gateway is created. The Component inherits from the base enterprise server, so the Architect does not rewrite the base ontology labels or the `tls_enabled` security constraint.
+**Example B: The Extending Component (Specializing the Baseline)**
+A specialized AI Gateway is created. It takes the base's pillars whole, adds structure of its own — a label, a self-inject mechanism, a topology socket, an attachment slot — and tightens the inherited timeout through an assertion.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -649,18 +676,32 @@ metadata:
   name: core/gateway/ai-gateway
   version: 1.0.0
   labels:
-    gateway.aggrega.ai/intelligence: "semantic" # Appended to parent labels
+    # Every Component declares the reserved base-ontology key, including one
+    # that extends: the envelope requires it on the document itself.
+    component.aggrega.ai/type: "server"
+    gateway.aggrega.ai/intelligence: "semantic"   # merged with the base's labels
 spec:
-  extends: core/base-enterprise-server # Triggers the Two-Tiered Merge
-  schema:
-    values:
-      # New field local to the child; routing-mode enum narrows from the open string type.
-      routing_mode: { type: string, enum: [latency_optimized, cost_optimized], default: latency_optimized }
-
-      # NOTE: a child Component that declared
-      #   tls_enabled: { type: boolean, enum: [false] }
-      # would be rejected at publish time by the publishing-discipline policy plugin —
-      # the child's constraint (enum: [false]) relaxes the parent's (enum: [true]).
+  extends: core/base-enterprise-server
+  schema: inherited        # values, infra and provides are the base's, verbatim
+  inject: [file]           # concatenates with the base's [env] -> [env, file]
+  usesSchema:              # a socket of its own; the base declared none
+    model_endpoint:
+      required: true
+      selector: "model.aggrega.ai/capability=generative"
+      inject: [env]
+  featuresSchema:          # a slot of its own
+    upstream_api_key:
+      required: true
+      inject: [env]
+      description: Credential for the upstream model endpoint.
+  assertions:
+    # The tightening. The inherited schema admits any integer for timeout_ms;
+    # this gateway admits only 2000 or less, so the rule rejects a value the
+    # inherited pillar block would accept.
+    timeout-within-gateway-budget: |
+      {{- if gt (int .values.timeout_ms) 2000 -}}
+        {{- fail "an AI gateway must answer within 2000ms: set timeout_ms to 2000 or less" -}}
+      {{- end -}}
 ```
 
 For the Recipe that implements this `core/gateway/ai-gateway` interface against a physical Helm chart, see [entities/recipe](recipe.md) Example C (`kong-gateway`).
@@ -680,5 +721,9 @@ spec:
 ```
 
 The rule above is a property of the Component contract — whatever Recipe binds (Bitnami chart, hand-rolled alternative, future implementation), replication mode requires at least two secondary replicas.
+
+**`assertions:` is where an extending Component tightens.** A Component that `extends:` a base inherits the base's pillar block verbatim and declares no pillar content of its own, so a specialization that must admit less than the inherited schema does states the restriction here as a predicate rather than as a narrowed schema leaf — a rule that rejects a value the inherited pillars accept. The worked pair is at "Catalog Authoring: Extending Base Components" above.
+
+`assertions:` is not one of the surfaces extending composes. An extending Component's block is its own: a rule its base declares is not carried onto it, so a baseline rule that must also hold on the extending Component is restated there. Assertion inheritance along an `extends` chain is not implemented.
 
 Use `assertions:` for genuine **cross-field** rules. Per-field constraints (range, pattern, enum) belong in `schema:` keywords; per-field custom predicates belong in the compact form's `validate:`; conditional shape (whether a subtree's constraints apply) belongs in `when:`. For the full authoring grammar — template context fields, the `{{ fail }}` message convention, the evaluation phase, and worked examples spanning the Component and Recipe roles — see [templates/assertions-block.md](../templates/assertions-block.md).

@@ -2,14 +2,44 @@
 
 ## Inheritance via `extends`
 
-Catalog entities (`Component`, `Feature`) support Single Inheritance via the `extends` keyword, which lets Platform Architects build specialized child entities on top of a shared base. Credential Features — those labeled `feature.aggrega.ai/kind: secret` — use the same inheritance mechanism: a child credential Feature can extend a parent to inherit its vault query schema while narrowing constraints.
+Catalog entities (`Component`, `Feature`) support Single Inheritance via the `extends` keyword, which lets Platform Architects build specialized entities on top of a shared base. The **YAML envelope deep-merge** is common to both kinds: metadata, labels, and the declarative structural tables on the extending entity overwrite matching keys in the base, and nested maps recurse. The two kinds part company on the **data pillars**.
 
-When the compiler resolves an `extends` chain, it performs a **Two-Tiered Merge**:
+### A Component's `extends` composes structure and inherits the pillars whole
 
-1. **YAML envelope deep-merge.** Metadata, labels, and declarative fields on the child YAML overwrite matching keys in the parent; arrays append; nested maps recurse.
-2. **Schema composition.** The child's `schema:` declaration composes with the parent's under JSON Schema 2020-12 composition semantics, producing a single merged schema that both constraint sets must satisfy. The publishing-discipline policy plugin enforces monotonic narrowing on the composed result.
+For a Component, `extends` composes `metadata.labels`, `metadata.annotations`, `spec.featuresSchema` (attachment slots), `spec.usesSchema` (topology sockets) and `spec.inject` (the self-inject allowlist, whose entries concatenate base-first without duplicates). The three data pillars — `values`, `infra`, `provides` — are not composed. An extending Component authors no pillar content: it writes the literal marker `schema: inherited` and receives the base's `schema:` block exactly as the base authored it, at every depth of a chain.
 
-Schema composition is monotonic: the child can narrow the parent's constraints but cannot widen them. If a base component `core/base-server` declares `tls_enabled: { type: boolean, enum: [true] }` and a child component attempts to override it with `tls_enabled: { type: boolean, enum: [false] }`, the publishing-discipline policy plugin rejects the child's publish — the child's `enum: [false]` value space is disjoint from the parent's `enum: [true]` value space, which is a relaxation, not a narrowing. The parent acts as an immutable contract: child schemas narrow parent constraints; they cannot relax them.
+The published Component schema makes that marker both mandatory and exclusive, and rejects each departure from it when the document loads, with its own diagnostic for each: pillar content authored under `schema:` on a Component that declares `extends:`; `schema:` omitted there entirely; and `schema: inherited` on a Component that declares no `extends:`.
+
+Two consequences follow, and they pull in opposite directions:
+
+* **The key set is fixed by the base.** An extending Component declares no pillar keys, so it cannot hide, drop, or retype one the base declares, and adds none of its own. An instance of the base and an instance of anything extending it are validated against the same pillar contract.
+* **Tightening moves to `assertions:`.** A specialization that must admit less than the inherited pillars do says so as a predicate on itself, not as a narrowed schema leaf. If a base `core/base-server` declares `tls_enabled: { type: boolean, default: true }`, a specialization that requires TLS unconditionally writes:
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Component
+metadata:
+  name: core/tls-only-server
+  version: 1.0.0
+  labels:
+    component.aggrega.ai/type: "server"
+spec:
+  extends: core/base-server
+  schema: inherited          # values, infra and provides are the base's, verbatim
+  assertions:
+    tls-is-mandatory: |
+      {{- if not .values.tls_enabled -}}
+        {{- fail "this component requires tls_enabled: true" -}}
+      {{- end -}}
+```
+
+The rule rejects a value the inherited pillar block accepts, which is exactly what tightening means here. The reverse direction has no expression at all: a specialization cannot loosen an inherited constraint, because it cannot restate the leaf that carries it. See [`entities/component.md`](../entities/component.md) "Catalog Authoring: Extending Base Components" for the full composition table and the worked base-and-extension pair.
+
+### A Feature's `extends` composes its pillars
+
+For a Feature, the child's `schema:` composes with the base's under JSON Schema 2020-12 composition semantics, producing a single merged schema that an authored instance validates against. Credential Features — those labeled `feature.aggrega.ai/kind: secret` — use this to build on a shared base: a child credential Feature extends a parent to inherit its vault query schema while narrowing constraints.
+
+The compiler takes no position on the direction of that change. Composition is structural, so a child constraint that widens the base's composes without halting the build and surfaces as an advisory. Whether the monotonic-narrowing discipline — a child may tighten a base's constraint but not loosen it — is enforced is a per-workspace choice, carried by the publishing linter's `enforce_monotonic_narrowing` rule with `narrowing_exemptions` for the legitimate cases; see [`cli/aggrega-lint.md`](../cli/aggrega-lint.md).
 
 ## Interface Binding via `implements`
 
@@ -52,10 +82,10 @@ All ten Aggrega entities (Component, Feature, Aggregate, Recipe, FeatureRecipe, 
 
 Aggrega expresses a strong Separation of Concerns between Domain 1 and Domain 4: the Developer writes cognitive logic in the `values` block, while the Operator dictates physical sizing in the `infra` block. The `Aggregate.yaml` schema enforces one concrete corollary: the `infra` keyword is absent from the Aggregate's `component_instance` / `feature` / `secret` slots and, combined with `additionalProperties: false`, is rejected by schema validation. Developers should not dictate physical sizing inside Developer Intent; when a specific value fits the application's case (e.g., a hardcoded port or a specific CPU number), the Architect may expose it explicitly in the Component's `schema:` declaration and the value flows through `values`.
 
-For cases where a specific infrastructure constraint is an intrinsic part of a component's contract — a high-throughput trading database that must have 10,000 provisioned IOPS, an ML workload that must run on exactly 4 GPUs — Platform Architects expose the constraint through a specialized child component built with the **schema-bridge cross-pillar piping** pattern.
+For cases where a specific infrastructure constraint is an intrinsic part of a component's contract — a high-throughput trading database that must have 10,000 provisioned IOPS, an ML workload that must run on exactly 4 GPUs — Platform Architects expose the constraint through a purpose-built Component using the **schema-bridge cross-pillar piping** pattern.
 
 **The schema-bridge pattern for infrastructure-aware components.**
-The child component extends a capability-agnostic base, exposes the specific infrastructure dial inside the developer's `values` block through the `schema:` declaration, and the bound Recipe's `valuesMapping:` template pipes the value into the rendered `infra:`-shaped output. The result is a typed bridge between cognitive intent and physical sizing: the developer dictates the hardware constraint through a validated field, and the constraint flows to Ops without either side writing raw infrastructure code.
+The Component exposes the specific infrastructure dial inside the developer's `values` block through its `schema:` declaration, and the bound Recipe's `valuesMapping:` template pipes the value into the rendered `infra:`-shaped output. The result is a typed bridge between cognitive intent and physical sizing: the developer dictates the hardware constraint through a validated field, and the constraint flows to Ops without either side writing raw infrastructure code. The dial is a pillar key, so it is declared on the Component whose contract owns it — a Component that `extends:` a base declares no pillar keys and therefore cannot introduce one.
 
 ```yaml
 # Domain 2: The Platform Catalog (the schema-bridge Component)
@@ -67,11 +97,14 @@ metadata:
   labels:
     component.aggrega.ai/type: "stateful-server"
 spec:
-  extends: core/base-postgres
   schema:
     values:
       # Expose the dial safely to the Developer with a typed contract.
       required_iops: { type: integer, min: 1000, max: 100000, required: true }
+    infra:
+      # Operator-owned sizing the Recipe below reads alongside the dial.
+      storage: { size: { type: string, default: 100Gi } }
+      compute: { instance_class: { type: string, default: db.m5.large } }
 ```
 
 ```yaml
