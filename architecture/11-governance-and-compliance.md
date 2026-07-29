@@ -82,8 +82,13 @@ export function mutate(context, graph) {
 
 Because these tags are silently injected into the standard metadata dictionary in-memory, Wasm rendering plugins can easily read them to conditionally generate specific physical configurations (like hardened AWS or Kubernetes resources) during Step 5.
 
-> **Looking Ahead: "Zero-Touch" Governance**
-> While the BYOB and Wasm mutation patterns provide strict, explicit governance, they still require developer participation (e.g., explicitly extending a corporate baseline). To completely close the compliance circle, a planned extension introduces **Global Schema Overlays** (detailed in the Roadmap). This Aspect-Oriented feature will allow Platform Ops to transversally inject JSON Schema 2020-12 fragments across the entire workspace, silently upgrading naked open-source components with corporate rules before compilation even begins.
+**Stating a rule once: governance attachments are workspace-scoped.**
+The two patterns above are authored per component and per Feature, but the governance attachment that enforces them is not. A governance plugin is attached at the workspace configuration's `plugins.governance` key, and that attachment binds **every build in the workspace**. A corporate rule is therefore stated in exactly one place: the platform team attaches the plugin once, and no component, Aggregate or Release has to opt in, mention it, or be edited for it to apply. This is what makes the validation failsafe in pattern 1 a complete answer rather than a per-project convention — a developer who bypasses the internal catalog and requests a naked `core/postgres` is evaluated by the same attached policy as everyone else, because the policy is a property of the workspace rather than of the component they chose.
+
+**A workspace rule rejects; it does not rewrite the developer's contract.**
+The scope is universal, and the effect is deliberately limited to a verdict. A rule that applies everywhere halts a build that violates it, naming what to fix, and it cannot instead amend the offending component into compliance. That boundary is what keeps the mechanism debuggable at estate scale: a build either matches the rules the workspace declares or stops with a message pointing at the authored line, and rendered output never contains a constraint or a resource that no authored file asked for. Where an enterprise does want the graph changed rather than judged, it attaches a transform role — pattern 2 above — and that change is scoped to what the operator attached it to do, which is why it is an explicit act of the platform team rather than an invisible rewrite.
+
+The practical consequence for a platform team closing the compliance circle: express the *shape* a payload must have as schema constraints on a corporate baseline, express the *cross-entity* rules the estate requires as an attached verdict role, and express *derived metadata* the developer should never type as an attached transform role. All three are declared once and apply to every build, and none of them requires the developer to know they exist.
 
 ### 3. Preserving Domain Intelligence (The Configurations & Safety)
 
