@@ -65,6 +65,11 @@ Features, Recipes, Manifests, and the provider matrix.
   Manifest `name` mapping tier, which overrides the Recipe for a single component
   *instance* while every other instance of the same type keeps the bulk
   `type`-tier Recipe.
+- **[extends-wrapper](extends-wrapper/)** — publishing a specialized variant of a
+  standard-library Component with `extends`. The wrapper adds labels, annotations
+  and one socket, authors no data pillars, and inherits its base's contract whole,
+  so the base's Recipe already implements it: one catalog entity and one Manifest
+  line, with no Recipe of its own and no change to the base.
 
 ## Advanced
 

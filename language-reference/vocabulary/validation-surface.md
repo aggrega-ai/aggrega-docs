@@ -26,13 +26,9 @@ Required-field omissions and type mismatches surface in the same shape; the spec
 
 **Validation runs.** At Step 1, after the JSON Schema envelope passes. The compiler composes the entity's authored `schema:` with auto-generated bases derived from `usesSchema` and `featuresSchema` declarations; the composed schema validates the developer-supplied `values:` / `infra:` / `features:` / `uses:` blocks on every component instance in the Aggregate.
 
-**Error shape.** Schema composition failures and constraint violations surface as messages naming the entity, the path inside the pillar, and the constraint detail:
+**Error shape.** Constraint violations surface as messages naming the entity, the path inside the pillar, and the rule that rejected the value — for example a developer setting a port to `80` against a schema rule requiring `>=1024`.
 
-```text
-usesSchema composition failed: child <child-uri> socket <socket-name> conflicts with parent <parent-uri>: <constraint-detail>.
-```
-
-Inline constraint violations (e.g., a developer setting a port to `80` against a schema rule requiring `>=1024`) surface at the same stage with the field path and the rule that rejected the value.
+A redeclared `usesSchema` or `featuresSchema` entry produces no composition failure. Those two surfaces overlay by name: a child's entry replaces the base's outright, schema and selector together, so there is no conflict between a base and a child entry to report.
 
 ### Layer 3 — Provider synthesized-mode capability
 

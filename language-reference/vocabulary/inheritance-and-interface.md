@@ -39,7 +39,7 @@ The rule rejects a value the inherited pillar block accepts, which is exactly wh
 
 For a Feature, the child's `schema:` composes with the base's under JSON Schema 2020-12 composition semantics, producing a single merged schema that an authored instance validates against. Credential Features — those labeled `feature.aggrega.ai/kind: secret` — use this to build on a shared base: a child credential Feature extends a parent to inherit its vault query schema while narrowing constraints.
 
-The compiler takes no position on the direction of that change. Composition is structural, so a child constraint that widens the base's composes without halting the build and surfaces as an advisory. Whether the monotonic-narrowing discipline — a child may tighten a base's constraint but not loosen it — is enforced is a per-workspace choice, carried by the publishing linter's `enforce_monotonic_narrowing` rule with `narrowing_exemptions` for the legitimate cases; see [`cli/aggrega-lint.md`](../cli/aggrega-lint.md).
+The compiler takes no position on the direction of that change. Composition is structural, so a child constraint that widens the base's composes without halting the build and surfaces as an advisory. Nothing rejects it: a Feature base's constraint is a shared expectation the catalog's authors uphold by review, not a contract the platform polices.
 
 ## Interface Binding via `implements`
 

@@ -188,15 +188,6 @@ Emitted message:
 
 **How to fix:** reconcile the two declarations. Aggregate-side and Release-side declarations of the same feature instance combine by pillar — Aggregate contributes `values`, Release contributes `infra`. If both sides specify the same non-pillar field (such as `type:`), the values must match; correct one side to match the other, or drop the redundant declaration.
 
-### `usesSchema` composition failure on `extends` chain
-
-A Component or Feature declares `extends:` against a parent whose `usesSchema` cannot compose with the child's `usesSchema` under the monotonic-narrowing rule enforced by the publishing-discipline policy plugin. The rule: a child may narrow a parent's constraints (tighten an `enum:` set, shrink a numeric range, restrict a selector) but cannot relax them. Attempting to declare a looser socket type than the parent permits produces a composition failure.
-
-Emitted message:
-> usesSchema composition failed: child `<child-uri>` socket `<socket-name>` conflicts with parent `<parent-uri>`: `<composition-detail>`.
-
-**How to fix:** either narrow the child's `usesSchema` entry to satisfy the parent's constraint, or change the inheritance direction if the child's shape is genuinely broader than the parent. Review the parent chain with `aggrega inspect` to see the resolved socket contract the child must satisfy.
-
 ### Annotation binding targets a non-existent Feature or path
 
 A Manifest annotation binding's `feature:` field names a Feature that the catalog does not load, or the binding's `maps.infra` / `maps.values` lists declare dotted paths that the named Feature's `spec.schema` does not actually carry. Either condition halts workspace load — the binding would synthesise Feature attachments routing values into paths the runtime cannot resolve.

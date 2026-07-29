@@ -160,78 +160,17 @@ A verdict role accepts or rejects; it never rewrites. The build either proceeds 
 
 Attachment detail reaches a policy evaluating the **IR graph**. A policy evaluating **rendered artifacts** receives those artifacts and no graph, which is a property of that input rather than a restriction applied to it: the two stages answer different questions, and attachment topology is not among the questions rendered output can be asked.
 
-## Inheritance and policy narrowing
+## Inheritance and publishing discipline
 
-Inheritance via `extends:` is the catalog mechanism that lets Platform Architects build specialised child entities on top of shared baselines. A Feature's parent and child schemas compose at workspace-load time, producing a unified schema with per-leaf provenance. An extending Component authors no pillar content and receives its base's `schema:` block exactly as the base authored it, so its data pillars have nothing to compose. The substantive governance question — what constraints a child may declare relative to the parent — is enforced not at the schema layer but at the **publishing-discipline policy plugin** (`linter.wasm` in its standard publishing-discipline mode), which gates publishes against the monotonic-narrowing rule.
+Inheritance via `extends:` is the catalog mechanism that lets Platform Architects build specialised child entities on top of shared baselines. The two catalog kinds part company on their data pillars. A Feature's parent and child schemas compose at workspace-load time, producing a unified schema with per-leaf provenance. An extending **Component** authors no pillar content: it writes the literal marker `schema: inherited` and receives its base's `schema:` block exactly as the base authored it, at every depth of a chain.
 
-Schema composition under JSON Schema 2020-12 is structurally permissive: a child schema that relaxes a parent's constraint (e.g., widens an `enum:` set, raises a `max:` value) is structurally valid JSON Schema. Aggrega's narrowing rule — "a child may narrow a parent's constraint but cannot widen it" — is a policy rule, not a language rule. The policy plugin walks the resolved schema at publish time, consults the per-leaf provenance tag (parent vs child), and compares the child's constraint against the parent's per-dimension.
+That is what settles the governance question a shared baseline raises — what constraints a child may declare relative to its base. For a Component the answer is structural rather than policed: the child's declared contract simply *is* the base's, so a base's constraint cannot be loosened, dropped or retyped by a child, and no publish-time check is needed to keep the baseline intact. A child that legitimately needs a *tighter* rule than its base declares expresses that as an added entry in its `assertions:` block, which composes alongside the base's rules rather than replacing them.
 
-### Per-dimension narrowing comparison
-
-The plugin compares constraints per dimension:
-
-| Constraint dimension | Narrowing direction |
-| --- | --- |
-| `min` (numeric / length / items) | child's value is greater than or equal to the parent's value |
-| `max` (numeric / length / items) | child's value is less than or equal to the parent's value |
-| `enum` | child's value set is a subset of the parent's |
-| `pattern` | child's pattern is at least as restrictive (heuristic; uncertain results emit a warning rather than a violation) |
-| `format` | child's format is at least as restrictive (e.g., `email` is narrower than `string`) |
-| `required` | child's required-field set is a superset of the parent's |
-| `additionalProperties` | child can move from `true` to `false` (narrower); the reverse direction is a relaxation |
-
-Combinations of constraints (e.g., `min: 5, max: 10` vs parent's `min: 3, max: 12`) compare per dimension; the result is "narrower" only if every dimension is narrower-or-equal.
-
-### Policy configuration and the per-entity exemption pattern
-
-The standard publishing-discipline plugin reads workspace policy from the `lint.publishing_discipline` block of `.aggrega-config.yaml`:
-
-```yaml
-lint:
-  publishing_discipline:
-    enforce_monotonic_narrowing: true   # default true; preserves the typical inheritance contract
-
-    # Per-entity exemptions (the common pattern for legitimate relaxation)
-    narrowing_exemptions:
-      - entity: my-team/datastore/mariadb-eu
-        paths:
-          - spec.schema.values.primary.replicaCount
-        reason: "EU regional capacity constraint differs from parent's range"
-      - entity: my-team/server/cluster-prod
-        paths:
-          - spec.schema.values.architecture
-        reason: "Production-only architecture options not in parent"
-```
-
-Three configuration patterns emerge in practice:
-
-1. **Default (most workspaces)**: `enforce_monotonic_narrowing: true`, no exemptions. The plugin rejects any publish where a child relaxes a parent constraint. This matches the typical inheritance contract — a child Component must satisfy every constraint its parent declares.
-2. **Workspace-wide opt-out (rare)**: `enforce_monotonic_narrowing: false`. All relaxations pass. Appropriate only for workspaces with explicit reasons to bypass narrowing (research catalogs where contracts evolve rapidly; experimental playgrounds).
-3. **Per-entity exemptions (common for legitimate relaxation)**: Specific entities and constraint paths are exempted; the architect provides a `reason:` string. Code review of the policy file is the governance layer; exemptions are explicit, reviewable, and documented in the workspace.
-
-Per-entity exemptions are the recommended pattern when relaxation is needed. They are explicit and reviewable; they do not disable the check workspace-wide; they document the architectural reason.
-
-### Diagnostic output for narrowing violations
-
-When the plugin detects a violation, the diagnostic names the entity, the constraint path, both source positions (parent and child), the direction of the violation, and the available remediations:
-
-```text
-Publishing-discipline violation: monotonic narrowing
-  Entity: my-team/datastore/mariadb-strict@1.0.0
-  Constraint path: spec.schema.values.primary.replicaCount.maximum
-  Parent declares maximum: 9
-    (defined in: core/datastore/mariadb-base.yaml:42)
-  Child declares maximum: 12  (wider — relaxes parent)
-    (declared in: my-team/mariadb-strict.yaml:23)
-  Suggestion: either narrow the child's constraint to satisfy the parent,
-              or add an exemption to .aggrega-config.yaml under lint.publishing_discipline.narrowing_exemptions.
-```
-
-The error formatter (see [compilation-pipeline §"The Validator Pipeline"](10-compilation-pipeline.md#the-validator-pipeline-step-4a)) produces the same parent-child framing for build-time validation diagnostics; the publishing-discipline plugin reuses the format at publish time.
+What a child Component does compose is **structure**: its attachment slots (`featuresSchema`), topology sockets (`usesSchema`), self-inject allowlist (`inject`) and named `assertions` all merge along the chain, with a redeclared entry replacing the base's outright.
 
 ### Rule placement: which rules live in the policy plugin vs the per-Component schema
 
-The publishing-discipline plugin is the home for **cross-cutting rules that apply across the catalog**: monotonic narrowing on `extends:` chains, supply-chain rules (e.g., "every Recipe must `implements:` a Component that exists in the catalog"), enterprise compliance rules (e.g., "every Component with `compliance.aggrega.ai/scope: pci-dss` must `extends:` the corporate pci baseline"). These rules cross multiple entities, evaluate the workspace as a unit, or enforce conventions at publish time rather than at build time.
+The publishing-discipline plugin is the home for **cross-cutting rules that apply across the catalog**: supply-chain rules (e.g., "every Recipe must `implements:` a Component that exists in the catalog"), enterprise compliance rules (e.g., "every Component with `compliance.aggrega.ai/scope: pci-dss` must `extends:` the corporate pci baseline"). These rules cross multiple entities, evaluate the workspace as a unit, or enforce conventions at publish time rather than at build time.
 
 The per-Component / per-Feature `schema:` declaration is the home for **per-entity constraints**: per-field types, ranges, patterns, enums; cross-field rules expressed in the dedicated `assertions:` block (chapter 08). These constraints are local to one entity and travel with it through the catalog.
 

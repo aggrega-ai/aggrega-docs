@@ -47,11 +47,10 @@ The comparison is per entity kind: Component, Feature, and SchemaLibrary are com
 
 ## The discipline rules
 
-Each rule has a per-workspace setting under `lint.publishing_discipline` in `.aggrega-config.yaml` and a matching CLI override. Defaults are grounded either in platform machinery, in a documented catalog convention, or are off by default where the platform takes no position.
+Each rule has a per-workspace setting under `lint.publishing_discipline` in `.aggrega-config.yaml` and a matching CLI override. Every rule is on by default, and each default is grounded either in platform machinery or in a documented catalog convention; the settings are opt-outs for a workspace that has a reason to relax one.
 
 - **Annotation prefix** — reserved namespaces (`aggrega.ai/`, and `feature.aggrega.ai/` outside a Feature) are platform-owned and rejected on other keys. Default on; opt out with `allow_aggrega_ai_prefix`.
 - **Name shape** — each entity kind has a name-shape convention (segment counts for the cloud-native kinds; PascalCase for library kinds). Default on; opt out with `allow_nonstandard_names`.
-- **Monotonic narrowing** — when an entity uses `extends`, the child's schema must not broaden the parent's field types. The platform takes no position on which direction is correct, so this is **off by default**; enable it with `enforce_monotonic_narrowing`, and exempt specific entity paths with `narrowing_exemptions`.
 - **Dynamic refs** — SchemaLibrary entries may not use `$dynamicAnchor` / `$dynamicRef` (the platform's compile-time `$ref` expansion cannot resolve them). Default on; opt out with `allow_dynamic_refs`.
 - **Id overrides** — SchemaLibrary entries may not declare their own `$id` (the platform derives the canonical `$id`). Default on; opt out with `allow_id_overrides`.
 - **Category matches directory** — a Component's `component.aggrega.ai/category` label must match the first directory segment under `core/`, drawn from the closed category set (`ai-agent`, `ai-model`, `ai-tool`, `ai-pipeline`, `datastore`, `gateway`, `mesh`, `network`, `messaging`, `storage`, `compute`, `observability`, `security`, `bigdata`, `devtool`). Default on for entities under a `core/` path; opt out with `allow_category_mismatches`.
@@ -68,7 +67,7 @@ The `x-aggrega-*` discouragement rule also runs during `aggrega build`, where it
 - `--release <release-path>` — switch to the Release-closure conventions scope: lint the catalog files this Release's resolved closure reaches. Mutually exclusive with an entity argument.
 - `--pre-publish` — switch to the registry-aware publish gate (error severity, version-bump check). Single-entity shape only.
 - `--plugin <path>` — the publishing-linter Wasm plugin to run. When omitted, the plugin is taken from the `plugins.linter` entry in `.aggrega-config.yaml`.
-- Per-rule overrides, each with a `--no-` counterpart: `--allow-dynamic-refs`, `--allow-id-overrides`, `--allow-direct-x-aggrega-extensions`, `--allow-aggrega-ai-prefix`, `--allow-nonstandard-names`, `--allow-category-mismatches`, `--enforce-monotonic-narrowing`, `--enforce-immutability`. Precedence is `--no-<flag>` over `--<flag>` over the workspace-config value. (`narrowing_exemptions` is workspace-config-only.)
+- Per-rule overrides, each with a `--no-` counterpart: `--allow-dynamic-refs`, `--allow-id-overrides`, `--allow-direct-x-aggrega-extensions`, `--allow-aggrega-ai-prefix`, `--allow-nonstandard-names`, `--allow-category-mismatches`, `--enforce-immutability`. Precedence is `--no-<flag>` over `--<flag>` over the workspace-config value.
 
 The per-rule override flags are per-invocation gates and intentionally have **no** environment variable — they are already config-backed in `.aggrega-config.yaml` under `lint.publishing_discipline`. The general `AGGREGA_*` precedence model is described in [environment-variables.md](environment-variables.md).
 
@@ -96,10 +95,10 @@ Run the publish gate before publishing a new version:
 aggrega lint core/datastore/postgres/component.yaml --pre-publish
 ```
 
-Enable monotonic-narrowing enforcement for one run:
+Relax one rule for a single run:
 
 ```
-aggrega lint core/datastore/postgres/component.yaml --pre-publish --enforce-monotonic-narrowing
+aggrega lint core/datastore/postgres/component.yaml --pre-publish --allow-nonstandard-names
 ```
 
 ## See also
@@ -130,7 +129,6 @@ aggrega lint [entity-path] [flags]
 | `--baseline` | — | Diff the pre-publish evolution check against this specific already-published version instead of the auto-selected highest version below the one being published; must be a strict-SemVer tag present in the registry (requires --pre-publish) |
 | `--catalog` | `[]` | Catalog directory; repeatable. Each --catalog is prepended to the workspace catalog_dirs search stack (first match wins). Used by the whole-catalog and --release conventions passes. |
 | `--enforce-immutability` | `false` | Force enforce_immutability=true |
-| `--enforce-monotonic-narrowing` | `false` | Force enforce_monotonic_narrowing=true |
 | `--entity` | — | Path to the entity YAML to lint (alternatively pass as the positional arg) |
 | `--no-allow-aggrega-ai-prefix` | `false` | Force allow_aggrega_ai_prefix=false |
 | `--no-allow-category-mismatches` | `false` | Force allow_category_mismatches=false |
@@ -139,7 +137,6 @@ aggrega lint [entity-path] [flags]
 | `--no-allow-id-overrides` | `false` | Force allow_id_overrides=false for this invocation |
 | `--no-allow-nonstandard-names` | `false` | Force allow_nonstandard_names=false |
 | `--no-enforce-immutability` | `false` | Force enforce_immutability=false |
-| `--no-enforce-monotonic-narrowing` | `false` | Force enforce_monotonic_narrowing=false |
 | `--plugin` | — | Filesystem path to the publishing-linter .wasm artifact (overrides workspace plugins.linter[0].uri) |
 | `--pre-publish` | `false` | Fetch the previous registry version and verify the proposed bump against the schema-evolution classification |
 | `--release` | — | Path to a Release YAML to check conventions over its resolved dependency closure (mutually exclusive with an entity argument) |

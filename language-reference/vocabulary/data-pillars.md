@@ -209,7 +209,7 @@ When a catalog entity declares `extends:` and the compiler walks the inheritance
 
 | Pillar | Merge behaviour on `extends:` chain |
 | --- | --- |
-| `values` (JSON Schema 2020-12) | On a Feature chain, schemas compose via JSON Schema 2020-12 composition; the publishing-discipline policy plugin enforces monotonic narrowing — child can narrow parent constraints; cannot relax. An extending Component authors no pillar content and receives its base's block exactly as the base authored it, at every depth of a chain. |
+| `values` (JSON Schema 2020-12) | On a Feature chain, schemas compose via JSON Schema 2020-12 composition. An extending Component authors no pillar content and receives its base's block exactly as the base authored it, at every depth of a chain. |
 | `infra` (JSON Schema 2020-12 fragment) | Same as `values` — composed on a Feature chain, inherited whole by an extending Component. |
 | `provides` (Recipe template map) | Top-level shallow replacement: child key fully replaces parent key for the same name; sibling keys preserved from parent. Templates are not composed; the child's template fully owns its slot. |
 | `uses` (`usesSchema`) | Per-socket whole-entry overlay by socket name. A child adds sockets its base does not declare, and a socket it redeclares under an existing name replaces that entry outright — its value and infra schemas and its `selector` together. Socket entries are not composed, and nothing compares a redeclared `selector` against the base's. |
@@ -217,7 +217,7 @@ When a catalog entity declares `extends:` and the compiler walks the inheritance
 | `locals` (Recipe template map) | Top-level shallow replacement — same as `provides`. |
 | `parameters` (Aggregate root map) | Aggregate `extends:` is not currently supported (Aggregate doesn't carry an `extends:` field); the question is moot today. Release `extends:` produces deep-merge with child-wins. |
 
-The general pattern turns on the kind and on the surface. **A Feature's schema-validated pillars compose** under JSON Schema 2020-12, with the publishing-discipline policy plugin enforcing monotonic narrowing at publish time. **An extending Component's pillars are inherited whole** — it authors none, so its contract is its base's exactly, and a base's constraint therefore cannot be relaxed by construction rather than by policy. **The fixed-shape surfaces — `usesSchema` and `featuresSchema` — overlay by name** on both kinds: a child adds entries, and an entry it redeclares replaces the base's outright. **Template-authored pillars use shallow per-key replacement**, giving the child full ownership of any template slot it declares.
+The general pattern turns on the kind and on the surface. **A Feature's schema-validated pillars compose** under JSON Schema 2020-12. **An extending Component's pillars are inherited whole** — it authors none, so its contract is its base's exactly, and a base's constraint therefore cannot be relaxed, by construction. **The fixed-shape surfaces — `usesSchema` and `featuresSchema` — overlay by name** on both kinds: a child adds entries, and an entry it redeclares replaces the base's outright. **Template-authored pillars use shallow per-key replacement**, giving the child full ownership of any template slot it declares.
 
 An extending Component tightens a constraint through `assertions:` rather than through a pillar — a predicate it adds, evaluated alongside the ones it inherits. See [inheritance-and-interface.md](inheritance-and-interface.md) for that mechanism.
 
@@ -306,7 +306,7 @@ The pillars carry validation across three tiers. Each tier covers a different co
 | Tier | What it validates | Where it runs |
 | --- | --- | --- |
 | 1 — JSON Schema envelope | Structural shape (which keys are present, types match the field declarations) | Step 1, per file load |
-| 2 — Per-pillar schema (`schema` / `featuresSchema` / `usesSchema`) | Per-pillar typed content validated as JSON Schema 2020-12 with monotonic narrowing on `extends:` chains enforced by the publishing-discipline policy plugin | Step 1, after envelope passes |
+| 2 — Per-pillar schema (`schema` / `featuresSchema` / `usesSchema`) | Per-pillar typed content validated as JSON Schema 2020-12 | Step 1, after envelope passes |
 | 3 — provider engine-capability gate | Workload content gated by the bound provider engine's synthesized-mode capability, documented by the provider-rendering plugin's `spec.provider.workloadSchema` | Step 5 Phase B, after valuesMapping resolves |
 
 For the four-layer error-shape table and per-layer error prefixes, see [validation-surface.md](validation-surface.md).

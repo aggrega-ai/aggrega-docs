@@ -77,20 +77,17 @@ Per-rule strictness dials. Future lint sub-categories (build-time discouragement
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `publishing_discipline` | object | no | Workspace-wide gates for the publishing-linter's rule set. `enforce_monotonic_narrowing` and `enforce_immutability` are workspace-wide rule gates (default true each); `narrowing_exemptions` carries per-entity escape hatches for legitimate narrowing cases. The remaining `allow_*` flags relax individual discouragement checks. |
+| `publishing_discipline` | object | no | Workspace-wide gates for the publishing-linter's rule set. `enforce_immutability` is a workspace-wide rule gate (default true); the `allow_*` flags relax individual discouragement checks. |
 
 _Additional properties are not permitted._
 
 ##### `aggrega-config.lint.publishing_discipline`
 
-Workspace-wide gates for the publishing-linter's rule set. `enforce_monotonic_narrowing` and `enforce_immutability` are workspace-wide rule gates (default true each); `narrowing_exemptions` carries per-entity escape hatches for legitimate narrowing cases. The remaining `allow_*` flags relax individual discouragement checks.
+Workspace-wide gates for the publishing-linter's rule set. `enforce_immutability` is a workspace-wide rule gate (default true); the `allow_*` flags relax individual discouragement checks.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `enforce_monotonic_narrowing` | boolean | no | When true (default), the publishing-linter and discouragement walker enforce the monotonic-narrowing rule: a child schema's constraint must narrow (not widen) vs the parent's. Set to false for the rare workspace-wide opt-out; per-entity exemptions are the recommended pattern for legitimate cases. Default: `true` |
 | `enforce_immutability` | boolean | no | When true (default), the publishing-linter enforces the artifact-immutability rule: a published `name:version` plus content digest is treated as final; `aggrega push` rejects overwrites. Set to false only for forensic reproduction of historical builds where overwrites occurred prior to the rule's introduction; routine use is discouraged. Required for production catalogs. Default: `true` |
-| `narrowing_exemptions` | NarrowingExemption[] | no | Per-entity exemptions from the narrowing-violation rule. Used when `enforce_monotonic_narrowing` stays true (the default) but specific entity/path pairs need exemption with a documented reason. Each entry names the catalog entity, the specific schema paths exempted, and the human-readable justification. Default: `[]` |
-| `narrowing_exemptions_append` | NarrowingExemption[] | no | Append-only addition to the effective `narrowing_exemptions` list. Entries here are concatenated onto the resolved base list at each precedence layer, so workspace and global configs compose exemptions rather than shadow them. Default: `[]` |
 | `allow_dynamic_refs` | boolean | no | When true, the publishing-linter accepts $dynamicRef / $dynamicAnchor JSON Schema constructs in catalog content. Default false; these constructs are discouraged because they make compile-time schema composition non-local. Default: `false` |
 | `allow_id_overrides` | boolean | no | When true, the publishing-linter accepts $id overrides on subschemas within an entity's schema content. Default false; $id overrides break the canonical-identifier-per-schema convention the resolver and the JSON Schema validator both rely on. Default: `false` |
 | `allow_direct_x_aggrega_extensions` | boolean | no | When true, the build-time discouragement walker accepts x-aggrega-selector and x-aggrega-inject keywords authored directly in schema content. Default false; the recommended authoring path is usesSchema (for dependency sockets) or featuresSchema (for credential bindings), which the schema-composition layer then synthesises into the inline extension form. Default: `false` |
@@ -211,17 +208,5 @@ Optional attachment-time inputs a plugin reads. Both members are optional and en
 | --- | --- | --- | --- |
 | `sources` | string[] | no | Definition file paths the host reads at compile time and hands to the plugin. Each entry is a filesystem path resolved against the declaring config file's directory. |
 | `settings` | object | no | Free-form settings object handed to the plugin verbatim. The host does not interpret its shape; the plugin defines the keys it reads. |
-
-_Additional properties are not permitted._
-
-### `NarrowingExemption`
-
-Per-entity exemption from the narrowing-violation rule.
-
-| Property | Type | Required | Description |
-| --- | --- | --- | --- |
-| `entity` | string | yes | Catalog entity identifier the exemption applies to (e.g. `my-team/datastore/mariadb-eu`). |
-| `paths` | string[] | yes | JSON-Pointer-style schema paths the exemption covers (e.g. `spec.schema.values.primary.replicaCount`). Each path is a fully-qualified path into the entity's schema content. |
-| `reason` | string | yes | Human-readable justification for the exemption. Surfaced to reviewers; should explain why this specific narrowing violation is intentional. |
 
 _Additional properties are not permitted._
