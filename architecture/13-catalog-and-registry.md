@@ -143,13 +143,13 @@ The ontology column carries only the 7 operational primitives — cognitive voca
 
 To eliminate per-Component boilerplate around the topology socket declarations, Aggrega splits validation into two parts and bridges them at compile time:
 
-1. **`usesSchema` (declarative YAML).** Defines and enables the topology. The `usesSchema` keys are the only valid socket names a developer may use in `uses` blocks — a catalog entity without `usesSchema` cannot accept `uses` declarations. The Go CLI natively reads this to extract `x-aggrega-selector:` strings for Step 4 label matching and to validate allowed `inject` mechanisms. Each socket entry supports an optional `required: true` field (default `false`) — when set, the compiler emits a validation error if no dependency is declared in that socket. This is the soft equivalent of the `required: true` semantics on `featuresSchema` entries.
+1. **`usesSchema` (declarative YAML).** Defines and enables the topology. The `usesSchema` keys are the only valid socket names a developer may use in `uses` blocks — a catalog entity without `usesSchema` cannot accept `uses` declarations. The Go CLI natively reads this to extract `x-aggrega-selector:` strings for label matching during static analysis and to validate allowed `inject` mechanisms. Each socket entry supports an optional `required: true` field (default `false`) — when set, the compiler emits a validation error if no dependency is declared in that socket. This is the soft equivalent of the `required: true` semantics on `featuresSchema` entries.
 2. **Desugaring.** If developers use the YAML array shorthand (`uses: databases: ["db1"]`), the CLI normalizes it into a map (`{"db1": {"target": "db1"}}`).
-3. **Bridge synthesis.** The compiler walks each socket entry and emits a JSON Schema 2020-12 fragment with `x-aggrega-selector:` and `x-aggrega-inject:` extension keywords. The selector string from the YAML is preserved at the `x-aggrega-selector:` annotation for traceability — JSON Schema validation ignores extension keywords during structural validation, but the Go compiler extracts them programmatically in Step 4 for native label matching.
+3. **Bridge synthesis.** The compiler walks each socket entry and emits a JSON Schema 2020-12 fragment with `x-aggrega-selector:` and `x-aggrega-inject:` extension keywords. The selector string from the YAML is preserved at the `x-aggrega-selector:` annotation for traceability — JSON Schema validation ignores extension keywords during structural validation, but the Go compiler extracts them programmatically during static analysis for native label matching.
 4. **Composition.** The Ops engineer writes a strict `schema:` declaration (compact form or full JSON Schema 2020-12) defining `values`, `infra`, and `provides`. The Go engine composes the synthesized fragment with the user-authored schema via JSON Schema 2020-12 composition; the resulting unified schema validates the entity's instance content. This guarantees perfect cross-pillar validation without requiring the Ops engineer to write any `uses` boilerplate.
 
 **Example bridge synthesis:**
-**Step 1: The Platform Architect's YAML**
+**The Platform Architect's YAML**
 
 ```yaml
 spec:
@@ -175,7 +175,7 @@ spec:
     {{- end -}}
 ```
 
-**Step 2: The compiler-synthesized JSON Schema fragment**
+**The compiler-synthesized JSON Schema fragment**
 
 ```yaml
 uses:
@@ -197,12 +197,12 @@ uses:
       x-aggrega-selector: "component.aggrega.ai/type=stateful-server"
 ```
 
-**Step 3: Composition**
-The compiler composes the synthesized fragment with the user-authored `schema:` to produce the unified validation schema. The Static Analyzer (Step 4) reads `x-aggrega-selector:` from the synthesized fragment + `appliesTo` / `appliesToAnyOf` from the Feature entities, and evaluates label matching against each target's `metadata.labels` to validate cross-node type safety.
+**Composition**
+The compiler composes the synthesized fragment with the user-authored `schema:` to produce the unified validation schema. The Static Analyzer reads `x-aggrega-selector:` from the synthesized fragment + `appliesTo` / `appliesToAnyOf` from the Feature entities, and evaluates label matching against each target's `metadata.labels` to validate cross-node type safety.
 
 ### Kubernetes-Style Selectors in usesSchema
 
-The Go compiler's native label-matching engine evaluates selector strings using standard Kubernetes-style selection semantics (`AND` via comma, `OR` via `in()`, `NOT` via `!=`/`notin()`). This same engine — and the same selector-string grammar — also evaluates the Feature attachment selectors (`appliesTo`, and each item of `appliesToAnyOf`). The selector layer is strictly the topology gate — the per-pillar `schema:` declarations validate `values`, `infra`, and `provides` content independently. After the Go compiler draws the topological edges in Step 2, the Static Analyzer (Step 4) extracts the `selector` strings from the synthesized JSON Schema fragment's `x-aggrega-selector:` annotation and evaluates them against the target node's Catalog `labels` to validate cross-node type safety.
+The Go compiler's native label-matching engine evaluates selector strings using standard Kubernetes-style selection semantics (`AND` via comma, `OR` via `in()`, `NOT` via `!=`/`notin()`). This same engine — and the same selector-string grammar — also evaluates the Feature attachment selectors (`appliesTo`, and each item of `appliesToAnyOf`). The selector layer is strictly the topology gate — the per-pillar `schema:` declarations validate `values`, `infra`, and `provides` content independently. After the Go compiler draws the topological edges at topology construction, the Static Analyzer extracts the `selector` strings from the synthesized JSON Schema fragment's `x-aggrega-selector:` annotation and evaluates them against the target node's Catalog `labels` to validate cross-node type safety.
 
 ```yaml
 usesSchema:
@@ -454,7 +454,7 @@ With the policy set, the name-shape rule reports nothing at all. It can also be 
 
 ### 11. Annotation-driven Feature expansion
 
-The Manifest's `mappings.features.annotations` block declares bindings between annotation keys and Feature types plus a pillar-grouped routing table (`maps.infra`, `maps.values`) naming the Feature schema properties each annotation may populate. The Step 1 annotation-expansion sub-phase walks Release boundaries outer-to-inner and Aggregate subsystems outer-to-inner, computes effective per-component annotation sets via cascade and override with whole-value and per-subkey null opt-out, and injects synthetic Feature attachments with `Origin: "annotation"` IR provenance. The full binding-shape and authoring teaching live at [`language-reference/entities/manifest.md`](../language-reference/entities/manifest.md) and [`language-reference/providers/well-known-annotations.md`](../language-reference/providers/well-known-annotations.md); this section documents the catalog-load-time and inspect-time mechanics the expansion path relies on.
+The Manifest's `mappings.features.annotations` block declares bindings between annotation keys and Feature types plus a pillar-grouped routing table (`maps.infra`, `maps.values`) naming the Feature schema properties each annotation may populate. The annotation-expansion sub-phase of resolution walks Release boundaries outer-to-inner and Aggregate subsystems outer-to-inner, computes effective per-component annotation sets via cascade and override with whole-value and per-subkey null opt-out, and injects synthetic Feature attachments with `Origin: "annotation"` IR provenance. The full binding-shape and authoring teaching live at [`language-reference/entities/manifest.md`](../language-reference/entities/manifest.md) and [`language-reference/providers/well-known-annotations.md`](../language-reference/providers/well-known-annotations.md); this section documents the catalog-load-time and inspect-time mechanics the expansion path relies on.
 
 **Schema compile cache.** Each Feature's `spec.schema.{infra,values}` is compiled once per build into a resolver-context-scoped cache and reused across cascade walks. Repeated per-subkey type validation against the same Feature schema (one cascade scope per component for hundreds of components in a deployment) reads from the cache rather than re-compiling. The cache lifetime is one build; cross-build invalidation is automatic via the resolver context's per-build lifetime.
 
@@ -470,4 +470,4 @@ The Manifest's `mappings.features.annotations` block declares bindings between a
 * `[annotation: <key> from <source>]` — every populated leaf came from the same annotation key. The bracket names the key and the file:line source location.
 * Per-leaf brackets — cross-side composition where each populated leaf is rendered with its own source bracket (some `[explicit]`, some `[annotation: <key> from <source>]`). This shape surfaces the IR builder's explicit-wins-per-field merge: when an explicit attachment and an annotation contribution target the same Feature instance on the same Component but write different leaves, both contributions stand on their respective leaves and the inspect output names each leaf's source individually.
 
-The inspect rendering reads the IR's per-pillar `ValuesProvenance` and `InfraProvenance` maps (each `OrderedMap[FieldProvenance]`) — populated during Step 1 expansion alongside the synthetic attachment injection — and emits the bracket form that best summarises the leaves' collective source. The inspect mechanism is the canonical introspection surface for understanding why a given Feature attachment landed on a given Component and where its values came from.
+The inspect rendering reads the IR's per-pillar `ValuesProvenance` and `InfraProvenance` maps (each `OrderedMap[FieldProvenance]`) — populated during annotation expansion alongside the synthetic attachment injection — and emits the bracket form that best summarises the leaves' collective source. The inspect mechanism is the canonical introspection surface for understanding why a given Feature attachment landed on a given Component and where its values came from.
