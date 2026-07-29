@@ -36,10 +36,10 @@ spec:
 All internal components (e.g., `acme/postgres`) must use `extends: "acme/corporate-baseline"`.
 
 **The Wasm Validation Failsafe:**
-To prevent a developer from bypassing the internal catalog and pulling a naked `core/postgres` component directly from the public hub, the enterprise registers a topological validation plugin (executed in Step 4).
+To prevent a developer from bypassing the internal catalog and pulling a naked `core/postgres` component directly from the public hub, the enterprise registers a topological validation plugin. It is evaluated during static analysis — after the graph is assembled and before any artifact is rendered — which is why it sees the whole topology rather than one component at a time.
 
 ```javascript
-// Evaluated by the governance ir-verdict role in Step 4
+// Evaluated by the governance ir-verdict role over the assembled graph
 export function validate(graph) {
     let failures = [];
     for (const [id, node] of Object.entries(graph.nodes)) {
@@ -63,10 +63,10 @@ Relying on out-of-band mechanisms (like `CODEOWNERS` on a git repository) to gov
 
 Developers should not be forced to manually type environmental compliance tags (e.g., `environment: production` or `soc2_in_scope: true`) into their `Aggregate`, as these change depending on the GitOps target.
 
-For dynamic metadata, enterprises utilize the **Mutation Gate (the governance socket's `label-transform` role) in Step 2**. After the AST is expanded, the compiler executes the Wasm mutation plugin authored by the enterprise. This plugin silently evaluates the deployment context and returns JSONPatches to inject the required metadata directly into the component's labels, completely bypassing the developer's YAML (e.g., injecting the label `compliance.aggrega.ai/data-class: restricted` based on environment boundaries).
+For dynamic metadata, enterprises utilize the **Mutation Gate — the governance socket's `label-transform` role**, which runs during topology construction. After the graph is expanded, and before static analysis evaluates it, the compiler executes the Wasm mutation plugin authored by the enterprise. This plugin silently evaluates the deployment context and returns JSONPatches to inject the required metadata directly into the component's labels, completely bypassing the developer's YAML (e.g., injecting the label `compliance.aggrega.ai/data-class: restricted` based on environment boundaries).
 
 ```javascript
-// Evaluated by the governance label-transform role in Step 2
+// Evaluated by the governance label-transform role, during topology construction
 // Silently returns a JSONPatch to tag the node based on the physical Release parameters
 export function mutate(context, graph) {
     let patches = [];
@@ -80,7 +80,7 @@ export function mutate(context, graph) {
 }
 ```
 
-Because these tags are silently injected into the standard metadata dictionary in-memory, Wasm rendering plugins can easily read them to conditionally generate specific physical configurations (like hardened AWS or Kubernetes resources) during Step 5.
+Because these tags are injected into the standard metadata dictionary in-memory before rendering begins, Wasm rendering plugins can read them to conditionally generate specific physical configurations — hardened AWS or Kubernetes resources, for instance — as artifacts are rendered.
 
 **Stating a rule once: governance attachments are workspace-scoped.**
 The two patterns above are authored per component and per Feature, but the governance attachment that enforces them is not. A governance plugin is attached at the workspace configuration's `plugins.governance` key, and that attachment binds **every build in the workspace**. A corporate rule is therefore stated in exactly one place: the platform team attaches the plugin once, and no component, Aggregate or Release has to opt in, mention it, or be edited for it to apply. This is what makes the validation failsafe in pattern 1 a complete answer rather than a per-project convention — a developer who bypasses the internal catalog and requests a naked `core/postgres` is evaluated by the same attached policy as everyone else, because the policy is a property of the workspace rather than of the component they chose.
