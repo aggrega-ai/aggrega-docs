@@ -212,7 +212,7 @@ A Recipe's `source` field is itself a templating surface. Both shapes of `source
   source: "{{ optional .infra `module_path` \"./src\" }}"
 ```
 
-and the structured-object form (each string-valued sub-field is template-evaluated; non-string sub-fields pass through). Templates evaluate in Phase B.0 with the same self-contained context as Recipe `provides` — `.context.instance_id`, `.values`, `.infra`, and the same node's resolved `.provides`. References to `.context.inject` and `.context.uses` are forbidden; the source URI must resolve before the topology pipe is hydrated and before downstream sub-passes load the chart, module, or artifact body the URI points at. The full availability rules and forbidden-reference rationale live in [Template Expansion Matrix row #5](../templates/expansion-matrix.md). The canonical use is a Component-exposed `infra.source_version` override threaded into the source's version field — see [entities/component](component.md) "The `infra` Pillar" — so a catalog need not republish a Recipe on every compatible upstream version bump.
+and the structured-object form (each string-valued sub-field is template-evaluated; non-string sub-fields pass through). Templates evaluate at source resolution with the same self-contained context as Recipe `provides` — `.context.instance_id`, `.values`, `.infra`, and the same node's resolved `.provides`. References to `.context.inject` and `.context.uses` are forbidden; the source URI must resolve before the topology pipe is hydrated and before anything downstream loads the chart, module, or artifact body the URI points at. The full availability rules and forbidden-reference rationale live in [Template Expansion Matrix row #5](../templates/expansion-matrix.md). The canonical use is a Component-exposed `infra.source_version` override threaded into the source's version field — see [entities/component](component.md) "The `infra` Pillar" — so a catalog need not republish a Recipe on every compatible upstream version bump.
 
 **Source field scheme inventory.**
 The `source:` field accepts several shape variants in the schema. Each variant's runtime support varies per provider engine; the table below documents what ships today and what is reserved for future provider work.
@@ -341,7 +341,7 @@ spec:
         existingSecret: "{{ .locals.secret_target_db_password }}"
 ```
 
-`locals:` is never exposed to callers — downstream components consuming this Recipe via `uses:` see only `provides:`. The Recipe's own `provides:`, `source:`, `valuesMapping:`, `workload:`, `artifacts:`, `assertions:`, and `pipeline[].with` templates all see the resolved `.locals.*` map. Per-key values may be plain strings or Go templates; the compiler resolves the whole block in the preamble of Pass 1, ahead of that node's `provides:`, so every later template observes stable resolved values.
+`locals:` is never exposed to callers — downstream components consuming this Recipe via `uses:` see only `provides:`. The Recipe's own `provides:`, `source:`, `valuesMapping:`, `workload:`, `artifacts:`, `assertions:`, and `pipeline[].with` templates all see the resolved `.locals.*` map. Per-key values may be plain strings or Go templates; the compiler resolves the whole block in the locals preamble, ahead of that node's `provides:`, so every later template observes stable resolved values.
 
 Each entry evaluates against a self-contained node-local context: `.context.instance_id`, `.values`, `.infra`, and the entries of this same block already resolved. A local cannot read `.provides` — that pillar is not on this surface, and an entry reaching for it halts.
 
@@ -371,7 +371,7 @@ For the public-API counterpart, see [The `provides:` block](#the-provides-block)
 
 ## The `provides:` block
 
-`Recipe.spec.provides:` is the **Public Developer API** — a map of name → Go template string declaring the values this Recipe contributes to downstream callers' `.context.inject` and `.context.uses` pipes. The compiler evaluates `provides:` templates in Pass 1 (self-contained, any order); callers' `inject` keys resolve against these values in Pass 2.
+`Recipe.spec.provides:` is the **Public Developer API** — a map of name → Go template string declaring the values this Recipe contributes to downstream callers' `.context.inject` and `.context.uses` pipes. The compiler evaluates `provides:` templates at provides evaluation (self-contained, any order); callers' `inject` keys resolve against these values at inject hydration.
 
 ```yaml
 spec:
@@ -383,7 +383,7 @@ spec:
     database: "{{ .values.db_name }}"
 ```
 
-Each entry's template evaluates against the self-contained Pass 1 surface — `.context.instance_id`, `.values`, `.infra`, the node's resolved `.locals`, and static text. `.locals` is on it because the node's locals resolve in the preamble of the same pass, ahead of its provides; a `provides` template naming a key the locals block does not declare halts. The Pass 1 / Pass 2 split is load-bearing: a Recipe's `provides:` cannot reference any caller's state because callers haven't been resolved yet at Pass 1 — `provides:` is self-contained per the architectural invariant. Callers then read these values via `.context.uses.<alias>.provides.<provided-name>` in their own templates — the provided names nest under `provides` on the edge, alongside the edge's other fields. A caller that declares an `inject:` allowlist on the edge reaches the same values through its `.context.inject` pipe instead.
+Each entry's template evaluates against the self-contained provides-evaluation surface — `.context.instance_id`, `.values`, `.infra`, the node's resolved `.locals`, and static text. `.locals` is on it because the node's locals resolve in the preamble of the same stage, ahead of its provides; a `provides` template naming a key the locals block does not declare halts. Separating provides evaluation from inject hydration is load-bearing: a Recipe's `provides:` cannot reference any caller's state because callers have not been resolved when provides evaluation runs — `provides:` is self-contained per the architectural invariant. Callers then read these values via `.context.uses.<alias>.provides.<provided-name>` in their own templates — the provided names nest under `provides` on the edge, alongside the edge's other fields. A caller that declares an `inject:` allowlist on the edge reaches the same values through its `.context.inject` pipe instead.
 
 `provides:` keys are part of the Recipe's contract surface. Renaming or removing a key is a breaking change for every caller relying on the old name; the `implements:` interface version should reflect the contract evolution. For the cascade resolution semantics, the inject-pipe contract, and worked examples covering cross-namespace and cross-region routing, see [architecture/06-data-taxonomy-and-composition.md §3](../../architecture/06-data-taxonomy-and-composition.md) and [templates/expansion-matrix.md](../templates/expansion-matrix.md).
 

@@ -477,14 +477,14 @@ The Release supplies parameter values for production. The Aggregate's typed-para
 
 `aggrega build --release releases/prod-release.yaml` runs the compilation pipeline:
 
-1. **Step 1.** Parameter contract validation against the Aggregate's typed `parameters:` declarations; Release overrides applied; defaults filled; interpolation into the Aggregate's `components.X.values:` templates; parameter purge.
-2. **Step 2.** Graph assembly; `db` and `api` Components instantiated; dependency edge `api → db` recorded.
-3. **Step 3.** Selector resolution; `api`'s `primary_db: db` resolves to the `db` Component instance.
-4. **Step 4a.** Schemas resolved (compact form → JSON Schema 2020-12; SchemaLibrary `MariaDBPayload` resolved via cross-document `$ref:` expansion); instances validated against the resolved schemas.
-5. **Step 4b.** Component assertions evaluated (the four rules from the MariaDB Component's `assertions:` block); pass.
-6. **Step 5a.** Recipes bound per the Manifest's flat URI mapping (MariaDB → helm/mariadb-bitnami; api → helm/checkout-api); credential Features attached per `featuresSchema:` × Manifest's `features.type` mapping.
-7. **Step 5b.** Recipe assertions evaluated (the two Bitnami-specific rules from the Recipe's `assertions:` block); pass.
-8. **Step 5c.** Rendering. MariaDB Recipe's `valuesMapping:` (loaded from the MappingLibrary entry) renders into Helm chart values:
+1. **Resolution.** Parameter contract validation against the Aggregate's typed `parameters:` declarations; Release overrides applied; defaults filled; interpolation into the Aggregate's `components.X.values:` templates; parameter purge.
+2. **Topology construction.** Graph assembly; `db` and `api` Components instantiated; dependency edge `api → db` recorded.
+3. **Graph finalization.** Selector resolution; `api`'s `primary_db: db` resolves to the `db` Component instance.
+4. **Schema validation.** Schemas resolved (compact form → JSON Schema 2020-12; SchemaLibrary `MariaDBPayload` resolved via cross-document `$ref:` expansion); instances validated against the resolved schemas.
+5. **Assertion evaluation.** Component assertions evaluated (the four rules from the MariaDB Component's `assertions:` block); pass.
+6. **Recipe binding.** Recipes bound per the Manifest's flat URI mapping (MariaDB → helm/mariadb-bitnami; api → helm/checkout-api); credential Features attached per `featuresSchema:` × Manifest's `features.type` mapping.
+7. **Recipe assertion evaluation.** Recipe assertions evaluated (the two Bitnami-specific rules from the Recipe's `assertions:` block); pass.
+8. **Rendering.** MariaDB Recipe's `valuesMapping:` (loaded from the MappingLibrary entry) renders into Helm chart values:
 
 ```yaml
 # Rendered chart values for MariaDB (excerpt)
