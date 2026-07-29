@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: extends-wrapper-unreviewed
+  version: "1.0.0"
+  description: >
+    The control for aggregate-reviewed.yaml, and expected to fail. It is that
+    file with one edit: the internal tier is declared as the bare
+    core/gateway/nginx base instead of the published wrapper. The base carries no
+    reviewed-tier label, so the edge tier's `reviewed_upstream` socket rejects it
+    and the build halts. The halt is the lesson — it shows the wrapper's added
+    label is what makes it selectable.
+spec:
+  components:
+    edge:
+      type: example/gateway/nginx-reviewed
+      values:
+        upstream_path: /api/
+      uses:
+        reviewed_upstream:
+          internal:
+            target: internal
+            inject:
+              env:
+                - in: NGINX_UPSTREAM_HOST
+                  from: host
+                - in: NGINX_UPSTREAM_PORT
+                  from: port
+
+    internal:
+      # The only edit: the bare base. It satisfies the base's own `upstream`
+      # socket (component.aggrega.ai/type=server) and it is wired the same way
+      # below, but it does not satisfy the wrapper's `reviewed_upstream`
+      # selector, so the edge above cannot reach it.
+      type: core/gateway/nginx
+      values:
+        upstream_path: /
+      uses:
+        upstream:
+          console:
+            target: console
+            inject:
+              env:
+                - in: NGINX_UPSTREAM_HOST
+                  from: host
+                - in: NGINX_UPSTREAM_PORT
+                  from: port
+
+    console:
+      type: core/devtool/adminer
+      values:
+        design: pepa-linha-dark

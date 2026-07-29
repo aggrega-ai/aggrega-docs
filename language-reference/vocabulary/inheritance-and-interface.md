@@ -78,6 +78,8 @@ When the mapped type's `extends` chain cannot be walked — it forms a loop, or 
 
 Recipe **suggestions** stay narrower than this matching rule. The candidate list a no-mapping diagnostic prints, and the ordering editor completion applies to a mapping value, name the recipes implementing the requested type itself; they do not widen to recipes implementing one of its bases.
 
+For a runnable end-to-end walkthrough — a published wrapper in the catalog, the one Manifest line that consumes it, the base's Recipe shaping its rendered output, and the halt a wrapper instance with no mapping of its own produces — see the worked example [`examples/extends-wrapper/`](../examples/extends-wrapper/).
+
 ## Cross-entity version consumption
 
 The 'Resolution precedence' framing in the section above describes the design target; the table below describes what the resolver matches against today.
