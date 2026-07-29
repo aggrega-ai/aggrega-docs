@@ -80,7 +80,7 @@ The graph is a labels-only projection (nodes carry their resolved label sets; th
 
 Each patch addresses a specific node's labels via [JSON Pointer (RFC 6901)](https://datatracker.ietf.org/doc/html/rfc6901); the host applies the patches in array order and re-ingests the mutated label set into the IR graph. The label-transform role's job is enterprise auto-tagging — adding compliance / observability / cost-attribution labels declared by enterprise policy without modifying catalog content. The label surface is this role's only sanctioned target: a patch that touches a node field other than its labels, adds or removes a node, or sets a non-string label value halts the build rather than being silently absorbed. RFC 6901 is the path-grammar baseline for every document-path surface in Aggrega — the Wasm plugin contract here, plus `.locals` `*_path` exports, plus the `*Path` schema fields elsewhere in the corpus. See [`02-naming-conventions.md`](../02-naming-conventions.md) "Document-path naming-suffix discipline" for the canonical baseline declaration and the `*Path` / `*_path` suffix discipline that distinguishes the two authoring sides.
 
-**Type definitions.** [`internal/compiler/topology/wasm_types_gen.go`](../../../aggrega-cli/internal/compiler/topology/wasm_types_gen.go) carries `MutatorInput`, `MutatorOutput`, `CompilationContext`, `MutatorGraph`, `MutatorNode`; [`internal/compiler/topology/mutator.go`](../../../aggrega-cli/internal/compiler/topology/mutator.go) carries the host-side assembler and patch application.
+**Type definitions.** The mutator wire types — `MutatorInput`, `MutatorOutput`, `CompilationContext`, `MutatorGraph`, `MutatorNode` — are published in all three ABI packages (`github.com/aggrega-ai/aggrega-abi-go`, the `aggrega-abi` crate, and `@aggrega-ai/aggrega-abi`), generated from one codec so the three stay in lockstep. The host assembles the input and applies the patches the guest returns.
 
 ### The verdict roles — verdict array output
 
@@ -93,7 +93,7 @@ the pipeline placement and the typed wire shapes.
 
 **Pipeline placement.** A policy is attached at exactly one verdict role, which fixes where it evaluates:
 
-- `ir-verdict` — evaluated at static analysis, before base rendering. The analyzer assembles the payload on every build via [`internal/compiler/analyzer/analyzer.go`](../../../aggrega-cli/internal/compiler/analyzer/analyzer.go) `assemblePolicyInput()`.
+- `ir-verdict` — evaluated at static analysis, before base rendering. The analyzer assembles the payload on every build.
 - `render-verdict` — evaluated after render, over the emitted artifacts.
 
 When a workspace attaches a verdict-role plugin, the pipeline marshals that role's payload to the plugin and reads its verdicts back.
@@ -111,7 +111,7 @@ Both roles additionally carry the attachment's `sources` (policy-definition file
 
 Only fired verdicts appear; an allowing evaluation returns an empty array. The host walks the verdicts and maps each severity to an action: `deny` halts the build (surfacing every `deny` message), `warn` flags the verdict and lets the build proceed, `audit` records it without affecting the outcome. A `deny` halts through the same gate a selector or `appliesTo` violation uses.
 
-**Type definitions.** [`internal/compiler/analyzer/wasm_types.go`](../../../aggrega-cli/internal/compiler/analyzer/wasm_types.go) carries `PolicyInput` (ir-verdict role) and `RenderPolicyInput` (render-verdict role), the shared `PolicySource`, `PolicyOutput`, `PolicyResult`, and the `deny` / `warn` / `audit` severity constants.
+**Type definitions.** The policy wire types are published in the same three ABI packages: `PolicyInput` (ir-verdict role), `RenderPolicyInput` (render-verdict role), the shared `PolicySource`, and `PolicyOutput`, whose `results` entries are `Diagnostic` values. A diagnostic's severity is an open string so each socket keeps its own vocabulary; a policy reports `deny`, `warn`, or `audit`, and a `deny` halts the build.
 
 ## Output shape contract — the FeatureRecipe pipeline and provider sockets
 
