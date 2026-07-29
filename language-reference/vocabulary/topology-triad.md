@@ -7,7 +7,7 @@ Because Aggrega is an Ahead-of-Time (AOT) static compiler, no data flows backwar
 Instead, the platform relies on **True Control Inversion**. When a developer writes `inject: { env: { ORACLE_PASSWORD: "password" } }`, they are not initiating a data fetch; they are dictating a strict contract to the infrastructure.
 
 1. **The Intent (Domain 1):** The Developer declares an abstract interface: *"I require a secret. I don't know where it lives. Just inject it into my environment as `ORACLE_PASSWORD` mapping to the catalog's `password` key."*
-2. **The Compiler Transfer (Step 5):** The Go compiler takes the mapping `{ ORACLE_PASSWORD: "password" }` and hands it to the Ops Recipe. No physical secret is fetched.
+2. **The Compiler Transfer (at rendering):** The Go compiler takes the mapping `{ ORACLE_PASSWORD: "password" }` and hands it to the Ops Recipe. No physical secret is fetched.
 **3. The Plugin Output (Domain 3):** The credential FeatureRecipe's Wasm pipeline generates the precise interlocking artifacts required by the target infrastructure. For example, in Kubernetes, it outputs the `ExternalSecret` CRD (instructing the cluster to fetch the vault data) **AND** executes a JSONPatch against the target Pod to map the resulting local K8s Secret specifically to the developer's requested `"ORACLE_PASSWORD"` environment variable.
 **4. The Runtime Reality:** At runtime, the an operator in cluster simply executes these generated artifacts—fetching the credential and physically mounting it into the container—completely decoupling the physical security mechanics from the AOT compiler.
 
@@ -19,7 +19,7 @@ To deliver this physical reality to the application without violating the Separa
 **The Deterministic Addressing Rule (Internal Network Physics)**
 Aggrega's `.context.uses` pipe dynamically injects target strings into containers at compile time. Because the core Go compiler is completely blind to physical networking, what counts as a valid address string relies entirely on a **Social Contract** upheld by Platform Ops, not a compiler function — the compiler pipes whatever deterministic pointer string the Ops Recipe produced into the downstream template context without interpretation.
 
-**The Rule: The Ops Recipe must export a deterministic, stable address pointer.** The Provider Engine (Step 5) does not calculate IPs. Instead, the target's Ops Recipe *should* formulate a predictable string and expose it via the `.locals` contract (e.g., exporting `.locals.internal_host: "http://agent-b.namespace.svc.cluster.local"` in Kubernetes, or an interpolation string like `"${aws_db_instance.main.endpoint}"` in Terraform).
+**The Rule: The Ops Recipe must export a deterministic, stable address pointer.** The Provider Engine does not calculate IPs. Instead, the target's Ops Recipe *should* formulate a predictable string and expose it via the `.locals` contract (e.g., exporting `.locals.internal_host: "http://agent-b.namespace.svc.cluster.local"` in Kubernetes, or an interpolation string like `"${aws_db_instance.main.endpoint}"` in Terraform).
 
 Relying on the compiler to fetch post-provisioning dynamic IPs directly violates the AOT execution model. Because the compiler evaluates the topology *before* the cloud provisions any actual compute, it cannot physically fetch data that does not yet exist. If a service requires a random IP that is only generated after the compute boots, the compiler cannot physically fetch it. The compiler's only job is to blindly pipe the deterministic pointer string provided by the Ops Recipe into the calling container's environment variables, leaving the final resolution to the cluster's DNS or the active IaC state manager.
 
@@ -78,7 +78,7 @@ components:
         LOG_LEVEL: "debug"                 # Compact: literal value
       env:                                 # Verbose form (same mechanism, different syntax)
         - in: CALLBACK_HOST
-          from: "host"                     # From own provides (resolved in Pass 1)
+          from: "host"                     # From own provides (already evaluated)
         - in: APP_VERSION
           value: "{{ .values.app_token }}" # Go template expanding own values
     uses:

@@ -45,7 +45,7 @@ An attachment whose instance name matches a declared slot **fills** that slot. A
 Two things a slot may constrain:
 
 - **`inject`** — the delivery mechanisms a Workload may select for what fills the slot. An empty list is a *blackbox* slot: the Recipe's own plumbing delivers it (a chart's `existingSecret` knob, for instance), and a Workload may not reference it from a container.
-- **`selector`** — a label-selector string the filling Feature's labels must satisfy. This is where the `kind=secret` label earns its keep: an entity author who wants a slot filled only by a credential says so with a selector, and the check is a label-set evaluation the compiler performs at Step 4.
+- **`selector`** — a label-selector string the filling Feature's labels must satisfy. This is where the `kind=secret` label earns its keep: an entity author who wants a slot filled only by a credential says so with a selector, and the check is a label-set evaluation the compiler performs during static analysis.
 
 Slot `required` is declared on the surface today; the presence mandate that halts a build for a missing attachment is expressed instead by the repeatable Component annotation `features.aggrega.ai/requiredType.<label>`, which names a Feature type the deployment must attach.
 

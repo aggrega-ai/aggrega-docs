@@ -47,7 +47,7 @@ spec:
 * Nested boundaries do not implicitly inherit. A nested boundary that does not declare `syncWave` defaults to `0` regardless of the outer boundary's declaration. Operators wanting "all of `outer` is wave 1, including its `inner` sub-boundary" declare `syncWave: 1` on both.
 
 **The Compiler Effect:**
-When the Infrastructure Rendering Engine (Step 5) generates artifacts, it propagates each boundary's wave value to every rendered manifest in that boundary. Provider engines emit native sequencing primitives:
+When the Infrastructure Rendering Engine generates artifacts, it propagates each boundary's wave value to every rendered manifest in that boundary. Provider engines emit native sequencing primitives:
 
 * **For Kubernetes (ArgoCD/Flux):** the helm and helm-chart engines emit `argocd.argoproj.io/sync-wave: "<N>"` as a `metadata.annotations` entry on every rendered manifest. Helm hook resources additionally receive `helm.sh/hook-weight: "<N>"` for native Helm hook ordering.
 * **For Compose:** no per-resource sequencing primitive exists; operators sequence at the `docker compose up` invocation layer, applying per-boundary compose projects in declared order.

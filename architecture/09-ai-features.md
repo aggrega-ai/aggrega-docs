@@ -34,7 +34,7 @@ To maintain an unopinionated core catalog, official components follow this stand
 
 1. **The Naked Base:** The root-level open-source `Component` contains exactly **ONE** hardcoded label: the 7-Type Primitive (`component.aggrega.ai/type`). A Postgres database is objectively a `stateful-server`; that fact cannot change.
 2. **The Flavored Interfaces (Schema Inheritance):** To use semantic labels for strict policy evaluation, Architects create specifically flavored interfaces using Two-Tiered Inheritance. (e.g., `core/postgres-vector` extends `core/postgres-base` and explicitly appends the `datastore.aggrega.ai/engine: "vector"` label).
-3. **The Dynamic Mutator (Wasm Promotion):** If a trait is dictated by the developer's payload (e.g., `enable_vector: true`), the enterprise uses the governance socket's `label-transform` role in Step 2 to dynamically read the opaque `values` and automatically inject the `engine: vector` label into the IR Graph before policies run.
+3. **The Dynamic Mutator (Wasm Promotion):** If a trait is dictated by the developer's payload (e.g., `enable_vector: true`), the enterprise uses the governance socket's `label-transform` role at topology construction to dynamically read the opaque `values` and automatically inject the `engine: vector` label into the IR Graph before policies run.
 
 **The Enterprise Exception:** Because the compiler is completely mathematically unopinionated, enterprises authoring their own internal catalogs are free to break this rule. If a corporate security policy dictates that *all* internal databases are highly sensitive, the Platform Architect can and should hardcode `compliance.aggrega.ai/data-class: restricted` (or a company dictated similar label) directly onto their `acme/postgres` base component to enforce maximum rigidity.
 
@@ -211,7 +211,7 @@ To build the IR graph without hardcoded orchestrator rules, the compiler uses a 
 
 * **AST Variable Interpolation:** Developers intuitively link components within their `values` definitions (e.g., referencing a database map ID).
 * **Dynamic Schema Extension:** The Component's `schema:` declaration restricts `uses` and enforces that inputs are valid component references.
-* **Cross-Node Type Safety:** The `usesSchema` selector strings act as explicit out-of-band instructions, evaluated natively by the Go compiler's label-matching engine in Step 4. They guarantee that developers cannot accidentally wire standard components into sockets that require a specific AI-native capability or compliance label.
+* **Cross-Node Type Safety:** The `usesSchema` selector strings act as explicit out-of-band instructions, evaluated natively by the Go compiler's label-matching engine during static analysis. They guarantee that developers cannot accidentally wire standard components into sockets that require a specific AI-native capability or compliance label.
 
 ### 11. Automated Design of Agentic Systems (ADAS)
 

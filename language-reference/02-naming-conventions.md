@@ -26,7 +26,7 @@ features:
 |--------------------|----------------------------------|------------------------------------------|
 | `^[a-zA-Z0-9_-]+$` | All user-authored instance names | `web-server`, `openai_key`, `pii-filter` |
 
-The pattern is enforced at Step 1 via JSON Schema `patternProperties`.
+The pattern is enforced at resolution via JSON Schema `patternProperties`.
 
 ## The Dot as a Reserved Path Separator
 
@@ -37,7 +37,7 @@ When a root Aggregate imports a sub-aggregate named `data-layer` containing a co
 * **Developer `uses` targets:** `target: data-layer.public_db` — referencing an exported component from a nested aggregate.
 * **Recipe template context:** `{{ .context.instance_id }}` receives the full dotted path as the Recipe's identity string when rendering artifacts for the component.
 
-Socket names in a developer's `uses` block must match a key in the catalog entity's `usesSchema`. A `uses` socket with no matching `usesSchema` key fails with an unknown-uses-socket validation error at Step 1. A catalog entity with no `usesSchema` at all cannot have instances that declare `uses`.
+Socket names in a developer's `uses` block must match a key in the catalog entity's `usesSchema`. A `uses` socket with no matching `usesSchema` key fails with an unknown-uses-socket validation error at resolution. A catalog entity with no `usesSchema` at all cannot have instances that declare `uses`.
 
 ## Field Casing
 
@@ -78,7 +78,7 @@ The three casings are not interchangeable. A Recipe author who writes `{{ .conte
 
 A subset of fields across the language carry document-path values — strings that point at a position inside another document (a rendered Workload's volumes section, a Component's featuresSchema entry, a Manifest's mappings tier). The values follow [RFC 6901 JSON Pointer](https://datatracker.ietf.org/doc/html/rfc6901) syntax — slash-separated tokens identifying the path through the target document.
 
-**RFC 6901 is the path-grammar baseline for every document-path surface in Aggrega.** The Wasm plugin contract consumes RFC 6901 patches (per [`plugins/plugin-contract.md`](plugins/plugin-contract.md) `label-transform` role JSONPatch output); the URI grammar's format-string inventory names RFC 6901 alongside Go template syntax and Sprig helpers (per [`vocabulary/uri-grammar.md`](vocabulary/uri-grammar.md) "Format-string inventory"); the per-Recipe `.locals` exports use RFC 6901 to point at synthesised-Workload positions Wasm Injector plugins receive at Phase C through their step's `with` payload. One grammar, multiple consuming surfaces.
+**RFC 6901 is the path-grammar baseline for every document-path surface in Aggrega.** The Wasm plugin contract consumes RFC 6901 patches (per [`plugins/plugin-contract.md`](plugins/plugin-contract.md) `label-transform` role JSONPatch output); the URI grammar's format-string inventory names RFC 6901 alongside Go template syntax and Sprig helpers (per [`vocabulary/uri-grammar.md`](vocabulary/uri-grammar.md) "Format-string inventory"); the per-Recipe `.locals` exports use RFC 6901 to point at synthesised-Workload positions Wasm Injector plugins receive in the plugin pipeline through their step's `with` payload. One grammar, multiple consuming surfaces.
 
 **The naming-suffix discipline** distinguishes the two authoring sides of these path values via a deliberate suffix split aligned with the broader Field Casing section above:
 

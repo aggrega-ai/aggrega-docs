@@ -51,7 +51,7 @@ The socket type this plugin implements. It sits in the addressing block beside `
 - `provider` — renders IR nodes into provider-native artifacts.
 - `linter` — inspects authored content and raises diagnostics.
 - `frp_step` — a feature-recipe-pipeline step that transforms IR within a pipeline.
-- `governance` — serves the build-pipeline governance roles. At Step 2 it auto-tags topology-graph node labels, returning JSON Patch documents the host applies to a labels-only projection of the graph. At Step 4 or the render stage it evaluates the IR graph or the rendered artifacts and returns an accept/reject verdict; a failed rule halts the build. The role it is attached at, not its kind, fixes what it may emit.
+- `governance` — serves the build-pipeline governance roles. At topology construction it auto-tags topology-graph node labels, returning JSON Patch documents the host applies to a labels-only projection of the graph. At static analysis or the render stage it evaluates the IR graph or the rendered artifacts and returns an accept/reject verdict; a failed rule halts the build. The role it is attached at, not its kind, fixes what it may emit.
 - `parser` — parses a foreign source format (HCL, TOML, YAML, JSON, …) into a structured JSON tree, so a consumer that needs to read a format the compiler does not parse natively works from a parsed tree rather than the raw text.
 - `importer` — turns a foreign infrastructure or agent-definition source into draft Aggrega authoring files, advertising the formats it handles as `import:<format>` capabilities.
 - `cli` — contributes a runtime `aggrega <cmd>` subcommand an operator invokes at the command line. A runtime socket, distinct from the compile-time render and pipeline sockets.

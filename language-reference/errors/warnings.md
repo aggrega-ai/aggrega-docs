@@ -48,7 +48,7 @@ LINT: Manifest annotation binding 'compliance.aggrega.ai/data-class' on Feature 
 
 **Why it exists.** Declaring a slot does not close the attachment surface: an attachment under a name no slot declares is legal, because that openness is what lets one catalog entity serve both a slot-filled attachment and a credential shared at a broader scope. The cost is that a misspelled slot name is silently a *free attachment* rather than a fill of the slot the author meant — the build succeeds and the slot simply stays empty. The lint is the disclosed mitigation for exactly that case.
 
-**Pipeline placement.** The lint runs at Step 1, in the same pass as the catalog-aware semantic guards, over the resolved Aggregate. It walks every component instance's attachment names against the declared slot names of that instance's Component type, and emits one warning per near-miss pair.
+**Pipeline placement.** The lint runs at resolution, in the same pass as the catalog-aware semantic guards, over the resolved Aggregate. It walks every component instance's attachment names against the declared slot names of that instance's Component type, and emits one warning per near-miss pair.
 
 **Emit shape:**
 
@@ -66,7 +66,7 @@ LINT: Aggregate 'nearmiss' at .spec.components["db"].features["app_user_passwrod
 
 **Fires when** a Recipe's template body — `valuesMapping:`, `workload:`, `artifacts:`, `provides:`, `pipeline[].with`, FeatureRecipe `injectMapping:` — references a strict subset of the keys present on the node's `.values` and `.infra` pillars. The "ghost" keys (keys the pillars carry but the template never reads) become silent infrastructure: configuration the developer asked for that the Recipe never wired into the rendered output. The tracker surfaces these so the developer can see configuration drift between intent and rendering.
 
-**Pipeline placement.** The tracker runs in the renderer's Phase B, alongside template evaluation. Each Recipe's template AST is parsed and walked to collect the set of dot-qualified field paths it references (e.g., `.values.port`, `.infra.replicas`). The compiler compares this set against the resolved key set in the node's `.values` and `.infra` pillars; the difference is the unread set.
+**Pipeline placement.** The tracker runs at base rendering, alongside template evaluation. Each Recipe's template AST is parsed and walked to collect the set of dot-qualified field paths it references (e.g., `.values.port`, `.infra.replicas`). The compiler compares this set against the resolved key set in the node's `.values` and `.infra` pillars; the difference is the unread set.
 
 **Emit shape:**
 

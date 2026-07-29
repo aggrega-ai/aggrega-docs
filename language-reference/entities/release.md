@@ -72,7 +72,7 @@ spec:
     region: "us-east-1"
 ```
 
-Each value passes the Aggregate-declared schema check at Step 1a — the parameter-contract layer — and the compiler emits clear `ErrParameterContractViolation` / `ErrParameterMissing` errors when a Release omits a required parameter or supplies a value of the wrong type. Parameters declared with a `default:` receive the default when the Release omits the slot; the typed contract is the only authoring vocabulary.
+Each value passes the Aggregate-declared schema check at the parameter-contract layer, and the compiler emits clear `ErrParameterContractViolation` / `ErrParameterMissing` errors when a Release omits a required parameter or supplies a value of the wrong type. Parameters declared with a `default:` receive the default when the Release omits the slot; the typed contract is the only authoring vocabulary.
 
 **Two authoring modes — content-shape dispatch.** `parameters:` accepts either an inline YAML map (Mode 1, shown above) or a single `$import:` key pointing at a local file (Mode 2):
 

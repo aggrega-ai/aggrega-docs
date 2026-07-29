@@ -165,9 +165,9 @@ The six steps from developer authoring to compiled output, using the referenceab
     ```
 
 5. **Compilation runs:**
-    - Step 1 validates the attachment against the auto-generated schema rules derived from the Component's `featuresSchema`.
+    - Resolution validates the attachment against the auto-generated schema rules derived from the Component's `featuresSchema`.
     - The credential FeatureRecipe's `provides` is evaluated once, producing the slot's `name` and `key`. Because the FeatureRecipe's emitted Secret derives its `metadata.name` from `{{ .provides.name }}` and the consumer reads `.features.root_password.provides.name`, both sides resolve from that single evaluation — the rendered Secret name and the consumer's reference are the same string by construction.
-    - Phase B evaluates the base Recipe's `valuesMapping` (Helm renders the MariaDB chart referencing the published Secret name) and the `k8s-secret-from-parameter` FeatureRecipe's `artifacts:` (emitting the Kubernetes Secret manifest with the matching name).
+    - Base rendering evaluates the base Recipe's `valuesMapping` (Helm renders the MariaDB chart referencing the published Secret name) and the `k8s-secret-from-parameter` FeatureRecipe's `artifacts:` (emitting the Kubernetes Secret manifest with the matching name).
 
 6. **Output:** `dist/boundaries/production/` contains the MariaDB Deployment and Service (from the base Recipe) plus a Kubernetes Secret (from the credential FeatureRecipe). The Deployment's `auth.existingSecret` references the same name the Secret carries.
 

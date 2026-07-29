@@ -85,7 +85,7 @@ Among the five structural keywords, `inject` carries a different shape than its 
 
 This decoupling is structural. The Developer's Aggregate says "inject the database host as the environment variable `DB_HOST`" without naming the database's physical address, the secret store's vault path, or the cloud provider's hostname format. The Ops Recipe receives the resolved string through `.context.inject` and consumes it without authoring the lookup chain.
 
-**The Pre-Resolved Map.** During Step 5 of the compilation pipeline, the compiler resolves every inject source — self-inject literals and `from:` references against the component's own `provides`, cross-component references through `uses[].inject`, FeatureRecipe `injectMapping` interceptions — into a single flattened dictionary at `.context.inject`. By the time the base Recipe's `valuesMapping` template runs, every inject key carries its final string value. Recipes iterate the map directly (`{{ range $k, $v := .context.inject.env }}`) without walking the resolution chain.
+**The Pre-Resolved Map.** During rendering, the compiler resolves every inject source — self-inject literals and `from:` references against the component's own `provides`, cross-component references through `uses[].inject`, FeatureRecipe `injectMapping` interceptions — into a single flattened dictionary at `.context.inject`. By the time the base Recipe's `valuesMapping` template runs, every inject key carries its final string value. Recipes iterate the map directly (`{{ range $k, $v := .context.inject.env }}`) without walking the resolution chain.
 
 The full Injection Contract specification — dual-state context semantics, key-collision rules, the FeatureRecipe interception model, and worked examples — lives in [topology-triad](../language-reference/vocabulary/topology-triad.md).
 
@@ -99,7 +99,7 @@ Platform Ops engineers author the translation templates and require the full pow
 
 ### 6. Rules of Composition: Aggregates, Subsystems, and Components
 
-* **Logical Grouping (The `subsystems` Array):** Developers can apply logical metadata (team ownership, compliance labels) and cross-cutting features across dozens of components simultaneously using `subsystems`. Subsystems act as recursive folders on the logical/intent plane, cascading `annotations` downward into the `.context.annotations.aggregate` bucket and **attaching features to all contained components** without dictating physical boundaries. Subsystem-level features follow the same schema as component-level features (supporting `type`, `values`, `uses`, `inject`) because they are in Domain 1 (Developer Intent). The compiler flattens subsystem features into each contained component's feature list during Step 3 (Graph Finalization), positioned after the component's own features and before any Release-attached features in the execution order.
+* **Logical Grouping (The `subsystems` Array):** Developers can apply logical metadata (team ownership, compliance labels) and cross-cutting features across dozens of components simultaneously using `subsystems`. Subsystems act as recursive folders on the logical/intent plane, cascading `annotations` downward into the `.context.annotations.aggregate` bucket and **attaching features to all contained components** without dictating physical boundaries. Subsystem-level features follow the same schema as component-level features (supporting `type`, `values`, `uses`, `inject`) because they are in Domain 1 (Developer Intent). The compiler flattens subsystem features into each contained component's feature list at graph finalization, positioned after the component's own features and before any Release-attached features in the execution order.
 
 ```yaml
 # aggregate.yaml
@@ -315,7 +315,7 @@ spec:
     primary_endpoint: "" 
 ```
 
-**4. Step 5 Compiler Execution (The Handoff)**
+**4. Compiler Execution at Rendering (The Handoff)**
 
 1. The Go compiler executes the `eval` pipeline for `legacy-oracle` first. It feeds the mapped `values` into the Wasm plugin.
 2. The Wasm plugin constructs the required strings and returns a flat JSON dictionary via `stdout` (e.g., `{"primary_endpoint": "oracle://..."}`).

@@ -161,7 +161,7 @@ components:
 ```
 
 **Multi-Environment Scaling (the parameter-hoisting requirement).**
-To scale this hardware constraint across GitOps environments (Dev vs. Prod) without mutating the developer's `Aggregate.yaml`, the developer hoists the value to the typed `parameters` contract. Ops fulfills the specific IOPS requirement via environment-specific `Release` files. The compiler's execution order protects the flow: parameter contract validation runs at Step 1; interpolation resolves the parameter into the surrounding `values:` string; the Recipe's `valuesMapping:` template pipes the resolved value into the rendered output.
+To scale this hardware constraint across GitOps environments (Dev vs. Prod) without mutating the developer's `Aggregate.yaml`, the developer hoists the value to the typed `parameters` contract. Ops fulfills the specific IOPS requirement via environment-specific `Release` files. The compiler's execution order protects the flow: parameter contract validation runs at resolution; interpolation resolves the parameter into the surrounding `values:` string; the Recipe's `valuesMapping:` template pipes the resolved value into the rendered output.
 
 **1. The Developer Intent (abstracting the dial).**
 The Developer knows they need to control IOPS, but they abstract the explicit number to the environment level via the typed `parameters` contract.
@@ -188,9 +188,9 @@ Ops fulfills the `parameters` contract in environment-specific `Release` files. 
 - **Prod Environment (`release-prod.yaml`):** `env_iops: 25000`
 
 **The compilation order.**
-This mechanism is protected by the strict execution order of the compiler (Step 1):
+This mechanism is protected by the strict execution order of the compiler at resolution:
 
 1. **Parameter contract validation.** Each Release-supplied parameter value validates against the Aggregate's typed `parameters:` declaration. A Prod value of `25000` validates (within `min: 1000, max: 100000`); a value of `500` would halt with a clear error.
-2. **Interpolation.** The compiler reads the Prod `Release`'s parameter values and interpolates `25000` into the `Aggregate` YAML string at `values.required_iops`. The merged parameter map remains alive through Step 5 so path-template surfaces can read `.parameters.<slot>` directly; value-template surfaces consume the post-interpolation literal already written into the Aggregate's `values:` block. The map is actively purged at end-of-pipeline.
+2. **Interpolation.** The compiler reads the Prod `Release`'s parameter values and interpolates `25000` into the `Aggregate` YAML string at `values.required_iops`. The merged parameter map remains alive through rendering so path-template surfaces can read `.parameters.<slot>` directly; value-template surfaces consume the post-interpolation literal already written into the Aggregate's `values:` block. The map is actively purged at end-of-pipeline.
 3. **Schema validation.** The Component's `schema:` declaration validates the resulting `values:` dictionary; `values.required_iops: 25000` satisfies the schema's `min: 1000, max: 100000`.
 4. **Recipe valuesMapping rendering.** The bound Recipe's `valuesMapping:` template pipes `values.required_iops` into the provider's `infra`-shaped output (`iops: 25000`). The Wasm renderer plugin generates the correct physical database configuration. The developer gets their explicit hardware control, Ops gets their environment-specific scaling, and the `Aggregate` remains capability-agnostic.
