@@ -10,7 +10,7 @@ This page documents the four layers, their pipeline placement, the error-shape c
 
 **Scope.** The structural shape of every catalog YAML: `apiVersion`, `kind`, `metadata.{name, version, description, maintainers, license, ...}`, the top-level `spec:` block, and the per-entity required fields the schema declares. Each entity kind (Aggregate, Component, Feature, Recipe, FeatureRecipe, Manifest, Plugin, Release) has its own JSON Schema at [`aggrega-schemas/json/`](../../../aggrega-schemas/json/).
 
-**Validation runs.** At Step 1 (resolver / load), per file. The compiler unmarshals each YAML into the corresponding Go struct; YAML keys outside the struct's declared fields surface as parse errors before any further validation runs.
+**Validation runs.** At resolution (resolver / load), per file. The compiler unmarshals each YAML into the corresponding Go struct; YAML keys outside the struct's declared fields surface as parse errors before any further validation runs.
 
 **Error shape.** Schema-mismatch failures surface as YAML unmarshal errors carrying the offending field path and the constraint violated:
 
@@ -24,7 +24,7 @@ Required-field omissions and type mismatches surface in the same shape; the spec
 
 **Scope.** The data pillars an entity carries — `values`, `infra`, `parameters`, plus the `features:` attachment block whose slots `featuresSchema` declares and the `uses:` block governed by `usesSchema`. Domain 2 entities (Component, Feature) embed JSON Schema 2020-12 declarations in their YAML envelope (`spec.schema` inline — compact or full form — or `spec.schemaRef` pointing at a shared SchemaLibrary entry); Domain 3 entities (Recipe, FeatureRecipe) consume the resolved schemas during their own validation pass.
 
-**Validation runs.** At Step 1, after the JSON Schema envelope passes. The compiler composes the entity's authored `schema:` with auto-generated bases derived from `usesSchema` and `featuresSchema` declarations; the composed schema validates the developer-supplied `values:` / `infra:` / `features:` / `uses:` blocks on every component instance in the Aggregate.
+**Validation runs.** At resolution, after the JSON Schema envelope passes. The compiler composes the entity's authored `schema:` with auto-generated bases derived from `usesSchema` and `featuresSchema` declarations; the composed schema validates the developer-supplied `values:` / `infra:` / `features:` / `uses:` blocks on every component instance in the Aggregate.
 
 **Error shape.** Constraint violations surface as messages naming the entity, the path inside the pillar, and the rule that rejected the value — for example a developer setting a port to `80` against a schema rule requiring `>=1024`.
 
@@ -36,7 +36,7 @@ A redeclared `usesSchema` or `featuresSchema` entry produces no composition fail
 
 - Synthesized-mode (`workload:`) support is gated on the bound provider's **engine capability**, not on `workloadSchema` presence: a `workload:` Recipe bound to a provider whose engine cannot synthesize is rejected here. The standard-library catalog declares `workloadSchema` on synthesis-capable providers by convention — on the provider-rendering Plugin's `spec.provider.workloadSchema` — as the documented translation contract. That `workloadSchema` body is itself compiled to JSON Schema 2020-12 when the Plugin loads, a structural acceptance gate that rejects a malformed schema at load rather than at render.
 
-**Validation runs.** At Step 5 Phase B, after the Recipe's own valuesMapping has resolved. Layer 3 gates synthesized-mode dispatch on engine capability.
+**Validation runs.** At base rendering, after the Recipe's own valuesMapping has resolved. Layer 3 gates synthesized-mode dispatch on engine capability.
 
 **Error shape.** A capability decline carries a `CATALOG_ERROR:` prefix naming the node and provider:
 
@@ -54,7 +54,7 @@ A related guardrail protects provider dispatch itself: when more than one provid
 
 **Scope.** Annotation values authored on Release boundaries / boundary components or Aggregate subsystems / component instances, when a Manifest binding under `mappings.features.annotations.<key>` declares routing through `maps.infra` and/or `maps.values` dotted-path lists. Each declared path navigates the target Feature's `spec.schema.<pillar>` to a leaf property; the annotation value's contribution at that leaf is validated against the Feature schema's declared type. Validation flows through the Feature's own JSON Schema 2020-12 declaration — bindings declare routing only, not validation fragments.
 
-**Validation runs.** Step 1 annotation-expansion sub-phase, after Manifest binding-target validation (the catalog-load check confirming each declared path exists in the referenced Feature schema) and alongside Layer 2 schema validation on explicit attachments. For each effective per-component annotation: parse the value into the Scalar / Structured / Nil sum type; route per-subkey through the binding's pillar-grouped `maps` declaration with side-vs-pillar enforcement (Aggregate-side fires `maps.values`; Release-side fires `maps.infra`); validate the per-leaf runtime value against the Feature schema's declared type at the routed pillar. Multiple subkey errors collect-and-emit-all before halting.
+**Validation runs.** The annotation-expansion sub-phase of resolution, after Manifest binding-target validation (the catalog-load check confirming each declared path exists in the referenced Feature schema) and alongside Layer 2 schema validation on explicit attachments. For each effective per-component annotation: parse the value into the Scalar / Structured / Nil sum type; route per-subkey through the binding's pillar-grouped `maps` declaration with side-vs-pillar enforcement (Aggregate-side fires `maps.values`; Release-side fires `maps.infra`); validate the per-leaf runtime value against the Feature schema's declared type at the routed pillar. Multiple subkey errors collect-and-emit-all before halting.
 
 **Error shape.** Schema-validation errors at this layer follow the Layer 2 shape — entity, path (annotation key plus subkey route), constraint detail. Side-vs-pillar partition violations and ambiguous-routing failures carry the `OPS_ERROR:` prefix and name the annotation key, the routed pillar, the authoring side, and the source location.
 
@@ -62,7 +62,7 @@ A related guardrail protects provider dispatch itself: when more than one provid
 
 The four layers share one observable convention: **every Aggrega-attributable validation failure carries a path-plus-rationale shape** that names the offending field and the constraint that rejected it.
 
-- Layer 1 (envelope) and Layer 2 (pillar schemas) errors come through unprefixed at Step 1 — they fire before any Aggrega-prefixed sentinel discipline applies, so the YAML library's or schema validator's native error wraps with a positional prefix (`unmarshal <kind> "<path>": ...`, `<field-path>: <schema rule violated>`).
+- Layer 1 (envelope) and Layer 2 (pillar schemas) errors come through unprefixed at resolution — they fire before any Aggrega-prefixed sentinel discipline applies, so the YAML library's or schema validator's native error wraps with a positional prefix (`unmarshal <kind> "<path>": ...`, `<field-path>: <schema rule violated>`).
 - Layer 3 (Provider source / Workload) errors are catalog-entity-attributable by definition — the Recipe + Provider pair authored the schema that rejected the developer's input. These carry the `CATALOG_ERROR:` prefix declared at [`pkg/validator/recipe_validate_errors.go`](../../../aggrega-cli/pkg/validator/recipe_validate_errors.go) and [`pkg/validator/workload_validate_errors.go`](../../../aggrega-cli/pkg/validator/workload_validate_errors.go).
 - Layer 4 (annotation-binding value validation) errors follow the Layer 2 shape — the validating Feature schema lives in the referenced Feature's `spec.schema`, and runtime values flow through the Manifest binding's `maps` routing into that schema for per-leaf type checking.
 
@@ -78,16 +78,16 @@ The same authored field can be governed by more than one layer. The most common 
 
 When a developer authors `port: 80` and the provider-Plugin's `spec.provider.workloadSchema` declares `port: >=1024`, the Layer 3 pass will reject the value. The same field shape would have passed Layer 1 and Layer 2 (which never applied); the layer that fires tells the author where to look for the rule.
 
-A second overlap pattern: cross-pillar constraints declared at the pillar layer that duplicate constraints in `workloadSchema`. When the pillar schema allows port 80 (no constraint) but `workloadSchema` declares ports below 1024 invalid, the Layer 3 pass will surface the violation at Step 5 Phase B; the developer sees the failure attributed to the Recipe + Provider pairing, not to the Component's `schema:`. The constraint-layering convention is documented at [`vocabulary/data-pillars.md`](data-pillars.md) (Cross-pillar constraint behavior section).
+A second overlap pattern: cross-pillar constraints declared at the pillar layer that duplicate constraints in `workloadSchema`. When the pillar schema allows port 80 (no constraint) but `workloadSchema` declares ports below 1024 invalid, the Layer 3 pass will surface the violation at base rendering; the developer sees the failure attributed to the Recipe + Provider pairing, not to the Component's `schema:`. The constraint-layering convention is documented at [`vocabulary/data-pillars.md`](data-pillars.md) (Cross-pillar constraint behavior section).
 
 ## Pipeline placement summary
 
 | Layer | Scope | Runs at | Error prefix |
 | --- | --- | --- | --- |
-| 1 — JSON Schema envelope | Structural shape (apiVersion, kind, metadata, top-level spec) | Step 1 (load) | unprefixed YAML / unmarshal error |
-| 2 — Pillar schemas (`schema:` / `featuresSchema` / `usesSchema`) | Per-pillar data validation (values, infra, secrets, uses) | Step 1 (after envelope) | unprefixed schema-validation error |
-| 3 — Provider engine-capability gate (per-provider `workloadSchema` content validation honest-pending) | Synthesized-mode support (engine capability) | Step 5 Phase B | `CATALOG_ERROR:` |
-| 4 — Annotation-binding value validation | Annotation-value contributions routed into the target Feature's `spec.schema` via the Manifest binding's `maps` paths | Step 1 annotation-expansion sub-phase, alongside Layer 2 | schema-validation error; side-vs-pillar / ambiguous-routing surfaces carry `OPS_ERROR:` |
+| 1 — JSON Schema envelope | Structural shape (apiVersion, kind, metadata, top-level spec) | Resolution (load) | unprefixed YAML / unmarshal error |
+| 2 — Pillar schemas (`schema:` / `featuresSchema` / `usesSchema`) | Per-pillar data validation (values, infra, secrets, uses) | Resolution (after envelope) | unprefixed schema-validation error |
+| 3 — Provider engine-capability gate (per-provider `workloadSchema` content validation honest-pending) | Synthesized-mode support (engine capability) | Base rendering | `CATALOG_ERROR:` |
+| 4 — Annotation-binding value validation | Annotation-value contributions routed into the target Feature's `spec.schema` via the Manifest binding's `maps` paths | The annotation-expansion sub-phase of resolution, alongside Layer 2 | schema-validation error; side-vs-pillar / ambiguous-routing surfaces carry `OPS_ERROR:` |
 
 ## Cross-references
 
