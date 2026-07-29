@@ -99,7 +99,7 @@ See [architecture/06-data-taxonomy-and-composition.md §6](../../architecture/06
 
 ## Typed parameter contracts
 
-The Aggregate's `spec.parameters:` block declares the typed contract for the parameters the Release fulfills. Each parameter slot carries a declared `type`, an optional `description`, an optional `default`, optional value-space constraints, and (for object-typed slots) nested structure. The compiler validates each Release-supplied value against the contract during Step 1 before parameter interpolation runs.
+The Aggregate's `spec.parameters:` block declares the typed contract for the parameters the Release fulfills. Each parameter slot carries a declared `type`, an optional `description`, an optional `default`, optional value-space constraints, and (for object-typed slots) nested structure. The compiler validates each Release-supplied value against the contract during resolution, before parameter interpolation runs.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -179,15 +179,15 @@ The Release fulfills object-typed parameters with structured YAML; the compiler 
 
 ### Parameter contract validation
 
-The compiler runs three sub-steps during Step 1 parameter processing:
+The compiler runs three sub-steps during parameter processing:
 
 1. **Contract validation** — each Release-supplied value validates against the declared `type` / `enum` / `min` / `max` / `pattern` / nested-structure constraints. Validation failures halt the build with a clear error naming the offending slot, the supplied value, and the violated constraint. Missing required parameters with no `default:` produce a similar halt with the slot name.
 2. **Default fill** — slots with `default:` defined and no Release-supplied value receive their default. Nested-object parameters carry a three-case authoring semantic for omitted, explicit-empty, and partially-authored parent slots: omitting the parent fills the children's defaults, authoring the parent as `{}` preserves the explicit empty (suppresses children's defaults), and authoring the parent as a non-empty map fills only the children the Release did not supply. See [`templates/parameters-context.md`](../templates/parameters-context.md#nested-object-parameters) for the YAML examples and the "when to use each form" decision guide.
 3. **Interpolation** — the compiler walks the Aggregate's YAML strings and replaces every `{{ .parameters.<slot> }}` reference inside value-template surfaces (component / feature / sub-aggregate `values:` strings) with the resolved value. After this pass, value-template surfaces consume already-interpolated literals and do not receive `.parameters` in their TemplateContext.
 
-The merged parameter map remains alive through Step 5 to support **path-template** evaluation. Operator-authored `directory:` and `subDirectory:` templates on Release boundaries read `.parameters.<slot>` directly at orchestrator time against a closed allowlist; path emission needs region / environment vocabulary for per-environment artifact layout, and the asymmetric grant keeps that operator concern inside the operator surface without round-tripping through the Aggregate's `values`. The map is actively purged at end-of-pipeline after every render phase completes; recipes consuming developer-authored `values:` see the post-interpolation strings, while path templates see live `.parameters` data through Step 5. See [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) row 3 for the path-template availability matrix and [`path-template-variables.md`](../path-template-variables.md) for the path-template variable allowlist.
+The merged parameter map remains alive through rendering to support **path-template** evaluation. Operator-authored `directory:` and `subDirectory:` templates on Release boundaries read `.parameters.<slot>` directly at orchestrator time against a closed allowlist; path emission needs region / environment vocabulary for per-environment artifact layout, and the asymmetric grant keeps that operator concern inside the operator surface without round-tripping through the Aggregate's `values`. The map is actively purged at end-of-pipeline after every render phase completes; recipes consuming developer-authored `values:` see the post-interpolation strings, while path templates see live `.parameters` data through rendering. See [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) row 3 for the path-template availability matrix and [`path-template-variables.md`](../path-template-variables.md) for the path-template variable allowlist.
 
-For the broader parameter-hoisting checklist (Aggregate declaration → values reference → Release fulfilment → Recipe consumption) and the cross-pillar mechanics, see [`vocabulary/data-pillars.md`](../vocabulary/data-pillars.md) §"Parameters" and §"The parameter-hoisting checklist". For the template-context fields exposed during Step 1 interpolation and the path-template carve-out, see [`templates/parameters-context.md`](../templates/parameters-context.md).
+For the broader parameter-hoisting checklist (Aggregate declaration → values reference → Release fulfilment → Recipe consumption) and the cross-pillar mechanics, see [`vocabulary/data-pillars.md`](../vocabulary/data-pillars.md) §"Parameters" and §"The parameter-hoisting checklist". For the template-context fields exposed during interpolation and the path-template carve-out, see [`templates/parameters-context.md`](../templates/parameters-context.md).
 
 ## Annotations on subsystems and components
 

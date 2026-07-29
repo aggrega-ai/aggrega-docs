@@ -42,10 +42,10 @@ Pillar access inside Workload templates:
 
 - `.values` — developer-authored cognitive payload declared in the Aggregate.
 - `.infra` — Ops-authored physical sizing declared in the Release.
-- `.parameters` — already interpolated by Step 1; visible via `.values` / `.infra` wherever the Developer or Ops referenced `.parameters.<name>` in their authoring.
-- `.locals` — Recipe-private state resolved in the Pass 1 preamble and published at Phase B.0; available at every Workload template-evaluation site.
+- `.parameters` — already interpolated at resolution; visible via `.values` / `.infra` wherever the Developer or Ops referenced `.parameters.<name>` in their authoring.
+- `.locals` — Recipe-private state resolved in the locals preamble and published at source resolution; available at every Workload template-evaluation site.
 - `.context.instance_id` — the node's flattened instance ID used for resource-name prefixing.
-- `.context.inject` — the post-interception injection pipe, already rewritten by any FeatureRecipe `injectMapping` during Phase A.
+- `.context.inject` — the post-interception injection pipe, already rewritten by any FeatureRecipe `injectMapping` during inject mapping.
 - `.context.uses` — the enriched topology edges outbound from this node, each carrying the target's resolved `provides`, `labels`, and cascading annotations.
 - `.features` — the node's attachments, each carrying its `type`, `values`, `infra`, and resolved `provides`. An attachment named for a slot the Component declares in `featuresSchema` fills that slot (see below).
 

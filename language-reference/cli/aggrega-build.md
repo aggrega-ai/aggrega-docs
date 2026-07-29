@@ -85,10 +85,10 @@ The directory layout is per-boundary, per-instance:
 
 Each slot captures a specific compiler state:
 
-- `01-pillars-initial.yaml` — the per-node `TemplateContext` snapshot after Step 1 resolution and before any per-pass mutation. Carries `.values`, `.infra`, `.context`, `.parameters`, `.metadata`.
-- `02-pass1-provides.yaml` — the resolved `provides:` outputs after Pass 1.
-- `03-pass2-inject.yaml` — the merged `.context.inject` pipe after Pass 2 resolution (consumer-side view of upstream `provides`).
-- `04-phaseA-inject.yaml` — the `.context.inject` pipe after Phase A FeatureRecipe `injectMapping` rewrites.
+- `01-pillars-initial.yaml` — the per-node `TemplateContext` snapshot after resolution and before any per-stage mutation. Carries `.values`, `.infra`, `.context`, `.parameters`, `.metadata`.
+- `02-pass1-provides.yaml` — the resolved `provides:` outputs after provides evaluation.
+- `03-pass2-inject.yaml` — the merged `.context.inject` pipe after inject hydration (consumer-side view of upstream `provides`).
+- `04-phaseA-inject.yaml` — the `.context.inject` pipe after the FeatureRecipe `injectMapping` rewrites of inject mapping.
 - `05-phaseB-source.yaml` — the parsed `source:` content the provider engine will consume. Present only when the Recipe declares `source:`.
 - `06-phaseB-locals.yaml` — the resolved `locals:` block.
 - `07-phaseB-valuesMapping.yaml` — the rendered `valuesMapping:` output (the dictionary the provider engine receives). Present only when the Recipe declares `valuesMapping:`.
@@ -172,7 +172,7 @@ After the compile, inspect `.trace/boundaries/<boundary>/<instance>/` for per-pa
 - [`aggrega-pull`](aggrega-pull.md) — fetch catalog entities from an OCI registry into the local catalog.
 - [`aggrega-validate`](aggrega-validate.md) — check catalog, Release-closure, or single-entity correctness without emitting artifacts; the dependency validation a build runs, without the render.
 - [`aggrega-lint`](aggrega-lint.md) — check catalog publishing conventions across the same three scopes.
-- [`aggrega-inspect`](aggrega-inspect.md) — query the IR graph after Step 3 without proceeding to render.
+- [`aggrega-inspect`](aggrega-inspect.md) — query the IR graph after graph finalization without proceeding to render.
 - [Errors](../errors/error-translation.md) — the categorized error rendering format that surfaces at the CLI.
 
 <!-- BEGIN GENERATED: cli-build -->

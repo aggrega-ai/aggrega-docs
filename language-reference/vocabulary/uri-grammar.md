@@ -121,13 +121,13 @@ Beyond URI strings, Aggrega's authoring surface carries several distinct format-
 | --- | --- | --- |
 | Go template (`{{ .field }}`) | Recipe `valuesMapping:` / `workload:` / `artifacts:` / `provides:` / `locals:` / `source:`; FeatureRecipe `injectMapping:` / pipeline `with:`; Aggregate `parameters:` interpolation; Release `directory:` / `subDirectory:` | Go template parser at evaluation time; per-site availability rules at [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) |
 | Sprig function reference (`{{ default 1 .v }}` etc.) | Same surfaces as Go templates | Sprig v3 FuncMap registered at template-engine init; full helper list at [`templates/sprig-functions.md`](../templates/sprig-functions.md) |
-| JSON Schema 2020-12 (compact or full form) | Component / Feature `schema:` content (or `schemaRef:` pointing at a SchemaLibrary entry) | JSON Schema validator at Step 1 entity load |
+| JSON Schema 2020-12 (compact or full form) | Component / Feature `schema:` content (or `schemaRef:` pointing at a SchemaLibrary entry) | JSON Schema validator at entity load during resolution |
 | JSON Pointer (RFC 6901) | Recipe `locals.<*_path>:` keys (`volumes_path`, `containers_path`, etc.); FeatureRecipe `pipeline:` step output references; Wasm plugin JSONPatch payloads | RFC 6901 baseline per the Wasm plugin contract; declared in `plugins/plugin-contract.md` |
 | SemVer regex | `metadata.version` fields on every entity; URI version segments | JSON Schema regex `^(0\|[1-9]\d*)\.(0\|[1-9]\d*)\.(0\|[1-9]\d*)(?:-...)?$` per entity schema |
-| Glob pattern (filesystem path) | Catalog-relative paths (e.g., `.aggrega-config.yaml` `catalog_dirs:` entries); Recipe `$import:` file paths in `workload:` / `artifacts:` / `valuesMapping:` | Filesystem-walk semantics at Step 1 |
+| Glob pattern (filesystem path) | Catalog-relative paths (e.g., `.aggrega-config.yaml` `catalog_dirs:` entries); Recipe `$import:` file paths in `workload:` / `artifacts:` / `valuesMapping:` | Filesystem-walk semantics at resolution |
 | Label selector expression | `Component.spec.usesSchema.<socket>.selector`; Feature `appliesTo:` / `appliesToAnyOf:` | Aggrega selector parser per [`pkg/selector/`](../../../aggrega-cli/pkg/selector/); selector grammar documented at [`vocabulary/topology-triad.md`](topology-triad.md) |
 | Annotation-key shape (`<namespace>/<name>`) | `metadata.annotations` keys; Manifest `features.annotations` keys; boundary annotation cascade | JSON Schema regex per entity; reserved-prefix discipline at [`vocabulary/labels-and-annotations.md`](labels-and-annotations.md) |
-| Provider name (bare string) | `Recipe.spec.capability`; `FeatureRecipe.spec.capability` | Engine-factory dispatch lookup at Step 5 Phase B |
+| Provider name (bare string) | `Recipe.spec.capability`; `FeatureRecipe.spec.capability` | Engine-factory dispatch lookup at base rendering |
 | Inject delivery key (`env.<KEY>`, `file.<path>`, `arg.<flag>`) | Aggregate `inject:` blocks; FeatureRecipe `injectMapping:` output | Inject schema at [`vocabulary/topology-triad.md`](topology-triad.md) |
 
 Each format has its own grammar, its own validator, and its own error-reporting shape. Authors who hit a format-string parse error read the per-format reference for the syntax rules.
