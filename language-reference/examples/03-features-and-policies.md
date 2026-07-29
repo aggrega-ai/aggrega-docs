@@ -61,7 +61,7 @@ spec:
 ```
 
 **4. Ops Domain: The FeatureRecipe (Wasm Pipeline)**
-The FeatureRecipe maps the abstract Feature to a concrete Wasm plugin pipeline. The pipeline executes sequentially during Step 5 Phase C, mutating the base infrastructure documents. Phase C runs during `aggrega build`; see [Status of the Language](../10-status.md#compilation-pipeline-phases).
+The FeatureRecipe maps the abstract Feature to a concrete Wasm plugin pipeline. The pipeline executes sequentially in the plugin pipeline that closes rendering, mutating the base infrastructure documents. The plugin pipeline runs during `aggrega build`; see [Status of the Language](../10-status.md#compilation-pipeline-phases).
 
 > **The `pipeline:` field executes during `aggrega build`: the compiler runs each declared step in order against the rendered document set. See [Status of the Language](../10-status.md#compilation-pipeline-phases) for the per-phase readiness.**
 
@@ -276,7 +276,7 @@ spec:
 
 The compiler pipeline executes two Wasm gates. The `label-transform` role auto-tags the graph. A governance verdict role evaluates security boundaries. Both are authored by the Platform Architect in Domain 2.
 
-**1. The Wasm Mutator (Step 2 — Graph Enrichment)**
+**1. The Wasm Mutator (topology construction — graph enrichment)**
 Auto-tags stateful servers with a `restricted` data classification label.
 
 ```javascript
@@ -288,7 +288,7 @@ if (node.labels["component.aggrega.ai/type"] === "stateful-server") {
 }
 ```
 
-**2. The OPA Policy Validator (Step 4 — Security Boundaries)**
+**2. The OPA Policy Validator (static analysis — security boundaries)**
 Traces precalculated topological paths and blocks any connection to restricted data without a masking Feature attached.
 
 ```rego

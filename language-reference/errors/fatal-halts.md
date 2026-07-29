@@ -10,7 +10,7 @@ The compiler reads every Aggregate, Manifest, Component, Feature, Recipe, Featur
 
 ### Parameter type mismatch / contract violation
 
-The Release supplied a value whose type or shape does not match what the Aggregate declared for that parameter. The Step 1a parameter-contract validator catches type mismatches, enum violations, range violations, pattern violations, and missing required parameters before any template interpolation runs.
+The Release supplied a value whose type or shape does not match what the Aggregate declared for that parameter. The parameter-contract validator catches type mismatches, enum violations, range violations, pattern violations, and missing required parameters before any template interpolation runs.
 
 Emitted message shape:
 > parameter contract violated at `<aggregate-path>` slot `<slot-name>`: `<constraint detail>` (got `<received-type>` value `<received-value>`)
@@ -68,7 +68,7 @@ Emitted message:
 
 A Recipe declares `workload:` (synthesized mode) for a provider whose rendering engine does not implement Workload synthesis. Synthesized-mode support is a property of the provider's engine — the standard-library catalog declares `workloadSchema` on synthesis-capable providers by convention, but the check keys on engine capability, not on that field's presence.
 
-The check runs at render time (Step 5), via the central input-kind gate, after the node's provider engine is bound; the message names the node and the provider.
+The check runs at render time, via the central input-kind gate, after the node's provider engine is bound; the message names the node and the provider.
 
 Emitted message:
 > CATALOG_ERROR: node `<node-id>`: provider `<provider-name>` does not support synthesised recipes (this provider supports: `<kinds>`); declare one of the supported input kinds, or target a provider that supports synthesised
@@ -381,7 +381,7 @@ The same delivery key (for example, the same env var name) is declared in two de
 Emitted message:
 > delivery key `<key>` in mechanism `<mechanism>` is declared in both component self-inject and uses-inject.
 
-**How to fix:** rename one of the conflicting keys, or drop the duplicate declaration. Note that a FeatureRecipe's `injectMapping` overwriting a developer key is intentional Onion-Model interception and is not flagged. A separate render-time variant of this check may surface the same collision class at Step 5 if it escapes the Step 1 guard; the authoring fix is identical.
+**How to fix:** rename one of the conflicting keys, or drop the duplicate declaration. Note that a FeatureRecipe's `injectMapping` overwriting a developer key is intentional Onion-Model interception and is not flagged. A separate render-time variant of this check may surface the same collision class if it escapes the resolution-time guard; the authoring fix is identical.
 
 ### Self-inject on a component without an allowlist
 
@@ -407,9 +407,9 @@ After every contract is validated, the compiler evaluates Go templates on Compon
 
 ### `provides:` template references a non-self-contained root
 
-A Recipe's `provides:` template references a root outside the self-contained set. The `provides` block is evaluated in Pass 1, before the inject pipe is hydrated and before cross-node edges are walked, so it may reference only data belonging to its own node: `.context.instance_id`, `.values`, `.infra`, the node's resolved `.locals`, and static strings. The check is a positive allowlist, so any other root halts — `.context.inject` and `.context.uses` (cross-node), `.context.annotations.*`, `.context.labels`, `.context.metadata`, and `.metadata.*` (placement- or deployment-coupled data the provides surface does not expose), and `.attachment_name` (a base Recipe's provides pass resolves no attachment). Referencing one of these halts loudly rather than silently rendering an empty value.
+A Recipe's `provides:` template references a root outside the self-contained set. The `provides` block is evaluated at provides evaluation, before the inject pipe is hydrated and before cross-node edges are walked, so it may reference only data belonging to its own node: `.context.instance_id`, `.values`, `.infra`, the node's resolved `.locals`, and static strings. The check is a positive allowlist, so any other root halts — `.context.inject` and `.context.uses` (cross-node), `.context.annotations.*`, `.context.labels`, `.context.metadata`, and `.metadata.*` (placement- or deployment-coupled data the provides surface does not expose), and `.attachment_name` (a base Recipe's provides pass resolves no attachment). Referencing one of these halts loudly rather than silently rendering an empty value.
 
-`.locals` is on the surface: a node's locals resolve in the preamble of the same pass, ahead of its provides, so a `provides` template reads them and receives resolved values.
+`.locals` is on the surface: a node's locals resolve in the preamble of the same stage, ahead of its provides, so a `provides` template reads them and receives resolved values.
 
 Emitted message:
 > node `<node-id>` provides[`<key>`]: Recipe `<recipe>` provides references `<expression>` — the provides block is self-contained and may reference only .context.instance_id, .values, .infra, .locals, and static text
@@ -569,7 +569,7 @@ The renderer's missing-key handling depends on the template surface. Where an em
 - **Path templates** (Release boundary `directory:` / `subDirectory:`) evaluate with `missingkey=error`. A reference to a variable the surface does not give them halts at parse time — see "Path-template references a variable outside the allowlist" above — and so does a mistyped key under `.manifest`, whose keys are declared. An allowed-but-undefined-at-eval-time reference, such as a `.parameters` key the Release does not supply, produces an explicit error rather than silently rendering an empty string into a directory path.
 - **`assertions`** (on a Component, Feature, Recipe, or FeatureRecipe) evaluate with `missingkey=error`. A reference to an undefined key halts with a no-such-key diagnostic naming the entity, the instance, and the assertion. The strictness is what makes an assertion trustworthy: a predicate whose reference rendered as an empty value would compare against nothing and pass, so a single typo would silently retire the rule the assertion was written to enforce. Because the bare reference halts before any fallback can run, a plain `default` does not supply an optional-field fallback on this surface — gate the reference with `hasKey`, or read it through `index` and then apply `default`, or use the `optional` helper, which performs the presence check directly.
 - **Value templates** (Recipe `valuesMapping` and `source:`, `locals:` and `provides:` entries, `artifacts:` bodies, Workload bodies, FeatureRecipe `injectMapping` and `pipeline.with`, and component-level self-inject `value:` templates) evaluate with `missingkey=zero`, so a reference to an undefined key does not halt the build — the read renders nothing, and nothing is what reaches the artifact. What *does* still halt on this surface is a reference that descends **through** a container the author never supplied — `.values.tls.ca` where no `tls` was authored — because there is nothing to descend into. Only the final key of a reference whose containers are all present renders as nothing. Guarding works as expected: `{{ .values.optional_field | default "fallback" }}` does supply the fallback, because an unset value counts as empty for `default` and falsy for `if`. Authors who need the absent-vs-zero discriminator — telling "key absent" from "key present and empty" — use the `optional` helper documented at [`templates/sprig-functions.md`](../templates/sprig-functions.md), and read a given key one way per template: a key the same template also reads as `.values.<key>` counts as present, so `optional` reports its empty value rather than the fallback.
-- **Typed parameter contracts** catch missing-required-parameter and contract-violation cases at Step 1a (parameter-contract layer) with `ErrParameterContractViolation` / `ErrParameterMissing` — see "Parameter type mismatch / contract violation" above.
+- **Typed parameter contracts** catch missing-required-parameter and contract-violation cases at the parameter-contract layer with `ErrParameterContractViolation` / `ErrParameterMissing` — see "Parameter type mismatch / contract violation" above.
 
 The **helper set is the same across the surfaces above** — every value template, every path template, and every assertion: Sprig's functions plus Aggrega's `optional`, with `fail` added on the assertion surface because an assertion is the only surface whose purpose is to halt the build rather than produce text. What differs between these surfaces is the missing-key policy, not which functions an author may call — so `optional` is available in a path template too, where it reads a key out of `.parameters` without the strict policy firing first. Parameter interpolation in an Aggregate is a separate, earlier surface: it runs before the catalog resolves and offers Sprig's functions alone, so `optional` is not available there.
 

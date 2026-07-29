@@ -176,7 +176,7 @@ spec:
                 DB_PORT: "port"     # inject env var DB_PORT from provides key "port"
 ```
 
-> **Alternative (Verbose Form):** The `inject` block also supports an explicit `in`/`from` array syntax. Both forms normalize identically during Step 2 parsing:
+> **Alternative (Verbose Form):** The `inject` block also supports an explicit `in`/`from` array syntax. Both forms normalize identically as the topology is built:
 >
 > ```yaml
 > inject:
@@ -272,11 +272,11 @@ spec:
         web-server: {}
 ```
 
-**Compilation Trace (Step 5 — The Three-Pass Model):**
+**Compilation Trace (rendering — the three-pass model):**
 
-1. **Pass 1 (Provides Resolution):** The compiler evaluates `app-db`'s Recipe `provides` → `{ host: "app-db", port: "5432" }`.
-2. **Pass 2 (Inject Pre-Hydration):** The compiler maps `web-server`'s inject contract: `DB_HOST` → target `app-db`'s `provides["host"]` → `"app-db"`. `DB_PORT` → `provides["port"]` → `"5432"`. The `.context.inject.env` pipe is now `{ "DB_HOST": "app-db", "DB_PORT": "5432" }`.
-3. **Pass 3 (Rendering):** The web server's `valuesMapping` template iterates over the pre-hydrated pipe, generating the Helm values.
+1. **Provides evaluation:** The compiler evaluates `app-db`'s Recipe `provides` → `{ host: "app-db", port: "5432" }`.
+2. **Inject hydration:** The compiler maps `web-server`'s inject contract: `DB_HOST` → target `app-db`'s `provides["host"]` → `"app-db"`. `DB_PORT` → `provides["port"]` → `"5432"`. The `.context.inject.env` pipe is now `{ "DB_HOST": "app-db", "DB_PORT": "5432" }`.
+3. **Base rendering:** The web server's `valuesMapping` template iterates over the pre-hydrated pipe, generating the Helm values.
 
 ---
 

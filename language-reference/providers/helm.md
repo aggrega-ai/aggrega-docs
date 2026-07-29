@@ -10,11 +10,11 @@ This page is the helm provider's authoring reference. For the cross-provider inp
 
 The helm provider accepts all three of the Recipe input kinds in different roles:
 
-- **Sourced mode.** A Recipe with `source: <chart-path>` points at an on-disk Helm chart directory. The Helm Go SDK loads the chart, the Phase B values dictionary is coalesced with the chart's defaults, and the chart's templates render to flat Kubernetes YAML.
+- **Sourced mode.** A Recipe with `source: <chart-path>` points at an on-disk Helm chart directory. The Helm Go SDK loads the chart, the base-rendering values dictionary is coalesced with the chart's defaults, and the chart's templates render to flat Kubernetes YAML.
 - **Workload (synthesised) mode.** A Recipe with `workload:` (inline or `$import:`-loaded) declares a Workload document. The provider synthesises one or more Kubernetes resources per node — a Deployment (or StatefulSet) plus per-service Services and per-persistent-volume PVCs — directly from the Workload spec.
 - **Sourceless (generative) mode.** A Recipe with neither `source:` nor `workload:` falls back to the engine's built-in flat generator. The values dictionary feeds a Deployment plus an optional Service shaped from a small fixed key vocabulary (see [Sourceless mode](#sourceless-mode-keyset) below).
 
-A Recipe may declare exactly one of `source:` or `workload:`; combining them is a Phase B validation error.
+A Recipe may declare exactly one of `source:` or `workload:`; combining them is a base-rendering validation error.
 
 ## `source:` keyset
 
@@ -35,7 +35,7 @@ The chart at the source path must contain a valid `Chart.yaml`. Sourced renders 
 
 ## Sourced mode
 
-A Recipe with `source: <chart-path>` and `valuesMapping:` runs the following pipeline at Phase B:
+A Recipe with `source: <chart-path>` and `valuesMapping:` runs the following pipeline at base rendering:
 
 1. The chart at `<chart-path>` is loaded via the Helm Go SDK.
 2. The `valuesMapping` template evaluates against the Recipe's TemplateContext. Its YAML output is treated as a **values overlay** for the chart.
@@ -62,7 +62,7 @@ Output file naming follows the same `<nodeID>-<kind>.yaml` convention as sourced
 
 ## Sourceless mode keyset
 
-A Recipe with neither `source:` nor `workload:` invokes the engine's flat generator. The generator reads a small fixed vocabulary of keys from the Phase B values dictionary:
+A Recipe with neither `source:` nor `workload:` invokes the engine's flat generator. The generator reads a small fixed vocabulary of keys from the base-rendering values dictionary:
 
 | Key | Type | Default | Effect |
 | --- | --- | --- | --- |
@@ -78,7 +78,7 @@ Sourceless mode is the lowest-ceremony path for components whose only physical r
 ## Engine-specific quirks
 
 - **Provenance injection.** The sourced and sourceless paths converge on the same label-and-annotation set; sourced renders inject them via post-render YAML rewriting (after the Helm SDK has already rendered), so chart authors do not need to thread Aggrega labels through their own templates.
-- **Deterministic value coercion.** When the Phase B values dict contains a hash-randomised Go map (rather than an OrderedMap), the sourceless extractor sorts keys alphabetically before emission — the deterministic choice when no author order is available upstream. OrderedMap-backed values preserve author order through the entire pipeline.
+- **Deterministic value coercion.** When the base-rendering values dict contains a hash-randomised Go map (rather than an OrderedMap), the sourceless extractor sorts keys alphabetically before emission — the deterministic choice when no author order is available upstream. OrderedMap-backed values preserve author order through the entire pipeline.
 - **Ordered env emission.** Kubernetes environment variables are an ordered list (later entries can `$(VAR)`-reference earlier ones); the engine emits them in author order from the OrderedMap-backed `environment` map. Authoring environment-variable order matters for correctness.
 - **Namespace cascade.** Both modes resolve the rendered-resource namespace from `aggrega.ai/namespace` on the boundary annotation cascade; absent, the namespace falls back to `default`. The annotation is not consumed by chart templates — the engine writes it directly into each resource's `metadata.namespace` field.
 
