@@ -4,7 +4,7 @@ This page documents the runtime view the compiler injects into Recipe and Featur
 
 ## Overview
 
-The compiler assembles a `TemplateContext` per node during Step 5 and injects it into every Go template the renderer evaluates for that node. The context is in-memory only — it never persists to disk and never crosses the Wasm ABI as a single payload. Each template site receives a view of the same context object; some fields are populated late (`.workload` arrives at Phase B.2; `.source` at Phase B.0; `.steps` is populated by `pipeline:` execution as each step completes, see [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases)).
+The compiler assembles a `TemplateContext` per node during rendering and injects it into every Go template the renderer evaluates for that node. The context is in-memory only — it never persists to disk and never crosses the Wasm ABI as a single payload. Each template site receives a view of the same context object; some fields are populated late (`.workload` arrives at workload synthesis; `.source` at source resolution; `.steps` is populated by `pipeline:` execution as each step completes, see [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases)).
 
 The schema for the runtime shape is `template-context-v1alpha1.schema.json` (shipped with the Aggrega schema distribution).
 
@@ -12,14 +12,14 @@ The schema for the runtime shape is `template-context-v1alpha1.schema.json` (shi
 
 The top-level fields live at the root of the template context — accessed as `.field` from inside a template.
 
-- **`.values` (map).** Developer-authored cognitive payload from the Aggregate. Per-component values flow through to the rendered Recipe at this field. Validated by the Catalog's `schema:` (the Component's or Feature's JSON Schema 2020-12 declaration) at Step 1. When a field's authored zero / empty / false is semantically distinct from the field being absent, use `optional` (see [`sprig-functions.md`](sprig-functions.md#optional--presence-aware-fallback)) rather than `default`.
-- **`.infra` (map).** Ops-authored physical sizing from the Release. Validated by the Catalog's `schema:` (the Component's or Feature's JSON Schema 2020-12 declaration) at Step 1. The same `optional`-vs-`default` guidance as for `.values` applies — prefer `optional` when an authored zero or false is a legitimate intent (scale-to-zero, no-retries, feature-flag-off).
-- **`.locals` (string-valued map).** Recipe-private state — names declared in the Recipe's `locals:` block, resolved in the Pass 1 preamble and published onto this pillar at Phase B.0. Entries resolve in author order and an entry may read a sibling defined above it, so order is load-bearing wherever one entry reads another. Accessible only within the Recipe's own templates; never exposed to callers.
-- **`.provides` (string-valued map).** The Recipe's public output strings — the contract callers' `inject:` blocks resolve `from:` references against. Populated at Pass 1.
+- **`.values` (map).** Developer-authored cognitive payload from the Aggregate. Per-component values flow through to the rendered Recipe at this field. Validated by the Catalog's `schema:` (the Component's or Feature's JSON Schema 2020-12 declaration) at resolution. When a field's authored zero / empty / false is semantically distinct from the field being absent, use `optional` (see [`sprig-functions.md`](sprig-functions.md#optional--presence-aware-fallback)) rather than `default`.
+- **`.infra` (map).** Ops-authored physical sizing from the Release. Validated by the Catalog's `schema:` (the Component's or Feature's JSON Schema 2020-12 declaration) at resolution. The same `optional`-vs-`default` guidance as for `.values` applies — prefer `optional` when an authored zero or false is a legitimate intent (scale-to-zero, no-retries, feature-flag-off).
+- **`.locals` (string-valued map).** Recipe-private state — names declared in the Recipe's `locals:` block, resolved in the locals preamble and published onto this pillar at source resolution. Entries resolve in author order and an entry may read a sibling defined above it, so order is load-bearing wherever one entry reads another. Accessible only within the Recipe's own templates; never exposed to callers.
+- **`.provides` (string-valued map).** The Recipe's public output strings — the contract callers' `inject:` blocks resolve `from:` references against. Populated at provides evaluation.
 - **`.features` (map of attachments).** Iterates the Features attached to this Component (Aggregate-level + subsystem-level + Release-level + Manifest-annotation-driven, per the 5-Tier Onion Model), keyed by the instance name the author gave the attachment. Every entry carries the same four fields — see [the attachment shape](#the-attachment-shape) below.
 - **`.metadata` (struct).** Release identity for deterministic naming: `release_name`, `release_version`, `environment`, `aggregate_name`. Populated for every render; values originate in the Release's `metadata:` block.
-- **`.source`.** The resolved `Recipe.Spec.Source` after Phase B.0 template evaluation. `nil` for sourceless Recipes; `nil` before Phase B.0 runs.
-- **`.workload`.** The parsed Workload object after Phase B.2 (yaml-unmarshal + `ValidateWorkload` + `ValidateWorkloadSecrets` succeed). `nil` for non-synthesized Recipes; `nil` before Phase B.2 runs.
+- **`.source`.** The resolved `Recipe.Spec.Source` after the source-resolution template evaluation. `nil` for sourceless Recipes; `nil` before source resolution runs.
+- **`.workload`.** The parsed Workload object after workload synthesis (yaml-unmarshal + `ValidateWorkload` + `ValidateWorkloadSecrets` succeed). `nil` for non-synthesized Recipes; `nil` before workload synthesis runs.
 - **`.steps` (map of step outputs).** Populated by `pipeline:` execution as Wasm plugins run, exposing a completed step's returned outputs to subsequent steps via `.steps.<id>.outputs`. A step reads a preceding step's outputs from its own `with` template; a step's `outputs` become visible only to steps declared after it. Empty when the node declares no pipeline, and before the node's first step completes.
 
 ## The attachment shape
@@ -45,7 +45,7 @@ The emitted name is stated once, by the producer, and consumed — never restate
 `.context` is the compiler-assembled execution context for a single node — the identity, topology, and delivery-pipe data the renderer threads through every template site. Five fields:
 
 - **`.context.instance_id` (string).** The node's flattened instance ID (e.g., `data-layer.main-db` for a node imported from a sub-aggregate). Used for resource-name prefixing.
-- **`.context.labels` (string-valued map).** Catalog-authored labels plus any `label-transform` Step-2 additions.
+- **`.context.labels` (string-valued map).** Catalog-authored labels plus any `label-transform` additions made at topology construction.
 - **`.context.annotations` (three buckets, see below).** Cascaded annotations grouped by origin.
 - **`.context.inject` (InjectPipe, see below).** The pre-hydrated, intercepted delivery pipe — the standard surface Recipe templates read for cross-component values.
 - **`.context.uses` (map of EnrichedEdge, see below).** The JOIN projection over outbound topological edges.
@@ -62,7 +62,7 @@ Each bucket is a flat string-to-string map. Per the architecture's separation ru
 
 ### `.context.inject` — the InjectPipe shape
 
-The InjectPipe is the compiler's pre-resolved delivery pipe. By the time a Recipe template runs at Phase B, every inject source (developer-authored self-inject literals, self-inject `from:` references resolved against own `provides`, cross-component `uses[].inject` references resolved against target `provides`, FeatureRecipe `injectMapping` interceptions) has been resolved into a final string value and merged into this map.
+The InjectPipe is the compiler's pre-resolved delivery pipe. By the time a Recipe template runs at base rendering, every inject source (developer-authored self-inject literals, self-inject `from:` references resolved against own `provides`, cross-component `uses[].inject` references resolved against target `provides`, FeatureRecipe `injectMapping` interceptions) has been resolved into a final string value and merged into this map.
 
 Fields:
 
@@ -72,7 +72,7 @@ Fields:
 - **`.context.inject.all`** — string-valued map combining `env`/`file`/`arg`/custom mechanisms into one flat dictionary; useful for whole-pipe serialization (`{{ toJson .context.inject.all }}`).
 - **Custom mechanisms** (e.g., `ssm_param`) — populated under their own field name when the Component's `inject:` allowlist declares them.
 
-The InjectPipe is the post-interception state — FeatureRecipe `injectMapping` blocks have already deep-merged their overrides over this pipe at Phase A by the time Recipe templates read it.
+The InjectPipe is the post-interception state — FeatureRecipe `injectMapping` blocks have already deep-merged their overrides over this pipe during inject mapping, by the time Recipe templates read it.
 
 ### `.context.uses` — JOIN projection (EnrichedEdge)
 
@@ -80,7 +80,7 @@ The InjectPipe is the post-interception state — FeatureRecipe `injectMapping` 
 
 - **`.target` (string)** — target node's instance ID.
 - **`.socket` (string)** — caller-side socket name (the `usesSchema` key).
-- **`.provides` (string-valued map)** — target's resolved `provides:` keys (the public output strings the target Recipe exported at Pass 1).
+- **`.provides` (string-valued map)** — target's resolved `provides:` keys (the public output strings the target Recipe exported at provides evaluation).
 - **`.inject` (map of mechanism → map of key → value)** — caller-side inject directives for this edge (the `inject:` block on the `uses[].inject` declaration). Mechanism keys are `env`/`file`/`arg`/custom; per-mechanism map entries are local-key → target-provides-key references.
 - **`.labels` (string-valued map)** — target's Catalog labels (immutable per Architect authoring).
 - **`.annotations` (three buckets)** — target's `release`/`catalog`/`aggregate` annotation buckets.
@@ -105,7 +105,7 @@ The template context carries three inject-shaped fields with distinct semantics.
 | --- | --- | --- | --- |
 | `.context.inject` | InjectPipe (always present) | Every render | The standard pre-hydrated delivery pipe — read this in `valuesMapping:`/`workload:`/`artifacts:` templates and in any non-credential-FeatureRecipe template site. |
 | `.inject` (top-level) | `*InjectPipe` (nullable) | Credential FeatureRecipe rendering only | The credential-FeatureRecipe-specific inject view — contains the credential's own delivery directives. `nil` outside credential FeatureRecipe sites. |
-| `.inject_raw` (top-level) | opaque, nullable | Set when the developer authored an `inject:` block on the parent component | The unmutated Developer intent before any Phase A interception. Use for "did the developer originally request this delivery key?" logic checks; immune to FeatureRecipe `injectMapping` rewriting. `nil` if the developer omitted the `inject:` block. |
+| `.inject_raw` (top-level) | opaque, nullable | Set when the developer authored an `inject:` block on the parent component | The unmutated Developer intent before any inject-mapping interception. Use for "did the developer originally request this delivery key?" logic checks; immune to FeatureRecipe `injectMapping` rewriting. `nil` if the developer omitted the `inject:` block. |
 
 Authors needing the resolved post-interception delivery should read `.context.inject`. Authors needing the immutable original intent (e.g., to detect interception or to emit fallback behaviour when the developer omitted an inject block) should read `.inject_raw`.
 
@@ -121,7 +121,7 @@ The field is the **only** route to the attachment's instance name. `.context.ins
 
 ## Per-site availability
 
-Field availability varies by template site. Recipe `provides:` templates run at Pass 1 with self-contained context (no `.context.inject`/`.context.uses`); Recipe `valuesMapping:` runs at Phase B with full TemplateContext; FeatureRecipe `injectMapping:` runs at Phase A with full TemplateContext including the inject pipe being intercepted. The complete site-by-site availability table is at [expansion-matrix.md](expansion-matrix.md); this page documents the field shapes that the matrix's "available references" column points at.
+Field availability varies by template site. Recipe `provides:` templates run at provides evaluation with self-contained context (no `.context.inject`/`.context.uses`); Recipe `valuesMapping:` runs at base rendering with full TemplateContext; FeatureRecipe `injectMapping:` runs at inject mapping with full TemplateContext including the inject pipe being intercepted. The complete site-by-site availability table is at [expansion-matrix.md](expansion-matrix.md); this page documents the field shapes that the matrix's "available references" column points at.
 
 ## Cross-references
 
@@ -131,4 +131,4 @@ Field availability varies by template site. Recipe `provides:` templates run at 
 - [`../entities/recipe.md`](../entities/recipe.md) — Recipe authoring surface.
 - [`../entities/featurerecipe.md`](../entities/featurerecipe.md) — FeatureRecipe authoring surface (including the K8s DNS resolver worked example for `.context.uses` traversal).
 - [`../vocabulary/topology-triad.md`](../vocabulary/topology-triad.md) — Injection Contract specification (covers the dual-state context, key-collision rules, worked examples).
-- [`../10-status.md#compilation-pipeline-phases`](../10-status.md#compilation-pipeline-phases) — current readiness of Phase A/B/C surfaces.
+- [`../10-status.md#compilation-pipeline-phases`](../10-status.md#compilation-pipeline-phases) — current readiness of the inject-mapping, base-rendering and plugin-pipeline surfaces.
