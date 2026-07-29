@@ -32,7 +32,7 @@ spec:
 ```
 
 **2. Ops Domain: The FeatureRecipe**
-The `injectMapping` template executes during Phase A of Step 5. It reads the base host from the already pre-hydrated inject pipe, dynamically locates the specific topological edge that owns the variable, resolves the namespace from the target's Release annotations, and emits a precise override dictionary.
+The `injectMapping` template executes at inject mapping, the pre-render interception stage. It reads the base host from the already pre-hydrated inject pipe, dynamically locates the specific topological edge that owns the variable, resolves the namespace from the target's Release annotations, and emits a precise override dictionary.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -115,10 +115,10 @@ spec:
 
 **Compilation Trace:**
 
-1. **Pass 1:** `app-db`'s Recipe resolves `provides: { host: "app-db", port: "5432" }`.
-2. **Pass 2:** `web-server`'s inject pipe is pre-hydrated: `DB_HOST: "app-db"`.
-3. **Pass 3 Phase A:** The `k8s-dns-patcher` `injectMapping` executes on `web-server`. It reads `DB_HOST` → `"app-db"`, finds the edge to `app-db`, resolves its Release annotation `aggrega.ai/namespace` → `"backend-zone"`, and emits `DB_HOST: "app-db.backend-zone.svc"`.
-4. **Pass 3 Phase B:** The web server's `valuesMapping` renders with the FQDN already in `.context.inject.env`.
+1. **Provides evaluation:** `app-db`'s Recipe resolves `provides: { host: "app-db", port: "5432" }`.
+2. **Inject hydration:** `web-server`'s inject pipe is pre-hydrated: `DB_HOST: "app-db"`.
+3. **Inject mapping:** The `k8s-dns-patcher` `injectMapping` executes on `web-server`. It reads `DB_HOST` → `"app-db"`, finds the edge to `app-db`, resolves its Release annotation `aggrega.ai/namespace` → `"backend-zone"`, and emits `DB_HOST: "app-db.backend-zone.svc"`.
+4. **Base rendering:** The web server's `valuesMapping` renders with the FQDN already in `.context.inject.env`.
 
 ---
 
@@ -173,7 +173,7 @@ spec:
 ```
 
 **3. The Wasm Input (Go Compiler → Wasm `stdin`)**
-During Step 5 Phase C, the compiler feeds the Injector plugin its step input, with the `with:` template already evaluated. The JSON below illustrates the payload; the exact wire contract is the step-input shape documented in the [Wasm plugin contract](../plugins/plugin-contract.md). Phase C runs during `aggrega build`; see [Status of the Language](../10-status.md#compilation-pipeline-phases).
+During the plugin pipeline, the compiler feeds the Injector plugin its step input, with the `with:` template already evaluated. The JSON below illustrates the payload; the exact wire contract is the step-input shape documented in the [Wasm plugin contract](../plugins/plugin-contract.md). The plugin pipeline runs during `aggrega build`; see [Status of the Language](../10-status.md#compilation-pipeline-phases).
 
 ```json
 {
