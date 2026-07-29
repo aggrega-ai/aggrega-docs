@@ -4,19 +4,19 @@ The conceptual framing of the five DSL structural keywords — `parameters`, `va
 
 ## Canonical pillar list
 
-Aggrega entities carry seven named data pillars. Five participate in the IR data flow as live state through Step 5 rendering; two are transient or private and exist only at specific compilation stages.
+Aggrega entities carry seven named data pillars. Five participate in the IR data flow as live state through rendering; two are transient or private and exist only at specific compilation stages.
 
 | Pillar | Lives on | Lifecycle | Role |
 | --- | --- | --- | --- |
-| `values` | Aggregate component / attachment instances | Live through Step 5 | Developer-authored cognitive payload |
-| `infra` | Release component / boundary / attachment instances | Live through Step 5 | Operator-authored physical sizing |
-| `provides` | Recipe `provides:` block | Live through Step 5 (derived pillar — see below) | Recipe-computed public output strings the topology pipe consumes |
-| `uses` | Aggregate component / feature instances | Live through Step 5 | Topological edges to other components / features |
-| `features` | Aggregate + Release component instances; slots declared in a catalog entity's `featuresSchema` — see "Features pillar" below | Live through Step 5 | Attachment pillar — one shape for every attachment family |
-| `parameters` | Aggregate + Release roots | Alive through end-of-pipeline (purged after every render phase completes); accessible to path templates at Step 5 via the asymmetric grant; value-template TemplateContexts consume the post-interpolation literals rather than `.parameters` directly | Per-environment slots fulfilled by the Release |
-| `locals` | Recipe `locals:` block | Recipe-private — visible only inside the Recipe's own templates | Computed string state Recipes derive in the Pass 1 preamble |
+| `values` | Aggregate component / attachment instances | Live through rendering | Developer-authored cognitive payload |
+| `infra` | Release component / boundary / attachment instances | Live through rendering | Operator-authored physical sizing |
+| `provides` | Recipe `provides:` block | Live through rendering (derived pillar — see below) | Recipe-computed public output strings the topology pipe consumes |
+| `uses` | Aggregate component / feature instances | Live through rendering | Topological edges to other components / features |
+| `features` | Aggregate + Release component instances; slots declared in a catalog entity's `featuresSchema` — see "Features pillar" below | Live through rendering | Attachment pillar — one shape for every attachment family |
+| `parameters` | Aggregate + Release roots | Alive through end-of-pipeline (purged after every render phase completes); accessible to path templates during rendering via the asymmetric grant; value-template TemplateContexts consume the post-interpolation literals rather than `.parameters` directly | Per-environment slots fulfilled by the Release |
+| `locals` | Recipe `locals:` block | Recipe-private — visible only inside the Recipe's own templates | Computed string state Recipes derive in the locals preamble |
 
-`values` / `infra` / `provides` / `uses` / `features` are the **five live pillars** the runtime template context exposes through `.values`, `.infra`, `.provides`, `.context.uses`, and `.features` respectively. `parameters` and `locals` are off the live-pillar list — `parameters` because it does not survive Step 1; `locals` because it is Recipe-private and never crosses entity boundaries.
+`values` / `infra` / `provides` / `uses` / `features` are the **five live pillars** the runtime template context exposes through `.values`, `.infra`, `.provides`, `.context.uses`, and `.features` respectively. `parameters` and `locals` are off the live-pillar list — `parameters` because it does not survive resolution; `locals` because it is Recipe-private and never crosses entity boundaries.
 
 The pillar-walls-vs-signposts question resolves with **signposts**: the template engine permits cross-pillar reads at every site unless explicitly forbidden by self-containment rules (Recipe `provides:` and Recipe `source:` block reading `.context.inject` / `.context.uses`; documented at [`templates/expansion-matrix.md`](../templates/expansion-matrix.md)). Pillar boundaries are authoring discipline, not language enforcement.
 
@@ -49,7 +49,7 @@ The `values:` pillar carries Developer-authored cognitive payload — the applic
 
 **Validated by:** Component `schema`'s `values:` block (and Feature `schema`'s `values:` block for Feature attachments), resolved to JSON Schema 2020-12 at Component / Feature load time per [vocabulary/validation-surface.md](validation-surface.md) Layer 2.
 
-**Consumed by:** Recipe `valuesMapping:` templates via `.values`. The full TemplateContext exposes the resolved values dictionary at every Phase B template site.
+**Consumed by:** Recipe `valuesMapping:` templates via `.values`. The full TemplateContext exposes the resolved values dictionary at every base-rendering template site.
 
 ## Infra
 
@@ -86,9 +86,9 @@ The phrase "strictly localized" overstates the localization — it implies a wal
 
 The `provides:` pillar is **derived** — a Recipe declares it, but unlike `values` / `infra`, the developer does not author it directly. Recipes compute the public output strings the topology pipe will consume.
 
-A Recipe's `provides:` block is a map of `<key>: <template>` pairs. Each template evaluates against the Recipe's own self-contained surface (`.values`, `.infra`, `.context.instance_id`, and the node's resolved `.locals`) at Step 5 Pass 1. The resulting strings are exposed via `.provides` and consumed by callers' `uses[].inject` blocks via `from: "<key>"` references. `.locals` is available because the node's locals resolve in that pass's preamble, ahead of its provides (see [Locals](#locals) below); naming a key the locals block does not declare halts.
+A Recipe's `provides:` block is a map of `<key>: <template>` pairs. Each template evaluates against the Recipe's own self-contained surface (`.values`, `.infra`, `.context.instance_id`, and the node's resolved `.locals`) during provides evaluation. The resulting strings are exposed via `.provides` and consumed by callers' `uses[].inject` blocks via `from: "<key>"` references. `.locals` is available because the node's locals resolve in that stage's preamble, ahead of its provides (see [Locals](#locals) below); naming a key the locals block does not declare halts.
 
-**Self-containment invariant.** Recipe `provides:` templates must not reference `.context.inject` or `.context.uses`. Pass 1 evaluates provides templates in any order — they close over the node's own data only, so the order does not matter. Cross-node references would couple Pass 1 evaluation to topological iteration order, which the design deliberately avoids. See [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) row 6 for the rule and its rationale.
+**Self-containment invariant.** Recipe `provides:` templates must not reference `.context.inject` or `.context.uses`. Provides evaluation runs those templates in any order — they close over the node's own data only, so the order does not matter. Cross-node references would couple that evaluation to topological iteration order, which the design deliberately avoids. See [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) row 6 for the rule and its rationale.
 
 **Why `provides:` is a pillar.** The output strings are the canonical public surface of every Recipe; downstream consumers (caller `uses[].inject`, FeatureRecipe `injectMapping` blocks reading the target's resolved provides via `.context.uses`) treat the dictionary as a typed contract. Naming `provides:` as a pillar acknowledges its first-class status alongside `values` / `infra` / `uses` / `features`. Treating it as "just a Recipe internal" understates its role as the topology pipe's primary data source.
 
@@ -96,7 +96,7 @@ A Recipe's `provides:` block is a map of `<key>: <template>` pairs. Each templat
 
 The `uses:` pillar is the topological-edge declaration. A component instance's `uses:` block names the edges the component participates in — the sockets it consumes targets through. The full grammar is documented at [topology-triad.md](topology-triad.md); this section names `uses:` as a pillar for completeness.
 
-`uses:` lives on Aggregate component instances + feature attachments; the runtime template context exposes the JOIN projection over outbound edges as `.context.uses`. The projection carries each edge's resolved target metadata (target's `provides`, labels, annotations) so callers' Recipes can read cross-component pointer strings at Phase B template evaluation.
+`uses:` lives on Aggregate component instances + feature attachments; the runtime template context exposes the JOIN projection over outbound edges as `.context.uses`. The projection carries each edge's resolved target metadata (target's `provides`, labels, annotations) so callers' Recipes can read cross-component pointer strings at base-rendering template evaluation.
 
 ## Features pillar
 
@@ -117,7 +117,7 @@ For the authoring checklist, see [examples/04-secrets.md](../examples/04-secrets
 
 ## Locals
 
-The `locals:` pillar is Recipe-private state. The whole block resolves in the preamble of Pass 1, ahead of that node's `provides:`; the resulting strings are visible to every one of the Recipe's own later templates — `provides:`, `source:`, `valuesMapping:`, `workload:`, `artifacts:`, `assertions:`, `pipeline[].with`. A `provides:` template naming a key the block does not declare halts.
+The `locals:` pillar is Recipe-private state. The whole block resolves in the locals preamble, ahead of that node's `provides:`; the resulting strings are visible to every one of the Recipe's own later templates — `provides:`, `source:`, `valuesMapping:`, `workload:`, `artifacts:`, `assertions:`, `pipeline[].with`. A `provides:` template naming a key the block does not declare halts.
 
 **Authored at:** Recipe `spec.locals:` block — a map of `<key>: <template>` pairs evaluated against a self-contained node-local surface: `.context.instance_id`, `.values`, `.infra`, and the entries of the same block already resolved. Nothing else is on it: `.provides`, `.metadata`, and the rest of `.context.*` are not, and a reference to one halts.
 
@@ -186,7 +186,7 @@ spec:
 
 For CI/CD flows that keep the parameter values in a separate file (e.g., a per-environment `.yaml` checked in alongside the Release), the Release uses the `$import:` form: `parameters: { $import: ./prod-values.yaml }`. The file's content replaces the inline map at the Release surface. Multi-file layering (combining a base file with an environment-specific overlay) is expressed by Release `extends:` chains — the parent Release supplies base parameters; the child Release extends and overrides per-key.
 
-**Parameter lifecycle.** The compiler resolves parameters across four phases. (1) Parameter contract validation — the typed `parameters:` contract validates each Release-supplied value against its declared `type` / `enum` / `min` / `max` / `pattern` constraints. (2) Default fill — slots with `default:` defined and no Release value receive their default. (3) Interpolation — the compiler walks the Aggregate's YAML strings and replaces every `{{ .parameters.<slot> }}` reference inside value-template surfaces with the resolved value. (4) End-of-pipeline active-purge — the merged parameter map is actively zeroed and deleted after Step 5 completes (path-template eval, Phase A injectMapping, Phase B sub-passes, Phase B.6 dispatch, per-(path, provider) assembly). The map remains alive through Step 5 between phases 3 and 4 so that path templates (Release boundary `directory:` / `subDirectory:`) can read `.parameters.<slot>` directly at orchestrator time against the closed allowlist documented at [`../path-template-variables.md`](../path-template-variables.md). Value-template surfaces (Recipe `valuesMapping`, FeatureRecipe `injectMapping` / `provides` / `pipeline.with`, Workload bodies) do NOT receive `.parameters` in their TemplateContext — they consume the resolved values written into the surrounding `values:` strings by phase 3 interpolation.
+**Parameter lifecycle.** The compiler resolves parameters across four phases. (1) Parameter contract validation — the typed `parameters:` contract validates each Release-supplied value against its declared `type` / `enum` / `min` / `max` / `pattern` constraints. (2) Default fill — slots with `default:` defined and no Release value receive their default. (3) Interpolation — the compiler walks the Aggregate's YAML strings and replaces every `{{ .parameters.<slot> }}` reference inside value-template surfaces with the resolved value. (4) End-of-pipeline active-purge — the merged parameter map is actively zeroed and deleted after rendering completes (path-template eval, inject mapping, the base-rendering sub-stages, feature-rendering dispatch, per-(path, provider) assembly). The map remains alive through rendering between phases 3 and 4 so that path templates (Release boundary `directory:` / `subDirectory:`) can read `.parameters.<slot>` directly at orchestrator time against the closed allowlist documented at [`../path-template-variables.md`](../path-template-variables.md). Value-template surfaces (Recipe `valuesMapping`, FeatureRecipe `injectMapping` / `provides` / `pipeline.with`, Workload bodies) do NOT receive `.parameters` in their TemplateContext — they consume the resolved values written into the surrounding `values:` strings by phase 3 interpolation.
 
 ### The parameter-hoisting checklist
 
@@ -195,11 +195,11 @@ Every cross-environment value flows through four authoring touchpoints in sequen
 | Step | Surface | Action |
 | --- | --- | --- |
 | 1 | Aggregate `spec.parameters.<name>` | **Declare** the parameter as part of the Aggregate's typed authoring contract. Each parameter slot carries a declared `type` (`string`, `integer`, `number`, `boolean`, `array`, `object`), an optional `description`, an optional `default`, optional value-space constraints (`enum`, `min`, `max`, `pattern`, `minLength`, `maxLength`), and optional nested structure for object-typed slots. The contract validates each Release-supplied value before interpolation. |
-| 2 | Component `values:` template inside the same Aggregate | **Reference** the parameter via `{{ .parameters.<name> }}` from inside the `values:` block of any component (or feature, or sub-aggregate) that consumes it. The reference is a Go template expression — the compiler evaluates it during Step 1 interpolation. |
+| 2 | Component `values:` template inside the same Aggregate | **Reference** the parameter via `{{ .parameters.<name> }}` from inside the `values:` block of any component (or feature, or sub-aggregate) that consumes it. The reference is a Go template expression — the compiler evaluates it during resolution's interpolation phase. |
 | 3 | Release `spec.parameters.<name>` (inline or `parameters: { $import: ./path.yaml }`) | **Fulfill** the parameter with the environment-specific value at the Release surface. Per-environment Release files supply different values for the same parameter key without modifying the Aggregate. |
-| 4 | Recipe `valuesMapping:` template | **Consume** the resolved value via `{{ .values.<key> }}` — the Recipe is a value-template surface; its TemplateContext does not carry `.parameters` directly. Per-environment variation reaches the Recipe through the post-interpolation `values:` dictionary written by Step 1 phase 3. (Path templates on Release boundaries are the carve-out: they read `.parameters.<slot>` directly at Step 5 orchestrator time per the asymmetric grant.) |
+| 4 | Recipe `valuesMapping:` template | **Consume** the resolved value via `{{ .values.<key> }}` — the Recipe is a value-template surface; its TemplateContext does not carry `.parameters` directly. Per-environment variation reaches the Recipe through the post-interpolation `values:` dictionary that the interpolation phase above writes. (Path templates on Release boundaries are the carve-out: they read `.parameters.<slot>` directly at render-orchestration time per the asymmetric grant.) |
 
-The four touchpoints are sequential and load-bearing: skipping the Aggregate declaration leaves the Release with no slot to fulfill; skipping the values reference leaves the Recipe with no value to consume; skipping the Release fulfilment leaves the parameter empty. The compiler validates the chain across Step 1 (parameter contract validation against the typed `parameters:` declaration, then interpolation into the surrounding `values:` strings, then JSON Schema validation of the resulting `values:` dictionary against the Component or Feature `schema:`); mismatches surface as either a parameter-contract violation (caught at Step 1 against the typed `parameters:` declaration), an unfilled-template error (caught at Step 1 interpolation), or a JSON Schema constraint violation against the `values:` schema (caught at Step 1 validation).
+The four touchpoints are sequential and load-bearing: skipping the Aggregate declaration leaves the Release with no slot to fulfill; skipping the values reference leaves the Recipe with no value to consume; skipping the Release fulfilment leaves the parameter empty. The compiler validates the chain during resolution (parameter contract validation against the typed `parameters:` declaration, then interpolation into the surrounding `values:` strings, then JSON Schema validation of the resulting `values:` dictionary against the Component or Feature `schema:`); mismatches surface as either a parameter-contract violation (caught against the typed `parameters:` declaration), an unfilled-template error (caught at interpolation), or a JSON Schema constraint violation against the `values:` schema (caught at schema validation).
 
 The pattern is the canonical mechanism for GitOps promotion: a single immutable Aggregate moves through environments with each environment's Release supplying its own parameter values. Every per-environment value an author wants to vary belongs in the parameter chain rather than embedded directly in the Aggregate.
 
@@ -257,7 +257,7 @@ The `.context.inject` pipe is the merge point of three pillar-spanning sources:
 2. **Uses-inject** (`uses[].inject`) — sources strings from the target's `provides`.
 3. **FeatureRecipe `injectMapping:` interceptions** — sources strings from any of the above plus the FeatureRecipe's own `infra:` payload.
 
-By the time Phase B runs, `.context.inject.<mechanism>.<key>` has accumulated entries from all three sources. The accumulator is cross-pillar by construction — entries originating in `values`, `provides`, and `infra` all flow into the same `.context.inject` map. Recipes consuming `.context.inject` see post-merge state without needing to know which pillar contributed which entry.
+By the time base rendering runs, `.context.inject.<mechanism>.<key>` has accumulated entries from all three sources. The accumulator is cross-pillar by construction — entries originating in `values`, `provides`, and `infra` all flow into the same `.context.inject` map. Recipes consuming `.context.inject` see post-merge state without needing to know which pillar contributed which entry.
 
 For the inject grammar and collision rules, see [topology-triad.md](topology-triad.md).
 
@@ -265,7 +265,7 @@ For the inject grammar and collision rules, see [topology-triad.md](topology-tri
 
 A field that lives in two pillars with different validation layers can carry duplicate constraints. The canonical example: a port number declared in a Component's `usesSchema` (JSON-Schema-validated, range `min: 1, max: 65535`) and the same port number consumed in a Workload's `services.<name>.ports.<port>` field, for which the provider-rendering plugin's `spec.provider.workloadSchema` may add a `min: 1024` rule for non-privileged ports. **This per-provider `workloadSchema` content validation is honest-pending** (see [validation-surface.md](validation-surface.md) Layer 3 and the roadmap's Wasm-based Workload synthesizers item): today `workloadSchema` is documentation-only and Workload bodies are validated against the platform-owned embedded Workload schema, so the second-layer rejection described here is the designed end-state, not current behavior.
 
-When the `usesSchema` allows port 80 but `workloadSchema` declares ports below 1024 invalid, the runtime will fire the `workloadSchema` rejection at Step 5 Phase B — the Layer 3 validation per [validation-surface.md](validation-surface.md). The first layer's constraint passed; the second layer caught the violation.
+When the `usesSchema` allows port 80 but `workloadSchema` declares ports below 1024 invalid, the runtime will fire the `workloadSchema` rejection during base rendering — the Layer 3 validation per [validation-surface.md](validation-surface.md). The first layer's constraint passed; the second layer caught the violation.
 
 The duplication is deliberate: each layer covers a different concern. The Component's `usesSchema` governs the cognitive contract (the developer's `uses:` declaration). The provider-rendering plugin's `spec.provider.workloadSchema` governs the rendered-output contract (what the engine accepts). When both apply to the same field, the strictest wins; authors who hit the second layer's rejection see a `CATALOG_ERROR:` attributed to the Recipe and the provider engine that rendered it.
 
@@ -305,9 +305,9 @@ The pillars carry validation across three tiers. Each tier covers a different co
 
 | Tier | What it validates | Where it runs |
 | --- | --- | --- |
-| 1 — JSON Schema envelope | Structural shape (which keys are present, types match the field declarations) | Step 1, per file load |
-| 2 — Per-pillar schema (`schema` / `featuresSchema` / `usesSchema`) | Per-pillar typed content validated as JSON Schema 2020-12 | Step 1, after envelope passes |
-| 3 — provider engine-capability gate | Workload content gated by the bound provider engine's synthesized-mode capability, documented by the provider-rendering plugin's `spec.provider.workloadSchema` | Step 5 Phase B, after valuesMapping resolves |
+| 1 — JSON Schema envelope | Structural shape (which keys are present, types match the field declarations) | Resolution, per file load |
+| 2 — Per-pillar schema (`schema` / `featuresSchema` / `usesSchema`) | Per-pillar typed content validated as JSON Schema 2020-12 | Resolution, after envelope passes |
+| 3 — provider engine-capability gate | Workload content gated by the bound provider engine's synthesized-mode capability, documented by the provider-rendering plugin's `spec.provider.workloadSchema` | Base rendering, after valuesMapping resolves |
 
 For the four-layer error-shape table and per-layer error prefixes, see [validation-surface.md](validation-surface.md).
 
@@ -317,7 +317,7 @@ Default values appear across the corpus through several distinct mechanisms. Aut
 
 | # | Mechanism | Where authored | Trigger |
 | --- | --- | --- | --- |
-| 1 | JSON Schema `default:` (compact form `{ default: <value> }`) | Component / Feature `schema:`, Aggregate `parameters:` | Field validates with the default when the developer omits the key. For Aggregate parameters, the Step 1a parameter-merge fills the declared default before contract validation runs (see [`templates/parameters-context.md`](../templates/parameters-context.md)). |
+| 1 | JSON Schema `default:` (compact form `{ default: <value> }`) | Component / Feature `schema:`, Aggregate `parameters:` | Field validates with the default when the developer omits the key. For Aggregate parameters, the parameter-merge fills the declared default before contract validation runs (see [`templates/parameters-context.md`](../templates/parameters-context.md)). |
 | 2 | Go template ``optional .X `Y` <fallback>`` | Recipe `valuesMapping:`, Workload body, FeatureRecipe templates, the assertion evaluator | Presence-aware fallback — returns `<fallback>` only when the key is absent from the map; an authored zero / empty / false at the key returns that authored value. The canonical Aggrega-side absent-field-fallback shape. See [`templates/sprig-functions.md`](../templates/sprig-functions.md#optional--presence-aware-fallback). |
 | 3 | Go template `\| default <expr>` | Recipe `valuesMapping:`, Workload body, FeatureRecipe templates | Inline pipeline that fires on "empty" (Sprig's emptiness check — zero, empty string, false, nil). Conflates absent-from-map with present-but-zero/empty/false. Appropriate for per-call-site override semantics (the binding's fallback differs from the field's schema-level default) where the conflation is acceptable. Not appropriate for absent-field-fallback where authored zero / empty / false is a legitimate intent — use `optional` (mechanism 2) for that case. |
 | 4 | Sprig `default` function (`{{ default <expr> .field }}`) | Same as 3 | Function form of mechanism 3 with the same emptiness conflation. |
