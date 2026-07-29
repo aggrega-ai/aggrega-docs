@@ -7,7 +7,7 @@ This page is the sentinel-keyed view of the catalogue. Programmers writing CI ga
 The compiler exports each sentinel from its declaring package; importing the package and dereferencing the sentinel by name is the supported integration surface:
 
 ```go
-import "github.com/aggrega/aggrega-cli/pkg/resolver"
+import "github.com/aggrega-ai/aggrega-cli/pkg/resolver"
 
 if errors.Is(err, resolver.ErrParameterContractViolation) {
     // handle parameter contract violations
@@ -18,7 +18,7 @@ The sentinels listed below are stable across patch releases; renames or removals
 
 ## Resolver-stage sentinels (`pkg/resolver`)
 
-Step 1 of the compilation pipeline — workspace load, parameter interpolation, target-reference validation, inject-contract checks, attachment-presence completeness.
+Resolution — workspace load, parameter interpolation, target-reference validation, inject-contract checks, attachment-presence completeness.
 
 | Sentinel | Wrapped message | User-facing surface |
 | --- | --- | --- |
@@ -66,42 +66,18 @@ Compact-form authoring surface validation — keyword vocabulary, constraint-typ
 | `ErrCircularRef` | `compactform: circular cross-document $ref expansion` | A SchemaLibrary chain forms a cycle; expansion would not terminate. |
 | `ErrHostInLibraryRef` | `compactform: cross-document $ref carries a registry host; reference the library by identity` | A cross-document `$ref:` carries a registry host (an `oci://<host>/…` form). References address libraries by identity — the bare-name `<Library>#/schemas/<Entry>` form — so the host is rejected with a steer to the identity form. |
 
-## Topology-stage sentinels (`internal/compiler/topology`)
+## Stages whose sentinels are not part of the matching surface
 
-Step 2 — topology graph construction, sub-aggregate flattening.
+Four compilation stages declare their sentinels in packages the compiler does not export, so there is nothing for `errors.Is` to reference and no matcher can be written against them. They are described here rather than tabulated, because a table on this page is a promise that the left-hand column can be dereferenced.
 
-| Sentinel | Wrapped message | User-facing surface |
-| --- | --- | --- |
-| `ErrSubAggregateLoad` | `sub-aggregate load failed` | A sub-Aggregate referenced via `spec.aggregates.<name>.type:` could not be loaded; the message names the unreachable Aggregate URI. |
-| `ErrInvalidUsesFormat` | `invalid uses format: a uses socket value must be a string array of target names or a verbose alias-keyed map` | A `uses:` declaration's structural shape did not match the schema (e.g., a string where a map was expected). |
-| `ErrMaxDepth` | `max sub-aggregate nesting depth exceeded` | Surfaces as "Sub-aggregate nesting depth exceeded" in fatal-halts. |
-| `ErrSubAggregateNameCollision` | `flattened node ID collision: rename one of the colliding instances so their flattened IDs differ` | Two sub-Aggregates flatten to the same node ID after compilation; rename one of the sub-Aggregate instance names to disambiguate. |
+Their diagnostics reach you in full through the emitted error text and through the message-keyed views — [fatal-halts.md](./fatal-halts.md) in particular — which is the supported way to recognise them:
 
-## IR-stage sentinels (`internal/compiler/ir`)
+- **Topology construction** (graph construction and sub-aggregate flattening) reports a sub-Aggregate that could not be loaded, naming the unreachable Aggregate URI; a `uses:` declaration whose structural shape does not match the schema; nesting depth exceeded; and a flattened node-ID collision, where two sub-Aggregates compile to the same node ID and one instance name has to be renamed to disambiguate.
+- **Graph finalization** (Feature merging across the Aggregate and Release surfaces) reports a Feature type declared inconsistently between the two.
+- **Static analysis** (selector evaluation and cross-node type-safety checks) reports a `selector:` violation; a catalog-resolution miss it cannot proceed past, naming the unreachable entity; and a policy rejection, where a plugin attached at a governance verdict role rejected the assembled build. A policy rejection carries the `POLICY_ERROR` category, the rejecting plugin's name, and the rule message the plugin supplied.
+- **Rendering** (renderer dispatch and per-engine rendering) reports an unknown provider.
 
-Step 3 — IR construction, Feature merging across Aggregate + Release surfaces.
-
-| Sentinel | Wrapped message | User-facing surface |
-| --- | --- | --- |
-| `ErrFeatureTypeMismatch` | `feature type mismatch between Aggregate and Release` | Surfaces as "Feature type mismatch between Aggregate and Release" in fatal-halts. |
-
-## Static analyzer sentinels (`internal/compiler/analyzer`)
-
-Step 4 — selector evaluation, cross-node type-safety checks.
-
-| Sentinel | Wrapped message | User-facing surface |
-| --- | --- | --- |
-| `ErrSelectorViolation` | `selector violation` | Surfaces as "Cross-node type safety violation via `selector:`" in fatal-halts. |
-| `ErrCatalogLookup` | `catalog lookup failed` | A catalog-resolution miss the analyzer cannot proceed past; the message names the unreachable entity. |
-| `ErrPolicyViolation` | `policy violation` | A policy plugin attached at a governance verdict role rejected the assembled build; surfaces under the `POLICY_ERROR` category with the rejecting plugin named and the rule message it supplied. |
-
-## Provider-engine sentinels
-
-Step 5 — renderer dispatch and per-engine rendering.
-
-| Sentinel | Wrapped message | User-facing surface |
-| --- | --- | --- |
-| `ErrUnknownProvider` | `unknown provider` | Surfaces as "Unknown provider" in fatal-halts. |
+To gate a pipeline on a policy rejection specifically, match the `POLICY_ERROR` category prefix in the diagnostic rather than a sentinel; the category is a documented part of the error surface, described in [error-translation.md](./error-translation.md).
 
 ## Fetch sentinels (`pkg/oci`, re-exported by `pkg/sourceresolver`)
 
