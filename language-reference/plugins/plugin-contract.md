@@ -1,10 +1,10 @@
 # Wasm plugin contract
 
-Aggrega's compilation pipeline includes designated socket points where WebAssembly (Wasm) plugins extend the engine's behaviour: a Step 2 Mutation Gate, a Step 4 Validation Gate, a Step 5 Phase C plugin pipeline for FeatureRecipe execution, an out-of-band linting socket, and a provider-rendering socket. This page documents the public Wasm plugin contract: which sockets exist, what each socket consumes and produces, where each socket sits in the compilation pipeline, and the sandbox every plugin executes inside.
+Aggrega's compilation pipeline includes designated socket points where WebAssembly (Wasm) plugins extend the engine's behaviour: a Mutation Gate at topology construction, a Validation Gate at static analysis, a post-render plugin pipeline for FeatureRecipe execution, an out-of-band linting socket, and a provider-rendering socket. This page documents the public Wasm plugin contract: which sockets exist, what each socket consumes and produces, where each socket sits in the compilation pipeline, and the sandbox every plugin executes inside.
 
 This page covers the *sockets* — the pipeline points and their input/output shapes. For the *plugin* — the `Plugin` entity, the per-export capability claims, the runtime limits, and the publish→pull→build lifecycle — see the [Wasm plugin developer guide](plugin-developer-guide.md).
 
-Aggrega embeds a Wasm host runtime — Extism on top of the Wazero engine — that loads and executes plugins behind an AOT-purity firewall: the host grants a guest zero ambient capability — no network, no filesystem, no environment, discarded stdio, an observable wall clock frozen to a build-invariant instant — so a plugin cannot break the compiler's ahead-of-time guarantees. The full capability surface — the import-module rule at load, the instantiation-time denials, and the curated host functions — is [the sandbox contract](#the-sandbox-contract) below. Plugin authors target the host through the three-language PDK (Go, Rust, TypeScript). The first socket dispatched through the host in a shipping command is the **linter socket** — the standard publishing-linter, executed by [`aggrega lint`](../cli/aggrega-lint.md). `aggrega build` dispatches the governance socket's build-time roles when a workspace configures them: the Step-1 annotation-transform and Step-2 label-transform (which shape output) and the Step-4 IR verdict and Step-5 render verdict. Each is a no-op when no plugin is attached at that role, so a build with no governance configuration is unchanged. `aggrega build` also dispatches the Step 5 Phase C FeatureRecipe and Recipe `pipeline:` — each declared step runs through the host against the rendered document set, applying the step's RFC 6902 patches and emitting its side effects. See [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases).
+Aggrega embeds a Wasm host runtime — Extism on top of the Wazero engine — that loads and executes plugins behind an AOT-purity firewall: the host grants a guest zero ambient capability — no network, no filesystem, no environment, discarded stdio, an observable wall clock frozen to a build-invariant instant — so a plugin cannot break the compiler's ahead-of-time guarantees. The full capability surface — the import-module rule at load, the instantiation-time denials, and the curated host functions — is [the sandbox contract](#the-sandbox-contract) below. Plugin authors target the host through the three-language PDK (Go, Rust, TypeScript). The first socket dispatched through the host in a shipping command is the **linter socket** — the standard publishing-linter, executed by [`aggrega lint`](../cli/aggrega-lint.md). `aggrega build` dispatches the governance socket's build-time roles when a workspace configures them: the annotation-transform role during resolution and the label-transform role at topology construction (both shape output), plus the IR verdict at static analysis and the render verdict over the rendered artifacts. Each is a no-op when no plugin is attached at that role, so a build with no governance configuration is unchanged. `aggrega build` also dispatches the FeatureRecipe and Recipe `pipeline:` in the plugin pipeline that closes rendering — each declared step runs through the host against the rendered document set, applying the step's RFC 6902 patches and emitting its side effects. See [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases).
 
 ## The sandbox contract
 
@@ -47,15 +47,15 @@ The compilation pipeline reserves the following socket points. The shape labels 
 
 | Socket | Pipeline placement | Status today |
 | --- | --- | --- |
-| Governance socket, `annotation-transform` role | Step 1 (before annotation expansion) | **available** — dispatched when a workspace attaches an annotation-transform plugin; injects annotations that expansion turns into Feature attachments |
-| Governance socket, `label-transform` role | Step 2 (Topology Builder) | **available** — dispatched when a workspace attaches a label-transform plugin; auto-tags node labels via JSON Patch |
-| Governance socket, `ir-verdict` role | Step 4 (Static Analyzer, over the IR graph) | **available** — dispatched when a workspace attaches an ir-verdict plugin; a `deny` verdict halts the build |
-| Governance socket, `render-verdict` role | Step 5 (over the rendered artifacts) | **available** — dispatched when a workspace attaches a render-verdict plugin; a `deny` verdict halts the build |
-| FeatureRecipe `pipeline:` plugins | Step 5 Phase C (Post-Render Mutation) | **available** — each declared step runs against the rendered document set, applying RFC 6902 patches and emitting side effects |
-| Provider rendering plugins (helm, helm-chart, compose, terraform) | Step 5 (Phase B engines) | **available** — every provider renders through its Wasm guest; rendering is Wasm-only, with no native Go engine fallback |
+| Governance socket, `annotation-transform` role | Resolution (before annotation expansion) | **available** — dispatched when a workspace attaches an annotation-transform plugin; injects annotations that expansion turns into Feature attachments |
+| Governance socket, `label-transform` role | Topology construction (the Topology Builder) | **available** — dispatched when a workspace attaches a label-transform plugin; auto-tags node labels via JSON Patch |
+| Governance socket, `ir-verdict` role | Static analysis (the Static Analyzer, over the IR graph) | **available** — dispatched when a workspace attaches an ir-verdict plugin; a `deny` verdict halts the build |
+| Governance socket, `render-verdict` role | Rendering (over the rendered artifacts) | **available** — dispatched when a workspace attaches a render-verdict plugin; a `deny` verdict halts the build |
+| FeatureRecipe `pipeline:` plugins | The plugin pipeline (post-render mutation) | **available** — each declared step runs against the rendered document set, applying RFC 6902 patches and emitting side effects |
+| Provider rendering plugins (helm, helm-chart, compose, terraform) | Base rendering (the provider engines) | **available** — every provider renders through its Wasm guest; rendering is Wasm-only, with no native Go engine fallback |
 | `linter.wasm` (publishing-linter) | Out-of-band (`aggrega lint`) | **available** — the publishing-linter ships and runs through the host via `aggrega lint` |
 
-The annotation-driven Feature expansion sub-phase (Step 1) is a native Go pipeline pass, not a Wasm socket. It validates annotation values against the target Feature's `spec.schema` and injects synthetic Feature attachments at IR build time. See [`vocabulary/labels-and-annotations.md`](../vocabulary/labels-and-annotations.md) for the six annotation- and label-bearing surfaces and [`providers/well-known-annotations.md`](../providers/well-known-annotations.md) for the binding-shape and authoring teaching.
+The annotation-driven Feature expansion sub-phase, part of resolution, is a native Go pipeline pass, not a Wasm socket. It validates annotation values against the target Feature's `spec.schema` and injects synthetic Feature attachments at IR build time. See [`vocabulary/labels-and-annotations.md`](../vocabulary/labels-and-annotations.md) for the six annotation- and label-bearing surfaces and [`providers/well-known-annotations.md`](../providers/well-known-annotations.md) for the binding-shape and authoring teaching.
 
 ## Output shape contract — what exists today
 
@@ -63,7 +63,7 @@ Two sockets carry typed contract surfaces the compiler dispatches today. Plugin 
 
 ### The `label-transform` role — JSONPatch output
 
-**Pipeline placement.** Step 2 (Topology Builder), after IR graph construction but before the analyzer runs.
+**Pipeline placement.** Topology construction, after IR graph construction but before the analyzer runs.
 
 **Input shape (host → guest).** A `MutatorInput` document carrying:
 
@@ -93,7 +93,7 @@ the pipeline placement and the typed wire shapes.
 
 **Pipeline placement.** A policy is attached at exactly one verdict role, which fixes where it evaluates:
 
-- `ir-verdict` — evaluated at Step 4 (Static Analyzer), before Step 5 Phase B rendering. The analyzer assembles the payload on every build via [`internal/compiler/analyzer/analyzer.go`](../../../aggrega-cli/internal/compiler/analyzer/analyzer.go) `assemblePolicyInput()`.
+- `ir-verdict` — evaluated at static analysis, before base rendering. The analyzer assembles the payload on every build via [`internal/compiler/analyzer/analyzer.go`](../../../aggrega-cli/internal/compiler/analyzer/analyzer.go) `assemblePolicyInput()`.
 - `render-verdict` — evaluated after render, over the emitted artifacts.
 
 When a workspace attaches a verdict-role plugin, the pipeline marshals that role's payload to the plugin and reads its verdicts back.
@@ -115,15 +115,15 @@ Only fired verdicts appear; an allowing evaluation returns an empty array. The h
 
 ## Output shape contract — the FeatureRecipe pipeline and provider sockets
 
-The sockets below carry typed contract surfaces the compiler dispatches at build. The FeatureRecipe and Recipe `pipeline:` steps run at Step 5 Phase C over the rendered document set; the provider-rendering socket runs at Step 5 Phase B; the publishing-linter runs out of band.
+The sockets below carry typed contract surfaces the compiler dispatches at build. The FeatureRecipe and Recipe `pipeline:` steps run in the plugin pipeline over the rendered document set; the provider-rendering socket runs at base rendering; the publishing-linter runs out of band.
 
-### RFC 6902 patches (Phase C plugin pipeline)
+### RFC 6902 patches (the plugin pipeline)
 
-FeatureRecipe and Recipe `pipeline:` steps running at Step 5 Phase C emit RFC 6902 JSON Patch operations against the rendered document set. The host hands each step the keyed document set whole; the step selects the documents it targets by content and returns key-addressed patches, which the apply engine applies to the addressed documents — typically appending a sidecar container, mounting a secret volume, or rewriting an env var. A step also returns `side_effects` (below), `diagnostics`, and `outputs` (below). Demonstrated at [`examples/04-secrets.md`](../examples/04-secrets.md).
+FeatureRecipe and Recipe `pipeline:` steps running in the plugin pipeline emit RFC 6902 JSON Patch operations against the rendered document set. The host hands each step the keyed document set whole; the step selects the documents it targets by content and returns key-addressed patches, which the apply engine applies to the addressed documents — typically appending a sidecar container, mounting a secret volume, or rewriting an env var. A step also returns `side_effects` (below), `diagnostics`, and `outputs` (below). Demonstrated at [`examples/04-secrets.md`](../examples/04-secrets.md).
 
 **Status today:** **available**. Each declared step runs during `aggrega build`.
 
-### Side effects — emitting resources (Phase C credential plugins)
+### Side effects — emitting resources (credential plugins in the plugin pipeline)
 
 Credential FeatureRecipe pipelines (Two-Part Plugin Principle: Fetcher + Injector) emit full resources alongside a patch through a step's `side_effects` — for example an `ExternalSecret` or `VaultSecret` CRD (`emit_crd`) that the cluster fetches at runtime, or a written file (`emit_file`). The Fetcher's step emits the complete resource; the Injector's step returns a patch that mounts the resulting Kubernetes Secret. Demonstrated at [`examples/04-secrets.md`](../examples/04-secrets.md).
 
@@ -131,7 +131,7 @@ Credential FeatureRecipe pipelines (Two-Part Plugin Principle: Fetcher + Injecto
 
 ### Step output (`pipeline:` step `outputs` map)
 
-A Phase C step publishes named outputs that subsequent steps consume via `{{ .steps.<id>.outputs.<key> }}`. The output shape is provider-defined per plugin; step outputs are scoped to the same pipeline and visible only to subsequent steps in declaration order. Documented at [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) row 11.
+A plugin-pipeline step publishes named outputs that subsequent steps consume via `{{ .steps.<id>.outputs.<key> }}`. The output shape is provider-defined per plugin; step outputs are scoped to the same pipeline and visible only to subsequent steps in declaration order. Documented at [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) row 11.
 
 **Status today:** **available**.
 
@@ -195,11 +195,11 @@ The pipeline placement table at the top of this page reflects today's state plus
 ## Cross-references
 
 - [`policy-socket.md`](policy-socket.md) — the comprehensive policy-socket treatment: stages, verdict severities, the operator input channel, wrapping a foreign policy engine, and the reference guests.
-- [`10-status.md#compilation-pipeline-phases`](../10-status.md#compilation-pipeline-phases) — Status page Phase C classification (Wasm plugin pipeline runtime readiness).
+- [`10-status.md#compilation-pipeline-phases`](../10-status.md#compilation-pipeline-phases) — Status page plugin-pipeline classification (Wasm plugin pipeline runtime readiness).
 - [`architecture/09-ai-features.md`](../../architecture/09-ai-features.md) — Two-Part Plugin Principle for credential FeatureRecipes (Fetcher + Injector pattern).
 - [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md) — Wasm Engine target and provider-as-namespace OCI taxonomy.
 - [`entities/featurerecipe.md`](../entities/featurerecipe.md) — FeatureRecipe `pipeline:` authoring surface.
 - [`when-to-use-a-pipeline-step.md`](when-to-use-a-pipeline-step.md) — decision guide: a pipeline step vs a templated FeatureRecipe.
-- [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) — Phase C `pipeline:` `with:` block template-evaluation rules and `.steps` access semantics.
+- [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) — the plugin pipeline's `pipeline:` `with:` block template-evaluation rules and `.steps` access semantics.
 - [`examples/04-secrets.md`](../examples/04-secrets.md) — worked credential FeatureRecipe with Fetcher + Injector pipeline shape.
 - [`errors/error-translation.md`](../errors/error-translation.md) — error-translation discipline that future plugin guests participate in.
