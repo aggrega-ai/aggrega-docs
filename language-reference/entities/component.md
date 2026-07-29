@@ -625,6 +625,7 @@ Platform Architects use the `extends` keyword to layer specialized interfaces on
 | `spec.featuresSchema` | attachment slots union; a slot the extending Component redeclares replaces the base's entry of that name |
 | `spec.usesSchema` | topology sockets union, same per-name replacement rule |
 | `spec.inject` | the two self-inject allowlists concatenate, base entries first, duplicates dropped |
+| `spec.assertions` | named rules accumulate, base rules first — and this one surface admits **no** per-name replacement; see "Assertion inheritance is additive" below |
 
 A socket the extending Component adds may carry its own per-edge `valueSchema` and `infraSchema`; those are contracts on that socket's edges, not additions to the Component's own pillars.
 
@@ -639,6 +640,12 @@ The published Component schema settles which of the three possible outcomes is l
 **An extending Component cannot reshape the key set.** It declares no pillar keys, so it cannot hide, drop, or retype a key its base declares, and it adds none of its own. A new pillar key belongs on the Component whose contract owns it. Whatever the base exposes, everything extending it exposes identically.
 
 **A specialization tightens through `assertions:`.** When a specialization must admit less than its base's pillars do — a narrower numeric range, a subset of an inherited `enum:` — it says so in its own `assertions:` block: a rule there rejects a value the inherited schema accepts. That is the surface where tightening lives; see "The `assertions:` block" below.
+
+Those last two paragraphs are one rule, and either half alone misleads: **key-set narrowing is impossible, constraint-tightening is possible.** Take only the first and you conclude a specialization cannot constrain anything; take only the second and you conclude it can reshape the contract. Neither is so — the key set is fixed by the base, and the values admitted within it may be narrowed by predicate.
+
+**Assertion inheritance is additive, and the accumulation is root-first.** An instance of an extending Component is checked against every rule its chain declares as well as the rules the Component declares itself, with the inherited ones evaluated first. Along a chain of any depth the rules accumulate from the chain root downward, so when an instance would fail more than one rule, the one declared furthest up the chain is the one reported — the most fundamental contract answers first.
+
+Because inheritance adds rather than replaces, an extending Component may not reuse an inherited rule name to declare a *different* rule: that is rejected when the extends chain is resolved against the catalog, with a diagnostic naming both Components and the shared name. The check needs the base Component in hand, so it reports when the catalog is validated or a build resolves the chain — validating the extending document on its own cannot see it. The rule name is a stable identifier, so neither dropping the base's rule nor silently renaming it is an option, and the fix is a rename in the extending Component. Restating an inherited rule byte-for-byte under its own name is accepted as the no-op it is.
 
 See [architecture/13-catalog-and-registry.md §3](../../architecture/13-catalog-and-registry.md) for the schema content formats.
 
@@ -664,10 +671,17 @@ spec:
       # An open range at the baseline. A specialization that needs a tighter
       # bound expresses it as an assertion, not as a redeclared schema leaf.
       timeout_ms: { type: integer, default: 5000 }
+  assertions:
+    # A baseline invariant. It is evaluated for instances of this Component AND
+    # for instances of every Component extending it, under this same name.
+    audit-window-is-observable: |
+      {{- if lt (int .values.timeout_ms) 100 -}}
+        {{- fail "the corporate baseline needs timeout_ms of at least 100 so requests are observable" -}}
+      {{- end -}}
 ```
 
 **Example B: The Extending Component (Specializing the Baseline)**
-A specialized AI Gateway is created. It takes the base's pillars whole, adds structure of its own — a label, a self-inject mechanism, a topology socket, an attachment slot — and tightens the inherited timeout through an assertion.
+A specialized AI Gateway is created. It takes the base's pillars whole, adds structure of its own — a label, a self-inject mechanism, a topology socket, an attachment slot — and tightens the inherited timeout through an assertion. It does not restate the baseline's `audit-window-is-observable` rule: that rule is inherited and is evaluated first, so an instance of this gateway must satisfy both bounds — at least 100 and at most 2000.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -708,22 +722,23 @@ For the Recipe that implements this `core/gateway/ai-gateway` interface against 
 
 ## The `assertions:` block
 
-`Component.spec.assertions:` is an optional Go template body that expresses **architectural invariants of the Component contract** — cross-field rules the developer's authoring must satisfy regardless of which Recipe binds to the Component. The compiler evaluates the template after schema validation and before Recipe binding; a failing assertion halts the build with the assertion's specific error message per the Loud Guardrails contract.
+`Component.spec.assertions:` is an optional map of **named** rules expressing **architectural invariants of the Component contract** — cross-field rules the developer's authoring must satisfy regardless of which Recipe binds to the Component. Each key is a rule identifier that appears in the failure message; each value is a Go template body. The compiler evaluates them per instance after schema validation and before Recipe binding, in the order they are written, and the first failing rule halts the build with that rule's own error message per the Loud Guardrails contract.
 
 ```yaml
 spec:
-  assertions: |
-    {{- if eq .values.architecture "replication" -}}
-      {{- if lt .values.secondary.replicaCount 2 -}}
-        {{- fail "architecture=replication requires secondary.replicaCount >= 2" -}}
+  assertions:
+    replication-needs-two-secondaries: |
+      {{- if eq .values.architecture "replication" -}}
+        {{- if lt (int .values.secondary.replicaCount) 2 -}}
+          {{- fail "architecture=replication requires secondary.replicaCount >= 2" -}}
+        {{- end -}}
       {{- end -}}
-    {{- end -}}
 ```
 
 The rule above is a property of the Component contract — whatever Recipe binds (Bitnami chart, hand-rolled alternative, future implementation), replication mode requires at least two secondary replicas.
 
-**`assertions:` is where an extending Component tightens.** A Component that `extends:` a base inherits the base's pillar block verbatim and declares no pillar content of its own, so a specialization that must admit less than the inherited schema does states the restriction here as a predicate rather than as a narrowed schema leaf — a rule that rejects a value the inherited pillars accept. The worked pair is at "Catalog Authoring: Extending Base Components" above.
+**`assertions:` is where an extending Component tightens.** A Component that `extends:` a base inherits the base's pillar block verbatim and declares no pillar content of its own, so a specialization that must admit less than the inherited schema does states the restriction here as a predicate rather than as a narrowed schema leaf — a rule that rejects a value the inherited pillars accept. The worked pair, and the full inheritance behaviour, are at "Catalog Authoring: Extending Base Components" above: rules accumulate along the chain root-first, and reusing an inherited rule name for a different rule is rejected rather than allowed to replace it.
 
-`assertions:` is not one of the surfaces extending composes. An extending Component's block is its own: a rule its base declares is not carried onto it, so a baseline rule that must also hold on the extending Component is restated there. Assertion inheritance along an `extends` chain is not implemented.
+**The compiler does not check whether two rules can both be satisfied.** A rule is a template predicate, not a constraint the compiler reasons about, so a pair of rules no value can satisfy at once — a base demanding at least 100 and a specialization demanding at most 50 — produces no warning when the catalog loads. It surfaces the ordinary way: an instance is authored, the build halts on whichever of the two fires first, and that rule's message is what the author reads. Do not expect a contradiction to be reported up front; check a specialization's tightening against what its base already demands.
 
 Use `assertions:` for genuine **cross-field** rules. Per-field constraints (range, pattern, enum) belong in `schema:` keywords; per-field custom predicates belong in the compact form's `validate:`; conditional shape (whether a subtree's constraints apply) belongs in `when:`. For the full authoring grammar — template context fields, the `{{ fail }}` message convention, the evaluation phase, and worked examples spanning the Component and Recipe roles — see [templates/assertions-block.md](../templates/assertions-block.md).
