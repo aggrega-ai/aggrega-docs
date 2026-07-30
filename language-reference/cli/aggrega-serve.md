@@ -76,5 +76,5 @@ aggrega serve [flags]
 
 | Flag | Default | Description |
 | --- | --- | --- |
-| `--render-diagnostics` | `false` | Run the render pass on IR-graph inspection so render-time warnings are produced. Off by default (faster; the returned graph is identical either way, only render-stage advisory warnings are dropped). When set, overrides the serve.render_diagnostics config key. |
+| `--build-on-inspect` | `false` | Run the build's analysis while inspecting an IR graph, so the findings aggrega build reports also appear as editor problems. Nothing is written to disk: no rendered artifacts, no output directory, no lockfile. Off by default, matching aggrega inspect, which raises no such advisory either. When set, overrides the serve.build_on_inspect config key. |
 <!-- END GENERATED: cli-serve -->

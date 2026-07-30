@@ -124,7 +124,7 @@ Daemon (`aggrega serve`) behavior settings for the compiler-as-service consumed 
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `render_diagnostics` | boolean | no | Whether the IR-graph inspection request runs the render pass to surface render-time diagnostics. Default false skips render: the daemon returns the intermediate graph without loading rendering plugins, which is faster and drops only render-stage advisory warnings (those warnings are not part of the client-facing diagnostics, which come from the earlier resolution and analysis stages; the returned graph is identical either way). Set true to run render on the inspection path so render-time warnings are produced, at the cost of loading rendering plugins and the extra work. Default: `false` |
+| `build_on_inspect` | boolean | no | Whether the daemon runs the build's analysis while inspecting an IR graph, so the findings `aggrega build` reports also appear as editor problems. Nothing is written to disk either way — no rendered artifacts, no output directory, no lockfile — and the graph the daemon returns is identical whether the analysis runs or not; only the additional findings differ. Default false, matching `aggrega inspect`: the terminal command does not run the build's analysis while inspecting a graph, so it raises no such advisory either, and an editor inspection that raises none shows you the same thing the terminal does. Set true to ask the editor for that additional layer. Default: `false` |
 
 _Additional properties are not permitted._
 
