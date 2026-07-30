@@ -187,6 +187,7 @@ _Additional properties are not permitted._
 | `release_annotations` | map of string | no | Physical topology strings and Ops realities cascading from boundaries in the Release. |
 | `aggregate_annotations` | map of string | no | Cognitive metadata, developer intent, and FinOps cascading from subsystems in the Aggregate. |
 | `self_inject` | object | no | Component-level self-inject block carried from the Aggregate; the agnostic injection routing the node declares for itself. Opaque at this schema layer; a policy plugin that reads it parses the bytes. |
+| `uses` | object | no | The node's `uses` block exactly as authored: each socket name maps to either a list of target instance names or an alias-keyed map of connection entries, in the order the author declared them. This is the block as written, which is a different fact from the resolved connections in `edges`: a socket the author populated appears here even where it produced no connection, so a reader can tell a socket the author filled apart from a socket that reaches a target. Absent when the node authored no `uses` block. Opaque at this schema layer; a policy plugin that reads it parses the bytes. |
 
 _Additional properties are not permitted._
 
