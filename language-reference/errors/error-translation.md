@@ -57,7 +57,7 @@ When the failure forks beneath a frame — a phase that collected several indepe
 
 ```text
 [CATALOG_ERROR]
-  Step 4c (recipe resolution)
+  recipe resolution
   caused by (2):
     multiple recipes implement this type and the Manifest does not map it; pin the instance or type in the Manifest to disambiguate: component "db" (type "core/datastore/mariadb:1.0.0"): recipes [compose/mariadb:1.0.0 helm/mariadb-bitnami:1.0.0] all implement it
     ---

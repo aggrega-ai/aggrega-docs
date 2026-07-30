@@ -159,6 +159,21 @@ FeatureRecipe entries follow the same shape; the `features.type` mapping check e
 
 **How to fix:** either correct the Recipe's `spec.implements:` declaration so it matches the Manifest's component-type key, or change the Manifest entry to point at a Recipe whose `spec.implements:` does match the component-type key.
 
+### Manifest mapping value carries more segments than a recipe reference accepts
+
+A Manifest mapping value names a Recipe or FeatureRecipe in a shape the reference grammar cannot express. A recipe reference accepts a bare name, a name with a version, a capability-qualified name, or a capability-qualified name with a version — at most one `/`. A value carrying more than that (a component-type-style path such as `core/helm/eso-aws-fetcher:1.0.0`) can never name a catalog entity, whatever the catalog holds.
+
+The shape is judged as the Manifest is composed, before anything is looked up — the verdict comes from counting separators in a string, so it needs no catalog at all. Judging it there is what makes the diagnostic honest: the recipe the value *meant* is frequently present and correctly named, and being told it is missing sends you looking for the wrong thing. Every command that resolves a Release's dependencies reports it the same way, so it does not depend on which one you happen to run.
+
+Emitted message:
+> CATALOG_ERROR: malformed recipe reference in a Manifest mapping value: `spec.mappings.components.type.<key>` maps to `<value>`, which carries `<n>` slash-separated segments; a recipe reference accepts `"name"`, `"name:version"`, `"capability/name"` or `"capability/name:version"`; correct the mapping value in the Manifest
+
+The `features` section and the per-provider mapping shape produce the same message against their own coordinate, and a feature recipe reference is named as such.
+
+**How to fix:** shorten the mapping value to a shape the grammar accepts. A recipe is identified by its own `metadata.name` — optionally prefixed with its `spec.capability` and suffixed with its version — never by the component-type path it implements. The mapping's *key* is the component type; the mapping's *value* is the recipe.
+
+**Not to be confused with** a well-shaped value naming a recipe the catalog does not hold: that is a genuinely absent entity and still reports as one, naming the URI and the mapping entry that referenced it.
+
 ### Ambiguous Recipe selection **[pending]**
 
 Two or more Recipes tie for specificity when resolving a single Component through the catalog's three-form (exact / caret-range / unversioned) implements-index lookup — for example, two exact-version Recipes declaring the same `spec.implements:` URI, or two unversioned Recipes for the same Component type. The ambiguity-detection sentinel is designed but not yet shipped; today the catalog's exact-string lookup resolves only literal-key matches, and the broader three-form precedence (which is where within-form ties surface) ships alongside the range-match implementation. Until then, ambiguity does not surface as a fatal halt — authors with multiple Recipes declaring the same `spec.implements:` should disambiguate by version.
