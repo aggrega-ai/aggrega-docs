@@ -6,7 +6,7 @@ Schema id: `https://aggrega.ai/schemas/feature-v1alpha1.schema.json`
 
 A modular operational feature that binds dynamically to components.
 
-See the [feature authoring reference](../../../entities/feature/) for prose guidance on authoring feature entities; this page documents the structural schema that reference describes.
+See the [feature authoring reference](../../entities/feature.md) for prose guidance on authoring feature entities; this page documents the structural schema that reference describes.
 
 **Top-level type:** `object`
 

@@ -6,7 +6,7 @@ Schema id: `https://aggrega.ai/schemas/manifest-v1alpha1.schema.json`
 
 A single, global lockfile that maps abstract Developer Interfaces to concrete Ops Implementations via O(1) dictionary lookups based strictly on Instance Names.
 
-See the [manifest authoring reference](../../../entities/manifest/) for prose guidance on authoring manifest entities; this page documents the structural schema that reference describes.
+See the [manifest authoring reference](../../entities/manifest.md) for prose guidance on authoring manifest entities; this page documents the structural schema that reference describes.
 
 **Top-level type:** `object`
 

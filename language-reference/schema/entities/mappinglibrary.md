@@ -6,7 +6,7 @@ Schema id: `https://aggrega.ai/schemas/mappinglibrary-v1alpha1.schema.json`
 
 A reusable collection of Go template fragments that Recipes and FeatureRecipes consume at render time via `valuesMapping: { $import: ... }`. Tier 3 — opt-in for catalogs that need cross-Recipe mapping reuse. Single authoring mode: Go templates only; no parallel `mappingsJsonnet:` field.
 
-See the [mappinglibrary authoring reference](../../../entities/mappinglibrary/) for prose guidance on authoring mappinglibrary entities; this page documents the structural schema that reference describes.
+See the [mappinglibrary authoring reference](../../entities/mappinglibrary.md) for prose guidance on authoring mappinglibrary entities; this page documents the structural schema that reference describes.
 
 **Top-level type:** `object`
 

@@ -6,7 +6,7 @@ Schema id: `https://aggrega.ai/schemas/workload-v1alpha1.schema.json`
 
 Platform-owned abstract workload specification. A Recipe using synthesized mode declares exactly one Workload via the workload: keyword (inline block scalar or workload: { $import: <path> } per the unified file-import vocabulary). The target provider Engine translates the Workload into provider-native manifests (K8s Deployment/StatefulSet/Services/PVCs for helm; compose services + volumes + networks for compose; etc.). The Workload kind is NOT a catalog entity — this published file is the canonical Workload JSON Schema, which the aggrega-cli binary consumes directly (rebound in its pkg/schemas/jsonschema package) for in-binary Workload validation; there is no separate embedded copy.
 
-See the [workload authoring reference](../../../entities/workload/) for prose guidance on authoring workload entities; this page documents the structural schema that reference describes.
+See the [workload authoring reference](../../entities/workload.md) for prose guidance on authoring workload entities; this page documents the structural schema that reference describes.
 
 **Top-level type:** `object`
 

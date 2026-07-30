@@ -6,7 +6,7 @@ Schema id: `https://aggrega.ai/schemas/component-v1alpha1.schema.json`
 
 The abstract definition of an atomic building block.
 
-See the [component authoring reference](../../../entities/component/) for prose guidance on authoring component entities; this page documents the structural schema that reference describes.
+See the [component authoring reference](../../entities/component.md) for prose guidance on authoring component entities; this page documents the structural schema that reference describes.
 
 **Top-level type:** `object`
 

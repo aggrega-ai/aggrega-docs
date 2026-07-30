@@ -6,7 +6,7 @@ Schema id: `https://aggrega.ai/schemas/featurerecipe-v1alpha1.schema.json`
 
 Ops-authored definitions mapping Dev abstract features to concrete, versioned Go plugin pipelines. Strictly 1:1 with a physical provider and catalog feature.
 
-See the [featurerecipe authoring reference](../../../entities/featurerecipe/) for prose guidance on authoring featurerecipe entities; this page documents the structural schema that reference describes.
+See the [featurerecipe authoring reference](../../entities/featurerecipe.md) for prose guidance on authoring featurerecipe entities; this page documents the structural schema that reference describes.
 
 **Top-level type:** `object`
 

@@ -6,7 +6,7 @@ Schema id: `https://aggrega.ai/schemas/recipe-v1alpha1.schema.json`
 
 Ops-authored pointer and mapping layer connecting Dev intent to a specific infrastructure execution engine. Strictly 1:1 with a physical provider and catalog component.
 
-See the [recipe authoring reference](../../../entities/recipe/) for prose guidance on authoring recipe entities; this page documents the structural schema that reference describes.
+See the [recipe authoring reference](../../entities/recipe.md) for prose guidance on authoring recipe entities; this page documents the structural schema that reference describes.
 
 **Top-level type:** `object`
 

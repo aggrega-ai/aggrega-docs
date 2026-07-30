@@ -6,7 +6,7 @@ Schema id: `https://aggrega.ai/schemas/plugin-v1alpha1.schema.json`
 
 A Wasm plugin: a WebAssembly module published to an OCI registry and identified by its `metadata.pluginType` — the socket it implements — plus its bare `metadata.name`, declaring the ABI version it targets, an optional signature pointer, and an optional runtime block. The entity and its `.wasm` publish as one OCI manifest tagged by metadata.version — the entity YAML as the manifest's config blob, the `.wasm` as an inline layer, signed once. Identity is the `metadata.pluginType`/`metadata.name` coordinate plus the entity's metadata.version; the `.wasm` location is derived from that coordinate plus the configured registry, and the resolved content digest lives in the lockfile, not in the entity. The closure records the digest and the per-registry trust policy verifies the artifact's signature at pull. The compiler is blind to the plugin's behavior — it routes the reference; the WebAssembly runtime executes the bytes.
 
-See the [plugin authoring reference](../../../entities/plugin/) for prose guidance on authoring plugin entities; this page documents the structural schema that reference describes.
+See the [plugin authoring reference](../../entities/plugin.md) for prose guidance on authoring plugin entities; this page documents the structural schema that reference describes.
 
 **Top-level type:** `object`
 

@@ -6,7 +6,7 @@ Schema id: `https://aggrega.ai/schemas/aggregate-v1alpha1.schema.json`
 
 The recursive, parameterized AI architecture. Acts as both the root application and reusable module.
 
-See the [aggregate authoring reference](../../../entities/aggregate/) for prose guidance on authoring aggregate entities; this page documents the structural schema that reference describes.
+See the [aggregate authoring reference](../../entities/aggregate.md) for prose guidance on authoring aggregate entities; this page documents the structural schema that reference describes.
 
 **Top-level type:** `object`
 

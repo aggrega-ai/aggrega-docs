@@ -6,7 +6,7 @@ Schema id: `https://aggrega.ai/schemas/schemalibrary-v1alpha1.schema.json`
 
 A reusable collection of JSON Schema 2020-12 definitions that catalog content (Components, Features, etc.) can $ref into via the bare-name identity reference <Library>#/schemas/<name> (the version is supplied by the per-Release lockfile; no registry host appears in the reference). Tier 3 — opt-in for catalogs that need cross-Component schema reuse.
 
-See the [schemalibrary authoring reference](../../../entities/schemalibrary/) for prose guidance on authoring schemalibrary entities; this page documents the structural schema that reference describes.
+See the [schemalibrary authoring reference](../../entities/schemalibrary.md) for prose guidance on authoring schemalibrary entities; this page documents the structural schema that reference describes.
 
 **Top-level type:** `object`
 

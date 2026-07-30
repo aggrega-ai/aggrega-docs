@@ -229,7 +229,7 @@ function renderPage(kind, schema) {
     // its source path, so the link resolves in the static build and stays
     // portable across the version-prefixed builds that share this source tree.
     out.push(
-      `See the [${kind} authoring reference](../../../entities/${kind}/) for prose guidance on authoring ${kind} entities; this page documents the structural schema that reference describes.`,
+      `See the [${kind} authoring reference](../../entities/${kind}.md) for prose guidance on authoring ${kind} entities; this page documents the structural schema that reference describes.`,
       ""
     );
   }

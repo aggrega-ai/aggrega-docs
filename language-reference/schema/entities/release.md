@@ -4,7 +4,7 @@ _Generated reference. Do not edit by hand — regenerate from the published JSON
 
 Schema id: `https://aggrega.ai/schemas/release-v1alpha1.schema.json`
 
-See the [release authoring reference](../../../entities/release/) for prose guidance on authoring release entities; this page documents the structural schema that reference describes.
+See the [release authoring reference](../../entities/release.md) for prose guidance on authoring release entities; this page documents the structural schema that reference describes.
 
 **Top-level type:** `object`
 
