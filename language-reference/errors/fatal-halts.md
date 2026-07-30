@@ -518,7 +518,7 @@ Emitted message:
 Two boundary contributors evaluate to the same physical assembly path but disagree on a property that must be uniform across the contributors at that path — for example, two boundaries assembling under the same `directory:` route through different providers, or one boundary declares a per-(path, provider) tuple a second boundary cannot satisfy.
 
 Emitted message:
-> PATH_COLLISION: assembly path `<path>` receives contributors from boundaries `<boundary-1>, <boundary-2>` with conflicting `<property>` (`<value-1>` vs `<value-2>`).
+> OPS_ERROR: dispatch path collision: dispatch path `<path>` produced multiple provider outputs (`<providers>`); contributing boundaries `<boundaries>` resolve to the same path under their current `directory:` / `subDirectory:` settings; set distinct `subDirectory` values per provider or change one boundary's `directory`
 
 **How to fix:** either give each boundary a distinct `directory:` (so they assemble to separate paths), or align the conflicting property across the contributors. The compose-bridge pattern intentionally collapses two sub-boundaries into one assembly path; that pattern requires both boundaries to target the same provider and to carry compatible cascade-resolved annotations.
 
@@ -527,7 +527,7 @@ Emitted message:
 Two boundaries that assemble to the same per-(path, provider) tuple contribute components with identical instance IDs. The merged assembly cannot disambiguate the two component fragments — a single Helm chart cannot carry two Deployments named `web-server`, and a single docker-compose file cannot carry two services named `api`.
 
 Emitted message:
-> INSTANCE_ID_COLLISION: components with instance ID `<instance-id>` contributed to assembly path `<path>` (provider `<provider>`) from boundaries `<boundary-1>, <boundary-2>`.
+> TRANSLATION_ERROR: instance id collision within an assembly group: dispatch path `<path>` provider `<provider>` already contains node `<instance-id>` (contributing boundaries: `<boundaries>`); component instance IDs must be unique within an assembly group
 
 **How to fix:** rename one of the colliding components in the Aggregate, or split the two boundaries onto separate `directory:` paths so each component instance lands in its own assembly.
 
@@ -551,7 +551,7 @@ When the contributors declared different formats for their file, each is named w
 Two or more boundaries contribute to the same `helm-chart`-provider assembly path but their effective `aggrega.ai/chart-name` annotations (resolved through the boundary annotation cascade) do not agree. A Helm umbrella chart has exactly one chart name; the renderer cannot pick one of the conflicting candidates.
 
 Emitted message:
-> CHART_NAME_MISMATCH: helm-chart assembly at `<path>` receives contributors with conflicting `aggrega.ai/chart-name` annotations: boundary `<boundary-1>` resolves to `<chart-name-1>`, boundary `<boundary-2>` resolves to `<chart-name-2>`.
+> TRANSLATION_ERROR: merged-path assembly has conflicting assembly-name annotation values: boundaries `<boundaries>` merge to assembly path `<path>` under provider `<provider>` but their effective `<annotation>` annotations resolve to different values: `<values>`; the merged assembly has exactly one name; cascade or declare matching values explicitly
 
 **How to fix:** declare a matching `aggrega.ai/chart-name` annotation on every contributing boundary (the cascade mechanism makes this DRY when the contributors share a parent boundary — declare once on the parent), or split the boundaries onto separate `directory:` paths so each gets its own umbrella chart.
 
@@ -560,7 +560,7 @@ Emitted message:
 A FeatureRecipe with `executionScope: boundary` references a per-component-only field such as `.context.instance_id`, `.context.inject`, or `.context.uses` — fields that have no meaningful value at boundary scope. The mirror condition holds: a component-scope FeatureRecipe (the default) referencing `.boundary.*` fields fails the same validator. Validation runs at parse time against the relevant scope's field allowlist before any rendering work begins.
 
 Emitted message:
-> FR_TEMPLATE_INVALID_FIELD: FeatureRecipe `<name>` with `executionScope: <scope>` references `<dotted-path>` which is not available in `<scope>`-scope templates. Available alternatives: `<list>`. See `aggrega-docs/language-reference/entities/featurerecipe.md` for the per-scope template-context shape.
+> CATALOG_ERROR: FeatureRecipe template references a per-component-only field with executionScope: boundary: FeatureRecipe `<name>` with `executionScope: boundary` references per-component-only field `<dotted-path>` in `<label>`; boundary-scope FRs use `.boundary.*` pillars in place of `.context.*` / `.workload` / `.attachment_name` / `.inject` — see the FeatureRecipe entity reference
 
 **How to fix:** rewrite the template against the scope's available fields, or change the FeatureRecipe's `executionScope`. Boundary-scope FRs reference `.boundary.path`, `.boundary.boundary_name`, `.boundary.components`, the `.boundary.*_uses_edges` collections, `.boundary.labels`, `.boundary.annotations`, and `.boundary.feature_attachments`. Component-scope FRs reference `.context.instance_id`, `.context.inject`, `.context.uses`, `.context.labels`, `.context.annotations`. Both scopes share `.values`, `.infra`, `.locals`, `.provides`, `.steps`, and `.metadata`. A Release parameter is not a pillar of its own on this surface — it reaches a FeatureRecipe template through a `values` or `infra` entry that references it.
 
