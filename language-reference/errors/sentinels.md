@@ -7,7 +7,11 @@ This page is the sentinel-keyed view of the catalogue. Programmers writing CI ga
 The compiler exports each sentinel from its declaring package; importing the package and dereferencing the sentinel by name is the supported integration surface:
 
 ```go
-import "github.com/aggrega-ai/aggrega-cli/pkg/resolver"
+import (
+    "errors"
+
+    "github.com/aggrega-ai/aggrega-cli/pkg/resolver"
+)
 
 if errors.Is(err, resolver.ErrParameterContractViolation) {
     // handle parameter contract violations
@@ -60,7 +64,7 @@ Compact-form authoring surface validation — keyword vocabulary, constraint-typ
 | `ErrConstraintTypeMismatch` | `compactform: constraint not valid for declared type` | A constraint keyword does not apply to the declared type (`min:` on `type: object`, `pattern:` on `type: integer`). |
 | `ErrReferenceUnresolvable` | `compactform: $ref unresolvable` | A `$ref:` URL did not resolve to a target schema. |
 | `ErrUnresolvedSchemaLibraryRef` | `compactform: cross-document $ref target not found` | A cross-document `$ref:` (typically targeting a SchemaLibrary entry) failed to resolve the named target inside the resolved document. |
-| `ErrCircularRef` | `compactform: circular cross-document $ref expansion` | A SchemaLibrary chain forms a cycle; expansion would not terminate. |
+| `ErrCircularRef` | `circular reference expansion` | A SchemaLibrary chain forms a cycle; expansion would not terminate. This sentinel is shared with the other reference-expansion surfaces, so its wrapped text carries no `compactform:` prefix; the wrapping site adds the offending chain, the keyword that triggered it, and the source location. |
 | `ErrHostInLibraryRef` | `compactform: cross-document $ref carries a registry host; reference the library by identity` | A cross-document `$ref:` carries a registry host (an `oci://<host>/…` form). References address libraries by identity — the bare-name `<Library>#/schemas/<Entry>` form — so the host is rejected with a steer to the identity form. |
 
 ## Stages whose sentinels are not part of the matching surface
@@ -107,7 +111,7 @@ The dependency resolution that `aggrega pull` runs to compute the lockfile.
 | Sentinel | Wrapped message | User-facing surface |
 | --- | --- | --- |
 | `ErrMVSConflict` | `resolve: minimum version selection conflict — incompatible library version requirements` | Two consumers require incompatible versions of the same library. |
-| `ErrUnresolvableURI` | `resolve: URI not resolvable via Lookup` | A referenced URI resolves through no tier (local, cache, or registry). |
+| `ErrUnresolvableURI` | `resolve: no entity in the catalog matches this URI` | A referenced URI resolves through no tier (local, cache, or registry). The wrapping site appends the entity URI and the entity that referenced it. |
 | `ErrInvalidLibraryRef` | `resolve: invalid library reference URI` | A malformed schema / mapping library `$import:` or `$ref:` URI. |
 | `ErrSourceTemplateAtLockTime` | `resolve: source-template evaluation failure at lock time` | A Recipe `source:` version template failed at lock time — typically by referencing `.provides`, which does not exist until build. |
 
