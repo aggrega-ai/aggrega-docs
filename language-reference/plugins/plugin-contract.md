@@ -107,7 +107,7 @@ Both roles additionally carry the attachment's `sources` (policy-definition file
 
 **Output shape (guest → host).** A `PolicyOutput` document carrying:
 
-- `results` — an array of `PolicyResult` entries, each with a `severity` (`deny`, `warn`, or `audit`) and a `message` string.
+- `results` — an array of `Diagnostic` entries, each with a `severity` (`deny`, `warn`, or `audit`) and a `message` string. A verdict may also set `code`, `rule_id`, `classification`, `source_ref`, `location`, and `suggest` on the same entry; the host appends whichever of those the verdict carried to the rendered verdict, on every severity route.
 
 Only fired verdicts appear; an allowing evaluation returns an empty array. The host walks the verdicts and maps each severity to an action: `deny` halts the build (surfacing every `deny` message), `warn` flags the verdict and lets the build proceed, `audit` records it without affecting the outcome. A `deny` halts through the same gate a selector or `appliesTo` violation uses.
 
@@ -119,7 +119,7 @@ The sockets below carry typed contract surfaces the compiler dispatches at build
 
 ### RFC 6902 patches (the plugin pipeline)
 
-FeatureRecipe and Recipe `pipeline:` steps running in the plugin pipeline emit RFC 6902 JSON Patch operations against the rendered document set. The host hands each step the keyed document set whole; the step selects the documents it targets by content and returns key-addressed patches, which the apply engine applies to the addressed documents — typically appending a sidecar container, mounting a secret volume, or rewriting an env var. A step also returns `side_effects` (below), `diagnostics`, and `outputs` (below). Demonstrated at [`examples/04-secrets.md`](../examples/04-secrets.md).
+FeatureRecipe and Recipe `pipeline:` steps running in the plugin pipeline emit RFC 6902 JSON Patch operations against the rendered document set. The host hands each step the keyed document set whole; the step selects the documents it targets by content and returns key-addressed patches, which the apply engine applies to the addressed documents — typically appending a sidecar container, mounting a secret volume, or rewriting an env var. A step also returns `side_effects` (below), `diagnostics` — each entry the same shared `Diagnostic` shape every socket reports issues in — and `outputs` (below). Demonstrated at [`examples/04-secrets.md`](../examples/04-secrets.md).
 
 **Status today:** **available**. Each declared step runs during `aggrega build`.
 
@@ -183,9 +183,8 @@ Both are usable today. The `linter.wasm` socket runs the publishing-linter via `
 
 ## Design surfaces without current code anchors
 
-A few design surfaces named elsewhere in the corpus are not yet fully anchored in current code today:
+One design surface named elsewhere in the corpus is not yet fully anchored in current code today:
 
-- **Additional output shapes.** Current code types the label-transform role's JSONPatch output, the verdict roles' PolicyResult array, the linter's findings plus version-bump classification, the provider render socket's node output and artifacts, and the FeatureRecipe-pipeline step shapes (RFC 6902 patches, side effects, and step outputs). A step's per-diagnostic element shape stays opaque at this layer for now, with a structured diagnostic definition a follow-on.
 - **Full Wasm-socket role enumeration.** The current typed surface is the governance socket (its transform and verdict roles) plus the linter socket; the broader role design documented across architecture chapters is not centralized in a Go type registry.
 
 The `linter.wasm` socket, by contrast, is fully anchored in current code: it is the publishing-linter, a typed contract with host dispatch via `aggrega lint`.
