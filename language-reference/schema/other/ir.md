@@ -33,7 +33,7 @@ _Additional properties are not permitted._
 | --- | --- | --- | --- |
 | `nodes` | object | yes | Dictionary of all application nodes, keyed by their absolute ID. Purely topological. |
 | `edges` | object[] | yes | Explicit logical network paths and dependencies between nodes. |
-| `feature_markers` | string[] | yes | Explicit canonical strings (e.g., semantic_routing, data_masking) derived from annotations, utilized for downstream Feature Negotiation. |
+| `feature_markers` | string[] | yes | The de-duplicated, lexicographically sorted set of Feature type strings — one entry per distinct Feature type attached anywhere in the graph (for example core/logging), regardless of where the attachment was declared. Sorting is what makes the set byte-identical across runs of the same input. |
 | `values_mapping` | object | yes | The single source of truth for opaque pass-through cognitive payloads, mapped by node ID. |
 | `infra_mapping` | object | yes | The physical sizing payload injected from the Release, mapped by node ID. |
 | `feature_values_mapping` | object | yes | Normalized map of Node IDs to their attached Feature configurations. One bucket carries every attachment on a node whatever it produces — operational Features, credential Features, identity Features — keyed by the instance name the author gave each attachment. |
@@ -246,7 +246,7 @@ _Additional properties are permitted._
 | --- | --- | --- | --- |
 | `nodes` | object | yes | Dictionary of all application nodes, keyed by their absolute ID. Purely topological. |
 | `edges` | IREdge[] | yes | Explicit logical network paths and dependencies between nodes. |
-| `feature_markers` | string[] | yes | Explicit canonical strings (e.g., semantic_routing, data_masking) derived from annotations, utilized for downstream Feature Negotiation. |
+| `feature_markers` | string[] | yes | The de-duplicated, lexicographically sorted set of Feature type strings — one entry per distinct Feature type attached anywhere in the graph (for example core/logging), regardless of where the attachment was declared. Sorting is what makes the set byte-identical across runs of the same input. |
 | `values_mapping` | object | yes | The single source of truth for opaque pass-through cognitive payloads, mapped by node ID. |
 | `infra_mapping` | object | yes | The physical sizing payload injected from the Release, mapped by node ID. |
 | `feature_values_mapping` | object | yes | Normalized map of Node IDs to their attached Feature configurations. One bucket carries every attachment on a node whatever it produces — operational Features, credential Features, identity Features — keyed by the instance name the author gave each attachment. |
