@@ -1,6 +1,6 @@
 # Warnings and Linter Output
 
-Non-fatal warnings the compiler emits during compilation. Warnings do not halt the build — they surface authoring smells, deterministic tie-breaks the compiler chose, and resources the developer's templates never consumed. Every warning carries a clear `LINT:` or `WARN:` prefix on stderr so CI pipelines can capture and re-surface them; rendered artifacts are produced regardless.
+Non-fatal warnings the compiler emits during compilation. Warnings do not halt the build — they surface authoring smells, deterministic tie-breaks the compiler chose, and resources the developer's templates never consumed. Each finding reaches stderr behind a prefix naming its kind — `warning:`, `lint:`, or `notice:`, depending on which pass raised it — so CI pipelines can capture and re-surface them; rendered artifacts are produced regardless.
 
 For fatal compilation halts (the diagnostics that stop a build), see [fatal-halts.md](./fatal-halts.md).
 
@@ -64,22 +64,64 @@ LINT: Aggregate 'nearmiss' at .spec.components["db"].features["app_user_passwrod
 
 ## Ghost Infrastructure Tracker warnings
 
-**Fires when** a Recipe's template body — `valuesMapping:`, `workload:`, `artifacts:`, `provides:`, `pipeline[].with`, FeatureRecipe `injectMapping:` — references a strict subset of the keys present on the node's `.values` and `.infra` pillars. The "ghost" keys (keys the pillars carry but the template never reads) become silent infrastructure: configuration the developer asked for that the Recipe never wired into the rendered output. The tracker surfaces these so the developer can see configuration drift between intent and rendering.
+**Fires when** a key an author declared reaches a node and the bound Recipe's `valuesMapping:` template never references it. The unread keys become silent infrastructure: configuration the developer or the operator asked for that the Recipe never wires into the rendered output. The tracker surfaces them so the discrepancy between what was authored and what the output carries is visible instead of silent.
 
-**Pipeline placement.** The tracker runs at base rendering, alongside template evaluation. Each Recipe's template AST is parsed and walked to collect the set of dot-qualified field paths it references (e.g., `.values.port`, `.infra.replicas`). The compiler compares this set against the resolved key set in the node's `.values` and `.infra` pillars; the difference is the unread set.
+**Which authored keys are compared.** Three groups, per node:
 
-**Emit shape:**
+- `.values` — the node's own developer-side pillar.
+- `.infra` — the node's own operator-side pillar.
+- `.context.uses.<alias>.values` — the per-connection values carried on each `uses:` edge the node consumes through. This group is consumer-scoped for free: a node's `uses` map holds only the edges it is the source of, so an unread per-connection value is always attributed to the node that authored it and never to the edge's target.
+
+**Which references are collected.** The bound Recipe's **inline** `valuesMapping:` template, and nothing else. Two bounds follow, and both are limits on what can honestly be claimed rather than choices:
+
+- A `valuesMapping:` the Recipe imports from a file or from a SchemaLibrary-style library reference is not in hand at this point, so its references cannot be collected. The node's keys are skipped entirely rather than reported.
+- A `valuesMapping:` that fails to parse yields no reference set at all. Reporting every key as unread would bury the parse diagnostic the evaluation raises over the same template, so nothing is reported instead.
+
+**A socket's `valueSchema` is never flagged.** `usesSchema.<socket>.valueSchema` declares the *contract* a per-connection value must satisfy. It is a schema, not an authored instance, and it is not among the inputs compared — so it can never be reported. What a socket's declared default *produces* is an instance like any other, read or unread on its own merits.
+
+**A reference naming a whole pillar counts every key beneath it as read.** `{{ .infra.port }}` marks `port` read and leaves the pillar's other keys eligible for a warning. ``{{ optional .infra `port` 8080 }}`` hands the whole `.infra` map to a function, so the collected reference names the pillar rather than a key beneath it, every key in that pillar counts as read, and the pillar raises nothing. The same holds for `range`-ing a pillar and for reaching one `uses` entry through `index`. A Recipe author who wants per-key coverage writes per-key references.
+
+**Pipeline placement.** The tracker runs at base rendering, alongside template evaluation. The Recipe's `valuesMapping:` template is parsed and walked to collect the dot-qualified field paths it references (`.values.port`, `.infra.replicas`, `.context.uses.<alias>.values.retry_budget`); each group's resolved key set is compared against that reference set, and the difference is the unread set.
+
+**Emit shape.** One line per unread key, naming the node, the group's path, the key, and the Recipe whose `valuesMapping:` does not reference it:
 
 ```text
-WARN: Component 'customer-db' (Recipe 'postgres') — unread key: values.tls_version
-WARN: Component 'customer-db' (Recipe 'postgres') — unread key: infra.metrics.enabled
+  warning: node "data.main-db": unused .values key "database_name" (not referenced by valuesMapping of recipe "helm-postgres-sourced-with-artifacts")
+  warning: node "data.main-db": unused .infra key "storage_class" (not referenced by valuesMapping of recipe "helm-postgres-sourced-with-artifacts")
+  warning: node "frontend": unused .context.uses.my-api.values key "retry_budget" (not referenced by valuesMapping of recipe "helm-web-ui-sourced-with-artifacts")
 ```
 
-Each unread key emits its own warning naming the Component instance, the bound Recipe, and the dotted path to the key.
+The order is fixed: the node's `.values`, then its `.infra`, then each `uses` alias in the order the edges were emitted, keys sorted within each group. The same input therefore produces the same warning sequence on every run.
 
-**Why a warning and not a fatal halt.** Developers may legitimately consume different `.values` subsets in conditional template logic — a Recipe whose template branches on `.values.mode` reads `mode` but conditionally reads `.values.replication_password` only when `mode == "replication"`. The static AST walk cannot tell whether an unreferenced key is a don't-care or a bug. The tracker's purpose is to make the discrepancy visible rather than to police it; silent omission is the failure mode the tracker prevents.
+**Why a warning and not a fatal halt.** Developers may legitimately consume different `.values` subsets in conditional template logic — a Recipe whose template branches on `.values.mode` reads `mode` but conditionally reads `.values.replication_password` only when `mode == "replication"`. The static walk cannot tell whether an unreferenced key is a don't-care or a bug. The tracker's purpose is to make the discrepancy visible rather than to police it; silent omission is the failure mode the tracker prevents.
 
 **Recipe-author response.** When a Recipe author sees a Ghost Infrastructure warning for a key they expected the Recipe to consume, the fix is to wire the key into the template. When the unread key is a deliberate omission (a feature the chart does not support, an authoring affordance the Recipe deliberately ignores), the author can document the omission in the Recipe's header comment so future readers know the discrepancy is intentional.
+
+## Unread declared-parameter warnings
+
+**Fires when** an Aggregate declares an entry under `spec.parameters:` and no `{{ .parameters.<key> }}` reference in that Aggregate's own text reads it.
+
+A declared parameter is the authoring surface for varying one value per deployment: the Release fulfils the declaration, and a reference carries the fulfilled value into the component values it belongs to. A declaration nothing reads leaves that variation with nowhere to land — whatever a Release supplies for it, the rendered output is the same. It is the parameter-scoped form of the same smell an authored values key nothing consumes carries.
+
+**A default is not an exemption.** A default no reference reads reaches the output no more than a Release-supplied value does, so a defaulted declaration is reported exactly as a bare one is.
+
+**Which references are collected.** The Aggregate's own text, and nothing else. Three consequences follow:
+
+- A parameter reached only by a Component schema's `validate:` predicate is not visible here. Such a predicate names the parameter through the resolved parameter map rather than through a dotted reference in the Aggregate, so the declaration is reported as unread even though the predicate reads it.
+- Text that does not parse as a template yields no reference set. Reporting every declaration as unread would bury the diagnostic the interpolation raises over the same text, so nothing is reported instead.
+- A reference naming the whole `parameters` map — iterating it, or reaching one entry through index — counts every declaration as read, because the collected reference then names the map rather than a key beneath it and no per-key claim can be made.
+
+**Pipeline placement.** The reading runs at resolution, over the Aggregate's raw text and its declared parameter contract — before rendering. So it surfaces from `aggrega validate` as well as from `aggrega build`.
+
+**Emit shape.** One line per unread declaration, naming the Aggregate, the declaration's locator, and the reference that would have read it:
+
+```text
+  lint: Aggregate fullstack-app at .spec.parameters.unread_probe: parameter "unread_probe" is declared but no {{ .parameters.unread_probe }} reference in the Aggregate reads it
+```
+
+Findings are sorted by parameter key, so the same Aggregate produces the same sequence on every run. Each carries the declaration's locator, which is what lets the advisory also reach editor diagnostics positioned on the offending key rather than at the head of the file.
+
+**Why a warning and not a fatal halt.** A parameter may be declared ahead of the reference that will read it, and a static walk cannot tell that from a mistake — the same reason the authored-key reading only ever advises. The compiler does not police which knobs an author exposes.
 
 ## Per-entity partial-coverage warnings
 
