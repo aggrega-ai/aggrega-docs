@@ -35,21 +35,18 @@ Resolution — workspace load, parameter interpolation, target-reference validat
 | `ErrUnknownUsesSocket` | `unknown uses socket: declare the socket in the component type's usesSchema, or use a socket it already declares` | Surfaces as "`uses:` socket not declared in the target's `usesSchema`" in fatal-halts. |
 | `ErrSelfInjectForbidden` | `self-inject on component without spec.inject allowlist` | Surfaces as "Self-inject on a component without an allowlist" in fatal-halts. |
 | `ErrInjectKeyCollision` | `duplicate delivery key across inject sources` | Surfaces as "Duplicate delivery key across inject sources" in fatal-halts. |
-| `ErrSchemaValidation` | `schema validation failed: correct the flagged field to satisfy its declared schema` | Generic JSON Schema validation failure — the user-facing message attached to the error names the failing field and the constraint violated. |
 | `ErrMissingRequiredSocket` | `required uses socket not populated` | Surfaces as "Required `uses:` socket not populated" in fatal-halts. |
 | `ErrParameterMissing` | `required parameter not supplied` | Surfaces as the missing-parameter branch of "Parameter type mismatch / contract violation" in fatal-halts. |
 | `ErrParameterContractViolation` | `parameter contract violated` | Surfaces as the contract-violation branch of "Parameter type mismatch / contract violation" in fatal-halts. |
 
 ## Validator-stage sentinels (`pkg/validator`)
 
-Catalog-side validation — `extends:` inheritance chain walks, `usesSchema` composition, JSON Schema unification.
+Catalog-side validation — `extends:` inheritance chain walks, including the composition of an inherited `usesSchema`.
 
 | Sentinel | Wrapped message | User-facing surface |
 | --- | --- | --- |
-| `ErrSchemaValidation` | `schema validation failed: correct the flagged field to satisfy its declared schema` | Same generic surface as the resolver-stage copy; distinguish by package on the wrap path when matching. |
 | `ErrInheritanceMerge` | `inheritance merge failed: resolve the conflicting field definitions across the extends chain` | Surfaces as the merge-failure branch of "Cyclic extends chain" / "`usesSchema` composition failure on `extends` chain" in fatal-halts. |
 | `ErrCyclicExtension` | `cyclic extends chain` | Surfaces as "Cyclic extends on Components or Features" in fatal-halts. |
-| `ErrUsesSchemaUnification` | `usesSchema unification failed: reconcile the conflicting socket definitions across the extends chain` | Surfaces as "`usesSchema` composition failure on `extends` chain" in fatal-halts. |
 
 ## Compact-form sentinels (`pkg/compactform`)
 
@@ -142,6 +139,6 @@ case err != nil:
 }
 ```
 
-Sentinels declared in different packages with the same short name (e.g., `ErrSchemaValidation` in both `pkg/resolver` and `pkg/validator`) are distinct values — they live in separate `var` blocks in separate packages and `errors.Is` distinguishes them by identity, not by name. Match against the fully-qualified package path the wrap chain carries; the wrapped message text is shared by both sentinels but the identity is the discriminator.
+Sentinels declared in different packages with the same short name (e.g., `ErrCyclicExtension` in both `pkg/validator` and `pkg/validator/merger`) are distinct values — they live in separate `var` blocks in separate packages and `errors.Is` distinguishes them by identity, not by name. Match against the fully-qualified package path the wrap chain carries; the wrapped message text is shared by both sentinels but the identity is the discriminator.
 
 For the user-facing diagnostic catalogue (the messages developers see in their terminal when a build halts), see [fatal-halts.md](./fatal-halts.md). For the advisory-warning catalogue (non-halting `LINT:` and `WARN:` output), see [warnings.md](./warnings.md). For the category-prefix taxonomy (`DEVELOPER_ERROR:` / `OPS_ERROR:` / `CATALOG_ERROR:` / `TRANSLATION_ERROR:` / `FETCH_ERROR:` / `POLICY_ERROR:`), see [error-translation.md](./error-translation.md).
