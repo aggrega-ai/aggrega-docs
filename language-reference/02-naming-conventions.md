@@ -1,6 +1,6 @@
 # Naming Conventions
 
-This chapter covers the naming and casing rules that apply to authored Aggrega content: the pattern for user-authored instance names, the casing discipline for field names in the DSL, and the comment syntax used at the YAML authoring surface.
+This chapter covers the naming and casing rules that apply to authored Aggrega content: the pattern for user-authored instance names, the casing discipline for field names in the DSL, the casing the platform uses for the identifiers it defines rather than you, and the comment syntax used at the YAML authoring surface.
 
 ## Instance Names
 
@@ -73,6 +73,23 @@ Three casings, one statement:
 * `instance_id`, `image` — **snake_case**. Field names inside the template context (`.context.instance_id`, `.values.image`). Snake because the IR Graph and template context follow JSON-API conventions and align with Go's JSON struct tag generation.
 
 The three casings are not interchangeable. A Recipe author who writes `{{ .context.instanceId }}` (camelCase) halts the build: `.context` declares its keys, and `instanceId` is not one of them, so the reference is refused before anything renders and the diagnostic lists the keys `.context` does define — see [`errors/fatal-halts.md`](errors/fatal-halts.md) "Template references a root the render context does not define". A developer who writes `web.server` (with a dot) hits the instance-name pattern rejection because the dot is reserved as the path separator. The discipline target: hold the three conventions in mind when reading or authoring; rely on the boundaries (where you are in the YAML or template) to know which casing applies.
+
+## Platform-Defined Identifiers
+
+Everything above governs names on the authoring surface — an instance name you choose, a schema field the language defines for you to fill, a template-context key you read. A separate register governs the identifiers **the platform itself defines** and you only read back or type: a CLI flag, a publishing-lint rule id, a diagnostic class code. Those are **kebab-case**, uniformly.
+
+```text
+--no-unsupported-field-warnings   # a CLI flag you type
+category-matches-directory        # a lint rule id, printed in `aggrega lint` output
+unsupported-field                 # a diagnostic class code
+artifact-provenance-skipped       # another
+```
+
+Where a diagnostic class has a suppression flag, the code and the flag are the same words in the same order — `unsupported-field` is silenced by `--no-unsupported-field-warnings` — so the class you matched on tells you the flag to reach for, with nothing to translate. A class code is the stable name tooling matches to recognise a finding without parsing its message text; the message wording may improve, the code does not move.
+
+**Kebab-case appearing here and in instance names is not a collision.** The instance-name pattern is about what you are *permitted* to write — kebab-case and snake_case are both valid there, and teams pick one. This register is about what the platform *does* write, where there is nothing to pick: you never choose the spelling of a lint rule id, and the platform never chooses the spelling of your component name.
+
+**It leaves the field casings unchanged.** Authored schema fields stay camelCase and template-context keys stay snake_case. None of the identifiers in this register is a field on either surface — they are short, stable names for a flag, a rule, or a class of finding — so a diagnostic code being kebab-case says nothing about how a schema field is spelled.
 
 ## Document-path naming-suffix discipline
 
