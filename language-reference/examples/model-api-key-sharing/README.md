@@ -168,7 +168,7 @@ that is a different mechanism: a credential Feature whose FeatureRecipe runs at
 boundary scope, which renders once for the boundary instead of once per
 component. Every credential FeatureRecipe in the standard-library catalog renders
 per component, so that shape needs a purpose-authored FeatureRecipe. See
-[Credential Model](../../architecture/08-credential-model.md).
+[Credential Model](../../../architecture/08-credential-model.md).
 
 ### Why the shared attachment is on the Aggregate, not the Release
 

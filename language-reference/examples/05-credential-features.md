@@ -1,6 +1,6 @@
 # Credential Features
 
-The credential pillar uses `featuresSchema` validation (see [entities/component.md](../entities/component.md#credential-slots-secretsschema)), the standard library's credential Feature family, and provider-specific FeatureRecipes to form a complete black-box secret pipeline. This chapter walks through the flow end-to-end using shipped standard-library entities.
+The credential pillar uses `featuresSchema` validation (see [entities/component.md](../entities/component.md#attachment-slots-featuresschema)), the standard library's credential Feature family, and provider-specific FeatureRecipes to form a complete black-box secret pipeline. This chapter walks through the flow end-to-end using shipped standard-library entities.
 
 ## The Credential Feature Family
 
