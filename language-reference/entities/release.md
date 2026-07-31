@@ -250,11 +250,13 @@ spec:
         analytics: {}
 ```
 
-Every sub-aggregate listed under `Aggregate.spec.aggregates:` must be placed in exactly one boundary when the Release declares `boundaries:`. The compiler halts at workspace load with a clear error when a sub-aggregate is unplaced or placed in more than one boundary.
+Place every sub-aggregate listed under `Aggregate.spec.aggregates:` in exactly one boundary when the Release declares `boundaries:`.
 
-**Recursive routing.** `aggregates:` is recursive — each entry under a boundary's `aggregates:` may itself declare a nested `aggregates:` map for deeply-nested module composition. The annotation cascade, the per-boundary `syncWave`, and the spatial segregation rules apply at every level.
+🔴 **Sub-aggregate routing is accepted and structurally validated; it is not yet consumed.** The `aggregates:` map is checked against the Release schema when the Release loads — its shape, its recursion, and the per-component overrides inside it are all validated — but no compiler stage reads it. So routing a sub-aggregate into a boundary does not currently affect emitted artifacts, and neither an unplaced sub-aggregate nor one placed in more than one boundary is reported. Author the placement as described below: it becomes load-bearing when the routing consumer ships, and a document written to this shape needs no change at that point.
 
-**Per-aggregate routing block.** Inside the routing entry the Release may declare the same shape as a regular boundary entry: `annotations:` (cascading down into the sub-aggregate's components), `infra:` (the sub-aggregate's components receive these as their per-instance physical sizing values), and per-component overrides. The sub-aggregate's own components and Features are not redeclared at the Release — the Release only routes them into the boundary topology.
+**Recursive routing.** `aggregates:` is recursive — each entry under a boundary's `aggregates:` may itself declare a nested `aggregates:` map for deeply-nested module composition.
+
+**Per-aggregate routing block.** Inside the routing entry the Release may declare the same shape as a regular boundary entry: `annotations:`, `infra:`, and per-component overrides. The sub-aggregate's own components and Features are not redeclared at the Release — the Release routes them rather than restating them.
 
 ## Temporal Sequencing — per-boundary `syncWave`
 
