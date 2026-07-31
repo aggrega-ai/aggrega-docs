@@ -5,8 +5,8 @@
 ## Synopsis
 
 ```
-aggrega pull --release <path> [--catalog <dir>]... [--upgrade] [--include-prerelease] [--dry-run] [--detail]
-aggrega pull --release <path> --verify
+aggrega pull --release <release> [--catalog <dir>]... [--upgrade] [--include-prerelease] [--dry-run] [--detail]
+aggrega pull --release <release> --verify
 ```
 
 ## What it does
@@ -44,7 +44,7 @@ Pulled content is stored under `.aggrega/cache`, split into an `entities/` subtr
 
 ## Flags
 
-- `--release <path>` — the Release to resolve (required).
+- `--release <release>` — the Release to resolve (required).
 - `--catalog <dir>` — a catalog directory, loaded recursively. **Repeatable**, and **prepended** to the workspace's `catalog_dirs` (an ordered first-win search stack — an earlier directory wins an entity identity, a later one's copy is shadowed). Pull honors `catalog_dirs` from `.aggrega-config.yaml` even with no `--catalog`, and resolves the same stack `aggrega build` does, so the dependencies it pins match what build searches. Defaults to the current working directory when neither is set.
 - `--upgrade` — discard the existing pins and re-resolve all dependencies to the latest satisfying versions. This is how you **update** pinned versions (the default pull honors existing pins and never floats them), and the remediation named in drift diagnostics.
 - `--include-prerelease` — include pre-release versions during selection (reserved; no effect today).
