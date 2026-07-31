@@ -54,6 +54,24 @@ A **Recipe** additionally **renders in isolation**. This is one facet of single-
 
 A **FeatureRecipe** is schema- and shape-checked; its render is skipped, because a FeatureRecipe renders only when attached to a host component, and synthesizing a guard-passing host for an arbitrary Feature is not attempted.
 
+### What single-entity correctness does not check
+
+One rule of a real deployment is out of reach for a deployment of one, and validate declines it rather than reporting a finding it cannot stand behind: whether the `implements` Component's `required: true` `uses` sockets are populated.
+
+A required socket is populated by wiring an edge to **another** component — from the Aggregate's own `uses` block, or from a Release wiring a socket the Component declares. The synthesized deployment holds a single instance, so it contains no second component for such an edge to target, and no authoring of the synthesized documents can produce one: inventing a peer would mean inventing compute the deployment never declared. Validate therefore names the sockets it did not check and continues through resolution and render:
+
+```
+Sockets: required uses sockets not checked (backend, cache, registry)
+  Validating a Recipe on its own places its Component in a deployment of one,
+  so no other component exists for a required socket to be wired to. Whether
+  each of these sockets is populated is checked when the Component is deployed
+  in an Aggregate.
+```
+
+The line appears only when the Component declares at least one required socket, and it names only the required ones — an optional socket is never listed, because leaving it unwired is not a finding at any scope. A Recipe whose Component declares no required socket produces no such line, and its report is unchanged.
+
+The rule itself is neither relaxed nor duplicated; it is asked at the scope that can answer it. [`aggrega build`](./aggrega-build.md) applies it in full over the Aggregate's and the Release's edge surfaces together, and halts on a required socket nothing wires. So a Recipe that passes single-entity validation still has to satisfy the required-socket rule when its Component is deployed, and the report says so rather than leaving a silent difference between what validate checked and what a build will.
+
 The single-entity mode's catalog load is tolerant: an unrelated broken entity elsewhere in the catalog is skipped rather than aborting the check, so it never blocks validating the target in isolation.
 
 ## How validate relates to lint and build
