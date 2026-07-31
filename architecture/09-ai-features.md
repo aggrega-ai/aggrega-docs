@@ -211,7 +211,7 @@ To build the IR graph without hardcoded orchestrator rules, the compiler uses a 
 
 * **AST Variable Interpolation:** Developers intuitively link components within their `values` definitions (e.g., referencing a database map ID).
 * **Dynamic Schema Extension:** The Component's `schema:` declaration restricts `uses` and enforces that inputs are valid component references.
-* **Cross-Node Type Safety:** The `usesSchema` selector strings act as explicit out-of-band instructions, evaluated natively by the Go compiler's label-matching engine during static analysis. They guarantee that developers cannot accidentally wire standard components into sockets that require a specific AI-native capability or compliance label.
+* **Cross-Node Type Safety:** The `usesSchema` selector strings act as explicit out-of-band instructions, evaluated natively by the Go compiler's label-matching engine during static analysis. They guarantee that developers cannot accidentally wire standard components into a **declared** socket that requires a specific AI-native capability or compliance label. The guarantee is scoped to declared sockets by construction: a selector lives in a `usesSchema` entry, so an ad-hoc socket has none to evaluate. Each edge records whether its socket was catalog-declared, so an operator who needs the guarantee to be total can require it as a governance verdict.
 
 ### 11. Automated Design of Agentic Systems (ADAS)
 

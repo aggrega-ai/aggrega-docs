@@ -56,6 +56,23 @@ export function validate(graph) {
 
 If the plugin returns a failure, the compiler instantly halts.
 
+**Forbidding free-form connections:**
+A developer may wire an edge through a socket the catalog did not declare — an ad-hoc socket (see [dependency-resolution](07-dependency-resolution.md)). That openness is deliberate, and so is the fact that the compiler holds no opinion about it: an organisation that wants every connection to go through a socket its Architects declared expresses that as policy rather than relying on the compiler. Every edge in the graph carries `socket_declaration`, which reads `declared` or `ad-hoc`, so the rule is one line:
+
+```javascript
+// Evaluated by the governance ir-verdict role over the assembled graph
+export function validate(graph) {
+    return graph.edges
+        .filter((e) => e.socket_declaration === "ad-hoc")
+        .map((e) => ({
+            pass: false,
+            message: `Governance Violation: '${e.source}' connects to '${e.target}' through the free-form socket '${e.socket}'. Declare the socket in the component type's usesSchema.`
+        }));
+}
+```
+
+The value is always present on every edge, whichever way the edge was authored, so a policy never has to read an absent field as "declared". And it is an axis of its own: it says where the socket came from, not who drew the edge, so it composes with `origin_feature` and `origin_release` rather than overlapping them — a policy can forbid free-form connections while still allowing the Release to wire declared ones.
+
 **Centralized Enterprise Governance (Evaluating Complete Reality):**
 Relying on out-of-band mechanisms (like `CODEOWNERS` on a git repository) to govern architecture is a weak workaround. All governance is localized in the compiler's governance verdict roles. Because the AOT compiler builds the IR Graph by flattening *both* the Developer's `Aggregate` and the Ops Engineer's `Release`, the policy engine evaluates the complete reality before physical artifacts are generated. Policies can fatally halt the build if a developer requests an unapproved Component, if Ops maps a component to an unapproved Recipe in the Manifest, or if an insecure Wasm mutation is attached to a Component carrying a `restricted` subsystem label.
 
