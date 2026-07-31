@@ -279,12 +279,16 @@ Emitted message:
 
 ### `uses:` socket not declared in the target's `usesSchema`
 
-A Component or Feature instance declares a `uses:` block with a socket name that does not exist in the target catalog entity's `usesSchema`. The `usesSchema` on the catalog entity is the enabling schema — every socket in an authored `uses:` block must correspond to a `usesSchema` key. The same halt fires for a per-edge `uses:` entry authored on a boundary component in a **Release**: a Release may only wire or configure edges within sockets the Component's `usesSchema` declares.
+A `uses:` block names a socket that the entity owning the surface does not declare in its `usesSchema`, on one of the two surfaces where only a declared socket may be named: a **Feature attachment's** `uses:`, where the socket must be declared on the attached Feature, and a **Release's** per-edge `uses:`, where it must be declared on the consuming Component. A Release may wire or configure edges only within sockets the Component's `usesSchema` already declares.
+
+A **component's own** `uses:` block is deliberately not one of those surfaces, so this halt does not fire for it. A developer owns the application's topology and may name a socket the catalog did not declare; catalog silence about a socket means the connection was not anticipated, not that it is forbidden. Such a socket is legal and its edge is built — what it gives up is the selector and the per-edge contract a declared socket carries. A misspelled socket name there is therefore not a halt but an ad-hoc connection of its own, and is reported as a warning naming both spellings — see [warnings.md](warnings.md) "Uses-socket near-miss lint".
 
 Emitted message:
-> unknown uses socket `<socket-name>` on `<entity-uri>`: target entity declares no such socket in its usesSchema.
+> socket `<socket-name>` not defined in component type `<component-type>` usesSchema (valid: `[<declared-sockets>]`)
 
-**How to fix:** either correct the socket name to match one of the keys the target catalog entity declares, or extend the target entity's `usesSchema` to declare the new socket (which requires editing the catalog entity, not the instance). If the catalog entity declares no `usesSchema` at all, the entity does not accept `uses:` declarations on its instances — remove the `uses:` block entirely.
+The attachment arm names the feature type in place of the component type; an attached Feature that declares no `usesSchema` at all reports instead that `uses:` declarations are not allowed for it.
+
+**How to fix:** on an attachment, correct the socket name to one the attached Feature declares, or declare that socket in the Feature's `usesSchema`. On a Release per-edge entry, correct the socket name to one the consuming Component declares — a Release cannot introduce a socket the Component does not declare, and moving the declaration into the catalog entity is the supported path. If the catalog entity declares no `usesSchema` at all, it accepts no `uses:` declarations on that surface — remove the block.
 
 ### Release retargets a developer-declared edge
 

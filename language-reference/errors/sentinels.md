@@ -36,7 +36,7 @@ Resolution — workspace load, parameter interpolation, target-reference validat
 | `ErrInvalidInjectKey` | `invalid inject key: the from-key must name a declared provides key of the target component type` | Surfaces as "Inject `from` key is not in the target's `provides`" in fatal-halts. |
 | `ErrMissingRequiredFeature` | `missing required feature: attach a Feature of the required type to the component` | Surfaces as "Required feature not attached" in fatal-halts. |
 | `ErrFeatureMergeConflict` | `feature merge conflict: reconcile the Aggregate and Release declarations for the feature` | Surfaces under "Manifest merge strategy" in fatal-halts. |
-| `ErrUnknownUsesSocket` | `unknown uses socket: declare the socket in the component type's usesSchema, or use a socket it already declares` | Surfaces as "`uses:` socket not declared in the target's `usesSchema`" in fatal-halts. |
+| `ErrUnknownUsesSocket` | `unknown uses socket: name a socket the entity declares in its usesSchema — only a component's own uses block may name one the catalog did not declare` | Surfaces as "`uses:` socket not declared in the target's `usesSchema`" in fatal-halts. Not emitted for a component's own `uses:` block, where an undeclared socket name is legal and a near-miss name is reported as a warning instead. |
 | `ErrSelfInjectForbidden` | `self-inject on component without spec.inject allowlist` | Surfaces as "Self-inject on a component without an allowlist" in fatal-halts. |
 | `ErrInjectKeyCollision` | `duplicate delivery key across inject sources` | Surfaces as "Duplicate delivery key across inject sources" in fatal-halts. |
 | `ErrMissingRequiredSocket` | `required uses socket not populated` | Surfaces as "Required `uses:` socket not populated" in fatal-halts. |

@@ -62,6 +62,28 @@ LINT: Aggregate 'nearmiss' at .spec.components["db"].features["app_user_passwrod
 
 **Authoring note.** The lint is advisory and never changes the build's verdict — the compiler does not police what an author names an attachment. An author who deliberately attaches a Feature under a name that resembles a slot (a second, differently-configured credential named alongside the slot it complements) can ignore the warning; the attachment behaves exactly as authored.
 
+## Uses-socket near-miss lint
+
+**Fires when** a component's own `uses:` block names a socket that is not one of its Component type's declared `usesSchema` sockets, but is within one edit of one — a single inserted, deleted, or substituted character, or two adjacent characters swapped. That is the shape a socket-name typo takes, and the lint names both spellings so the author can see the pair.
+
+**Why it exists.** Declaring a socket does not close the `uses:` surface on a developer's own component: a socket name no `usesSchema` entry declares is legal, because catalog silence about a socket means the connection was not anticipated rather than forbidden, and the developer owns the application's topology. The cost is that a misspelled socket name becomes an *ad-hoc connection* of its own rather than wiring the socket the author meant — the build succeeds, the intended socket simply stays unwired, and the ad-hoc edge carries no selector and no per-edge contract. The lint is the disclosed mitigation for exactly that case. For what an ad-hoc socket gives up and what it keeps, see [entities/component.md](../entities/component.md) "Ad-hoc sockets".
+
+**Which surface it covers.** The component's own `uses:` block only — the one surface where an undeclared socket name is accepted. A Feature attachment's `uses:` may only name a socket the attached Feature declares, and a Release's per-edge `uses:` may only name a socket the consuming Component declares; a wrong name on either of those already halts the build, so there is nothing for a warning to add.
+
+**Pipeline placement.** The lint runs at resolution, in the same pass as the catalog-aware semantic guards, over the resolved Aggregate. It walks every component instance's own socket names against the declared socket names of that instance's Component type, and emits one warning per near-miss pair. A component that arrives from a sub-aggregate is not covered: its inner components are folded into the graph after this pass runs.
+
+**Emit shape:**
+
+```text
+  lint: Aggregate aggregate at .spec.components["web"].uses["databses"]: socket "databses" on component "web" is not declared in the usesSchema of type "core/devtool/adminer", but the type declares the socket "databases" — if "databases" was meant, this edge is currently an ad-hoc connection and carries no selector
+```
+
+**Editor visibility.** The warning also reaches editor diagnostics through the language server, at warning severity, positioned on the offending authoring site. An author who never reads terminal output still sees the pair.
+
+**Threshold and its trade-off.** The lint pairs names only at one edit's distance, and only when both names are at least four characters long — the same bound the attachment-slot near-miss lint uses, for the same reason. Below that length nearly every short name sits within one edit of every other, so pairing them would produce noise rather than signal; above one edit the pairs stop resembling typos. A transposition counts as one edit rather than two, because a swapped pair of characters is the commonest slip and a stricter count would miss it.
+
+**Authoring note.** The lint is advisory and never changes the build's verdict — the compiler does not police what an author names a socket. An author who deliberately draws an ad-hoc connection under a name that resembles a declared socket (a `cache` connection alongside a declared `caches` socket, meant for something else) can ignore the warning; the edge behaves exactly as authored. There is no flag to suppress it, and none is needed: it carries no verdict weight.
+
 ## Ghost Infrastructure Tracker warnings
 
 **Fires when** a key an author declared reaches a node and the bound Recipe's `valuesMapping:` template never references it. The unread keys become silent infrastructure: configuration the developer or the operator asked for that the Recipe never wires into the rendered output. The tracker surfaces them so the discrepancy between what was authored and what the output carries is visible instead of silent.
