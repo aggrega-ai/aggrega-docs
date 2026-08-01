@@ -137,6 +137,7 @@ aggrega lint [entity-path] [flags]
 | `--no-allow-id-overrides` | `false` | Force allow_id_overrides=false for this invocation |
 | `--no-allow-nonstandard-names` | `false` | Force allow_nonstandard_names=false |
 | `--no-enforce-immutability` | `false` | Force enforce_immutability=false |
+| `--output`, `-o` | `text` | Output format: text\|json. |
 | `--plugin` | — | Filesystem path to the publishing-linter .wasm artifact (overrides workspace plugins.linter[0].uri) |
 | `--pre-publish` | `false` | Fetch the previous registry version and verify the proposed bump against the schema-evolution classification |
 | `--release` | — | Path to a Release YAML to check conventions over its resolved dependency closure (mutually exclusive with an entity argument) |
