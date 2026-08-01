@@ -2,7 +2,7 @@
 
 _Generated reference. Do not edit by hand — regenerate from the CLI's plugin listing._
 
-Aggrega ships a set of provider and linter Wasm plugins compiled directly into the CLI binary. These embedded built-ins resolve with no filesystem, cache, or network access, so a fresh binary renders and lints out of the box. Each provider serves one or more render capabilities; a linter is cross-cutting and serves none. Run `aggrega plugin list` to see this set in your own binary, or `aggrega plugin list --json` for the full per-plugin detail.
+Aggrega ships a set of provider and linter Wasm plugins compiled directly into the CLI binary. These embedded built-ins resolve with no filesystem, cache, or network access, so a fresh binary renders and lints out of the box. Each provider serves one or more render capabilities; a linter is cross-cutting and serves none. Run `aggrega plugin list` to see this set in your own binary, or `aggrega plugin list -o json` for the full per-plugin detail.
 
 | Type | Name | Capabilities | Version |
 | --- | --- | --- | --- |

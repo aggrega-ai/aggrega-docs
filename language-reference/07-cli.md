@@ -19,7 +19,7 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 - [`aggrega validate`](cli/aggrega-validate.md) — check correctness (schema, pillars, reference resolution, `extends`, input-kind capability, isolated render) across the whole catalog, a Release's dependency closure (`--release`), or one entity.
 - [`aggrega lint`](cli/aggrega-lint.md) — check publishing conventions across the whole catalog, a Release's dependency closure (`--release`), or one entity; `--pre-publish` adds the registry-aware version-bump gate.
 - [`aggrega serve`](cli/aggrega-serve.md) — a long-running compiler-as-service daemon (JSON-RPC over stdin/stdout) for IDE integration.
-- [`aggrega version`](cli/aggrega-version.md) — print the CLI version; `--json` emits a machine-readable object.
+- [`aggrega version`](cli/aggrega-version.md) — print the CLI version; `-o json` emits a machine-readable object.
 - [`aggrega get-schema`](cli/aggrega-get-schema.md) — print the canonical JSON Schema for an entity or contract kind; `--list` names every kind. The authoritative shape to author a file against.
 - [`aggrega mcp`](cli/aggrega-mcp.md) — run a Model Context Protocol server over stdio so an MCP-capable client becomes an Aggrega-aware authoring assistant. See the [Authoring Guide](../authoring/getting-started.md).
 - [Global flags](cli/global-flags.md) — flags shared across subcommands (workspace location, registry configuration, output verbosity). Offline is a workspace-configuration setting rather than a command flag — see the [configuration schema](schema/other/aggrega-config.md) and [environment variables](cli/environment-variables.md).

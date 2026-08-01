@@ -121,7 +121,7 @@ The Aggrega CLI (`aggrega-cli/cmd/aggrega/`) registers the build pipeline plus i
 - **`aggrega push` — available.** Publishes a catalog entity (Component, Feature, Recipe, FeatureRecipe, SchemaLibrary, MappingLibrary, Plugin) to an OCI registry. See [`cli/aggrega-push.md`](cli/aggrega-push.md).
 - **`aggrega lint` — available.** Runs the publishing-discipline rules over a catalog entity at warning severity; `--pre-publish` runs them at error severity and adds a version-bump check against the entity's currently-published version. The rules ship as an opt-in Wasm plugin. See [`cli/aggrega-lint.md`](cli/aggrega-lint.md).
 - **`aggrega serve` — available.** A long-running compiler-as-service daemon speaking JSON-RPC 2.0 over stdin/stdout, for IDE integration (diagnostics, hover, completion, go-to-definition, IR-graph). See [`cli/aggrega-serve.md`](cli/aggrega-serve.md).
-- **`aggrega version` — available.** Prints the CLI version; `--json` emits a machine-readable version object.
+- **`aggrega version` — available.** Prints the CLI version; `-o json` emits a machine-readable version object.
 - **`aggrega validate` — available.** Checks correctness across the whole catalog, a Release, or a single entity, reporting diagnostics without rendering artifacts.
 - **`aggrega acquire` — available.** Runs a Release's build pipeline in acquisition mode with rendered output discarded: every external input the render requests is fetched, pinned into the content-addressed input store, and recorded in the lockfile, so a later build serves those inputs offline.
 - **`aggrega search` — available.** Searches the local index of configured registries for published entities; the index is built and refreshed by `aggrega registry update`.

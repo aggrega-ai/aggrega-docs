@@ -371,7 +371,7 @@ aggrega inspect [identifier] [flags]
 | `--flat` | `false` | Render a tree-shaped entity (Aggregate, Release) as a flat list, each node prefixed with its full dotted path. No effect on tabular kinds. |
 | `--list` | `false` | Render identifiers only. |
 | `--no-color` | `false` | Disable colorized output (alias for --color=never). |
-| `--output` | `text` | Output format: text\|yaml. |
+| `--output`, `-o` | `text` | Output format: text\|yaml. |
 | `--plugin` | — | Filesystem path to a raw .wasm artifact; derives and prints the host functions it imports (the pre-publish, not-yet-stamped view). Takes no identifier argument. |
 | `--raw` | `false` | Render the entity as authored, without resolution. |
 | `--resolved` | `false` | Render the entity fully resolved. |

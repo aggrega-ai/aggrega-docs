@@ -1,6 +1,6 @@
 // Embedded-plugin reference generator.
 //
-// Turns the machine-readable listing emitted by `aggrega plugin list --json`
+// Turns the machine-readable listing emitted by `aggrega plugin list -o json`
 // into a human-readable Markdown table under language-reference/plugins/. The
 // page is committed so the documentation renders itself with no binary at
 // site-build time — a reader can browse the plugins compiled into the CLI
@@ -90,7 +90,7 @@ function renderPage(embedded) {
     ""
   );
   out.push(
-    "Aggrega ships a set of provider and linter Wasm plugins compiled directly into the CLI binary. These embedded built-ins resolve with no filesystem, cache, or network access, so a fresh binary renders and lints out of the box. Each provider serves one or more render capabilities; a linter is cross-cutting and serves none. Run `aggrega plugin list` to see this set in your own binary, or `aggrega plugin list --json` for the full per-plugin detail.",
+    "Aggrega ships a set of provider and linter Wasm plugins compiled directly into the CLI binary. These embedded built-ins resolve with no filesystem, cache, or network access, so a fresh binary renders and lints out of the box. Each provider serves one or more render capabilities; a linter is cross-cutting and serves none. Run `aggrega plugin list` to see this set in your own binary, or `aggrega plugin list -o json` for the full per-plugin detail.",
     ""
   );
 
@@ -104,7 +104,7 @@ function renderPage(embedded) {
 }
 
 function main() {
-  const listing = JSON.parse(run(["plugin", "list", "--json"]));
+  const listing = JSON.parse(run(["plugin", "list", "-o", "json"]));
   const embedded = Array.isArray(listing.embedded) ? listing.embedded : [];
 
   mkdirSync(PLUGINS_DIR, { recursive: true });

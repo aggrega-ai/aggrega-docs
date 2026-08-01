@@ -20,7 +20,7 @@ A variable that is unset (or empty) falls through to the layer below — it neve
 
 A variable name is `AGGREGA_` followed by its config path upper-snake-cased (dots become underscores): `signing.fulcio_url` becomes `AGGREGA_SIGNING_FULCIO_URL`. One name is shortened for ergonomics — `workspace.catalog_dirs` binds to `AGGREGA_CATALOG_DIRS`, paralleling `PATH`.
 
-Per-registry settings (`registries[].*`) have **no** environment variable: a list of per-host policy blocks does not express as a single variable, and a registry's trust and signing policy is committed configuration, not an ambient override. Situational, one-shot, and positional flags (`--dry-run`, `--trace`, `--detail`, `--json`, `--skip-verify`, `--release`, `--entity`, and the `lint --allow-*/--enforce-*` family) also have no environment variable — they are per-run decisions.
+Per-registry settings (`registries[].*`) have **no** environment variable: a list of per-host policy blocks does not express as a single variable, and a registry's trust and signing policy is committed configuration, not an ambient override. Situational, one-shot, and positional flags (`--dry-run`, `--trace`, `--detail`, `--output`, `--skip-verify`, `--release`, `--entity`, and the `lint --allow-*/--enforce-*` family) also have no environment variable — they are per-run decisions.
 
 ## Config-backed settings
 

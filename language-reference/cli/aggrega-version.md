@@ -5,14 +5,16 @@
 ## Synopsis
 
 ```
-aggrega version [--json]
+aggrega version [-o json]
 ```
 
 ## Output
 
 By default `aggrega version` prints a human-readable version line.
 
-With `--json` it emits a machine-readable object:
+With `-o json` it emits a machine-readable object. It is written on a single line, so a
+consumer can read one field out of it with line-oriented tools and no JSON parser; the example
+below is expanded for readability.
 
 ```json
 {
@@ -25,7 +27,7 @@ With `--json` it emits a machine-readable object:
 
 The fields come from the binary's embedded build metadata. A development build that carries no embedded version reports a sentinel value (such as `(devel)`) rather than failing.
 
-## When to use `--json`
+## When to use `-o json`
 
 - An editor extension compares the daemon's reported version against the version it was built for, to detect an incompatible `aggrega serve` binary before driving it.
 - CI and provenance tooling record the exact compiler build that produced an artifact.
@@ -45,6 +47,6 @@ aggrega version [flags]
 
 | Flag | Default | Description |
 | --- | --- | --- |
-| `--json` | `false` | emit a structured JSON object instead of the human-readable line |
+| `--output`, `-o` | `text` | Output format: text\|json. |
 | `--verbose` | `false` | include the embedded-plugin set in the output |
 <!-- END GENERATED: cli-version -->
