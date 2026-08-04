@@ -32,9 +32,15 @@ The three severities form an ordered set — `warning`, then `error`, then
 
 `warning` and `error` are advisory tiers. A marker at either severity never
 changes which version a reference resolves to. It is recorded when you run
-`aggrega pull`, and `aggrega build` reports it: below the
-`build.halt_on_deprecated_severity` threshold it prints an advisory, at or above
-it the build halts.
+`aggrega pull`, and `aggrega build` reports it.
+
+`aggrega build` reports **every** deprecated entity it consumes, whatever the
+severity, and an entity its author marked `metadata.deprecated: true` alongside
+them. Whether a marker also *stops* the build is a separate setting:
+`build.halt_on_deprecated_severity` is unset by default, so nothing halts, and
+setting it to a severity halts on that severity and above. Raising the threshold
+never reduces what you are told — you still get the notice for everything below
+it, and for everything the halt does not cover.
 
 `retracted` is the withdrawal tier, and it acts earlier as well. A version
 recorded as retracted is **removed from consideration** when `aggrega pull`
@@ -82,5 +88,4 @@ a Component, Feature, Recipe or FeatureRecipe — referenced without a version. 
 does not apply to library or published-Aggregate references, to `aggrega plugin
 add`, or to the editor-facing daemon, each of which chooses versions by its own
 route. In those cases a retracted version is still selected, and the recorded
-marker is reported by `aggrega build` under
-`build.halt_on_deprecated_severity` as it always was.
+marker is reported by `aggrega build` as every recorded marker is.
