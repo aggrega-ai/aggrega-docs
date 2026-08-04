@@ -369,7 +369,7 @@ Emitted message:
 A presence mandate's declaration cannot be evaluated. An annotation value is an opaque string, so nothing validates its shape before the compiler reads it: a value that is not a Feature type URI, or a key that names the mandate family without a label after the prefix, is reported as a broken declaration rather than as an unsatisfied requirement — a typo must never read as a satisfied requirement.
 
 Emitted messages:
-> component type `<component-type>` declares a malformed attachment requirement in annotation `<key>`: the value must be a Feature type URI of the form `<namespace>/<name>` in lower-case kebab segments, as in `core/prometheus-exporter`
+> component type `<component-type>` declares a malformed attachment requirement in annotation `<key>`: the value must be a Feature type URI of the form `<publisher>/<name>` in lower-case kebab segments, as in `core/prometheus-exporter`
 >
 > component type `<component-type>` declares a malformed attachment requirement in annotation `<key>`: the key needs a label naming the requirement, as in `features.aggrega.ai/requiredType.database`
 

@@ -38,12 +38,12 @@ Reusable Aggregate modules live in the catalog under:
 ```text
 aggrega-catalog/
 └── aggregate/
-    └── {namespace}/             # e.g., `core`, `acme`
+    └── {publisher}/             # e.g., `core`, `acme`
         └── {module-name}/
             └── aggregate.yaml   # The module definition
 ```
 
-OCI URI: `hub.aggrega.ai/aggregate/{namespace}/{module-name}:{version}` (e.g., `hub.aggrega.ai/aggregate/core/db-module:1.0.0`).
+OCI URI: `hub.aggrega.ai/aggregate/{publisher}/{module-name}:{version}` (e.g., `hub.aggrega.ai/aggregate/core/db-module:1.0.0`).
 
 ### The Module Pattern
 

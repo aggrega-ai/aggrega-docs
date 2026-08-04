@@ -126,4 +126,4 @@ This is the expected behaviour: consumers refining a library entry's property is
 
 - For envelope-level inheritance (Component-extends-Component, Release-extends-Release, Manifest-extends-Manifest), see [inheritance-and-interface.md](inheritance-and-interface.md).
 - For provider-specific source pointers (`Recipe.spec.source.chart:`, `Recipe.spec.source.modulePath:`), see the per-entity Recipe documentation. Provider source pointers are not unified under `$ref:`; the provider plugin consumes them directly.
-- For OCI URI shorthand expansion rules (domain default, registry segment, version fallback, namespace expansion), see [uri-grammar.md](uri-grammar.md).
+- For OCI URI shorthand expansion rules (domain default, registry segment, version fallback, publisher expansion), see [uri-grammar.md](uri-grammar.md).

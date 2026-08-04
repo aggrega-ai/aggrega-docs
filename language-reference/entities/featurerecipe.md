@@ -4,7 +4,7 @@ The conceptual role of the FeatureRecipe entity (Domain 3 — the Wasm-plugin-dr
 
 ## Catalog Location
 
-FeatureRecipes are organized with the provider as the namespace (same pattern as Recipes):
+FeatureRecipes are organized with the provider in the leading path segment (same pattern as Recipes):
 
 ```text
 aggrega-catalog/

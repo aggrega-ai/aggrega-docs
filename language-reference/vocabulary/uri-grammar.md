@@ -10,24 +10,24 @@ The same URI string carries different entity-kind meaning depending on where it 
 
 | Position | Inferred entity kind | OCI path expansion |
 | --- | --- | --- |
-| `Aggregate.spec.components.<id>.type` | Component | `/component/{namespace}/{category}/{name}` |
-| `Aggregate.spec.subsystems.<name>.<id>.type` | Component (same as components — subsystems are component grouping) | `/component/{namespace}/{category}/{name}` |
-| `Aggregate.spec.aggregates.<id>.type` | Aggregate (sub-aggregate module) | `/aggregate/{namespace}/{name}` |
-| `Aggregate.spec.components.<id>.features.<id>.type` | Feature | `/feature/{namespace}/{name}` |
-| `Aggregate.spec.components.<id>.features.<id>.type` | Feature (credential — labeled `feature.aggrega.ai/kind: secret`) | `/feature/{namespace}/{name}` |
+| `Aggregate.spec.components.<id>.type` | Component | `/component/{publisher}/{category}/{name}` |
+| `Aggregate.spec.subsystems.<name>.<id>.type` | Component (same as components — subsystems are component grouping) | `/component/{publisher}/{category}/{name}` |
+| `Aggregate.spec.aggregates.<id>.type` | Aggregate (sub-aggregate module) | `/aggregate/{publisher}/{name}` |
+| `Aggregate.spec.components.<id>.features.<id>.type` | Feature | `/feature/{publisher}/{name}` |
+| `Aggregate.spec.components.<id>.features.<id>.type` | Feature (credential — labeled `feature.aggrega.ai/kind: secret`) | `/feature/{publisher}/{name}` |
 | `Manifest.spec.mappings.components.type.<key>` | Component (the URI used as the lookup key); the value is a Recipe URI | key: `/component/`; value: `/recipe/{provider}/{name}` |
 | `Manifest.spec.mappings.components.name.<id>` | Recipe (granular override binding) | `/recipe/{provider}/{name}` |
 | `Manifest.spec.mappings.features.type.<key>` | Feature (lookup key); the value is a FeatureRecipe URI | key: `/feature/`; value: `/featurerecipe/{provider}/{name}` |
 | `Manifest.spec.mappings.features.name.<id>` | FeatureRecipe (granular override binding) | `/featurerecipe/{provider}/{name}` |
-| `Manifest.spec.mappings.features.annotations.<key>.feature` | Feature (annotation-bound) | `/feature/{namespace}/{name}` |
-| `Recipe.spec.implements` | Component (interface contract) | `/component/{namespace}/{category}/{name}` |
-| `FeatureRecipe.spec.implements` | Feature (interface contract) | `/feature/{namespace}/{name}` |
+| `Manifest.spec.mappings.features.annotations.<key>.feature` | Feature (annotation-bound) | `/feature/{publisher}/{name}` |
+| `Recipe.spec.implements` | Component (interface contract) | `/component/{publisher}/{category}/{name}` |
+| `FeatureRecipe.spec.implements` | Feature (interface contract) | `/feature/{publisher}/{name}` |
 | `Recipe.spec.extends` / `FeatureRecipe.spec.extends` | Recipe / FeatureRecipe (parent in inheritance chain) | `/recipe/{provider}/{name}` or `/featurerecipe/{provider}/{name}` |
-| `Component.spec.extends` / `Feature.spec.extends` | Component / Feature (parent in inheritance chain) | `/component/{namespace}/{category}/{name}` or `/feature/{namespace}/{name}` |
-| `Manifest.spec.extends` | Manifest (parent in mapping inheritance chain) | `/manifest/{namespace}/{name}` |
-| `Release.spec.extends` | Release (parent in deployment inheritance chain) | `/release/{namespace}/{name}` |
-| `Release.spec.aggregate` | Aggregate (the Release's deployment target) | `/aggregate/{namespace}/{name}` |
-| `Release.spec.manifest` | Manifest (the Release's mapping lockfile) | `/manifest/{namespace}/{name}` |
+| `Component.spec.extends` / `Feature.spec.extends` | Component / Feature (parent in inheritance chain) | `/component/{publisher}/{category}/{name}` or `/feature/{publisher}/{name}` |
+| `Manifest.spec.extends` | Manifest (parent in mapping inheritance chain) | `/manifest/{publisher}/{name}` |
+| `Release.spec.extends` | Release (parent in deployment inheritance chain) | `/release/{publisher}/{name}` |
+| `Release.spec.aggregate` | Aggregate (the Release's deployment target) | `/aggregate/{publisher}/{name}` |
+| `Release.spec.manifest` | Manifest (the Release's mapping lockfile) | `/manifest/{publisher}/{name}` |
 | `FeatureRecipe.spec.pipeline.<step>.plugin` | Wasm plugin | `/plugin/{pluginType}/{name}` |
 
 The inference rule: **the YAML schema position determines the entity kind**. There is no surface marker (sigil, prefix, schema-level annotation) telling the author which entity kind a particular `type:` field references. Authors hold the position-based rules in mind when reading YAML; tooling (IDE autocomplete, `aggrega inspect`, hub UI) reads the same rules to surface entity-kind-specific suggestions.
@@ -38,7 +38,7 @@ A catalog-entity URI carries no kind sigil (the previous section). Plugin URIs a
 
 **Plugin coordinates are derived from the plugin's type.** A plugin reference is `oci://hub.aggrega.ai/plugin/<pluginType>/<name>`. The coordinate is *derived*: the `<pluginType>` segment and the bare `<name>` come from the plugin's addressing block — `metadata.pluginType` and `metadata.name` — composed into the path. The socket is not path-encoded into the name; `metadata.name` is bare. The derived coordinate IS the registry (and embedded-plugin-set) key, so the registry organizes plugins by socket. Core plugins resolve to coordinates like `plugin/provider/helm`, `plugin/linter/publishing`, and `plugin/cli/moo` — each the composition of a bare `metadata.name` (`helm`, `publishing`, `moo`) with its `metadata.pluginType` (`provider`, `linter`, `cli`). The `<pluginType>` segment is exactly the plugin's socket type: the same bare `<name>` under a different `pluginType` is a different plugin, because the derived coordinate — and therefore the identity — differs. For the full socket taxonomy the `<pluginType>` segment classifies against, see [`entities/plugin.md`](../entities/plugin.md).
 
-**Catalog entities carry the kind in metadata.** The authored reference is `<namespace>/<category>/<name>` (for example, `core/datastore/postgres`). The entity `kind:` lives in the file; the URI's entity-kind is inferred from schema position, per [Position-based entity-kind inference](#position-based-entity-kind-inference) above. The path organizes by category, not by kind: a Component carries a category segment (`core/datastore/postgres`); a Recipe or FeatureRecipe carries its execution engine as the first segment (`helm/postgres`); the remaining kinds are flat `<namespace>/<name>`. Nothing in the path spells the entity kind.
+**Catalog entities carry the kind in metadata.** The authored reference is `<publisher>/<category>/<name>` (for example, `core/datastore/postgres`). The entity `kind:` lives in the file; the URI's entity-kind is inferred from schema position, per [Position-based entity-kind inference](#position-based-entity-kind-inference) above. The path organizes by category, not by kind: a Component carries a category segment (`core/datastore/postgres`); a Recipe or FeatureRecipe carries its execution engine as the first segment (`helm/postgres`); the remaining kinds are flat `<publisher>/<name>`. Nothing in the path spells the entity kind.
 
 **Why the two shapes differ.** Plugins are registry-organized by socket, so the socket segment is the natural registry key and is present in every plugin URI. Catalog entities are registry-organized by category, so the category — not the kind — is what the path spells. A URI therefore tells you the socket for a plugin from the path alone, but tells you a catalog entity's kind only after you read the file (the kind lives in `metadata`, the position supplies it at a reference site). This asymmetry is intentional: each family's path mirrors how that family is organized in the registry, not a single uniform grammar imposed across both.
 

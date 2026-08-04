@@ -10,7 +10,7 @@ The Aggrega compiler relies on a strictly typed, OAM-inspired registry to resolv
 
 An official `aggrega-catalog` repository (and any compliant third-party catalog) is organized to physically enforce the Separation of Concerns. The structure explicitly separates abstract interfaces from their concrete infrastructure implementations.
 
-URI segments map 1:1 to filesystem path segments. Components use a three-segment URI (`{namespace}/{category}/{name}`) where the category segment carries one of 15 cognitive categories — the same word as the component's `component.aggrega.ai/category` label (the 1:1 directory mirror, checked by the publishing linter's `category-matches-directory` rule). Features remain flat (`{namespace}/{name}`) — a small set, growing slowly. Operational ontology classification (`stateful-server`, `server`, etc.) lives in the `component.aggrega.ai/type` label, never in directory structure; cognitive capability labels (`datastore.aggrega.ai/engine`, `agent.aggrega.ai/autonomy`, …) layer behavioral subsets on top. The hub web UI uses labels for filtering and search; categories serve both filesystem navigation and the catalog's browse axis.
+URI segments map 1:1 to filesystem path segments. Components use a three-segment URI (`{publisher}/{category}/{name}`) where the category segment carries one of 15 cognitive categories — the same word as the component's `component.aggrega.ai/category` label (the 1:1 directory mirror, checked by the publishing linter's `category-matches-directory` rule). Features remain flat (`{publisher}/{name}`) — a small set, growing slowly. Operational ontology classification (`stateful-server`, `server`, etc.) lives in the `component.aggrega.ai/type` label, never in directory structure; cognitive capability labels (`datastore.aggrega.ai/engine`, `agent.aggrega.ai/autonomy`, …) layer behavioral subsets on top. The hub web UI uses labels for filtering and search; categories serve both filesystem navigation and the catalog's browse axis.
 
 ```text
 aggrega-catalog/
@@ -30,7 +30,7 @@ aggrega-catalog/
 │   └── ...
 │
 ├── component/                # DOMAIN 2: Abstract Interfaces
-│   │                         # URI: {namespace}/{category}/{name}
+│   │                         # URI: {publisher}/{category}/{name}
 │   │                         #   type: core/datastore/mariadb:1.0.0
 │   │                         #   → component/core/datastore/mariadb.yaml
 │   │
@@ -63,7 +63,7 @@ aggrega-catalog/
 │                             #  first entity lands)
 │
 ├── feature/                  # DOMAIN 2: Abstract Interfaces
-│   │                         # Flat: {namespace}/{name} (no categories)
+│   │                         # Flat: {publisher}/{name} (no categories)
 │   │                         #   type: core/data-masking:1.0.0
 │   │                         #   → feature/core/data-masking.yaml
 │   │
@@ -100,7 +100,7 @@ aggrega-catalog/
 │   └── eval/                 # Wasm Pass-Through formatter stubs
 │
 ├── feature-recipe/           # DOMAIN 3: Concrete Implementations
-│   │                         # Same provider-as-namespace pattern as recipes.
+│   │                         # Provider leads the path, same as recipes.
 │   │
 │   ├── helm/
 │   │   ├── k8s-secret-from-parameter/
@@ -314,17 +314,17 @@ Within Tier 2, `catalog_dirs` is an ordered **first-win precedence stack**. When
 
 **Where the cascade operates.** The cascade fetches the entity into memory; further resolution mechanics layered on top — the Manifest's two-tier `type` vs `name` lookup, the `implements` three-form version matching (exact / major-compatible range / unversioned) at [vocabulary/inheritance-and-interface](../language-reference/vocabulary/inheritance-and-interface.md), and the per-axis Recipe selection by provider and component instance — operate on entities the resolver has already pulled through this cascade.
 
-### 6. Artifact Packaging & The OCI Taxonomy (Provider as Namespace)
+### 6. Artifact Packaging & The OCI Taxonomy (Provider as the Leading Segment)
 
 Aggrega treats infrastructure logic the same way Docker treats container images, utilizing Open Container Initiative (OCI) standards via ORAS (OCI Registry As Storage). Users can host their Aggrega catalog on any standard registry (GHCR, AWS ECR, Aggrega Hub).
 
-Because Recipes are strictly **1:1 with a physical execution engine** — a single Recipe cannot target multiple providers — the cleanest way to organize them in an OCI registry is to use the **Provider as the Namespace**.
+Because Recipes are strictly **1:1 with a physical execution engine** — a single Recipe cannot target multiple providers — the cleanest way to organize them in an OCI registry is to put the **Provider in the leading repository segment**.
 
 The OCI taxonomy covers all entity types. URI segments map 1:1 to filesystem paths and OCI repository names:
 
-* `hub.aggrega.ai/component/core/datastore/mariadb:1.0.0` — Component, namespace `core`, category `datastore`
-* `hub.aggrega.ai/component/core/compute/api-server:1.0.0` — Component, namespace `core`, category `compute`
-* `hub.aggrega.ai/feature/core/data-masking:1.0.0` — Feature, namespace `core` (flat, no categories)
+* `hub.aggrega.ai/component/core/datastore/mariadb:1.0.0` — Component, publisher `core`, category `datastore`
+* `hub.aggrega.ai/component/core/compute/api-server:1.0.0` — Component, publisher `core`, category `compute`
+* `hub.aggrega.ai/feature/core/data-masking:1.0.0` — Feature, publisher `core` (flat, no categories)
 * `hub.aggrega.ai/aggregate/core/db-module:1.0.0` — Reusable Aggregate module
 * `hub.aggrega.ai/recipe/helm/mariadb-bitnami:1.0.0` — Recipe, provider `helm`
 * `hub.aggrega.ai/recipe/helm-chart/mariadb:1.0.0` — Recipe, provider `helm-chart`
@@ -351,7 +351,7 @@ The encoding suffix reflects how each kind ships. Component, Feature, Aggregate,
 
 Recipe names do NOT include the `ops/` prefix or the provider name. The entity type directory and provider directory provide all context needed.
 
-**Naming Convention:** Domain 2 entities (Component, Feature, Aggregate) use `{namespace}/{name}` where the namespace is the vendor/author (`core` = official standard library, `acme` = enterprise). Domain 3 entities (Recipe, FeatureRecipe) use `{capability}/{name}`, where the capability is the execution engine the entity declares in `spec.capability`; a reference may also name the entity bare, as the leaf alone. The `ops/` prefix is a legacy naming convention and MUST NOT be used — all Recipes are Domain 3 (Ops) by definition, and the entity type directory (`recipe/`, `feature-recipe/`) already identifies the domain. Recipe names do NOT include the capability either, since it is already the leading segment of the canonical URI.
+**Naming Convention:** Domain 2 entities (Component, Feature, Aggregate) use `{publisher}/{name}` where the publisher segment names the vendor/author (`core` = official standard library, `acme` = enterprise). Domain 3 entities (Recipe, FeatureRecipe) use `{capability}/{name}`, where the capability is the execution engine the entity declares in `spec.capability`; a reference may also name the entity bare, as the leaf alone. The `ops/` prefix is a legacy naming convention and MUST NOT be used — all Recipes are Domain 3 (Ops) by definition, and the entity type directory (`recipe/`, `feature-recipe/`) already identifies the domain. Recipe names do NOT include the capability either, since it is already the leading segment of the canonical URI.
 
 Recipes utilize the `implements` keyword to bind to the interface they fulfill. The `implements` field supports exact, major-compatible range, or unversioned matching (see [vocabulary/inheritance-and-interface](../language-reference/vocabulary/inheritance-and-interface.md) for `implements` Version Matching).
 
@@ -414,13 +414,13 @@ Re-resolution to a newer version requires explicit user action: `aggrega pull --
 
 ### 10. Catalog entity name-shape enforcement
 
-Catalog entity names follow per-entity-kind patterns documented at [`../language-reference/02-naming-conventions.md`](../language-reference/02-naming-conventions.md) "Catalog Entity Naming" and detailed in the per-entity reference pages at [`../language-reference/entities/`](../language-reference/entities/). The `metadata.name` field a catalog YAML declares is not always identical to the entity's canonical reference URI: Component and Feature embed namespace and grouping segments directly in `metadata.name`; Recipe and FeatureRecipe declare a leaf-only `metadata.name`, and their canonical two-segment URI pairs that leaf with the `spec.capability` the entity declares; SchemaLibrary and MappingLibrary declare a PascalCase token in `metadata.name`.
+Catalog entity names follow per-entity-kind patterns documented at [`../language-reference/02-naming-conventions.md`](../language-reference/02-naming-conventions.md) "Catalog Entity Naming" and detailed in the per-entity reference pages at [`../language-reference/entities/`](../language-reference/entities/). The `metadata.name` field a catalog YAML declares is not always identical to the entity's canonical reference URI: Component and Feature embed publisher and grouping segments directly in `metadata.name`; Recipe and FeatureRecipe declare a leaf-only `metadata.name`, and their canonical two-segment URI pairs that leaf with the `spec.capability` the entity declares; SchemaLibrary and MappingLibrary declare a PascalCase token in `metadata.name`.
 
 Per-entity-kind shapes:
 
-* **Component** — three kebab-case segments `{namespace}/{category}/{name}` declared in `metadata.name`. Example: `core/datastore/postgres`.
-* **Feature** — two kebab-case segments `{namespace}/{name}` declared in `metadata.name`. Example: `core/data-masking`.
-* **Recipe** — a single kebab-case leaf in `metadata.name` (e.g., `postgres`). The canonical reference URI `{capability}/{name}` (per §6 above) pairs the entity's declared `spec.capability` with that leaf; the leading segment is matched against `spec.capability`, not against the entity's location on disk, so moving a `recipe.yaml` does not change how it is referenced. The standard-library catalog places the entity at `<catalog-root>/recipe/<capability>/<name>/recipe.yaml` so the tree mirrors the coordinate, but that mirroring is a catalog convention rather than the source of the URI. A reference may also name the recipe **bare** — the leaf alone, with no capability segment — which is the dominant form in practice and resolves whenever a single recipe in the catalog carries the name. No additional namespace component appears in a Recipe URI, and a reference carrying a third segment matches no recipe.
+* **Component** — three kebab-case segments `{publisher}/{category}/{name}` declared in `metadata.name`. Example: `core/datastore/postgres`.
+* **Feature** — two kebab-case segments `{publisher}/{name}` declared in `metadata.name`. Example: `core/data-masking`.
+* **Recipe** — a single kebab-case leaf in `metadata.name` (e.g., `postgres`). The canonical reference URI `{capability}/{name}` (per §6 above) pairs the entity's declared `spec.capability` with that leaf; the leading segment is matched against `spec.capability`, not against the entity's location on disk, so moving a `recipe.yaml` does not change how it is referenced. The standard-library catalog places the entity at `<catalog-root>/recipe/<capability>/<name>/recipe.yaml` so the tree mirrors the coordinate, but that mirroring is a catalog convention rather than the source of the URI. A reference may also name the recipe **bare** — the leaf alone, with no capability segment — which is the dominant form in practice and resolves whenever a single recipe in the catalog carries the name. No publisher segment appears in a Recipe URI, and a reference carrying a third segment matches no recipe.
 * **FeatureRecipe** — single kebab-case leaf in `metadata.name` (e.g., `k8s-secret-from-parameter`), symmetric with Recipe: canonical URI `{capability}/{name}` from the declared `spec.capability` plus the leaf, the bare leaf accepted the same way, and the `<catalog-root>/feature-recipe/<capability>/<name>/recipe.yaml` tree mirroring the coordinate by convention.
 * **SchemaLibrary** and **MappingLibrary** — a PascalCase single token in `metadata.name` matching `^[A-Z][A-Za-z0-9]*$` (e.g., `BaseComponents`, `AIDatastores`). For these two kinds the JSON Schema envelope declares the pattern as well, in addition to the check described below.
 
@@ -450,7 +450,7 @@ lint:
     allow_nonstandard_names: true   # default false
 ```
 
-With the policy set, the name-shape rule reports nothing at all. It can also be set for a single invocation with `aggrega lint --allow-nonstandard-names`, or forced off again with `--no-allow-nonstandard-names`. Legitimate uses are catalogs that will never be published, multi-namespace experiments, and special-purpose entities.
+With the policy set, the name-shape rule reports nothing at all. It can also be set for a single invocation with `aggrega lint --allow-nonstandard-names`, or forced off again with `--no-allow-nonstandard-names`. Legitimate uses are catalogs that will never be published, multi-publisher experiments, and special-purpose entities.
 
 ### 11. Annotation-driven Feature expansion
 

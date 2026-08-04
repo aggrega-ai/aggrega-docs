@@ -29,7 +29,7 @@ carried locally by this example — an enterprise-authored chart-wrap under its
 own `catalog/` directory.
 
 This example's own teaching scaffolding lives in the shared catalog under the
-`example/` namespace, alongside the standard library:
+`example/` publisher, alongside the standard library:
 
 - `example/db-binding` — a Feature (and its FeatureRecipe) that carries the
   `databases` use-edge wiring Adminer to the database, specific to this stack's

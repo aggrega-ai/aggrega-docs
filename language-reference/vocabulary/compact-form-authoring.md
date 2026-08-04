@@ -538,5 +538,5 @@ The example fits in ~40 LOC of compact form; the equivalent JSON Schema YAML exp
 - For cross-document `$ref:` resolution semantics (Pattern A vs B `required:` syntax; library-to-library chain expansion; consumer narrows library): [cross-document-ref.md](cross-document-ref.md).
 - For the `assertions:` block authoring grammar (cross-field rules that compact-form `validate:` cannot express): [templates/assertions-block.md](../templates/assertions-block.md).
 - For the data-pillar set that hosts the compact-form schemas (`values:`, `infra:`, `provides:`, `uses:`, `features:`, `locals:`, `parameters:`): [data-pillars.md](data-pillars.md).
-- For OCI URI shorthand expansion rules (domain default, registry segment, version fallback, namespace expansion): [uri-grammar.md](uri-grammar.md).
+- For OCI URI shorthand expansion rules (domain default, registry segment, version fallback, publisher expansion): [uri-grammar.md](uri-grammar.md).
 - For SchemaLibrary entity authoring (where `$ref:`-referenceable schemas live in the catalog): [../entities/schemalibrary.md](../entities/schemalibrary.md).

@@ -9,7 +9,7 @@ Unlike Components (which use three-segment URIs with category subdirectories), F
 ```text
 aggrega-catalog/
 └── feature/
-    └── {namespace}/               # e.g., `core`, `acme`
+    └── {publisher}/               # e.g., `core`, `acme`
         ├── secret-value.yaml      # feature.aggrega.ai/kind: secret (credential Feature)
         ├── data-masking.yaml
         ├── k8s-dns-resolver.yaml
@@ -18,7 +18,7 @@ aggrega-catalog/
         └── ...
 ```
 
-OCI URI: `hub.aggrega.ai/feature/{namespace}/{feature-name}:{version}` (e.g., `hub.aggrega.ai/feature/core/data-masking:1.0.0`).
+OCI URI: `hub.aggrega.ai/feature/{publisher}/{feature-name}:{version}` (e.g., `hub.aggrega.ai/feature/core/data-masking:1.0.0`).
 
 ## Authoring Contract
 
