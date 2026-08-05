@@ -68,15 +68,24 @@ One separator grammar applies throughout: `---` between sibling failures, `cause
 
 ## The document-envelope failure class
 
-Every entity document — catalog entities, Aggregates, Manifests, Releases — is validated against its kind's published JSON schema when it is loaded, before typed parsing. A document that violates its envelope (an unknown key, a missing required field, a value of the wrong shape, a banned construct such as Release `values:`) halts loudly with a path-pointed diagnostic naming the file, the entity kind, and each offending key or shape:
+Every entity document — catalog entities, Aggregates, Manifests, Releases — is validated against its kind's published JSON schema when it is loaded, before typed parsing. A document that violates its envelope (an unknown key, a missing required field, a value of the wrong shape, a banned construct such as Release `values:`) halts loudly with a diagnostic naming the file, the entity kind, and then each offending key or shape with the line and column it sits on:
 
 ```text
 [OPS_ERROR] release.yaml
-  Release: release.yaml: Release document violates its envelope schema; spec.boundaries.main: unexpected additional properties ["values"]
+  Release: release.yaml: Release document violates its envelope schema; 11:5: spec.boundaries.main: unexpected additional properties ["values"]
   caused by: document envelope validation failed: correct the document to match its kind's schema
 ```
 
-The category follows the authoring surface: `[CATALOG_ERROR]` for catalog entities, `[DEVELOPER_ERROR]` for Aggregates, `[OPS_ERROR]` for Releases and Manifests. The same gate runs at every surface that loads entities — build, lint, and the serve daemon's editor diagnostics — so a stray or misspelled key is rejected wherever the document is first read instead of being silently dropped.
+The head names the file once, so each violation after it carries `line:column` alone. A document with several violations lists each on its own position, in key order, and the report stops after four with a count of the rest.
+
+Two things are worth knowing about where a position points, because both are useful rather than surprising:
+
+- **A missing required key has no position of its own** — it is absent from the document by definition. The violation points at the enclosing key instead, which is where the missing entry belongs. So `spec.capability: missing required property` points at `spec:`, and that is where you add it.
+- **A key whose own name contains a dot** — every `component.aggrega.ai/…` label and `features.aggrega.ai/…` annotation — is reported at the block that holds it rather than at the entry itself, since the dots read as steps down into the document. A violation on a label points at `labels:`.
+
+Where a violation names a key that is nowhere in the document — a whole `metadata:` block left out, say — the position is omitted rather than guessed, and the violation reads as the key path and the message alone. A position you would have to distrust is worse than none.
+
+The category follows the authoring surface: `[CATALOG_ERROR]` for catalog entities, `[DEVELOPER_ERROR]` for Aggregates, `[OPS_ERROR]` for Releases and Manifests. The same gate runs at every surface that loads entities — `aggrega build`, `aggrega lint`, `aggrega validate`, and the editor diagnostics `aggrega serve` publishes — so a stray or misspelled key is rejected wherever the document is first read instead of being silently dropped. Each of those surfaces resolves the position the same way, so they point at the same key: the line your editor underlines is the line the terminal names.
 
 ## Multi-error chains
 
