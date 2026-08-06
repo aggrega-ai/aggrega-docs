@@ -33,7 +33,6 @@ _Additional properties are not permitted._
 | `repository` | string | no | The URL to the Git repository where the source files live. |
 | `home` | string | no | The URL of this entity's home page, wiki, or documentation. |
 | `keywords` | string[] | no | A list of descriptive keywords for UI discoverability. |
-| `deprecated` | boolean | no | Indicates whether this entity is deprecated and should no longer be used. |
 | `labels` | object | no | Duck-typing labels for the Feature. The reserved label 'feature.aggrega.ai/kind' with value 'secret' marks this as a credential Feature, which routes the attachment through the credential pipeline. A credential Feature and an ordinary Feature are attached the same way, under the same attachment surface; the label selects the pipeline, not the authoring block. |
 | `annotations` | map of string | no | Immutable, intrinsic feature characteristics authored by the Platform Architect in Domain 2. Cascades down to the .context.annotations.catalog bucket. |
 

@@ -33,7 +33,6 @@ _Additional properties are not permitted._
 | `repository` | string | no | The URL to the Git repository where the source files live. |
 | `home` | string | no | The URL of this entity's home page, wiki, or documentation. |
 | `keywords` | string[] | no | A list of descriptive keywords for UI discoverability. |
-| `deprecated` | boolean | no | Indicates whether this entity is deprecated and should no longer be used. |
 
 _Additional properties are not permitted._
 

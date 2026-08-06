@@ -99,7 +99,6 @@ The Enterprise Metadata Suite explicitly extracted from the Catalog entity, expo
 | `repository` | string | no |  |
 | `home` | string | no |  |
 | `keywords` | string[] | no |  |
-| `deprecated` | boolean | no |  |
 
 _Additional properties are not permitted._
 

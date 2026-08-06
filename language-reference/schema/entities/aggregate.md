@@ -34,7 +34,6 @@ _Additional properties are not permitted._
 | `repository` | string | no | The URL to the Git repository where the source files live. |
 | `home` | string | no | The URL of this entity's home page, wiki, or documentation. |
 | `keywords` | string[] | no | A list of descriptive keywords for UI discoverability. |
-| `deprecated` | boolean | no | Indicates whether this entity is deprecated and should no longer be used. |
 | `labels` | map of string | no | Module-level duck-typing labels for catalog discovery, policy evaluation, and Studio/IDE filtering. These labels describe the Aggregate's identity as a reusable module (e.g., aggregate.aggrega.ai/tier: infrastructure, aggregate.aggrega.ai/compliance: pci-dss). They do NOT cascade to child component nodes — component labels come exclusively from the Component catalog entity in Domain 2. |
 
 _Additional properties are not permitted._

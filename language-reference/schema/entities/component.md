@@ -33,7 +33,6 @@ _Additional properties are not permitted._
 | `repository` | string | no | The URL to the Git repository where the source files live. |
 | `home` | string | no | The URL of this entity's home page, wiki, or documentation. |
 | `keywords` | string[] | no | A list of descriptive keywords for UI discoverability. |
-| `deprecated` | boolean | no | Indicates whether this entity is deprecated and should no longer be used. |
 | `labels` | object | yes | Duck-typing labels to declare characteristics. Must include the reserved 'component.aggrega.ai/type' key. |
 | `annotations` | map of string | no | Immutable, intrinsic component characteristics authored by the Platform Architect in Domain 2. Cascades down to the .context.annotations.catalog bucket. |
 

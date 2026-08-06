@@ -35,8 +35,7 @@ changes which version a reference resolves to. It is recorded when you run
 `aggrega pull`, and `aggrega build` reports it.
 
 `aggrega build` reports **every** deprecated entity it consumes, whatever the
-severity, and an entity its author marked `metadata.deprecated: true` alongside
-them. Whether a marker also *stops* the build is a separate setting:
+severity. Whether a marker also *stops* the build is a separate setting:
 `build.halt_on_deprecated_severity` is unset by default, so nothing halts, and
 setting it to a severity halts on that severity and above. Raising the threshold
 never reduces what you are told — you still get the notice for everything below
