@@ -2,7 +2,7 @@
 
 A single Aggrega build produces output files into per-boundary directories under `dist/` through six distinct mechanisms — sourced rendering, workload synthesis, FeatureRecipe Resource Generation, FeatureRecipe plugin-pipeline patches, Release-level composition, and direct artifact emission. The mechanisms run in a defined order; outputs collide deterministically when two mechanisms produce a file with the same name in the same boundary directory; the build halts before emission with a `CATALOG_ERROR:` naming every contributor when a collision is detected.
 
-This page documents the six mechanisms in one place, names the rendering order across them, and consolidates the collision-detection rules previously scattered across [architecture/10-compilation-pipeline.md](../../architecture/10-compilation-pipeline.md), [architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md), and the per-entity Recipe / FeatureRecipe references.
+This page documents the six mechanisms in one place and names the rendering order across them. The per-chapter and per-entity references cover their own surfaces; the collision-detection rules across all six live here.
 
 ## The six output-producing mechanisms
 
