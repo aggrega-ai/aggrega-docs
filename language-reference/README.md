@@ -8,13 +8,13 @@ Before reading the chapter sequence, consult [Status of the Language](10-status.
 
 ## Entity tier model
 
-Aggrega has eleven entity kinds. Ten are organised into three tiers reflecting adoption progression (below); the eleventh, Workload, expresses compute shape through the `form:` vocabulary (stateless, stateful, daemon, scheduled, task). **Tiering is a documentation and onboarding mechanism, not a runtime constraint**: every entity kind is a first-class language citizen; the compiler treats them uniformly; the open-source Aggrega supports all tiers without licensing or feature gating. The tier markers signal "advanced; skip if not needed" for navigation, not capability.
+Aggrega's authoring entity kinds are organised into three tiers reflecting adoption progression (below). Alongside them sits the platform-owned Workload, which is not an authoring kind of its own — it is the shape a Recipe's synthesized input takes, expressing compute shape through the `form:` vocabulary (stateless, stateful, daemon, scheduled, task, reference). **Tiering is a documentation and onboarding mechanism, not a runtime constraint**: every entity kind is a first-class language citizen; the compiler treats them uniformly; the open-source Aggrega supports all tiers without licensing or feature gating. The tier markers signal "advanced; skip if not needed" for navigation, not capability.
 
 | Tier | Entity kinds | When to adopt |
 | --- | --- | --- |
 | **Tier 1 — the minimum viable surface** | Aggregate, Component, Recipe, Manifest, Release | Day 1 — solo founders and small teams ship working software with only Tier 1. The mental model: "I have an app; I want to deploy it; here's how." |
 | **Tier 2 — role separation** | Feature, FeatureRecipe, Plugin | Day 30 — small teams where roles split (developer + Ops + sometimes Security). Tier 2 enters via provider-rendering Plugins (Ops choose Helm vs Compose vs helm-chart), Features (Security manages credentials separately from app config), and FeatureRecipes (binding-time customisation per provider). |
-| **Tier 3 — cross-Component reuse** | SchemaLibrary, MappingLibrary | Day 365 — mature catalogs where common shapes recur across many entities. The threshold is informal: when a shape (e.g., `PodResources`) appears in 5+ Components and coordinating updates is friction, a SchemaLibrary entry justifies itself. |
+| **Tier 3 — cross-Component reuse** | SchemaLibrary, MappingLibrary, WorkloadLibrary, ArtifactsLibrary | Day 365 — mature catalogs where common shapes recur across many entities. The threshold is informal: when a shape (e.g., `PodResources`) appears in 5+ Components and coordinating updates is friction, a SchemaLibrary entry justifies itself. |
 
 Each progression is opt-in. A solo founder is never forced to look at Tier 3; an enterprise catalog has full access to Tier 3 as needed. Tier 1 is *complete* for the solo-founder use case — a developer can ship working applications using only Tier 1 entities. This is a strong design property: Tier 1 is not a "subset that compiles"; it is a "subset that ships software."
 

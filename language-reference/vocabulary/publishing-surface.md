@@ -70,7 +70,7 @@ The compiler does not enforce or validate maintainer content beyond JSON Schema'
 
 ## Required-fields asymmetries
 
-The ten Aggrega entity kinds carry slightly different required-field sets in their JSON Schemas. Most asymmetries are deliberate and reflect the entity's role; one asymmetry (Release `metadata.environment`) is in transition and will be relaxed in a future release.
+Aggrega's entity kinds carry slightly different required-field sets in their JSON Schemas. Most asymmetries are deliberate and reflect the entity's role; one asymmetry (Release `metadata.environment`) is in transition and will be relaxed in a future release.
 
 The current required-fields state per entity (excluding `apiVersion` / `kind` / `metadata.name` / `metadata.version`, which every entity requires uniformly):
 

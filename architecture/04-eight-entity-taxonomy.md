@@ -1,6 +1,6 @@
 # The Entity Taxonomy
 
-Aggrega's architecture is organized into four domains, each owned by a different persona and housing specific entity kinds, plus a Tier 3 library layer that holds reusable schema and mapping content. The diagram below shows the entities and their relationships across the four domains plus the Tier 3 libraries. Detailed authoring surfaces (fields, schemas, examples) for each entity live in the [Language Reference entities catalog](../language-reference/entities/).
+Aggrega's architecture is organized into four domains, each owned by a different persona and housing specific entity kinds, plus a Tier 3 library layer that holds reusable schema, mapping, workload, and artifact content. The diagram below shows the entities and their relationships across the four domains plus the Tier 3 libraries. Detailed authoring surfaces (fields, schemas, examples) for each entity live in the [Language Reference entities catalog](../language-reference/entities/).
 
 ~~~mermaid
 %%{
@@ -56,7 +56,11 @@ graph LR
     subgraph DL ["Tier 3: Libraries"]
         SL["SchemaLibrary<br/>Reusable JSON Schema 2020-12 Definitions"]:::baseNode
         ML["MappingLibrary<br/>Reusable Go Template Fragments"]:::baseNode
+        WL["WorkloadLibrary<br/>Reusable Workload Template Fragments"]:::baseNode
+        AL["ArtifactsLibrary<br/>Reusable Named Artifact Bundles"]:::baseNode
         SL ~~~ ML
+        ML ~~~ WL
+        WL ~~~ AL
     end
 
     %% Logical Flow Connections
@@ -79,12 +83,15 @@ graph LR
     CapC -.->|"$ref"| SL
     CD -.->|"valuesMapping: { $import: &lt;Library&gt;#/mappings/&lt;name&gt; }"| ML
     CapD -.->|"$import"| ML
+    CD -.->|"workload: { $import: &lt;Library&gt;#/workloads/&lt;entry&gt; }"| WL
+    CD -.->|"artifacts.&lt;name&gt;: { $import: &lt;Library&gt;#/artifacts/&lt;name&gt; }"| AL
+    CapD -.->|"$import"| AL
 
     %% Apply the domain class to the subgraphs
     class D1,D2,D3,D4,DL domain;
 ~~~
 
-The corpus carries ten entity kinds across four domains plus the Tier 3 library layer:
+The corpus spans four domains plus the Tier 3 library layer:
 
 | # | Entity | Domain | Role |
 |---|---|---|---|
@@ -98,8 +105,10 @@ The corpus carries ten entity kinds across four domains plus the Tier 3 library 
 | 8 | Release | D4 — Routing & Policy | Deployment router binding Aggregate to Manifest |
 | 9 | SchemaLibrary | Tier 3 — Libraries | Reusable JSON Schema 2020-12 definitions |
 | 10 | MappingLibrary | Tier 3 — Libraries | Reusable Go template fragments |
+| 11 | WorkloadLibrary | Tier 3 — Libraries | Reusable Workload template fragments |
+| 12 | ArtifactsLibrary | Tier 3 — Libraries | Reusable named artifact bundles |
 
-The Workload kind is platform-owned content embedded inside a Recipe's synthesized input rather than a standalone catalog entity (see chapter 16).
+That table is the whole set of authoring entity kinds — the kinds an author declares in a `kind:` field. The Workload kind is platform-owned content embedded inside a Recipe's synthesized input rather than a standalone catalog entity (see chapter 16), so it is deliberately absent from the table above.
 
 The Plugin is a first-class authoring entity — its own kind, JSON Schema, and catalog directory — owned by Platform Ops in Domain 3. A Plugin is a content-addressed reference to a WebAssembly artifact, declaring the socket type it implements: `provider` (rendering IR nodes into provider-native artifacts), `linter` (raising diagnostics on authored content), or `frp_step` (a feature-recipe-pipeline step). A provider-rendering Plugin (`pluginType: provider`) is the unit that serves provider rendering: it declares the provider name(s) it renders in `targets` and carries its provider-socket metadata in `spec.provider`. The compiler pins and routes the reference; the WebAssembly runtime executes the bytes; the compiler is blind to what the plugin does — the plugin is the transport for the domain-specific intelligence that lives in WebAssembly. Its authoring and metadata surface is documented at [language-reference/entities/plugin.md](../language-reference/entities/plugin.md).
 
@@ -138,8 +147,10 @@ The Plugin is a first-class authoring entity — its own kind, JSON Schema, and 
 
 ## Tier 3: Libraries (Catalog Reuse)
 
-* **Role:** The Platform Architect (same persona as Domain 2), but the role kicks in only when catalog content grows large enough to benefit from cross-Component schema reuse or cross-Recipe template reuse. Solo authors and small catalogs ship without any Tier 3 entities.
+* **Role:** The Platform Architect (same persona as Domain 2), but the role kicks in only when catalog content grows large enough to benefit from cross-Component schema reuse or cross-Recipe reuse of templates, workload shapes, or artifact bundles. Solo authors and small catalogs ship without any Tier 3 entities.
 * **9. SchemaLibrary:** Reusable JSON Schema 2020-12 definitions. A library declares named schemas at `spec.schemas:` and optional parameterized helpers at `spec.templates:` (with `$params:` declarations and `$instantiate:` references for parametric reuse). Catalog entities consume library entries via the standard JSON Schema `$ref:` keyword pointing at the library entry by identity — the host-less `<library>#/schemas/<name>` form (the version comes from the lockfile, not the reference). PascalCase naming, OCI-distributed, lockfile-pinned. Opt-in for catalogs that need cross-Component schema reuse — common shapes like `PodResources`, `PersistenceSpec`, `NodePool`, `MetricsServiceMonitor` recur across every datastore Component and every workload Component, and SchemaLibrary entries factor that repetition out of per-Component authoring.
 * **10. MappingLibrary:** Reusable Go template fragments. A library declares named templates at `spec.mappings:`. Recipes and FeatureRecipes consume library entries by identity via `valuesMapping: { $import: <library>#/mappings/<name> }`. Single authoring mode (Go templates only); no parallel Jsonnet authoring path. Opt-in for catalogs that need cross-Recipe mapping reuse — common patterns like Bitnami chart helper logic or shared pod-template patterns recur across every datastore Recipe targeting the same provider, and MappingLibrary entries factor that repetition out of per-Recipe authoring.
+* **11. WorkloadLibrary:** Reusable Workload template fragments. A library declares named workload entries at `spec.workloads:`. A Recipe consumes an entry by identity via `workload: { $import: <library>#/workloads/<entry> }`, and the imported body validates against the platform-owned Workload schema exactly as an inline `workload:` block does — so a library-imported workload renders identically to the equivalent inline one. Single authoring mode (Go templates only). Opt-in for catalogs that need cross-Recipe workload reuse, where several Recipes share one deployment shape and only their values differ.
+* **12. ArtifactsLibrary:** Reusable named artifact bundles. A library declares named bundles at `spec.artifacts:`, each bundle grouping the output files that belong together — a CRD, its RBAC, and a ConfigMap, for instance — and imported as one unit. Recipes and FeatureRecipes consume a bundle by identity via `artifacts.<name>: { $import: <library>#/artifacts/<name> }`. Single authoring mode (Go templates only). Opt-in for catalogs that need cross-Recipe artifact reuse, where the same auxiliary resource set accompanies many Recipes.
 
-Both libraries publish via OCI, pin in the workspace lockfile (`schema_libraries:` and `mapping_libraries:` sections), and surface in the Hub UI with consumer awareness (which Components reference which library entries; which Recipes consume which library templates).
+Every library publishes via OCI, pins in the lockfile (the `schema_libraries:`, `mapping_libraries:`, `workload_libraries:`, and `artifacts_libraries:` sections), and surfaces in the Hub UI with consumer awareness (which Components reference which library entries; which Recipes consume which library entries).
