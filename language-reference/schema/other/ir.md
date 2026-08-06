@@ -14,76 +14,10 @@ The flattened, fully resolved 1-dimensional graph emitted by the Topology Builde
 | --- | --- | --- | --- |
 | `apiVersion` | const "aggrega.ai/v1alpha1" | yes | Constant: `"aggrega.ai/v1alpha1"` |
 | `kind` | const "IR" | yes | Constant: `"IR"` |
-| `metadata` | object | yes |  |
-| `spec` | object | yes |  |
+| `metadata` | IRMetadata | yes |  |
+| `spec` | IRSpec | yes |  |
 
 _Additional properties are not permitted._
-
-#### `ir.metadata`
-
-| Property | Type | Required | Description |
-| --- | --- | --- | --- |
-| `aggregate_name` | string | yes | The Aggregate's metadata.name. Follows IR snake_case convention. |
-
-_Additional properties are not permitted._
-
-#### `ir.spec`
-
-| Property | Type | Required | Description |
-| --- | --- | --- | --- |
-| `nodes` | object | yes | Dictionary of all application nodes, keyed by their absolute ID. Purely topological. |
-| `edges` | object[] | yes | Explicit logical network paths and dependencies between nodes. |
-| `feature_markers` | string[] | yes | The de-duplicated, lexicographically sorted set of Feature type strings — one entry per distinct Feature type attached anywhere in the graph (for example core/logging), regardless of where the attachment was declared. Sorting is what makes the set byte-identical across runs of the same input. |
-| `values_mapping` | object | yes | The single source of truth for opaque pass-through cognitive payloads, mapped by node ID. |
-| `infra_mapping` | object | yes | The physical sizing payload injected from the Release, mapped by node ID. |
-| `feature_values_mapping` | object | yes | Normalized map of Node IDs to their attached Feature configurations. One bucket carries every attachment on a node whatever it produces — operational Features, credential Features, identity Features — keyed by the instance name the author gave each attachment. |
-| `boundary_features` | object | no | Un-folded projection of each boundary's Feature attachments, keyed by boundary path then by instance name. Mirrors the boundaries' feature attachments as the single source both lock-time source resolution and the render-time boundary-scope dispatch read, so neither re-walks the routing tree. Present only when the graph has boundary-level Feature attachments. |
-| `provenance` | object | yes | Traceability metadata for diagnostics and auditing. |
-
-_Additional properties are not permitted._
-
-##### `ir.spec.edges[]`
-
-| Property | Type | Required | Description |
-| --- | --- | --- | --- |
-| `source` | string | yes |  |
-| `target` | string | yes |  |
-| `socket` | string | no | The usesSchema category this edge belongs to (e.g., 'databases', 'tools'). |
-| `alias` | string | no | The developer-defined alias for this connection (e.g., 'primary_db'). |
-| `socket_declaration` | string (enum) | yes | Where the socket came from: declared when the catalog entity that owns the socket lists it in usesSchema (the consuming Component, or the originating Feature for a Feature-authored edge), ad-hoc when the Aggregate author named a socket the catalog did not declare. This is a third axis, independent of edge authorship: it says where the socket came from, not who drew the edge, so a Release-authored edge into a declared socket and an Aggregate-authored edge into an ad-hoc socket differ on the two axes independently. A declared socket carries its usesSchema entry, including the selector that constrains which targets the edge may reach; an ad-hoc socket has no catalog entry and therefore no selector, so what the edge may carry is bounded by the target's declared provides alone. Always present, so a consumer never has to read an absent value as declared, and a policy can require every edge to be declared. Distinct from an attachment's binding marker, which answers the same shape of question about a different subject. Allowed values: `"declared"`, `"ad-hoc"` |
-| `origin_feature` | string | no | If this edge was autonomously declared by a Feature (including credential Features labeled feature.aggrega.ai/kind: secret), this identifies the Feature type URI. Allows Wasm plugins to isolate their own topology. |
-| `origin_feature_instance` | string | no | The per-attachment instance name of the Feature that declared this edge. Locates a boundary-scope FeatureRecipe's resolved provides by instance, disambiguating two attachments of the same Feature type on one boundary. |
-| `origin_release` | boolean | no | True when this edge was created by a Release wiring a declared-but-unbound socket to an existing component. Marks edge AUTHORSHIP, not configuration: a developer-declared edge that a Release merely supplied infra for stays Aggregate-origin (origin_release unset; its Release infra appears in the edge's infra map). origin_feature set => Feature-origin; origin_release true => Release-origin; neither => Aggregate-origin. |
-| `values` | object | no | Resolved per-connection developer values for this edge (from the Aggregate edge), validated at resolution against the valueSchema declared by the source socket (the socket on the consuming component, which is the edge's source) and projected into the consuming node's render context at .uses.<alias>.values. Keys the author omitted are filled from the socket's declared defaults; an authored value wins. |
-| `infra` | object | no | Resolved per-connection infra for this edge (Aggregate-seeded and/or Release-supplied), validated at resolution against the infraSchema declared by the source socket (the socket on the consuming component, which is the edge's source) and projected at .uses.<alias>.infra. Keys the author omitted are filled from the socket's declared defaults; an authored value wins. |
-| `inject` | object | no | Agnostic injection routing. Maps local variables to Target provides keys. |
-
-_Additional properties are not permitted._
-
-###### `ir.spec.edges[].inject`
-
-Agnostic injection routing. Maps local variables to Target provides keys.
-
-| Property | Type | Required | Description |
-| --- | --- | --- | --- |
-| `env` | map of string | no |  |
-| `file` | map of string | no |  |
-| `arg` | map of string | no |  |
-
-##### `ir.spec.provenance`
-
-Traceability metadata for diagnostics and auditing.
-
-| Property | Type | Required | Description |
-| --- | --- | --- | --- |
-| `schema_version` | string | yes |  |
-| `compiler_version` | string | yes | Mandatory compliance stamp. Identifies the specific Go compiler binary used to generate this graph. |
-| `aggregate_version` | string | yes | The exact semantic version of the root Aggregate intent used during compilation. |
-| `manifest_version` | string | yes | The exact semantic version of the Manifest lockfile used during compilation. |
-| `release_version` | string | yes | The exact semantic version of the Release routing file used during compilation. |
-| `source_identifiers` | string[] | yes |  |
-
-_Additional properties are permitted._
 
 ## Definitions
 
