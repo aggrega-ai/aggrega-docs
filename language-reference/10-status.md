@@ -68,7 +68,7 @@ See [`templates/expansion-matrix.md`](templates/expansion-matrix.md) for the per
 
 The 5-step Aggrega compilation pipeline is documented in [`../architecture/10-compilation-pipeline.md`](../architecture/10-compilation-pipeline.md). Per-phase status:
 
-- **Steps 1-5 (Resolver, Topology Builder, Graph Finalization, Static Analyzer, Rendering Engine) — available.**
+- **Resolution, topology construction, graph finalization, static analysis and rendering — available.**
 - **Inject mapping (`injectMapping` pre-render interception) and every base-rendering sub-stage — locals publication, values mapping, workload synthesis, artifact evaluation, provider render, feature rendering, and credential FeatureRecipe resource generation — available.**
 - **The plugin pipeline (`pipeline:` Wasm execution) — available.** A Recipe or FeatureRecipe declaring non-empty `pipeline:` steps has each step executed in declared order: the compiler dispatches the step's named Wasm plugin against the rendered output, applies the returned JSON Patch operations to the addressed documents, and emits the step's side effects. A step whose `when:` gate renders falsy is skipped as a pass-through, leaving the document set unchanged. Authors targeting JSONPatch-style mutations (Envoy sidecar injection, secret VolumeMount, etc.) achieve them through this surface.
 

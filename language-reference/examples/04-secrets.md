@@ -13,7 +13,7 @@ Implementing a credential pattern end-to-end touches six surfaces across the fou
 | 5 | Manifest `mappings.features.type` | **Bind** the credential Feature type to its FeatureRecipe, in the same `features.type` tier as operational Features. Provider dispatch flows from each resolved FeatureRecipe's capability at orchestrator time, not from a per-provider Manifest tier. |
 | 6 | Recipe `valuesMapping:` template (Black-Box only) | **Reference** the dictated physical secret name when the slot is Black-Box. The Recipe's `valuesMapping:` consumes `{{ .locals.secret_target_<slot> }}` (or the equivalent Recipe-published pointer) and feeds the chart's native secret-mount mechanism (`existingSecret`, etc.). White-Box slots skip this step — the Workload's `attachments:` block carries the delivery directly. |
 
-The split between White-Box (Steps 1, 2, 3, 4, 5) and Black-Box (Steps 1, 2, 3, 4, 5, 6) determines how many touch-points a particular credential pattern requires. White-Box is five surfaces; Black-Box is six — the heavier of the two, and the one Recipe authors most often implement when wrapping packaged infrastructure (Bitnami charts, managed services, etc.).
+The split between White-Box and Black-Box determines how many touch-points a particular credential pattern requires. White-Box covers the first five surfaces above; Black-Box covers all six — the heavier of the two, and the one Recipe authors most often implement when wrapping packaged infrastructure (Bitnami charts, managed services, etc.).
 
 The three worked examples below demonstrate the pattern across the canonical scenarios: White-Box (Example 11), Black-Box (Example 12), and Feature-Level isolation (Example 13).
 
