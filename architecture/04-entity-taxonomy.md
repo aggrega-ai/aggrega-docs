@@ -21,13 +21,13 @@ graph LR
     classDef role fill:transparent,stroke:none,font-weight:bold,font-style:italic,font-size:30px,color:#444;
     classDef baseNode fill:#eef2ff,stroke:#818cf8,stroke-width:2px,font-size:25px,color:#000;
 
-    subgraph D1 ["Domain 1: Developer Intent"]
+    subgraph Dom1 ["Domain 1: Developer Intent"]
         P1["Developer"]:::role
         A["Aggregate<br/>The 'What'"]:::baseNode
         P1 ~~~ A
     end
 
-    subgraph D2 ["Domain 2: Platform Catalog"]
+    subgraph Dom2 ["Domain 2: Platform Catalog"]
         P2["Platform Architect"]:::role
         CC["Component<br/>The Compute Interface"]:::baseNode
         CapC["Feature<br/>The Operational Trait<br/>(plus Credential Features<br/>via feature.aggrega.ai/kind: secret label)"]:::baseNode
@@ -35,7 +35,7 @@ graph LR
         CC ~~~ CapC
     end
 
-    subgraph D4 ["Domain 4: Routing & Policy"]
+    subgraph Dom4 ["Domain 4: Routing & Policy"]
         P4["Platform Operator / DevOps"]:::role
         EB["Release<br/>The Deployment Router"]:::baseNode
         ENV["Manifest<br/>The Dependency Lockfile"]:::baseNode
@@ -43,7 +43,7 @@ graph LR
         EB ~~~ ENV
     end
 
-    subgraph D3 ["Domain 3: Infrastructure Base"]
+    subgraph Dom3 ["Domain 3: Infrastructure Base"]
         P3["Infrastructure Engineer / Ops"]:::role
         CD["Recipe<br/>The Implementation"]:::baseNode
         CapD["FeatureRecipe<br/>The Binding<br/>(operational + credential)"]:::baseNode
@@ -88,21 +88,21 @@ graph LR
     CapD -.->|"$import"| AL
 
     %% Apply the domain class to the subgraphs
-    class D1,D2,D3,D4,DL domain;
+    class Dom1,Dom2,Dom3,Dom4,DL domain;
 ~~~
 
 The corpus spans four domains plus the Tier 3 library layer:
 
 | # | Entity | Domain | Role |
 |---|---|---|---|
-| 1 | Aggregate | D1 — Developer Intent | Application topology blueprint |
-| 2 | Component | D2 — Platform Catalog | Abstract compute-node interface |
-| 3 | Feature | D2 — Platform Catalog | Operational trait (including credential Features) |
-| 4 | Recipe | D3 — Infrastructure Base | Component implementation, per provider |
-| 5 | FeatureRecipe | D3 — Infrastructure Base | Feature implementation, per provider |
-| 6 | Plugin | D3 — Infrastructure Base | Content-addressed WebAssembly plugin (provider rendering, pipeline steps, linting) |
-| 7 | Manifest | D4 — Routing & Policy | Dependency lockfile mapping interfaces to Recipes |
-| 8 | Release | D4 — Routing & Policy | Deployment router binding Aggregate to Manifest |
+| 1 | Aggregate | Domain 1 — Developer Intent | Application topology blueprint |
+| 2 | Component | Domain 2 — Platform Catalog | Abstract compute-node interface |
+| 3 | Feature | Domain 2 — Platform Catalog | Operational trait (including credential Features) |
+| 4 | Recipe | Domain 3 — Infrastructure Base | Component implementation, per provider |
+| 5 | FeatureRecipe | Domain 3 — Infrastructure Base | Feature implementation, per provider |
+| 6 | Plugin | Domain 3 — Infrastructure Base | Content-addressed WebAssembly plugin (provider rendering, pipeline steps, linting) |
+| 7 | Manifest | Domain 4 — Routing & Policy | Dependency lockfile mapping interfaces to Recipes |
+| 8 | Release | Domain 4 — Routing & Policy | Deployment router binding Aggregate to Manifest |
 | 9 | SchemaLibrary | Tier 3 — Libraries | Reusable JSON Schema 2020-12 definitions |
 | 10 | MappingLibrary | Tier 3 — Libraries | Reusable Go template fragments |
 | 11 | WorkloadLibrary | Tier 3 — Libraries | Reusable Workload template fragments |

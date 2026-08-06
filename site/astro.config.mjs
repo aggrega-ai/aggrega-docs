@@ -101,7 +101,7 @@ export default defineConfig({
             "architecture/01-vision-and-positioning",
             "architecture/02-ecosystem-philosophy",
             "architecture/03-team-topologies-and-domains",
-            "architecture/04-eight-entity-taxonomy",
+            "architecture/04-entity-taxonomy",
             "architecture/05-invariants",
             "architecture/06-data-taxonomy-and-composition",
             "architecture/07-dependency-resolution",

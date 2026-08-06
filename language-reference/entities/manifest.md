@@ -1,6 +1,6 @@
 # Manifest
 
-The conceptual role of the Manifest entity (Domain 4 — the dependency lockfile mapping abstract interfaces to concrete Recipes) lives in [architecture/04-eight-entity-taxonomy.md](../../architecture/04-eight-entity-taxonomy.md). This page covers the Manifest authoring surface: how it sits alongside the Release, the flat-URI mapping shape, composition via `extends`, URI shorthand rules, annotation-driven Feature bindings, and the platform-reserved `aggrega.ai/` prefix.
+The conceptual role of the Manifest entity (Domain 4 — the dependency lockfile mapping abstract interfaces to concrete Recipes) lives in [architecture/04-entity-taxonomy.md](../../architecture/04-entity-taxonomy.md). This page covers the Manifest authoring surface: how it sits alongside the Release, the flat-URI mapping shape, composition via `extends`, URI shorthand rules, annotation-driven Feature bindings, and the platform-reserved `aggrega.ai/` prefix.
 
 ## Manifest vs. Release: Concern Separation
 

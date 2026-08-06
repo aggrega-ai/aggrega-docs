@@ -1,6 +1,6 @@
 # Feature
 
-The conceptual role of the Feature entity (the modular operational trait in Domain 2) lives in [architecture/04-eight-entity-taxonomy.md](../../architecture/04-eight-entity-taxonomy.md). The Credential Feature partition (operational Features vs. credential Features labeled `feature.aggrega.ai/kind: secret`) is described in [architecture/08-credential-model.md](../../architecture/08-credential-model.md). The semantic-label vocabulary used by Feature selectors lives in [entities/component](component.md). This page covers the Feature catalog authoring surface.
+The conceptual role of the Feature entity (the modular operational trait in Domain 2) lives in [architecture/04-entity-taxonomy.md](../../architecture/04-entity-taxonomy.md). The Credential Feature partition (operational Features vs. credential Features labeled `feature.aggrega.ai/kind: secret`) is described in [architecture/08-credential-model.md](../../architecture/08-credential-model.md). The semantic-label vocabulary used by Feature selectors lives in [entities/component](component.md). This page covers the Feature catalog authoring surface.
 
 ## Catalog Location
 

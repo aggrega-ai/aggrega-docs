@@ -4,7 +4,7 @@ import path from "node:path";
 // route form.
 //
 // The documentation corpus is authored with source-relative links such as
-// `../../architecture/04-eight-entity-taxonomy.md` or `schemalibrary.md`.
+// `../../architecture/04-entity-taxonomy.md` or `schemalibrary.md`.
 // Because the corpus is loaded from a location outside the default content
 // directory, the built-in relative-link resolution does not apply, so such
 // links would otherwise ship unchanged into the HTML as `href="....md"` and

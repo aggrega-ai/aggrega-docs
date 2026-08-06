@@ -34,4 +34,4 @@ The `Manifest` routing layer carries a small authoring overhead, and it is what 
 
 While the architecture defines four distinct roles, these represent *functional personas*, not mandatory human headcount. In a large enterprise, these are distinct departments. In a small startup, a single developer might wear all four hats. Because Domains 2 and 3 (the Catalog and Recipes) are shareable open-source artifacts, a solo developer can operate purely in Domain 1 (Intent) by leveraging the pre-built components in the Aggrega ecosystem.
 
-See [The Entity Taxonomy](04-eight-entity-taxonomy.md) for a visual overview of the entities grouped by domain and the detailed per-entity descriptions.
+See [The Entity Taxonomy](04-entity-taxonomy.md) for a visual overview of the entities grouped by domain and the detailed per-entity descriptions.

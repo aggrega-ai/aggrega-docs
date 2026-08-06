@@ -1,6 +1,6 @@
 # FeatureRecipe
 
-The conceptual role of the FeatureRecipe entity (Domain 3 — the Wasm-plugin-driven implementation of a Feature interface) lives in [architecture/04-eight-entity-taxonomy.md](../../architecture/04-eight-entity-taxonomy.md). This page covers the FeatureRecipe catalog authoring surface.
+The conceptual role of the FeatureRecipe entity (Domain 3 — the Wasm-plugin-driven implementation of a Feature interface) lives in [architecture/04-entity-taxonomy.md](../../architecture/04-entity-taxonomy.md). This page covers the FeatureRecipe catalog authoring surface.
 
 ## Catalog Location
 
