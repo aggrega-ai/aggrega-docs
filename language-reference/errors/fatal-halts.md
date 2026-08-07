@@ -8,6 +8,17 @@ This catalog is organized by the stage of compilation at which each halt fires. 
 
 The compiler reads every Aggregate, Manifest, Component, Feature, Recipe, FeatureRecipe, Plugin, and Release referenced by your build, validates each against its schema, and interpolates typed parameters from the Release into the Aggregate.
 
+### YAML anchor aliased inside its own content
+
+A document anchors a node with `&name` and then aliases it with `*name` somewhere inside the content that anchor covers. Expanding the alias reproduces the anchor, whose content carries the alias again, so the document describes a structure with no end. There is nothing finite to read, let alone validate, and the build stops as the document is parsed — before any schema check. This halt therefore names an anchor rather than a field, and carries no line and column: a document in this shape has no position a diagnostic could usefully point at.
+
+The refusal is of recursion, never of re-use or of depth. Anchoring shared content and referencing it from many places is a supported authoring pattern — see [../entities/aggregate.md](../entities/aggregate.md) "YAML anchor patterns (`defs:` block)" and [../entities/manifest.md](../entities/manifest.md) "YAML anchors for DRY manifests" — and a reference that expands and terminates loads normally, however many times it appears and however deeply the document nests; depth on its own is never a reason for this halt. What halts is an anchor reached while the parse is still inside it, including where it is reached indirectly, through a second anchor declared beneath it. The message names the anchor the loop closes back onto, which is not necessarily the outermost anchor in the document.
+
+Emitted message:
+> envelope: parse `<path>`: anchor `&<anchor>` is aliased by `*<anchor>` inside its own content, so the document expands without end; point that alias at content declared outside `&<anchor>`, or write the content out in full
+
+**How to fix:** point the alias at content declared outside the anchor it currently sits inside, or write the repeated content out in full at the point of use. On an Aggregate or a Manifest, the root-level `defs:` block is the natural home for shared anchors — it sits outside every block that references it, so an anchor declared there cannot be reached from within itself. On the other entity kinds, which have no `defs:` block, anchor the shared content somewhere the referring block is not a descendant of. An anchor may be referenced from any number of places and from any depth; the one shape it cannot take is a reference that lands back inside the content the anchor covers.
+
 ### Parameter type mismatch / contract violation
 
 The Release supplied a value whose type or shape does not match what the Aggregate declared for that parameter. The parameter-contract validator catches type mismatches, enum violations, range violations, pattern violations, and missing required parameters before any template interpolation runs.
