@@ -4,7 +4,7 @@ _Generated reference. Do not edit by hand — regenerate from the published JSON
 
 Schema id: `https://aggrega.ai/schemas/lockfile-v1alpha1.schema.json`
 
-Machine-generated lockfile pinning every URI resolved from a Release for deterministic future builds. Lives at `<release-stem>.lock` next to `<release-stem>.yaml`; produced by `aggrega pull --release <release>`; consumed by `aggrega build --release <release>`. Two provenance shapes serve two distinct closure-graph relationships: `referenced_from` (list of strings — dotted authoring-site paths) appears on `entities` and `plugins` to record where in the Release / Aggregate / Manifest / `.aggrega-config.yaml` each URI was pulled in from; `consumers` (list of `{consumer_uri, fragments}` records) appears on `schema_libraries`, `mapping_libraries`, and `workload_libraries` to record which catalog entity references which `<entry-name>` fragments of a library — the structured shape makes consumer-affected-by-library-bump diffs traceable without re-running closure. Schema evolution discipline: adding a new top-level section is SemVer-MINOR (additive); adding a new field inside an existing section is SemVer-MINOR; removing a key or tightening a constraint is SemVer-MAJOR. A future additive `source_artifacts` section is reserved for the source-resolution amendment.
+Machine-generated lockfile pinning every URI resolved from a Release for deterministic future builds. Lives at `<release-stem>.lock` next to `<release-stem>.yaml`; produced by `aggrega pull --release <release>`; consumed by `aggrega build --release <release>`. Two provenance shapes serve two distinct closure-graph relationships: `referenced_from` (list of strings — dotted authoring-site paths) appears on `entities` and `plugins` to record where in the Release / Aggregate / Manifest / `.aggrega-config.yaml` each URI was pulled in from; `consumers` (list of `{consumer_uri, fragments}` records) appears on `schema_libraries`, `mapping_libraries`, `workload_libraries`, and `artifacts_libraries` to record which catalog entity references which `<entry-name>` fragments of a library — the structured shape makes consumer-affected-by-library-bump diffs traceable without re-running closure. Schema evolution discipline: adding a new top-level section is SemVer-MINOR (additive); adding a new field inside an existing section is SemVer-MINOR; removing a key or tightening a constraint is SemVer-MAJOR. A future additive `source_artifacts` section is reserved for the source-resolution amendment.
 
 **Top-level type:** `object`
 
@@ -38,21 +38,8 @@ _Additional properties are not permitted._
 | `digest` | string | yes | Content digest of the resolved artifact (e.g. `sha256:...`). |
 | `manifest_digest` | string | no | OCI manifest digest of the resolved artifact (e.g. `sha256:...`). The signature commits to this digest; the content `digest` above is the portable identity used for the cache pin and integrity check. Present only for a registry-resolved entity. |
 | `referenced_from` | string[] | no | Authoring-site origins — dotted paths into Release / Aggregate / Manifest YAML (e.g. `aggregate.spec.components.api.type`) recording why this URI is in the closure. Default: `[]` |
-| `signature` | object | no | Verified-signature fact recorded when this entity's signature was verified at pull time. Records the verification mode, the keyless identity/issuer that matched (when keyless), and the content-addressed digest of the signature bundle cached in the closure for air-gapped re-verification. Build does not re-run verification; it re-verifies the cached bundle's digest only. |
+| `signature` | VerifiedSignature | no | Verified-signature fact recorded when this entity's signature was verified at pull time, against the resolving registry's trust policy. |
 | `deprecation` | DeprecationRecord | no |  |
-
-_Additional properties are not permitted._
-
-##### `lockfile.entities[].signature`
-
-Verified-signature fact recorded when this entity's signature was verified at pull time. Records the verification mode, the keyless identity/issuer that matched (when keyless), and the content-addressed digest of the signature bundle cached in the closure for air-gapped re-verification. Build does not re-run verification; it re-verifies the cached bundle's digest only.
-
-| Property | Type | Required | Description |
-| --- | --- | --- | --- |
-| `bundle_digest` | string | yes | SHA-256 digest (`sha256:...`) of the cached signature bundle blob. Names the cache blob and is the integrity gate for an air-gapped re-verify. |
-| `identity` | string | no | Verified certificate subject for a keyless signature (which trusted identity matched). Empty for a keyed signature. |
-| `issuer` | string | no | Verified OIDC issuer for a keyless signature. Empty for a keyed signature. |
-| `mode` | string (enum) | yes | Verification mode that admitted the signature. Allowed values: `"keyless"`, `"keyed"` |
 
 _Additional properties are not permitted._
 
@@ -87,21 +74,8 @@ _Additional properties are not permitted._
 | `digest` | string | yes | Content digest of the resolved Wasm artifact (e.g. `sha256:...`). |
 | `manifest_digest` | string | no | OCI manifest digest of the resolved Wasm artifact (e.g. `sha256:...`). The signature commits to this digest; the content `digest` above is the portable identity used for the cache pin and integrity check. Present only for a registry-resolved artifact. |
 | `referenced_from` | string[] | no | Authoring-site origins — dotted paths recording why this URI is in the closure (e.g. `.aggrega-config.yaml.plugins.governance`). Default: `[]` |
-| `signature` | object | no | Verified-signature fact recorded when this plugin's signature was verified at pull time, against the same per-registry trust policy as catalog entities. Records the verification mode, the keyless identity/issuer that matched (when keyless), and the content-addressed digest of the signature bundle cached in the closure for air-gapped re-verification. Build does not re-run verification; it re-verifies the cached bundle's digest only. |
+| `signature` | VerifiedSignature | no | Verified-signature fact recorded when this plugin's signature was verified at pull time, against the same per-registry trust policy as catalog entities. |
 | `deprecation` | DeprecationRecord | no |  |
-
-_Additional properties are not permitted._
-
-##### `lockfile.plugins[].signature`
-
-Verified-signature fact recorded when this plugin's signature was verified at pull time, against the same per-registry trust policy as catalog entities. Records the verification mode, the keyless identity/issuer that matched (when keyless), and the content-addressed digest of the signature bundle cached in the closure for air-gapped re-verification. Build does not re-run verification; it re-verifies the cached bundle's digest only.
-
-| Property | Type | Required | Description |
-| --- | --- | --- | --- |
-| `bundle_digest` | string | yes | SHA-256 digest (`sha256:...`) of the cached signature bundle blob. Names the cache blob and is the integrity gate for an air-gapped re-verify. |
-| `identity` | string | no | Verified certificate subject for a keyless signature (which trusted identity matched). Empty for a keyed signature. |
-| `issuer` | string | no | Verified OIDC issuer for a keyless signature. Empty for a keyed signature. |
-| `mode` | string (enum) | yes | Verification mode that admitted the signature. Allowed values: `"keyless"`, `"keyed"` |
 
 _Additional properties are not permitted._
 
@@ -143,20 +117,7 @@ Verified retroactive deprecation marker recorded when a signed, trusted deprecat
 | --- | --- | --- | --- |
 | `message` | string | yes | Human-readable deprecation message carried by the marker — typically a migration pointer. |
 | `severity` | string (enum) | yes | Marker severity, ordered warning < error < retracted. The build halts when this severity meets or exceeds the configured halt threshold, and emits an advisory otherwise. Allowed values: `"warning"`, `"error"`, `"retracted"` |
-| `signer` | object | no | Verified signer of the marker, recorded the same way an artifact signature's signer is: the certificate subject/issuer for keyless, or the pinned-key fingerprint for keyed. |
-
-_Additional properties are not permitted._
-
-#### `DeprecationRecord.signer`
-
-Verified signer of the marker, recorded the same way an artifact signature's signer is: the certificate subject/issuer for keyless, or the pinned-key fingerprint for keyed.
-
-| Property | Type | Required | Description |
-| --- | --- | --- | --- |
-| `bundle_digest` | string | yes | SHA-256 digest (`sha256:...`) of the marker's signature bundle. |
-| `identity` | string | no | Verified certificate subject for a keyless marker signature (which trusted identity matched). Empty for a keyed signature. |
-| `issuer` | string | no | Verified OIDC issuer for a keyless marker signature. Empty for a keyed signature. |
-| `mode` | string (enum) | yes | Verification mode that admitted the marker's signature. Allowed values: `"keyless"`, `"keyed"` |
+| `signer` | VerifiedSignature | no | Verified signer of the marker, recorded the same way an artifact signature's signer is: the certificate subject/issuer for keyless, or the pinned-key fingerprint for keyed. A marker is a signed artifact in its own right, so its signer carries the same shape an artifact signature does — and the `bundle_digest` here names the marker's own signature bundle rather than the deprecated artifact's. |
 
 _Additional properties are not permitted._
 
@@ -175,13 +136,16 @@ _Additional properties are not permitted._
 
 ### `LibraryEntry`
 
-Common shape shared by `schema_libraries`, `mapping_libraries`, and `workload_libraries` entries. The `consumers` list captures the catalog-graph relationship — which catalog entity references which `<entry-name>` fragments of this library — supporting structured impact diffs when the library's digest changes.
+Common shape shared by `schema_libraries`, `mapping_libraries`, `workload_libraries`, and `artifacts_libraries` entries. The `consumers` list captures the catalog-graph relationship — which catalog entity references which `<entry-name>` fragments of this library — supporting structured impact diffs when the library's digest changes. A library is an OCI artifact like any other, so it records the same verified facts a catalog entity does: the manifest digest its signature commits to, the verified signature itself, and any verified retroactive deprecation marker discovered at pull time.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `uri` | string | yes | Canonical URI of the library entity. |
 | `resolved_version` | string | yes | Concrete version resolved at pull time (MVS selection over the library-dependency graph). |
 | `digest` | string | yes | Content digest of the resolved library artifact (e.g. `sha256:...`). |
+| `manifest_digest` | string | no | OCI manifest digest of the resolved library artifact (e.g. `sha256:...`). The signature commits to this digest; the content `digest` above is the portable identity used for the cache pin and integrity check. Present only for a registry-resolved library. |
+| `signature` | VerifiedSignature | no | Verified-signature fact recorded when this library's signature was verified at pull time, against the same per-registry trust policy as catalog entities. |
+| `deprecation` | DeprecationRecord | no | Verified retroactive deprecation marker discovered on this library at pull time. The build reports it and, where the workspace configured a halt threshold the recorded severity meets, halts — so a library withdrawn after the version was pinned is announced at every build rather than only at version selection, which an explicitly pinned version bypasses. |
 | `consumers` | object[] | no | Records of which catalog entity references this library and at which `<entry-name>` fragments. Captures the fan-in: many consumers per library, each potentially referencing many fragments. Each record carries the consumer URI plus the set of fragments that consumer pulls in. Default: `[]` |
 
 _Additional properties are not permitted._
@@ -223,5 +187,18 @@ A single catalog-entity → source-artifact back-pointer. `entity` + `uri` toget
 | `uri` | string | yes | Canonical URI of the Recipe or FeatureRecipe (e.g. `hub.aggrega.ai/recipe/helm/mariadb-bitnami:1.0.0`). |
 | `field` | string | yes | Source-side path inside the entity's spec where the artifact was declared. In the current implementation the value is always `spec.source`. A future extension covering remote-URL forms of `spec.artifacts[*].source` will widen the value space. |
 | `requested_ref` | string | no | Optional — the user-authored ref string when `pinned_version:` is a transformed value. For terraform-module-git Recipes authoring `ref: v1.0.0`, this preserves `"v1.0.0"` while `pinned_version:` holds the resolved commit SHA. Absent for kinds where `pinned_version:` IS the authored version (helm-*, compose-*). |
+
+_Additional properties are not permitted._
+
+### `VerifiedSignature`
+
+Verified-signature fact recorded when an artifact's signature was verified at pull time, against the resolving registry's trust policy. Every signable artifact records it the same way — a catalog entity, a library, a Wasm plugin — because all of them verify through one path rather than one per kind. Records the verification mode, the keyless identity/issuer that matched (when keyless), and the content-addressed digest of the signature bundle cached in the closure for air-gapped re-verification. Build does not re-run verification; it re-verifies the cached bundle's digest only.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `bundle_digest` | string | yes | SHA-256 digest (`sha256:...`) of the cached signature bundle blob. Names the cache blob and is the integrity gate for an air-gapped re-verify. |
+| `identity` | string | no | Verified certificate subject for a keyless signature (which trusted identity matched). Empty for a keyed signature. |
+| `issuer` | string | no | Verified OIDC issuer for a keyless signature. Empty for a keyed signature. |
+| `mode` | string (enum) | yes | Verification mode that admitted the signature. Allowed values: `"keyless"`, `"keyed"` |
 
 _Additional properties are not permitted._
