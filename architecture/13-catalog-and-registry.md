@@ -353,13 +353,13 @@ The publishable kinds span the catalog authoring kinds together with the Aggrega
 | Aggregate | `application/vnd.aggrega.aggregate.v1alpha1+yaml` |
 | Recipe | `application/vnd.aggrega.recipe.v1alpha1+tar+gz` |
 | FeatureRecipe | `application/vnd.aggrega.featurerecipe.v1alpha1+tar+gz` |
-| SchemaLibrary | `application/vnd.aggrega.schemalibrary.v1+json` |
-| MappingLibrary | `application/vnd.aggrega.mappinglibrary.v1+json` |
-| WorkloadLibrary | `application/vnd.aggrega.workloadlibrary.v1+json` |
-| ArtifactsLibrary | `application/vnd.aggrega.artifactslibrary.v1+json` |
+| SchemaLibrary | `application/vnd.aggrega.schemalibrary.v1alpha1+yaml` |
+| MappingLibrary | `application/vnd.aggrega.mappinglibrary.v1alpha1+yaml` |
+| WorkloadLibrary | `application/vnd.aggrega.workloadlibrary.v1alpha1+yaml` |
+| ArtifactsLibrary | `application/vnd.aggrega.artifactslibrary.v1alpha1+yaml` |
 | Plugin | `application/vnd.aggrega.wasmplugin.v1alpha1+yaml` |
 
-How a kind ships depends on whether it is self-contained. Component, Feature, Aggregate, Plugin, and the library kinds are single documents, published as the authored entity file unchanged. Recipe and FeatureRecipe bundle their co-located sources — the `source:` tree, `$import:`-referenced templates, and inline `artifacts:` — so they ship as a gzipped tar. The trailing segments of each mediatype carry a version and an encoding: `v1` on the library kinds and `v1alpha1` on the rest, with `+json` on the library kinds, `+tar+gz` on the bundled kinds, and `+yaml` on the remaining single documents. Downstream tooling dispatches on the full mediatype string — kind, version, and encoding together.
+How a kind ships depends on whether it is self-contained. Component, Feature, Aggregate, Plugin, and the library kinds are single documents, published as the authored entity file unchanged. Recipe and FeatureRecipe bundle their co-located sources — the `source:` tree, `$import:`-referenced templates, and inline `artifacts:` — so they ship as a gzipped tar. The trailing segments of each mediatype carry a version and an encoding: the version segment is common to every publishable kind, while the encoding segment follows how the kind ships — `+tar+gz` on the bundled kinds and `+yaml` on the single documents. Downstream tooling dispatches on the full mediatype string — kind, version, and encoding together.
 
 Recipe names do NOT include the `ops/` prefix or the provider name. The entity type directory and provider directory provide all context needed.
 
