@@ -82,9 +82,26 @@ only that none had been recorded when you last refreshed.
 
 ## Which resolutions the exclusion covers
 
-The exclusion applies when `aggrega pull` chooses a version for a catalog entity —
-a Component, Feature, Recipe or FeatureRecipe — referenced without a version. It
-does not apply to library or published-Aggregate references, to `aggrega plugin
-add`, or to the editor-facing daemon, each of which chooses versions by its own
-route. In those cases a retracted version is still selected, and the recorded
-marker is reported by `aggrega build` as every recorded marker is.
+The exclusion acts wherever a command **chooses** a version for you. That is the
+rule, and it settles whether any particular resolution is covered.
+
+`aggrega pull` applies it wherever it chooses a version for a reference that did
+not name one — whatever the reference names: a catalog entity, a library, a
+published Aggregate. One rule governs all of them, so the version a reference
+resolves to does not depend on which kind of reference asked for it.
+
+`aggrega plugin add` applies it on every route it resolves an unpinned plugin
+reference by: against the published versions your local registry index already
+carries, and against the live version list it reaches for when that index does not
+carry the repository. A withdrawn version is skipped, and the substitution
+announced, on whichever route resolved it.
+
+The editor-facing daemon is the exception. It resolves references on demand while
+it serves an editor, and that resolution chooses versions without consulting the
+withdrawal records, so a version recorded as retracted can still be selected there.
+
+Where nothing is chosen there is nothing for the exclusion to act on: a reference
+naming an exact version resolves to that version, and the withdrawal is announced
+rather than acted on. Nor does any of this change what you are told at build time —
+`aggrega build` reports every marker the lockfile records, whatever route pinned
+the version.
