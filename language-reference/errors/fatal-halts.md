@@ -10,6 +10,8 @@ The compiler reads every Aggregate, Manifest, Component, Feature, Recipe, Featur
 
 ### YAML anchor aliased inside its own content
 
+<!-- covers: pkg/validator/envelope.ErrEntityEnvelope -->
+
 A document anchors a node with `&name` and then aliases it with `*name` somewhere inside the content that anchor covers. Expanding the alias reproduces the anchor, whose content carries the alias again, so the document describes a structure with no end. There is nothing finite to read, let alone validate, and the build stops as the document is parsed — before any schema check. This halt therefore names an anchor rather than a field, and carries no line and column: a document in this shape has no position a diagnostic could usefully point at.
 
 The refusal is of recursion, never of re-use or of depth. Anchoring shared content and referencing it from many places is a supported authoring pattern — see [../entities/aggregate.md](../entities/aggregate.md) "YAML anchor patterns (`defs:` block)" and [../entities/manifest.md](../entities/manifest.md) "YAML anchors for DRY manifests" — and a reference that expands and terminates loads normally, however many times it appears and however deeply the document nests; depth on its own is never a reason for this halt. What halts is an anchor reached while the parse is still inside it, including where it is reached indirectly, through a second anchor declared beneath it. The message names the anchor the loop closes back onto, which is not necessarily the outermost anchor in the document.
@@ -20,6 +22,8 @@ Emitted message:
 **How to fix:** point the alias at content declared outside the anchor it currently sits inside, or write the repeated content out in full at the point of use. On an Aggregate or a Manifest, the root-level `defs:` block is the natural home for shared anchors — it sits outside every block that references it, so an anchor declared there cannot be reached from within itself. On the other entity kinds, which have no `defs:` block, anchor the shared content somewhere the referring block is not a descendant of. An anchor may be referenced from any number of places and from any depth; the one shape it cannot take is a reference that lands back inside the content the anchor covers.
 
 ### Parameter type mismatch / contract violation
+
+<!-- covers: pkg/resolver.ErrParameterContractViolation, pkg/resolver.ErrParameterMissing -->
 
 The Release supplied a value whose type or shape does not match what the Aggregate declared for that parameter. The parameter-contract validator catches type mismatches, enum violations, range violations, pattern violations, and missing required parameters before any template interpolation runs.
 
@@ -32,6 +36,8 @@ For a parameter declared `required: true` with no `default:` and no Release-supp
 **How to fix:** change the Release value to match the parameter's declared `type` / `enum` / `min` / `max` / `pattern` constraints, supply a missing required parameter, or widen the Aggregate's declaration to accept the shape you actually need.
 
 ### External parameters file cannot be loaded
+
+<!-- covers: pkg/resolver.ErrParametersImportLoad -->
 
 A Release declares `parameters: { $import: <path> }` pointing at an external parameter file that does not exist, cannot be read, or cannot be parsed as YAML.
 
@@ -54,6 +60,8 @@ Every Recipe-shape error carries the same message shape:
 The `CATALOG_ERROR:` prefix signals that the failure is attributable to the catalog entity (the Recipe, or the provider it binds to), not to the Aggregate or the Release.
 
 #### Rule 1 — `valuesMapping` requires `source`
+
+<!-- covers: pkg/validator.ErrRecipeRule1 -->
 
 A Recipe declares `valuesMapping` but not `source`. Without a source engine to overlay, there is nothing to receive the mapped values.
 
@@ -90,6 +98,8 @@ Emitted message:
 
 #### Rule 5 — at least one input kind must be present
 
+<!-- covers: pkg/validator.ErrRecipeRule5 -->
+
 A Recipe declares no input kind: no `source` paired with `valuesMapping`, no `workload:`, no `artifacts:`. Such a Recipe produces no output and has no rendering surface.
 
 Emitted message:
@@ -112,6 +122,8 @@ Emitted message:
 
 #### Rule 7 — emission-time filename collision across input kinds
 
+<!-- covers: pkg/validator.ErrRecipeRule7 -->
+
 A Recipe's three input kinds — sourced, synthesized, and artifacts — each emit files into the same boundary directory. If source-rendered, workload-synthesized, or artifact-emitted output produces a file whose name another input kind also produced, the build halts at emission with a message naming every contributor.
 
 Rule 7 is checked at emission time (after Workload translation completes), not at Recipe load.
@@ -125,6 +137,8 @@ Emitted message (intended; emission-time detection ships incrementally):
 
 #### `eval`-provider constraint
 
+<!-- covers: pkg/validator.ErrRecipeEvalProviderConstraint -->
+
 A Recipe targets the `eval` provider but declares one or more input-kind fields (`source`, `workload`, `artifacts`, `valuesMapping`). The `eval` provider executes formatting in-memory and has no rendering surface; declaring input-kind fields on an eval Recipe is meaningless.
 
 Emitted message:
@@ -135,6 +149,8 @@ Emitted message:
 **How to fix:** remove the input-kind fields from the eval Recipe. An eval Recipe legitimately declares only `provides:` (and optionally `locals:`); it produces deterministic pointer strings for downstream consumers without rendering any artifacts.
 
 ### Instance name fails the naming pattern
+
+<!-- covers: pkg/resolver.ErrInvalidInstanceName -->
 
 An authored instance name — a key under `components`, `subsystems`, `features`, `secrets`, a sub-aggregate alias, or a `uses:` alias — contains characters outside the allowed pattern `^[a-zA-Z0-9_-]+$`. Dots, spaces, slashes, and other punctuation are not permitted in user-authored instance names; the dot in particular is reserved as the compiler's internal path separator for nested-aggregate flattening.
 
@@ -149,6 +165,8 @@ After loading, the compiler walks the Manifest's two tiers (type map, then name 
 
 ### Cyclic extends chain
 
+<!-- covers: pkg/validator.ErrCyclicExtension -->
+
 A chain of `extends` pointers loops back on itself.
 
 Emitted message:
@@ -157,6 +175,8 @@ Emitted message:
 **How to fix:** inspect the `extends:` fields along the chain reported in the message and break the cycle by removing one of the pointers or by collapsing the duplicated content into a single base entity.
 
 ### Recipe `implements` does not match the mapped component type
+
+<!-- covers: pkg/catalog.ErrManifestImplementsMismatch -->
 
 The Manifest's mapping entry points at a Recipe whose `spec.implements:` declaration does not match the component-type key for that mapping entry. The check fires at workspace load time as a load-time consistency check (per the post-migration direct-URI-lookup model — `spec.implements` becomes a consistency check, not a dispatch mechanism).
 
@@ -171,6 +191,8 @@ FeatureRecipe entries follow the same shape; the `features.type` mapping check e
 **How to fix:** either correct the Recipe's `spec.implements:` declaration so it matches the Manifest's component-type key, or change the Manifest entry to point at a Recipe whose `spec.implements:` does match the component-type key.
 
 ### Manifest mapping value carries more segments than a recipe reference accepts
+
+<!-- covers: pkg/catalog.ErrMalformedRecipeReference -->
 
 A Manifest mapping value names a Recipe or FeatureRecipe in a shape the reference grammar cannot express. A recipe reference accepts a bare name, a name with a version, a capability-qualified name, or a capability-qualified name with a version — at most one `/`. A value carrying more than that (a component-type-style path such as `core/helm/eso-aws-fetcher:1.0.0`) can never name a catalog entity, whatever the catalog holds.
 
@@ -196,6 +218,8 @@ Intended message (not yet emitted):
 
 ### Divergent Release (extends + aggregate pointer)
 
+<!-- covers: pkg/validator/envelope.ErrEntityEnvelope -->
+
 A Release uses `extends:` to inherit from a base Release but also declares its own `aggregate:` pointer. The Release JSON Schema rejects this shape at schema validation (Layer 1 envelope validation) via an `allOf` constraint: when `extends:` is present, `aggregate:` is forbidden; when `extends:` is absent, both `aggregate:` and `manifest:` are required.
 
 Emitted message shape (Layer 1 schema validation):
@@ -204,6 +228,8 @@ Emitted message shape (Layer 1 schema validation):
 **How to fix:** remove the `aggregate:` field from the child Release. Inheritance intentionally forces the child to deploy the same Developer Intent as its parent; if you need to deploy a different Aggregate, author a fresh Release without `extends:`.
 
 ### Manifest merge strategy
+
+<!-- covers: pkg/resolver.ErrFeatureMergeConflict -->
 
 When a local Manifest `extends` a base Manifest, the two tiers (`type:` map, `name:` map) merge independently. Within each tier, child keys overwrite parent keys at the top level — this is a shallow replacement, not a deep merge. A child entry for a given key fully replaces the parent's entry for that key.
 
@@ -243,6 +269,8 @@ Emitted messages (value-conformance variant):
 
 ### Authored values or infra do not conform to the declared schema
 
+<!-- covers: pkg/resolver.ErrSchemaConformance -->
+
 A component instance's — or an attached Feature's or Secret's — resolved `values:` or `infra:` does not conform to the declared catalog schema. The build validates each pillar against its declared schema before rendering, so a typo'd key, a wrong-typed value, an out-of-range number, or a missing required field is caught at its source rather than producing a broken manifest at deploy time.
 
 The check covers the standard schema constraints: a value of the wrong type (a string where the schema declares an integer), a value outside a declared range or `enum`, a value failing a declared `pattern`, and a **required** field that was not supplied. It is **default-aware**: a field the schema gives a `default:` is considered supplied even when it is omitted, so a required-with-default field never trips the "missing" check.
@@ -268,6 +296,8 @@ Emitted message:
 
 ### Recipe `source:` is an empty string
 
+<!-- covers: internal/compiler/renderer/compose.ErrEmptySource, internal/compiler/renderer/helm.ErrEmptySource -->
+
 A Recipe declares `source: ""` — an empty string. An empty-string `source:` is an authoring ambiguity between sourceless mode (no external artifact; the Recipe produces output entirely from its `valuesMapping` or other input kinds) and sourced mode (the Recipe references an external chart, module, or file). The compiler rejects the ambiguous form at Recipe load.
 
 Emitted message:
@@ -281,6 +311,8 @@ Once every Component has a resolved Recipe, the compiler stitches Components tog
 
 ### Dangling `uses` target
 
+<!-- covers: internal/compiler/topology.ErrDanglingUsesTarget -->
+
 A `uses:` edge names a target component that does not exist in the resolved topology. The halt is origin-agnostic — a developer-authored Aggregate edge and a Release-wired edge are caught alike. A dangling target is a fatal halt, not a silent drop: an edge to a non-existent target would otherwise vanish and leave the consumer's injected values silently empty at deploy time. It is the structural sibling of the uses-socket allowlist — the socket must be declared *and* the target must resolve to an existing component before an edge is type-checked.
 
 Emitted message:
@@ -289,6 +321,8 @@ Emitted message:
 **How to fix:** declare the missing target component, or correct the target name in the `uses:` entry to match an existing component.
 
 ### `uses:` socket not declared in the target's `usesSchema`
+
+<!-- covers: pkg/resolver.ErrUnknownUsesSocket -->
 
 A `uses:` block names a socket that the entity owning the surface does not declare in its `usesSchema`, on one of the two surfaces where only a declared socket may be named: a **Feature attachment's** `uses:`, where the socket must be declared on the attached Feature, and a **Release's** per-edge `uses:`, where it must be declared on the consuming Component. A Release may wire or configure edges only within sockets the Component's `usesSchema` already declares.
 
@@ -303,6 +337,8 @@ The attachment arm names the feature type in place of the component type; an att
 
 ### Release retargets a developer-declared edge
 
+<!-- covers: internal/compiler/topology.ErrReleaseEdgeRetarget -->
+
 A Release per-edge `uses:` entry names a target that differs from the target the developer already wired for the same socket and alias. A Release may *configure* an edge the developer declared (set per-edge `infra`, naming the same target or omitting it) and may *wire* an edge into a declared-but-unbound socket, but it may not *retarget* an edge the developer declared — the developer owns the architecture they authored.
 
 Emitted message:
@@ -311,6 +347,8 @@ Emitted message:
 **How to fix:** drop the differing `target` from the Release `uses:` entry to configure the existing edge (per-edge `infra` only), or, if the connection genuinely belongs to a different socket, wire it through a socket the developer left unbound. To change the target itself, change it in the Aggregate, where the topology is authored.
 
 ### Required `uses:` socket not populated
+
+<!-- covers: pkg/resolver.ErrMissingRequiredSocket -->
 
 A catalog entity declares a socket in its `usesSchema` marked `required: true`, but an instance of that entity does not populate the socket in its `uses:` block.
 
@@ -321,6 +359,8 @@ Emitted message:
 
 ### Sub-aggregate nesting depth exceeded
 
+<!-- covers: internal/compiler/topology.ErrMaxDepth -->
+
 A chain of sub-aggregate imports exceeds the compiler's maximum nesting depth. The limit prevents runaway flattening of deeply nested topologies and forces architectural decomposition above a threshold.
 
 Emitted message:
@@ -330,6 +370,8 @@ Emitted message:
 
 ### Feature type mismatch between Aggregate and Release
 
+<!-- covers: internal/compiler/ir.ErrFeatureTypeMismatch -->
+
 The Aggregate and the Release both attach a feature with the same instance name, but each declares a different `type:`.
 
 Emitted message:
@@ -338,6 +380,8 @@ Emitted message:
 **How to fix:** either drop the `type:` from the Release (it will inherit from the Aggregate), or change one side so both declare the same type. The Release is allowed to omit `type:` or repeat the Aggregate's type, but it cannot substitute a different one.
 
 ### Cyclic extends on Components or Features
+
+<!-- covers: pkg/validator.ErrCyclicExtension -->
 
 A Component's `extends:` chain or a Feature's `extends:` chain loops back on itself.
 
@@ -356,6 +400,8 @@ The compiler walks every `inject:` block — both self-inject (a Component injec
 
 ### Inject `from` key is not in the target's `provides`
 
+<!-- covers: pkg/resolver.ErrInvalidInjectKey -->
+
 An `inject:` entry references a `from:` key that the target Component's `provides:` schema does not declare. The compiler checks this as soon as the catalog is resolved, before it builds the topology, so the diagnostic points at the exact line you authored rather than at a later wiring stage. The target depends on where the reference lives: a Component-level self-inject `from:` resolves against that same Component's own `provides:`, while a `uses[]` cross-inject reference resolves against the used target Component's `provides:`. A Component that declares no `provides:` rejects every `from:` reference aimed at it.
 
 Emitted message:
@@ -368,6 +414,8 @@ When the target declares no `provides:` at all, the message names that explicitl
 
 ### Required feature not attached
 
+<!-- covers: pkg/resolver.ErrMissingRequiredFeature -->
+
 The Component declares a presence mandate — a `features.aggrega.ai/requiredType.<label>` annotation — naming a Feature type that is not present among the attachments this component instance ends up with, counting every scope: the Aggregate's component-level and subsystem-level blocks, the Release's boundary-level and component-level blocks, and annotation-driven expansion.
 
 Emitted message:
@@ -376,6 +424,8 @@ Emitted message:
 **How to fix:** attach a Feature of the required type to the component in the Aggregate or the Release, or at a broader scope the component inherits from. If the Component should no longer require it, remove the mandate annotation from its catalog declaration.
 
 ### Malformed attachment requirement
+
+<!-- covers: internal/compiler/analyzer.ErrMalformedAttachmentRequirement -->
 
 A presence mandate's declaration cannot be evaluated. An annotation value is an opaque string, so nothing validates its shape before the compiler reads it: a value that is not a Feature type URI, or a key that names the mandate family without a label after the prefix, is reported as a broken declaration rather than as an unsatisfied requirement — a typo must never read as a satisfied requirement.
 
@@ -388,6 +438,8 @@ Emitted messages:
 
 ### Required attachment slot not bound
 
+<!-- covers: internal/compiler/analyzer.ErrRequiredSlotUnfilled -->
+
 A catalog entity declares an attachment slot with `required: true` in its `featuresSchema`, and nothing binds that slot's name on an instance of the entity. The check runs against the attachments the instance ends up with after every scope has folded — the Aggregate's component-level and subsystem-level `features:` blocks, the Release's boundary-level and component-level blocks, and attachments produced by annotation-driven expansion — so a credential attached once at a scope the instance inherits from binds the slot exactly as a fill authored on the instance does.
 
 Emitted message:
@@ -396,6 +448,8 @@ Emitted message:
 **How to fix:** attach a Feature under the slot's name — on the component, or at a broader scope every consumer of the slot shares. An attachment under a different name does not bind the slot: a slot is a named binding point, so the name is the binding. If the slot should no longer be required, update the catalog entity's `featuresSchema` to drop the `required` declaration.
 
 ### Attachment does not conform to its declared slot shape
+
+<!-- covers: pkg/resolver.ErrAttachmentSlotShape -->
 
 An attachment binds a declared slot but does not match the shape that slot declares. The common case is delivery: a slot's `inject` allowlist names the mechanisms a fill may deliver its material through, and an empty allowlist is blackbox — the Recipe delivers the material internally and a fill may dictate no delivery at all. An attachment under a name no slot declares is a free attachment and carries no slot constraint.
 
@@ -406,6 +460,8 @@ Emitted message:
 
 ### Duplicate delivery key across inject sources
 
+<!-- covers: pkg/resolver.ErrInjectKeyCollision, internal/compiler/renderer.ErrSelfInjectKeyCollision -->
+
 The same delivery key (for example, the same env var name) is declared in two developer-authored inject sources — one at the Component level and one under a `uses[]` entry.
 
 Emitted message:
@@ -415,6 +471,8 @@ Emitted message:
 
 ### Self-inject on a component without an allowlist
 
+<!-- covers: pkg/resolver.ErrSelfInjectForbidden -->
+
 The developer wrote a component-level `inject:` block, but the Component catalog entity does not declare `spec.inject`. Components without a `spec.inject` allowlist are Black-Box types — they receive no developer-authored injection.
 
 Emitted message:
@@ -423,6 +481,8 @@ Emitted message:
 **How to fix:** remove the `inject:` block from this Component instance, or switch to a White-Box Component type whose catalog declaration includes `spec.inject`.
 
 ### Self-inject mechanism not in the component's allowlist
+
+<!-- covers: pkg/resolver.ErrSelfInjectForbidden -->
 
 The developer wrote a component-level `inject:` block using a mechanism (for example, `env` or a specific file-mount form) that is not listed in the Component's `spec.inject` allowlist.
 
@@ -437,6 +497,8 @@ After every contract is validated, the compiler evaluates Go templates on Compon
 
 ### `provides:` template references a non-self-contained root
 
+<!-- covers: internal/compiler/renderer.ErrProvidesSelfContainment -->
+
 A Recipe's `provides:` template references a root outside the self-contained set. The `provides` block is evaluated at provides evaluation, before the inject pipe is hydrated and before cross-node edges are walked, so it may reference only data belonging to its own node: `.context.instance_id`, `.values`, `.infra`, the node's resolved `.locals`, and static strings. The check is a positive allowlist, so any other root halts — `.context.inject` and `.context.uses` (cross-node), `.context.annotations.*`, `.context.labels`, `.context.metadata`, and `.metadata.*` (placement- or deployment-coupled data the provides surface does not expose), and `.attachment_name` (a base Recipe's provides pass resolves no attachment). Referencing one of these halts loudly rather than silently rendering an empty value.
 
 `.locals` is on the surface: a node's locals resolve in the preamble of the same stage, ahead of its provides, so a `provides` template reads them and receives resolved values.
@@ -450,6 +512,8 @@ A FeatureRecipe's `provides:` follows the same locals rule: its own `locals:` re
 
 ### `locals:` entry references a sibling defined later in the same block
 
+<!-- covers: internal/compiler/renderer.ErrLocalsForwardReference -->
+
 A `locals:` block resolves in the order its entries are written, and an entry reads only a sibling defined **above** it. A direct `.locals.<key>` reference to an entry the block defines later halts: the compiler never sorts or reorders the block to make the reference resolve, because emitted output would then follow an inference rather than what was authored. Without the halt the reference would resolve through the missing-key policy to an empty string, so a derived hostname or secret name would silently lose the segment it was built from.
 
 Emitted message:
@@ -458,6 +522,8 @@ Emitted message:
 **How to fix:** move the referenced entry above its reader. Reordering a `locals:` block is a behavioural change wherever one entry reads another, so the fix is exactly the reorder the message names. A self-reference — an entry naming its own key — cannot be fixed by reordering; compute the value from `.values` and `.infra` directly instead, which the message says in place of the move-it instruction.
 
 ### `locals:` key does not exist
+
+<!-- covers: internal/compiler/renderer.ErrLocalsUnknownReference -->
 
 A template reads `.locals.<key>` for a key the `locals:` block does not declare at all — a misspelling, or a key that was renamed or removed. Every surface that reads the pillar raises this halt: a `locals:` entry, a `provides:` template, and a Recipe `source:` template. The locals pillar is an open keyed map, so an unknown key under it passes the root check and would otherwise resolve to an empty string; the halt is what stops that empty value from reaching an emitted artifact.
 
@@ -469,6 +535,8 @@ Emitted message:
 Only **direct** `.locals.<key>` references are checked. A key reached indirectly — through `index .locals`, a `with .locals` block, or a variable bound to `.locals` — is not analysed, because recognising the key would mean reading template text and inferring what a computed key means. An absent key reached that way renders as an empty value rather than halting; the indirect form remains the way to reach a key whose name is itself computed.
 
 ### Template references a root the render context does not define
+
+<!-- covers: internal/compiler/renderer.ErrTemplateUnknownRoot -->
 
 A template references a top-level root — the first path segment after the leading dot — that its render context does not define: a misspelling such as `{{ .valeus.port }}`, or a root that does not exist on the surface being authored. The check is a positive allowlist over root *names*, and the admitted set is derived from the render context's own shape rather than kept as a separate list beside it, so the set the build refuses and the set the context actually delivers cannot drift apart. The diagnostic names the offending reference and lists the roots that context does define.
 
@@ -490,6 +558,8 @@ The check covers every template surface the renderer evaluates, each against the
 
 ### Cross-node type safety violation via `selector:`
 
+<!-- covers: internal/compiler/analyzer.ErrSelectorViolation -->
+
 A `usesSchema` socket declares a `selector:` field that excludes the target Component attached at the other end of the edge. The selector is the catalog author's way of saying "this socket only accepts targets whose labels match this expression"; an edge that satisfies the socket-name lookup but fails the selector expression is a type-safety violation. The synthesized JSON Schema carries the selector as the `x-aggrega-selector:` extension keyword consumed by the native Go selector engine.
 
 Emitted message:
@@ -498,6 +568,8 @@ Emitted message:
 **How to fix:** either route the `uses:` edge to a Component whose labels satisfy the selector, or adjust the selector expression in the catalog entity to accept the intended target class. Review the target Component's `metadata.labels` with `aggrega inspect` to confirm which labels it carries.
 
 ### Unknown provider
+
+<!-- covers: internal/compiler/renderer.ErrUnknownProvider -->
 
 A Recipe declares `provider: <name>` where `<name>` names no rendering engine the compiler serves. The compiler cannot dispatch rendering to a provider it has never heard of.
 
@@ -508,6 +580,8 @@ Emitted message:
 
 ### A capability is served by more than one provider plugin
 
+<!-- covers: pkg/catalog.ErrAmbiguousProviderPlugin -->
+
 A build reaches a capability — or a pull resolves one — served by more than one provider-rendering Plugin (`pluginType: provider`, each listing that capability in its `capabilities`), and the workspace has not selected which one renders it. Rather than pick a rendering engine arbitrarily, the build halts and names both candidates. A catalog that carries two plugins for the same capability is legal — two publishers may each ship a plugin for `helm` or `compose`, and the catalog accepts both. The ambiguity surfaces only at the point of use: the halt fires when a build or pull actually reaches the contested capability, not at load time.
 
 Emitted message:
@@ -516,6 +590,8 @@ Emitted message:
 **How to fix:** add a `plugins.providers` entry in the workspace config keyed by the capability, whose value selects the plugin identity that renders it. Keep both plugins in the federated catalog; the binding tells this workspace which one to dispatch to for the contested capability.
 
 ### Path-template references a variable outside the allowlist
+
+<!-- covers: internal/compiler/renderer.ErrPathTemplateInvalidField -->
 
 A `directory:` or `subDirectory:` template references a variable name that the path-template variable allowlist does not include — for example, a typo such as `{{ .parmaeters.region }}`, or a field that exists in the Recipe rendering context but is not exposed to path templates (such as `.context.inject` or `.values`). The same halt covers `{{ .component_id }}` in a `directory:` template: the variable exists, and `subDirectory:` templates may read it, but a boundary's `directory:` is evaluated once for the whole boundary rather than once per component, so a per-component variable there would make the emitted path depend on which component happened to be evaluated first.
 
@@ -530,6 +606,8 @@ Emitted message:
 
 ### Path collision: two contributors emit at incompatible paths
 
+<!-- covers: internal/compiler/renderer.ErrPathCollision -->
+
 Two boundary contributors evaluate to the same physical assembly path but disagree on a property that must be uniform across the contributors at that path — for example, two boundaries assembling under the same `directory:` route through different providers, or one boundary declares a per-(path, provider) tuple a second boundary cannot satisfy.
 
 Emitted message:
@@ -539,6 +617,8 @@ Emitted message:
 
 ### Instance-ID collision across boundaries assembling to the same path
 
+<!-- covers: internal/compiler/renderer.ErrInstanceIDCollision -->
+
 Two boundaries that assemble to the same per-(path, provider) tuple contribute components with identical instance IDs. The merged assembly cannot disambiguate the two component fragments — a single Helm chart cannot carry two Deployments named `web-server`, and a single docker-compose file cannot carry two services named `api`.
 
 Emitted message:
@@ -547,6 +627,8 @@ Emitted message:
 **How to fix:** rename one of the colliding components in the Aggregate, or split the two boundaries onto separate `directory:` paths so each component instance lands in its own assembly.
 
 ### Two contributors write the same output path
+
+<!-- covers: internal/compiler/renderer.ErrAssembledOutputCollision -->
 
 Two contributors to one assembly produce a file at the same output path. This is distinct from the instance-ID collision above: the components are named differently and the assembly can tell them apart — it is the *files* they emit that land on one path. It happens most often where a provider writes each contributor's output side by side rather than under a per-component position, so two components whose Recipes emit the same filename (two `artifacts:` entries both named `main.tf`, say) meet at one path. The assembler's own output can collide with a contributor's file the same way.
 
@@ -563,6 +645,8 @@ When the contributors declared different formats for their file, each is named w
 
 ### Chart-name mismatch on a merged helm-chart umbrella
 
+<!-- covers: internal/compiler/renderer.ErrChartNameMismatch -->
+
 Two or more boundaries contribute to the same `helm-chart`-provider assembly path but their effective `aggrega.ai/chart-name` annotations (resolved through the boundary annotation cascade) do not agree. A Helm umbrella chart has exactly one chart name; the renderer cannot pick one of the conflicting candidates.
 
 Emitted message:
@@ -572,6 +656,8 @@ Emitted message:
 
 ### FeatureRecipe template references a field outside its scope's allowlist
 
+<!-- covers: internal/compiler/renderer.ErrFRTemplateInvalidField -->
+
 A FeatureRecipe with `executionScope: boundary` references a per-component-only field such as `.context.instance_id`, `.context.inject`, or `.context.uses` — fields that have no meaningful value at boundary scope. The mirror condition holds: a component-scope FeatureRecipe (the default) referencing `.boundary.*` fields fails the same validator. Validation runs at parse time against the relevant scope's field allowlist before any rendering work begins.
 
 Emitted message:
@@ -580,6 +666,8 @@ Emitted message:
 **How to fix:** rewrite the template against the scope's available fields, or change the FeatureRecipe's `executionScope`. Boundary-scope FRs reference `.boundary.path`, `.boundary.boundary_name`, `.boundary.components`, the `.boundary.*_uses_edges` collections, `.boundary.labels`, `.boundary.annotations`, and `.boundary.feature_attachments`. Component-scope FRs reference `.context.instance_id`, `.context.inject`, `.context.uses`, `.context.labels`, `.context.annotations`. Both scopes share `.values`, `.infra`, `.locals`, `.provides`, `.steps`, and `.metadata`. A Release parameter is not a pillar of its own on this surface — it reaches a FeatureRecipe template through a `values` or `infra` entry that references it.
 
 ### Self-inject value template references cross-node data
+
+<!-- covers: internal/compiler/renderer.ErrTemplateUnknownRoot -->
 
 A component-level `inject:` `value:` template pulls from `.context.inject` or `.context.uses`. The inject pipe is what this pass is constructing — a template inside a component's own self-inject value cannot read from it.
 
