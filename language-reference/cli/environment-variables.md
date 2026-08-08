@@ -29,7 +29,7 @@ Per-registry settings (`registries[].*`) have **no** environment variable: a lis
 | `AGGREGA_DEFAULT_REGISTRY` | `default_registry` | Destination/registry host (`hub.aggrega.ai` by default). |
 | `AGGREGA_OFFLINE` | `offline` | Boolean. Forbids all network egress: every command that would fetch, pull, acquire, push, sign, or contact a registry refuses loudly instead of dialing, and a build runs only against the existing lockfile and cache. Discovery then reads the local index — the deprecation advisory is served from the built index rather than probed live, and the unknown-command install hint and the remote-registry catalog-resolution tier are skipped. Verification of already-cached or pinned material still runs — offline forbids the fetch, not the local check. |
 | `AGGREGA_AUTO_PULL` | `auto_pull` | Boolean. Auto-fetch missing dependencies at build time. |
-| `AGGREGA_ARTIFACT_CACHE_DIR` | `artifact_cache_dir` | On-disk content cache directory. |
+| `AGGREGA_ARTIFACT_CACHE_DIR` | `artifact_cache_dir` | On-disk content cache directory, written relative to the workspace root so it names the same directory wherever the command runs. An absolute value is refused, as is one naming the workspace root itself — give the cache its own subdirectory. |
 | `AGGREGA_CATALOG_DIRS` | `workspace.catalog_dirs` | OS-path-list separated (`:` on Unix). Supply absolute paths. Replaces the configured list. |
 | `AGGREGA_SIGNING_FULCIO_URL` | `signing.fulcio_url` | Keyless Fulcio CA URL. |
 | `AGGREGA_SIGNING_REKOR_URL` | `signing.rekor_url` | Keyless Rekor transparency-log URL. |
