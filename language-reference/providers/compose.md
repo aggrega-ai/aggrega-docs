@@ -20,8 +20,8 @@ When a Recipe declares `workload:`, the provider translates the platform-owned W
 | Workload field | Compose field |
 | --- | --- |
 | `image` | `image` |
-| `command` | `command` (list form) |
-| `args` | appended after `command` (compose has no separate `args`) |
+| `command` | `entrypoint` (list form) — it overrides the image's entry point, which is the compose key that does that |
+| `args` | `command` (list form) — it supplies the arguments the entry point receives, which is what compose's `command` overrides |
 | `variables` | `environment` (map form) |
 | `attachments[as: env]` | `environment` entry with an empty value, and a warning naming the entry (see [What the compose provider does not deliver](#what-the-compose-provider-does-not-deliver)) |
 | `attachments[as: file]` | `volumes` long-form bind-mount, read-only |
@@ -180,6 +180,8 @@ When two boundaries collapse into one assembly path (shared `directory:`), the m
 
 The compose provider derives `depends_on` automatically from the IR's `uses` edges. For each edge whose source and target both contribute services to the merged compose file, the provider adds `depends_on: [<target>]` to the source service.
 
+**The dependency lands on the source component's own service, and on no other service that component contributes.** A component that also declares [init containers](#init-containers) contributes one run-to-completion service per entry, and none of those receives the edge-derived dependency — an edge names the component, and an init service carries a name of its own. So an init container that has to reach the edge's target, such as a schema migration against a database the component `uses`, carries no ordering against that target and may run before it is reachable, while the component's own service waits both for the init chain to complete and for the target to have started.
+
 Edge-derived entries are emitted **ungated**: they have `service_started` semantics regardless of whether the target declares a healthcheck. Gating them on the target's health — which would let the compose runtime block startup until the target's healthcheck reports healthy — is expressible but is not what a `uses` edge currently means.
 
 Edge-derived entries are emitted in alphabetical target order for output stability. Edges whose source or target are served by a different provider (helm or helm-chart) are skipped — `depends_on` only applies within the compose-served subset of the Release.
@@ -205,7 +207,7 @@ spec:
         image: "{{ .values.image }}"
 ```
 
-Structured source objects (e.g. `source: { repo: ..., chart: ..., version: ... }`) are reserved for a future registry-integration intent and are rejected today. A Recipe targeting a remote compose fragment must vendor it locally and point `source:` at the vendored copy.
+Structured source objects (e.g. `source: { repo: ..., chart: ..., version: ... }`) are reserved for future registry integration and are rejected today. A Recipe targeting a remote compose fragment must vendor it locally and point `source:` at the vendored copy.
 
 A Recipe with `source: <path-to-compose-file>` and `valuesMapping:` runs the following pipeline:
 
