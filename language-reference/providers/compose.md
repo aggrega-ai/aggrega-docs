@@ -31,6 +31,22 @@ When a Recipe declares `workload:`, the provider translates the platform-owned W
 | `restartPolicy: OnFailure` | `restart: on-failure` |
 | `restartPolicy: Never` | `restart: no` |
 
+### Container resources
+
+A container's `resources` reach compose's `deploy.resources` block, which docker compose honours in non-swarm mode. Kubernetes `requests` express a guaranteed minimum, so they become compose `reservations`; `limits` express a hard cap, so they stay `limits`.
+
+| Workload field | Compose field | Translation |
+| --- | --- | --- |
+| `resources.requests.cpu` | `deploy.resources.reservations.cpus` | Fractional cores. A millicpu quantity is divided by 1000 (`500m` → `0.5`, `1500m` → `1.5`); a plain core count (`2`, `0.5`) passes through unchanged |
+| `resources.limits.cpu` | `deploy.resources.limits.cpus` | Same conversion |
+| `resources.requests.memory` | `deploy.resources.reservations.memory` | An exact byte count. An integer mantissa with a binary (`Ki`/`Mi`/`Gi`/`Ti`/`Pi`/`Ei`) or decimal (`k`/`M`/`G`/`T`/`P`/`E`) suffix, or a plain byte integer, converts exactly — `8Gi` becomes `8589934592` |
+| `resources.limits.memory` | `deploy.resources.limits.memory` | Same conversion |
+| an extended resource key — `nvidia.com/gpu`, `amd.com/gpu`, any `<domain>/<name>` | — | No single-host compose analog. The key is dropped and the build raises an `unsupported-field` warning naming it, one per distinct key however many of `requests` and `limits` carried it |
+
+A quantity compose cannot convert exactly — a fractional memory mantissa, an unknown suffix, a cpu shape that is neither millicpu nor a plain core count — halts the build with a `TRANSLATION_ERROR` naming the quantity, rather than rounding it or emitting a value that means something else.
+
+**A GPU request is the common case of the dropped-key row.** A Workload asking for `nvidia.com/gpu` renders a service carrying no GPU reservation of any kind, and the build names the key it dropped. Pair that with the `runtimeClassName` row in [Pod-level fields](#pod-level-fields): a Workload authored to run on GPU reaches compose as a plain CPU service, and says so twice — once for the resource and once for the runtime.
+
 ### Probes
 
 A Workload's three probe slots (`live`, `ready`, `startup`) collapse to compose's single `healthcheck` per service, with priority `live > ready > startup` (the most-canonical-liveness signal wins).
@@ -86,7 +102,34 @@ When multiple services on a single Workload publish overlapping ports, the most-
 
 A Workload with multiple containers becomes one main service plus one sidecar service per non-main container. The main container is the one named `main` (when present) or the first container in declaration order. Sidecars share the main service's network namespace via `network_mode: "service:<main>"` — the closest compose primitive to a Kubernetes pod's shared-network model.
 
-Pod-level Workload fields (`scheduling`, `podSecurityContext`, `serviceAccount`) apply only to the main service. Compose's surface is single-host and has no equivalent for `nodeSelector`, `affinity`, `tolerations`, or `topologySpreadConstraints`; those Workload fields are silently dropped on the compose path. Container-level `securityContext` translates partially (`readOnlyRootFilesystem` → `read_only`; `capabilities.add`/`drop` → `cap_add`/`cap_drop`; `runAsUser`/`runAsGroup` → `user`).
+### Pod-level fields
+
+Pod-level Workload fields apply to the main service only — sidecars share the main service's network namespace and pod-level identity, and an [init service](#init-containers) follows the same rule.
+
+Several map onto a compose service field:
+
+| Workload field | Compose field |
+| --- | --- |
+| `podSecurityContext.runAsUser` / `runAsGroup` | `user` — a container-level `securityContext.runAsUser` wins over it |
+| `terminationGracePeriodSeconds` | `stop_grace_period: <n>s` |
+| `dnsConfig.nameservers` / `dnsConfig.searches` | `dns` / `dns_search` |
+| `hostAliases` | one `extra_hosts` entry per hostname, in author order |
+
+The rest have no single-host equivalent. **None is dropped in silence:** each authored one raises an `unsupported-field` warning naming the field, so an author learns which setting the target could not honour rather than discovering it from the running stack.
+
+| Workload field | Why compose cannot honour it |
+| --- | --- |
+| `scheduling` | Placement — `nodeSelector`, `affinity`, `tolerations`, `topologySpreadConstraints` — presumes a scheduler choosing among nodes. Compose runs on one host |
+| `replicas` | Compose's own replica count lives under `deploy:` and is a swarm-mode feature |
+| `runtimeClassName` | Selecting an alternative container runtime — a GPU-enabled one, for example — has no compose expression |
+| `priorityClassName` | Preemption ordering presumes a scheduler |
+| `serviceAccount` | Workload identity is a cluster concept |
+| `imagePullSecrets` | Registry credentials on a compose host are the host's own login state, not a field of the file |
+| `dnsPolicy`, `dnsConfig.options` | Compose exposes `dns` and `dns_search` and nothing finer |
+
+Container-level `securityContext` translates partially: `readOnlyRootFilesystem` → `read_only`, `capabilities.add` / `drop` → `cap_add` / `cap_drop`, `runAsUser` / `runAsGroup` → `user`. `runAsNonRoot` has no compose expression and raises the same `unsupported-field` warning.
+
+Every warning in this section is advisory and out-of-band: the build succeeds, and the emitted file is byte-for-byte what it would be without it. `--no-unsupported-field-warnings` silences the class.
 
 ## Init containers
 
@@ -202,7 +245,7 @@ The asymmetry is structural: `services:`, `volumes:` and `configs:` carry per-Re
 - **Cross-network L4 routing within one compose file.** A service in network A reaching a service in network B by anything other than docker-compose's default DNS requires the `compose-bridge` Feature.
 - **Cross-compose-file routing.** Boundaries that evaluate to distinct assembly paths produce distinct `docker-compose.yaml` files; the compose runtime treats them as independent projects. Cross-file communication is the operator's concern (publishing host ports, sharing external networks, or coalescing the boundaries onto one path via a shared `directory:`).
 - **Sourcing an environment variable from an attachment.** Compose has no primitive for it, so a Workload `attachments` entry with `as: env` emits the variable name with an empty value rather than a runtime-resolved reference. The placeholder is deliberate — a variable that is present but empty is visible to whoever debugs the container, where an absent one leaves nothing to look at — and the build says so rather than leaving it to be discovered: each such entry raises an `unsupported-field` warning naming the entry at its authored coordinate (`containers.<name>.attachments.<KEY>`, or `initContainers[<i>].attachments.<KEY>`), so the author knows which variable arrives empty and which container it belongs to. The warning is advisory: the build succeeds, and the rendered file is byte-for-byte what it would be without it. `--no-unsupported-field-warnings` silences the class. An `attachments` entry with `as: file` is unaffected — compose bind-mounts it, and no warning is raised. The `compose-bridge` Feature is the future home for compose-side secret resolution.
-- **Compose `deploy:` block.** Replicas, placement constraints, and update strategy under `deploy:` are swarm-mode features; the compose provider targets single-host compose only and does not emit `deploy:` content.
+- **Swarm-mode `deploy:` content.** Replicas, placement constraints, and update strategy under `deploy:` are swarm-mode features, and the compose provider targets single-host compose only, so it emits none of them. It does emit `deploy.resources` — the reservations and limits a container's `resources` map to, which docker compose honours in non-swarm mode (see [Container resources](#container-resources)).
 - **Health-condition-gated `depends_on`.** A dependency derived from a `uses` edge is emitted ungated, with `service_started` semantics; it is not gated on the target's healthcheck reporting healthy. The long form itself is emitted — an [init container](#init-containers) wait uses it — so this is about what a `uses` edge means, not about a shape the provider cannot produce.
 
 ## Authoring example
