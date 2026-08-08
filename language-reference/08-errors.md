@@ -8,4 +8,4 @@ Fatal halts cover schema violations, schema composition failures (per-pillar JSO
 
 - [Fatal halts](errors/fatal-halts.md) — the catalog of compilation-stopping errors, organised by pipeline step where the check fires. Each entry names the error's trigger, the remedy, and the offending authoring surface.
 - [Warnings](errors/warnings.md) — non-halting warnings emitted during compilation and the external linter-domain checks that enforce policy-style rules outside the core compiler.
-- [Error translation](errors/error-translation.md) — the five category prefixes (`DEVELOPER_ERROR`, `OPS_ERROR`, `CATALOG_ERROR`, `TRANSLATION_ERROR`, `FETCH_ERROR`) and the single-line and multi-line output shapes.
+- [Error translation](errors/error-translation.md) — the six category prefixes (`DEVELOPER_ERROR`, `OPS_ERROR`, `CATALOG_ERROR`, `TRANSLATION_ERROR`, `FETCH_ERROR`, `POLICY_ERROR`) and the single-line and multi-line output shapes.
