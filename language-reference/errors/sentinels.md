@@ -1,10 +1,12 @@
 # Error sentinels — canonical reference
 
-Every fatal halt the compiler emits wraps a named Go error sentinel. The user-facing diagnostic (the prefixed message catalogued in [fatal-halts.md](./fatal-halts.md) and [error-translation.md](./error-translation.md)) carries the developer-facing prose; the wrapped sentinel is what `errors.Is` matches against in programmatic consumers.
+Every fatal halt the compiler emits names a condition, and each condition carries two identifiers because two different kinds of consumer have to name it. The **code** is the string the condition is registered under: it names the condition itself, and it is what stays fixed as the Go packages around it evolve. The **sentinel** is the Go value `errors.Is` matches, obtained by calling the accessor the declaring package exports. One condition, two identifiers — match the sentinel to recognise the condition from Go, read the code when you need to record or key on it.
 
-This page is the sentinel-keyed view of the catalogue. Programmers writing CI gates, IDE integrations, or build-orchestration code that needs to distinguish error kinds match against the sentinels listed here with the standard `errors.Is` predicate, calling the sentinel to obtain the value to match against. Authors debugging a build by reading the emitted error text usually want the message-keyed views — [fatal-halts.md](./fatal-halts.md) for build-stopping errors, [warnings.md](./warnings.md) for advisory output.
+The user-facing diagnostic (the prefixed message catalogued in [fatal-halts.md](./fatal-halts.md) and [error-translation.md](./error-translation.md)) carries the developer-facing prose; the wrapped sentinel is what `errors.Is` matches against in programmatic consumers.
 
-Each sentinel in the tables below is exported from the package the table names as a function taking no arguments and returning the sentinel. Importing that package and calling the sentinel is the supported integration surface, which is why the tables write each one with its parentheses — the call is what yields a value `errors.Is` can match, and the name without them is a function rather than an error:
+This page is the sentinel-keyed view of the catalogue. Programmers writing CI gates, IDE integrations, or build-orchestration code that needs to distinguish error kinds match against the sentinels listed here with the standard `errors.Is` predicate. Authors debugging a build by reading the emitted error text usually want the message-keyed views — [fatal-halts.md](./fatal-halts.md) for build-stopping errors, [warnings.md](./warnings.md) for advisory output.
+
+Each row in the tables below names an **accessor** — a function taking no arguments, exported from the package the table names, that returns the sentinel. Importing that package and calling the accessor is the supported integration surface, which is why the tables write each one with its parentheses — the call is what yields a value `errors.Is` can match, and the name without them is a function rather than an error:
 
 ```go
 import (
@@ -18,7 +20,41 @@ if errors.Is(err, resolver.ErrParameterContractViolation()) {
 }
 ```
 
-The sentinels listed below are stable across patch releases; renames or removals are signalled by a release-notes entry and a deprecation cycle. Adding a new sentinel within a package is additive and does not break existing matchers. The message column is the literal text the sentinel renders; the user-facing diagnostic adds a category prefix (`DEVELOPER_ERROR:` / `OPS_ERROR:` / `CATALOG_ERROR:` / `TRANSLATION_ERROR:` / `FETCH_ERROR:` / `POLICY_ERROR:` per [error-translation.md](./error-translation.md)) and the source location ahead of that text.
+The two identifiers carry their stability separately, and that separation is the reason a condition has both. A code is fixed once its condition is published, so it is the identifier to record wherever a condition has to be named durably. The accessors listed below are stable across patch releases; renames or removals are signalled by a release-notes entry and a deprecation cycle, and adding a new accessor within a package is additive and does not break existing matchers. Renaming an accessor does not move the code its condition was registered under, so a code you have recorded outlives a refactor of the Go surface. The message column is the literal text the sentinel renders; the user-facing diagnostic adds a category prefix (`DEVELOPER_ERROR:` / `OPS_ERROR:` / `CATALOG_ERROR:` / `TRANSLATION_ERROR:` / `FETCH_ERROR:` / `POLICY_ERROR:` per [error-translation.md](./error-translation.md)) and the source location ahead of that text.
+
+## Reading the code of a condition
+
+A code qualifies the declaring package and then names the rule — `<declaring-package>/<rule>` — in kebab-case throughout. Read it off an error with `CodeOf`, from `github.com/aggrega-ai/aggrega-cli/pkg/errors`, which walks the wrap chain the way `errors.Is` does, so the code survives however many frames wrapped the error on its way back to you. That package is itself named `errors`, so an import alias keeps it apart from the standard library:
+
+```go
+package release
+
+import (
+    "log"
+
+    aggregaerrors "github.com/aggrega-ai/aggrega-cli/pkg/errors"
+    "github.com/aggrega-ai/aggrega-cli/pkg/resolver"
+)
+
+// Load reads a Release and reports the code of whatever condition halted it.
+func Load(path string) error {
+    _, err := resolver.LoadRelease(path)
+    if err == nil {
+        return nil
+    }
+    if code, ok := aggregaerrors.CodeOf(err); ok {
+        // code names the condition, in the form <declaring-package>/<rule>.
+        log.Printf("%s halted: %s", path, code)
+    }
+    return err
+}
+```
+
+`CodeOf` also reports whether any error in the chain carried a code at all; a chain carrying none is a fact about that chain rather than a failure. Where you would rather match the interface yourself, the same package exports it as `CodedError`, and `errors.As` finds it in the same walk.
+
+**A code travels one way.** It is what a condition reports, never what identifies it to a matcher: writing the string into your own code gives you a string, and there is no path back from a string to the value `errors.Is` matches. Match the sentinel to recognise a condition; read the code to record one.
+
+**A code is not part of the emitted diagnostic.** What `aggrega` prints is the category prefix, the source location and the message text catalogued in [fatal-halts.md](./fatal-halts.md) — so a code is reachable from Go, through `CodeOf` or `CodedError`, and from there only. A consumer that does not link these packages recognises conditions through the message-keyed views instead.
 
 ## The matchable surface, by declaring package
 
@@ -366,6 +402,8 @@ func Load(path string) error {
 ```
 
 There is no exported entry point that runs a whole build, so `errors.Is` matching applies to code calling these packages directly. To gate CI on a build, run `aggrega build` and read its exit status and its diagnostics, whose message prefixes and text are catalogued in [fatal-halts.md](./fatal-halts.md) and [error-translation.md](./error-translation.md).
+
+The two gating paths exist because the two identifiers reach different distances. A gate written in Go links these packages, matches sentinels, and can read a code off any error it holds. A gate written around the command has neither — it has the exit status and the printed text, which is why the message-keyed views are the surface it works against. Carry a code through a Go integration; do not look for one in the command's output.
 
 Sentinels declared in different packages with the same short name are distinct conditions, not two spellings of one: `errors.Is` distinguishes them by identity, so a match against one does not match the other. The re-exports called out in the tables are the exception, and they are called out precisely because they are the case where two names do match. Match against the name in the package the tables list it under, and treat a short name on its own as ambiguous.
 
