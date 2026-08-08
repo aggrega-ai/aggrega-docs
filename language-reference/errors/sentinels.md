@@ -4,7 +4,7 @@ Every fatal halt the compiler emits wraps a named Go error sentinel. The user-fa
 
 This page is the sentinel-keyed view of the catalogue. Programmers writing CI gates, IDE integrations, or build-orchestration code that needs to distinguish error kinds match against the sentinels listed here using the standard `errors.Is(err, sentinel)` idiom. Authors debugging a build by reading the emitted error text usually want the message-keyed views — [fatal-halts.md](./fatal-halts.md) for build-stopping errors, [warnings.md](./warnings.md) for advisory output.
 
-The compiler exports each sentinel from its declaring package; importing the package and dereferencing the sentinel by name is the supported integration surface:
+Each sentinel in the tables below is exported from the package the table names; importing that package and dereferencing the sentinel by name is the supported integration surface:
 
 ```go
 import (
@@ -18,58 +18,311 @@ if errors.Is(err, resolver.ErrParameterContractViolation) {
 }
 ```
 
-The sentinels listed below are stable across patch releases; renames or removals are signalled by a release-notes entry and a deprecation cycle. Adding a new sentinel within a package is additive and does not break existing matchers. The message text on the right-hand column is the literal wrapped string; the user-facing diagnostic adds a category prefix (`DEVELOPER_ERROR:` / `OPS_ERROR:` / `CATALOG_ERROR:` / `TRANSLATION_ERROR:` / `FETCH_ERROR:` / `POLICY_ERROR:` per [error-translation.md](./error-translation.md)) and the source location ahead of the sentinel's text.
+The sentinels listed below are stable across patch releases; renames or removals are signalled by a release-notes entry and a deprecation cycle. Adding a new sentinel within a package is additive and does not break existing matchers. The message column is the literal text the sentinel renders; the user-facing diagnostic adds a category prefix (`DEVELOPER_ERROR:` / `OPS_ERROR:` / `CATALOG_ERROR:` / `TRANSLATION_ERROR:` / `FETCH_ERROR:` / `POLICY_ERROR:` per [error-translation.md](./error-translation.md)) and the source location ahead of that text.
 
-## Resolver-stage sentinels (`pkg/resolver`)
+## The matchable surface, by declaring package
 
-Resolution — workspace load, parameter interpolation, target-reference validation, inject-contract checks, attachment-presence completeness.
+Every section below is one package you can import. Its heading is the package path relative to the module path `github.com/aggrega-ai/aggrega-cli`, so the section headed `pkg/resolver` is imported as `github.com/aggrega-ai/aggrega-cli/pkg/resolver`.
 
-| Sentinel | Wrapped message | User-facing surface |
-| --- | --- | --- |
-| `ErrInvalidParameterRef` | `invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template` | Subsumed under "Parameter type mismatch / contract violation" in fatal-halts. |
-| `ErrParametersImportLoad` | `parameters $import: load failed` | Surfaces as "External parameters file cannot be loaded" in fatal-halts. |
-| `ErrInvalidInstanceName` | `invalid instance name: names must match ^[a-zA-Z0-9_-]+$ (letters, digits, hyphen, underscore; no dots)` | Surfaces as "Instance name fails the naming pattern" in fatal-halts. |
-| `ErrInvalidTargetRef` | `invalid target reference: each dot-separated segment must match ^[a-zA-Z0-9_-]+$` | Surfaces as "Dangling `uses` target" in fatal-halts. |
-| `ErrYAMLLoad` | `YAML load failed: check the file exists, is readable, and contains well-formed YAML` | YAML-load failures present through schema-validation paths covered under "When loading your files" in fatal-halts. |
-| `ErrManifestReservedPrefix` | `manifest annotation binding uses reserved prefix` | Surfaces during Manifest validation; reserved annotation namespaces (`aggrega.ai/`, `feature.aggrega.ai/`) cannot be redefined by ad-hoc bindings. |
-| `ErrManifestCrossBindingPillarCollision` | `manifest annotation bindings collide on same Feature path+pillar` | Two bindings route different annotation keys into the same Feature path through the same pillar — collision halts catalog load. |
-| `ErrInvalidInjectKey` | `invalid inject key: the from-key must name a declared provides key of the target component type` | Surfaces as "Inject `from` key is not in the target's `provides`" in fatal-halts. |
-| `ErrMissingRequiredFeature` | `missing required feature: attach a Feature of the required type to the component` | Surfaces as "Required feature not attached" in fatal-halts. |
-| `ErrFeatureMergeConflict` | `feature merge conflict: reconcile the Aggregate and Release declarations for the feature` | Surfaces under "Manifest merge strategy" in fatal-halts. |
-| `ErrUnknownUsesSocket` | `unknown uses socket: name a socket the entity declares in its usesSchema — only a component's own uses block may name one the catalog did not declare` | Surfaces as "`uses:` socket not declared in the target's `usesSchema`" in fatal-halts. Not emitted for a component's own `uses:` block, where an undeclared socket name is legal and a near-miss name is reported as a warning instead. |
-| `ErrSelfInjectForbidden` | `self-inject on component without spec.inject allowlist` | Surfaces as "Self-inject on a component without an allowlist" in fatal-halts. |
-| `ErrInjectKeyCollision` | `duplicate delivery key across inject sources` | Surfaces as "Duplicate delivery key across inject sources" in fatal-halts. |
-| `ErrMissingRequiredSocket` | `required uses socket not populated` | Surfaces as "Required `uses:` socket not populated" in fatal-halts. |
-| `ErrParameterMissing` | `required parameter not supplied` | Surfaces as the missing-parameter branch of "Parameter type mismatch / contract violation" in fatal-halts. |
-| `ErrParameterContractViolation` | `parameter contract violated` | Surfaces as the contract-violation branch of "Parameter type mismatch / contract violation" in fatal-halts. |
+Entries are grouped by the package that **declares** the sentinel, because that is the package a matcher imports. Where in a build the condition is raised is a separate question, and one this page deliberately does not answer: a single sentinel is frequently raised from several places, and several are raised only from code the module does not export, so no per-entry answer would be true for every row. The message-keyed views answer the when-in-a-build question in terms you can observe — [fatal-halts.md](./fatal-halts.md) above all.
 
-## Validator-stage sentinels (`pkg/validator`)
+A few names appear in more than one package. Those are re-exports of one shared value rather than two conditions, so matching either name succeeds; the tables say so where both names are importable.
 
-Catalog-side validation — `extends:` inheritance chain walks, including the composition of an inherited `usesSchema`.
+<!-- BEGIN GENERATED: error-identities -->
+### pkg/catalog
 
-| Sentinel | Wrapped message | User-facing surface |
-| --- | --- | --- |
-| `ErrInheritanceMerge` | `inheritance merge failed: resolve the conflicting field definitions across the extends chain` | Surfaces as the merge-failure branch of "Cyclic extends chain" / "`usesSchema` composition failure on `extends` chain" in fatal-halts. |
-| `ErrCyclicExtension` | `cyclic extends chain` | Surfaces as "Cyclic extends on Components or Features" in fatal-halts. |
+| Sentinel | Message |
+| --- | --- |
+| `ErrAllVersionsRetracted` | `every published version this reference could select has been withdrawn` |
+| `ErrAmbiguousImporterPlugin` | `format is advertised by more than one importer plugin` |
+| `ErrAmbiguousParserPlugin` | `format is advertised by more than one parser plugin` |
+| `ErrAmbiguousProviderPlugin` | `capability is served by more than one provider plugin; add a plugins.providers entry to select one` |
+| `ErrAmbiguousTypeMapping` | `manifest maps multiple version-distinct keys to the same base type; the type-to-recipe lookup is ambiguous` |
+| `ErrDuplicateEntityIdentity` | `duplicate entity identity within a single catalog directory` |
+| `ErrMalformedRecipeReference` | `malformed recipe reference in a Manifest mapping value` |
+| `ErrManifestImplementsMismatch` | `manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key` |
+| `ErrNoImporterForFormat` | `no importer plugin advertises the requested format` |
+| `ErrNoParserForFormat` | `no parser plugin advertises the requested format` |
+| `ErrNoRecipeResolved` | `no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type` |
+| `ErrProviderBindingUnsatisfied` | `plugins.providers entry names a plugin no provider-rendering plugin serving the capability matches` |
+| `ErrProviderVersionUnsatisfiable` | `no provider-rendering plugin version satisfies the recipe's provider version pin` |
+| `ErrQualifiedPluginReference` | `wasm plugin reference must be the plugin coordinate identity (<pluginType>/<name>:<version>), not a registry-qualified or artifact path` |
+| `ErrUnsatisfiableEntityVersion` | `no catalog version satisfies the referenced version constraint` |
+| `ErrUnscopedPluginReference` | `wasm plugin reference must carry a pluginType scope (<pluginType>/<name>); an empty scope cannot bind to an OCI location` |
+| `ErrUnscopedRecipeReference` | `recipe reference must be provider-scoped (<provider>/<name>); an empty provider cannot bind to an OCI location` |
 
-## Compact-form sentinels (`pkg/compactform`)
+### pkg/closure
 
-Compact-form authoring surface validation — keyword vocabulary, constraint-type compatibility, cross-document `$ref:` resolution.
+| Sentinel | Message |
+| --- | --- |
+| `ErrInvalidLibraryRef` | `resolve: invalid library reference URI` |
+| `ErrMVSConflict` | `resolve: minimum version selection conflict — incompatible library version requirements` |
+| `ErrNoAggregateLoader` | `resolve: catalog lookup cannot load resolved sub-aggregate bodies` |
+| `ErrSourceTemplateAtLockTime` | `resolve: source-template evaluation failure at lock time` |
+| `ErrSourceTemplateParse` | `resolve: source-template parse error` |
+| `ErrSourceTemplateProvidesRef` | `resolve: source-template references .provides (invalid reverse reference)` |
+| `ErrSubAggregateDepth` | `resolve: sub-aggregate inclusion depth exceeded` |
+| `ErrUnresolvableURI` | `resolve: no entity in the catalog matches this URI` |
 
-| Sentinel | Wrapped message | User-facing surface |
-| --- | --- | --- |
-| `ErrUnknownKeyword` | `compactform: unknown keyword` | A schema author used a compact-form keyword the vocabulary does not declare; the message lists allowed keywords. See [vocabulary/compact-form-authoring.md](../vocabulary/compact-form-authoring.md). |
-| `ErrAmbiguousDispatch` | `compactform: ambiguous dispatch — $mode required` | A schema author wrote a leaf whose shape could match multiple compact-form modes; the message names the conflicting modes and asks the author to disambiguate via `$mode:`. |
-| `ErrEscapeContentInvalid` | `compactform: $jsonschema content invalid` | The `$jsonschema:` escape hatch's nested content failed JSON Schema parsing. |
-| `ErrConstraintTypeMismatch` | `compactform: constraint not valid for declared type` | A constraint keyword does not apply to the declared type (`min:` on `type: object`, `pattern:` on `type: integer`). |
-| `ErrReferenceUnresolvable` | `compactform: $ref unresolvable` | A `$ref:` URL did not resolve to a target schema. |
-| `ErrUnresolvedSchemaLibraryRef` | `compactform: cross-document $ref target not found` | A cross-document `$ref:` (typically targeting a SchemaLibrary entry) failed to resolve the named target inside the resolved document. |
-| `ErrCircularRef` | `circular reference expansion` | A SchemaLibrary chain forms a cycle; expansion would not terminate. This sentinel is shared with the other reference-expansion surfaces, so its wrapped text carries no `compactform:` prefix; the wrapping site adds the offending chain, the keyword that triggered it, and the source location. |
-| `ErrHostInLibraryRef` | `compactform: cross-document $ref carries a registry host; reference the library by identity` | A cross-document `$ref:` carries a registry host (an `oci://<host>/…` form). References address libraries by identity — the bare-name `<Library>#/schemas/<Entry>` form — so the host is rejected with a steer to the identity form. |
+### pkg/compactform
 
-## Stages whose sentinels are not part of the matching surface
+| Sentinel | Message |
+| --- | --- |
+| `ErrAmbiguousDispatch` | `compactform: ambiguous dispatch — $mode required` |
+| `ErrCircularRef` | `circular reference expansion` |
+| `ErrConstraintTypeMismatch` | `compactform: constraint not valid for declared type` |
+| `ErrEscapeContentInvalid` | `compactform: $jsonschema content invalid` |
+| `ErrHostInLibraryRef` | `compactform: cross-document $ref carries a registry host; reference the library by identity` |
+| `ErrReferenceUnresolvable` | `compactform: $ref unresolvable` |
+| `ErrUnknownKeyword` | `compactform: unknown keyword` |
+| `ErrUnresolvedSchemaLibraryRef` | `compactform: cross-document $ref target not found` |
 
-Four compilation stages declare their sentinels in packages the compiler does not export, so there is nothing for `errors.Is` to reference and no matcher can be written against them. They are described here rather than tabulated, because a table on this page is a promise that the left-hand column can be dereferenced.
+- `ErrCircularRef` is the same value as `pkg/refcycle.ErrCycle`, so a match against either name succeeds.
+
+### pkg/deprecation
+
+| Sentinel | Message |
+| --- | --- |
+| `ErrDeprecatedEntity` | `deprecation: build consumes a deprecated entity` |
+
+### pkg/docscache
+
+| Sentinel | Message |
+| --- | --- |
+| `ErrFetchNotFound` | `oci: artifact not found at remote source` |
+| `ErrNotDocsBundle` | `docscache: artifact is not a documentation bundle` |
+| `ErrPageNotFound` | `docscache: page not found in documentation bundle` |
+
+- `ErrFetchNotFound` is the same value as `pkg/oci.ErrFetchNotFound`, so a match against either name succeeds.
+
+### pkg/egress
+
+| Sentinel | Message |
+| --- | --- |
+| `ErrOfflineEgress` | ``egress: network access refused because the workspace is offline; remediation: unset workspace.offline (or AGGREGA_OFFLINE) or run `aggrega pull --release <release>` from a connected environment to populate the cache`` |
+
+### pkg/externalinputs
+
+| Sentinel | Message |
+| --- | --- |
+| `ErrAcquisitionDisabled` | `externalinputs: acquisition is disabled for unpinned inputs` |
+| `ErrDigestMismatch` | `externalinputs: fetched bytes mismatch the pinned digest` |
+| `ErrSchemeNotAllowed` | `externalinputs: URL scheme is not allowed` |
+| `ErrStoreCorrupt` | `externalinputs: store blob mismatches its pinned record` |
+
+### pkg/lockfile
+
+| Sentinel | Message |
+| --- | --- |
+| `ErrLockfileDrift` | `lockfile: out of date; it no longer matches the current catalog` |
+| `ErrLockfileInvalid` | `lockfile: file failed schema validation` |
+
+### pkg/oci
+
+| Sentinel | Message |
+| --- | --- |
+| `ErrAmbiguousContentLayer` | `oci: manifest has multiple layers of the expected content media type` |
+| `ErrCachedManifestIntegrity` | `oci: cached manifest digest mismatch` |
+| `ErrEntityVersionPathMismatch` | `oci: entity per-version subdirectory mismatch` |
+| `ErrFetchIntegrity` | `oci: content digest mismatch` |
+| `ErrFetchNetworkUnreachable` | `oci: network unreachable` |
+| `ErrFetchNotFound` | `oci: artifact not found at remote source` |
+| `ErrFetchUnauthorized` | `oci: authentication required or failed` |
+| `ErrImmutableTagConflict` | `oci: tag already published with different content` |
+| `ErrNoContentLayer` | `oci: manifest has no layer of the expected content media type` |
+| `ErrOCILocationCollision` | `oci: distinct catalog identities map to the same OCI repository location` |
+| `ErrUnknownEntityKind` | `oci: unknown entity kind for mediatype dispatch` |
+
+### pkg/pluginpath
+
+| Sentinel | Message |
+| --- | --- |
+| `ErrPluginBundleDigestMismatch` | `cached signature bundle does not match its recorded digest` |
+| `ErrPluginEntityNotFound` | `plugin reference is not a Plugin entity` |
+
+### pkg/plugintest
+
+| Sentinel | Message |
+| --- | --- |
+| `ErrCommandsMismatch` | `wasm: recorded command mirror does not match plugin describe()` |
+| `ErrContractMismatch` | `wasm: entity contract claim does not match plugin describe()` |
+| `ErrHostFunctionsMismatch` | `wasm: stamped host-function record does not match .wasm imports` |
+| `ErrRejected` | `wasm: plugin rejected by the sandbox` |
+| `ErrTypeMismatch` | `wasm: declared plugin type does not match plugin describe()` |
+
+### pkg/refcycle
+
+| Sentinel | Message |
+| --- | --- |
+| `ErrCycle` | `circular reference expansion` |
+
+### pkg/registrytrust
+
+| Sentinel | Message |
+| --- | --- |
+| `ErrMalformedTrust` | `registrytrust: advertised trust config is malformed` |
+| `ErrNoTrustAdvertised` | `registrytrust: registry advertises no trust config` |
+
+### pkg/resolver
+
+| Sentinel | Message |
+| --- | --- |
+| `ErrAttachmentSlotNearMiss` | `attachment name is a near miss for a declared slot` |
+| `ErrAttachmentSlotShape` | `attachment does not conform to its declared slot shape` |
+| `ErrDuplicateBoundaryComponent` | `component declared in more than one boundary: declare each component in exactly one boundary` |
+| `ErrDuplicateTriadIdentity` | `duplicate Aggregate/Manifest identity (metadata.name) in the Release directory` |
+| `ErrFeatureMergeConflict` | `feature merge conflict: reconcile the Aggregate and Release declarations for the feature` |
+| `ErrGuardEntityViewInconsistency` | `guard catalog-entity view inconsistency` |
+| `ErrInjectKeyCollision` | `duplicate delivery key across inject sources` |
+| `ErrInvalidInjectKey` | `invalid inject key: the from-key must name a declared provides key of the target component type` |
+| `ErrInvalidInstanceName` | `invalid instance name: names must match ^[a-zA-Z0-9_-]+$ (letters, digits, hyphen, underscore; no dots)` |
+| `ErrInvalidParameterRef` | `invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template` |
+| `ErrInvalidTargetRef` | `invalid target reference: each dot-separated segment must match ^[a-zA-Z0-9_-]+$` |
+| `ErrManifestCrossBindingPillarCollision` | `manifest annotation bindings collide on same Feature path+pillar` |
+| `ErrManifestReservedPrefix` | `manifest annotation binding uses reserved prefix` |
+| `ErrMissingRequiredFeature` | `missing required feature: attach a Feature of the required type to the component` |
+| `ErrMissingRequiredSocket` | `required uses socket not populated` |
+| `ErrParameterContractViolation` | `parameter contract violated` |
+| `ErrParameterMissing` | `required parameter not supplied` |
+| `ErrParametersImportLoad` | `parameters $import: load failed` |
+| `ErrSchemaConformance` | `authored pillar does not conform to its declared schema` |
+| `ErrSelfInjectForbidden` | `self-inject on component without spec.inject allowlist` |
+| `ErrTriadRefUnresolvable` | `aggregate/manifest reference unresolvable` |
+| `ErrUnknownUsesSocket` | `unknown uses socket: name a socket the entity declares in its usesSchema — only a component's own uses block may name one the catalog did not declare` |
+| `ErrUnnormalizedRelease` | `release reached resolve un-normalized (non-empty root components alongside a synthesized default boundary)` |
+| `ErrUnreadParameter` | `declared parameter is read by no reference in the Aggregate` |
+| `ErrUsesSocketNearMiss` | `uses socket name is a near miss for a declared socket` |
+| `ErrYAMLLoad` | `YAML load failed: check the file exists, is readable, and contains well-formed YAML` |
+
+### pkg/signing
+
+| Sentinel | Message |
+| --- | --- |
+| `ErrKeylessLive` | `signing: keyless signing requires a live identity provider, Fulcio, and Rekor` |
+| `ErrNoSignatureFound` | `signing: no signature found for an artifact that requires one` |
+| `ErrNoTrustedIdentities` | `signing: keyless verification requires at least one trusted identity` |
+| `ErrSignatureInvalid` | `signing: signature does not verify` |
+| `ErrSignatureVerificationFailed` | `signing: signature bundle does not verify` |
+| `ErrSigningPolicyRequiresSignature` | `signing: signing policy requires a signature for this artifact kind; refusing to push unsigned content` |
+| `ErrTrustRootLoad` | `signing: cannot load pinned trust root` |
+| `ErrUnsignedPushRefused` | `signing: registry requires signatures; refusing to push unsigned content` |
+| `ErrUnsupportedKey` | `signing: unsupported held-key type` |
+| `ErrUntrustedIdentity` | `signing: signature identity is not trusted for this registry` |
+
+### pkg/sourcecache
+
+| Sentinel | Message |
+| --- | --- |
+| `ErrFetchIntegrity` | `oci: content digest mismatch` |
+| `ErrFetchNotFound` | `oci: artifact not found at remote source` |
+
+- `ErrFetchIntegrity` is the same value as `pkg/oci.ErrFetchIntegrity`, so a match against either name succeeds.
+- `ErrFetchNotFound` is the same value as `pkg/oci.ErrFetchNotFound`, so a match against either name succeeds.
+
+### pkg/sourceresolver
+
+| Sentinel | Message |
+| --- | --- |
+| `ErrFetchIntegrity` | `oci: content digest mismatch` |
+| `ErrFetchNetworkUnreachable` | `oci: network unreachable` |
+| `ErrFetchNotFound` | `oci: artifact not found at remote source` |
+| `ErrFetchUnauthorized` | `oci: authentication required or failed` |
+| `ErrUnknownKind` | `sourceresolver: no adapter registered for source kind` |
+
+- `ErrFetchIntegrity` is the same value as `pkg/oci.ErrFetchIntegrity`, so a match against either name succeeds.
+- `ErrFetchNetworkUnreachable` is the same value as `pkg/oci.ErrFetchNetworkUnreachable`, so a match against either name succeeds.
+- `ErrFetchNotFound` is the same value as `pkg/oci.ErrFetchNotFound`, so a match against either name succeeds.
+- `ErrFetchUnauthorized` is the same value as `pkg/oci.ErrFetchUnauthorized`, so a match against either name succeeds.
+
+### pkg/sourceresolver/cacheslot
+
+| Sentinel | Message |
+| --- | --- |
+| `ErrEmptyWorkspaceRoot` | `cacheslot: empty workspaceRoot` |
+
+### pkg/types
+
+| Sentinel | Message |
+| --- | --- |
+| `ErrArtifactEntryShape` | `artifacts entry: shape must be a string scalar or {$import: <local-path>}` |
+| `ErrArtifactsLibraryEntryShape` | `artifactslibrary: entry must be a mapping of filename to a string body` |
+| `ErrForbiddenKeyword` | `schemalibrary: forbidden JSON Schema keyword` |
+| `ErrMappingEntryNotScalar` | `mappinglibrary: entry body must be a string scalar` |
+| `ErrOrderedMapDecodeDepthExceeded` | `OrderedMap: decode depth exceeded` |
+| `ErrParametersShape` | `parameters: shape must be an inline object or {$import: <local-path>}` |
+| `ErrTemplateNotFound` | `schemalibrary: template not found` |
+| `ErrTemplateParamMissing` | `schemalibrary: template parameter missing` |
+| `ErrTemplateParamTypeMismatch` | `schemalibrary: template parameter type mismatch` |
+| `ErrValuesMappingShape` | `valuesmapping: shape must be a string scalar or {$import: <path-or-library-identity>}` |
+| `ErrWorkloadEntryNotScalar` | `workloadlibrary: entry body must be a string scalar` |
+| `ErrWorkloadTemplateShape` | `workload: shape must be a string scalar or {$import: <path-or-library-identity>}` |
+
+### pkg/validator
+
+| Sentinel | Message |
+| --- | --- |
+| `ErrAssertionNameCollision` | `assertion name declared twice across the extends chain: rename the extending entity's assertion, whose assertions add to the base's and never replace one` |
+| `ErrCyclicExtension` | `cyclic extends chain` |
+| `ErrFeatureRecipeEvalProviderConstraint` | `featurerecipe eval-provider constraint: render input-kind fields are forbidden when provider is eval` |
+| `ErrFeatureRecipeRule1` | `featurerecipe rule 1: valuesMapping requires source` |
+| `ErrInheritanceMerge` | `inheritance merge failed: resolve the conflicting field definitions across the extends chain` |
+| `ErrRecipeEvalProviderConstraint` | `recipe eval-provider constraint: input-kind fields are forbidden when provider is eval` |
+| `ErrRecipeOutputLabelReservedNamespace` | `recipe output-labels constraint: key uses a reserved namespace` |
+| `ErrRecipeRule1` | `recipe rule 1: valuesMapping requires source` |
+| `ErrRecipeRule5` | `recipe rule 5: at least one input kind required` |
+| `ErrRecipeRule7` | `recipe rule 7: filename collision across input-kind origins at emission` |
+| `ErrSlotNotReferenceable` | `workload attachment slot is not referenceable` |
+| `ErrWorkloadFeaturesSchema` | `workload featuresSchema cross-check failed` |
+| `ErrWorkloadValidation` | `workload validation failed` |
+
+### pkg/validator/envelope
+
+| Sentinel | Message |
+| --- | --- |
+| `ErrEntityEnvelope` | `document envelope validation failed: correct the document to match its kind's schema` |
+
+### pkg/validator/jsonschema
+
+| Sentinel | Message |
+| --- | --- |
+| `ErrExtensionEval` | `validator/jsonschema: x-aggrega extension evaluation failed` |
+| `ErrInstanceValidation` | `validator/jsonschema: instance validation failed` |
+| `ErrSchemaResolve` | `validator/jsonschema: schema resolution failed` |
+
+### pkg/validator/merger
+
+| Sentinel | Message |
+| --- | --- |
+| `ErrCyclicExtension` | `merger: cyclic extends chain` |
+| `ErrMaxDepth` | `merger: extends chain exceeds maximum depth` |
+| `ErrMergeInvalid` | `merger: invalid merge input` |
+
+### pkg/workspaceconfig
+
+| Sentinel | Message |
+| --- | --- |
+| `ErrAmbiguousRegistryAlias` | `workspaceconfig: registry alias matches more than one host` |
+| `ErrCapabilityOnCrossCuttingSocket` | `workspaceconfig: a cross-cutting socket is bound by capability but attaches by uri` |
+| `ErrConfigInvalid` | `workspaceconfig: file failed schema validation` |
+| `ErrDuplicateProviderTarget` | `workspaceconfig: capability is bound to more than one provider plugin` |
+| `ErrDuplicateRegistryAlias` | `workspaceconfig: registry alias is already used by another host` |
+| `ErrGovernanceRoleInvalid` | `workspaceconfig: a governance attachment declares no role or an unknown role` |
+| `ErrInertFieldOnProviderSocket` | `workspaceconfig: a provider socket binding sets a field with no referent on that socket` |
+
+### pkg/yamlpos
+
+| Sentinel | Message |
+| --- | --- |
+| `ErrPositionOutOfRange` | `position out of range` |
+<!-- END GENERATED: error-identities -->
+
+## Sentinels that carry another sentinel
+
+`ErrCacheMetadataInvalid` (`pkg/sourceresolver/metadata`) reports a corrupt source-artifact cache slot. It is declared as a wrapper around `ErrFetchIntegrity` rather than as an identity of its own, so it does not appear in the tables above and a match against `ErrFetchIntegrity` succeeds for it as well. Match the wrapper when you want that specific condition, and the wrapped sentinel when you want the whole integrity class.
+
+## Conditions with no matchable sentinel
+
+Some compilation stages declare their sentinels in packages the compiler does not export, so there is nothing for `errors.Is` to reference and no matcher can be written against them. They are described here rather than tabulated, because a table on this page is a promise that the left-hand column can be dereferenced.
 
 Their diagnostics reach you in full through the emitted error text and through the message-keyed views — [fatal-halts.md](./fatal-halts.md) in particular — which is the supported way to recognise them:
 
@@ -77,72 +330,43 @@ Their diagnostics reach you in full through the emitted error text and through t
 - **Graph finalization** (Feature merging across the Aggregate and Release surfaces) reports a Feature type declared inconsistently between the two.
 - **Static analysis** (selector evaluation and cross-node type-safety checks) reports a `selector:` violation; a catalog-resolution miss it cannot proceed past, naming the unreachable entity; and a policy rejection, where a plugin attached at a governance verdict role rejected the assembled build. A policy rejection carries the `POLICY_ERROR` category, the rejecting plugin's name, and the rule message the plugin supplied.
 - **Rendering** (renderer dispatch and per-engine rendering) reports an unknown provider.
+- **The embedded Wasm host loader** emits its own guardrail sentinels — a manifest-rejected guardrail (a plugin requested a runtime-access capability the AOT-purity firewall denies), a guest-panic recovery, and a deterministic plugin-exit trap. These surface in the user-facing diagnostic when running a plugin (for example through `aggrega lint`). Plugin authors testing a guest against the host reach the same conditions by importable name through `pkg/plugintest`, listed above.
 
 To gate a pipeline on a policy rejection specifically, match the `POLICY_ERROR` category prefix in the diagnostic rather than a sentinel; the category is a documented part of the error surface, described in [error-translation.md](./error-translation.md).
 
-## Fetch sentinels (`pkg/oci`, re-exported by `pkg/sourceresolver`)
-
-`aggrega pull`, `aggrega push`, and `aggrega build`'s lockfile verification acquire pinned catalog entities and source artifacts. Acquisition failures wrap one of four shared fetch sentinels and carry the `FETCH_ERROR` category. `pkg/sourceresolver` re-exports the four `ErrFetch*` values as identity-equal aliases, so a match against either package's name succeeds.
-
-| Sentinel | Wrapped message | User-facing surface |
-| --- | --- | --- |
-| `ErrFetchNotFound` | `oci: artifact not found at remote source` | A pinned entity, chart, or module is not present at the registry / remote source — or, under offline mode, not in the local cache. |
-| `ErrFetchUnauthorized` | `oci: authentication required or failed` | The registry or source rejected the request; the message carries a remediation pointer (e.g. `docker login <registry>`). |
-| `ErrFetchNetworkUnreachable` | `oci: network unreachable` | A transport-layer failure — DNS, connection refused, TLS, or a retry-class status. |
-| `ErrFetchIntegrity` | `oci: content digest mismatch` | A cached artifact's digest does not match the lockfile entry; remediation: `aggrega pull --upgrade --release <release>`. |
-| `ErrUnknownEntityKind` | `oci: unknown entity kind for mediatype dispatch` | `aggrega push` was given a non-publishable kind (Aggregate, Release, Manifest). |
-| `ErrEntityVersionPathMismatch` | `oci: entity per-version subdirectory mismatch` | A published entity's `metadata.version` does not match its versioned-directory path. |
-
-Two related sentinels live alongside the source-resolver: `ErrUnknownKind` (`pkg/sourceresolver`) for a Recipe `source:` whose kind has no registered adapter, and `ErrCacheMetadataInvalid` (`pkg/sourceresolver/metadata`) for a corrupt source-artifact cache slot — the latter wraps `ErrFetchIntegrity`, so it matches that sentinel too.
-
-## Lockfile sentinels (`pkg/lockfile`)
-
-The per-Release lockfile reader and the build-time drift verifier.
-
-| Sentinel | Wrapped message | User-facing surface |
-| --- | --- | --- |
-| `ErrLockfileInvalid` | `lockfile: file failed schema validation` | The `<release-stem>.lock` file is structurally malformed (older and partial shapes load with diagnostics rather than this error). |
-| `ErrLockfileDrift` | `lockfile: out of date; it no longer matches the current catalog` | A build's resolved dependencies do not match the lockfile; remediation: `aggrega pull --upgrade --release <release>`. |
-
-## Dependency-resolution sentinels (`pkg/closure`)
-
-The dependency resolution that `aggrega pull` runs to compute the lockfile.
-
-| Sentinel | Wrapped message | User-facing surface |
-| --- | --- | --- |
-| `ErrMVSConflict` | `resolve: minimum version selection conflict — incompatible library version requirements` | Two consumers require incompatible versions of the same library. |
-| `ErrUnresolvableURI` | `resolve: no entity in the catalog matches this URI` | A referenced URI resolves through no tier (local, cache, or registry). The wrapping site appends the entity URI and the entity that referenced it. |
-| `ErrInvalidLibraryRef` | `resolve: invalid library reference URI` | A malformed schema / mapping library `$import:` or `$ref:` URI. |
-| `ErrSourceTemplateAtLockTime` | `resolve: source-template evaluation failure at lock time` | A Recipe `source:` version template failed at lock time — typically by referencing `.provides`, which does not exist until build. |
-
-## Workspace-config sentinel (`pkg/workspaceconfig`)
-
-| Sentinel | Wrapped message | User-facing surface |
-| --- | --- | --- |
-| `ErrConfigInvalid` | `workspaceconfig: file failed schema validation` | A present `.aggrega-config.yaml` is structurally malformed. A missing file is not an error — defaults apply. |
-
-## Wasm host loader
-
-The embedded Wasm host loader emits its own guardrail sentinels — a manifest-rejected guardrail (a plugin requested a runtime-access capability the AOT-purity firewall denies), a guest-panic recovery, and a deterministic plugin-exit trap. These surface in the user-facing diagnostic when running a plugin (for example through `aggrega lint`), but they are declared in an internal package and are not part of the importable `errors.Is` matching surface.
-
 ## Matching guidance
 
-The `errors.Is` predicate walks the wrap chain, so a sentinel match works even when the error is wrapped multiple times across pipeline stages. The typical integration pattern:
+The `errors.Is` predicate walks the wrap chain, so a sentinel match works even when the error is wrapped several times on its way back to you. Match against the error an exported function returned:
 
 ```go
-err := compiler.Build(release, options)
-switch {
-case errors.Is(err, resolver.ErrParameterMissing):
-    // distinct UX for missing-parameter cases
-case errors.Is(err, resolver.ErrParameterContractViolation):
-    // distinct UX for contract-violation cases
-case errors.Is(err, resolver.ErrMissingRequiredFeature):
-    // distinct UX for an unsatisfied required-feature declaration
-case err != nil:
-    // catch-all
+package release
+
+import (
+    "errors"
+    "fmt"
+
+    "github.com/aggrega-ai/aggrega-cli/pkg/resolver"
+    "github.com/aggrega-ai/aggrega-cli/pkg/validator/envelope"
+)
+
+// Load reads a Release and reports the distinct failures a caller handles
+// differently.
+func Load(path string) error {
+    _, err := resolver.LoadRelease(path)
+    switch {
+    case errors.Is(err, envelope.ErrEntityEnvelope):
+        return fmt.Errorf("%s is not a Release: %w", path, err)
+    case errors.Is(err, resolver.ErrYAMLLoad):
+        return fmt.Errorf("%s could not be read as YAML: %w", path, err)
+    case err != nil:
+        return err
+    }
+    return nil
 }
 ```
 
-Sentinels declared in different packages with the same short name (e.g., `ErrCyclicExtension` in both `pkg/validator` and `pkg/validator/merger`) are distinct values — they live in separate `var` blocks in separate packages and `errors.Is` distinguishes them by identity, not by name. Match against the fully-qualified package path the wrap chain carries; the wrapped message text is shared by both sentinels but the identity is the discriminator.
+There is no exported entry point that runs a whole build, so `errors.Is` matching applies to code calling these packages directly. To gate CI on a build, run `aggrega build` and read its exit status and its diagnostics, whose message prefixes and text are catalogued in [fatal-halts.md](./fatal-halts.md) and [error-translation.md](./error-translation.md).
+
+Sentinels declared in different packages with the same short name are distinct conditions, not two spellings of one: `errors.Is` distinguishes them by identity, so a match against one does not match the other. The re-exports called out in the tables are the exception, and they are called out precisely because they are the case where two names do match. Match against the name in the package the tables list it under, and treat a short name on its own as ambiguous.
 
 For the user-facing diagnostic catalogue (the messages developers see in their terminal when a build halts), see [fatal-halts.md](./fatal-halts.md). For the advisory-warning catalogue (the non-halting `warning:`, `lint:` and `notice:` output), see [warnings.md](./warnings.md). For the category-prefix taxonomy (`DEVELOPER_ERROR:` / `OPS_ERROR:` / `CATALOG_ERROR:` / `TRANSLATION_ERROR:` / `FETCH_ERROR:` / `POLICY_ERROR:`), see [error-translation.md](./error-translation.md).
