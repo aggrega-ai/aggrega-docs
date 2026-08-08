@@ -40,7 +40,7 @@ Filename collisions across the source-chart's templates and the `$import:`-loade
 
 ## `source:` keyset
 
-The helm-chart engine accepts `source:` as a **bare filesystem path string only**. Structured source objects (e.g. `source: { repo: ..., chart: ..., version: ... }`) are reserved for a future registry-integration intent and are rejected today.
+The helm-chart engine accepts `source:` as a **bare filesystem path string only**. Structured source objects (e.g. `source: { repo: ..., chart: ..., version: ... }`) are reserved for future registry integration and are rejected today.
 
 ```yaml
 spec:
