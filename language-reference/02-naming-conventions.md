@@ -128,7 +128,7 @@ spec:
 spec:
   pipeline:
     - id: workload_injector
-      plugin: frp_step/k8s-workload-injector:2.0.0
+      plugin: pipeline-step/k8s-workload-injector:2.0.0
       function: inject_secret
       with: |
         target_container: "{{ .locals.primary_compute }}"

@@ -117,7 +117,7 @@ spec:
         remote_key: "{{ .values.key }}"
 
     - id: "workload_injector"
-      plugin: frp_step/k8s-workload-injector:2.0.0
+      plugin: pipeline-step/k8s-workload-injector:2.0.0
       function: inject_secret
       with: |
         k8s_secret_name: "{{ .steps.eso_fetcher.outputs.k8s_secret_name }}"

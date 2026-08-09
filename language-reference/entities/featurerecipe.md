@@ -286,7 +286,7 @@ spec:
   implements: core/referenced-secret:^1.0.0
   pipeline:
     - id: fetch-secret
-      plugin: frp_step/aws-secrets-manager:1.2.0
+      plugin: pipeline-step/aws-secrets-manager:1.2.0
   assertions: |
     {{- /* aws-secrets-manager plugin 1.x requires explicit region when no AWS_DEFAULT_REGION
            is implied through the Aggregate's infra block */ -}}

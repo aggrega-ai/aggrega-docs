@@ -19,7 +19,7 @@ kind: Plugin
 metadata:
   name: aws-secrets-manager
   version: 1.2.0
-  pluginType: frp_step
+  pluginType: pipeline-step
 spec:
   abiVersion: v1alpha1
   capabilities:
@@ -50,7 +50,7 @@ The socket type this plugin implements. It sits in the addressing block beside `
 
 - `provider` — renders IR nodes into provider-native artifacts.
 - `linter` — inspects authored content and raises diagnostics.
-- `frp_step` — a feature-recipe-pipeline step that transforms IR within a pipeline.
+- `pipeline-step` — a feature-recipe-pipeline step that transforms IR within a pipeline.
 - `governance` — serves the build-pipeline governance roles. At topology construction it auto-tags topology-graph node labels, returning JSON Patch documents the host applies to a labels-only projection of the graph. At static analysis or the render stage it evaluates the IR graph or the rendered artifacts and returns an accept/reject verdict; a failed rule halts the build. The role it is attached at, not its kind, fixes what it may emit.
 - `parser` — parses a foreign source format (HCL, TOML, YAML, JSON, …) into a structured JSON tree, so a consumer that needs to read a format the compiler does not parse natively works from a parsed tree rather than the raw text.
 - `importer` — turns a foreign infrastructure or agent-definition source into draft Aggrega authoring files, advertising the formats it handles as `import:<format>` capabilities.
@@ -64,15 +64,15 @@ The host/guest ABI version the plugin targets. `v1alpha1` is the only accepted v
 
 ## `spec.capabilities`
 
-A single top-level field declaring the capabilities this plugin *serves*, as capability names such as `helm` or `compose`; entries preserve author order. A capability is the render dimension a consumer requests. Its meaning is discriminated by `metadata.pluginType`: for a `provider` plugin it names the render-engine capabilities (the provider engine kinds whose output shape the plugin renders); for an `frp_step` plugin it names the provider capabilities the step is compatible with; a cross-cutting socket (`linter`, `governance`) leaves it empty. The meaning stays uniform — "what this plugin serves" — and does not drift to unrelated per-socket semantics.
+A single top-level field declaring the capabilities this plugin *serves*, as capability names such as `helm` or `compose`; entries preserve author order. A capability is the render dimension a consumer requests. Its meaning is discriminated by `metadata.pluginType`: for a `provider` plugin it names the render-engine capabilities (the provider engine kinds whose output shape the plugin renders); for a `pipeline-step` plugin it names the provider capabilities the step is compatible with; a cross-cutting socket (`linter`, `governance`) leaves it empty. The meaning stays uniform — "what this plugin serves" — and does not drift to unrelated per-socket semantics.
 
-For an `frp_step` plugin the list is render-enforced. When a pipeline step touches a scope, the provider rendering that scope's documents must appear in this list, or the build halts. An empty or absent list matches nothing, so the runtime halts any pipeline step that uses the plugin. Declare every provider whose output the plugin is tested against.
+For a `pipeline-step` plugin the list is render-enforced. When a pipeline step touches a scope, the provider rendering that scope's documents must appear in this list, or the build halts. An empty or absent list matches nothing, so the runtime halts any pipeline step that uses the plugin. Declare every provider whose output the plugin is tested against.
 
 For a `pluginType: provider` plugin, `capabilities` declares the render capability(-ies) the plugin *serves*. The capability a Recipe requests (`spec.capability: helm`) binds to the provider-rendering Plugin whose `capabilities` list includes that name. When more than one Plugin serves the same capability, the workspace chooses: a provider binding in `.aggrega-config.yaml` (resolved at `aggrega pull` and recorded in the lockfile) selects one; with no binding and exactly one candidate, that candidate is used; with no binding and more than one candidate, the build halts loudly naming every candidate. Ambiguity is resolved per workspace at the point of use, not by a catalog-wide uniqueness rule.
 
 ## `spec.provider`
 
-The provider-socket metadata for a `pluginType: provider` plugin: how its rendering engine translates the platform-owned `aggrega.ai/v1alpha1` Workload kind, and which platform-native annotations the engine reads. The block is present only on provider-rendering plugins; it is absent on `linter` and `frp_step` plugins, and on provider plugins whose engine renders only sourced or artifact content with no Workload synthesis.
+The provider-socket metadata for a `pluginType: provider` plugin: how its rendering engine translates the platform-owned `aggrega.ai/v1alpha1` Workload kind, and which platform-native annotations the engine reads. The block is present only on provider-rendering plugins; it is absent on `linter` and `pipeline-step` plugins, and on provider plugins whose engine renders only sourced or artifact content with no Workload synthesis.
 
 ### `spec.provider.workloadSchema`
 

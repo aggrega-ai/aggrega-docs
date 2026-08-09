@@ -10,7 +10,7 @@ A Wasm plugin is a WebAssembly module that extends the compiler at a designated 
 
 A plugin runs behind an ahead-of-time-purity firewall. The host loads and executes the module through an embedded Wasm runtime under a capability-denied configuration: no network sockets, no filesystem, no environment, discarded stdio, and an observable wall clock frozen to a build-invariant instant. Any I/O call a guest attempts fails at the call boundary, so a plugin cannot reach for runtime state. Author plugins with this firewall in mind: a plugin transforms the JSON it is handed and returns a result the host consumes verbatim, and determinism is your responsibility — identical input must produce identical output bytes. The one sanctioned channel for remote content is the host-mediated external-input fetch (Section 4), which serves bytes under a digest-pinned discipline rather than giving the guest live network access.
 
-The sockets a plugin can target — the mutation gate at topology construction, the validation gate at static analysis, the FeatureRecipe pipeline, the out-of-band linter, and the provider-rendering socket — and their per-socket input/output shapes are documented in [`plugin-contract.md`](plugin-contract.md). The plugin-type taxonomy the runtime recognises is `provider` (renders IR nodes into provider-native artifacts), `linter` (inspects authored content and raises diagnostics), and `frp_step` (a feature-recipe-pipeline step that transforms IR within a pipeline).
+The sockets a plugin can target — the mutation gate at topology construction, the validation gate at static analysis, the FeatureRecipe pipeline, the out-of-band linter, and the provider-rendering socket — and their per-socket input/output shapes are documented in [`plugin-contract.md`](plugin-contract.md). The plugin-type taxonomy the runtime recognises is `provider` (renders IR nodes into provider-native artifacts), `linter` (inspects authored content and raises diagnostics), and `pipeline-step` (a feature-recipe-pipeline step that transforms IR within a pipeline).
 
 You author the guest against the host through the three-language plugin development kit (PDK) — Go, Rust, or TypeScript. The PDK wraps the underlying Wasm toolchain with Aggrega-typed builders for the input and output shapes each socket carries.
 
@@ -86,9 +86,9 @@ kind: Plugin
 metadata:
   name: aws-secrets-manager
   version: 1.2.0
-  pluginType: frp_step
+  pluginType: pipeline-step
 spec:
-  plugin: "oci://hub.aggrega.ai/plugin/frp_step/aws-secrets-manager"
+  plugin: "oci://hub.aggrega.ai/plugin/pipeline-step/aws-secrets-manager"
   abiVersion: v1alpha1
   targets:
     - helm
@@ -110,7 +110,7 @@ The fields:
 
 - **`spec.plugin`** — the digest-free content reference to the `.wasm` artifact, in the form `oci://<repository>`. The repository path is the plugin's derived coordinate `plugin/<pluginType>/<name>`. Together with `metadata.version` it is the plugin's identity. The content digest is not carried in the entity; it is resolved at `aggrega pull` and recorded in the release lockfile, and the build verifies the fetched bytes against the recorded digest — identity in the entity, verified bytes in the lockfile. Required.
 - **`metadata.version`** — the entity's version, which mirrors the guest's own build-provenance version as reported in `describe()`. It is not a free-form authored field: a plugin author versions the `.wasm` at build time (the build stamps the version into the guest), and the entity's `metadata.version` restates that same version. The publish door cross-checks the two and halts on a divergence, so the entity always names the exact version of the binary it ships. Generating the entity with `aggrega plugin gen-catalog --plugin` (below) copies the version across for you. Required.
-- **`metadata.pluginType`** — the socket type this plugin implements, drawn from `provider`, `linter`, `frp_step`. A plugin implements exactly one. It sits in the addressing block beside `name` and `version` and supplies the `<pluginType>` segment of the derived coordinate. Required.
+- **`metadata.pluginType`** — the socket type this plugin implements, drawn from `provider`, `linter`, `pipeline-step`. A plugin implements exactly one. It sits in the addressing block beside `name` and `version` and supplies the `<pluginType>` segment of the derived coordinate. Required.
 - **`spec.abiVersion`** — the host/guest ABI version the plugin targets. `v1alpha1` is the accepted value; a future ABI revision adds an accepted value. Required.
 - **`spec.capabilities`** — the provider engines this plugin is tested-compatible with (provider names such as `helm` or `compose`). A plugin is generic across artifacts that share a provider's output shape, not across all providers, so this is an explicit, tested-compatibility claim. The list is render-enforced: when a pipeline step touches a scope, the provider rendering that scope's documents must appear here, or the build halts. An empty or absent list declares no compatibility claim, matches no provider, and halts any pipeline step that uses the plugin. Entries preserve author order.
 - **`spec.signature`** — an optional descriptive pointer to the plugin's attached signature (Section 8). This block is documentation only: it records where the signature lives and how it was produced for catalog readers; it does not itself admit the plugin. The enforcing check is the per-registry trust policy applied at pull.
