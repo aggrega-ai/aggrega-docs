@@ -70,7 +70,7 @@ if err != nil {
 
 - A filesystem or network call fails at the call boundary: the guest holds no preopened directories and no sockets. This applies to every code path, including a library dependency that tries to read a file — read the source projection instead.
 - An import under a module outside `wasi_snapshot_preview1`, `extism:host/env`, and `extism:host/user` fails at load, with a diagnostic naming the module and the import. Individual WASI function names within an allowed module are never censored — a statically-linked language runtime's unused filesystem and socket imports are fine, because naming an import grants nothing.
-- An unpinned fetch in a frozen build (`--no-acquire-inputs`) fails with an error naming the URL; the remedy is to rebuild with acquisition enabled or run `aggrega acquire` for the Release.
+- An unpinned fetch in a frozen build (`--no-acquire-inputs`) fails with an error naming the URL; the remedy is to rebuild with acquisition enabled or run `aggrega acquire --release <release>` to fetch and pin the Release's inputs first.
 
 There is no host-allowlist field for outbound network access. A plugin never reaches the network at build time — that is the ahead-of-time boundary — so no such field exists to author. Remote content arrives through the host-mediated, digest-pinned external-input channel above, never through ambient network access.
 
