@@ -12,14 +12,35 @@ The compiler reads every Aggregate, Manifest, Component, Feature, Recipe, Featur
 
 <!-- covers: pkg/validator/envelope.ErrEntityEnvelope -->
 
-A document anchors a node with `&name` and then aliases it with `*name` somewhere inside the content that anchor covers. Expanding the alias reproduces the anchor, whose content carries the alias again, so the document describes a structure with no end. There is nothing finite to read, let alone validate, and the build stops as the document is parsed — before any schema check. This halt therefore names an anchor rather than a field, and carries no line and column: a document in this shape has no position a diagnostic could usefully point at.
+A document anchors a node with `&name` and then aliases it with `*name` somewhere inside the content that anchor covers. Expanding the alias reproduces the anchor, whose content carries the alias again, so the document describes a structure with no end. There is nothing finite to read, let alone validate, and the build stops instead of starting a walk that cannot finish.
 
-The refusal is of recursion, never of re-use or of depth. Anchoring shared content and referencing it from many places is a supported authoring pattern — see [../entities/aggregate.md](../entities/aggregate.md) "YAML anchor patterns (`defs:` block)" and [../entities/manifest.md](../entities/manifest.md) "YAML anchors for DRY manifests" — and a reference that expands and terminates loads normally, however many times it appears and however deeply the document nests; depth on its own is never a reason for this halt. What halts is an anchor reached while the parse is still inside it, including where it is reached indirectly, through a second anchor declared beneath it. The message names the anchor the loop closes back onto, which is not necessarily the outermost anchor in the document.
+Reading YAML into a tree does not expand aliases, so a document in this shape is read without complaint and fails only when something walks it. The refusal therefore sits between the reading and the walk — and a build reads authored YAML at more than one point, so the same condition can be met at more than one. Four points report it, each framing the same explanation with whatever locates the document on that surface:
 
-Emitted message:
-> envelope: parse `<path>`: anchor `&<anchor>` is aliased by `*<anchor>` inside its own content, so the document expands without end; point that alias at content declared outside `&<anchor>`, or write the content out in full
+- **An entity file, as it is read.** The build stops before that entity is checked against its schema, so this halt names an anchor rather than a field, and carries no line and column: at that point the document has no position a diagnostic could usefully point at.
+- **A schema body, as it is compiled.** A `spec.schema:` pillar is compiled from compact form into a JSON Schema document after its file has been read, so this halt fires during that compilation rather than ahead of it, and it does carry a line. The shape an earlier read cannot catch is a `$jsonschema:` escape body: an escape body is a block scalar — plain text, carrying no anchors — while the surrounding file is read, and its anchors become anchors only when that text is itself parsed, one level down. Where the cycle sat inside such a block, the halt also names `$jsonschema` as the keyword whose body carried it.
+- **A provider Plugin's workload schema, as the Plugin loads.** `spec.provider.workloadSchema` is written as a block scalar: plain text while the Plugin file itself is read, carrying no anchors at that point, and its anchors become anchors only when that text is parsed as a document of its own, one level down. That parse and the compilation that follows both happen as the Plugin loads, so this halt fires there rather than when the file is read, and it carries a line. Where the cycle sat inside a `$jsonschema:` escape within the schema body, the halt also names `$jsonschema` as the keyword whose body carried it. See [../entities/plugin.md](../entities/plugin.md) for the field's authoring surface.
+- **A rendered CloudFormation fragment, as the provider reads it.** A cloudformation Recipe authors a fragment, and an `artifacts:` body is a template — so what the provider reads is the text that template rendered to, content that did not exist while your files were being read. This halt therefore fires while output is being rendered, after every schema check has already passed. See [../providers/cloudformation.md](../providers/cloudformation.md) for the fragment authoring surface.
+
+The refusal is of recursion, never of re-use or of depth. Anchoring shared content and referencing it from many places is a supported authoring pattern — see [../entities/aggregate.md](../entities/aggregate.md) "YAML anchor patterns (`defs:` block)" and [../entities/manifest.md](../entities/manifest.md) "YAML anchors for DRY manifests" — and a reference that expands and terminates loads normally, however many times it appears and however deeply the document nests; depth on its own is never a reason for this halt. What halts is an anchor reached while the build is still inside it, including where it is reached indirectly, through a second anchor declared beneath it. The message names the anchor the loop closes back onto, which is not necessarily the outermost anchor in the document.
+
+**Emitted messages.** All four carry the same explanation, which is deliberate: it is one condition met at four points, and an author who has learned to read it once should not have to learn it again. Only the frame that locates the document differs.
+
+> anchor `&<anchor>` is aliased by `*<anchor>` inside its own content, so the document expands without end; point that alias at content declared outside `&<anchor>`, or write the content out in full
+
+An entity file is framed by the path it was read from:
+> envelope: parse `<path>`: `<the explanation above>`
+
+A schema body is framed by its position within the schema, and by the escape keyword when the cycle sat inside a `$jsonschema:` block. The build reports it under a `CATALOG_ERROR` tag, which also names the file, the entity, and the pillar whose body failed to compile:
+> compactform at `<schema-path>`:`<line>` (keyword `"$jsonschema"`): `<the explanation above>`
+
+A provider Plugin's workload schema carries that same compact-form frame; what differs is the `CATALOG_ERROR` tag around it, which names the Plugin and `spec.provider.workloadSchema` in place of the entity and its pillar.
+
+A rendered fragment is framed by the provider that read it:
+> cloudformation-provider: parse fragment: `<the explanation above>`
 
 **How to fix:** point the alias at content declared outside the anchor it currently sits inside, or write the repeated content out in full at the point of use. On an Aggregate or a Manifest, the root-level `defs:` block is the natural home for shared anchors — it sits outside every block that references it, so an anchor declared there cannot be reached from within itself. On the other entity kinds, which have no `defs:` block, anchor the shared content somewhere the referring block is not a descendant of. An anchor may be referenced from any number of places and from any depth; the one shape it cannot take is a reference that lands back inside the content the anchor covers.
+
+The same remedy applies wherever the halt was met, and the frame tells you which document to open: the entity file itself, the `$jsonschema:` block inside a schema pillar, the `workloadSchema` body inside a provider Plugin, or the `artifacts:` body whose rendered output the provider read. In that last case the anchor is in the template you authored, not in the rendered text — the rendering reproduced it faithfully.
 
 ### Parameter type mismatch / contract violation
 
