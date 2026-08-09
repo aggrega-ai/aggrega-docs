@@ -6,6 +6,8 @@ Schema id: `https://aggrega.ai/schemas/workloadlibrary-v1alpha1.schema.json`
 
 A reusable collection of Workload template fragments that Recipes consume at render time via `workload: { $import: ... }`. Tier 3 — opt-in for catalogs that need cross-Recipe workload reuse. Single authoring mode: Go templates only.
 
+See the [workloadlibrary authoring reference](../../entities/workloadlibrary.md) for prose guidance on authoring workloadlibrary entities; this page documents the structural schema that reference describes.
+
 **Top-level type:** `object`
 
 ## Properties

@@ -19,7 +19,7 @@
 // schema the binary emits and regenerate.
 
 import { execFileSync } from "node:child_process";
-import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -40,22 +40,36 @@ const SCHEMA_DIR = process.env.AGGREGA_SCHEMA_OUT || join(REPO_ROOT, "language-r
 // recursing. Deep enough to be useful, shallow enough to stay readable.
 const MAX_DEPTH = 3;
 
-// The eleven catalog and authoring entities that also have hand-authored prose
-// pages under language-reference/entities/. Each generated schema page for
-// these kinds links to its prose companion.
-const ENTITY_KINDS = new Set([
-  "aggregate",
-  "component",
-  "feature",
-  "featurerecipe",
-  "manifest",
-  "mappinglibrary",
-  "plugin",
-  "recipe",
-  "release",
-  "schemalibrary",
-  "workload",
-]);
+// The catalog and authoring entities that also have a hand-authored prose page
+// under language-reference/entities/. Each generated schema page for these
+// kinds links to its prose companion, and the sidebar files them under
+// Entities.
+//
+// The set is DERIVED from that directory rather than declared, so it cannot
+// fall behind it. A declared copy of a directory listing is a second copy of
+// the same information, and the copy is what goes stale: a kind whose prose
+// page was authored but whose name was never added here would be filed under
+// the catch-all group and would lose its companion link, with nothing failing
+// to say so. Deriving it also means the link emitted below can never point at
+// a page that does not exist.
+const ENTITIES_DIR = join(REPO_ROOT, "language-reference", "entities");
+
+function proseEntityKinds() {
+  const names = readdirSync(ENTITIES_DIR)
+    .filter((name) => name.endsWith(".md"))
+    .map((name) => name.slice(0, -".md".length))
+    .sort();
+  if (names.length === 0) {
+    // An empty read must not pass as "no entity kinds": it would file every
+    // kind under the catch-all group and drop every prose link, and the run
+    // would still report success.
+    console.error(`No prose entity pages found under ${ENTITIES_DIR}.`);
+    process.exit(1);
+  }
+  return new Set(names);
+}
+
+const ENTITY_KINDS = proseEntityKinds();
 
 // Sidebar grouping: entity schemas, plugin ABI and payload schemas (the
 // wasm-* wire shapes), and everything else (workspace and internal schemas).

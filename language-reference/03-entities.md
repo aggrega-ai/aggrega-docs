@@ -4,6 +4,14 @@ Aggrega's authoring vocabulary comprises `Aggregate`, `Component`, `Feature`, `R
 
 This chapter set covers the authoring surface: which fields each entity accepts, what each field means to the author, how fields interact across entities (a Recipe's `implements:` binding to a Component, a Release's `manifest:` pointer to a Manifest, a Workload's `containers.<name>.attachments` referencing slots declared in the Component's `featuresSchema`). The conceptual role of each entity — why the taxonomy has the shape it does, which domain owns which entity, how the Four Domains separate authoring concerns — lives in [../architecture/04-entity-taxonomy.md](../architecture/04-entity-taxonomy.md). The Workload kind's architectural role as one of the three Recipe input kinds lives in [../architecture/16-recipe-input-composition.md](../architecture/16-recipe-input-composition.md).
 
+## How this reference is organised
+
+Two surfaces document the authoring vocabulary, and they answer different questions.
+
+**Every kind listed above has a generated schema reference.** Those pages are generated from the schemas the compiler itself publishes, and [schema/README.md](schema/README.md) indexes the complete set — entity kinds, plugin wire shapes, and workspace files alike. Reach for the schema reference to answer "what may this document contain": every field, its type, whether it is required, and the constraints the envelope enforces.
+
+**The pages below are the authoring guides.** They are written by hand to teach what the schema cannot: what a kind is for, how its fields interact with other kinds, which authoring shape suits which situation, and the conventions the standard-library catalog follows. Reach for an authoring guide to answer "how do I write one, and why is it shaped this way".
+
 ## Per-entity reference
 
 - [Aggregate](entities/aggregate.md) — the developer's declarative intent artifact. Declares components, their topology via `uses`, parameter contracts for per-environment variation, and Feature / Secret attachments.
@@ -14,4 +22,17 @@ This chapter set covers the authoring surface: which fields each entity accepts,
 - [Plugin](entities/plugin.md) — content-addressed WebAssembly plugin. Declares the socket type it implements (`provider` rendering, `linter`, or `pipeline-step`), its ABI version, and its `targets`. A provider-rendering Plugin (`pluginType: provider`) declares the provider name(s) it serves in `targets` and carries its provider-socket metadata — `workloadSchema` and `wellKnownAnnotations` — in a `spec.provider` block.
 - [Manifest](entities/manifest.md) — per-project dependency lockfile. Binds abstract Component and Feature types to concrete Recipe and FeatureRecipe URIs, grouped by provider, with three-tier resolution (`name` > versioned `type` > unversioned `type`).
 - [Release](entities/release.md) — per-environment deployment router. Binds an Aggregate to a Manifest, maps components into physical boundaries, supplies per-environment parameter values, and attaches Ops-managed Features.
+
+### Library entities
+
+The three library kinds are Tier 3 — opt-in reuse entities. A catalog declares one when the same content recurs across its entities, and ships without them otherwise. Each holds one content type, and the fragment in a reference (`#/schemas/`, `#/mappings/`, `#/workloads/`) says which library a reference addresses.
+
+- [SchemaLibrary](entities/schemalibrary.md) — reusable JSON Schema 2020-12 definitions plus optional parameterized helpers, referenced from a Component's or Feature's schemas by `$ref: <Library>#/schemas/<name>`.
+- [MappingLibrary](entities/mappinglibrary.md) — reusable Go template fragments, imported into a Recipe's or FeatureRecipe's `valuesMapping:` by `$import: <Library>#/mappings/<name>`.
+- [WorkloadLibrary](entities/workloadlibrary.md) — reusable Workload content, imported into a Recipe's or FeatureRecipe's `workload:` by `$import: <Library>#/workloads/<name>`.
+
+**ArtifactsLibrary** is covered by its generated schema reference rather than by an authoring guide in this catalog — see [schema/other/artifactslibrary.md](schema/other/artifactslibrary.md) for its full field surface.
+
+### Platform-owned kinds
+
 - [Workload](entities/workload.md) — platform-owned compiler kind (not a user-authored catalog entity). Embedded inside a Recipe's `workload:` field (inline or via `$import:`); describes the deployment shape the Engine synthesizes into provider-native manifests.

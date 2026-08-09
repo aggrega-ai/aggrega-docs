@@ -17,6 +17,7 @@ This section documents the JSON Schemas that define every Aggrega entity, plugin
 - [release](entities/release.md)
 - [schemalibrary](entities/schemalibrary.md)
 - [workload](entities/workload.md)
+- [workloadlibrary](entities/workloadlibrary.md)
 
 ## Plugin ABI & payload schemas
 
@@ -42,4 +43,3 @@ This section documents the JSON Schemas that define every Aggrega entity, plugin
 - [lockfile](other/lockfile.md)
 - [path-template-context](other/path-template-context.md)
 - [template-context](other/template-context.md)
-- [workloadlibrary](other/workloadlibrary.md)
