@@ -80,6 +80,8 @@ This Feature attaches only to `server`-typed Components, declares incompatibilit
 
 A Feature may declare `spec.extends: <feature-uri>` pointing to a base Feature whose authoring surface it inherits. The compiler walks the parent chain at catalog load, validates that the chain is acyclic, then merges parent specs into the child to produce a single resolved Feature. The child's authored fields take precedence on key collision; the parent's `metadata.labels`, `appliesTo` / `appliesToAnyOf` selectors, `interoperability` block, `usesSchema`, `featuresSchema`, and the JSON Schema 2020-12 declarations on `schema` are auto-merged downward.
 
+**What a Feature's `metadata:` inherits.** `labels` and `annotations` merge per key along the chain, base first, with the extending Feature's value winning on a shared key — the same rule Components follow. The rest of `metadata:` does not travel: `name`, `version`, `description`, `maintainers`, `license`, `repository`, `home` and `keywords` are the extending Feature's own, exactly as authored.
+
 ```yaml
 # Base Feature — generic message queue intent
 apiVersion: aggrega.ai/v1alpha1

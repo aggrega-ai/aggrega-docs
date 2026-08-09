@@ -637,6 +637,8 @@ Platform Architects use the `extends` keyword to layer specialized interfaces on
 
 A socket the extending Component adds may carry its own per-edge `valueSchema` and `infraSchema`; those are contracts on that socket's edges, not additions to the Component's own pillars.
 
+**The rest of `metadata:` stays with the document that declares it.** `labels` and `annotations` are the only metadata that travels down the chain. `name`, `version`, `description`, `maintainers`, `license`, `repository`, `home` and `keywords` are the extending Component's own, read exactly as it authored them — a Component that omits `description:` has none rather than borrowing its base's. Identity and provenance belong to the document you are reading, so a wrapper is never mistaken for the thing it wraps.
+
 **What extending inherits whole.** The three data pillars — `values`, `infra`, `provides` — are not composed. An extending Component authors no pillar content: it writes the literal marker `schema: inherited` and receives its base's `schema:` block exactly as the base authored it. Along a chain of any depth, every Component in it carries the chain root's block unchanged, so `aggrega inspect --resolved` on a leaf shows the same pillars as the root.
 
 The published Component schema settles which of the three possible outcomes is legal, and it rejects the other two when the document loads — with a different diagnostic for each, because they are different mistakes:
