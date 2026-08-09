@@ -47,7 +47,7 @@ The comparison is per entity kind: Component, Feature, and SchemaLibrary are com
 
 ## The discipline rules
 
-Each rule has a per-workspace setting under `lint.publishing_discipline` in `.aggrega-config.yaml` and a matching CLI override. Every rule is on by default, and each default is grounded either in platform machinery or in a documented catalog convention; the settings are opt-outs for a workspace that has a reason to relax one.
+Each rule has a per-workspace setting under `lint.publishing_discipline` in `.aggrega-config.yaml` and a matching CLI override, each override carrying a `--no-` counterpart. Precedence is `--no-<flag>` over `--<flag>` over the workspace-config value. Every rule is on by default, and each default is grounded either in platform machinery or in a documented catalog convention; the settings are opt-outs for a workspace that has a reason to relax one.
 
 - **Annotation prefix** — reserved namespaces (`aggrega.ai/`, and `feature.aggrega.ai/` outside a Feature) are platform-owned and rejected on other keys. Default on; opt out with `allow_aggrega_ai_prefix`.
 - **Name shape** — each entity kind has a name-shape convention (segment counts for the cloud-native kinds; PascalCase for library kinds). Default on; opt out with `allow_nonstandard_names`.
@@ -57,19 +57,11 @@ Each rule has a per-workspace setting under `lint.publishing_discipline` in `.ag
 - **Direct `x-aggrega-*` extensions** — directly authoring `x-aggrega-*` keys in a Component or Feature schema is discouraged in favor of the first-class authoring path. Default on; opt out with `allow_direct_x_aggrega_extensions`.
 - **Immutability** — in `--pre-publish` mode, re-publishing a version that already exists in the registry is rejected. Controlled by `enforce_immutability`.
 
+The per-rule override flags are per-invocation gates and intentionally have **no** environment variable — they are already config-backed in `.aggrega-config.yaml` under `lint.publishing_discipline`. The general `AGGREGA_*` precedence model is described in [environment-variables.md](environment-variables.md).
+
 ## Build-time and publish-time
 
 The `x-aggrega-*` discouragement rule also runs during `aggrega build`, where it surfaces as a **warning**; `aggrega lint --pre-publish` raises the same finding to an **error**. Local builds carry the advisory; the publish gate enforces it.
-
-## Flags
-
-- `<entity-path>` (positional) or `--entity <path>` — the entity to lint.
-- `--release <release-path>` — switch to the Release-closure conventions scope: lint the catalog files this Release's resolved closure reaches. Mutually exclusive with an entity argument.
-- `--pre-publish` — switch to the registry-aware publish gate (error severity, version-bump check). Single-entity shape only.
-- `--plugin <path>` — the publishing-linter Wasm plugin to run. When omitted, the plugin is taken from the `plugins.linter` entry in `.aggrega-config.yaml`.
-- Per-rule overrides, each with a `--no-` counterpart: `--allow-dynamic-refs`, `--allow-id-overrides`, `--allow-direct-x-aggrega-extensions`, `--allow-aggrega-ai-prefix`, `--allow-nonstandard-names`, `--allow-category-mismatches`, `--enforce-immutability`. Precedence is `--no-<flag>` over `--<flag>` over the workspace-config value.
-
-The per-rule override flags are per-invocation gates and intentionally have **no** environment variable — they are already config-backed in `.aggrega-config.yaml` under `lint.publishing_discipline`. The general `AGGREGA_*` precedence model is described in [environment-variables.md](environment-variables.md).
 
 ## Choosing the linter
 

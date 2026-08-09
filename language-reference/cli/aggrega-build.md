@@ -1,6 +1,6 @@
 # aggrega build
 
-`aggrega build` compiles an Aggregate + Release pair into provider-native artifacts (Helm manifests, redistributable Helm charts, docker-compose YAML) under the configured output directory.
+`aggrega build` compiles an Aggregate + Release pair into provider-native artifacts (Helm manifests, redistributable Helm charts, docker-compose YAML) under the configured output directory. The Release is the single entry point: it names the Aggregate and Manifest, declares boundaries, and routes components to providers.
 
 ## Synopsis
 
@@ -8,20 +8,19 @@
 aggrega build --release <path> [--catalog <dir>]... [--trace [--trace-unredacted]] [--detail] [other flags]
 ```
 
-## Required flags
-
-- `--release <path>` — path to the Release YAML. The Release is the single entry point: it names the Aggregate and Manifest, declares boundaries, and routes components to providers. The Release's schema-required `manifest:` reference is resolved relative to the Release file.
-
 ## Common flags
 
-- `--catalog <dir>` — a directory containing catalog entities (Components, Features, Recipes, FeatureRecipes, Providers), loaded recursively. **Repeatable**, and **prepended** to the workspace's `catalog_dirs`: the resulting list is an ordered first-win search stack, so an earlier directory (each `--catalog` dir, then the configured directories in order) wins an entity identity and a later directory's copy is shadowed. Build honors `catalog_dirs` from `.aggrega-config.yaml` even when no `--catalog` is given. With neither set, the search defaults to the current working directory. To search a project-local catalog alongside a shared one, pass both (`--catalog ./catalog --catalog ../shared-catalog`) or list them under `catalog_dirs`. With `--detail`, any entity a higher-precedence directory shadows is reported.
-- `--trace` — write per-pass intermediate state to `.trace/` (sibling to `dist/`) for post-mortem inspection. See [Trace output](#trace-output) below.
-- `--trace-unredacted` — write the declared-sensitive values into those files instead of the text that stands in for them, and mark every file it writes with a header saying so. It requires `--trace`; on its own the build halts rather than doing nothing. See [Showing the withheld values](#showing-the-withheld-values) below.
-- `--detail` — when build performs the implicit auto-pull (no lockfile present and `auto_pull` enabled), print per resolved entity what that pull did: fetched fresh from a registry, reused a cache slot, found in a local catalog, or external. This is the same transient pull-event diagnostic that [`aggrega pull --detail`](aggrega-pull.md) emits, written to stdout and never persisted to the lockfile. When a lockfile already exists, build does not pull, so there is nothing to report: the flag prints a one-line note to stderr and proceeds — it never fabricates a resolution tier the committed lockfile does not carry. For the post-pull resolution *state* of a Release's dependencies, use [`aggrega inspect`](aggrega-inspect.md).
+Two flags carry behaviour the flag reference below cannot convey on its own:
+
+- `--catalog <dir>` — a directory containing catalog entities (Components, Features, Recipes, FeatureRecipes, Providers), loaded **recursively**. Each `--catalog` directory is searched before the configured ones, in the order given. To search a project-local catalog alongside a shared one, pass both (`--catalog ./catalog --catalog ../shared-catalog`) or list them under `catalog_dirs`. With `--detail`, any entity a higher-precedence directory shadows is reported.
+- `--detail` — reports what the implicit auto-pull did, the same transient pull-event diagnostic that [`aggrega pull --detail`](aggrega-pull.md) emits. When a lockfile already exists, build does not pull, so there is nothing to report: the flag prints a one-line note to stderr and proceeds — it never fabricates a resolution tier the committed lockfile does not carry. For the post-pull resolution *state* of a Release's dependencies, use [`aggrega inspect`](aggrega-inspect.md).
+
+`--trace` and `--trace-unredacted` are covered in [Trace output](#trace-output) and [Showing the withheld values](#showing-the-withheld-values) below.
 
 ## Workspace resolution and determinism
 
-A relative `catalog_dirs` entry (and a relative filesystem plugin path) resolves
+The Release's schema-required `manifest:` reference is resolved relative to the Release
+file. A relative `catalog_dirs` entry (and a relative filesystem plugin path) resolves
 against the directory of the `.aggrega-config.yaml` that declared it — "relative"
 always means relative to the file you wrote it in, so a path means the same
 thing wherever you invoke `aggrega` from. A `--catalog` flag, which has no

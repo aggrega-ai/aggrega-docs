@@ -55,10 +55,6 @@ When an active Release has a lockfile, the daemon checks it for drift at startup
 
 Responses use the standard JSON-RPC error codes plus an application-level range in the 1xxx band: file-not-validated, release-not-resolved, lockfile-absent, entity-not-resolvable, and shutting-down. An editor client can branch on the code without parsing the message.
 
-## Flags
-
-- `--workspace-root <dir>` — set the workspace root explicitly instead of discovering it from the working directory.
-
 ## See also
 
 - [./aggrega-build.md](./aggrega-build.md) — the daemon runs the same compiler pipeline the build command does; the build command remains the authoritative, lockfile-verified surface.

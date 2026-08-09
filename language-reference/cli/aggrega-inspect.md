@@ -18,24 +18,9 @@ A single positional argument routes by content shape; no subcommand is needed. T
 | Starts with `oci://` | **OCI branch** | Reserved for catalog distribution; not yet implemented. Resolve to a local path or use a catalog name. |
 | Anything else | **Catalog branch** | Look up the named Component in the catalog search stack; resolve `extends:` chains; render the merged schema. |
 
-## Flags
+## Three detail levels
 
-| Flag | Default | Effect |
-| --- | --- | --- |
-| `--catalog <dir>` | `.` | Catalog directory to load. **Repeatable**, and **prepended** to the workspace's `catalog_dirs` (an ordered first-win search stack — an earlier directory wins an entity identity, a later one's copy is shadowed). Honors `catalog_dirs` from `.aggrega-config.yaml` even with no flag; defaults to the current directory when neither is set. |
-| `--list` | off | Render identifiers only — the names a reader scans to find a thing. Mutually exclusive with `--detail`. |
-| `--detail` | off | Render full field bodies — every field a kind carries, including template bodies. Mutually exclusive with `--list`. |
-| `--raw` | off | Render the entity as authored, with no resolution. Mutually exclusive with `--resolved`. |
-| `--resolved` | off | Render the entity fully resolved (its kind's default resolution depth). Mutually exclusive with `--raw`. |
-| `--output <fmt>` | `text` | Output format: `text` (per-kind pretty-print) or `yaml` (the render subject emitted as YAML). |
-| `--color <when>` | `auto` | Colorize output: `auto` (color only on an interactive terminal), `always`, or `never`. Mutually exclusive with `--no-color`. |
-| `--no-color` | off | Disable colorized output. Alias for `--color=never`. The `NO_COLOR` environment variable is honored as the cross-tool convention. |
-| `--show-implements` | off | For a Recipe or FeatureRecipe, resolve `spec.implements` against the catalog and render the bound Component or Feature. |
-| `--flat` | off | Render a tree-shaped entity (Aggregate, Release) as a flat list, each node prefixed with its full dotted path. No effect on tabular kinds. |
-
-### Three detail levels
-
-`--list`, the default, and `--detail` form a uniform three-level verbosity discipline that every kind honors:
+`--list`, the default, and `--detail` form a uniform three-level verbosity discipline that every kind honors. `--list` and `--detail` are mutually exclusive — passing both is refused rather than silently resolved.
 
 - **`--list`** — identifiers only. A Component lists its name and its uses-socket names; a MappingLibrary lists its mapping names; an Aggregate lists its component names with their types.
 - **default** — a structured overview tuned for interactive use. The shape is per-kind: a Component shows its schema and sockets; an Aggregate shows components, their values and edges, and the dependency graph; a Release shows the per-boundary node tree with Feature attachments.
@@ -43,9 +28,9 @@ A single positional argument routes by content shape; no subcommand is needed. T
 
 A few kinds use the levels to surface progressively more of an authored body. A MappingLibrary at `--list` shows mapping names; at the default level it adds each mapping's synthesized usage example; at `--detail` it expands the full template body.
 
-### Resolution: `--raw` and `--resolved`
+## Resolution: `--raw` and `--resolved`
 
-Each kind has a natural default resolution depth (see the table below). `--raw` and `--resolved` are always-available overrides:
+Each kind has a natural default resolution depth (see the table below). `--raw` and `--resolved` are always-available overrides, and they are mutually exclusive — passing both is refused rather than silently resolved:
 
 - **`--raw`** opts out of all resolution — the entity is emitted as authored, straight from the file.
 - **`--resolved`** opts in to the kind's full resolution depth.

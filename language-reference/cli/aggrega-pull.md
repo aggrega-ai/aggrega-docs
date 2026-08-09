@@ -5,7 +5,7 @@
 ## Synopsis
 
 ```
-aggrega pull --release <release> [--catalog <dir>]... [--upgrade] [--include-prerelease] [--dry-run] [--detail]
+aggrega pull --release <release> [--catalog <dir>]... [--upgrade] [--include-prerelease] [--detail]
 aggrega pull --release <release> --verify
 ```
 
@@ -24,6 +24,8 @@ The lockfile pins each dependency to its URI, resolved version, and content dige
 
 Commit `<release-stem>.lock` alongside the Release, the way you commit any pinned-dependency manifest. A lockfile diff shows reviewers exactly which dependency versions and digests changed; a library digest change names the consumers it affects.
 
+What a given pull *did* — whether each entity was fetched fresh from a registry, reused a cache slot, found in a local catalog, or was external — is a transient pull-event diagnostic printed to stdout by `--detail`, and it is never written to the lockfile. The resolution tier depends on the pulling machine's local state, so persisting it would break the lockfile's byte-identity across machines. It reports what *this pull* did, which is unrecoverable afterward (a freshly-pulled entity is cached by the next run); for the post-pull resolution *state* of a Release's dependencies, use `aggrega inspect`.
+
 ## Honoring vs. updating
 
 By default `aggrega pull` **honors** an existing lockfile: a dependency already pinned resolves to its exact pinned version (verified against its pinned digest), only references that are not yet pinned are resolved and added, and pins for references the Release no longer reaches are pruned. So a re-pull of an unchanged Release is a no-op — it reproduces the same lockfile byte-for-byte (including `generated_at`). Adding a new dependency, or pulling after a hand-edit removed a pin, resolves just that gap and leaves every other pin untouched.
@@ -41,16 +43,7 @@ Pulled content is stored under `.aggrega/cache`, split into an `entities/` subtr
 - **Verification.** `aggrega build` verifies every resolved dependency against the lockfile and halts on drift between the lockfile and the current catalog or registry state. Run `aggrega pull --upgrade --release <release>` to adopt the new state.
 - **Auto-pull.** If the lockfile is missing and `auto_pull` is true (the default), `aggrega build` runs the pull first automatically. If `auto_pull` is false, the build halts and asks you to pull.
 - **Offline.** Under `offline: true`, `aggrega build` uses only the cache; a missing lockfile or a missing cache entry halts with an air-gap diagnostic.
-
-## Flags
-
-- `--release <release>` — the Release to resolve (required).
-- `--catalog <dir>` — a catalog directory, loaded recursively. **Repeatable**, and **prepended** to the workspace's `catalog_dirs` (an ordered first-win search stack — an earlier directory wins an entity identity, a later one's copy is shadowed). Pull honors `catalog_dirs` from `.aggrega-config.yaml` even with no `--catalog`, and resolves the same stack `aggrega build` does, so the dependencies it pins match what build searches. Defaults to the current working directory when neither is set.
-- `--upgrade` — discard the existing pins and re-resolve all dependencies to the latest satisfying versions. This is how you **update** pinned versions (the default pull honors existing pins and never floats them), and the remediation named in drift diagnostics.
-- `--include-prerelease` — include pre-release versions during selection (reserved; no effect today).
-- `--dry-run` — compute and report the dependency resolution without writing the lockfile.
-- `--verify` — read-only: check the existing lockfile against the current state and report drift without writing anything.
-- `--detail` — print, per resolved entity, what this pull run did: fetched fresh from a registry, reused a cache slot, found in a local catalog, or external. This is a transient pull-event diagnostic written to stdout, never to the lockfile — the resolution tier depends on the pulling machine's local state and so is deliberately not persisted (it would break the lockfile's byte-identity across machines). It reports what *this pull* did, which is unrecoverable afterward (a freshly-pulled entity is cached by the next run); for the post-pull resolution *state* of a Release's dependencies, use `aggrega inspect`.
+- **Catalog search.** Pull honors `catalog_dirs` from `.aggrega-config.yaml` even when no `--catalog` is given, and resolves the same first-win search stack `aggrega build` does, so the dependencies it pins match what build searches.
 
 ## Determinism and integrity
 
