@@ -45,7 +45,6 @@ Per-workspace publishing-discipline configuration the rule set consults. Mirrors
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `enforce_immutability` | boolean | no | When true, published artefacts are immutable at the registry path; re-publishing the same version is rejected. When false, the rule is suppressed (development-only). |
 | `allow_dynamic_refs` | boolean | no | When true, $dynamicAnchor / $dynamicRef usage in SchemaLibrary entries is permitted (suppresses the dynamic_refs rule). Default false. |
 | `allow_id_overrides` | boolean | no | When true, $id overrides in SchemaLibrary entries are permitted (suppresses the id_overrides rule). Default false. |
 | `allow_direct_x_aggrega_extensions` | boolean | no | When true, direct x-aggrega-selector / x-aggrega-inject authoring is permitted (suppresses the x_aggrega_discouragement rule). Default false. |

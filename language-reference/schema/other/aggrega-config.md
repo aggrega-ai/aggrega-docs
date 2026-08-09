@@ -77,17 +77,16 @@ Per-rule strictness dials. Future lint sub-categories (build-time discouragement
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `publishing_discipline` | object | no | Workspace-wide gates for the publishing-linter's rule set. `enforce_immutability` is a workspace-wide rule gate (default true); the `allow_*` flags relax individual discouragement checks. |
+| `publishing_discipline` | object | no | Workspace-wide gates for the publishing-linter's rule set. The `allow_*` flags relax individual discouragement checks. Artifact immutability is not configurable here: `aggrega push` refuses to overwrite a published version unconditionally. |
 
 _Additional properties are not permitted._
 
 ##### `aggrega-config.lint.publishing_discipline`
 
-Workspace-wide gates for the publishing-linter's rule set. `enforce_immutability` is a workspace-wide rule gate (default true); the `allow_*` flags relax individual discouragement checks.
+Workspace-wide gates for the publishing-linter's rule set. The `allow_*` flags relax individual discouragement checks. Artifact immutability is not configurable here: `aggrega push` refuses to overwrite a published version unconditionally.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `enforce_immutability` | boolean | no | When true (default), the publishing-linter enforces the artifact-immutability rule: a published `name:version` plus content digest is treated as final; `aggrega push` rejects overwrites. Set to false only for forensic reproduction of historical builds where overwrites occurred prior to the rule's introduction; routine use is discouraged. Required for production catalogs. Default: `true` |
 | `allow_dynamic_refs` | boolean | no | When true, the publishing-linter accepts $dynamicRef / $dynamicAnchor JSON Schema constructs in catalog content. Default false; these constructs are discouraged because they make compile-time schema composition non-local. Default: `false` |
 | `allow_id_overrides` | boolean | no | When true, the publishing-linter accepts $id overrides on subschemas within an entity's schema content. Default false; $id overrides break the canonical-identifier-per-schema convention the resolver and the JSON Schema validator both rely on. Default: `false` |
 | `allow_direct_x_aggrega_extensions` | boolean | no | When true, the build-time discouragement walker accepts x-aggrega-selector and x-aggrega-inject keywords authored directly in schema content. Default false; the recommended authoring path is usesSchema (for dependency sockets) or featuresSchema (for credential bindings), which the schema-composition layer then synthesises into the inline extension form. Default: `false` |

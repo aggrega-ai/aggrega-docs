@@ -55,7 +55,8 @@ Each rule has a per-workspace setting under `lint.publishing_discipline` in `.ag
 - **Id overrides** — SchemaLibrary entries may not declare their own `$id` (the platform derives the canonical `$id`). Default on; opt out with `allow_id_overrides`.
 - **Category matches directory** — a Component's `component.aggrega.ai/category` label must match the first directory segment under `core/`, drawn from the closed category set (`ai-agent`, `ai-model`, `ai-tool`, `ai-pipeline`, `datastore`, `gateway`, `mesh`, `network`, `messaging`, `storage`, `compute`, `observability`, `security`, `bigdata`, `devtool`). Default on for entities under a `core/` path; opt out with `allow_category_mismatches`.
 - **Direct `x-aggrega-*` extensions** — directly authoring `x-aggrega-*` keys in a Component or Feature schema is discouraged in favor of the first-class authoring path. Default on; opt out with `allow_direct_x_aggrega_extensions`.
-- **Immutability** — in `--pre-publish` mode, re-publishing a version that already exists in the registry is rejected. Controlled by `enforce_immutability`.
+
+**Artifact immutability is not one of these rules, and it has no setting.** A published `name:version` is final: `aggrega push` compares the digest already published at that tag with the digest the content about to be pushed would produce, and refuses to overwrite it with different content. Re-pushing byte-identical content is an idempotent no-op. No flag and no workspace-config setting relaxes this, because the registry exposes no overwrite path for an operator to opt into. Changed content is published under a new version; `--pre-publish` is what verifies that bump against the previous release.
 
 The per-rule override flags are per-invocation gates and intentionally have **no** environment variable — they are already config-backed in `.aggrega-config.yaml` under `lint.publishing_discipline`. The general `AGGREGA_*` precedence model is described in [environment-variables.md](environment-variables.md).
 
@@ -120,7 +121,6 @@ aggrega lint [entity-path] [flags]
 | `--allow-nonstandard-names` | `false` | Force allow_nonstandard_names=true |
 | `--baseline` | — | Diff the pre-publish evolution check against this specific already-published version instead of the auto-selected highest version below the one being published; must be a strict-SemVer tag present in the registry (requires --pre-publish) |
 | `--catalog` | `[]` | Catalog directory; repeatable. Each --catalog is prepended to the workspace catalog_dirs search stack (first match wins). Used by the whole-catalog and --release conventions passes. |
-| `--enforce-immutability` | `false` | Force enforce_immutability=true |
 | `--entity` | — | Path to the entity YAML to lint (alternatively pass as the positional arg) |
 | `--no-allow-aggrega-ai-prefix` | `false` | Force allow_aggrega_ai_prefix=false |
 | `--no-allow-category-mismatches` | `false` | Force allow_category_mismatches=false |
@@ -128,7 +128,6 @@ aggrega lint [entity-path] [flags]
 | `--no-allow-dynamic-refs` | `false` | Force allow_dynamic_refs=false for this invocation |
 | `--no-allow-id-overrides` | `false` | Force allow_id_overrides=false for this invocation |
 | `--no-allow-nonstandard-names` | `false` | Force allow_nonstandard_names=false |
-| `--no-enforce-immutability` | `false` | Force enforce_immutability=false |
 | `--output`, `-o` | `text` | Output format: text\|json. |
 | `--plugin` | — | Filesystem path to the publishing-linter .wasm artifact (overrides workspace plugins.linter[0].uri) |
 | `--pre-publish` | `false` | Fetch the previous registry version and verify the proposed bump against the schema-evolution classification |

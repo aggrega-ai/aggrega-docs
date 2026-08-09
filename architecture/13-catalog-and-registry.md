@@ -406,7 +406,7 @@ The index follows the explicit-refresh model familiar from package managers: `re
 
 Lockfile-pinning discipline anchors every dependency to a specific content-addressable artifact. At first lockfile-resolve (`aggrega pull`), the resolver consults the registry, picks a version per the URI's three-form constraint (exact / range / unversioned), and writes the pinned version + digest into the Release's `<release-stem>.lock`. Subsequent `aggrega build` invocations use the pinned values regardless of registry mutability; new versions can be published without affecting the existing lockfile.
 
-The pinning model carries one load-bearing rule: once a `name:version` is published to a registry and resolves to digest `D`, that mapping is permanent. **Republishing the same `name:version` with different content is rejected at push time.** The publishing-discipline policy plugin enforces this rule on every `aggrega push`: it fetches the existing artifact at `name:version` from the target registry; if present and the digest matches the content about to be pushed, the push is an idempotent no-op; if present and the digest differs, the push halts with an immutability-violation error citing both digests.
+The pinning model carries one load-bearing rule: once a `name:version` is published to a registry and resolves to digest `D`, that mapping is permanent. **Republishing the same `name:version` with different content is rejected at push time.** `aggrega push` itself enforces this on every publish: it resolves the existing artifact at `name:version` in the target registry; if present and the digest matches the content about to be pushed, the push is an idempotent no-op; if present and the digest differs, the push halts with an immutability-violation error citing both digests.
 
 Immutability matters for two consequences:
 
@@ -415,16 +415,7 @@ Immutability matters for two consequences:
 
 The immutability rule applies uniformly to every OCI-published Aggrega artifact (entities, SchemaLibrary, MappingLibrary, Wasm plugins referenced by Recipe `pipeline[].plugin:` / FeatureRecipe `pipeline[].plugin:` / workspace config `plugins.{governance,linter,importer}[]:`). Anything pinned by `name:version` plus a content digest in the lockfile is subject to immutability.
 
-Workspace configuration permits a forensic opt-out:
-
-```yaml
-# .aggrega-config.yaml — lint section
-lint:
-  publishing_discipline:
-    enforce_immutability: true   # default true; required for production catalogs
-```
-
-Setting `enforce_immutability: false` is logged at every push and surfaced in audit reports. The setting exists so a workspace operator can reproduce historical builds where overwrites occurred prior to the rule's introduction; routine use is discouraged.
+**Immutability is unconditional, and no configuration relaxes it.** There is no flag and no workspace-config setting that permits an overwrite, because the registry exposes no overwrite path for an operator to opt into. Content that has changed is published under a new version, and `aggrega lint --pre-publish` verifies that the version bump matches the classification of the change.
 
 Re-resolution to a newer version requires explicit user action: `aggrega pull --upgrade --release <release> <uri>` re-resolves a single dependency while holding every other pin, and `aggrega pull --upgrade --release <release>` re-resolves all dependencies against the current registry state. Range-form and unversioned-form dependencies re-resolve to the latest matching version; exact-form pins do not move unless the user explicitly upgrades to a different exact version. The lockfile is the source of truth for builds; the user-typed form expresses the version constraint at authoring time.
 
