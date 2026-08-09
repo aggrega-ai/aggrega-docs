@@ -167,6 +167,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrImmutableTagConflict()` | `oci: tag already published with different content` |
 | `ErrNoContentLayer()` | `oci: manifest has no layer of the expected content media type` |
 | `ErrOCILocationCollision()` | `oci: distinct catalog identities map to the same OCI repository location` |
+| `ErrReferrerDiscoveryUnavailable()` | `oci: referrer discovery could not be completed` |
 | `ErrUnknownEntityKind()` | `oci: unknown entity kind for mediatype dispatch` |
 
 ### pkg/pluginpath
