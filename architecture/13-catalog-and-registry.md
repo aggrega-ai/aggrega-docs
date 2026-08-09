@@ -236,7 +236,7 @@ See [entities/component](../language-reference/entities/component.md) for the ba
 
 The `.aggrega-config.yaml` file at the workspace root is the project's workspace configuration — the workspace's own declaration, suited to source control the way `go.mod` or `package.json` is. The `.aggrega/` directory is **gitignored** (it is the equivalent of `node_modules/` or `.terraform/`).
 
-The `workspace` section is the root marker: its presence marks the workspace root, and it carries only the root-defining `catalog_dirs`. The remaining settings are top-level — `default_registry`, `offline`, `auto_pull`, and `artifact_cache_dir` — alongside the `build`, `plugins`, `lint`, `parse_cache`, `compiled_module_cache`, and `concurrency` sections. Every field is optional with documented defaults:
+The `workspace` section is the root marker: its presence marks the workspace root, and it carries only the root-defining `catalog_dirs`. Every other setting sits at the top level. Many are single values; others are sections gathering one concern's settings under a single key. Every field is optional with documented defaults. The complete, current set of top-level keys, each with its type, default and meaning, is generated from the schema at [schema/other/aggrega-config](../language-reference/schema/other/aggrega-config.md); the example below shows the root marker alongside a few of the single-value settings:
 
 ```yaml
 # .aggrega-config.yaml
@@ -245,7 +245,7 @@ workspace:                    # Root marker; presence marks the workspace root
     - ./aggrega-catalog
 default_registry: hub.aggrega.ai  # Default registry for unqualified URIs
 offline: false                # Set true for air-gapped environments
-auto_pull: true               # Default; build performs the implicit pull when no lockfile exists
+auto_pull: true               # Opt in to the implicit pull; the default is false, keeping build read-only
 artifact_cache_dir: .aggrega/cache  # On-disk artifact cache root
 ```
 
@@ -266,7 +266,7 @@ registries:
 
 Precedence per field is CLI flag > per-registry `signing` > global `signing` > public-good default. Fulcio and Rekor default to the public-good Sigstore instances, so they are optional; `timestamp_url` has no default — the keyless trusted timestamp comes from Rekor's transparency-log inclusion, and an RFC3161 timestamp authority is opt-in (set `timestamp_url`, or `--timestamp-url`, with a full endpoint to enable one). **Security:** the `signing:` block carries no secret material — the OIDC identity token is never a config field (a short-lived secret, supplied only at signing time via the `--identity-token` flag; automatic OIDC-token acquisition is not yet available), and the private key is never inline; `key_path` is a path to a key file. This is the deliberate asymmetry with the verify side, which pins an inline public key but only ever a key path on the sign side.
 
-Mark a root with no vendored catalogs by writing `workspace: {}`. The `catalog_dirs` list supports monorepo setups where a shared catalog lives in a sibling directory. The compiler checks each directory in sequence. The `offline: true` flag prevents any network access — the compiler only uses local paths and the cache, halting if an entity is not found locally. The `build`, `plugins`, `lint`, `parse_cache`, `compiled_module_cache`, and `concurrency` sections carry the build dials, the Wasm attachment sockets (`governance`, `linter`, `importer`, `providers`, `cli`), the publishing-discipline policy switches, parse-cache tuning, the compiled-module store's size cap, and the daemon's request-dispatch worker-pool size.
+Mark a root with no vendored catalogs by writing `workspace: {}`. The `catalog_dirs` list supports monorepo setups where a shared catalog lives in a sibling directory. The compiler checks each directory in sequence. The `offline: true` flag prevents any network access — the compiler only uses local paths and the cache, halting if an entity is not found locally. The sectioned settings each gather one concern. Among them: build-time strictness dials and authoring hints; the workspace-level Wasm attachment sockets (`governance`, `linter`, `importer`, `providers`, `cli`), each taking a list of plugin references; per-rule lint strictness, including the publishing-discipline policy switches; the daemon's parse-cache tuning and its request-dispatch worker-pool size; and the size cap on the machine-wide compiled-module store. Others again carry the signing and signature-trust defaults and the daemon's own behaviour. Every top-level key is documented in full at [schema/other/aggrega-config](../language-reference/schema/other/aggrega-config.md).
 
 Three distinct caches are configurable, and telling them apart is worth a moment because their names are similar and their scopes are not. `artifact_cache_dir` names the per-workspace on-disk content cache described below. `parse_cache` caps the daemon's in-memory parse cache, which lives only as long as the daemon does. `compiled_module_cache` caps the on-disk store of compiled plugin machine code — the one cache that is shared by every workspace on the machine, because a plugin's compiled form depends on the plugin and not on the project using it:
 
