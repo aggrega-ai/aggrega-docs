@@ -44,18 +44,6 @@ Two signing modes:
 
 The keyless service URLs and the keyed key path can also be set in `.aggrega-config.yaml` under a `signing:` block (global and per-registry); a flag overrides the config, and the config overrides the public-good default. The OIDC identity token is never a config field (it is a short-lived secret), and the private key is never inline in config — only a path to it.
 
-## Flags
-
-- `<entity-path>` — the entity YAML to publish.
-- `--registry <ref>` — override the workspace's default registry for this push.
-- `--dry-run` — report what would be pushed without contacting the registry.
-- `--sign` — sign the artifact and attach the signature as a referrer. When omitted, signing follows the destination registry's policy.
-- `--key <pem>` — path to a held ECDSA P-256 private-key PEM for offline keyed signing. When omitted, keyless signing is used.
-- `--identity-token <token>` — OIDC identity token for keyless signing. Optional at an interactive terminal (the CLI acquires one through a browser flow) and on GitHub Actions (the workflow OIDC token is minted automatically); required for other non-interactive / CI use, where it may instead be exported as `AGGREGA_IDENTITY_TOKEN` or `SIGSTORE_ID_TOKEN`.
-- `--fulcio-url <url>` — Fulcio certificate-authority URL for keyless signing. Defaults to the public-good Fulcio instance (`https://fulcio.sigstore.dev`).
-- `--rekor-url <url>` — Rekor transparency-log URL for keyless signing. Defaults to the public-good Rekor instance (`https://rekor.sigstore.dev`).
-- `--timestamp-url <url>` — optional RFC3161 timestamp-authority URL for keyless signing. None by default: the keyless trusted timestamp comes from Rekor's transparency-log inclusion. Supply a full endpoint to additionally stamp the signature with an RFC3161 timestamp authority.
-
 ## Environment variables
 
 The signing inputs and the destination registry can be supplied through the environment, overriding `.aggrega-config.yaml` while a flag still wins:
