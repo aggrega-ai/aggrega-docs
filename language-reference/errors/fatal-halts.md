@@ -353,6 +353,26 @@ Emitted message:
 
 **How to fix:** drop the differing `target` from the Release `uses:` entry to configure the existing edge (per-edge `infra` only), or, if the connection genuinely belongs to a different socket, wire it through a socket the developer left unbound. To change the target itself, change it in the Aggregate, where the topology is authored.
 
+### Release per-edge configuration has no edge to apply to
+
+<!-- covers: internal/compiler/topology.ErrUnboundReleaseEdgeConfig -->
+
+A Release per-edge `uses:` entry sets `infra:` but no edge exists at the consumer, socket and alias it names, once every edge in the build has been drawn.
+
+The two things a Release entry can do are *wire* an edge and *configure* one, and which it does is decided by whether it names a `target:`. An entry with a target creates the edge it configures. An entry without one configures an edge that must already exist — declared by the developer in the Aggregate, or contributed by an attached Feature. So an entry that names no target and matches no existing edge applies to nothing: the `infra:` block below it never reaches any output. The build stops rather than accepting authoring that does nothing, because a successful build otherwise reads as confirmation that the infrastructure was applied.
+
+The alias is part of what an entry names, so an entry configuring an alias the developer never declared reaches no edge even when the socket is bound under a different alias. So does an entry naming a component the Aggregate does not declare.
+
+Two neighbouring conditions are reported by their own halts rather than this one, because each has more to tell you. A socket the consuming Component's `usesSchema` does not declare is reported as an undeclared socket, which can list the sockets that do exist. A `target:` naming no component is reported as a dangling target. A component switched off by an `active:` toggle takes its edges with it by design, so an entry left behind on one is accepted rather than halted.
+
+Emitted message, where the entry names a component that exists:
+> release edge `<consumer>`/`<socket>`/`<alias>` sets infra but no edge is bound there: an entry without a target configures an edge that must already exist, so give the entry a target to wire the edge or remove the entry.
+
+Where it names one that does not:
+> release edge `<consumer>`/`<socket>`/`<alias>` sets infra on `<consumer>`, which is not a component in the topology.
+
+**How to fix:** add a `target:` to the entry, which wires the edge and applies the configuration to it; correct the alias to the one the Aggregate declared for that connection, so the entry configures the existing edge; correct the component name to one the Aggregate declares; or remove the entry if the configuration is no longer wanted.
+
 ### Required `uses:` socket not populated
 
 <!-- covers: pkg/resolver.ErrMissingRequiredSocket -->
