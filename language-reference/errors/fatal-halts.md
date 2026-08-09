@@ -53,11 +53,9 @@ A Recipe composes its output from three input kinds — sourced, synthesized, an
 
 Every Recipe-shape error carries the same message shape:
 
-> CATALOG_ERROR: Recipe `<file-path>` (`<name>:<version>`) violates rule `<N>`:
-> `<rule description>`
-> `<rule-specific detail>`
+> Recipe `<name>:<version>`: validation error at `<file-path>` — rule `<N>`: `<rule description>`. `<rule-specific detail>`
 
-The `CATALOG_ERROR:` prefix signals that the failure is attributable to the catalog entity (the Recipe, or the provider it binds to), not to the Aggregate or the Release.
+The build prints it under a `CATALOG_ERROR` tag, which signals that the failure is attributable to the catalog entity (the Recipe, or the provider it binds to), not to the Aggregate or the Release.
 
 #### Rule 1 — `valuesMapping` requires `source`
 
@@ -66,9 +64,7 @@ The `CATALOG_ERROR:` prefix signals that the failure is attributable to the cata
 A Recipe declares `valuesMapping` but not `source`. Without a source engine to overlay, there is nothing to receive the mapped values.
 
 Emitted message:
-> CATALOG_ERROR: Recipe `<path>` (`<name>:<version>`) violates rule 1:
-> valuesMapping requires source
-> declare a source: pointer alongside valuesMapping (or remove the valuesMapping if no overlay is intended)
+> Recipe `<name>:<version>`: validation error at `<path>` — rule 1: valuesMapping requires source. declare a source: pointer alongside valuesMapping (or remove the valuesMapping if no overlay is intended)
 
 **How to fix:** add a `source:` pointer (a chart, module, or compose-file reference) alongside the `valuesMapping`, or remove the `valuesMapping` and adopt a different input kind (`workload:` for synthesized output, `artifacts:` for direct manifest emission).
 
@@ -77,9 +73,7 @@ Emitted message:
 A Recipe declares `source` but no `valuesMapping`. An externally-loaded chart or module needs values; a source with no values overlay is underspecified.
 
 Emitted message:
-> CATALOG_ERROR: Recipe `<path>` (`<name>:<version>`) violates rule 2:
-> source requires valuesMapping
-> declare a valuesMapping alongside source, or use a different input kind (workload, artifacts)
+> Recipe `<name>:<version>`: validation error at `<path>` — rule 2: source requires valuesMapping. declare a valuesMapping alongside source, or use a different input kind (workload, artifacts)
 
 **How to fix:** declare a `valuesMapping:` (inline Go template, or file `$import:`, or library `$import:` to a [MappingLibrary](../entities/mappinglibrary.md) entry) that produces the values overlay for the source, or remove the `source:` and adopt the input kind that matches your authoring intent.
 
@@ -103,9 +97,7 @@ Emitted message:
 A Recipe declares no input kind: no `source` paired with `valuesMapping`, no `workload:`, no `artifacts:`. Such a Recipe produces no output and has no rendering surface.
 
 Emitted message:
-> CATALOG_ERROR: Recipe `<path>` (`<name>:<version>`) violates rule 5:
-> at least one input kind must be present
-> declare one of: source (with valuesMapping), workload, artifacts
+> Recipe `<name>:<version>`: validation error at `<path>` — rule 5: at least one input kind must be present. declare one of: source (with valuesMapping), workload, artifacts
 
 **How to fix:** add the input kind that matches the Recipe's authoring intent. Recipes that only define `provides:` (virtual components that supply pointer strings without rendering anything) belong on the `eval` provider — see the eval-provider constraint below.
 
@@ -114,9 +106,7 @@ Emitted message:
 A Recipe declares two or more entries under `artifacts:` with the same key. The key dictates the emitted filename (whether the entry's body is authored inline or loaded via per-entry `$import:`); duplicate keys would emit a file with the same name to the same boundary directory.
 
 Emitted message:
-> CATALOG_ERROR: Recipe `<path>` (`<name>:<version>`) violates rule 6:
-> artifacts: entry keys collide
-> colliding entry keys: `<key1>, <key2>, ...`
+> Recipe `<name>:<version>`: validation error at `<path>` — rule 6: artifacts: entry keys collide. colliding entry keys: `<key1>, <key2>, ...`
 
 **How to fix:** rename one of the colliding entry keys so each `artifacts:` entry has a unique filename.
 
@@ -129,9 +119,7 @@ A Recipe's three input kinds — sourced, synthesized, and artifacts — each em
 Rule 7 is checked at emission time (after Workload translation completes), not at Recipe load.
 
 Emitted message (intended; emission-time detection ships incrementally):
-> CATALOG_ERROR: Recipe `<path>` (`<name>:<version>`) violates rule 7:
-> filename collision across input-kind origins at emission
-> `<filename>` declared by: `<origin1>, <origin2>, ...`
+> Recipe `<name>:<version>`: validation error at `<path>` — rule 7: filename collision across input-kind origins at emission. `<filename>` declared by: `<origin1>, <origin2>, ...`
 
 **How to fix:** rename the colliding file in whichever input kind you control. If the collision involves a Workload-translated filename and an `artifacts:` entry, the Workload-translated names follow the provider's translation conventions (e.g., `<instance-id>-deployment.yaml` for helm) — adjust the `artifacts:` filename to a name the provider does not synthesise.
 
@@ -142,9 +130,7 @@ Emitted message (intended; emission-time detection ships incrementally):
 A Recipe targets the `eval` provider but declares one or more input-kind fields (`source`, `workload`, `artifacts`, `valuesMapping`). The `eval` provider executes formatting in-memory and has no rendering surface; declaring input-kind fields on an eval Recipe is meaningless.
 
 Emitted message:
-> CATALOG_ERROR: Recipe `<path>` (`<name>:<version>`) violates rule eval:
-> the eval provider executes formatting in-memory and forbids input-kind fields
-> forbidden fields declared: `<field1>, <field2>, ...`
+> Recipe `<name>:<version>`: validation error at `<path>` — rule eval: the eval provider executes formatting in-memory and forbids input-kind fields. forbidden fields declared: `<field1>, <field2>, ...`
 
 **How to fix:** remove the input-kind fields from the eval Recipe. An eval Recipe legitimately declares only `provides:` (and optionally `locals:`); it produces deterministic pointer strings for downstream consumers without rendering any artifacts.
 
