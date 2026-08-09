@@ -510,12 +510,16 @@ Multi-provider composition happens at the Release level. Boundaries hold mixed-p
 
 Each provider engine declares which input kinds it renders; a central input-kind gate accepts the supported combinations and rejects the rest with a uniform diagnostic when the node renders. Capability is a property of the engine, not the Recipe — a provider engine renders a subset of the three kinds. The `artifacts:` column distinguishes artifacts riding *alongside* a sourced/synthesized primary from a *standalone* artifacts-only Recipe (no `source:`, no `workload:`).
 
+<!-- BEGIN GENERATED: provider-capability-matrix -->
 | Provider | `source:` + `valuesMapping:` | `workload:` | `artifacts:` (alongside) | artifacts-only (standalone) |
 | --- | --- | --- | --- | --- |
-| helm | ✅ Helm chart via the Helm SDK | ✅ synthesizes Deployment/StatefulSet + Services + PVCs + ConfigMap/Secret volume refs | ✅ flat Kubernetes YAML under the boundary output | ✅ emits the declared artifacts as the node's whole output |
-| compose | ✅ compose file → per-node fragment | ✅ synthesizes a compose service fragment | ✅ merged into the combined `docker-compose.yaml` | ❌ declined at the gate (no service fragment to contribute) |
-| helm-chart | ✅ umbrella-chart composition | ❌ not supported — use the helm provider | ✅ `$import`-only, injected at `templates/<basename>` with `[[ ]]` Aggrega delimiters; inline rejected | ❌ declined at the gate (no chart to inject into) |
-| cloudformation | ✅ sourced template normalized to pure-JSON long-form intrinsics and structurally validated | ❌ not supported — no Workload synthesis | ✅ CloudFormation fragments merged into the boundary's assembled stack template | ✅ emits the declared CloudFormation fragments, merged into the boundary's assembled stack |
-| terraform | ✅ sourced Terraform file set copied into the node's output verbatim | ❌ not supported — no Workload synthesis | ✅ Terraform fragments written alongside the sourced module output | ✅ emits the declared Terraform artifacts as the node's whole output |
+| helm | ✅ | ✅ | ✅ | ✅ |
+| compose | ✅ | ✅ | ✅ | ❌ |
+| helm-chart | ✅ | ❌ | ✅ templated with `[[` `]]` delimiters | ❌ |
+| terraform | ✅ | ❌ | ✅ | ✅ |
+| cloudformation | ✅ | ❌ | ✅ | ✅ |
+
+*This grid covers the provider engines distributed with the compiler. A provider supplied as a plugin declares the input kinds it accepts in the same way, and the compiler reads that declaration by the same route — it is not listed here, because a published page cannot enumerate providers it has never seen.*
+<!-- END GENERATED: provider-capability-matrix -->
 
 *Cells marked `✅` ship; `❌` is a provider-capability decline surfaced by the gate. The per-node compose fragments are merged per boundary today; a further Release-level cross-boundary merge is a future refinement.*

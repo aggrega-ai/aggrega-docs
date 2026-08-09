@@ -52,7 +52,7 @@ The `helm`, `helm-chart`, `compose`, `terraform`, and `cloudformation` providers
 
 [`cloudformation`](cloudformation.md) renders a boundary into one AWS CloudFormation stack template, assembling the resource fragments its components author into a single pure-JSON template, surfacing each component's `provides` as stack `Outputs`, and wiring `uses` edges as `Fn::GetAtt` within a stack and as `Fn::ImportValue` / `Fn::GetStackOutput` across stacks. It supports sourced and artifacts input and emits configuration without ever running CloudFormation; runtime-only values stay as CloudFormation intrinsics.
 
-The [reference matrix](reference-matrix.md) summarises per-provider input-kind support at a glance; the canonical matrix lives in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md).
+The [provider reference index](reference-matrix.md) routes you to each provider's own reference page; which input kinds each one accepts is answered by the capability matrix in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md).
 
 ## Custom providers
 

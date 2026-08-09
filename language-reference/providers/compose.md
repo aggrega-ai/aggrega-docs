@@ -317,4 +317,5 @@ The compose provider produces one `docker-compose.yaml` at the boundary's evalua
 - [Workload entity](../entities/workload.md) — the platform-owned Workload kind that the compose provider translates.
 - [Provider architecture](architecture.md) — how providers fit into the compilation pipeline.
 - [Well-known annotations](well-known-annotations.md) — the `aggrega.ai/*` annotations the compose provider consumes.
-- [Provider capability matrix](reference-matrix.md) — per-provider feature support across the current surface.
+- [Provider reference index](reference-matrix.md) — what each standard-library provider produces, and which page answers which question.
+- [Recipe input composition](../../architecture/16-recipe-input-composition.md) — the canonical Provider Capability Matrix.

@@ -36,7 +36,7 @@ Within Tier 3, the `$templates:` / `$instantiate:` mechanic (parametric helpers 
 5. [Templates Overview](05-templates.md)
    - Templates reference: [expansion-matrix](templates/expansion-matrix.md), [template-context-contract](templates/template-context-contract.md), [sprig-functions](templates/sprig-functions.md), [parameters-context](templates/parameters-context.md), [assertions-block](templates/assertions-block.md)
 6. [Providers Overview](06-providers.md)
-   - Providers reference: [architecture](providers/architecture.md), [well-known-annotations](providers/well-known-annotations.md), [reference-matrix](providers/reference-matrix.md), [helm](providers/helm.md), [helm-chart](providers/helm-chart.md), [compose](providers/compose.md)
+   - Providers reference: [architecture](providers/architecture.md), [well-known-annotations](providers/well-known-annotations.md), [reference-matrix](providers/reference-matrix.md), [helm](providers/helm.md), [helm-chart](providers/helm-chart.md), [compose](providers/compose.md), [terraform](providers/terraform.md), [cloudformation](providers/cloudformation.md)
 7. [CLI Overview](07-cli.md)
    - CLI reference: [aggrega-build](cli/aggrega-build.md), [aggrega-inspect](cli/aggrega-inspect.md), [aggrega-pull](cli/aggrega-pull.md), [aggrega-lint](cli/aggrega-lint.md), [global-flags](cli/global-flags.md)
 8. [Errors Overview](08-errors.md)

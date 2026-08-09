@@ -1,16 +1,16 @@
-# Provider Capability Matrix
+# Provider Reference Index
 
 Aggrega's standard-library providers each accept a different subset of the three Recipe input kinds (sourced, synthesized, artifacts). The canonical capability matrix lives in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md) under "Provider Capability Matrix." Read that section for the authoritative grid.
 
-This page summarises the provider-side nuances that matter for Recipe authors choosing between providers, and points into each per-provider reference page for detail.
+This page is a signpost. It states what each standard-library provider produces and routes you to the page that covers it; which input kinds a provider accepts is answered by the authoritative grid linked above.
 
-## At-a-glance highlights
+## The standard-library providers
 
-- **`helm`** supports all three input kinds: sourced (Helm chart via the Helm SDK), synthesized (Workload → a controller object chosen by the Workload's `form` — Deployment, StatefulSet, DaemonSet, or Job — plus Services and PVCs), and artifacts (standalone Kubernetes YAML files). See [helm.md](helm.md).
-- **`helm-chart`** packages multiple components into a single umbrella Helm chart per boundary. Sourced mode (umbrella-chart composition) ships; the synthesized input kind is not applicable to this provider by architecture (umbrella orchestrates sub-charts; the Workload kind is a leaf concept belonging inside each sub-chart, which is the `helm` provider's domain). Artifacts in this provider take a special shape — `$import:`-loaded `artifacts:` entries are pre-Helm-templated and injected into the chart's `templates/` directory before Helm rendering; inline-content entries are placed verbatim at the chart root for `.Files.Get` / `.Files.Glob` consumption. See [helm-chart.md](helm-chart.md).
-- **`compose`** supports all three input kinds: sourced (compose fragment overlay), synthesized (Workload → compose service + volumes + networks), and artifacts (compose fragments merged into the combined `docker-compose.yaml`). See [compose.md](compose.md).
-- **`terraform`** supports sourced (vendors a Terraform module verbatim, overlaying `valuesMapping` as an auto-loaded `.tfvars.json`) and artifacts (emits an authored HCL or `.tf.json` body byte-for-byte); the synthesized input kind is not applicable (no faithful Workload-to-Terraform mapping). The provider emits configuration and never runs Terraform. Only JSON-authored bodies (`.tf.json`) and the `.tfvars.json` overlay are FeatureRecipe-pipeline patchable; native HCL is opaque. See [terraform.md](terraform.md).
-- **`cloudformation`** supports sourced (normalizes an existing CloudFormation template to long-form JSON) and artifacts (component resource fragments assembled into one pure-JSON stack per boundary); the synthesized input kind is not applicable. Each component's `provides` surface as stack `Outputs`, and `uses` edges wire as `Fn::GetAtt` within a stack and as `Fn::ImportValue` / `Fn::GetStackOutput` across stacks. The provider emits configuration and never runs CloudFormation. See [cloudformation.md](cloudformation.md).
+- **`helm`** — produces flat Kubernetes manifests. See [helm.md](helm.md).
+- **`helm-chart`** — packages a boundary's components into a single umbrella Helm chart. See [helm-chart.md](helm-chart.md).
+- **`compose`** — produces Docker Compose services, merged into one compose file per boundary. See [compose.md](compose.md).
+- **`terraform`** — produces Terraform configuration. It emits configuration and never runs Terraform. See [terraform.md](terraform.md).
+- **`cloudformation`** — produces CloudFormation stack templates, one per boundary. It emits configuration and never runs CloudFormation. See [cloudformation.md](cloudformation.md).
 
 ## Where to look for what
 

@@ -33,7 +33,7 @@ An author who needs a Terraform body to be pipeline-patchable therefore authors 
 ## Related references
 
 - [Provider architecture](architecture.md) — how providers fit into the compilation pipeline and per-provider dispatch.
-- [Provider capability matrix](reference-matrix.md) — per-provider input-kind support across the current surface.
+- [Provider reference index](reference-matrix.md) — what each standard-library provider produces, and which page answers which question.
 - [Recipe entity](../entities/recipe.md) — the Recipe authoring surface and the three input kinds.
 - [FeatureRecipe](../entities/featurerecipe.md) — the post-render `pipeline` patch model and its structured/opaque boundary.
 - [Recipe input composition](../../architecture/16-recipe-input-composition.md) — the canonical Provider Capability Matrix.
