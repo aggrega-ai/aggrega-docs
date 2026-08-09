@@ -23,7 +23,7 @@ The wire protocol is JSON-RPC 2.0 with Content-Length framing, under the `aggreg
 - `aggrega/completion {uri, position}` — completion candidates at a position.
 - `aggrega/resolve {uri, position}` — resolve the entity referenced at a position (go-to-definition).
 - `aggrega/findReferences {uri, position}` / `aggrega/findImplementations {uri, position}`.
-- `aggrega/irGraph {release}` — the compiled IR graph for a Release, for editor introspection. The graph is returned verbatim, values an author declared sensitive included: it is a machine-readable projection, so it reproduces its input rather than withholding part of it. See [`aggrega-inspect`](aggrega-inspect.md) "Machine-readable output".
+- `aggrega/irGraph {release}` — the compiled IR graph for a Release, for editor introspection. `release` is a path relative to the workspace root, naming a Release inside it — the same value `aggrega build --release` takes when run from the root. Any other form is refused with the standard invalid-params error naming what to send instead: an absolute path, a path that resolves outside the workspace root, and an empty value are all rejected rather than resolved, so a request never reports on a file the workspace does not hold. Note that `aggrega/releaseCandidates` answers with absolute paths, so a client feeding one surface from the other converts between the two. The graph is returned verbatim, values an author declared sensitive included: it is a machine-readable projection, so it reproduces its input rather than withholding part of it. See [`aggrega-inspect`](aggrega-inspect.md) "Machine-readable output".
 - `aggrega/invalidate {file, granularity?}` — a cache-invalidation signal from the editor's file watcher.
 
 **Notifications:**
@@ -53,7 +53,9 @@ When an active Release has a lockfile, the daemon checks it for drift at startup
 
 ## Error codes
 
-Responses use the standard JSON-RPC error codes plus an application-level range in the 1xxx band: file-not-validated, release-not-resolved, lockfile-absent, entity-not-resolvable, and shutting-down. An editor client can branch on the code without parsing the message.
+Responses use the standard JSON-RPC error codes plus an application-level range in the 1xxx band: file-not-validated, release-not-resolved, lockfile-absent, entity-not-resolvable, and shutting-down. An editor client can branch on the code without parsing the message. The two bands mean different things to a client: a 1xxx code names a state of the workspace the user can act on — validate the file, generate the lockfile, choose a Release — while a standard code such as invalid-params names a malformed request, which the client corrects rather than the user.
+
+An error may carry a `data` object, and every key in it names one thing and only that thing. `file` is the source document that the accompanying `line` and `column` locate — the document being validated, or the Release whose load failed. `lockfile` is a lockfile. `release` is the Release the error is about, spelled the way the request named it, so a client can compose `aggrega pull --release <value>` without parsing it back out of the message. Every key is optional and present only when the daemon has that value in hand; none stands in for another, so what a key points at never depends on the code beside it.
 
 ## See also
 
