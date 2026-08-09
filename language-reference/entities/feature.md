@@ -78,7 +78,7 @@ This Feature attaches only to `server`-typed Components, declares incompatibilit
 
 ## Inheritance via `extends`
 
-A Feature may declare `spec.extends: <feature-uri>` pointing to a base Feature whose authoring surface it inherits. The compiler walks the parent chain at catalog load, validates that the chain is acyclic, then merges parent specs into the child to produce a single resolved Feature. The child's authored fields take precedence on key collision; the parent's `metadata.labels`, `appliesTo` / `appliesToAnyOf` selectors, `interoperability` block, `usesSchema`, `featuresSchema`, and the JSON Schema 2020-12 declarations on `schema` are auto-merged downward.
+A Feature may declare `spec.extends: <feature-name>` pointing to a base Feature whose authoring surface it inherits. The reference names the base by its `metadata.name`, not by the registry coordinate the Feature publishes under, and takes the same three version forms every catalog reference takes: bare (`core/queue`) for the highest available release, exact (`core/queue:1.0.0`), or a caret range (`core/queue:^1.0.0`). The compiler walks the parent chain at catalog load, validates that the chain is acyclic, then merges parent specs into the child to produce a single resolved Feature. The child's authored fields take precedence on key collision; the parent's `metadata.labels`, `appliesTo` / `appliesToAnyOf` selectors, `interoperability` block, `usesSchema`, `featuresSchema`, and the JSON Schema 2020-12 declarations on `schema` are auto-merged downward.
 
 **What a Feature's `metadata:` inherits.** `labels` and `annotations` merge per key along the chain, base first, with the extending Feature's value winning on a shared key — the same rule Components follow. The rest of `metadata:` does not travel: `name`, `version`, `description`, `maintainers`, `license`, `repository`, `home` and `keywords` are the extending Feature's own, exactly as authored.
 
@@ -103,13 +103,15 @@ kind: Feature
 metadata:
   name: core/kafka-queue
 spec:
-  extends: hub.aggrega.ai/feature/core/queue:1.0.0
+  extends: core/queue:1.0.0
   schema:
     values:
       compression_codec: { type: string, enum: [none, gzip, snappy, lz4], default: none }
 ```
 
 The merged `core/kafka-queue` inherits `appliesTo` from the parent, inherits the `values.qos` and `infra.partition_count` properties, and adds `values.compression_codec` on top. A child explicitly declaring `appliesTo` overrides the parent's selector wholesale (label-selector merge is not deep — the child's selector replaces the parent's). A child's `schema.values.qos` overrides the parent's declaration for that property.
+
+**How each part of the attachment surface inherits.** The two selector forms inherit independently of each other, because they compose rather than replace: each form that is present must hold — the `appliesTo` string must match, *and* at least one `appliesToAnyOf` item must match — while a form left absent constrains nothing. So a Feature may take its base's AND-selector while declaring an OR-set of its own. The `interoperability` block inherits field by field — a child that declares only `componentRefPath` still carries the `conflictsWith` list its base declared, while a child that declares its own `conflictsWith` replaces the base's list rather than adding to it. A Feature that declares none of the three attaches exactly where its base attaches.
 
 **Inheritance is schema-merge, not interface-binding.** A Feature `extends:` chain produces one resolved Feature, not a polymorphic family. The base Feature URI from the chain is not what a Manifest binding's `feature:` field references — Manifests bind by the leaf Feature's URI, and the resolved schema includes the inherited properties. The Feature contract a FeatureRecipe `implements:` is similarly the leaf URI; FeatureRecipes do not navigate the inheritance chain.
 
