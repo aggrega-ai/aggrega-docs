@@ -395,7 +395,7 @@ The keyword is read on the node it sits on, and the read descends only through p
 
 ### `parameters:` is a different vocabulary
 
-`sensitive` is not part of the `parameters:` typed-contract vocabulary. An Aggregate that declares it on a parameter entry is rejected when the Aggregate loads, with a document-envelope diagnostic reporting `unexpected additional properties ["sensitive"]` positioned on the offending parameter — the same treatment any key outside that vocabulary receives, since the parameter contract is a closed object.
+`sensitive` is not part of the `parameters:` typed-contract vocabulary. An Aggregate that declares it on a parameter entry is rejected when the Aggregate loads, with a document-envelope diagnostic reporting `unexpected property: "sensitive"` positioned on the offending key itself — the same treatment any key outside that vocabulary receives, since the parameter contract is a closed object.
 
 The asymmetry is deliberate: the sensitivity axis covers the three data pillars a catalog entity declares, and a parameter is an environment-contract input rather than a pillar leaf. A deployment that hoists credential material through a parameter is documented at [architecture/08-credential-model.md](../../architecture/08-credential-model.md) "Legacy charts that demand a formatted string", which states the trade-off that path makes.
 

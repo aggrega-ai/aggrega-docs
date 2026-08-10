@@ -72,11 +72,11 @@ Every entity document — catalog entities, Aggregates, Manifests, Releases — 
 
 ```text
 [OPS_ERROR] release.yaml
-  Release: release.yaml: Release document violates its envelope schema; 11:5: spec.boundaries.main: unexpected additional properties ["values"]
+  Release: release.yaml: Release document violates its envelope schema; 12:7: spec.boundaries.main.values: /$defs/boundary: unexpected property: "values"
   caused by: document envelope validation failed: correct the document to match its kind's schema
 ```
 
-The head names the file once, so each violation after it carries `line:column` alone. A document with several violations lists each on its own position, in key order, and the report stops after four with a count of the rest.
+The head names the file once, so each violation after it carries `line:column` alone. Each offending key is reported at **its own** position rather than at the position of the block containing it, so the line and column point at the key you need to change. Where the position's shape comes from a reusable definition in the schema, the diagnostic names that definition — `/$defs/boundary` above — so it is clear which contract the key was measured against. A document with several violations lists each on its own position, in key order, and the report stops after four with a count of the rest.
 
 Two things are worth knowing about where a position points, because both are useful rather than surprising:
 
