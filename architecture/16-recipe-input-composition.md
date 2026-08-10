@@ -123,10 +123,6 @@ The complete Workload schema:
 apiVersion: aggrega.ai/v1alpha1
 kind: Workload
 
-metadata:
-  labels: {}           # merged with the label-safe aggrega.ai/* provenance at emission
-  annotations: {}      # merged with the charset-unsafe aggrega.ai/* provenance (recipe-uri, boundary-path, sync-wave)
-
 form: stateless        # controller shape: stateless (default) | stateful | daemon | scheduled | task
 
 replicas: 1            # default 1

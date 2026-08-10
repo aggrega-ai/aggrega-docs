@@ -4,7 +4,7 @@ _Generated reference. Do not edit by hand — regenerate from the published JSON
 
 Schema id: `https://aggrega.ai/schemas/workload-v1alpha1.schema.json`
 
-Platform-owned abstract workload specification. A Recipe using synthesized mode declares exactly one Workload via the workload: keyword (inline block scalar or workload: { $import: <path> } per the unified file-import vocabulary). The target provider Engine translates the Workload into provider-native manifests (K8s Deployment/StatefulSet/Services/PVCs for helm; compose services + volumes + networks for compose; etc.). The Workload kind is NOT a catalog entity — this published file is the canonical Workload JSON Schema, which the aggrega-cli binary consumes directly (rebound in its pkg/schemas/jsonschema package) for in-binary Workload validation; there is no separate embedded copy.
+Platform-owned abstract workload specification. A Recipe using synthesized mode declares exactly one Workload via the workload: keyword (inline block scalar or workload: { $import: <path> } per the unified file-import vocabulary). The target provider Engine translates the Workload into provider-native manifests (K8s Deployment/StatefulSet/Services/PVCs for helm; compose services + volumes + networks for compose; etc.). A Workload carries no metadata of its own — no name, no labels, no annotations. Identity and labelling come from the component instance that declares it: the target Engine derives each rendered resource's name from that instance and stamps the resource with the aggrega.ai/* provenance keys for that node. The Workload kind is NOT a catalog entity — this published file is the canonical Workload JSON Schema, which the aggrega-cli binary consumes directly (rebound in its pkg/schemas/jsonschema package) for in-binary Workload validation; there is no separate embedded copy.
 
 See the [workload authoring reference](../../entities/workload.md) for prose guidance on authoring workload entities; this page documents the structural schema that reference describes.
 
@@ -16,7 +16,6 @@ See the [workload authoring reference](../../entities/workload.md) for prose gui
 | --- | --- | --- | --- |
 | `apiVersion` | const "aggrega.ai/v1alpha1" | yes | Constant: `"aggrega.ai/v1alpha1"` |
 | `kind` | const "Workload" | yes | Constant: `"Workload"` |
-| `metadata` | object | no |  |
 | `form` | string (enum) | no | Abstract controller-shape intent for the workload. Chooses the kind of runtime lifecycle the workload has, independent of any target platform: stateless (interchangeable long-running replicas), stateful (replicas with stable per-replica identity and per-replica storage), daemon (one instance per eligible host), scheduled (recurring, time-triggered runs), task (a single run to completion), reference (an external endpoint with no compute — no controller; helm emits an ExternalName Service, compose carries the endpoint through the injection contract). Empty is treated as stateless. Each target Engine maps the form to its own native shape; the form carries no platform-native resource kinds itself. A persistentTemplate volume is a companion of stateful and is only valid on a stateful workload. A reference workload declares endpoint (and optionally port) and no containers, and carries no credential field of its own, because the environment-variable name belongs to the consumer rather than to the endpoint. A consumer that needs a credential for the endpoint declares the slot on its own Component's featuresSchema and fills it from its container's attachments block, where that slot's inject list permits the delivery. Allowed values: `"stateless"`, `"stateful"`, `"daemon"`, `"scheduled"`, `"task"`, `"reference"` Default: `"stateless"` |
 | `endpoint` | string | no | External endpoint for form: reference — a host or URL. The compiler pipes it through as a deterministic pointer string; it is never resolved at compile time (AOT). Required when form is reference and only meaningful then. helm emits it as an ExternalName Service's externalName (the host portion); compose carries it to consumers through the recipe's provides. |
 | `port` | integer | no | Optional port for the reference endpoint (form: reference). helm emits it as a port on the ExternalName Service. |
@@ -36,15 +35,6 @@ See the [workload authoring reference](../../entities/workload.md) for prose gui
 | `dnsPolicy` | string (enum) | no | Pod DNS policy. helm emits pod.dnsPolicy. compose has no DNS-policy analog and omits it (compose maps dnsConfig nameservers/searches directly instead). Allowed values: `"Default"`, `"ClusterFirst"`, `"ClusterFirstWithHostNet"`, `"None"` |
 | `dnsConfig` | object | no | Custom pod DNS configuration. helm emits pod.dnsConfig. compose maps nameservers to dns and searches to dns_search; options have no compose analog and are omitted there. |
 | `hostAliases` | object[] | no | Static hostname-to-IP mappings injected into the pod's hosts file. helm emits pod.hostAliases; compose emits extra_hosts (one hostname:ip entry per hostname). |
-
-_Additional properties are not permitted._
-
-#### `workload.metadata`
-
-| Property | Type | Required | Description |
-| --- | --- | --- | --- |
-| `labels` | map of string | no | Author-declared labels. Merged with aggrega.ai/* provenance labels at emission (author values preserved; aggrega keys overwrite on collision). |
-| `annotations` | map of string | no | Author-declared annotations on the workload. Translated to pod template annotations for helm, compose labels for compose. |
 
 _Additional properties are not permitted._
 
