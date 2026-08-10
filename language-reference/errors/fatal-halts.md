@@ -603,13 +603,13 @@ A Recipe declares `provider: <name>` where `<name>` names no rendering engine th
 Emitted message:
 > unknown provider: `<provider-name>`
 
-**How to fix:** confirm the provider name is spelled correctly — `helm`, `helm-chart`, and `compose` are the standard-library names. If you intended a custom enterprise provider, ensure a provider-rendering Plugin serving that name (`pluginType: provider` with the name in its `capabilities`) is present in the catalog workspace the build is pointed at.
+**How to fix:** confirm the provider name is spelled correctly — `helm`, `helm-chart`, and `compose` are the standard-library names. If you intended a custom enterprise provider, ensure a provider-rendering Plugin serving that name (`pluginType: provider` with the name in its `spec.provider.capabilities`) is present in the catalog workspace the build is pointed at.
 
 ### A capability is served by more than one provider plugin
 
 <!-- covers: pkg/catalog.ErrAmbiguousProviderPlugin -->
 
-A build reaches a capability — or a pull resolves one — served by more than one provider-rendering Plugin (`pluginType: provider`, each listing that capability in its `capabilities`), and the workspace has not selected which one renders it. Rather than pick a rendering engine arbitrarily, the build halts and names both candidates. A catalog that carries two plugins for the same capability is legal — two publishers may each ship a plugin for `helm` or `compose`, and the catalog accepts both. The ambiguity surfaces only at the point of use: the halt fires when a build or pull actually reaches the contested capability, not at load time.
+A build reaches a capability — or a pull resolves one — served by more than one provider-rendering Plugin (`pluginType: provider`, each listing that capability in its `spec.provider.capabilities`), and the workspace has not selected which one renders it. Rather than pick a rendering engine arbitrarily, the build halts and names both candidates. A catalog that carries two plugins for the same capability is legal — two publishers may each ship a plugin for `helm` or `compose`, and the catalog accepts both. The ambiguity surfaces only at the point of use: the halt fires when a build or pull actually reaches the contested capability, not at load time.
 
 Emitted message:
 > capability `<capability-name>` is served by more than one provider plugin (`<plugin-1>, <plugin-2>`); add a plugins.providers entry for `<capability-name>` selecting one

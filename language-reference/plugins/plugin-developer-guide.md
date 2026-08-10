@@ -16,7 +16,7 @@ You author the guest against the host through the three-language plugin developm
 
 ## 2. The `describe()` self-report
 
-Every plugin exports a `describe()` function that returns the plugin's self-report: the socket type(s) it implements, the ABI version it targets, the provider engines it claims compatibility with, the host functions it imports, and the per-export capability of each entry point it offers. `describe()` is the plugin's own account of what it is and what it does.
+Every plugin exports a `describe()` function that returns the plugin's self-report: the socket type(s) it implements, the ABI version it targets, the capabilities it claims — read according to the socket type, so provider engine names for a provider or a pipeline step and prefixed source formats for a parser or an importer — the host functions it imports, and the per-export capability of each entry point it offers. `describe()` is the plugin's own account of what it is and what it does.
 
 The self-report is the anchor of the trust model. The `Plugin` entity that carries the plugin into the catalog (Section 5) restates the same facts as authored claims, and the host cross-checks the entity's claims against the plugin's `describe()` output at two moments — at publish, before any bytes land in the registry, and at load, before the plugin runs. A mismatch halts loudly. The entity is the human-readable, catalog-visible surface; `describe()` is the machine-of-record the host verifies it against. Author both to agree; the cross-check exists precisely to catch the case where they drift.
 
@@ -90,9 +90,10 @@ metadata:
 spec:
   plugin: "oci://hub.aggrega.ai/plugin/pipeline-step/aws-secrets-manager"
   abiVersion: v1alpha1
-  targets:
-    - helm
-    - compose
+  pipelineStep:
+    capabilities:
+      - helm
+      - compose
   signature:
     type: sigstore-cosign
   runtime:
@@ -110,9 +111,9 @@ The fields:
 
 - **`spec.plugin`** — the digest-free content reference to the `.wasm` artifact, in the form `oci://<repository>`. The repository path is the plugin's derived coordinate `plugin/<pluginType>/<name>`. Together with `metadata.version` it is the plugin's identity. The content digest is not carried in the entity; it is resolved at `aggrega pull` and recorded in the release lockfile, and the build verifies the fetched bytes against the recorded digest — identity in the entity, verified bytes in the lockfile. Required.
 - **`metadata.version`** — the entity's version, which mirrors the guest's own build-provenance version as reported in `describe()`. It is not a free-form authored field: a plugin author versions the `.wasm` at build time (the build stamps the version into the guest), and the entity's `metadata.version` restates that same version. The publish door cross-checks the two and halts on a divergence, so the entity always names the exact version of the binary it ships. Generating the entity with `aggrega plugin gen-catalog --plugin` (below) copies the version across for you. Required.
-- **`metadata.pluginType`** — the socket type this plugin implements, drawn from `provider`, `linter`, `pipeline-step`. A plugin implements exactly one. It sits in the addressing block beside `name` and `version` and supplies the `<pluginType>` segment of the derived coordinate. Required.
+- **`metadata.pluginType`** — the socket type this plugin implements, drawn from `provider`, `linter`, `pipeline-step`, `governance`, `cli`, `parser`, and `importer`. A plugin implements exactly one. It sits in the addressing block beside `name` and `version` and supplies the `<pluginType>` segment of the derived coordinate. Required.
 - **`spec.abiVersion`** — the host/guest ABI version the plugin targets. `v1alpha1` is the accepted value; a future ABI revision adds an accepted value. Required.
-- **`spec.capabilities`** — the provider engines this plugin is tested-compatible with (provider names such as `helm` or `compose`). A plugin is generic across artifacts that share a provider's output shape, not across all providers, so this is an explicit, tested-compatibility claim. The list is render-enforced: when a pipeline step touches a scope, the provider rendering that scope's documents must appear here, or the build halts. An empty or absent list declares no compatibility claim, matches no provider, and halts any pipeline step that uses the plugin. Entries preserve author order.
+- **The block for your socket type, carrying `capabilities`** — a plugin declares what it serves inside the block belonging to its `metadata.pluginType`, and the block is what fixes what an entry means. `spec.provider.capabilities` names the render engines a provider serves (engine names such as `helm` or `compose`). `spec.pipelineStep.capabilities` names the provider engines whose rendered output your step is compatible with. `spec.parser.capabilities` names the source formats a parser reads, each written `parse:<format>`. `spec.importer.capabilities` names the foreign formats an importer drafts entities from, each written `import:<format>`. A `linter`, `governance`, or `cli` plugin serves no capability and carries none of the four blocks. Entries preserve author order, and every list is an explicit, tested claim: declare what you have actually built and tested the plugin against, because a consumer resolves against exactly what is listed. For a pipeline step that claim is enforced at render — when a step touches a scope, the build halts unless the provider rendering that scope's documents is among the ones your plugin claims — so an empty list matches no provider and admits the step nowhere.
 - **`spec.signature`** — an optional descriptive pointer to the plugin's attached signature (Section 8). This block is documentation only: it records where the signature lives and how it was produced for catalog readers; it does not itself admit the plugin. The enforcing check is the per-registry trust policy applied at pull.
 - **`spec.runtime`** — the optional execution-constraints block from Section 4. The author writes `maxMemoryPages`, `timeoutMs`, and `configKV`; `hostFunctions` is machine-derived and stamped by publish, not authored.
 - **`spec.exports`** — the per-export capability claims from Section 3 (`name`, `operates`, `scope`, `selector`).

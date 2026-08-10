@@ -137,9 +137,9 @@ A plugin-pipeline step publishes named outputs that subsequent steps consume via
 
 ### Provider rendering — the guest-driven socket
 
-A provider is a Wasm guest. Rendering is Wasm-only: a Recipe's `target:` name resolves to the provider-rendering Plugin (`pluginType: provider`) that lists the name in its `targets` and advertises a `render_node` export, and that plugin's guest renders the node. There is no native Go engine to fall back to; a provider name that resolves to no serving Plugin halts the build at routing time. Adding a standard provider is shipping a `.wasm` guest and a catalog `Plugin` entity — the host carries no per-provider code.
+A provider is a Wasm guest. Rendering is Wasm-only: a Recipe's `target:` name resolves to the provider-rendering Plugin (`pluginType: provider`) that lists the name in its `spec.provider.capabilities` and advertises a `render_node` export, and that plugin's guest renders the node. There is no native Go engine to fall back to; a provider name that resolves to no serving Plugin halts the build at routing time. Adding a standard provider is shipping a `.wasm` guest and a catalog `Plugin` entity — the host carries no per-provider code.
 
-The host is a generic router. It reads the guest's `describe()` self-report — including a **capabilities block** — and dispatches the guest's exports without understanding any provider format. The capabilities block drives dispatch as data:
+The host is a generic router. It reads the guest's `describe()` self-report — including its **render-behavior contract** — and dispatches the guest's exports without understanding any provider format. That contract drives dispatch as data:
 
 - `input_kinds` (`sourced`, `synthesized`, `artifacts_standalone`) — which Recipe input kinds the guest renders; the host gates a node's input kind against this set.
 - `boundary_assembly` (`none` | `merge` | `nest`) — how the guest combines a dispatch group's output: `merge` classifies per-node output as fragments the assembler merges into one artifact, `nest` nests per-node files under an assembled wrapper, `none` writes each node's output directly.

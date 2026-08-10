@@ -8,10 +8,11 @@ This page covers the `Plugin` catalog authoring surface field by field. For the 
 
 A `Plugin` ties a logical plugin identity to a concrete `.wasm` artifact and to the capability and runtime metadata the host needs to load and run it safely. A pipeline step or a plugin socket references the entity by its URI; the entity carries the declared capabilities, the runtime limits, and the signature pointer, while the resolved content digest lives in the release lockfile. The `.wasm` location is derived from the plugin's identity — the addressable coordinate `plugin/<pluginType>/<name>`, itself composed from `metadata.pluginType` and the bare `metadata.name`, plus the configured registry — and is not an authored field. The indirection through the entity is mandatory — a bare `.wasm` or artifact reference is rejected at load because no entity matches it.
 
-A Plugin declares two distinct render surfaces, and keeping them apart is the key to reading the entity:
+A Plugin's declarations are grouped by socket type, and that grouping is where reading the entity starts:
 
-- **`spec.capabilities`** — a top-level served-list naming the capabilities this plugin serves. A *capability* is the render dimension a consumer requests — a provider engine kind such as `helm` or `compose`. It is monomorphic: every entry means the same thing, discriminated only by `metadata.pluginType`. A Recipe or FeatureRecipe requests one capability (`spec.capability`); the plugin whose `spec.capabilities` list includes that name serves it.
-- **`spec.provider.contract`** — a per-type render-behavior contract (input kinds, boundary assembly, artifact delimiters, source filter, instance reuse). Unlike a capability, the contract is polymorphic render *behavior*, not a served dimension, so it sits under `spec.provider` beside the other provider-socket metadata.
+- **One block per socket type** — `spec.provider`, `spec.pipelineStep`, `spec.parser`, `spec.importer`. A plugin carries the one block its `metadata.pluginType` names, and every block holds a `capabilities:` list whose meaning belongs to that block alone: a provider's list names the render engines it serves, a pipeline step's names the provider capabilities its step is compatible with, and a parser's and an importer's name source formats, written `parse:<format>` and `import:<format>`. Containment is what carries the meaning — a capability entry cannot be reached without first reading the block that says which kind of claim it is.
+- **A provider block carries more than its list** — `spec.provider` also declares how the plugin's engine translates the Workload kind, which platform-native annotations that engine reads, and its render-behavior contract (`spec.provider.contract`: input kinds, boundary assembly, artifact delimiters, source filter, instance reuse). Those describe render *behavior* rather than a served dimension, which is why they sit beside the provider's capability list rather than inside it.
+- **A cross-cutting socket declares no capabilities** — a `linter`, `governance`, or `cli` plugin carries none of the four blocks, because it serves no render dimension and no source format.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -22,9 +23,10 @@ metadata:
   pluginType: pipeline-step
 spec:
   abiVersion: v1alpha1
-  capabilities:
-    - helm
-    - compose
+  pipelineStep:
+    capabilities:
+      - helm
+      - compose
   signature:
     type: sigstore-cosign
   runtime:
@@ -62,17 +64,29 @@ Required.
 
 The host/guest ABI version the plugin targets. `v1alpha1` is the only accepted value; a future ABI revision adds an accepted value. Required.
 
-## `spec.capabilities`
+## Declaring capabilities: one block per socket type
 
-A single top-level field declaring the capabilities this plugin *serves*, as capability names such as `helm` or `compose`; entries preserve author order. A capability is the render dimension a consumer requests. Its meaning is discriminated by `metadata.pluginType`: for a `provider` plugin it names the render-engine capabilities (the provider engine kinds whose output shape the plugin renders); for a `pipeline-step` plugin it names the provider capabilities the step is compatible with; a cross-cutting socket (`linter`, `governance`) leaves it empty. The meaning stays uniform — "what this plugin serves" — and does not drift to unrelated per-socket semantics.
+A *capability* is what a consumer asks a plugin for — a render engine a Recipe requests, or a source format a build needs read. A plugin declares the capabilities it serves inside the block belonging to its socket type, so which block the list sits in is what fixes what its entries mean:
 
-For a `pipeline-step` plugin the list is render-enforced. When a pipeline step touches a scope, the provider rendering that scope's documents must appear in this list, or the build halts. An empty or absent list matches nothing, so the runtime halts any pipeline step that uses the plugin. Declare every provider whose output the plugin is tested against.
+| `metadata.pluginType` | Where its capabilities are declared | What an entry names |
+| --- | --- | --- |
+| `provider` | [`spec.provider.capabilities`](#specprovidercapabilities) | A render engine this plugin serves, such as `helm` or `compose`. |
+| `pipeline-step` | [`spec.pipelineStep.capabilities`](#specpipelinestep) | A provider engine whose rendered output this plugin's step is compatible with. |
+| `parser` | [`spec.parser.capabilities`](#specparser) | A source format this plugin reads, written `parse:<format>`. |
+| `importer` | [`spec.importer.capabilities`](#specimporter) | A foreign source format this plugin drafts entities from, written `import:<format>`. |
+| `linter`, `governance`, `cli` | — | Nothing. These sockets serve no capability, so they carry none of the four blocks. |
 
-For a `pluginType: provider` plugin, `capabilities` declares the render capability(-ies) the plugin *serves*. The capability a Recipe requests (`spec.capability: helm`) binds to the provider-rendering Plugin whose `capabilities` list includes that name. When more than one Plugin serves the same capability, the workspace chooses: a provider binding in `.aggrega-config.yaml` (resolved at `aggrega pull` and recorded in the lockfile) selects one; with no binding and exactly one candidate, that candidate is used; with no binding and more than one candidate, the build halts loudly naming every candidate. Ambiguity is resolved per workspace at the point of use, not by a catalog-wide uniqueness rule.
+A plugin implements exactly one socket type, so it declares one block. Entries preserve author order in every block, and each block's list is an explicit, tested claim rather than an aspiration: declare what the plugin is actually built and tested against, because a consumer resolves against exactly what is listed.
 
 ## `spec.provider`
 
-The provider-socket metadata for a `pluginType: provider` plugin: how its rendering engine translates the platform-owned `aggrega.ai/v1alpha1` Workload kind, and which platform-native annotations the engine reads. The block is present only on provider-rendering plugins; it is absent on `linter` and `pipeline-step` plugins, and on provider plugins whose engine renders only sourced or artifact content with no Workload synthesis.
+The provider-socket block for a `pluginType: provider` plugin: the render engines it serves, how its rendering engine translates the platform-owned `aggrega.ai/v1alpha1` Workload kind, which platform-native annotations that engine reads, and its render-behavior contract. The block is present on every provider-rendering plugin and absent on every other plugin type. A provider whose engine renders only sourced or artifact content with no Workload synthesis still carries the block — it declares its capabilities and its contract there, and simply omits `workloadSchema`.
+
+### `spec.provider.capabilities`
+
+The render engines this provider serves — engine names such as `helm` or `compose` — whose output shape its engine renders. A provider is generic across artifacts that share an engine's output shape, not across all engines, so the list is an explicit, tested-compatibility claim. Entries preserve author order.
+
+A Recipe's requested provider target (`spec.capability: helm`) resolves to the provider plugin whose list contains that target. When more than one provider plugin lists the same target, the workspace chooses: the `plugins.providers` selection in the workspace configuration names which plugin to use, resolved at `aggrega pull` and recorded in the lockfile. With no selection and exactly one candidate, that candidate is used; with no selection and more than one candidate, the build halts and names every candidate. Ambiguity is settled per workspace at the point of use rather than by a catalog-wide uniqueness rule. An empty or absent list declares no capability claim, so the plugin serves no target.
 
 ### `spec.provider.workloadSchema`
 
@@ -91,9 +105,9 @@ metadata:
   pluginType: provider
 spec:
   abiVersion: v1alpha1
-  capabilities:
-    - helm
   provider:
+    capabilities:
+      - helm
     workloadSchema: |
       # how the Workload kind translates to this provider's native output
       ...
@@ -107,7 +121,7 @@ The per-provider annotation sets and `workloadSchema` content the standard-libra
 
 ### `spec.provider.contract`
 
-A provider-rendering plugin's self-declared compile-time render-behavior contract: the input kinds it renders, how it assembles a dispatch group's per-node output, the template-delimiter pair it applies to imported artifact files, any restriction on which source files it consumes, and whether one loaded instance may serve every crossing. Unlike a served `capability` (a render dimension), the contract is per-type render *behavior*, so it lives here under `spec.provider`. It is authored as the claim the host cross-checks against the plugin's own `describe()` self-report at publish and at load; a disagreement halts. Absent declares no render-behavior contract, and the cross-check compares only the per-export claims. All fields are optional.
+A provider-rendering plugin's self-declared compile-time render-behavior contract: the input kinds it renders, how it assembles a dispatch group's per-node output, the template-delimiter pair it applies to imported artifact files, any restriction on which source files it consumes, and whether one loaded instance may serve every crossing. It sits beside `capabilities` in the same block but answers a different question: the capability list says *which* engines this plugin serves, while the contract says *how* it renders them. It is authored as the claim the host cross-checks against the plugin's own `describe()` self-report at publish and at load; a disagreement halts. Absent declares no render-behavior contract, and the cross-check compares only the per-export claims. All fields are optional.
 
 | Field | Effect |
 | --- | --- |
@@ -121,9 +135,9 @@ A provider-rendering plugin's self-declared compile-time render-behavior contrac
 metadata:
   pluginType: provider
 spec:
-  capabilities:
-    - helm-chart
   provider:
+    capabilities:
+      - helm-chart
     contract:
       inputKinds:
         sourced: true
@@ -134,6 +148,56 @@ spec:
         left: "[["
         right: "]]"
       reusableInstance: true
+```
+
+## `spec.pipelineStep`
+
+The pipeline-step block for a `pluginType: pipeline-step` plugin. Its one field, `capabilities`, names the provider engines whose rendered output the plugin's step knows how to transform — engine names such as `helm` or `compose`. A step is written against one provider's output shape at a time, so the list is an explicit, tested-compatibility claim; entries preserve author order. The block is present only on pipeline-step plugins.
+
+The block is the catalog-readable record of that claim, recorded from the plugin's own `describe()` self-report. The enforcement reads the same claim from the plugin: when a step touches a scope, the build halts unless the provider rendering that scope's documents is among the ones the plugin claims. An empty or absent list declares no compatibility claim, so no scope admits the step. Declare every provider whose output the plugin is tested against.
+
+```yaml
+metadata:
+  pluginType: pipeline-step
+spec:
+  abiVersion: v1alpha1
+  pipelineStep:
+    capabilities:
+      - helm
+      - compose
+```
+
+## `spec.parser`
+
+The parser block for a `pluginType: parser` plugin. Its one field, `capabilities`, names the source formats the plugin turns into a canonical structured tree, each written `parse:<format>`. The prefix is part of the entry, so a plugin that reads several formats lists one entry per format; entries preserve author order. The block is present only on parser plugins.
+
+A requested format resolves to the parser whose list contains the matching entry. A format no parser advertises halts the build, and a format advertised by more than one parser plugin halts as ambiguous, naming the candidates — there is no fallback, because a parser has no zero-configuration default to fall back to. An empty or absent list declares no format claim, so the plugin parses nothing.
+
+```yaml
+metadata:
+  pluginType: parser
+spec:
+  abiVersion: v1alpha1
+  parser:
+    capabilities:
+      - parse:hcl
+      - parse:toml
+```
+
+## `spec.importer`
+
+The importer block for a `pluginType: importer` plugin. Its one field, `capabilities`, names the foreign source formats the plugin turns into draft Aggrega authoring files, each written `import:<format>`. The prefix is part of the entry, so a plugin that handles several formats lists one entry per format; entries preserve author order. The block is present only on importer plugins.
+
+A requested import format resolves to the importer whose list contains the matching entry. A format no importer advertises halts the import, and a format advertised by more than one importer plugin halts as ambiguous, naming the candidates. An empty or absent list declares no format claim, so the plugin imports nothing.
+
+```yaml
+metadata:
+  pluginType: importer
+spec:
+  abiVersion: v1alpha1
+  importer:
+    capabilities:
+      - import:langflow
 ```
 
 ## `spec.signature`
@@ -209,7 +273,7 @@ spec:
 
 ## Inspecting a Plugin
 
-`aggrega inspect <path-to-Plugin.yaml>` renders a `Plugin` file: its identity and socket types, its `capabilities`, the per-export capability table in author order, the runtime constraints, and — at `--detail` — the signature pointer and the runtime config keys. A `Plugin` is inspectable by file path; the bare-name catalog lookup resolves Components only. See [`../cli/aggrega-inspect.md`](../cli/aggrega-inspect.md).
+`aggrega inspect <path-to-Plugin.yaml>` renders a `Plugin` file: its identity and socket type, the capabilities its block declares, the per-export capability table in author order, the runtime constraints, and — at `--detail` — the signature pointer and the runtime config keys. A `Plugin` is inspectable by file path; the bare-name catalog lookup resolves Components only. See [`../cli/aggrega-inspect.md`](../cli/aggrega-inspect.md).
 
 ## Cross-references
 
