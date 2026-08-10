@@ -68,7 +68,7 @@ spec:
     $import: ./mappings/api-server.tmpl
 ```
 
-The compiler loads the file's content (a Go template), template-renders it against the standard Recipe template context, and treats the result as the mapping output. Path resolution is relative to the Recipe's directory. File mode suits medium-to-large mapping content (~50+ lines) and review patterns where mapping changes show up as standalone file diffs.
+The compiler loads the file's content (a Go template), template-renders it against the standard Recipe template context, and treats the result as the mapping output. Path resolution is relative to the Recipe's directory — a relative path is anchored to the directory holding the `recipe.yaml` that declares it, not to the directory the build is invoked from. An absolute path is used as written. File mode suits medium-to-large mapping content (~50+ lines) and review patterns where mapping changes show up as standalone file diffs.
 
 **Mode 3: Library `$import:`.** The field's value is a map containing only `$import:` with a bare-name identity reference to a MappingLibrary entry:
 
@@ -267,6 +267,8 @@ spec:
     $import: ./workload/web-server.yaml.tmpl
 ```
 
+Path resolution matches `valuesMapping:`: a relative path is anchored to the directory holding the `recipe.yaml` that declares it, not to the directory the build is invoked from, and an absolute path is used as written. The imported body is a Go template evaluated in the Recipe's render context, exactly as an inline body is.
+
 **Mode 3: Library `$import:`.** The value is a map with a single `$import:` key carrying a bare-name identity reference to a WorkloadLibrary entry:
 
 ```yaml
@@ -301,7 +303,7 @@ spec:
       $import: ./artifacts/network-policy.tmpl
 ```
 
-Each artifact entry's template evaluates with the same template context as `valuesMapping:`. Map keys translate to filenames in the assembled output; filename collisions across artifact entries, source output, and workload synthesis are load-time or render-time errors with a clear diagnostic naming every contributor. Library `$import:` is not available at this site; artifacts are Recipe-local.
+Each artifact entry's template evaluates with the same template context as `valuesMapping:`. A file `$import:` here resolves on the same base as the other two fields: a relative path is anchored to the directory holding the `recipe.yaml` that declares it, not to the directory the build is invoked from, and an absolute path is used as written. Map keys translate to filenames in the assembled output; filename collisions across artifact entries, source output, and workload synthesis are load-time or render-time errors with a clear diagnostic naming every contributor. Library `$import:` is not available at this site; artifacts are Recipe-local.
 
 **Use cases.** `artifacts:` is the home for auxiliary resources that the primary chart or module does not produce: a `NetworkPolicy` accompanying a workload, an `HPA` paired with a Deployment, a sidecar `ConfigMap` keyed off `instance_id`. Cross-cutting auxiliary resources that apply across many components (a backup sidecar attached to every datastore, for example) belong on FeatureRecipe Resource Generation rather than per-Recipe `artifacts:` — see [entities/featurerecipe.md](featurerecipe.md) for the FeatureRecipe extension surface.
 
