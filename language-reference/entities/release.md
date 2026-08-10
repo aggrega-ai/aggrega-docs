@@ -252,11 +252,35 @@ spec:
 
 Place every sub-aggregate listed under `Aggregate.spec.aggregates:` in exactly one boundary when the Release declares `boundaries:`.
 
-🔴 **Sub-aggregate routing is accepted and structurally validated; it is not yet consumed.** The `aggregates:` map is checked against the Release schema when the Release loads — its shape, its recursion, and the per-component overrides inside it are all validated — but no compiler stage reads it. So routing a sub-aggregate into a boundary does not currently affect emitted artifacts, and neither an unplaced sub-aggregate nor one placed in more than one boundary is reported. Author the placement as described below: it becomes load-bearing when the routing consumer ships, and a document written to this shape needs no change at that point.
+Routing places components. Every component of a routed sub-module lands in the boundary that routes it and takes that boundary's `directory`, `subDirectory`, `syncWave` and annotation cascade — the same context a component named directly under `components:` receives, including the `aggrega.ai/boundary-path` provenance stamped on the emitted artifacts. Routing a sub-module and addressing each of its components by qualified dotted path with an empty body therefore produce identical artifacts; routing is the shorter way to say it, and the only way to say it without knowing the sub-module's contents.
+
+A component belongs to exactly one boundary, and the build halts when a document places one twice — the same sub-module routed into two boundaries, a sub-module routed into one boundary while one of its components is named in another, or a component named both directly and through a routing entry. The diagnostic names both sites, because which one to keep is the author's decision. Routing a sub-module into a boundary and naming one of its components under that *same* boundary is not a conflict: the routing places the component and the named entry configures it.
+
+🔴 **A sub-aggregate the Release places nowhere is not reported.** Its components emit to the default output location instead of a boundary's, so a forgotten placement surfaces as artifacts in an unexpected directory rather than as an error. Check that every sub-aggregate reaches a boundary.
 
 **Recursive routing.** `aggregates:` is recursive — each entry under a boundary's `aggregates:` may itself declare a nested `aggregates:` map for deeply-nested module composition.
 
-**Per-aggregate routing block.** Inside the routing entry the Release may declare the same shape as a regular boundary entry: `annotations:`, `infra:`, and per-component overrides. The sub-aggregate's own components and Features are not redeclared at the Release — the Release routes them rather than restating them.
+**Per-aggregate routing block.** A routing entry accepts exactly two keys and nothing else: `components:`, to configure individual components of that sub-module, and a nested `aggregates:` for modules nested deeper. `annotations:` belongs to the boundary, and per-component `infra:` belongs to an entry under the routing entry's own `components:`.
+
+Inside a routing entry a component is keyed by the name it carries **inside its sub-module** — `consumer`, not `data.consumer` — because that is the only name it has there. The qualified dotted path is how a boundary's own `components:` map addresses the same component; the two spellings are not interchangeable, and a routing entry rejects a dotted key.
+
+```yaml
+  boundaries:
+    eu-prod:
+      directory: "deploy/eu-prod"
+      annotations:
+        aggrega.ai/namespace: "finance-zone"
+      aggregates:
+        finance:
+          components:
+            ledger:                 # the component's name inside the finance module
+              infra:
+                replicas: 3
+          aggregates:
+            reporting: {}           # a module nested inside finance
+```
+
+The sub-aggregate's own components and Features are not redeclared at the Release — the Release routes them rather than restating them, and names one only in order to configure it.
 
 ## Temporal Sequencing — per-boundary `syncWave`
 
