@@ -238,7 +238,7 @@ JSON is suited for machine-to-machine communication, not for manual human author
 
 `Recipe.spec.workload:` declares the Workload body the compiler synthesizes into provider-native resources. It is one of the three input kinds a Recipe may declare alongside `source:` (sourced rendering) and `artifacts:` (auxiliary manifests). At least one of the three must be present for non-`eval` providers; the `eval` provider rejects all three by schema constraint.
 
-The field accepts two content-shape-dispatched authoring modes:
+The field accepts three authoring modes — inline block scalar, file `$import:`, or library `$import:`. The compiler dispatches on the field's content shape; no `$mode:` annotation is needed.
 
 **Mode 1: Inline (Go template string scalar).** The value is a YAML block scalar whose output parses as `aggrega.ai/v1alpha1 Workload`:
 
@@ -249,16 +249,15 @@ spec:
   workload: |
     apiVersion: aggrega.ai/v1alpha1
     kind: Workload
-    metadata:
-      name: "{{ .context.instance_id }}"
-    spec:
-      containers:
-        - name: app
-          image: "{{ .values.image }}"
-          ports:
-            - { name: http, port: 8080 }
-      replicas: {{ .infra.replicas | default 1 }}
+    replicas: {{ .infra.replicas | default 1 }}
+    containers:
+      app:
+        image: "{{ .values.image }}"
+        ports:
+          http: 8080
 ```
+
+A Workload's fields sit at the document root — there is no `spec:` wrapper — and `containers:` and each container's `ports:` are name-keyed maps rather than sequences, with author order preserved. The provider translates that shape into its own native form, so a container map entry surfaces in helm's rendered output as a `containers[]` element named by its key; the authored shape is the map, not the rendered list.
 
 **Mode 2: File `$import:`.** The value is a map with a single `$import:` key pointing at a local Go-template file:
 
@@ -268,7 +267,17 @@ spec:
     $import: ./workload/web-server.yaml.tmpl
 ```
 
-Library `$import:` (the host-less `<Library>#/mappings/<entry>` identity form recognized by `valuesMapping:`) is not available at this site — Workload bodies are Recipe-local. The target provider's engine must support synthesis (the standard-library catalog declares `workloadSchema` on such providers by convention); targeting a provider whose engine cannot synthesize is rejected when the node renders, with the provider-capability diagnostic — keyed on engine capability, not on `workloadSchema` presence. For the full Workload grammar, the K8s-shape pass-through fields, and the per-provider translation behavior, see [entities/workload.md](workload.md). For the broader three-input-kinds model and the assembler that merges synthesis with source-rendered output and artifacts, see [architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md).
+**Mode 3: Library `$import:`.** The value is a map with a single `$import:` key carrying a bare-name identity reference to a WorkloadLibrary entry:
+
+```yaml
+spec:
+  workload:
+    $import: BaseWorkloads#/workloads/StatelessService
+```
+
+The `#/workloads/` fragment is what selects a Workload entry, and it is the fragment that distinguishes this reference from the `#/mappings/` form `valuesMapping:` uses — that one addresses a MappingLibrary entry and does not name a Workload body. The reference carries no registry host, the resolved version comes from the per-Release lockfile, an optional `:<version>` minimum-version floor may be asserted as `<Library>:<version>#/workloads/<Entry>`, and an entry whose body is itself a field-root `$import:` resolves recursively. The imported body is a Go template evaluated in the consuming Recipe's render context, so `.values`, `.infra` and `.features` flow into it exactly as they do into an inline body. See [entities/workloadlibrary](workloadlibrary.md) for the library entity and the full reference grammar.
+
+The target provider's engine must support synthesis (the standard-library catalog declares `workloadSchema` on such providers by convention); targeting a provider whose engine cannot synthesize is rejected when the node renders, with the provider-capability diagnostic — keyed on engine capability, not on `workloadSchema` presence. For the full Workload grammar, the K8s-shape pass-through fields, and the per-provider translation behavior, see [entities/workload.md](workload.md). For the broader three-input-kinds model and the assembler that merges synthesis with source-rendered output and artifacts, see [architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md).
 
 ## The `artifacts:` field — auxiliary manifests
 
