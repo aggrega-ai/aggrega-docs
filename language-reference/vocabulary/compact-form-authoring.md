@@ -266,6 +266,50 @@ primary:
 
 For cross-document references targeting SchemaLibrary entries, see [cross-document-ref.md](cross-document-ref.md). For OCI URI shorthand expansion, see [uri-grammar.md](uri-grammar.md).
 
+### Point a reference at a definition, not at a property
+
+A pointer naming a `$defs:` entry — `#/$defs/PodResources` — is the shape to reach for. A pointer is
+legal wherever JSON Schema allows one, so a pointer into a declared property is accepted and enforced
+too, but it is reported less precisely, and the difference is worth knowing before you write one.
+
+A field whose shape comes from a `$defs:` entry is checked field by field: a failure is reported at
+the path of the value that is actually wrong, and every failure under that field is reported, not
+just the first.
+
+```yaml
+$defs:
+  PodResources:
+    requests:
+      cpu: { type: string, pattern: "^[0-9]+(m|\\.[0-9]+)?$" }
+
+primary:
+  resources: { $ref: "#/$defs/PodResources" }
+```
+
+A bad `cpu` here is reported at `primary.resources.requests.cpu`.
+
+A field whose shape comes from a pointer into a declared property is checked as part of the document
+as a whole. The constraints still apply and a document violating them still halts — but the failure
+is reported at the field carrying the pointer rather than at the value inside it, and where several
+such fields are wrong at once only one of them is named.
+
+```yaml
+primary:
+  resources:
+    requests:
+      cpu: { type: string, pattern: "^[0-9]+(m|\\.[0-9]+)?$" }
+
+secondary:
+  resources: { $ref: "#/properties/primary/properties/resources" }
+```
+
+A bad `cpu` under `secondary` is reported at `secondary.resources`.
+
+Both authorings accept and refuse exactly the same documents. What differs is how much the message
+tells you, which matters most in an editor, where the marker is placed from that path. The same
+applies to a `$defs:` entry whose own pointer reaches back out into the properties: reaching a
+definition through it inherits the coarser report.
+
 ## Conditional shape via `when:`
 
 JSON Schema 2020-12 expresses conditional shape via `if`/`then`/`else`. The compact form provides `when:` as a more direct shorthand: a Go template predicate that, if true, applies the rest of the node's constraints; if false, the node is treated as if its constraints did not exist.
