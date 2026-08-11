@@ -94,6 +94,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrInvalidLibraryRef()` | `resolve: invalid library reference URI` |
 | `ErrMVSConflict()` | `resolve: minimum version selection conflict — incompatible library version requirements` |
 | `ErrNoAggregateLoader()` | `resolve: catalog lookup cannot load resolved sub-aggregate bodies` |
+| `ErrNoRecipeLoader()` | `resolve: catalog lookup cannot load resolved recipe and plugin bodies` |
 | `ErrSourceTemplateAtLockTime()` | `resolve: source-template evaluation failure at lock time` |
 | `ErrSourceTemplateParse()` | `resolve: source-template parse error` |
 | `ErrSourceTemplateProvidesRef()` | `resolve: source-template references .provides (invalid reverse reference)` |
