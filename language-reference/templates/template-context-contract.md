@@ -70,7 +70,7 @@ Fields:
 - **`.context.inject.file`** — string-valued map of file-path → resolved value.
 - **`.context.inject.arg`** — string-valued map of arg-flag → resolved value.
 - **`.context.inject.all`** — string-valued map combining `env`/`file`/`arg`/custom mechanisms into one flat dictionary; useful for whole-pipe serialization (`{{ toJson .context.inject.all }}`).
-- **Custom mechanisms** (e.g., `ssm_param`) — readable under their own field name, `.context.inject.<mechanism>.<key>`, exactly as the core three are. The Component's `inject:` allowlist must declare the mechanism, and the values reach the pipe from a Feature attachment's `inject:` mapping or a FeatureRecipe's `injectMapping` output. A custom mechanism's entries also appear in `.context.inject.all` alongside the core three.
+- **Custom mechanisms** (e.g., `ssm_param`) — readable under their own field name, `.context.inject.<mechanism>.<key>`, exactly as the core three are. A custom mechanism's values reach the pipe from component-level self-inject, from a `uses[].inject` edge, from a Feature attachment's `inject:` mapping, and from a FeatureRecipe's `injectMapping` output. For component-level self-inject the Component's `spec.inject` allowlist must name the mechanism, and a mechanism the allowlist does not name halts the build. A custom mechanism's entries also appear in `.context.inject.all` alongside the core three.
 
 The InjectPipe is the post-interception state — FeatureRecipe `injectMapping` blocks have already deep-merged their overrides over this pipe during inject mapping, by the time Recipe templates read it.
 
