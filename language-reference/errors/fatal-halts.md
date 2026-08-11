@@ -518,6 +518,34 @@ Emitted message:
 
 **How to fix:** switch to an allowlisted mechanism, or, if the Component should support the mechanism you need, extend its catalog `spec.inject` allowlist.
 
+### `uses` edge dictates delivery on a socket that allowlists none
+
+<!-- covers: internal/compiler/ir.ErrUsesInjectForbidden -->
+
+An `inject:` block on a `uses:` edge wires into a socket whose `usesSchema` entry declares no `inject:` allowlist, or declares an empty one. Such a socket is a Black-Box connection: the entity that declared it handles the dependency's values internally, so the consumer takes whatever the producer's Recipe emits and does not choose the delivery form. An absent `inject:` key and `inject: []` are the same declaration.
+
+The socket is read on whichever entity declared it: an edge authored on a Feature attachment resolves against the attached Feature's `usesSchema`, and every other edge against the consuming Component's.
+
+Emitted message:
+> socket `<socket>` on component type `<component-type>` declares no inject allowlist (Black-Box pattern) — delivery dictation is not allowed.
+
+**How to fix:** remove the `inject:` block from the edge and read the dependency's values from `.context.uses.<alias>.provides.<name>` in the consuming Recipe instead; or, if the connection is meant to be transparent, declare the delivery mechanisms the socket permits in its `usesSchema` entry's `inject:` allowlist.
+
+A socket the declaring entity never declared at all is a different case and is not refused here: an ad-hoc socket carries no allowlist, so there is nothing for the edge to be outside of.
+
+### `uses` edge dictates a delivery mechanism outside the socket's allowlist
+
+<!-- covers: internal/compiler/ir.ErrUsesInjectForbidden -->
+
+An `inject:` block on a `uses:` edge names a delivery mechanism the socket's `inject:` allowlist does not list. The allowlist is the declaring entity's statement of which delivery forms its entrypoint can actually read the dependency's values from, so a mechanism outside it would deliver values nothing consumes.
+
+Every mechanism the block names is checked, and each one outside the allowlist is reported, so one build names them all rather than one per run.
+
+Emitted message:
+> mechanism `<mechanism>` not in socket `<socket>` inject allowlist `[<mechanism-1>, <mechanism-2>, ...]` on component type `<component-type>`.
+
+**How to fix:** switch to one of the allowlisted mechanisms, or, if the entity should support the mechanism you need, widen that socket's `inject:` allowlist in its catalog `usesSchema` entry.
+
 ## When rendering output
 
 After every contract is validated, the compiler evaluates Go templates on Component values, FeatureRecipe `injectMapping` blocks, and Recipe sources, then hands the result to the renderer.
