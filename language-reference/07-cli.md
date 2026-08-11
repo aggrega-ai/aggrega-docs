@@ -52,6 +52,12 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 | `aggrega version` | Print the aggrega CLI version |
 <!-- END GENERATED: command-list -->
 
+## Positional arguments and exit status
+
+Every command refuses a positional argument it has no use for, and reports that refusal through a non-zero exit status rather than completing as though the invocation were valid. The rule covers the commands that exist only to group subcommands, where a mistyped subcommand name arrives as an unrecognised positional: the command's help is printed and the exit status is non-zero, so a typo on a scripted surface fails loudly instead of reading as a successful run. `aggrega` invoked with an unrecognised command behaves the same way and additionally names the closest matching command.
+
+Where positionals are meaningful, each command's own reference page documents what it accepts. An installed CLI plugin is the deliberate exception: its command keeps argument parsing to itself, so the whole argument vector is forwarded to the plugin, which is the sole parser of its own arguments — and the plugin's own exit status is what the invocation returns.
+
 ## Searching the catalog index
 
 `aggrega search [query]` looks up published entities across the registries the workspace knows. The optional `[query]` is a case-insensitive substring matched against each entity's name and description. Facet filters narrow the result set:

@@ -47,6 +47,8 @@ Configuration is a cascade. Every `.aggrega-config.yaml` from the workspace root
 
 Operations that need a Release pick the active one through a four-step cascade: the `build.authoring_release` config field, then a single-Release-in-the-workspace heuristic, then an `.aggrega/active-release` marker file, then an Aggregate-only fallback.
 
+The operations that search the whole workspace rather than one buffer — `completion`, `hover`, `resolve`, `findReferences` and `findImplementations` — enumerate the YAML under the workspace root, and that enumeration **honours `.gitignore`**. Every `.gitignore` from the workspace root down to the file's own directory contributes, with the nearest one winning, so a YAML file your repository ignores is not offered as a completion candidate and is not reported as a definition or a reference. Vendored trees and generated output therefore stay out of cross-file results without any separate exclusion setting to maintain — and a document you expect to be found but have ignored will not appear, which is the one case worth checking when a reference seems to be missing.
+
 ## Lockfile awareness
 
 When an active Release has a lockfile, the daemon checks it for drift at startup and on each `aggrega/irGraph`, surfacing drift as a non-blocking warning. `aggrega/irGraph` requires a lockfile to be present.

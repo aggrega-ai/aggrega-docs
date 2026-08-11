@@ -48,7 +48,14 @@ should judge both moments is attached twice — once at each role.
   graph, before rendering. The payload carries the full capability-agnostic IR graph (every
   node, edge, and attachment the compiler holds) plus the routing paths the
   analyzer enumerates, so a policy can reason about topology and reachability
-  without re-walking the graph. An `ir-verdict` policy runs at the static-analysis
+  without re-walking the graph. That path list is **bounded per starting node** —
+  a densely connected or cyclic topology can hold more distinct routes than the
+  enumeration emits, and once the bound is reached the remaining routes from that
+  starting node are not listed. A path that is present is therefore real, while
+  the absence of a path is not proof that none exists: a policy whose verdict
+  turns on something being *unreachable* should establish that from the nodes and
+  edges, which the payload carries in full, rather than from the path list alone.
+  An `ir-verdict` policy runs at the static-analysis
   gate, before any artifacts are produced. Use it for policies about
   architecture and wiring — topology invariants, cross-boundary auth,
   credential-flow shape — that should halt a build before it renders anything.
