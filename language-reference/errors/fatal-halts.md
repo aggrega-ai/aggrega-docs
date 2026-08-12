@@ -698,6 +698,21 @@ When the contributors declared different formats for their file, each is named w
 
 **How to fix:** rename the emitted file in whichever Recipe you control — an `artifacts:` key, or the filename a Workload translation derives — so the two no longer meet. Where the two contributors genuinely belong to separate outputs, give their boundaries distinct `directory:` paths so each assembles on its own.
 
+### Two contributors derive the same name inside their output
+
+<!-- covers: internal/compiler/renderer.ErrDerivedKeyCollision -->
+
+Two contributors to one assembly derive the same name for something *inside* the files they emit, and the merged output has room for only one of it. This is distinct from the two collisions above: the components are named differently and their files land on different paths, so nothing about the assembly's shape is wrong — it is a name in the content, such as the identifier a target uses to address one resource, or the name under which one output is published for another to reference.
+
+A provider decides those names itself, usually by deriving them from the component instance and the resource, so two components can arrive at one name whenever the parts they are derived from agree. Because the name lives in the file's own bytes, the assembly cannot see it: the provider reports the names it derived, and the build compares them. Nothing about a name's meaning is interpreted — two reported names are either the same text or they are not — which is why the same report covers every kind of name every provider derives.
+
+The build halts rather than keeping one and discarding the other. There is no correct silent resolution: keeping the first would drop a component you declared out of the output entirely and leave the build reporting success, and anything that referenced the dropped one would quietly resolve to the surviving one instead. Every colliding name is reported, grouped by the kind of name it is, with every contributor that derived it named — so one build tells you the whole picture rather than one collision at a time.
+
+Emitted message:
+> TRANSLATION_ERROR: derived name collision: two contributors derived the same name in one key space: assembly path `<path>` provider `<provider>`: in key space `<kind-of-name>` the name `<name>` is derived by `<contributor-1>` and `<contributor-2>`; change what one of them derives so each name is derived once within its space
+
+**How to fix:** rename one of the named contributors in the Aggregate, so the names derived from it no longer agree with the other's. Where both names are derived from something you set explicitly — a value the Recipe feeds the provider, or an annotation the provider reads — change that instead on whichever of the two you control. Where the two contributors genuinely belong to separate outputs, give their boundaries distinct `directory:` paths so each assembles on its own and the two names never meet.
+
 ### Chart-name mismatch on a merged helm-chart umbrella
 
 <!-- covers: internal/compiler/renderer.ErrChartNameMismatch -->

@@ -158,6 +158,32 @@ Recipe `artifacts:` fold into `render_node` through an artifacts projection on t
 
 **Status today:** **available** for all four providers. The helm guest renders sourced charts (resolving the chart root), synthesized workloads, and standalone artifacts as flat Kubernetes manifests. The helm-chart guest assembles an umbrella chart, nesting each node's sourced chart as a sub-chart, and carries a byte-faithful patch codec and bracket (`[[ ]]`) artifact delimiters. The compose guest renders sourced compose files and synthesized workloads and merges a dispatch group into one `docker-compose.yaml`, and bridges cross-network consumers through a gateway. The terraform guest emits Terraform configuration verbatim (HCL or JSON) or vendors a sourced module with a `.tfvars.json` overlay, and validates a sourced module's HCL structurally before render. Each renders offline and deterministically.
 
+#### Declaring the names a guest derives
+
+A provider guest usually derives names its output needs but nobody authored — the identifier a target addresses one resource by, the name one output is published under for another to reference — from the node identity and the resource it is emitting. Two nodes can arrive at one name whenever the parts they are derived from agree, and because the name lives inside the file bytes the host writes verbatim, the host cannot see the clash: it would have to parse the provider's format to find it, which is exactly the knowledge that stays in the guest.
+
+`render_node` therefore returns an optional `derived_keys` on its output, and the direction is inverted — rather than the host inspecting output, the guest declares and the host checks:
+
+```json
+{
+  "files": [ { "path": "stack.yaml", "content": "..." } ],
+  "derived_keys": {
+    "logical-ids": ["paymentsapiQueue", "paymentsapiTopic"],
+    "export-names": ["aggrega-prod-api-orders-db-host"]
+  }
+}
+```
+
+Each key of `derived_keys` is a **key space** the guest names, and each space carries the names the guest derived into it, in derivation order. Both the space names and the names within them are your vocabulary: the host reads them only as strings to compare for equality within one space. It does not parse a name, does not learn what a space or a name means, and never derives one itself — so one check covers every kind of name every provider derives, and a new provider needs no new host code.
+
+What the host does with them is a single question: within one space, is every declared name distinct across the contributors whose output merges into one assembly? Two contributors declaring one name in one space halt the build, and the halt names the space, the name and both contributors, so an author can act without reading the provider. Distinct names, and names that happen to match across two *different* spaces, pass.
+
+Three properties are worth knowing when you decide what to declare:
+
+- **The scope is one assembled output** — the set of contributors whose files merge together. A guest wanting uniqueness across a narrower or wider scope than that expresses the scope in the space name it declares, which keeps the choice yours rather than the host's.
+- **One contributor may repeat a name freely.** A node can render across several crossings — a source render, a workload synthesis, an artifacts placement — and the declarations merge. The same name declared twice by one contributor is that contributor describing one resource twice, not a clash.
+- **Declaring changes no bytes.** The field is an assertion about what the guest derived, never a change to what it emitted, so a guest's rendered output is identical whether it declares or not. Omitting `derived_keys` is valid and leaves the check inert for that guest.
+
 #### Determinism and instance reuse
 
 The host consumes a guest's output bytes verbatim, so a guest must produce identical output from identical input. By default a guest is loaded fresh per node — zero state carried across nodes by construction. A guest that self-declares `reusable_instance` is instead loaded once per build and its single instance serves every crossing, which recovers the dominant per-node instantiation cost. Because reuse is safe only for a stateless guest, `aggrega build --verify-determinism` renders each node twice through the same instance and halts the build if any node's two renders differ; the default build renders once and trusts the declaration. The Wasm compilation cache is disk-backed and process-wide, so a guest compiles once and warm builds skip recompilation.
