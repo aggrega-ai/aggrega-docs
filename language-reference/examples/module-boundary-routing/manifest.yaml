@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: manifest
+  version: "1.0.0"
+  description: >
+    Ops mapping for the Kubernetes target backed by synthesized manifests. Every
+    component type either module contributes is realized by its synth helm
+    Recipe — the object store and the document-database backend as workloads with
+    a persistent volume, the read tier and the wire-protocol proxy as stateless
+    Deployments. The scrape Feature is mapped alongside them: its FeatureRecipe
+    emits one ServiceMonitor for each component the Release attaches it to.
+    Recipe selection at build time is by component type against the loaded
+    catalog, so the mapping is written once per type however many modules bring
+    that type in.
+spec:
+  mappings:
+    components:
+      type:
+        core/storage/minio:1.0.0: helm/minio:1.0.0
+        core/observability/thanos-store:1.0.0: helm/thanos-store:1.0.0
+        core/observability/thanos-query:1.0.0: helm/thanos-query:1.0.0
+        core/datastore/documentdb:1.0.0: helm/documentdb:1.0.0
+        core/datastore/ferretdb:1.0.0: helm/ferretdb:1.0.0
+    features:
+      type:
+        core/prometheus-exporter:1.0.0: prometheus-exporter:1.0.0

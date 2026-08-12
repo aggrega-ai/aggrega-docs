@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: aggregate
+  version: "1.0.0"
+  description: >
+    Two capabilities imported as reusable modules: a Thanos metrics read tier
+    over object storage, and a document database exposing the MongoDB wire
+    protocol. The developer names the two modules and nothing about where they
+    run. Each module is a sub-aggregate composing several single-workload
+    components and wiring its own internal edges, so neither module's internals
+    appear here. The operator places each whole module into a boundary of its own
+    in the Release.
+spec:
+  aggregates:
+    metrics:
+      type: core/thanos
+    documents:
+      type: core/ferretdb

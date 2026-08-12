@@ -1,0 +1,52 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: k8s-helm-synth
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: aggregate
+  manifest: manifest
+  boundaries:
+    # Each boundary routes one whole module in with an `aggregates:` entry keyed
+    # by the module's name in the Aggregate. Routing places every component the
+    # module contains — including the ones nested modules contribute — without
+    # the Release restating any of them, so the operator decides where a
+    # capability runs without tracking its internals.
+    observability:
+      directory: observability
+      annotations:
+        aggrega.ai/namespace: observability
+      aggregates:
+        metrics:
+          # A routing entry may also configure individual components of the
+          # module it routes, addressed by the LOCAL name each carries inside
+          # that module — `query`, not `metrics.query`, because inside the module
+          # that is the only name it has. Naming one component here says nothing
+          # about the others: the object store and the store gateway are routed
+          # into this boundary just the same, on their components' defaults.
+          components:
+            query:
+              infra:
+                compute:
+                  cpu: 500m
+                  memory: 1Gi
+              features:
+                scrape:
+                  type: core/prometheus-exporter:1.0.0
+                  infra:
+                    interval: 30s
+                    port: http
+                    path: /metrics
+    data:
+      directory: data
+      annotations:
+        aggrega.ai/namespace: data
+      aggregates:
+        # Naming no components at all is the primary shape: the whole module is
+        # placed here and every component in it takes its own defaults. The
+        # Release needs to know the module's name and nothing else about it.
+        documents: {}
