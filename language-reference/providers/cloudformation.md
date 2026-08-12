@@ -4,12 +4,22 @@ The cloudformation provider renders Aggrega Recipes into AWS CloudFormation stac
 
 ## Fragment recipes assembled into a stack
 
-A cloudformation Recipe authors a **fragment** — the CloudFormation resources contributed by a single component — rather than a whole template. When a boundary's components render, the provider assembles every fragment in the dispatch group into one stack template: the resources merge under a single `Resources` map with deterministic, collision-free logical IDs, and each component's `provides` values surface as stack `Outputs`. Two authoring shapes are accepted:
+A cloudformation Recipe authors a **fragment** — the CloudFormation resources contributed by a single component — rather than a whole template. When a boundary's components render, the provider assembles every fragment in the dispatch group into one stack template: the resources merge under a single `Resources` map, and each component's `provides` values surface as stack `Outputs`. Two authoring shapes are accepted:
 
 - **Fragment (artifacts) input.** A Recipe authors resource fragments directly; the provider normalizes them to pure-JSON long-form intrinsics and merges them into the assembled stack.
 - **Sourced input.** A Recipe references an existing CloudFormation template (YAML or JSON); the provider normalizes it to long-form JSON and validates its structure before assembly.
 
 The assembled template is pure JSON. Intrinsics are emitted verbatim and never evaluated at build time — the compiler cannot resolve a value that only exists after the stack deploys, and evaluating one would break the ahead-of-time contract.
+
+## Names in the assembled stack
+
+A CloudFormation logical ID is unique within one template and admits only letters and digits, and every component in a boundary assembles into that one template — so each name the stack addresses something by has to be distinct across the components that contributed it.
+
+**Resource logical IDs come from the Recipe.** The provider emits them exactly as authored and rewrites none of them, so the name you read in the assembled template is the name the Recipe wrote. The standard-library CloudFormation Recipes derive it from the component instance's own name, reading that name's separators as word boundaries: instance `payments-db` names its resource `PaymentsDb`. Two instances of the same type therefore describe two resources rather than competing for one.
+
+**Output names are scoped by the component that published them.** Each `provides` entry surfaces as an output named for the publishing component and the entry together — component `payments-db` publishing `host` surfaces as `PaymentsDbHost` — so two components publishing the same entry reach two separate outputs, and an output's meaning does not change when another component joins the stack. A cross-stack consumer imports by the export name rather than by this one, so the export name is unaffected.
+
+Because a logical ID admits no separator character, both names read as capitalised words run together. Two instance names differing only in punctuation can still derive one resource name — `payments-db` and `payments_db` both derive `PaymentsDb` — and the build halts, naming both instances and the name they landed on, rather than emitting one resource where two components were declared. Renaming either instance clears it.
 
 ## Structural input validation
 
