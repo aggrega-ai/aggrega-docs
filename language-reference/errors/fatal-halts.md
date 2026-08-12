@@ -611,6 +611,26 @@ And when the root is right but a key under a declared pillar is not:
 
 The check covers every template surface the renderer evaluates, each against the reference set its own surface defines: Recipe and FeatureRecipe `valuesMapping`, `injectMapping`, `workload`, `artifacts:` bodies, `provides:` and `locals:` entries, `source:`, `pipeline` step `when:` and `with:` bodies, `assertions:`, the component-level self-inject `value:` templates in an Aggregate, and the Release boundary path templates (`directory:` / `subDirectory:`). Two of those surfaces name some refusals with their own diagnostic, because the mistake they describe is more specific than "this reference does not exist": a path template reaching for a *variable* it is not given is covered by "Path-template references a variable outside the allowlist" below, and a boundary-scope FeatureRecipe reaching for a per-component pillar by "FeatureRecipe template references a field outside its scope's allowlist". Everything else those two surfaces refuse — including a mistyped key under a pillar they do admit — reports this halt, so no diagnostic tells you your reference is something it is not.
 
+### An `artifacts:` template reads a pillar the Recipe does not declare
+
+<!-- covers: internal/compiler/renderer.ErrArtifactPillarNotDeclared -->
+
+An `artifacts:` entry's template reads `.workload`, or a key beneath it, in a Recipe that declares no `workload:`; or it reads `.source`, or a key beneath it, in a Recipe that declares no `source:`. Both pillars are always present on the artifacts render context — they are roots the surface defines — so the reference is well-formed and the halt is about the *declaration* being absent rather than the reference being wrong. A Recipe that renders a Deployment from its synthesized workload and a Recipe that renders a chart from a source are different shapes, and an `artifacts:` body written for one of them reaches for a pillar the other never fills.
+
+The check runs before the entry is evaluated, and that ordering is what makes the report useful. An absent pillar arrives at the template as an empty value, so left to evaluation the build would either splice nothing into the emitted file or fail with whatever the template engine says about reading a key off nothing — neither of which names the pillar or the missing declaration. Refusing first lets the halt name the exact expression that reached for the pillar, quoted as you wrote it.
+
+A `source:` that is declared but renders to an empty string reads as no source at all, because what the check reads is the source *after* its own template has been evaluated. That is the same value the provider goes on to render from, so a Recipe whose `source:` resolved to nothing has no source to offer an `artifacts:` body either.
+
+Emitted messages — one per pillar, differing only in the pillar they name:
+
+> artifact `<output-name>` template references `<expression>` but Recipe declares no workload:
+
+> artifact `<output-name>` template references `<expression>` but Recipe declares no source:
+
+**How to fix:** either declare the pillar the template reads, or stop reading it. Declaring it is the fix when the `artifacts:` body belongs with that Recipe shape — add the `workload:` the template's container, port or volume references expect, or the `source:` whose chart or module path it interpolates. Dropping the reference is the fix when the body was written against a different Recipe and reuses a fragment that does not apply here; where the value genuinely comes from elsewhere, publish it through the producing node's `provides:` and read it from the inject pipe instead of reaching for a pillar this Recipe does not fill. Guarding the reference with a fallback wrapper does not clear the halt — the pillar is missing, not the key under it — and neither does moving the reference to another entry in the same Recipe, because every entry in one `artifacts:` block is evaluated against the same pillars.
+
+This halt is distinct from "Template references a root the render context does not define" above, and the two are worth telling apart because the remedies differ. That one fires on a root the surface does not define at all, or on a mistyped key beneath a pillar whose shape is fixed — `{{ .workload.containres }}` on a Recipe that *does* declare a workload. This one fires on a correctly spelled reference to a pillar that is simply not there.
+
 ### Cross-node type safety violation via `selector:`
 
 <!-- covers: internal/compiler/analyzer.ErrSelectorViolation -->
