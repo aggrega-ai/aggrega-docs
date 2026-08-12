@@ -49,7 +49,7 @@ A quantity compose cannot convert exactly — a fractional memory mantissa, an u
 
 ### Probes
 
-A Workload's three probe slots (`live`, `ready`, `startup`) collapse to compose's single `healthcheck` per service, with priority `live > ready > startup` (the most-canonical-liveness signal wins).
+A Workload's three probe slots (`live`, `ready`, `startup`) collapse to compose's single `healthcheck` per service, with priority `live > ready > startup` (the most-canonical-liveness signal wins). Where that collapse discards a slot the author declared, the build raises an `unsupported-field` warning naming the slot that was translated and the slots that were dropped, so intent reaching no part of the output is reported rather than lost. A `health` block declaring one slot translates without loss and raises nothing.
 
 | Workload probe shape | Compose `healthcheck.test` |
 | --- | --- |
