@@ -1,6 +1,6 @@
 # CloudFormation Provider
 
-The cloudformation provider renders Aggrega Recipes into AWS CloudFormation stack templates. Each boundary becomes one CloudFormation stack, emitted as a single pure-JSON template that uses long-form intrinsics. Like every Aggrega provider it is offline and hermetic — an Aggrega build is an ahead-of-time compilation, so the provider never calls AWS, never resolves account-generated identifiers, and never runs CloudFormation. Runtime-only values stay as CloudFormation intrinsic references (`Fn::GetAtt`, `Fn::ImportValue`, `Fn::GetStackOutput`) that CloudFormation resolves at deploy time.
+The cloudformation provider renders Aggrega Recipes into AWS CloudFormation stack templates. Every component rendering to the same output directory under this provider assembles into one stack, emitted as a single pure-JSON template that uses long-form intrinsics. A boundary therefore becomes one stack in the ordinary case — and two boundaries whose `directory:` resolves to the same path assemble into one stack together, sharing that template's names. Like every Aggrega provider it is offline and hermetic — an Aggrega build is an ahead-of-time compilation, so the provider never calls AWS, never resolves account-generated identifiers, and never runs CloudFormation. Runtime-only values stay as CloudFormation intrinsic references (`Fn::GetAtt`, `Fn::ImportValue`, `Fn::GetStackOutput`) that CloudFormation resolves at deploy time.
 
 ## Fragment recipes assembled into a stack
 
@@ -13,7 +13,7 @@ The assembled template is pure JSON. Intrinsics are emitted verbatim and never e
 
 ## Names in the assembled stack
 
-A CloudFormation logical ID is unique within one template and admits only letters and digits, and every component in a boundary assembles into that one template — so each name the stack addresses something by has to be distinct across the components that contributed it.
+A CloudFormation logical ID is unique within one template and admits only letters and digits, and every component assembling into that template shares its names — including components from a second boundary, when both resolve to the same output directory. So each name the stack addresses something by has to be distinct across every component that contributed it, and the set of contributors is not always a single boundary.
 
 **Resource logical IDs come from the Recipe.** The provider emits them exactly as authored and rewrites none of them, so the name you read in the assembled template is the name the Recipe wrote. The standard-library CloudFormation Recipes derive it from the component instance's own name, reading that name's separators as word boundaries: instance `payments-db` names its resource `PaymentsDb`. Two instances of the same type therefore describe two resources rather than competing for one.
 
