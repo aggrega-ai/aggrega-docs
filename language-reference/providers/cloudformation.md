@@ -21,6 +21,26 @@ A CloudFormation logical ID is unique within one template and admits only letter
 
 Because a logical ID admits no separator character, both names read as capitalised words run together. Two instance names differing only in punctuation can still derive one resource name — `payments-db` and `payments_db` both derive `PaymentsDb` — and the build halts, naming both instances and the name they landed on, rather than emitting one resource where two components were declared. Renaming either instance clears it.
 
+### Two entry names can meet at one output name
+
+Building an output name drops every separator and capitalises each word, and the component half and the entry half are joined with nothing between them. Three kinds of entry name therefore meet at a single output name, and none of them is exotic:
+
+- Entries differing only in punctuation. A component publishing both `db-host` and `db_host` reaches `DbHost` twice.
+- Entries differing only in a letter's case. `host` and `Host` reach `Host` alike, because a word's first letter is capitalised either way.
+- Entries that meet across the join. Component `payments-db` publishing `host` and component `payments` publishing `db-host` both reach `PaymentsDbHost`, and neither name contains the other.
+
+**The build halts rather than emit one output where two entries were written.** Within a single component the halt names both entries exactly as they were written, the section each was written in — an `Outputs:` block or a `provides:` block — and the component that carried them, so both ends of the collision are searchable in your own files. Between two components the halt names the output name and both components. Renaming either entry, or either component, clears it.
+
+This holds whether or not the two entries carry the same value. Two entries with the same value still describe two outputs a deployment asked for, so folding them into one would leave one of the two written-down outputs absent from the stack.
+
+### A key written twice in one mapping halts
+
+A CloudFormation fragment is read as a mapping, and a mapping holds one value per key, so a key written twice would keep whichever body came last and discard the other. Where the mapping is a `Resources` or `Outputs` block, the discarded body is a resource or an output that was written and would simply not be in the stack.
+
+The build halts instead, naming the repeated key and both lines it was written at. This is a whole-fragment rule rather than a rule about the stack's names: it applies to any mapping in the fragment, including a resource's `Properties`. The commonest way to reach it is a Recipe deriving a logical ID from an authored value, where two authored values differ only in punctuation — `app-cache` and `app_cache` both derive `AppCache`, so the fragment writes `AppCache` twice.
+
+A key name recurring at different places in the document is ordinary and untouched: `Type` appears once per resource, and `Value` once per output, however many resources and outputs the fragment carries. Only a repeat inside one mapping loses a body.
+
 **A single component can claim one name twice.** A Recipe contributes several fragments — several `artifacts:` entries, or a sourced directory holding several templates — and every one of them assembles into the same stack, so a component's own fragments share the stack's names with each other exactly as they share them across components. Two fragments that give one name two different bodies halt the build, and the halt names the key space the name sits in — resource logical IDs or output names — along with the component and the name itself. Both spaces are reachable this way: two fragments can author one resource logical ID over different resources, and a component reaches its output names through two routes, an explicit `Outputs:` block and its `provides:` entries, so an entry from each carrying one name meets there too.
 
 Restating a name is not itself a conflict. A name written more than once with identical content addresses one thing either way, so the restatements merge into a single entry and the build proceeds — an ordinary repeat costs nothing. What halts is the case that loses content: one of the two bodies would have to be discarded, and the resource or output the Recipe declared would then be missing from the stack. Renaming either one clears it.
