@@ -21,6 +21,10 @@ A CloudFormation logical ID is unique within one template and admits only letter
 
 Because a logical ID admits no separator character, both names read as capitalised words run together. Two instance names differing only in punctuation can still derive one resource name — `payments-db` and `payments_db` both derive `PaymentsDb` — and the build halts, naming both instances and the name they landed on, rather than emitting one resource where two components were declared. Renaming either instance clears it.
 
+**A single component can claim one name twice.** A Recipe contributes several fragments — several `artifacts:` entries, or a sourced directory holding several templates — and every one of them assembles into the same stack, so a component's own fragments share the stack's names with each other exactly as they share them across components. Two fragments that give one name two different bodies halt the build, and the halt names the key space the name sits in — resource logical IDs or output names — along with the component and the name itself. Both spaces are reachable this way: two fragments can author one resource logical ID over different resources, and a component reaches its output names through two routes, an explicit `Outputs:` block and its `provides:` entries, so an entry from each carrying one name meets there too.
+
+Restating a name is not itself a conflict. A name written more than once with identical content addresses one thing either way, so the restatements merge into a single entry and the build proceeds — an ordinary repeat costs nothing. What halts is the case that loses content: one of the two bodies would have to be discarded, and the resource or output the Recipe declared would then be missing from the stack. Renaming either one clears it.
+
 ## Structural input validation
 
 A sourced CloudFormation template is structurally validated before it renders: the provider parses the template and normalizes its intrinsics, halting the build with a clear message that names the offending node when a template is malformed. The parse checks shape, not semantics — it does not contact AWS, resolve references, or evaluate intrinsics.
