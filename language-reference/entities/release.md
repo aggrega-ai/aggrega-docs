@@ -337,6 +337,30 @@ The Release can attach Features both at boundary scope (broad policy) and at com
 
 A feature attached boundary-wide may carry a `uses:` block, and that block projects to every component routed into the boundary: each component gains a dependency edge to the feature's named targets and is injected those targets' `provides`. This expresses a shared dependency once at the boundary — "every component in this boundary talks to the shared cache / collector / message bus" — rather than repeating the same `uses:` edge on each component. A subsystem-level Feature attachment in the Aggregate projects its `uses:` the same way across the subsystem's components. `uses` is a topology wiring declaration, not a value, so it is permitted on the Release. The projection is independent of the attached Feature's execution scope: a Feature whose FeatureRecipe renders once per boundary still projects its `uses:` per component, while the shared resource itself renders once.
 
+A feature attached to a single component carries the same `uses:` block and wires the same edge from that one component: the component gains a dependency edge to each named target, is injected those targets' `provides`, and the edge records the attachment as its origin exactly as the boundary-wide form does. The two are one declaration at two breadths — attach at the boundary to wire every component in it, attach on a component to wire that one — and the choice between them is a matter of reach, never of what the wiring does. Neither creates compute: the target must already name a component the Aggregate declared, and one that does not halts the build.
+
+```yaml
+boundaries:
+  cluster:
+    directory: ./dist/cluster
+    components:
+      api:
+        features:
+          shared_backend:
+            type: core/shared-backend
+            uses:
+              backend:
+                primary:
+                  target: db          # a component of the assembled graph
+                  inject:
+                    env:
+                      - in: DB_HOST
+                        from: host    # db's `host` provides reaches api as DB_HOST
+      db: {}
+```
+
+**How a target is spelled.** An edge target names a component of the assembled graph, so it is written with the qualified dotted path — `data.store`, not `store` — whenever the target belongs to a routed sub-module. That holds even where the attachment itself sits under a routing entry, whose `components:` keys are module-local: the key says *which component the attachment is on* and the target says *which component the edge reaches*, and only the second is a graph-wide name. A target written with a module-local name matches no component and halts with the same diagnostic any dangling edge produces.
+
 ## Composite Release and `extends:` inheritance
 
 A Release may declare `spec.extends: <release-uri>` pointing to a base Release whose authoring surface it inherits. The compiler walks the inheritance chain at workspace load, validates that the chain is acyclic, and merges parent fields into the child to produce a single resolved Release. The Schema-Level Constraints above govern the merge:
