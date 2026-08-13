@@ -20,12 +20,12 @@ See the [workload authoring reference](../../entities/workload.md) for prose gui
 | `endpoint` | string | no | External endpoint for form: reference — a host or URL. The compiler pipes it through as a deterministic pointer string; it is never resolved at compile time (AOT). Required when form is reference and only meaningful then. helm emits it as an ExternalName Service's externalName (the host portion); compose carries it to consumers through the recipe's provides. |
 | `port` | integer | no | Optional port for the reference endpoint (form: reference). helm emits it as a port on the ExternalName Service. |
 | `schedule` | string | no | Cron schedule for form: scheduled — a standard 5-field crontab expression (for example '0 0 * * *') or one of the macros @hourly, @daily, @weekly, @monthly, @yearly. Required when form is scheduled and only meaningful then; the target Engine pipes it verbatim into the scheduled resource's schedule field. |
-| `replicas` | integer | no | Number of replicas. Default 1. Compose ignores values > 1 unless the target compose spec supports scaling. Default: `1` |
+| `replicas` | integer | no | Number of replicas. Default 1. On a compose target the value reaches no part of the output, and a warning reports it whenever it is authored — including an explicit `1`. Default: `1` |
 | `initContainers` | container[] | no | Ordered list of containers that run to completion before the main containers start. |
 | `containers` | map of container | no | Ordered map of container name → container spec. At least one entry required. YAML author order is preserved by the Go parser. |
 | `volumes` | map of volume | no | Ordered map of volume name → volume spec. Each volume spec declares exactly one of: ephemeral, configmap, secret, persistent, persistentTemplate. |
-| `services` | map of service | no | Ordered map of service name → service spec. Each becomes a separate K8s Service (helm) or port-publishing rule on the compose service (compose). Service names are suffixed by aggrega instance_id for K8s resource-name uniqueness. |
-| `scheduling` | object | no | K8s-native scheduling constraints. Translated directly for helm; ignored (with warning) for compose except where compose has analogs. |
+| `services` | map of service | no | Ordered map of service name → service spec. On helm each entry becomes a separate K8s Service. On compose there is no separate service primitive, so entries do not map one to one: an entry whose type is NodePort or LoadBalancer publishes its ports on the workload's own compose service, an entry whose type is ClusterIP or Headless publishes nothing, and every published port is collected into that one service's port list with the host port matching the container port. Service names are suffixed by aggrega instance_id for K8s resource-name uniqueness. |
+| `scheduling` | object | no | K8s-native scheduling constraints. Translated directly for helm. On a compose target these constraints reach no part of the output, and a warning reports the block when it is authored. |
 | `podSecurityContext` | object | no |  |
 | `serviceAccount` | string | no | Name of the ServiceAccount this workload runs under. Actual RBAC (ServiceAccount/Role/RoleBinding resources) should be emitted via Features or artifacts, not via this field. |
 | `imagePullSecrets` | string[] | no | Names of image-pull Secrets for pulling images from private registries. helm emits pod.imagePullSecrets. compose has no in-file analog — registry authentication is configured out-of-band via docker login — and omits it. |
@@ -40,7 +40,7 @@ _Additional properties are not permitted._
 
 #### `workload.scheduling`
 
-K8s-native scheduling constraints. Translated directly for helm; ignored (with warning) for compose except where compose has analogs.
+K8s-native scheduling constraints. Translated directly for helm. On a compose target these constraints reach no part of the output, and a warning reports the block when it is authored.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -97,9 +97,9 @@ _Additional properties are not permitted._
 | `variables` | map of string | no | Environment variables as string key-value pairs. K8s: spec.template.spec.containers[].env[]. Compose: services.<name>.environment. |
 | `attachments` | map of containerAttachment | no | Ordered map of env-or-file name → { from, as, path? }. Each entry references a slot declared in the Component's featuresSchema and delivers what the attachment filling that slot published. The 'as' field selects the delivery mechanism, which must be allowlisted in the slot's inject: array. Blackbox slots (inject: []) MAY NOT appear here. |
 | `envFrom` | any or any[] | no | Bulk environment imported from a ConfigMap or Secret source. helm emits container.envFrom (configMapRef/secretRef). compose has no env-from-object primitive — a source reference is not a host file, so an env_file reinterpretation would silently change meaning; a workload declaring envFrom halts loudly on a compose target. |
-| `ports` | map of integer | no | Named container ports. Port names referenced by services.*.ports and by probe http intent (port resolution). K8s: containerPort. Compose: expose/ports. |
+| `ports` | map of integer | no | Named container ports. Port names are referenced by `services.*.ports` and by an http probe's port resolution. K8s: containerPort. Compose: a container port reaches the output only where a service spec publishes it; the container port itself has no separate compose field. |
 | `resources` | object | no |  |
-| `health` | object | no | Probe intents (http/tcp/exec). Translated to K8s httpGet/tcpSocket/exec for helm; CMD-SHELL healthchecks for compose (degraded — warning emitted). |
+| `health` | object | no | The container's health probes — ready, live and startup — each declared as http, tcp or exec. Translated to K8s httpGet/tcpSocket/exec for helm. For compose, a service carries a single healthcheck: http and tcp become CMD-SHELL tests, exec becomes a CMD test, and where more than one probe is declared only one is kept — a warning names the probe translated and the ones dropped. |
 | `volumeMounts` | object[] | no |  |
 | `restartPolicy` | string (enum) | no | Allowed values: `"Always"`, `"OnFailure"`, `"Never"` |
 | `lifecycle` | object | no | Container lifecycle hooks. Translated to K8s container.lifecycle (postStart/preStop) for helm. compose has no lifecycle-hook primitive; a workload declaring lifecycle halts loudly on a compose target rather than silently dropping the hook. |
@@ -128,7 +128,7 @@ _Additional properties are not permitted._
 
 #### `container.health`
 
-Probe intents (http/tcp/exec). Translated to K8s httpGet/tcpSocket/exec for helm; CMD-SHELL healthchecks for compose (degraded — warning emitted).
+The container's health probes — ready, live and startup — each declared as http, tcp or exec. Translated to K8s httpGet/tcpSocket/exec for helm. For compose, a service carries a single healthcheck: http and tcp become CMD-SHELL tests, exec becomes a CMD test, and where more than one probe is declared only one is kept — a warning names the probe translated and the ones dropped.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -222,7 +222,7 @@ _Additional properties are not permitted._
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `exec` | string[] | no |  |
-| `httpGet` | object | no | K8s-native httpGet shape (path, port, scheme, host, httpHeaders). Passed through to helm; compose translates to HEALTHCHECK-equivalent where possible. |
+| `httpGet` | object | no | The K8s-native httpGet shape (path, port, scheme, host, httpHeaders). Passed through to helm. On a compose target a workload declaring a lifecycle hook halts, because compose has no lifecycle-hook primitive — the hook is never silently dropped. |
 
 _Additional properties are not permitted._
 
@@ -234,7 +234,7 @@ _Additional properties are not permitted._
 | `configmap` | object | no |  |
 | `secret` | object | no |  |
 | `persistent` | object | no |  |
-| `persistentTemplate` | object | no | Per-replica claim template. Requires form: stateful, because only the stateful shape gives each replica the stable identity a per-replica claim needs. On Kubernetes it becomes StatefulSet.volumeClaimTemplates; compose degrades to a single named volume with a warning comment. |
+| `persistentTemplate` | object | no | Per-replica claim template. Requires form: stateful, because only the stateful shape gives each replica the stable identity a per-replica claim needs. On Kubernetes it becomes StatefulSet.volumeClaimTemplates. On a compose target it degrades to a single named volume shared by every replica, and a warning reports the degradation. |
 
 _Additional properties are not permitted._
 
@@ -242,7 +242,7 @@ _Additional properties are not permitted._
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `sizeLimit` | string | no | K8s quantity (e.g., '1Gi'). K8s: emptyDir.sizeLimit. Compose: tmpfs (size approximation; warning emitted). |
+| `sizeLimit` | string | no | K8s quantity (e.g., '1Gi'). K8s: emptyDir.sizeLimit. Compose: the volume becomes a tmpfs entry that carries no size, so this value reaches no part of the output — a warning reports it when authored. |
 
 _Additional properties are not permitted._
 
@@ -276,7 +276,7 @@ _Additional properties are not permitted._
 
 #### `volume.persistentTemplate`
 
-Per-replica claim template. Requires form: stateful, because only the stateful shape gives each replica the stable identity a per-replica claim needs. On Kubernetes it becomes StatefulSet.volumeClaimTemplates; compose degrades to a single named volume with a warning comment.
+Per-replica claim template. Requires form: stateful, because only the stateful shape gives each replica the stable identity a per-replica claim needs. On Kubernetes it becomes StatefulSet.volumeClaimTemplates. On a compose target it degrades to a single named volume shared by every replica, and a warning reports the degradation.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |

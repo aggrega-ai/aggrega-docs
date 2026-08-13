@@ -309,7 +309,7 @@ Five volume types; no compound:
 | `persistent` | Single PVC; survives pod restarts | PVC resource + `volume.persistentVolumeClaim` | named volume |
 | `persistentTemplate` | Per-replica PVC; companion of `form: stateful` | `StatefulSet.volumeClaimTemplates` | named volume (degraded; warning emitted) |
 
-Compose cannot express per-replica templates. When `persistentTemplate` is translated to compose, a single named volume is emitted with a warning comment. A `persistentTemplate` volume requires `form: stateful`; declaring it on any other form halts the build.
+Compose cannot express per-replica templates. When `persistentTemplate` is translated to compose, it degrades to a single named volume shared by every replica, and a warning reports the degradation. A `persistentTemplate` volume requires `form: stateful`; declaring it on any other form halts the build.
 
 ### Multi-Service Exposures
 

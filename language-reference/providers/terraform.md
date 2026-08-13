@@ -30,6 +30,14 @@ A post-render FeatureRecipe `pipeline` step patches only output the provider ren
 
 An author who needs a Terraform body to be pipeline-patchable therefore authors it as `.tf.json` (or drives the values through the `.tfvars.json` overlay). See [FeatureRecipe](../entities/featurerecipe.md) for the general patch-target boundary across providers.
 
+## Deployment ordering
+
+A Release boundary's `syncWave:` value does not order Terraform configuration. The wave is a deployment-ordering hint that Kubernetes tooling reads from an annotation on each rendered resource, and a Terraform configuration has no equivalent surface — the provider derives no `depends_on`, and no other ordering construct, from it.
+
+The value is not discarded: it is recorded with the rest of the node's build provenance, as `aggrega.ai/sync-wave` in the stamped comment block, or in the companion provenance file where the body is JSON. A rendered configuration therefore records which wave its boundary declared without that record changing anything Terraform does.
+
+Ordering between Terraform resources stays Terraform's own concern. Express it with the module's own `depends_on` and reference expressions, which the provider emits verbatim like every other part of the body.
+
 ## Related references
 
 - [Provider architecture](architecture.md) — how providers fit into the compilation pipeline and per-provider dispatch.

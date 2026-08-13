@@ -56,6 +56,12 @@ The producer stack always publishes the `Export`, even when a particular consume
 
 > **Version note.** `Fn::GetStackOutput` is a native CloudFormation intrinsic, available since May 2026. A cross-account reference rendered with it requires CloudFormation tooling that recognizes the intrinsic; older tooling may not. The same-account path uses `Fn::ImportValue`, which is universally available.
 
+## Deployment ordering
+
+A Release boundary's `syncWave:` value does not order an assembled stack. The wave is a deployment-ordering hint that Kubernetes tooling reads from an annotation on each rendered resource; a CloudFormation template has no equivalent surface, and the provider does not read the value at all — no `DependsOn`, and no other part of the emitted template, is derived from it.
+
+Ordering within a stack stays CloudFormation's own concern, and the references between resources already carry most of it: an `Fn::GetAtt` against a producer resource tells CloudFormation to create that resource first. A fragment that needs an ordering constraint the references do not imply authors `DependsOn` itself, which the provider emits like every other part of the fragment.
+
 ## Determinism
 
 Given the same inputs the provider emits a byte-identical stack template across runs: logical IDs, output keys, export names, and resource ordering are all deterministic, so a CloudFormation stack template diffs cleanly in GitOps review.
