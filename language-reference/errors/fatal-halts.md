@@ -483,7 +483,11 @@ An attachment binds a declared slot but does not match the shape that slot decla
 Emitted message:
 > Aggregate `<name>` at `.spec.components.<component>.features.<attachment>.<key>`: attachment does not conform to the declared slot shape: this key is not part of the slot's declaration — remove it, or declare it on the slot in the entity's featuresSchema
 
-**How to fix:** remove the offending key from the attachment, or widen the slot's declaration in the catalog entity — adding the delivery mechanism to the slot's `inject` allowlist where the material is genuinely meant to reach the workload. The diagnostic's field path names the exact key.
+An attachment declared at a broader scope — subsystem-wide, cascading onto every component beneath it — is held to the same shape, and it is checked against the slot on each component it reaches. The same attachment can therefore be in shape for one component and out of shape for another, so this form names the component and the slot it failed against, and locates the attachment at the scope where it was declared rather than at a key inside its delivery block:
+
+> Aggregate `<name>` at `.spec.subsystems.<scope>.features["<attachment>"]`: this attachment is declared at a scope that reaches component `<component>`, whose attachment slot `<slot>` does not accept the delivery it carries: move the attachment down to the components that may receive it
+
+**How to fix:** the two forms call for different edits, and the field path tells you which one you have. Where it names a key inside an attachment on a component, that key is the fault: remove it, or declare it on the slot in the entity's `featuresSchema` — adding the delivery mechanism to the slot's `inject` allowlist where the material is genuinely meant to reach the workload. Where it names an attachment at a scope, the attachment is well formed and its placement is the fault: move it down onto the components whose slot accepts the delivery, leaving outside its reach the components that reserve delivery to their Recipe.
 
 ### Duplicate delivery key across inject sources
 
