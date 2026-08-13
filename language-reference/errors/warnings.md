@@ -135,13 +135,13 @@ A declared parameter is the authoring surface for varying one value per deployme
 
 **Pipeline placement.** The reading runs at resolution, over the Aggregate's raw text and its declared parameter contract — before rendering. So it surfaces from `aggrega validate` as well as from `aggrega build`.
 
-**Emit shape.** One line per unread declaration, naming the Aggregate, the declaration's locator, and the reference that would have read it:
+**Emit shape.** One line per unread declaration, naming the Aggregate and the declaration's locator:
 
 ```text
-  lint: Aggregate fullstack-app at .spec.parameters.unread_probe: parameter "unread_probe" is declared but no {{ .parameters.unread_probe }} reference in the Aggregate reads it
+  lint: Aggregate fullstack-app at .spec.parameters.unread_probe: declared parameter is read by no reference in the Aggregate
 ```
 
-Findings are sorted by parameter key, so the same Aggregate produces the same sequence on every run. Each carries the declaration's locator, which is what lets the advisory also reach editor diagnostics positioned on the offending key rather than at the head of the file.
+Findings arrive in the order the Aggregate declares its parameters, so the same Aggregate produces the same sequence on every run. Each carries the declaration's locator, which names the offending key — that is what lets the advisory also reach editor diagnostics positioned on the declaration rather than at the head of the file.
 
 **Why a warning and not a fatal halt.** A parameter may be declared ahead of the reference that will read it, and a static walk cannot tell that from a mistake — the same reason the authored-key reading only ever advises. The compiler does not police which knobs an author exposes.
 
