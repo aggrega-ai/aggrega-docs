@@ -303,7 +303,7 @@ Emitted message:
 
 ### Recipe `source:` is an empty string
 
-<!-- covers: internal/compiler/renderer/compose.ErrEmptySource, internal/compiler/renderer/helm.ErrEmptySource -->
+<!-- covers: plugins/compose-provider/composecore.ErrEmptySource, plugins/helm-provider/helmcore.ErrEmptySource -->
 
 A Recipe declares `source: ""` — an empty string. An empty-string `source:` is an authoring ambiguity between sourceless mode (no external artifact; the Recipe produces output entirely from its `valuesMapping` or other input kinds) and sourced mode (the Recipe references an external chart, module, or file). The compiler rejects the ambiguous form at Recipe load.
 

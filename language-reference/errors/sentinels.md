@@ -352,6 +352,35 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | Sentinel | Message |
 | --- | --- |
 | `ErrPositionOutOfRange()` | `position out of range` |
+
+### plugins/cloudformation-provider/cfncore
+
+| Sentinel | Message |
+| --- | --- |
+| `ErrLinkConsumerStackMissing()` | `cloudformation-provider: cross-boundary link resolve received no consumer stack template` |
+| `ErrLinkSentinelInterpolated()` | `cloudformation-provider: cross-boundary link value is interpolated into a larger string; only a whole-scalar injection can carry a cross-stack reference` |
+
+### plugins/compose-provider/composecore
+
+| Sentinel | Message |
+| --- | --- |
+| `ErrEmptySource()` | `recipe source is empty string; use nil for synthesized mode or a non-empty path for sourced mode` |
+| `ErrTranslationConfigMapMissingArtifact()` | `TRANSLATION_ERROR: configmap volume requires a file emitted via the Recipe's artifacts: input; none found` |
+| `ErrTranslationProbeNoPort()` | `TRANSLATION_ERROR: probe http: requires at least one container port; container declares none` |
+| `ErrTranslationProbeShape()` | `TRANSLATION_ERROR: probe declares no shape (http/tcp/exec)` |
+| `ErrUnconvertibleComposeQuantity()` | `TRANSLATION_ERROR: resources quantity cannot be converted to a compose deploy.resources value` |
+| `ErrUnsupportedComposeEnvFrom()` | `TRANSLATION_ERROR: compose has no env-from-object primitive; container declares envFrom` |
+| `ErrUnsupportedComposeForm()` | `TRANSLATION_ERROR: compose cannot express this workload form` |
+| `ErrUnsupportedComposeLifecycle()` | `TRANSLATION_ERROR: compose has no lifecycle-hook primitive; container declares lifecycle hooks` |
+
+### plugins/helm-provider/helmcore
+
+| Sentinel | Message |
+| --- | --- |
+| `ErrEmptySource()` | `recipe source is empty string; use nil for sourceless mode or a non-empty path for sourced mode` |
+| `ErrRenderedFileCollision()` | `two rendered resources derive the same output filename with differing content` |
+| `ErrStatefulSetAmbiguousHeadlessService()` | `synthesized StatefulSet has more than one headless Service` |
+| `ErrStatefulSetNoHeadlessService()` | `synthesized StatefulSet has no headless governing Service` |
 <!-- END GENERATED: error-identities -->
 
 ## Sentinels that carry another sentinel
