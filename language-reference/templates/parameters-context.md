@@ -7,18 +7,16 @@ The `parameters:` pillar carries the Release-fulfilled, contract-validated param
 
 The asymmetric grant — path templates read `.parameters` directly; value templates do not — keeps each layer owning what it needs: developer-side `values:` carry already-resolved environment-specific data forward to value templates; operator-side path templates reference region / environment / account-id parameters without round-tripping through the Aggregate's `values` schema.
 
-This page documents the interpolation pass, the per-slot value shapes, the access patterns inside Aggregate YAML strings, the path-template carve-out, and the active-purge timing. For the broader Recipe / FeatureRecipe template context shape (`.values`, `.infra`, `.uses`, etc.), see [template-context-contract.md](template-context-contract.md). For per-template-site availability across the compilation pipeline, see [expansion-matrix.md](expansion-matrix.md). For the typed-parameter contract declaration shape on the Aggregate, see [`entities/aggregate.md`](../entities/aggregate.md) §"Typed parameter contracts". For the path-template variable allowlist that includes `.parameters.<slot>` at boundary `directory:` / `subDirectory:` evaluation, see [`path-template-variables.md`](../path-template-variables.md).
+This page documents the interpolation pass, the per-slot value shapes, the access patterns inside Aggregate YAML strings, the path-template carve-out, and how long the merged map stays readable. For the broader Recipe / FeatureRecipe template context shape (`.values`, `.infra`, `.uses`, etc.), see [template-context-contract.md](template-context-contract.md). For per-template-site availability across the compilation pipeline, see [expansion-matrix.md](expansion-matrix.md). For the typed-parameter contract declaration shape on the Aggregate, see [`entities/aggregate.md`](../entities/aggregate.md) §"Typed parameter contracts". For the path-template variable allowlist that includes `.parameters.<slot>` at boundary `directory:` / `subDirectory:` evaluation, see [`path-template-variables.md`](../path-template-variables.md).
 
 ## Parameter lifecycle
 
-The compiler resolves parameters in four ordered phases:
+The compiler resolves parameters in three ordered phases:
 
 1. **Parameter contract validation** — each Release-supplied value validates against the Aggregate's `spec.parameters.<slot>` declared `type` / `enum` / `min` / `max` / `pattern` / nested-structure constraints. The `.parameters` map exists in the validator's in-memory context as the structured payload being checked.
 2. **Default fill** — slots with `default:` defined and no Release-supplied value receive their default. The `.parameters` map is in scope at this point.
 3. **Interpolation** — the compiler walks every YAML string in the Aggregate that contains a `{{ .parameters.<slot> }}` reference and replaces it with the resolved value. The interpolation is the substitution path for value-template surfaces — after this pass, value-template TemplateContexts no longer carry `.parameters`; they consume the resolved values written into the surrounding `values:` strings.
-4. **End-of-pipeline purge** — after rendering completes (path-template evaluation, inject mapping, the base-rendering sub-stages, boundary-scope feature-rendering dispatch, per-(path, provider) assembly), the merged parameter map is actively zeroed and deleted before the build returns. The map's residence window is bounded by the build's lifetime.
-
-The map remains alive through rendering between phases 3 and 4 specifically to support path-template evaluation. The path-template surface (Release `directory:` / `subDirectory:`) reads `.parameters.<slot>` at orchestrator time against the closed allowlist documented at [`path-template-variables.md`](../path-template-variables.md).
+The merged map stays readable after interpolation, through the whole of rendering, specifically to support path-template evaluation. Its readable lifetime is bounded by the build's: the compiler hands the resolved view to the compilation that consumes it rather than returning it to a caller, so nothing outside that build can reach the map. The path-template surface (Release `directory:` / `subDirectory:`) reads `.parameters.<slot>` at orchestrator time against the closed allowlist documented at [`path-template-variables.md`](../path-template-variables.md).
 
 Templates inside Aggregate YAML strings (component `values:`, feature `values:`, sub-aggregate `parameters:` pass-through expressions) read the `.parameters` map via standard Go template syntax during the interpolation pass. Templates inside Recipe and FeatureRecipe files do NOT receive `.parameters` in their TemplateContext (see "Boundary with downstream template contexts" below for the per-surface contract).
 
@@ -205,7 +203,7 @@ The asymmetric grant — path templates read `.parameters` directly; value templ
 
 The four-domain ownership boundary is preserved by **which surface receives parameters**, not by whether the parameter map exists in memory at a given pipeline stage. Path templates are operator-authored and operator-owned; granting them direct parameter access keeps operator concerns (per-environment artifact layout) inside the operator surface. Value templates are catalog-authored; denying them direct parameter access keeps catalog-side authoring loosely coupled to the Aggregate-as-Single-Source-of-Truth contract.
 
-The merged parameter map is actively purged at end-of-pipeline (after every render phase completes) before the build returns. The residence window is bounded by the build's lifetime.
+The merged parameter map stays readable until every render phase has completed, and no further: it is reachable only from the compilation it was resolved for, so its lifetime is bounded by the build's.
 
 ## Cross-pillar bridging
 

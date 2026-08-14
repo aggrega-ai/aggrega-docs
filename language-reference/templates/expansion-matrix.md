@@ -10,7 +10,8 @@ Understanding what references are available requires understanding when each pie
 
 ```text
 Resolution — resolver and syntax validator
-  ├── .parameters             → Interpolated into all Aggregate/Release YAML strings, then PURGED from memory
+  ├── .parameters             → Interpolated into all Aggregate/Release YAML strings; the merged map
+  │                             then stays readable to path templates only
   ├── .values                 → schema-validated against the Component's pillar schema, concrete
   ├── .infra                  → Release-merged into target components/features, concrete
   └── Catalog entities        → Resolved (extends merged, pillar schemas composed, usesSchema extracted)
@@ -82,7 +83,7 @@ Every location in the DSL where Go template expressions are evaluated, and exact
 | Recipe `provides` (#6) | `.context.uses` | `.context.uses` refers to other nodes' provides, and provides evaluation runs them in arbitrary order. Provides templates stay self-contained so that evaluation remains order-free. |
 | Recipe `source` (#5) | `.context.inject` | Source resolution runs before the inject hydration that populates `.context.inject`. The pipe is not yet populated when the source URI is evaluated. |
 | Recipe `source` (#5) | `.context.uses` | Source resolution must complete before anything downstream loads the Recipe's chart, module, or artifact body. Allowing cross-node references would couple source resolution to topology iteration order, which it deliberately avoids. |
-| Parameters (everywhere) | Anywhere after interpolation | Parameters are purged from memory once resolution has interpolated them. They exist only as raw YAML template strings (`{{ .parameters.X }}`); after interpolation they are gone. |
+| Parameters (everywhere except path templates) | Any value-template surface after interpolation | Interpolation consumes every `{{ .parameters.X }}` reference in the authored YAML and writes the resolved value in its place, so a value-template surface receives the resolved literal rather than the parameter pillar. Operator-authored path templates are the one carve-out and read `.parameters.X` directly. |
 
 ### 4. The Self-Inject Resolution Path
 

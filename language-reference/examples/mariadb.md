@@ -477,7 +477,7 @@ The Release supplies parameter values for production. The Aggregate's typed-para
 
 `aggrega build --release releases/prod-release.yaml` runs the compilation pipeline:
 
-1. **Resolution.** Parameter contract validation against the Aggregate's typed `parameters:` declarations; Release overrides applied; defaults filled; interpolation into the Aggregate's `components.X.values:` templates; parameter purge.
+1. **Resolution.** Parameter contract validation against the Aggregate's typed `parameters:` declarations; Release overrides applied; defaults filled; interpolation into the Aggregate's `components.X.values:` templates.
 2. **Topology construction.** Graph assembly; `db` and `api` Components instantiated; dependency edge `api → db` recorded.
 3. **Graph finalization.** Selector resolution; `api`'s `primary_db: db` resolves to the `db` Component instance.
 4. **Schema validation.** Schemas resolved (compact form → JSON Schema 2020-12; SchemaLibrary `MariaDBPayload` resolved via cross-document `$ref:` expansion); instances validated against the resolved schemas.

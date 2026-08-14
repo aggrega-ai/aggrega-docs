@@ -19,7 +19,7 @@ The field is optional on each. Entities without cross-field rules omit the field
 
 The assertion evaluation phases sit between schema validation and rendering in the compilation pipeline:
 
-1. Parameter resolution, parameter validation, parameter purge.
+1. Parameter resolution, parameter validation, parameter interpolation.
 2. Graph assembly.
 3. Selector resolution: `uses:` sockets matched to provider Components.
 4. Schema validation against `schema:` / `usesSchema:` / `featuresSchema:`.
