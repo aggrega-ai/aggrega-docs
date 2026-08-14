@@ -23,7 +23,7 @@ Aggrega solves this by acting as an **Ahead-of-Time (AOT) Topological Compiler**
 ### 3. Bridging the AI Walled Garden to Cloud-Native Reality
 
 * **The Problem:** AI frameworks assume infrastructure simply exists, leaving Ops to manually wire agents, RAG pipelines, and databases together using fragmented, hardcoded YAML files.
-* **The Solution:** Aggrega acts as the ultimate topological translator. By compiling the developer's declarative DSL, the engine generates the precise configurations required to wire complex multi-agent reasoning loops directly into standard cloud infrastructure, without developers writing a single infrastructure script.
+* **The Solution:** Aggrega acts as the ultimate topological translator. By compiling the developer's declarative DSL, the compiler generates the precise configurations required to wire complex multi-agent reasoning loops directly into standard cloud infrastructure, without developers writing a single infrastructure script.
 
 ### 4. Infrastructure-Enforced Guardrails & MCP Defense
 
@@ -79,11 +79,11 @@ Aggrega strictly enforces Conway's Law and rejects the paradigm of proprietary l
 
 ### 3. Operational & Lifecycle Anti-Goals
 
-* **Not a CI/CD Pipeline:** Aggrega does not build Docker images, run unit tests, or manage Git repositories. Developers must use existing tools to build their application code. The engine strictly compiles the declarative infrastructure blueprint that accompanies those builds.
+* **Not a CI/CD Pipeline:** Aggrega does not build Docker images, run unit tests, or manage Git repositories. Developers must use existing tools to build their application code. Aggrega strictly compiles the declarative infrastructure blueprint that accompanies those builds.
 * **Not an Active Cluster Orchestrator (No GitOps):** Aggrega is an Ahead-of-Time (AOT) static compiler, not an active cluster agent continuously reconciling state. It outputs standard Kubernetes manifests and Docker Compose configurations for dedicated GitOps tools (like ArgoCD or Flux) to deploy.
 * **Not a Cognitive State Manager:** The compiler utilizes plugins to generate the configurations for secure network boundaries and physical databases. However, it does not monitor an AI agent's internal memory loop. If an AI hallucinates or fails to write to its database, that is the application framework's problem.
 * **Not a "Day 0" Provisioner:** Aggrega typically assumes a foundational control plane already exists (e.g., an active Kubernetes cluster or AWS account). It compiles the "Day 1" application architecture on top of that foundation; it does not execute the initial scripts to create a corporate cloud organization.
-* **Exception (Platform Aggregates & Mixed Use Cases):** Because Aggrega is capability-agnostic, it natively supports "Greenfield" scenarios. If a Platform Architect defines Day-0 infrastructure (like VPCs and Kubernetes clusters) within a Platform `Aggregate`, the engine compiles and renders it exactly the same way it does for a standard application. This agnosticism seamlessly supports mixed environments: a heavy architectural node—like an Enterprise AI Gateway—can be modeled as a pre-existing infrastructure resource (using formatter plugins to just pass traffic), or it can be deployed directly alongside the application as a standard provisioned component.
+* **Exception (Platform Aggregates & Mixed Use Cases):** Because Aggrega is capability-agnostic, it natively supports "Greenfield" scenarios. If a Platform Architect defines Day-0 infrastructure (like VPCs and Kubernetes clusters) within a Platform `Aggregate`, Aggrega compiles and renders it exactly the same way it does for a standard application. This agnosticism seamlessly supports mixed environments: a heavy architectural node—like an Enterprise AI Gateway—can be modeled as a pre-existing infrastructure resource (using formatter plugins to just pass traffic), or it can be deployed directly alongside the application as a standard provisioned component.
 
 ### 4. Application Paradigm & Infrastructure Anti-Goals
 

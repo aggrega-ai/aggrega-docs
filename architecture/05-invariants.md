@@ -82,7 +82,7 @@ The Go host binary contains zero cloud-specific or infrastructure logic. All dom
 
 Two corollaries follow:
 
-- Provider-specific logic (Helm-specific rendering, Terraform-specific formatting, Compose-specific merging) never lives in the Go compiler core. Provider engines orchestrate; the actual translation is a Wasm guest call.
+- Provider-specific logic (Helm-specific rendering, Terraform-specific formatting, Compose-specific merging) never lives in the Go compiler core. The compiler resolves the provider name a Recipe declares in `spec.capability` to the provider-rendering Plugin that serves it and dispatches the node to that plugin; the translation itself runs entirely in the Wasm guest. The host holds no per-provider Go for a standard provider, so there is nothing in-process to fall back to — a provider name that resolves to no serving Plugin halts the build rather than rendering some built-in default.
 - Policy logic (security rules, compliance checks, FinOps calculations) never lives in the Go compiler core. Policy belongs in the Wasm governance socket that enterprises opt into — a plugin attached in a verdict role (`ir-verdict` / `render-verdict`) to accept or reject a build, or in a transform role (`label-transform`) to shape labels.
 
 The ABI boundary keeps the Go core compact, auditable, and cloud-agnostic. Swapping a provider's rendering logic is a Wasm artifact swap, not a recompile of Aggrega itself.

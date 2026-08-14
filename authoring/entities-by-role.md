@@ -28,7 +28,7 @@ Every entity kind has a role that typically authors it. This page is the complet
 
 **[FeatureRecipe](../language-reference/entities/featurerecipe.md)** — the provider-specific realization of a Feature, applied at binding time. It generates the resources a Feature attachment implies for a given provider.
 
-**Provider-rendering [Plugin](../language-reference/entities/plugin.md)** — a *provider* is the rendering engine that turns a Recipe's input into provider-native manifests. It is delivered as a Plugin with `pluginType: provider` that declares the provider name(s) it renders and its provider-socket contract. Operations (or a plugin author) supply providers so Recipes have an engine to render against. See the [Providers Overview](../language-reference/06-providers.md) for the shipped providers and their contracts.
+**Provider-rendering [Plugin](../language-reference/entities/plugin.md)** — a *provider* is the Wasm guest that turns a Recipe's input into provider-native manifests. It is delivered as a Plugin with `pluginType: provider` that declares the provider name(s) it renders and its provider-socket contract. Operations (or a plugin author) supply providers so Recipes have a provider to render against. See the [Providers Overview](../language-reference/06-providers.md) for the shipped providers and their contracts.
 
 ## Platform operator
 

@@ -16,7 +16,7 @@ The system explicitly serves distinct functional personas across 4 Domains. By s
 
 ## Why Four Domains
 
-Separating the **Catalog Interface** (Domain 2) from the **Infrastructure Recipe** (Domain 3) is what makes Late Binding possible. The Interface defines *what* a developer can request; the Implementation defines *how* that request is realized on a specific execution engine. Domain 4 (the Manifest) routes between them at compile time, so the same Aggregate can target different implementations across environments without the developer's code changing.
+Separating the **Catalog Interface** (Domain 2) from the **Infrastructure Recipe** (Domain 3) is what makes Late Binding possible. The Interface defines *what* a developer can request; the Implementation defines *how* that request is realized on a specific provider. Domain 4 (the Manifest) routes between them at compile time, so the same Aggregate can target different implementations across environments without the developer's code changing.
 
 ### What the Four-Domain Split Enables
 

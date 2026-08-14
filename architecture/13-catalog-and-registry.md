@@ -81,7 +81,7 @@ aggrega-catalog/
 │           └── aggregate.yaml
 │
 ├── recipe/                   # DOMAIN 3: Concrete Implementations
-│   │                         # Organized by PROVIDER (execution engine).
+│   │                         # Organized by PROVIDER (the capability a Recipe declares).
 │   │                         # Each recipe is a directory (may bundle source charts/modules).
 │   │                         #   recipe/helm/mariadb-bitnami/recipe.yaml
 │   │                         #   OCI: hub.aggrega.ai/recipe/helm/mariadb-bitnami:1.0.0
@@ -146,7 +146,7 @@ To eliminate per-Component boilerplate around the topology socket declarations, 
 1. **`usesSchema` (declarative YAML).** Declares the topology sockets a catalog entity offers, and gives each one a contract. The Go CLI natively reads it to extract `x-aggrega-selector:` strings for label matching during static analysis and to validate allowed `inject` mechanisms. Each socket entry supports an optional `required: true` field (default `false`) — when set, the compiler emits a validation error if no dependency is declared in that socket. This is the soft equivalent of the `required: true` semantics on `featuresSchema` entries. Declaring a socket here is what the standard-library catalog does and remains the better path — but it is not the only way a developer can draw an edge. An Aggregate author may name a socket on their own component that this `usesSchema` does not declare, including on an entity that declares no `usesSchema` at all; such an ad-hoc socket carries no selector, no `inject` allowlist and no per-edge schema, precisely because there is no entry here to carry them. A Feature attachment's `uses` and a Release's per-edge `uses` are not open that way — both may only name a declared socket. See [dependency-resolution §"Domain 2: The Split Schema"](07-dependency-resolution.md) for the full contract and what an ad-hoc socket gives up.
 2. **Desugaring.** If developers use the YAML array shorthand (`uses: databases: ["db1"]`), the CLI normalizes it into a map (`{"db1": {"target": "db1"}}`).
 3. **Bridge synthesis.** The compiler walks each socket entry and emits a JSON Schema 2020-12 fragment with `x-aggrega-selector:` and `x-aggrega-inject:` extension keywords. The selector string from the YAML is preserved at the `x-aggrega-selector:` annotation for traceability — JSON Schema validation ignores extension keywords during structural validation, but the Go compiler extracts them programmatically during static analysis for native label matching.
-4. **Composition.** The Ops engineer writes a strict `schema:` declaration (compact form or full JSON Schema 2020-12) defining `values`, `infra`, and `provides`. The Go engine composes the synthesized fragment with the user-authored schema via JSON Schema 2020-12 composition; the resulting unified schema validates the entity's instance content. This guarantees perfect cross-pillar validation without requiring the Ops engineer to write any `uses` boilerplate.
+4. **Composition.** The Ops engineer writes a strict `schema:` declaration (compact form or full JSON Schema 2020-12) defining `values`, `infra`, and `provides`. The compiler composes the synthesized fragment with the user-authored schema via JSON Schema 2020-12 composition; the resulting unified schema validates the entity's instance content. This guarantees perfect cross-pillar validation without requiring the Ops engineer to write any `uses` boilerplate.
 
 **Example bridge synthesis:**
 **The Platform Architect's YAML**
@@ -332,7 +332,7 @@ Within Tier 2, `catalog_dirs` is an ordered **first-win precedence stack**. When
 
 Aggrega treats infrastructure logic the same way Docker treats container images, utilizing Open Container Initiative (OCI) standards via ORAS (OCI Registry As Storage). Users can host their Aggrega catalog on any standard registry (GHCR, AWS ECR, Aggrega Hub).
 
-Because Recipes are strictly **1:1 with a physical execution engine** — a single Recipe cannot target multiple providers — the cleanest way to organize them in an OCI registry is to put the **Provider in the leading repository segment**.
+Because Recipes are strictly **1:1 with a physical provider** — a single Recipe cannot target multiple providers — the cleanest way to organize them in an OCI registry is to put the **Provider in the leading repository segment**.
 
 The OCI taxonomy covers all entity types. URI segments map 1:1 to filesystem paths and OCI repository names:
 
@@ -367,7 +367,7 @@ How a kind ships depends on whether it is self-contained. Component, Feature, Ag
 
 Recipe names do NOT include the `ops/` prefix or the provider name. The entity type directory and provider directory provide all context needed.
 
-**Naming Convention:** Domain 2 entities (Component, Feature, Aggregate) use `{publisher}/{name}` where the publisher segment names the vendor/author (`core` = official standard library, `acme` = enterprise). Domain 3 entities (Recipe, FeatureRecipe) use `{capability}/{name}`, where the capability is the execution engine the entity declares in `spec.capability`; a reference may also name the entity bare, as the leaf alone. The `ops/` prefix is a legacy naming convention and MUST NOT be used — all Recipes are Domain 3 (Ops) by definition, and the entity type directory (`recipe/`, `feature-recipe/`) already identifies the domain. Recipe names do NOT include the capability either, since it is already the leading segment of the canonical URI.
+**Naming Convention:** Domain 2 entities (Component, Feature, Aggregate) use `{publisher}/{name}` where the publisher segment names the vendor/author (`core` = official standard library, `acme` = enterprise). Domain 3 entities (Recipe, FeatureRecipe) use `{capability}/{name}`, where the capability is the provider the entity declares in `spec.capability`; a reference may also name the entity bare, as the leaf alone. The `ops/` prefix is a legacy naming convention and MUST NOT be used — all Recipes are Domain 3 (Ops) by definition, and the entity type directory (`recipe/`, `feature-recipe/`) already identifies the domain. Recipe names do NOT include the capability either, since it is already the leading segment of the canonical URI.
 
 Recipes utilize the `implements` keyword to bind to the interface they fulfill. The `implements` field supports exact, major-compatible range, or unversioned matching (see [vocabulary/inheritance-and-interface](../language-reference/vocabulary/inheritance-and-interface.md) for `implements` Version Matching).
 

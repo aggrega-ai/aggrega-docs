@@ -4,7 +4,7 @@
 
 To support the unique demands, volatility, and security threats of modern AI systems, Aggrega embeds specialized intelligence directly into its open-source **AI Standard Library (The Catalog)**. It ensures that both generic cloud-native scaffolding and highly specialized AI-native reasoning engines coexist securely.
 
-The core Go compiler is a dumb universal execution engine; all AI-specific intelligence lives in pluggable WebAssembly (Wasm) policies and the JSON Schema 2020-12 declarations Platform Architects author on Catalog entities.
+The core Go compiler is a dumb universal router; all AI-specific intelligence lives in pluggable WebAssembly (Wasm) policies and the JSON Schema 2020-12 declarations Platform Architects author on Catalog entities.
 
 ### 1. The 7-Type Cloud Ontology & AI Duck-Typing
 
@@ -205,7 +205,7 @@ Because the core compiler is blind to physical infrastructure mechanics, it reli
 
 * **`conflictsWith`:** An array defined within a Feature's Catalog schema that lists mutually exclusive capabilities. A dedicated linter Wasm plugin cross-references the list of features a developer attached to a given component in the `Aggregate`. If an intersection occurs (i.e., a developer attempts to attach two features that Ops has explicitly declared incompatible), the compilation halts before rendering any physical artifacts. Feature atomicity and purity are enforced as a social contract and validated via these custom Wasm linting rules.
 
-### 10. Dynamic Topology Mapping (The Dependency Engine)
+### 10. Dynamic Topology Mapping (Dependency Resolution)
 
 To build the IR graph without hardcoded orchestrator rules, the compiler uses a three-tiered pattern:
 

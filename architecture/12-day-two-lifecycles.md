@@ -43,13 +43,13 @@ spec:
 **Wave value semantics:**
 
 * The wave is a signed integer; the default is `0`. Negative values run before everything else (CRDs, namespaces, RBAC); larger values run after lower values. Operators set values to fit their deployment topology.
-* Every component instance directly contained in a boundary inherits the boundary's wave value into its IR node. There is no per-component override at the authoring layer — provider-internal per-resource ordering inside a single boundary is the provider engine's concern.
+* Every component instance directly contained in a boundary inherits the boundary's wave value into its IR node. There is no per-component override at the authoring layer — provider-internal per-resource ordering inside a single boundary is the provider's concern.
 * Nested boundaries do not implicitly inherit. A nested boundary that does not declare `syncWave` defaults to `0` regardless of the outer boundary's declaration. Operators wanting "all of `outer` is wave 1, including its `inner` sub-boundary" declare `syncWave: 1` on both.
 
 **The Compiler Effect:**
-When the Infrastructure Rendering Engine generates artifacts, it propagates each boundary's wave value to every rendered manifest in that boundary. Provider engines emit native sequencing primitives:
+The compiler propagates each boundary's wave value to every rendered manifest in that boundary. Providers emit native sequencing primitives:
 
-* **For Kubernetes (ArgoCD/Flux):** the helm and helm-chart engines emit `argocd.argoproj.io/sync-wave: "<N>"` as a `metadata.annotations` entry on every rendered manifest. Helm hook resources additionally receive `helm.sh/hook-weight: "<N>"` for native Helm hook ordering.
+* **For Kubernetes (ArgoCD/Flux):** the helm and helm-chart providers emit `argocd.argoproj.io/sync-wave: "<N>"` as a `metadata.annotations` entry on every rendered manifest. Helm hook resources additionally receive `helm.sh/hook-weight: "<N>"` for native Helm hook ordering.
 * **For Compose:** no per-resource sequencing primitive exists; operators sequence at the `docker compose up` invocation layer, applying per-boundary compose projects in declared order.
 
 The Aggrega-internal `aggrega.ai/sync-wave: "<N>"` label continues to ship alongside the ArgoCD annotation for observability and provenance use (queryable via `kubectl get -l aggrega.ai/sync-wave=1`); the annotation is what GitOps controllers consume.
@@ -114,7 +114,7 @@ Because the IR Graph contains the complete topology and the `Release` contains t
 **The Solution (Future Implementation):**
 Aggrega will introduce the `core/resource-adoption` feature to manage the import lifecycle.
 
-When a developer models the existing database in their `Aggregate` and attaches the `resource-adoption` feature in a sequentially executed pipeline, the Wasm rendering plugin will evaluate the baseline Ops `Recipe` payload. Instead of emitting standard creation configurations, the plugin will output the underlying engine's explicit adoption syntax (e.g., returning a JSONPatch with Terraform `import {}` blocks or Crossplane `ObserveOnly` management policies). This allows enterprises to safely generate configurations that absorb legacy architecture into the GitOps control plane without downtime.
+When a developer models the existing database in their `Aggregate` and attaches the `resource-adoption` feature in a sequentially executed pipeline, the Wasm rendering plugin will evaluate the baseline Ops `Recipe` payload. Instead of emitting standard creation configurations, the plugin will output the target platform's explicit adoption syntax (e.g., returning a JSONPatch with Terraform `import {}` blocks or Crossplane `ObserveOnly` management policies). This allows enterprises to safely generate configurations that absorb legacy architecture into the GitOps control plane without downtime.
 
 ### 7. Ops Best Practices & Deterministic Naming
 

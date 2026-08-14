@@ -277,7 +277,7 @@ components:
 ```
 
 **2. Domain 4 (The Manifest): The Routing**
-Ops maps the legacy database explicitly to the `eval` format engine. The word `eval` acts as a sibling to `helm` and `compose`, keeping the Manifest routing perfectly flat and predictable.
+Ops maps the legacy database explicitly to the `eval` provider. The word `eval` acts as a sibling to `helm` and `compose`, keeping the Manifest routing perfectly flat and predictable.
 
 ```yaml
 spec:

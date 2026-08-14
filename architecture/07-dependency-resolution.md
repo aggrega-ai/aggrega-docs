@@ -90,7 +90,7 @@ components:
 
 **3. Compiler Execution & Topological Validation**
 
-1. **Local Validation:** The Go compiler evaluates the entire object against the resolved JSON Schema at resolution. It checks the underlying catalog labels of `my_secure_vector_db`. If the database lacked the `restricted` label, the engine would immediately halt the build with a type-safety violation.
+1. **Local Validation:** The Go compiler evaluates the entire object against the resolved JSON Schema at resolution. It checks the underlying catalog labels of `my_secure_vector_db`. If the database lacked the `restricted` label, the compiler would immediately halt the build with a type-safety violation.
 2. **Graph Drawing:** At topology construction, the Go compiler ignores schema-validated content entirely. It reads `uses.datastores.finance_memory.target` natively from the YAML and draws the explicit edge in the IR graph.
 
 #### Example B: Polymorphism & The Normalized `.context.uses`

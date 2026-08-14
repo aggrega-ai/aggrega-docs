@@ -1,6 +1,6 @@
 # Recipe Input Composition — Three Input Kinds, Workload, Artifacts
 
-A Recipe produces manifest files for its target provider. This chapter covers how Recipes compose their output from three orthogonal input kinds — sourced, synthesized, and artifacts — how each input kind is structured, and which provider produces which output today. The conceptual role of the Recipe entity (the Ops-authored translation template that maps Developer Intent to a physical execution engine) lives in [04-entity-taxonomy.md](04-entity-taxonomy.md); the Recipe authoring surface at keyword level lives in [../language-reference/entities/recipe.md](../language-reference/entities/recipe.md).
+A Recipe produces manifest files for its target provider. This chapter covers how Recipes compose their output from three orthogonal input kinds — sourced, synthesized, and artifacts — how each input kind is structured, and which provider produces which output today. The conceptual role of the Recipe entity (the Ops-authored translation template that maps Developer Intent to a single physical provider) lives in [04-entity-taxonomy.md](04-entity-taxonomy.md); the Recipe authoring surface at keyword level lives in [../language-reference/entities/recipe.md](../language-reference/entities/recipe.md).
 
 ## Rationale
 
@@ -17,7 +17,7 @@ An early approach extracts a fixed key set (e.g., `image`, `environment`, `ports
 - ConfigMap / Secret / PVC / CRD resources
 - Non-ClusterIP Services (LoadBalancer, NodePort, Headless)
 
-The abstraction layer needs to describe a full workload shape, not a fixed key set. The three input kinds described below are that abstraction: a Recipe composes its output additively from an externally-loaded chart or module (`source:`), an abstract Workload specification the Engine synthesizes into provider-native manifests (`workload:`), and templated provider-native manifests the Recipe emits directly (`artifacts:`).
+The abstraction layer needs to describe a full workload shape, not a fixed key set. The three input kinds described below are that abstraction: a Recipe composes its output additively from an externally-loaded chart or module (`source:`), an abstract Workload specification the provider synthesizes into provider-native manifests (`workload:`), and templated provider-native manifests the Recipe emits directly (`artifacts:`).
 
 ## The Three Input Kinds
 
@@ -25,11 +25,11 @@ The abstraction layer needs to describe a full workload shape, not a fixed key s
 
 There are three ways to produce provider-native manifest files from a Recipe, and they compose by addition rather than by mutual exclusion:
 
-1. **`source:`** — an externally-loaded artifact (Helm chart, compose file) that the provider's native engine renders, with `valuesMapping:` supplying the overlay values.
-2. **`workload:`** — an abstract Workload specification (platform-owned kind) that the Engine synthesizes into provider-native manifests. The field accepts an inline YAML block scalar or a `$import:` to a single local file or library entry; the dispatch is content-shape driven.
+1. **`source:`** — an externally-loaded artifact (Helm chart, compose file) that the provider renders natively, with `valuesMapping:` supplying the overlay values.
+2. **`workload:`** — an abstract Workload specification (platform-owned kind) that the provider synthesizes into provider-native manifests. The field accepts an inline YAML block scalar or a `$import:` to a single local file or library entry; the dispatch is content-shape driven.
 3. **`artifacts:`** — a map of inline or `$import:`-loaded provider-native manifests, Go-templated against the full pillar context. Each entry may be authored inline (the entry's value is a block scalar) or via `$import:` to a single file or library content.
 
-All three produce files that the Engine emits to the boundary's output directory. All three may coexist in a single Recipe, subject to the validation rules below. Merge semantics are top-level-only: each input kind produces complete files; files are concatenated; collision on output filename is a fatal error.
+All three produce files that the compiler emits to the boundary's output directory. All three may coexist in a single Recipe, subject to the validation rules below. Merge semantics are top-level-only: each input kind produces complete files; files are concatenated; collision on output filename is a fatal error.
 
 ### Descriptive Mode Names
 
@@ -91,12 +91,12 @@ spec:
 
 The Recipe schema and load validation enforce these composition rules:
 
-1. **`valuesMapping:` requires `source:`.** Without a source engine to overlay, there is nothing to receive the mapped values. A Recipe with `valuesMapping:` and no `source:` is a load-time error. (A `source:` without `valuesMapping:` is permitted — the chart or module renders with its own defaults.)
+1. **`valuesMapping:` requires `source:`.** Without a `source:` to overlay, there is nothing to receive the mapped values. A Recipe with `valuesMapping:` and no `source:` is a load-time error. (A `source:` without `valuesMapping:` is permitted — the chart or module renders with its own defaults.)
 2. **`workload:` accepts one source — inline or `$import:`, not both.** A Recipe specifies the Workload as either an inline block scalar or a `$import:` to a single file. The `$import:` form is single-source per the unified file-import vocabulary; multi-source merge is not supported at `workload:`. Load-time error on a malformed dispatch.
-3. **`workload:` requires a synthesis-capable provider.** Synthesis support is a property of the provider's rendering engine, not of any declared field. A `workload:` Recipe bound to a provider whose engine cannot synthesize is rejected when the node renders — through the provider-capability gate (see the Provider Capability Matrix) — with a clear diagnostic. The standard-library catalog declares `workloadSchema` on synthesis-capable providers by convention, as the documented translation contract, but the gate keys on engine capability rather than on that field's presence.
+3. **`workload:` requires a synthesis-capable provider.** Synthesis support is a property of the provider itself, not of any declared field. A `workload:` Recipe bound to a provider that cannot synthesize is rejected when the node renders — through the provider-capability gate (see the Provider Capability Matrix) — with a clear diagnostic. The standard-library catalog declares `workloadSchema` on synthesis-capable providers by convention, as the documented translation contract, but the gate keys on the provider's own reported capability rather than on that field's presence.
 4. **At least one input kind must be present.** A Recipe with none of `source:`+`valuesMapping:`, `workload:`, or `artifacts:` produces no output and is a load-time error.
 5. **Inline and `$import:` artifact entries may coexist.** A Recipe may declare some `artifacts:` entries inline and others via per-entry `$import:` directives. Filename collision across the two forms is a load-time error.
-6. **Cross-input-kind filename collisions are render-time errors.** If two of a Recipe's input kinds — source-rendered output, workload-synthesized output, or artifact-emitted output — produce a file with the same name, the Engine emits a fatal error identifying every contributor. This check runs after Workload translation, so it's render-time rather than load-time.
+6. **Cross-input-kind filename collisions are render-time errors.** If two of a Recipe's input kinds — source-rendered output, workload-synthesized output, or artifact-emitted output — produce a file with the same name, the compiler emits a fatal error identifying every contributor. This check runs after Workload translation, so it's render-time rather than load-time.
 
 ## The Workload Kind
 
@@ -361,9 +361,9 @@ spec:
       // ...
 ```
 
-The `workloadSchema` field communicates translation intent to catalog authors and IDE tooling. It is the documented translation contract, declared by convention on providers whose engine synthesizes — but synthesis support is determined by the provider's rendering engine, not by this field's presence. A Recipe targeting a provider whose engine cannot synthesize with `workload:` is rejected when the node renders — through the provider-capability gate — with a clear error, whether or not the provider declares `workloadSchema`.
+The `workloadSchema` field communicates translation intent to catalog authors and IDE tooling. It is the documented translation contract, declared by convention on providers that synthesize — but synthesis support is determined by the provider itself, not by this field's presence. A Recipe targeting a provider that cannot synthesize with `workload:` is rejected when the node renders — through the provider-capability gate — with a clear error, whether or not the provider declares `workloadSchema`.
 
-*The Plugin schema declares `spec.provider.workloadSchema` today — its body is compiled to JSON Schema 2020-12 when the Plugin loads — and Recipe-side `workload:` consumption ships. Synthesis support is enforced at render time by the provider-capability gate, keyed on the bound engine's capability; `workloadSchema` is the documented contract the standard-library catalog keeps in sync with that capability, not itself the gate input. `aggrega lint` additionally surfaces a `workload:` Recipe bound to a non-synthesizing provider early, before a build.*
+*The Plugin schema declares `spec.provider.workloadSchema` today — its body is compiled to JSON Schema 2020-12 when the Plugin loads — and Recipe-side `workload:` consumption ships. Synthesis support is enforced at render time by the provider-capability gate, keyed on the bound provider's reported capability; `workloadSchema` is the documented contract the standard-library catalog keeps in sync with that capability, not itself the gate input. `aggrega lint` additionally surfaces a `workload:` Recipe bound to a non-synthesizing provider early, before a build.*
 
 ### Auxiliary Resources Live Outside the Workload
 
@@ -458,7 +458,7 @@ This invariant preserves Recipe reusability: a Recipe can be dropped into any Ag
 
 ### Provenance Labels
 
-Post-translation, the Engine injects `aggrega.ai/*` provenance into the metadata of every emitted file — whether it was source-rendered, workload-synthesized, or emitted from an artifact template. The set splits by whether a value satisfies the Kubernetes label-value charset: label-safe keys are **labels** (queryable); charset-unsafe keys — `recipe-uri` (carries a `:`), `boundary-path` (a nested path carries `/`), and `sync-wave` (a negative wave's leading `-`) — are **annotations**, whose values are unconstrained. All files carrying the same Recipe's output share the same provenance:
+Post-translation, every emitted file carries `aggrega.ai/*` provenance in its metadata — whether it was source-rendered, workload-synthesized, or emitted from an artifact template. Every emitting surface stamps it from one shared set of builders, so the same file always carries the same provenance whichever input kind produced it. The set splits by whether a value satisfies the Kubernetes label-value charset: label-safe keys are **labels** (queryable); charset-unsafe keys — `recipe-uri` (carries a `:`), `boundary-path` (a nested path carries `/`), and `sync-wave` (a negative wave's leading `-`) — are **annotations**, whose values are unconstrained. All files carrying the same Recipe's output share the same provenance:
 
 ```yaml
 metadata:
@@ -494,7 +494,7 @@ Inline-block-scalar `artifacts:` entries for helm-chart are rejected at Recipe l
 
 Three structural distinctions:
 
-**Not cross-provider within a single Recipe.** A Recipe declares exactly one `target:` at its top level. Everything the Recipe produces — source-rendered output, workload-synthesized output, and artifact emissions — is in that provider's native format. A helm Recipe's artifacts contain Kubernetes YAML. A compose Recipe's artifacts contain compose fragments. A Recipe targets one provider; every output is in that provider's native format.
+**Not cross-provider within a single Recipe.** A Recipe declares exactly one `capability:` at the top of its `spec`. Everything the Recipe produces — source-rendered output, workload-synthesized output, and artifact emissions — is in that provider's native format. A helm Recipe's artifacts contain Kubernetes YAML. A compose Recipe's artifacts contain compose fragments. A Recipe targets one provider; every output is in that provider's native format.
 
 Multi-provider composition happens at the Release level. Boundaries hold mixed-provider components; each provider's contributors at a boundary's evaluated path are dispatched and assembled per-(path, provider) independently. A Release with components targeting helm, helm-chart, and compose respectively can place all three in one boundary; the dispatch grouping partitions them per provider, each provider's contributors land in their own assembled output under the boundary's path, and the operator authors the cross-provider coordination via the boundary structure they choose. Cross-provider coordination is the Release author's responsibility.
 
@@ -504,7 +504,7 @@ Multi-provider composition happens at the Release level. Boundaries hold mixed-p
 
 ## Provider Capability Matrix
 
-Each provider engine declares which input kinds it renders; a central input-kind gate accepts the supported combinations and rejects the rest with a uniform diagnostic when the node renders. Capability is a property of the engine, not the Recipe — a provider engine renders a subset of the three kinds. The `artifacts:` column distinguishes artifacts riding *alongside* a sourced/synthesized primary from a *standalone* artifacts-only Recipe (no `source:`, no `workload:`).
+Each provider declares which input kinds it renders; a central input-kind gate accepts the supported combinations and rejects the rest with a uniform diagnostic when the node renders. Capability is a property of the provider, not the Recipe — a provider renders a subset of the three kinds. The `artifacts:` column distinguishes artifacts riding *alongside* a sourced/synthesized primary from a *standalone* artifacts-only Recipe (no `source:`, no `workload:`).
 
 <!-- BEGIN GENERATED: provider-capability-matrix -->
 | Provider | `source:` + `valuesMapping:` | `workload:` | `artifacts:` (alongside) | artifacts-only (standalone) |
@@ -515,7 +515,7 @@ Each provider engine declares which input kinds it renders; a central input-kind
 | terraform | ✅ | ❌ | ✅ | ✅ |
 | cloudformation | ✅ | ❌ | ✅ | ✅ |
 
-*This grid covers the provider engines distributed with the compiler. A provider supplied as a plugin declares the input kinds it accepts in the same way, and the compiler reads that declaration by the same route — it is not listed here, because a published page cannot enumerate providers it has never seen.*
+*This grid covers the providers distributed with the compiler. A provider supplied separately declares the input kinds it accepts in the same way, and the compiler reads that declaration by the same route — it is not listed here, because a published page cannot enumerate providers it has never seen.*
 <!-- END GENERATED: provider-capability-matrix -->
 
 *Cells marked `✅` ship; `❌` is a provider-capability decline surfaced by the gate. The per-node compose fragments are merged per boundary today; a further Release-level cross-boundary merge is a future refinement.*
