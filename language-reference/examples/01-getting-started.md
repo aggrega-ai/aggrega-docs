@@ -97,7 +97,7 @@ spec:
         my-site: {}
 ```
 
-**Compilation:** `aggrega build --release release.yaml` → The compiler resolves `my-site` (type `core/web-server:1.0.0`) → looks up `core/web-server` in the Manifest's `components.type` map → finds `helm/web-server-helm:1.0.0` → loads the Recipe (its `spec.capability: helm` names the engine to dispatch to) → renders the chart into `dist/deploy/k8s/helm/`.
+**Compilation:** `aggrega build --release release.yaml` → The compiler resolves `my-site` (type `core/web-server:1.0.0`) → looks up `core/web-server` in the Manifest's `components.type` map → finds `helm/web-server-helm:1.0.0` → loads the Recipe (its `spec.capability: helm` names the provider to dispatch to) → renders the chart into `dist/deploy/k8s/helm/`.
 
 ---
 

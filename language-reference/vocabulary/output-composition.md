@@ -14,7 +14,7 @@ Each mechanism lives at a specific Recipe / FeatureRecipe authoring surface and 
 
 **Pipeline placement.** Base rendering, after the Recipe's locals and provides resolve.
 
-**Output shape.** Provider-engine-specific:
+**Output shape.** Provider-specific:
 
 - **helm provider** — flat Kubernetes YAML files, named `<nodeID>-<basename>.yaml` per chart-template emission. The Helm SDK renders the chart with the merged values; Aggrega injects provenance labels and annotations post-render.
 - **helm-chart provider** — sub-chart files copied verbatim under `charts/<instance_id>/`; per-boundary umbrella `Chart.yaml` + `values.yaml` emitted alongside.
@@ -26,11 +26,11 @@ Each mechanism lives at a specific Recipe / FeatureRecipe authoring surface and 
 
 **Pipeline placement.** Base rendering, after the Recipe's valuesMapping resolves (the Workload body is itself a Go-templated string evaluated with full TemplateContext).
 
-**Output shape.** Provider-engine-specific:
+**Output shape.** Provider-specific:
 
 - **helm provider** — one controller object chosen by the Workload's `form` (Deployment for stateless, StatefulSet for stateful, DaemonSet for daemon, Job for task) + per-service Service + per-persistent-volume PVC. Files named `<nodeID>-<kind>.yaml` (e.g., `<nodeID>-deployment.yaml`, `<nodeID>-statefulset.yaml`, `<nodeID>-daemonset.yaml`, `<nodeID>-job.yaml`, `<nodeID>-service-<svcName>.yaml`, `<nodeID>-pvc-<volName>.yaml`).
 - **compose provider** — intermediate `<nodeID>.compose-fragment.yaml` files that flow into Release-level composition.
-- **helm-chart provider** — not supported; helm-chart's role is sourced-mode chart composition only. A Recipe targeting helm-chart with `workload:` is rejected at render time (the helm-chart engine reports no synthesis capability).
+- **helm-chart provider** — not supported; helm-chart's role is sourced-mode chart composition only. A Recipe targeting helm-chart with `workload:` is rejected at render time (the helm-chart provider reports no synthesis capability).
 
 ### 3 — FeatureRecipe Resource Generation (sourced mode for FeatureRecipes)
 
@@ -70,7 +70,7 @@ Each mechanism lives at a specific Recipe / FeatureRecipe authoring surface and 
 
 ### 6 — Recipe direct artifact emission (`artifacts:`)
 
-**Authoring surface.** Recipe declares `artifacts:` as a map of named entries; each entry is either inline content (a templated string carrying the file body) or an `$import:` reference to a template file path — direct file emission without going through a provider engine.
+**Authoring surface.** Recipe declares `artifacts:` as a map of named entries; each entry is either inline content (a templated string carrying the file body) or an `$import:` reference to a template file path — direct file emission without going through a provider.
 
 **Pipeline placement.** Artifact evaluation, within base rendering.
 
@@ -88,7 +88,7 @@ The six mechanisms run in a defined order so downstream mechanisms can read upst
 4. **Values mapping** — Recipe `valuesMapping:` evaluates (sourced mode + sourceless mode produce values dictionaries).
 5. **Workload synthesis** — Recipe Workload synthesis (mechanism 2 emits manifests for synthesised mode).
 6. **Artifact evaluation** — Recipe `artifacts:` evaluation (mechanism 6 — `accepted but blocked` today).
-7. **Provider render** — Provider engine renders (mechanism 1 — sourced mode produces flat manifests; sourceless mode produces generative manifests).
+7. **Provider render** — the provider renders (mechanism 1 — sourced mode produces flat manifests; sourceless mode produces generative manifests).
 8. **Feature rendering** — FeatureRecipe rendering for every Feature attachment on the node (mechanisms 3 + 4 — Resource Generation runs here; the plugin pipeline runs later, at step 9).
 9. **The plugin pipeline** — post-render mutation: FeatureRecipe `pipeline:` plugin steps apply RFC 6902 patches and emit additional resources (mechanism 4).
 10. **Release-level composition** — per-provider `BoundaryComposer` aggregates per-node fragments into per-boundary outputs (mechanism 5).

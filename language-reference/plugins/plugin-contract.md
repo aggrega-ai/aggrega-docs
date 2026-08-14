@@ -1,6 +1,6 @@
 # Wasm plugin contract
 
-Aggrega's compilation pipeline includes designated socket points where WebAssembly (Wasm) plugins extend the engine's behaviour: a Mutation Gate at topology construction, a Validation Gate at static analysis, a post-render plugin pipeline for FeatureRecipe execution, an out-of-band linting socket, and a provider-rendering socket. This page documents the public Wasm plugin contract: which sockets exist, what each socket consumes and produces, where each socket sits in the compilation pipeline, and the sandbox every plugin executes inside.
+Aggrega's compilation pipeline includes designated socket points where WebAssembly (Wasm) plugins extend the compiler's behaviour: a Mutation Gate at topology construction, a Validation Gate at static analysis, a post-render plugin pipeline for FeatureRecipe execution, an out-of-band linting socket, and a provider-rendering socket. This page documents the public Wasm plugin contract: which sockets exist, what each socket consumes and produces, where each socket sits in the compilation pipeline, and the sandbox every plugin executes inside.
 
 This page covers the *sockets* — the pipeline points and their input/output shapes. For the *plugin* — the `Plugin` entity, the per-export capability claims, the runtime limits, and the publish→pull→build lifecycle — see the [Wasm plugin developer guide](plugin-developer-guide.md).
 
@@ -52,7 +52,7 @@ The compilation pipeline reserves the following socket points. The shape labels 
 | Governance socket, `ir-verdict` role | Static analysis (the Static Analyzer, over the IR graph) | **available** — dispatched when a workspace attaches an ir-verdict plugin; a `deny` verdict halts the build |
 | Governance socket, `render-verdict` role | Rendering (over the rendered artifacts) | **available** — dispatched when a workspace attaches a render-verdict plugin; a `deny` verdict halts the build |
 | FeatureRecipe `pipeline:` plugins | The plugin pipeline (post-render mutation) | **available** — each declared step runs against the rendered document set, applying RFC 6902 patches and emitting side effects |
-| Provider rendering plugins (helm, helm-chart, compose, terraform) | Base rendering (the provider engines) | **available** — every provider renders through its Wasm guest; rendering is Wasm-only, with no native Go engine fallback |
+| Provider rendering plugins (helm, helm-chart, compose, terraform) | Base rendering (the providers) | **available** — every provider renders through its Wasm guest; rendering is Wasm-only, with no in-host renderer fallback |
 | `linter.wasm` (publishing-linter) | Out-of-band (`aggrega lint`) | **available** — the publishing-linter ships and runs through the host via `aggrega lint` |
 
 The annotation-driven Feature expansion sub-phase, part of resolution, is a native Go pipeline pass, not a Wasm socket. It validates annotation values against the target Feature's `spec.schema` and injects synthetic Feature attachments at IR build time. See [`vocabulary/labels-and-annotations.md`](../vocabulary/labels-and-annotations.md) for the six annotation- and label-bearing surfaces and [`providers/well-known-annotations.md`](../providers/well-known-annotations.md) for the binding-shape and authoring teaching.
@@ -137,7 +137,7 @@ A plugin-pipeline step publishes named outputs that subsequent steps consume via
 
 ### Provider rendering — the guest-driven socket
 
-A provider is a Wasm guest. Rendering is Wasm-only: a Recipe's `target:` name resolves to the provider-rendering Plugin (`pluginType: provider`) that lists the name in its `spec.provider.capabilities` and advertises a `render_node` export, and that plugin's guest renders the node. There is no native Go engine to fall back to; a provider name that resolves to no serving Plugin halts the build at routing time. Adding a standard provider is shipping a `.wasm` guest and a catalog `Plugin` entity — the host carries no per-provider code.
+A provider is a Wasm guest. Rendering is Wasm-only: a Recipe's `capability:` name resolves to the provider-rendering Plugin (`pluginType: provider`) that lists the name in its `spec.provider.capabilities` and advertises a `render_node` export, and that plugin's guest renders the node. There is no in-host renderer to fall back to; a provider name that resolves to no serving Plugin halts the build at routing time. Adding a standard provider is shipping a `.wasm` guest and a catalog `Plugin` entity — the host carries no per-provider code.
 
 The host is a generic router. It reads the guest's `describe()` self-report — including its **render-behavior contract** — and dispatches the guest's exports without understanding any provider format. That contract drives dispatch as data:
 
@@ -222,7 +222,7 @@ The pipeline placement table at the top of this page reflects today's state plus
 - [`policy-socket.md`](policy-socket.md) — the comprehensive policy-socket treatment: stages, verdict severities, the operator input channel, wrapping a foreign policy engine, and the reference guests.
 - [`10-status.md#compilation-pipeline-phases`](../10-status.md#compilation-pipeline-phases) — Status page plugin-pipeline classification (Wasm plugin pipeline runtime readiness).
 - [`architecture/09-ai-features.md`](../../architecture/09-ai-features.md) — Two-Part Plugin Principle for credential FeatureRecipes (Fetcher + Injector pattern).
-- [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md) — Wasm Engine target and the OCI taxonomy that leads with the provider segment.
+- [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md) — the OCI taxonomy that leads with the provider segment.
 - [`entities/featurerecipe.md`](../entities/featurerecipe.md) — FeatureRecipe `pipeline:` authoring surface.
 - [`when-to-use-a-pipeline-step.md`](when-to-use-a-pipeline-step.md) — decision guide: a pipeline step vs a templated FeatureRecipe.
 - [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) — the plugin pipeline's `pipeline:` `with:` block template-evaluation rules and `.steps` access semantics.

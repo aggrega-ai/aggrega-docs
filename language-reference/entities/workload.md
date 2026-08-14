@@ -65,7 +65,7 @@ The full Workload schema is in [../../architecture/16-recipe-input-composition.m
 - `scheduled` — recurring, time-triggered runs.
 - `task` — a single run to completion.
 
-The form carries no platform-native resource kinds itself. Each target Engine maps the form to its own native shape:
+The form carries no platform-native resource kinds itself. Each target provider maps the form to its own native shape:
 
 | `form` | Kubernetes (helm) | Compose | CloudFormation | Terraform |
 | --- | --- | --- | --- | --- |
@@ -75,7 +75,7 @@ The form carries no platform-native resource kinds itself. Each target Engine ma
 | `scheduled` | CronJob | (n/a) | EventBridge Scheduler | `aws_cloudwatch_event_rule` |
 | `task` | Job | one-shot container | ECS RunTask / Lambda | ECS task / Lambda invoke |
 
-When a target Engine has no clean mapping for a form, the build halts loudly rather than degrade the workload into a shape that misrepresents the intent — choosing a form a target boundary cannot express is a build-time error, not a silent downgrade. The compose Engine halts on `daemon`, `scheduled`, and `task`. The helm Engine emits a CronJob for `scheduled` (see [`schedule`](#schedule) below) and halts only when its schedule is absent or malformed.
+When a target provider has no clean mapping for a form, the build halts loudly rather than degrade the workload into a shape that misrepresents the intent — choosing a form a target boundary cannot express is a build-time error, not a silent downgrade. The compose provider halts on `daemon`, `scheduled`, and `task`. The helm provider emits a CronJob for `scheduled` (see [`schedule`](#schedule) below) and halts only when its schedule is absent or malformed.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -101,7 +101,7 @@ services:
 - a standard 5-field crontab expression — minute, hour, day-of-month, month, day-of-week (for example `0 0 * * *` for daily at midnight, `*/15 * * * *` for every fifteen minutes), or
 - one of the macros `@hourly`, `@daily`, `@weekly`, `@monthly`, `@yearly`.
 
-`schedule` is **required** when `form: scheduled` and only meaningful then. A `form: scheduled` workload with no schedule, a schedule that is neither a 5-field expression nor a recognised macro (a 6-field seconds-prefixed expression, an unrecognised `@`-token, or a field with illegal characters), or a `schedule` set on any other form is a build-time halt naming the fix. The helm Engine pipes the value verbatim into the emitted CronJob's `spec.schedule`.
+`schedule` is **required** when `form: scheduled` and only meaningful then. A `form: scheduled` workload with no schedule, a schedule that is neither a 5-field expression nor a recognised macro (a 6-field seconds-prefixed expression, an unrecognised `@`-token, or a field with illegal characters), or a `schedule` set on any other form is a build-time halt naming the fix. The helm provider pipes the value verbatim into the emitted CronJob's `spec.schedule`.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -160,7 +160,7 @@ volumes:
 
 `persistentTemplate` produces a per-replica PVC for StatefulSet-shaped translation; in compose translation it degrades to a single shared named volume, with a warning reported alongside the build. The generated file itself carries no note of the degradation — it is byte-for-byte what it would be without the warning.
 
-**Per-provider translation.** Each provider engine translates the five volume variants into its native shape:
+**Per-provider translation.** Each provider translates the five volume variants into its native shape:
 
 | Variant | Helm / helm-chart (K8s) | Compose | Loss notes |
 | --- | --- | --- | --- |
@@ -172,7 +172,7 @@ volumes:
 
 The controller shape is chosen by the workload's `form`, not by its volumes. A StatefulSet is emitted when `form: stateful`; a `persistentTemplate` volume is a **companion** of that form — it declares per-replica storage on a workload that already has the per-replica identity a StatefulSet provides. Declaring a `persistentTemplate` volume on any other form (or on the default `stateless`) is a build-time error naming the fix: `declare form: stateful`. The reverse is allowed — a `form: stateful` workload need not declare a `persistentTemplate` volume. Authors who want StatefulSet semantics set `form: stateful` directly.
 
-A `form: stateful` workload on the helm engine requires a headless governing Service: declare **exactly one** service with `type: Headless` in the same Workload. The engine wires the StatefulSet's `serviceName` to that headless Service (it provides the stable per-pod network identities a StatefulSet needs). The build halts if no headless service is declared — a StatefulSet has no governing Service to name — or if more than one is, leaving the governing Service ambiguous. A StatefulSet workload may still declare additional non-headless services (for example a `ClusterIP` service for client access) beside the one headless governing service.
+A `form: stateful` workload on the helm provider requires a headless governing Service: declare **exactly one** service with `type: Headless` in the same Workload. The provider wires the StatefulSet's `serviceName` to that headless Service (it provides the stable per-pod network identities a StatefulSet needs). The build halts if no headless service is declared — a StatefulSet has no governing Service to name — or if more than one is, leaving the governing Service ambiguous. A StatefulSet workload may still declare additional non-headless services (for example a `ClusterIP` service for client access) beside the one headless governing service.
 
 ### `services`
 
@@ -216,7 +216,7 @@ health:
 
 Three intent forms (`http:`, `tcp:`, `exec:`) are mutually exclusive within a single probe declaration. Port resolution for `http:` without an explicit port uses the first named port in `containers.<name>.ports` by author order; if no ports are declared on the container, the compiler reports a validation error.
 
-**Per-provider translation.** Each provider engine translates the abstract probe intent into its native shape at synthesis time:
+**Per-provider translation.** Each provider translates the abstract probe intent into its native shape at synthesis time:
 
 | Intent | Helm (K8s) | Compose | Loss notes |
 | --- | --- | --- | --- |
@@ -226,7 +226,7 @@ Three intent forms (`http:`, `tcp:`, `exec:`) are mutually exclusive within a si
 
 Compose's `CMD-SHELL` wrappers approximate HTTP and TCP probes through shell-evaluable predicates; the approximation loses the timeout / interval / retries semantics that K8s probes carry directly on the probe spec. Compose-targeted boundaries that need precise probe gating either use the native `exec:` shape (which translates without loss) or supplement the compose `healthcheck:` config with explicit retry parameters in the Recipe's compose-side overlay.
 
-The compose engine emits a warning comment in the generated `docker-compose.yaml` whenever a probe is degraded from native HTTP/TCP to a CMD-SHELL wrapper.
+The compose provider emits a warning comment in the generated `docker-compose.yaml` whenever a probe is degraded from native HTTP/TCP to a CMD-SHELL wrapper.
 
 **Provider-specific note (compose).** Authoring a `health:` block on a compose-targeted Workload does not gate `depends_on` ordering on health: the compose provider's `depends_on` entries derived from `uses:` edges always use `service_started` semantics, regardless of whether the target Workload declares health probes. Gating those entries on the target's health is not implemented — the long form that would carry such a condition is itself emitted, for init-container waits, so what is missing is the choice to gate an edge on health rather than the shape to express it. See [providers/compose.md](../providers/compose.md) for the full inference rules.
 
@@ -393,7 +393,7 @@ Every Workload is validated at Recipe load time before any rendering runs. Valid
 
 Both stages produce the same `CATALOG_ERROR`-prefixed message shape; failures stop the build before any rendering output is produced. Recipe authors get pointed feedback identifying the exact field that failed and the constraint that rejected it.
 
-The K8s-shaped pass-through fields (`scheduling.affinity`, `scheduling.tolerations`, `scheduling.topologySpreadConstraints`, the `items` lists inside ConfigMap and Secret volumes, lifecycle `httpGet` hooks) are validated structurally only — Aggrega's schema constrains their presence and outer shape, but the inner shape of these K8s-API-defined values is the provider engine's responsibility (the helm provider hands them to the K8s pod spec verbatim; the compose provider rejects or degrades them as appropriate). A Workload using a misshapen `affinity` value passes Aggrega validation and surfaces the error during provider synthesis instead.
+The K8s-shaped pass-through fields (`scheduling.affinity`, `scheduling.tolerations`, `scheduling.topologySpreadConstraints`, the `items` lists inside ConfigMap and Secret volumes, lifecycle `httpGet` hooks) are validated structurally only — Aggrega's schema constrains their presence and outer shape, but the inner shape of these K8s-API-defined values is the provider's responsibility (the helm provider hands them to the K8s pod spec verbatim; the compose provider rejects or degrades them as appropriate). A Workload using a misshapen `affinity` value passes Aggrega validation and surfaces the error during provider synthesis instead.
 
 ## Auxiliary resources belong outside the Workload
 
@@ -450,7 +450,7 @@ The metrics service is typically annotated for Prometheus discovery via a Featur
 
 ### Pattern 2 — Batch job
 
-A workload that runs to completion rather than serving traffic indefinitely. The pattern sets `form: task`, omits `services:` entirely — batch jobs do not expose ports — and relies on the target Engine's task shape (a Kubernetes Job on the helm engine, a one-shot container on compose). The helm engine pins a Job-valid pod `restartPolicy` (`Never` unless the container declares `OnFailure`), since a Job pod cannot use the `Always` default.
+A workload that runs to completion rather than serving traffic indefinitely. The pattern sets `form: task`, omits `services:` entirely — batch jobs do not expose ports — and relies on the target provider's task shape (a Kubernetes Job on the helm provider, a one-shot container on compose). The helm provider pins a Job-valid pod `restartPolicy` (`Never` unless the container declares `OnFailure`), since a Job pod cannot use the `Always` default.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1

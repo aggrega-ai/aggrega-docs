@@ -267,7 +267,7 @@ A field that lives in two pillars with different validation layers can carry dup
 
 When the `usesSchema` allows port 80 but `workloadSchema` declares ports below 1024 invalid, the runtime will fire the `workloadSchema` rejection during base rendering — the Layer 3 validation per [validation-surface.md](validation-surface.md). The first layer's constraint passed; the second layer caught the violation.
 
-The duplication is deliberate: each layer covers a different concern. The Component's `usesSchema` governs the cognitive contract (the developer's `uses:` declaration). The provider-rendering plugin's `spec.provider.workloadSchema` governs the rendered-output contract (what the engine accepts). When both apply to the same field, the strictest wins; authors who hit the second layer's rejection see a `CATALOG_ERROR:` attributed to the Recipe and the provider engine that rendered it.
+The duplication is deliberate: each layer covers a different concern. The Component's `usesSchema` governs the cognitive contract (the developer's `uses:` declaration). The provider-rendering plugin's `spec.provider.workloadSchema` governs the rendered-output contract (what the provider accepts). When both apply to the same field, the strictest wins; authors who hit the second layer's rejection see a `CATALOG_ERROR:` attributed to the Recipe and the provider that rendered it.
 
 ### Feature attachment / Component pillar isolation
 
@@ -307,7 +307,7 @@ The pillars carry validation across three tiers. Each tier covers a different co
 | --- | --- | --- |
 | 1 — JSON Schema envelope | Structural shape (which keys are present, types match the field declarations) | Resolution, per file load |
 | 2 — Per-pillar schema (`schema` / `featuresSchema` / `usesSchema`) | Per-pillar typed content validated as JSON Schema 2020-12 | Resolution, after envelope passes |
-| 3 — provider engine-capability gate | Workload content gated by the bound provider engine's synthesized-mode capability, documented by the provider-rendering plugin's `spec.provider.workloadSchema` | Base rendering, after valuesMapping resolves |
+| 3 — provider-capability gate | Workload content gated by the bound provider's synthesized-mode capability, documented by the provider-rendering plugin's `spec.provider.workloadSchema` | Base rendering, after valuesMapping resolves |
 
 For the four-layer error-shape table and per-layer error prefixes, see [validation-surface.md](validation-surface.md).
 

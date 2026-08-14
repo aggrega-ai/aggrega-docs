@@ -82,7 +82,7 @@ The build prints it under a `CATALOG_ERROR` tag, which signals that the failure 
 
 <!-- covers: pkg/validator.ErrRecipeRule1 -->
 
-A Recipe declares `valuesMapping` but not `source`. Without a source engine to overlay, there is nothing to receive the mapped values.
+A Recipe declares `valuesMapping` but not `source`. Without a source to overlay, there is nothing to receive the mapped values.
 
 Emitted message:
 > Recipe `<name>:<version>`: validation error at `<path>` — rule 1: valuesMapping requires source. declare a source: pointer alongside valuesMapping (or remove the valuesMapping if no overlay is intended)
@@ -98,16 +98,16 @@ Emitted message:
 
 **How to fix:** declare a `valuesMapping:` (inline Go template, or file `$import:`, or library `$import:` to a [MappingLibrary](../entities/mappinglibrary.md) entry) that produces the values overlay for the source, or remove the `source:` and adopt the input kind that matches your authoring intent.
 
-#### Rule 4 — `workload:` requires a provider whose engine can synthesize
+#### Rule 4 — `workload:` requires a provider that can synthesize
 
-A Recipe declares `workload:` (synthesized mode) for a provider whose rendering engine does not implement Workload synthesis. Synthesized-mode support is a property of the provider's engine — the standard-library catalog declares `workloadSchema` on synthesis-capable providers by convention, but the check keys on engine capability, not on that field's presence.
+A Recipe declares `workload:` (synthesized mode) for a provider that does not implement Workload synthesis. Synthesized-mode support is a property of the provider — the standard-library catalog declares `workloadSchema` on synthesis-capable providers by convention, but the check keys on provider capability, not on that field's presence.
 
-The check runs at render time, via the central input-kind gate, after the node's provider engine is bound; the message names the node and the provider.
+The check runs at render time, via the central input-kind gate, after the node's provider is bound; the message names the node and the provider.
 
 Emitted message:
 > CATALOG_ERROR: node `<node-id>`: provider `<provider-name>` does not support synthesised recipes (this provider supports: `<kinds>`); declare one of the supported input kinds, or target a provider that supports synthesised
 
-**How to fix:** either bind the Recipe to a provider whose engine synthesizes (most commonly `helm` or `compose`), or migrate the Recipe to a different input kind (`artifacts:` for direct manifest emission, or `source:` + `valuesMapping:` if a chart/module exists).
+**How to fix:** either bind the Recipe to a provider that synthesizes (most commonly `helm` or `compose`), or migrate the Recipe to a different input kind (`artifacts:` for direct manifest emission, or `source:` + `valuesMapping:` if a chart/module exists).
 
 > **Honest-pending — per-provider Workload-content validation.** Today the provider's `workloadSchema` is documentation-only and does not validate the Workload body; bodies are validated against the platform-owned embedded Workload schema. When the Wasm-based Workload synthesizer ships, `workloadSchema` becomes the per-provider contract the synthesizer validates the Workload body against (a distinct, content-level halt). See the roadmap's Wasm-based Workload synthesizers item.
 
@@ -650,7 +650,7 @@ Emitted message:
 
 <!-- covers: internal/compiler/renderer.ErrUnknownProvider -->
 
-A Recipe declares `provider: <name>` where `<name>` names no rendering engine the compiler serves. The compiler cannot dispatch rendering to a provider it has never heard of.
+A Recipe declares `provider: <name>` where `<name>` names no provider the compiler serves. The compiler cannot dispatch rendering to a provider it has never heard of.
 
 Emitted message:
 > unknown provider: `<provider-name>`
@@ -661,7 +661,7 @@ Emitted message:
 
 <!-- covers: pkg/catalog.ErrAmbiguousProviderPlugin -->
 
-A build reaches a capability — or a pull resolves one — served by more than one provider-rendering Plugin (`pluginType: provider`, each listing that capability in its `spec.provider.capabilities`), and the workspace has not selected which one renders it. Rather than pick a rendering engine arbitrarily, the build halts and names both candidates. A catalog that carries two plugins for the same capability is legal — two publishers may each ship a plugin for `helm` or `compose`, and the catalog accepts both. The ambiguity surfaces only at the point of use: the halt fires when a build or pull actually reaches the contested capability, not at load time.
+A build reaches a capability — or a pull resolves one — served by more than one provider-rendering Plugin (`pluginType: provider`, each listing that capability in its `spec.provider.capabilities`), and the workspace has not selected which one renders it. Rather than pick a provider arbitrarily, the build halts and names both candidates. A catalog that carries two plugins for the same capability is legal — two publishers may each ship a plugin for `helm` or `compose`, and the catalog accepts both. The ambiguity surfaces only at the point of use: the halt fires when a build or pull actually reaches the contested capability, not at load time.
 
 Emitted message:
 > capability `<capability-name>` is served by more than one provider plugin (`<plugin-1>, <plugin-2>`); add a plugins.providers entry for `<capability-name>` selecting one

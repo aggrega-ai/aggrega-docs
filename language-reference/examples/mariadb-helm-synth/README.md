@@ -2,7 +2,7 @@
 
 A single MariaDB database rendered on Kubernetes by the helm provider's Workload
 synthesis — no external chart. The `core/datastore/mariadb` Component binds to the
-`helm/mariadb` Recipe, which declares a `form: stateful` Workload; the helm engine
+`helm/mariadb` Recipe, which declares a `form: stateful` Workload; the helm provider
 translates it into a **StatefulSet**, a **ClusterIP Service**, a **Headless
 Service** (the StatefulSet's stable network identity), and a
 **volumeClaimTemplate** for the data directory.

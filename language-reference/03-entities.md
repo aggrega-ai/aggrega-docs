@@ -35,4 +35,4 @@ The three library kinds are Tier 3 — opt-in reuse entities. A catalog declares
 
 ### Platform-owned kinds
 
-- [Workload](entities/workload.md) — platform-owned compiler kind (not a user-authored catalog entity). Embedded inside a Recipe's `workload:` field (inline or via `$import:`); describes the deployment shape the Engine synthesizes into provider-native manifests.
+- [Workload](entities/workload.md) — platform-owned compiler kind (not a user-authored catalog entity). Embedded inside a Recipe's `workload:` field (inline or via `$import:`); describes the deployment shape the provider synthesizes into provider-native manifests.

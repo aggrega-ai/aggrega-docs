@@ -14,7 +14,7 @@ aggrega pull --release <release> --verify
 `aggrega pull` resolves two kinds of dependency in one pass:
 
 - **Catalog entities** — the Components, Features, Recipes, FeatureRecipes, schema and mapping libraries, and Wasm plugins the Release references, resolved transitively (through `extends:`, `implements:`, `aggregate:`, Feature attachments, and library `$import:` / `$ref:` sites) and fetched from the registry when not already local.
-- **Source artifacts** — the remote `source:` that an individual Recipe or FeatureRecipe points a render engine at: a Helm chart (OCI or classic HTTPS) or a Compose fragment over HTTPS. Each is fetched, cached, and pinned.
+- **Source artifacts** — the remote `source:` that an individual Recipe or FeatureRecipe points a provider at: a Helm chart (OCI or classic HTTPS) or a Compose fragment over HTTPS. Each is fetched, cached, and pinned.
 
 It writes the result to `<release-stem>.lock` next to the Release.
 

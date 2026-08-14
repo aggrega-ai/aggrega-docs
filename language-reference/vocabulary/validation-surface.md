@@ -34,9 +34,9 @@ A redeclared `usesSchema` or `featuresSchema` entry produces no composition fail
 
 **Scope.** Governed by the bound provider's synthesized-mode capability gate:
 
-- Synthesized-mode (`workload:`) support is gated on the bound provider's **engine capability**, not on `workloadSchema` presence: a `workload:` Recipe bound to a provider whose engine cannot synthesize is rejected here. The standard-library catalog declares `workloadSchema` on synthesis-capable providers by convention — on the provider-rendering Plugin's `spec.provider.workloadSchema` — as the documented translation contract. That `workloadSchema` body is itself compiled to JSON Schema 2020-12 when the Plugin loads, a structural acceptance gate that rejects a malformed schema at load rather than at render.
+- Synthesized-mode (`workload:`) support is gated on the bound provider's **capability**, not on `workloadSchema` presence: a `workload:` Recipe bound to a provider that cannot synthesize is rejected here. The standard-library catalog declares `workloadSchema` on synthesis-capable providers by convention — on the provider-rendering Plugin's `spec.provider.workloadSchema` — as the documented translation contract. That `workloadSchema` body is itself compiled to JSON Schema 2020-12 when the Plugin loads, a structural acceptance gate that rejects a malformed schema at load rather than at render.
 
-**Validation runs.** At base rendering, after the Recipe's own valuesMapping has resolved. Layer 3 gates synthesized-mode dispatch on engine capability.
+**Validation runs.** At base rendering, after the Recipe's own valuesMapping has resolved. Layer 3 gates synthesized-mode dispatch on provider capability.
 
 **Error shape.** A capability decline carries a `CATALOG_ERROR:` prefix naming the node and provider:
 
@@ -86,7 +86,7 @@ A second overlap pattern: cross-pillar constraints declared at the pillar layer 
 | --- | --- | --- | --- |
 | 1 — JSON Schema envelope | Structural shape (apiVersion, kind, metadata, top-level spec) | Resolution (load) | unprefixed YAML / unmarshal error |
 | 2 — Pillar schemas (`schema:` / `featuresSchema` / `usesSchema`) | Per-pillar data validation (values, infra, secrets, uses) | Resolution (after envelope) | unprefixed schema-validation error |
-| 3 — Provider engine-capability gate (per-provider `workloadSchema` content validation honest-pending) | Synthesized-mode support (engine capability) | Base rendering | `CATALOG_ERROR:` |
+| 3 — Provider-capability gate (per-provider `workloadSchema` content validation honest-pending) | Synthesized-mode support (provider capability) | Base rendering | `CATALOG_ERROR:` |
 | 4 — Annotation-binding value validation | Annotation-value contributions routed into the target Feature's `spec.schema` via the Manifest binding's `maps` paths | The annotation-expansion sub-phase of resolution, alongside Layer 2 | schema-validation error; side-vs-pillar / ambiguous-routing surfaces carry `OPS_ERROR:` |
 
 ## Cross-references

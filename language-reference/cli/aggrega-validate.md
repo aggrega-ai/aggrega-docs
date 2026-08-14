@@ -22,7 +22,7 @@ An entity path may be given positionally. `--release` is mutually exclusive with
 - **Cross-document reference resolution** — `$ref` and `$import` references into SchemaLibrary entries resolve, and a SchemaLibrary that cannot resolve or is otherwise invalid is rejected.
 - **`extends` chains** — every entity that declares `extends` resolves against its parent, and the merged parent+child shape is checked.
 - **OCI-location collisions** — two distinct catalog identities that would publish to the same registry location are rejected loudly, so a build never silently overwrites one entity's published bytes with another's.
-- **Provider input-kind capability** — a Recipe or FeatureRecipe that declares a `workload:` block bound to a provider whose engine cannot synthesize is flagged as an error, because it can never build.
+- **Provider input-kind capability** — a Recipe or FeatureRecipe that declares a `workload:` block bound to a provider that cannot synthesize is flagged as an error, because it can never build.
 
 This is the catalog-wide counterpart to a build's per-Release validation — the place a broken catalog entity is meant to surface, before any Release reaches it. It halts loudly on any schema-pillar violation, unresolvable or invalid library, `extends`-resolution failure, location collision, or input-kind capability error. Schema-pillar-overlap and narrowing-on-extend findings are advisory `notice:` lines that never change the exit code.
 

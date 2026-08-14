@@ -26,7 +26,7 @@ For the Wasm plugin contract surface and the placement criterion (the linter soc
 
 ### Class C — convention-enforced
 
-The discipline is upheld by authoring discipline plus reviewer attention only. The engine does not enforce; no schema rejects the violation; no Wasm plugin flags it. Authors learn the discipline from documentation, follow it because the architectural shape depends on it, and rely on PR review to catch lapses. A violation produces no compile-time signal — the build succeeds, the rendered output works as far as the engine knows, and the discipline-violation surfaces only when downstream tooling or runtime behaviour depends on the convention.
+The discipline is upheld by authoring discipline plus reviewer attention only. The compiler does not enforce; no schema rejects the violation; no Wasm plugin flags it. Authors learn the discipline from documentation, follow it because the architectural shape depends on it, and rely on PR review to catch lapses. A violation produces no compile-time signal — the build succeeds, the rendered output works as far as the compiler knows, and the discipline-violation surfaces only when downstream tooling or runtime behaviour depends on the convention.
 
 Class C disciplines are the load-bearing list authors must learn from documentation. The compiler is blind to them; getting them wrong does not break the build, but it breaks the architectural shape Aggrega depends on. The bulk of this page documents the Class C inventory.
 
@@ -38,7 +38,7 @@ The following Social Contracts are convention-enforced today. Each entry names t
 
 The `component.aggrega.ai/type` label maps to one of seven universal cloud primitives: `server`, `worker`, `task`, `function`, `stateful-server`, `resource`, `messaging`. The Architect authoring a Component picks one value from this closed set; downstream policy plugins, autonomous Wasm rendering plugins, and Studio filtering all rely on the closed-set vocabulary.
 
-The compiler is mathematically blind to these strings. `pkg/selector` evaluates whatever label values appear; an Architect who writes `component.aggrega.ai/type: my-cool-thing` produces a Component the engine accepts and renders without complaint. Downstream tools that filter by ontology type miss the Component entirely; policy plugins that route by type assign no policy; Studio surfaces no category. The convention is the interoperability anchor, not a runtime invariant.
+The compiler is mathematically blind to these strings. `pkg/selector` evaluates whatever label values appear; an Architect who writes `component.aggrega.ai/type: my-cool-thing` produces a Component the compiler accepts and renders without complaint. Downstream tools that filter by ontology type miss the Component entirely; policy plugins that route by type assign no policy; Studio surfaces no category. The convention is the interoperability anchor, not a runtime invariant.
 
 **Documented at:** [`architecture/02-ecosystem-philosophy.md`](../../architecture/02-ecosystem-philosophy.md) (The 7-Type Cloud-Native Ontology) + [`labels-and-annotations.md`](labels-and-annotations.md) (prefix discipline).
 
@@ -58,7 +58,7 @@ The compiler does not enforce the bucket boundaries. The three buckets share a f
 
 Annotation and label keys follow a `<namespace>/<name>` shape. Five reserved prefixes carry specific authoring rules: `aggrega.ai/` (platform-only), `feature.aggrega.ai/` (official Feature shortcuts), `component.aggrega.ai/` (Component-intrinsic traits), `aggregate.aggrega.ai/` (Aggregate module identity), and `<any-other-domain>/` (enterprise / community).
 
-The compiler does not reject custom prefixes that conflict with the reserved set. An enterprise that declares `aggrega.ai/internal-billing-tag: "..."` outside the platform's vocabulary produces an annotation the engine accepts and cascades through the bucket system; downstream platform updates that introduce a real `aggrega.ai/internal-billing-tag` collide silently.
+The compiler does not reject custom prefixes that conflict with the reserved set. An enterprise that declares `aggrega.ai/internal-billing-tag: "..."` outside the platform's vocabulary produces an annotation the compiler accepts and cascades through the bucket system; downstream platform updates that introduce a real `aggrega.ai/internal-billing-tag` collide silently.
 
 **Documented at:** [`labels-and-annotations.md`](labels-and-annotations.md) (Prefix discipline) + [`providers/well-known-annotations.md`](../providers/well-known-annotations.md).
 
@@ -74,7 +74,7 @@ This is a hybrid — provides evaluation checks each template against a positive
 
 **Documented at:** [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) row 6 + [`vocabulary/data-pillars.md`](data-pillars.md) "`provides:` and `locals:` — public face vs private face".
 
-**Failure mode:** Engine detects + halts the build at template evaluation time when the forbidden references appear directly in `provides:`. The broader public-vs-private discipline (don't expose internal state through `provides:` keys) is convention-only — authors who treat `provides:` as a Recipe-internal namespace produce contracts that callers depend on; refactoring becomes a breaking change.
+**Failure mode:** the compiler detects and halts the build at template evaluation time when the forbidden references appear directly in `provides:`. The broader public-vs-private discipline (don't expose internal state through `provides:` keys) is convention-only — authors who treat `provides:` as a Recipe-internal namespace produce contracts that callers depend on; refactoring becomes a breaking change.
 
 ### 5. Determinism — non-hermetic helpers in render-path templates
 
@@ -129,7 +129,7 @@ A future Wasm-linter rule could flag cloud-resource-name fields without the requ
 
 A Component models one coherent service — a single exposed service, or the workload(s) of one service together with its internal-only helper workloads. When a chart bundles services that another component could meaningfully `use` on their own — especially foreign infrastructure such as a database, cache, or message broker that Aggrega already models as its own Component — the standard library composes per-service Components into a sub-aggregate Module (`spec.aggregates` + `exportedComponents`) rather than wrapping the whole product as one opaque Component. The discipline: multi-workload is fine within a Component; independent usability is the line that splits one Component into a stack.
 
-The compiler is blind to this granularity. It renders whatever passes schema validation — it does not inspect how many services a Component's Recipe bundles, nor whether one of them is independently usable. An author who wraps a five-service product as a single Component produces a Component the engine accepts and renders without complaint; the convention is upheld by authoring discipline and reviewer attention.
+The compiler is blind to this granularity. It renders whatever passes schema validation — it does not inspect how many services a Component's Recipe bundles, nor whether one of them is independently usable. An author who wraps a five-service product as a single Component produces a Component the compiler accepts and renders without complaint; the convention is upheld by authoring discipline and reviewer attention.
 
 **Documented at:** [`../../architecture/06-data-taxonomy-and-composition.md`](../../architecture/06-data-taxonomy-and-composition.md) (One coherent service per Component — the single-workload boundary).
 
@@ -141,11 +141,11 @@ Each Class C contract's classification is a deliberate choice. The architecture 
 
 **Extensibility.** The 7-Type Cloud-Native Ontology (contract 1) and the reserved-prefix discipline (contract 3) describe the standard library's vocabulary, not the universe of valid vocabulary. Enterprise catalogs author their own ontology types and prefix conventions to extend the standard library; if the schema rejected `component.aggrega.ai/type` values outside the closed set, enterprises could not extend. Schema-enforcement would convert "the standard library's discipline" into "the language's only allowed shape" — that's the wall the architecture deliberately avoids.
 
-**AOT purity.** The cloud-resource naming discipline (contract 8) and the determinism discipline (contract 5) require introspecting template content to determine whether a field is a cloud-resource name or a non-hermetic helper invocation. AOT purity (Invariant 2) keeps the compiler ignorant of runtime state; static template introspection is feasible (the Wasm-linter plan demonstrates this) but doing it inside the core compiler couples engine-internal logic to per-domain authoring concerns. The architecture moves these checks out of the engine and into Wasm plugins per Invariant 6 (the Wasm ABI Boundary).
+**AOT purity.** The cloud-resource naming discipline (contract 8) and the determinism discipline (contract 5) require introspecting template content to determine whether a field is a cloud-resource name or a non-hermetic helper invocation. AOT purity (Invariant 2) keeps the compiler ignorant of runtime state; static template introspection is feasible (the Wasm-linter plan demonstrates this) but doing it inside the core compiler couples compiler-internal logic to per-domain authoring concerns. The architecture moves these checks out of the compiler and into Wasm plugins per Invariant 6 (the Wasm ABI Boundary).
 
-**Authoring-flexibility.** The pillar-boundaries discipline (contract 6) and the dual-source `variables` semantic (contract 7) describe authoring patterns rather than runtime constraints. The same template syntax can express a discipline-honouring pattern or a discipline-violating one; making the discipline a runtime check would require the engine to interpret authoring intent it can't access. The architecture treats the convention as documentation that authors learn from rather than as a runtime invariant. Component granularity (contract 9) sits here too: enterprises may wrap a product at whatever granularity their catalog favours, and the compiler — dumb and unopinionated per Invariant 1 — has no way to know whether a bundled workload is independently usable, so the one-coherent-service boundary stays authoring discipline rather than a schema wall.
+**Authoring-flexibility.** The pillar-boundaries discipline (contract 6) and the dual-source `variables` semantic (contract 7) describe authoring patterns rather than runtime constraints. The same template syntax can express a discipline-honouring pattern or a discipline-violating one; making the discipline a runtime check would require the compiler to interpret authoring intent it can't access. The architecture treats the convention as documentation that authors learn from rather than as a runtime invariant. Component granularity (contract 9) sits here too: enterprises may wrap a product at whatever granularity their catalog favours, and the compiler — dumb and unopinionated per Invariant 1 — has no way to know whether a bundled workload is independently usable, so the one-coherent-service boundary stays authoring discipline rather than a schema wall.
 
-**Hybrid enforcement.** The Recipe `provides:` self-containment (contract 4) is partly engine-enforced — the render path detects `.context.inject` / `.context.uses` reads in `provides:` templates and halts. The broader public-vs-private discipline (don't expose internal state) is convention-anchored because the compiler can't determine which strings should remain Recipe-internal without authoring intent.
+**Hybrid enforcement.** The Recipe `provides:` self-containment (contract 4) is partly compiler-enforced — the render path detects `.context.inject` / `.context.uses` reads in `provides:` templates and halts. The broader public-vs-private discipline (don't expose internal state) is convention-anchored because the compiler can't determine which strings should remain Recipe-internal without authoring intent.
 
 The classification distinction matters because each class signals where the responsibility for catching violations lives. Class A: the compiler. Class B: a Wasm plugin (when shipped). Class C: authors and reviewers. Authors who internalise the classes understand which mistakes the compiler will catch and which will silently pass through to downstream tooling or runtime.
 
@@ -159,7 +159,7 @@ Three Class C contracts have chartered Wasm-linter rules planned today:
 
 Each is `planned` per the four-label taxonomy at [`10-status.md`](../10-status.md). When each ships, the entry above's classification updates from Class C to Class B; the documentation alignment lands in lockstep with the plugin shipping.
 
-The remaining Class C contracts (1, 2, 4, 6, 7, 9) are likely to remain Class C. The 7-Type Cloud-Native Ontology and the bucket separation are extensibility-driven (enterprise catalogs override) — schema enforcement would conflict with that flexibility. The pillar-boundaries discipline and the dual-source `variables` semantic are authoring-intent driven — the engine cannot determine intent from template syntax alone. Recipe `provides:` self-containment is already partially enforced; the broader public-vs-private discipline is unlikely to gain runtime enforcement. Component granularity is authoring-intent driven as well — whether a bundled workload is independently usable is a modelling judgment the engine cannot read from Recipe content.
+The remaining Class C contracts (1, 2, 4, 6, 7, 9) are likely to remain Class C. The 7-Type Cloud-Native Ontology and the bucket separation are extensibility-driven (enterprise catalogs override) — schema enforcement would conflict with that flexibility. The pillar-boundaries discipline and the dual-source `variables` semantic are authoring-intent driven — the compiler cannot determine intent from template syntax alone. Recipe `provides:` self-containment is already partially enforced; the broader public-vs-private discipline is unlikely to gain runtime enforcement. Component granularity is authoring-intent driven as well — whether a bundled workload is independently usable is a modelling judgment the compiler cannot read from Recipe content.
 
 ## Cross-references
 
@@ -170,6 +170,6 @@ The remaining Class C contracts (1, 2, 4, 6, 7, 9) are likely to remain Class C.
 - [`templates/sprig-functions.md`](../templates/sprig-functions.md) — Determinism caveat naming the non-hermetic helpers.
 - [`entities/recipe.md`](../entities/recipe.md) — Cloud-resource naming discipline + worked examples.
 - [`entities/workload.md`](../entities/workload.md) — Workload `variables:` dual-source semantic.
-- [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) — Recipe `provides:` self-containment as engine-enforced rule.
+- [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) — Recipe `provides:` self-containment as compiler-enforced rule.
 - [`plugins/plugin-contract.md`](../plugins/plugin-contract.md) — `linter.wasm` placement criterion + the future Class B promotion path.
 - [`10-status.md`](../10-status.md) — readiness state for chartered Wasm-linter rules.

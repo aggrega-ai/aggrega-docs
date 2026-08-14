@@ -50,7 +50,7 @@ The Feature schema declares an optional `spec.interoperability` block that group
 
 **`interoperability.conflictsWith`** — an array of Feature type URIs mutually exclusive with the Feature being defined. If a developer attaches two Features to the same component and one Feature's `conflictsWith` array references the other's type, a custom `linter.wasm` plugin detects the intersection and halts the build before rendering physical artifacts. This prevents generating incompatible configurations — e.g., attaching both a TCP-only mesh and an HTTP-aware proxy to the same component.
 
-**`interoperability.componentRefPath`** — a deterministic JSONPath / YAMLPath string that tells the provider engine exactly where to inject the resolved physical target ID of the component during Late Binding. Because Aggrega compiles ahead of time, a FeatureRecipe's Wasm plugin executes before the final Helm chart is fully rendered, so the plugin does not know the final physical name of the deployment target. `componentRefPath` is the deterministic coordinate the Wasm renderer uses to write that name into the final generated artifact.
+**`interoperability.componentRefPath`** — a deterministic JSONPath / YAMLPath string that tells the provider exactly where to inject the resolved physical target ID of the component during Late Binding. Because Aggrega compiles ahead of time, a FeatureRecipe's Wasm plugin executes before the final Helm chart is fully rendered, so the plugin does not know the final physical name of the deployment target. `componentRefPath` is the deterministic coordinate the Wasm renderer uses to write that name into the final generated artifact.
 
 **Example:**
 

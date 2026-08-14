@@ -6,7 +6,7 @@ A WorkloadLibrary is a catalog entity that holds reusable Workload template frag
 
 Platform architects author WorkloadLibraries to centralise the Workload content that recurs across the catalog's Recipes and FeatureRecipes. A library is not a deployable build instruction; it is a definitions namespace. Recipe and FeatureRecipe authors reference library entries by an `$import:` directive, written once and consumed wherever the import resolves.
 
-The split between "library" and "consumer" is intentional. Recipes encode build instructions (source, valuesMapping, infraMapping, artifacts). FeatureRecipes encode behavioural attachments. WorkloadLibraries encode only Workload content — the deployment shape the Engine synthesises into provider-native manifests. Keeping the three roles distinct lets each entity kind evolve at its own cadence; authors who don't need shared workload content never encounter the library entity.
+The split between "library" and "consumer" is intentional. Recipes encode build instructions (source, valuesMapping, infraMapping, artifacts). FeatureRecipes encode behavioural attachments. WorkloadLibraries encode only Workload content — the deployment shape the provider synthesises into provider-native manifests. Keeping the three roles distinct lets each entity kind evolve at its own cadence; authors who don't need shared workload content never encounter the library entity.
 
 ## Entity Envelope
 
@@ -63,7 +63,7 @@ An entry's value must be a string scalar. Writing a mapping or a sequence where 
 
 Go template's full composition vocabulary is available inside an entry: `{{ define "name" }}...{{ end }}` declares reusable blocks within a single library, `{{ template "name" . }}` invokes them, and pipelines and functions follow the standard Go `text/template` package. The pillar context an entry may read — `.values`, `.infra`, `.locals`, `.context`, `.features` — is the same context any Workload template reads, and is documented on the [Workload](workload.md) page under template evaluation.
 
-The target Provider's engine must support workload synthesis. A Recipe that imports a library entry but binds to a provider whose engine cannot synthesise a Workload halts loudly at render time rather than emitting a degraded shape; the standard-library catalog declares `workloadSchema` on the providers that do support it, as the documented contract.
+The target provider must support workload synthesis. A Recipe that imports a library entry but binds to a provider that cannot synthesise a Workload halts loudly at render time rather than emitting a degraded shape; the standard-library catalog declares `workloadSchema` on the providers that do support it, as the documented contract.
 
 ## Single Authoring Mode
 

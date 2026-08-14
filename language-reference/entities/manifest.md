@@ -6,7 +6,7 @@ The conceptual role of the Manifest entity (Domain 4 — the dependency lockfile
 
 The Manifest and the Release carry non-overlapping responsibilities:
 
-* **The Manifest** dictates the *provider engine* (e.g., Helm, Helm-chart, Compose) per catalog type. It is the software lockfile — a per-project Git-committed record of which concrete Recipe implements each abstract interface.
+* **The Manifest** dictates the *provider* (e.g., Helm, Helm-chart, Compose) per catalog type. It is the software lockfile — a per-project Git-committed record of which concrete Recipe implements each abstract interface.
 * **The Release** dictates the *destination* (e.g., the physical output folder for GitOps artifact generation). It is the deployment router — a per-environment description of where the compiled artifacts land.
 
 The Release schema carries no `provider` field at any nesting level; provider dispatch belongs exclusively to the Manifest.
@@ -16,8 +16,8 @@ The Release schema carries no `provider` field at any nesting level; provider di
 1. **Read destination.** The compiler scans the Release's boundaries — for example, boundary `ovh-cluster-3` contains the component `user-db` (type: `core/postgres:1.0.0`).
 2. **Scan Manifest.** It opens the Manifest lockfile the Release points at via its `manifest:` field.
 3. **Two-tier lookup.** It checks the `name` tier for `"user-db"` first. If not found, it checks the `type` tier for `"core/postgres:1.0.0"` (versioned), then `"core/postgres"` (unversioned).
-4. **Extract engine.** The matching tier sits under a specific provider block (e.g., `helm`), mapping to a specific Recipe.
-5. **Output generation.** The compiler now knows the target folder (`dist/boundaries/ovh-cluster-3/`), the engine (Helm rendering via Wasm), and the artifact (the Recipe's source code). Ahead-of-time GitOps boundaries are respected end-to-end.
+4. **Extract the provider.** The matching tier sits under a specific provider block (e.g., `helm`), mapping to a specific Recipe.
+5. **Output generation.** The compiler now knows the target folder (`dist/boundaries/ovh-cluster-3/`), the provider (Helm rendering via Wasm), and the artifact (the Recipe's source code). Ahead-of-time GitOps boundaries are respected end-to-end.
 
 ## Flat URI mapping
 
@@ -235,7 +235,7 @@ Provider polymorphism for the same annotation key — e.g., `feature.aggrega.ai/
 
 | Prefix | Owner | Purpose |
 | --- | --- | --- |
-| `aggrega.ai/` | Aggrega platform only | Platform-native annotations read directly by engine code (e.g., `aggrega.ai/namespace`). |
+| `aggrega.ai/` | Aggrega platform only | Platform-native annotations read directly by the provider (e.g., `aggrega.ai/namespace`). |
 | `feature.aggrega.ai/` | Official standard library | Feature-annotation shortcuts bound in the Manifest. |
 | `{any-other-domain}/` | Enterprise / community | Custom Feature-annotation shortcuts. |
 

@@ -24,7 +24,7 @@ in to the live database.
   service name and the Kubernetes build wires a Service DNS name, from the
   same edge.
 - **Workload synthesis.** The compose and self-contained Kubernetes Recipes
-  declare a capability-agnostic `Workload`; the provider engine synthesises a
+  declare a capability-agnostic `Workload`; the provider synthesises a
   `docker-compose.yaml` service or a `Deployment` + `Service` + `PersistentVolumeClaim`.
 - **The credential subsystem.** Database passwords are attached in the
   component's `features:` pillar — each a `Feature` labeled
@@ -376,6 +376,6 @@ output is a chart to `helm install` or vendor — not a set of applied manifests
 Recipe selection is by **component type**. Each catalog layer contains exactly
 one Recipe per type, so loading `catalog-compose` binds `core/datastore/mariadb`
 to the compose Recipe, while loading `catalog-helm-synth` binds it to the
-Kubernetes one. The provider engine that renders a node is the `spec.capability`
+Kubernetes one. The provider that renders a node is the `spec.capability`
 of whichever Recipe was bound. Swapping targets is swapping the `--catalog`
 directory — the Aggregate never changes.

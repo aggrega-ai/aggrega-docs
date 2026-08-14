@@ -1,8 +1,8 @@
 # Well-Known Annotations
 
-Provider engines read specific boundary annotations from the Release to configure platform-specific deployment context. The compiler itself is blind to these annotations — it passes them through as opaque strings. Each provider documents which annotations it reads and what defaults it applies when the annotation is absent. A provider-rendering Plugin declares the annotation vocabulary its engine reads on its `spec.provider.wellKnownAnnotations`, and `aggrega inspect` renders that declaration for catalog readers. That declaration is deliberately narrow: a provider lists a key only when its engine reads it.
+Providers read specific boundary annotations from the Release to configure platform-specific deployment context. The compiler itself is blind to these annotations — it passes them through as opaque strings. Each provider documents which annotations it reads and what defaults it applies when the annotation is absent. A provider-rendering Plugin declares the annotation vocabulary it reads on its `spec.provider.wellKnownAnnotations`, and `aggrega inspect` renders that declaration for catalog readers. That declaration is deliberately narrow: a provider lists a key only when it reads it.
 
-The matrix in this chapter describes those provider declarations, and states each key at a finer grain than the declaration itself carries — per provider **per input kind**, because an engine can read a key when it synthesizes a deployment unit and have no way to read it when it renders a vendored artifact. Author against the matrix here: where a provider's declaration is broader than what its engine reads, this page is the statement of what you actually get. The **reserved vocabulary** is the wider set, and it lives in two places instead — this chapter, which names every reserved key including the ones no engine reads yet, and the reserved-prefix set the publishing lint checks.
+The matrix in this chapter describes those provider declarations, and states each key at a finer grain than the declaration itself carries — per provider **per input kind**, because a provider can read a key when it synthesizes a deployment unit and have no way to read it when it renders a vendored artifact. Author against the matrix here: where a provider's declaration is broader than what it reads, this page is the statement of what you actually get. The **reserved vocabulary** is the wider set, and it lives in two places instead — this chapter, which names every reserved key including the ones no provider reads yet, and the reserved-prefix set the publishing lint checks.
 
 ## The Invariants
 
@@ -10,7 +10,7 @@ The matrix in this chapter describes those provider declarations, and states eac
 2. Each provider documents which annotations it reads and what defaults it applies.
 3. Annotations apply uniformly within a boundary. If a value varies per component, it belongs in component-level annotations (overriding boundary annotations) or in component `infra`.
 4. Provider well-known annotations never duplicate component labels. Component labels describe *what a component is*. Boundary annotations describe *where a component deploys*.
-5. Recipes do not handle provider well-known annotations. The provider engine applies placement context (namespace, registry prefix, service account) automatically after the Recipe produces its content.
+5. Recipes do not handle provider well-known annotations. The provider applies placement context (namespace, registry prefix, service account) automatically after the Recipe produces its content.
 6. The `aggrega.ai/` prefix is reserved for the standard library. Custom enterprise annotations use their own prefix.
 7. Component-level annotations in the Release override boundary-level annotations (deep-merge, component wins). Where a provider assembles the output of several boundaries into one artifact, it may require an annotation to resolve uniformly across them — the `helm-chart` provider takes the umbrella chart's name from `aggrega.ai/chart-name`, and when more than one boundary contributes to the same chart and they resolve that annotation to different values, the build halts naming the disagreeing boundaries, because one chart cannot carry two names.
 
@@ -18,13 +18,13 @@ The matrix in this chapter describes those provider declarations, and states eac
 
 ### How to read this matrix
 
-The six category tables below name every annotation in the reserved `aggrega.ai/` vocabulary, what it controls, and what the engine does when it is absent. Whether a given provider honours a given key is a finer question, because a provider engine renders more than one **input kind** — a vendored artifact (`sourced`), a Workload the engine synthesizes itself (`synthesized`), or a Recipe's `artifacts:` as a node's whole output (`artifacts-only`) — and a key can be read on one of those paths while being unreachable on another. Which provider renders which input kind is at [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md); what each one honours is [Support by provider and input kind](#support-by-provider-and-input-kind) below, which is this page's authoritative statement.
+The six category tables below name every annotation in the reserved `aggrega.ai/` vocabulary, what it controls, and what the provider does when it is absent. Whether a given provider honours a given key is a finer question, because a provider renders more than one **input kind** — a vendored artifact (`sourced`), a Workload the provider synthesizes itself (`synthesized`), or a Recipe's `artifacts:` as a node's whole output (`artifacts-only`) — and a key can be read on one of those paths while being unreachable on another. Which provider renders which input kind is at [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md); what each one honours is [Support by provider and input kind](#support-by-provider-and-input-kind) below, which is this page's authoritative statement.
 
 Every cell in that grid carries one of three tiers:
 
-- **Honoured** — the engine reads the key on this input kind and it changes the rendered output deterministically.
+- **Honoured** — the provider reads the key on this input kind and it changes the rendered output deterministically.
 - **Honoured conditionally** — the compiler emits an *additive* override beside the target artifact instead of editing the artifact, so whether the value takes effect depends on that artifact exposing a matching key of its own. Effective in practice, never a guarantee. **No provider implements a conditional cell today.** The tier is named because the route genuinely exists for a vendored artifact, and a two-tier vocabulary would force the matrix either to claim a guarantee it cannot make or to deny that the route exists at all.
-- **Not honoured** — no engine code reads the key on this path. The value travels through the build as an opaque string and shapes no rendered output there; the category table's **Default** column says what you get instead.
+- **Not honoured** — no provider reads the key on this path. The value travels through the build as an opaque string and shapes no rendered output there; the category table's **Default** column says what you get instead.
 
 Two scopes, and only one of them makes input kind a meaningful axis:
 
@@ -83,19 +83,19 @@ Two scopes, and only one of them makes input kind a meaningful axis:
 | `aggrega.ai/aws-assume-role-arn` | `cloudformation` — per cross-boundary reference | IAM role ARN a cross-account stack read assumes to reach a peer stack's exported values | No role is supplied on a cross-account reference |
 
 Each CloudFormation boundary renders into one stack. When a `uses` edge crosses
-from one boundary to another, the `cloudformation` engine needs to know where the
+from one boundary to another, the `cloudformation` provider needs to know where the
 peer stack lives to shape the reference: two stacks in the same account and region
 exchange values through a stack export and import; a peer in a different account or
 region needs a cross-account stack-output read, optionally under an assumed role.
 These annotations carry that placement context. Each is read at the moment the
-engine shapes such a reference, and resolved through the ordinary annotation
+provider shapes such a reference, and resolved through the ordinary annotation
 cascade at that moment — a value set on the component wins over a value set on
 the boundary. A boundary-level value is therefore the common way to express
 them, not the only one. They are opaque scalar pointer
-strings — the engine pipes them into the reference it builds and never resolves
+strings — the provider pipes them into the reference it builds and never resolves
 them against live AWS state; the account, region, and role are supplied by the
 Release, and the runtime environment resolves the final physical read. When every
-annotation is absent, the engine treats the peer as same-account and same-region
+annotation is absent, the provider treats the peer as same-account and same-region
 and supplies no role.
 
 ### Support by provider and input kind
@@ -122,7 +122,7 @@ The node-scoped keys, per provider per input kind. `honoured` and `—` carry th
 
 A Recipe may declare more than one input kind at once — a `workload:` with `artifacts:` alongside it, for instance. Read the grid per kind: the synthesized output of such a node is the `synthesized` row, and its artifact files are the artifacts case. The `artifacts-only` row is the input kind where a Recipe declares `artifacts:` and nothing else.
 
-**Why a vendored artifact honours fewer keys.** A node-scoped annotation is honoured where the engine has a render slot for it. When the engine synthesizes the deployment unit itself it owns every field of the result, so a registry prefix, a pull secret and a service account all have somewhere to land. A vendored artifact — a Helm chart, a compose file, a Terraform module — carries its own configuration interface instead, and the compiler does not read that interface, so it cannot know which of the artifact's own keys a registry prefix or a service account would correspond to. Placement that the surrounding render call controls still applies, which is why a chart rendered from source honours `aggrega.ai/namespace`. Placement that would mean deciding where inside someone else's artifact a value belongs does not, and an author supplies it through that artifact's own values. This is why the sourced rows are sparse where the synthesized rows are full, and it is the shape to expect of any key added later.
+**Why a vendored artifact honours fewer keys.** A node-scoped annotation is honoured where the provider has a render slot for it. When the provider synthesizes the deployment unit itself it owns every field of the result, so a registry prefix, a pull secret and a service account all have somewhere to land. A vendored artifact — a Helm chart, a compose file, a Terraform module — carries its own configuration interface instead, and the compiler does not read that interface, so it cannot know which of the artifact's own keys a registry prefix or a service account would correspond to. Placement that the surrounding render call controls still applies, which is why a chart rendered from source honours `aggrega.ai/namespace`. Placement that would mean deciding where inside someone else's artifact a value belongs does not, and an author supplies it through that artifact's own values. This is why the sourced rows are sparse where the synthesized rows are full, and it is the shape to expect of any key added later.
 
 ### Keys resolved per assembly and per reference
 
@@ -145,22 +145,22 @@ Eleven keys in the matrix above are marked *not yet consumed*:
 and `aggrega.ai/tf-backend`.
 
 Setting one of these on a Release today has **no effect on rendered output**. No
-provider engine reads them, and no default is applied on their behalf — in
+provider reads them, and no default is applied on their behalf — in
 particular, no DNS suffix is applied for `aggrega.ai/cluster-domain`, so a Recipe
 that needs a cluster domain must supply it as an ordinary value rather than rely
 on this annotation. A Recipe author who needs one of these behaviours today
 expresses it as a Recipe value or a component `infra` field.
 
 **No provider declares these eleven.** A provider's `wellKnownAnnotations` lists
-only what its engine reads, so none of the eleven appears there — a reader
+only what it reads, so none of the eleven appears there — a reader
 inspecting the helm, helm-chart, compose or cloudformation Plugin sees the keys
 that work and nothing else. That is the point of the narrow declaration: a
 declared key is a working key.
 
 Two of the reserved names sit close to live keys and are not
 interchangeable with them. `aggrega.ai/region` and `aggrega.ai/account-id` name a
-region and an account at placement scope and reach no engine; the keys the
-`cloudformation` engine reads are the cloud-namespaced `aggrega.ai/aws-region`
+region and an account at placement scope and reach no provider; the keys the
+`cloudformation` provider reads are the cloud-namespaced `aggrega.ai/aws-region`
 and `aggrega.ai/aws-account` in Category 6. When you mean the CloudFormation
 cross-stack placement context, author the `aws-` form — the unprefixed pair is
 held against collision, not wired to anything. Two further reserved names are
@@ -178,8 +178,8 @@ matrix and the reserved-prefix set the publishing lint checks are together the
 reservation register, and the two are held to the same set of names by a check
 that reads both and fails when they diverge. Authoring one of the eleven
 therefore neither fails validation nor trips the "do not use the bare
-`aggrega.ai/` prefix" rule — it simply has no effect. If one of them gains an
-engine that reads it, that provider's declaration gains the key at the same time.
+`aggrega.ai/` prefix" rule — it simply has no effect. If one of them gains a
+provider that reads it, that provider's declaration gains the key at the same time.
 
 The umbrella chart version a `helm-chart` boundary emits is currently always
 `0.1.0`; it is a fixed value rather than an `aggrega.ai/chart-version` default.
@@ -199,7 +199,7 @@ The umbrella chart version a `helm-chart` boundary emits is currently always
 
 ## Catalog-authored annotations the compiler reads
 
-Everything above is a *provider* annotation: authored on the Release, passed through by the compiler as an opaque string, read by a provider engine. A second, much smaller vocabulary runs the other way — authored by the Architect on a **catalog entity's own** `metadata.annotations`, read by the **compiler**, and never seen by a provider engine. Invariant 1 above is about the provider vocabulary and does not extend to these; the compiler reads exactly the keys listed here and no others.
+Everything above is a *provider* annotation: authored on the Release, passed through by the compiler as an opaque string, read by a provider. A second, much smaller vocabulary runs the other way — authored by the Architect on a **catalog entity's own** `metadata.annotations`, read by the **compiler**, and never seen by a provider. Invariant 1 above is about the provider vocabulary and does not extend to these; the compiler reads exactly the keys listed here and no others.
 
 These keys sit under a `<scope>.aggrega.ai/` sub-prefix, not the bare `aggrega.ai/` prefix, so they are outside the reservation register the matrix above carries and outside the reserved-prefix rule the publishing lint applies to bare-prefix keys.
 
@@ -218,15 +218,15 @@ The shipping emit set, attached to every rendered Kubernetes manifest by helm an
 | Label | Source | Emission |
 | --- | --- | --- |
 | `app.kubernetes.io/name` | Node ID (or sanitised label-component identifier for FeatureRecipe-emitted resources) | helm and helm-chart only — Kubernetes-standard label, not emitted on compose services |
-| `aggrega.ai/component-id` | Node ID (or sanitised label-component identifier for FeatureRecipe-emitted resources) | All three engines |
-| `aggrega.ai/recipe-uri` | `<recipe-name>:<recipe-version>` of the producing Recipe (or producing FeatureRecipe for FR-emitted resources) | All three engines, when the producing entity has both name and version set |
-| `aggrega.ai/boundary-path` | Boundary path the component was routed into | All three engines, when the boundary path is non-empty |
-| `aggrega.ai/aggregate-name` | Aggregate `metadata.name` | All three engines, when set |
-| `aggrega.ai/compiler-version` | Compiler version stamped at build time | All three engines, when set |
-| `aggrega.ai/environment` | Release `metadata.environment` | All three engines, when the Release sets it |
-| `aggrega.ai/sync-wave` | Per-boundary `syncWave` integer | All three engines, when non-zero |
+| `aggrega.ai/component-id` | Node ID (or sanitised label-component identifier for FeatureRecipe-emitted resources) | All three providers |
+| `aggrega.ai/recipe-uri` | `<recipe-name>:<recipe-version>` of the producing Recipe (or producing FeatureRecipe for FR-emitted resources) | All three providers, when the producing entity has both name and version set |
+| `aggrega.ai/boundary-path` | Boundary path the component was routed into | All three providers, when the boundary path is non-empty |
+| `aggrega.ai/aggregate-name` | Aggregate `metadata.name` | All three providers, when set |
+| `aggrega.ai/compiler-version` | Compiler version stamped at build time | All three providers, when set |
+| `aggrega.ai/environment` | Release `metadata.environment` | All three providers, when the Release sets it |
+| `aggrega.ai/sync-wave` | Per-boundary `syncWave` integer | All three providers, when non-zero |
 
-### Per-engine emission notes
+### Per-provider emission notes
 
 - **`helm`** — labels land in `metadata.labels` on every rendered Kubernetes resource (Deployment, Service, PVC, etc.). Both sourced-mode (Helm SDK render with post-render label injection) and synthesised-mode (workload synthesis) paths produce the same set.
 - **`helm-chart`** — labels land in `metadata.labels` on every sub-chart resource via the same label-injection mechanism as helm.

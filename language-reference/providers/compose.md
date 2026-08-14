@@ -199,7 +199,7 @@ Within a service the two sources keep their own order and do not interleave: the
 
 ## Sourced mode
 
-The compose engine accepts `source:` as a **bare filesystem path string only**. The path is interpreted relative to the compile invocation's working directory and must point at a docker-compose YAML file that the provider can read and parse.
+The compose provider accepts `source:` as a **bare filesystem path string only**. The path is interpreted relative to the compile invocation's working directory and must point at a docker-compose YAML file that the provider can read and parse.
 
 ```yaml
 spec:

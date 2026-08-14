@@ -12,7 +12,7 @@ Every Release declares a `manifest:` field naming its Manifest (unless the Relea
 
 The `aggregate:` and `manifest:` fields are resolved **by identity or by relative-path file**, the same way the rest of the language resolves references — never as a release-relative filename stem. A `./` or `../` value is an explicit local file, read directly relative to the Release. A bare token is an **identity** — the referenced entity's `metadata.name`. A `manifest:` identity is resolved by scanning the Release's own directory (a Manifest is deployment-side operator config, so it has no catalog or registry tier). An `aggregate:` identity resolves through the full cascade — the Release's directory, then the catalog, then the registry — so a Release can name a published Aggregate by identity and the same published module resolves whether it is a Release's top-level `spec.aggregate` or a sub-aggregate inside another Aggregate. This identity-or-path model lets a shared Aggregate back many Release variants without coupling the reference to a filename, and a published Aggregate be deployed directly by name.
 
-The Release dictates the destination for compiled artifacts; provider-engine dispatch belongs to the Manifest the Release points at (see [Manifest vs. Release: concern separation](manifest.md#manifest-vs-release-concern-separation) for the role split).
+The Release dictates the destination for compiled artifacts; provider dispatch belongs to the Manifest the Release points at (see [Manifest vs. Release: concern separation](manifest.md#manifest-vs-release-concern-separation) for the role split).
 
 ## Environment Metadata
 

@@ -12,7 +12,7 @@ Authors encounter labels and annotations on six distinct surfaces. Each carries 
 | 2 | Component `metadata.labels` (intrinsic) | Per-Component-instance properties (`component.aggrega.ai/type` etc.) | Cascades into IR per-node `.context.labels` after `label-transform` mutations | Selector matching (`usesSchema` `selector:` declarations, carried as `x-aggrega-selector:` in the synthesized JSON Schema), Recipe template logic |
 | 3 | Component `metadata.annotations` | Per-Component-instance traits authored by the Architect | Cascades into IR per-node `.context.annotations.catalog` bucket | governance verdict roles (intrinsic-trait policies), Recipe template logic |
 | 4 | Aggregate / Subsystem `annotations:` | Aggregate-side cognitive metadata | Cascades into IR per-node `.context.annotations.aggregate` bucket | Recipe `valuesMapping:` for cognitive routing |
-| 5 | Release boundary `annotations:` | Ops-side physical metadata, including `aggrega.ai/*` well-known annotations | Cascades into IR per-node `.context.annotations.release` bucket | Provider engines (helm reads `aggrega.ai/namespace`; compose derives network name from same key); FeatureRecipe `injectMapping:` for cross-boundary routing |
+| 5 | Release boundary `annotations:` | Ops-side physical metadata, including `aggrega.ai/*` well-known annotations | Cascades into IR per-node `.context.annotations.release` bucket | Providers (helm reads `aggrega.ai/namespace`; compose derives network name from same key); FeatureRecipe `injectMapping:` for cross-boundary routing |
 | 6 | Manifest `features.annotations` bindings | Annotation-key → Feature-type binding with pillar-grouped subkey routing (`maps.infra` / `maps.values`) for annotation-driven Feature attachment | The annotation-expansion sub-phase of resolution walks Release boundaries (outer-to-inner) and Aggregate subsystems (outer-to-inner); per-component override and whole-value / per-subkey null opt-out apply; side-vs-pillar enforcement gates which pillar fires per authoring side | Annotation-driven Feature expansion (synthetic Feature attachments tagged `Origin: "annotation"`) |
 
 Surfaces 4 and 5 share a YAML shape (an `annotations:` map at the cascading boundary) but cascade into distinct IR buckets — the bucket distinction is the load-bearing rule the runtime exposes. Surface 6 is structurally separate: it lives on the Manifest entity rather than on Aggregate / Release content, and its consumption is gated by the annotation-driven expansion pass.
@@ -27,7 +27,7 @@ When the renderer evaluates a Recipe template, the per-node `.context.annotation
 
 ### Three-bucket separation is a Social Contract
 
-The compiler does not enforce the bucket boundaries. The three buckets share a flat `string → string` shape; a Recipe's template can read all three, and nothing prevents a Release boundary annotation from being interpreted as a cognitive metadata field or a catalog annotation from being routed into `infra:`. The separation is **authoring discipline**, not an engine guarantee.
+The compiler does not enforce the bucket boundaries. The three buckets share a flat `string → string` shape; a Recipe's template can read all three, and nothing prevents a Release boundary annotation from being interpreted as a cognitive metadata field or a catalog annotation from being routed into `infra:`. The separation is **authoring discipline**, not a compiler guarantee.
 
 The discipline target — what the buckets are *intended* to express:
 
@@ -45,7 +45,7 @@ A future `linter.wasm` plugin (out-of-band advisory; see [`plugins/plugin-contra
 - Reading `.context.annotations.aggregate` to populate an `infra:` field — flag (physical metadata should come from the `release` bucket).
 - Reading `.context.annotations.catalog` to populate either `values:` or `infra:` — typically advisory only (catalog annotations are intrinsic traits; routing them into pillars is unusual but not always wrong).
 
-The criterion is forward-looking — `linter.wasm` is `planned` per the Wasm plugin contract page; no in-engine enforcement today. The discipline is upheld by reviewers and authors who follow the bucket-intent convention.
+The criterion is forward-looking — `linter.wasm` is `planned` per the Wasm plugin contract page; no in-compiler enforcement today. The discipline is upheld by reviewers and authors who follow the bucket-intent convention.
 
 ## Prefix discipline
 
@@ -53,7 +53,7 @@ Annotation and label keys follow a uniform `<namespace>/<name>` shape. Three res
 
 | Prefix | Owner | Purpose | Examples |
 | --- | --- | --- | --- |
-| `aggrega.ai/` | Aggrega platform only | Platform-native annotations consumed directly by engine code | `aggrega.ai/namespace`, `aggrega.ai/region`, `aggrega.ai/environment` |
+| `aggrega.ai/` | Aggrega platform only | Platform-native annotations consumed directly by the provider | `aggrega.ai/namespace`, `aggrega.ai/region`, `aggrega.ai/environment` |
 | `feature.aggrega.ai/` | Official standard library | Feature-annotation shortcuts bound in Manifest `features.annotations` | `feature.aggrega.ai/tls-pinning`, `feature.aggrega.ai/data-masking` |
 | `component.aggrega.ai/` | Official standard library | Component-intrinsic trait labels (the `component.aggrega.ai/type` selector key lives here) | `component.aggrega.ai/type` |
 | `aggregate.aggrega.ai/` | Official standard library | Aggregate module-level identity labels | `aggregate.aggrega.ai/tier`, `aggregate.aggrega.ai/compliance` |
@@ -63,9 +63,9 @@ Authors writing custom annotations use a domain they control (typically reverse-
 
 ## Provenance labels emitted on rendered output
 
-Beyond the inbound annotations the engines consume, Aggrega also **emits** provenance labels onto every rendered Kubernetes manifest and every emitted compose service. The label set lets downstream tooling (cost dashboards, observability stacks, GitOps controllers) attribute runtime resources back to the catalog content that produced them.
+Beyond the inbound annotations the providers consume, Aggrega also **emits** provenance labels onto every rendered Kubernetes manifest and every emitted compose service. The label set lets downstream tooling (cost dashboards, observability stacks, GitOps controllers) attribute runtime resources back to the catalog content that produced them.
 
-The shipping label set, emitted uniformly by the helm, helm-chart, and compose provider engines:
+The shipping label set, emitted uniformly by the helm, helm-chart, and compose providers:
 
 | Label | Source | Always emitted? |
 | --- | --- | --- |
@@ -86,7 +86,7 @@ For per-provider emission specifics (where on the rendered output the labels lan
 
 Alongside the compiler-owned provenance set, a Recipe author can declare their own labels to stamp onto the Recipe's rendered output, via `Recipe.spec.outputLabels:`. These ride the same emission rail as the provenance labels — they are merged into the same label set and land wherever provenance lands — but they are author-owned rather than compiler-owned. The intended use is a *realization trait*: a property of how a specific Recipe realizes a component (for example `hosting: managed` versus `hosting: self-hosted` for a managed-service Recipe versus a self-hosted-chart Recipe of the same component type), surfaced on the output so cost, policy, and inventory tooling can query it.
 
-The `aggrega.ai/` and `app.kubernetes.io/` namespaces are reserved for the provenance set; an `outputLabels` key under either prefix is rejected at load. A validated `outputLabels` map is therefore always disjoint from the provenance keys, so the two never collide on the merged output. Per-engine surfacing (helm object and pod-template on synthesis; object on source-render and artifacts; compose service labels; terraform per-resource tags on `.tf.json` artifact bodies) matches the provenance placement, and is documented in full on the [Recipe entity page](../entities/recipe.md) under "The `outputLabels:` field".
+The `aggrega.ai/` and `app.kubernetes.io/` namespaces are reserved for the provenance set; an `outputLabels` key under either prefix is rejected at load. A validated `outputLabels` map is therefore always disjoint from the provenance keys, so the two never collide on the merged output. Per-provider surfacing (helm object and pod-template on synthesis; object on source-render and artifacts; compose service labels; terraform per-resource tags on `.tf.json` artifact bodies) matches the provenance placement, and is documented in full on the [Recipe entity page](../entities/recipe.md) under "The `outputLabels:` field".
 
 ## Feature attachment — five surfaces
 

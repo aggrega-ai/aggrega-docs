@@ -4,7 +4,7 @@ The helm-chart provider produces a packaged Helm umbrella chart per assembly pat
 
 Each rendered Kubernetes resource emitted from sub-chart templates carries the boundary's `syncWave: <integer>` value as the `argocd.argoproj.io/sync-wave: "<N>"` annotation; Helm hooks additionally carry `helm.sh/hook-weight: "<N>"`. ArgoCD, Flux, and Helm read these annotations natively.
 
-This page is the helm-chart provider's authoring reference. For the helm vs helm-chart split, see the [Provider engines](../10-status.md#provider-engines) section of the Status page; for the cross-provider input-composition model, see [architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md).
+This page is the helm-chart provider's authoring reference. For the helm vs helm-chart split, see the [Providers](../10-status.md#providers) section of the Status page; for the cross-provider input-composition model, see [architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md).
 
 ## Supported input kinds
 
@@ -40,7 +40,7 @@ Filename collisions across the source-chart's templates and the `$import:`-loade
 
 ## `source:` keyset
 
-The helm-chart engine accepts `source:` as a **bare filesystem path string only**. Structured source objects (e.g. `source: { repo: ..., chart: ..., version: ... }`) are reserved for future registry integration and are rejected today.
+The helm-chart provider accepts `source:` as a **bare filesystem path string only**. Structured source objects (e.g. `source: { repo: ..., chart: ..., version: ... }`) are reserved for future registry integration and are rejected today.
 
 ```yaml
 spec:
@@ -59,7 +59,7 @@ A nil or empty source is rejected; helm-chart has no sourceless or generative fa
 
 The provider runs in two phases per assembly path:
 
-1. **Per-node copy.** For each node bound to a helm-chart Recipe, the engine copies the source chart's full directory tree into a sub-chart slot. Files land flat in the per-node output map; the orchestrator nests them under `charts/<instance_id>/` when assembling the umbrella.
+1. **Per-node copy.** For each node bound to a helm-chart Recipe, the provider copies the source chart's full directory tree into a sub-chart slot. Files land flat in the per-node output map; the orchestrator nests them under `charts/<instance_id>/` when assembling the umbrella.
 2. **Per-`(path, provider)` umbrella assembly.** Once all per-node copies for the path complete, the assembler emits an umbrella `Chart.yaml` + `values.yaml` at the assembly path's root. The umbrella declares one dependency per contributing node and routes per-node values under instance-id-keyed sub-blocks. When the assembly path receives contributors from more than one boundary (boundaries with shared `directory:`), every contributor lands as a dependency in the same umbrella.
 
 The umbrella `Chart.yaml` has the shape:
@@ -100,7 +100,7 @@ billing-svc:
 
 When a sub-chart's `valuesMapping:` evaluates against its TemplateContext, the resulting values map populates this alias-keyed sub-block automatically.
 
-## Engine-specific quirks
+## Provider-specific quirks
 
 - **Sub-chart `Chart.yaml` is required.** The copy operation enforces a present `Chart.yaml` at the source-path root. Missing it halts the build before the umbrella step runs.
 - **Default sub-chart version.** When the source chart's `Chart.yaml` declares no version (an unusual but valid Helm chart shape), the umbrella assigns `0.1.0` as a fallback for the dependency entry.
@@ -155,4 +155,4 @@ A `helm install <release-name> dist/<boundary-directory>/helm-chart` against thi
 - [`entities/recipe.md`](../entities/recipe.md) — Recipe authoring surface and the three input kinds.
 - [`entities/release.md`](../entities/release.md) — Release boundary semantics and per-boundary output directories.
 - [`architecture/16-recipe-input-composition.md`](../../architecture/16-recipe-input-composition.md) — cross-provider Provider Capability Matrix.
-- [`10-status.md#provider-engines`](../10-status.md#provider-engines) — current readiness classification.
+- [`10-status.md#providers`](../10-status.md#providers) — current readiness classification.

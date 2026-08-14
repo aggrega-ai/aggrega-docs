@@ -23,7 +23,7 @@ A Release boundary's `syncWave:` value orders deployment on the Kubernetes-facin
 | `terraform` | Orders nothing. The value is recorded with the node's build provenance. |
 | `cloudformation` | Orders nothing, and the value reaches no part of the emitted stack template. |
 
-Authoring a per-boundary `syncWave:` is covered on the [Release entity page](../entities/release.md); the exact labels and annotations each engine emits are in [well-known-annotations.md](well-known-annotations.md).
+Authoring a per-boundary `syncWave:` is covered on the [Release entity page](../entities/release.md); the exact labels and annotations each provider emits are in [well-known-annotations.md](well-known-annotations.md).
 
 ## Where to look for what
 

@@ -28,7 +28,7 @@ the Manifest changes per target.
 - **One authoring surface, many targets.** An Aggregate is the source of truth
   for *what* the stack is. Each Manifest says *how* to realize it.
 - **Workload synthesis on Kubernetes (preferred).** The `helm/mysql` Recipe
-  declares a capability-agnostic `Workload` with `form: stateful`; the helm engine
+  declares a capability-agnostic `Workload` with `form: stateful`; the helm provider
   synthesizes a **StatefulSet**, a **ClusterIP Service**, a **Headless Service**
   (the StatefulSet's stable network identity), and a **volumeClaimTemplate** for
   the data directory. The container's environment carries `MYSQL_DATABASE`,
@@ -37,7 +37,7 @@ the Manifest changes per target.
   (`--character-set-server`, `--collation-server`), because the official `mysql`
   image takes them as server flags rather than environment variables.
 - **Workload synthesis on Compose.** The Compose Recipe declares a
-  capability-agnostic `Workload`; the compose engine synthesizes a
+  capability-agnostic `Workload`; the compose provider synthesizes a
   `docker-compose.yaml` service with the MySQL image, its environment, a named
   data volume, and health checks.
 - **An operator escape hatch.** The Compose release sets `infra.overrides.image`,

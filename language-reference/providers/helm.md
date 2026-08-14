@@ -4,7 +4,7 @@ The helm provider produces flat rendered Kubernetes YAML for GitOps consumers (A
 
 Each emitted Kubernetes resource carries the boundary's `syncWave: <integer>` value as the `argocd.argoproj.io/sync-wave: "<N>"` annotation; Helm hooks additionally carry `helm.sh/hook-weight: "<N>"`. ArgoCD, Flux, and Helm read these annotations natively and order resource application accordingly.
 
-This page is the helm provider's authoring reference. For the cross-provider input-composition model, see [architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md). For current shipping-state classifications, see [Status of the Language → Provider engines](../10-status.md#provider-engines).
+This page is the helm provider's authoring reference. For the cross-provider input-composition model, see [architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md). For current shipping-state classifications, see [Status of the Language → Providers](../10-status.md#providers).
 
 ## Supported input kinds
 
@@ -12,13 +12,13 @@ The helm provider accepts all three of the Recipe input kinds in different roles
 
 - **Sourced mode.** A Recipe with `source: <chart-path>` points at an on-disk Helm chart directory. The Helm Go SDK loads the chart, the base-rendering values dictionary is coalesced with the chart's defaults, and the chart's templates render to flat Kubernetes YAML.
 - **Workload (synthesised) mode.** A Recipe with `workload:` (inline or `$import:`-loaded) declares a Workload document. The provider synthesises one or more Kubernetes resources per node — a Deployment (or StatefulSet) plus per-service Services and per-persistent-volume PVCs — directly from the Workload spec.
-- **Sourceless (generative) mode.** A Recipe with neither `source:` nor `workload:` falls back to the engine's built-in flat generator. The values dictionary feeds a Deployment plus an optional Service shaped from a small fixed key vocabulary (see [Sourceless mode](#sourceless-mode-keyset) below).
+- **Sourceless (generative) mode.** A Recipe with neither `source:` nor `workload:` falls back to the provider's built-in flat generator. The values dictionary feeds a Deployment plus an optional Service shaped from a small fixed key vocabulary (see [Sourceless mode](#sourceless-mode-keyset) below).
 
 A Recipe may declare exactly one of `source:` or `workload:`; combining them is a base-rendering validation error.
 
 ## `source:` keyset
 
-The helm engine accepts `source:` as a **bare filesystem path string only**. The path is interpreted relative to the compile invocation's working directory.
+The helm provider accepts `source:` as a **bare filesystem path string only**. The path is interpreted relative to the compile invocation's working directory.
 
 ```yaml
 spec:
@@ -48,11 +48,11 @@ The namespace applied to rendered resources is read from the `aggrega.ai/namespa
 
 ## Workload (synthesised) mode
 
-A Recipe with `workload:` (inline or `$import:`-loaded) synthesises Kubernetes resources from the Workload's abstract intent. The Workload schema is documented at [entities/workload.md](../entities/workload.md); this section covers what the helm engine emits.
+A Recipe with `workload:` (inline or `$import:`-loaded) synthesises Kubernetes resources from the Workload's abstract intent. The Workload schema is documented at [entities/workload.md](../entities/workload.md); this section covers what the helm provider emits.
 
 For each node:
 
-- One **controller object** chosen by the Workload's `form`: `stateless` (and the default) emits a **Deployment**, `stateful` a **StatefulSet**, `daemon` a **DaemonSet**, `task` a **Job**, `scheduled` a **CronJob** whose `spec.schedule` is the Workload's `schedule` field (a 5-field cron expression or an `@` macro); a `scheduled` workload with no schedule, or a malformed one, halts loudly. The Deployment and StatefulSet carry the replica count; DaemonSet, Job, and CronJob carry none. A `stateful` Workload requires exactly one `type: Headless` Service declared in the Workload to govern the StatefulSet; the engine wires the StatefulSet's `serviceName` to that Service's rendered name, and the build halts if no headless Service is declared (or if more than one is). A `persistentTemplate` volume is a companion of `form: stateful` — declaring one on any other form halts with a message naming the fix.
+- One **controller object** chosen by the Workload's `form`: `stateless` (and the default) emits a **Deployment**, `stateful` a **StatefulSet**, `daemon` a **DaemonSet**, `task` a **Job**, `scheduled` a **CronJob** whose `spec.schedule` is the Workload's `schedule` field (a 5-field cron expression or an `@` macro); a `scheduled` workload with no schedule, or a malformed one, halts loudly. The Deployment and StatefulSet carry the replica count; DaemonSet, Job, and CronJob carry none. A `stateful` Workload requires exactly one `type: Headless` Service declared in the Workload to govern the StatefulSet; the provider wires the StatefulSet's `serviceName` to that Service's rendered name, and the build halts if no headless Service is declared (or if more than one is). A `persistentTemplate` volume is a companion of `form: stateful` — declaring one on any other form halts with a message naming the fix.
 - One **Service** per declared `services:` entry on the Workload, exposing the named ports the service spec lists.
 - One **PersistentVolumeClaim** per `persistentTemplate` volume, sized and shaped from the volume's spec.
 
@@ -62,7 +62,7 @@ Output file naming follows the same `<nodeID>-<kind>.yaml` convention as sourced
 
 ## Sourceless mode keyset
 
-A Recipe with neither `source:` nor `workload:` invokes the engine's flat generator. The generator reads a small fixed vocabulary of keys from the base-rendering values dictionary:
+A Recipe with neither `source:` nor `workload:` invokes the provider's flat generator. The generator reads a small fixed vocabulary of keys from the base-rendering values dictionary:
 
 | Key | Type | Default | Effect |
 | --- | --- | --- | --- |
@@ -75,12 +75,12 @@ If the values dict contains `ports`, the generator emits both a Deployment and a
 
 Sourceless mode is the lowest-ceremony path for components whose only physical realities are an image, a replica count, and a port. Any non-trivial Kubernetes shape (volumes, init containers, probes, secrets) requires either workload mode or sourced mode.
 
-## Engine-specific quirks
+## Provider-specific quirks
 
 - **Provenance injection.** The sourced and sourceless paths converge on the same label-and-annotation set; sourced renders inject them via post-render YAML rewriting (after the Helm SDK has already rendered), so chart authors do not need to thread Aggrega labels through their own templates.
 - **Deterministic value coercion.** When the base-rendering values dict contains a hash-randomised Go map (rather than an OrderedMap), the sourceless extractor sorts keys alphabetically before emission — the deterministic choice when no author order is available upstream. OrderedMap-backed values preserve author order through the entire pipeline.
-- **Ordered env emission.** Kubernetes environment variables are an ordered list (later entries can `$(VAR)`-reference earlier ones); the engine emits them in author order from the OrderedMap-backed `environment` map. Authoring environment-variable order matters for correctness.
-- **Namespace cascade.** Both modes resolve the rendered-resource namespace from `aggrega.ai/namespace` on the boundary annotation cascade; absent, the namespace falls back to `default`. The annotation is not consumed by chart templates — the engine writes it directly into each resource's `metadata.namespace` field.
+- **Ordered env emission.** Kubernetes environment variables are an ordered list (later entries can `$(VAR)`-reference earlier ones); the provider emits them in author order from the OrderedMap-backed `environment` map. Authoring environment-variable order matters for correctness.
+- **Namespace cascade.** Both modes resolve the rendered-resource namespace from `aggrega.ai/namespace` on the boundary annotation cascade; absent, the namespace falls back to `default`. The annotation is not consumed by chart templates — the provider writes it directly into each resource's `metadata.namespace` field.
 
 ## Worked examples
 
@@ -140,4 +140,4 @@ spec:
 - [`providers/helm-chart.md`](helm-chart.md) — sister provider that emits a Helm chart scaffold rather than flat manifests.
 - [`providers/well-known-annotations.md`](well-known-annotations.md) — well-known annotations the helm provider honours (`aggrega.ai/namespace`, etc.).
 - [`architecture/16-recipe-input-composition.md`](../../architecture/16-recipe-input-composition.md) — cross-provider Provider Capability Matrix.
-- [`10-status.md#provider-engines`](../10-status.md#provider-engines) — current readiness classification.
+- [`10-status.md#providers`](../10-status.md#providers) — current readiness classification.

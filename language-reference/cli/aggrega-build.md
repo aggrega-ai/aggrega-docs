@@ -88,12 +88,12 @@ Each slot captures a specific compiler state:
 - `02-pass1-provides.yaml` — the resolved `provides:` outputs after provides evaluation.
 - `03-pass2-inject.yaml` — the merged `.context.inject` pipe after inject hydration (consumer-side view of upstream `provides`).
 - `04-phaseA-inject.yaml` — the `.context.inject` pipe after the FeatureRecipe `injectMapping` rewrites of inject mapping.
-- `05-phaseB-source.yaml` — the parsed `source:` content the provider engine will consume. Present only when the Recipe declares `source:`.
+- `05-phaseB-source.yaml` — the parsed `source:` content the provider will consume. Present only when the Recipe declares `source:`.
 - `06-phaseB-locals.yaml` — the resolved `locals:` block.
-- `07-phaseB-valuesMapping.yaml` — the rendered `valuesMapping:` output (the dictionary the provider engine receives). Present only when the Recipe declares `valuesMapping:`.
+- `07-phaseB-valuesMapping.yaml` — the rendered `valuesMapping:` output (the dictionary the provider receives). Present only when the Recipe declares `valuesMapping:`.
 - `08-phaseB-workload.yaml` — the context as it stood when the `workload:` template was evaluated and its output parsed. Present only when the Recipe declares `workload:` (inline or `$import:`-loaded). The parsed `Workload` itself is not in this slot: it appears from `09-phaseB-artifacts/` onward, once it is settled rather than in flight.
 - `09-phaseB-artifacts/` — one file per evaluated artifact. Present only when the Recipe declares `artifacts:` (with entries inline or per-entry `$import:`-loaded).
-- `10-engine-synthesis/` — one file per synthesised manifest the provider engine produced from the Workload (helm/compose workload-mode). Present only when the engine ran a synthesis path.
+- `10-engine-synthesis/` — one file per synthesised manifest the provider produced from the Workload (helm/compose workload-mode). Present only when the provider ran a synthesis path.
 - `11-engine-emission.log` — the post-emission summary (file count, output paths) for the node.
 - `12-labels-injected.log` — the provenance labels and annotations written onto rendered output for the node.
 

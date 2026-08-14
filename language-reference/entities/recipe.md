@@ -1,6 +1,6 @@
 # Recipe
 
-The conceptual role of the Recipe entity (the Ops-authored translation template that maps Developer Intent to a physical execution engine) lives in [architecture/04-entity-taxonomy.md](../../architecture/04-entity-taxonomy.md). This page covers the Recipe authoring surface — the pointer (`source`), the mapper (`valuesMapping:`), native IaC support, and worked examples.
+The conceptual role of the Recipe entity (the Ops-authored translation template that maps Developer Intent into the physical format) lives in [architecture/04-entity-taxonomy.md](../../architecture/04-entity-taxonomy.md). This page covers the Recipe authoring surface — the pointer (`source`), the mapper (`valuesMapping:`), native IaC support, and worked examples.
 
 ## The Recipe Architecture: Pointers and Mappers
 
@@ -9,13 +9,13 @@ A Recipe serves exactly two functions:
 1. **The Pointer (`source`):** Tells the compiler exactly where the infrastructure code lives.
 2. **The Mapper (`valuesMapping`):** Injects Aggrega's abstract context into the specific variables the underlying code expects. The field is a single Go template surface with three authoring modes — inline block scalar, file `$import:`, or library `$import:` — dispatched by content shape. See [The `valuesMapping` field — three authoring modes](#the-valuesmapping-field--three-authoring-modes) below.
 
-Because a Recipe is strictly 1:1 with a physical execution engine, the render capability (`spec.capability`) is explicitly declared at the root level, ensuring the Go compiler knows exactly which downstream Wasm rendering plugin to invoke.
+Because a Recipe is strictly 1:1 with a render capability, that capability (`spec.capability`) is explicitly declared at the root level, ensuring the Go compiler knows exactly which downstream Wasm rendering plugin to invoke.
 
 `spec.implements` declares which catalog component type the Recipe is able to implement. The compiler uses it to verify Manifest mappings (a mapped Recipe's `implements` must match the mapped type) and to suggest candidates — the recipes listed in a no-mapping diagnostic and ranked first in editor completion. It never resolves a build: the Manifest mapping is the user's explicit deployment choice, pinned in the lockfile. A Recipe whose `implements` is unversioned, exact, or a major-compatible range still only *offers* itself for a type; the user pins the choice. `FeatureRecipe.spec.implements` carries the identical role for feature types.
 
 ### A. Wasm-Driven Source Schemas (The Ultimate Agnosticism)
 
-To keep implementation biases out of the core engine, the `source` block is not a fixed set of infrastructure fields. The `source` field supports two formats:
+To keep implementation biases out of the compiler, the `source` block is not a fixed set of infrastructure fields. The `source` field supports two formats:
 
 * **The Universal String (Fast & Clean):** Best for local paths, OCI artifacts, and Git repositories. The compiler deduces the fetch method via the prefix (`./src`, `git::https://...`, `oci://...`).
 * **The Open Structured Object:** An open dictionary (`additionalProperties: true`) whose keys are provider-defined and are exposed to the Recipe's templates as `.source.*` (for example `.source.chart`). The design intent is that each provider's WebAssembly socket defines and validates its own source shape (e.g., `registry`/`chart`/`appVersion` for Helm).
@@ -94,7 +94,7 @@ The compiler resolves the reference against the resolved MappingLibrary set (the
 
 ### C. Native IaC Support & In-Memory Transpilation
 
-> **Status: native IaC transpilation is a designed capability. No `terraform` or `cloudformation` rendering engine is registered with the production dispatch today; the pipeline below describes the designed flow. See [Status of the Language](../10-status.md#provider-engines) for the shipping provider set.**
+> **Status: native IaC transpilation is a designed capability. No `terraform` or `cloudformation` provider is registered with the production dispatch today; the pipeline below describes the designed flow. See [Status of the Language](../10-status.md#providers) for the shipping provider set.**
 
 If an Ops team wants to bring their own raw infrastructure-as-code, they bundle their source files into a `src/` directory inside the Recipe package. To bridge this human-readable code with the Wasm JSONPatch security plugins and rendering sockets, the compiler uses a transparent transpilation pipeline:
 
@@ -152,7 +152,7 @@ spec:
 
 **Example B: The Local Terraform Module (File Mapping)**
 
-> **Status: the terraform provider is currently `planned` — the provider name is documented as designed, but no engine is registered with the production dispatch. See [Status of the Language](../10-status.md#provider-engines) for current behaviour. The example below illustrates the designed flow.**
+> **Status: the terraform provider is currently `planned` — the provider name is documented as designed, but no provider is registered with the production dispatch. See [Status of the Language](../10-status.md#providers) for current behaviour. The example below illustrates the designed flow.**
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -215,22 +215,22 @@ A Recipe's `source` field is itself a templating surface. Both shapes of `source
 and the structured-object form (each string-valued sub-field is template-evaluated; non-string sub-fields pass through). Templates evaluate at source resolution with the same self-contained context as Recipe `provides` — `.context.instance_id`, `.values`, `.infra`, and the same node's resolved `.provides`. References to `.context.inject` and `.context.uses` are forbidden; the source URI must resolve before the topology pipe is hydrated and before anything downstream loads the chart, module, or artifact body the URI points at. The full availability rules and forbidden-reference rationale live in [Template Expansion Matrix row #5](../templates/expansion-matrix.md). The canonical use is a Component-exposed `infra.source_version` override threaded into the source's version field — see [entities/component](component.md) "The `infra` Pillar" — so a catalog need not republish a Recipe on every compatible upstream version bump.
 
 **Source field scheme inventory.**
-The `source:` field accepts several shape variants in the schema. Each variant's runtime support varies per provider engine; the table below documents what ships today and what is reserved for future provider work.
+The `source:` field accepts several shape variants in the schema. Each variant's runtime support varies per provider; the table below documents what ships today and what is reserved for future provider work.
 
 | Shape | Example | Status today |
 | --- | --- | --- |
-| Bare relative filesystem path | `source: "./charts/postgres"` | `available` — every shipping provider engine (helm, helm-chart, compose) accepts a bare filesystem path string. |
-| Bare absolute filesystem path | `source: "/abs/path/to/chart"` | `available` — same engines, same handling; the path is interpreted against the build's working directory regardless of relative vs absolute form. |
+| Bare relative filesystem path | `source: "./charts/postgres"` | `available` — every shipping provider (helm, helm-chart, compose) accepts a bare filesystem path string. |
+| Bare absolute filesystem path | `source: "/abs/path/to/chart"` | `available` — same providers, same handling; the path is interpreted against the build's working directory regardless of relative vs absolute form. |
 | Empty string | `source: ""` | `accepted but blocked` — the schema accepts the empty string; the Recipe loader rejects it with a clear authoring-disambiguation message. See [`errors/fatal-halts.md`](../errors/fatal-halts.md) "Recipe `source:` is an empty string". |
 | Structured object (built-in `{kind, url, version, chart, ...}`) | `source: { url: "oci://…/mariadb", version: "25.0.8" }` | `available` — the built-in source-resolver reads the `{kind, url, version, chart, ref, module_subdir}` form (`url:`'s scheme selects the kind — `oci://` → OCI chart, `https://….tgz` → chart archive, `https://` repo root paired with `chart:` → repo chart — or name it with `kind:`), fetches and pins the artifact at `aggrega pull`, and the build extracts it from the cache. The former render-time `structured source not supported` rejection is retired; vendoring a chart locally remains supported but is no longer required. The schema accepts an open structured object so a provider can later declare its own source keys (e.g. a Helm `registry` + `chart` pair) validated by the provider's Wasm plugin — `planned`. See [`providers/helm.md`](../providers/helm.md) "`source:` keyset". |
-| OCI URI (`oci://...`) | `source: "oci://hub.aggrega.ai/recipe/helm/postgres:1.0.0"` | `planned` — design target for catalog distribution. Today's three-tier resolver (local paths, workspace catalogs, remote OCI registry) is documented at [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md); the entity-level resolver consumes OCI URIs through that cascade, but the per-Recipe `source:` field's OCI form is not wired in the engines today. |
-| Other URL schemes (`https://`, `git+https://`, etc.) | (illustrative) | `planned` — documented as design intent in the architecture's pluggable-source roadmap; no engine support today. |
+| OCI URI (`oci://...`) | `source: "oci://hub.aggrega.ai/recipe/helm/postgres:1.0.0"` | `planned` — design target for catalog distribution. Today's three-tier resolver (local paths, workspace catalogs, remote OCI registry) is documented at [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md); the entity-level resolver consumes OCI URIs through that cascade, but the per-Recipe `source:` field's OCI form is not wired in the providers today. |
+| Other URL schemes (`https://`, `git+https://`, etc.) | (illustrative) | `planned` — documented as design intent in the architecture's pluggable-source roadmap; no provider support today. |
 
-The inventory is the canonical reference for what authors can put in `source:` today. Authors targeting future shipping milestones (OCI URI, structured forms with the helm-renderer.wasm Wasm engine when it ships) should expect the framings above to update from `planned` to `available` per the four-label taxonomy at [`10-status.md`](../10-status.md).
+The inventory is the canonical reference for what authors can put in `source:` today. Authors targeting future shipping milestones (OCI URI, structured forms with the helm-renderer.wasm guest when it ships) should expect the framings above to update from `planned` to `available` per the four-label taxonomy at [`10-status.md`](../10-status.md).
 
 **Authoring vs. Execution: `.tf.json` as a Compiled Artifact**
 
-`.tf.json` is valid Terraform input — the `terraform` CLI executes it identically to `.tf` HCL. GitOps pipelines (GitHub Actions, Atlantis) and scanning tools (Checkov) handle `.tf.json` the same way they handle standard HCL. *The terraform provider engine is currently `planned`; this discussion describes the designed flow.*
+`.tf.json` is valid Terraform input — the `terraform` CLI executes it identically to `.tf` HCL. GitOps pipelines (GitHub Actions, Atlantis) and scanning tools (Checkov) handle `.tf.json` the same way they handle standard HCL. *The terraform provider is currently `planned`; this discussion describes the designed flow.*
 
 JSON is suited for machine-to-machine communication, not for manual human authoring. Ops engineers author their Recipes using standard `.tf` HCL files; the Wasm rendering socket generates the final JSON artifacts. The `.tf.json` in the `dist/` folder is a compiled output, following the same authoring-vs-output split established by AWS CDK and CDKTF.
 
@@ -279,7 +279,7 @@ spec:
 
 The `#/workloads/` fragment is what selects a Workload entry, and it is the fragment that distinguishes this reference from the `#/mappings/` form `valuesMapping:` uses — that one addresses a MappingLibrary entry and does not name a Workload body. The reference carries no registry host, the resolved version comes from the per-Release lockfile, an optional `:<version>` minimum-version floor may be asserted as `<Library>:<version>#/workloads/<Entry>`, and an entry whose body is itself a field-root `$import:` resolves recursively. The imported body is a Go template evaluated in the consuming Recipe's render context, so `.values`, `.infra` and `.features` flow into it exactly as they do into an inline body. See [entities/workloadlibrary](workloadlibrary.md) for the library entity and the full reference grammar.
 
-The target provider's engine must support synthesis (the standard-library catalog declares `workloadSchema` on such providers by convention); targeting a provider whose engine cannot synthesize is rejected when the node renders, with the provider-capability diagnostic — keyed on engine capability, not on `workloadSchema` presence. For the full Workload grammar, the K8s-shape pass-through fields, and the per-provider translation behavior, see [entities/workload.md](workload.md). For the broader three-input-kinds model and the assembler that merges synthesis with source-rendered output and artifacts, see [architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md).
+The target provider must support synthesis (the standard-library catalog declares `workloadSchema` on such providers by convention); targeting a provider that cannot synthesize is rejected when the node renders, with the provider-capability diagnostic — keyed on provider capability, not on `workloadSchema` presence. For the full Workload grammar, the K8s-shape pass-through fields, and the per-provider translation behavior, see [entities/workload.md](workload.md). For the broader three-input-kinds model and the assembler that merges synthesis with source-rendered output and artifacts, see [architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md).
 
 ## The `artifacts:` field — auxiliary manifests
 
@@ -324,7 +324,7 @@ Output labels ride the same rail as the fixed build-provenance labels: they are 
 
 **Reserved namespaces.** The `aggrega.ai/` and `app.kubernetes.io/` namespaces are reserved for platform-native provenance. A Recipe that declares an `outputLabels` key under either prefix is rejected at load with a clear catalog error naming the offending key. Every other key is accepted. The core does not otherwise police the key or value — a key or value that is not valid for the target engine's label surface is the author's responsibility, and the downstream runtime rejects it; the compiler stays out of the way beyond the reserved-namespace rule.
 
-**Per-engine surfacing.** Each provider translates the labels onto its own output surface:
+**Per-provider surfacing.** Each provider translates the labels onto its own output surface:
 
 * **helm, workload synthesis** — on both the object `metadata.labels` and the pod-template `metadata.labels`, matching where synthesis places provenance.
 * **helm, source-render and artifacts** — on the object `metadata.labels`.
