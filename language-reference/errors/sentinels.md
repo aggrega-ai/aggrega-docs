@@ -295,6 +295,13 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrWorkloadEntryNotScalar()` | `workloadlibrary: entry body must be a string scalar` |
 | `ErrWorkloadTemplateShape()` | `workload: shape must be a string scalar or {$import: <path-or-library-identity>}` |
 
+### pkg/usesedge
+
+| Sentinel | Message |
+| --- | --- |
+| `ErrDanglingUsesTarget()` | `uses edge target does not exist` |
+| `ErrReleaseEdgeRetarget()` | `release edge retargets a developer-declared edge` |
+
 ### pkg/validator
 
 | Sentinel | Message |
