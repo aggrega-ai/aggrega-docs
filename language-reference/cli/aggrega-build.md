@@ -67,14 +67,14 @@ The directory layout is per-boundary, per-instance:
     └── <boundary-path>/
         └── <instance-id>/
             ├── 01-pillars-initial.yaml
-            ├── 02-pass1-provides.yaml
-            ├── 03-pass2-inject.yaml
-            ├── 04-phaseA-inject.yaml
-            ├── 05-phaseB-source.yaml
-            ├── 06-phaseB-locals.yaml
-            ├── 07-phaseB-valuesMapping.yaml
-            ├── 08-phaseB-workload.yaml
-            ├── 09-phaseB-artifacts/
+            ├── 02-provides-evaluation.yaml
+            ├── 03-inject-hydration.yaml
+            ├── 04-inject-mapping.yaml
+            ├── 05-source-resolution.yaml
+            ├── 06-source-locals.yaml
+            ├── 07-values-mapping.yaml
+            ├── 08-workload-synthesis.yaml
+            ├── 09-artifact-evaluation/
             │   └── <per-artifact-file>.yaml
             ├── 10-engine-synthesis/
             │   └── <per-synthesised-file>.yaml
@@ -85,14 +85,14 @@ The directory layout is per-boundary, per-instance:
 Each slot captures a specific compiler state:
 
 - `01-pillars-initial.yaml` — the per-node `TemplateContext` snapshot after resolution and before any per-stage mutation. Carries `.values`, `.infra`, `.context`, `.parameters`, `.metadata`.
-- `02-pass1-provides.yaml` — the resolved `provides:` outputs after provides evaluation.
-- `03-pass2-inject.yaml` — the merged `.context.inject` pipe after inject hydration (consumer-side view of upstream `provides`).
-- `04-phaseA-inject.yaml` — the `.context.inject` pipe after the FeatureRecipe `injectMapping` rewrites of inject mapping.
-- `05-phaseB-source.yaml` — the parsed `source:` content the provider will consume. Present only when the Recipe declares `source:`.
-- `06-phaseB-locals.yaml` — the resolved `locals:` block.
-- `07-phaseB-valuesMapping.yaml` — the rendered `valuesMapping:` output (the dictionary the provider receives). Present only when the Recipe declares `valuesMapping:`.
-- `08-phaseB-workload.yaml` — the context as it stood when the `workload:` template was evaluated and its output parsed. Present only when the Recipe declares `workload:` (inline or `$import:`-loaded). The parsed `Workload` itself is not in this slot: it appears from `09-phaseB-artifacts/` onward, once it is settled rather than in flight.
-- `09-phaseB-artifacts/` — one file per evaluated artifact. Present only when the Recipe declares `artifacts:` (with entries inline or per-entry `$import:`-loaded).
+- `02-provides-evaluation.yaml` — the resolved `provides:` outputs after provides evaluation.
+- `03-inject-hydration.yaml` — the merged `.context.inject` pipe after inject hydration (consumer-side view of upstream `provides`).
+- `04-inject-mapping.yaml` — the `.context.inject` pipe after the FeatureRecipe `injectMapping` rewrites of inject mapping.
+- `05-source-resolution.yaml` — the parsed `source:` content the provider will consume. Present only when the Recipe declares `source:`.
+- `06-source-locals.yaml` — the resolved `locals:` block. Source resolution publishes `.locals` before it evaluates the `source:` template, which is why this slot is written whether or not the Recipe declares `source:`.
+- `07-values-mapping.yaml` — the rendered `valuesMapping:` output (the dictionary the provider receives). Present only when the Recipe declares `valuesMapping:`.
+- `08-workload-synthesis.yaml` — the context as it stood when the `workload:` template was evaluated and its output parsed. Present only when the Recipe declares `workload:` (inline or `$import:`-loaded). The parsed `Workload` itself is not in this slot: it appears from `09-artifact-evaluation/` onward, once it is settled rather than in flight.
+- `09-artifact-evaluation/` — one file per evaluated artifact. Present only when the Recipe declares `artifacts:` (with entries inline or per-entry `$import:`-loaded).
 - `10-engine-synthesis/` — one file per synthesised manifest the provider produced from the Workload (helm/compose workload-mode). Present only when the provider ran a synthesis path.
 - `11-engine-emission.log` — the post-emission summary (file count, output paths) for the node.
 - `12-labels-injected.log` — the provenance labels and annotations written onto rendered output for the node.
@@ -109,7 +109,7 @@ A value a template computed from a declared-sensitive datum is withheld too, eve
 
 A value that travels across a `uses` edge is withheld against the **target's** declarations, not the consuming node's, and it is withheld on both surfaces the edge carries it to. `.context.uses.<alias>.provides` reproduces what the target component published, so what governs those values is the target's schema: a `provides` key the target declared sensitive reads as `<redacted>` on the consumer's slot even when the consumer declares nothing at all. When the edge's own `inject` block routes that key onto a delivery key of the consuming component, `.context.inject` withholds that delivery key too — the same rule an attachment's `inject` mapping already follows, reading the same declaration. The withholding is per edge, so two edges publishing the same `provides` key name resolve independently: the one whose target declared it is withheld and the other prints verbatim. The rest of the edge — its target, its socket, its labels, the `inject` mapping's own key names, and the per-connection `values` and `infra` authored on the edge itself — is not what a target's `provides` declaration governs, and prints verbatim.
 
-The parsed `Workload` is a **re-render**, not a capture of the document the build emitted, and the slots that carry it — `09-phaseB-artifacts/`, `10-engine-synthesis/` and `09b-phaseB6-boundary-fr.yaml` — say so in a `workload_note` entry beside it. A rendered document records nothing about which declaration a given character came from, so there is no key at which to substitute inside it. What the trace shows instead is the same `workload:` template evaluated a second time, against a context whose declared-sensitive data already reads as `<redacted>`. Because the template sees a string where a string was, the result keeps the emitted document's shape: the same fields, in the same places, with `<redacted>` standing in the withheld datum's own position and the literal text around it unchanged.
+The parsed `Workload` is a **re-render**, not a capture of the document the build emitted, and the slots that carry it — `09-artifact-evaluation/`, `10-engine-synthesis/` and `09b-feature-rendering-boundary.yaml` — say so in a `workload_note` entry beside it. A rendered document records nothing about which declaration a given character came from, so there is no key at which to substitute inside it. What the trace shows instead is the same `workload:` template evaluated a second time, against a context whose declared-sensitive data already reads as `<redacted>`. Because the template sees a string where a string was, the result keeps the emitted document's shape: the same fields, in the same places, with `<redacted>` standing in the withheld datum's own position and the literal text around it unchanged.
 
 Two ways that re-render differs from what was emitted, both of which the note states:
 
@@ -142,7 +142,7 @@ The keyword, its two authoring sites, the advisory's exact wording and the full 
 
 - Diagnosing why a rendered manifest doesn't carry an expected value: walk the per-pass dumps to find the first slot where the value is missing.
 - Verifying determinism after a compiler upgrade: two compiles of the same input with `--trace` produce byte-identical trace dumps; any per-slot diff localises the regression.
-- Catalog authoring iteration: comparing the `04-phaseA-inject.yaml` and `06-phaseB-locals.yaml` snapshots shows what the Recipe's templates see at evaluation time.
+- Catalog authoring iteration: comparing the `04-inject-mapping.yaml` and `06-source-locals.yaml` snapshots shows what the Recipe's templates see at evaluation time.
 
 ## Examples
 
