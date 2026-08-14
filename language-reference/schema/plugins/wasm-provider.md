@@ -68,7 +68,7 @@ The build-identity provenance for one node — the compiler, aggregate, and envi
 | `compiler_version` | string | no | The compiler version, stamped as the aggrega.ai/compiler-version label when non-empty. |
 | `aggregate_name` | string | no | The aggregate name, stamped as the aggrega.ai/aggregate-name label when non-empty. |
 | `environment` | string | no | The environment name, stamped as the aggrega.ai/environment label when non-empty. |
-| `provider_name` | string | no | The bare provider engine kind, stamped as the aggrega.ai/provider label when non-empty. |
+| `provider_name` | string | no | The bare provider kind, stamped as the aggrega.ai/provider label when non-empty. |
 | `provider_version` | string | no | The resolved provider-rendering plugin version, stamped as the aggrega.ai/provider-version label when non-empty. |
 
 _Additional properties are not permitted._
@@ -400,7 +400,7 @@ One endpoint of a cross-boundary link: the node, the boundary path its rendered 
 | --- | --- | --- | --- |
 | `node` | string | yes | The endpoint node's absolute id within the topology graph. |
 | `boundary` | string | yes | The endpoint's boundary path — the dispatch group its rendered output assembles into. |
-| `provider` | string | yes | The provider that rendered the endpoint (the provider engine name). Both endpoints of a wired link name the same provider; the host does not route a link whose endpoints name different providers. |
+| `provider` | string | yes | The provider that rendered the endpoint (the bare provider name). Both endpoints of a wired link name the same provider; the host does not route a link whose endpoints name different providers. |
 | `deployment` | string | no | The deployment identity the endpoint's rendered output belongs to — the scope its assembled artifacts are named within. The host assembles it from the build's deployment identity and passes it verbatim; it infers no meaning from the value. A provider reads it to scope a cross-reference name to the deployment. An absent value is the empty string, which a provider treats as an unscoped name. |
 
 _Additional properties are not permitted._

@@ -135,10 +135,10 @@ A single enriched topological edge assembled by the compiler. Contains the targe
 | `target` | string | yes | The absolute flattened ID of the target node (e.g., 'data-layer.main-db'). |
 | `socket` | string | yes | The usesSchema category this edge belongs to (e.g., 'databases', 'apis'). |
 | `source` | string | no | The absolute flattened ID of the source (consumer) node. Populated for boundary-scope views that key per-consumer outputs by the consumer node. |
-| `source_namespace` | string | no | Raw aggrega.ai/namespace annotation of the source endpoint (empty when absent). Opaque data for a provider engine's network-identity resolution; the core does not interpret it. |
-| `source_boundary_path` | string | no | Boundary path of the source endpoint, used by a provider engine's no-namespace network fallback. |
-| `target_namespace` | string | no | Raw aggrega.ai/namespace annotation of the target endpoint (empty when absent). Opaque data for a provider engine's network-identity resolution. |
-| `target_boundary_path` | string | no | Boundary path of the target endpoint, used by a provider engine's no-namespace network fallback. |
+| `source_namespace` | string | no | Raw aggrega.ai/namespace annotation of the source endpoint (empty when absent). Opaque data for a provider's network-identity resolution; the core does not interpret it. |
+| `source_boundary_path` | string | no | Boundary path of the source endpoint, used by a provider's no-namespace network fallback. |
+| `target_namespace` | string | no | Raw aggrega.ai/namespace annotation of the target endpoint (empty when absent). Opaque data for a provider's network-identity resolution. |
+| `target_boundary_path` | string | no | Boundary path of the target endpoint, used by a provider's no-namespace network fallback. |
 | `provides` | map of string | yes | The target node's fully resolved provides dictionary. Evaluated at provides evaluation, before inject hydration. |
 | `inject` | object | yes | The Developer's original inject mapping for this edge (keys = local variable names, values = target provides keys). This is the RAW mapping, not the resolved values. |
 | `labels` | map of string | no | The target node's duck-typing and ontology labels (post-mutation from topology construction). |

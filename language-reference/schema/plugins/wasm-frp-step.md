@@ -29,11 +29,11 @@ _Additional properties are not permitted._
 
 ### `FRPStepOutput`
 
-The payload a feature-recipe-pipeline guest returns for one pipeline step: the RFC 6902 patches the apply engine applies to the keyed document set, the side effects this step produced, and any diagnostics the guest raised.
+The payload a feature-recipe-pipeline guest returns for one pipeline step: the RFC 6902 patches the host applies to the keyed document set, the side effects this step produced, and any diagnostics the guest raised.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `patches` | JSONPatchOp[] | no | Structured RFC 6902 operations the step emits against documents in the keyed set. Each names its target document by scope and key, then names the op, path, and value explicitly. Distinct from the mutator socket's opaque patch slice: an FRP step's patches are applied by the apply engine and restored by snapshot on a failed step, so the operations are explicit here rather than opaque. |
+| `patches` | JSONPatchOp[] | no | Structured RFC 6902 operations the step emits against documents in the keyed set. Each names its target document by scope and key, then names the op, path, and value explicitly. Distinct from the mutator socket's opaque patch slice: an FRP step's patches are applied by the host and restored by snapshot on a failed step, so the operations are explicit here rather than opaque. |
 | `side_effects` | SideEffect[] | no | The effects this step produced beyond patching an existing document (for example emitting a CRD or writing a file). |
 | `diagnostics` | Diagnostic[] | no | Diagnostics the guest raised. Each element is the shared Wasm-plugin diagnostic shape. |
 | `outputs` | object | no | The addressable outputs the guest returns for this step, an author-ordered key set that populates the step's outputs for a later step or a template to read. Preserves author order so the payload is byte-identical across runs of identical input. Absent when the step returns no outputs. |
