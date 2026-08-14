@@ -9,6 +9,7 @@
 // Usage:
 //   node scripts/gen-plugin-reference.mjs
 //   AGGREGA_BIN=/path/to/aggrega node scripts/gen-plugin-reference.mjs
+//   AGGREGA_PLUGIN_OUT=/path/to/page.md node scripts/gen-plugin-reference.mjs
 //
 // The generator is deterministic: given the same binary it produces
 // byte-identical output. The binary already sorts each plugin group, and this
@@ -28,8 +29,19 @@ const BIN = process.env.AGGREGA_BIN || "aggrega";
 // Repository root is the parent of this script's directory.
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = dirname(SCRIPT_DIR);
-const PLUGINS_DIR = join(REPO_ROOT, "language-reference", "plugins");
-const OUT_FILE = join(PLUGINS_DIR, "embedded-plugins.md");
+
+// Output file for the generated page. Defaults to the committed page under
+// language-reference/plugins; set AGGREGA_PLUGIN_OUT to write the same bytes
+// somewhere else instead. It names the FILE rather than a directory because this
+// generator writes exactly one, unlike the schema reference's whole-tree
+// override.
+//
+// Only the destination moves. The page is rendered from the binary's listing and
+// reads nothing from whatever already sits at the output path, so redirecting it
+// yields byte-identical content — which is what lets a drift check regenerate
+// into a throwaway location and compare, without touching the committed page.
+const OUT_FILE = process.env.AGGREGA_PLUGIN_OUT
+  || join(REPO_ROOT, "language-reference", "plugins", "embedded-plugins.md");
 
 function run(args) {
   return execFileSync(BIN, args, { encoding: "utf-8", maxBuffer: 64 * 1024 * 1024 });
@@ -107,7 +119,9 @@ function main() {
   const listing = JSON.parse(run(["plugin", "list", "-o", "json"]));
   const embedded = Array.isArray(listing.embedded) ? listing.embedded : [];
 
-  mkdirSync(PLUGINS_DIR, { recursive: true });
+  // Created from the output path in force, so an override into a throwaway
+  // location neither reads nor creates anything under the committed tree.
+  mkdirSync(dirname(OUT_FILE), { recursive: true });
   const page = renderPage(embedded);
   writeFileSync(OUT_FILE, page, "utf-8");
 
