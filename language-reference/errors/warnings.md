@@ -138,10 +138,10 @@ A declared parameter is the authoring surface for varying one value per deployme
 **Emit shape.** One line per unread declaration, naming the Aggregate and the declaration's locator:
 
 ```text
-  lint: Aggregate fullstack-app at .spec.parameters.unread_probe: declared parameter is read by no reference in the Aggregate
+  lint: Aggregate fullstack-app at .spec.parameters.unread_probe: declared parameter is read by no reference in the Aggregate ("unread_probe")
 ```
 
-Findings arrive in the order the Aggregate declares its parameters, so the same Aggregate produces the same sequence on every run. Each carries the declaration's locator, which names the offending key — that is what lets the advisory also reach editor diagnostics positioned on the declaration rather than at the head of the file.
+Findings arrive in the order the Aggregate declares its parameters, so the same Aggregate produces the same sequence on every run. Each carries the declaration's locator, which names the offending key — that is what lets the advisory also reach editor diagnostics positioned on the declaration rather than at the head of the file. The message names the key as well, which is why it appears twice on a terminal line that prints the locator too: an editor shows the message at the position it placed and never the locator text, so a message that left the key out would read identically for every unread declaration.
 
 **Why a warning and not a fatal halt.** A parameter may be declared ahead of the reference that will read it, and a static walk cannot tell that from a mistake — the same reason the authored-key reading only ever advises. The compiler does not police which knobs an author exposes.
 
