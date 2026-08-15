@@ -4,12 +4,6 @@
 
 Each entity kind has a natural "contract" view. `inspect` shows that contract — the schema a Component publishes, the mappings a Manifest declares, the topology an Aggregate builds, the per-node Feature attachments a Release resolves to. Tutorial and conceptual material lives elsewhere; `inspect` answers "what does this entity actually resolve to?"
 
-## Synopsis
-
-```text
-aggrega inspect <identifier> [flags]
-```
-
 A single positional argument routes by content shape; no subcommand is needed. The command dispatches per the following heuristic:
 
 | Identifier shape | Dispatch | Output |

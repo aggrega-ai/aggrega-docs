@@ -6,12 +6,6 @@ Conventions are distinct from correctness. `aggrega lint` never checks whether c
 
 `aggrega lint` is opt-in. The compiler itself stays unopinionated about catalog discipline; these rules live in a separate plugin you choose to run. A workspace that never runs `aggrega lint` still builds and publishes.
 
-## Synopsis
-
-```
-aggrega lint [<entity-path>] [--release <release-path>] [--pre-publish] [--plugin <path>] [policy flags]
-```
-
 The entity path may be given positionally or with `--entity <path>`. `--release` is mutually exclusive with an entity argument — they select different scopes; passing both halts.
 
 ## Whole-catalog conventions (no argument)

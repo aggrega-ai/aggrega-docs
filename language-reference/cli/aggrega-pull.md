@@ -2,13 +2,6 @@
 
 `aggrega pull` resolves all of a Release's dependencies and writes a **lockfile** that pins every dependency to an exact version and content digest. A subsequent `aggrega build` reads the lockfile and verifies against it, so builds are reproducible and offline-capable. `aggrega pull` is the one step that touches the network; build does not.
 
-## Synopsis
-
-```
-aggrega pull --release <release> [--catalog <dir>]... [--upgrade] [--include-prerelease] [--detail]
-aggrega pull --release <release> --verify
-```
-
 ## What it does
 
 `aggrega pull` resolves two kinds of dependency in one pass:

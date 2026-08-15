@@ -2,13 +2,6 @@
 
 `aggrega sign` signs one or more already-published catalog artifacts and attaches each signature as an OCI referrer. It is the post-publish counterpart of `aggrega push --sign`: use it to sign an artifact that was published unsigned, to add a signature from a different identity, or to sign a whole batch of artifacts in one invocation.
 
-## Synopsis
-
-```
-aggrega sign <reference>... [--key <pem>] [--identity-token <token>]
-              [--fulcio-url <url>] [--rekor-url <url>] [--timestamp-url <url>]
-```
-
 ## What it does
 
 `aggrega sign` resolves the digest the registry already holds for each `<reference>`, signs that digest, and attaches the signature bundle as a referrer. It never re-pushes, re-tags, or otherwise mutates the published bytes — the artifact is immutable, and the signature is a sibling manifest pointing back at it. So an artifact can be signed after the fact with no version bump.

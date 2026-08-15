@@ -2,12 +2,6 @@
 
 `aggrega version` prints the version of the `aggrega` CLI.
 
-## Synopsis
-
-```
-aggrega version [-o json]
-```
-
 ## Output
 
 By default `aggrega version` prints a human-readable version line.

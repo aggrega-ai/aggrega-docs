@@ -6,12 +6,6 @@ Correctness is distinct from conventions. `aggrega validate` asks whether conten
 
 `aggrega validate` writes nothing to disk and reads no runtime state. It runs the same resolution and validation a build runs, stopping before (or, for a single entity, isolating) the render.
 
-## Synopsis
-
-```
-aggrega validate [<entity-path>] [--release <release-path>] [--catalog <dir>]...
-```
-
 An entity path may be given positionally. `--release` is mutually exclusive with an entity argument — they select different closures; passing both halts.
 
 ## Whole-catalog correctness (no argument)
