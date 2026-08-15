@@ -250,13 +250,17 @@ spec:
         analytics: {}
 ```
 
-Place every sub-aggregate listed under `Aggregate.spec.aggregates:` in exactly one boundary when the Release declares `boundaries:`.
+Place every sub-aggregate listed under `Aggregate.spec.aggregates:` in exactly one boundary.
 
 Routing places components. Every component of a routed sub-module lands in the boundary that routes it and takes that boundary's `directory`, `subDirectory`, `syncWave` and annotation cascade — the same context a component named directly under `components:` receives, including the `aggrega.ai/boundary-path` provenance stamped on the emitted artifacts. Routing a sub-module and addressing each of its components by qualified dotted path with an empty body therefore produce identical artifacts; routing is the shorter way to say it, and the only way to say it without knowing the sub-module's contents.
 
 A component belongs to exactly one boundary, and the build halts when a document places one twice — the same sub-module routed into two boundaries, a sub-module routed into one boundary while one of its components is named in another, or a component named both directly and through a routing entry. The diagnostic names both sites, because which one to keep is the author's decision. Routing a sub-module into a boundary and naming one of its components under that *same* boundary is not a conflict: the routing places the component and the named entry configures it.
 
-🔴 **A sub-aggregate the Release places nowhere is not reported.** Its components emit to the default output location instead of a boundary's, so a forgotten placement surfaces as artifacts in an unexpected directory rather than as an error. Check that every sub-aggregate reaches a boundary.
+**A sub-aggregate the Release places nowhere halts the build.** Placement is read across both spellings, so the build halts only when *neither* reaches the sub-module: no boundary routes it under `aggregates:`, and no boundary names any of its components under `components:` by qualified dotted path. Either spelling on its own places it, and a sub-module whose components are all named individually needs no routing entry. The fix belongs in the `aggregates:` block of the Aggregate that imported the sub-module — the Aggregate the Release deploys, for one it imports directly, and the importing sub-module's own document for a nested one. The diagnostic names that entry by the key the importing document spells it with, so for a nested sub-module it reads as the local name rather than the dotted path.
+
+Two cases deliberately do not halt. A sub-module contributing no components has nothing to place. A sub-module whose `active:` toggle resolves to `false` was never composed, so none of its components exist to be placed. Partial placement does not halt either: a sub-module is placed once any of its components reaches a boundary, and which of them carry their own entries is the author's to decide.
+
+Placing a sub-module therefore requires `boundaries:`. The single-scope form has no routing surface — `aggregates:` is a key of a boundary, not of `spec:` — and the top-level `components:` map accepts only unqualified names, so a Release deploying an Aggregate that imports sub-modules declares `boundaries:`.
 
 **Recursive routing.** `aggregates:` is recursive — each entry under a boundary's `aggregates:` may itself declare a nested `aggregates:` map for deeply-nested module composition.
 
