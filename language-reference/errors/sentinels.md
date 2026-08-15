@@ -223,6 +223,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrParameterContractViolation()` | `parameter contract violated` |
 | `ErrParameterMissing()` | `required parameter not supplied` |
 | `ErrParametersImportLoad()` | `parameters $import: load failed` |
+| `ErrProvidesKeyNotDeclared()` | `Recipe publishes a provides key its Component does not declare` |
 | `ErrSchemaConformance()` | `authored pillar does not conform to its declared schema` |
 | `ErrSelfInjectForbidden()` | `self-inject on component without spec.inject allowlist` |
 | `ErrTriadRefUnresolvable()` | `aggregate/manifest reference unresolvable` |
