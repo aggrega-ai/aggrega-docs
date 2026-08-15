@@ -81,7 +81,7 @@ Each slot captures a specific compiler state:
 - `01-pillars-initial.yaml` — the per-node `TemplateContext` snapshot after resolution and before any per-stage mutation. Carries `.values`, `.infra`, `.context`, `.parameters`, `.metadata`.
 - `02-provides-evaluation.yaml` — the resolved `provides:` outputs after provides evaluation.
 - `03-inject-hydration.yaml` — the merged `.context.inject` pipe after inject hydration (consumer-side view of upstream `provides`).
-- `04-inject-mapping.yaml` — the `.context.inject` pipe after the FeatureRecipe `injectMapping` rewrites of inject mapping.
+- `04-inject-mapping.yaml` — the `.context.inject` pipe after the FeatureRecipe `injectMapping` rewrites.
 - `05-source-resolution.yaml` — the parsed `source:` content the provider will consume. Present only when the Recipe declares `source:`.
 - `06-source-locals.yaml` — the resolved `locals:` block. Source resolution publishes `.locals` before it evaluates the `source:` template, which is why this slot is written whether or not the Recipe declares `source:`.
 - `07-values-mapping.yaml` — the rendered `valuesMapping:` output (the dictionary the provider receives). Present only when the Recipe declares `valuesMapping:`.

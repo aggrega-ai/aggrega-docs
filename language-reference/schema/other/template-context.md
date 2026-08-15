@@ -40,7 +40,7 @@ The compiler-assembled execution context providing identity, topology, and deliv
 | `instance_id` | string | yes | The absolute flattened ID of the current node (e.g., 'backend' or 'data-layer.main-db'). Deterministic and stable across compilations for the same Aggregate. |
 | `labels` | map of string | no | The duck-typing and ontology labels of the current node, including any mutations applied by mutator.wasm at topology construction. |
 | `annotations` | object | no | The three cascading annotation buckets for the current node, segregated by origin. |
-| `inject` | object | yes | The pre-hydrated and intercepted delivery pipe. Starts as a compiler-generated map resolving Developer inject keys to Target provides values. Mutated in-place by the injectMapping deep-merges of inject mapping. By the time the Base Recipe renders, this contains the fully resolved physical strings. |
+| `inject` | object | yes | The pre-hydrated and intercepted delivery pipe. Starts as a compiler-generated map resolving Developer inject keys to Target provides values. Mutated in-place by the injectMapping deep-merges. By the time the Base Recipe renders, this contains the fully resolved physical strings. |
 | `uses` | map of enriched_edge | yes | The enriched topological edge map. Keyed by the Developer's alias (e.g., 'my_db', 'my_api'). Each entry is a compiler-assembled view of the target node's identity, resolved provides, injection mapping, and cascaded annotations. This is NOT the raw IR edge — it is an enriched projection built by the compiler specifically for template consumption. |
 
 _Additional properties are not permitted._
@@ -59,7 +59,7 @@ _Additional properties are not permitted._
 
 ##### `template-context.context.inject`
 
-The pre-hydrated and intercepted delivery pipe. Starts as a compiler-generated map resolving Developer inject keys to Target provides values. Mutated in-place by the injectMapping deep-merges of inject mapping. By the time the Base Recipe renders, this contains the fully resolved physical strings.
+The pre-hydrated and intercepted delivery pipe. Starts as a compiler-generated map resolving Developer inject keys to Target provides values. Mutated in-place by the injectMapping deep-merges. By the time the Base Recipe renders, this contains the fully resolved physical strings.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
