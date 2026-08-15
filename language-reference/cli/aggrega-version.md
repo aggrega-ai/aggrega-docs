@@ -12,20 +12,27 @@ aggrega version [-o json]
 
 By default `aggrega version` prints a human-readable version line.
 
-With `-o json` it emits a machine-readable object. It is written on a single line, so a
-consumer can read one field out of it with line-oriented tools and no JSON parser; the example
-below is expanded for readability.
+With `-o json` it emits a machine-readable object, indented two spaces, in the same shape every
+`aggrega` command uses for its JSON output. Read it with a JSON parser; a consumer that matches on
+the text instead should strip whitespace before matching, because the field names are the contract
+and the surrounding layout is not.
 
 ```json
 {
   "version": "1.2.3",
+  "committed": "2026-07-09T18:07:57Z",
   "commit": "a1b2c3d",
+  "abiVersion": "v1alpha1",
   "goVersion": "go1.23.0",
   "platform": "linux/amd64"
 }
 ```
 
-The fields come from the binary's embedded build metadata. A development build that carries no embedded version reports a sentinel value (such as `(devel)`) rather than failing.
+The fields come from the binary's embedded build metadata. `committed` is the commit timestamp, and
+it is present only when the build recorded one. `abiVersion` is the plugin ABI version the binary
+speaks, which a pipeline can read to check plugin compatibility without loading a plugin. A
+development build that carries no embedded version reports a sentinel value (such as `(devel)`)
+rather than failing.
 
 ## When to use `-o json`
 
