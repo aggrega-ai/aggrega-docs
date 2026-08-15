@@ -1,0 +1,84 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: adhoc-uses-socket-delivers
+  version: "1.0.0"
+  description: >
+    A database console wired to two things at once: its database, through
+    the socket its Component declares, and a model endpoint, through a
+    socket no catalog entity declares. Both edges carry values into the
+    same container environment through the same delivery path, so the
+    rendered output does not record which socket was declared.
+spec:
+  components:
+    # ── Database ────────────────────────────────────────────────────────
+    db:
+      type: core/datastore/mariadb
+      values:
+        database: appdb
+      # The Component's featuresSchema requires a root_password slot. This
+      # slot is black-box (featuresSchema declares inject: []): the
+      # FeatureRecipe the Manifest selects controls delivery.
+      features:
+        root_password:
+          type: core/secret-value
+          values:
+            key: MARIADB_ROOT_PASSWORD
+            origin: dev-root-pw-change-me
+
+    # ── Model endpoint ──────────────────────────────────────────────────
+    # A reference-form realization: no compute runs for it. Its published
+    # endpoint is a deterministic pointer string the Recipe emits, and the
+    # compiler routes it without resolving or interpreting it.
+    model:
+      type: core/ai-model/anthropic
+      values:
+        model: claude-sonnet-4-5
+
+    # ── Web console ─────────────────────────────────────────────────────
+    web:
+      type: core/devtool/adminer
+      values:
+        design: pepa-linha-dark
+      uses:
+        # ── A DECLARED socket ───────────────────────────────────────────
+        # `databases` is declared in core/devtool/adminer's usesSchema, with
+        # selector component.aggrega.ai/type=stateful-server. The db instance
+        # carries that label, so the edge satisfies the socket's contract and
+        # the cross-node type-safety check has something to evaluate.
+        databases:
+          db:
+            target: db
+            inject:
+              env:
+                - in: ADMINER_DEFAULT_SERVER
+                  from: host
+
+        # ── An AD-HOC socket ────────────────────────────────────────────
+        # `assistant` is declared nowhere. core/devtool/adminer's usesSchema
+        # names one socket, `databases`, and this is not it. The Component was
+        # authored to front a database; nobody anticipated wiring a model
+        # endpoint into it. Catalog silence about a socket means the connection
+        # was not anticipated, not that it is forbidden, so the edge is built.
+        #
+        # What this socket gives up is what the missing usesSchema entry would
+        # have carried: no selector, so nothing constrains which component the
+        # edge may reach; no inject allowlist; no per-edge valueSchema or
+        # infraSchema.
+        #
+        # What it does NOT give up is what the edge may carry. Both from: keys
+        # below name keys core/ai-model/anthropic declares in its provides
+        # pillar — endpoint and model. A key it does not declare halts the
+        # build; aggregate-undeclared-key.yaml is that case.
+        assistant:
+          model:
+            target: model
+            inject:
+              env:
+                - in: ASSISTANT_ENDPOINT
+                  from: endpoint
+                - in: ASSISTANT_MODEL
+                  from: model

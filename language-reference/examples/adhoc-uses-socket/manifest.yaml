@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: adhoc-uses-socket-manifest
+  version: "1.0.0"
+  description: >
+    Ops mapping for the Docker Compose target, shared by both releases.
+    Every line routes a type to the standard-library Recipe that implements
+    it on this target. Nothing here mentions sockets: Recipe selection is by
+    component type, and an ad-hoc socket is not a type.
+spec:
+  mappings:
+    components:
+      type:
+        # Recipe references are provider-qualified (provider/name:version)
+        # because the standard-library catalog ships several Recipes per
+        # component type, one per target.
+        core/datastore/mariadb:1.0.0: compose/mariadb:1.0.0
+        core/devtool/adminer:1.0.0: compose/adminer:1.0.0
+        core/ai-model/anthropic:1.0.0: compose/anthropic:1.0.0
+    features:
+      type:
+        core/secret-value:1.0.0: compose/dotenv-secret:1.0.0

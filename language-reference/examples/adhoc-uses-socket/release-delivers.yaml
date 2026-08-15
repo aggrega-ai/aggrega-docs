@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: adhoc-uses-socket-local
+  environment: development
+  version: "1.0.0"
+spec:
+  aggregate: adhoc-uses-socket-delivers
+  manifest: adhoc-uses-socket-manifest
+  # Single scope: components are authored directly, no boundaries block, so the
+  # compiler folds them into the synthesized default boundary and emits flat
+  # under dist/.
+  #
+  # Note what is absent. A Release may wire and configure an edge within a
+  # socket the Component declares, but it may not name a socket the Component
+  # does not — that surface stayed closed when the Aggregate's own uses: opened.
+  # The `assistant` socket is the Aggregate author's, and only theirs.
+  components:
+    db:
+      infra:
+        engine_version: "11.4"
+        storage:
+          size: 2Gi
+    web:
+      infra:
+        port: 8080

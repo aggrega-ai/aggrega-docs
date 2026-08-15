@@ -1,0 +1,62 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: adhoc-uses-socket-undeclared-key
+  version: "1.0.0"
+  description: >
+    The control. Identical to the delivering Aggregate but for one from:
+    key on the ad-hoc edge, which names something the target does not
+    declare. Expected to fail: an ad-hoc socket lets a consumer invent the
+    connection, never the data that crosses it.
+spec:
+  components:
+    # ── Database ────────────────────────────────────────────────────────
+    db:
+      type: core/datastore/mariadb
+      values:
+        database: appdb
+      features:
+        root_password:
+          type: core/secret-value
+          values:
+            key: MARIADB_ROOT_PASSWORD
+            origin: dev-root-pw-change-me
+
+    # ── Model endpoint ──────────────────────────────────────────────────
+    model:
+      type: core/ai-model/anthropic
+      values:
+        model: claude-sonnet-4-5
+
+    # ── Web console ─────────────────────────────────────────────────────
+    web:
+      type: core/devtool/adminer
+      values:
+        design: pepa-linha-dark
+      uses:
+        databases:
+          db:
+            target: db
+            inject:
+              env:
+                - in: ADMINER_DEFAULT_SERVER
+                  from: host
+
+        assistant:
+          model:
+            target: model
+            inject:
+              env:
+                # endpoint is declared, and travels.
+                - in: ASSISTANT_ENDPOINT
+                  from: endpoint
+                # api_key is NOT declared by core/ai-model/anthropic, whose
+                # provides pillar names endpoint and model and nothing else.
+                # The socket being ad-hoc changes nothing here: the from: key
+                # is checked against the target Component's declared provides
+                # on every edge, and this build halts.
+                - in: ASSISTANT_API_KEY
+                  from: api_key

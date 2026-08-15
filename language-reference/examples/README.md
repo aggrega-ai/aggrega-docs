@@ -49,6 +49,13 @@ developer surface and the String Pipe with zero platform authoring.
   Recipe routing in the Manifest. Builds against the standard-library catalog
   it references; the same stack reappears in the Authoring tier below, built
   from scratch.
+- **[adhoc-uses-socket](adhoc-uses-socket/)** — a console wired to its database
+  through the socket its Component declares, and to a model endpoint through a
+  socket no catalog entity declares. Both edges deliver into the same container
+  environment through the same path, and the rendered output does not record
+  which socket was declared. The control release shows the other half of the
+  line: an `inject` key the target does not declare in its `provides` halts the
+  build, ad-hoc socket or not.
 
 ## Authoring
 
