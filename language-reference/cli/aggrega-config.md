@@ -16,6 +16,29 @@ aggrega config
 | `aggrega config capture` | Freeze the effective build-critical configuration into this workspace |
 | `aggrega config init` | Seed a working configuration with a registry and its trust policy |
 | `aggrega config show` | Show the effective configuration and where each setting came from |
+
+**`aggrega config capture` flags**
+
+| Flag | Default | Description |
+| --- | --- | --- |
+| `--all-plugins` | `false` | Capture all plugin sockets, including the verdict-role governance, linter, and importer gates. Without it, capture freezes only the sockets that determine the rendered output (the provider bindings and the transform-role governance attachments). |
+
+**`aggrega config init` flags**
+
+| Flag | Default | Description |
+| --- | --- | --- |
+| `--force` | `false` | Overwrite an existing config file. Without it, init refuses when the target file already exists. |
+| `--global` | `false` | Write the entry to the global config shared across every workspace. This is the default. |
+| `--registry` | `hub.aggrega.ai` | Registry host to seed with its trust policy. Defaults to the official hub. |
+| `--workspace` | `false` | Write the entry to this project's workspace config instead of the global config. |
+
+**`aggrega config show` flags**
+
+| Flag | Default | Description |
+| --- | --- | --- |
+| `--global` | `false` | Print the global config file's own bytes verbatim, preserving its comments and formatting. |
+| `--origin` | `false` | Annotate each effective setting with the layer it came from (a config file, an environment variable, or the built-in defaults). |
+| `--workspace` | `false` | Print this project's workspace config file's own bytes verbatim, preserving its comments and formatting. |
 <!-- END GENERATED: cli-config -->
 
 ## What it does
@@ -27,7 +50,6 @@ The `config` subcommands seed, inspect, and freeze the configuration that govern
 `aggrega config init` seeds a config on a fresh machine by registering a registry and its signature trust policy, so signed artifacts pull and verify without hand-editing YAML. By default it registers the official hub (`hub.aggrega.ai`) with signatures required and its official trusted identities. The registry's advertised trust policy is fetched once from its own origin and pinned locally (trust-on-first-use); when the registry is unreachable or advertises nothing, the built-in official baseline is written instead, so `init` still produces a usable config offline.
 
 - `--registry <host>` seeds a different registry — an air-gapped or private hub — instead of the official one.
-- The entry is written to the global config shared across every workspace by default; `--workspace` writes it to this project's workspace config instead.
 - If the target file already exists, `init` refuses rather than overwrite it; `--force` writes anyway, merging the registry entry into the existing file and preserving other settings.
 
 ### `config show` — inspect what applies right now
