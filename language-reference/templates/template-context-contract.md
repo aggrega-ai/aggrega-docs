@@ -24,9 +24,11 @@ The top-level fields live at the root of the template context — accessed as `.
 
 ## The attachment shape
 
-`.features.<name>` and `.features.<slot>` are the same shape — one attachment, read one way. Four fields:
+`.features.<name>` and `.features.<slot>` are the same shape — one attachment, read one way:
 
 - **`.type` (string).** The attached Feature's catalog URI.
+- **`.resolved_version` (string).** The attached Feature's version after Manifest resolution — the version actually bound for this build, rather than a pin restated on the consuming side. Mirrors `.context.uses.<alias>.resolved_version`. Empty when the attachment's `type` resolves to no catalog entity.
+- **`.labels` (string-valued map).** The attached Feature's catalog labels, carried verbatim in the order the Feature declares them — nothing is filtered, renamed or prefix-stripped, so a template reads exactly what the Feature's author wrote. Mirrors `.context.uses.<alias>.labels`. Absent when the Feature declares no labels, and when the attachment's `type` resolves to no catalog entity.
 - **`.values` (map).** The attachment's own developer-intent pillar, authored on the attachment declaration in the Aggregate. Distinct from the host component's top-level `.values`.
 - **`.infra` (map).** The attachment's own operational-sizing pillar, authored on the attachment declaration in the Release. Distinct from the host component's top-level `.infra`.
 - **`.provides` (string-valued map).** The resolved public contract of the FeatureRecipe bound to this attachment — the emitted resource's name, its data key, a cloud identity, and any additional keys the FeatureRecipe publishes. Read as `.features.<name>.provides.<key>`, mirroring `.context.uses.<alias>.provides`: the consumer reads what the producer published instead of re-deriving it. Empty when the bound FeatureRecipe publishes nothing.
@@ -39,6 +41,18 @@ workload: |
 ```
 
 The emitted name is stated once, by the producer, and consumed — never restated on the consuming side where the two could disagree. The [`workload-identity-binding`](../examples/workload-identity-binding/) example renders this end-to-end.
+
+`.labels` is what lets a template adapt to *what* an attachment is without matching on its name or parsing its URI. The compiler reads none of them — it carries the strings, and the template author decides what they mean.
+
+A Feature that declares no labels carries no `.labels` at all rather than an empty map, so guard before addressing an individual label — reaching through a key that is not there halts the build:
+
+```yaml
+{{ if .features.db.labels }}
+{{ if eq (index .features.db.labels "feature.aggrega.ai/kind") "secret" }}...{{ end }}
+{{ end }}
+```
+
+Because the labels arrive verbatim, a catalog author's own namespace reaches the template unchanged, and a Recipe reads the same key the Feature declares.
 
 ## The `.context` block
 
