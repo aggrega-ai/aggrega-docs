@@ -36,12 +36,18 @@ spec:
     web:
       type: core/web-server:1.0.0
       values:
-        region: "{{ .parameters.region }}"                       # string
-        cache_ttl_seconds: "{{ .parameters.cache_ttl_seconds }}" # integer (renders as YAML string; the values-side schema validates type)
-        debug: "{{ .parameters.enable_debug }}"                  # boolean
+        region: "{{ .parameters.region }}"                     # string
+        cache_ttl_seconds: {{ .parameters.cache_ttl_seconds }} # integer
+        debug: {{ .parameters.enable_debug }}                  # boolean
 ```
 
-The interpolation pass produces a Go template evaluation against the `.parameters` map; the result replaces the template expression inline at the YAML string position. The Component / Feature `values:` schema then validates the resulting value at the post-interpolation schema-validation phase of resolution.
+The interpolation pass produces a Go template evaluation against the `.parameters` map; the result replaces the template expression in place in the document. The Component / Feature `values:` schema then validates the resulting value at the post-interpolation schema-validation phase of resolution.
+
+### Quoting decides the hoisted type
+
+**Quote a reference aimed at a string leaf; leave it bare for every other declared type.** The rule is YAML's own, not one Aggrega adds on top: interpolation substitutes the fulfilled value into the document's bytes and does nothing else, so the parse that follows reads the result exactly as it reads any other scalar. A bare `{{ .parameters.cache_ttl_seconds }}` carries the fulfilled value's own type, which is what lets an integer parameter reach an integer leaf and a boolean parameter reach a boolean leaf. A quoted `"{{ .parameters.cache_ttl_seconds }}"` carries a string, and a leaf declared `integer` or `boolean` refuses it: the authored value fails its Component or Feature `values:` schema on type, and the diagnostic names the type mismatch rather than any value-space constraint the string would also have missed.
+
+A reference that shares its scalar with other text is a string whichever way it is written, because the substituted document has one scalar to read — `image: app:{{ .parameters.tag }}` yields `app:1.4.0`. That is the form to reach for when a non-string parameter has to land in a string leaf.
 
 ## Object-typed and array-typed slot access
 
@@ -63,7 +69,7 @@ spec:
       type: core/compute/api:1.0.0
       values:
         db_host: "{{ .parameters.database_config.host }}"
-        db_port: "{{ .parameters.database_config.port }}"
+        db_port: {{ .parameters.database_config.port }}
         db_ssl: "{{ .parameters.database_config.ssl_mode }}"
 ```
 
@@ -110,7 +116,7 @@ spec:
     api:
       type: core/compute/api:1.0.0
       values:
-        timeout: "{{ .parameters.timeout_seconds }}"
+        timeout: {{ .parameters.timeout_seconds }}
 
 # Release omits timeout_seconds — interpolation uses default: 30
 # Release supplies timeout_seconds: 60 — interpolation uses 60

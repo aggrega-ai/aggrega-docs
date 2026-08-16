@@ -168,7 +168,7 @@ spec:
     my-backend:
       type: core/python-worker:1.0.0
       values:
-        workers: "{{ .parameters.env_workers }}"
+        workers: {{ .parameters.env_workers }}
         region: "{{ .parameters.region }}"
 ```
 

@@ -140,8 +140,10 @@ spec:
       values:
         default_locale: "{{ .parameters.default_locale }}"
         region: "{{ .parameters.region }}"
-        debug: "{{ .parameters.enable_debug }}"
+        debug: {{ .parameters.enable_debug }}
 ```
+
+The quoting on each reference is deliberate: it is what decides the type the hoisted value arrives with. See [`templates/parameters-context.md`](../templates/parameters-context.md#quoting-decides-the-hoisted-type).
 
 ### Parameter slot vocabulary
 

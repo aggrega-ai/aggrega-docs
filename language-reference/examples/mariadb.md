@@ -356,35 +356,41 @@ spec:
       pattern: "^[a-z]{2}-[a-z]+-\\d$"
 
     database:
-      replicas:
-        type: integer
-        min: 1
-        max: 9
-        default: 1
-      size:
-        type: string
-        pattern: "^[1-9][0-9]*(Mi|Gi|Ti)$"
-        default: "20Gi"
-      backup:
-        enabled:
-          type: boolean
-          default: false
-        retention_days:
+      type: object
+      properties:
+        replicas:
           type: integer
           min: 1
-          max: 365
-          default: 30
+          max: 9
+          default: 1
+        size:
+          type: string
+          pattern: "^[1-9][0-9]*(Mi|Gi|Ti)$"
+          default: "20Gi"
+        backup:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+              default: false
+            retention_days:
+              type: integer
+              min: 1
+              max: 365
+              default: 30
 
     api:
-      log_level:
-        type: string
-        enum: [debug, info, warn, error]
-        default: info
-      cache_ttl_seconds:
-        type: integer
-        min: 1
-        max: 86400
-        default: 60
+      type: object
+      properties:
+        log_level:
+          type: string
+          enum: [debug, info, warn, error]
+          default: info
+        cache_ttl_seconds:
+          type: integer
+          min: 1
+          max: 86400
+          default: 60
 
   components:
     db:
@@ -392,26 +398,26 @@ spec:
       values:
         architecture: '{{ if eq .parameters.environment "prod" }}replication{{ else }}standalone{{ end }}'
         primary:
-          replicaCount: '{{ .parameters.database.replicas }}'
+          replicaCount: {{ .parameters.database.replicas }}
           persistence:
             size: '{{ .parameters.database.size }}'
         {{- if eq .parameters.environment "prod" }}
         secondary:
-          replicaCount: '{{ sub .parameters.database.replicas 1 }}'
+          replicaCount: {{ sub .parameters.database.replicas 1 }}
           persistence:
             size: '{{ .parameters.database.size }}'
         {{- end }}
         auth:
           database: checkout
         backup:
-          enabled: '{{ .parameters.database.backup.enabled }}'
-          retention_days: '{{ .parameters.database.backup.retention_days }}'
+          enabled: {{ .parameters.database.backup.enabled }}
+          retention_days: {{ .parameters.database.backup.retention_days }}
 
     api:
       type: my-org/server/checkout-api:1.0.0
       values:
         log_level: '{{ .parameters.api.log_level }}'
-        cache_ttl_seconds: '{{ .parameters.api.cache_ttl_seconds }}'
+        cache_ttl_seconds: {{ .parameters.api.cache_ttl_seconds }}
       uses:
         primary_db: db    # Reference to the db Component above
 ```

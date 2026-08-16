@@ -178,7 +178,7 @@ spec:
     trading-db:
       type: core/high-perf-postgres:1.0.0
       values:
-        required_iops: "{{ .parameters.env_iops }}" # Hoisted to the environment
+        required_iops: {{ .parameters.env_iops }} # Hoisted to the environment
 ```
 
 **2. The GitOps Releases (Ops fulfilment).**

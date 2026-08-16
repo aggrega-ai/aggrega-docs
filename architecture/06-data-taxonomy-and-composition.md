@@ -184,8 +184,8 @@ The reasoning is progressive disclosure: requiring mandatory grouping for trivia
 The compiler and the core schemas enforce the following structural rules.
 
 * **Recommended pattern: Parameter Hoisting via Template Strings**
-  * **Example:** Developer writes `workers: "{{ .parameters.env_workers }}"` in their `values` block.
-  * **Why:** If the Aggregate declares `env_workers` as a typed parameter (`type: integer`), the compiler first validates the Release-provided value against the contract. Parameter contract validation happens *before* interpolation; interpolation happens *before* the surrounding `values:` schema validation. This preserves the reusability of the Aggregate: Ops supplies the integer via the `Release`'s `parameters:`, the compiler validates it against the typed `parameters:` declaration, interpolates the resolved value into the surrounding `values:` string, and the Component's `schema:` declaration successfully validates the resulting integer.
+  * **Example:** Developer writes `workers: {{ .parameters.env_workers }}` in their `values` block, left unquoted so the value arrives as the integer it was declared to be.
+  * **Why:** If the Aggregate declares `env_workers` as a typed parameter (`type: integer`), the compiler first validates the Release-provided value against the contract. Parameter contract validation happens *before* interpolation; interpolation happens *before* the surrounding `values:` schema validation. This preserves the reusability of the Aggregate: Ops supplies the integer via the `Release`'s `parameters:`, the compiler validates it against the typed `parameters:` declaration, substitutes the resolved value into the document, and the Component's `schema:` declaration successfully validates the resulting integer.
 
 * **Constraint 1: Credentials Are Attachments, Not Values**
   * **Discouraged pattern:** Developer writes `values: { password: "123" }` on a component.
