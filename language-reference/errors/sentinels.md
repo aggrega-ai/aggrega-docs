@@ -293,6 +293,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrTemplateParamMissing()` | `schemalibrary: template parameter missing` |
 | `ErrTemplateParamTypeMismatch()` | `schemalibrary: template parameter type mismatch` |
 | `ErrValuesMappingShape()` | `valuesmapping: shape must be a string scalar or {$import: <path-or-library-identity>}` |
+| `ErrWellKnownAnnotationScope()` | `wellKnownAnnotations: a key is declared at a scope the provider's contract does not render` |
 | `ErrWorkloadEntryNotScalar()` | `workloadlibrary: entry body must be a string scalar` |
 | `ErrWorkloadTemplateShape()` | `workload: shape must be a string scalar or {$import: <path-or-library-identity>}` |
 
