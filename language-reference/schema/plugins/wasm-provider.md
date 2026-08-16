@@ -38,14 +38,14 @@ _Additional properties are not permitted._
 
 ### `IRNodeProjection`
 
-The per-node IR data a Provider guest renders — a bounded projection of the full IR node carrying the per-node identity and the provenance the guest stamps onto every emitted manifest: its id, type, resolved recipe, values, feature attachments, outbound uses edges, boundary path, deployment wave, Recipe identity, component-id override, and build provenance. Source-file content is not carried here; it travels separately in the source projection. Values, features, and uses preserve author order so the wire payload is byte-identical across runs of identical input.
+The per-node IR data a Provider guest renders — a bounded projection of the full IR node carrying the per-node identity and the provenance the guest stamps onto every emitted manifest: its id, type, resolved recipe, values, feature attachments, outbound uses edges, boundary path, deployment wave, Recipe identity, component-id override, and build provenance. Source-file content is not carried here; it travels separately in the source projection. Every key set here has a fixed order — features and uses in author order, values in sorted key order — so the wire payload is byte-identical across runs of identical input.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `id` | string | yes | The node's absolute id within the topology graph. |
 | `type` | string | yes | The node's component-type label — opaque metadata for the guest, not a behavior switch. |
 | `resolved_recipe` | string | yes | The Universal URI of the Recipe the resolver pinned for this node. |
-| `values` | object | no | The node's rendered values dictionary, an author-ordered key set the guest renders from. Preserves author order so the payload is byte-identical across runs of identical input. |
+| `values` | object | no | The node's rendered values dictionary, the key set the guest renders from. Keys arrive in sorted order, not author order, and that sorting is what makes the payload byte-identical across runs of identical input; a guest needing any other ordering imposes it itself. |
 | `features` | object | no | The node's feature attachments keyed by feature alias, carrying the same per-node feature-attachment shape the IR carries. Each entry carries the attachment's values, infra and inject mapping alongside its derived sensitivity marking, so a guest reads whether an attachment handles declared-sensitive material from the payload alone. Preserves author order so the payload is byte-identical across runs of identical input. Opaque at this schema layer; the guest reads the feature-entry shape through the IR wire contract. |
 | `uses` | map of string[] | no | The node's outbound uses edges keyed by socket alias, each carrying the ordered target node ids bound to that socket. Preserves author order so the payload is byte-identical across runs of identical input. |
 | `boundary_path` | string | no | The node's boundary path, stamped as the aggrega.ai/boundary-path annotation on every emitted manifest that carries a metadata block. |
@@ -216,8 +216,7 @@ The pre-evaluated workload content the host hands a Provider guest so the guest 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `workload` | object | yes | The host-evaluated, post-validation Workload the guest synthesizes; opaque at this schema layer so the socket schema does not rebind the Workload entity contract. |
-| `attachment_provides` | object | no | Every attachment on the node, projected to its resolved provides and keyed by the attachment instance name a workload attachment reference carries; absent when the node carries no attachments. The host copies the strings through without interpreting them, so the guest reads whichever entries of an attachment's provides it needs to resolve a reference to the resource that attachment produced. |
-| `attachment_sensitive` | map of boolean | no | Which of the node's attachments handle material an author declared sensitive, keyed by the same attachment instance name attachment_provides uses. Only a marked attachment appears, so an attachment absent from the map is not declared sensitive and the whole field is absent when none is. The marking is derived from declarations alone — a sensitive leaf declared on the Feature filling the attachment, or a sensitive attachment slot the attachment binds — never from a value's content. The field carries the marking so a guest whose target offers a native sensitivity primitive can mark the value there; a guest whose target offers none ignores it, and the marking changes nothing that guest emits. |
+| `attachment_provides` | object | no | Every attachment on the node, projected to its resolved provides and keyed by the attachment instance name a workload attachment reference carries; absent when the node carries no attachments. The host copies the strings through without interpreting them, so the guest reads whichever entries of an attachment's provides it needs to resolve a reference to the resource that attachment produced. Whether an attachment handles declared-sensitive material is not repeated here: it travels on the node projection's matching feature entry, which a guest reads by the same instance name. |
 
 _Additional properties are not permitted._
 
@@ -292,7 +291,7 @@ One sub-chart contributing to an umbrella chart: its instance identity, the vers
 | --- | --- | --- | --- |
 | `instance_id` | string | yes | The sub-chart's instance identity within the dispatch group; the umbrella scopes the sub-chart's dependency alias and its values under it, so multiple instances of one source chart stay distinct. |
 | `version` | string | no | The version the umbrella pins for the sub-chart. A sub-chart vendored from a chart source instead draws its dependency name and version from that chart's Chart.yaml file so the dependency binds; this value applies to a generative sub-chart that carries no vendored chart. |
-| `values` | object | no | The per-instance values the umbrella scopes under the sub-chart's alias in the umbrella values.yaml, an author-ordered key set. Preserves author order so the payload is byte-identical across runs of identical input. |
+| `values` | object | no | The per-instance values the umbrella scopes under the sub-chart's alias in the umbrella values.yaml file. Keys arrive in sorted order, not author order, and that sorting is what makes the payload byte-identical across runs of identical input; a guest needing any other ordering imposes it itself. |
 | `chart_yaml` | string | no | The pristine bytes of the vendored chart's Chart.yaml, read from the local source at compile time, from which the umbrella draws the sub-chart dependency's name and version. Empty for a generative sub-chart that carries no vendored chart (base64 on the JSON wire). |
 
 _Additional properties are not permitted._
