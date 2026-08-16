@@ -333,6 +333,34 @@ Output labels ride the same rail as the fixed build-provenance labels: they are 
 
 Output labels are labels only; there is no separate output-annotation surface. `outputLabels` is declared by the Recipe author (the ops-authored realization layer), not by the Aggregate — it describes the realization, never the developer's abstract-graph identity.
 
+## The `outputComponentLabels:` field — promoting a component's own labels
+
+`Recipe.spec.outputComponentLabels:` is a list of label **keys**, not of key-value pairs. For each key it names, the provider stamps that key onto the rendered output with the value the key carries on the component instance being rendered. Where `outputLabels` states a value, `outputComponentLabels` names where the value is to be read from.
+
+```yaml
+spec:
+  capability: helm
+  implements: core/datastore/postgres:1.0.0
+  outputLabels:
+    example.io/team: platform
+  outputComponentLabels:
+    - component.aggrega.ai/hosting
+```
+
+Given a Component whose `metadata.labels` declare `component.aggrega.ai/hosting: managed`, every object this Recipe renders for that component carries `component.aggrega.ai/hosting: managed`. Bind the same Recipe to a component declaring `self-hosted` and that component's objects carry `self-hosted` instead — one Recipe, one named key, a value per component.
+
+**Promotion is by reference, and that is the point.** The value is read from the component whenever output is rendered, so it cannot drift from the identity it came from: there is no second copy to keep in step when the component's label changes. A literal `outputLabels` entry restating a component's label *is* that second copy, and the two disagree the moment either one moves. So reach for `outputLabels` when the value is a property of how this Recipe realizes the component, and for `outputComponentLabels` when the value already exists on the component and the rendered output should carry it too.
+
+A promoted key lands on exactly the same surface as a literal one — the per-provider surfacing described above applies unchanged, and no provider distinguishes a key that was promoted from one that was written in place.
+
+**Reserved namespaces.** The `aggrega.ai/` and `app.kubernetes.io/` namespaces are reserved for platform-native provenance, and a promoted key under either prefix is rejected at load with a catalog error naming the key and the field it appears in. The test is the bare prefix: a key such as `component.aggrega.ai/hosting` sits in a namespace of its own rather than under the reserved root, and is promotable.
+
+**A key belongs to one block or the other.** Declaring the same key in both `outputLabels` and `outputComponentLabels` is rejected at load, so every stamped key has a single source — either the literal value written on the Recipe or the component's own label, never both.
+
+**A promoted key the component does not declare stamps nothing.** The build continues and emits a warning naming the node, the Recipe and the missing key. This is deliberate: a Recipe bound to components whose label sets differ still renders, and the discrepancy is surfaced rather than halted on.
+
+**Single-posture components — a convention, not a rule.** Promotion carries whatever value the component declares, and the compiler does not interpret that value. A component whose identity label holds a placeholder standing in for "varies" therefore promotes that placeholder onto every object rendered for it. Where a component genuinely has more than one posture, the standard-library catalog convention is to express the trait as a literal `outputLabels` entry on each Recipe that realizes it, or to stamp nothing at all. That is a catalog convention upheld by its authors, not a constraint the compiler enforces.
+
 ## The `locals:` block
 
 `Recipe.spec.locals:` is the **Private Ops State** — a map of named Go template strings whose rendered output exposes a `.locals.*` map to the Recipe's later templates. It is the workspace for computing physical realities (target containers, JSON paths, derived hostnames) once and reusing them across `provides:`, `source:`, `valuesMapping:`, `workload:`, `artifacts:`, `assertions:`, and `pipeline[].with` payloads without recomputation.
