@@ -42,6 +42,11 @@ operator sizes the module's internal components in the Release.
   backend, its user and database) are piped into the consumer and composed into
   connection strings and service URLs. The compiler routes the strings without
   interpreting them.
+- **Per-connection configuration on an edge.** The core, the registry, and the
+  job service share one cache, and each keeps its keys in a distinct Redis
+  logical database. The index is a property of neither component but of the
+  connection between them, so each of the three edges carries its own `values`
+  block naming it.
 - **File configuration delivered as mounted ConfigMaps.** The core, the
   registry, the portal, and the job service each read a configuration file from
   a ConfigMap the Recipe emits and mounts whole-directory — the core's beego
@@ -104,6 +109,95 @@ volume mounted at `/storage`, plus a ClusterIP Service and a headless Service.
 The PostgreSQL backend renders as a StatefulSet with a persistent volume; the
 portal and the job service render as stateless Deployments, the job service
 with a scratch log volume.
+
+## Per-connection configuration: three services, one cache
+
+The core, the distribution registry, and the job service all connect to the
+single Redis-compatible cache. Each keeps its keys in a distinct Redis logical
+database, so the three share one cache without their keyspaces colliding.
+
+The database index belongs to neither end on its own. The cache is one component
+with one set of values, so a value declared there would be a single answer for
+all three consumers. A value declared on each consumer would describe the
+consumer rather than the connection, and would have nothing to say if a consumer
+wired a second cache. What varies here is the connection — and a `uses` edge is
+where a connection is configured.
+
+That is the distinction between the two `values` blocks an author writes. A
+component's `values` block configures the component: what it is, whatever it
+connects to. An edge's `values` block configures one connection: what this
+consumer asks of this target, on this edge alone. Because there is one block per
+edge, three edges express three answers. The job service's edge carries two:
+
+```yaml
+    jobservice:
+      type: core/devtool/harbor-jobservice
+      uses:
+        cache:
+          redis:
+            target: cache
+            values:
+              db_index: 2
+              key_namespace: harbor_job_service_namespace
+            inject:
+              env:
+                - { in: HARBOR_REDIS_HOST, from: host }
+                - { in: HARBOR_REDIS_PORT, from: port }
+```
+
+The core and the registry each carry a `values` block on their own `cache` edge
+too, naming `db_index: 0` and `db_index: 1`. Each consuming component declares
+its `cache` socket with a per-edge contract for `db_index` — an integer from 0
+to 15 — so every edge's value is checked against that contract when the stack is
+compiled. An index outside the range halts the build, naming the edge that
+carries it.
+
+Each consumer's Recipe reads its own edge's value and composes it into the
+configuration that consumer emits, so the three rendered artifacts name three
+different databases:
+
+`dist/app/helm/harbor.core-deployment.yaml`
+
+```yaml
+            - name: _REDIS_URL_CORE
+              value: redis://harbor.cache-default:6379/0
+```
+
+`dist/app/helm/harbor-registry-config.yaml`
+
+```yaml
+    redis:
+      addr: "harbor.cache-default:6379"
+      db: 1
+```
+
+`dist/app/helm/harbor-jobservice-config.yaml`
+
+```yaml
+      redis_pool:
+        redis_url: "redis://harbor.cache-default:6379/2"
+        namespace: "harbor_job_service_namespace"
+```
+
+The host and port in each of these arrive from the cache's `provides` over the
+same edge; the database index and the key namespace come from that edge's own
+`values` block. The compiler composes neither string — each Recipe assembles the
+form its own component expects, and the compiler routes the parts without
+interpreting them.
+
+**Per-connection configuration reaches only the consumer that authored it.** An
+edge's `values` block lands in the render context of the component at the
+consuming end, never the target's. The cache's own artifacts —
+`harbor.cache-deployment.yaml` and `harbor.cache-default-service.yaml` — carry no
+trace of any of it, and stay byte-for-byte identical whatever the three services
+ask for: move all three indices and the cache's manifests do not change, while
+each consumer's configuration follows its own edge. A shared target renders
+identically regardless of its consumers, which is what makes it safe to share.
+
+The per-edge contract a socket declares — `valueSchema` for the developer's
+`values` and `infraSchema` for the operator's `infra` — is specified in
+[entities/component.md](../../entities/component.md) "Per-edge connection
+contracts".
 
 ## What this module does not include
 
