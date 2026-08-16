@@ -76,6 +76,26 @@ The producer stack always publishes the `Export`, even when a particular consume
 
 > **Version note.** `Fn::GetStackOutput` is a native CloudFormation intrinsic, available since May 2026. A cross-account reference rendered with it requires CloudFormation tooling that recognizes the intrinsic; older tooling may not. The same-account path uses `Fn::ImportValue`, which is universally available.
 
+### How an export name is built
+
+The four parts are joined with a **double hyphen**, and each part is written into the letters, digits and hyphens an export name is made of. A letter or digit is carried through as written, and so is a hyphen inside a part — `payments-db` stays `payments-db`. Any other character is written as a short escape opening with `-z`: a slash as `-zs`, an underscore as `-zu`, a dot as `-zd`. A part with no value at all is written `-ze`. A stack name is built the same way from the release and the boundary.
+
+So the export publishing `host` from component `db`, in boundary `dist/stack-a/cloudformation` of release `orders`, is:
+
+```
+aggrega--orders--dist-zsstack-a-zscloudformation--db--host
+```
+
+Reading it back is unambiguous, and that is the point rather than a nicety: because a part never contains two hyphens in a row and never ends with one, the double hyphens are always the joins. Two different sets of parts therefore always produce two different names. `payments-db` and `payments_db` reach two separate exports rather than converging on one, and a hyphen at the edge of one part cannot be read as belonging to its neighbour.
+
+### What an export name is unique against, and where that stops
+
+Within one build, an export name identifies exactly one release, boundary, component and provided key — no two of them converge on a single name, so a build cannot lose one exported value behind another.
+
+CloudFormation additionally requires an export name to be unique across everything already deployed into the account and region the stack lands in. That is a property of the deployment rather than of the build, and it sits beyond what any build-time derivation can reach: the compiler does not authenticate against AWS, does not query it, and cannot read the output of another build, so nothing computed ahead of time can observe what is already deployed there.
+
+What carries the distinction across that line is the release identity leading every export and stack name. Two deployments that share an account and region keep their exports apart by being released under different names — which is the lever you hold, and the reason the release identity leads the name rather than trailing it.
+
 ## Deployment ordering
 
 A Release boundary's `syncWave:` value does not order an assembled stack. The wave is a deployment-ordering hint that Kubernetes tooling reads from an annotation on each rendered resource; a CloudFormation template has no equivalent surface, and the provider does not read the value at all — no `DependsOn`, and no other part of the emitted template, is derived from it.

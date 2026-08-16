@@ -169,7 +169,7 @@ A provider guest usually derives names its output needs but nobody authored — 
   "files": [ { "path": "stack.yaml", "content": "..." } ],
   "derived_keys": {
     "logical-ids": ["paymentsapiQueue", "paymentsapiTopic"],
-    "export-names": ["aggrega-prod-api-orders-db-host"]
+    "export-names": ["aggrega--prod--api--orders-db--host"]
   }
 }
 ```
