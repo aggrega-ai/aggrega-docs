@@ -507,7 +507,9 @@ Emitted message:
 The developer wrote a component-level `inject:` block, but the Component catalog entity does not declare `spec.inject`. Components without a `spec.inject` allowlist are Black-Box types — they receive no developer-authored injection.
 
 Emitted message:
-> component type `<component-type>` has no spec.inject allowlist (Black-Box pattern) — self-inject is not allowed.
+> self-inject on component without spec.inject allowlist (`"inject"`, `"<component-type>"`)
+
+The report is positioned at the `inject:` block itself, which is the element to remove.
 
 **How to fix:** remove the `inject:` block from this Component instance, or switch to a White-Box Component type whose catalog declaration includes `spec.inject`.
 
@@ -518,7 +520,9 @@ Emitted message:
 The developer wrote a component-level `inject:` block using a mechanism (for example, `env` or a specific file-mount form) that is not listed in the Component's `spec.inject` allowlist.
 
 Emitted message:
-> mechanism `<mechanism>` not in component type `<component-type>` spec.inject allowlist `[<mechanism-1>, <mechanism-2>, ...]`.
+> self-inject on component without spec.inject allowlist (`"<component-type>"`, `"<mechanism>"`, `"<allowlisted-mechanism-1>"`, `"<allowlisted-mechanism-2>"`, ...)
+
+The mechanisms the type does allow follow the one that was dictated, so the message carries both what was written and what the type permits. A type declaring no allowlist at all reports the dictated mechanism with nothing after it.
 
 **How to fix:** switch to an allowlisted mechanism, or, if the Component should support the mechanism you need, extend its catalog `spec.inject` allowlist.
 
