@@ -13,13 +13,13 @@ For fatal compilation halts (the diagnostics that stop a build), see [fatal-halt
 **Emit shape:**
 
 ```text
-LINT: Component 'core/web-server' at ./catalog/component/core/web-server.yaml declares property 'storage_size' in both values: and infra: pillars (path: spec.schema)
+LINT: Component "core/web-server" at ./catalog/component/core/web-server.yaml declares property "storage_size" in both values: and infra: pillars (path: spec.schema)
 ```
 
 For nested properties, the warning includes the dotted path:
 
 ```text
-LINT: Feature 'core/db-pool' at ./catalog/feature/core/db-pool.yaml declares property 'connection.timeout' in both values: and infra: pillars (path: spec.schema.connection)
+LINT: Feature "core/db-pool" at ./catalog/feature/core/db-pool.yaml declares property "connection.timeout" in both values: and infra: pillars (path: spec.schema.connection)
 ```
 
 **Soft-skip discipline.** The walker terminates without warning when a schema branch carries one of the JSON Schema 2020-12 escape hatches that prevent statically-derivable property sets: `$ref` (cross-document or in-document references), `patternProperties` (key-shape-based property declarations), and the composition operators `oneOf` / `anyOf` / `allOf` (disjunctions and conjunctions whose branches may declare divergent property sets). Walking these branches would either require evaluating the referenced or composed schema at lint time (a class of work the lint does not perform) or produce false positives when one branch's `values:` property name happens to collide with another branch's `infra:` property name. The lint emits no warning for the affected nesting depth; deeper levels of the same schema are still walked and lintable.
@@ -35,7 +35,7 @@ LINT: Feature 'core/db-pool' at ./catalog/feature/core/db-pool.yaml declares pro
 **Emit shape:**
 
 ```text
-LINT: Manifest annotation binding 'compliance.aggrega.ai/data-class' on Feature 'core/data-masking' declares path 'classifier_endpoint' in both Maps.Infra and Maps.Values; the runtime deterministically routes this subkey through the infra pillar, making it Aggregate-inaccessible (side-vs-pillar enforcement halts the Aggregate side at expansion time)
+  LINT: Manifest annotation binding "compliance.aggrega.ai/data-class" on Feature "core/data-masking" declares path "classifier_endpoint" in both Maps.Infra and Maps.Values; the runtime deterministically routes this subkey through the infra pillar, making it Aggregate-inaccessible (side-vs-pillar enforcement halts the Aggregate side at expansion time)
 ```
 
 **Deterministic tie-break.** The runtime resolves the collision by routing the path through the `infra:` pillar exclusively. The choice is consistent across builds; the author can rely on it. The `values:` side is silently dropped from the binding's effective routing — Aggregate-side annotations attempting to reach the path receive no routing target and the side-vs-pillar enforcement at expansion time halts the Aggregate side with a clear error. The lint is the early warning surface; the fatal-halt at expansion time is the runtime enforcement surface.
@@ -53,7 +53,7 @@ LINT: Manifest annotation binding 'compliance.aggrega.ai/data-class' on Feature 
 **Emit shape:**
 
 ```text
-LINT: Aggregate 'nearmiss' at .spec.components["db"].features["app_user_passwrod"]: attachment "app_user_passwrod" on component "db" is not a declared slot of type "core/datastore/postgres", but the type declares the slot "app_user_password" — if "app_user_password" was meant, the attachment is currently a free attachment and does not fill it
+  lint: Aggregate nearmiss at .spec.components["db"].features["app_user_passwrod"]: attachment "app_user_passwrod" on component "db" is not a declared slot of type "core/datastore/postgres", but the type declares the slot "app_user_password" — if "app_user_password" was meant, the attachment is currently a free attachment and does not fill it
 ```
 
 **Editor visibility.** The warning also reaches editor diagnostics through the language server, at warning severity, positioned on the offending authoring site. An author who never reads terminal output still sees the pair.
@@ -83,6 +83,32 @@ LINT: Aggregate 'nearmiss' at .spec.components["db"].features["app_user_passwrod
 **Threshold and its trade-off.** The lint pairs names only at one edit's distance, and only when both names are at least four characters long — the same bound the attachment-slot near-miss lint uses, for the same reason. Below that length nearly every short name sits within one edit of every other, so pairing them would produce noise rather than signal; above one edit the pairs stop resembling typos. A transposition counts as one edit rather than two, because a swapped pair of characters is the commonest slip and a stricter count would miss it.
 
 **Authoring note.** The lint is advisory and never changes the build's verdict — the compiler does not police what an author names a socket. An author who deliberately draws an ad-hoc connection under a name that resembles a declared socket (a `cache` connection alongside a declared `caches` socket, meant for something else) can ignore the warning; the edge behaves exactly as authored. There is no flag to suppress it, and none is needed: it carries no verdict weight.
+
+## Undeclared-provides-key lint
+
+**Fires when** the Recipe bound to a component instance publishes a key under its `provides:` that the instance's Component type does not declare in its `spec.schema.provides:` contract.
+
+**Why it exists.** Publishing more than the Component declares is legal and stays legal: the `provides` contract is subset-required and superset-permitted, so a Recipe that covers its Component's contract and emits extra keys besides is a Recipe that fulfils it. What the lint names is a consequence that is otherwise invisible from either side. A consumer reading across a `uses:` edge sees the target's **declared** contract rather than whatever the target's Recipe happens to emit — that is what keeps Recipes interchangeable, since two Recipes realizing one Component then present the same surface to a consumer, and swapping them cannot silently withdraw a key a consumer had come to depend on. So an undeclared key is not delivered across the edge, and a consuming template that reads it renders an empty value rather than failing.
+
+The finding is stated at its cause — on the Recipe that published the key — because that is where it can be named. At the consumer the key is a template reference the compiler cannot attribute to a particular target, and a diagnostic that guessed would be worse than none. So the two are deliberately not co-located: the empty value appears at the consumer, the explanation here, and both appear in the same build output.
+
+**Which pairing is compared.** The bound Recipe's authored `provides:` keys against the Component type's declared `spec.schema.provides:` keys. That declared set is the same one a `from:` key inside an `inject:` block is checked against, so the two agree on what a Component declares. The comparison is exact rather than a resemblance test, so unlike the two near-miss lints above it has no threshold and pairs no names.
+
+The Recipe compared is the one the instance is actually bound to, matched by the same instance name and catalog type the rendering binds by, so a per-instance Recipe override in the Manifest is honoured rather than averaged away. A component instance whose type resolves to no catalog Component is skipped: no declaration was read, which is not the same as a declaration of nothing.
+
+**Pipeline placement.** The lint runs at resolution, in the same pass as the catalog-aware semantic guards, over the resolved Aggregate — before rendering, so it surfaces from `aggrega validate --release` as well as from `aggrega build`. Components declared at the Aggregate's root and components nested in subsystems are both covered. A component that arrives from a sub-aggregate is not covered: its inner components are folded into the graph after this pass runs, so such a component's undeclared key is still withheld from consumers but no advisory names it.
+
+**Emit shape.** One line per Recipe, Component and key, naming the Recipe that published the key and the Component that does not declare it:
+
+```text
+  lint: Aggregate model-api-key-sharing-shared at .spec.subsystems.model.components["gateway"].type: Recipe "openai-compatible" publishes provides key "provider", which Component "core/ai-model/openai-compatible" does not declare in its schema.provides contract — a consumer across a uses edge reads the declared contract, so this key is not delivered and a template reading it renders empty; declare the key on the Component if consumers are meant to read it, or move it to the Recipe's locals if it is the Recipe's own working state
+```
+
+The finding belongs to that triple rather than to an instance, so ten instances of one Component type raise one line rather than ten, and the locator names the first instance in walk order that carries it. Instances are walked in instance-name order and each Recipe's undeclared keys are reported in sorted order, so the same input produces the same advisory sequence on every run.
+
+**Editor visibility.** The advisory also reaches editor diagnostics through the language server, at warning severity, positioned on the component instance whose `type:` binds the Recipe. An author who never reads terminal output still sees it.
+
+**Authoring note.** The lint is advisory and never changes the build's verdict — a Recipe publishing more than its Component declares still builds. The fix is one of two, and which one is right is the author's call: declare the key on the Component when consumers are meant to read it, or leave it undeclared when it is the Recipe's own working state, in which case `locals:` is where such state belongs. The opposite case is not advisory: a Component declaring a key its Recipe does not publish leaves the contract unfulfilled and halts the build.
 
 ## Ghost Infrastructure Tracker warnings
 
