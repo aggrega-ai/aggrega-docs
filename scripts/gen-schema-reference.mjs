@@ -125,6 +125,109 @@ function refName(ref) {
   return ref.split("/").pop();
 }
 
+// Splits a reference into the document it addresses and its JSON Pointer
+// fragment. An empty document part means the reference stays inside the
+// schema that carries it.
+function splitRef(ref) {
+  const hash = ref.indexOf("#");
+  if (hash < 0) return { doc: ref, pointer: "" };
+  return { doc: ref.slice(0, hash), pointer: ref.slice(hash + 1) };
+}
+
+// Whether a reference supplies a usable type NAME, which is what decides
+// whether the reference can be rendered as-is or has to be followed.
+//
+// The last path segment of a reference is only a type name when the reference
+// addresses a named thing: a definition, which this reference documents once
+// in its schema's own Definitions section, or a whole schema, which has its own
+// generated page. A fragment ending in a property, by contrast, addresses a
+// LOCATION — its last segment is the name of a field, not of a type — so
+// rendering it in the Type column presents the reader with an identifier that
+// matches nothing they can write. Those references are followed instead, and
+// the value they point at is described in their place.
+function refNamesAType(ref) {
+  const { pointer } = splitRef(ref);
+  if (pointer === "") return true;
+  const segments = pointer.split("/").filter((segment) => segment.length > 0);
+  if (segments.length < 2) return true;
+  const parent = segments[segments.length - 2];
+  return parent === "$defs" || parent === "definitions";
+}
+
+// Resolves a reference's document part to the absolute schema id it addresses.
+// Relative references resolve against the referring schema's own id, which is
+// how a reference such as `other-v1alpha1.schema.json#/properties/x` finds its
+// target regardless of which schema carries it.
+function absoluteDocumentId(ref, baseId) {
+  const { doc } = splitRef(ref);
+  if (doc === "") return baseId;
+  if (!baseId) return null;
+  return new URL(doc, baseId).href;
+}
+
+// Walks a JSON Pointer into a document, per RFC 6901 escaping. Returns
+// undefined when any step is missing, which the caller reports as a broken
+// reference rather than rendering something wrong.
+function resolvePointer(doc, pointer) {
+  if (pointer === "") return doc;
+  let node = doc;
+  for (const raw of pointer.split("/").slice(1)) {
+    if (node === null || typeof node !== "object") return undefined;
+    const token = raw.replace(/~1/g, "/").replace(/~0/g, "~");
+    node = Array.isArray(node) ? node[Number(token)] : node[token];
+    if (node === undefined) return undefined;
+  }
+  return node;
+}
+
+// Replaces every reference that does not name a type with the value it points
+// at, so the renderer downstream sees a plain subschema and needs to know
+// nothing about references. Doing this once, here, is what keeps the type
+// label and the allowed-values line in agreement: both are derived from the
+// same resolved node rather than from two separate lookups that could diverge.
+//
+// Keys written at the referring site win over the target's, so a field keeps
+// the description written for it while gaining the target's type and value
+// set. The returned structure is new; the input is never mutated.
+function inlineUnnamedRefs(node, baseId, registry, seen = new Set()) {
+  if (Array.isArray(node)) {
+    return node.map((item) => inlineUnnamedRefs(item, baseId, registry, seen));
+  }
+  if (!node || typeof node !== "object") return node;
+
+  if (typeof node.$ref === "string" && !refNamesAType(node.$ref)) {
+    const documentId = absoluteDocumentId(node.$ref, baseId);
+    if (!documentId) {
+      console.error(`Cannot resolve ${node.$ref}: the referring schema declares no $id.`);
+      process.exit(1);
+    }
+    const absolute = `${documentId}#${splitRef(node.$ref).pointer}`;
+    if (seen.has(absolute)) {
+      console.error(`Reference cycle while resolving ${absolute}.`);
+      process.exit(1);
+    }
+    const document = registry.get(documentId);
+    if (!document) {
+      console.error(`Cannot resolve ${node.$ref}: no schema is published with id ${documentId}.`);
+      process.exit(1);
+    }
+    const target = resolvePointer(document, splitRef(node.$ref).pointer);
+    if (target === undefined || target === null || typeof target !== "object") {
+      console.error(`Cannot resolve ${node.$ref}: it points at nothing in ${documentId}.`);
+      process.exit(1);
+    }
+    const { $ref: _followed, ...written } = node;
+    const resolved = inlineUnnamedRefs(target, documentId, registry, new Set(seen).add(absolute));
+    return { ...resolved, ...written };
+  }
+
+  const out = {};
+  for (const [key, value] of Object.entries(node)) {
+    out[key] = inlineUnnamedRefs(value, baseId, registry, seen);
+  }
+  return out;
+}
+
 // A short human type label for one subschema, suitable for a table cell.
 function describeType(schema) {
   if (!schema || typeof schema !== "object") return "any";
@@ -313,12 +416,24 @@ function main() {
     process.exit(1);
   }
 
+  // Read every schema before rendering any page. A schema may reference one
+  // that sorts after it, so resolving references while rendering page by page
+  // would depend on the order the kinds happen to come back in.
+  const sources = new Map();
+  const registry = new Map();
+  for (const kind of kinds) {
+    const schema = getSchema(kind);
+    sources.set(kind, schema);
+    if (schema.$id) registry.set(schema.$id, schema);
+  }
+
   rmSync(SCHEMA_DIR, { recursive: true, force: true });
   mkdirSync(SCHEMA_DIR, { recursive: true });
 
   const byGroup = { entities: [], plugins: [], other: [] };
   for (const kind of kinds) {
-    const schema = getSchema(kind);
+    const source = sources.get(kind);
+    const schema = inlineUnnamedRefs(source, source.$id, registry);
     const group = groupFor(kind);
     const page = renderPage(kind, schema);
     const groupDir = join(SCHEMA_DIR, group);

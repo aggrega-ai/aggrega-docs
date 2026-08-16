@@ -72,6 +72,6 @@ The parse-source host function's reply: on success the canonical structured tree
 | --- | --- | --- | --- |
 | `tree` | any | no | The canonical structured tree the resolved parser produced on success, as a JSON document carried verbatim; absent on failure. |
 | `error` | string | no | The failure message on failure, naming the format and the reason; absent on success. |
-| `error_code` | string | no | The machine-matchable failure identity on failure, from the closed host-function error-code catalog, set beside the human error message; absent on success. A guest branches on this code without parsing the message, tolerating an absent code (older host) or an unrecognized one (newer host) by falling back to the message. |
+| `error_code` | string (enum) | no | The machine-matchable failure identity on failure, from the closed host-function error-code catalog, set beside the human error message; absent on success. A guest branches on this code without parsing the message, tolerating an absent code (older host) or an unrecognized one (newer host) by falling back to the message. Allowed values: `"fetch_request_unreadable"`, `"fetch_input_unavailable"`, `"fetch_failed"`, `"request_unreadable"`, `"request_undecodable"`, `"source_root_unavailable"`, `"source_read_failed"`, `"unknown_selection_op"`, `"source_escape"`, `"producer_consumption_reentry"`, `"no_source_parser"`, `"no_parser_for_format"`, `"parse_failed"` |
 
 _Additional properties are not permitted._

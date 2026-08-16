@@ -186,7 +186,7 @@ The pack-source host function's reply: on success the packed source, on failure 
 | --- | --- | --- | --- |
 | `source_projection` | SourceProjection | no | The packed source on success; absent on failure. |
 | `error` | string | no | The failure message on failure, naming the selection and the reason; absent on success. |
-| `error_code` | string | no | The machine-matchable failure identity on failure, from the closed host-function error-code catalog, set beside the human error message; absent on success. A guest branches on this code without parsing the message, tolerating an absent code (older host) or an unrecognized one (newer host) by falling back to the message. |
+| `error_code` | string (enum) | no | The machine-matchable failure identity on failure, from the closed host-function error-code catalog, set beside the human error message; absent on success. A guest branches on this code without parsing the message, tolerating an absent code (older host) or an unrecognized one (newer host) by falling back to the message. Allowed values: `"fetch_request_unreadable"`, `"fetch_input_unavailable"`, `"fetch_failed"`, `"request_unreadable"`, `"request_undecodable"`, `"source_root_unavailable"`, `"source_read_failed"`, `"unknown_selection_op"`, `"source_escape"`, `"producer_consumption_reentry"`, `"no_source_parser"`, `"no_parser_for_format"`, `"parse_failed"` |
 
 _Additional properties are not permitted._
 
@@ -208,7 +208,7 @@ The read-source-file host function's reply: on success the file's bytes, on fail
 | --- | --- | --- | --- |
 | `content` | string | no | The file's raw bytes on success; absent on failure (base64 on the JSON wire). |
 | `error` | string | no | The failure message on failure, naming the file and the reason; absent on success. |
-| `error_code` | string | no | The machine-matchable failure identity on failure, from the closed host-function error-code catalog, set beside the human error message; absent on success. A guest branches on this code without parsing the message, tolerating an absent code (older host) or an unrecognized one (newer host) by falling back to the message. |
+| `error_code` | string (enum) | no | The machine-matchable failure identity on failure, from the closed host-function error-code catalog, set beside the human error message; absent on success. A guest branches on this code without parsing the message, tolerating an absent code (older host) or an unrecognized one (newer host) by falling back to the message. Allowed values: `"fetch_request_unreadable"`, `"fetch_input_unavailable"`, `"fetch_failed"`, `"request_unreadable"`, `"request_undecodable"`, `"source_root_unavailable"`, `"source_read_failed"`, `"unknown_selection_op"`, `"source_escape"`, `"producer_consumption_reentry"`, `"no_source_parser"`, `"no_parser_for_format"`, `"parse_failed"` |
 
 _Additional properties are not permitted._
 
@@ -220,7 +220,7 @@ The fetch-external-input host function's reply: on success the fetched content, 
 | --- | --- | --- | --- |
 | `content` | string | no | The fetched content on success (base64 on the JSON wire); absent on failure. A pointer so a zero-length payload still emits the content key and stays distinguishable from a failure. |
 | `error` | string | no | The failure message on failure, naming the URL and the remedy; absent on success. |
-| `error_code` | string | no | The machine-matchable failure identity on failure, from the closed host-function error-code catalog, set beside the human error message; absent on success. A guest branches on this code without parsing the message, tolerating an absent code (older host) or an unrecognized one (newer host) by falling back to the message. |
+| `error_code` | string (enum) | no | The machine-matchable failure identity on failure, from the closed host-function error-code catalog, set beside the human error message; absent on success. A guest branches on this code without parsing the message, tolerating an absent code (older host) or an unrecognized one (newer host) by falling back to the message. Allowed values: `"fetch_request_unreadable"`, `"fetch_input_unavailable"`, `"fetch_failed"`, `"request_unreadable"`, `"request_undecodable"`, `"source_root_unavailable"`, `"source_read_failed"`, `"unknown_selection_op"`, `"source_escape"`, `"producer_consumption_reentry"`, `"no_source_parser"`, `"no_parser_for_format"`, `"parse_failed"` |
 
 _Additional properties are not permitted._
 
