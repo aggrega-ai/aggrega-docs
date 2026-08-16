@@ -24,13 +24,12 @@ The JSON wire shapes a Provider render plugin socket consumes and emits. A Provi
 
 ### `RenderNodeInput`
 
-The payload a Provider guest receives on its render_node export: the per-node IR projection the guest renders, the render-time context, and an optional pre-packaged catalog projection. When the catalog projection is present the guest renders from the payload alone and needs no host round-trips for catalog content; when it is omitted the guest fetches catalog entries through the read-only host functions bound at load time.
+The payload a Provider guest receives on its render_node export: the per-node IR projection the guest renders, the render-time context, and the pre-evaluated inputs the node's bound Recipe declares — an acquired-source listing, a workload, an artifact set — each present only when that Recipe declares it.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `node` | IRNodeProjection | yes |  |
 | `context` | object | yes | The render-time context the host hands the guest. The guest reads it to resolve parameters, annotations, and boundary metadata; the schema does not interpret its internal shape (an opaque passthrough), so the provider socket schema does not rebind the cross-boundary render-context shape. The render context's own contract is the render-context wire shape; a guest that reads it consults that contract. |
-| `catalog_projection` | CatalogProjection | no | The pre-packaged catalog content the guest renders against when the host supplies catalog entries in the payload rather than behind host functions. Absent when the guest fetches catalog entries through the read-only host functions instead. |
 | `source_listing` | SourceListing | no | The generic enumeration of the acquired source the host hands the guest for a sourced provider: the source root, whether that root is a directory, and the sorted root-relative entries under it. The host reads no file content here — it lists names only. The guest applies its own resolution logic over the listing and asks the host to pack a chosen selection through the pack-source host function, so all per-provider source-resolution intelligence lives in the guest. Present for sourced providers; absent otherwise. |
 | `workload_projection` | WorkloadProjection | no | The pre-evaluated workload the host hands the guest to synthesize provider-native manifests from; present when the bound Recipe declares a workload rather than a chart source, absent otherwise. |
 | `artifacts_projection` | ArtifactsProjection | no | The pre-evaluated artifact set the host hands the guest to place into the node's output, present when the bound Recipe declares artifacts. The host has already read each entry's source, evaluated it as a Go template against the render context, and computed the build-provenance key sets; the guest decides the output format, the provenance placement, the on-disk path, and the final bytes. Absent when the node declares no artifacts. |
@@ -70,20 +69,6 @@ The build-identity provenance for one node — the compiler, aggregate, and envi
 | `environment` | string | no | The environment name, stamped as the aggrega.ai/environment label when non-empty. |
 | `provider_name` | string | no | The bare provider kind, stamped as the aggrega.ai/provider label when non-empty. |
 | `provider_version` | string | no | The resolved provider-rendering plugin version, stamped as the aggrega.ai/provider-version label when non-empty. |
-
-_Additional properties are not permitted._
-
-### `CatalogProjection`
-
-The pre-packaged catalog content a Provider guest renders against when the host supplies catalog entries in the payload rather than behind host functions. It is a closure walk outward from the IR node: only the catalog entries transitively referenced by the node being rendered are included, not the whole catalog. Each map is keyed by catalog URI and preserves key order so the payload is byte-identical across runs of identical input. Opaque at this schema layer; the guest reads each entry through the catalog entity's own wire contract.
-
-| Property | Type | Required | Description |
-| --- | --- | --- | --- |
-| `components` | object | no | The Component entries the node transitively references, keyed by catalog URI. |
-| `features` | object | no | The Feature entries the node transitively references, keyed by catalog URI. |
-| `recipes` | object | no | The Recipe entries the node transitively references, keyed by catalog URI. |
-| `feature_recipes` | object | no | The FeatureRecipe entries the node transitively references, keyed by catalog URI. |
-| `mapping_libraries` | object | no | The MappingLibrary entries the node transitively references, keyed by catalog URI. |
 
 _Additional properties are not permitted._
 
