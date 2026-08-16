@@ -313,6 +313,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrFeatureRecipeRule1()` | `featurerecipe rule 1: valuesMapping requires source` |
 | `ErrInheritanceMerge()` | `inheritance merge failed: resolve the conflicting field definitions across the extends chain` |
 | `ErrRecipeEvalProviderConstraint()` | `recipe eval-provider constraint: input-kind fields are forbidden when provider is eval` |
+| `ErrRecipeOutputComponentLabelCollision()` | `recipe output-component-labels constraint: key is also declared in outputLabels` |
 | `ErrRecipeOutputLabelReservedNamespace()` | `recipe output-labels constraint: key uses a reserved namespace` |
 | `ErrRecipeRule1()` | `recipe rule 1: valuesMapping requires source` |
 | `ErrRecipeRule5()` | `recipe rule 5: at least one input kind required` |
