@@ -199,7 +199,7 @@ The `.infra` pillar on a boundary-scope FR resolves to the **boundary-attached f
 
 ### Boundary-scope template field allowlist
 
-Boundary-scope FRs may only reference fields available in the boundary-scope view. Authoring a template that references a per-component-only field (e.g., `.context.instance_id`, `.context.inject`, `.context.uses`) when `executionScope: boundary` causes the FeatureRecipe to fail validation at parse time with an `FR_TEMPLATE_INVALID_FIELD` error naming the FR, the offending field, and the alternative fields available in the boundary-scope view. The mirror rule applies in the other direction: a component-scope FR that references `.boundary.*` fields fails the same validator.
+Boundary-scope FRs may only reference fields available in the boundary-scope view. Authoring a template that references a per-component-only field (e.g., `.context.instance_id`, `.context.inject`, `.context.uses`) when `executionScope: boundary` causes the FeatureRecipe to fail validation at parse time with an error naming the FR, the offending field, and the alternative fields available in the boundary-scope view. The mirror rule applies in the other direction: a component-scope FR that references `.boundary.*` fields fails the same validator.
 
 The validator runs the same template-AST walk that the path-template variable allowlist uses, with a different reference set per scope.
 

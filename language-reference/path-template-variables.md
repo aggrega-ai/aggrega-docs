@@ -12,7 +12,7 @@ The strictness is asymmetric with the rest of the compiler — `valuesMapping`, 
 
 ## Parse-time allowlist validation
 
-In addition to runtime strictness, path templates are validated at **parse time** against a closed allowlist of variable names. A reference to a variable name not in the allowlist raises `PATH_TEMPLATE_INVALID_FIELD` before any rendering work begins, with a diagnostic naming the offending field and the boundary it appears on.
+In addition to runtime strictness, path templates are validated at **parse time** against a closed allowlist of variable names. A reference to a variable name not in the allowlist halts the build before any rendering work begins, with a diagnostic naming the offending field and the boundary it appears on.
 
 The allowlist is closed by design: surfaces such as `.context.inject`, `.values`, and `.locals` are deliberately not exposed to path templates. Path emission is a structural concern, not a value-rendering concern; tying assembly paths to per-component values would make the path graph data-dependent and erode the deterministic-output invariant.
 
@@ -102,7 +102,7 @@ spec:
 
 Both child boundaries evaluate `directory:` to `deploy/cluster` (the parent's directory), so all contributors merge at one assembly path. With the default `subDirectory: "{{ .capability }}"`, the compose contributors from both children land in `deploy/cluster/compose/` and produce one merged `docker-compose.yaml`. The `compose-bridge` Feature attached at the parent runs once (boundary-scope dispatch) and contributes the bridge service to the same merged file.
 
-The parent's `aggrega.ai/chart-name: "cluster-umbrella"` annotation cascades to both children; if the boundaries also held helm-chart contributors, both children's helm-chart sub-charts would compose under one umbrella named `cluster-umbrella`. Mismatched chart-name values across contributors at one path raise `CHART_NAME_MISMATCH`.
+The parent's `aggrega.ai/chart-name: "cluster-umbrella"` annotation cascades to both children; if the boundaries also held helm-chart contributors, both children's helm-chart sub-charts would compose under one umbrella named `cluster-umbrella`. Mismatched chart-name values across contributors at one path halt the build.
 
 ### Layout 3 — per-component routing via `subDirectory:` plus parameters
 
@@ -134,13 +134,13 @@ This pattern fits enterprises that want per-component artifact directories for d
 
 ## Diagnostics
 
-The path-template surface produces five distinct fatal halts, each documented in [errors/fatal-halts.md](errors/fatal-halts.md):
+The path-template surface halts the build in each of the following situations, and [errors/fatal-halts.md](errors/fatal-halts.md) documents them under these names. That page quotes the message each halt emits; match build output against that text.
 
-- **`PATH_TEMPLATE_INVALID_FIELD`** — parse-time: a path template references a variable not in the allowlist.
-- **`PATH_COLLISION`** — assembly-time: two boundary contributors evaluate to the same path but disagree on a property that must be uniform across contributors at that path.
-- **`INSTANCE_ID_COLLISION`** — assembly-time: two boundaries that evaluate to the same `(path, provider)` tuple contribute components with identical instance IDs.
-- **`CHART_NAME_MISMATCH`** — assembly-time: a merged helm-chart assembly receives contributors with conflicting cascade-resolved `aggrega.ai/chart-name` annotations.
-- Generic missing-key: a path template references a field under an **open** variable that resolves to no value (e.g., `{{ .parameters.region }}` when the Release omits `region`, or a `.parent_boundary` key at a top-level boundary that has no parent); `missingkey=error` produces an explicit message naming the boundary, the template field (`directory:` vs `subDirectory:`), and the missing key. `.parameters` and `.parent_boundary` are open — their keys are authored data — while `.manifest` declares its keys, so a mistyped key under `.manifest` is refused at parse time as an unknown reference instead, with the diagnostic listing the keys `.manifest` defines.
+- **Path-template references a variable outside the allowlist** — parse-time: a path template references a variable not in the allowlist.
+- **Path collision** — assembly-time: two boundary contributors evaluate to the same path but disagree on a property that must be uniform across contributors at that path.
+- **Instance-ID collision** — assembly-time: two boundaries that evaluate to the same `(path, provider)` tuple contribute components with identical instance IDs.
+- **Chart-name mismatch** — assembly-time: a merged helm-chart assembly receives contributors with conflicting cascade-resolved `aggrega.ai/chart-name` annotations.
+- **Missing template key** — a path template references a field under an **open** variable that resolves to no value (e.g., `{{ .parameters.region }}` when the Release omits `region`, or a `.parent_boundary` key at a top-level boundary that has no parent); `missingkey=error` produces an explicit message naming the boundary, the template field (`directory:` vs `subDirectory:`), and the missing key. `.parameters` and `.parent_boundary` are open — their keys are authored data — while `.manifest` declares its keys, so a mistyped key under `.manifest` is refused at parse time as an unknown reference instead, with the diagnostic listing the keys `.manifest` defines.
 
 ## Cross-references
 
@@ -149,4 +149,4 @@ The path-template surface produces five distinct fatal halts, each documented in
 - [`providers/compose.md`](providers/compose.md) — compose-side per-`(path, provider)` output, including the merged-path scenario.
 - [`providers/helm-chart.md`](providers/helm-chart.md) — helm-chart umbrella composition and the chart-name cascade rule for merged paths.
 - [`entities/featurerecipe.md`](entities/featurerecipe.md) — boundary-scope FeatureRecipes (the compose-bridge proof case relies on the merged-path assembly model documented here).
-- [`errors/fatal-halts.md`](errors/fatal-halts.md) — full diagnostic catalogue including the five path-dispatch errors enumerated above.
+- [`errors/fatal-halts.md`](errors/fatal-halts.md) — full diagnostic catalogue including the path-dispatch halts enumerated above.

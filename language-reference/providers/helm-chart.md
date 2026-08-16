@@ -78,7 +78,7 @@ dependencies:
 
 ### Chart-name resolution
 
-The umbrella's chart `name` is resolved through the boundary annotation cascade. Each contributing boundary's effective `aggrega.ai/chart-name` annotation (the cascade-resolved value, walking up the boundary tree) determines the umbrella name. When the assembly path receives contributors from more than one boundary, every contributor's effective `aggrega.ai/chart-name` MUST resolve to the same value; mismatches raise `CHART_NAME_MISMATCH` and halt the build with a diagnostic naming the conflicting values and the contributing boundaries.
+The umbrella's chart `name` is resolved through the boundary annotation cascade. Each contributing boundary's effective `aggrega.ai/chart-name` annotation (the cascade-resolved value, walking up the boundary tree) determines the umbrella name. When the assembly path receives contributors from more than one boundary, every contributor's effective `aggrega.ai/chart-name` MUST resolve to the same value; mismatches halt the build with a diagnostic naming the conflicting values and the contributing boundaries.
 
 The cascade resolves the DRY tension naturally: declare `aggrega.ai/chart-name` once on the parent boundary and child boundaries inherit it through the cascade; sibling boundaries with no common parent must declare matching values explicitly. Boundaries with no `aggrega.ai/chart-name` declared anywhere in their cascade fall back to a sanitised concatenation of the aggregate name and the contributing boundary name (with `.` and `_` replaced by `-`), matching the legacy single-boundary shape.
 
