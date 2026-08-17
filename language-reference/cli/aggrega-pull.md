@@ -104,5 +104,5 @@ aggrega pull [<uri>...] [flags]
 | `--quiet` | `false` | Silence the pull-progress surface on stderr. Does not affect stdout. Takes precedence over --progress |
 | `--release` | — | Path to Release YAML file (required) |
 | `--upgrade` | `false` | Re-resolve dependencies from current registry state, floating each to the highest available version. Bare (no positional URIs) discards the lockfile and re-resolves every entity; with one or more entity URIs, re-resolves only those, holding all other pins and the recorded external inputs unchanged |
-| `--verify` | `false` | Verify the existing lockfile against the current dependency resolution without writing; exits non-zero on drift or missing lockfile |
+| `--verify` | `false` | Verify the existing lockfile against the current dependency resolution without writing; exits non-zero on drift or missing lockfile. Also reports the compiler and core-plugin versions the lockfile records — reported for audit and never compared against this binary, so a toolchain difference is never drift |
 <!-- END GENERATED: cli-pull -->
