@@ -646,7 +646,9 @@ This halt is distinct from "Template references a root the render context does n
 A `usesSchema` socket declares a `selector:` field that excludes the target Component attached at the other end of the edge. The selector is the catalog author's way of saying "this socket only accepts targets whose labels match this expression"; an edge that satisfies the socket-name lookup but fails the selector expression is a type-safety violation. The synthesized JSON Schema carries the selector as the `x-aggrega-selector:` extension keyword consumed by the native Go selector engine.
 
 Emitted message:
-> selector violation on edge `<source-id> --<socket>--> <target-id>`: target does not match selector `<selector-expression>`.
+> selector violation ("<selector-expression>", "<target-id>")
+
+The halt carries the authoring key it is about — the `uses:` socket entry on the consuming Component — alongside the file that declares it, so the position it reports is the entry you edit rather than the head of the document. A Component authored inside a subsystem is positioned at the subsystem it was authored under, level by level.
 
 **How to fix:** either route the `uses:` edge to a Component whose labels satisfy the selector, or adjust the selector expression in the catalog entity to accept the intended target class. Review the target Component's `metadata.labels` with `aggrega inspect` to confirm which labels it carries.
 
