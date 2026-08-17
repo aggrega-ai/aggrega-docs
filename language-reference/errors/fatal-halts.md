@@ -643,14 +643,27 @@ This halt is distinct from "Template references a root the render context does n
 
 <!-- covers: internal/compiler/analyzer.ErrSelectorViolation -->
 
-A `usesSchema` socket declares a `selector:` field that excludes the target Component attached at the other end of the edge. The selector is the catalog author's way of saying "this socket only accepts targets whose labels match this expression"; an edge that satisfies the socket-name lookup but fails the selector expression is a type-safety violation. The synthesized JSON Schema carries the selector as the `x-aggrega-selector:` extension keyword consumed by the native Go selector engine.
+One halt covers the two label expressions a catalog author writes to constrain what may be wired or attached, because both fail the same way: a label set that does not satisfy an expression a catalog entity declared.
+
+**A `uses:` edge whose target fails its socket's `selector:`.** A `usesSchema` socket declares a `selector:` field that excludes the target Component attached at the other end of the edge. The selector is the catalog author's way of saying "this socket only accepts targets whose labels match this expression"; an edge that satisfies the socket-name lookup but fails the selector expression is a type-safety violation. The synthesized JSON Schema carries the selector as the `x-aggrega-selector:` extension keyword consumed by the native Go selector engine.
 
 Emitted message:
 > selector violation ("<selector-expression>", "<target-id>")
 
-The halt carries the authoring key it is about — the `uses:` socket entry on the consuming Component — alongside the file that declares it, so the position it reports is the entry you edit rather than the head of the document. A Component authored inside a subsystem is positioned at the subsystem it was authored under, level by level.
+**An attachment whose component fails the Feature's `appliesTo:`.** A Feature declares which components it may attach to, on `appliesTo:` and on `appliesToAnyOf:`. The single expression's requirements hold together and the alternatives hold alternatively, any one of them being enough; both surfaces must hold, and a surface the Feature omits is satisfied by anything. An attachment whose component carries labels the Feature's declaration does not admit is the same class of violation as the edge case above.
 
-**How to fix:** either route the `uses:` edge to a Component whose labels satisfy the selector, or adjust the selector expression in the catalog entity to accept the intended target class. Review the target Component's `metadata.labels` with `aggrega inspect` to confirm which labels it carries.
+Emitted message:
+> selector violation ("<feature-type>", "<appliesTo-expression>")
+
+Either expression may also be written in a form the label grammar cannot read at all. That is reported as the same halt carrying a third value, the reason it could not be read — its presence is what tells an expression that could not be evaluated apart from one that was evaluated and came out false:
+
+> selector violation ("<feature-type>", "<appliesTo-expression>", "<why-it-could-not-be-read>")
+
+The halt carries the authoring key it is about — the `uses:` socket entry, or the `features:` entry naming the attachment — alongside the file that declares it, so the position it reports is the entry you edit rather than the head of the document. A Component authored inside a subsystem is positioned at the subsystem it was authored under, level by level.
+
+**How to fix an edge violation:** either route the `uses:` edge to a Component whose labels satisfy the selector, or adjust the selector expression in the catalog entity to accept the intended target class. Review the target Component's `metadata.labels` with `aggrega inspect` to confirm which labels it carries.
+
+**How to fix an attachment violation:** either attach the Feature to a component whose labels its declaration admits, or widen the Feature's `appliesTo:` — adding an alternative under `appliesToAnyOf:` where the Feature genuinely serves more than one component class. Where the component is meant to qualify and does not, the missing piece is usually a label: review it with `aggrega inspect` and add what the expression asks for on the Component's `metadata.labels`.
 
 ### Unknown provider
 
