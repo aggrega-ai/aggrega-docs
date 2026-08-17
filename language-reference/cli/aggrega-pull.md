@@ -31,6 +31,19 @@ If a pinned version's bytes in the registry no longer match the digest the lockf
 
 Pulled content is stored under `.aggrega/cache`, split into an `entities/` subtree for catalog entities and a `source-artifacts/` subtree for source artifacts. The cache is content-addressed, so identical version pins share storage across Releases. Each source-artifact slot holds the authoritative archive, a regenerated extraction, and a small metadata file; the extraction is regenerated on every read, so build output depends on the archive and the lockfile, not on the state of the extracted files.
 
+## Offline
+
+Under `offline: true` — or `AGGREGA_OFFLINE` in the environment — `aggrega pull` refuses network access. The refusal happens before any connection is attempted rather than as a timeout partway through a fetch, so an offline pull reaches no registry and no remote source.
+
+Resolution then draws only on what the machine already holds: the `catalog_dirs` search stack and the cache under `.aggrega/cache`. Against a catalog and cache that satisfy every reference, an offline pull completes normally and writes an ordinary lockfile. The lockfile records each dependency's URI, resolved version and digest, and never which of those places served the bytes — so an offline pull and an online pull that resolve the same versions write the same lockfile.
+
+**A reference an offline pull cannot satisfy locally halts it.** The entry is never skipped:
+
+- A catalog entity that resolves nowhere halts the pull, naming the reference and where it was referenced from, so both the missing dependency and the thing that asked for it are named.
+- A remote `source:` halts the pull, naming the source and telling you either to allow network access or to populate the cache from a connected environment.
+
+Offline is therefore a refusal to touch the network, not a reduced result: a pull resolves everything and writes a complete lockfile, or it stops. Nothing is pinned partially, so a lockfile that exists is one whose resolution completed — you never have to establish separately that the machine which produced it could reach every dependency it needed.
+
 ## Integration with `aggrega build`
 
 - **Verification.** `aggrega build` verifies every resolved dependency against the lockfile and halts on drift between the lockfile and the current catalog or registry state. Run `aggrega pull --upgrade --release <release>` to adopt the new state.
@@ -64,7 +77,7 @@ The goal across kinds is to let each kind's native tooling continue to own its a
 
 ## Environment variables
 
-The workspace settings pull reads can be overridden through the environment, above the committed config and below any flag: `AGGREGA_OFFLINE`, `AGGREGA_CATALOG_DIRS` (OS-path-list separated; supply absolute paths), `AGGREGA_ARTIFACT_CACHE_DIR`, `AGGREGA_DEFAULT_REGISTRY`, and `AGGREGA_SKIP_SIGNATURE_VERIFICATION` (loud — every pull logs a warning when verification is globally disabled). See [environment-variables.md](environment-variables.md) for the full list and the precedence model.
+The workspace settings pull reads can be overridden through the environment, above the committed config and below any flag: `AGGREGA_OFFLINE` (see [Offline](#offline)), `AGGREGA_CATALOG_DIRS` (OS-path-list separated; supply absolute paths), `AGGREGA_ARTIFACT_CACHE_DIR`, `AGGREGA_DEFAULT_REGISTRY`, and `AGGREGA_SKIP_SIGNATURE_VERIFICATION` (loud — every pull logs a warning when verification is globally disabled). See [environment-variables.md](environment-variables.md) for the full list and the precedence model.
 
 ## See also
 
