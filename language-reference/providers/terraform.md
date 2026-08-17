@@ -9,13 +9,45 @@ The terraform provider writes each node's files directly at the node's evaluated
 The terraform provider accepts two of the three Recipe input kinds:
 
 - **Artifacts mode.** A Recipe authors Terraform configuration as a templated body; the provider evaluates the Aggrega template and emits the result verbatim, byte-for-byte. HCL (`main.tf`) is the ergonomic default, and Terraform JSON (`.tf.json`) is accepted equivalently. Build provenance is stamped as a Terraform comment; for a JSON body — which has no comment syntax — provenance is written as a companion file rather than inline.
-- **Sourced mode.** A Recipe references a Terraform module with `source:`. The module's files are vendored verbatim into the node's output, and the Recipe's `valuesMapping:` overlays the module's input variables as an auto-loaded `aggrega.auto.tfvars.json`. The module body is preserved exactly as authored; only the generated `.tfvars.json` carries Aggrega-supplied values.
+- **Sourced mode.** A Recipe references a Terraform module with `source:`. The module's files are vendored verbatim into the node's output, and the Recipe's `valuesMapping:` overlays the module's input variables as an auto-loaded `aggrega.auto.tfvars.json`. The module body is preserved exactly as authored; only the generated `.tfvars.json` carries Aggrega-supplied values. Where the node's declared `values` leaves become the module's inputs directly — a `source:` Recipe with no `valuesMapping:` — an input carrying material an author declared sensitive also gets a generated override file carrying Terraform's own sensitivity attribute; a `valuesMapping:` template invents its output names, so that case carries no marking. Both are described under [Declared-sensitive module inputs](#declared-sensitive-module-inputs).
 
 The **synthesized** input kind is not offered. There is no faithful, capability-agnostic mapping from the platform Workload kind to arbitrary Terraform resources, so a Recipe that declares `workload:` against the terraform provider is a loud error rather than an invented translation.
 
 ## Verbatim emission and vendoring
 
 The terraform provider does not transpile, reformat, or rewrite Terraform bodies. An authored HCL or `.tf.json` body is emitted exactly as written, and a sourced module is vendored file-for-file. This is what keeps terraform output deterministic and reproducible: given the same inputs, the rendered configuration is byte-identical across runs, and a vendored module round-trips unchanged. Because the provider never resolves runtime state, everything runtime-dependent stays an interpolation string that Terraform binds at apply time.
+
+## Declared-sensitive module inputs
+
+Terraform is the one standard-library target with a native per-value sensitivity primitive, so a datum an author declared sensitive can be rendered in Terraform's own terms rather than only recorded in Aggrega's.
+
+When a vendored module's input carries material an author declared sensitive, the provider appends one more file beside the module, `aggrega_override.tf.json`, declaring `sensitive = true` for that input:
+
+```json
+{
+  "variable": {
+    "db_password": {
+      "sensitive": true
+    }
+  }
+}
+```
+
+Terraform merges a configuration file whose name is the bare `override` or ends in `_override` into the configuration in the same directory, so the module's own `variable` block acquires the attribute while every vendored byte stays exactly as authored. The input's declared type, default and description are untouched — the override carries the sensitivity attribute and nothing else. An unmarked node gains no such file.
+
+**Which input is marked comes from a declaration, never from a name.** The provider reads the marking the compilation computed and inspects nothing itself: it does not recognise `password`, `secret` or `token`, and it does not read the module's text to guess. A module input named `db_password` whose value carries no declaration is emitted unmarked, and a declared input named `region` is marked.
+
+**The marking travels only where the input's identity is recoverable from the declaration.** A Recipe that vendors a module with `source:` and lets the node's declared `values` leaves become the module's inputs directly gives each input the same name the author declared, so the link is exact. A Recipe that reshapes those values through a `valuesMapping:` template invents its output names, and no declaration names them — so the marking is absent rather than approximated. Absence is deliberate: guessing which reshaped input carried the declared datum would mark a public input as secret, and Terraform would then suppress a value from plan output that was never sensitive.
+
+### What Terraform's `sensitive` does and does not guarantee
+
+Aggrega promises exactly what Terraform's own attribute delivers, and no more.
+
+**It bounds display.** A sensitive value reads as `(sensitive value)` in plan output and `<sensitive>` in apply output. The marking propagates through expressions, so a value derived from a sensitive input is sensitive too, and Terraform refuses to export one from a root `output` that is not itself marked sensitive — a loud error rather than a silent disclosure.
+
+**It does not change storage, and it is not encryption.** Terraform records a sensitive value in state in the clear. Reading `sensitive = true` as a promise that state is safe to commit or share is the one misreading to avoid: protecting state remains a matter of how the state backend is configured, exactly as it is for a module carrying no marking at all. The attribute also does not restrict who may read the value, does not affect what a provider transmits, and does not change the rendered configuration in any other way.
+
+So the marking makes a declared-sensitive input harder to disclose by accident when someone reads a plan. It does not make the deployable safe to publish. See [Declaring a leaf sensitive](../vocabulary/compact-form-authoring.md) for the keyword and for what a declaration achieves across every target.
 
 ## Structural input validation
 
