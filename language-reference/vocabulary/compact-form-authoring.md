@@ -157,6 +157,8 @@ counters: { type: object, valuesType: integer }
 
 `valuesType: <type>` compiles to `additionalProperties: { type: <type> }`. It's a frequent enough pattern to deserve a single-keyword shorthand.
 
+The bare type name above is the `schema:` and SchemaLibrary spelling. **On an Aggregate `parameters:` slot, write the value as a contract instead** — `valuesType: { type: string }`. The same applies to the other two keywords whose value is itself a contract, `items:` and each entry under `properties:`, because a parameter declaration and every contract nested inside it carry one shape. A bare type name in any of those three positions on a parameter slot is refused, and the diagnostic names which nested contract carried it. See [`entities/aggregate.md`](../entities/aggregate.md#parameter-slot-vocabulary) for the parameter-slot vocabulary in full.
+
 ## Required fields
 
 Required fields use `required: true` per leaf:

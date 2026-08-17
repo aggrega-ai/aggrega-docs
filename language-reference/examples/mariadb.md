@@ -363,6 +363,12 @@ spec:
           min: 1
           max: 9
           default: 1
+        secondary_replicas:
+          type: integer
+          min: 2
+          max: 9
+          default: 2
+          description: "Secondary node-pool size, applied where the architecture resolves to replication."
         size:
           type: string
           pattern: "^[1-9][0-9]*(Mi|Gi|Ti)$"
@@ -401,12 +407,10 @@ spec:
           replicaCount: {{ .parameters.database.replicas }}
           persistence:
             size: '{{ .parameters.database.size }}'
-        {{- if eq .parameters.environment "prod" }}
         secondary:
-          replicaCount: {{ sub .parameters.database.replicas 1 }}
+          replicaCount: {{ .parameters.database.secondary_replicas }}
           persistence:
             size: '{{ .parameters.database.size }}'
-        {{- end }}
         auth:
           database: checkout
         backup:
@@ -419,10 +423,14 @@ spec:
         log_level: '{{ .parameters.api.log_level }}'
         cache_ttl_seconds: {{ .parameters.api.cache_ttl_seconds }}
       uses:
-        primary_db: db    # Reference to the db Component above
+        primary_db: [db]    # Reference to the db Component above
 ```
 
-The Aggregate composes a MariaDB Component (`db`) with an API server Component (`api`). The typed `parameters:` block declares environment, region, database configuration, and API configuration with nested-structure parameters. The `db.values` template handles the standalone-vs-replication branching based on `.parameters.environment`. The `api.uses.primary_db: db` declares the dependency edge in the graph; the compiler resolves it to the Component instance during selector resolution.
+The Aggregate composes a MariaDB Component (`db`) with an API server Component (`api`). The typed `parameters:` block declares environment, region, database configuration, and API configuration with nested-structure parameters. The `db.values` template selects the architecture from `.parameters.environment`. The `api.uses.primary_db` socket declares the dependency edge in the graph; the compiler resolves it to the Component instance during selector resolution.
+
+An expression decides a **value**, never whether a key is present. The document has to be well-formed YAML before any expression is evaluated, so an expression sits where a value goes — inside a quoted scalar for `architecture`, bare for the numeric hoists that must stay numbers. That is why `secondary:` is declared unconditionally here rather than wrapped in a branch that would emit or withhold whole lines.
+
+Deciding *whether* the secondary pool applies is the Component's job rather than the Aggregate's. The SchemaLibrary gates that slot with `when: '{{ eq $.architecture "replication" }}'`, so the slot's constraints — including a `replicaCount` of at least two — bind exactly where the architecture resolves to `replication`, and are inert in every environment that resolves to `standalone`. The Aggregate's part is to hoist the pool size as a parameter and let each Release supply it.
 
 ## The Manifest
 

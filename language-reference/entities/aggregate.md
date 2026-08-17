@@ -125,7 +125,7 @@ spec:
     feature_flags:
       type: object
       description: Per-feature enablement map
-      valuesType: boolean
+      valuesType: { type: boolean }
       default: {}
     allowed_hosts:
       type: array
@@ -147,7 +147,7 @@ The quoting on each reference is deliberate: it is what decides the type the hoi
 
 ### Parameter slot vocabulary
 
-The typed `parameters:` block accepts the compact-form vocabulary: `type`, `description`, `default`, `enum`, `min`, `max`, `pattern`, `minLength`, `maxLength`, `format`, `items` (for arrays), `properties` (for objects), `valuesType` (for typed-value maps), and `required: true` (per-slot marker). The compiler resolves the parameter declarations to JSON Schema 2020-12 and validates each Release-supplied value against the resolved schema before interpolation. See [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md) for the full keyword vocabulary.
+The typed `parameters:` block accepts the compact-form vocabulary: `type`, `description`, `default`, `enum`, `min`, `max`, `pattern`, `minLength`, `maxLength`, `format`, `items` (for arrays), `properties` (for objects), `valuesType` (for typed-value maps), and `required: true` (per-slot marker). Three of those keywords take a contract as their value rather than a plain setting — `items`, `valuesType`, and each entry under `properties` — and on a parameter slot that nested contract is written in the same typed form as the slot around it: `valuesType: { type: boolean }`, not `valuesType: boolean`. The compiler resolves the parameter declarations to JSON Schema 2020-12 and validates each Release-supplied value against the resolved schema before interpolation. See [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md) for the full keyword vocabulary, including where a `schema:` pillar spells these keywords differently.
 
 ### Object-typed and array-typed parameters
 
