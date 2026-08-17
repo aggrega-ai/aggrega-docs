@@ -39,6 +39,8 @@ Terraform merges a configuration file whose name is the bare `override` or ends 
 
 **The marking travels only where the input's identity is recoverable from the declaration.** A Recipe that vendors a module with `source:` and lets the node's declared `values` leaves become the module's inputs directly gives each input the same name the author declared, so the link is exact. A Recipe that reshapes those values through a `valuesMapping:` template invents its output names, and no declaration names them — so the marking is absent rather than approximated. Absence is deliberate: guessing which reshaped input carried the declared datum would mark a public input as secret, and Terraform would then suppress a value from plan output that was never sensitive.
 
+The worked example [`terraform-declared-sensitivity`](../examples/terraform-declared-sensitivity/) builds this end to end and is small enough to read in full: one component declaring three `values` leaves, of which two carry public identifiers and one carries the credential. Its rendered output shows the overlay binding all three module inputs and the override naming only the declared one, so both halves of the rule are visible in the same build — including that a credential *identifier* sitting beside the secret is left unmarked. Removing the one declaration and rebuilding emits no override file at all.
+
 ### What Terraform's `sensitive` does and does not guarantee
 
 Aggrega promises exactly what Terraform's own attribute delivers, and no more.

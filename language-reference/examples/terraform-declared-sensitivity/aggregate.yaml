@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: aggregate
+  version: "1.0.0"
+  description: >
+    One externally-operated object-storage bucket, targeted at Terraform through
+    a vendored module. The developer states which bucket the application uses and
+    leaves both halves of the access key as parameters, so the credential is
+    fulfilled per environment rather than written here.
+spec:
+  # Both halves of the access key are credentials an operator holds, and the
+  # authoring surface for a value an operator supplies is a typed parameter: the
+  # developer declares the variation point, the deployment fulfils it. The bucket
+  # name is developer intent and stays a plain value.
+  parameters:
+    object_store_access_key_id:
+      type: string
+      description: >
+        Identifier of the access-key pair for the bucket. Fulfilled per
+        environment, since each environment reaches its own bucket.
+    object_store_secret_access_key:
+      type: string
+      description: >
+        Secret half of the access-key pair for the bucket. Fulfilled per
+        environment. It lands in a value the Component declares sensitive, which
+        is what a Terraform realization renders as the engine's own sensitivity
+        attribute on the matching module input.
+  components:
+    # ── Object storage ──────────────────────────────────────────────────
+    store:
+      type: example/storage/external-object-store
+      values:
+        bucket: app-artifacts
+        access_key_id: "{{ .parameters.object_store_access_key_id }}"
+        secret_access_key: "{{ .parameters.object_store_secret_access_key }}"
