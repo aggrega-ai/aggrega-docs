@@ -6,6 +6,8 @@ Schema id: `https://aggrega.ai/schemas/artifactslibrary-v1alpha1.schema.json`
 
 A reusable collection of named artifact bundles that Recipes and FeatureRecipes consume at render time via `artifacts.<name>: { $import: ... }`. Each bundle is a set of output files imported as one unit. Tier 3 — opt-in for catalogs that need cross-Recipe artifact reuse. Single authoring mode: Go templates only.
 
+See the [artifactslibrary authoring reference](../../entities/artifactslibrary.md) for prose guidance on authoring artifactslibrary entities; this page documents the structural schema that reference describes.
+
 **Top-level type:** `object`
 
 ## Properties
