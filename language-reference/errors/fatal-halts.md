@@ -505,10 +505,19 @@ An attachment declared at a broader scope — subsystem-wide, cascading onto eve
 
 The same delivery key (for example, the same env var name) is declared in two developer-authored inject sources — one at the Component level and one under a `uses[]` entry.
 
-Emitted message:
-> delivery key `<key>` in mechanism `<mechanism>` is declared in both component self-inject and uses-inject.
+The build reads this in two places, because the two see different sets of dependency connections, and each reports in its own form.
 
-**How to fix:** rename one of the conflicting keys, or drop the duplicate declaration. Note that a FeatureRecipe's `injectMapping` overwriting a developer key is intentional Onion-Model interception and is not flagged. A separate render-time variant of this check may surface the same collision class if it escapes the resolution-time guard; the authoring fix is identical.
+The first reads the connections you wrote in the Aggregate, and reports as your files are resolved:
+
+> duplicate delivery key across inject sources (`"<key>"`)
+
+The second reads the connections the finished topology carries, which includes any a Feature attachment contributed on your behalf. It runs before anything renders, and it names the delivery key you wrote as its position and the dependency socket that also delivers it:
+
+> Aggregate `<name>` at `.spec.components.<component>.inject.<mechanism>.<key>`: duplicate delivery key across self-inject and uses-inject (`"<socket>"`)
+
+One authored key delivered through two dependency sockets reports once per socket, so a single build tells you about all of them rather than about whichever was reached first.
+
+**How to fix:** rename one of the conflicting keys, or drop the duplicate declaration. Note that a FeatureRecipe's `injectMapping` overwriting a developer key is intentional Onion-Model interception and is not flagged.
 
 ### Self-inject on a component without an allowlist
 
