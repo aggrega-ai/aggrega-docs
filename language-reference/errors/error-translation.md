@@ -23,7 +23,19 @@ The single-line representation suitable for log output is:
 [CATEGORY] <source>: <message>
 ```
 
-The source is a structured pointer — typically `<file>:<line>:<column>` when a YAML position is available, or a logical identifier (the catalog entity name, the Release name, the boundary path) when no file position applies. The message is the per-surface diagnostic.
+The source is a structured pointer — typically `<file>:<line>:<column>` when a YAML position is available, or a logical identifier (the catalog entity name, the Release name, the boundary path) when no file position applies. A third shape, `<file> at <key>`, appears when the pointer knows both the document and the authoring key inside it but no byte position: the file is what you open, and the key is what to look at once open. The message is the per-surface diagnostic.
+
+A rule evaluated over the finished graph reports in that third shape, and the key is what tells two findings apart when the message alone cannot. A rule of this kind names the *declaring* component type rather than the instance, so two components of one type failing the same rule carry the same message about the same file:
+
+```text
+[DEVELOPER_ERROR] aggregate.yaml at .spec.components.checkout
+  missing required feature: attach a Feature of the required type to the component ("core/compute/api-server", "core/observability/monitoring", "monitoring")
+---
+[DEVELOPER_ERROR] aggregate.yaml at .spec.components.inventory
+  missing required feature: attach a Feature of the required type to the component ("core/compute/api-server", "core/observability/monitoring", "monitoring")
+```
+
+The key is the only part that differs, and it is what names which of the two components to edit.
 
 The CLI renders a richer multi-line form when an error carries additional context — the failing template expression, a snapshot of the active pillars at evaluation time:
 
