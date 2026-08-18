@@ -470,7 +470,9 @@ Emitted messages:
 A catalog entity declares an attachment slot with `required: true` in its `featuresSchema`, and nothing binds that slot's name on an instance of the entity. The check runs against the attachments the instance ends up with after every scope has folded — the Aggregate's component-level and subsystem-level `features:` blocks, the Release's boundary-level and component-level blocks, and attachments produced by annotation-driven expansion — so a credential attached once at a scope the instance inherits from binds the slot exactly as a fill authored on the instance does.
 
 Emitted message:
-> component type `<component-type>` declares the attachment slot `<slot>` as required, but no attachment binds it; attach a Feature under that name on the component, or at a scope it inherits from
+> required attachment slot unfilled (`<component-type>`, `<slot>`)
+
+The two values are the component type that declares the slot and the slot's own name, so one instance leaving two slots unbound reports two messages that differ. The report is positioned at the slot's key under the component's `features:` block; because that key is exactly what is missing, an editor places it on the nearest key that does exist — the `features:` block where the component writes one, and the component itself where it does not.
 
 **How to fix:** attach a Feature under the slot's name — on the component, or at a broader scope every consumer of the slot shares. An attachment under a different name does not bind the slot: a slot is a named binding point, so the name is the binding. If the slot should no longer be required, update the catalog entity's `featuresSchema` to drop the `required` declaration.
 
