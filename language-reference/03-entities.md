@@ -25,13 +25,12 @@ Two surfaces document the authoring vocabulary, and they answer different questi
 
 ### Library entities
 
-The three library kinds are Tier 3 — opt-in reuse entities. A catalog declares one when the same content recurs across its entities, and ships without them otherwise. Each holds one content type, and the fragment in a reference (`#/schemas/`, `#/mappings/`, `#/workloads/`) says which library a reference addresses.
+The four library kinds are Tier 3 — opt-in reuse entities. A catalog declares one when the same content recurs across its entities, and ships without them otherwise. Each holds one content type, and the fragment in a reference (`#/schemas/`, `#/mappings/`, `#/workloads/`, `#/artifacts/`) says which library a reference addresses.
 
 - [SchemaLibrary](entities/schemalibrary.md) — reusable JSON Schema 2020-12 definitions plus optional parameterized helpers, referenced from a Component's or Feature's schemas by `$ref: <Library>#/schemas/<name>`.
 - [MappingLibrary](entities/mappinglibrary.md) — reusable Go template fragments, imported into a Recipe's or FeatureRecipe's `valuesMapping:` by `$import: <Library>#/mappings/<name>`.
 - [WorkloadLibrary](entities/workloadlibrary.md) — reusable Workload content, imported into a Recipe's or FeatureRecipe's `workload:` by `$import: <Library>#/workloads/<name>`.
-
-**ArtifactsLibrary** is covered by its generated schema reference rather than by an authoring guide in this catalog — see [schema/other/artifactslibrary.md](schema/other/artifactslibrary.md) for its full field surface.
+- [ArtifactsLibrary](entities/artifactslibrary.md) — reusable bundles of auxiliary output files, imported into a Recipe's or FeatureRecipe's `artifacts:` by `$import: <Library>#/artifacts/<name>`. A bundle is the unit of reuse: one import expands into one output per file in the bundle.
 
 ### Platform-owned kinds
 

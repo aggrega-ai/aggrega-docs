@@ -283,9 +283,9 @@ The target provider must support synthesis (the standard-library catalog declare
 
 ## The `artifacts:` field — auxiliary manifests
 
-`Recipe.spec.artifacts:` is a map of output-filename → artifact-body authoring whose entries emit additional manifest files alongside the Recipe's sourced or synthesized primary output. It is one of the three input kinds (sourced / synthesized / artifacts) — a Recipe may declare `artifacts:` alone, or alongside `workload:` and/or `source:`.
+`Recipe.spec.artifacts:` is a map of entry name → artifact-body authoring whose entries emit additional manifest files alongside the Recipe's sourced or synthesized primary output. It is one of the three input kinds (sourced / synthesized / artifacts) — a Recipe may declare `artifacts:` alone, or alongside `workload:` and/or `source:`.
 
-Map keys become output filenames verbatim; each entry's value carries one of two content-shape-dispatched modes parallel to `workload:`:
+Each entry's value carries one of three content-shape-dispatched modes parallel to `workload:` — inline content, a file `$import:`, or a library `$import:`. The compiler dispatches on the value's content shape; no `$mode:` annotation is needed. What the map key contributes to the emitted output differs across the three: in one mode the key is the output filename, and in the other two it names the entry while the output filenames come from elsewhere.
 
 ```yaml
 spec:
@@ -301,9 +301,17 @@ spec:
         threshold: "{{ .values.threshold }}"
     network-policy.yaml:
       $import: ./artifacts/network-policy.tmpl
+    operator-support:
+      $import: PlatformArtifacts#/artifacts/OperatorSupport
 ```
 
-Each artifact entry's template evaluates with the same template context as `valuesMapping:`. A file `$import:` here resolves on the same base as the other two fields: a relative path is anchored to the directory holding the `recipe.yaml` that declares it, not to the directory the build is invoked from, and an absolute path is used as written. Map keys translate to filenames in the assembled output; filename collisions across artifact entries, source output, and workload synthesis are load-time or render-time errors with a clear diagnostic naming every contributor. Library `$import:` is not available at this site; artifacts are Recipe-local.
+**Mode 1: Inline (Go template string scalar).** The value is a block scalar, and the map key is the output filename, used as written — the first entry above emits `extra-configmap.yaml`.
+
+**Mode 2: File `$import:`.** The value is a map with a single `$import:` key pointing at a local Go-template file, and **the output takes the imported file's own name rather than the map key**. The second entry above is keyed `network-policy.yaml` and emits `network-policy.tmpl`, because that is the name of the file it imports. So the key names the entry and the imported file names the output; an author who wants a particular output filename gives the imported file that name. Path resolution matches `valuesMapping:` and `workload:`: a relative path is anchored to the directory holding the `recipe.yaml` that declares it, not to the directory the build is invoked from, and an absolute path is used as written.
+
+**Mode 3: Library `$import:`.** The value is a map with a single `$import:` key carrying a bare-name identity reference to an ArtifactsLibrary bundle, `<Library>#/artifacts/<name>`. A bundle is a set of files imported as one unit, so **one entry expands into one output per file in the bundle, each named by the filename the bundle itself declares** — the map key names the consumption site and appears in no output name. The third entry above is keyed `operator-support`; if `PlatformArtifacts#/artifacts/OperatorSupport` declares `crd.yaml` and `rbac.yaml`, that single entry emits both of them and emits nothing called `operator-support`. The reference carries no registry host — a host-bearing `oci://…` form is rejected — the resolved version comes from the per-Release lockfile, and an optional `:<version>` minimum-version floor may be asserted as `<Library>:<version>#/artifacts/<name>`. See [entities/artifactslibrary](artifactslibrary.md) for the library entity and the full reference grammar.
+
+Each artifact entry's template evaluates with the same template context as `valuesMapping:`, whichever mode supplied its body. Two outputs resolving to the same filename halt the build when the node renders: a Recipe that emits one output filename more than once — two entries landing on it, or a bundle file meeting another entry — is reported against that Recipe, and a filename contributed by two different input kinds is reported with a diagnostic naming every contributing origin.
 
 **Use cases.** `artifacts:` is the home for auxiliary resources that the primary chart or module does not produce: a `NetworkPolicy` accompanying a workload, an `HPA` paired with a Deployment, a sidecar `ConfigMap` keyed off `instance_id`. Cross-cutting auxiliary resources that apply across many components (a backup sidecar attached to every datastore, for example) belong on FeatureRecipe Resource Generation rather than per-Recipe `artifacts:` — see [entities/featurerecipe.md](featurerecipe.md) for the FeatureRecipe extension surface.
 

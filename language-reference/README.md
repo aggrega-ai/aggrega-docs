@@ -29,7 +29,7 @@ Within Tier 3, the `$templates:` / `$instantiate:` mechanic (parametric helpers 
 3. [Entity Reference Overview](03-entities.md)
    - **Tier 1**: [aggregate](entities/aggregate.md), [component](entities/component.md), [recipe](entities/recipe.md), [manifest](entities/manifest.md), [release](entities/release.md)
    - **Tier 2**: [feature](entities/feature.md), [featurerecipe](entities/featurerecipe.md), [plugin](entities/plugin.md)
-   - **Tier 3**: [schemalibrary](entities/schemalibrary.md), [mappinglibrary](entities/mappinglibrary.md)
+   - **Tier 3**: [schemalibrary](entities/schemalibrary.md), [mappinglibrary](entities/mappinglibrary.md), [workloadlibrary](entities/workloadlibrary.md), [artifactslibrary](entities/artifactslibrary.md)
    - Cross-cutting: [workload](entities/workload.md) (platform-owned compiler kind consumed inside Recipe `workload:`)
 4. [Vocabulary Overview](04-vocabulary.md)
    - Vocabulary reference: [topology-triad (provides, inject, uses)](vocabulary/topology-triad.md), [data-pillars (values, infra, parameters, locals)](vocabulary/data-pillars.md), [inheritance-and-interface (extends, implements)](vocabulary/inheritance-and-interface.md), [modifier-system (appliesTo, selectors)](vocabulary/modifier-system.md), [compact-form-authoring](vocabulary/compact-form-authoring.md), [cross-document-ref](vocabulary/cross-document-ref.md), [labels-and-annotations](vocabulary/labels-and-annotations.md), [publishing-surface](vocabulary/publishing-surface.md), [social-contracts](vocabulary/social-contracts.md), [validation-surface](vocabulary/validation-surface.md), [output-composition](vocabulary/output-composition.md), [uri-grammar](vocabulary/uri-grammar.md), [version-resolution](version-resolution.md)

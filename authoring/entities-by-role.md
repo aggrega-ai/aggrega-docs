@@ -10,7 +10,7 @@ Every entity kind has a role that typically authors it. This page is the complet
 | **Platform architect** | [Component](../language-reference/entities/component.md), [Feature](../language-reference/entities/feature.md) | The reusable, versioned catalog contract |
 | **Platform operations** | [Recipe](../language-reference/entities/recipe.md), [FeatureRecipe](../language-reference/entities/featurerecipe.md), provider-rendering [Plugin](../language-reference/entities/plugin.md) | Provider-specific translation to rendered infrastructure |
 | **Platform operator** | [Manifest](../language-reference/entities/manifest.md), [Release](../language-reference/entities/release.md) | Routing and deployment wiring |
-| **Cross-cutting support** | [SchemaLibrary](../language-reference/entities/schemalibrary.md), [MappingLibrary](../language-reference/entities/mappinglibrary.md), [Plugin](../language-reference/entities/plugin.md), [Workload](../language-reference/entities/workload.md) | Shared shapes, extension code, and the platform-owned compiler kind |
+| **Cross-cutting support** | [SchemaLibrary](../language-reference/entities/schemalibrary.md), [MappingLibrary](../language-reference/entities/mappinglibrary.md), [WorkloadLibrary](../language-reference/entities/workloadlibrary.md), [ArtifactsLibrary](../language-reference/entities/artifactslibrary.md), [Plugin](../language-reference/entities/plugin.md), [Workload](../language-reference/entities/workload.md) | Shared shapes, extension code, and the platform-owned compiler kind |
 
 ## Developer
 
@@ -43,6 +43,10 @@ These kinds serve authors across roles rather than belonging to one.
 **[SchemaLibrary](../language-reference/entities/schemalibrary.md)** — a shared library of schema shapes that recur across many Components and Features. When the same structure (say, a pod-resources block) appears in many entities, an architect factors it into a SchemaLibrary entry so it is defined and updated once.
 
 **[MappingLibrary](../language-reference/entities/mappinglibrary.md)** — a shared library of reusable mapping logic that Recipes and FeatureRecipes draw on, so common translation patterns are single-sourced rather than copied.
+
+**[WorkloadLibrary](../language-reference/entities/workloadlibrary.md)** — a shared library of reusable Workload content, so a deployment shape that recurs across many Recipes is declared once and imported into each `workload:` block.
+
+**[ArtifactsLibrary](../language-reference/entities/artifactslibrary.md)** — a shared library of reusable artifact bundles: named sets of auxiliary output files that belong together, such as a CRD with its RBAC. A Recipe or FeatureRecipe imports a bundle at one `artifacts:` entry and emits every file in it.
 
 **[Plugin](../language-reference/entities/plugin.md)** — the extension kind. Beyond provider rendering, Plugins package the WebAssembly code that supplies domain-specific intelligence — policy validation, mutation, linting, and other sockets. Plugin authoring is a platform-team concern that supports every other role.
 
