@@ -446,7 +446,11 @@ When the target declares no `provides:` at all, the message names that explicitl
 The Component declares a presence mandate — a `features.aggrega.ai/requiredType.<label>` annotation — naming a Feature type that is not present among the attachments this component instance ends up with, counting every scope: the Aggregate's component-level and subsystem-level blocks, the Release's boundary-level and component-level blocks, and annotation-driven expansion.
 
 Emitted message:
-> component type `<component-type>` requires an attachment of type `<required-type>` for `<label>`, but none is attached; attach a Feature of that type to the component, or at a scope it inherits from
+> missing required feature: attach a Feature of the required type to the component (`<component-type>`, `<required-type>`, `<label>`)
+
+The three values are the component type that declares the mandate, the Feature type it demands, and the label the mandate carries — so a component demanding two different types reports two messages that differ, and two components declaring the mandate from different types are told which type made each demand. The report is positioned at the component's own key under `components:`, and a component written inside a subsystem is positioned under that subsystem's key first.
+
+The name an attachment is written under does not matter here: the mandate asks whether an attachment of the named type is present at all. Binding a slot satisfies it, and so does an attachment under any other name.
 
 **How to fix:** attach a Feature of the required type to the component in the Aggregate or the Release, or at a broader scope the component inherits from. If the Component should no longer require it, remove the mandate annotation from its catalog declaration.
 
@@ -457,9 +461,13 @@ Emitted message:
 A presence mandate's declaration cannot be evaluated. An annotation value is an opaque string, so nothing validates its shape before the compiler reads it: a value that is not a Feature type URI, or a key that names the mandate family without a label after the prefix, is reported as a broken declaration rather than as an unsatisfied requirement — a typo must never read as a satisfied requirement.
 
 Emitted messages:
-> component type `<component-type>` declares a malformed attachment requirement in annotation `<key>`: the value must be a Feature type URI of the form `<publisher>/<name>` in lower-case kebab segments, as in `core/prometheus-exporter`
+> malformed attachment requirement (`<component-type>`, `<key>`, the value must be a Feature type URI of the form `<publisher>/<name>` in lower-case kebab segments, as in `core/prometheus-exporter`)
 >
-> component type `<component-type>` declares a malformed attachment requirement in annotation `<key>`: the key needs a label naming the requirement, as in `features.aggrega.ai/requiredType.database`
+> malformed attachment requirement (`<component-type>`, `<key>`, the key needs a label naming the requirement, as in `features.aggrega.ai/requiredType.database`)
+
+The first value is the component type whose declaration is broken and the second is the annotation key, so the message names the entity to correct even though the report is positioned at the component instance that uses that type — the instance is where you see it, and the catalog entity is where the remedy is.
+
+This halt is raised as soon as the composition is assembled, which is earlier than every check that reads the finished graph. A build carrying a broken mandate therefore reports it on its own: the checks that would run later are not reached, because they reason about what the declaration says and the declaration cannot be read. Correct it and rebuild to see the rest.
 
 **How to fix:** correct the Component catalog entity. The remediation is in the catalog, not in the Aggregate — which is why this halt is distinct from "Required feature not attached", where the deployment is what needs changing.
 
