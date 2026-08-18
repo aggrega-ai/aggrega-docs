@@ -19,12 +19,12 @@ A Recipe targeting helm-chart that declares `workload:` is rejected at render ti
 
 The split is deliberate: workload synthesis (translating an abstract Workload into Kubernetes resources) is the helm provider's exclusive concern. helm-chart's role is umbrella + sub-chart composition for charts the author has already produced.
 
-A Recipe targeting helm-chart may also declare **inline-content `artifacts:` entries** (entries whose value is a block scalar carrying the file body inline in the Recipe rather than an `$import:`-loaded reference). An inline-content entry is placed verbatim at the sub-chart root under its authored key — no `templates/` prefix, no provenance splice, no Go-template evaluation. A chart's own templates read such a loose file through Helm's `.Files.Get` / `.Files.Glob` (the canonical ConfigMap-from-files pattern), so a chart-root file is a legitimate, first-class shape rather than an error.
+A Recipe targeting helm-chart may also declare **inline-content `artifacts:` entries** (entries whose value is a block scalar carrying the file body inline in the Recipe rather than an `$import:`-loaded reference). An inline-content entry is placed at the sub-chart root under its authored key — no `templates/` prefix and no provenance splice. A chart's own templates read such a loose file through Helm's `.Files.Get` / `.Files.Glob` (the canonical ConfigMap-from-files pattern), so a chart-root file is a legitimate, first-class shape rather than an error.
 
-The two artifact forms serve different roles:
+**Both forms are evaluated with the `[[ ]]` Aggrega delimiters before placement**, so a body of either form may read the Recipe's pillar context; `{{ }}` in either body is left untouched and becomes a Helm directive at downstream `helm install` time. What differs between the forms is where the file lands and whether provenance is merged into it:
 
-- An **`$import:`-loaded entry** is a template file: it is pre-templated with `[[ ]]` delimiters (see "`artifacts:` injection rule" below) and injected into the sub-chart's `templates/` directory, where its own `{{ }}` Helm directives then evaluate at downstream `helm install` time.
-- An **inline-content entry** is a loose data file: it lands byte-for-byte at the chart root for `.Files`-based consumption, so any `{{ }}` in its body is preserved untouched.
+- An **`$import:`-loaded entry** is a template file: after evaluation (see "`artifacts:` injection rule" below) it is injected into the sub-chart's `templates/` directory with provenance merged in, so Helm renders it as a manifest alongside the chart's own templates.
+- An **inline-content entry** is a loose data file: after evaluation it lands at the chart root, unchanged from what the evaluation produced and carrying no merged provenance, for `.Files`-based consumption.
 
 ## `artifacts:` injection rule
 
