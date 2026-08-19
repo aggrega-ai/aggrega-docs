@@ -72,6 +72,14 @@ Features, Recipes, Manifests, and the provider matrix.
   Manifest `name` mapping tier, which overrides the Recipe for a single component
   *instance* while every other instance of the same type keeps the bulk
   `type`-tier Recipe.
+- **[credential-shape-per-target](credential-shape-per-target/)** — one Aggregate
+  deployed to two targets whose only difference is which FeatureRecipe the
+  Manifest binds for `core/referenced-secret`: one renders a Kubernetes Secret
+  carrying the material, the other an `ExternalSecret` naming an entry in a
+  secret store. The two output trees differ in exactly that one resource per
+  credential slot, and the consuming StatefulSet's `secretKeyRef` is
+  byte-identical between them — the locator is published by the producing side
+  rather than agreed between both, so the developer's side never changes.
 - **[extends-wrapper](extends-wrapper/)** — publishing a specialized variant of a
   standard-library Component with `extends`. The wrapper adds labels, annotations
   and one socket, authors no data pillars, and inherits its base's contract whole,

@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: credential-shape-per-target
+  version: "1.0.0"
+  description: >
+    A PostgreSQL database with both of its credential slots filled by the same
+    referenceable credential Feature (core/referenced-secret). This one file is
+    the whole Developer Intent, and both deployments in this workspace build from
+    it unchanged: which resource each credential materializes as is chosen in the
+    Manifest, not here.
+spec:
+  components:
+    db:
+      type: core/datastore/postgres
+      values:
+        database: orders
+        user: orders_admin
+        app_user: orders_app
+      features:
+        # The superuser password. `origin` names the credential; each
+        # FeatureRecipe reads that name in its own terms, so the same attachment
+        # serves both delivery shapes with no edit here.
+        password:
+          type: core/referenced-secret
+          values:
+            key: POSTGRES_PASSWORD
+            origin: postgres-superuser-password
+        # The application-login password. This slot name carries underscores, and
+        # the published resource name normalizes them to hyphens so the result is
+        # a valid Kubernetes object name.
+        app_user_password:
+          type: core/referenced-secret
+          values:
+            key: APP_USER_PASSWORD
+            origin: postgres-app-password

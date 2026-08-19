@@ -72,7 +72,7 @@ The directive that turns engine management on is the component's Recipe's, not t
 
 ## Provider-Specific FeatureRecipes
 
-**`k8s-secret-from-parameter`** (for dev and local workflows) implements `core/referenced-secret`. It generates a Kubernetes Secret from a literal value passed via Release parameters, and publishes the generated Secret's identity as `provides`. The emitted Secret derives its name and data key from that same `provides`, so the name is authored exactly once — and it emits the resource inline via `artifacts:`, with no chart to ship:
+**`k8s-secret-from-parameter`** (for dev and local workflows) implements `core/referenced-secret`. It generates a Kubernetes Secret from a literal value the deployment supplies, and publishes the generated Secret's identity as `provides`. The emitted Secret derives its name and data key from that same `provides`, so the name is authored exactly once. The Secret comes from a small co-located Helm chart named by `source:`, whose values the `valuesMapping` feeds from the published `provides`:
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -84,20 +84,35 @@ spec:
   capability: helm
   implements: core/referenced-secret:1.0.0
   provides:
-    name: "{{ .context.instance_id }}-{{ .attachment_name }}"
-    key:  "{{ .values.key }}"
-  # Emit a standalone Secret whose name and data key derive from the
-  # published provides, so the rendered Secret and the consumer's
-  # .features.<slot>.provides are one authored source. Self-contained.
-  artifacts:
-    secret.yaml: |
-      apiVersion: v1
-      kind: Secret
-      metadata:
-        name: "{{ .provides.name }}"
-      stringData:
-        "{{ .provides.key }}": "{{ .values.origin }}"
+    # Underscores in the slot name are normalized to hyphens, so a slot named
+    # app_user_password publishes a valid Kubernetes object name.
+    name: '{{ .context.instance_id }}-{{ .attachment_name | replace "_" "-" }}'
+    key: "{{ .values.key }}"
+  # A co-located chart renders the Secret. Its values come from the published
+  # provides, so the rendered Secret and the consumer's
+  # .features.<slot>.provides are one authored source.
+  source: ./chart
+  valuesMapping: |
+    secretName: "{{ .provides.name }}"
+    dataKey: "{{ .provides.key }}"
+    origin: {{ .values.origin | toJson }}
 ```
+
+The chart is one template. Both of its names come from the values above, so nothing re-derives the Secret's identity inside the chart:
+
+```yaml
+# chart/templates/secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.secretName }}
+stringData:
+  {{ .Values.dataKey }}: {{ .Values.origin | quote }}
+```
+
+Both excerpts omit one thing the shipped recipe carries: it also passes the scope's namespace through to the chart, when the scope declares one, so the emitted Secret lands beside the workload that references it.
+
+**Two FeatureRecipes can implement one Feature at the same capability**, and the choice between them is then the Manifest's. `k8s-external-secret` also implements `core/referenced-secret` for `helm`: rather than a Secret carrying the material, it renders an `ExternalSecret` naming an entry in a secret store, which an operator running in the cluster reconciles into a Secret. Both publish the same `provides` keys, so the consuming Recipe reads the same locator either way and its rendered reference is unchanged — which is what makes the two substitutable. [`credential-shape-per-target/`](credential-shape-per-target/README.md) builds one Aggregate against both bindings and compares the output.
 
 **`dotenv-secret`** (Compose, local dev) implements `core/secret-value`. It maps a secret to a `.env` file entry that Docker Compose resolves at runtime — an injected value, no standalone resource and no `provides`:
 
@@ -166,8 +181,8 @@ The six steps from developer authoring to compiled output, using the referenceab
 
 5. **Compilation runs:**
     - Resolution validates the attachment against the auto-generated schema rules derived from the Component's `featuresSchema`.
-    - The credential FeatureRecipe's `provides` is evaluated once, producing the slot's `name` and `key`. Because the FeatureRecipe's emitted Secret derives its `metadata.name` from `{{ .provides.name }}` and the consumer reads `.features.root_password.provides.name`, both sides resolve from that single evaluation — the rendered Secret name and the consumer's reference are the same string by construction.
-    - Base rendering evaluates the base Recipe's `valuesMapping` (Helm renders the MariaDB chart referencing the published Secret name) and the `k8s-secret-from-parameter` FeatureRecipe's `artifacts:` (emitting the Kubernetes Secret manifest with the matching name).
+    - The credential FeatureRecipe's `provides` is evaluated once, producing the slot's `name` and `key`. Because the FeatureRecipe feeds its chart's `secretName` from that published `provides.name` and the consumer reads `.features.root_password.provides.name`, both sides resolve from that single evaluation — the rendered Secret name and the consumer's reference are the same string by construction.
+    - Base rendering evaluates the base Recipe's `valuesMapping` (Helm renders the MariaDB chart referencing the published Secret name) and the `k8s-secret-from-parameter` FeatureRecipe's own chart (emitting the Kubernetes Secret manifest with the matching name).
 
 6. **Output:** `dist/boundaries/production/` contains the MariaDB Deployment and Service (from the base Recipe) plus a Kubernetes Secret (from the credential FeatureRecipe). The Deployment's `auth.existingSecret` references the same name the Secret carries.
 
@@ -183,6 +198,8 @@ The name is authored once — on the producing FeatureRecipe's `provides` — an
 
 A runnable end-to-end version of this flow — referenceable-secret + `secretKeyRef` on helm, inject-value on compose, and the non-referenceable rejection — is in [`credential-secretkeyref/`](credential-secretkeyref/README.md).
 
+Because the name is published rather than agreed, changing which FeatureRecipe is bound does not move it. [`credential-shape-per-target/`](credential-shape-per-target/README.md) builds one Aggregate twice — once bound to `k8s-secret-from-parameter`, once to `k8s-external-secret` — and the consuming StatefulSet's `secretKeyRef` comes out byte-identical from both, while the resource it points at is a Secret in one and an `ExternalSecret` in the other.
+
 Whether each consumer holds its own credential or several share one is a deployment choice made where the credential is attached, not a property of the catalog entity. [`model-api-key-sharing/`](model-api-key-sharing/README.md) builds both shapes with two consumers each — the multiplicity at which they differ — and shows what each renders, including how a component-scoped fill refines a subsystem-wide attachment field by field.
 
-*The Two-Part Plugin extension for vault-fetching FeatureRecipes — a Fetcher Wasm plugin that generates vault-specific CRDs (such as an External Secrets `ExternalSecret`) plus an Injector Wasm plugin that mounts the fetched secret into workload containers — is under active development. The architectural scaffolding ships today (FeatureRecipe `pipeline:` arrays for Wasm plugin chaining, the `provides` output contract); the specific vault-fetching FeatureRecipes and their Wasm plugins land as the standard library catalog expands.*
+*The Two-Part Plugin extension for vault-fetching FeatureRecipes — a Fetcher Wasm plugin that generates vault-specific CRDs (such as an External Secrets `ExternalSecret`) plus an Injector Wasm plugin that mounts the fetched secret into workload containers — is under active development. The architectural scaffolding ships today (FeatureRecipe `pipeline:` arrays for Wasm plugin chaining, the `provides` output contract), and the chart-rendered route to an `ExternalSecret` is available now through `k8s-external-secret`; the plugin-generated vault-fetching FeatureRecipes and their Wasm plugins land as the standard library catalog expands.*
