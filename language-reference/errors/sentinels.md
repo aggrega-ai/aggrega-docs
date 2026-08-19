@@ -54,7 +54,9 @@ func Load(path string) error {
 
 **A code travels one way.** It is what a condition reports, never what identifies it to a matcher: writing the string into your own code gives you a string, and there is no path back from a string to the value `errors.Is` matches. Match the sentinel to recognise a condition; read the code to record one.
 
-**A code is not part of the emitted diagnostic.** What `aggrega` prints is the category prefix, the source location and the message text catalogued in [fatal-halts.md](./fatal-halts.md) — so a code is reachable from Go, through `CodeOf` or `CodedError`, and from there only. A consumer that does not link these packages recognises conditions through the message-keyed views instead.
+**A code is not part of what `aggrega` prints on a terminal.** That output is the category prefix, the source location and the message text catalogued in [fatal-halts.md](./fatal-halts.md), and a reader working from it uses the message-keyed views.
+
+**Where a code does travel outside Go is the structured diagnostic the compiler-as-service daemon publishes**, as a `code` field of its own on each entry rather than anything folded into the message text — so an editor extension, or any other client of that protocol, branches on the condition without linking these packages and without parsing prose. The field is omitted on an entry whose failure names no condition of Aggrega's own; [aggrega serve](../cli/aggrega-serve.md) documents the entry shape and when the field is present.
 
 ## The matchable surface, by declaring package
 

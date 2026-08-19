@@ -29,6 +29,16 @@ The wire protocol is JSON-RPC 2.0 with Content-Length framing, under the `aggreg
 
 On each `aggrega/validate` the daemon validates the editor buffer against the document's schema and returns diagnostics pointed at the offending key — the same verdict a build would give, on unsaved content. Catalog entities, Aggregates, Manifests, and Releases are recognized by their `apiVersion` and `kind`. The two documents that carry no such header — the `.aggrega-config.yaml` workspace config and the active Release's lockfile — are recognized by filename instead, so a junk or misshapen key in either one also squiggles live. Files that are not Aggrega documents — Helm chart templates, Compose files, Kubernetes manifests, and other ecosystems' `.lock` files such as `Cargo.lock` or `flake.lock` — receive no diagnostics; the daemon never reports on foreign files.
 
+### What a diagnostic entry carries
+
+Each entry positions itself with `line` and `column`, both 1-based in the position encoding negotiated at the handshake, and adds `end_line` and `end_column` when it spans a whole token. `message` is the text a client shows the user, `severity` classifies it, and `source` names which of the daemon's two layers raised it, as described above.
+
+`code` names the condition the entry reports, so a client can branch on it without matching the message text. It is the string the condition is registered under, written as the declaring package and then the rule in kebab-case — the same value a Go consumer reads with `CodeOf`, whose form and matchable surface are described in [the error-sentinels reference](../errors/sentinels.md). So an editor extension that highlights, groups, or suppresses one class of finding keys on the code, and keeps working when the wording of a message changes.
+
+Note which object carries which: this is a **string** on a diagnostic entry naming the condition, distinct from the **numeric** `code` on a JSON-RPC error envelope described under [Error codes](#error-codes) below. A response carries one or the other, never both in one place.
+
+The key is **omitted** where the failure names no such condition: a buffer no YAML parser will read reports the parser's own text and no code, because no condition of Aggrega's own stands behind it. So treat `code` as optional, the same way `end_line` and `end_column` are, and branch on it only when it is present. A code is what a condition reports and never what selects one: no request takes a code, and writing one back into your own code gives you a string rather than a way to match.
+
 ## Cache model
 
 Operations are cache-driven: call `aggrega/validate` for a file before `hover` / `completion` / `resolve` / `diagnostics` on it. The parse cache is checked against each file's on-disk modification time on every read, so external edits (an editor save, a `git checkout`) are picked up automatically — the editor's `aggrega/invalidate` is an optimization, not a correctness requirement.
