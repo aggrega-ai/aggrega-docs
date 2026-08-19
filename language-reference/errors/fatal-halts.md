@@ -649,25 +649,29 @@ The check runs before the entry is evaluated, and that ordering is what makes th
 
 A `source:` that is declared but renders to an empty string reads as no source at all, because what the check reads is the source *after* its own template has been evaluated. That is the same value the provider goes on to render from, so a Recipe whose `source:` resolved to nothing has no source to offer an `artifacts:` body either.
 
-Emitted messages, in two shapes. Which one you get follows from where the `artifacts:` entry was written, and the difference is how much of the template one halt tells you about.
+Emitted message, in one shape wherever the `artifacts:` entry was written. What varies is not the sentence but the captions after it, which say which document holds the entry.
 
-**An entry a component's own Recipe declares** is reported with *every* offending reference in that template named, so a body reaching for two absent pillars tells you about both rather than about whichever came first. Each reference is reported against the Recipe's `artifacts:` block, quoted as you wrote it and captioned with the output it belongs to:
+*Every* offending reference in the template is named, so a body reaching for two absent pillars tells you about both rather than about whichever came first. Each reference is reported at the document that declares the entry, quoted as you wrote it and captioned with the output it belongs to:
 
 > artifact template references a pillar the Recipe does not declare (`<expression>`, artifact `<output-name>`)
 
-Where one template names several, each gets a report of its own beneath a line naming the entry they share:
+The expression names the pillar in its first segment, which is what tells you which declaration is missing: `.source.chart` reaches for `source:`, `.workload.containers` for `workload:`.
+
+**An entry a component's own Recipe declares** is reported against that Recipe's `artifacts:` block.
+
+**An entry a FeatureRecipe declares** — attached to a component as a feature, or declared at a boundary — is checked against the pillars *that* FeatureRecipe declares rather than the host component's, is reported against the FeatureRecipe's `artifacts:` block, and carries one further caption naming the attachment that binds it:
+
+> artifact template references a pillar the Recipe does not declare (`<expression>`, artifact `<output-name>`, attachment `<attachment-name>`)
+
+The attachment caption is what the position cannot say on its own: a component may carry several attachments, and an attachment declared at a boundary reaches every component the boundary holds. The sentence itself names a Recipe on either path; the position and the attachment caption together are what say which document to open.
+
+Where one template names several references, each gets a report of its own beneath a line naming the entry they share, and that line names the document as well:
 
 > artifact `<output-name>` references pillars its Recipe does not declare
 
-The expression names the pillar in its first segment, which is what tells you which declaration is missing: `.source.chart` reaches for `source:`, `.workload.containers` for `workload:`.
+> artifact `<output-name>` references pillars the FeatureRecipe attachment `<attachment-name>` binds does not declare
 
-**An entry a FeatureRecipe declares** — attached to a component as a feature, or declared at a boundary — names which pillar is absent in the message itself, and reports the first offending reference rather than all of them:
-
-> artifact `<output-name>` template references `<expression>` but Recipe declares no workload:
-
-> artifact `<output-name>` template references `<expression>` but Recipe declares no source:
-
-Both shapes carry the same halting condition, so anything matching on the condition rather than on the text sees no difference between them.
+Every one of these reports carries the same halting condition, whichever document it is about, so anything matching on the condition rather than on the text sees no difference between them.
 
 **How to fix:** either declare the pillar the template reads, or stop reading it. Declaring it is the fix when the `artifacts:` body belongs with that Recipe shape — add the `workload:` the template's container, port or volume references expect, or the `source:` whose chart or module path it interpolates. Dropping the reference is the fix when the body was written against a different Recipe and reuses a fragment that does not apply here; where the value genuinely comes from elsewhere, publish it through the producing node's `provides:` and read it from the inject pipe instead of reaching for a pillar this Recipe does not fill. Guarding the reference with a fallback wrapper does not clear the halt — the pillar is missing, not the key under it — and neither does moving the reference to another entry in the same Recipe, because every entry in one `artifacts:` block is evaluated against the same pillars.
 
