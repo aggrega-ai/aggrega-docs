@@ -313,14 +313,14 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrAssertionNameCollision()` | `assertion name declared twice across the extends chain: rename the extending entity's assertion, whose assertions add to the base's and never replace one` |
 | `ErrCyclicExtension()` | `cyclic extends chain` |
 | `ErrFeatureRecipeEvalProviderConstraint()` | `featurerecipe eval-provider constraint: render input-kind fields are forbidden when provider is eval` |
-| `ErrFeatureRecipeRule1()` | `featurerecipe rule 1: valuesMapping requires source` |
+| `ErrFeatureRecipeRule1()` | `FeatureRecipe: valuesMapping requires source` |
 | `ErrInheritanceMerge()` | `inheritance merge failed: resolve the conflicting field definitions across the extends chain` |
 | `ErrRecipeEvalProviderConstraint()` | `recipe eval-provider constraint: input-kind fields are forbidden when provider is eval` |
 | `ErrRecipeOutputComponentLabelCollision()` | `recipe output-component-labels constraint: key is also declared in outputLabels` |
 | `ErrRecipeOutputLabelReservedNamespace()` | `recipe output-labels constraint: key uses a reserved namespace` |
-| `ErrRecipeRule1()` | `recipe rule 1: valuesMapping requires source` |
-| `ErrRecipeRule5()` | `recipe rule 5: at least one input kind required` |
-| `ErrRecipeRule7()` | `recipe rule 7: filename collision across input-kind origins at emission` |
+| `ErrRecipeRule1()` | `Recipe: valuesMapping requires source` |
+| `ErrRecipeRule5()` | `Recipe: at least one input kind required` |
+| `ErrRecipeRule7()` | `Recipe: filename collision across input-kind origins at emission` |
 | `ErrSlotNotReferenceable()` | `workload attachment slot is not referenceable` |
 | `ErrWorkloadFeaturesSchema()` | `workload featuresSchema cross-check failed` |
 | `ErrWorkloadValidation()` | `workload validation failed` |
