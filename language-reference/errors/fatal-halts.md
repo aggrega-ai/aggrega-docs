@@ -70,37 +70,30 @@ Emitted message:
 
 ### Recipe shape rules
 
-A Recipe composes its output from three input kinds — sourced, synthesized, and artifacts — described in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md). The shape of a valid Recipe is constrained by five composition rules; four are checked when the Recipe is loaded, one is checked at emission time. The rules apply to Recipes that target a non-`eval` provider; the `eval` provider has its own constraint (below). The rule numbering preserves a gap at Rule 3 for cross-reference stability across releases.
+A Recipe composes its output from three input kinds — sourced, synthesized, and artifacts — described in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md). The shape of a valid Recipe is constrained by the composition rules below. They differ in when they are checked — when the Recipe is loaded, when a node renders, or when output is emitted — so read each entry for the point at which its own condition is checked. The rules apply to Recipes that target a non-`eval` provider; the `eval` provider has its own constraint (below).
+
+Each rule is named by what it constrains. There is no numbering, and none is reserved: a name says which part of the Recipe to open, and it keeps saying it however the list below grows or is reordered. Where you need to record a condition durably — in a CI gate, an issue, a runbook — use its **code**, the identifier [sentinels.md](./sentinels.md) lists for the condition and the one that stays fixed as the packages around it evolve.
 
 A Recipe-shape halt is composed the same way. It opens with the sentence that states the rule, then names what this particular Recipe supplied, then the detail specific to it:
 
-> `<the rule's sentence>` (Recipe `<name>:<version>`, rule `<N>`, at `<file-path>`). `<rule-specific detail>`
+> `<the rule's sentence>` (Recipe `<name>:<version>`, rule `<rule-name>`, at `<file-path>`). `<rule-specific detail>`
 
-The leading sentence is fixed per rule — the same text every time that rule halts, whichever stage detected it — so it is the part of the output to match against, and it is the text [sentinels.md](./sentinels.md) lists for the rule's condition. Everything after it varies with the Recipe at fault: the parenthesised values say which document, which rule and where, and the closing sentence is the advice for that occurrence.
+The leading sentence is fixed per rule — the same text every time that rule halts, whichever stage detected it — so it is the part of the output to match against, and it is the text [sentinels.md](./sentinels.md) lists for the rule's condition. Everything after it varies with the Recipe at fault: the parenthesised values say which document, which rule by name, and where, and the closing sentence is the advice for that occurrence.
 
 The build prints the whole line under a `CATALOG_ERROR` tag, which signals that the failure is attributable to the catalog entity (the Recipe, or the provider it binds to), not to the Aggregate or the Release.
 
-#### Rule 1 — `valuesMapping` requires `source`
+#### `valuesMapping` requires `source`
 
 <!-- covers: pkg/validator.ErrRecipeRule1 -->
 
-A Recipe declares `valuesMapping` but not `source`. Without a source to overlay, there is nothing to receive the mapped values.
+A Recipe declares `valuesMapping` but not `source`. Without a source to overlay, there is nothing to receive the mapped values. This rule is checked when the Recipe is loaded.
 
 Emitted message:
-> Recipe: valuesMapping requires source (Recipe `<name>:<version>`, rule 1, at `<path>`). declare a source: pointer alongside valuesMapping (or remove the valuesMapping if no overlay is intended)
+> Recipe: valuesMapping requires source (Recipe `<name>:<version>`, rule values-mapping, at `<path>`). declare a source: pointer alongside valuesMapping (or remove the valuesMapping if no overlay is intended)
 
 **How to fix:** add a `source:` pointer (a chart, module, or compose-file reference) alongside the `valuesMapping`, or remove the `valuesMapping` and adopt a different input kind (`workload:` for synthesized output, `artifacts:` for direct manifest emission).
 
-#### Rule 2 — `source` requires `valuesMapping`
-
-A Recipe declares `source` but no `valuesMapping`. An externally-loaded chart or module needs values; a source with no values overlay is underspecified.
-
-Emitted message:
-> Recipe `<name>:<version>`: validation error at `<path>` — rule 2: source requires valuesMapping. declare a valuesMapping alongside source, or use a different input kind (workload, artifacts)
-
-**How to fix:** declare a `valuesMapping:` (inline Go template, or file `$import:`, or library `$import:` to a [MappingLibrary](../entities/mappinglibrary.md) entry) that produces the values overlay for the source, or remove the `source:` and adopt the input kind that matches your authoring intent.
-
-#### Rule 4 — `workload:` requires a provider that can synthesize
+#### `workload:` requires a provider that can synthesize
 
 A Recipe declares `workload:` (synthesized mode) for a provider that does not implement Workload synthesis. Synthesized-mode support is a property of the provider — the standard-library catalog declares `workloadSchema` on synthesis-capable providers by convention, but the check keys on provider capability, not on that field's presence.
 
@@ -113,36 +106,35 @@ Emitted message:
 
 > **Honest-pending — per-provider Workload-content validation.** Today the provider's `workloadSchema` is documentation-only and does not validate the Workload body; bodies are validated against the platform-owned embedded Workload schema. When the Wasm-based Workload synthesizer ships, `workloadSchema` becomes the per-provider contract the synthesizer validates the Workload body against (a distinct, content-level halt). See the roadmap's Wasm-based Workload synthesizers item.
 
-#### Rule 5 — at least one input kind must be present
+#### At least one input kind must be present
 
 <!-- covers: pkg/validator.ErrRecipeRule5 -->
 
-A Recipe declares no input kind: no `source` paired with `valuesMapping`, no `workload:`, no `artifacts:`. Such a Recipe produces no output and has no rendering surface.
+A Recipe declares no input kind: no `source` paired with `valuesMapping`, no `workload:`, no `artifacts:`. Such a Recipe produces no output and has no rendering surface. This rule is checked when the Recipe is loaded.
 
 Emitted message:
-> Recipe: at least one input kind required (Recipe `<name>:<version>`, rule 5, at `<path>`). declare one of: source (with valuesMapping), workload, artifacts
+> Recipe: at least one input kind required (Recipe `<name>:<version>`, rule input-kinds, at `<path>`). declare one of: source (with valuesMapping), workload, artifacts
 
 **How to fix:** add the input kind that matches the Recipe's authoring intent. Recipes that only define `provides:` (virtual components that supply pointer strings without rendering anything) belong on the `eval` provider — see the eval-provider constraint below.
 
-#### Rule 6 — `artifacts:` entry keys must be unique
+#### `artifacts:` entry keys must be unique
 
 A Recipe declares two or more entries under `artifacts:` with the same key. The key dictates the emitted filename (whether the entry's body is authored inline or loaded via per-entry `$import:`); duplicate keys would emit a file with the same name to the same boundary directory.
 
-Emitted message:
-> Recipe `<name>:<version>`: validation error at `<path>` — rule 6: artifacts: entry keys collide. colliding entry keys: `<key1>, <key2>, ...`
+The build refuses the Recipe while decoding the document into its typed form, naming the repeated key and the line it recurs on. That step runs after the envelope schema check and before the shape rules, so a Recipe with a duplicate `artifacts:` key reports valid schema and then this halt, and the remaining shape rules do not report on it.
 
 **How to fix:** rename one of the colliding entry keys so each `artifacts:` entry has a unique filename.
 
-#### Rule 7 — emission-time filename collision across input kinds
+#### Emission-time filename collision across input kinds
 
 <!-- covers: pkg/validator.ErrRecipeRule7 -->
 
 A Recipe's three input kinds — sourced, synthesized, and artifacts — each emit files into the same boundary directory. If source-rendered, workload-synthesized, or artifact-emitted output produces a file whose name another input kind also produced, the build halts at emission with a message naming every contributor.
 
-Rule 7 is checked at emission time (after Workload translation completes), not at Recipe load.
+This rule is checked at emission time (after Workload translation completes), not at Recipe load.
 
 Emitted message (intended; emission-time detection ships incrementally):
-> Recipe: filename collision across input-kind origins at emission (Recipe `<name>:<version>`, rule 7, at `<path>`). `<filename>` declared by: `<origin1>, <origin2>, ...`
+> Recipe: filename collision across input-kind origins at emission (Recipe `<name>:<version>`, rule filename-collision, at `<path>`). `<filename>` declared by: `<origin1>, <origin2>, ...`
 
 **How to fix:** rename the colliding file in whichever input kind you control. If the collision involves a Workload-translated filename and an `artifacts:` entry, the Workload-translated names follow the provider's translation conventions (e.g., `<instance-id>-deployment.yaml` for helm) — adjust the `artifacts:` filename to a name the provider does not synthesise.
 

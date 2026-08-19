@@ -12,7 +12,7 @@ Aggrega's disciplines split into three classes by *how the discipline is enforce
 
 The discipline is enforced by JSON Schema 2020-12 validation at load time (the entity envelope's JSON Schema, plus the pillar-level `schema:` declarations on Component and Feature entities). A violation produces a fatal halt before the build progresses; the compiler refuses to proceed. Authors who try to violate a Class A discipline see an explicit validation error pointing at the field and the constraint.
 
-Examples: entity envelope required fields (`apiVersion` / `kind` / `metadata.name` / `metadata.version`); SemVer regex on `metadata.version`; Release schema's mechanical ban on `values:` blocks (per Invariant 5); `extends`-plus-`aggregate` rejection on Release (the Single Source of Truth invariant); Recipe shape rules 1–7 enforcing the input-kind composition contract.
+Examples: entity envelope required fields (`apiVersion` / `kind` / `metadata.name` / `metadata.version`); SemVer regex on `metadata.version`; Release schema's mechanical ban on `values:` blocks (per Invariant 5); `extends`-plus-`aggregate` rejection on Release (the Single Source of Truth invariant); the Recipe shape rules enforcing the input-kind composition contract.
 
 Class A disciplines are the strongest guarantees the language carries. The compiler refuses to render anything that violates them.
 

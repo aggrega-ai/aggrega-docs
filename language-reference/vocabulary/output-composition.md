@@ -99,13 +99,13 @@ The order matters because downstream mechanisms can read upstream outputs — fo
 
 When two mechanisms produce a file with the same name in the same boundary directory, the build halts with a `CATALOG_ERROR:` naming every contributor. The rule set:
 
-### Recipe shape rule 6 — `artifacts:` entry-key collision
+### Recipe shape rule: `artifacts:` entry-key collision
 
-A Recipe declares two entries under `artifacts:` with the same key (the key dictates the emitted filename, whether the entry's body is authored inline or loaded via `$import:`). Detected at Recipe load time per [`errors/fatal-halts.md`](../errors/fatal-halts.md) Recipe shape rule 6.
+A Recipe declares two entries under `artifacts:` with the same key (the key dictates the emitted filename, whether the entry's body is authored inline or loaded via `$import:`). Detected at Recipe load time per [`errors/fatal-halts.md`](../errors/fatal-halts.md) "`artifacts:` entry keys must be unique".
 
-### Recipe shape rule 7 — Cross-input-kind emission-time collision
+### Recipe shape rule: Cross-input-kind emission-time collision
 
-A Recipe's three input kinds — sourced, synthesized, and artifacts — each emit files into the same boundary directory. If source-rendered, workload-synthesized, or artifact-emitted output produces a file whose name another input kind also produced, the build halts at emission. Detected at emit time per [`errors/fatal-halts.md`](../errors/fatal-halts.md) Recipe shape rule 7.
+A Recipe's three input kinds — sourced, synthesized, and artifacts — each emit files into the same boundary directory. If source-rendered, workload-synthesized, or artifact-emitted output produces a file whose name another input kind also produced, the build halts at emission. Detected at emit time per [`errors/fatal-halts.md`](../errors/fatal-halts.md) "Emission-time filename collision across input kinds".
 
 ### Compose service-name collision (Release-level)
 
@@ -146,7 +146,7 @@ Service-name collisions across boundaries are therefore real and detected at the
 - [`providers/helm.md`](../providers/helm.md) — helm provider's per-mechanism output shapes and naming conventions.
 - [`providers/helm-chart.md`](../providers/helm-chart.md) — helm-chart provider's umbrella + sub-chart composition (mechanism 5).
 - [`providers/compose.md`](../providers/compose.md) — compose provider's per-node fragmentation + Release-level composition (mechanism 5).
-- [`errors/fatal-halts.md`](../errors/fatal-halts.md) — Recipe shape rules 6 + 7 (collision detection at Recipe load + emit time).
+- [`errors/fatal-halts.md`](../errors/fatal-halts.md) — the Recipe shape rules on unique `artifacts:` entry keys and on cross-input-kind filename collision.
 - [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) — per-template-site evaluation timing across the rendering order.
 - [`plugins/plugin-contract.md`](../plugins/plugin-contract.md) — the plugin-pipeline contract surface (mechanism 4 design target).
 - [`10-status.md`](../10-status.md) — current readiness state for mechanism 6 (`artifacts:` `accepted but blocked`) and mechanism 4's plugin-pipeline runtime (**available**).

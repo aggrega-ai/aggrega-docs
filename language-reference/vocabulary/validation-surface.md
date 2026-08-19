@@ -66,7 +66,7 @@ The four layers share one observable convention: **every Aggrega-attributable va
 - Layer 3 (Provider source / Workload) errors are catalog-entity-attributable by definition — the Recipe + Provider pair authored the schema that rejected the developer's input. These carry the `CATALOG_ERROR:` prefix declared at [`pkg/validator/recipe_validate_errors.go`](../../../aggrega-cli/pkg/validator/recipe_validate_errors.go) and [`pkg/validator/workload_validate_errors.go`](../../../aggrega-cli/pkg/validator/workload_validate_errors.go).
 - Layer 4 (annotation-binding value validation) errors follow the Layer 2 shape — the validating Feature schema lives in the referenced Feature's `spec.schema`, and runtime values flow through the Manifest binding's `maps` routing into that schema for per-leaf type checking.
 
-For the full inventory of Aggrega-prefixed sentinels and the surfaces that produce them, see [`errors/error-translation.md`](../errors/error-translation.md). For the per-error catalog (`CATALOG_ERROR:` rules 1-7, sentinel-by-sentinel diagnostics), see [`errors/fatal-halts.md`](../errors/fatal-halts.md).
+For the full inventory of Aggrega-prefixed sentinels and the surfaces that produce them, see [`errors/error-translation.md`](../errors/error-translation.md). For the per-error catalog (the `CATALOG_ERROR:` Recipe shape rules, condition by condition), see [`errors/fatal-halts.md`](../errors/fatal-halts.md).
 
 ## Layer interaction when fields overlap
 
