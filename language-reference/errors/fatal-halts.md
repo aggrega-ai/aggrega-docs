@@ -72,11 +72,13 @@ Emitted message:
 
 A Recipe composes its output from three input kinds — sourced, synthesized, and artifacts — described in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md). The shape of a valid Recipe is constrained by five composition rules; four are checked when the Recipe is loaded, one is checked at emission time. The rules apply to Recipes that target a non-`eval` provider; the `eval` provider has its own constraint (below). The rule numbering preserves a gap at Rule 3 for cross-reference stability across releases.
 
-Every Recipe-shape error carries the same message shape:
+A Recipe-shape halt is composed the same way. It opens with the sentence that states the rule, then names what this particular Recipe supplied, then the detail specific to it:
 
-> Recipe `<name>:<version>`: validation error at `<file-path>` — rule `<N>`: `<rule description>`. `<rule-specific detail>`
+> `<the rule's sentence>` (Recipe `<name>:<version>`, rule `<N>`, at `<file-path>`). `<rule-specific detail>`
 
-The build prints it under a `CATALOG_ERROR` tag, which signals that the failure is attributable to the catalog entity (the Recipe, or the provider it binds to), not to the Aggregate or the Release.
+The leading sentence is fixed per rule — the same text every time that rule halts, whichever stage detected it — so it is the part of the output to match against, and it is the text [sentinels.md](./sentinels.md) lists for the rule's condition. Everything after it varies with the Recipe at fault: the parenthesised values say which document, which rule and where, and the closing sentence is the advice for that occurrence.
+
+The build prints the whole line under a `CATALOG_ERROR` tag, which signals that the failure is attributable to the catalog entity (the Recipe, or the provider it binds to), not to the Aggregate or the Release.
 
 #### Rule 1 — `valuesMapping` requires `source`
 
@@ -85,7 +87,7 @@ The build prints it under a `CATALOG_ERROR` tag, which signals that the failure 
 A Recipe declares `valuesMapping` but not `source`. Without a source to overlay, there is nothing to receive the mapped values.
 
 Emitted message:
-> Recipe `<name>:<version>`: validation error at `<path>` — rule 1: valuesMapping requires source. declare a source: pointer alongside valuesMapping (or remove the valuesMapping if no overlay is intended)
+> Recipe: valuesMapping requires source (Recipe `<name>:<version>`, rule 1, at `<path>`). declare a source: pointer alongside valuesMapping (or remove the valuesMapping if no overlay is intended)
 
 **How to fix:** add a `source:` pointer (a chart, module, or compose-file reference) alongside the `valuesMapping`, or remove the `valuesMapping` and adopt a different input kind (`workload:` for synthesized output, `artifacts:` for direct manifest emission).
 
@@ -118,7 +120,7 @@ Emitted message:
 A Recipe declares no input kind: no `source` paired with `valuesMapping`, no `workload:`, no `artifacts:`. Such a Recipe produces no output and has no rendering surface.
 
 Emitted message:
-> Recipe `<name>:<version>`: validation error at `<path>` — rule 5: at least one input kind must be present. declare one of: source (with valuesMapping), workload, artifacts
+> Recipe: at least one input kind required (Recipe `<name>:<version>`, rule 5, at `<path>`). declare one of: source (with valuesMapping), workload, artifacts
 
 **How to fix:** add the input kind that matches the Recipe's authoring intent. Recipes that only define `provides:` (virtual components that supply pointer strings without rendering anything) belong on the `eval` provider — see the eval-provider constraint below.
 
@@ -140,7 +142,7 @@ A Recipe's three input kinds — sourced, synthesized, and artifacts — each em
 Rule 7 is checked at emission time (after Workload translation completes), not at Recipe load.
 
 Emitted message (intended; emission-time detection ships incrementally):
-> Recipe `<name>:<version>`: validation error at `<path>` — rule 7: filename collision across input-kind origins at emission. `<filename>` declared by: `<origin1>, <origin2>, ...`
+> Recipe: filename collision across input-kind origins at emission (Recipe `<name>:<version>`, rule 7, at `<path>`). `<filename>` declared by: `<origin1>, <origin2>, ...`
 
 **How to fix:** rename the colliding file in whichever input kind you control. If the collision involves a Workload-translated filename and an `artifacts:` entry, the Workload-translated names follow the provider's translation conventions (e.g., `<instance-id>-deployment.yaml` for helm) — adjust the `artifacts:` filename to a name the provider does not synthesise.
 
@@ -151,7 +153,7 @@ Emitted message (intended; emission-time detection ships incrementally):
 A Recipe targets the `eval` provider but declares one or more input-kind fields (`source`, `workload`, `artifacts`, `valuesMapping`). The `eval` provider executes formatting in-memory and has no rendering surface; declaring input-kind fields on an eval Recipe is meaningless.
 
 Emitted message:
-> Recipe `<name>:<version>`: validation error at `<path>` — rule eval: the eval provider executes formatting in-memory and forbids input-kind fields. forbidden fields declared: `<field1>, <field2>, ...`
+> recipe eval-provider constraint: input-kind fields are forbidden when provider is eval (Recipe `<name>:<version>`, rule eval, at `<path>`). forbidden fields declared: `<field1>, <field2>, ...`
 
 **How to fix:** remove the input-kind fields from the eval Recipe. An eval Recipe legitimately declares only `provides:` (and optionally `locals:`); it produces deterministic pointer strings for downstream consumers without rendering any artifacts.
 
@@ -176,8 +178,13 @@ After loading, the compiler walks the Manifest's two tiers (type map, then name 
 
 A chain of `extends` pointers loops back on itself.
 
-Emitted message:
-> circular extends detected: `<entity-name>` already in chain. Remove the circular extends reference.
+Emitted message. The sentence naming the condition opens it, and what follows names the entity, the authored key, and the pointer that closed the loop:
+> cyclic extends chain (`<kind>` `<name>`, at `.spec.extends`, circular extends detected: `<entity-name>` already in chain). Remove the circular extends reference
+
+A loop among Manifests opens with that same sentence and names the offending pair after it:
+> cyclic extends chain: Manifest `<name>` extends `<reference>`, which is already in the chain; remove the circular reference
+
+The opening sentence is the same either way, which is what makes it the part of the output to match on: it is the text [sentinels.md](./sentinels.md) lists for this condition, and it does not change with where the loop was found.
 
 **How to fix:** inspect the `extends:` fields along the chain reported in the message and break the cycle by removing one of the pointers or by collapsing the duplicated content into a single base entity.
 
@@ -412,8 +419,8 @@ Emitted message:
 
 A Component's `extends:` chain or a Feature's `extends:` chain loops back on itself.
 
-Emitted message:
-> circular extends detected: `<entity-name>` already in chain. Remove the circular extends reference.
+Emitted message, with `Feature` in place of `Component` when a Feature chain is the one that loops:
+> cyclic extends chain (Component `<name>`, at `.spec.extends`, circular extends detected: `<entity-name>` already in chain). Remove the circular extends reference
 
 **How to fix:** break the loop in the chain of Component or Feature definitions the message walks through.
 
