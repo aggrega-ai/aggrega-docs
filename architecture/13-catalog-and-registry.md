@@ -435,7 +435,7 @@ For Component, Feature, Recipe and FeatureRecipe, the JSON Schema for `metadata.
 
 The check is opt-in: one command performs it, and it only runs when an author asks for it. The two commands most often assumed to perform it do not:
 
-* **`aggrega lint` reports name-shape violations.** The plugin compares each entity's `metadata.name` against the pattern for its kind. The check runs when an author invokes `aggrega lint` — over a single entity, over a Release's dependency closure with `--release`, or over every catalog entity when invoked with no argument — and the same rule set is reachable from the editor-facing tool surface the CLI exposes. Findings are advisory: they are reported at warning severity, and they do not halt.
+* **`aggrega lint` reports name-shape violations.** The plugin compares each entity's `metadata.name` against the pattern for its kind. The check runs when an author invokes `aggrega lint` — over a single entity, over a Release's dependency closure with `--release`, or over every catalog entity when invoked with no argument — and the same rule set is reachable from the editor-facing tool surface the CLI exposes. Findings are advisory: they are reported at `warn` severity, and they do not halt.
 
 ```text
 [warning] name-shape: metadata.name "mariadbSynth" does not match the documented pattern for Recipe entities (^[a-z][a-z0-9-]*$)

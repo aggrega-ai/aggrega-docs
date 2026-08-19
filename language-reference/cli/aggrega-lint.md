@@ -10,7 +10,7 @@ The entity path may be given positionally or with `--entity <path>`. `--release`
 
 ## Whole-catalog conventions (no argument)
 
-`aggrega lint` with no argument runs the structural publishing-discipline rules over every catalog entity found under the configured catalog directories. Findings are advisory — reported at warning severity, they never halt on a convention finding alone. Use it to sweep a catalog for naming, category-directory, and annotation-prefix drift.
+`aggrega lint` with no argument runs the structural publishing-discipline rules over every catalog entity found under the configured catalog directories. Findings are advisory — reported at `warn` severity, they never halt on a convention finding alone. Use it to sweep a catalog for naming, category-directory, and annotation-prefix drift.
 
 Whole-catalog conventions checking needs at least one catalog directory to scan: pass `--catalog` or set `workspace.catalog_dirs` in `.aggrega-config.yaml`. It refuses to enumerate the current working directory implicitly.
 
@@ -24,8 +24,8 @@ This is the conventions counterpart to [`aggrega validate --release`](./aggrega-
 
 The entity-path mode runs at one of two severities:
 
-- **Default (local).** Runs the discipline rules over the local entity content at **warning** severity. No registry access; the version-bump check is skipped. Use it while authoring.
-- **`--pre-publish` (publish gate).** Fetches the entity's latest published non-pre-release version from the registry, runs the same rules at **error** severity, and additionally classifies the change as `PATCH` / `MINOR` / `MAJOR` and halts if the proposed `metadata.version` bump is smaller than the change requires. Use it in the publish flow, before `aggrega push`. `--pre-publish` applies to the single-entity shape only.
+- **Default (local).** Runs the discipline rules over the local entity content at **`warn`** severity. No registry access; the version-bump check is skipped. Use it while authoring.
+- **`--pre-publish` (publish gate).** Fetches the entity's latest published non-pre-release version from the registry, runs the same rules at **`halt`** severity, and additionally classifies the change as `PATCH` / `MINOR` / `MAJOR` and halts if the proposed `metadata.version` bump is smaller than the change requires. Use it in the publish flow, before `aggrega push`. `--pre-publish` applies to the single-entity shape only.
 
 Over-bumping is always allowed; under-bumping halts. The first publication of an entity (no prior version in the registry) skips the bump check and surfaces a warning noting that no verification was performed.
 
@@ -91,7 +91,7 @@ aggrega lint core/datastore/postgres/component.yaml --pre-publish --allow-nonsta
 ## See also
 
 - [./aggrega-validate.md](./aggrega-validate.md) — the correctness counterpart across the same three scopes.
-- [./aggrega-build.md](./aggrega-build.md) — validates as part of compilation; surfaces the `x-aggrega-*` advisory at warning severity.
+- [./aggrega-build.md](./aggrega-build.md) — validates as part of compilation; surfaces the `x-aggrega-*` advisory at `warn` severity.
 - [./aggrega-push.md](./aggrega-push.md) — publishes an entity to the registry; `aggrega lint --pre-publish` is the gate that precedes it.
 - [./aggrega-pull.md](./aggrega-pull.md) — resolves and pins dependencies.
 - [../errors/warnings.md](../errors/warnings.md) — non-fatal warnings, including the local-mode lint findings.

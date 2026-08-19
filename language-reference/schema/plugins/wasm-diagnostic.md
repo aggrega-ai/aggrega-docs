@@ -4,7 +4,7 @@ _Generated reference. Do not edit by hand — regenerate from the published JSON
 
 Schema id: `https://aggrega.ai/schemas/wasm-diagnostic-v1alpha1.schema.json`
 
-The single diagnostic shape every Wasm socket shares. A plugin reports one entry per issue it raises; the host surfaces it. The shape is a superset: every socket populates the subset it uses and omits the rest, so a diagnostic from any socket is one uniform structure. severity is an open string so each socket keeps its own vocabulary (a parser reports its own severities, an import reports error/warning/info, a publishing linter reports error/warning, a policy reports the build-outcome verdict deny/warn/audit); the host reads the severity value without the schema constraining it to one vocabulary.
+The single diagnostic shape every Wasm socket shares. A plugin reports one entry per issue it raises; the host surfaces it. The shape is a superset: every socket populates the subset it uses and omits the rest, so a diagnostic from any socket is one uniform structure. severity is one of three values every socket shares — halt, warn, or info — so a diagnostic carries the same meaning whichever socket raised it.
 
 **Top-level type:** `object`
 
@@ -16,7 +16,7 @@ One issue a Wasm plugin raised: a severity, a human-readable message, an optiona
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `severity` | string | yes | The diagnostic's severity, as an open string so each socket keeps its own vocabulary. A parser reports its own severities; an import reports error, warning, or info; a publishing linter reports error or warning; a policy reports the build-outcome verdict deny, warn, or audit. The host reads the value without the schema constraining it to one vocabulary. |
+| `severity` | string (enum) | yes | The diagnostic's severity, drawn from one closed set every socket shares. halt stops the build and names what to fix. warn surfaces alongside a build that still completes. info records the observation and leaves the build outcome unchanged. A parser, an import, a publishing linter and a governance verdict all report from this one set, so a reader interprets a severity the same way whichever socket raised it. Allowed values: `"halt"`, `"warn"`, `"info"` |
 | `message` | string | yes | The human-readable diagnostic text. |
 | `code` | string | no | An optional stable, machine-matchable code for the diagnostic, independent of the human-readable message. Absent when the emitting socket assigns no code. |
 | `rule_id` | string | no | The identifier of the rule that produced the diagnostic, when the emitting socket is rule-based (a publishing linter). Absent otherwise. |

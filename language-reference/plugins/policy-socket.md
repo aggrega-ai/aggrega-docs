@@ -76,18 +76,21 @@ described below.
 A guest returns a list of verdicts. Each verdict carries a severity that
 determines the build action:
 
-- **`deny`** — halts the build; the host surfaces the verdict's message as the
+- **`halt`** — stops the build; the host surfaces the verdict's message as the
   reason. The build produces no artifacts.
 - **`warn`** — flags the verdict; the build proceeds.
-- **`audit`** — records the verdict; the build outcome is unchanged.
+- **`info`** — records the verdict; the build outcome is unchanged.
+
+These three are the whole set, and they are the same three every other socket's
+diagnostics use, so a severity means the same thing wherever you read one.
 
 An allowing evaluation returns nothing. A guest emits a verdict only when a rule
 fires, so an empty verdict list means the policy allowed the build. There is no
 "pass" verdict to emit — silence is the allow.
 
 A guest may return many verdicts in one evaluation, mixing severities. The host
-walks them all: any `deny` halts the build (and every `deny` message is
-surfaced), while `warn` and `audit` verdicts are reported without blocking. This
+walks them all: any `halt` stops the build (and every `halt` message is
+surfaced), while `warn` and `info` verdicts are reported without blocking. This
 mirrors the halt-versus-advise split that separates a build-halting policy from
 an advisory lint check.
 
@@ -155,13 +158,15 @@ Wasm-native Rego evaluator, so an operator drops a `.rego` file into `sources`
 and attaches the guest — no external toolchain. The guest reads the payload as
 the Rego `input` document and the attachment's `settings` as the Rego `data`
 document, and it collects the policy's `deny`, `warn`, and `audit` message
-collections into verdicts of the matching severity.
+collections into verdicts. Those three names are Rego's own naming for a decision
+rule; the guest maps them onto the three verdict severities — `deny` lands as
+`halt`, `warn` as `warn`, and `audit` as `info`.
 
 The embedded evaluator reimplements Rego independently rather than embedding the
 reference implementation, and it does not implement every Rego builtin. When a
 policy calls a builtin the evaluator does not implement, the guest **fails
 loudly**: it returns a fault, not an allow. The build then halts with a fault
-that names the plugin — deliberately distinct from a `deny` verdict, so that
+that names the plugin — deliberately distinct from a `halt` verdict, so that
 "the engine cannot evaluate this policy" is never mistaken for "the policy
 allows the build." An unevaluable policy stops the build; it never passes
 silently.
@@ -183,7 +188,8 @@ module inside itself with an embedded Wasm interpreter, satisfies the module's
 own imports (its linear memory and its builtin callbacks), reads the payload as
 the OPA `input` document and the attachment's `settings` as the OPA `data`
 document, evaluates each compiled entrypoint, and maps each entrypoint's
-`deny` / `warn` / `audit` name to a verdict of the matching severity. If a baked
+`deny` / `warn` / `audit` entrypoint name to a verdict severity — `halt`, `warn`,
+and `info` respectively. If a baked
 policy needs a host-provided builtin the adapter does not implement, the adapter
 **fails loudly** — refusing the module rather than returning an allow — so an
 unevaluable policy stops the build instead of passing silently. Regenerating the
@@ -199,7 +205,7 @@ A render-stage adapter reasons over the build's **rendered output** rather than
 its IR graph. The render payload carries the emitted artifacts — each a path and
 its rendered content — plus the attachment's own sources and settings. An adapter
 parses that content for the output shape it targets, evaluates a policy over the
-structured result, and maps the outcome to `deny` / `warn` / `audit` verdicts.
+structured result, and maps the outcome to `halt` / `warn` / `info` verdicts.
 Because the payload is shape-agnostic (a list of path/content pairs), one adapter
 pattern serves any render target; a new output shape is a new adapter, not a host
 change.
@@ -214,8 +220,9 @@ Two reference render-stage adapters ship, one per common output shape.
 The embedded-Rego render adapter runs operator-supplied Rego over any YAML or
 JSON render output, and over Terraform's native-HCL output. It is the
 render-stage sibling of the embedded Regorus-backed `ir`-stage guest: the same
-Wasm-native Rego evaluator, the same `deny` / `warn` / `audit` collection
-convention, moved to the render stage.
+Wasm-native Rego evaluator, the same `deny` / `warn` / `audit` Rego collection
+convention mapped onto the same three verdict severities, moved to the render
+stage.
 
 It is **output-shape independent** across YAML/JSON targets. The adapter parses
 each artifact's content as one or more YAML or JSON documents — YAML is a
@@ -246,7 +253,7 @@ non-structured content.
 When an artifact's content does not parse, the adapter does not silently allow it:
 it keeps the raw content, exposes no parsed documents for that artifact, and
 records the parser's message under `input.artifacts[_].parse_error`, so a policy
-can `deny` on a malformed artifact explicitly. As with the `ir`-stage guest, a
+can stop the build on a malformed artifact explicitly. As with the `ir`-stage guest, a
 policy that calls a builtin the embedded evaluator does not implement **fails
 loudly** — a fault naming the plugin, never a silent allow.
 

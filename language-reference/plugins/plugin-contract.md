@@ -49,8 +49,8 @@ The compilation pipeline reserves the following socket points. The shape labels 
 | --- | --- | --- |
 | Governance socket, `annotation-transform` role | Resolution (before annotation expansion) | **available** — dispatched when a workspace attaches an annotation-transform plugin; injects annotations that expansion turns into Feature attachments |
 | Governance socket, `label-transform` role | Topology construction (the Topology Builder) | **available** — dispatched when a workspace attaches a label-transform plugin; auto-tags node labels via JSON Patch |
-| Governance socket, `ir-verdict` role | Static analysis (the Static Analyzer, over the IR graph) | **available** — dispatched when a workspace attaches an ir-verdict plugin; a `deny` verdict halts the build |
-| Governance socket, `render-verdict` role | Rendering (over the rendered artifacts) | **available** — dispatched when a workspace attaches a render-verdict plugin; a `deny` verdict halts the build |
+| Governance socket, `ir-verdict` role | Static analysis (the Static Analyzer, over the IR graph) | **available** — dispatched when a workspace attaches an ir-verdict plugin; a `halt` verdict stops the build |
+| Governance socket, `render-verdict` role | Rendering (over the rendered artifacts) | **available** — dispatched when a workspace attaches a render-verdict plugin; a `halt` verdict stops the build |
 | FeatureRecipe `pipeline:` plugins | The plugin pipeline (post-render mutation) | **available** — each declared step runs against the rendered document set, applying RFC 6902 patches and emitting side effects |
 | Provider rendering plugins (helm, helm-chart, compose, terraform) | Base rendering (the providers) | **available** — every provider renders through its Wasm guest; rendering is Wasm-only, with no in-host renderer fallback |
 | `linter.wasm` (publishing-linter) | Out-of-band (`aggrega lint`) | **available** — the publishing-linter ships and runs through the host via `aggrega lint` |
@@ -107,11 +107,11 @@ Both roles additionally carry the attachment's `sources` (policy-definition file
 
 **Output shape (guest → host).** A `PolicyOutput` document carrying:
 
-- `results` — an array of `Diagnostic` entries, each with a `severity` (`deny`, `warn`, or `audit`) and a `message` string. A verdict may also set `code`, `rule_id`, `classification`, `source_ref`, `location`, and `suggest` on the same entry; the host appends whichever of those the verdict carried to the rendered verdict, on every severity route.
+- `results` — an array of `Diagnostic` entries, each with a `severity` (`halt`, `warn`, or `info`) and a `message` string. A verdict may also set `code`, `rule_id`, `classification`, `source_ref`, `location`, and `suggest` on the same entry; the host appends whichever of those the verdict carried to the rendered verdict, on every severity route.
 
-Only fired verdicts appear; an allowing evaluation returns an empty array. The host walks the verdicts and maps each severity to an action: `deny` halts the build (surfacing every `deny` message), `warn` flags the verdict and lets the build proceed, `audit` records it without affecting the outcome. A `deny` halts through the same gate a selector or `appliesTo` violation uses.
+Only fired verdicts appear; an allowing evaluation returns an empty array. The host walks the verdicts and maps each severity to an action: `halt` stops the build (surfacing every `halt` message), `warn` flags the verdict and lets the build proceed, `info` records it without affecting the outcome. A `halt` stops through the same gate a selector or `appliesTo` violation uses.
 
-**Type definitions.** The policy wire types are published in the same three ABI packages: `PolicyInput` (ir-verdict role), `RenderPolicyInput` (render-verdict role), the shared `PolicySource`, and `PolicyOutput`, whose `results` entries are `Diagnostic` values. A diagnostic's severity is an open string so each socket keeps its own vocabulary; a policy reports `deny`, `warn`, or `audit`, and a `deny` halts the build.
+**Type definitions.** The policy wire types are published in the same three ABI packages: `PolicyInput` (ir-verdict role), `RenderPolicyInput` (render-verdict role), the shared `PolicySource`, and `PolicyOutput`, whose `results` entries are `Diagnostic` values. A diagnostic's severity is one of three values every socket shares — `halt`, `warn`, or `info` — and the three are published as constants alongside the wire types in each of the three packages, so a guest reports from the same closed set the host routes on.
 
 ## Output shape contract — the FeatureRecipe pipeline and provider sockets
 
@@ -150,7 +150,7 @@ The socket is a fixed export set — one mandatory, the rest optional and advert
 
 - `render_node` (mandatory) — render one IR node into provider-native files.
 - `assemble_boundary` (optional) — merge a dispatch group's per-node output into one artifact per path (present when `boundary_assembly` is `merge` or `nest`).
-- `validate_node_input` (optional) — structural pre-render validation of a node's input; an error-severity diagnostic halts the build, a warning surfaces to the build result.
+- `validate_node_input` (optional) — structural pre-render validation of a node's input; a `halt` diagnostic stops the build, a `warn` surfaces to the build result.
 - `carve` / `reassemble` (optional, paired) — the guest's own byte-faithful patch codec for post-render pipeline steps, used only when both are advertised.
 - `boundary_env_overrides` (optional) — the guest computes per-consumer boundary environment overrides the host then applies.
 
@@ -192,7 +192,7 @@ The host consumes a guest's output bytes verbatim, so a guest must produce ident
 
 The `linter.wasm` socket ships as the standard **publishing-linter**, an out-of-band gate that runs through `aggrega lint` rather than at compile time. It consumes a catalog entity (and, in `--pre-publish` mode, the entity's currently-published version) and returns a list of findings, each with a severity and a message; in `--pre-publish` mode it also returns a version-bump classification. The host dispatches it through the embedded Wasm runtime, behind the same AOT-purity firewall as every other socket. The full rule set, severities, and per-rule opt-outs are documented at [`cli/aggrega-lint.md`](../cli/aggrega-lint.md).
 
-The linter is opt-in catalog discipline: the compiler does not run it during `aggrega build` (with the single exception of the `x-aggrega-*` discouragement advisory, which surfaces at warning severity during build and at error severity under `aggrega lint --pre-publish`). Because the rules live in a plugin, an enterprise can point `aggrega lint` at a different linter plugin to enforce its own discipline.
+The linter is opt-in catalog discipline: the compiler does not run it during `aggrega build` (with the single exception of the `x-aggrega-*` discouragement advisory, which surfaces at `warn` severity during build and at `halt` severity under `aggrega lint --pre-publish`). Because the rules live in a plugin, an enterprise can point `aggrega lint` at a different linter plugin to enforce its own discipline.
 
 **Status today:** **available**. The publishing-linter ships and runs through the host via `aggrega lint`.
 
@@ -200,12 +200,12 @@ The linter is opt-in catalog discipline: the compiler does not run it during `ag
 
 Two of the documented sockets share a similar surface — both emit per-rule results — but differ in pipeline placement and gating semantics. The criterion for deciding which socket carries a given check:
 
-- **The governance verdict roles (in-band, build-halting).** Reserved for **build-halting policies**: a `deny` verdict stops the compilation pipeline and the build produces no artifacts. Use cases are policies whose violation makes the output unsafe to apply: compliance gates (PCI / SOC2 boundary placement), topology invariants (zero-trust ingress, cross-boundary auth), credential-flow shape (no plaintext secrets in IR), etc. A policy reasons over the IR graph (`ir-verdict`, before render) or the rendered artifacts (`render-verdict`, after render).
+- **The governance verdict roles (in-band, build-halting).** Reserved for **build-halting policies**: a `halt` verdict stops the compilation pipeline and the build produces no artifacts. Use cases are policies whose violation makes the output unsafe to apply: compliance gates (PCI / SOC2 boundary placement), topology invariants (zero-trust ingress, cross-boundary auth), credential-flow shape (no plaintext secrets in IR), etc. A policy reasons over the IR graph (`ir-verdict`, before render) or the rendered artifacts (`render-verdict`, after render).
 - **`linter.wasm` (out-of-band, CI / IDE, advisory).** Reserved for **best-practice and discoverability checks**: rules whose violation is suspicious but not unsafe — orphaned secrets, unused parameters, deprecated label vocabulary, tag completeness for cost attribution, naming-convention drift. Failure produces advisory output; the build still produces artifacts.
 
 The placement criterion phrased as a single rule: **if the check should halt the build, it belongs at a governance verdict role; if the check should warn an author or a reviewer without blocking the pipeline, it belongs in `linter.wasm`**.
 
-Both are usable today. The `linter.wasm` socket runs the publishing-linter via `aggrega lint`; the governance verdict roles are dispatched in-band during `aggrega build` when a workspace attaches a verdict-role plugin. Note that a verdict role carries its own severities — a policy may itself emit `warn` and `audit` verdicts that advise without halting — so the halt-versus-advise line above is the placement guidance for whole checks, not a claim that a policy can only halt. See the [governance socket page](policy-socket.md) for the severity model.
+Both are usable today. The `linter.wasm` socket runs the publishing-linter via `aggrega lint`; the governance verdict roles are dispatched in-band during `aggrega build` when a workspace attaches a verdict-role plugin. Note that a verdict role carries its own severities — a policy may itself emit `warn` and `info` verdicts that advise without halting — so the halt-versus-advise line above is the placement guidance for whole checks, not a claim that a policy can only halt. See the [governance socket page](policy-socket.md) for the severity model.
 
 ## Design surfaces without current code anchors
 
