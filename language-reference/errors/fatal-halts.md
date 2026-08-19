@@ -507,15 +507,17 @@ The same delivery key (for example, the same env var name) is declared in two de
 
 The build reads this in two places, because the two see different sets of dependency connections, and each reports in its own form.
 
-The first reads the connections you wrote in the Aggregate, and reports as your files are resolved:
+The first reads the connections you wrote in the Aggregate, and reports as your files are resolved. It names the delivery mechanism, the key, and then the socket and alias of the first connection in author order that also claims it:
 
-> duplicate delivery key across inject sources (`"<key>"`)
+> Aggregate `<name>` at `.spec.components.<component>.inject.<mechanism>.<key>`: duplicate delivery key across inject sources (`"<mechanism>"`, `"<key>"`, `"<socket>"`, `"<alias>"`)
 
-The second reads the connections the finished topology carries, which includes any a Feature attachment contributed on your behalf. It runs before anything renders, and it names the delivery key you wrote as its position and the dependency socket that also delivers it:
+The second reads the connections the finished topology carries, which includes any a Feature attachment contributed on your behalf. It runs before anything renders, and it names the delivery key you wrote alongside the dependency socket that also delivers it:
 
-> Aggregate `<name>` at `.spec.components.<component>.inject.<mechanism>.<key>`: duplicate delivery key across self-inject and uses-inject (`"<socket>"`)
+> `<aggregate-path>` at `.spec.components.<component>.inject.<mechanism>.<key>`: duplicate delivery key across self-inject and uses-inject (`"<key>"`, socket `"<socket>"`)
 
 One authored key delivered through two dependency sockets reports once per socket, so a single build tells you about all of them rather than about whichever was reached first.
+
+**Where the key is a path, the field path names the mechanism's block instead.** What a delivery key spells is the mechanism's own business, and a `file` mechanism delivers into a mount path — so such a key contains dots while a field path divides its own steps with them. A field path stops at the last step it can name without ambiguity rather than spelling one that would read as a walk through keys your document does not contain, so for a key like `/etc/app/config.yaml` it reads `.spec.components.<component>.inject.<mechanism>` and stops there. The message names the key either way, which is what keeps the report equally actionable: read the field path for the block, and the first quoted value for the key inside it.
 
 **How to fix:** rename one of the conflicting keys, or drop the duplicate declaration. Note that a FeatureRecipe's `injectMapping` overwriting a developer key is intentional Onion-Model interception and is not flagged.
 
