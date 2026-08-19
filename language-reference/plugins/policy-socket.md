@@ -84,6 +84,12 @@ determines the build action:
 These three are the whole set, and they are the same three every other socket's
 diagnostics use, so a severity means the same thing wherever you read one.
 
+A verdict carrying any other value is a contract violation rather than a fourth
+route. The build halts, and the message names the plugin, the value the verdict
+carried, and the three the contract declares — so a misspelled severity is
+reported as a build error instead of passing as a verdict nothing acts on. A
+guest that reports from the three is unaffected.
+
 An allowing evaluation returns nothing. A guest emits a verdict only when a rule
 fires, so an empty verdict list means the policy allowed the build. There is no
 "pass" verdict to emit — silence is the allow.
