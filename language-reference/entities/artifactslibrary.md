@@ -44,7 +44,7 @@ spec:
 
 ## Authoring Artifact Bundles
 
-`spec.artifacts` is two levels deep, and each level has a distinct job. The outer key is the **bundle name** — the identifier a consumer references. The inner keys are **output filenames**, and each inner value is the Go-template body emitted to that filename. A bundle must declare at least one file.
+`spec.artifacts` is two levels deep, and each level has a distinct job. The outer key is the **bundle name** — the identifier a consumer references. The inner keys are **filenames**, and each inner value is the Go-template body emitted to that file. A bundle must declare at least one file.
 
 ```yaml
 spec:
@@ -92,7 +92,7 @@ An ArtifactsLibrary with a non-PascalCase bundle name fails envelope validation 
 
 The naming uniformity keeps the `#/artifacts/<name>` fragment legible: `#/artifacts/OperatorSupport` reads at a glance.
 
-**Filenames inside a bundle are deliberately free-form.** They are not PascalCase and no pattern constrains them, because they become the emitted output filenames — `crd.yaml`, `deny-all.yaml`, `values-override.json` are all valid. The two levels are constrained differently because they serve different readers: the bundle name is an identifier other entities cite, and the filenames are the names a build's output directory ends up carrying.
+**Filenames inside a bundle are deliberately free-form.** They are not PascalCase and no pattern constrains them, because they name the files a build's output ends up carrying — `crd.yaml`, `deny-all.yaml`, `values-override.json` are all valid. The two levels are constrained differently because they serve different readers: the bundle name is an identifier other entities cite, and the filenames are the names a consumer sees inside the directory the bundle is imported at.
 
 ## Referencing Library Entries
 
@@ -108,7 +108,7 @@ spec:
 
 The `#/artifacts/<name>` fragment selects the bundle and distinguishes an artifacts reference from MappingLibrary's `#/mappings/<name>`, SchemaLibrary's `#/schemas/<name>`, and WorkloadLibrary's `#/workloads/<name>`. The reference carries no registry host; a host-bearing `oci://…` form is rejected both by the envelope schema and at the consumption site, so a physical registry location never enters authored source. An author may assert an optional minimum-version floor as `<Library>:<version>#/artifacts/<name>` — the version separator is `:`, matching the other library kinds and the lockfile pin, and writing `@` instead is refused with a diagnostic naming the corrected reference. The resolved version is supplied by the per-Release lockfile, which pins each consumed library by name, version, and content digest; physical location is bound at resolution time.
 
-**The bundle owns its output filenames, and the consuming key does not rename them.** One `artifacts:` entry importing a bundle expands into one output per file in that bundle, each named by the filename the bundle declares. The key at the consumption site — `operator-support` above — names the entry and appears in no output name; the example emits `crd.yaml` and `rbac.yaml`. So a bundle name is chosen for legibility at the reference and the filenames are chosen for the output directory, and the two never need to agree. Two outputs resolving to the same filename halt the build when the node renders, whether they meet inside one bundle, between a bundle file and another `artifacts:` entry, or between two different input kinds. See [Recipe](recipe.md) for how `artifacts:` composes with the Recipe's other input kinds and for the two non-library authoring modes, and [vocabulary/cross-document-ref](../vocabulary/cross-document-ref.md) for the broader `$ref:` / `$import:` distinction.
+**The bundle owns its filenames, and the consuming key owns the directory they land in.** One `artifacts:` entry importing a bundle expands into one output per file in that bundle, each nested under the consumption key as `<key>/<filename>`. The key at the consumption site — `operator-support` above — names the whole consumption rather than any single file; the example emits `operator-support/crd.yaml` and `operator-support/rbac.yaml`. So a bundle name is chosen for legibility at the reference, the filenames are chosen for the reader of the output directory, and neither has to agree with the other. Two outputs resolving to the same filename halt the build when the node renders: a filename is unique within its bundle and a key is unique within its document, so what remains is a key that spells the nested name another key's bundle produces, or a filename contributed by two different input kinds. See [Recipe](recipe.md) for how `artifacts:` composes with the Recipe's other input kinds and for the two non-library authoring modes, and [vocabulary/cross-document-ref](../vocabulary/cross-document-ref.md) for the broader `$ref:` / `$import:` distinction.
 
 ## Cross-Library Composition
 
@@ -140,7 +140,7 @@ A few common misconceptions worth heading off:
 
 - **Not a substitute for inline `artifacts:`.** Most Recipes carry auxiliary files specific enough to belong inline, where the author reads them alongside the rest of the Recipe. An ArtifactsLibrary helps when the SAME set of files accompanies many Recipes; for one-off content, inline authoring is the right choice.
 
-- **Not a way to rename what a bundle emits.** The filenames belong to the bundle. A consumer that needs a different output filename either uses a bundle that declares it or authors the file inline; there is no per-consumer rename at the import.
+- **Not a way to rename the files inside a bundle.** The filenames belong to the bundle. A consumer chooses the directory they land in — that is what the consumption key does — but not what any one of them is called: a consumer that needs a different filename either uses a bundle that declares it or authors the file inline.
 
 - **Not a place for workload, mapping, or schema content.** A Workload document belongs in a WorkloadLibrary, a template fragment meant to be spliced into a surrounding mapping belongs in a MappingLibrary, and schema definitions belong in a SchemaLibrary. The four library kinds split by content type, not by reuse pattern.
 

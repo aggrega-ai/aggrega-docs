@@ -402,13 +402,13 @@ spec:
       $import: ./artifacts/crd-registration.yaml
 ```
 
-The `$import:` paths are relative to the Recipe directory. A typical convention places them in an `./artifacts/` subdirectory, though the compiler does not enforce this. What names each emitted file depends on how the entry is authored — the next section covers all three forms.
+The `$import:` paths are relative to the Recipe directory. A typical convention places them in an `./artifacts/` subdirectory, though the compiler does not enforce this. The map key names each emitted file — the next section covers what that means in each of the three forms.
 
 Each entry (inline or `$import:`-loaded) is Go-templated against the full TemplateContext before being emitted to the output directory.
 
 ### What Names Each Output File
 
-The map is keyed by entry name, and what the key contributes to the emitted output differs by authoring form. For an inline entry the key is the output filename, used as written:
+The map is keyed by entry name, and the key names what the entry emits in every authoring form. For an inline entry the key is the output filename, used as written:
 
 ```yaml
 artifacts:
@@ -420,7 +420,7 @@ artifacts:
 
 Produces `dist/boundaries/.../configmap-config.yaml` and `dist/boundaries/.../pdb.yaml`.
 
-For a file `$import:` entry the output takes the imported file's own name rather than the map key, so an author who wants a particular output filename gives the imported file that name:
+For a file `$import:` entry the key is the output filename too. The imported file supplies the *content*; it does not supply the name, so an author who wants a particular output filename writes that name as the key:
 
 ```yaml
 artifacts:
@@ -430,11 +430,11 @@ artifacts:
     $import: ./artifacts/subdir/some-other-name.yaml
 ```
 
-Produces `.../monitor.yaml` — the first key happens to match the name of the file it imports — and `.../some-other-name.yaml` rather than `.../netpol.yaml`, because the second entry's imported file carries a different name.
+Produces `.../monitor.yaml` and `.../netpol.yaml`. The second entry's imported file is called `some-other-name.yaml`, and that name does not reach the output — the key does. Two entries importing different files that happen to share a name, `./extras/shared.yaml` and `./overrides/shared.yaml`, are therefore two distinct outputs, each named by its own key.
 
-For a library `$import:` entry, which pulls in a bundle of files as one unit, the entry expands into one output per file in the bundle, each named by the filename the bundle itself declares; the key names the consumption site and appears in no output name.
+For a library `$import:` entry, which pulls in a bundle of files as one unit, the entry expands into one output per file in the bundle, each nested under the key as `<key>/<filename>`. One key names many files, so the key alone cannot name them: it is the directory the bundle's files land in rather than the name of any one of them.
 
-Two `artifacts:` outputs resolving to the same filename halt the build when the node renders, whichever forms produced them — two entries landing on one name, or a bundle file meeting another entry. A filename contributed by two different input kinds halts the same way, with a diagnostic naming every contributing origin.
+Two `artifacts:` outputs resolving to the same filename halt the build when the node renders, whichever forms produced them. A map key is unique within one document, so two entries that each name their own output cannot meet; what remains is a key spelling the nested name another key's bundle produces — a `widgets/crd.yaml` entry authored beside a `widgets` entry whose bundle carries `crd.yaml`. A filename contributed by two different input kinds halts the same way, with a diagnostic naming every contributing origin.
 
 ### Template Context for Artifacts
 
@@ -486,13 +486,13 @@ This split is uniform across all three input kinds. (The Compose provider has no
 
 **helm-chart provider (special case):** artifacts are not written to the output directory as standalone files — Helm owns the rendering pipeline. Instead, the helm-chart provider places each `artifacts:` entry inside the chart itself, and the entry's authored form decides where it lands. Every entry is Go-templated with Aggrega's pillar context FIRST, before any placement; from there the two forms diverge. An `$import:`-loaded entry is a pre-Helm template file: it is injected into the chart's `templates/` directory BEFORE Helm rendering, so Helm renders it alongside the sourced chart's own templates. An inline block scalar is a loose chart file: it is placed at the chart root under its authored key, carrying no `templates/` prefix and no merged provenance labels, so the chart's own templates can read it through Helm's `.Files.Get` / `.Files.Glob` — the ConfigMap-from-files pattern. This gives the helm-chart provider an extension mechanism equivalent to what `artifacts:` provides for the plain helm provider, while respecting Helm's chart model.
 
-The injected file lands at `boundaries/<bp>/charts/<nodeID>/templates/<imported-file-name>` so it sits alongside the sourced chart's templates and Helm picks it up during the downstream render pass. An inline block scalar lands at `boundaries/<bp>/charts/<nodeID>/<authored-key>` — the chart root, one level above `templates/` — because a file read through `.Files` must sit where the chart looks for it, and a file placed under `templates/` is rendered as a manifest instead. The two forms are named by different things: an `$import:`-loaded entry takes the imported file's own name, while an inline entry takes the key it is authored under.
+The injected file lands at `boundaries/<bp>/charts/<nodeID>/templates/<authored-key>` — a bundle's files nested beneath that key — so it sits alongside the sourced chart's templates and Helm picks it up during the downstream render pass. An inline block scalar lands at `boundaries/<bp>/charts/<nodeID>/<authored-key>` — the chart root, one level above `templates/` — because a file read through `.Files` must sit where the chart looks for it, and a file placed under `templates/` is rendered as a manifest instead. Both forms are named by the key they are authored under; what differs between them is the directory the provider places them in.
 
 **helm-chart delimiter convention.** Aggrega's pre-template pass on helm-chart `$import:`-loaded artifact entries uses `[[ ]]` delimiters rather than the default `{{ }}` so Helm's own `{{ ... }}` syntax inside the file survives untouched into Helm's render pass. Authors write Aggrega-side substitutions as `[[ .context.instance_id ]]`, `[[ .values.name ]]`, etc.; Helm-side substitutions stay as `{{ .Values.x }}`, `{{ .Release.Name }}`, `{{- include "common.labels" . }}`, etc. Authors mixing the two delimiter pairs in one file is the supported authoring shape.
 
 **Provenance and helm-chart artifacts.** Provenance is merged into `metadata.labels` and `metadata.annotations` (per the charset-split above) for `$import:`-loaded files that round-trip through YAML with their Helm tokens preserved — files using only `[[ ]]` Aggrega context or with Helm `{{ }}` only at quoted scalar positions. Files with structural Helm template actions (`{{- include ... }}`, `{{- if ... }}`, `{{- range ... }}`, `{{- with ... }}` at positions where they emit YAML structure rather than scalar leaves), or files with unquoted `{{ ... }}` at value positions, do not survive Aggrega's YAML round-trip; the build emits a "skipped provenance label injection" warning naming the artifact and passes the file through unchanged. **This warning is expected for any helm-chart `$import:`-loaded artifact file using structural Helm template actions or unquoted Helm value substitutions** — it is the common case in production Helm authoring, not the edge case. Authors who need provenance labels on such files inject them via the chart's `_helpers.tpl` `aggrega.commonLabels` template or equivalent Helm-side mechanism, not via Aggrega's pre-template injection.
 
-**Chart-root filename collisions.** An imported artifact file whose own name collides with a chart-root filename (`Chart.yaml`, `values.yaml`, `.helmignore`, etc.) is not detected by Aggrega's filename-collision check — the artifact lands at `templates/<imported-file-name>` while the chart-root file lands at the chart root, and the path-prefixing makes them distinct in Aggrega's view. Authors avoid these filenames; the consequence of using them is that Helm sees both files (one at the chart root, one inside `templates/`) and may render the templates-side copy unexpectedly.
+**Chart-root filename collisions.** An `$import:`-loaded artifact whose authored key collides with a chart-root filename (`Chart.yaml`, `values.yaml`, `.helmignore`, etc.) is not detected by Aggrega's filename-collision check — the artifact lands at `templates/<authored-key>` while the chart-root file lands at the chart root, and the path-prefixing makes them distinct in Aggrega's view. Authors avoid these key names; the consequence of using them is that Helm sees both files (one at the chart root, one inside `templates/`) and may render the templates-side copy unexpectedly.
 
 ### What Artifacts Is Not
 

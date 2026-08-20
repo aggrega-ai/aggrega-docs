@@ -333,7 +333,7 @@ charts/
 │       ├── deployment.yaml
 │       ├── service.yaml
 │       ├── pvc.yaml
-│       └── mariadb-netpol.yaml   # injected artifact (see below)
+│       └── netpol.yaml           # injected artifact (see below)
 └── web/                   # the local ./charts/adminer, copied verbatim
 ```
 
@@ -358,9 +358,11 @@ Two distinct delimiter regimes apply, and they do not overlap:
 - **`$import:` artifacts are dual-delimiter.** A Recipe may inject extra template
   files via `artifacts: { name: { $import: ... } }`. *Those* files — and only
   those — are pre-rendered by the compiler with the `[[ ]]` delimiters before they
-  land, while their `{{ }}` is preserved for Helm. The `mariadb-netpol.yaml`
-  artifact shows the mix: `[[ .context.instance_id ]]` (filled at build) and
-  `{{ .Release.Namespace }}` (left for install).
+  land, while their `{{ }}` is preserved for Helm. The `netpol.yaml` artifact —
+  keyed `netpol.yaml` and imported from `./extras/mariadb-netpol.yaml`, since the
+  key names the emitted file and the import selects its content — shows the mix:
+  `[[ .context.instance_id ]]` (filled at build) and `{{ .Release.Namespace }}`
+  (left for install).
 
 The String Pipe is expressed in chart terms: Adminer's `databases` use of MariaDB
 resolves the database Recipe's `provides.host` into the umbrella's `values.yaml`

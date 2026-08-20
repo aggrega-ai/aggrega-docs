@@ -32,11 +32,11 @@ When a helm-chart Recipe declares `artifacts:` entries via per-entry `$import:`,
 
 1. Reads each file's content.
 2. Pre-templates the content with Aggrega delimiters `[[ ]]` against the Recipe's TemplateContext (the same context the Recipe's `valuesMapping:` evaluates against). `{{ }}` inside the file content is left untouched — those become Helm template directives at `helm install` time.
-3. Writes each file to `boundaries/<boundary-path>/charts/<instance-id>/templates/<basename>` of the umbrella output. The basename is the file's name only — directory structure within the source path is flattened.
+3. Writes each file to `boundaries/<boundary-path>/charts/<instance-id>/templates/<authored-key>` of the umbrella output, a bundle's files nested beneath that key. The key the entry is authored under names the file; the `$import:` path selects its content and contributes nothing to the name, so the directory structure within that path never reaches the output.
 
 The `[[ ]]` / `{{ }}` dual-delimiter discipline is the load-bearing detail. A typical `$import:`-loaded artifact file might mix Aggrega-time interpolation (e.g., `[[ .values.image ]]`) with Helm-time interpolation (e.g., `{{ .Release.Namespace }}`). Each delimiter pair fires at its own phase: Aggrega resolves `[[ ]]` at compile time before the file lands; Helm resolves `{{ }}` at install time after the umbrella ships.
 
-Filename collisions across the source-chart's templates and the `$import:`-loaded artifact injections raise `CATALOG_ERROR` — the diagnostic names both the chart-supplied template and the conflicting `$import:` source. Authors resolve the collision by renaming one of the conflicting files.
+Filename collisions across the source-chart's templates and the `$import:`-loaded artifact injections raise `CATALOG_ERROR` — the diagnostic names both the chart-supplied template and the conflicting `$import:` source. Authors resolve the collision by renaming the artifact's key or the chart's own template.
 
 ## `source:` keyset
 
