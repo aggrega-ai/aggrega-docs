@@ -179,6 +179,10 @@ When an entity-level `metadata.labels` or `metadata.annotations` declaration on 
 
 ## Unsupported-field warnings
 
+One class covers everything you authored that the target cannot honour. It has two members — a Workload field the target cannot express, and an `aggrega.ai/` annotation the target does not act on — and they share one class code and one suppression flag, because an author who wants to silence "the things this target ignores" wants them silenced together rather than one switch at a time.
+
+### A Workload field the target cannot express
+
 Targets differ in fidelity. A Workload field that one target expresses natively may have no equivalent on another — Docker Compose has no notion of a scheduling constraint, a service account, or a priority class, for instance. When a Workload declares such a field and the target cannot express it, the field is **omitted with a warning**, one warning per authored field. It is neither dropped silently nor treated as a fatal error.
 
 The distinction from a fatal halt is the granularity. An unsupported *form* halts the build loudly — the target cannot produce that shape of workload at all. A supported form that carries an *unexpressible field* renders, minus that field, and says so.
@@ -190,7 +194,27 @@ On the compose target the class currently covers `scheduling`, `serviceAccount`,
 - A `volumes` entry that no container mounts — the warning names the volume at its authored coordinate (`volumes.<name>`). What reaches the output depends on the variant: a `persistent` or `persistentTemplate` volume is still declared as a named volume, which is then created and left unused, while a `configmap`, `secret`, or `ephemeral` volume reaches the output only through a container's mount point, so with nothing mounting it the declaration produces no output at all. Either way the volume you authored is not doing anything: mount it from a container, or remove it. Every container of the workload counts as a mounter, init containers included, so a volume mounted only by an init container raises nothing.
 - A `health` block declaring more than one probe slot — a compose service carries a single `healthcheck`, so the priority order `live > ready > startup` keeps one slot and every other declared slot reaches no part of the output. The warning names the block at its authored coordinate (`containers.<name>.health`, or `initContainers[<i>].health` for a positional init entry) and names both the slot that was translated and the slots that were dropped, so it is clear which probe is live in the output and which authored intent is inert. A block declaring a single slot translates without loss and raises nothing.
 
-Each warning carries the stable, machine-matchable class code `unsupported-field`, so tooling can match the class rather than parse the message text. Both the omitted-outright and the reduced-form variants carry that one code, which is what lets a single filter suppress the whole class. The warnings travel out-of-band from the rendered artifacts, which means **rendered bytes are byte-identical whether or not the warnings surface** — suppressing them cannot change your output.
+### An annotation the target does not act on
+
+The `aggrega.ai/` annotations are platform directives a provider reads and applies to what it renders — a namespace, a registry prefix, a service account. Which of them a provider reads is that provider's own declaration, made per input kind, because a provider that owns every field of a deployment unit it synthesizes itself often has nowhere to put the same value when it renders a vendored artifact. [Well-Known Annotations](../providers/well-known-annotations.md) is the matrix.
+
+When a node carries such an annotation and the resolved target's declaration does not cover that key on the node's input kind, the annotation reaches no consumer, changes nothing, and **says so with a warning** naming the key, the target and the input kind:
+
+```text
+warning: node "frontend" (provider "helm-chart"): target "helm-chart" does not support annotation aggrega.ai/namespace on sourced input and ignored it
+```
+
+Three things follow from how annotations reach a node, and each of them is deliberate:
+
+- **One authored line can produce several warnings.** A boundary annotation cascades to every component under it, and those components may render through different targets and different input kinds. Each warning is a true statement about one node, so you get one per node that cannot act on the key — which is also what tells you *which* nodes are affected.
+- **Only the bare `aggrega.ai/` keys are checked.** A sub-prefixed key — `compliance.aggrega.ai/data-class`, or your own `acme.aggrega.ai/team` — is your vocabulary, which the compiler carries through without interpreting. Nothing warns about one, ever.
+- **A target that declares no support claim at all raises nothing.** The warning compares what you authored against what the provider said it reads; a provider that has said nothing gives it nothing to compare against, and inferring a refusal from silence would report a claim the provider's author never made.
+
+**Why a warning and not a halt.** A boundary that legitimately spans components on heterogeneous targets will always have some node that cannot act on a given key — that is the normal shape of a mixed deployment, not a mistake — so refusing the build would reject correct deployments. The value passes through untouched, exactly as before; what changed is that you are told.
+
+### The class code and the out-of-band guarantee
+
+Each warning carries the stable, machine-matchable class code `unsupported-field`, so tooling can match the class rather than parse the message text. Every member of the class — the omitted-outright field, the reduced-form field, and the unacted-on annotation — carries that one code, which is what lets a single filter suppress the whole class. The warnings travel out-of-band from the rendered artifacts, which means **rendered bytes are byte-identical whether or not the warnings surface** — suppressing them cannot change your output.
 
 ### Suppressing the class
 

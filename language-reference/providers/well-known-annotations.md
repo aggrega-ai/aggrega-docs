@@ -128,6 +128,14 @@ The node-scoped keys, per provider per input kind. Column headers drop the `aggr
 
 A Recipe may declare more than one input kind at once — a `workload:` with `artifacts:` alongside it, for instance. Read the grid per kind: the synthesized output of such a node is the `synthesized` row, and its artifact files are the artifacts case. The `artifacts-only` row is the input kind where a Recipe declares `artifacts:` and nothing else.
 
+**You do not have to consult the grid to find out.** Setting a key on a node whose target does not read it on that node's input kind produces a warning naming the key, the target and the input kind, so a cell you landed in by accident announces itself at the moment you build rather than waiting for you to think of looking here:
+
+```text
+warning: node "frontend" (provider "helm-chart"): target "helm-chart" does not support annotation aggrega.ai/namespace on sourced input and ignored it
+```
+
+The value still passes through untouched — the build does not halt, because a boundary spanning components on heterogeneous targets will always have some node that cannot act on a given key, and that is an ordinary deployment rather than a mistake. A boundary annotation cascades, so one authored line yields one warning per node that cannot act on it, which is how you see *which* nodes are affected. It belongs to the `unsupported-field` class and is silenced with that class's flag; [Warnings](../errors/warnings.md) has the detail. Two limits worth knowing: only the bare `aggrega.ai/` keys are checked, since a sub-prefixed key is your own vocabulary, and a provider that declares no support claim at all produces no warning, because there is nothing to compare what you authored against.
+
 **Why a vendored artifact honours fewer keys.** A node-scoped annotation is honoured where the provider has a render slot for it. When the provider synthesizes the deployment unit itself it owns every field of the result, so a registry prefix, a pull secret and a service account all have somewhere to land. A vendored artifact — a Helm chart, a compose file, a Terraform module — carries its own configuration interface instead, and the compiler does not read that interface, so it cannot know which of the artifact's own keys a registry prefix or a service account would correspond to. Placement that the surrounding render call controls still applies, which is why a chart rendered from source honours `aggrega.ai/namespace`. Placement that would mean deciding where inside someone else's artifact a value belongs does not, and an author supplies it through that artifact's own values. This is why the sourced rows are sparse where the synthesized rows are full, and it is the shape to expect of any key added later.
 
 ### Keys resolved per assembly and per reference
