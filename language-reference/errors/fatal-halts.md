@@ -378,12 +378,20 @@ Where it names one that does not:
 
 <!-- covers: pkg/resolver.ErrMissingRequiredSocket -->
 
-A catalog entity declares a socket in its `usesSchema` marked `required: true`, but an instance of that entity does not populate the socket in its `uses:` block.
+A Component declares a socket in its `usesSchema` marked `required: true`, and nothing in the build wires a connection on that socket for one of the instances of that Component.
+
+**Three surfaces can wire it, and the halt fires only when all three are empty.** The instance's own `uses:` block in the Aggregate; a Release per-edge `uses:` entry that names a `target:`, which creates the connection into a declared-but-unbound socket; and the connection set the composition produced, which is what answers for a component contributed by an imported Aggregate — such a component's `uses:` block lives in that Aggregate's own document, read only once the composition is assembled. Because the third surface is the last to be complete, the check runs once the whole composition exists rather than while the two authored documents are being read, and it asks the same question of every component whichever document declared it.
+
+Two shapes that look like they should populate the socket do not. A Release entry naming no `target:` configures a connection that must already exist rather than creating one, so it wires nothing (and, where it carries `infra:`, is reported by its own halt above). And a Feature attachment's `uses:` names sockets declared on the attached Feature, a separate socket set on a separate entity, so an attachment can never populate a Component's own socket.
 
 Emitted message:
-> required uses socket `<socket-name>` on instance `<instance-id>` (type `<entity-uri>`) is not populated.
+> required uses socket not populated (`<socket-name>`, declared required by component type `<component-type>`)
 
-**How to fix:** add a `uses:` entry for the required socket, wiring it to an appropriate target Component or Feature in the Aggregate. If the socket should no longer be required, update the catalog entity's `usesSchema` to set `required: false` or remove the `required` declaration.
+The finding is positioned at the socket entry the author has to write, `.spec.components.<instance>.uses.<socket>`. The instance name in it is the name the component carries in the document that declares it, so for a component an imported Aggregate contributed the locator names a key that Aggregate's own file contains rather than the prefixed name the composition gave it.
+
+Each unpopulated required socket is reported, on every component: one build tells you about all of them rather than about the first.
+
+**How to fix:** add a `uses:` entry for the required socket, wiring it to a target the socket's `selector:` accepts; or wire it from the Release with an entry that names a `target:`. If the socket should no longer be required, update the Component's `usesSchema` to set `required: false` or remove the `required` declaration.
 
 ### Sub-aggregate nesting depth exceeded
 
@@ -595,7 +603,7 @@ A Recipe's `provides:` template references a root outside the self-contained set
 `.locals` is on the surface: a node's locals resolve in the preamble of the same stage, ahead of its provides, so a `provides` template reads them and receives resolved values.
 
 Emitted message:
-> provides block references a root outside the self-contained set (".context.inject.env.TARGET")
+> provides block references a root outside the self-contained set (`"<expression>"`)
 
 The halt is positioned at the Recipe that declares the entry and at the authored key inside it — `.spec.provides.<name>` — so it names the block to edit rather than the component that bound the Recipe. Every entry that reaches outside the surface is reported in the same build; where more than one does, the findings are grouped under `provides entries that reach outside the data they are evaluated against`.
 
