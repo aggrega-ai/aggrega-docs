@@ -595,10 +595,9 @@ A Recipe's `provides:` template references a root outside the self-contained set
 `.locals` is on the surface: a node's locals resolve in the preamble of the same stage, ahead of its provides, so a `provides` template reads them and receives resolved values.
 
 Emitted message:
-> Recipe `"<recipe>"` provides references `"<expression>"` — the provides block is self-contained and may reference only .context.instance_id, .values, .infra, .locals, and static text
+> provides block references a root outside the self-contained set (".context.inject.env.TARGET")
 
-Beneath that line the halt names the rule it violated, as a `caused by:` continuation:
-> caused by: provides block references a root outside the self-contained set
+The halt is positioned at the Recipe that declares the entry and at the authored key inside it — `.spec.provides.<name>` — so it names the block to edit rather than the component that bound the Recipe. Every entry that reaches outside the surface is reported in the same build; where more than one does, the findings are grouped under `provides entries that reach outside the data they are evaluated against`.
 
 **How to fix:** refactor the template to pull only from the Recipe's own pillars. If the value depends on another node's output, that dependency belongs in a caller's `uses[].inject` block, not in the target's `provides`. If the value is computed, put the expression in a `locals:` entry and read it from `provides` — the expression then lives in one place. If you were reaching for the deployment namespace (or other placement data) to build a cross-namespace host, publish the bare host here and qualify it on the consumer side with a routing feature — the producer's `provides` must not depend on where it was deployed.
 
