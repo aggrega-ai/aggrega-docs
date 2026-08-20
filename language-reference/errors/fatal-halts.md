@@ -27,8 +27,8 @@ The refusal is of recursion, never of re-use or of depth. Anchoring shared conte
 
 > anchor `&<anchor>` is aliased by `*<anchor>` inside its own content, so the document expands without end; point that alias at content declared outside `&<anchor>`, or write the content out in full
 
-An entity file is framed by the path it was read from:
-> envelope: parse `<path>`: `<the explanation above>`
+An entity file is framed by the envelope check that was reading it and the path it was read from:
+> document envelope validation failed: envelope: parse `<path>`: `<the explanation above>`
 
 A schema body is framed by its position within the schema, and by the escape keyword when the cycle sat inside a `$jsonschema:` block. The build reports it under a `CATALOG_ERROR` tag, which also names the file, the entity, and the pillar whose body failed to compile:
 > compactform at `<schema-path>`:`<line>` (keyword `"$jsonschema"`): `<the explanation above>`
@@ -228,8 +228,8 @@ Intended message (not yet emitted):
 
 A Release uses `extends:` to inherit from a base Release but also declares its own `aggregate:` pointer. The Release JSON Schema rejects this shape at schema validation (Layer 1 envelope validation) via an `allOf` constraint: when `extends:` is present, `aggregate:` is forbidden; when `extends:` is absent, both `aggregate:` and `manifest:` are required.
 
-Emitted message shape (Layer 1 schema validation):
-> Release `<path>` failed schema validation: `aggregate` is not permitted when `extends` is set, or `aggregate`+`manifest` must be set when `extends` is absent.
+It halts as an ordinary envelope violation, so the diagnostic takes that class's shape — see "The document-envelope failure class" in [error-translation.md](error-translation.md) — and the finding points at the key that is not permitted here:
+> document envelope validation failed (Release, at `<path>`); `<line>`:`<column>`: spec.aggregate: value matches a shape that is not allowed here. correct the document to match its kind's schema
 
 **How to fix:** remove the `aggregate:` field from the child Release. Inheritance intentionally forces the child to deploy the same Developer Intent as its parent; if you need to deploy a different Aggregate, author a fresh Release without `extends:`.
 

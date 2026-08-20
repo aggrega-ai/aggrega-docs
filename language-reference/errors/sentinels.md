@@ -329,7 +329,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 
 | Sentinel | Message |
 | --- | --- |
-| `ErrEntityEnvelope()` | `document envelope validation failed: correct the document to match its kind's schema` |
+| `ErrEntityEnvelope()` | `document envelope validation failed` |
 
 ### pkg/validator/jsonschema
 

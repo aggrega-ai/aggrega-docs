@@ -80,15 +80,14 @@ One separator grammar applies throughout: `---` between sibling failures, `cause
 
 ## The document-envelope failure class
 
-Every entity document — catalog entities, Aggregates, Manifests, Releases — is validated against its kind's published JSON schema when it is loaded, before typed parsing. A document that violates its envelope (an unknown key, a missing required field, a value of the wrong shape, a banned construct such as Release `values:`) halts loudly with a diagnostic naming the file, the entity kind, and then each offending key or shape with the line and column it sits on:
+Every entity document — catalog entities, Aggregates, Manifests, Releases — is validated against its kind's published JSON schema when it is loaded, before typed parsing. A document that violates its envelope (an unknown key, a missing required field, a value of the wrong shape, a banned construct such as Release `values:`) halts loudly with a diagnostic that names the condition first, then the entity kind and the file, then each offending key or shape with the line and column it sits on, and finally what to do about it:
 
 ```text
 [OPS_ERROR] release.yaml
-  Release: release.yaml: Release document violates its envelope schema; 12:7: spec.boundaries.main.values: /$defs/boundary: unexpected property: "values"
-  caused by: document envelope validation failed: correct the document to match its kind's schema
+  Release: document envelope validation failed (Release, at release.yaml); 12:7: spec.boundaries.main.values: /$defs/boundary: unexpected property: "values". correct the document to match its kind's schema
 ```
 
-The head names the file once, so each violation after it carries `line:column` alone. Each offending key is reported at **its own** position rather than at the position of the block containing it, so the line and column point at the key you need to change. Where the position's shape comes from a reusable definition in the schema, the diagnostic names that definition — `/$defs/boundary` above — so it is clear which contract the key was measured against. A document with several violations lists each on its own position, in key order, and the report stops after four with a count of the rest.
+The diagnostic opens with the condition, names the kind and the file, and closes with what to do; each violation between them carries `line:column` alone, since the head has already named the file. Each offending key is reported at **its own** position rather than at the position of the block containing it, so the line and column point at the key you need to change. Where the position's shape comes from a reusable definition in the schema, the diagnostic names that definition — `/$defs/boundary` above — so it is clear which contract the key was measured against. A document with several violations lists each on its own position, in key order, and the report stops after four with a count of the rest.
 
 Two things are worth knowing about where a position points, because both are useful rather than surprising:
 
