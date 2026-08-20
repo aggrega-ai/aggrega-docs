@@ -1,6 +1,6 @@
 # Error translation discipline
 
-Aggrega's compilation pipeline emits errors from many surfaces — schema validators, the resolver, the IR builder, the providers, the Go template engine, and the underlying YAML / Helm / docker-compose libraries the providers wrap. Errors that bubble to the CLI are tagged with one of six category prefixes that name the surface at fault, paired with a source pointer and message. This page documents the shape of that output so authors interpret error messages directly.
+Aggrega's compilation pipeline emits errors from many surfaces — schema validators, the resolver, the IR builder, the providers, the Go template engine, and the underlying YAML / Helm / docker-compose libraries the providers wrap. Errors that bubble to the CLI open with a bracketed head naming two things — one of six categories, which says which surface is at fault, and the short code of the condition that halted the build — followed by a source pointer and a message. This page documents the shape of that output so authors interpret error messages directly.
 
 For the per-error catalog (every fatal halt with how-to-fix guidance), see [`fatal-halts.md`](fatal-halts.md). For the four schema-validation layers and how their error shapes interact, see [`vocabulary/validation-surface.md`](../vocabulary/validation-surface.md).
 
@@ -17,7 +17,18 @@ Every CLI-bubbling error carries one of six category tags. The tag identifies th
 
 ## Output shape
 
-The single-line representation suitable for log output is:
+A printed diagnostic opens with the bracketed head and the source pointer, and puts the message on its own indented line:
+
+```text
+[CATEGORY SHORTCODE] <source>
+  <message>
+```
+
+The head carries two tokens, and they answer different questions. The category is one of the six above and says where the fix lives. The short code is the letter `E` and four digits, and it names the exact condition that halted the build: quote it in a report, type it into a search, or resolve it against the table of every condition in [`sentinels.md`](sentinels.md). Neither is derivable from the other, which is why both are printed.
+
+A failure that names no condition of Aggrega's own prints the category alone. Nothing stands in for the absent token.
+
+The same error reduced to one line, the form suitable for log output rather than for a terminal, carries the category and drops the short code:
 
 ```text
 [CATEGORY] <source>: <message>
@@ -28,53 +39,55 @@ The source is a structured pointer — typically `<file>:<line>:<column>` when a
 A rule evaluated over the finished graph reports in that third shape, and the key is what tells two findings apart when the message alone cannot. A rule of this kind names the *declaring* component type rather than the instance, so two components of one type failing the same rule carry the same message about the same file:
 
 ```text
-[DEVELOPER_ERROR] aggregate.yaml at .spec.components.checkout
+[DEVELOPER_ERROR E0162] aggregate.yaml at .spec.components.checkout
   missing required feature: attach a Feature of the required type to the component ("core/compute/api-server", "core/observability/monitoring", "monitoring")
 ---
-[DEVELOPER_ERROR] aggregate.yaml at .spec.components.inventory
+[DEVELOPER_ERROR E0162] aggregate.yaml at .spec.components.inventory
   missing required feature: attach a Feature of the required type to the component ("core/compute/api-server", "core/observability/monitoring", "monitoring")
 ```
 
-The key is the only part that differs, and it is what names which of the two components to edit.
+The key is the only part that differs, and it is what names which of the two components to edit. Both findings carry the same short code because both are the same condition, met twice — the short code names the rule, and the key names the occurrence.
 
-The CLI renders a richer multi-line form when an error carries additional context — the failing template expression, a snapshot of the active pillars at evaluation time:
+Two further lines belong to the shape, for a failure that carries the context to fill them — the template expression that failed, and a snapshot of the pillars in scope where it failed:
 
 ```text
-[CATALOG_ERROR] recipe.yaml:24:7
-  injectMapping references undefined field .context.inject.foo
-  expression: {{ .context.inject.foo }}
+[CATEGORY SHORTCODE] <source>
+  <message>
+  expression: <the template excerpt that triggered the failure>
   active pillars:
-    .values
-    .context.inject
-    .infra
+    <one line per top-level pillar key in scope at the point of failure>
 ```
 
-The `expression:` line carries the template excerpt that triggered the failure. The `active pillars:` block lists the top-level pillar keys available at the point of failure, so authors see what was queryable.
+The `expression:` line carries the template excerpt that triggered the failure. The `active pillars:` block lists the top-level pillar keys available at the point of failure, so authors see what was queryable. Both are omitted when the failure carries neither.
 
 ## Nested context frames
 
 An error often crosses more than one surface on its way to the CLI: a load phase wraps the specific entity failure, which itself wraps a sentinel explaining the rule. Every categorized frame in such a chain renders — the outermost as the head in the shape above, each nested frame as an indented `caused by:` continuation carrying its own category tag, source pointer, and message. The innermost file-pointed frame is always visible:
 
 ```text
-[CATALOG_ERROR] aggrega-catalog
+[CATALOG_ERROR E0094] aggrega-catalog
   catalog load
   caused by: [CATALOG_ERROR] aggrega-catalog/recipe/compose/mariadb-copy/recipe.yaml
     recipe identity "compose/mariadb:1.0.0" already declared in this catalog directory
     caused by: duplicate entity identity within a single catalog directory
 ```
 
+**Only the head carries a short code, and the continuations carry their category alone.** The condition is named once, at the point the reader meets the failure; the frames beneath a `caused by:` marker are that same failure seen from further in, so repeating its identifier on each would add lines without adding facts. The code the head prints is the one the chain names — here the rule at the very bottom — so a phase-context frame at the top still identifies the condition underneath it.
+
 Reading top-down: the phase that failed, then the entity (with its file path) that caused it, then the rule it violated. A nested frame that adds nothing beyond its parent (same category, same source, a message the parent already contains) is deduplicated rather than repeated, and a terminal explanation renders only when the frames above it don't already carry its text.
 
 When the failure forks beneath a frame — a phase that collected several independent violations before halting — the continuation carries a count, and every collected failure renders beneath it, separated by the same `---` rule the multi-error chains below use:
 
 ```text
-[CATALOG_ERROR]
+[CATALOG_ERROR E0099]
   recipe resolution
   caused by (2):
-    multiple recipes implement this type and the Manifest does not map it; pin the instance or type in the Manifest to disambiguate: component "db" (type "core/datastore/mariadb:1.0.0"): recipes [compose/mariadb:1.0.0 helm/mariadb-bitnami:1.0.0] all implement it
-    ---
-    no recipe resolved for component/feature instance; map its type in the Manifest or add a recipe implementing it: feature "metrics" (type "core/metrics:1.0.0"): no Manifest mapping and no feature recipe implements it
+    no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type: component "edge" (type "example/gateway/nginx-reviewed"); no recipe implements this type
+  ---
+    no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type: component "internal" (type "example/gateway/nginx-reviewed"); no recipe implements this type
 ```
+
+The collected failures beneath the count are continuations too, so none of them repeats the head's short code — which is what keeps a fork of a dozen violations from printing the same identifier a dozen times.
 
 One separator grammar applies throughout: `---` between sibling failures, `caused by:` between nested context frames.
 
@@ -83,7 +96,7 @@ One separator grammar applies throughout: `---` between sibling failures, `cause
 Every entity document — catalog entities, Aggregates, Manifests, Releases — is validated against its kind's published JSON schema when it is loaded, before typed parsing. A document that violates its envelope (an unknown key, a missing required field, a value of the wrong shape, a banned construct such as Release `values:`) halts loudly with a diagnostic that names the condition first, then the entity kind and the file, then each offending key or shape with the line and column it sits on, and finally what to do about it:
 
 ```text
-[OPS_ERROR] release.yaml
+[OPS_ERROR E0215] release.yaml
   Release: document envelope validation failed (Release, at release.yaml); 12:7: spec.boundaries.main.values: /$defs/boundary: unexpected property: "values". correct the document to match its kind's schema
 ```
 
@@ -103,16 +116,14 @@ The category follows the authoring surface: `[CATALOG_ERROR]` for catalog entiti
 When a single compile detects multiple independent violations (most commonly during static analysis, where every selector and `appliesTo` violation is collected before any one halts the build), the errors are joined into a single chain via Go's `errors.Join`. The CLI walks the chain and renders each sub-error independently, separated by a horizontal-rule line:
 
 ```text
-[DEVELOPER_ERROR] aggregate.yaml:12:5
-  selector "tier=backend" matches no component declared in the Aggregate
-
+[DEVELOPER_ERROR E0007] aggregate.yaml at .spec.components.edge.uses.reviewed_upstream.internal
+  selector violation ("gateway.example.com/audit-tier=reviewed", "internal")
 ---
-
-[DEVELOPER_ERROR] aggregate.yaml:18:5
-  feature "metrics" (type "core/metrics") appliesTo constraint not satisfied by node "api" labels {[component.aggrega.ai/type] map[component.aggrega.ai/type:worker]}
+[DEVELOPER_ERROR E0007] aggregate.yaml at .spec.components.edge2.uses.reviewed_upstream.internal
+  selector violation ("gateway.example.com/audit-tier=reviewed", "internal")
 ```
 
-The `---` separator is literal — readers and downstream tools can split on it to enumerate the joined errors. The category prefix appears on each sub-error so each violation carries its own attribution.
+The `---` separator is literal — readers and downstream tools can split on it to enumerate the joined errors. Each sub-error is a failure in its own right rather than a detail of its neighbour, so each carries a full head: its own category, and its own short code. Two violations of one rule name the same short code, as above; two violations of different rules name different ones.
 
 ## Reading an error end-to-end
 

@@ -155,7 +155,7 @@ pillar, and nothing else. The build is **expected to fail**:
 
 ```bash
 ./build-release.sh undeclared-key -- --auto-pull
-# [DEVELOPER_ERROR] .spec.components.web.uses.assistant.model
+# [DEVELOPER_ERROR E0156] .spec.components.web.uses.assistant.model
 #   Aggregate adhoc-uses-socket-undeclared-key: invalid inject key: the from-key must name a
 #   declared provides key of the target component type ("env", "ASSISTANT_API_KEY", "api_key",
 #   "core/ai-model/anthropic", "endpoint", "model")

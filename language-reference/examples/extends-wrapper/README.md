@@ -168,10 +168,8 @@ wrapper — and it is **expected to fail**:
 
 ```bash
 ./build-release.sh unreviewed -- --auto-pull
-# [DEVELOPER_ERROR] edge
-#   edge -> internal (reviewed_upstream): target "internal" labels ... do not match
-#   selector "gateway.example.com/audit-tier=reviewed" on socket "reviewed_upstream"
-#   caused by: selector violation
+# [DEVELOPER_ERROR E0007] aggregate-unreviewed.yaml at .spec.components.edge.uses.reviewed_upstream.internal
+#   selector violation ("gateway.example.com/audit-tier=reviewed", "internal")
 # exit status: 1
 ```
 
