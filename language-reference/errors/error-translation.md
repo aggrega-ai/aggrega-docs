@@ -59,8 +59,8 @@ An error often crosses more than one surface on its way to the CLI: a load phase
 [CATALOG_ERROR] aggrega-catalog
   catalog load
   caused by: [CATALOG_ERROR] aggrega-catalog/recipe/compose/mariadb-copy/recipe.yaml
-    recipe identity "compose/mariadb:1.0.0" already declared
-    caused by: duplicate recipe identity (spec.capability + metadata.name + version) in the catalog
+    recipe identity "compose/mariadb:1.0.0" already declared in this catalog directory
+    caused by: duplicate entity identity within a single catalog directory
 ```
 
 Reading top-down: the phase that failed, then the entity (with its file path) that caused it, then the rule it violated. A nested frame that adds nothing beyond its parent (same category, same source, a message the parent already contains) is deduplicated rather than repeated, and a terminal explanation renders only when the frames above it don't already carry its text.

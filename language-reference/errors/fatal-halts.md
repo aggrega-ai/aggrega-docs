@@ -187,12 +187,14 @@ The opening sentence is the same either way, which is what makes it the part of 
 The Manifest's mapping entry points at a Recipe whose `spec.implements:` declaration does not match the component-type key for that mapping entry. The check fires at workspace load time as a load-time consistency check (per the post-migration direct-URI-lookup model — `spec.implements` becomes a consistency check, not a dispatch mechanism).
 
 Emitted message:
-> CATALOG_ERROR: manifest mapping `<component-type>` → `<recipe-uri>`: recipe spec.implements is `<recipe-implements>` (expected `<component-type>`)
+> CATALOG_ERROR: manifest mapping `"<component-type>"` -> `"<recipe-uri>"`: recipe spec.implements is `"<recipe-implements>"` (expected `"<component-type>"`, or a type `"<component-type>"` extends)
 
-A parallel form fires when the mapping entry points at a Recipe URI that does not exist in the catalog at all:
-> CATALOG_ERROR: manifest mapping `<component-type>` → `<recipe-uri>`: recipe not found in catalog
+Beneath that line the halt names the rule it violated, as a `caused by:` continuation — the nested-frame shape [error-translation.md](error-translation.md) describes:
+> caused by: manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key
 
-FeatureRecipe entries follow the same shape; the `features.type` mapping check emits `manifest feature mapping ... featurerecipe spec.implements is ... (expected ...)`.
+A mapping entry naming a Recipe the catalog does not hold is not this halt: the consistency check has nothing to compare against and skips the entry, and the unresolvable Recipe is reported when recipes are resolved.
+
+FeatureRecipe entries follow the same shape; the `features.type` mapping check emits `manifest feature mapping ... featurerecipe spec.implements is ... (expected ...)`, and the feature arm matches on the mapping key itself, so it names no extends alternative.
 
 **How to fix:** either correct the Recipe's `spec.implements:` declaration so it matches the Manifest's component-type key, or change the Manifest entry to point at a Recipe whose `spec.implements:` does match the component-type key.
 
@@ -239,10 +241,10 @@ It halts as an ordinary envelope violation, so the diagnostic takes that class's
 
 When a local Manifest `extends` a base Manifest, the two tiers (`type:` map, `name:` map) merge independently. Within each tier, child keys overwrite parent keys at the top level — this is a shallow replacement, not a deep merge. A child entry for a given key fully replaces the parent's entry for that key.
 
-When the same feature instance name appears on both the Aggregate side and the Release side with conflicting non-mergeable state (beyond the permitted `infra` layering), the compiler halts with a merge-conflict message identifying both source locations and the field where the conflict was detected.
+When the same feature instance name appears on both the Aggregate side and the Release side with conflicting non-mergeable state (beyond the permitted `infra` layering), the compiler halts and positions the diagnostic on the attachment it could not reconcile. The two conflicting declarations follow in a fixed order — the type the Aggregate declared first, then the type the Release declared — so you can tell which document said which without opening both.
 
 Emitted message:
-> feature merge conflict for instance `<instance-name>`: `<field>` declared in both Aggregate and Release with incompatible values.
+> feature merge conflict: reconcile the Aggregate and Release declarations for the feature (`"<aggregate-declared-type>"`, `"<release-declared-type>"`)
 
 **How to fix:** reconcile the two declarations. Aggregate-side and Release-side declarations of the same feature instance combine by pillar — Aggregate contributes `values`, Release contributes `infra`. If both sides specify the same non-pillar field (such as `type:`), the values must match; correct one side to match the other, or drop the redundant declaration.
 
@@ -322,7 +324,7 @@ Once every Component has a resolved Recipe, the compiler stitches Components tog
 A `uses:` edge names a target component that does not exist in the resolved topology. The halt is origin-agnostic — a developer-authored Aggregate edge and a Release-wired edge are caught alike. A dangling target is a fatal halt, not a silent drop: an edge to a non-existent target would otherwise vanish and leave the consumer's injected values silently empty at deploy time. It is the structural sibling of the uses-socket allowlist — the socket must be declared *and* the target must resolve to an existing component before an edge is type-checked.
 
 Emitted message:
-> uses edge `<consumer>`/`<socket>`/`<alias>` targets `<target>`, which is not a component in the topology.
+> uses edge `<consumer>`/`<socket>`/`<alias>` targets `"<target>"`, which is not a component in the topology: uses edge target does not exist
 
 **How to fix:** declare the missing target component, or correct the target name in the `uses:` entry to match an existing component.
 
@@ -348,7 +350,7 @@ The attachment arm names the feature type in place of the component type; an att
 A Release per-edge `uses:` entry names a target that differs from the target the developer already wired for the same socket and alias. A Release may *configure* an edge the developer declared (set per-edge `infra`, naming the same target or omitting it) and may *wire* an edge into a declared-but-unbound socket, but it may not *retarget* an edge the developer declared — the developer owns the architecture they authored.
 
 Emitted message:
-> release edge `<consumer>`/`<socket>`/`<alias>` retargets developer-declared target `<declared-target>` to `<release-target>`.
+> release edge `<consumer>`/`<socket>`/`<alias>` retargets developer-declared target `"<declared-target>"` to `"<release-target>"`: release edge retargets a developer-declared edge
 
 **How to fix:** drop the differing `target` from the Release `uses:` entry to configure the existing edge (per-edge `infra` only), or, if the connection genuinely belongs to a different socket, wire it through a socket the developer left unbound. To change the target itself, change it in the Aggregate, where the topology is authored.
 
@@ -430,11 +432,13 @@ The compiler walks every `inject:` block — both self-inject (a Component injec
 
 An `inject:` entry references a `from:` key that the target Component's `provides:` schema does not declare. The compiler checks this as soon as the catalog is resolved, before it builds the topology, so the diagnostic points at the exact line you authored rather than at a later wiring stage. The target depends on where the reference lives: a Component-level self-inject `from:` resolves against that same Component's own `provides:`, while a `uses[]` cross-inject reference resolves against the used target Component's `provides:`. A Component that declares no `provides:` rejects every `from:` reference aimed at it.
 
-Emitted message:
-> inject from-key `<from-key>` is not declared in component type `<component-type>` provides; declared keys are: `[<key-1> <key-2> ...]`
+Emitted message, for a `from:` read on a Component's own `inject:` block. The refusal comes first, then the key at fault, the component type it was resolved against, and that type's declared keys in sorted order — the alternatives to pick from:
+> invalid inject key: the from-key must name a declared provides key of the target component type (`"<from-key>"`, `"<component-type>"`, `"<key-1>"`, `"<key-2>"`)
 
-When the target declares no `provides:` at all, the message names that explicitly:
-> inject from-key `<from-key>` is not a provides key of component type `<component-type>`, which declares no provides keys
+For a `from:` read on a `uses:` connection, the same refusal leads and the mechanism and delivery key the entry was written under come ahead of the key at fault:
+> invalid inject key: the from-key must name a declared provides key of the target component type (`"<mechanism>"`, `"<delivery-key>"`, `"<from-key>"`, `"<component-type>"`, `"<key-1>"`)
+
+When the target declares no `provides:` keys at all there are no alternatives to list, so the message ends after the component type.
 
 **How to fix:** either change the `from:` key to match one of the declared keys listed in the message, or extend the target Component's `provides:` schema to declare the key you need.
 
@@ -554,8 +558,10 @@ An `inject:` block on a `uses:` edge wires into a socket whose `usesSchema` entr
 
 The socket is read on whichever entity declared it: an edge authored on a Feature attachment resolves against the attached Feature's `usesSchema`, and every other edge against the consuming Component's.
 
-Emitted message:
-> socket `<socket>` on component type `<component-type>` declares no inject allowlist (Black-Box pattern) — delivery dictation is not allowed.
+Emitted message. The refusal comes first, then the block to edit: the consuming component, the socket and alias, and the `inject:` block beneath them:
+> uses-edge inject dictates a delivery mechanism the socket does not permit: component `"<consumer>"`.uses[`"<socket>"`][`"<alias>"`].inject: socket `"<socket>"` on component type `"<component-type>"` declares no inject allowlist (Black-Box pattern) — delivery dictation is not allowed
+
+An edge authored on an attachment is located as `component "<consumer>" attachment "<attachment>"`, and one wired in the Release as `Release component "<consumer>"`. Where the socket was declared on the attached Feature, the message names the feature type in place of the component type. Several offending edges in one build are reported together, joined by `; `.
 
 **How to fix:** remove the `inject:` block from the edge and read the dependency's values from `.context.uses.<alias>.provides.<name>` in the consuming Recipe instead; or, if the connection is meant to be transparent, declare the delivery mechanisms the socket permits in its `usesSchema` entry's `inject:` allowlist.
 
@@ -569,8 +575,10 @@ An `inject:` block on a `uses:` edge names a delivery mechanism the socket's `in
 
 Every mechanism the block names is checked, and each one outside the allowlist is reported, so one build names them all rather than one per run.
 
-Emitted message:
-> mechanism `<mechanism>` not in socket `<socket>` inject allowlist `[<mechanism-1>, <mechanism-2>, ...]` on component type `<component-type>`.
+Emitted message. The refusal comes first, then each refused mechanism under the `inject:` block that named it, joined by `; `:
+> uses-edge inject dictates a delivery mechanism the socket does not permit: component `"<consumer>"`.uses[`"<socket>"`][`"<alias>"`].inject.`<mechanism>`: mechanism `"<mechanism>"` not in socket `"<socket>"` inject allowlist `[<mechanism-1> <mechanism-2>]` on component type `"<component-type>"`
+
+An edge authored on an attachment is located as `component "<consumer>" attachment "<attachment>"`, and one wired in the Release as `Release component "<consumer>"`. Where the socket was declared on the attached Feature, the message names the feature type in place of the component type.
 
 **How to fix:** switch to one of the allowlisted mechanisms, or, if the entity should support the mechanism you need, widen that socket's `inject:` allowlist in its catalog `usesSchema` entry.
 
@@ -587,7 +595,10 @@ A Recipe's `provides:` template references a root outside the self-contained set
 `.locals` is on the surface: a node's locals resolve in the preamble of the same stage, ahead of its provides, so a `provides` template reads them and receives resolved values.
 
 Emitted message:
-> node `<node-id>` provides[`<key>`]: Recipe `<recipe>` provides references `<expression>` — the provides block is self-contained and may reference only .context.instance_id, .values, .infra, .locals, and static text
+> Recipe `"<recipe>"` provides references `"<expression>"` — the provides block is self-contained and may reference only .context.instance_id, .values, .infra, .locals, and static text
+
+Beneath that line the halt names the rule it violated, as a `caused by:` continuation:
+> caused by: provides block references a root outside the self-contained set
 
 **How to fix:** refactor the template to pull only from the Recipe's own pillars. If the value depends on another node's output, that dependency belongs in a caller's `uses[].inject` block, not in the target's `provides`. If the value is computed, put the expression in a `locals:` entry and read it from `provides` — the expression then lives in one place. If you were reaching for the deployment namespace (or other placement data) to build a cross-namespace host, publish the bare host here and qualify it on the consumer side with a routing feature — the producer's `provides` must not depend on where it was deployed.
 
@@ -612,6 +623,9 @@ A template reads `.locals.<key>` for a key the `locals:` block does not declare 
 
 Emitted message:
 > Recipe `<recipe>` provides[`<key>`] references `<expression>`, but the locals block declares no `<referenced>` — it declares `<the keys it does declare>`. To fix: correct the key name
+
+Beneath that line the halt names the rule it violated, as a `caused by:` continuation:
+> caused by: template references a key the locals block does not declare
 
 **How to fix:** correct the key name to one the block declares; the message lists them. The halt is distinct from the ordering halt above because the remedies differ — no reordering makes a key that does not exist resolve.
 
@@ -720,8 +734,8 @@ Emitted message:
 
 A build reaches a capability — or a pull resolves one — served by more than one provider-rendering Plugin (`pluginType: provider`, each listing that capability in its `spec.provider.capabilities`), and the workspace has not selected which one renders it. Rather than pick a provider arbitrarily, the build halts and names both candidates. A catalog that carries two plugins for the same capability is legal — two publishers may each ship a plugin for `helm` or `compose`, and the catalog accepts both. The ambiguity surfaces only at the point of use: the halt fires when a build or pull actually reaches the contested capability, not at load time.
 
-Emitted message:
-> capability `<capability-name>` is served by more than one provider plugin (`<plugin-1>, <plugin-2>`); add a plugins.providers entry for `<capability-name>` selecting one
+Emitted message. The rule that halted the build leads, and the specifics — which capability, which candidates, and the binding to write — follow it:
+> capability is served by more than one provider plugin; add a plugins.providers entry to select one: capability `"<capability-name>"` is served by more than one provider plugin (`<plugin-1>, <plugin-2>`); add a plugins.providers entry for `"<capability-name>"` selecting one
 
 **How to fix:** add a `plugins.providers` entry in the workspace config keyed by the capability, whose value selects the plugin identity that renders it. Keep both plugins in the federated catalog; the binding tells this workspace which one to dispatch to for the contested capability.
 
@@ -747,7 +761,7 @@ Emitted message:
 Two boundary contributors evaluate to the same physical assembly path but disagree on a property that must be uniform across the contributors at that path — for example, two boundaries assembling under the same `directory:` route through different providers, or one boundary declares a per-(path, provider) tuple a second boundary cannot satisfy.
 
 Emitted message:
-> OPS_ERROR: dispatch path collision: dispatch path `<path>` produced multiple provider outputs (`<providers>`); contributing boundaries `<boundaries>` resolve to the same path under their current `directory:` / `subDirectory:` settings; set distinct `subDirectory` values per provider or change one boundary's `directory`
+> OPS_ERROR: dispatch path produced multiple provider outputs: dispatch path `"<path>"` produced multiple provider outputs (`[<providers>]`); contributing boundaries `[<boundaries>]` resolve to the same path under their current `directory:` / `subDirectory:` settings; set distinct `subDirectory` values per provider or change one boundary's `directory`
 
 **How to fix:** either give each boundary a distinct `directory:` (so they assemble to separate paths), or align the conflicting property across the contributors. The compose-bridge pattern intentionally collapses two sub-boundaries into one assembly path; that pattern requires both boundaries to target the same provider and to carry compatible cascade-resolved annotations.
 
@@ -758,7 +772,7 @@ Emitted message:
 Two boundaries that assemble to the same per-(path, provider) tuple contribute components with identical instance IDs. The merged assembly cannot disambiguate the two component fragments — a single Helm chart cannot carry two Deployments named `web-server`, and a single docker-compose file cannot carry two services named `api`.
 
 Emitted message:
-> TRANSLATION_ERROR: instance id collision within an assembly group: dispatch path `<path>` provider `<provider>` already contains node `<instance-id>` (contributing boundaries: `<boundaries>`); component instance IDs must be unique within an assembly group
+> TRANSLATION_ERROR: multiple contributors share an instance ID at the same dispatch path: dispatch path `"<path>"` provider `"<provider>"` already contains node `"<instance-id>"` (contributing boundaries: `[<boundaries>]`); component instance IDs must be unique within an assembly group
 
 **How to fix:** rename one of the colliding components in the Aggregate, or split the two boundaries onto separate `directory:` paths so each component instance lands in its own assembly.
 

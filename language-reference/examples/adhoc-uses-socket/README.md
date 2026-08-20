@@ -155,21 +155,26 @@ pillar, and nothing else. The build is **expected to fail**:
 
 ```bash
 ./build-release.sh undeclared-key -- --auto-pull
-# [DEVELOPER_ERROR] .spec.components["web"].uses["assistant"]["model"].inject.env["ASSISTANT_API_KEY"]
-#   Aggregate adhoc-uses-socket-undeclared-key: inject from-key "api_key" is not declared in
-#   component type "core/ai-model/anthropic" provides; declared keys are: [endpoint model]
+# [DEVELOPER_ERROR] .spec.components.web.uses.assistant.model
+#   Aggregate adhoc-uses-socket-undeclared-key: invalid inject key: the from-key must name a
+#   declared provides key of the target component type ("env", "ASSISTANT_API_KEY", "api_key",
+#   "core/ai-model/anthropic", "endpoint", "model")
 # exit status: 1
 ```
 
 The halt is the lesson, and *where* it fires is the part worth noticing: the
-offending path names the ad-hoc socket, `uses["assistant"]`. The `from:` key is
+offending path names the ad-hoc socket, `uses.assistant`, and stops at the
+connection rather than at the delivery entry inside it. The `from:` key is
 checked against the target Component's declared `provides` on every edge, and the
 socket being ad-hoc changes nothing about that check. An author who may invent a
 socket name still may not invent an output key on somebody else's component.
 
-The diagnostic lists the legal keys, so the fix is visible from the message
-alone. A target Component that declares no `provides` at all rejects every
-`from:` reference to it, and says so in those words.
+The refusal comes first, then the mechanism and the delivery key the entry was
+written under, the key at fault, the component type it was resolved against, and
+that type's declared keys in sorted order — so the fix is visible from the
+message alone. A target Component that declares no `provides` at all rejects
+every `from:` reference to it just the same; there are simply no declared keys to
+list, so the message ends after the component type.
 
 ## Which one to write
 
