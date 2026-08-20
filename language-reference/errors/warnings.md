@@ -53,10 +53,12 @@ LINT: Feature "core/db-pool" at ./catalog/feature/core/db-pool.yaml declares pro
 **Emit shape:**
 
 ```text
-  lint: Aggregate nearmiss at .spec.components["db"].features["app_user_passwrod"]: attachment "app_user_passwrod" on component "db" is not a declared slot of type "core/datastore/postgres", but the type declares the slot "app_user_password" — if "app_user_password" was meant, the attachment is currently a free attachment and does not fill it
+  lint: Aggregate nearmiss at .spec.components.db.features.app_user_passwrod: attachment name is a near miss for a declared slot ("app_user_passwrod", on component type "core/datastore/postgres", near the declared slot "app_user_password")
 ```
 
-**Editor visibility.** The warning also reaches editor diagnostics through the language server, at warning severity, positioned on the offending authoring site. An author who never reads terminal output still sees the pair.
+The first quoted value is the name the attachment was written under, which is what the warning's opening sentence is about. The two that follow are introduced by the words that say what they are: the Component type the attachment sits on, and the declared slot it sits within one edit of.
+
+**Editor visibility.** The warning also reaches editor diagnostics through the language server, at warning severity, positioned on the offending attachment key. An author who never reads terminal output still sees the pair.
 
 **Threshold and its trade-off.** The lint pairs names only at one edit's distance, and only when both names are at least four characters long. Below that length nearly every short name sits within one edit of every other, so pairing them would produce noise rather than signal; above one edit the pairs stop resembling typos. A transposition counts as one edit rather than two, because a swapped pair of characters is the commonest slip and a stricter count would miss it.
 
@@ -75,10 +77,12 @@ LINT: Feature "core/db-pool" at ./catalog/feature/core/db-pool.yaml declares pro
 **Emit shape:**
 
 ```text
-  lint: Aggregate aggregate at .spec.components["web"].uses["databses"]: socket "databses" on component "web" is not declared in the usesSchema of type "core/devtool/adminer", but the type declares the socket "databases" — if "databases" was meant, this edge is currently an ad-hoc connection and carries no selector
+  lint: Aggregate aggregate at .spec.components.web: uses socket name is a near miss for a declared socket ("databses", on component type "core/devtool/adminer", near the declared socket "databases")
 ```
 
-**Editor visibility.** The warning also reaches editor diagnostics through the language server, at warning severity, positioned on the offending authoring site. An author who never reads terminal output still sees the pair.
+The first quoted value is the socket name the author wrote, which is what the warning's opening sentence is about. The two that follow are introduced by the words that say what they are: the Component type the socket was named on, and the declared socket it sits within one edit of. The consequence the warning does not spell out is the one described above: the misspelled name is an ad-hoc connection, so it carries no selector and no per-edge contract, and the socket the author meant stays unwired.
+
+**Editor visibility.** The warning also reaches editor diagnostics through the language server, at warning severity, positioned on the component whose `uses:` block holds the offending name. An author who never reads terminal output still sees the pair.
 
 **Threshold and its trade-off.** The lint pairs names only at one edit's distance, and only when both names are at least four characters long — the same bound the attachment-slot near-miss lint uses, for the same reason. Below that length nearly every short name sits within one edit of every other, so pairing them would produce noise rather than signal; above one edit the pairs stop resembling typos. A transposition counts as one edit rather than two, because a swapped pair of characters is the commonest slip and a stricter count would miss it.
 
