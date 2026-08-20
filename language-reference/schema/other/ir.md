@@ -25,7 +25,7 @@ _Additional properties are not permitted._
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `name` | string | no |  |
+| `name` | string | yes |  |
 | `email` | string | no |  |
 | `url` | string | no |  |
 
@@ -116,12 +116,12 @@ _Additional properties are not permitted._
 | `subsystem_path` | string | no | The logical spatial hierarchy mapped from the Aggregate subsystems (e.g., 'finance-module/ledger-api'). Allows rendering plugins to generate logical metadata tags. |
 | `synthesized_subsystem` | boolean | no | True when this node's subsystem was synthesized by the compiler — the `default` subsystem created for an Aggregate that declares top-level `components` rather than named `subsystems`. Derived provenance, never authored: it distinguishes the synthesized `default` from a subsystem a user explicitly named `default`. Independent of `synthesized_boundary` (a node may be synthesized on either axis or both). Absent (false) for every authored subsystem. |
 | `synthesized_boundary` | boolean | no | True when this node's boundary was synthesized by the compiler — the `default` boundary created for a Release that declares top-level `components` rather than named `boundaries`. Derived provenance, never authored: it distinguishes the synthesized `default` from a boundary a user explicitly named `default`, and routes the node's artifacts to `dist/` flat instead of `dist/boundaries/default/`. Absent (false) for every authored boundary. |
-| `source_file` | string | no | Workspace-relative path of the Aggregate file where this node was authored. Root-tier nodes carry the root Aggregate's path; sub-aggregate nodes carry the imported Aggregate's file path. The emitter normalizes against the workspace root (the directory containing .aggrega-config.yaml) so the IR wire shape stays byte-identical across developer machines whose workspaces live at different absolute paths. Consumers that filter diagnostics per file resolve the field against the same workspace root before comparison. Empty when the emitter has no workspace concept (e.g., synthetic test fixtures); the field is omitted from the JSON when empty. |
 | `catalog_metadata` | CatalogMetadata | no |  |
 | `catalog_annotations` | map of string | no | Immutable, intrinsic component characteristics authored by the Platform Architect in Domain 2. |
 | `release_annotations` | map of string | no | Physical topology strings and Ops realities cascading from boundaries in the Release. |
 | `aggregate_annotations` | map of string | no | Cognitive metadata, developer intent, and FinOps cascading from subsystems in the Aggregate. |
 | `self_inject` | object | no | Component-level self-inject block carried from the Aggregate; the agnostic injection routing the node declares for itself. Opaque at this schema layer; a policy plugin that reads it parses the bytes. |
+| `source_file` | string | no | Workspace-relative path of the Aggregate file where this node was authored. Root-tier nodes carry the root Aggregate's path; sub-aggregate nodes carry the imported Aggregate's file path. The emitter normalizes against the workspace root (the directory containing .aggrega-config.yaml) so the IR wire shape stays byte-identical across developer machines whose workspaces live at different absolute paths. Consumers that filter diagnostics per file resolve the field against the same workspace root before comparison. Empty when the emitter has no workspace concept (e.g., synthetic test fixtures); the field is omitted from the JSON when empty. |
 | `uses` | object | no | The node's `uses` block exactly as authored: each socket name maps to either a list of target instance names or an alias-keyed map of connection entries, in the order the author declared them. This is the block as written, which is a different fact from the resolved connections in `edges`: a socket the author populated appears here even where it produced no connection, so a reader can tell a socket the author filled apart from a socket that reaches a target. Absent when the node authored no `uses` block. Opaque at this schema layer; a policy plugin that reads it parses the bytes. |
 
 _Additional properties are not permitted._
