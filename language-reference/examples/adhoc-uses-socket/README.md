@@ -156,8 +156,9 @@ pillar, and nothing else. The build is **expected to fail**:
 ```bash
 ./build-release.sh undeclared-key -- --auto-pull
 # [DEVELOPER_ERROR E0156] .spec.components.web.uses.assistant.model
-#   Aggregate adhoc-uses-socket-undeclared-key: invalid inject key: the from-key must name a
-#   declared provides key of the target component type ("env", "ASSISTANT_API_KEY", "api_key",
+#   invalid inject key: the from-key must name a declared provides key of the target
+#   component type (Aggregate adhoc-uses-socket-undeclared-key,
+#   at .spec.components.web.uses.assistant.model, "env", "ASSISTANT_API_KEY", "api_key",
 #   "core/ai-model/anthropic", "endpoint", "model")
 # exit status: 1
 ```
@@ -169,12 +170,13 @@ checked against the target Component's declared `provides` on every edge, and th
 socket being ad-hoc changes nothing about that check. An author who may invent a
 socket name still may not invent an output key on somebody else's component.
 
-The refusal comes first, then the mechanism and the delivery key the entry was
-written under, the key at fault, the component type it was resolved against, and
-that type's declared keys in sorted order — so the fix is visible from the
-message alone. A target Component that declares no `provides` at all rejects
-every `from:` reference to it just the same; there are simply no declared keys to
-list, so the message ends after the component type.
+The refusal comes first, then the Aggregate and the path the edge was authored
+at, the mechanism and the delivery key the entry was written under, the key at
+fault, the component type it was resolved against, and that type's declared keys
+in sorted order — so the fix is visible from the message alone. A target
+Component that declares no `provides` at all rejects every `from:` reference to
+it just the same; there are simply no declared keys to list, so the message ends
+after the component type.
 
 ## Which one to write
 
