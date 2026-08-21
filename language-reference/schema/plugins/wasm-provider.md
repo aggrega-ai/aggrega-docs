@@ -247,7 +247,7 @@ _Additional properties are not permitted._
 
 ### `AssembleBoundaryInput`
 
-The payload a Provider guest receives on its assemble_boundary export — the export that merges the per-node render outputs at one dispatch group into a single assembled artifact (an umbrella chart, a merged compose file). It carries the per-node render outputs and their merged annotations, the dispatch-group output path the assembled artifact lands at, the graph's uses edges for per-service dependency inference, and the render-time context. Not every provider declares the export: providers that emit only flat per-node output omit it.
+The payload a Provider guest receives on its assemble_boundary export — the export that merges the per-node render outputs at one dispatch group into a single assembled artifact (an umbrella chart, a merged compose file). It carries the per-node render outputs with their merged annotations and deployment waves, the dispatch-group output path the assembled artifact lands at, the graph's uses edges for per-service dependency inference, and the render-time context. Not every provider declares the export: providers that emit only flat per-node output omit it.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -264,7 +264,7 @@ _Additional properties are not permitted._
 
 ### `RenderedNode`
 
-One node's render output as it appears in an assemble_boundary input: the node id, its type, its merged annotations, and the render output the render_node export produced for it.
+One node's render output as it appears in an assemble_boundary input: the node id, its type, its merged annotations, its deployment wave, and the render output the render_node export produced for it.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -272,6 +272,7 @@ One node's render output as it appears in an assemble_boundary input: the node i
 | `type` | string | yes | The node's component-type label. |
 | `rendered` | RenderNodeOutput | yes |  |
 | `annotations` | map of string | no | The node's merged annotations, so a boundary assembler can attribute per-node placement (e.g. the compose network derived from the aggrega.ai/namespace annotation). |
+| `sync_wave` | integer | no | The deployment wave this node inherited from its containing boundary (default 0; negative permitted), so a boundary assembler can order the contributors it merges relative to one another. A dispatch group can merge contributors from several boundaries, each carrying its own wave, so the wave travels with every node here rather than once for the whole payload. An assembler whose output shape expresses no ordering ignores it. |
 
 _Additional properties are not permitted._
 

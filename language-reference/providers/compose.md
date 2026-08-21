@@ -186,16 +186,81 @@ The compose provider derives `depends_on` automatically from the IR's `uses` edg
 
 **The dependency lands on the source component's own service, and on no other service that component contributes.** A component that also declares [init containers](#init-containers) contributes one run-to-completion service per entry, and none of those receives the edge-derived dependency — an edge names the component, and an init service carries a name of its own. So an init container that has to reach the edge's target, such as a schema migration against a database the component `uses`, carries no ordering against that target and may run before it is reachable, while the component's own service waits both for the init chain to complete and for the target to have started.
 
-Edge-derived entries are emitted **ungated**: they have `service_started` semantics regardless of whether the target declares a healthcheck. Gating them on the target's health — which would let the compose runtime block startup until the target's healthcheck reports healthy — is expressible but is not what a `uses` edge currently means.
+Edge-derived entries are emitted **ungated**: they have `service_started` semantics regardless of whether the target declares a healthcheck. Gating them on the target's health — which would let the compose runtime block startup until the target's healthcheck reports healthy — is expressible but is not what a `uses` edge currently means. A [deployment wave](#deployment-wave-ordering) naming the same pair is the one thing that changes the condition on an edge-derived entry, and it does so because the wave asks for it rather than because the edge does.
 
 Edge-derived entries are emitted in alphabetical target order for output stability. Edges whose source or target are served by a different provider (helm or helm-chart) are skipped — `depends_on` only applies within the compose-served subset of the Release.
 
 A service's `depends_on` emits in one of compose's two forms, never a mix, because compose requires a condition on every entry of the long form:
 
 - **Short-form list** (`depends_on: [<service-name>]`) when no entry on that service carries a condition. That is every service whose only dependencies come from `uses` edges.
-- **Long-form mapping** when any entry carries one — which happens when the service also waits on an [init container](#init-containers). There, the edge-derived entries emit the explicit `condition: service_started`, which the Compose Specification defines as the short form's equivalent, so their meaning is unchanged.
+- **Long-form mapping** when any entry carries one — which happens when the service also waits on an [init container](#init-containers), or when a [deployment wave](#deployment-wave-ordering) orders it. There, the edge-derived entries emit the explicit `condition: service_started`, which the Compose Specification defines as the short form's equivalent, so their meaning is unchanged.
 
-Within a service the two sources keep their own order and do not interleave: the init-chain wait, whose order is the order the author wrote the list in, is emitted first, and the alphabetically-ordered edge-derived entries follow.
+Within a service the sources keep their own order and do not interleave: the init-chain wait, whose order is the order the author wrote the list in, is emitted first, then the alphabetically-ordered edge-derived entries, then the alphabetically-ordered wave-derived ones.
+
+## Deployment wave ordering
+
+A Release boundary's `syncWave:` value orders the services of the compose file that boundary renders into. Every component in the boundary inherits the boundary's wave, and where several boundaries share one `directory:` — so their contributions collapse into a single `docker-compose.yaml` — the merged file holds more than one wave and the provider expresses the ordering between them as `depends_on`.
+
+**Each service waits on every service of the immediately-preceding wave that has any services, and on no earlier wave than that.** Compose resolves the rest transitively: a service in wave `2` waits on wave `1`, which waits on wave `0`, so the whole sequence is ordered while each service's own list stays the size of one wave rather than of the whole file. Waves need not be contiguous, and negative values are ordinary — `-1` is a common choice for a migration that runs before everything else.
+
+**The condition depends on what the target can satisfy.** A wave means the earlier group is up before the later one starts, which is readiness rather than process launch, so:
+
+- where the target service declares a `healthcheck`, the wait is `condition: service_healthy`;
+- where it does not, the wait is `condition: service_started`, because a service with no healthcheck can never report healthy and a health-gated wait on it would never be satisfied — the file would never come up.
+
+The weaker condition is visible in the emitted file beside the stronger one, and the build additionally names each such service in a warning, so an author who expected readiness ordering learns which part of the wave they declared arrives as start ordering only. The warning is advisory: the build succeeds and the rendered bytes are exactly what they would be without it. Adding a `health:` block to that container is what upgrades the wait. `--no-unsupported-field-warnings` silences the class.
+
+**The wave is still recorded as a label.** Ordering is added beside the `aggrega.ai/sync-wave` label, not in place of it: the label is where a reader inspecting the emitted file sees which wave a service came from, which the `depends_on` entries do not state.
+
+**Where a wave and a `uses` edge name the same pair, one entry carries both.** Compose accepts one entry per dependency, so a service that both `uses` a target and sits a wave after it emits a single entry gated on the wave's condition — the wave's requirement is the stronger of the two and it is the one expressed.
+
+**A boundary whose components all sit in one wave emits nothing from this.** So does a Release that declares no `syncWave` at all: every contributor carries the field's default of `0`, the merged file holds a single wave, and the output is exactly what it would be if the provider expressed no wave ordering.
+
+**Ordering across two compose files is not expressible, and it is not approximated.** `depends_on` names a service inside the same file, and boundaries that evaluate to distinct assembly paths produce distinct `docker-compose.yaml` files that the compose runtime treats as independent projects. So a wave orders every service in the file it renders into and nothing outside it. Sequencing two compose projects is the operator's concern, the same way [cross-file routing](#what-the-compose-provider-does-not-deliver) is; declaring a shared `directory:` is what brings two boundaries into one file, and it is an output-shape decision to take for its own reasons rather than to obtain ordering.
+
+The emitted `depends_on` reflects what was declared — both the `uses` edges and the waves. Compose refuses a circular dependency set, so an edge whose consumer sits in an *earlier* wave than the target it uses states the opposite of what the waves state, and the merged file expresses both. Keep the edge direction and the wave order consistent.
+
+```yaml
+# release.yaml fragment — three boundaries collapsing onto one compose file
+boundaries:
+  data:
+    directory: ./dist/cluster
+    syncWave: -1
+    components:
+      migrator: {}          # no health: block
+  core:
+    directory: ./dist/cluster
+    syncWave: 0
+    components:
+      store: {}             # declares health:
+  edge:
+    directory: ./dist/cluster
+    syncWave: 1
+    components:
+      frontend: {}          # uses: store
+```
+
+```yaml
+# dist/cluster/compose/docker-compose.yaml (abridged)
+services:
+  frontend:
+    labels:
+      aggrega.ai/sync-wave: "1"
+    depends_on:
+      store:
+        condition: service_healthy    # store declares a healthcheck
+  migrator:
+    labels:
+      aggrega.ai/sync-wave: "-1"      # lowest wave: waits on nothing
+  store:
+    depends_on:
+      migrator:
+        condition: service_started    # migrator declares no healthcheck
+    healthcheck:
+      test: [CMD-SHELL, "nc -z localhost 5432"]
+```
+
+`frontend` does not name `migrator`: the ordering reaches the immediately-preceding wave and compose chains the rest through `store`.
 
 ## Sourced mode
 
@@ -252,7 +317,7 @@ The asymmetry is structural: `services:`, `volumes:` and `configs:` carry per-Re
 - **Cross-compose-file routing.** Boundaries that evaluate to distinct assembly paths produce distinct `docker-compose.yaml` files; the compose runtime treats them as independent projects. Cross-file communication is the operator's concern (publishing host ports, sharing external networks, or coalescing the boundaries onto one path via a shared `directory:`).
 - **Sourcing an environment variable from an attachment.** Compose has no primitive for it, so a Workload `attachments` entry with `as: env` emits the variable name with an empty value rather than a runtime-resolved reference. The placeholder is deliberate — a variable that is present but empty is visible to whoever debugs the container, where an absent one leaves nothing to look at — and the build says so rather than leaving it to be discovered: each such entry raises an `unsupported-field` warning naming the entry at its authored coordinate (`containers.<name>.attachments.<KEY>`, or `initContainers[<i>].attachments.<KEY>`), so the author knows which variable arrives empty and which container it belongs to. The warning is advisory: the build succeeds, and the rendered file is byte-for-byte what it would be without it. `--no-unsupported-field-warnings` silences the class. An `attachments` entry with `as: file` is unaffected — compose bind-mounts it, and no warning is raised. The `compose-bridge` Feature is the future home for compose-side secret resolution.
 - **Swarm-mode `deploy:` content.** Replicas, placement constraints, and update strategy under `deploy:` are swarm-mode features, and the compose provider targets single-host compose only, so it emits none of them. It does emit `deploy.resources` — the reservations and limits a container's `resources` map to, which docker compose honours in non-swarm mode (see [Container resources](#container-resources)).
-- **Health-condition-gated `depends_on`.** A dependency derived from a `uses` edge is emitted ungated, with `service_started` semantics; it is not gated on the target's healthcheck reporting healthy. The long form itself is emitted — an [init container](#init-containers) wait uses it — so this is about what a `uses` edge means, not about a shape the provider cannot produce.
+- **Health-condition-gated `depends_on` from a `uses` edge.** A dependency derived from a `uses` edge is emitted ungated, with `service_started` semantics; it is not gated on the target's healthcheck reporting healthy. This is about what a `uses` edge means, not about a shape the provider cannot produce: the long form is emitted for an [init container](#init-containers) wait, and a [deployment wave](#deployment-wave-ordering) does gate on the target's health where the target declares a healthcheck.
 
 ## Authoring example
 

@@ -50,7 +50,7 @@ spec:
 The compiler propagates each boundary's wave value to every rendered manifest in that boundary. Providers emit native sequencing primitives:
 
 * **For Kubernetes (ArgoCD/Flux):** the helm and helm-chart providers emit `argocd.argoproj.io/sync-wave: "<N>"` as a `metadata.annotations` entry on every rendered manifest. Helm hook resources additionally receive `helm.sh/hook-weight: "<N>"` for native Helm hook ordering.
-* **For Compose:** no per-resource sequencing primitive exists; operators sequence at the `docker compose up` invocation layer, applying per-boundary compose projects in declared order.
+* **For Compose:** the compose provider expresses the ordering as `depends_on` between the services of the file a boundary renders into, gated on the target's health where the target declares a `healthcheck` and on its start where it does not. `depends_on` names a service inside one file, so ordering across two compose files is not expressible; operators sequence separate compose projects at the `docker compose up` invocation layer.
 
 The Aggrega-internal `aggrega.ai/sync-wave: "<N>"` label continues to ship alongside the ArgoCD annotation for observability and provenance use (queryable via `kubectl get -l aggrega.ai/sync-wave=1`); the annotation is what GitOps controllers consume.
 
