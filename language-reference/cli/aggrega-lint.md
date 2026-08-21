@@ -41,7 +41,9 @@ The comparison is per entity kind: Component, Feature, and SchemaLibrary are com
 
 ## The discipline rules
 
-Each rule has a per-workspace setting under `lint.publishing_discipline` in `.aggrega-config.yaml` and a matching CLI override, each override carrying a `--no-` counterpart. Precedence is `--no-<flag>` over `--<flag>` over the workspace-config value. Every rule is on by default, and each default is grounded either in platform machinery or in a documented catalog convention; the settings are opt-outs for a workspace that has a reason to relax one.
+Most rules have a per-workspace setting under `lint.publishing_discipline` in `.aggrega-config.yaml` and a matching CLI override, each override carrying a `--no-` counterpart. Precedence is `--no-<flag>` over `--<flag>` over the workspace-config value. Every rule is on by default, and each default is grounded either in platform machinery or in a documented catalog convention; the settings are opt-outs for a workspace that has a reason to relax one.
+
+The rules that carry no setting say so in their entry below, and the reason is the same in each case: they report a fact about the entity and leave the decision with the author, so there is no judgement to relax. The version-bump rubric described above carries none either — it compares the proposed content against the published version and reports what the change requires, which is a property of the change rather than a workspace preference.
 
 - **Annotation prefix** — reserved namespaces (`aggrega.ai/`, and `feature.aggrega.ai/` outside a Feature) are platform-owned and rejected on other keys. Default on; opt out with `allow_aggrega_ai_prefix`.
 - **Name shape** — each entity kind has a name-shape convention (segment counts for the cloud-native kinds; PascalCase for library kinds). Default on; opt out with `allow_nonstandard_names`.
@@ -49,6 +51,9 @@ Each rule has a per-workspace setting under `lint.publishing_discipline` in `.ag
 - **Id overrides** — SchemaLibrary entries may not declare their own `$id` (the platform derives the canonical `$id`). Default on; opt out with `allow_id_overrides`.
 - **Category matches directory** — a Component's `component.aggrega.ai/category` label must match the first directory segment under `core/`, drawn from the closed category set (`ai-agent`, `ai-model`, `ai-tool`, `ai-pipeline`, `datastore`, `gateway`, `mesh`, `network`, `messaging`, `storage`, `compute`, `observability`, `security`, `bigdata`, `devtool`). Default on for entities under a `core/` path; opt out with `allow_category_mismatches`.
 - **Direct `x-aggrega-*` extensions** — directly authoring `x-aggrega-*` keys in a Component or Feature schema is discouraged in favor of the first-class authoring path. Default on; opt out with `allow_direct_x_aggrega_extensions`.
+- **Provides declared by Component** — a Recipe's `spec.provides` publishes one key per entry, and the Component the Recipe implements declares, in the `provides` pillar of its `spec.schema`, which keys the type exposes. It is that declaration an `inject` `from:` reference is checked against, so a key a Recipe publishes without the Component declaring it is produced and then refused where a consumer wires it. Publishing beyond the declared contract is accepted at build time, which is why the finding is advisory rather than a rejection. Default on for Recipes; opt out with `allow_undeclared_recipe_provides`.
+- **Plugin default limits** — a Plugin's `spec.runtime` carries `maxMemoryPages` and `timeoutMs`, the two caps the host applies when it loads and runs the plugin. A Plugin that pins neither runs under the platform defaults, which is a safe outcome and not an error, so the rule reports that the defaults are in effect and that explicit caps are available to pin. Default on for Plugin entities; it carries no setting.
+- **Secret slot declares sensitive** — an attachment slot declared under `spec.featuresSchema` may pin, through its label selector, the kind of Feature that fills it to `secret`, and may separately declare `sensitive: true` to record that whatever fills it handles secret material. The selector states which fills are admissible; the marker states the handling. A slot that pins the kind and declares no marker leaves that handling to be re-derived from the selector rather than read directly. Default on for Components and Features; it carries no setting.
 
 **Artifact immutability is not one of these rules, and it has no setting.** A published `name:version` is final: `aggrega push` compares the digest already published at that tag with the digest the content about to be pushed would produce, and refuses to overwrite it with different content. Re-pushing byte-identical content is an idempotent no-op. No flag and no workspace-config setting relaxes this, because the registry exposes no overwrite path for an operator to opt into. Changed content is published under a new version; `--pre-publish` is what verifies that bump against the previous release.
 
@@ -113,6 +118,7 @@ aggrega lint [entity-path] [flags]
 | `--allow-dynamic-refs` | `false` | Force allow_dynamic_refs=true for this invocation |
 | `--allow-id-overrides` | `false` | Force allow_id_overrides=true for this invocation |
 | `--allow-nonstandard-names` | `false` | Force allow_nonstandard_names=true |
+| `--allow-undeclared-recipe-provides` | `false` | Force allow_undeclared_recipe_provides=true |
 | `--baseline` | — | Diff the pre-publish evolution check against this specific already-published version instead of the auto-selected highest version below the one being published; must be a strict-SemVer tag present in the registry (requires --pre-publish) |
 | `--catalog` | `[]` | Catalog directory; repeatable. Each --catalog is prepended to the workspace catalog_dirs search stack (first match wins). Used by the whole-catalog and --release conventions passes. |
 | `--entity` | — | Path to the entity YAML to lint (alternatively pass as the positional arg) |
@@ -122,6 +128,7 @@ aggrega lint [entity-path] [flags]
 | `--no-allow-dynamic-refs` | `false` | Force allow_dynamic_refs=false for this invocation |
 | `--no-allow-id-overrides` | `false` | Force allow_id_overrides=false for this invocation |
 | `--no-allow-nonstandard-names` | `false` | Force allow_nonstandard_names=false |
+| `--no-allow-undeclared-recipe-provides` | `false` | Force allow_undeclared_recipe_provides=false |
 | `--output`, `-o` | `text` | Output format: text\|json. |
 | `--plugin` | — | Filesystem path to the publishing-linter .wasm artifact (overrides workspace plugins.linter[0].uri) |
 | `--pre-publish` | `false` | Fetch the previous registry version and verify the proposed bump against the schema-evolution classification |
