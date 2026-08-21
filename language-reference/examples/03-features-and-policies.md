@@ -292,23 +292,29 @@ if (node.labels["component.aggrega.ai/type"] === "stateful-server") {
 Traces precalculated topological paths and blocks any connection to restricted data without a masking Feature attached.
 
 ```rego
-# governance verdict guest (compiled from Rego into WebAssembly)
+# governance verdict guest: operator-authored Rego, attached at the ir-verdict role
 package aggrega.security
 
-deny[msg] {
-    path := input.precalculated_paths[_]
-    source := input.graph.nodes[path.nodes[0]]
-    target := input.graph.nodes[path.nodes[count(path.nodes) - 1]]
-
-    target.labels["compliance.aggrega.ai/data-class"] == "restricted"
-    not path.attached_features["core/data-masking"]
+deny contains msg if {
+    some path in input.precalculated_paths
+    target := path.nodes[count(path.nodes) - 1]
+    input.graph.spec.nodes[target].labels["compliance.aggrega.ai/data-class"] == "restricted"
+    not "core/data-masking" in path.attached_features
 
     msg := sprintf(
       "BLOCKED: %v cannot access restricted node %v without core/data-masking attached.",
-      [source.id, target.id]
+      [path.nodes[0], target]
     )
 }
 ```
 
+Three details in that rule are the ones worth carrying to your own policies: a node's
+id is the key it sits under in `input.graph.spec.nodes` rather than a field on the
+node; `attached_features` is a list, so membership is tested with `in`; and a
+decision collected under `deny` is reported at the `halt` severity, which is what
+stops the build. The [governance socket page](../plugins/policy-socket.md) is the
+full authoring surface — the payload each role exposes, the decision keys, and how
+to name your own.
+
 **3. Practical Trigger**
-Using the `masked-agent` Aggregate from Example 7: the mutator auto-tags any Postgres database as `restricted`. If the developer removes the `pii-filter` Feature from `finance-agent`, the OPA policy halts compilation with the explicit deny message.
+Using the `masked-agent` Aggregate from Example 7: the mutator auto-tags any Postgres database as `restricted`. If the developer removes the `pii-filter` Feature from `finance-agent`, the policy halts compilation with the message the rule composed. With the masking Feature attached, the same policy reaches no decision and the build proceeds.

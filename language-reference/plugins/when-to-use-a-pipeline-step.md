@@ -20,9 +20,9 @@ Both triggers share a shape: they need information that exists only *after* rend
 
 ## A step transforms; a policy validates
 
-A pipeline step is a *transformer*: it changes the rendered set. It is not the place to check whether a result is acceptable. To *validate* a build — to assert that a patched workload has the sidecar, that no plaintext secret reached the output, that a required label is present — attach a **render-stage policy**: a governance plugin at the `render-verdict` role, which runs after render over the emitted artifacts and returns a verdict. A `deny` halts the build; a `warn` or `audit` advises without blocking.
+A pipeline step is a *transformer*: it changes the rendered set. It is not the place to check whether a result is acceptable. To *validate* a build — to assert that a patched workload has the sidecar, that no plaintext secret reached the output, that a required label is present — attach a **render-stage policy**: a governance plugin at the `render-verdict` role, which runs after render over the emitted artifacts and returns a verdict. A `halt` verdict stops the build; a `warn` or `info` verdict advises without blocking.
 
-Keep the two roles separate. Do not build validation logic into a pipeline step, and do not use a policy to mutate output — a policy returns verdicts, never patches. A step shapes the output; a render-verdict policy judges it. The [governance socket page](policy-socket.md) covers the verdict roles and severities.
+Keep the two apart. Do not build validation logic into a pipeline step, and do not reach for a policy to mutate output — a governance plugin attached at a verdict role returns verdicts and never patches, and the host reads a verdict role's output only as a decision. A step shapes the output; a render-verdict policy judges it. The [governance socket page](policy-socket.md) covers all four governance roles and the verdict severities.
 
 ## Steps compose
 
@@ -32,6 +32,6 @@ A pipeline step can declare a typed input and output contract, so its `with:` in
 
 - [`entities/featurerecipe.md`](../entities/featurerecipe.md) — the FeatureRecipe authoring surface, including `pipeline:`.
 - [`plugins/plugin-contract.md`](plugin-contract.md) — the pipeline step's wire shape: the keyed document set in, RFC 6902 patches, side effects, diagnostics, and step outputs out.
-- [`plugins/policy-socket.md`](policy-socket.md) — the render-stage policy that validates a build's output.
+- [`plugins/policy-socket.md`](policy-socket.md) — the governance socket, including the render-stage verdict role that validates a build's output.
 - [`templates/template-context-contract.md`](../templates/template-context-contract.md) — the `.steps.<id>.outputs` field a later step reads.
 - [`examples/04-secrets.md`](../examples/04-secrets.md) — a worked Fetcher + Injector pipeline.

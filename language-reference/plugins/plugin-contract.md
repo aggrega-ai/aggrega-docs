@@ -59,7 +59,28 @@ The annotation-driven Feature expansion sub-phase, part of resolution, is a nati
 
 ## Output shape contract — what exists today
 
-Two sockets carry typed contract surfaces the compiler dispatches today. Plugin authors implement guest-side code that produces the documented shapes; the host reads them at build time, once per configured plugin, when a workspace attaches a plugin to the socket.
+The governance socket carries a typed contract surface at each of its four roles, and the role fixes which one. Plugin authors implement guest-side code that produces the documented shapes; the host reads them at build time, once per configured plugin, when a workspace attaches a plugin at that role. The subsections below follow the order the pipeline dispatches them in.
+
+### The `annotation-transform` role — annotation-injection output
+
+**Pipeline placement.** Resolution, after the components resolve and before annotation-driven Feature expansion runs.
+
+**Input shape (host → guest).** An `AnnotationTransformInput` document carrying:
+
+- `targets` — the injection targets: the resolved components the guest may annotate, each carrying its `boundary_path`, its `component_name`, and the `annotations` it already holds, so a guest can decide what to add without displacing an authored value. Ordered deterministically by the host.
+- `binding_keys` — the annotation keys the Manifest registers a binding for, in author order. An injection under a registered key goes on to expand into a Feature attachment, so a guest reads this list to inject keys that will take effect. The host does not require an injection to name a registered key: an unregistered injected annotation behaves exactly as an authored unbound annotation does.
+- `sources` — the definition files the attachment declared under `with.sources`, each carrying its base-name path and content, sorted by path.
+- `settings` — the free-form settings object the attachment declared under `with.settings`, handed to the guest verbatim.
+
+`settings` and `sources` are the same engine-agnostic `with` channel every other role reads, and both are absent when the attachment declares none. Because this role's output shapes the build, the attachment's settings and source content are pinned in the release lockfile at pull and reconstructed from it at build.
+
+**Output shape (guest → host).** An `AnnotationTransformOutput` document carrying:
+
+- `injections` — the annotations to add, in order. Each names an existing target coordinate (`boundary_path` and `component_name`) plus the `annotation_key` and its string `annotation_value`.
+
+The host applies annotation *additions* only, to coordinates it supplied, with string values. An injection naming a coordinate the deployment does not have halts the build with a message naming the coordinate and the annotation, rather than being silently dropped. That confinement is what bounds the role: an operator attaching a plugin here has declared annotation injection and nothing further.
+
+**Type definitions.** The annotation-transform wire types — `AnnotationTransformInput`, `AnnotationTransformOutput`, `AnnotationTarget`, `AnnotationInjection`, `AnnotationSource` — are published in all three ABI packages, generated from one codec so the three stay in lockstep.
 
 ### The `label-transform` role — JSONPatch output
 
@@ -86,8 +107,9 @@ Each patch addresses a specific node's labels via [JSON Pointer (RFC 6901)](http
 
 A policy guest inspects a build and returns a list of verdicts; the host acts on
 each verdict's severity and never interprets the policy itself. The full
-treatment — stages, severities, the operator-supplied input channel, wrapping a
-foreign policy engine, the reference guests, and how an operator attaches a
+treatment — the four roles, severities, the operator-supplied input channel, writing
+a policy for the Rego engine that ships inside the compiler, wrapping a foreign
+policy engine, the reference guests, and how an operator attaches a
 policy — is on the [governance socket page](policy-socket.md). This section records
 the pipeline placement and the typed wire shapes.
 
@@ -101,7 +123,7 @@ When a workspace attaches a verdict-role plugin, the pipeline marshals that role
 **Input shape (host → guest).** The role selects the payload:
 
 - The `ir-verdict` `PolicyInput` carries `graph` — the full capability-agnostic IR graph (the same shape the Topology Builder emits), with every node, edge, and attachment detail the compiler holds — and `precalculated_paths`, the routing paths the analyzer enumerates alongside, so a policy can reason about reachability without re-walking the graph. The graph is the versioned IR graph, single-sourced from the `ir-v1alpha1` schema; the IR shape is not secret (it is the same graph `aggrega inspect` emits) and secrets in it are pointers, never plaintext.
-- The `render-verdict` `RenderPolicyInput` carries `artifacts` — the rendered output files as a `{path, content}` list sorted by path, so the wire is byte-identical across runs of identical input.
+- The `render-verdict` `RenderPolicyInput` carries `artifacts` — the rendered output files sorted by path, so the wire is byte-identical across runs of identical input. Each entry carries the artifact's output `path` and its rendered `content`; it also carries the `format` it was rendered in, when the producing provider declared one, and a `tree`, the parsed canonical view of a format the guest does not read natively, which the host parses through the resolved parser and pipes through opaquely. Both are absent when they do not apply — a format the guest reads natively (JSON, YAML) is left unparsed for the guest to read from `content`.
 
 Both roles additionally carry the attachment's `sources` (policy-definition files the host reads at build time and hands the guest verbatim, paths as base names, content opaque) and `settings` (a free-form object handed through untouched). Both are absent when the attachment declares none.
 
@@ -219,7 +241,7 @@ The pipeline placement table at the top of this page reflects today's state plus
 
 ## Cross-references
 
-- [`policy-socket.md`](policy-socket.md) — the comprehensive policy-socket treatment: stages, verdict severities, the operator input channel, wrapping a foreign policy engine, and the reference guests.
+- [`policy-socket.md`](policy-socket.md) — the comprehensive governance-socket treatment: the four roles, verdict severities, the operator input channel, writing a policy for the Rego engine that ships inside the compiler, wrapping a foreign policy engine, and the reference guests.
 - [`10-status.md#compilation-pipeline-phases`](../10-status.md#compilation-pipeline-phases) — Status page plugin-pipeline classification (Wasm plugin pipeline runtime readiness).
 - [`architecture/09-ai-features.md`](../../architecture/09-ai-features.md) — Two-Part Plugin Principle for credential FeatureRecipes (Fetcher + Injector pattern).
 - [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md) — the OCI taxonomy that leads with the provider segment.

@@ -1,23 +1,30 @@
-# The governance socket: policy verdicts
+# The governance socket
 
-An operator attaches a Wasm policy plugin to inspect a build and return a
-decision. The compiler host stays dumb and unopinionated: it routes the build
-payload to the guest and acts on the verdicts the guest returns, and it never
-interprets the policy itself. All the domain policy intelligence — the policy
-language, its engine, and the rules — lives inside the guest.
+An operator attaches a Wasm governance plugin to inspect a build and act on what
+it finds. The compiler host stays dumb and unopinionated: it routes the build
+payload to the guest and acts on what the guest returns, and it never interprets
+the policy itself. All the domain policy intelligence — the policy language, its
+engine, and the rules — lives inside the guest.
 
 This is the same ahead-of-time-purity contract every socket runs under: the
 guest evaluates the payload it is handed and returns a result the host consumes
 verbatim (see [the sandbox contract](plugin-contract.md#the-sandbox-contract)).
-A policy plugin adds nothing to that surface except a decision. The host learns
-nothing about the policy language the guest speaks, carries no policy-engine
-code of its own, and takes exactly one of three actions per returned verdict.
+The host learns nothing about the policy language the guest speaks and carries no
+policy-engine code of its own.
 
-This page is the comprehensive treatment of the governance socket's verdict
-roles: the two verdict roles a policy is attached at, the verdict severities the
-host acts on, the engine-agnostic
-input channel an operator supplies, how a guest wraps a foreign policy engine,
-the reference guests that ship, and how an operator attaches a policy to a
+A governance plugin is attached at exactly one **role**, and the role — not the
+plugin — fixes both which payload arrives and what the attachment may do with it.
+Two are **verdict** roles: the attachment judges the build, and the host takes
+exactly one of three actions per verdict it returns. Two are **transform** roles:
+the attachment reports a change to the build's labels or annotations, and the host
+applies it. A plugin that serves more than one role is attached once per role, and
+it declares no role of its own — the attachment carries it.
+
+This page is the comprehensive treatment of the governance socket: the four roles
+and the payload each carries, the verdict severities the host acts on, the
+engine-agnostic input channel an operator supplies, how to write a policy for the
+Rego engine that ships inside the compiler, how a guest wraps a foreign policy
+engine, the reference guests that ship, and how an operator attaches a plugin to a
 workspace. For the socket's place in the pipeline and its typed wire shapes, see
 [`plugin-contract.md`](plugin-contract.md); for authoring and publishing a
 plugin as a catalog entity, see the
@@ -25,24 +32,35 @@ plugin as a catalog entity, see the
 
 ## The mental model: the host routes, the guest decides
 
-A policy plugin is a `governance` guest attached in a verdict role (`ir-verdict` or `render-verdict`). On a build the host assembles the
-payload for the attachment's verdict role, hands it across the ABI boundary, and
-reads back a list of verdicts. Each verdict carries a severity and a
-human-readable message. The host maps each severity to a build action; it does
-not read the message for meaning, does not know what the policy checked, and
-does not know which engine produced the decision.
+On a build the host assembles the payload for the attachment's role, hands it
+across the ABI boundary, and reads back what the guest returned. At a verdict role
+that is a list of verdicts, each carrying a severity and a human-readable message:
+the host maps each severity to a build action, and it does not read the message for
+meaning, does not know what the policy checked, and does not know which engine
+produced the decision. At a transform role it is the change to make, addressed to
+the labels or the annotations that role governs and to nothing else.
 
 Because the host is blind to policy content, the entire policy surface is the
-guest's: which language the rules are written in, which engine evaluates them,
-and how a violation becomes a verdict. The socket contract is narrow by design —
-a role, a set of inputs, and a verdict list — so that any policy technology
-that compiles to Wasm can serve it.
+guest's: which language the rules are written in, which engine evaluates them, and
+how a rule firing becomes a verdict or a change. The socket contract is narrow by
+design — a role, a set of inputs, and a result — so that any policy technology that
+compiles to Wasm can serve it.
 
-## Verdict roles: `ir-verdict` and `render-verdict`
+A verdict role accepts or rejects and does nothing else: the host reads its output
+only as a decision and never applies it as a change, so a policy cannot quietly
+bring a non-compliant build into compliance. A transform role is the deliberate
+exception, and what makes it one is that the operator attached it — attaching a
+plugin to shape labels is a declaration that labels are to be shaped. What such an
+attachment may change is bounded to its own role's surface, and the build halts
+loudly on anything outside it.
 
-A policy is attached at exactly one verdict role, and the role fixes where in
-the pipeline the host evaluates it and what payload it receives. A guest that
-should judge both moments is attached twice — once at each role.
+## The four roles
+
+A plugin is attached at exactly one role, and the role fixes where in the pipeline
+the host evaluates it, what payload it receives, and what it may return. A plugin
+that should serve two roles is attached twice — once per role.
+
+### The verdict roles: `ir-verdict` and `render-verdict`
 
 - **`ir-verdict`** — the guest reasons over the intermediate-representation
   graph, before rendering. The payload carries the full capability-agnostic IR graph (every
@@ -60,18 +78,39 @@ should judge both moments is attached twice — once at each role.
   architecture and wiring — topology invariants, cross-boundary auth,
   credential-flow shape — that should halt a build before it renders anything.
 - **`render-verdict`** — the guest reasons over the rendered output, after
-  rendering. The payload carries the emitted artifacts as a `{path, content}` list, sorted
-  by path so the wire is byte-identical across runs of identical input. A
-  `render-verdict` policy sees exactly what the build produced. Use it for policies
-  about the concrete output — a rule that inspects rendered Docker Compose
-  services or Kubernetes objects, for example.
+  rendering. The payload carries the emitted artifacts sorted by path, so the wire
+  is byte-identical across runs of identical input. Each artifact carries its
+  output path and its rendered text; it additionally carries the format it was
+  rendered in, when the producing provider declared one, and a parsed structured
+  view of its content, when the content is in a format that was parsed ahead of the
+  policy. A `render-verdict` policy sees exactly what the build produced. Use it
+  for policies about the concrete output — a rule that inspects rendered Docker
+  Compose services or Kubernetes objects, for example.
 
-The two roles carry different payloads because they reason over different
-things: the `ir-verdict` role over topology, the `render-verdict` role over
-emitted files. Both roles carry the same operator-supplied input channel
+### The transform roles: `annotation-transform` and `label-transform`
+
+- **`annotation-transform`** — the guest reports annotations to add, during
+  resolution and before annotation expansion. The payload carries every component
+  the attachment may annotate, each with the annotations it already has, plus the
+  annotation keys the Manifest registers a binding for. An injected annotation
+  under a registered key goes on to expand into a Feature attachment, which is how
+  this role adds a capability to a deployment the developer did not type.
+- **`label-transform`** — the guest reports label changes to apply, during topology
+  construction: after the graph is built, and before the graph is judged. The
+  payload carries a labels-only projection of the build's nodes — each with the
+  Component it instantiates, the version resolved for it, and the labels it
+  currently carries — plus the deployment's name and environment. Use it for
+  derived metadata a developer should never have to type: compliance scope,
+  ownership, cost attribution.
+
+The roles carry different payloads because they act at different moments and answer
+different questions. All four carry the same operator-supplied input channel
 described below.
 
 ## Verdicts and severities
+
+The severities below are the verdict roles' vocabulary. A transform role reports a
+change rather than a verdict, so it carries no severity.
 
 A guest returns a list of verdicts. Each verdict carries a severity that
 determines the build action:
@@ -111,7 +150,8 @@ fields:
   each named file at build time and passes its bytes to the guest opaquely: it
   never parses a source, and the path it hands the guest is the file's base name,
   never an absolute host path. What the bytes mean is entirely the guest's
-  business — a `.rego` file to one guest, some other policy format to another.
+  business — a `.rego` file to one guest, some other policy format to another, and
+  a base64-encoded archive of a whole policy set to a guest that reads one.
 - **`settings`** — a configuration map the guest maps onto its engine. A guest
   reads its tunables (a replica ceiling, a required label key) from this map. By
   default the host hands it through verbatim without acting on it; a guest may
@@ -119,7 +159,7 @@ fields:
   validates the map against that schema before running the guest.
 
 A fully-baked guest — one whose rules are compiled in rather than supplied at
-attach time — omits `with` entirely. The channel is optional on both stages.
+attach time — omits `with` entirely. The channel is optional at every role.
 
 ### Typed settings
 
@@ -156,26 +196,27 @@ one engine to another is an attachment change, not a host change.
 
 ## Rego policies: two roads
 
-Rego is a common policy language, and the reference guests offer two roads to
-running it — a low-friction embedded road and a full-fidelity escape hatch.
+Rego is a common policy language, and there are two roads to running it — a
+low-friction engine that ships inside the compiler, and a full-fidelity escape
+hatch.
 
-**The embedded Regorus-backed guest** is the low-friction road. It embeds a
-Wasm-native Rego evaluator, so an operator drops a `.rego` file into `sources`
-and attaches the guest — no external toolchain. The guest reads the payload as
-the Rego `input` document and the attachment's `settings` as the Rego `data`
-document, and it collects the policy's `deny`, `warn`, and `audit` message
-collections into verdicts. Those three names are Rego's own naming for a decision
-rule; the guest maps them onto the three verdict severities — `deny` lands as
-`halt`, `warn` as `warn`, and `audit` as `info`.
+**The Rego engine in the compiler** is the low-friction road. It carries a
+Wasm-native Rego evaluator, so an operator drops a `.rego` file into `sources` and
+attaches the plugin — no external toolchain, and nothing fetched at build time. It
+serves all four roles: the same plugin judges the build graph, judges the rendered
+output, shapes labels, or injects annotations, according to the role it is attached
+at. Its catalog identity is the bare name `rego` under `pluginType: governance` —
+the coordinate `governance/rego` — and its version is the compiler release that
+ships it. [Writing a policy for it](#writing-a-policy-for-the-rego-engine) is the
+next section.
 
-The embedded evaluator reimplements Rego independently rather than embedding the
-reference implementation, and it does not implement every Rego builtin. When a
-policy calls a builtin the evaluator does not implement, the guest **fails
-loudly**: it returns a fault, not an allow. The build then halts with a fault
-that names the plugin — deliberately distinct from a `halt` verdict, so that
-"the engine cannot evaluate this policy" is never mistaken for "the policy
-allows the build." An unevaluable policy stops the build; it never passes
-silently.
+The evaluator reimplements Rego independently rather than embedding the reference
+implementation, and it does not implement every Rego builtin. When a policy calls a
+builtin the evaluator does not implement, the attachment **fails loudly**: it
+returns a fault, not an allow. The build then halts with a fault that names the
+plugin — deliberately distinct from a `halt` verdict, so that "the engine cannot
+evaluate this policy" is never mistaken for "the policy allows the build." An
+unevaluable policy stops the build; it never passes silently.
 
 **The `opa build -t wasm` escape hatch** is the full-fidelity road. When a
 policy needs the complete builtin surface or exact reference-engine semantics,
@@ -202,33 +243,288 @@ unevaluable policy stops the build instead of passing silently. Regenerating the
 baked module from its Rego source is an authoring step run with the OPA CLI, not
 a build-time dependency.
 
-The two roads share the same host contract, so moving a policy from the embedded
-evaluator to the full engine is an attachment change.
+The two roads share the same host contract, so moving a policy from the engine in
+the compiler to the full engine is an attachment change.
+
+## Writing a policy for the Rego engine
+
+The engine evaluates operator-authored Rego entirely inside the guest, at whichever
+of the four roles it is attached at. Attaching it twice, at two roles, with two
+different policy files, is how one engine covers two moments of the same build.
+
+The payload for the attachment's role is the policy's `input` document, and the
+attachment's `settings` object is the policy's `data` document — so a policy reads
+an operator-supplied threshold as `data.max_replicas`. Every file the attachment
+declares under `sources` becomes a policy module, and every package those files
+declare is evaluated.
+
+### Rules carry `contains` and `if`
+
+A rule body is introduced by `if`, and a rule that collects into a set says so with
+`contains`:
+
+```rego
+package example
+
+deny contains msg if {
+    count(input.graph.spec.nodes) > 20
+    msg := "this build declares more than twenty nodes"
+}
+```
+
+A rule written in the older bracketed-head form — `deny[msg] { ... }` — does not
+load. The refusal names the file, the line and the column, and it is a build fault
+naming the plugin rather than a verdict:
+
+```
+policy source "p.rego" did not load:
+--> p.rego:3:11
+  |
+3 | deny[msg] {
+  |           ^
+error: `if` keyword is required before rule body
+```
+
+### A policy collects its decisions under a decision key
+
+Every role reads a policy's decisions off a **decision key** — a rule the policy
+collects into, named. Which keys are read, and what a decision under one means, is
+fixed by the role.
+
+At a **verdict** role a decision is a message, and the key it was collected under
+fixes the severity that message is reported at. By default the keys are the
+conventional Rego collection names:
+
+| Collected under | Reported as | Effect on the build |
+| --- | --- | --- |
+| `deny` | `halt` | stops the build |
+| `warn` | `warn` | surfaces alongside a build that completes |
+| `audit` | `info` | recorded; the build outcome is unchanged |
+
+Keep the two vocabularies apart, because they are two: `deny`, `warn` and `audit`
+are names in **your policy**, and `halt`, `warn` and `info` are the severities the
+**socket** reports from. The left column is yours to rename; the right column is the
+closed set every socket shares.
+
+A policy that names its decisions differently declares the mapping in the
+attachment's settings:
+
+```yaml
+with:
+  settings:
+    translation:
+      - key: blocked
+        severity: halt
+      - key: advisory
+        severity: warn
+```
+
+A declared mapping **replaces** the default rather than extending it: the keys it
+names are exactly the keys read, so a policy still collecting into `deny` reaches no
+verdict once the mapping above is declared. The order the rules are declared in is
+the order verdicts are reported in. A key the policy does not declare is an absent
+decision rather than a failure, so one policy file may serve several attachments.
+
+A severity outside the three, and a mapping declared empty, are refused by the
+settings schema the plugin declares — the host validates an attachment's settings
+against it ahead of dispatch. The same key mapped twice is refused when the mapping
+is read, which is also before any policy runs. Either way the build halts before a
+decision is reached, never with a mapping half-applied.
+
+Settings are otherwise the policy's own data: the mapping is read out of the object
+and the object reaches the policy's `data` document unchanged, so a policy written
+for the default keys sees exactly the data document it would have seen with no
+mapping configured at all.
+
+At a **transform** role a decision is the change to make rather than a message, so
+there is no severity to fix and the key is fixed instead: `labels` at the
+label-shaping role, `annotations` at the annotation-injecting role. A `translation`
+setting is read only where verdicts are reported, so a transform attachment that
+declares one is carrying a setting its role does not consume.
+
+**A decision key is read from every package the attachment loads**, so a policy set
+may spread its rules across packages and each contributes what it collected. The
+other side of that is worth knowing before it bites: within one attachment the
+decision key is a reserved rule name in *every* package, so a helper package that
+happens to collect into `labels` for its own purposes has its entries read as label
+decisions. That fails loudly rather than silently — the attachment reports that
+something collected under the key is not a decision of that shape — but the fastest
+way to read such a message is as a name collision, so keep the key for the decision
+and give a helper rule a different name.
+
+### What each role's payload exposes
+
+The payload is the policy's `input` document, so a policy reads it under the names
+the wire gives it.
+
+**The build graph sits at a different path in the two roles that carry one.** A
+verdict over the graph receives the whole graph document, so its nodes are at
+`input.graph.spec.nodes`; the label-shaping role receives a labels-only projection,
+so its nodes are at `input.graph.nodes`. A rule moved between those two roles is
+therefore edited, not copied — and the symptom of forgetting is a rule that never
+fires rather than an error, because a path that is not there is simply undefined.
+
+| Role | What a policy reads |
+| --- | --- |
+| `ir-verdict` | `input.graph` — the whole build graph document: nodes at `input.graph.spec.nodes` keyed by node id, edges at `input.graph.spec.edges`. `input.precalculated_paths` — the enumerated routing paths, each carrying its ordered `nodes` list and the `attached_features` reached along it. |
+| `render-verdict` | `input.artifacts` — one entry per emitted file, each with `path`, `content`, `format`, and `documents`, the parsed documents of the file. An artifact that could not be read structurally carries `parse_error` and no documents, so a policy can reject on the failure itself rather than let an unreadable file pass unexamined. |
+| `label-transform` | `input.graph.nodes` — the build's nodes keyed by node id, each with `component`, `resolved_version` and `labels`. `input.compilation_context` — the deployment's `release_name` and `environment`, so a policy can decide differently per environment. |
+| `annotation-transform` | `input.targets` — every component the attachment may annotate, each with `boundary_path`, `component_name` and its current `annotations`. `input.binding_keys` — the annotation keys the Manifest registers a binding for. |
+
+Every role additionally carries `input.sources` — the attachment's own files, each
+with its base-name `path` and its `content` — and `input.settings`, the attachment's
+settings object, which is also the policy's `data` document.
+
+`attached_features` and `binding_keys` are lists rather than objects, so a policy
+tests membership with `in`:
+
+```rego
+package security
+
+deny contains msg if {
+    some path in input.precalculated_paths
+    target := path.nodes[count(path.nodes) - 1]
+    input.graph.spec.nodes[target].labels["compliance.aggrega.ai/data-class"] == "restricted"
+    not "core/data-masking" in path.attached_features
+    msg := sprintf("%v reaches restricted node %v with no masking Feature attached.", [path.nodes[0], target])
+}
+```
+
+A node object carries no id of its own: the id is the key it sits under in
+`input.graph.spec.nodes`, which is why the rule above carries `path.nodes[0]` into
+its message rather than reading an `id` field.
+
+### Shaping labels: a policy names the label, and the engine addresses it
+
+At the label-shaping role a policy collects one decision per label under `labels`,
+naming the node, the label key, and the value the label takes:
+
+```rego
+package tagging
+
+labels contains {"node": id, "key": "compliance.example.com/tier", "value": "gold"} if {
+    some id, node in input.graph.nodes
+    node.labels["component.aggrega.ai/type"] == "stateful-server"
+}
+```
+
+Setting a key that is already present replaces its value. A decision may instead ask
+for a key to be dropped:
+
+```rego
+labels contains {"node": id, "key": "draft.example.com/scratch", "op": "remove"} if {
+    some id, node in input.graph.nodes
+    node.labels["draft.example.com/scratch"]
+}
+```
+
+A policy names the label rather than writing the edit instruction the build applies,
+and the reason is worth knowing: the instruction addresses a label by path, and an
+Aggrega label key routinely contains a `/`, which is the path separator — so a
+hand-written path would address a nested location instead of one label. The engine
+addresses the label the decision names, so the escaping is written once instead of in
+every policy, and a policy stays readable as a statement about labels rather than
+about paths.
+
+A decision may only change a label. Every instruction the engine emits addresses one
+label on one node, so a policy has no way to express a change to a node's Component,
+its resolved version, the set of nodes, or a label value that is not a string. A
+decision naming a node the build does not have, or dropping a label the node does not
+carry, is refused by the build with a message naming the instruction — never silently
+ignored.
+
+### Injecting annotations
+
+At the annotation-injecting role a policy collects one decision per annotation under
+`annotations`, naming the target by the coordinate the target itself carries, plus
+the key and its value:
+
+```rego
+package tagging
+
+annotations contains {
+    "boundary_path": target.boundary_path,
+    "component_name": target.component_name,
+    "annotation_key": "backup.example.com/schedule",
+    "annotation_value": "nightly",
+} if {
+    some target in input.targets
+    not target.annotations["backup.example.com/schedule"]
+}
+```
+
+The field names a decision writes are the field names it read its targets under, so
+the convention is learnable from the payload alone. Reading `input.binding_keys`
+lets a policy inject only keys the deployment has registered a meaning for — those
+are the ones that expand into a Feature attachment. An annotation value is a string.
+A decision naming a component the deployment does not have is refused by the build,
+naming the coordinate and the annotation.
+
+### Attaching a whole policy set as one archive
+
+A policy set is attached file by file, or as a single archive carrying its policy
+files and its data documents together — the shape a Rego toolchain builds. An
+attached file's content travels to the guest as text, and a compressed archive is
+arbitrary bytes rather than text, so an archive is attached base64-encoded, named so
+that its name ends `.base64`:
+
+```sh
+tar czf bundle.tar.gz policy.rego data.json
+base64 -w0 bundle.tar.gz > bundle.tar.gz.base64
+```
+
+```yaml
+with:
+  sources:
+    - ./policies/bundle.tar.gz.base64
+```
+
+The name is what marks a file as an archive rather than as policy text, which keeps
+the choice the operator's own statement: a damaged archive is then reported as a
+damaged archive, naming the file and the step that failed, instead of being read as
+a policy file that does not parse. Encoding the archive is a step the operator adds
+after their toolchain has built it.
+
+Inside the archive, every `.rego` member is a policy module and every `data.json` or
+`data.yaml` member is a data document nested under the directory it sits in — a
+`limits/data.json` holding `{"max": 3}` is read by a policy as `data.limits.max`.
+Members of any other kind are carried by the archive for its own toolchain and are
+not policy input.
+
+An archive that cannot be opened is a failure naming the attached file: an encoding
+that does not decode, a stream that does not decompress, a truncated archive, a data
+file that does not read, or an archive holding no policy at all. None of them yields
+an empty policy set, because an empty policy set reaches no decision — and "the
+archive was unreadable" must never be indistinguishable from "the policy allowed the
+build".
 
 ## Render-stage policy adapters
 
 A render-stage adapter reasons over the build's **rendered output** rather than
-its IR graph. The render payload carries the emitted artifacts — each a path and
-its rendered content — plus the attachment's own sources and settings. An adapter
-parses that content for the output shape it targets, evaluates a policy over the
-structured result, and maps the outcome to `halt` / `warn` / `info` verdicts.
-Because the payload is shape-agnostic (a list of path/content pairs), one adapter
-pattern serves any render target; a new output shape is a new adapter, not a host
-change.
+its IR graph. The render payload carries the emitted artifacts — each with its
+output path and its rendered content, and, where they apply, the format it was
+rendered in and a parsed structured view of it — plus the attachment's own sources
+and settings. An adapter reads that content for the output shape it targets,
+evaluates a policy over the structured result, and maps the outcome to
+`halt` / `warn` / `info` verdicts. Because the payload names no output shape of its
+own, one adapter pattern serves any render target; a new output shape is a new
+adapter, not a host change.
 
 Each render-stage adapter is an adapter in the sense above: it speaks the Aggrega
 ABI outward and absorbs a target-specific format or a foreign policy engine's
 contract inward, so the compiler stays free of any output-format or policy logic.
-Two reference render-stage adapters ship, one per common output shape.
+The Rego engine in the compiler serves the `render-verdict` role directly; beyond
+it, two reference render-stage adapters ship as worked examples, one per common
+output shape.
 
-### YAML, JSON, and Terraform HCL output — the embedded-Rego render adapter
+### YAML, JSON, and Terraform HCL output — the reference Rego render adapter
 
-The embedded-Rego render adapter runs operator-supplied Rego over any YAML or
-JSON render output, and over Terraform's native-HCL output. It is the
-render-stage sibling of the embedded Regorus-backed `ir`-stage guest: the same
-Wasm-native Rego evaluator, the same `deny` / `warn` / `audit` Rego collection
-convention mapped onto the same three verdict severities, moved to the render
-stage.
+The reference Rego render adapter runs operator-supplied Rego over any YAML or
+JSON render output, and over Terraform's native-HCL output. It is a worked example
+of the render-stage shape: the same Wasm-native Rego evaluator as the engine in the
+compiler, and the same `deny` / `warn` / `audit` collection convention mapped onto
+the same three verdict severities, reasoning over rendered files rather than over
+the build graph.
 
 It is **output-shape independent** across YAML/JSON targets. The adapter parses
 each artifact's content as one or more YAML or JSON documents — YAML is a
@@ -281,8 +577,8 @@ carry a label key named by `settings` — a common Kubewarden pattern.
 
 - **Render stage, one output shape per adapter.** A render-stage adapter reasons
   over rendered artifacts, not the IR graph, and targets the output shape it
-  parses — YAML/JSON and Terraform native HCL for the embedded-Rego adapter,
-  Kubernetes objects for the Kubewarden adapter. A graph-stage policy, or a
+  parses — YAML/JSON and Terraform native HCL for the reference Rego render
+  adapter, Kubernetes objects for the Kubewarden adapter. A graph-stage policy, or a
   policy over an output shape no shipped adapter parses, is a different guest.
 - **Validating only.** A render-stage adapter accepts or rejects; it never
   returns a mutated object. A mutating policy's mutated object is ignored — the
@@ -291,10 +587,10 @@ carry a label key named by `settings` — a common Kubewarden pattern.
 
 ## Attaching a policy
 
-An operator attaches a policy through the `plugins.governance` list in the
-workspace configuration (`.aggrega-config.yaml`). Each entry names a plugin, the
-verdict `role` it is attached at (`ir-verdict` or `render-verdict`), and,
-optionally, the `with` channel that supplies its rules and tunables:
+An operator attaches a governance plugin through the `plugins.governance` list in
+the workspace configuration (`.aggrega-config.yaml`). Each entry names a plugin, the
+`role` it is attached at, and, optionally, the `with` channel that supplies its
+rules and tunables:
 
 ```yaml
 plugins:
@@ -308,11 +604,39 @@ plugins:
           max_replicas: 3
 ```
 
-The `uri` resolves to the policy plugin; the socket's default entry function is
-`validate`. The host reads each `sources` file at build time and hands its bytes
-to the guest, and passes `settings` through verbatim. A build with no policy
-attached runs the socket as a no-op, so policy attachment is purely additive to a
-workspace.
+The `uri` resolves to the plugin. The host reads each `sources` file at build time
+and hands its bytes to the guest, and passes `settings` through verbatim. A build
+with no governance plugin attached runs the socket as a no-op, so attachment is
+purely additive to a workspace.
+
+One plugin serving several roles is attached once per role, each attachment with its
+own rules and its own settings:
+
+```yaml
+plugins:
+  governance:
+    - uri: governance/rego:<version>
+      role: label-transform
+      with:
+        sources:
+          - ./policies/tagging.rego
+    - uri: governance/rego:<version>
+      role: ir-verdict
+      with:
+        sources:
+          - ./policies/topology.rego
+        settings:
+          translation:
+            - key: blocked
+              severity: halt
+```
+
+Each role selects a default entry function — `validate` for both verdict roles,
+`mutate` for the label-shaping role, `transform_annotations` for the
+annotation-injecting role — and an attachment may point a role at a different export
+with `function:`. The host refuses a dispatch to an export the guest did not declare
+in its `describe()` self-report, so an attachment naming a role its guest does not
+serve is reported by name, before the guest runs, rather than quietly doing nothing.
 
 The `plugins.governance` list has an additive companion, `plugins.governance_append`:
 entries in the companion are concatenated onto the resolved `governance` list at each

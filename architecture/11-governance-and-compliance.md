@@ -182,6 +182,78 @@ A verdict role accepts or rejects; it never rewrites. The build either proceeds 
 
 Attachment detail reaches a policy evaluating the **IR graph**. A policy evaluating **rendered artifacts** receives those artifacts and no graph, which is a property of that input rather than a restriction applied to it: the two stages answer different questions, and attachment topology is not among the questions rendered output can be asked.
 
+## Expressing the estate's rules in a policy language
+
+The patterns above describe what a governance attachment does; this section is about
+what an enterprise writes to get it. A platform team with fifty rules to state does
+not want fifty plugins. It wants its rules as *content* — files it reviews, versions
+and ships like any other artifact — with one attached engine evaluating them.
+
+That is what a policy-language engine attached to the socket provides, and a Rego
+engine ships inside the compiler for exactly this purpose. An operator attaches it,
+declares the `.rego` files it should load, and the rules run: no external toolchain,
+nothing fetched at build time, and no policy logic in the compiler. Evaluation happens
+inside the WebAssembly guest, which is where all domain intelligence lives.
+
+The same engine serves every governance role, so an estate covers its whole surface
+with one attached plugin and several attachments of it:
+
+* **Judging the architecture.** Attached over the build graph, a policy reads every
+  node, edge and attachment the compiler holds, plus the routing paths enumerated
+  alongside them, and reports what must stop the build. This is where a topology
+  invariant, a cross-boundary authorisation rule, or a credential-flow rule lives.
+* **Judging the output.** Attached over the rendered artifacts, a policy reads the
+  files the build produced — as text, and as parsed documents where the format was
+  parsed ahead of the policy — and reports on the concrete result.
+* **Supplying derived metadata.** Attached to shape labels, a policy decides which
+  labels the build's nodes carry, from the deployment's environment and from what the
+  nodes already declare. This is the mechanism pattern 2 above describes, with the
+  rule expressed as policy content rather than as a purpose-built plugin.
+* **Adding a capability the developer did not type.** Attached to inject annotations,
+  a policy adds annotations to the deployment's components; an annotation under a key
+  the Manifest registers a binding for expands into a Feature attachment, so a
+  corporate rule can supply the wrap a component needs rather than merely rejecting
+  its absence.
+
+A rule reads what the payload carries and reports its decision under a named key:
+
+```rego
+# Evaluated by a governance verdict role over the assembled graph
+package acme.security
+
+deny contains msg if {
+    some id, node in input.graph.spec.nodes
+    node.labels["compliance.aggrega.ai/data-class"] == "restricted"
+    not node.labels["acme.com/owner"]
+    msg := sprintf("node %v holds restricted data and declares no owner.", [id])
+}
+```
+
+**A policy's own vocabulary is preserved.** The severities the socket acts on are a
+closed set, but the names a policy collects its decisions under belong to the policy.
+The default names are the conventional ones a Rego corpus already uses, and an
+operator whose policies name their decisions differently declares the mapping in the
+attachment's settings — so an estate that already maintains a policy library adopts
+the socket without rewriting it. The mapping is typed by the schema the plugin
+declares for its settings, so a malformed one halts the build before any policy runs
+rather than mis-routing a verdict.
+
+**A whole policy library travels as one attachment.** A policy set can be attached
+file by file, or as a single archive carrying its policy files and its data documents
+together, which the guest opens. An archive that cannot be read is reported as such,
+naming the file — never as a policy set that reached no decision, because "the
+library was unreadable" must never be indistinguishable from "the library allowed the
+build".
+
+**An unevaluable policy stops the build.** When a policy cannot be evaluated, the
+attachment fails and the build halts with a fault naming the plugin, deliberately
+distinct from a verdict that stops the build. The two cases must not be confused,
+and neither of them is an allow.
+
+The full authoring surface — the payload each role exposes, the decision keys, the
+mapping onto severities, and how an archive is attached — is in
+[`language-reference/plugins/policy-socket.md`](../language-reference/plugins/policy-socket.md).
+
 ## Inheritance and publishing discipline
 
 Inheritance via `extends:` is the catalog mechanism that lets Platform Architects build specialised child entities on top of shared baselines. The two catalog kinds part company on their data pillars. A Feature's parent and child schemas compose at workspace-load time, producing a unified schema with per-leaf provenance. An extending **Component** authors no pillar content: it writes the literal marker `schema: inherited` and receives its base's `schema:` block exactly as the base authored it, at every depth of a chain.
