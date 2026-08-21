@@ -14,14 +14,14 @@ This page is a signpost. It states what each standard-library provider produces 
 
 ## What a boundary's `syncWave` does on each provider
 
-A Release boundary's `syncWave:` value orders deployment on the Kubernetes-facing providers and on `compose`. Elsewhere it orders nothing, and what becomes of the value differs by provider:
+A Release boundary's `syncWave:` value orders deployment on every standard-library provider but `terraform`, and what it orders — and in what terms — differs by provider:
 
 | Provider | What the wave does |
 | --- | --- |
 | `helm`, `helm-chart` | Orders the deployment. Every rendered resource carries `argocd.argoproj.io/sync-wave`, and a chart-templated hook resource additionally carries `helm.sh/hook-weight`. |
 | `compose` | Orders the services **within** the compose file the boundary renders into, through `depends_on` between them, and additionally records the value on each emitted service as the `aggrega.ai/sync-wave` label. Ordering across two compose files is not expressible — see [compose.md](compose.md#deployment-wave-ordering). |
 | `terraform` | Orders nothing. The value is recorded with the node's build provenance. |
-| `cloudformation` | Orders nothing, and the value reaches no part of the emitted stack template. |
+| `cloudformation` | Orders provisioning of the stack the boundary assembles into, through `DependsOn` between resources. It is creation order, and in reverse deletion order, rather than readiness — a stack template has no notion of a resource being serviceable. Ordering across two stacks is not expressible — see [cloudformation.md](cloudformation.md#deployment-ordering). |
 
 Authoring a per-boundary `syncWave:` is covered on the [Release entity page](../entities/release.md); the exact labels and annotations each provider emits are in [well-known-annotations.md](well-known-annotations.md).
 

@@ -98,9 +98,21 @@ What carries the distinction across that line is the release identity leading ev
 
 ## Deployment ordering
 
-A Release boundary's `syncWave:` value does not order an assembled stack. The wave is a deployment-ordering hint that Kubernetes tooling reads from an annotation on each rendered resource; a CloudFormation template has no equivalent surface, and the provider does not read the value at all — no `DependsOn`, and no other part of the emitted template, is derived from it.
+A Release boundary's `syncWave:` value orders provisioning of the stack that boundary assembles into. Every component in the boundary inherits the boundary's wave, and where several boundaries resolve to the same output directory — so their fragments assemble into a single template — the stack holds more than one wave and the provider expresses the ordering between them as `DependsOn`.
 
-Ordering within a stack stays CloudFormation's own concern, and the references between resources already carry most of it: an `Fn::GetAtt` against a producer resource tells CloudFormation to create that resource first. A fragment that needs an ordering constraint the references do not imply authors `DependsOn` itself, which the provider emits like every other part of the fragment.
+**Each resource names every resource of the immediately-preceding wave that has any resources, and no earlier wave than that.** CloudFormation chains the rest: a resource in wave `2` depends on wave `1`, which depends on wave `0`, so the whole sequence is ordered while each resource's own list stays the size of one wave rather than of the whole stack. Waves need not be contiguous, and negative values are ordinary — `-1` is a common choice for a bucket or a role the rest of the stack reads. The lowest wave names nothing, because nothing precedes it.
+
+**What the ordering is: creation order, and in reverse, deletion order.** CloudFormation operates on resources in parallel to the extent it can, and `DependsOn` overrides that parallelism to operate on the named resources in a stated order. The attribute governs both directions, so a wave that creates a resource earlier also deletes it later — correct teardown sequencing comes with the ordering rather than needing anything else.
+
+**It is not readiness ordering.** A stack template expresses no notion of a resource being serviceable, so nothing here waits for one to become ready — only for CloudFormation to finish creating it. That is a real difference from the same wave on [compose](compose.md#deployment-wave-ordering), where a service that declares a `healthcheck` is waited on until it reports healthy: compose has a readiness primitive to gate on and a stack template has none. Creation order is what this target offers, and stating it plainly is more useful than a caveat attached to a promise it cannot make.
+
+**An authored `DependsOn` is extended, never replaced.** A fragment that declares its own ordering constraint keeps it: the entries it wrote stay first, in the order it wrote them, and the wave's entries follow. Both requirements hold and neither hides the other. A single logical ID and a list are both read, and the merged value is emitted as a list, which is the one spelling that holds however many entries the merge produces.
+
+**A stack whose resources all carry one wave gets nothing from this.** So does a Release that declares no `syncWave` at all: every contributor carries the field's default of `0`, the assembled template holds a single wave, and the output is exactly what it would be if the provider expressed no wave ordering.
+
+**Ordering across two stacks is not expressible, and it is not approximated.** `DependsOn` names a resource inside the same template, and components that assemble into a different stack are outside it. So a wave orders every resource in the stack it assembles into and nothing beyond it. Sequencing two stacks is the operator's concern, the same way a cross-stack reference is a deploy-time resolution rather than a build-time one.
+
+Ordering that the waves do not express stays CloudFormation's own concern, and the references between resources already carry much of it: an `Fn::GetAtt` against a producer resource tells CloudFormation to create that resource first. A fragment that needs a constraint neither the references nor the waves imply authors `DependsOn` itself, which is the case the merge above preserves.
 
 ## Determinism
 
