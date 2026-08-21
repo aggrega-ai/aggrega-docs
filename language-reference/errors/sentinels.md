@@ -235,6 +235,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrUnnormalizedRelease()` | `resolver/unnormalized-release` | `release reached resolve un-normalized (non-empty root components alongside a synthesized default boundary)` |
 | `ErrUnreadParameter()` | `resolver/unread-parameter` | `declared parameter is read by no reference in the Aggregate` |
 | `ErrUsesSocketNearMiss()` | `resolver/uses-socket-near-miss` | `uses socket name is a near miss for a declared socket` |
+| `ErrVerdictPluginTrustMismatch()` | `resolver/verdict-plugin-trust-mismatch` | `the digest recorded as trusted for this plugin does not match the digest its cached manifest reports` |
 | `ErrYAMLLoad()` | `resolver/yaml-load` | `YAML load failed: check the file exists, is readable, and contains well-formed YAML` |
 
 ### pkg/signing
@@ -646,6 +647,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0243` | `compiler-renderer-helm/rendered-file-collision` | `two rendered resources derive the same output filename with differing content` |
 | `E0244` | `compiler-renderer-helm/stateful-set-ambiguous-headless-service` | `synthesized StatefulSet has more than one headless Service` |
 | `E0245` | `compiler-renderer-helm/stateful-set-no-headless-service` | `synthesized StatefulSet has no headless governing Service` |
+| `E0246` | `resolver/verdict-plugin-trust-mismatch` | `the digest recorded as trusted for this plugin does not match the digest its cached manifest reports` |
 <!-- END GENERATED: condition-short-codes -->
 
 ## Matching guidance
