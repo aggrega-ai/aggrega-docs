@@ -42,4 +42,5 @@ This section documents the JSON Schemas that define every Aggrega entity, plugin
 - [ir](other/ir.md)
 - [lockfile](other/lockfile.md)
 - [path-template-context](other/path-template-context.md)
+- [plugins-trust](other/plugins-trust.md)
 - [template-context](other/template-context.md)
