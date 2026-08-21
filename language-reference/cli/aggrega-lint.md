@@ -67,6 +67,8 @@ The `x-aggrega-*` discouragement rule also runs during `aggrega build`, where it
 
 The rules ship as a standard publishing-linter Wasm plugin. Because the rules live in a plugin rather than in the compiler, an enterprise can point `aggrega lint` at a different plugin to enforce its own catalog discipline without changing the compiler.
 
+A workspace may attach more than one linter under `plugins.linter`, and every attachment runs: in the order the attachments are written, each at its own entry function, with all of their findings reported together. That is what lets a catalog keep the standard rules and add its own alongside them instead of choosing between the two. `--plugin` is the exception — it runs exactly one artifact from a filesystem path in place of the configured attachments, which is what makes it useful while developing a rule.
+
 ## Examples
 
 Sweep the whole catalog for convention drift:
@@ -130,7 +132,7 @@ aggrega lint [entity-path] [flags]
 | `--no-allow-nonstandard-names` | `false` | Force allow_nonstandard_names=false |
 | `--no-allow-undeclared-recipe-provides` | `false` | Force allow_undeclared_recipe_provides=false |
 | `--output`, `-o` | `text` | Output format: text\|json. |
-| `--plugin` | — | Filesystem path to the publishing-linter .wasm artifact (overrides workspace plugins.linter[0].uri) |
+| `--plugin` | — | Filesystem path to the publishing-linter .wasm artifact (runs this artifact instead of the workspace plugins.linter attachments) |
 | `--pre-publish` | `false` | Fetch the previous registry version and verify the proposed bump against the schema-evolution classification |
 | `--release` | — | Path to a Release YAML to check conventions over its resolved dependency closure (mutually exclusive with an entity argument) |
 <!-- END GENERATED: cli-lint -->
