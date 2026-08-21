@@ -4,6 +4,8 @@ A fatal halt is a compile-time error that stops the build before any output is p
 
 This catalog is organized by the stage of compilation at which each halt fires. Entries marked **[pending]** describe halts whose implementation is not yet complete; the rule is declared but the error message below is the intended user-facing behavior, not what currently ships.
 
+Arriving from a build with a short code in hand — the letter `E` and four digits, in the diagnostic's bracketed head — start at [Finding a halt from the short code the build printed](#finding-a-halt-from-the-short-code-the-build-printed) at the foot of this page, which lists every condition catalogued here against the short code a build prints for it.
+
 ## When loading your files
 
 The compiler reads every Aggregate, Manifest, Component, Feature, Recipe, FeatureRecipe, Plugin, and Release referenced by your build, validates each against its schema, and interpolates typed parameters from the Release into the Aggregate.
@@ -872,6 +874,68 @@ Path-template missing-variable emit shape:
 > path template references a field not in the documented allowlist: boundary `<boundary-name>` references unknown field `<dotted-path>`; allowlist: see aggrega-docs/language-reference/path-template-variables.md
 
 **How to fix:** for path-template misses, correct the field name to one in the allowlist documented at [`path-template-variables.md`](../path-template-variables.md). For an assertion miss, correct the reference — most reports are a misspelled key — or, where the field is genuinely optional, gate it with `hasKey`, read it through `index` before applying `default`, or use the `optional` helper; wrapping the bare reference in a `default` will not clear the halt, because the reference resolves before the fallback runs. For value-template misses where empty rendering is undesired, use the `optional` helper or supply the missing key as a typed `parameters.*` declaration on the Aggregate with a Release value, as an upstream Component's `provides:` entry wired through `uses[].inject`, or as a `locals:` entry on the same entity.
+
+## Finding a halt from the short code the build printed
+
+A halting diagnostic's bracketed head names the category the failure is attributable to and, where the failure names one of the conditions catalogued here, that condition's **short code** — the letter `E` and four digits, as in `[CATALOG_ERROR E0209]`. A number is handed out once and then fixed, so a short code you paste into a report or a search still names the condition it named when you recorded it. The other two identifiers a condition carries, and which of the three to reach for when, are taught in [sentinels.md](./sentinels.md).
+
+The condition's own message line opens with a **fixed sentence** stating the condition. Everything after that sentence varies with the occurrence — the document at fault, the authored key, the offending value, and the advice for that occurrence — and the entries above quote the whole shape for the condition each one documents. The fixed sentence is the part that is the same every time, which is what makes it the part to match on.
+
+The table below pairs the two, scoped to this page: for every condition catalogued here, the short code a build prints and the sentence its message line opens with, against the entry above that explains the authoring fix. Entry headings are quoted exactly, so searching this page for one lands on its entry. [The table of every condition](./sentinels.md#every-condition-by-short-code) resolves a short code over every condition the compiler declares, including those no entry here covers.
+
+Where one entry appears against two short codes, it covers two distinct conditions and each registers its own sentence; read the sentences rather than the shared heading to tell which one a build reported.
+
+<!-- BEGIN GENERATED: halt-condition-sentences -->
+| Short code | Opens with | Documented under |
+| --- | --- | --- |
+| `E0003` | `malformed attachment requirement` | Malformed attachment requirement |
+| `E0006` | `required attachment slot unfilled` | Required attachment slot not bound |
+| `E0007` | `selector violation` | Cross-node type safety violation via `selector:` |
+| `E0013` | `feature type mismatch between Aggregate and Release` | Feature type mismatch between Aggregate and Release |
+| `E0015` | `uses-edge inject dictates a delivery mechanism the socket does not permit` | `uses` edge dictates delivery on a socket that allowlists none; `uses` edge dictates a delivery mechanism outside the socket's allowlist |
+| `E0029` | `artifact template references a pillar the Recipe does not declare` | An `artifacts:` template reads a pillar the Recipe does not declare |
+| `E0032` | `assembled output collision: two contributors write the same output path` | Two contributors write the same output path |
+| `E0036` | `merged-path assembly has conflicting assembly-name annotation values` | Chart-name mismatch on a merged helm-chart umbrella |
+| `E0038` | `derived name collision: one name is derived more than once in one key space` | The same name is derived more than once inside the output |
+| `E0039` | `FeatureRecipe template references a per-component-only field with executionScope: boundary` | FeatureRecipe template references a field outside its scope's allowlist |
+| `E0041` | `multiple contributors share an instance ID at the same dispatch path` | Instance-ID collision across boundaries assembling to the same path |
+| `E0042` | `locals entry references a sibling defined later in the same block` | `locals:` entry references a sibling defined later in the same block |
+| `E0043` | `template references a key the locals block does not declare` | `locals:` key does not exist |
+| `E0048` | `dispatch path produced multiple provider outputs` | Path collision: two contributors emit at incompatible paths |
+| `E0049` | `path template references a field not in the documented allowlist` | Path-template references a variable outside the allowlist |
+| `E0057` | `provides block references a root outside the self-contained set` | `provides:` template references a non-self-contained root |
+| `E0059` | `duplicate delivery key across self-inject and uses-inject` | Duplicate delivery key across inject sources |
+| `E0060` | `template references a root the render context does not define` | Template references a root the render context does not define; Self-inject value template references cross-node data |
+| `E0061` | `unknown provider` | Unknown provider |
+| `E0066` | `uses edge target does not exist` | Dangling `uses` target |
+| `E0068` | `max sub-aggregate nesting depth exceeded` | Sub-aggregate nesting depth exceeded |
+| `E0071` | `release edge retargets a developer-declared edge` | Release retargets a developer-declared edge |
+| `E0074` | `release per-edge configuration has no edge to apply to` | Release per-edge configuration has no edge to apply to |
+| `E0092` | `capability is served by more than one provider plugin; add a plugins.providers entry to select one` | A capability is served by more than one provider plugin |
+| `E0095` | `malformed recipe reference in a Manifest mapping value` | Manifest mapping value carries more segments than a recipe reference accepts |
+| `E0096` | `manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key` | Recipe `implements` does not match the mapped component type |
+| `E0150` | `attachment does not conform to its declared slot shape` | Attachment does not conform to its declared slot shape |
+| `E0153` | `feature merge conflict: reconcile the Aggregate and Release declarations for the feature` | Manifest merge strategy |
+| `E0155` | `duplicate delivery key across inject sources` | Duplicate delivery key across inject sources |
+| `E0156` | `invalid inject key: the from-key must name a declared provides key of the target component type` | Inject `from` key is not in the target's `provides` |
+| `E0157` | `invalid instance name: names must match ^[a-zA-Z0-9_-]+$ (letters, digits, hyphen, underscore; no dots)` | Instance name fails the naming pattern |
+| `E0162` | `missing required feature: attach a Feature of the required type to the component` | Required feature not attached |
+| `E0163` | `required uses socket not populated` | Required `uses:` socket not populated |
+| `E0164` | `parameter contract violated` | Parameter type mismatch / contract violation |
+| `E0165` | `required parameter not supplied` | Parameter type mismatch / contract violation |
+| `E0166` | `parameters $import: load failed` | External parameters file cannot be loaded |
+| `E0168` | `authored pillar does not conform to its declared schema` | Authored values or infra do not conform to the declared schema |
+| `E0169` | `self-inject on component without spec.inject allowlist` | Self-inject on a component without an allowlist; Self-inject mechanism not in the component's allowlist |
+| `E0171` | `unknown uses socket: name a socket the entity declares in its usesSchema — only a component's own uses block may name one the catalog did not declare` | `uses:` socket not declared in the target's `usesSchema` |
+| `E0202` | `cyclic extends chain` | Cyclic extends chain; Cyclic extends on Components or Features |
+| `E0206` | `recipe eval-provider constraint: input-kind fields are forbidden when provider is eval` | `eval`-provider constraint |
+| `E0209` | `Recipe: valuesMapping requires source` | `valuesMapping` requires `source` |
+| `E0210` | `Recipe: at least one input kind required` | At least one input kind must be present |
+| `E0211` | `Recipe: filename collision across input-kind origins at emission` | Emission-time filename collision across input kinds |
+| `E0215` | `document envelope validation failed` | YAML anchor aliased inside its own content; Divergent Release (extends + aggregate pointer) |
+| `E0234` | `recipe source is empty string; use nil for synthesized mode or a non-empty path for sourced mode` | Recipe `source:` is an empty string |
+| `E0242` | `recipe source is empty string; use nil for sourceless mode or a non-empty path for sourced mode` | Recipe `source:` is an empty string |
+<!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
 
