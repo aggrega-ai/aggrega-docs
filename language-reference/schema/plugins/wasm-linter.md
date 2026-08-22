@@ -4,7 +4,7 @@ _Generated reference. Do not edit by hand — regenerate from the published JSON
 
 Schema id: `https://aggrega.ai/schemas/wasm-linter-v1alpha1.schema.json`
 
-The JSON wire shapes the publishing-linter.wasm plugin socket consumes (LinterInput) and emits (LinterOutput). The linter runs at publish time over a previous-version + proposed-version entity pair (the schema-evolution rule) and at workspace lint time over individual entities (per-rule structural rules). One shipping Wasm plugin hosts many rules; the dispatcher selects which rule to run via the LinterInput.rule_id field. The two wire shapes are co-canonical with the corresponding PDK mirrors at aggrega-pdk/<lang>/src/types; per-language round-trip tests catch drift.
+The wire shapes the publishing-linter.wasm plugin socket consumes (LinterInput) and emits (LinterOutput). The linter runs at publish time over a previous-version + proposed-version entity pair (the schema-evolution rule) and at workspace lint time over individual entities (per-rule structural rules). One shipping Wasm plugin hosts many rules; the dispatcher selects which rule to run via the LinterInput.rule_id field. The two wire shapes are co-canonical with the corresponding PDK mirrors at aggrega-pdk/<lang>/src/types; per-language round-trip tests catch drift.
 
 ## One of the following shapes
 

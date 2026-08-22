@@ -4,7 +4,7 @@ _Generated reference. Do not edit by hand — regenerate from the published JSON
 
 Schema id: `https://aggrega.ai/schemas/wasm-annotation-transform-v1alpha1.schema.json`
 
-The JSON wire shapes a governance plugin attached at the annotation-transform role consumes (AnnotationTransformInput) and emits (AnnotationTransformOutput). The role runs after resolve and before annotation expansion: the plugin reads the resolved injection targets and the Manifest's registered binding keys, and returns a list of annotation injections the host applies to those targets before expansion turns bound annotations into Feature attachments. The two wire shapes are co-canonical with the Go host types and with each per-language PDK's mirror; per-language round-trip tests catch drift.
+The wire shapes a governance plugin attached at the annotation-transform role consumes (AnnotationTransformInput) and emits (AnnotationTransformOutput). The role runs after resolve and before annotation expansion: the plugin reads the resolved injection targets and the Manifest's registered binding keys, and returns a list of annotation injections the host applies to those targets before expansion turns bound annotations into Feature attachments. The two wire shapes are co-canonical with the Go host types and with each per-language PDK's mirror; per-language round-trip tests catch drift.
 
 ## One of the following shapes
 

@@ -4,7 +4,7 @@ _Generated reference. Do not edit by hand — regenerate from the published JSON
 
 Schema id: `https://aggrega.ai/schemas/wasm-policy-v1alpha1.schema.json`
 
-The JSON wire shapes the policy.wasm plugin socket consumes (PolicyInput for the IR stage, RenderPolicyInput for the render stage) and emits (PolicyOutput). The policy validator runs during compilation; a deny verdict halts the build with a build-time diagnostic. The IR-stage input graph is the full capability-agnostic IR graph, referenced from ir-v1alpha1.schema.json rather than re-declared here, so the policy plugin sees the same node, edge, and attachment detail the compiler does; plugin authors track the IR schema version. The render-stage input carries the rendered output files instead of the graph. The wire shapes are co-canonical with the host types in aggrega-cli (the IR graph) and the generated codec in aggrega-abi.
+The wire shapes the policy.wasm plugin socket consumes (PolicyInput for the IR stage, RenderPolicyInput for the render stage) and emits (PolicyOutput). The policy validator runs during compilation; a deny verdict halts the build with a build-time diagnostic. The IR-stage input graph is the full capability-agnostic IR graph, referenced from ir-v1alpha1.schema.json rather than re-declared here, so the policy plugin sees the same node, edge, and attachment detail the compiler does; plugin authors track the IR schema version. The render-stage input carries the rendered output files instead of the graph. The wire shapes are co-canonical with the host types in aggrega-cli (the IR graph) and the generated codec in aggrega-abi.
 
 ## One of the following shapes
 

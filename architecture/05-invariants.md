@@ -78,7 +78,7 @@ Per-edge connection configuration is consumer-scoped: the `values` and `infra` c
 
 ## 6. The WebAssembly ABI Boundary: domain-specific intelligence lives in Wasm
 
-The Go host binary contains zero cloud-specific or infrastructure logic. All domain-specific intelligence, template rendering, and formatting live strictly inside WebAssembly plugins executed by the embedded Wazero runtime. The Go host orchestrates the pipeline and passes memory pointers (JSON payloads) across the ABI to Wasm guests.
+The Go host binary contains zero cloud-specific or infrastructure logic. All domain-specific intelligence, template rendering, and formatting live strictly inside WebAssembly plugins executed by the embedded Wazero runtime. The Go host orchestrates the pipeline and passes payloads across the ABI to Wasm guests as memory pointers, in the encoding each socket carries.
 
 Two corollaries follow:
 
@@ -116,7 +116,7 @@ Deterministic output is maintained through three disciplines:
 
 - Author-ordered maps: every map whose iteration order could affect rendered output uses an ordered-map container so iteration follows author declaration order rather than hash order.
 - No wall-clock or random content in rendered artifacts unless the author explicitly injected it via template input.
-- Rendering is pure: the same Wasm guest invocation with the same JSON input produces the same JSON output.
+- Rendering is pure: the same Wasm guest invocation with the same input produces the same output.
 
 The compiler's `--trace` flag (see [`language-reference/cli/aggrega-build.md`](../language-reference/cli/aggrega-build.md)) gives authors and operators a verification surface for this invariant. Two compiles of the same input with `--trace` enabled produce byte-identical trace dumps; any per-pass diff localises a regression. Determinism is not just a release-time property — it is observable at every intermediate compiler state through the per-node trace layout.
 
