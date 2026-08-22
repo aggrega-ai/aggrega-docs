@@ -258,13 +258,21 @@ an operator-supplied threshold as `data.max_replicas`. Every file the attachment
 declares under `sources` becomes a policy module, and every package those files
 declare is evaluated.
 
-### Rules carry `contains` and `if`
+### Which rule syntax a policy is written in
 
-A rule body is introduced by `if`, and a rule that collects into a set says so with
-`contains`:
+Rego is written in two rule syntaxes and the engine accepts both, module by module.
+A policy set assembled before the current syntax existed therefore evaluates
+alongside one written today, in the same attachment.
+
+In the **current syntax** a rule body is introduced by `if`, a rule that collects
+into a set says so with `contains`, and the module states which syntax it is
+written in by declaring `import rego.v1` on its own line below the package
+declaration:
 
 ```rego
 package example
+
+import rego.v1
 
 deny contains msg if {
     count(input.graph.spec.nodes) > 20
@@ -272,18 +280,42 @@ deny contains msg if {
 }
 ```
 
-A rule written in the older bracketed-head form — `deny[msg] { ... }` — does not
-load. The refusal names the file, the line and the column, and it is a build fault
-naming the plugin rather than a verdict:
+In the **older bracketed-head syntax** the value a rule collects sits in brackets
+on the rule head and the body follows it directly. A module in that syntax
+declares nothing, because it is recognised by not parsing as the current one:
+
+```rego
+package example
+
+deny[msg] {
+    count(input.graph.spec.nodes) > 20
+    msg := "this build declares more than twenty nodes"
+}
+```
+
+**A module that parses as the current syntax while declaring nothing is refused,
+by name.** The declaration is what fixes the reading, and without it the same rule
+text can reach the opposite decision: a rule body that never holds contributes no
+decision under the current syntax and contributes one under the older syntax — so
+a policy that should have stayed silent stops the build, and the mirror case lets
+a build through that a rule was written to stop. Rather than pick a reading for
+such a module, the engine refuses it and says what to add:
 
 ```
-policy source "p.rego" did not load:
---> p.rego:3:11
-  |
-3 | deny[msg] {
-  |           ^
-error: `if` keyword is required before rule body
+policy source "policy.rego" must declare `import rego.v1`. Both Rego rule syntaxes are accepted, and this module parses as either one — so without the import its rules could be read in the older syntax, where the same text can reach the opposite decision. Add `import rego.v1` on its own line below the package declaration.
 ```
+
+The refusal is a build fault naming the plugin rather than a verdict, so it stops
+the build the way an unevaluable policy does and never reads as a policy that
+allowed it.
+
+Two edges are worth knowing before they surprise you. A module with **no rule
+bodies at all** — one that only declares data — parses as the current syntax, so it
+is asked for the declaration too, even though the two readings could not have
+differed for it. And a module written in the **older syntax is never refused**,
+because it does not parse as the current one: the engine itself is what tells the
+two apart, so a deliberate bracketed-head policy is never mistaken for a
+current-syntax one that forgot to say so.
 
 ### A policy collects its decisions under a decision key
 
@@ -381,6 +413,8 @@ tests membership with `in`:
 ```rego
 package security
 
+import rego.v1
+
 deny contains msg if {
     some path in input.precalculated_paths
     target := path.nodes[count(path.nodes) - 1]
@@ -401,6 +435,8 @@ naming the node, the label key, and the value the label takes:
 
 ```rego
 package tagging
+
+import rego.v1
 
 labels contains {"node": id, "key": "compliance.example.com/tier", "value": "gold"} if {
     some id, node in input.graph.nodes
@@ -441,6 +477,8 @@ the key and its value:
 
 ```rego
 package tagging
+
+import rego.v1
 
 annotations contains {
     "boundary_path": target.boundary_path,

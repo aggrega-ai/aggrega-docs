@@ -221,6 +221,8 @@ A rule reads what the payload carries and reports its decision under a named key
 # Evaluated by a governance verdict role over the assembled graph
 package acme.security
 
+import rego.v1
+
 deny contains msg if {
     some id, node in input.graph.spec.nodes
     node.labels["compliance.aggrega.ai/data-class"] == "restricted"

@@ -295,6 +295,8 @@ Traces precalculated topological paths and blocks any connection to restricted d
 # governance verdict guest: operator-authored Rego, attached at the ir-verdict role
 package aggrega.security
 
+import rego.v1
+
 deny contains msg if {
     some path in input.precalculated_paths
     target := path.nodes[count(path.nodes) - 1]
