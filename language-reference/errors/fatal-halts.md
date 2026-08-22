@@ -822,6 +822,23 @@ Emitted message, where one contributor's output carries the name twice:
 
 **How to fix:** where two contributors are named, rename one of them in the Aggregate, so the names derived from it no longer agree with the other's. Where both names are derived from something you set explicitly — a value the Recipe feeds the provider, or an annotation the provider reads — change that instead on whichever of the two you control. Where the two contributors genuinely belong to separate outputs, give their boundaries distinct `directory:` paths so each assembles on its own and the two names never meet. Where a single contributor is named and marked, the two colliding things are both inside that one component: find the two resources its Recipe produces whose names agree, and change what one of them is named after — the key it is declared under, or a value it is built from — so the provider derives a distinct name for each.
 
+### An authored export name is one the build derives for a cross-stack reference
+
+<!-- covers: plugins/internal/cfncore.ErrLinkExportNameShadowed -->
+
+A cloudformation Recipe's `Outputs:` block is authored CloudFormation, and an entry in it may carry its own `Export:` with a `Name:`; that name reaches the assembled stack exactly as written. Separately, when a `uses` edge crosses from one boundary to another, the provider publishes the consumed value as a stack `Output` with an `Export` under a name it derives from the release, boundary, component, and provided key. This halt fires where the two meet: the name you wrote is the name the derivation produced for the same build, so the stack would declare one export name twice from two places, and an export name has to be unique.
+
+Only the coincidence halts. Declaring an export name on an `Outputs` entry is supported, and one matching no derived name publishes alongside the derived ones without comment.
+
+The halt gives the derived export name together with the four parts it was built from, so you can see which cross-boundary reference produced it, and it names the stack output your declaration sits under — marked as a name the provider assembles rather than one a Recipe wrote, because building that name drops every separator and capitalises each word, so several differently-written entries reach one of them and none can be read back out of it. **The export name is the part to search for.** Your entry spells it exactly as the halt does, which is what makes the two a collision, so it is the one string that appears both in the message and in your own files.
+
+The comparison is scoped to one stack: the export names that stack declares, against the names derived for the cross-boundary references publishing into it. Two stacks are not compared against each other, and an export name written as a CloudFormation intrinsic resolves at deploy time, so there is no name to compare. What a name meets among the exports already deployed into an account and region is a property of the deployment, which a build does not observe.
+
+Emitted message — the publish's own detail; the surrounding report also names the `uses` edge being wired:
+> TRANSLATION_ERROR: cloudformation-provider: an export name a cross-boundary link derives is already declared by another Outputs entry in the same stack: the link derives the export name `<export-name>` for provides key `<provides-key>` of component `<component>` in boundary `<boundary>` of deployment `<deployment>`, and another Outputs entry of the same stack already declares that same export name — that declaration sits under the stack output `<stack-output>`, a name this provider assembles rather than one a Recipe wrote; each shadowing Outputs entry spells its export name exactly as the halt does, so searching your Recipes for that name reaches the entry — rename the export name the entry declares, or remove that entry's Export block and let the link publish the export
+
+**How to fix:** search your Recipes for the export name the halt names — the `Outputs` entry declaring it spells it identically — then either rename that export name so it no longer matches, or remove that entry's `Export:` block and let the cross-stack wiring publish the export itself. Removing it is usually the right move where the entry existed to export the same value the edge consumes: the provider publishes an `Export` for that value anyway, so the authored one adds nothing. Keep the authored `Export:` and rename it instead where the entry exports the value for a different consumer that imports it under a name you chose.
+
 ### Chart-name mismatch on a merged helm-chart umbrella
 
 <!-- covers: internal/compiler/renderer.ErrChartNameMismatch -->
@@ -935,6 +952,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0215` | `document envelope validation failed` | YAML anchor aliased inside its own content; Divergent Release (extends + aggregate pointer) |
 | `E0234` | `recipe source is empty string; use nil for synthesized mode or a non-empty path for sourced mode` | Recipe `source:` is an empty string |
 | `E0242` | `recipe source is empty string; use nil for sourceless mode or a non-empty path for sourced mode` | Recipe `source:` is an empty string |
+| `E0249` | `cloudformation-provider: an export name a cross-boundary link derives is already declared by another Outputs entry in the same stack` | An authored export name is one the build derives for a cross-stack reference |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

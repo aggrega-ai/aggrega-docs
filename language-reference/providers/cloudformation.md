@@ -96,6 +96,16 @@ CloudFormation additionally requires an export name to be unique across everythi
 
 What carries the distinction across that line is the release identity leading every export and stack name. Two deployments that share an account and region keep their exports apart by being released under different names — which is the lever you hold, and the reason the release identity leads the name rather than trailing it.
 
+### An Outputs entry can declare its own export name
+
+A Recipe's `Outputs:` block is authored CloudFormation, and an entry in it may carry its own `Export:` with a `Name:`. That name reaches the assembled stack exactly as written — the provider does not rewrite it, does not prefix it, and does not require it to look like a derived one.
+
+Usually there is nothing more to say about it. An authored export name that matches no name the provider derives publishes alongside the derived ones and is never remarked on. **The authoring is supported; only one coincidence is not.**
+
+**The build halts when an authored export name equals one the provider derives for a cross-boundary link in the same build.** Both declarations would reach the assembled template, leaving one export name declared twice in one stack — and an export name has to be unique, so the two cannot both stand. The halt gives the derived export name and the four parts it was built from, so you can see which link produced it, and it names the stack output the authored declaration sits under, marked as a name the provider assembles rather than one a Recipe wrote. **The export name is the term to search your Recipes for.** The authored entry spells it exactly as the halt does — that identity is what makes the two a collision — so it is the one string that appears both in the message and in your own files. Renaming the export name that entry declares clears the halt, and so does removing that entry's `Export:` block and letting the cross-stack wiring publish the export itself.
+
+**The check is a build-scope one, and its scope is one stack.** It compares the export names an assembled stack declares against the names the provider derives for the cross-boundary links that publish into that same stack — the comparison the build can make from what it has assembled. Two stacks are not compared against each other. And what an authored name meets among the exports already deployed into an account and region is a property of the deployment, which lies beyond what any build-time derivation can reach, for the reason set out under *What an export name is unique against, and where that stops*: the compiler does not authenticate against AWS, does not query it, and cannot read the output of another build. An export name written as an intrinsic rather than as a plain string sits on the far side of the same line — it resolves at deploy time, and nothing here evaluates an intrinsic, so there is no name for the build to compare.
+
 ## Deployment ordering
 
 A Release boundary's `syncWave:` value orders provisioning of the stack that boundary assembles into. Every component in the boundary inherits the boundary's wave, and where several boundaries resolve to the same output directory — so their fragments assemble into a single template — the stack holds more than one wave and the provider expresses the ordering between them as `DependsOn`.

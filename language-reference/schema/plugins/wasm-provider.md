@@ -420,11 +420,12 @@ _Additional properties are not permitted._
 
 ### `LinkPublishInput`
 
-The payload a provider receives on its link_publish export: one cross-boundary link whose consumed endpoint's output is referenced across a boundary. The export returns the published identity the consumer resolves against and any producer-side artifact wiring the consumed endpoint's output needs.
+The payload a provider receives on its link_publish export: one cross-boundary link whose consumed endpoint's output is referenced across a boundary, and that endpoint's assembled files. The export returns the published identity the consumer resolves against and any producer-side artifact wiring the consumed endpoint's output needs.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `edge` | LinkEdge | yes | The cross-boundary link being published, read from the consumed (target) endpoint's side. |
+| `producer_files` | RenderedFile[] | no | The consumed endpoint's assembled files, so the provider can read what that endpoint already declares and check the names it is about to publish against them. Each names its on-disk path and carries the assembled bytes. Absent when the host has no assembled producer output to hand the publish; a provider that needs no document to author its wiring ignores it. |
 
 _Additional properties are not permitted._
 
