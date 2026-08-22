@@ -9,7 +9,7 @@
 - **Catalog entities** — the Components, Features, Recipes, FeatureRecipes, schema and mapping libraries, and Wasm plugins the Release references, resolved transitively (through `extends:`, `implements:`, `aggregate:`, Feature attachments, and library `$import:` / `$ref:` sites) and fetched from the registry when not already local.
 - **Source artifacts** — the remote `source:` that an individual Recipe or FeatureRecipe points a provider at: a Helm chart (OCI or classic HTTPS) or a Compose fragment over HTTPS. Each is fetched, cached, and pinned.
 
-It writes the result to `<release-stem>.lock` next to the Release.
+It writes the result to `<release-stem>.lock` next to the Release. A workspace that attaches a plugin returning an accept-or-reject verdict also gets a second file in that directory — the [plugin trust record](#the-plugin-trust-record).
 
 ## The lockfile
 
@@ -18,6 +18,18 @@ The lockfile pins each dependency to its URI, resolved version, and content dige
 Commit `<release-stem>.lock` alongside the Release, the way you commit any pinned-dependency manifest. A lockfile diff shows reviewers exactly which dependency versions and digests changed; a library digest change names the consumers it affects.
 
 What a given pull *did* — whether each entity was fetched fresh from a registry (`fetched-fresh`), reused a cache slot (`cache-reuse`), found in a local catalog (`local`), served from the copy inside the compiler binary (`in-binary`), or was external (`external`) — is a transient pull-event diagnostic printed to stdout by `--detail`, and it is never written to the lockfile. Which source served an entity depends on the pulling machine's local state, so persisting it would break the lockfile's byte-identity across machines. It reports what *this pull* did, which is unrecoverable afterward (a freshly-pulled entity is cached by the next run); for the post-pull resolution *state* of a Release's dependencies, use `aggrega inspect`.
+
+## The plugin trust record
+
+Some plugins the workspace attaches never shape the rendered output. A `plugins.governance` attachment in an `ir-verdict` or `render-verdict` role, and every `plugins.linter` attachment, return an accept-or-reject verdict and nothing else — no bytes of theirs reach an artifact. So they are not part of what a build reproduces byte-for-byte, and the lockfile, which pins exactly that, is the wrong place for them.
+
+Their identities go in a second committed file instead: `plugins-trust.yaml`, beside the lockfile. It carries one entry per such plugin, recording the plugin's identity coordinate, the version selected for it, and the content digest of the resolved artifact. The [plugin trust record schema](../schema/other/plugins-trust.md) describes the file field by field.
+
+Commit `plugins-trust.yaml` alongside the lockfile, for the reason you commit the lockfile: a record kept outside version control is one nobody can review and nothing can compare against. Committed, it is one shared statement of which plugin each of those attachments resolved to, and a diff over it names the identity that changed.
+
+**The file appears only when there is something to record.** A workspace that attaches no verdict-returning plugin resolves no such identity, so pull writes no file and says nothing about one — an absence, not a missing file. When pull does create it, it names the file it created and tells you to commit it. A later pull adds an identity the record does not yet hold and leaves every identity already recorded exactly as it is; a bare `aggrega pull --upgrade`, which re-resolves every dependency, re-resolves those identities too.
+
+**A plugin served from the copy inside the compiler binary is not recorded.** Pull records what it *acquired* — fetched from a registry, or read from the cache — and nothing is acquired from the binary: those bytes are identified by the compiler version that carries them, so there is no resolution of their own to record. Attaching a plugin the binary already carries therefore produces no entry for it. That is the record staying about acquired artifacts, not a resolution that failed.
 
 ## Honoring vs. updating
 
