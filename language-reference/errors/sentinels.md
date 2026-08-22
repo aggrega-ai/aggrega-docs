@@ -182,6 +182,12 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrPluginBundleDigestMismatch()` | `pluginpath/plugin-bundle-digest-mismatch` | `cached signature bundle does not match its recorded digest` |
 | `ErrPluginEntityNotFound()` | `pluginpath/plugin-entity-not-found` | `plugin reference is not a Plugin entity` |
 
+### pkg/pluginstrust
+
+| Sentinel | Code | Message |
+| --- | --- | --- |
+| `ErrVerdictAttachmentNotConfigured()` | `pluginstrust/verdict-attachment-not-configured` | `a plugin recorded as trusted for an accept-or-reject verdict is no longer attached at any verdict role` |
+
 ### pkg/plugintest
 
 | Sentinel | Code | Message |
@@ -648,6 +654,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0244` | `compiler-renderer-helm/stateful-set-ambiguous-headless-service` | `synthesized StatefulSet has more than one headless Service` |
 | `E0245` | `compiler-renderer-helm/stateful-set-no-headless-service` | `synthesized StatefulSet has no headless governing Service` |
 | `E0246` | `resolver/verdict-plugin-trust-mismatch` | `the digest recorded as trusted for this plugin does not match the digest its cached manifest reports` |
+| `E0247` | `pluginstrust/verdict-attachment-not-configured` | `a plugin recorded as trusted for an accept-or-reject verdict is no longer attached at any verdict role` |
 <!-- END GENERATED: condition-short-codes -->
 
 ## Matching guidance
