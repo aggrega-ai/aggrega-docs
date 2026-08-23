@@ -20,7 +20,7 @@ The payload a parser guest receives: the format name that selects how to read th
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `format` | string | yes | The name of the source format to parse, matching one of the parser's advertised parse:<format> capabilities (for example hcl, toml, yaml, or json). The parser reads the bytes as this format. |
-| `bytes` | string | yes | The source bytes to parse, base64-encoded on the wire. The parser decodes the base64 to recover the original bytes and reads them as the named format. |
+| `bytes` | string | yes | The source bytes to parse. Each kit carries them in its own field type — raw where that type is a byte type, base64-encoded where it is a string the parser decodes to recover them — and the generated encoder converts between the field and the form the wire carries bytes in. The parser reads the recovered bytes as the named format. |
 | `options` | any | no | An opaque options document the consumer supplies for parser-specific behavior. The host pipes it through without interpreting it; the parser reads whatever shape it documents. Absent when the consumer supplies no options. |
 
 _Additional properties are not permitted._
