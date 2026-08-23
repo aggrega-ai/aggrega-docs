@@ -22,10 +22,10 @@ it declares no role of its own — the attachment carries it.
 
 This page is the comprehensive treatment of the governance socket: the four roles
 and the payload each carries, the verdict severities the host acts on, the
-engine-agnostic input channel an operator supplies, how to write a policy for the
-Rego engine that ships inside the compiler, how a guest wraps a foreign policy
-engine, the reference guests that ship, and how an operator attaches a plugin to a
-workspace. For the socket's place in the pipeline and its typed wire shapes, see
+engine-agnostic input channel an operator supplies, how to write a policy for either
+of the two policy engines that ship inside the compiler — one evaluating Rego, one
+evaluating CEL — how a guest wraps a foreign policy engine, the reference guests that
+ship, and how an operator attaches a plugin to a workspace. For the socket's place in the pipeline and its typed wire shapes, see
 [`plugin-contract.md`](plugin-contract.md); for authoring and publishing a
 plugin as a catalog entity, see the
 [Wasm plugin developer guide](plugin-developer-guide.md).
@@ -193,6 +193,35 @@ and maps the engine's decision back to the socket's verdict shape. The compiler
 host sees only the standard governance verdict surface; it never learns which
 engine is involved and carries no engine-specific code. Switching a policy from
 one engine to another is an attachment change, not a host change.
+
+## Two policy engines ship inside the compiler
+
+Two policy engines are compiled into the CLI binary, and an operator attaches
+either — or both — the same way any governance plugin is attached:
+
+| Coordinate | Policy language | Attached source |
+| --- | --- | --- |
+| `governance/rego` | Rego | `.rego` files, or a base64-encoded archive of a whole policy set |
+| `governance/cel` | Common Expression Language (CEL) | `.cel` expression files, or `.yaml` / `.yml` rules documents |
+
+Everything around the language is shared. Both serve all four roles, both read the
+same per-role payload under the same field names, both map their decisions onto the
+same three verdict severities through the same `translation` setting, and both fail
+loudly rather than allowing a build they could not evaluate. Each carries the
+compiler release that ships it as its version, and neither needs an external
+toolchain or fetches anything at build time.
+
+What differs is the language the rules are written in, and that is the whole basis
+for choosing. An estate that already keeps a Rego corpus — or a team that writes
+Rego for admission control elsewhere — attaches the Rego engine and its policies run
+as they stand. A team that expresses its rules as single expressions over a
+document, the way a Kubernetes validating-admission policy does, attaches the CEL
+engine. The two are attached per role, so a workspace may run Rego at one role and
+CEL at another, or both at the same role as two attachments.
+
+The host is blind to which of them a decision came from: it routes the payload, reads
+back a verdict or a change, and acts on it. Switching a policy from one language to
+the other is an attachment change and a rewrite of the rules — never a host change.
 
 ## Rego policies: two roads
 
@@ -535,6 +564,328 @@ file that does not read, or an archive holding no policy at all. None of them yi
 an empty policy set, because an empty policy set reaches no decision — and "the
 archive was unreadable" must never be indistinguishable from "the policy allowed the
 build".
+
+## Writing a policy for the CEL engine
+
+The engine evaluates operator-authored CEL entirely inside the guest, at whichever
+of the four roles it is attached at. Its catalog identity is the bare name `cel`
+under `pluginType: governance` — the coordinate `governance/cel` — and its version is
+the compiler release that ships it. Attaching it twice, at two roles, with two
+different policy files, is how one engine covers two moments of the same build.
+
+```yaml
+plugins:
+  governance:
+    - uri: governance/cel:<version>
+      role: ir-verdict
+      with:
+        sources:
+          - ./policies/topology.cel
+        settings:
+          max_nodes: 20
+```
+
+A policy addresses the whole payload through one name, `input`, so the names it reads
+are the names the wire gives them: the build graph at `input.graph`, the enumerated
+routing paths at `input.precalculated_paths`, the rendered files at
+`input.artifacts`, the annotation targets at `input.targets`. Those per-role paths are
+the ones tabulated in [What each role's payload exposes](#what-each-roles-payload-exposes)
+above, and they are identical for both engines — one wire, read under one root name.
+
+The attachment's own files are at `input.sources` and its settings at
+`input.settings`, so an operator-supplied threshold is read as
+`input.settings.max_nodes`. There is no second document to learn: settings are part of
+`input` like everything else. Both are always present as a value — empty when the
+attachment declares none — so an expression addressing them does not have to guard for
+their absence.
+
+### The two authored forms, and the file name that chooses between them
+
+A policy is attached in either of two forms, and **the file's name says which**:
+
+| File name ends in | Read as |
+| --- | --- |
+| `.cel` | one expression, evaluated as it stands |
+| `.yaml` or `.yml` | a rules document — a list of rules |
+| anything else | one expression |
+
+The name is the whole rule. No setting selects a form, and the file's text is not
+examined to guess one — it could not answer the question anyway, because an
+expression's own outermost value is a map and so is a rules document's, which makes
+the two forms indistinguishable by shape.
+
+**So the rule cuts both ways, and both mistakes are refused rather than
+misread.** A rules document named `policy.cel` is refused, because a list of YAML
+rules is not an expression; an expression named `policy.yaml` is refused, because an
+expression is not a list of rules. Each refusal names the file. Renaming the file is
+the fix in both directions.
+
+A policy set is as many files as it needs, and the two forms mix freely within one
+attachment.
+
+### An expression, in a file named `.cel`
+
+An expression language has no rule names to collect decisions under, so the decisions
+*are* the value the expression produces: **a map from decision key to what that key
+collects.** At a verdict role a key collects the messages reached under it; at a role
+that shapes the build it collects the decisions to apply.
+
+```cel
+{
+  "deny": input.graph.spec.nodes
+            .filter(n, input.graph.spec.nodes[n].resolved_version == "latest")
+            .map(n, "component " + n + " tracks the latest version; pin it"),
+  "warn": size(input.graph.spec.nodes) > input.settings.max_nodes ? ["this build declares a lot of components"] : [],
+}
+```
+
+A key the file omits reached no decision there, so a file need not name every key —
+and each role reads only the key it is about, so one policy set can serve a verdict
+role and a role that shapes the build from the same files. A key carries a list of
+what it collects, a single one of them, or the null value for none.
+
+An expression that evaluates to anything other than a map is refused, naming the shape
+to write. A bare `size(input.graph.spec.nodes) <= 5` is the mistake worth expecting:
+it is a boolean, and reading `false` as a halt would mean inventing a message the
+author never wrote.
+
+### A rules document, in a file named `.yaml` or `.yml`
+
+A rules document is a list of rules, each naming the decision key it reaches, the
+expression that decides whether it is reached, and what is reported when it is:
+
+```yaml
+- key: deny
+  expression: size(input.graph.spec.nodes) > 20
+  message: this build declares a lot of components
+- key: warn
+  expression: has(input.settings.max_nodes)
+  message: a component ceiling is configured for this environment
+```
+
+What a rule reports follows the decision key it reaches, exactly as it does in an
+expression. **Text** is the message a verdict carries. A **mapping** is the fields of
+the one decision a role that shapes the build reads:
+
+```yaml
+- key: labels
+  expression: input.compilation_context.environment == "production"
+  message:
+    node: app
+    key: compliance.example.com/tier
+    value: gold
+```
+
+Which of the two a rule writes is decided by the rule alone — there is no setting that
+selects it — and a rule writing the wrong one for its key is refused, by name.
+
+One YAML detail worth knowing before it bites: an expression that begins with a double
+quote has to be quoted for the document reader, because a value opening with `"` is
+read as a quoted scalar rather than as text beginning with a quote.
+
+```yaml
+- key: annotations
+  expression: '"backup.example.com/schedule" in input.binding_keys'
+  message:
+    boundary_path: main
+    component_name: app
+    annotation_key: backup.example.com/schedule
+    annotation_value: nightly
+```
+
+**A rules document is read as the expression it stands for before anything is
+evaluated.** Each rule becomes its decision key carrying its report when the
+expression holds and nothing when it does not, and rules sharing a key are joined. So
+one evaluator runs both forms, and a rules document decides exactly what the
+expression it stands for decides — at every role, verdicts and build-shaping decisions
+alike. Two consequences follow. A document and the hand-written expression it stands
+for reach the same decisions, because they are the same evaluation. And the ordering
+rules below are the evaluated form's rather than the document's — a document's rules
+are not reported in the order they were written.
+
+### Which form fits — they are not interchangeable
+
+Both forms run through one evaluator, so neither is faster or more trustworthy than
+the other. What differs is what each can *say*, and because two forms are two things
+to learn, the split is worth stating plainly rather than leaving to taste.
+**Pick by what the rule reports.**
+
+- **A rules document, when the report is fixed.** The message or the decision is
+  written once, beside the expression that reaches it, and the file reads as a list of
+  guards. This is the shorter form for "if this is true, say exactly this".
+- **An expression, when the report names what it found.** One expression filters the
+  components of a build and produces a message — or a decision — *per component*, so a
+  reader gets `component payments tracks the latest version; pin it` for each offender
+  rather than one sentence about a count.
+
+That second job is the one a rules document cannot do: each of its rules carries one
+report, written in advance, so it has nothing to say about which component tripped it.
+Reaching for the document form and then wanting the offender's name in the message is
+the path that ends in rewriting the rule as an expression, so it is worth choosing on
+that question up front.
+
+### Decision keys and severities
+
+The decision keys, the default mapping onto severities, and the `translation` setting
+that renames them are the same as for the Rego engine — see
+[A policy collects its decisions under a decision key](#a-policy-collects-its-decisions-under-a-decision-key)
+above. By default `deny` reports at `halt`, `warn` at `warn`, and `audit` at `info`; a
+declared `translation` replaces that default rather than extending it, and the order it
+declares is the order verdicts are reported in.
+
+Both engines declare the same settings schema for it, so a `translation` block means
+the same thing whichever language expresses the decisions, and a malformed one is
+refused before any policy runs.
+
+At a role that shapes the build the key is fixed rather than mapped: `labels` at the
+label-shaping role, `annotations` at the annotation-injecting role.
+
+### Ordering: sorted within a key, and a total order over decisions
+
+**The messages under one decision key are reported in sorted order.** That is part of
+the contract rather than a presentation choice, and the reason is worth carrying: a
+comprehension over a map — `.filter(...)` and `.map(...)` over `input.graph.spec.nodes`,
+which is the most natural way to write a per-component rule — walks that map in an
+order the evaluator does not fix. Left alone, identical input would report the same
+messages in a different sequence on every build. Sorting removes that.
+
+Two things follow that are easy to read as bugs and are not:
+
+- **A rules document's rules are reported sorted too**, not in the order they were
+  written — because the document is evaluated as the expression it stands for, and the
+  sort applies to what a key collected.
+- **A hand-written list is sorted as well.** A key carrying `["second", "first"]`
+  reports `first` before `second`. Nothing in an evaluated result distinguishes a list
+  the author typed out from one a comprehension produced, so there is no authored order
+  to preserve.
+
+Across keys the order is the `translation`'s declared order. Across files it is the
+order of the file names, because an attachment's sources arrive sorted by name
+rather than in the order the attachment lists them.
+
+At a role that shapes the build the same reasoning applies to the decisions
+themselves, and the order is stronger: **decisions are reported in ascending order of
+everything they name**, which is a total order over what a decision can express — the
+node, then the label key, then whether the label is added or dropped, then the value;
+and for an injection, the boundary, then the component, then the annotation key, then
+its value. A change to labels or annotations reaches the rendered output, so an
+arbitrary order would mean identical input rendering differently from one build to the
+next.
+
+### Shaping labels
+
+At the label-shaping role a policy collects one decision per label under `labels`,
+naming the node, the label key, and the value the label takes:
+
+```cel
+{
+  "labels": input.graph.nodes
+              .filter(n, input.graph.nodes[n].labels["component.aggrega.ai/type"] == "stateful-server")
+              .map(n, {
+                "node": n,
+                "key": "compliance.example.com/tier",
+                "value": input.compilation_context.environment == "production" ? "gold" : "bronze",
+              }),
+}
+```
+
+Setting a key that is already present replaces its value. A decision may instead ask
+for a key to be dropped, by naming `op` as `remove`:
+
+```cel
+{
+  "labels": input.graph.nodes
+              .filter(n, "draft.example.com/scratch" in input.graph.nodes[n].labels)
+              .map(n, {"node": n, "key": "draft.example.com/scratch", "op": "remove"}),
+}
+```
+
+One decision needs no list around it, and a file naming no `labels` key decides no
+labels.
+
+A policy names the label rather than writing the edit instruction the build applies,
+for the reason given in the Rego engine's
+[label-shaping section](#shaping-labels-a-policy-names-the-label-and-the-engine-addresses-it):
+an Aggrega label key routinely contains a `/`, and a hand-written path would address a
+nested location instead of one label. The engine addresses the label the decision
+names.
+
+**Reading a label a node may not carry is a failure rather than an empty value**,
+which is why the second example asks whether the key is present before reading it.
+That is the expression language's own rule about reading an absent key, and it is
+loud: a policy reaching for a label no node carries reports that it could not be
+evaluated instead of quietly deciding nothing.
+
+A decision may only change a label. A decision naming a node the build does not have,
+or dropping a label the node does not carry, is refused by the build with a message
+naming the instruction — never silently ignored.
+
+**Reach one decision per node and label key.** A rule that can produce two different
+values for the same label on the same node is under-specified: resolve the value inside
+the expression — with a conditional, or with a filter that admits one branch — rather
+than emitting both decisions.
+
+### Injecting annotations under a registered key
+
+At the annotation-injecting role a policy collects one decision per annotation under
+`annotations`, naming the target by the coordinate the target itself carries, plus the
+key and its value:
+
+```cel
+{
+  "annotations": input.targets
+                   .filter(t, "backup.example.com/schedule" in input.binding_keys)
+                   .map(t, {
+                     "boundary_path": t.boundary_path,
+                     "component_name": t.component_name,
+                     "annotation_key": "backup.example.com/schedule",
+                     "annotation_value": "nightly",
+                   }),
+}
+```
+
+The field names a decision writes are the field names it read its targets under, so
+the convention is learnable from the payload alone. Reading `input.binding_keys` lets a
+policy inject only keys the deployment has registered a meaning for — those are the
+ones that expand into a Feature attachment. Every field is required: an annotation with
+an empty key or an empty component name is not something a policy meant to ask for. The
+boundary a component sits under can legitimately be named by the empty string, so that
+field must be present but may be empty.
+
+A decision naming a component the deployment does not have is refused by the build,
+naming the coordinate and the annotation. As with labels, **reach one decision per
+component and annotation key**, resolving the value inside the expression rather than
+emitting two decisions for one key.
+
+### When a policy or a decision cannot be read
+
+A policy the engine cannot read, cannot evaluate, or that produces something other
+than decisions in the documented shape makes the build **fail** rather than return a
+verdict or a change. The failure is reported as a build fault naming the file and,
+where the fault belongs to one part of the file, the position within it — deliberately
+distinct from a `halt` verdict, so that "this policy could not be evaluated" is never
+mistaken for "this policy allows the build".
+
+For an **expression**, that covers a source that does not parse — reported with the
+parser's own line and column and a caret under the offending position — and a source
+that evaluates to something other than a map from decision key to what that key
+collects.
+
+For a **rules document**, it covers text that is not a list of rules, a list with no
+rules in it, a rule missing a field or carrying an empty one, a field the form does not
+define, a report that is neither text nor a mapping of text to text, and an expression
+that cannot be read. A fault belonging to one rule names that rule's position —
+counted from one, the way an author counts their own file — and its decision key. A
+rule whose expression does not parse is refused before evaluation, so the caret lands
+inside the expression the author wrote rather than at a position in translated text
+they never saw.
+
+For a **decision at a role that shapes the build**, it covers a message where a
+decision belongs, a missing coordinate, and a field this engine's decision form does
+not define. That last one is worth stating on its own: a misspelled `annotation_valu`
+is **refused, not ignored**, so the mistake is reported rather than quietly injecting
+an empty value and leaving a build that completes without the change. Every such
+refusal names the file and ends by naming what a decision of that kind must name.
 
 ## Render-stage policy adapters
 
