@@ -116,7 +116,7 @@ One file of a pre-packaged source projection: its chart-root-relative path and i
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `path` | string | yes | The file's path relative to the source root (for example Chart.yaml or templates/deployment.yaml). |
-| `content` | string | yes | The file's raw bytes exactly as the host read them from the local source (base64 on the JSON wire). |
+| `content` | string | yes | The file's raw bytes exactly as the host read them from the local source. Each kit carries them in its own field type — raw where that type is a byte type, base64-encoded where it is a string the guest decodes to recover them — and the generated encoder converts between the field and the form the wire carries bytes in. |
 
 _Additional properties are not permitted._
 
@@ -192,7 +192,7 @@ The read-source-file host function's reply: on success the file's bytes, on fail
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `content` | string | no | The file's raw bytes on success; absent on failure (base64 on the JSON wire). |
+| `content` | string | no | The file's raw bytes on success; absent on failure. Each kit carries them in its own field type — raw where that type is a byte type, base64-encoded where it is a string the guest decodes to recover them — and the generated encoder converts between the field and the form the wire carries bytes in. |
 | `error` | string | no | The failure message on failure, naming the file and the reason; absent on success. |
 | `error_code` | string (enum) | no | The machine-matchable failure identity on failure, from the closed host-function error-code catalog, set beside the human error message; absent on success. A guest branches on this code without parsing the message, tolerating an absent code (older host) or an unrecognized one (newer host) by falling back to the message. Allowed values: `"fetch_request_unreadable"`, `"fetch_input_unavailable"`, `"fetch_failed"`, `"request_unreadable"`, `"request_undecodable"`, `"source_root_unavailable"`, `"source_read_failed"`, `"unknown_selection_op"`, `"source_escape"`, `"producer_consumption_reentry"`, `"no_source_parser"`, `"no_parser_for_format"`, `"parse_failed"` |
 
