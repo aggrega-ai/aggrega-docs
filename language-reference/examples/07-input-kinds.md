@@ -148,7 +148,7 @@ spec:
           admin: 9902
 
   artifacts:
-    "{{ .locals.app_cm }}.yaml": |
+    app-config.yaml: |
       apiVersion: v1
       kind: ConfigMap
       metadata:
@@ -158,7 +158,7 @@ spec:
           listen: 0.0.0.0:{{ .workload.containers.main.ports.web }}
           log_level: {{ optional .values `log_level` "info" }}
 
-    "{{ .locals.envoy_cm }}.yaml": |
+    envoy-config.yaml: |
       apiVersion: v1
       kind: ConfigMap
       metadata:
@@ -214,7 +214,7 @@ spec:
           memory: "{{ .infra.compute.memory }}"
 
   artifacts:
-    "{{ .locals.monitor_name }}.yaml": |
+    servicemonitor.yaml: |
       apiVersion: monitoring.coreos.com/v1
       kind: ServiceMonitor
       metadata:
@@ -228,7 +228,7 @@ spec:
             interval: 30s
 ```
 
-The Recipe mixes chart output with an additional ServiceMonitor artifact; both land in the output directory. Filename-collision detection verifies no chart template produced a file named `<monitor_name>.yaml`.
+The Recipe mixes chart output with an additional ServiceMonitor artifact; both land in the output directory. The artifact key is the output filename, used as written, so the build halts if a chart template also produced a file named `servicemonitor.yaml`.
 
 ## Example 25: External workload file (`workload: { $import: ... }`)
 
