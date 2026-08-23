@@ -4,6 +4,8 @@ A fatal halt is a compile-time error that stops the build before any output is p
 
 This catalog is organized by the stage of compilation at which each halt fires. Entries marked **[pending]** describe halts whose implementation is not yet complete; the rule is declared but the error message below is the intended user-facing behavior, not what currently ships.
 
+Each entry below quotes the **message** a build prints for the condition it documents: the fixed sentence stating the condition, then whatever that occurrence supplied. In a terminal that message appears inside a frame — a bracketed head carrying the category and the condition's short code, a pointer to the file and key at fault, and the message on the line beneath — so a whole line pasted from a build will not match an entry here, while the message inside it will; [error-translation.md](error-translation.md) sets out the frame in full.
+
 Arriving from a build with a short code in hand — the letter `E` and four digits, in the diagnostic's bracketed head — start at [Finding a halt from the short code the build printed](#finding-a-halt-from-the-short-code-the-build-printed) at the foot of this page, which lists every condition catalogued here against the short code a build prints for it.
 
 ## When loading your files
@@ -65,8 +67,8 @@ For a parameter declared `required: true` with no `default:` and no Release-supp
 A Release declares `parameters: { $import: <path> }` pointing at an external parameter file that does not exist, cannot be read, or cannot be parsed as YAML.
 
 Emitted message:
-> failed to read file: `<path>`: `<underlying-error>`
-> failed to unmarshal YAML: `<path>`: `<underlying-error>`
+> parameters $import: load failed (Release, at `.spec.parameters.$import: <path>`, failed to read file: `<underlying-error>`)
+> parameters $import: load failed (Release, at `.spec.parameters.$import: <path>`, failed to unmarshal YAML: `<underlying-error>`)
 
 **How to fix:** verify the `$import:` path is correct relative to the Release file, confirm the file exists and is readable by the build process, and check that its contents parse as valid YAML. If the file is committed to the repository, confirm the Release's build context can see it (for example, a gitignored `.env` file is not available during a CI build).
 
@@ -158,7 +160,7 @@ Emitted message:
 An authored instance name — a key under `components`, `subsystems`, `features`, `secrets`, a sub-aggregate alias, or a `uses:` alias — contains characters outside the allowed pattern `^[a-zA-Z0-9_-]+$`. Dots, spaces, slashes, and other punctuation are not permitted in user-authored instance names; the dot in particular is reserved as the compiler's internal path separator for nested-aggregate flattening.
 
 Emitted message:
-> invalid instance name `<name>` at `<field-path>`: must match `^[a-zA-Z0-9_-]+$` (kebab-case or snake_case; no dots).
+> invalid instance name: names must match `^[a-zA-Z0-9_-]+$` (letters, digits, hyphen, underscore; no dots) (Aggregate `<name>`, at `<field-path>`, instance name `<instance-name>` is invalid: must match `^[a-zA-Z0-9_-]+$`)
 
 **How to fix:** rename the offending instance to use only alphanumerics, hyphens, and underscores. If the name came from an auto-generated source, adjust the generator; if you intended to express a nested-aggregate path, use the sub-aggregate import mechanism rather than embedding a dot in the name.
 
@@ -189,10 +191,7 @@ The opening sentence is the same either way, which is what makes it the part of 
 The Manifest's mapping entry points at a Recipe whose `spec.implements:` declaration does not match the component-type key for that mapping entry. The check fires at workspace load time as a load-time consistency check (per the post-migration direct-URI-lookup model — `spec.implements` becomes a consistency check, not a dispatch mechanism).
 
 Emitted message:
-> CATALOG_ERROR: manifest mapping `"<component-type>"` -> `"<recipe-uri>"`: recipe spec.implements is `"<recipe-implements>"` (expected `"<component-type>"`, or a type `"<component-type>"` extends)
-
-Beneath that line the halt names the rule it violated, as a `caused by:` continuation — the nested-frame shape [error-translation.md](error-translation.md) describes:
-> caused by: manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key
+> manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key (manifest mapping `"<component-type>"` -> `"<recipe-uri>"`, recipe spec.implements is `"<recipe-implements>"`, expected `"<component-type>"`, or a type `"<component-type>"` extends)
 
 A mapping entry naming a Recipe the catalog does not hold is not this halt: the consistency check has nothing to compare against and skips the entry, and the unresolvable Recipe is reported when recipes are resolved.
 
@@ -209,7 +208,7 @@ A Manifest mapping value names a Recipe or FeatureRecipe in a shape the referenc
 The shape is judged as the Manifest is composed, before anything is looked up — the verdict comes from counting separators in a string, so it needs no catalog at all. Judging it there is what makes the diagnostic honest: the recipe the value *meant* is frequently present and correctly named, and being told it is missing sends you looking for the wrong thing. Every command that resolves a Release's dependencies reports it the same way, so it does not depend on which one you happen to run.
 
 Emitted message:
-> CATALOG_ERROR: malformed recipe reference in a Manifest mapping value: `spec.mappings.components.type.<key>` maps to `<value>`, which carries `<n>` slash-separated segments; a recipe reference accepts `"name"`, `"name:version"`, `"capability/name"` or `"capability/name:version"`; correct the mapping value in the Manifest
+> malformed recipe reference in a Manifest mapping value: `spec.mappings.components.type.<key>` maps to `<value>`, which carries `<n>` slash-separated segments; a recipe reference accepts `"name"`, `"name:version"`, `"capability/name"` or `"capability/name:version"`; correct the mapping value in the Manifest
 
 The `features` section and the per-provider mapping shape produce the same message against their own coordinate, and a feature recipe reference is named as such.
 
@@ -296,11 +295,11 @@ The **infra** pillar is the operator's sizing surface, and it is checked only wh
 **A leaf declared `sensitive: true` has its constraint failure withheld.** The failure text quotes the offending value, and a build diagnostic is read by anyone watching the build, so on a declared-sensitive leaf — or anywhere inside a declared-sensitive object — the `<constraint failure>` below reads `<redacted>` instead. The entity, the field path, the pillar and the contract name are all still named, so the diagnostic still tells you which leaf failed; only the text that would reproduce the value is dropped. Sensitivity is read per pillar, so a leaf named the same way in `values` and `infra` is withheld only in the pillar that declares it.
 
 Emitted message:
-> Aggregate `<name>` at `.spec.components.<component>.values.<field>`: values pillar does not conform to the Component schema: `<constraint failure>`.
-> Aggregate `<name>` at `.spec.components.<component>.infra.<field>`: infra pillar does not conform to the declared infra schema: `<constraint failure>`.
-> Aggregate `<name>` at `.spec.components.<component>.features.<attachment>.values.<field>`: values pillar does not conform to the Feature schema: `<constraint failure>`.
-> Aggregate `<name>` at `.spec.components.<component>.features.<attachment>.values.<field>`: values pillar does not conform to the Secret schema: `<constraint failure>`.
-> Aggregate `<name>` at `.spec.components.<component>.uses.<socket>.<alias>.values.<field>`: values pillar does not conform to the socket valueSchema: `<constraint failure>`.
+> authored pillar does not conform to its declared schema (Aggregate `<name>`, at `.spec.components.<component>.values.<field>`, values pillar does not conform to the Component schema: `<constraint failure>`)
+> authored pillar does not conform to its declared schema (Aggregate `<name>`, at `.spec.components.<component>.infra.<field>`, infra pillar does not conform to the declared infra schema: `<constraint failure>`)
+> authored pillar does not conform to its declared schema (Aggregate `<name>`, at `.spec.components.<component>.features.<attachment>.values.<field>`, values pillar does not conform to the Feature schema: `<constraint failure>`)
+> authored pillar does not conform to its declared schema (Aggregate `<name>`, at `.spec.components.<component>.features.<attachment>.values.<field>`, values pillar does not conform to the Secret schema: `<constraint failure>`)
+> authored pillar does not conform to its declared schema (Aggregate `<name>`, at `.spec.components.<component>.uses.<socket>.<alias>.values.<field>`, values pillar does not conform to the socket valueSchema: `<constraint failure>`)
 
 **How to fix:** correct the offending value to satisfy the declared schema, or — if the value is legitimate — widen the declaring schema (the Component's `schema.values`/`schema.infra`, or the attached Feature's/Secret's) to declare it. Inspect a Component's declared schema with `aggrega inspect <component-type>` to see the exact types, ranges, defaults, and required fields each pillar expects.
 
@@ -326,7 +325,7 @@ Once every Component has a resolved Recipe, the compiler stitches Components tog
 A `uses:` edge names a target component that does not exist in the resolved topology. The halt is origin-agnostic — a developer-authored Aggregate edge and a Release-wired edge are caught alike. A dangling target is a fatal halt, not a silent drop: an edge to a non-existent target would otherwise vanish and leave the consumer's injected values silently empty at deploy time. It is the structural sibling of the uses-socket allowlist — the socket must be declared *and* the target must resolve to an existing component before an edge is type-checked.
 
 Emitted message:
-> uses edge `<consumer>`/`<socket>`/`<alias>` targets `"<target>"`, which is not a component in the topology: uses edge target does not exist
+> uses edge target does not exist: uses edge `<consumer>`/`<socket>`/`<alias>` targets `"<target>"`, which is not a component in the topology
 
 **How to fix:** declare the missing target component, or correct the target name in the `uses:` entry to match an existing component.
 
@@ -339,7 +338,7 @@ A `uses:` block names a socket that the entity owning the surface does not decla
 A **component's own** `uses:` block is deliberately not one of those surfaces, so this halt does not fire for it. A developer owns the application's topology and may name a socket the catalog did not declare; catalog silence about a socket means the connection was not anticipated, not that it is forbidden. Such a socket is legal and its edge is built — what it gives up is the selector and the per-edge contract a declared socket carries. A misspelled socket name there is therefore not a halt but an ad-hoc connection of its own, and is reported as a warning naming both spellings — see [warnings.md](warnings.md) "Uses-socket near-miss lint".
 
 Emitted message:
-> socket `<socket-name>` not defined in component type `<component-type>` usesSchema (valid: `[<declared-sockets>]`)
+> unknown uses socket: name a socket the entity declares in its usesSchema — only a component's own uses block may name one the catalog did not declare (socket `<socket-name>` not defined in component type `<component-type>` usesSchema (valid: `[<declared-sockets>]`))
 
 The attachment arm names the feature type in place of the component type; an attached Feature that declares no `usesSchema` at all reports instead that `uses:` declarations are not allowed for it.
 
@@ -352,7 +351,7 @@ The attachment arm names the feature type in place of the component type; an att
 A Release per-edge `uses:` entry names a target that differs from the target the developer already wired for the same socket and alias. A Release may *configure* an edge the developer declared (set per-edge `infra`, naming the same target or omitting it) and may *wire* an edge into a declared-but-unbound socket, but it may not *retarget* an edge the developer declared — the developer owns the architecture they authored.
 
 Emitted message:
-> release edge `<consumer>`/`<socket>`/`<alias>` retargets developer-declared target `"<declared-target>"` to `"<release-target>"`: release edge retargets a developer-declared edge
+> release edge retargets a developer-declared edge: release edge `<consumer>`/`<socket>`/`<alias>` retargets developer-declared target `"<declared-target>"` to `"<release-target>"`
 
 **How to fix:** drop the differing `target` from the Release `uses:` entry to configure the existing edge (per-edge `infra` only), or, if the connection genuinely belongs to a different socket, wire it through a socket the developer left unbound. To change the target itself, change it in the Aggregate, where the topology is authored.
 
@@ -369,10 +368,10 @@ The alias is part of what an entry names, so an entry configuring an alias the d
 Two neighbouring conditions are reported by their own halts rather than this one, because each has more to tell you. A socket the consuming Component's `usesSchema` does not declare is reported as an undeclared socket, which can list the sockets that do exist. A `target:` naming no component is reported as a dangling target. A component switched off by an `active:` toggle takes its edges with it by design, so an entry left behind on one is accepted rather than halted.
 
 Emitted message, where the entry names a component that exists:
-> release edge `<consumer>`/`<socket>`/`<alias>` sets infra but no edge is bound there: an entry without a target configures an edge that must already exist, so give the entry a target to wire the edge or remove the entry.
+> release per-edge configuration has no edge to apply to: release edge `<consumer>`/`<socket>`/`<alias>` sets infra but no edge is bound there: an entry without a target configures an edge that must already exist, so give the entry a target to wire the edge or remove the entry
 
 Where it names one that does not:
-> release edge `<consumer>`/`<socket>`/`<alias>` sets infra on `<consumer>`, which is not a component in the topology.
+> release per-edge configuration has no edge to apply to: release edge `<consumer>`/`<socket>`/`<alias>` sets infra on `<consumer>`, which is not a component in the topology
 
 **How to fix:** add a `target:` to the entry, which wires the edge and applies the configuration to it; correct the alias to the one the Aggregate declared for that connection, so the entry configures the existing edge; correct the component name to one the Aggregate declares; or remove the entry if the configuration is no longer wanted.
 
@@ -413,7 +412,7 @@ Emitted message:
 The Aggregate and the Release both attach a feature with the same instance name, but each declares a different `type:`.
 
 Emitted message:
-> node `<node-id>` feature `<instance-name>`: existing type `<type-in-aggregate>` conflicts with `<type-in-release>`.
+> feature type mismatch between Aggregate and Release (node `<node-id>`, attachment `<instance-name>`, existing type `<type-in-aggregate>` conflicts with `<type-in-release>`)
 
 **How to fix:** either drop the `type:` from the Release (it will inherit from the Aggregate), or change one side so both declare the same type. The Release is allowed to omit `type:` or repeat the Aggregate's type, but it cannot substitute a different one.
 
@@ -504,11 +503,11 @@ The two values are the component type that declares the slot and the slot's own 
 An attachment binds a declared slot but does not match the shape that slot declares. The common case is delivery: a slot's `inject` allowlist names the mechanisms a fill may deliver its material through, and an empty allowlist is blackbox — the Recipe delivers the material internally and a fill may dictate no delivery at all. An attachment under a name no slot declares is a free attachment and carries no slot constraint.
 
 Emitted message:
-> Aggregate `<name>` at `.spec.components.<component>.features.<attachment>.<key>`: attachment does not conform to the declared slot shape: this key is not part of the slot's declaration — remove it, or declare it on the slot in the entity's featuresSchema
+> attachment does not conform to its declared slot shape (Aggregate `<name>`, at `.spec.components.<component>.features.<attachment>.<key>`, attachment does not conform to the declared slot shape: this key is not part of the slot's declaration — remove it, or declare it on the slot in the entity's featuresSchema)
 
 An attachment declared at a broader scope — subsystem-wide, cascading onto every component beneath it — is held to the same shape, and it is checked against the slot on each component it reaches. The same attachment can therefore be in shape for one component and out of shape for another, so this form names the component and the slot it failed against, and locates the attachment at the scope where it was declared rather than at a key inside its delivery block:
 
-> Aggregate `<name>` at `.spec.subsystems.<scope>.features["<attachment>"]`: this attachment is declared at a scope that reaches component `<component>`, whose attachment slot `<slot>` does not accept the delivery it carries: move the attachment down to the components that may receive it
+> attachment does not conform to its declared slot shape (Aggregate `<name>`, at `.spec.subsystems.<scope>.features["<attachment>"]`, this attachment is declared at a scope that reaches component `<component>`, whose attachment slot `<slot>` does not accept the delivery it carries: move the attachment down to the components that may receive it)
 
 **How to fix:** the two forms call for different edits, and the field path tells you which one you have. Where it names a key inside an attachment on a component, that key is the fault: remove it, or declare it on the slot in the entity's `featuresSchema` — adding the delivery mechanism to the slot's `inject` allowlist where the material is genuinely meant to reach the workload. Where it names an attachment at a scope, the attachment is well formed and its placement is the fault: move it down onto the components whose slot accepts the delivery, leaving outside its reach the components that reserve delivery to their Recipe.
 
@@ -522,11 +521,11 @@ The build reads this in two places, because the two see different sets of depend
 
 The first reads the connections you wrote in the Aggregate, and reports as your files are resolved. It names the delivery mechanism, the key, and then the socket and alias of the first connection in author order that also claims it:
 
-> Aggregate `<name>` at `.spec.components.<component>.inject.<mechanism>.<key>`: duplicate delivery key across inject sources (`"<mechanism>"`, `"<key>"`, `"<socket>"`, `"<alias>"`)
+> duplicate delivery key across inject sources (Aggregate `<name>`, at `.spec.components.<component>.inject.<mechanism>.<key>`, `"<mechanism>"`, `"<key>"`, `"<socket>"`, `"<alias>"`)
 
 The second reads the connections the finished topology carries, which includes any a Feature attachment contributed on your behalf. It runs before anything renders, and it names the delivery key you wrote alongside the dependency socket that also delivers it:
 
-> `<aggregate-path>` at `.spec.components.<component>.inject.<mechanism>.<key>`: duplicate delivery key across self-inject and uses-inject (`"<key>"`, socket `"<socket>"`)
+> duplicate delivery key across self-inject and uses-inject (`"<key>"`, socket `"<socket>"`)
 
 One authored key delivered through two dependency sockets reports once per socket, so a single build tells you about all of them rather than about whichever was reached first.
 
@@ -620,7 +619,7 @@ A FeatureRecipe's `provides:` follows the same locals rule: its own `locals:` re
 A `locals:` block resolves in the order its entries are written, and an entry reads only a sibling defined **above** it. A direct `.locals.<key>` reference to an entry the block defines later halts: the compiler never sorts or reorders the block to make the reference resolve, because emitted output would then follow an inference rather than what was authored. Without the halt the reference would resolve through the missing-key policy to an empty string, so a derived hostname or secret name would silently lose the segment it was built from.
 
 Emitted message:
-> Recipe `<recipe>` locals[`<key>`] references `<expression>`, but the locals block defines `<referenced>` later — entries resolve in author order and an entry reads only a sibling defined above it. Resolved at this point: `<the locals available here>`. To fix: define `<referenced>` above `<key>` in the locals block
+> locals entry references a sibling defined later in the same block (Recipe `<recipe>` locals[`<key>`] references `<expression>`, the locals block defines `<referenced>` later, entries resolve in author order and an entry reads only a sibling defined above it, resolved at this point: `<the locals available here>`). define `<referenced>` above `<key>` in the locals block
 
 **How to fix:** move the referenced entry above its reader. Reordering a `locals:` block is a behavioural change wherever one entry reads another, so the fix is exactly the reorder the message names. A self-reference — an entry naming its own key — cannot be fixed by reordering; compute the value from `.values` and `.infra` directly instead, which the message says in place of the move-it instruction.
 
@@ -631,10 +630,7 @@ Emitted message:
 A template reads `.locals.<key>` for a key the `locals:` block does not declare at all — a misspelling, or a key that was renamed or removed. Every surface that reads the pillar raises this halt: a `locals:` entry, a `provides:` template, and a Recipe `source:` template. The locals pillar is an open keyed map, so an unknown key under it passes the root check and would otherwise resolve to an empty string; the halt is what stops that empty value from reaching an emitted artifact.
 
 Emitted message:
-> Recipe `<recipe>` provides[`<key>`] references `<expression>`, but the locals block declares no `<referenced>` — it declares `<the keys it does declare>`. To fix: correct the key name
-
-Beneath that line the halt names the rule it violated, as a `caused by:` continuation:
-> caused by: template references a key the locals block does not declare
+> template references a key the locals block does not declare (Recipe `<recipe>` provides[`<key>`] references `<expression>`, the locals block declares no `<referenced>`, it declares `<the keys it does declare>`). correct the key name
 
 **How to fix:** correct the key name to one the block declares; the message lists them. The halt is distinct from the ordering halt above because the remedies differ — no reordering makes a key that does not exist resolve.
 
@@ -653,10 +649,10 @@ The halt fires identically whether the reference is bare or wrapped in a `defaul
 Which pillars are declared and which are open is a property of the surface, not something a template can influence: the compiler reads it from the shape of the render context it is about to deliver. That is what lets the typo halt and the optional key render on the same template.
 
 Emitted message when the root itself is not defined:
-> template `<template-name>` references `<dotted-path>` — the render context defines `<the roots that context defines>`
+> template references a root the render context does not define (template `<template-name>` references `<dotted-path>`, the render context defines `<the roots that context defines>`)
 
 And when the root is right but a key under a declared pillar is not:
-> template `<template-name>` references `<dotted-path>` — `<pillar>` defines `<the keys that pillar defines>`
+> template references a root the render context does not define (template `<template-name>` references `<dotted-path>`, `<pillar>` defines `<the keys that pillar defines>`)
 
 **How to fix:** correct the reference to one the diagnostic lists — most reports are a misspelling of `.values`, `.infra`, or `.context`, or of a key under `.context` or `.metadata`. Removing the fallback wrapper will not clear the halt, and adding one never suppressed it; the wrapper only ever hid which reference was wrong. If the data genuinely belongs to another node, it reaches this template through the inject pipe — wire it with a `uses[].inject` entry on the consumer and read it from `.context.inject` — rather than through a root of its own.
 
@@ -770,7 +766,7 @@ Emitted message:
 Two boundary contributors evaluate to the same physical assembly path but disagree on a property that must be uniform across the contributors at that path — for example, two boundaries assembling under the same `directory:` route through different providers, or one boundary declares a per-(path, provider) tuple a second boundary cannot satisfy.
 
 Emitted message:
-> OPS_ERROR: dispatch path produced multiple provider outputs: dispatch path `"<path>"` produced multiple provider outputs (`[<providers>]`); contributing boundaries `[<boundaries>]` resolve to the same path under their current `directory:` / `subDirectory:` settings; set distinct `subDirectory` values per provider or change one boundary's `directory`
+> dispatch path produced multiple provider outputs: dispatch path `"<path>"` produced multiple provider outputs (`[<providers>]`); contributing boundaries `[<boundaries>]` resolve to the same path under their current `directory:` / `subDirectory:` settings; set distinct `subDirectory` values per provider or change one boundary's `directory`
 
 **How to fix:** either give each boundary a distinct `directory:` (so they assemble to separate paths), or align the conflicting property across the contributors. The compose-bridge pattern intentionally collapses two sub-boundaries into one assembly path; that pattern requires both boundaries to target the same provider and to carry compatible cascade-resolved annotations.
 
@@ -781,7 +777,7 @@ Emitted message:
 Two boundaries that assemble to the same per-(path, provider) tuple contribute components with identical instance IDs. The merged assembly cannot disambiguate the two component fragments — a single Helm chart cannot carry two Deployments named `web-server`, and a single docker-compose file cannot carry two services named `api`.
 
 Emitted message:
-> TRANSLATION_ERROR: multiple contributors share an instance ID at the same dispatch path: dispatch path `"<path>"` provider `"<provider>"` already contains node `"<instance-id>"` (contributing boundaries: `[<boundaries>]`); component instance IDs must be unique within an assembly group
+> multiple contributors share an instance ID at the same dispatch path: dispatch path `"<path>"` provider `"<provider>"` already contains node `"<instance-id>"` (contributing boundaries: `[<boundaries>]`); component instance IDs must be unique within an assembly group
 
 **How to fix:** rename one of the colliding components in the Aggregate, or split the two boundaries onto separate `directory:` paths so each component instance lands in its own assembly.
 
@@ -815,10 +811,10 @@ A provider reports separately for each part of a component it renders, so the sa
 The build halts rather than keeping one and discarding the other. There is no correct silent resolution: keeping the first would drop a resource you declared out of the output entirely and leave the build reporting success, and anything that referenced the dropped one would quietly resolve to the surviving one instead. Every colliding name is reported, grouped by the kind of name it is, with every contributor that derived it named — so one build tells you the whole picture rather than one collision at a time. A contributor whose own output carries the name twice is marked `(more than once)` after its name, which is what tells you the two things to separate are inside that one component rather than between two of them.
 
 Emitted message, where two contributors derived the name:
-> TRANSLATION_ERROR: derived name collision: one name is derived more than once in one key space: assembly path `<path>` provider `<provider>`: in key space `<kind-of-name>` the name `<name>` is derived by `<contributor-1>` and `<contributor-2>`; change what is derived so each name is derived once within its space
+> derived name collision: one name is derived more than once in one key space: assembly path `<path>` provider `<provider>`: in key space `<kind-of-name>` the name `<name>` is derived by `<contributor-1>` and `<contributor-2>`; change what is derived so each name is derived once within its space
 
 Emitted message, where one contributor's output carries the name twice:
-> TRANSLATION_ERROR: derived name collision: one name is derived more than once in one key space: assembly path `<path>` provider `<provider>`: in key space `<kind-of-name>` the name `<name>` is derived by `<contributor>` (more than once); change what is derived so each name is derived once within its space
+> derived name collision: one name is derived more than once in one key space: assembly path `<path>` provider `<provider>`: in key space `<kind-of-name>` the name `<name>` is derived by `<contributor>` (more than once); change what is derived so each name is derived once within its space
 
 **How to fix:** where two contributors are named, rename one of them in the Aggregate, so the names derived from it no longer agree with the other's. Where both names are derived from something you set explicitly — a value the Recipe feeds the provider, or an annotation the provider reads — change that instead on whichever of the two you control. Where the two contributors genuinely belong to separate outputs, give their boundaries distinct `directory:` paths so each assembles on its own and the two names never meet. Where a single contributor is named and marked, the two colliding things are both inside that one component: find the two resources its Recipe produces whose names agree, and change what one of them is named after — the key it is declared under, or a value it is built from — so the provider derives a distinct name for each.
 
@@ -835,7 +831,7 @@ The halt gives the derived export name together with the four parts it was built
 The comparison is scoped to one stack: the export names that stack declares, against the names derived for the cross-boundary references publishing into it. Two stacks are not compared against each other, and an export name written as a CloudFormation intrinsic resolves at deploy time, so there is no name to compare. What a name meets among the exports already deployed into an account and region is a property of the deployment, which a build does not observe.
 
 Emitted message — the publish's own detail; the surrounding report also names the `uses` edge being wired:
-> TRANSLATION_ERROR: cloudformation-provider: an export name a cross-boundary link derives is already declared by another Outputs entry in the same stack: the link derives the export name `<export-name>` for provides key `<provides-key>` of component `<component>` in boundary `<boundary>` of deployment `<deployment>`, and another Outputs entry of the same stack already declares that same export name — that declaration sits under the stack output `<stack-output>`, a name this provider assembles rather than one a Recipe wrote; each shadowing Outputs entry spells its export name exactly as the halt does, so searching your Recipes for that name reaches the entry — rename the export name the entry declares, or remove that entry's Export block and let the link publish the export
+> cloudformation-provider: an export name a cross-boundary link derives is already declared by another Outputs entry in the same stack: the link derives the export name `<export-name>` for provides key `<provides-key>` of component `<component>` in boundary `<boundary>` of deployment `<deployment>`, and another Outputs entry of the same stack already declares that same export name — that declaration sits under the stack output `<stack-output>`, a name this provider assembles rather than one a Recipe wrote; each shadowing Outputs entry spells its export name exactly as the halt does, so searching your Recipes for that name reaches the entry — rename the export name the entry declares, or remove that entry's Export block and let the link publish the export
 
 **How to fix:** search your Recipes for the export name the halt names — the `Outputs` entry declaring it spells it identically — then either rename that export name so it no longer matches, or remove that entry's `Export:` block and let the cross-stack wiring publish the export itself. Removing it is usually the right move where the entry existed to export the same value the edge consumes: the provider publishes an `Export` for that value anyway, so the authored one adds nothing. Keep the authored `Export:` and rename it instead where the entry exports the value for a different consumer that imports it under a name you chose.
 
@@ -846,7 +842,7 @@ Emitted message — the publish's own detail; the surrounding report also names 
 Two or more boundaries contribute to the same `helm-chart`-provider assembly path but their effective `aggrega.ai/chart-name` annotations (resolved through the boundary annotation cascade) do not agree. A Helm umbrella chart has exactly one chart name; the renderer cannot pick one of the conflicting candidates.
 
 Emitted message:
-> TRANSLATION_ERROR: merged-path assembly has conflicting assembly-name annotation values: boundaries `<boundaries>` merge to assembly path `<path>` under provider `<provider>` but their effective `<annotation>` annotations resolve to different values: `<values>`; the merged assembly has exactly one name; cascade or declare matching values explicitly
+> merged-path assembly has conflicting assembly-name annotation values: boundaries `<boundaries>` merge to assembly path `<path>` under provider `<provider>` but their effective `<annotation>` annotations resolve to different values: `<values>`; the merged assembly has exactly one name; cascade or declare matching values explicitly
 
 **How to fix:** declare a matching `aggrega.ai/chart-name` annotation on every contributing boundary (the cascade mechanism makes this DRY when the contributors share a parent boundary — declare once on the parent), or split the boundaries onto separate `directory:` paths so each gets its own umbrella chart.
 
@@ -857,7 +853,7 @@ Emitted message:
 A FeatureRecipe with `executionScope: boundary` references a per-component-only field such as `.context.instance_id`, `.context.inject`, or `.context.uses` — fields that have no meaningful value at boundary scope. The mirror condition holds: a component-scope FeatureRecipe (the default) referencing `.boundary.*` fields fails the same validator. Validation runs at parse time against the relevant scope's field allowlist before any rendering work begins.
 
 Emitted message:
-> CATALOG_ERROR: FeatureRecipe template references a per-component-only field with executionScope: boundary: FeatureRecipe `<name>` with `executionScope: boundary` references per-component-only field `<dotted-path>` in `<label>`; boundary-scope FRs use `.boundary.*` pillars in place of `.context.*` / `.workload` / `.attachment_name` / `.inject` — see the FeatureRecipe entity reference
+> FeatureRecipe template references a per-component-only field with executionScope: boundary: FeatureRecipe `<name>` with `executionScope: boundary` references per-component-only field `<dotted-path>` in `<label>`; boundary-scope FRs use `.boundary.*` pillars in place of `.context.*` / `.workload` / `.attachment_name` / `.inject` — see the FeatureRecipe entity reference
 
 **How to fix:** rewrite the template against the scope's available fields, or change the FeatureRecipe's `executionScope`. Boundary-scope FRs reference `.boundary.path`, `.boundary.boundary_name`, `.boundary.components`, the `.boundary.*_uses_edges` collections, `.boundary.labels`, `.boundary.annotations`, and `.boundary.feature_attachments`. Component-scope FRs reference `.context.instance_id`, `.context.inject`, `.context.uses`, `.context.labels`, `.context.annotations`. Both scopes share `.values`, `.infra`, `.locals`, `.provides`, `.steps`, and `.metadata`. A Release parameter is not a pillar of its own on this surface — it reaches a FeatureRecipe template through a `values` or `infra` entry that references it.
 
@@ -870,7 +866,7 @@ A component-level `inject:` `value:` template pulls from `.context.inject` or `.
 The surface's `.context` is what makes this so: it carries `instance_id`, `labels` and `annotations`, and nothing else. `.context.inject` and `.context.uses` are therefore keys this surface's context does not define, and the reference halts as "Template references a root the render context does not define" above, at parse time, before anything renders. The diagnostic names the mechanism and delivery key the template belongs to, and lists the keys `.context` does define here — so the same report covers a genuine reach for cross-node data and a plain misspelling such as `{{ .context.nmae }}`, which is the commoner mistake and would otherwise have rendered as nothing.
 
 Emitted message — the reference-level detail; the surrounding report also names the node, the mechanism and the delivery key:
-> template `self-inject.<mechanism>[<key>]` references `.context.inject` — `.context` defines `.context.instance_id`, `.context.labels`, `.context.annotations`
+> template references a root the render context does not define (template `self-inject.<mechanism>[<key>]` references `.context.inject`, `.context` defines `.context.instance_id`, `.context.labels`, `.context.annotations`)
 
 Every frame of the report is in the developer domain, because a component-level `inject:` block is authored in the Aggregate.
 
