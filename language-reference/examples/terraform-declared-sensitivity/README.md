@@ -13,13 +13,20 @@ them.
 
 ## What the build emits
 
-Under `dist/infra/terraform/`:
+Under `dist/infra/terraform/`, the boundary's root configuration:
+
+- `aggrega.modules.tf` — declaring `store` as a `module` block whose `source` is
+  `./modules/store`. Every terraform boundary gets one.
+
+Under `dist/infra/terraform/modules/store/`, the `store` component's own files:
 
 - the module files copied **byte-for-byte** — `variables.tf` and `main.tf`,
   exactly as the module author wrote them;
-- `aggrega.auto.tfvars.json` — the overlay Terraform loads automatically,
-  carrying the resolved input variables in deterministic key order;
-- `aggrega_override.tf.json` — the sensitivity marking, described below;
+- `aggrega.auto.tfvars.json` — the resolved input variables in deterministic key
+  order;
+- `aggrega_override.tf.json` — the sensitivity marking, described below. It sits
+  beside the module's own files because Terraform merges an override into the
+  configuration in its own directory;
 - `aggrega.provenance.tf` — a `#`-comment file identifying the build (the JSON
   files cannot carry a comment, so provenance rides in its own file).
 

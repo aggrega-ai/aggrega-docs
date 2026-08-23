@@ -7,14 +7,19 @@ then generates a variables overlay from the developer and operator pillars.
 
 ## What the compiler emits
 
-Under `dist/infra/terraform/` the build produces:
+Under `dist/infra/terraform/` the build produces the boundary's root
+configuration, and under `dist/infra/terraform/modules/db/` the `db` component's
+own files:
 
+- `aggrega.modules.tf` at the boundary root — the root configuration, declaring
+  `db` as a `module` block whose `source` is `./modules/db`. Every terraform
+  boundary gets one, and it is what puts a boundary's components in a single
+  Terraform configuration;
 - the module files copied **byte-for-byte** (`variables.tf`, `main.tf`,
   including any `${...}` interpolation the module author wrote);
-- `aggrega.auto.tfvars.json` — the overlay Terraform loads automatically,
-  carrying the resolved input variables in deterministic key order. The
-  `subnet_id` value is a Terraform `${...}` pointer supplied by the Recipe and
-  piped through untouched;
+- `aggrega.auto.tfvars.json` — the resolved input variables in deterministic key
+  order. The `subnet_id` value is a Terraform `${...}` pointer supplied by the
+  Recipe and piped through untouched;
 - `aggrega.provenance.tf` — a `#`-comment file identifying the build (the JSON
   overlay cannot carry a comment, so provenance rides in its own file).
 

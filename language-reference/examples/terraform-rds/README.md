@@ -29,7 +29,9 @@ never runs `terraform`; it produces the HCL a downstream `terraform apply` runs.
 ./build-release.sh
 ```
 
-The rendered `main.tf` lands under `dist/infra/terraform/`. It opens with a
+The rendered `main.tf` lands under `dist/infra/terraform/modules/db/`, with the
+boundary's root configuration, `aggrega.modules.tf`, at `dist/infra/terraform/`
+declaring `db` as a `module` block pointing at it. The body opens with a
 `#`-comment provenance block identifying the build, followed by the resolved
 `aws_db_instance` resource — storage, HA, and backup values substituted from
 the Release, and RDS-managed credentials via `manage_master_user_password`.

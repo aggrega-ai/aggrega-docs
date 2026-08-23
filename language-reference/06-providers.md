@@ -15,5 +15,5 @@ The chapter organises into two clusters. **Architecture and shared contracts** c
 - [`helm`](providers/helm.md) — the core Kubernetes provider. Helm SDK rendering in sourced mode.
 - [`helm-chart`](providers/helm-chart.md) — the umbrella-chart composition provider. Packages multiple components into a single Helm chart per boundary.
 - [`compose`](providers/compose.md) — the Docker Compose provider. Per-boundary `docker-compose.yaml` output.
-- [`terraform`](providers/terraform.md) — the Terraform provider. Writes each node's configuration at the node's own path, with no per-boundary merge.
+- [`terraform`](providers/terraform.md) — the Terraform provider. One root configuration per boundary, with each component a module block sourcing that component's own sub-directory.
 - [`cloudformation`](providers/cloudformation.md) — the CloudFormation provider. One stack template per boundary, emitted as pure JSON.

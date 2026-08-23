@@ -2,14 +2,34 @@
 
 The terraform provider renders Aggrega Recipes into Terraform configuration. It emits configuration and **never runs Terraform**: an Aggrega build is an ahead-of-time compilation, so it cannot resolve the resource IDs, IP addresses, and outputs that only exist after `terraform apply`. Terraform's `${ ... }` interpolations pass through untouched as deterministic pointer strings that the Terraform runtime resolves later. The provider is offline and hermetic — it never touches the network and never invokes `terraform` or `tofu`.
 
-The terraform provider writes each node's files directly at the node's evaluated path; it performs no per-boundary merge or umbrella step. Two nodes rendered by the terraform provider produce two independent file sets.
+## How a boundary is laid out
+
+The terraform provider composes a boundary rather than emitting its components side by side. Every boundary it renders gets one **root configuration**, `aggrega.modules.tf`, declaring each component rendered there as a `module` block whose `source` is that component's own sub-directory under `modules/`:
+
+```hcl
+module "cache" {
+  source = "./modules/cache"
+}
+
+module "db" {
+  source = "./modules/db"
+}
+```
+
+Each component's own files — the vendored module, the generated overlay, the provenance stamp — sit in the sub-directory its block points at. This is Terraform's standard root-composes-children structure, whose convention is that nested modules live under a `modules/` sub-directory, and it is the layout every terraform boundary gets, whether it holds one component or several.
+
+The shape is load-bearing rather than cosmetic, for two reasons.
+
+**A Terraform dependency graph is per-configuration.** Components emitted into separate directories are separate graphs with no relationship: neither a reference nor a `depends_on` can reach from one to another, and no single `terraform plan` sees both. One root composing each component as a child module puts a whole boundary in one graph and one plan.
+
+**A component's files are addressed by its own directory.** Two components in one boundary can vendor modules that write identically-named files — `main.tf`, `variables.tf`, the generated overlay — and each set sits under its own component's directory rather than contending for one path.
 
 ## Supported input kinds
 
 The terraform provider accepts two of the three Recipe input kinds:
 
 - **Artifacts mode.** A Recipe authors Terraform configuration as a templated body; the provider evaluates the Aggrega template and emits the result verbatim, byte-for-byte. HCL (`main.tf`) is the ergonomic default, and Terraform JSON (`.tf.json`) is accepted equivalently. Build provenance is stamped as a Terraform comment; for a JSON body — which has no comment syntax — provenance is written as a companion file rather than inline.
-- **Sourced mode.** A Recipe references a Terraform module with `source:`. The module's files are vendored verbatim into the node's output, and the Recipe's `valuesMapping:` overlays the module's input variables as an auto-loaded `aggrega.auto.tfvars.json`. The module body is preserved exactly as authored; only the generated `.tfvars.json` carries Aggrega-supplied values. Where the node's declared `values` leaves become the module's inputs directly — a `source:` Recipe with no `valuesMapping:` — an input carrying material an author declared sensitive also gets a generated override file carrying Terraform's own sensitivity attribute; a `valuesMapping:` template invents its output names, so that case carries no marking. Both are described under [Declared-sensitive module inputs](#declared-sensitive-module-inputs).
+- **Sourced mode.** A Recipe references a Terraform module with `source:`. The module's files are vendored verbatim into the node's output, and the Recipe's `valuesMapping:` becomes `aggrega.auto.tfvars.json`, written beside the module's own files in that component's directory. The module body is preserved exactly as authored; only the generated `.tfvars.json` carries Aggrega-supplied values. Where the node's declared `values` leaves become the module's inputs directly — a `source:` Recipe with no `valuesMapping:` — an input carrying material an author declared sensitive also gets a generated override file carrying Terraform's own sensitivity attribute; a `valuesMapping:` template invents its output names, so that case carries no marking. Both are described under [Declared-sensitive module inputs](#declared-sensitive-module-inputs).
 
 The **synthesized** input kind is not offered. There is no faithful, capability-agnostic mapping from the platform Workload kind to arbitrary Terraform resources, so a Recipe that declares `workload:` against the terraform provider is a loud error rather than an invented translation.
 
@@ -39,7 +59,7 @@ Terraform merges a configuration file whose name is the bare `override` or ends 
 
 **The marking travels only where the input's identity is recoverable from the declaration.** A Recipe that vendors a module with `source:` and lets the node's declared `values` leaves become the module's inputs directly gives each input the same name the author declared, so the link is exact. A Recipe that reshapes those values through a `valuesMapping:` template invents its output names, and no declaration names them — so the marking is absent rather than approximated. Absence is deliberate: guessing which reshaped input carried the declared datum would mark a public input as secret, and Terraform would then suppress a value from plan output that was never sensitive.
 
-The worked example [`terraform-declared-sensitivity`](../examples/terraform-declared-sensitivity/) builds this end to end and is small enough to read in full: one component declaring three `values` leaves, of which two carry public identifiers and one carries the credential. Its rendered output shows the overlay binding all three module inputs and the override naming only the declared one, so both halves of the rule are visible in the same build — including that a credential *identifier* sitting beside the secret is left unmarked. Removing the one declaration and rebuilding emits no override file at all.
+The worked example [`terraform-declared-sensitivity`](../examples/terraform-declared-sensitivity/) builds this end to end and is small enough to read in full: one component declaring three `values` leaves, of which two carry public identifiers and one carries the credential. Its rendered output shows the overlay carrying all three module inputs and the override naming only the declared one, so both halves of the rule are visible in the same build — including that a credential *identifier* sitting beside the secret is left unmarked. Removing the one declaration and rebuilding emits no override file at all.
 
 ### What Terraform's `sensitive` does and does not guarantee
 
@@ -59,7 +79,7 @@ The terraform provider validates a sourced module's structure **before** it rend
 
 A post-render FeatureRecipe `pipeline` step patches only output the provider renders into a **structured tree**. For terraform this means:
 
-- **JSON-authored Terraform is patchable.** A `.tf.json` module and the auto-loaded `aggrega.auto.tfvars.json` overlay are structured documents, so a pipeline step's JSONPatch edits the addressed values in place and leaves every other byte — ordering, formatting, surrounding keys — untouched.
+- **JSON-authored Terraform is patchable.** A `.tf.json` module and the `aggrega.auto.tfvars.json` overlay are structured documents, so a pipeline step's JSONPatch edits the addressed values in place and leaves every other byte — ordering, formatting, surrounding keys — untouched.
 - **Native HCL is opaque.** A native-HCL body (`main.tf`) is not a structured patch target. A patch against an opaque body halts the build with a diagnostic rather than mutating text it cannot address structurally; authoring a pipeline step against an HCL body is a design error surfaced as a loud halt, not a silent no-op.
 
 An author who needs a Terraform body to be pipeline-patchable therefore authors it as `.tf.json` (or drives the values through the `.tfvars.json` overlay). See [FeatureRecipe](../entities/featurerecipe.md) for the general patch-target boundary across providers.
@@ -70,7 +90,7 @@ A Release boundary's `syncWave:` value does not order Terraform configuration. T
 
 The value is not discarded: it is recorded with the rest of the node's build provenance, as `aggrega.ai/sync-wave` in the stamped comment block, or in the companion provenance file where the body is JSON. A rendered configuration therefore records which wave its boundary declared without that record changing anything Terraform does.
 
-Ordering between Terraform resources stays Terraform's own concern. Express it with the module's own `depends_on` and reference expressions, which the provider emits verbatim like every other part of the body.
+Ordering between Terraform resources stays Terraform's own concern. Express it with the module's own `depends_on` and reference expressions, which the provider emits verbatim like every other part of the body. What the boundary layout above contributes is that such an expression is now *sayable* between two components: because a boundary's components are child modules of one root configuration, they sit in one dependency graph, where before — as separate configurations — no expression could reach from one to the other at all.
 
 ## Related references
 
