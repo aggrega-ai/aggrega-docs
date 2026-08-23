@@ -300,13 +300,14 @@ _Additional properties are not permitted._
 
 ### `AssembleBoundaryOutput`
 
-The payload a Provider guest returns from its assemble_boundary export: the serialized bytes of each assembled file, any diagnostics the guest raised while assembling, and whether the orchestrator nests each contributor's per-node files under a per-node sub-directory. The guest returns each file's serialized bytes; the host writes them verbatim and runs no serializer. Determinism is the guest's responsibility: identical input must produce identical bytes.
+The payload a Provider guest returns from its assemble_boundary export: the serialized bytes of each assembled file, any diagnostics the guest raised while assembling, whether the orchestrator nests each contributor's per-node files under a per-node sub-directory, and the directory it nests them under. The guest returns each file's serialized bytes; the host writes them verbatim and runs no serializer. Determinism is the guest's responsibility: identical input must produce identical bytes.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `files` | RenderedFile[] | yes | The assembled output files the guest emitted, in emission order. Each names its on-disk path and carries the serialized bytes the host writes verbatim. |
 | `diagnostics` | Diagnostic[] | no | Diagnostics the guest raised while assembling. Each element is the shared Wasm-plugin diagnostic shape. |
-| `nest_per_node` | boolean | no | Whether the orchestrator nests each contributor's per-node files under charts/<nodeID>/ rather than emitting them flat; the assembler signals this per provider (compose emits flat, so false; an umbrella-chart assembler nests, so true). |
+| `nest_per_node` | boolean | no | Whether the orchestrator nests each contributor's per-node files under a per-node sub-directory rather than emitting them flat; the assembler signals this per provider (an assembler that folds the per-node fragments into one document emits flat, so false; one that composes them into an enclosing structure nests, so true). The directory those sub-directories sit under is nest_segment. |
+| `nest_segment` | string | no | The directory a nesting assembler places each contributor's per-node files under: the orchestrator joins this segment, the node's identity, and each file's own path. Read only when nest_per_node is true. Absent, the orchestrator applies its own default segment, so an assembler that names none keeps the layout it already emitted. The value names one directory and never a path: a value carrying a path separator, or naming the current or the parent directory, is refused, because the orchestrator composes the node identity into it and a path fragment would place a node's files somewhere other than beneath the dispatch position. |
 | `error` | string | no | A failure message set when the guest ran but could not complete the operation; absent on success. It is distinct from any diagnostics the output carries: diagnostics report issues found during a run that still produced a result, while error reports that the operation itself did not complete. The host surfaces a present error as a failed plugin invocation. |
 
 _Additional properties are not permitted._

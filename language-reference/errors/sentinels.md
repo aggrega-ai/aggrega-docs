@@ -657,6 +657,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0247` | `pluginstrust/verdict-attachment-not-configured` | `a plugin recorded as trusted for an accept-or-reject verdict is no longer attached at any verdict role` |
 | `E0248` | `wasm/wasm-output-shape` | `wasm: guest plugin returned an output that is not the shape the socket reads` |
 | `E0249` | `cloudformation-provider-cfncore/link-export-name-shadowed` | `cloudformation-provider: an export name a cross-boundary link derives is already declared by another Outputs entry in the same stack` |
+| `E0250` | `compiler-renderer/nest-segment-not-one-directory` | `boundary assembler named a per-node sub-directory that is not a single directory name` |
 <!-- END GENERATED: condition-short-codes -->
 
 ## Matching guidance

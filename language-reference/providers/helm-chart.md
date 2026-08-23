@@ -59,7 +59,7 @@ A nil or empty source is rejected; helm-chart has no sourceless or generative fa
 
 The provider runs in two phases per assembly path:
 
-1. **Per-node copy.** For each node bound to a helm-chart Recipe, the provider copies the source chart's full directory tree into a sub-chart slot. Files land flat in the per-node output map; the orchestrator nests them under `charts/<instance_id>/` when assembling the umbrella.
+1. **Per-node copy.** For each node bound to a helm-chart Recipe, the provider copies the source chart's full directory tree into a sub-chart slot. Files land flat in the per-node output map; the assembler names `charts` as the sub-directory its contributors sit under, and the orchestrator nests them at `charts/<instance_id>/` when assembling the umbrella.
 2. **Per-`(path, provider)` umbrella assembly.** Once all per-node copies for the path complete, the assembler emits an umbrella `Chart.yaml` + `values.yaml` at the assembly path's root. The umbrella declares one dependency per contributing node and routes per-node values under instance-id-keyed sub-blocks. When the assembly path receives contributors from more than one boundary (boundaries with shared `directory:`), every contributor lands as a dependency in the same umbrella.
 
 The umbrella `Chart.yaml` has the shape:
