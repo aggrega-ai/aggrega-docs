@@ -40,7 +40,7 @@ To prevent a developer from bypassing the internal catalog and pulling a naked `
 
 ```javascript
 // Evaluated by the governance ir-verdict role over the assembled graph
-export function validate(graph) {
+export function verdict_ir(graph) {
     let failures = [];
     for (const [id, node] of Object.entries(graph.nodes)) {
         if (!node.values.owner) {
@@ -61,7 +61,7 @@ A developer may wire an edge through a socket the catalog did not declare — an
 
 ```javascript
 // Evaluated by the governance ir-verdict role over the assembled graph
-export function validate(graph) {
+export function verdict_ir(graph) {
     return graph.edges
         .filter((e) => e.socket_declaration === "ad-hoc")
         .map((e) => ({

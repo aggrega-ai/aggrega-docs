@@ -183,8 +183,9 @@ nothing more.
 
 The socket contract is Aggrega's own ABI, not any policy engine's. That is what
 lets any policy technology compiled to Wasm serve as a drop-in guest: the guest
-speaks the Aggrega `describe()` / `validate` surface outward, and whatever
-engine it uses is an implementation detail behind that surface.
+speaks the Aggrega surface outward — `describe()`, plus the export the role it
+serves calls — and whatever engine it uses is an implementation detail behind
+that surface.
 
 A guest that wraps a foreign policy engine **absorbs that engine's ABI inside
 itself**. If the engine has its own Wasm ABI, its own entrypoints, or its own
@@ -1020,7 +1021,8 @@ plugins:
               severity: halt
 ```
 
-Each role selects a default entry function — `validate` for both verdict roles,
+Each role selects a default entry function — `verdict_ir` for the role that judges
+the graph, `verdict_render` for the role that judges the rendered artifacts,
 `mutate` for the label-shaping role, `transform_annotations` for the
 annotation-injecting role — and an attachment may point a role at a different export
 with `function:`. The host refuses a dispatch to an export the guest did not declare
