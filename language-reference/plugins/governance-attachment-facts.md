@@ -1,0 +1,332 @@
+# The attachment facts a governance policy reads
+
+A governance plugin attached at the `ir-verdict` role receives the whole build
+graph, and every Feature attachment in the deployment arrives with it. Each
+attachment carries a fixed set of facts about itself: which Feature it names,
+which slot it fills, what the catalog author declared about it, what the
+deployment authored into it, and whether it handles material someone declared
+sensitive.
+
+This page enumerates those facts and says what each one does and does not
+claim. For the socket itself — the four roles, the verdict severities, the
+operator input channel, and the two policy engines that ship inside the
+compiler — see [`policy-socket.md`](policy-socket.md). For the field-by-field
+table with types and requiredness, see the generated
+[graph schema reference](../schema/other/ir.md); this page teaches how to read
+the facts, and that page is the contract.
+
+## Where the attachments sit in the payload
+
+Attachments hang off the build graph under `feature_values_mapping`, keyed by
+node id and then by the instance name the author gave each attachment:
+
+```
+input.graph.spec.feature_values_mapping[<node id>][<attachment name>]
+```
+
+The attachment name is load-bearing rather than decorative. It is the key a
+deployment fills a slot by, so it is also what the compiler pairs against the
+host Component's declared slots.
+
+```rego
+package security
+
+import rego.v1
+
+deny contains msg if {
+    some node_id, attachments in input.graph.spec.feature_values_mapping
+    some name, attachment in attachments
+    attachment.binding == "free"
+    msg := sprintf("%v carries attachment %v, which fills no declared slot.", [node_id, name])
+}
+```
+
+**Only `ir-verdict` sees these facts.** A `render-verdict` policy receives the
+rendered artifacts and no graph; a `label-transform` policy receives a
+labels-only projection of the nodes, which carries no attachments at all; an
+`annotation-transform` policy receives the components it may annotate. A rule
+that reads attachment facts belongs at `ir-verdict`, and moving it to another
+role produces a rule that never fires rather than an error, because a path that
+is not there is simply undefined.
+
+## One bucket, every attachment family
+
+Every attachment on a node sits in the same bucket whatever its Feature
+produces — an operational Feature, a credential Feature, an identity Feature.
+No family gets a narrower projection than another, so a policy that walks the
+bucket sees all of them and never has to know which family it is looking at
+before it can read a fact.
+
+## Identity: `type` and `resolved_version`
+
+`type` is the URI of the catalog Feature the attachment names.
+`resolved_version` is the exact version resolution settled on for this build.
+Both are always present.
+
+## Catalog metadata, carried verbatim: `labels` and `catalog_annotations`
+
+`labels` are the attached Feature entity's own `metadata.labels`.
+`catalog_annotations` are that entity's own `metadata.annotations`. Both are
+carried in the order the catalog entity declares them, and neither is filtered,
+normalised, or prefix-stripped — a key in the catalog author's own namespace
+arrives exactly as written, and the compiler reads none of them.
+
+That verbatim carry is what lets a policy be keyed on a label the compiler has
+no reason to know exists. A catalog author who marks credential Features with a
+label of their own invention can write a rule against that label directly.
+
+Both are empty when the Feature declares none, and when its `type` resolves to
+no catalog entity.
+
+`catalog_annotations` describes the **entity the attachment names**. It is a
+different question from `annotation_key` and `annotation_source` below, which
+describe **how the attachment came to exist**. An attachment written in a
+`features:` block carries catalog annotations while carrying neither of the
+other two.
+
+## Which slot the attachment fills: `binding`
+
+`binding` has three answers, and the third is not a variant of the second:
+
+| Value | Meaning |
+| --- | --- |
+| a slot name | The attachment fills the host Component's declared attachment slot of that name. |
+| `free` | The attachment fills no declared slot. This is a positive finding: the slot set was resolved and no declared slot carries this name. |
+| absent | The host Component's declared slot set could not be resolved, so which slot is filled is unknown. |
+
+The pairing is by name — a deployment fills a slot by attaching a Feature under
+the slot's name — so the value is an exact key from the resolved Component's
+declared slot set. Nothing is read out of the name's own text. The slot name is
+carried rather than a bare flag because *which* slot was filled is the more
+useful half of the answer.
+
+A policy that treats an absent `binding` as `free` will report an unknown as a
+finding. Test for `free` explicitly.
+
+## How the attachment came to exist: `origin` and its two companions
+
+`origin` distinguishes an attachment a developer typed from one the
+annotation-driven expansion produced:
+
+| Value | Meaning |
+| --- | --- |
+| `explicit` | Authored in a `features:` block. |
+| `annotation` | Produced by annotation-driven expansion. |
+| `mixed` | The attachment's value or infra leaves carry a mix of both; the per-leaf detail is in the provenance maps. |
+
+`annotation_key` names the annotation that triggered a synthetic attachment,
+and `annotation_source` locates its declaration as
+`<release-file-path>:<dotted-yaml-key-path>`. Both are empty when `origin` is
+`explicit`.
+
+## The authored payloads: `values`, `infra`, and `inject`
+
+`values` is the attachment's operational configuration — the developer's
+domain. `infra` is its per-instance physical sizing — the operator's. `inject`
+is the agnostic injection routing, mapping delivery keys to the `provides` keys
+they fill from, keyed first by delivery mechanism.
+
+What a credential attachment's `values` carries is the author's choice, and the
+compiler carries whichever was written without resolving either: a by-reference
+credential carries a pointer into a secret store, and a by-value one carries
+the material itself.
+
+## Where each authored leaf came from: `values_provenance` and `infra_provenance`
+
+Each is keyed by the dotted leaf path within its pillar, and each entry records
+that leaf's `origin` — the same `explicit` / `annotation` distinction, applied
+one leaf at a time. An annotation-contributed leaf additionally carries the
+authoring surface it was declared on, the annotation key that contributed it,
+and that declaration's source location. Where an explicit leaf overwrote an
+annotation-contributed one, the entry also carries the suppressed contribution
+it replaced, so a policy can see what was overridden rather than only what won.
+
+## The three sensitivity units
+
+The payload carries **three** sensitivity facts, and they sit at three
+different units: one whole attachment, one delivery key, one authored leaf.
+
+Each is computed from its own inputs. **None is derived from another**, and in
+particular the per-attachment answer is never spread down to the narrower
+units. Conflating any two of them produces a policy that is wrong in a
+direction that fails quietly, so the three are worth reading separately before
+writing a rule against any of them.
+
+Every one of them is derived from what an author **declared** — `sensitive:
+true` on a Feature's schema leaf, or `sensitive: true` on a Component's
+attachment slot. No value's content is inspected, and no meaning is read out of
+a field's name.
+
+### `sensitive` — one answer for the whole attachment
+
+True when either the attached Feature declares a sensitive leaf in its
+`values`, `infra`, or `provides`, or the host Component's attachment slot of
+the same name declares that whatever binds it handles secret material. Unset
+when neither declaration is present.
+
+This answers *what the entity is*, so it deliberately does not vary with what a
+particular deployment authored. It reads the Feature's declarations rather than
+the subset of sensitive leaves this attachment happened to fill, because a
+field that was sensitive in one deployment and not another would be unusable to
+a policy reasoning about the catalog entity.
+
+The two halves are independent, and each holds on its own. A Feature that
+declares no sensitive leaf at all still binds a sensitive slot as a sensitive
+attachment, because the slot said so. A fill declaring a sensitive leaf is a
+sensitive attachment even when the slot made no such declaration, and even when
+it is a free attachment binding no slot.
+
+### `sensitive_inject` — one answer per delivery key
+
+The subset of `inject` whose referenced `provides` key the attached Feature
+declares sensitive, carried in `inject`'s own shape: mechanism, then delivery
+key, with the referenced `provides` key as the value.
+
+A delivery key filling from a `provides` key the Feature marked sensitive
+appears here; one filling from an unmarked key does not, even on the same
+attachment and the same mechanism. Empty when the attachment declares no
+delivery mechanism, or references no sensitive `provides` key.
+
+### `sensitive_authored_leaves` — one answer per authored leaf
+
+The leaves **this deployment authored a value at** whose path the attached
+Feature declares sensitive, each as the pillar-prefixed dotted path the
+authored datum occupies: `values.<path>` or `infra.<path>`.
+
+A leaf appears only where the join is **exact**: an authored leaf path equal to
+a path the Feature's schema declares sensitive. Nothing is read out of the
+path's own text and no value is inspected — whether the author wrote the
+material itself at a marked leaf, or a pointer to it, is not knowable here and
+is not what the marking claims.
+
+The comparison runs over the payload flattened to its leaves, not over the
+pillar's top-level keys, so a leaf nested inside a nested map is compared like
+any other.
+
+Leaves arrive in the order the attachment authored them, the `values` pillar's
+before the `infra` pillar's — the same author order the payloads themselves
+carry, which is what keeps the wire byte-identical across runs of identical
+input.
+
+This unit answers *where this deployment put data*, which varies by deployment
+necessarily. That is why it intersects with what was authored while `sensitive`
+does not: the two are answers to different questions, and applying either
+rule to the other field would break it.
+
+### Reading the three together
+
+A deployment attaching a credential Feature that declares its `literalPassword`
+values leaf and its `password` provides key sensitive, filling a declared
+`credentials` slot, and authoring a literal password inline:
+
+```json
+{
+  "type": "example/db-credential",
+  "resolved_version": "1.0.0",
+  "binding": "credentials",
+  "values": {
+    "secretName": "db-creds",
+    "literalPassword": "by-value-plaintext"
+  },
+  "inject": {
+    "env": { "DATABASE_PASSWORD": "password" }
+  },
+  "sensitive": true,
+  "sensitive_inject": {
+    "env": { "DATABASE_PASSWORD": "password" }
+  },
+  "sensitive_authored_leaves": ["values.literalPassword"]
+}
+```
+
+Three different questions, three different answers. The attachment handles
+declared-sensitive material at all (`sensitive`). The `DATABASE_PASSWORD`
+environment key is one that carries it (`sensitive_inject`). And this
+deployment put a value at `values.literalPassword` specifically
+(`sensitive_authored_leaves`) — while `values.secretName`, a locator the
+Feature deliberately leaves unmarked, is absent from that list even though the
+deployment authored it too.
+
+A rule that denies a literal secret in a rendered artifact wants the third. A
+rule that requires every credential-handling attachment to carry an ownership
+label wants the first. Substituting one for the other changes which builds
+halt.
+
+### Absence is not permission
+
+**A leaf is listed only where the join is exact. So the absence of
+`sensitive_authored_leaves` states that no authored leaf matched a declaration
+— never that nothing on the attachment carries sensitive material.**
+
+A guest that reads an absent leaf list as permission to display or emit a value
+in the clear has read the marking backwards.
+
+The key is omitted from the wire entirely when it would be empty, so an
+attachment whose Feature and slot declare nothing carries exactly the bytes it
+would carry if the marking did not exist. That omission is what makes the
+misreading easy, and it is why the direction is worth stating plainly.
+
+The clearest case is an attachment that is sensitive and lists no leaf at all.
+Take the attachment above and change one thing — the deployment authors only
+the locator, leaving the declared-sensitive leaf unfilled:
+
+```json
+{
+  "type": "example/db-credential",
+  "resolved_version": "1.0.0",
+  "binding": "credentials",
+  "values": { "secretName": "db-creds" },
+  "inject": {
+    "env": { "DATABASE_PASSWORD": "name" }
+  },
+  "sensitive": true
+}
+```
+
+`sensitive` is still true — the Feature's declarations did not change — while
+both narrower units are gone. The attachment still handles secret material; it
+simply does not do so through a leaf this deployment authored. A policy keyed
+on the roll-up denies this build, and a policy keyed on the per-leaf marking
+lets it through. Both are defensible rules, and which one a policy wants is a
+decision the policy author makes deliberately.
+
+The same asymmetry runs the other way for `sensitive_inject`: an attachment can
+author a sensitive leaf while routing nothing sensitive through a delivery key,
+or route a sensitive `provides` key while authoring no value at all.
+
+## What a sensitivity declaration does not do
+
+The marking annotates; it is not a control. Declaring a leaf or a slot
+sensitive does not encrypt anything, does not validate or reject a value, and
+does not force a delivery mechanism. No build outcome changes because a
+declaration is present.
+
+On most targets it changes no rendered byte either: a declared-sensitive value
+an author supplied inline is rendered exactly as an undeclared one is. Terraform
+is the exception among the standard-library targets, because it carries a native
+per-value sensitivity primitive for the declaration to land on — see
+[`providers/terraform.md`](../providers/terraform.md) "Declared-sensitive module
+inputs". A target with no sensitivity notion of its own has nothing for a
+declaration to change.
+
+What the declarations do everywhere is make the fact **legible** — to the
+compiler's own debug output, and to a policy at this socket that decides what to
+do about it. Turning a marking into a build outcome is the policy's job, which
+is what this socket exists for.
+
+## Cross-references
+
+- [`policy-socket.md`](policy-socket.md) — the governance socket: the four
+  roles, verdict severities, the operator input channel, the policy engines
+  that ship inside the compiler, and attaching a plugin to a workspace.
+- [`plugin-contract.md`](plugin-contract.md) — the socket's pipeline placement
+  and its typed wire shapes.
+- [graph schema reference](../schema/other/ir.md) — the field-by-field contract
+  for the build graph, including every field on an attachment.
+- [`entities/component.md`](../entities/component.md) "Attachment Slots" —
+  declaring a slot, and declaring a slot sensitive.
+- [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md)
+  "Declaring a leaf sensitive" — the `sensitive:` keyword and the ceiling on
+  what declaring it achieves.
+- [`vocabulary/labels-and-annotations.md`](../vocabulary/labels-and-annotations.md)
+  — the label and annotation surfaces a policy reads.

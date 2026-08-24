@@ -43,3 +43,14 @@ Within Tier 3, the `$templates:` / `$instantiate:` mechanic (parametric helpers 
    - Errors reference: [fatal-halts](errors/fatal-halts.md), [warnings](errors/warnings.md)
 9. [Examples Overview](09-examples.md)
    - Examples reference: [01-getting-started](examples/01-getting-started.md), [02-data-model](examples/02-data-model.md), [03-features-and-policies](examples/03-features-and-policies.md), [04-secrets](examples/04-secrets.md), [05-credential-features](examples/05-credential-features.md), [06-composition](examples/06-composition.md), [07-input-kinds](examples/07-input-kinds.md), [08-advanced-patterns](examples/08-advanced-patterns.md), [09-cross-boundary-routing](examples/09-cross-boundary-routing.md)
+
+## Plugin authoring reference
+
+The Wasm plugin surface sits alongside the chapter sequence rather than inside it: a plugin author reads it independently of the entity-authoring path. The [plugin](entities/plugin.md) entity page covers the catalog authoring surface; the pages below cover the sockets, the payloads, and the author workflow.
+
+- [plugin-contract](plugins/plugin-contract.md) — the sockets a plugin attaches to, their pipeline placement, and each socket's input and output shapes.
+- [plugin-developer-guide](plugins/plugin-developer-guide.md) — the end-to-end author workflow: `describe()`, capability claims, runtime limits, the publish/pull/build lifecycle, signing, versioning.
+- [policy-socket](plugins/policy-socket.md) — the governance socket in depth: its four roles, the verdict severities, the operator input channel, and writing a policy for either engine that ships inside the compiler.
+- [governance-attachment-facts](plugins/governance-attachment-facts.md) — the per-attachment facts a governance policy reads off the build graph, including the three units of the sensitivity marking and why an absent marking is not permission.
+- [when-to-use-a-pipeline-step](plugins/when-to-use-a-pipeline-step.md) — choosing between a pipeline step and a templated FeatureRecipe.
+- [embedded-plugins](plugins/embedded-plugins.md) — the plugins that ship inside the compiler binary.
