@@ -344,7 +344,6 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | Sentinel | Code | Message |
 | --- | --- | --- |
 | `ErrExtensionEval()` | `validator-jsonschema/extension-eval` | `validator/jsonschema: x-aggrega extension evaluation failed` |
-| `ErrInstanceValidation()` | `validator-jsonschema/instance-validation` | `validator/jsonschema: instance validation failed` |
 | `ErrSchemaResolve()` | `validator-jsonschema/schema-resolve` | `validator/jsonschema: schema resolution failed` |
 
 ### pkg/validator/merger
@@ -622,7 +621,6 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0214` | `validator/workload-validation` | `workload validation failed` |
 | `E0215` | `validator-envelope/entity-envelope` | `document envelope validation failed` |
 | `E0216` | `validator-jsonschema/extension-eval` | `validator/jsonschema: x-aggrega extension evaluation failed` |
-| `E0217` | `validator-jsonschema/instance-validation` | `validator/jsonschema: instance validation failed` |
 | `E0218` | `validator-jsonschema/schema-resolve` | `validator/jsonschema: schema resolution failed` |
 | `E0219` | `validator-merger/cyclic-extension` | `merger: cyclic extends chain` |
 | `E0220` | `validator-merger/max-depth` | `merger: extends chain exceeds maximum depth` |
