@@ -18,8 +18,10 @@ own files:
 - the module files copied **byte-for-byte** (`variables.tf`, `main.tf`,
   including any `${...}` interpolation the module author wrote);
 - `aggrega.auto.tfvars.json` — the resolved input variables in deterministic key
-  order. The `subnet_id` value is a Terraform `${...}` pointer supplied by the
-  Recipe and piped through untouched;
+  order. The `subnet_id` value is the DB subnet group name the Release supplies
+  under `infra.overrides`, which is what the module's own declaration asks of its
+  caller. Whatever a Recipe maps here the compiler pipes through untouched and
+  never resolves — a Terraform `${...}` pointer included;
 - `aggrega.provenance.tf` — a `#`-comment file identifying the build (the JSON
   overlay cannot carry a comment, so provenance rides in its own file).
 

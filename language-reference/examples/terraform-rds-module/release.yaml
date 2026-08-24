@@ -26,3 +26,12 @@ spec:
             backup:
               enabled: true
               retention_days: 14
+            # The Recipe reads one provider-specific override: subnet_group,
+            # the name of the RDS DB subnet group this instance is placed in.
+            # The group is operated outside this deployment and its name differs
+            # per environment, so the operator states it here rather than the
+            # developer stating it in the Aggregate. It has no default, so
+            # omitting it halts the build rather than planning against the
+            # wrong network.
+            overrides:
+              subnet_group: production-private-db-subnets
