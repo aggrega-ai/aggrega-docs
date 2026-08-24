@@ -81,10 +81,12 @@ emitted at all.
 ## Seeing it work
 
 `main.tf` keeps the public coordinates and the credential in separate attributes
-of one resource, so a plan shows both directions at once:
+of one resource, so a plan shows both directions at once. The `store`
+component's own directory is a complete configuration in its own right, so
+running the engine there plans exactly this component:
 
 ```bash
-cd dist/infra/terraform
+cd dist/infra/terraform/modules/store
 tofu init && tofu plan     # or: terraform init && terraform plan
 ```
 
