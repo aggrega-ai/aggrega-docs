@@ -88,7 +88,7 @@ The build prints the whole line under a `CATALOG_ERROR` tag, which signals that 
 
 #### `valuesMapping` requires `source`
 
-<!-- covers: pkg/validator.ErrRecipeRule1 -->
+<!-- covers: pkg/validator.ErrRecipeValuesMappingRequiresSource -->
 
 A Recipe declares `valuesMapping` but not `source`. Without a source to overlay, there is nothing to receive the mapped values. This rule is checked when the Recipe is loaded.
 
@@ -112,7 +112,7 @@ Emitted message:
 
 #### At least one input kind must be present
 
-<!-- covers: pkg/validator.ErrRecipeRule5 -->
+<!-- covers: pkg/validator.ErrRecipeNoInputKind -->
 
 A Recipe declares no input kind: no `source` paired with `valuesMapping`, no `workload:`, no `artifacts:`. Such a Recipe produces no output and has no rendering surface. This rule is checked when the Recipe is loaded.
 
@@ -131,7 +131,7 @@ The build refuses the Recipe while decoding the document into its typed form, na
 
 #### Emission-time filename collision across input kinds
 
-<!-- covers: pkg/validator.ErrRecipeRule7 -->
+<!-- covers: pkg/validator.ErrRecipeFilenameCollisionAcrossInputKinds -->
 
 A Recipe's three input kinds — sourced, synthesized, and artifacts — each emit files into the same boundary directory. If source-rendered, workload-synthesized, or artifact-emitted output produces a file whose name another input kind also produced, the build halts at emission with a message naming every contributor.
 

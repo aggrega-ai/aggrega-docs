@@ -322,14 +322,14 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrAssertionNameCollision()` | `validator/assertion-name-collision` | `assertion name declared twice across the extends chain: rename the extending entity's assertion, whose assertions add to the base's and never replace one` |
 | `ErrCyclicExtension()` | `validator/cyclic-extension` | `cyclic extends chain` |
 | `ErrFeatureRecipeEvalProviderConstraint()` | `validator/feature-recipe-eval-provider-constraint` | `featurerecipe eval-provider constraint: render input-kind fields are forbidden when provider is eval` |
-| `ErrFeatureRecipeRule1()` | `validator/feature-recipe-values-mapping-requires-source` | `FeatureRecipe: valuesMapping requires source` |
+| `ErrFeatureRecipeValuesMappingRequiresSource()` | `validator/feature-recipe-values-mapping-requires-source` | `FeatureRecipe: valuesMapping requires source` |
 | `ErrInheritanceMerge()` | `validator/inheritance-merge` | `inheritance merge failed: resolve the conflicting field definitions across the extends chain` |
 | `ErrRecipeEvalProviderConstraint()` | `validator/recipe-eval-provider-constraint` | `recipe eval-provider constraint: input-kind fields are forbidden when provider is eval` |
+| `ErrRecipeFilenameCollisionAcrossInputKinds()` | `validator/recipe-filename-collision-across-input-kinds` | `Recipe: filename collision across input-kind origins at emission` |
+| `ErrRecipeNoInputKind()` | `validator/recipe-no-input-kind` | `Recipe: at least one input kind required` |
 | `ErrRecipeOutputComponentLabelCollision()` | `validator/recipe-output-component-label-collision` | `recipe output-component-labels constraint: key is also declared in outputLabels` |
 | `ErrRecipeOutputLabelReservedNamespace()` | `validator/recipe-output-label-reserved-namespace` | `recipe output-labels constraint: key uses a reserved namespace` |
-| `ErrRecipeRule1()` | `validator/recipe-values-mapping-requires-source` | `Recipe: valuesMapping requires source` |
-| `ErrRecipeRule5()` | `validator/recipe-no-input-kind` | `Recipe: at least one input kind required` |
-| `ErrRecipeRule7()` | `validator/recipe-filename-collision-across-input-kinds` | `Recipe: filename collision across input-kind origins at emission` |
+| `ErrRecipeValuesMappingRequiresSource()` | `validator/recipe-values-mapping-requires-source` | `Recipe: valuesMapping requires source` |
 | `ErrSlotNotReferenceable()` | `validator/slot-not-referenceable` | `workload attachment slot is not referenceable` |
 | `ErrWorkloadFeaturesSchema()` | `validator/workload-features-schema` | `workload featuresSchema cross-check failed` |
 | `ErrWorkloadValidation()` | `validator/workload-validation` | `workload validation failed` |
