@@ -1,9 +1,9 @@
-# Terraform RDS (vendored module + overlay)
+# Terraform RDS (vendored module)
 
 The same MariaDB intent as the `terraform-rds` example, rendered through the
 **sourced** shape of the Terraform provider: instead of an inline HCL body, the
 Recipe points at a local Terraform module and the compiler vendors it verbatim,
-then generates a variables overlay from the developer and operator pillars.
+then supplies its input variables from the developer and operator pillars.
 
 ## What the compiler emits
 
@@ -12,18 +12,50 @@ configuration, and under `dist/infra/terraform/modules/db/` the `db` component's
 own files:
 
 - `aggrega.modules.tf` at the boundary root — the root configuration, declaring
-  `db` as a `module` block whose `source` is `./modules/db`. Every terraform
+  `db` as a `module` block whose `source` is `./modules/db` and whose **arguments
+  are the module's input variables**, in deterministic key order. Every terraform
   boundary gets one, and it is what puts a boundary's components in a single
   Terraform configuration;
 - the module files copied **byte-for-byte** (`variables.tf`, `main.tf`,
   including any `${...}` interpolation the module author wrote);
-- `aggrega.auto.tfvars.json` — the resolved input variables in deterministic key
-  order. The `subnet_id` value is the DB subnet group name the Release supplies
-  under `infra.overrides`, which is what the module's own declaration asks of its
-  caller. Whatever a Recipe maps here the compiler pipes through untouched and
-  never resolves — a Terraform `${...}` pointer included;
-- `aggrega.provenance.tf` — a `#`-comment file identifying the build (the JSON
-  overlay cannot carry a comment, so provenance rides in its own file).
+- `aggrega.provenance.tf` beside those files — a `#`-comment file identifying the
+  build.
+
+The `db` block this example emits:
+
+```hcl
+module "db" {
+  source = "./modules/db"
+
+  allocated_storage = 100
+  db_name           = "appdb"
+  engine_version    = "11.4"
+  instance_class    = "db.t3.small"
+  multi_az          = true
+  subnet_id         = "production-private-db-subnets"
+}
+```
+
+Two of those arguments are worth following back to where they were authored.
+`subnet_id` is the DB subnet group name the Release supplies under
+`infra.overrides` — the group is operated outside this deployment, its name
+differs per environment, and the module's own declaration carries no default, so
+the Recipe asserts it and the build halts loudly when it is missing rather than
+planning against the wrong network. `instance_class` comes from the same pillar
+but carries a default in the Recipe, so a Release that states nothing gets
+`db.t3.small`.
+
+**Whatever a Recipe maps into these arguments the compiler pipes through
+untouched and never resolves — a Terraform `${...}` pointer included.** What
+changes with the position is where that pointer lands: a module argument is one
+of the positions Terraform evaluates, so a pointer written there resolves against
+the root configuration at plan time instead of reaching the module as a literal
+string. It still has to name something that configuration declares.
+
+Because the inputs are stated in the root, `modules/db/` on its own is not a
+configuration you can plan as deployed — see
+[the Terraform provider page](../../providers/terraform.md#where-a-components-inputs-are-supplied)
+for what the engine does if you try.
 
 ## Files
 
@@ -48,7 +80,7 @@ value.
 The Aggregate binds it with `core/generated-secret`, which carries no `values`
 because there is nothing to author, and whose FeatureRecipe
 (`terraform/generated-secret`) is pure wiring that renders nothing. The vendored
-module and the generated overlay come out byte-for-byte what they would be with
+module and the root configuration come out byte-for-byte what they would be with
 no attachment at all. The Manifest's reference is provider-qualified because a
 bare recipe name resolves only when exactly one provider carries it, and the
 standard library ships a `generated-secret` FeatureRecipe under more than one —

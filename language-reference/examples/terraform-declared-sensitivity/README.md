@@ -16,19 +16,18 @@ them.
 Under `dist/infra/terraform/`, the boundary's root configuration:
 
 - `aggrega.modules.tf` — declaring `store` as a `module` block whose `source` is
-  `./modules/store`. Every terraform boundary gets one.
+  `./modules/store` and whose arguments are the module's resolved input
+  variables, in deterministic key order. Every terraform boundary gets one.
 
 Under `dist/infra/terraform/modules/store/`, the `store` component's own files:
 
 - the module files copied **byte-for-byte** — `variables.tf` and `main.tf`,
   exactly as the module author wrote them;
-- `aggrega.auto.tfvars.json` — the resolved input variables in deterministic key
-  order;
 - `aggrega_override.tf.json` — the sensitivity marking, described below. It sits
   beside the module's own files because Terraform merges an override into the
   configuration in its own directory;
 - `aggrega.provenance.tf` — a `#`-comment file identifying the build (the JSON
-  files cannot carry a comment, so provenance rides in its own file).
+  file cannot carry a comment, so provenance rides in its own file).
 
 ## The marking, and the two inputs it does not name
 
@@ -42,13 +41,15 @@ values:
   secret_access_key: { type: string, required: true, sensitive: true }
 ```
 
-The overlay binds all three module inputs:
+The `module` block binds all three module inputs:
 
-```json
-{
-  "access_key_id": "AKIAEXAMPLE0001",
-  "bucket": "app-artifacts",
-  "secret_access_key": "example-placeholder-not-a-real-credential"
+```hcl
+module "store" {
+  source = "./modules/store"
+
+  access_key_id     = "AKIAEXAMPLE0001"
+  bucket            = "app-artifacts"
+  secret_access_key = "example-placeholder-not-a-real-credential"
 }
 ```
 
@@ -81,16 +82,17 @@ emitted at all.
 ## Seeing it work
 
 `main.tf` keeps the public coordinates and the credential in separate attributes
-of one resource, so a plan shows both directions at once. The `store`
-component's own directory is a complete configuration in its own right, so
-running the engine there plans exactly this component:
+of one resource, so a plan shows both directions at once. Plan the **boundary's
+root configuration** — the directory holding `aggrega.modules.tf`, which is where
+this deployment's values are:
 
 ```bash
-cd dist/infra/terraform/modules/store
+cd dist/infra/terraform
 tofu init && tofu plan     # or: terraform init && terraform plan
 ```
 
 ```text
+  # module.store.terraform_data.reference will be created
   + resource "terraform_data" "reference" {
       + input            = (sensitive value)
       + triggers_replace = [
@@ -102,7 +104,23 @@ tofu init && tofu plan     # or: terraform init && terraform plan
 
 The credential is redacted; the two public values beside it are not. Delete
 `aggrega_override.tf.json` and re-run the plan to see the credential printed in
-full — that difference is the whole of what the marking does.
+full — that difference is the whole of what the marking does. The marking lives
+on the module's own `variable` block, so it travels with the module and applies
+wherever that module is used.
+
+**Run it at the root and not inside `modules/store/`.** A component's inputs are
+the arguments of its `module` block, which sits one level up, so the component's
+own directory is not a configuration you can plan as deployed. What the engine
+does there depends on the module's own `variable` blocks, and only one of the two
+answers is loud:
+
+- This module declares all three of its inputs with no `default`, so a plan in
+  `modules/store/` **fails** — `No value for required variable`, once per input,
+  each naming its line and offering the `-var` / `-var-file` remedy.
+- A module whose inputs **all** carry defaults would instead plan **successfully**
+  there, from those defaults rather than from the values the deployment declared.
+  Nothing warns. That is the case to know about, because a plan that looks right
+  is describing a configuration nobody asked for.
 
 ## What the marking does not do
 
@@ -114,7 +132,7 @@ clear. Treat state as carrying the credential, whatever the marking says.
 
 The marking also reaches a rendered input only when the input's identity comes
 from a declaration. This Recipe declares a `source:` and no `valuesMapping:`, so
-the overlay's keys are the value leaf paths the Component declared and the join
+the argument names are the value leaf paths the Component declared and the join
 is exact. A Recipe that declares a `valuesMapping:` invents its output names
 inside a template, which no declaration names, so such a Recipe renders the same
 values with **no marking** — the override file is absent rather than approximated.

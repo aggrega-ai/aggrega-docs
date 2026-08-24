@@ -36,6 +36,21 @@ declaring `db` as a `module` block pointing at it. The body opens with a
 `aws_db_instance` resource — storage, HA, and backup values substituted from
 the Release, and RDS-managed credentials via `manage_master_user_password`.
 
+**That `module` block carries no arguments, and the reason is the shape of this
+example.** The Recipe authored the body, so it substituted the Release's values
+straight into the resource; the module declares no `variable` blocks and there is
+nothing left for the compiler to pass in:
+
+```hcl
+module "db" {
+  source = "./modules/db"
+}
+```
+
+A Recipe that vendors a module instead — the
+[`terraform-rds-module`](../terraform-rds-module/) example — leaves those inputs
+undeclared in the body, so the compiler supplies them as this block's arguments.
+
 ## The credential slot on a managed target
 
 `core/datastore/mariadb` declares `root_password` as a slot every deployment
