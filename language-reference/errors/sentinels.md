@@ -319,11 +319,11 @@ A few names appear in more than one package. Those are re-exports of one shared 
 
 | Sentinel | Code | Message |
 | --- | --- | --- |
-| `ErrAssertionNameCollision()` | `validator/assertion-name-collision` | `assertion name declared twice across the extends chain: rename the extending entity's assertion, whose assertions add to the base's and never replace one` |
+| `ErrAssertionNameCollision()` | `validator/assertion-name-collision` | `assertion name declared twice across the extends chain` |
 | `ErrCyclicExtension()` | `validator/cyclic-extension` | `cyclic extends chain` |
 | `ErrFeatureRecipeEvalProviderConstraint()` | `validator/feature-recipe-eval-provider-constraint` | `featurerecipe eval-provider constraint: render input-kind fields are forbidden when provider is eval` |
 | `ErrFeatureRecipeValuesMappingRequiresSource()` | `validator/feature-recipe-values-mapping-requires-source` | `FeatureRecipe: valuesMapping requires source` |
-| `ErrInheritanceMerge()` | `validator/inheritance-merge` | `inheritance merge failed: resolve the conflicting field definitions across the extends chain` |
+| `ErrInheritanceMerge()` | `validator/inheritance-merge` | `inheritance merge failed` |
 | `ErrRecipeEvalProviderConstraint()` | `validator/recipe-eval-provider-constraint` | `recipe eval-provider constraint: input-kind fields are forbidden when provider is eval` |
 | `ErrRecipeFilenameCollisionAcrossInputKinds()` | `validator/recipe-filename-collision-across-input-kinds` | `Recipe: filename collision across input-kind origins at emission` |
 | `ErrRecipeNoInputKind()` | `validator/recipe-no-input-kind` | `Recipe: at least one input kind required` |
@@ -608,11 +608,11 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0198` | `types/well-known-annotation-scope` | `wellKnownAnnotations: a key is declared at a scope the provider's contract does not render` |
 | `E0199` | `types/workload-entry-not-scalar` | `workloadlibrary: entry body must be a string scalar` |
 | `E0200` | `types/workload-template-shape` | `workload: shape must be a string scalar or {$import: <path-or-library-identity>}` |
-| `E0201` | `validator/assertion-name-collision` | `assertion name declared twice across the extends chain: rename the extending entity's assertion, whose assertions add to the base's and never replace one` |
+| `E0201` | `validator/assertion-name-collision` | `assertion name declared twice across the extends chain` |
 | `E0202` | `validator/cyclic-extension` | `cyclic extends chain` |
 | `E0203` | `validator/feature-recipe-eval-provider-constraint` | `featurerecipe eval-provider constraint: render input-kind fields are forbidden when provider is eval` |
 | `E0204` | `validator/feature-recipe-values-mapping-requires-source` | `FeatureRecipe: valuesMapping requires source` |
-| `E0205` | `validator/inheritance-merge` | `inheritance merge failed: resolve the conflicting field definitions across the extends chain` |
+| `E0205` | `validator/inheritance-merge` | `inheritance merge failed` |
 | `E0206` | `validator/recipe-eval-provider-constraint` | `recipe eval-provider constraint: input-kind fields are forbidden when provider is eval` |
 | `E0207` | `validator/recipe-output-component-label-collision` | `recipe output-component-labels constraint: key is also declared in outputLabels` |
 | `E0208` | `validator/recipe-output-label-reserved-namespace` | `recipe output-labels constraint: key uses a reserved namespace` |
