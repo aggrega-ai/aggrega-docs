@@ -264,7 +264,7 @@ _Additional properties are not permitted._
 
 ### `RenderedNode`
 
-One node's render output as it appears in an assemble_boundary input: the node id, its type, its merged annotations, its deployment wave, and the render output the render_node export produced for it.
+One node's render output as it appears in an assemble_boundary input: the node id, its type, its merged annotations, its deployment wave, its rendered values, and the render output the render_node export produced for it.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -273,6 +273,7 @@ One node's render output as it appears in an assemble_boundary input: the node i
 | `rendered` | RenderNodeOutput | yes |  |
 | `annotations` | map of string | no | The node's merged annotations, so a boundary assembler can attribute per-node placement (e.g. the compose network derived from the aggrega.ai/namespace annotation). |
 | `sync_wave` | integer | no | The deployment wave this node inherited from its containing boundary (default 0; negative permitted), so a boundary assembler can order the contributors it merges relative to one another. A dispatch group can merge contributors from several boundaries, each carrying its own wave, so the wave travels with every node here rather than once for the whole payload. An assembler whose output shape expresses no ordering ignores it. |
+| `values` | object | no | The node's rendered values dictionary, the same key set the render_node export received for this node, so a boundary assembler can place each contributor's inputs in the assembled artifact itself rather than beside that contributor's own files. Where the assembled artifact is the only position the target evaluates, that is the difference between an input the target reads and one it never reaches. Keys arrive in sorted order, not author order, and that sorting is what makes the payload byte-identical across runs of identical input; a guest needing any other ordering imposes it itself. An assembler whose output shape carries no per-contributor inputs ignores it. |
 
 _Additional properties are not permitted._
 
