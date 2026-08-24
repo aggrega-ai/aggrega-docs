@@ -225,7 +225,6 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrInvalidInjectKey()` | `resolver/invalid-inject-key` | `invalid inject key: the from-key must name a declared provides key of the target component type` |
 | `ErrInvalidInstanceName()` | `resolver/invalid-instance-name` | `invalid instance name: names must match ^[a-zA-Z0-9_-]+$ (letters, digits, hyphen, underscore; no dots)` |
 | `ErrInvalidParameterRef()` | `resolver/invalid-parameter-ref` | `invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template` |
-| `ErrInvalidTargetRef()` | `resolver/invalid-target-ref` | `invalid target reference: each dot-separated segment must match ^[a-zA-Z0-9_-]+$` |
 | `ErrManifestCrossBindingPillarCollision()` | `resolver/manifest-cross-binding-pillar-collision` | `manifest annotation bindings collide on same Feature path+pillar` |
 | `ErrManifestReservedPrefix()` | `resolver/manifest-reserved-prefix` | `manifest annotation binding uses reserved prefix` |
 | `ErrMissingRequiredFeature()` | `resolver/missing-required-feature` | `missing required feature: attach a Feature of the required type to the component` |
@@ -566,7 +565,6 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0156` | `resolver/invalid-inject-key` | `invalid inject key: the from-key must name a declared provides key of the target component type` |
 | `E0157` | `resolver/invalid-instance-name` | `invalid instance name: names must match ^[a-zA-Z0-9_-]+$ (letters, digits, hyphen, underscore; no dots)` |
 | `E0158` | `resolver/invalid-parameter-ref` | `invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template` |
-| `E0159` | `resolver/invalid-target-ref` | `invalid target reference: each dot-separated segment must match ^[a-zA-Z0-9_-]+$` |
 | `E0160` | `resolver/manifest-cross-binding-pillar-collision` | `manifest annotation bindings collide on same Feature path+pillar` |
 | `E0161` | `resolver/manifest-reserved-prefix` | `manifest annotation binding uses reserved prefix` |
 | `E0162` | `resolver/missing-required-feature` | `missing required feature: attach a Feature of the required type to the component` |
