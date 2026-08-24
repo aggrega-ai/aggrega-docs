@@ -76,16 +76,29 @@ The three casings are not interchangeable. A Recipe author who writes `{{ .conte
 
 ## Platform-Defined Identifiers
 
-Everything above governs names on the authoring surface — an instance name you choose, a schema field the language defines for you to fill, a template-context key you read. A separate register governs the identifiers **the platform itself defines** and you only read back or type: a CLI flag, a publishing-lint rule id, a diagnostic class code. Those are **kebab-case**, uniformly.
+Everything above governs names on the authoring surface — an instance name you choose, a schema field the language defines for you to fill, a template-context key you read. Two further registers govern the identifiers **the platform itself defines** and you only read back or type. They are separate because they do different jobs, and the job decides the shape.
+
+**The descriptive register: kebab-case, uniformly.** An identifier here says in words what it names, so you can read it and act on it without looking anything up. A CLI flag, a publishing-lint rule id, a diagnostic class code, and the code a halting condition is registered under all belong to it.
 
 ```text
 --no-unsupported-field-warnings   # a CLI flag you type
 category-matches-directory        # a lint rule id, printed in `aggrega lint` output
 unsupported-field                 # a diagnostic class code
 artifact-provenance-skipped       # another
+resolver/parameter-contract-violation   # the code a halting condition is registered under
 ```
 
 Where a diagnostic class has a suppression flag, the code and the flag are the same words in the same order — `unsupported-field` is silenced by `--no-unsupported-field-warnings` — so the class you matched on tells you the flag to reach for, with nothing to translate. A class code is the stable name tooling matches to recognise a finding without parsing its message text; the message wording may improve, the code does not move.
+
+**The short-code register: the letter `E` and four digits.** A halting condition also carries a short code — `E0007` — and it is the one platform-defined identifier that is not kebab-case. The reason is position: it opens every halting diagnostic, beside the category, ahead of the file and line you are about to read.
+
+```text
+[DEVELOPER_ERROR E0007] aggregate.yaml at .spec.components.edge
+```
+
+A descriptive code cannot go there. The longest of them would fill a narrow terminal on its own, before the location that tells you where to look. So the head takes an identifier chosen for width, and the trade is deliberate: four digits say nothing about a condition, which is why every short code is published beside the condition it names and the text that condition renders in [the error-sentinels reference](errors/sentinels.md). Quote a short code in a report, type it into a search, and resolve it there.
+
+Both registers name the same conditions from two directions, and neither replaces the other. Match the descriptive code when you are writing a tool that keys on a condition; quote the short code when you are talking to a person about one.
 
 **Kebab-case appearing here and in instance names is not a collision.** The instance-name pattern is about what you are *permitted* to write — kebab-case and snake_case are both valid there, and teams pick one. This register is about what the platform *does* write, where there is nothing to pick: you never choose the spelling of a lint rule id, and the platform never chooses the spelling of your component name.
 
