@@ -708,44 +708,44 @@ spec:
 ```
 
 **Example B: The Extending Component (Specializing the Baseline)**
-A specialized AI Gateway is created. It takes the base's pillars whole, adds structure of its own — a label, a self-inject mechanism, a topology socket, an attachment slot — and tightens the inherited timeout through an assertion. It does not restate the baseline's `audit-window-is-observable` rule: that rule is inherited and is evaluated first, so an instance of this gateway must satisfy both bounds — at least 100 and at most 2000.
+A gateway is specialized from that baseline. It takes the base's pillars whole, adds structure of its own — a label, a self-inject mechanism, a topology socket, an attachment slot — and tightens the inherited timeout through an assertion. It does not restate the baseline's `audit-window-is-observable` rule: that rule is inherited and is evaluated first, so an instance of this gateway must satisfy both bounds — at least 100 and at most 2000.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Component
 metadata:
-  name: core/gateway/ai-gateway
+  name: core/gateway/kong
   version: 1.0.0
   labels:
     # Every Component declares the reserved base-ontology key, including one
     # that extends: the envelope requires it on the document itself.
     component.aggrega.ai/type: "server"
-    gateway.aggrega.ai/intelligence: "semantic"   # merged with the base's labels
+    api.aggrega.ai/protocol: "http"               # merged with the base's labels
 spec:
   extends: core/base-enterprise-server
   schema: inherited        # values, infra and provides are the base's, verbatim
   inject: [file]           # concatenates with the base's [env] -> [env, file]
   usesSchema:              # a socket of its own; the base declared none
-    model_endpoint:
+    backend:
       required: true
-      selector: "model.aggrega.ai/capability=generative"
+      selector: "component.aggrega.ai/type=stateful-server"
       inject: [env]
   featuresSchema:          # a slot of its own
-    upstream_api_key:
-      required: true
+    password:
+      sensitive: true
       inject: [env]
-      description: Credential for the upstream model endpoint.
+      description: Password credential shared with the configuration backend.
   assertions:
     # The tightening. The inherited schema admits any integer for timeout_ms;
     # this gateway admits only 2000 or less, so the rule rejects a value the
     # inherited pillar block would accept.
     timeout-within-gateway-budget: |
       {{- if gt (int .values.timeout_ms) 2000 -}}
-        {{- fail "an AI gateway must answer within 2000ms: set timeout_ms to 2000 or less" -}}
+        {{- fail "the gateway must answer within 2000ms: set timeout_ms to 2000 or less" -}}
       {{- end -}}
 ```
 
-For the Recipe that implements this `core/gateway/ai-gateway` interface against a physical Helm chart, see [entities/recipe](recipe.md) Example C (`kong-gateway`).
+For the Recipe that implements this `core/gateway/kong` interface against a physical Helm chart, see [entities/recipe](recipe.md) Example C (`kong-gateway`).
 
 ## The `assertions:` block
 

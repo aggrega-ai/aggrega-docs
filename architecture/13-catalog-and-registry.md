@@ -44,13 +44,12 @@ aggrega-catalog/
 │       ├── ai-tool/          # tools agents invoke
 │       │   └── browser.yaml
 │       ├── ai-pipeline/      # AI data/processing pipelines
-│       │   └── base.yaml
 │       ├── datastore/        # persistent datastores
-│       │   ├── ai-datastore.yaml
 │       │   ├── base.yaml
-│       │   └── mariadb.yaml
+│       │   ├── mariadb.yaml
+│       │   └── postgres.yaml
 │       ├── gateway/          # API and AI gateways
-│       │   └── ai-gateway.yaml
+│       │   └── kong.yaml
 │       ├── compute/          # generic compute primitives
 │       │   ├── function.yaml
 │       │   ├── server.yaml
@@ -58,9 +57,8 @@ aggrega-catalog/
 │       │   └── worker.yaml
 │       ├── messaging/        # event buses, queues
 │       └── storage/          # object/file storage
-│                             # (mesh/, network/, observability/, security/,
-│                             #  bigdata/, devtool/ are created when their
-│                             #  first entity lands)
+│                             # (mesh/, network/ and bigdata/ are created
+│                             #  when their first entity lands)
 │
 ├── feature/                  # DOMAIN 2: Abstract Interfaces
 │   │                         # Flat: {publisher}/{name} (no categories)

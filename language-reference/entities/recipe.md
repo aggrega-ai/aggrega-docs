@@ -187,12 +187,17 @@ metadata:
   version: 1.0.0
 spec:
   capability: helm
-  implements: core/gateway/ai-gateway:1.0.0
+  implements: core/gateway/kong:1.0.0
   source:
     # Planned: provider-declared source keys, validated by the provider's Wasm plugin.
     # The built-in resolver today uses the { kind, url, version } form.
     registry: https://charts.konghq.com
     chart: kong
+
+  provides:
+    host: "{{ .context.instance_id }}-default"
+    port: "{{ .infra.proxy_port }}"
+    protocol: "http"
 ```
 
 **Cloud-resource naming discipline.**
