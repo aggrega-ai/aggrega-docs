@@ -305,12 +305,16 @@ Emitted message:
 
 ### Recipe `source:` is an empty string
 
-<!-- covers: plugins/internal/composecore.ErrEmptySource, plugins/internal/helmcore.ErrEmptySource -->
+<!-- covers: internal/compiler/renderer.ErrEmptySource -->
 
-A Recipe declares `source: ""` — an empty string. An empty-string `source:` is an authoring ambiguity between sourceless mode (no external artifact; the Recipe produces output entirely from its `valuesMapping` or other input kinds) and sourced mode (the Recipe references an external chart, module, or file). The compiler rejects the ambiguous form at Recipe load.
+A Recipe declares `source: ""` — an empty string. A Recipe's `source:` selects between two authoring modes: **sourceless** mode, where there is no external artifact and the output is produced entirely from the Recipe's other input kinds, and **sourced** mode, where `source:` names an external chart, module, or file to render from. Omitting the field selects the first, a non-empty value selects the second, and an empty string selects neither — so it is an ambiguity rather than a value with a meaning.
 
-Emitted message:
-> recipe source is empty string; use nil for sourceless mode or a non-empty path for sourced mode.
+The build halts instead of choosing one of the two readings for you. The refusal reads the value exactly as you wrote it, ahead of evaluating any template inside it, so it names the ambiguity itself rather than reporting whatever the empty value would have gone on to do. The commonest way to write an empty `source:` is to delete a URI and leave the key behind: sourced mode was intended, and admitting the empty string as sourceless would ship a deployment without the artifact and never say which of the two readings it took.
+
+You may meet the refusal from `aggrega pull` before you meet it from a build. Pinning a Release's sources cannot tell what kind of artifact an empty reference names, so it reports that reference as ambiguous instead. The fix is the same either way.
+
+Emitted message, captioned with the Recipe the empty `source:` was written in and the component instance being rendered:
+> recipe source is an empty string, which names neither sourceless mode nor sourced mode (Recipe `<recipe>`, node `<instance>`). omit the source field for sourceless mode, or name a non-empty path or URI for sourced mode
 
 **How to fix:** omit the `source:` field entirely (or set it to null) if the Recipe is sourceless, or provide a non-empty path / URI / structured source object if the Recipe is sourced.
 
@@ -946,9 +950,8 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0210` | `Recipe: at least one input kind required` | At least one input kind must be present |
 | `E0211` | `Recipe: filename collision across input-kind origins at emission` | Emission-time filename collision across input kinds |
 | `E0215` | `document envelope validation failed` | YAML anchor aliased inside its own content; Divergent Release (extends + aggregate pointer) |
-| `E0234` | `recipe source is empty string; use nil for synthesized mode or a non-empty path for sourced mode` | Recipe `source:` is an empty string |
-| `E0242` | `recipe source is empty string; use nil for sourceless mode or a non-empty path for sourced mode` | Recipe `source:` is an empty string |
 | `E0249` | `cloudformation-provider: an export name a cross-boundary link derives is already declared by another Outputs entry in the same stack` | An authored export name is one the build derives for a cross-stack reference |
+| `E0251` | `recipe source is an empty string, which names neither sourceless mode nor sourced mode` | Recipe `source:` is an empty string |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

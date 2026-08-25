@@ -656,6 +656,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0248` | `wasm/wasm-output-shape` | `wasm: guest plugin returned an output that is not the shape the socket reads` |
 | `E0249` | `cloudformation-provider-cfncore/link-export-name-shadowed` | `cloudformation-provider: an export name a cross-boundary link derives is already declared by another Outputs entry in the same stack` |
 | `E0250` | `compiler-renderer/nest-segment-not-one-directory` | `boundary assembler named a per-node sub-directory that is not a single directory name` |
+| `E0251` | `compiler-renderer/empty-source` | `recipe source is an empty string, which names neither sourceless mode nor sourced mode` |
 
 - `E0002` is declared ahead of the code that reports it, so no build raises it yet. It will report a catalog lookup that fails during static analysis — a state that cannot arise while every component and feature an Aggregate or Release names is checked before analysis begins — once that stage surfaces such an inconsistency as a halt rather than ending its reading silently.
 <!-- END GENERATED: condition-short-codes -->
