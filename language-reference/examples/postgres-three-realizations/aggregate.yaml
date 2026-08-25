@@ -1,0 +1,56 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: aggregate
+  version: "1.0.0"
+  description: >
+    An application and the PostgreSQL database it reads. This is the whole of
+    the Developer-authored surface, and it is the same document for all three
+    deployments in this example: in-cluster PostgreSQL, a managed instance, and
+    a server that already exists outside the deployment. Which of the three a
+    build produces is decided below the Aggregate, in the Manifest.
+spec:
+  components:
+    # ── Database ────────────────────────────────────────────────────────
+    # The developer states intent — a database named appdb with a login role —
+    # and nothing about how it comes to exist. Whether it is a container in the
+    # cluster, an instance a cloud provider operates, or a server that was
+    # already running before this deployment existed is not a developer
+    # concern, and nothing here changes when it changes.
+    db:
+      type: core/datastore/postgres
+      values:
+        database: appdb
+        user: appuser
+
+    # ── Application ─────────────────────────────────────────────────────
+    app:
+      type: local/compute/db-consumer
+      values:
+        pool_size: 10
+      # The String Pipe, and the point of the example. The application asks for
+      # five keys from the database's published contract and names the
+      # environment variables it wants them under. It does not ask where the
+      # database is or what runs it, and the compiler does not know either: it
+      # reads whatever the selected Recipe published for those five keys and
+      # routes the strings. This block is byte-identical across all three
+      # deployments.
+      uses:
+        database:
+          primary:
+            target: db
+            inject:
+              env:
+                - in: DB_HOST
+                  from: host
+                - in: DB_PORT
+                  from: port
+                - in: DB_USER
+                  from: user
+                - in: DB_NAME
+                  from: database
+                - in: DB_PROTOCOL
+                  from: protocol

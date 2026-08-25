@@ -80,6 +80,16 @@ Features, Recipes, Manifests, and the provider matrix.
   credential slot, and the consuming StatefulSet's `secretKeyRef` is
   byte-identical between them — the locator is published by the producing side
   rather than agreed between both, so the developer's side never changes.
+- **[postgres-three-realizations](postgres-three-realizations/)** — one
+  PostgreSQL Component with one `provides` contract, realized three ways: a
+  StatefulSet the deployment runs itself, a managed RDS instance emitted as
+  Terraform, and a server that already existed, referenced by a Recipe that
+  provisions nothing. One Aggregate, three Manifests differing in a single line.
+  The consuming application's rendered environment carries the same variables in
+  the same order in all three — only the strings behind `DB_HOST` and `DB_PORT`
+  move — and on the managed target those two are Terraform expressions the
+  compiler pipes through without resolving, because what they name does not
+  exist yet.
 - **[extends-wrapper](extends-wrapper/)** — publishing a specialized variant of a
   standard-library Component with `extends`. The wrapper adds labels, annotations
   and one socket, authors no data pillars, and inherits its base's contract whole,

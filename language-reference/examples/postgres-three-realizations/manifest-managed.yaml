@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: manifest-managed
+  version: "1.0.0"
+  description: >
+    Ops mapping for the managed realization. The PostgreSQL component type binds
+    the Recipe that emits a managed AWS RDS instance as Terraform HCL, so the
+    cloud provider operates the server. The application is unchanged and still
+    renders to Kubernetes: the two realizations meet at the database's published
+    contract, not at a shared target.
+spec:
+  mappings:
+    components:
+      type:
+        core/datastore/postgres:1.0.0: terraform/postgres-rds:1.0.0
+        local/compute/db-consumer:1.0.0: helm/db-consumer:1.0.0

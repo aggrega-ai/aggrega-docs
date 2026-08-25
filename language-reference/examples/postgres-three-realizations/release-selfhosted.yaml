@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: selfhosted
+  environment: development
+  version: "1.0.0"
+spec:
+  aggregate: aggregate
+  manifest: manifest-selfhosted
+  boundaries:
+    stack:
+      directory: stack
+      components:
+        # Listed with no sizing of its own: naming a component in a boundary
+        # is what places it there, and this application keeps the operational
+        # defaults its Component declares. Its sizing is identical in all
+        # three deployments, so nothing about the application varies.
+        app: {}
+        db:
+          infra:
+            engine_version: "16"
+            storage:
+              size: 20Gi
+              type: gp3

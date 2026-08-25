@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Recipe
+metadata:
+  name: db-consumer
+  version: 1.0.0
+  description: >
+    The application on Kubernetes via the helm provider's Workload synthesis — a
+    Deployment plus a ClusterIP Service, no external chart. The container's
+    environment is the injection context itself: every key the uses-socket
+    resolved is emitted as an environment variable, so the rendered Deployment
+    shows exactly what the database published and nothing else.
+  maintainers:
+    - name: Massimiliano Ferrero
+      email: m.ferrero@cognitio.it
+spec:
+  capability: helm
+  implements: local/compute/db-consumer:1.0.0
+
+  workload: |
+    apiVersion: aggrega.ai/v1alpha1
+    kind: Workload
+    form: stateless
+    replicas: 1
+    containers:
+      main:
+        image: "{{ .infra.image }}"
+        # POOL_SIZE is the application's own developer value. The remaining
+        # variables arrive on the injection context from the database
+        # uses-edge: the Recipe names none of them, it emits whatever the edge
+        # resolved. That is why this one Recipe renders unchanged against every
+        # realization of the database.
+        variables:
+          POOL_SIZE: "{{ .values.pool_size }}"
+          {{- range $k, $v := .context.inject.env }}
+          {{ $k }}: "{{ $v }}"
+          {{- end }}
+        ports:
+          http: {{ .infra.port }}
+    services:
+      default:
+        type: ClusterIP
+        ports:
+          http: {{ .infra.port }}

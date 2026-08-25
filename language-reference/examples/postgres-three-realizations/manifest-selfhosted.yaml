@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: manifest-selfhosted
+  version: "1.0.0"
+  description: >
+    Ops mapping for the self-hosted realization. The PostgreSQL component type
+    binds the Recipe that synthesizes the database in-cluster — a StatefulSet
+    and its Services — so the deployment runs the server itself.
+spec:
+  mappings:
+    components:
+      type:
+        # The Recipe reference is provider-qualified because the standard
+        # library ships a Recipe named postgres under more than one provider: a
+        # bare name resolves only when exactly one provider carries it, so a
+        # bare postgres:1.0.0 does not resolve at all and the build halts loudly
+        # rather than silently picking a provider.
+        core/datastore/postgres:1.0.0: helm/postgres:1.0.0
+        local/compute/db-consumer:1.0.0: helm/db-consumer:1.0.0

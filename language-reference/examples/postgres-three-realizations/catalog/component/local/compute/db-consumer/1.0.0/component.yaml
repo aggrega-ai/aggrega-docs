@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Component
+metadata:
+  name: local/compute/db-consumer
+  version: 1.0.0
+  description: >
+    A minimal application that talks to a relational database and nothing else.
+    It declares one uses-socket for a stateful datastore and reads the
+    connection details the matched database publishes. It knows no engine, no
+    hosting posture and no cloud: whatever fills the socket, this component
+    reads the same keys.
+  labels:
+    component.aggrega.ai/type: server
+    component.aggrega.ai/category: compute
+  maintainers:
+    - name: Massimiliano Ferrero
+      email: m.ferrero@cognitio.it
+spec:
+  # Self-inject allowlist: values resolved from the uses-socket below may be
+  # delivered into this component's environment.
+  inject: [env]
+
+  usesSchema:
+    # One socket, matched by what the target IS rather than by what it is
+    # called: any component labelled as a stateful server can fill it. The
+    # database's identity label is the whole selection rule, so a database
+    # realized in-cluster, as a managed instance, or as a pre-existing server
+    # all match the same socket.
+    database:
+      selector: "component.aggrega.ai/type=stateful-server"
+      inject: [env]
+
+  schema:
+    values:
+      # Developer Intent — filled by the Developer in the Aggregate.
+      pool_size:
+        type: integer
+        min: 1
+        default: 5
+        description: Number of database connections the application keeps open.
+    infra:
+      # Operational Sizing — filled by the Operator in the Release.
+      image:
+        type: string
+        default: nginx:alpine
+        description: Container image the application runs.
+      port:
+        type: integer
+        min: 1024
+        max: 65535
+        default: 8080
+        description: Port the application listens on.
