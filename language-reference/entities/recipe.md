@@ -177,7 +177,7 @@ spec:
 ```
 
 **Example C: Concrete Component Recipe (Binds Infrastructure)**
-Ops maps the generic interface to physical reality. (This is where the hardcoded L4 network ports actually live).
+Ops maps the generic interface to physical reality. (This is where the L4 network details are bound — either hardcoded, or, as with the proxy port below, taken from the `infra` block the Release fills in.)
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
