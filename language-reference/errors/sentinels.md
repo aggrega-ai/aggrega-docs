@@ -393,9 +393,13 @@ To gate a pipeline on a policy rejection specifically, match the `POLICY_ERROR` 
 
 ## Every condition, by short code
 
-The table below runs the lookup the other way round: a short code in the left-hand column, and beside it the condition that code names and the text that condition renders. It covers every condition the compiler declares, the ones the sections above cannot list included.
+The table below runs the lookup the other way round: a short code in the left-hand column, and beside it the condition that code names and the text that condition renders. It covers every condition a build can report, the ones the sections above cannot list included.
 
-That wider coverage is the point of this table rather than an accident of it. The sections above are keyed on a name you can import, so a condition declared only in a package you cannot import — and re-exported nowhere you can import either — has nothing to put in their left-hand column. This table is keyed on the short code, and every condition has one, so no condition falls outside it. A short code you are holding resolves here whether or not the condition behind it also has an accessor you can match.
+That wider coverage is the point of this table rather than an accident of it. The sections above are keyed on a name you can import, so a condition declared only in a package you cannot import — and re-exported nowhere you can import either — has nothing to put in their left-hand column. This table is keyed on the short code, and every condition has one, so no reportable condition falls outside it. A short code you are holding resolves here whether or not the condition behind it also has an accessor you can match.
+
+**What earns a place in this table is that the compiler can actually report the condition.** The rows are derived from the code rather than transcribed into it: a condition appears here because something in the compiler raises it, so every code in the left-hand column is one a build can print. That is the promise the table makes, and it is what lets you read a row as a check that really runs.
+
+A very small number of conditions are the deliberate exception, and each says so in a note directly beneath the table. Those are declared before the code that reports them exists, so that the code and the wording are fixed in advance and never change under a reader who has already quoted them. They are listed rather than hidden — a code you are holding should always resolve — and the note beside each one tells you plainly that no build raises it yet, and what would have to exist before one did.
 
 A short code is deliberately opaque: four digits say nothing about a condition on their own, which is the price of an identifier short enough to read out, type into a search, or paste into a report. The correspondence below is what makes it usable. A number is handed out once, from a single ascending sequence, and is fixed from then on; it says nothing about the condition it names. So a short code is an identifier and nothing more — its value is not a classification, and neither it nor any grouping you may notice in the table is a guide to where a condition lives or to what it is about.
 
@@ -637,7 +641,6 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0231` | `cloudformation-provider-cfncore/link-consumer-stack-missing` | `cloudformation-provider: cross-boundary link resolve received no consumer stack template` |
 | `E0232` | `cloudformation-provider-cfncore/link-sentinel-interpolated` | `cloudformation-provider: cross-boundary link value is interpolated into a larger string; only a whole-scalar injection can carry a cross-stack reference` |
 | `E0233` | `cloudformation-provider-cfncore/output-name-collision` | `cloudformation-provider: two entries an author wrote reach one stack Output name` |
-| `E0234` | `compiler-renderer-compose/empty-source` | `recipe source is empty string; use nil for synthesized mode or a non-empty path for sourced mode` |
 | `E0235` | `compiler-renderer-compose/translation-config-map-missing-artifact` | `TRANSLATION_ERROR: configmap volume requires a file emitted via the Recipe's artifacts: input; none found` |
 | `E0236` | `compiler-renderer-compose/translation-probe-no-port` | `TRANSLATION_ERROR: probe http: requires at least one container port; container declares none` |
 | `E0237` | `compiler-renderer-compose/translation-probe-shape` | `TRANSLATION_ERROR: probe declares no shape (http/tcp/exec)` |
@@ -645,7 +648,6 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0239` | `compiler-renderer-compose/unsupported-compose-env-from` | `TRANSLATION_ERROR: compose has no env-from-object primitive; container declares envFrom` |
 | `E0240` | `compiler-renderer-compose/unsupported-compose-form` | `TRANSLATION_ERROR: compose cannot express this workload form` |
 | `E0241` | `compiler-renderer-compose/unsupported-compose-lifecycle` | `TRANSLATION_ERROR: compose has no lifecycle-hook primitive; container declares lifecycle hooks` |
-| `E0242` | `compiler-renderer-helm/empty-source` | `recipe source is empty string; use nil for sourceless mode or a non-empty path for sourced mode` |
 | `E0243` | `compiler-renderer-helm/rendered-file-collision` | `two rendered resources derive the same output filename with differing content` |
 | `E0244` | `compiler-renderer-helm/stateful-set-ambiguous-headless-service` | `synthesized StatefulSet has more than one headless Service` |
 | `E0245` | `compiler-renderer-helm/stateful-set-no-headless-service` | `synthesized StatefulSet has no headless governing Service` |
@@ -654,6 +656,8 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0248` | `wasm/wasm-output-shape` | `wasm: guest plugin returned an output that is not the shape the socket reads` |
 | `E0249` | `cloudformation-provider-cfncore/link-export-name-shadowed` | `cloudformation-provider: an export name a cross-boundary link derives is already declared by another Outputs entry in the same stack` |
 | `E0250` | `compiler-renderer/nest-segment-not-one-directory` | `boundary assembler named a per-node sub-directory that is not a single directory name` |
+
+- `E0002` is declared ahead of the code that reports it, so no build raises it yet. It will report a catalog lookup that fails during static analysis — a state that cannot arise while every component and feature an Aggregate or Release names is checked before analysis begins — once that stage surfaces such an inconsistency as a halt rather than ending its reading silently.
 <!-- END GENERATED: condition-short-codes -->
 
 ## Matching guidance
