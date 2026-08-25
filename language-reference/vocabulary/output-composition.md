@@ -111,9 +111,9 @@ A Recipe's three input kinds — sourced, synthesized, and artifacts — each em
 
 When two different nodes (in any combination of boundaries) contribute services with the same name to the merged compose output, the compose provider's `BoundaryComposer` halts with a `TRANSLATION_ERROR:` naming every contributing `(boundary, node, serviceName)` tuple. Detected at Release-level composition per [`providers/compose.md`](../providers/compose.md) Release-level output section.
 
-### Helm-chart sub-chart alias collision
+### Helm-chart sub-chart alias and directory
 
-When two component instances declare the same instance ID (after sanitisation) in the same boundary, the helm-chart provider's `BoundaryComposer` would write both sub-charts under the same `charts/<alias>/` path. The collision is structurally prevented today — instance IDs are unique per boundary by Aggregate-flattening rules — but the aliasing convention surfaces the boundary explicitly.
+A helm-chart sub-chart sits at `charts/<instance_id>/` and its values are scoped under its alias, which is the instance ID encoded for the alias position. Two instances cannot arrive at one alias unless their instance IDs are the same string, because the encoding writes out the characters an alias does not accept rather than substituting for them — so an alias identifies exactly one sub-chart, and the values written under it reach that sub-chart alone. Instance IDs are in turn unique per boundary by Aggregate-flattening rules, so the directory cannot collide either. Both halves are structural: neither rests on a check.
 
 ### Helm rendered-resource name collision
 

@@ -72,25 +72,36 @@ description: Aggrega umbrella chart at <assembly-path>
 dependencies:
   - name: <user-chart-name>                 # from the source chart's Chart.yaml
     version: <user-chart-version>           # from the source chart's Chart.yaml
-    alias: <instance_id>                    # sanitised
-    repository: file://charts/<instance_id>
+    alias: <encoded-instance-id>              # see "How a name is derived" below
+    repository: file://charts/<instance_id>    # the sub-chart's own directory
 ```
 
 ### Chart-name resolution
 
-The umbrella's chart `name` is resolved through the boundary annotation cascade. Each contributing boundary's effective `aggrega.ai/chart-name` annotation (the cascade-resolved value, walking up the boundary tree) determines the umbrella name. When the assembly path receives contributors from more than one boundary, every contributor's effective `aggrega.ai/chart-name` MUST resolve to the same value; mismatches halt the build with a diagnostic naming the conflicting values and the contributing boundaries.
+The umbrella's chart `name` is resolved through the boundary annotation cascade. Each contributing boundary's effective `aggrega.ai/chart-name` annotation (the cascade-resolved value, walking up the boundary tree) determines the umbrella name; the resolved value is encoded for the chart-name position exactly as any other identity is, so a value carrying only letters, digits, underscores and hyphens the rule below keeps reaches the chart verbatim. When the assembly path receives contributors from more than one boundary, every contributor's effective `aggrega.ai/chart-name` MUST resolve to the same value; mismatches halt the build with a diagnostic naming the conflicting values and the contributing boundaries.
 
-The cascade resolves the DRY tension naturally: declare `aggrega.ai/chart-name` once on the parent boundary and child boundaries inherit it through the cascade; sibling boundaries with no common parent must declare matching values explicitly. Boundaries with no `aggrega.ai/chart-name` declared anywhere in their cascade fall back to a sanitised concatenation of the aggregate name and the contributing boundary name (with `.` and `_` replaced by `-`), matching the legacy single-boundary shape.
+The cascade resolves the DRY tension naturally: declare `aggrega.ai/chart-name` once on the parent boundary and child boundaries inherit it through the cascade; sibling boundaries with no common parent must declare matching values explicitly. Boundaries with no `aggrega.ai/chart-name` declared anywhere in their cascade fall back to the aggregate name and the contributing boundary name, each encoded and joined as described below.
 
-Each dependency entry's `name` is the chart name extracted from the source chart's own `Chart.yaml`; the `alias` is the node's instance_id (sanitised). The alias serves two roles:
+Each dependency entry's `name` is the chart name extracted from the source chart's own `Chart.yaml`; the `alias` is the node's encoded instance_id. The alias scopes the sub-chart's values under `values.yaml.<alias>.*`, matching Helm's umbrella-values convention so per-instance values propagate correctly when the umbrella is installed.
 
-- It scopes the sub-chart under a unique path (`charts/<instance_id>/`) so multiple instances of the same source chart can coexist without filesystem collision.
-- It scopes the sub-chart's values under `values.yaml.<alias>.*`, matching Helm's umbrella-values convention so per-instance values propagate correctly when the umbrella is installed.
+The sub-chart's own directory keeps the instance_id exactly as authored, so `charts/<instance_id>/` is where each contributor's files land and what the dependency's `repository` points at. Two instances of the same source chart therefore coexist without a filesystem collision, and each keeps its own values block under its own alias.
+
+### How a name is derived
+
+A Helm chart name and a Helm dependency alias each accept a narrower set of characters than an aggregate name, a boundary path or an instance_id may carry. Rather than substitute for a character the target does not accept, the derivation writes it out, so two identities that differ only in punctuation always arrive at two names — and a value written under one alias can only ever reach the sub-chart that alias names.
+
+- A letter, a digit and an underscore are carried through exactly as authored.
+- A hyphen is kept as authored wherever the character after it is carried through directly and is not a lowercase `z`. A hyphen followed by a lowercase `z` opens an escape, so an authored one in that position is itself written out — `api-zone` becomes `api-zhzone`, which is what lets any name be read back without guessing.
+- Every other character is written as `-z` followed by a letter naming it: `d` for a dot, `s` for a path separator, `h` for a hyphen the rule above does not keep. Anything else is written as `x` and the character's six-digit hexadecimal code point, and a byte that begins no character at all as `b` and its own two-digit value — so a name that is not valid text is still written out distinctly rather than collapsed.
+- An empty value is written `-ze`, which no non-empty value can produce.
+- Where two identities compose one chart name — an aggregate name qualifying a boundary path — they are joined by `--`. A single encoded identity never contains that pair, so the joined name says unambiguously which identity is which.
+
+So an instance_id of `data.main-db` gives the alias `data-zdmain-db`, and the aggregate `fullstack-app` with the boundary path `dist/data/helm-chart` gives the chart name `fullstack-app--dist-zsdata-zshelm-chart`. Identical input always produces the identical name.
 
 The umbrella `values.yaml` is keyed by alias:
 
 ```yaml
-api-server:                          # sub-chart alias = sanitised instance_id
+api-server:                          # sub-chart alias = encoded instance_id
   image: "registry/api-server:v2"
   replicaCount: 3
 billing-svc:
@@ -104,8 +115,8 @@ When a sub-chart's `valuesMapping:` evaluates against its TemplateContext, the r
 
 - **Sub-chart `Chart.yaml` is required.** The copy operation enforces a present `Chart.yaml` at the source-path root. Missing it halts the build before the umbrella step runs.
 - **Default sub-chart version.** When the source chart's `Chart.yaml` declares no version (an unusual but valid Helm chart shape), the umbrella assigns `0.1.0` as a fallback for the dependency entry.
-- **Sanitised aliases and chart names.** Instance IDs and aggregate names with `.` or `_` characters have those replaced with `-` before they appear in chart-name or alias positions, matching Helm's name constraints. Authors who name aggregate or boundaries with `.`/`_` characters will see them transformed in the rendered umbrella.
-- **`file://` repository pointer.** The umbrella's dependency entries use a `file://charts/<alias>` repository pointer; this is the local-filesystem convention for in-tree sub-charts and lets `helm dependency build` resolve the umbrella without external registry calls.
+- **Encoded aliases and chart names.** An instance_id, aggregate name or boundary path carrying a character a Helm chart name or dependency alias does not accept appears encoded in the rendered umbrella, per "How a name is derived" above. An identity built only from letters, digits, underscores and hyphens the derivation keeps appears exactly as authored.
+- **`file://` repository pointer.** The umbrella's dependency entries use a `file://charts/<instance_id>` repository pointer, naming the sub-chart's own directory; this is the local-filesystem convention for in-tree sub-charts and lets `helm dependency build` resolve the umbrella without external registry calls.
 - **No template rendering at the helm-chart level.** The provider does not invoke the Helm SDK's render pipeline; it copies and composes. Authors who need pre-rendered flat manifests should use the helm provider's sourced mode instead.
 
 ## Worked example
