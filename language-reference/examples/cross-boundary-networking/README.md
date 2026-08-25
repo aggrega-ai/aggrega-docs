@@ -103,8 +103,9 @@ a distinct `aggrega.ai/namespace` annotation that cascades to every resource as
 ```text
 dist/frontend/helm/adminer-deployment.yaml      # metadata.namespace: frontend
 dist/frontend/helm/adminer-default-service.yaml # metadata.namespace: frontend
-dist/backend/helm/db-deployment.yaml            # metadata.namespace: backend
-dist/backend/helm/db-default-service.yaml        # metadata.namespace: backend
+dist/backend/helm/db-statefulset.yaml           # metadata.namespace: backend
+dist/backend/helm/db-default-service.yaml       # metadata.namespace: backend
+dist/backend/helm/db-headless-service.yaml      # metadata.namespace: backend
 ```
 
 There is **no `aggrega-gw`**. The helm `db` recipe publishes a **bare** service

@@ -25,7 +25,11 @@ in to the live database.
   same edge.
 - **Workload synthesis.** The compose and self-contained Kubernetes Recipes
   declare a capability-agnostic `Workload`; the provider synthesises a
-  `docker-compose.yaml` service or a `Deployment` + `Service` + `PersistentVolumeClaim`.
+  `docker-compose.yaml` service, or the Kubernetes objects the Workload's `form`
+  calls for — a `Deployment` and a `Service` for the stateless web UI, and for
+  the `form: stateful` database a `StatefulSet` whose per-replica volume claim
+  template carries the data directory, alongside the Headless `Service` that
+  governs it and the `ClusterIP` `Service` consumers dial.
 - **The credential subsystem.** Database passwords are attached in the
   component's `features:` pillar — each a `Feature` labeled
   `feature.aggrega.ai/kind: secret`, kept apart from application `values`. The
@@ -219,6 +223,15 @@ Open <http://localhost:8080> and log in:
 This target renders plain Kubernetes manifests directly from the `Workload`,
 with no external chart — a single offline build.
 
+The database's `Workload` declares `form: stateful`, so it synthesises a
+`StatefulSet` whose data directory is a per-replica volume claim template rather
+than a `Deployment` sharing one claim. Two companions travel with that form: the
+volume is declared as a `persistentTemplate`, and a Headless `Service` supplies
+the stable per-pod DNS identity the `StatefulSet` names as its governing
+service. Adminer keeps no state, so its `Workload` leaves `form` at the default
+and stays a `Deployment` — persistence is a property of the Workload, not a
+different component.
+
 ```bash
 aggrega build --release release-helm-synth.yaml --catalog catalog-helm-synth
 ```
@@ -226,9 +239,9 @@ aggrega build --release release-helm-synth.yaml --catalog catalog-helm-synth
 Output under `dist/app/helm/`:
 
 ```text
-db-deployment.yaml        # mariadb:11.4, env + volume mount
-db-data-pvc.yaml          # PersistentVolumeClaim for /var/lib/mysql
+db-statefulset.yaml       # mariadb:11.6, env + mount, volumeClaimTemplate for /var/lib/mysql
 db-default-service.yaml   # ClusterIP Service "db-default" on 3306
+db-headless-service.yaml  # Headless Service "db-headless" — the StatefulSet's serviceName
 web-deployment.yaml       # adminer:4, ADMINER_DEFAULT_SERVER: db-default
 web-default-service.yaml  # NodePort Service "web-default" on 8080
 ```
@@ -241,7 +254,7 @@ Apply and open it:
 
 ```bash
 kubectl apply -f dist/app/helm/
-kubectl rollout status deploy/db
+kubectl rollout status statefulset/db
 kubectl port-forward svc/web-default 8080:8080
 ```
 
