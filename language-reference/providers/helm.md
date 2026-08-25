@@ -42,9 +42,28 @@ A Recipe with `source: <chart-path>` and `valuesMapping:` runs the following pip
 3. The overlay is coalesced with the chart's `values.yaml` defaults; overlay keys win on collision (Helm's standard `helm install --values` semantics).
 4. The Helm SDK renders the chart's templates against the merged values.
 5. Aggrega injects its provenance metadata into the rendered manifests via post-render YAML rewriting, ensuring sourced output carries the same labelling as workload-mode output. Charset-safe values become labels (`app.kubernetes.io/name`, `aggrega.ai/component-id`, and — when set — `aggrega.ai/aggregate-name`, `aggrega.ai/compiler-version`, `aggrega.ai/environment`); values a Kubernetes label cannot represent become annotations (`aggrega.ai/recipe-uri`, `aggrega.ai/boundary-path`, `aggrega.ai/sync-wave`).
-6. Output files land flat in the Recipe's output directory, named `<nodeID>-<basename>.yaml` (the chart's directory layout is flattened — there is no `templates/` subdirectory in the rendered output).
+6. Output files land flat in the Recipe's output directory, one per rendered resource, named `<component-id>-<kind>[-<namespace>]-<name>.yaml` — the component identity the resource's `aggrega.ai/component-id` label carries, followed by the resource's own kind, namespace where it has one, and name, each lowercased with every run of other characters reduced to a single hyphen. A document carrying no kind or no name is named for its template path instead. The chart's directory layout is flattened: there is no `templates/` subdirectory in the rendered output, and two templates in different subdirectories that share a filename stay two files because the name comes from the resource rather than from the template.
 
 The namespace the chart renders against is read from the `aggrega.ai/namespace` annotation cascading from the boundary and reaches the chart as its release namespace; when no boundary declares one, the chart renders against `default`. Whether a rendered resource then carries `metadata.namespace` is the chart's own decision: a chart whose template writes the field emits it, and a chart that omits the field emits a resource with no namespace, placed by whatever the applying tool selects.
+
+### How the release name is derived
+
+A sourced chart renders against a release name, which reaches every template as `.Release.Name`. Charts routinely name resources after it, so a release name is an identity inside the cluster rather than a label on the build.
+
+The release name is the encoded form of the same component identity the rendered resource's `aggrega.ai/component-id` label carries and its output filename is prefixed with — an `instance_id` for an ordinary component, and the identity a boundary-scope Feature's emitted resources are attributed to. A Helm release name accepts a narrower set of characters than an identity may carry: lowercase letters, digits, hyphens and dots, beginning and ending with a lowercase letter or a digit, up to 53 characters. Rather than substitute for a character the target does not accept, the derivation writes it out, so two component identities differing only in punctuation or in case always arrive at two release names.
+
+- A lowercase letter and a digit are carried through exactly as authored.
+- A hyphen is kept as authored wherever the character after it is carried through directly and is not a lowercase `z`. A hyphen followed by a lowercase `z` opens an escape, so an authored one in that position is itself written out — `api-zone` becomes `api-zhzone`, which is what lets any name be read back without guessing. A hyphen with nothing after it is written out for the same reason, so `db-` gives `db-zh`.
+- Every other character is written as `-z` followed by a letter naming it: `d` for a dot, `u` for an underscore, `s` for a path separator, `h` for a hyphen the rule above does not keep. Anything else — an uppercase letter included — is written as `x` and the character's six-digit hexadecimal code point, and a byte that begins no character at all as `b` and its own two-digit value.
+- An empty value is written `-ze`, which no non-empty value can produce.
+
+A dot is written out rather than carried through, even though Helm accepts one in a release name, because Helm requires a lowercase letter or a digit on each side of a dot and the derivation places hyphens of its own.
+
+So an `instance_id` of `api` gives the release name `api`, `data.main-db` gives `data-zdmain-db`, and `db_host` gives `db-zuhost`. An identity built only from lowercase letters, digits and hyphens the derivation keeps appears exactly as authored. Identical input always produces the identical name.
+
+Two of Helm's conditions are properties of the identity rather than of the derivation, and the build checks neither: a release name has to begin with a lowercase letter or a digit, and it has to be at most 53 characters. An identity whose first character is written out begins its name with the hyphen every escape opens with, and an identity carrying characters that are written out encodes longer than it was authored. Nothing refuses such a name at build time; where a chart uses the release name as a resource name, the refusal comes from the cluster at apply time. Begin an `instance_id` with a lowercase letter or a digit, and keep it short enough that its encoded form still fits.
+
+**Changing the identity a release name is derived from renames the cluster resources a chart names after `.Release.Name`, and Kubernetes does not rename a resource in place.** The applying tool creates the resource under its new name and removes the one under the old name, which for stateful resources means the storage bound to the old name is released. Treat such a change as a replacement to be planned — drained, migrated, or scheduled — rather than as an update to be rolled out.
 
 ## Workload (synthesised) mode
 

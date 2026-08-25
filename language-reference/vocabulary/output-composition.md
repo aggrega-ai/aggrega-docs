@@ -16,7 +16,7 @@ Each mechanism lives at a specific Recipe / FeatureRecipe authoring surface and 
 
 **Output shape.** Provider-specific:
 
-- **helm provider** — flat Kubernetes YAML files, named `<nodeID>-<basename>.yaml` per chart-template emission. The Helm SDK renders the chart with the merged values; Aggrega injects provenance labels and annotations post-render.
+- **helm provider** — flat Kubernetes YAML files, named for the component identity and then for the resource itself: `<component-id>-<kind>[-<namespace>]-<name>.yaml`, with a document carrying no kind or no name named for its template path instead. The name comes from the resource rather than from the template, so two templates in different subdirectories that share a filename stay two files. The Helm SDK renders the chart with the merged values; Aggrega injects provenance labels and annotations post-render.
 - **helm-chart provider** — sub-chart files copied verbatim under `charts/<instance_id>/`; per-boundary umbrella `Chart.yaml` + `values.yaml` emitted alongside.
 - **compose provider** — intermediate `<nodeID>.compose-fragment.yaml` files that flow into Release-level composition (mechanism 5).
 
@@ -117,7 +117,9 @@ A helm-chart sub-chart sits at `charts/<instance_id>/` and its values are scoped
 
 ### Helm rendered-resource name collision
 
-Within a boundary, two nodes that render to the same Kubernetes resource name (e.g., two Deployments named `api-server`) produce two YAML files with overlapping `metadata.name` fields. The helm provider does not detect this at render time today — the file names differ (`<nodeID>-deployment.yaml` for each node, with different `<nodeID>`) but the `metadata.name` inside each file may collide. Kubernetes rejects the apply at runtime; the collision surfaces post-Aggrega rather than at the build.
+Within a boundary, two nodes that render to the same Kubernetes resource name produce two YAML files with overlapping `metadata.name` fields. The file names differ, because each is prefixed with its own component identity, while the `metadata.name` inside them may still meet — so the helm provider does not detect this at render time and Kubernetes rejects the apply instead, which surfaces the collision after the build rather than during it.
+
+**The largest case is closed by construction rather than checked.** A sourced chart that names its resources after the release name can no longer produce this, because two component identities that differ at all arrive at two release names — see [`providers/helm.md`](../providers/helm.md) "How the release name is derived". What remains is a chart that writes a resource name into its templates literally, which no derivation can tell apart from any other literal.
 
 The naming convention `<nodeID>-<kind>.yaml` plus the synthesised Service-name convention `<nodeID>-<svcName>` (per [`entities/workload.md`](../entities/workload.md) "Synthesised-name convention") makes cross-node collisions structurally impossible by construction. Authors who hit a runtime K8s rejection on a Deployment / Service name should look first at whether two different Recipes are emitting same-named resources via different rendering paths (e.g., a sourced chart's `templates/deployment.yaml` colliding with a workload-synthesised Deployment's `metadata.name`).
 
