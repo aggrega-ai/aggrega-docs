@@ -72,7 +72,7 @@ An error often crosses more than one surface on its way to the CLI: a load phase
     caused by: duplicate entity identity within a single catalog directory
 ```
 
-**Only the head carries a short code, and the continuations carry their category alone.** The condition is named once, at the point the reader meets the failure; the frames beneath a `caused by:` marker are that same failure seen from further in, so repeating its identifier on each would add lines without adding facts. The code the head prints is the one the chain names — here the rule at the very bottom — so a phase-context frame at the top still identifies the condition underneath it.
+**Only the head carries a short code, and the continuations carry their category alone.** The condition is named once, at the point the reader meets the failure; the frames beneath a `caused by:` marker are that same failure seen from further in, so repeating its identifier on each would add lines without adding facts. A `note:` block is not a continuation and does not follow this rule — it reports *other* documents' conditions rather than the same one from further in; [the section below](#a-refused-catalog-file-reported-beneath-a-resolution-failure) covers it. The code the head prints is the one the chain names — here the rule at the very bottom — so a phase-context frame at the top still identifies the condition underneath it.
 
 Reading top-down: the phase that failed, then the entity (with its file path) that caused it, then the rule it violated. A nested frame that adds nothing beyond its parent (same category, same source, a message the parent already contains) is deduplicated rather than repeated, and a terminal explanation renders only when the frames above it don't already carry its text.
 
@@ -90,6 +90,29 @@ When the failure forks beneath a frame — a phase that collected several indepe
 The collected failures beneath the count are continuations too, so none of them repeats the head's short code — which is what keeps a fork of a dozen violations from printing the same identifier a dozen times.
 
 One separator grammar applies throughout: `---` between sibling failures, `caused by:` between nested context frames.
+
+## A refused catalog file reported beneath a resolution failure
+
+Loading a catalog for a build or a pull is tolerant on purpose: a file that cannot be read, parsed or indexed is refused and recorded rather than aborting the whole load. That is what keeps a broken entity your Release never touches from failing an unrelated build.
+
+The consequence is that a refused file goes missing from the catalog silently — and if your Release *does* reach it, what fails is the attempt to resolve the reference, not the refusal itself. So a resolution failure carries a `note:` block listing every file the load refused, with the condition each refusal raised:
+
+```text
+resolve: resolve entity "server-recipe:1.0.0": catalog: tier-3 pull server-recipe:1.0.0: recipe reference must be provider-scoped (<provider>/<name>); an empty provider cannot bind to an OCI location: "server-recipe"
+  note: catalog files skipped at load. A refusal outside this Release's closure is tolerated and never fails a build,
+  so this failure is explained only by a refusal naming something this Release reaches:
+    - Recipe "server-recipe" (catalog/recipes/helm/server.yaml): [CATALOG_ERROR E0215] catalog/recipes/helm/server.yaml: document envelope validation failed (Recipe, at catalog/recipes/helm/server.yaml); 6:1: spec.implements: missing required property: implements. correct the document to match its kind's schema
+```
+
+Three things about that shape are worth knowing, because each answers a question the block would otherwise raise.
+
+**Every refusal is listed, not only the one that mattered.** The failure above the note names the *reference* that could not be bound; it does not name the file that would have provided it. So the note states the distinction instead of guessing: a refusal outside this Release's closure is tolerated and cannot be what failed, which leaves a refusal naming something the Release reaches as the only entry that explains it. Read the entries against what your Release actually uses.
+
+**Each entry carries its own bracketed head — its own category and its own short code.** This is the one place a short code appears below the head of the diagnostic, and it is not an exception to the continuation rule above but a consequence of it: an entry under `note:` is not the same failure seen from further in, it is a *different* condition raised by a *different* document. Naming its condition is what lets you look the refusal up and fix the file, which is the action the block exists to enable.
+
+**The failure keeps its own identity.** The note is added to the failure rather than rendered over it, so the condition the failure raised stays intact: its short code still resolves, and a tool matching on the condition still matches. Nothing about the diagnostic above the note changes because a note was attached.
+
+A refused file whose header was too malformed to recover its kind and name is listed by path alone. That is the honest reading of a document nothing could peek at, and it is still enough to open the file.
 
 ## The document-envelope failure class
 
