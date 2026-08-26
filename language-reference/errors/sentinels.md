@@ -238,6 +238,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrParametersImportLoad()` | `resolver/parameters-import-load` | `parameters $import: load failed` |
 | `ErrProvidesKeyNotDeclared()` | `resolver/provides-key-not-declared` | `Recipe publishes a provides key its Component does not declare` |
 | `ErrSchemaConformance()` | `resolver/schema-conformance` | `authored pillar does not conform to its declared schema` |
+| `ErrSchemaContractCompileFailure()` | `resolver/schema-contract-compile-failure` | `declared schema contract failed to compile, so nothing was validated against it: correct the contract where it is declared, or remove it if the configuration it covers needs no validation` |
 | `ErrSelfInjectForbidden()` | `resolver/self-inject-forbidden` | `self-inject on component without spec.inject allowlist` |
 | `ErrTriadRefUnresolvable()` | `resolver/triad-ref-unresolvable` | `aggregate/manifest reference unresolvable` |
 | `ErrUnknownUsesSocket()` | `resolver/unknown-uses-socket` | `unknown uses socket: name a socket the entity declares in its usesSchema — only a component's own uses block may name one the catalog did not declare` |
@@ -670,6 +671,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0254` | `resolver/annotation-subkey-not-conforming` | `annotation subkey does not conform to the target Feature's schema at the routed pillar` |
 | `E0255` | `resolver/annotation-side-pillar-mismatch` | `annotation routes through a pillar its authoring side may not use` |
 | `E0256` | `resolver/annotation-binding-pillar-overlap` | `annotation binding declares one path in both pillar lists` |
+| `E0257` | `resolver/schema-contract-compile-failure` | `declared schema contract failed to compile, so nothing was validated against it: correct the contract where it is declared, or remove it if the configuration it covers needs no validation` |
 
 - `E0002` is declared ahead of the code that reports it, so no build raises it yet. It will report a catalog lookup that fails during static analysis — a state that cannot arise while every component and feature an Aggregate or Release names is checked before analysis begins — once that stage surfaces such an inconsistency as a halt rather than ending its reading silently.
 

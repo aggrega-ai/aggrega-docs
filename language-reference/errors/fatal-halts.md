@@ -338,6 +338,27 @@ Emitted message:
 
 **How to fix:** correct the offending value to satisfy the declared schema, or — if the value is legitimate — widen the declaring schema (the Component's `schema.values`/`schema.infra`, or the attached Feature's/Secret's) to declare it. Inspect a Component's declared schema with `aggrega inspect <component-type>` to see the exact types, ranges, defaults, and required fields each pillar expects.
 
+### A declared schema contract does not compile
+
+<!-- covers: pkg/resolver.ErrSchemaContractCompileFailure -->
+
+A Component type declares a schema contract that cannot be compiled to JSON Schema 2020-12, so there is nothing to validate the configuration it covers against. Three contracts can carry the fault, each authored in its own field: the type's own `spec.schema`, and the two per-edge contracts a dependency socket declares — `valueSchema` for the developer's side of a connection and `infraSchema` for the operator's.
+
+**Declaring no contract and declaring one that does not compile are different situations, and the build treats them differently.** A field that declares nothing is skipped: per-pillar and per-edge conformance is opt-in, so a socket that constrains neither pillar is ordinary authoring and draws no diagnostic. A field that declares something unreadable is refused. Passing it over would leave every payload it covers unvalidated while the build reported success — a check that has stopped running with nothing to say that it stopped. So the refusal is what keeps the two apart: silence means there was nothing to check, and a halt means there was something and it could not be read.
+
+The refusal names the entity that **declared** the contract rather than the document that wrote the configuration, because that is where the correction goes. An application author handed a component type whose contract does not compile has nothing to change in their own file.
+
+The message carries the compile failure as the compact-form compiler reported it: the key inside the contract, the source line, and the offending keyword. A typo'd keyword is the commonest cause — the compact form rejects an unknown keyword rather than ignoring it, precisely so that a mistyped constraint cannot silently become no constraint. A cross-document `$ref:` whose SchemaLibrary entry is not in the loaded closure reaches the same halt.
+
+**A well-formed constraint beside a broken one is not enforced.** A contract compiles as one document, so a single unreadable keyword disables every constraint declared alongside it. That is why the halt is worth more than the constraints it costs: the alternative is a contract that looks enforced, reads as enforced, and enforces nothing.
+
+Emitted message:
+> declared schema contract failed to compile, so nothing was validated against it: correct the contract where it is declared, or remove it if the configuration it covers needs no validation (Component `<type>`, at `.spec.schema`, `<compile failure>`)
+> declared schema contract failed to compile, so nothing was validated against it: correct the contract where it is declared, or remove it if the configuration it covers needs no validation (Component `<type>`, at `.spec.usesSchema.<socket>.valueSchema`, `<compile failure>`)
+> declared schema contract failed to compile, so nothing was validated against it: correct the contract where it is declared, or remove it if the configuration it covers needs no validation (Component `<type>`, at `.spec.usesSchema.<socket>.infraSchema`, `<compile failure>`)
+
+**How to fix:** open the field the diagnostic names and correct the fragment at the reported key and line — most often a mistyped keyword, checked against the keyword vocabulary in [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md). Where the failure names a cross-document reference, confirm the SchemaLibrary entry exists and that the library is reachable from the Release's dependency closure. If the configuration that field covers genuinely needs no validation, remove the field rather than leaving a contract nothing can read.
+
 ### Recipe `source:` is an empty string
 
 <!-- covers: internal/compiler/renderer.ErrEmptySource -->
@@ -1002,6 +1023,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0253` | `annotation binding does not resolve against its target Feature` | Annotation binding does not resolve against its target Feature |
 | `E0254` | `annotation subkey does not conform to the target Feature's schema at the routed pillar` | A bound annotation value does not conform to the target Feature's schema |
 | `E0255` | `annotation routes through a pillar its authoring side may not use` | An annotation routes through a pillar its authoring side may not use |
+| `E0257` | `declared schema contract failed to compile, so nothing was validated against it: correct the contract where it is declared, or remove it if the configuration it covers needs no validation` | A declared schema contract does not compile |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
