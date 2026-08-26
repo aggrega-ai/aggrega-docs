@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: delegated
+  version: "1.0.0"
+  description: >
+    The same database with the same slot filled by the engine-managed peer. The
+    attachment authors no value, so there is no authored leaf to mark — while
+    the attachment is still sensitive at the whole-attachment answer, because
+    the slot it fills is declared sensitive. That is what makes this release the
+    control: a rule keyed on the whole-attachment answer refuses it too.
+spec:
+  components:
+    db:
+      type: core/datastore/mariadb
+      values:
+        database: appdb
+        user: appuser
+      features:
+        # core/generated-secret is the engine-manages half of the pair. It
+        # declares no values, so the attachment authors nothing.
+        root_password:
+          type: core/generated-secret

@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+workspace:
+  catalog_dirs:
+    # The workspace's own catalog first: it declares the governance Plugin
+    # entity attached below. Then the standard-library catalog, which supplies
+    # the Component, the two credential Features and their Recipes.
+    - ./catalog
+    - ../../../../aggrega-hub/aggrega-catalog
+# Online default: a standalone consumer without the sibling catalog above
+# resolves catalog entities from the hub registry.
+default_registry: hub.aggrega.ai
+
+# The governance socket. One attachment, in the verdict role that reads the
+# build graph: it returns an accept-or-reject and never a change, so a policy
+# here can stop a build and cannot rewrite one into compliance.
+#
+# Swap the source to policy-attachment-wide.rego to run the control described
+# in the README — the same two builds, judged by the whole-attachment answer
+# instead of by the authored leaf.
+plugins:
+  governance:
+    - uri: governance/rego:1.0.0
+      role: ir-verdict
+      with:
+        sources:
+          - policy.rego

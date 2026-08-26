@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: delegated
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: ./aggregate-delegated.yaml
+  manifest: ./manifest.yaml
+  boundaries:
+    infra:
+      # Each release writes into its own directory. There is no flag for the
+      # output location — the boundary names it — so two releases sharing one
+      # directory would have the second overwrite the first.
+      directory: infra-delegated
+      components:
+        db:
+          infra:
+            engine_version: "11.4"
+            storage:
+              size: 100Gi
+              type: gp3

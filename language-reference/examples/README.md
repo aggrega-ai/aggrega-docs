@@ -99,8 +99,8 @@ Features, Recipes, Manifests, and the provider matrix.
 ## Advanced
 
 The compiler frontier: boundary-scope FeatureRecipes, parameter hoisting,
-annotation-driven Feature expansion, and cross-boundary networking across
-providers.
+annotation-driven Feature expansion, governance policy over the build graph, and
+cross-boundary networking across providers.
 
 - **[advanced-platform](advanced-platform/)** — a multi-boundary Kubernetes
   platform. Boundary-scope FeatureRecipes (a shared-config ConfigMap rendered
@@ -123,6 +123,16 @@ providers.
   every contained component — each rendering a Prometheus ServiceMonitor with its
   cascade-resolved profile, with no per-component `features:` blocks. Shows
   structured-annotation per-subkey deep merge.
+- **[policy-authored-leaf-sensitivity](policy-authored-leaf-sensitivity/)** — an
+  operator-authored Rego policy attached over the build graph, refusing one
+  release and permitting its control. The same managed database and the same
+  required credential slot, filled two ways: by the Feature whose material the
+  deployment supplies, and by the Feature the target engine provisions for
+  itself. The policy reads the per-authored-leaf sensitivity marking, so it names
+  the one leaf the attachment authored that its Feature declares sensitive and
+  leaves the delivery key beside it alone. Attaching the control policy — the
+  same walk keyed on the whole-attachment answer — refuses both releases
+  instead, which is what shows why the narrower fact exists.
 
-*Planned — Wasm policy/mutator plugins, `pipeline:` execution, and the
-`eval` provider join this tier as those capabilities ship.*
+*Planned — `pipeline:` execution and the `eval` provider join this tier as
+those capabilities ship.*

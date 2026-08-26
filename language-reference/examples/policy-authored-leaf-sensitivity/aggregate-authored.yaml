@@ -1,0 +1,34 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: authored
+  version: "1.0.0"
+  description: >
+    One managed MariaDB database whose root-password slot is filled by the
+    deployment-supplies credential Feature. The attachment authors two values:
+    the delivery key, which the Feature leaves unmarked, and the material
+    itself, which the Feature declares sensitive. The house policy refuses this
+    build over the second one.
+spec:
+  components:
+    db:
+      type: core/datastore/mariadb
+      values:
+        database: appdb
+        user: appuser
+      features:
+        # core/secret-value is the deployment-supplies half of the credential
+        # pair: the material originates here and travels the inject pipe.
+        root_password:
+          type: core/secret-value
+          values:
+            # A delivery key. The Feature declares it not sensitive, because a
+            # key names where material lives rather than being the material.
+            key: MARIADB_ROOT_PASSWORD
+            # The material. The Feature declares this leaf sensitive, and it is
+            # the leaf the policy names. The string is a placeholder for a
+            # worked example and is not a credential for any real service.
+            origin: root-password-in-the-clear
