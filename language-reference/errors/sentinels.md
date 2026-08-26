@@ -441,7 +441,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0025` | `compiler-rendercore/scheduled-form-requires-schedule` | `form: scheduled requires a schedule` |
 | `E0026` | `compiler-renderer/artifact-content-mismatch` | `imported artifact content does not match the recipe's recorded digest` |
 | `E0027` | `compiler-renderer/artifact-import-shape` | `artifacts $import: is not a bare-name artifacts-library reference (<Library>#/artifacts/<entry>)` |
-| `E0028` | `compiler-renderer/artifact-output-collision` | `artifacts output filename collision: two artifact outputs resolve to the same filename` |
+| `E0028` | `compiler-renderer/artifact-output-collision` | `artifacts output filename collision: two artifact outputs carry the same filename` |
 | `E0029` | `compiler-renderer/artifact-pillar-not-declared` | `artifact template references a pillar the Recipe does not declare` |
 | `E0030` | `compiler-renderer/artifacts-library-entry-not-found` | `artifacts-library import references a bundle not present in the ArtifactsLibrary` |
 | `E0031` | `compiler-renderer/artifacts-library-not-found` | `artifacts-library import references an ArtifactsLibrary not present in the catalog` |
