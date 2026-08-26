@@ -7,9 +7,10 @@ metadata:
   name: mariadb-bitnami
   version: 1.0.0
   description: >
-    MariaDB via Bitnami Helm chart (bitnami/mariadb). The chart version is read
-    from .values.chart_version — a developer-authored value flowing from the
-    Aggregate into source resolution.
+    MariaDB via Bitnami Helm chart (bitnami/mariadb). The chart version comes
+    from the operator's infra.source_version where the Release pins one, and
+    otherwise from .values.chart_version — a developer-authored value flowing
+    from the Aggregate into source resolution.
   maintainers:
     - name: "Massimiliano Ferrero"
       email: "m.ferrero@cognitio.it"
@@ -21,9 +22,11 @@ spec:
     kind: helm-oci-chart
     # OCI chart reference: registry path plus the chart name.
     url: oci://registry-1.docker.io/bitnamicharts/mariadb
-    # Chart version read from a developer-authored value: it flows from the
-    # Aggregate into source resolution and pins identically at lock and build.
-    version: "{{ .values.chart_version }}"
+    # Chart version: the operator's infra pin where the Release sets one,
+    # otherwise the developer-authored value flowing in from the Aggregate.
+    # `optional` reads the pin by name, so an absent pin falls through to the
+    # value; either way the resolved version pins identically at lock and build.
+    version: "{{ optional .infra `source_version` .values.chart_version }}"
 
   locals:
     primary_compute: "mariadb"

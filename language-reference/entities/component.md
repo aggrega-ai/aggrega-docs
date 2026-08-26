@@ -156,11 +156,14 @@ infra:
   source_version:
     type: string
     description: |
-      Overrides the Recipe's default source artifact version.
-      Changing from default does not guarantee value mapping compatibility.
+      Source artifact version. A Recipe versions its artifact from this key
+      where its source resolution reads it, and is unaffected where it does not.
+      Changing from the version a Recipe was authored against does not
+      guarantee value mapping compatibility.
 ```
 
-The Recipe reads this as a Go template default in its `source` block:
+The Recipe reads this through the `optional` helper in its `source` block, so an
+absent pin falls through to the version the Recipe was authored against:
 
 ```yaml
 source:

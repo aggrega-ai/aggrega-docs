@@ -40,8 +40,9 @@ in to the live database.
 - **Remote chart sources.** The managed Kubernetes target sources the upstream
   Bitnami MariaDB chart by OCI reference. `aggrega pull` pins the chart in a
   lockfile and fetches it into a content-addressed cache; `aggrega build` renders
-  from that cache, so lock-time and build-time resolve the same chart. A
-  developer-authored value selects the chart version (a value flowing into source
+  from that cache, so lock-time and build-time resolve the same chart. The chart
+  version comes from the operator's `infra.source_version` where the Release pins
+  one, and otherwise from a developer-authored value (a value flowing into source
   resolution). The per-release lockfiles pin entity identities and digests:
   after catalog entities are renamed or their content changes, refresh a stale
   local lockfile with
@@ -129,7 +130,7 @@ spec:
         user: appuser
         charset: utf8mb4
         collation: utf8mb4_general_ci
-        chart_version: "25.0.8"          # selects the managed-chart target's chart
+        chart_version: "25.0.8"          # the managed-chart target's chart, absent an operator pin
       features:
         root_password:                    # black-box slot: the FeatureRecipe delivers it
           type: core/secret-value
@@ -278,7 +279,7 @@ spec:
   source:
     kind: helm-oci-chart
     url: oci://registry-1.docker.io/bitnamicharts/mariadb
-    version: "{{ .values.chart_version }}"   # a value flowing into source resolution
+    version: "{{ optional .infra `source_version` .values.chart_version }}"   # operator pin, else the value
   valuesMapping: |
     auth:
       database: "{{ .values.database }}"
@@ -291,11 +292,20 @@ spec:
     # … resources, HA, metrics mapped from infra …
 ```
 
-The chart version is taken from a developer-authored `.values.chart_version`,
-showing a value flowing into source resolution. Operationally a chart version is
-more often an infrastructure concern — the Component also exposes
-`infra.source_version` for that — so this is a demonstration of the mechanism,
-not a recommendation to pin chart versions from developer values.
+The Recipe's `source.version` prefers the operator's `infra.source_version` and
+falls back to the developer-authored `.values.chart_version`. Chart-version
+pinning is an infrastructure concern, so the operator's pin wins wherever a
+Release sets one; this Release deliberately sets none, so the `.values` key is the
+version that actually resolves — which is the whole point of the target, because a
+developer value reaching source resolution is only observable in the rendered
+output while the operational pin is absent. Pin `source_version` on the `db`
+component in `release-helm-bitnami.yaml` and the rendered `helm.sh/chart` label
+follows that version instead.
+
+`optional` reads the pin by name rather than as a dotted path, which is what lets
+an absent pin fall through to the developer value rather than resolve to an empty
+version — see [`optional`](../../templates/sprig-functions.md#optional--presence-aware-fallback)
+for the presence-check semantics.
 
 Building this target is a two-step flow: `aggrega pull` resolves the chart,
 pins it in `release-helm-bitnami.lock`, and fetches it into the content-addressed
