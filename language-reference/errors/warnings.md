@@ -30,15 +30,19 @@ LINT: Feature "core/db-pool" at ./catalog/feature/core/db-pool.yaml declares pro
 
 **Fires when** a Manifest annotation binding declares the same dotted path in both its `maps.infra` and `maps.values` lists. The path would route through both pillars; the compiler's deterministic tie-break sends it through `infra:`, which makes the `values:` side unreachable from the Aggregate. The lint surfaces this so the author can either narrow the binding to a single pillar or accept the infra-side-only routing consciously.
 
-**Pipeline placement.** The lint runs at workspace load, after Manifest resolution but before any annotation expansion fires. It walks every annotation binding's `maps.infra` and `maps.values` lists, computes the intersection, and emits one warning per overlapping path.
+**Pipeline placement.** The lint runs at workspace load, after Manifest resolution but before any annotation expansion fires. It walks every annotation binding's `maps.infra` and `maps.values` lists — the flat `features:` tier first, then each per-provider tier in the order they were authored — computes the intersection, and reports one finding per overlapping path. Within one binding, overlapping paths are reported in sorted order, so repeated runs over identical input report an identical sequence.
 
 **Emit shape:**
 
 ```text
-  LINT: Manifest annotation binding "compliance.aggrega.ai/data-class" on Feature "core/data-masking" declares path "classifier_endpoint" in both Maps.Infra and Maps.Values; the runtime deterministically routes this subkey through the infra pillar, making it Aggregate-inaccessible (side-vs-pillar enforcement halts the Aggregate side at expansion time)
+  lint: annotation binding declares one path in both pillar lists (Manifest, at .spec.mappings.features.annotations.compliance.aggrega.ai/data-class, annotation binding "compliance.aggrega.ai/data-class" on Feature "core/data-masking" declares path "classifier_endpoint" in both maps.infra and maps.values; the routing tie-break sends this subkey through the infra pillar, which makes it unreachable from the Aggregate side — declare two bindings under two annotation keys if both pillars are meant to route it)
 ```
 
-**Deterministic tie-break.** The runtime resolves the collision by routing the path through the `infra:` pillar exclusively. The choice is consistent across builds; the author can rely on it. The `values:` side is silently dropped from the binding's effective routing — Aggregate-side annotations attempting to reach the path receive no routing target and the side-vs-pillar enforcement at expansion time halts the Aggregate side with a clear error. The lint is the early warning surface; the fatal-halt at expansion time is the runtime enforcement surface.
+**Editor visibility.** The finding also reaches editor diagnostics through the language server, at warning severity, positioned on the annotation-binding block it names. An author who never reads terminal output still sees it.
+
+**Matching it programmatically.** The finding carries `ErrAnnotationBindingPillarOverlap` from `pkg/resolver`, so a consumer recognises the class with `errors.Is` rather than by matching the message text. Like every advisory sentinel it never reaches a build's verdict — see [sentinels.md](./sentinels.md) for the accessor and the condition's codes.
+
+**Deterministic tie-break.** The runtime resolves the collision by routing the path through the `infra:` pillar exclusively. The choice is consistent across builds; the author can rely on it. The `values:` side is dropped from the binding's effective routing — Aggregate-side annotations attempting to reach the path receive no routing target and the build halts on the Aggregate side at expansion time, under the halt described at [fatal-halts.md](./fatal-halts.md) "An annotation routes through a pillar its authoring side may not use". The lint is the early warning surface; that halt is the enforcement surface.
 
 **Authoring note.** Like the schema-pillar-overlap lint, this lint is advisory — the binding compiles and the runtime tie-break produces deterministic output. The lint fires because the authoring pattern is almost always unintended; a binding author who genuinely wanted both pillars to route the same path would author two separate bindings with different annotation keys.
 

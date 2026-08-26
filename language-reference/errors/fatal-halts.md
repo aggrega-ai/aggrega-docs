@@ -249,32 +249,67 @@ Emitted message:
 
 **How to fix:** reconcile the two declarations. Aggregate-side and Release-side declarations of the same feature instance combine by pillar — Aggregate contributes `values`, Release contributes `infra`. If both sides specify the same non-pillar field (such as `type:`), the values must match; correct one side to match the other, or drop the redundant declaration.
 
-### Annotation binding targets a non-existent Feature or path
+### Annotation binding does not resolve against its target Feature
+
+<!-- covers: pkg/resolver.ErrAnnotationBindingTargetUnresolved -->
 
 A Manifest annotation binding's `feature:` field names a Feature that the catalog does not load, or the binding's `maps.infra` / `maps.values` lists declare dotted paths that the named Feature's `spec.schema` does not actually carry. Either condition halts workspace load — the binding would synthesise Feature attachments routing values into paths the runtime cannot resolve.
 
-The validator fires three distinct conditions:
+One condition covers the three ways a binding's route fails to resolve, and the diagnostic names which of them was met:
 
 - **Feature not found.** The `feature:` value references a Feature URI absent from the loaded catalog.
-- **Feature schema compile error.** The named Feature loads but its `spec.schema:` is malformed and cannot be compiled to a JSON Schema 2020-12 representation.
+- **Feature schema compile error.** The named Feature loads but its `spec.schema:` is malformed and cannot be compiled to a JSON Schema 2020-12 representation. This variant carries the compile failure's own diagnostic behind it, so the reason the schema did not compile is readable from the same halt.
 - **Binding path not in target schema.** The binding's `maps.infra` or `maps.values` entry names a dotted path the Feature's `spec.schema.<pillar>.<path>` does not declare.
-- **Bound value does not conform to the target schema.** A value routed to a declared path does not satisfy the Feature schema's sub-schema at that path — a wrong type, or (now validated in full) an out-of-`enum` value, a `pattern` mismatch, an out-of-range number, or a malformed nested shape.
 
-Emitted messages (Feature-not-found variant):
+Emitted message (Feature-not-found variant):
 
-> CATALOG_ERROR: annotation binding `<key>` targets Feature `<feature-uri>`, but no such Feature is loaded in the catalog
+> annotation binding does not resolve against its target Feature (Manifest, at `.spec.mappings.features.annotations.<key>`, annotation binding `<key>` targets Feature `<feature-uri>`, but no such Feature is loaded in the catalog)
 
-Emitted messages (path-not-found variant):
+Emitted message (schema-compile variant):
 
-> OPS_ERROR: annotation binding `<key>` routes through pillar `<pillar>` at path `<path>` on Feature `<feature-uri>`, but the Feature's spec.schema does not declare a property at that path
+> annotation binding does not resolve against its target Feature: annotation binding `<key>` targets Feature `<feature-uri>` whose spec.schema does not compile: `<compile failure>`
 
-Emitted messages (value-conformance variant):
+Emitted message (path-not-found variant):
 
-> OPS_ERROR: annotation subkey `<subkey>` value `<value>` does not conform to Feature `<feature-uri>` spec.schema.`<pillar>`.`<subkey>`: `<constraint failure>`
+> annotation binding does not resolve against its target Feature (Manifest, at `.spec.mappings.features.annotations.<key>`, annotation binding `<key>` routes through pillar `<pillar>` at path `<path>` on Feature `<feature-uri>`, but the Feature's spec.schema does not declare a property at that path)
+
+**How to fix:** confirm the binding's `feature:` URI exists in the catalog and matches the case-sensitive URI a Recipe `implements:`. If the path-not-found variant fires on a path the Feature schema does declare, confirm the dotted path spelling (case-sensitive) and the pillar name (`infra` vs `values`).
+
+### A bound annotation value does not conform to the target Feature's schema
+
+<!-- covers: pkg/resolver.ErrAnnotationSubkeyNotConforming -->
+
+An annotation you authored routes a value, through a binding, to a path on the target Feature — and the value does not satisfy the sub-schema the Feature declares at that path, or the Feature declares no property there at all. The condition is read over the value rather than over the binding, which is why it is separate from the binding-target halt above: that one refuses what the Manifest declares, this one refuses what was written through it.
 
 **Full validation at the located path; soft-skip only when the path cannot be located.** Once the bound subkey's sub-schema is located, the value is validated against the **complete** JSON Schema 2020-12 constraint set at that path (type, enum, pattern, numeric range, nested object/array shape) — a terminal `$ref` / `allOf` / `oneOf` is resolved against the schema's definitions and validated, not skipped. The soft-skip discipline applies only to *navigation*: when the walker meets an escape hatch (`$ref`, `patternProperties`, `oneOf`/`anyOf`/`allOf`, or schema-bodied `additionalProperties`) on an **intermediate** segment — before reaching the bound leaf — the path is not statically resolvable, so the validator continues without raising the error rather than risk a false halt; the runtime remains the validation surface for that binding.
 
-**How to fix:** confirm the binding's `feature:` URI exists in the catalog and matches the case-sensitive URI a Recipe `implements:`. If the path-not-found variant fires on a path the Feature schema does declare, confirm the dotted path spelling (case-sensitive) and the pillar name (`infra` vs `values`). For the value-conformance variant, correct the bound value to satisfy the declared sub-schema, or widen that property's schema if the value is legitimate. When an intermediate composition operator makes a path unresolvable and the runtime later rejects it, narrow the schema to surface the property at the binding's path directly.
+Emitted message (value-conformance variant):
+
+> annotation subkey does not conform to the target Feature's schema at the routed pillar: annotation subkey `<subkey>` value `<value>` does not conform to Feature `<feature-uri>` spec.schema.`<pillar>`.`<subkey>`: `<constraint failure>`
+
+Emitted message (undeclared-subkey variant):
+
+> annotation subkey does not conform to the target Feature's schema at the routed pillar: annotation subkey `<subkey>` is not declared at Feature `<feature-uri>` spec.schema.`<pillar>`.`<subkey>`
+
+The halt is raised during annotation expansion, so the diagnostic is wrapped with the scope the value was authored at — the boundary and component for a Release-side annotation, the component path for an Aggregate-side one — and the annotation key it came from.
+
+**How to fix:** correct the bound value to satisfy the declared sub-schema, or widen that property's schema if the value is legitimate. The undeclared-subkey variant is usually pre-empted by the binding-target halt above; reaching it means the binding declares the path and the Feature's schema does not carry it, so correct whichever of the two is wrong. When an intermediate composition operator makes a path unresolvable and the runtime later rejects it, narrow the schema to surface the property at the binding's path directly.
+
+### An annotation routes through a pillar its authoring side may not use
+
+<!-- covers: pkg/resolver.ErrAnnotationSidePillarMismatch -->
+
+Annotations are partitioned by authoring side, and the partition is the same one that governs every other authored pillar: an **Aggregate**-side annotation may route only through a binding path targeting `values`, and a **Release**-side annotation only through a path targeting `infra`. Any other pairing halts.
+
+The partition is what stops the annotation shortcut from becoming a way to author the other side's pillar. A developer's annotation contributes application values; an operator's contributes infrastructure sizing. A binding that declares paths in both pillars is not itself an error — each side routes the subset it is permitted, and the other side's paths are simply not reachable from it.
+
+A binding declaring one path in **both** pillar lists is the case that reaches this halt most often. The routing tie-break sends such a path through `infra`, which makes it unreachable from the Aggregate side, and an Aggregate-side annotation routing to it halts here. The advisory that names that binding shape before a build reaches this halt is described in [warnings.md](./warnings.md).
+
+Emitted message:
+
+> annotation routes through a pillar its authoring side may not use: annotation `<key>` at `<source>` routes through pillar `<pillar>` at path `<path>`, but `<side>`-side annotations may only route through pillar `<permitted-pillar>`
+
+**How to fix:** route the annotation from the side whose pillar the binding targets, or add a binding — under its own annotation key — whose paths target the pillar the authoring side is permitted. Where one binding declares the same path in both pillar lists, split it into two bindings so each side has a path it can reach.
 
 ### Authored values or infra do not conform to the declared schema
 
@@ -964,6 +999,9 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0215` | `document envelope validation failed` | YAML anchor aliased inside its own content; Divergent Release (extends + aggregate pointer) |
 | `E0249` | `cloudformation-provider: an export name a cross-boundary link derives is already declared by another Outputs entry in the same stack` | An authored export name is one the build derives for a cross-stack reference |
 | `E0251` | `recipe source is an empty string, which names neither sourceless mode nor sourced mode` | Recipe `source:` is an empty string |
+| `E0253` | `annotation binding does not resolve against its target Feature` | Annotation binding does not resolve against its target Feature |
+| `E0254` | `annotation subkey does not conform to the target Feature's schema at the routed pillar` | A bound annotation value does not conform to the target Feature's schema |
+| `E0255` | `annotation routes through a pillar its authoring side may not use` | An annotation routes through a pillar its authoring side may not use |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

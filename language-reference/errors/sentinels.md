@@ -215,6 +215,10 @@ A few names appear in more than one package. Those are re-exports of one shared 
 
 | Sentinel | Code | Message |
 | --- | --- | --- |
+| `ErrAnnotationBindingPillarOverlap()` | `resolver/annotation-binding-pillar-overlap` | `annotation binding declares one path in both pillar lists` |
+| `ErrAnnotationBindingTargetUnresolved()` | `resolver/annotation-binding-target-unresolved` | `annotation binding does not resolve against its target Feature` |
+| `ErrAnnotationSidePillarMismatch()` | `resolver/annotation-side-pillar-mismatch` | `annotation routes through a pillar its authoring side may not use` |
+| `ErrAnnotationSubkeyNotConforming()` | `resolver/annotation-subkey-not-conforming` | `annotation subkey does not conform to the target Feature's schema at the routed pillar` |
 | `ErrAttachmentSlotNearMiss()` | `resolver/attachment-slot-near-miss` | `attachment name is a near miss for a declared slot` |
 | `ErrAttachmentSlotShape()` | `resolver/attachment-slot-shape` | `attachment does not conform to its declared slot shape` |
 | `ErrDuplicateBoundaryComponent()` | `resolver/duplicate-boundary-component` | `component declared in more than one boundary: declare each component in exactly one boundary` |
@@ -662,6 +666,10 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0250` | `compiler-renderer/nest-segment-not-one-directory` | `boundary assembler named a per-node sub-directory that is not a single directory name` |
 | `E0251` | `compiler-renderer/empty-source` | `recipe source is an empty string, which names neither sourceless mode nor sourced mode` |
 | `E0252` | `compiler-renderer/artifacts-library-file-escapes-key` | `artifacts-library bundle file name leaves the artifacts key its output is nested under` |
+| `E0253` | `resolver/annotation-binding-target-unresolved` | `annotation binding does not resolve against its target Feature` |
+| `E0254` | `resolver/annotation-subkey-not-conforming` | `annotation subkey does not conform to the target Feature's schema at the routed pillar` |
+| `E0255` | `resolver/annotation-side-pillar-mismatch` | `annotation routes through a pillar its authoring side may not use` |
+| `E0256` | `resolver/annotation-binding-pillar-overlap` | `annotation binding declares one path in both pillar lists` |
 
 - `E0002` is declared ahead of the code that reports it, so no build raises it yet. It will report a catalog lookup that fails during static analysis — a state that cannot arise while every component and feature an Aggregate or Release names is checked before analysis begins — once that stage surfaces such an inconsistency as a halt rather than ending its reading silently.
 
