@@ -30,7 +30,7 @@ _Additional properties are not permitted._
 | `version` | string | yes | Strict Semantic Versioning of the aggregate module. |
 | `description` | string | no |  |
 | `maintainers` | object[] | no | List of maintainers who own this entity. |
-| `license` | string | no | Legal compliance license (e.g., Apache-2.0). |
+| `license` | string | no | SPDX identifier for the license of the software this entity describes, such as MIT or AGPL-3.0. It records the terms of that software, not the terms of this file. |
 | `repository` | string | no | The URL to the Git repository where the source files live. |
 | `home` | string | no | The URL of this entity's home page, wiki, or documentation. |
 | `keywords` | string[] | no | A list of descriptive keywords for UI discoverability. |
