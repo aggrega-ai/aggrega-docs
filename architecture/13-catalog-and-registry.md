@@ -119,7 +119,7 @@ aggrega-catalog/
 
 | Category | Contains | Typical ontology label(s) |
 | --- | --- | --- |
-| `ai-agent` | AI agent frameworks, platforms, and patterns | worker, server, resource |
+| `ai-agent` | AI agent frameworks, platforms, and patterns | worker, server, stateful-server, task, resource |
 | `ai-model` | Model providers and inference runtimes | server, resource |
 | `ai-tool` | Tools agents invoke | function, server, stateful-server, resource |
 | `ai-pipeline` | AI data/processing pipelines | worker, task |
