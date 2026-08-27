@@ -812,6 +812,25 @@ Emitted message. The rule that halted the build leads, and the specifics — whi
 
 **How to fix:** add a `plugins.providers` entry in the workspace config keyed by the capability, whose value selects the plugin identity that renders it. Keep both plugins in the federated catalog; the binding tells this workspace which one to dispatch to for the contested capability.
 
+### The plugin serving a provider cannot assemble what that provider combines
+
+<!-- covers: internal/compiler/renderer.ErrBoundaryAssemblerMissing -->
+
+A provider states what becomes of a dispatch group's per-node output: each node's output written straight out at the dispatch path, the fragments folded into one document, or each node placed under its own position inside one enclosing structure. Where a provider states that the output is combined — a merged compose file, an umbrella chart — the plugin serving it has to offer the export that does the combining. This halt fires where it does not: the plugin advertises per-node rendering (`render_node`) and no matching `assemble_boundary`, so the group's nodes can be rendered and their output cannot be merged.
+
+Both halves of that disagreement belong to the plugin. What becomes of a dispatch group's output is part of what the plugin reports about itself when it is loaded, and the export that would do the combining is one of the entries under a Plugin entity's `spec.exports`, cross-checked against that same report — so the halt names a plugin claiming an assembly its export surface does not provide.
+
+The build halts rather than skipping the assembly. Skipping it would write each node's fragment at the path one artifact was expected at and report success, and nothing further along can tell those fragments from the flat per-node output a provider claiming no assembly emits by design — so a missing artifact would surface wherever the output is applied rather than at build time.
+
+A dispatch group at no dispatch path is passed over. Output written at no path is per-node output, so nothing is assembled there for a claim about combining to govern.
+
+Emitted message — one finding per offending dispatch group, naming the provider and the path that group assembles at:
+> provider expected to assemble its dispatch group provides no boundary assembler (`"<provider>"`, dispatch path `"<path>"`)
+
+Where more than one dispatch group is offending, the findings arrive together under the report `dispatch groups whose provider offers no boundary assembler`.
+
+**How to fix:** serve the capability with a plugin that advertises both `render_node` and `assemble_boundary` — see [../entities/plugin.md](../entities/plugin.md) for the `spec.exports` authoring surface, and [../schema/plugins/wasm-provider.md](../schema/plugins/wasm-provider.md) for what the assembly export receives. Where you author the plugin, the two sides are yours to line up: add the assembly export, or report no assembly claim and let each node's output land at the dispatch path unmerged. Where you consume a published plugin, select a version that offers both exports, or select a plugin whose provider claims no assembly for that capability.
+
 ### Path-template references a variable outside the allowlist
 
 <!-- covers: internal/compiler/renderer.ErrPathTemplateInvalidField -->
@@ -833,10 +852,13 @@ Emitted message:
 
 Two boundary contributors evaluate to the same physical assembly path but disagree on a property that must be uniform across the contributors at that path — for example, two boundaries assembling under the same `directory:` route through different providers, or one boundary declares a per-(path, provider) tuple a second boundary cannot satisfy.
 
-Emitted message:
-> dispatch path produced multiple provider outputs: dispatch path `"<path>"` produced multiple provider outputs (`[<providers>]`); contributing boundaries `[<boundaries>]` resolve to the same path under their current `directory:` / `subDirectory:` settings; set distinct `subDirectory` values per provider or change one boundary's `directory`
+**Emitted messages.** One finding is reported per contributing boundary, so every boundary whose output reached the path is named on its own rather than folded into a list inside one message. The report they arrive under states what they have in common:
+> assembly paths reached by more than one provider
 
-**How to fix:** either give each boundary a distinct `directory:` (so they assemble to separate paths), or align the conflicting property across the contributors. The compose-bridge pattern intentionally collapses two sub-boundaries into one assembly path; that pattern requires both boundaries to target the same provider and to carry compatible cascade-resolved annotations.
+Each finding names the path, the boundary whose output reached it, and the provider that boundary routes through:
+> dispatch path produced multiple provider outputs (`"<path>"`, boundary `"<boundary>"`, provider `"<provider>"`)
+
+**How to fix:** either give each boundary a distinct `directory:` (so they assemble to separate paths), give the contributors distinct `subDirectory:` values so each provider's output lands at a path of its own, or align the conflicting property across the contributors. The compose-bridge pattern intentionally collapses two sub-boundaries into one assembly path; that pattern requires both boundaries to target the same provider and to carry compatible cascade-resolved annotations.
 
 ### Instance-ID collision across boundaries assembling to the same path
 
@@ -921,8 +943,11 @@ Emitted message — the publish's own detail; the surrounding report also names 
 
 Two or more boundaries contribute to the same `helm-chart`-provider assembly path but their effective `aggrega.ai/chart-name` annotations (resolved through the boundary annotation cascade) do not agree. A Helm umbrella chart has exactly one chart name; the renderer cannot pick one of the conflicting candidates.
 
-Emitted message:
-> merged-path assembly has conflicting assembly-name annotation values: boundaries `<boundaries>` merge to assembly path `<path>` under provider `<provider>` but their effective `<annotation>` annotations resolve to different values: `<values>`; the merged assembly has exactly one name; cascade or declare matching values explicitly
+**Emitted messages.** One finding is reported per contributing boundary, each carrying the value that boundary resolved to, so the disagreeing names arrive one to a finding rather than as one printed collection. The report they arrive under states what they have in common:
+> merged dispatch groups whose boundaries disagree on the assembly name
+
+Each finding names the value that boundary resolved to, the annotation it was read from, the boundary, the provider, and the path they merge to:
+> merged-path assembly has conflicting assembly-name annotation values (`"<value>"`, annotation `"<annotation>"`, boundary `"<boundary>"`, provider `"<provider>"`, dispatch path `"<path>"`)
 
 **How to fix:** declare a matching `aggrega.ai/chart-name` annotation on every contributing boundary (the cascade mechanism makes this DRY when the contributors share a parent boundary — declare once on the parent), or split the boundaries onto separate `directory:` paths so each gets its own umbrella chart.
 
@@ -988,6 +1013,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0015` | `uses-edge inject dictates a delivery mechanism the socket does not permit` | `uses` edge dictates delivery on a socket that allowlists none; `uses` edge dictates a delivery mechanism outside the socket's allowlist |
 | `E0029` | `artifact template references a pillar the Recipe does not declare` | An `artifacts:` template reads a pillar the Recipe does not declare |
 | `E0032` | `assembled output collision: two contributors write the same output path` | Two contributors write the same output path |
+| `E0035` | `provider expected to assemble its dispatch group provides no boundary assembler` | The plugin serving a provider cannot assemble what that provider combines |
 | `E0036` | `merged-path assembly has conflicting assembly-name annotation values` | Chart-name mismatch on a merged helm-chart umbrella |
 | `E0038` | `derived name collision: one name is derived more than once in one key space` | The same name is derived more than once inside the output |
 | `E0039` | `FeatureRecipe template references a per-component-only field with executionScope: boundary` | FeatureRecipe template references a field outside its scope's allowlist |
