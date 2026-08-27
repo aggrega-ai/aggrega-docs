@@ -121,7 +121,7 @@ aggrega-catalog/
 | --- | --- | --- |
 | `ai-agent` | AI agent frameworks, platforms, and patterns | worker, server, resource |
 | `ai-model` | Model providers and inference runtimes | server, resource |
-| `ai-tool` | Tools agents invoke | function, server, resource |
+| `ai-tool` | Tools agents invoke | function, server, stateful-server, resource |
 | `ai-pipeline` | AI data/processing pipelines | worker, task |
 | `datastore` | Persistent datastores (relational, vector, document, graph, KV) | stateful-server, resource |
 | `gateway` | API and AI gateways | server |
