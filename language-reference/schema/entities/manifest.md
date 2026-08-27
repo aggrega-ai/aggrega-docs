@@ -54,18 +54,20 @@ The Manifest's mapping declarations plus optional base inheritance: mappings con
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `extends` | string | no | URI of a base Manifest to inherit mappings from. Child mappings safely overwrite the base to support frictionless local dev loops. |
-| `mappings` | object | yes | Maps abstract interfaces to concrete implementations. Two authoring shapes are accepted: (a) the flat shape, with reserved top-level keys 'components' and 'features' mapping component-type / feature-type URIs directly to Recipe / FeatureRecipe URIs (recommended; capability-agnostic at the Manifest layer — capability determination flows from each resolved Recipe's spec.capability at orchestrator-time); (b) the legacy per-provider shape, with top-level keys naming providers (e.g., 'helm', 'compose'), each provider section carrying its own components / features sub-sections. The flat shape takes precedence when both are present in the same Manifest. |
+| `mappings` | object | yes | Maps abstract interfaces to concrete implementations. Declare mappings under the top-level keys 'components' and 'features', each mapping component-type / feature-type URIs directly to Recipe / FeatureRecipe URIs. These two keys are the whole surface; no other key is accepted here. The mapping is capability-agnostic at the Manifest layer — capability determination flows from each resolved Recipe's spec.capability at orchestrator-time. |
 
 _Additional properties are not permitted._
 
 ##### `manifest.spec.mappings`
 
-Maps abstract interfaces to concrete implementations. Two authoring shapes are accepted: (a) the flat shape, with reserved top-level keys 'components' and 'features' mapping component-type / feature-type URIs directly to Recipe / FeatureRecipe URIs (recommended; capability-agnostic at the Manifest layer — capability determination flows from each resolved Recipe's spec.capability at orchestrator-time); (b) the legacy per-provider shape, with top-level keys naming providers (e.g., 'helm', 'compose'), each provider section carrying its own components / features sub-sections. The flat shape takes precedence when both are present in the same Manifest.
+Maps abstract interfaces to concrete implementations. Declare mappings under the top-level keys 'components' and 'features', each mapping component-type / feature-type URIs directly to Recipe / FeatureRecipe URIs. These two keys are the whole surface; no other key is accepted here. The mapping is capability-agnostic at the Manifest layer — capability determination flows from each resolved Recipe's spec.capability at orchestrator-time.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `components` | mapping_tier | no | Flat-shape component-type to Recipe URI mapping. A Recipe URI carries at most two segments — an optional leading capability, then the recipe name — plus an optional version; a reference with a third segment matches no recipe. Version forms: exact ('postgres-bitnami:1.2.0'), range ('postgres-bitnami:^1.2.0'), or unversioned ('postgres-bitnami'); the resolver pins the resolved version in the lockfile at first resolve. A reference may additionally be capability-qualified ('terraform/mariadb-rds:1.0.0', the segment before the first '/' naming the recipe's spec.capability) — required when more than one recipe ships the same name; an ambiguous bare reference halts resolution loudly rather than silently picking one. |
-| `features` | mapping_tier | no | Flat-shape feature-type to FeatureRecipe URI mapping. Includes both operational Features and credential Features (labeled feature.aggrega.ai/kind: secret). |
+| `components` | mapping_tier | no | Component-type to Recipe URI mapping. A Recipe URI carries at most two segments — an optional leading capability, then the recipe name — plus an optional version; a reference with a third segment matches no recipe. Version forms: exact ('postgres-bitnami:1.2.0'), range ('postgres-bitnami:^1.2.0'), or unversioned ('postgres-bitnami'); the resolver pins the resolved version in the lockfile at first resolve. A reference may additionally be capability-qualified ('terraform/mariadb-rds:1.0.0', the segment before the first '/' naming the recipe's spec.capability) — required when more than one recipe ships the same name; an ambiguous bare reference halts resolution loudly rather than silently picking one. |
+| `features` | mapping_tier | no | Feature-type to FeatureRecipe URI mapping. Includes both operational Features and credential Features (labeled feature.aggrega.ai/kind: secret). |
+
+_Additional properties are not permitted._
 
 ## Definitions
 
