@@ -16,7 +16,7 @@ The Release schema carries no `provider` field at any nesting level; provider di
 1. **Read destination.** The compiler scans the Release's boundaries — for example, boundary `ovh-cluster-3` contains the component `user-db` (type: `core/postgres:1.0.0`).
 2. **Scan Manifest.** It opens the Manifest lockfile the Release points at via its `manifest:` field.
 3. **Two-tier lookup.** It checks the `name` tier for `"user-db"` first. If not found, it checks the `type` tier for `"core/postgres:1.0.0"` (versioned), then `"core/postgres"` (unversioned).
-4. **Extract the provider.** The matching tier sits under a specific provider block (e.g., `helm`), mapping to a specific Recipe.
+4. **Resolve the Recipe.** The matching entry's value is a Recipe URI; the Recipe it names declares in `spec.capability` which provider renders it.
 5. **Output generation.** The compiler now knows the target folder (`dist/boundaries/ovh-cluster-3/`), the provider (Helm rendering via Wasm), and the artifact (the Recipe's source code). Ahead-of-time GitOps boundaries are respected end-to-end.
 
 ## Flat URI mapping

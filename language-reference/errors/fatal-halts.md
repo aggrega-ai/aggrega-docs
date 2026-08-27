@@ -210,7 +210,7 @@ The shape is judged as the Manifest is composed, before anything is looked up �
 Emitted message:
 > malformed recipe reference in a Manifest mapping value: `spec.mappings.components.type.<key>` maps to `<value>`, which carries `<n>` slash-separated segments; a recipe reference accepts `"name"`, `"name:version"`, `"capability/name"` or `"capability/name:version"`; correct the mapping value in the Manifest
 
-The `features` section and the per-provider mapping shape produce the same message against their own coordinate, and a feature recipe reference is named as such.
+The `features` section produces the same message against its own coordinate, and a feature recipe reference is named as such.
 
 **How to fix:** shorten the mapping value to a shape the grammar accepts. A recipe is identified by its own `metadata.name` — optionally prefixed with its `spec.capability` and suffixed with its version — never by the component-type path it implements. The mapping's *key* is the component type; the mapping's *value* is the recipe.
 

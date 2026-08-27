@@ -30,7 +30,7 @@ LINT: Feature "core/db-pool" at ./catalog/feature/core/db-pool.yaml declares pro
 
 **Fires when** a Manifest annotation binding declares the same dotted path in both its `maps.infra` and `maps.values` lists. The path would route through both pillars; the compiler's deterministic tie-break sends it through `infra:`, which makes the `values:` side unreachable from the Aggregate. The lint surfaces this so the author can either narrow the binding to a single pillar or accept the infra-side-only routing consciously.
 
-**Pipeline placement.** The lint runs at workspace load, after Manifest resolution but before any annotation expansion fires. It walks every annotation binding's `maps.infra` and `maps.values` lists — the flat `features:` tier first, then each per-provider tier in the order they were authored — computes the intersection, and reports one finding per overlapping path. Within one binding, overlapping paths are reported in sorted order, so repeated runs over identical input report an identical sequence.
+**Pipeline placement.** The lint runs at workspace load, after Manifest resolution but before any annotation expansion fires. It walks the bindings under `mappings.features.annotations` in the order they were authored, intersects each binding's `maps.infra` and `maps.values` lists, and reports one finding per overlapping path. Within one binding, overlapping paths are reported in sorted order, so repeated runs over identical input report an identical sequence.
 
 **Emit shape:**
 
