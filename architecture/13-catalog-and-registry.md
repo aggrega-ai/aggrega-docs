@@ -127,7 +127,7 @@ aggrega-catalog/
 | `gateway` | API and AI gateways | server |
 | `mesh` | Service meshes | server |
 | `network` | Network primitives | server, resource |
-| `messaging` | Event buses, queues, streams | messaging |
+| `messaging` | Event buses, queues, streams | stateful-server, server |
 | `storage` | Object/file storage, managed cloud resources (no compute) | resource |
 | `compute` | Generic compute primitives (server, worker, task, function bases) | server, worker, task, function |
 | `observability` | Telemetry, tracing, monitoring | varies |
