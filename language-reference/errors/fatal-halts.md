@@ -493,13 +493,21 @@ Unlike tools that enforce a Directed Acyclic Graph on infrastructure dependencie
 
 ## When checking inject contracts
 
-The compiler walks every `inject:` block — both self-inject (a Component injecting into itself) and uses-inject (cross-Component wiring) — and validates the delivery contract against the target Component's `provides:` schema, the Feature's label partition, and the set of declared delivery keys. The `from:`-key check runs early, right after the catalog resolves and before the topology is built, so a misspelled provides key fails fast against the line you wrote.
+The compiler walks every `inject:` block — both self-inject (a Component injecting into itself) and uses-inject (cross-Component wiring) — and validates the delivery contract against the target Component's `provides:` schema, the Feature's label partition, and the set of declared delivery keys. A `from:` key on a block the Aggregate's own component wrote is checked as soon as the catalog resolves, so it fails against the line you wrote; a `from:` key on a connection an attached Feature contributes is checked once every surface that can draw a connection has contributed, which is the earliest point at which such a connection exists to check.
 
 ### Inject `from` key is not in the target's `provides`
 
 <!-- covers: pkg/resolver.ErrInvalidInjectKey -->
 
-An `inject:` entry references a `from:` key that the target Component's `provides:` schema does not declare. The compiler checks this as soon as the catalog is resolved, before it builds the topology, so the diagnostic points at the exact line you authored rather than at a later wiring stage. The target depends on where the reference lives: a Component-level self-inject `from:` resolves against that same Component's own `provides:`, while a `uses[]` cross-inject reference resolves against the used target Component's `provides:`. A Component that declares no `provides:` rejects every `from:` reference aimed at it.
+An `inject:` entry references a `from:` key that the target Component's `provides:` schema does not declare.
+
+**The check applies wherever the connection was written.** A `uses:` connection reaches the built topology from more than one authoring surface — a Component's own `uses:` block, and the `uses:` block of a Feature attached to it, whether that attachment is written on the component, on a subsystem, on a Release boundary, or on a Release boundary's component entry — and the same misspelled key is refused on every one of them. The diagnostic points at the block whose author wrote it: an attachment's own `uses:` entry, at the site the attachment itself was declared, rather than at the consuming component's `uses:` block, which for a contributed connection holds nothing at all.
+
+Where the reference resolves depends on where it lives. A Component-level self-inject `from:` resolves against that same Component's own `provides:`. A `from:` on a `uses:` connection resolves against the `provides:` of the component that connection points at — and where two surfaces write one socket and one alias, each connection resolves against the target it itself names. A Component that declares no `provides:` rejects every `from:` reference aimed at it.
+
+A `value:` entry carries a literal and is resolved against nothing, so a literal that happens to read like a provides key is not refused. Only `from:` names a key.
+
+The Release's own per-edge `uses:` surface carries `target` and `infra` and no `inject:`, so a connection wired there dictates no delivery and has no `from:` key to check.
 
 Emitted message, for a `from:` read on a Component's own `inject:` block. The refusal comes first, then the key at fault, the component type it was resolved against, and that type's declared keys in sorted order — the alternatives to pick from:
 > invalid inject key: the from-key must name a declared provides key of the target component type (`"<from-key>"`, `"<component-type>"`, `"<key-1>"`, `"<key-2>"`)
