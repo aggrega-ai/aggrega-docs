@@ -583,9 +583,9 @@ An attachment declared at a broader scope — subsystem-wide, cascading onto eve
 
 <!-- covers: pkg/resolver.ErrInjectKeyCollision, internal/compiler/renderer.ErrSelfInjectKeyCollision -->
 
-The same delivery key (for example, the same env var name) is declared in two developer-authored inject sources — one at the Component level and one under a `uses[]` entry.
+The same delivery key (for example, the same env var name) is claimed by two developer-authored inject sources — one at the Component level and one under a `uses[]` entry, or two `uses[]` entries on the same component.
 
-The build reads this in two places, because the two see different sets of dependency connections, and each reports in its own form.
+The build reads this in three places, because they see different sets of dependency connections and ask different questions of them, and each reports in its own form.
 
 The first reads the connections you wrote in the Aggregate, and reports as your files are resolved. It names the delivery mechanism, the key, and then the socket and alias of the first connection in author order that also claims it:
 
@@ -596,6 +596,14 @@ The second reads the connections the finished topology carries, which includes a
 > duplicate delivery key across self-inject and uses-inject (`"<key>"`, socket `"<socket>"`)
 
 One authored key delivered through two dependency sockets reports once per socket, so a single build tells you about all of them rather than about whichever was reached first.
+
+The third reads the same finished topology and asks a different question of it: whether two of a component's own dependency connections deliver one key between them, with the component itself claiming nothing. It reports once at each connection, positioned at that connection's own delivery entry, and names the entry's path followed by every socket delivering the key:
+
+> duplicate delivery key across inject sources (`"inject.<mechanism>.<key>"`, `"<socket>"`, `"<socket>"`)
+
+A socket named twice is what tells you the two connections sit on one socket under different aliases — there the position is the only thing separating them, so read the field path of each of the two reports rather than the socket names.
+
+Neither connection is the offender and both are yours to change: rename one of the keys, or drop one of the two deliveries.
 
 **Where the key is a path, the field path names the mechanism's block instead.** What a delivery key spells is the mechanism's own business, and a `file` mechanism delivers into a mount path — so such a key contains dots while a field path divides its own steps with them. A field path stops at the last step it can name without ambiguity rather than spelling one that would read as a walk through keys your document does not contain, so for a key like `/etc/app/config.yaml` it reads `.spec.components.<component>.inject.<mechanism>` and stops there. The message names the key either way, which is what keeps the report equally actionable: read the field path for the block, and the first quoted value for the key inside it.
 
