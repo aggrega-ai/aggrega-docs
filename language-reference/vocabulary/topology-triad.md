@@ -103,6 +103,9 @@ A developer requesting the same delivery key (e.g., the same env var name) from 
 | :--- | :--- | :--- |
 | `component.inject` | `uses[].inject` | ❌ fatal halt — duplicate delivery key |
 | `uses[target_A].inject` | `uses[target_B].inject` | ❌ fatal halt — duplicate delivery key |
+| `component.inject` | `feature.inject` / `secret.inject` | ❌ fatal halt — duplicate delivery key |
+| `uses[].inject` | `feature.inject` / `secret.inject` | ❌ fatal halt — duplicate delivery key |
+| `feature[A].inject` / `secret[A].inject` | `feature[B].inject` / `secret[B].inject` | ❌ fatal halt — duplicate delivery key |
 | `component.inject` (same key twice) | — | ❌ fatal halt — duplicate delivery key |
 | Any developer-authored inject | FeatureRecipe `injectMapping` | ✅ Legal — interception by design (Onion Model "last wins") |
 
