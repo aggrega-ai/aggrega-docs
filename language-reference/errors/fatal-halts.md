@@ -713,8 +713,7 @@ Emitted message, for an entry in a component Recipe's own `locals:` block. It is
 A self-reference is the same condition — the key is declared and unresolved — and no reordering fixes it, so the message says so in place of the move-it instruction:
 > locals entry references a sibling defined later in the same block (`"<expression>"`, the key it names is `"<key>"`, resolved at this point `"<the locals available here>"`). a locals entry cannot read itself; compute the value from .values and .infra directly
 
-The same fault in a `locals:` block a Feature's recipe declares reports in the shape below, positioned at the document that declares it:
-> locals entry references a sibling defined later in the same block (FeatureRecipe `<recipe>` locals[`<key>`] references `<expression>`, the locals block defines `<referenced>` later, entries resolve in author order and an entry reads only a sibling defined above it, resolved at this point: `<the locals available here>`)
+The same fault in a `locals:` block a Feature's recipe declares reports the same way: positioned at the authored key inside that recipe, and grouped with any sibling entries carrying the same fault. Where the recipe is attached at more than one place, the fault is reported once for each — each attachment binds that block independently, so each is its own occurrence rather than a repeat of one.
 
 Where that shape reports a self-reference, its position clause names the referencing entry itself rather than a later one, because that is where the key sits.
 
