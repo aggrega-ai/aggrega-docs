@@ -15,7 +15,7 @@ These labels describe universal behaviors, allowing policy engines and generated
 | :--- | :--- | :--- |
 | `api.aggrega.ai/protocol` | `http`, `grpc`, `tcp`, `udp` | Allows Ops rendering plugins (like an Istio recipe) to know if they should configure HTTP termination or just pass raw TCP packets. |
 | `tool.aggrega.ai/impact` | `read-only`, `mutating` | Allows policy engines to evaluate Least-Privilege AuthZ. Mutating tools can automatically trigger policies that require strict approval-gate sidecars to be attached. |
-| `datastore.aggrega.ai/engine` | `relational`, `document`, `kv`, `vector`, `graph`, `episodic`, `semantic-memory` (value set stabilizing against the populated catalog) | Allows policy engines to enforce cross-node type-safety (e.g., preventing an agent from attempting to send SQL payloads to a Vector DB). |
+| `datastore.aggrega.ai/engine` | `relational`, `document`, `kv`, `vector`, `graph`, `semantic-memory` (value set stabilizing against the populated catalog) | Allows policy engines to enforce cross-node type-safety (e.g., preventing an agent from attempting to send SQL payloads to a Vector DB). |
 | `execution.aggrega.ai/pattern` | `sync`, `async`, `autonomous-loop` | Allows policies to distinguish between a standard background worker and a runaway AI agent, mandating strict Time-To-Live (TTL) timeouts for autonomous loops. |
 | `gateway.aggrega.ai/intelligence` | `semantic`, `l4-mesh` | Dictates what features a router can physically support (e.g., preventing token-budget features on a standard TCP mesh). |
 
