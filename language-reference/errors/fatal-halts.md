@@ -195,12 +195,16 @@ The opening sentence is the same either way, which is what makes it the part of 
 
 <!-- covers: pkg/catalog.ErrManifestImplementsMismatch -->
 
-The Manifest's mapping entry points at a Recipe whose `spec.implements:` declaration does not match the component-type key for that mapping entry. The check fires at workspace load time as a load-time consistency check (per the post-migration direct-URI-lookup model — `spec.implements` becomes a consistency check, not a dispatch mechanism).
+The Manifest's mapping entry points at a Recipe whose `spec.implements:` declaration does not match the component-type key for that mapping entry. `spec.implements` is a consistency anchor rather than a dispatch mechanism: the mapping value names the Recipe directly, and this check confirms the Recipe the author named is one that declares the type they mapped.
+
+The check reads the composed Manifest before any Recipe is resolved, so it reports the mapping entry the author wrote rather than a downstream symptom of it.
 
 Emitted message:
 > manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key (manifest mapping `"<component-type>"` -> `"<recipe-uri>"`, recipe spec.implements is `"<recipe-implements>"`, expected `"<component-type>"`, or a type `"<component-type>"` extends)
 
-A mapping entry naming a Recipe the catalog does not hold is not this halt: the consistency check has nothing to compare against and skips the entry, and the unresolvable Recipe is reported when recipes are resolved.
+**Every command that reads a Release's dependencies performs this check; what differs is what each one does with the result.** `aggrega build` and `aggrega pull` halt, because both produce something you would go on to use — rendered artifacts and a lockfile. `aggrega validate` and `aggrega lint` report the finding alongside every other diagnostic they found and then exit non-zero: their job is to tell you everything that is wrong with the workspace, so a single fault does not cut the report short. In the editor the finding is published as a diagnostic beside the others, and whatever else that document had to report is unaffected. Note where it appears: the editor attaches a Release's dependency-level diagnostics to the Aggregate, so the finding surfaces while the Aggregate is open rather than while you are editing the Manifest the mapping is written in. Running `aggrega validate` reports it whichever document you have open.
+
+A mapping entry naming a Recipe the catalog does not hold is not this condition: the check has nothing to compare against and skips the entry, and the unresolvable Recipe is reported when recipes are resolved.
 
 FeatureRecipe entries follow the same shape; the `features.type` mapping check emits `manifest feature mapping ... featurerecipe spec.implements is ... (expected ...)`, and the feature arm matches on the mapping key itself, so it names no extends alternative.
 
