@@ -170,14 +170,13 @@ metadata:
   version: 1.0.0
 spec:
   mappings:
-    helm:
-      components:
-        type:
-          "core/postgres": "postgres-chart-v2:1.0.0"
-      features:
-        type:
-          # Credential Feature — mapped under features, not a separate secrets section
-          "core/aws-secrets-manager": "eso-aws-fetcher:1.0.0"
+    components:
+      type:
+        "core/postgres": "postgres-chart-v2:1.0.0"
+    features:
+      type:
+        # Credential Feature — mapped under features, not a separate secrets section
+        "core/aws-secrets-manager": "eso-aws-fetcher:1.0.0"
 ---
 apiVersion: aggrega.ai/v1alpha1
 kind: Manifest
@@ -187,11 +186,10 @@ metadata:
 spec:
   extends: global-manifest
   mappings:
-    compose:
-      features:
-        type:
-          # Surgically swap the credential Feature to local .env injection
-          "core/aws-secrets-manager": "compose/docker-env-injector:1.0.0"
+    features:
+      type:
+        # Surgically swap the credential Feature to local .env injection
+        "core/aws-secrets-manager": "compose/docker-env-injector:1.0.0"
 ```
 
 **4. Routing Domain: The Local Dev Release (Permissive Escape Hatch)**

@@ -249,11 +249,10 @@ metadata:
   version: 1.0.0
 spec:
   mappings:
-    helm:
-      components:
-        type:
-          "core/web-server": "web-server-helm:1.0.0"
-          "core/postgres": "postgres-chart:1.0.0"
+    components:
+      type:
+        "core/web-server": "web-server-helm:1.0.0"
+        "core/postgres": "postgres-chart:1.0.0"
 ---
 apiVersion: aggrega.ai/v1alpha1
 kind: Release

@@ -100,13 +100,12 @@ metadata:
   version: 1.0.0
 spec:
   mappings:
-    helm:
-      components:
-        type:
-          "core/python-worker": "python-worker-helm:1.0.0"
-      features:
-        type:
-          "core/data-masking": "lakera-guard-sidecar:1.0.0"
+    components:
+      type:
+        "core/python-worker": "python-worker-helm:1.0.0"
+    features:
+      type:
+        "core/data-masking": "lakera-guard-sidecar:1.0.0"
 ---
 apiVersion: aggrega.ai/v1alpha1
 kind: Release

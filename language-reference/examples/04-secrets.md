@@ -136,14 +136,13 @@ metadata:
   version: 1.0.0
 spec:
   mappings:
-    helm:
-      components:
-        type:
-          "core/python-worker": "python-worker-helm:1.0.0"
-      features:
-        type:
-          # Credential Feature — same tier as operational Features
-          "core/aws-secrets-manager": "eso-aws-fetcher:1.0.0"
+    components:
+      type:
+        "core/python-worker": "python-worker-helm:1.0.0"
+    features:
+      type:
+        # Credential Feature — same tier as operational Features
+        "core/aws-secrets-manager": "eso-aws-fetcher:1.0.0"
 ```
 
 ---

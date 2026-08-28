@@ -175,7 +175,7 @@ spec:
 ```
 
 **3. Routing Domain: Manifest & Release**
-The Manifest maps the external service to the `eval` provider. No compute is provisioned. The Release fulfills the parameter contract.
+The Manifest maps both component types to their Recipes in one `components.type` map. The Recipe named for the external service, `external-formatter`, declares `spec.capability: eval`, so that node renders in memory and provisions no compute. The Release fulfills the parameter contract.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -185,14 +185,10 @@ metadata:
   version: 1.0.0
 spec:
   mappings:
-    helm:
-      components:
-        type:
-          "core/python-worker": "python-worker-helm:1.0.0"
-    eval:
-      components:
-        type:
-          "core/external-service": "external-formatter:1.0.0"
+    components:
+      type:
+        "core/python-worker": "python-worker-helm:1.0.0"
+        "core/external-service": "external-formatter:1.0.0"
 ---
 apiVersion: aggrega.ai/v1alpha1
 kind: Release

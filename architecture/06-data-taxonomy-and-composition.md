@@ -277,15 +277,14 @@ components:
 ```
 
 **2. Domain 4 (The Manifest): The Routing**
-Ops maps the legacy database explicitly to the `eval` provider. The word `eval` acts as a sibling to `helm` and `compose`, keeping the Manifest routing perfectly flat and predictable.
+Ops maps the legacy database type to the Recipe that formats its connection string. The Manifest names a Recipe and nothing more; the Recipe it names declares `spec.capability: eval`, and that capability is what routes the node to in-memory evaluation rather than to a chart renderer. Routing stays perfectly flat and predictable because the map has exactly one shape whatever the target.
 
 ```yaml
 spec:
   mappings:
-    eval:
-      components:
-        type:
-          "core/legacy-database": "oracle-dsn-formatter:1.0.0"
+    components:
+      type:
+        "core/legacy-database": "oracle-dsn-formatter:1.0.0"
 ```
 
 **3. Domain 3 (The Wasm Formatter Recipe): Structuring the Handoff**

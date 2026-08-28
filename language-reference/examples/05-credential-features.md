@@ -165,10 +165,9 @@ The six steps from developer authoring to compiled output, using the referenceab
     ```yaml
     spec:
       mappings:
-        helm:
-          features:
-            type:
-              "core/referenced-secret": "k8s-secret-from-parameter:1.0.0"
+        features:
+          type:
+            "core/referenced-secret": "k8s-secret-from-parameter:1.0.0"
     ```
 
 4. **Base Recipe** (e.g., `mariadb-bitnami`) references the produced Secret by reading the slot's published locator — no name re-derivation on the consuming side:

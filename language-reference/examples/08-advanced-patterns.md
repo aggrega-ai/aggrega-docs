@@ -68,19 +68,18 @@ defs:
   - &standard_worker "python-worker-helm:1.0.0"
 spec:
   mappings:
-    helm:
-      components:
-        type:
-          # Bulk DRY mapping — all python-workers use the standard Recipe
-          "core/python-worker": *standard_worker
-          "core/postgres": "postgres:1.0.0"
-        name:
-          # Granular override — this specific instance uses a custom Recipe
-          "legacy-billing-agent": "custom/legacy-worker:3.0.0"
-      features:
-        type:
-          "core/data-masking": "lakera-guard-sidecar:1.0.0"
-          "core/aws-secrets-manager": "eso-aws-fetcher:1.0.0"
+    components:
+      type:
+        # Bulk DRY mapping — all python-workers use the standard Recipe
+        "core/python-worker": *standard_worker
+        "core/postgres": "postgres:1.0.0"
+      name:
+        # Granular override — this specific instance uses a custom Recipe
+        "legacy-billing-agent": "custom/legacy-worker:3.0.0"
+    features:
+      type:
+        "core/data-masking": "lakera-guard-sidecar:1.0.0"
+        "core/aws-secrets-manager": "eso-aws-fetcher:1.0.0"
 ```
 
 **Resolution Order (Most Specific Wins):**
