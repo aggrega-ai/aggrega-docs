@@ -56,13 +56,24 @@ Raising the threshold never reduces what you are told, on any surface — you st
 get the notice for everything below it, and for everything the halt does not
 cover.
 
-One thing no surface can tell you about, and it is worth knowing: a
+Some plugins are recorded somewhere else, and their markers come from there. A
 `plugins.linter` attachment, and a `plugins.governance` attachment in an
-`ir-verdict` or `render-verdict` role, are pinned in
-[`plugins-trust.yaml`](../schema/other/plugins-trust.md) beside the lockfile
-rather than in the lockfile itself. That record carries identity and nothing
-else — no deprecation marker — so a withdrawal published against one of those
-plugins is not reported on any surface today.
+`ir-verdict` or `render-verdict` role, shape none of the rendered output, so they
+are pinned in [`plugins-trust.yaml`](../schema/other/plugins-trust.md) beside the
+lockfile rather than in the lockfile itself. Each record there carries the marker
+discovered for the plugin it names, alongside its identity, and `aggrega pull`
+records one the same way it records a marker on a lockfile row.
+
+`aggrega build`, `aggrega lint --release` and `aggrega validate --release` read
+both records, so a deprecated plugin is named there just as a deprecated
+reference is, and `build.halt_on_deprecated_severity` governs both alike. Two
+differences are worth knowing. The notice for such a plugin does not say when the
+record was observed — that file carries no timestamps at all, which is what makes
+it reproduce byte-for-byte — so it names where the fact came from and the command
+that refreshes it instead. And an entry there is never rewritten by an ordinary
+pull: a newly published marker is added to the record the plugin already has,
+while the identity it is held to stays put until you ask for it to change with
+`aggrega pull --upgrade`.
 
 `retracted` is the withdrawal tier, and it acts earlier as well. A version
 recorded as retracted is **removed from consideration** when `aggrega pull`
