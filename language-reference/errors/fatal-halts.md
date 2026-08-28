@@ -701,8 +701,14 @@ A FeatureRecipe's `provides:` follows the same locals rule: its own `locals:` re
 
 A `locals:` block resolves in the order its entries are written, and an entry reads only a sibling defined **above** it. A direct `.locals.<key>` reference to an entry the block defines later halts: the compiler never sorts or reorders the block to make the reference resolve, because emitted output would then follow an inference rather than what was authored. Without the halt the reference would resolve through the missing-key policy to an empty string, so a derived hostname or secret name would silently lose the segment it was built from.
 
-Emitted message:
-> locals entry references a sibling defined later in the same block (Recipe `<recipe>` locals[`<key>`] references `<expression>`, the locals block defines `<referenced>` later, entries resolve in author order and an entry reads only a sibling defined above it, resolved at this point: `<the locals available here>`). define `<referenced>` above `<key>` in the locals block
+Emitted message, for an entry in a component Recipe's own `locals:` block. It is positioned at the authored key inside the Recipe, and every offending entry is reported in one build; where more than one is, the findings are grouped under `locals entries that read a sibling they cannot`:
+> locals entry references a sibling defined later in the same block (`"<expression>"`, the key it names is `"<referenced>"`, resolved at this point `"<the locals available here>"`). define `"<referenced>"` above `"<key>"` in the locals block
+
+A self-reference is the same condition — the key is declared and unresolved — and no reordering fixes it, so the message says so in place of the move-it instruction:
+> locals entry references a sibling defined later in the same block (`"<expression>"`, the key it names is `"<key>"`, resolved at this point `"<the locals available here>"`). a locals entry cannot read itself; compute the value from .values and .infra directly
+
+The same fault in a `locals:` block a Feature's recipe declares reports in the shape below, positioned at the document that declares it:
+> locals entry references a sibling defined later in the same block (FeatureRecipe `<recipe>` locals[`<key>`] references `<expression>`, the locals block defines `<referenced>` later, entries resolve in author order and an entry reads only a sibling defined above it, resolved at this point: `<the locals available here>`)
 
 **How to fix:** move the referenced entry above its reader. Reordering a `locals:` block is a behavioural change wherever one entry reads another, so the fix is exactly the reorder the message names. A self-reference — an entry naming its own key — cannot be fixed by reordering; compute the value from `.values` and `.infra` directly instead, which the message says in place of the move-it instruction.
 
