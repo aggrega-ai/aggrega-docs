@@ -133,12 +133,19 @@ The build refuses the Recipe while decoding the document into its typed form, na
 
 <!-- covers: pkg/validator.ErrRecipeFilenameCollisionAcrossInputKinds -->
 
-A Recipe's three input kinds — sourced, synthesized, and artifacts — each emit files into the same boundary directory. If source-rendered, workload-synthesized, or artifact-emitted output produces a file whose name another input kind also produced, the build halts at emission with a message naming every contributor.
+A Recipe and a FeatureRecipe each declare input kinds that produce files: a `source:` the provider renders, a `workload:` the provider synthesizes, `artifacts:` entries, and a `pipeline:` whose steps may emit. Each of them chooses its output names independently of the others, and nothing declares those names distinct — so two of them can produce a file under a single name, and only one of the two would survive. The build halts and names the output name together with every block that produced it.
 
-This rule is checked at emission time (after Workload translation completes), not at Recipe load.
+The check runs once per emitting document, as soon as that document's own emission is complete and before its output joins any assembly. Three documents emit, and each is checked on its own: a component's own Recipe, the FeatureRecipe an attachment binds on a component, and the FeatureRecipe a boundary-scope attachment binds. Keeping them separate is what makes the diagnostic name the right document — an attachment's files are rendered under its host component's identity, so a collision in the attachment's FeatureRecipe is reported against that FeatureRecipe rather than against the host.
 
-Emitted message (intended; emission-time detection ships incrementally):
-> Recipe: filename collision across input-kind origins at emission (Recipe `<name>:<version>`, rule filename-collision, at `<path>`). `<filename>` declared by: `<origin1>, <origin2>, ...`
+Each colliding name is reported separately, so a document whose blocks met on two names reports both. A finding is positioned at the document you edit to fix it: the component instance for a Recipe, and the FeatureRecipe itself for an attachment, whose finding also names the attachment — a component or a boundary may bind several.
+
+One block emitting several files under one name is not this halt. That is a single contributor rather than two blocks meeting, and duplicate `artifacts:` keys inside one block are refused while the document is decoded.
+
+Emitted message:
+> filename collision across input kinds: two input-kind blocks produced a file under one output name (output name `<filename>`, produced by `<origin1>, <origin2>`)
+
+A collision in a FeatureRecipe carries the attachment as well:
+> filename collision across input kinds: two input-kind blocks produced a file under one output name (output name `<filename>`, produced by `<origin1>, <origin2>`, attachment `<instance>`)
 
 **How to fix:** rename the colliding file in whichever input kind you control. If the collision involves a Workload-translated filename and an `artifacts:` entry, the Workload-translated names follow the provider's translation conventions (e.g., `<instance-id>-deployment.yaml` for helm) — adjust the `artifacts:` filename to a name the provider does not synthesise.
 
@@ -1063,7 +1070,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0206` | `recipe eval-provider constraint: input-kind fields are forbidden when provider is eval` | `eval`-provider constraint |
 | `E0209` | `Recipe: valuesMapping requires source` | `valuesMapping` requires `source` |
 | `E0210` | `Recipe: at least one input kind required` | At least one input kind must be present |
-| `E0211` | `Recipe: filename collision across input-kind origins at emission` | Emission-time filename collision across input kinds |
+| `E0211` | `filename collision across input kinds: two input-kind blocks produced a file under one output name` | Emission-time filename collision across input kinds |
 | `E0215` | `document envelope validation failed` | YAML anchor aliased inside its own content; Divergent Release (extends + aggregate pointer) |
 | `E0249` | `cloudformation-provider: an export name a cross-boundary link derives is already declared by another Outputs entry in the same stack` | An authored export name is one the build derives for a cross-stack reference |
 | `E0251` | `recipe source is an empty string, which names neither sourceless mode nor sourced mode` | Recipe `source:` is an empty string |

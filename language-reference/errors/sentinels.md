@@ -329,7 +329,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrFeatureRecipeValuesMappingRequiresSource()` | `validator/feature-recipe-values-mapping-requires-source` | `FeatureRecipe: valuesMapping requires source` |
 | `ErrInheritanceMerge()` | `validator/inheritance-merge` | `inheritance merge failed` |
 | `ErrRecipeEvalProviderConstraint()` | `validator/recipe-eval-provider-constraint` | `recipe eval-provider constraint: input-kind fields are forbidden when provider is eval` |
-| `ErrRecipeFilenameCollisionAcrossInputKinds()` | `validator/recipe-filename-collision-across-input-kinds` | `Recipe: filename collision across input-kind origins at emission` |
+| `ErrRecipeFilenameCollisionAcrossInputKinds()` | `validator/recipe-filename-collision-across-input-kinds` | `filename collision across input kinds: two input-kind blocks produced a file under one output name` |
 | `ErrRecipeNoInputKind()` | `validator/recipe-no-input-kind` | `Recipe: at least one input kind required` |
 | `ErrRecipeOutputComponentLabelCollision()` | `validator/recipe-output-component-label-collision` | `recipe output-component-labels constraint: key is also declared in outputLabels` |
 | `ErrRecipeOutputLabelReservedNamespace()` | `validator/recipe-output-label-reserved-namespace` | `recipe output-labels constraint: key uses a reserved namespace` |
@@ -628,7 +628,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0208` | `validator/recipe-output-label-reserved-namespace` | `recipe output-labels constraint: key uses a reserved namespace` |
 | `E0209` | `validator/recipe-values-mapping-requires-source` | `Recipe: valuesMapping requires source` |
 | `E0210` | `validator/recipe-no-input-kind` | `Recipe: at least one input kind required` |
-| `E0211` | `validator/recipe-filename-collision-across-input-kinds` | `Recipe: filename collision across input-kind origins at emission` |
+| `E0211` | `validator/recipe-filename-collision-across-input-kinds` | `filename collision across input kinds: two input-kind blocks produced a file under one output name` |
 | `E0212` | `validator/slot-not-referenceable` | `workload attachment slot is not referenceable` |
 | `E0213` | `validator/workload-features-schema` | `workload featuresSchema cross-check failed` |
 | `E0214` | `validator/workload-validation` | `workload validation failed` |
