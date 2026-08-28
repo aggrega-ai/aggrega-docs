@@ -106,13 +106,13 @@ The Recipe compared is the one the instance is actually bound to, matched by the
 
 **Pipeline placement.** The lint runs at resolution, in the same pass as the catalog-aware semantic guards, over the resolved Aggregate — before rendering, so it surfaces from `aggrega validate --release` as well as from `aggrega build`. Components declared at the Aggregate's root and components nested in subsystems are both covered. A component that arrives from a sub-aggregate is not covered: its inner components are folded into the graph after this pass runs, so such a component's undeclared key is still withheld from consumers but no advisory names it.
 
-**Emit shape.** One line per Recipe, Component and key, naming the Recipe that published the key and the Component that does not declare it:
+**Emit shape.** One line per component instance and key, naming the Recipe that published the key and the Component that does not declare it:
 
 ```text
   lint: Aggregate model-api-key-sharing-shared at .spec.subsystems.model.components["gateway"].type: Recipe "openai-compatible" publishes provides key "provider", which Component "core/ai-model/openai-compatible" does not declare in its schema.provides contract — a consumer across a uses edge reads the declared contract, so this key is not delivered and a template reading it renders empty; declare the key on the Component if consumers are meant to read it, or move it to the Recipe's locals if it is the Recipe's own working state
 ```
 
-The finding belongs to that triple rather than to an instance, so ten instances of one Component type raise one line rather than ten, and the locator names the first instance in walk order that carries it. Instances are walked in instance-name order and each Recipe's undeclared keys are reported in sorted order, so the same input produces the same advisory sequence on every run.
+The finding belongs to the instance that carries it, so ten instances of one Component type publishing the same undeclared key raise ten lines rather than one, each positioned at its own instance. Every line is attributed to the Recipe that published the key, because that is the document you edit to resolve it. The walk is deterministic, so the same input produces the same advisory sequence on every run.
 
 **Editor visibility.** The advisory also reaches editor diagnostics through the language server, at warning severity, positioned on the component instance whose `type:` binds the Recipe. An author who never reads terminal output still sees it.
 
