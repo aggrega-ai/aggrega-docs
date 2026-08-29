@@ -50,7 +50,7 @@ The same remedy applies wherever the halt was met, and the frame tells you which
 
 <!-- covers: pkg/resolver.ErrParameterContractViolation, pkg/resolver.ErrParameterMissing -->
 
-The Release supplied a value whose type or shape does not match what the Aggregate declared for that parameter. The parameter-contract validator catches type mismatches, enum violations, range violations, pattern violations, and missing required parameters before any template interpolation runs.
+The Release supplied a value whose type or shape does not match what the Aggregate declared for that parameter. The parameter-contract validator catches type mismatches, enum violations, range violations, pattern violations, `validate:` predicate failures, and missing required parameters before any template interpolation runs.
 
 Emitted message shape:
 > parameter contract violated at `<aggregate-path>` slot `<slot-name>`: `<constraint detail>` (got `<received-type>` value `<received-value>`)
@@ -58,7 +58,15 @@ Emitted message shape:
 For a parameter declared `required: true` with no `default:` and no Release-supplied value, the validator emits the missing-parameter form:
 > required parameter not supplied at `<aggregate-path>` slot `<slot-name>`
 
-**How to fix:** change the Release value to match the parameter's declared `type` / `enum` / `min` / `max` / `pattern` constraints, supply a missing required parameter, or widen the Aggregate's declaration to accept the shape you actually need.
+A parameter declaring a `validate:` predicate adds two further forms. When the supplied value does not satisfy the predicate, the validator emits that parameter's `validateMessage:` if it declares one, and otherwise:
+> parameter `<parameter-path>` failed validate predicate
+
+When the predicate itself cannot be evaluated, the failure is reported against the predicate rather than against the value:
+> parameter `<parameter-path>` validate predicate error: `<detail>`
+
+A `validate:` predicate reads the value under validation as `.value`, and that is the only name it defines. A predicate naming anything else is refused before it runs, so a mistyped reference is reported as the naming mistake it is instead of resolving to nothing and surfacing as a value that failed validation.
+
+**How to fix:** change the Release value to match the parameter's declared `type` / `enum` / `min` / `max` / `pattern` constraints, supply a missing required parameter, correct a `validate:` predicate that names something other than `.value` or renders something other than `true` or `false`, or widen the Aggregate's declaration to accept the shape you actually need.
 
 ### External parameters file cannot be loaded
 
