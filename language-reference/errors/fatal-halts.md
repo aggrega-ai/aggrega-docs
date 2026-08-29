@@ -473,6 +473,117 @@ Emitted message:
 
 **How to fix:** two directions, and which is right depends on what you meant. Where the reference is correct, the attachment filling the slot is the thing to change: attach a Feature whose `schema.provides` declares `name` — and `key`, where the entry names none of its own — so there is a locator to point at. Where the material was never meant to be addressed by name in the output, drop the reference and deliver it through the slot's `inject:` pipe instead, which carries the value rather than a pointer to where it lives.
 
+### A Release's `parameters:` block is written in neither of its two shapes
+
+<!-- covers: pkg/types.ErrParametersShape -->
+
+A Release fulfils the parameters an Aggregate declared in one of two ways, and the block is read by its shape. Either it is a mapping of parameter names to values written in place, or it is a mapping of exactly one key, `$import:`, whose value is the path of a YAML file holding those values. A block that is neither is refused as it is read, before anything checks the values against the Aggregate's declarations.
+
+Three shapes are refused. A `parameters:` value that is not a mapping at all — a scalar, or a list. A mapping carrying `$import:` alongside other keys, which asks for the imported values and the written ones at once and gives no rule for combining them. And an `$import:` whose value is not a plain string, which names no file.
+
+Emitted message, where the value is not a mapping. The number after `kind` is the document shape the reader found where a mapping was required:
+> parameters: shape must be an inline object or {$import: <local-path>}: got kind `<shape>` at line `<line>`
+
+and where `$import:` shares the mapping with something else, or names something that is not a path:
+> parameters: shape must be an inline object or {$import: <local-path>}: $import: must be the only key (got `<n>` keys) at line `<line>`
+> parameters: shape must be an inline object or {$import: <local-path>}: $import value must be a string scalar at line `<line>`
+
+**How to fix:** open the Release at the line the message names. Write the values in place under `parameters:`, or replace the whole block with a single `$import:` entry whose value is a quoted path. Where you wanted written values *and* an imported file of shared defaults, move the written ones into a Release that `extends:` the one holding the import — layering several sources of parameters is what an `extends:` chain is for, and this one key is read from a single source by design.
+
+### An inline-or-import field is written in neither shape
+
+<!-- covers: pkg/types.ErrArtifactEntryShape, pkg/types.ErrValuesMappingShape, pkg/types.ErrWorkloadTemplateShape -->
+
+Three fields a Recipe or FeatureRecipe writes — an `artifacts.<name>:` entry, a `valuesMapping:`, and a `workload:` — accept the same two shapes. Either the body is written in place, as a string scalar (a `|` block is the usual spelling for anything multi-line), or the value is a mapping of exactly one key, `$import:`, naming where the body lives instead. What an `$import:` may name differs by field: an artifacts entry imports a local path or a bundle out of an ArtifactsLibrary, while `valuesMapping:` and `workload:` import a local path or an entry out of a library by identity.
+
+One reader checks all three, so the refusals are the same three whichever field is at fault: a mapping carrying more than one key, a mapping whose single key is not `$import`, and an `$import:` whose value is not a plain string. A value that is neither a scalar nor a mapping — a list, most often — is refused on its shape alone.
+
+Emitted messages. Each opens with the sentence for the field at fault, then says what the reader found and where:
+> artifacts entry: shape must be a string scalar or {$import: <local-path>}: got `<n>` keys at line `<line>`
+> valuesmapping: shape must be a string scalar or {$import: <path-or-library-identity>}: got key `"<key>"` at line `<line>`
+> workload: shape must be a string scalar or {$import: <path-or-library-identity>}: $import value must be a string scalar at line `<line>`
+
+Any of the three fields can report any of those endings; a value that is neither shape ends with `got kind <shape> at line <line>`, where the number is the document shape the reader found.
+
+**How to fix:** open the entity at the line the message names. Write the body in place as a block scalar, or replace the whole value with a single `$import:` entry. A mapping carrying `$import:` and anything else is not one of the two shapes — move the extra keys inside the imported file, or write the body in place. A misspelled `$import` — a missing `$`, most often — reads as an ordinary key and is reported as the single key that is not `$import`.
+
+### A library entry's body is not the shape that library holds
+
+<!-- covers: pkg/types.ErrMappingEntryNotScalar, pkg/types.ErrWorkloadEntryNotScalar, pkg/types.ErrArtifactsLibraryEntryShape -->
+
+A library publishes named bodies for other entities to import, and each library kind holds one shape. A MappingLibrary entry and a WorkloadLibrary entry each hold **one** template body, so the entry's value is a scalar — a `|` block, in practice. An ArtifactsLibrary entry holds a **bundle**: the files that belong together under one name, so the entry is a mapping of output filename to that file's body, and each body under it is a scalar.
+
+Bodies are captured exactly as written and are not parsed when the library loads. The template inside one is parsed where it is imported, which is why what is checked here is only the shape — a body that is not a template at all loads without complaint and fails at the point something renders it.
+
+Emitted messages, where the number after `kind` is the document shape the reader found:
+> mappinglibrary: entry body must be a string scalar: got kind `<shape>` at line `<line>`
+> workloadlibrary: entry body must be a string scalar: got kind `<shape>` at line `<line>`
+> artifactslibrary: entry must be a mapping of filename to a string body: got kind `<shape>` at line `<line>`
+
+and, for a bundle whose entry is a mapping but one of whose files is not a scalar, naming the file:
+> artifactslibrary: entry must be a mapping of filename to a string body: file `"<filename>"` body must be a string scalar (got kind `<shape>` at line `<line>`)
+
+The build reports these under a `CATALOG_ERROR` tag naming the file it was reading, with the sentence above beneath it.
+
+**How to fix:** write the body as a block scalar under its key. A body whose first line looks like a YAML key — which a template producing YAML usually does — is read as a nested mapping unless the block scalar is there, and that is the common cause. For an ArtifactsLibrary, write one key per output filename with each body as its own block scalar; a bundle written as a single body is the other common shape mistake.
+
+### A `$instantiate:` reference cannot be resolved
+
+<!-- covers: pkg/types.ErrTemplateNotFound, pkg/types.ErrTemplateParamMissing, pkg/types.ErrTemplateParamTypeMismatch -->
+
+A SchemaLibrary may declare reusable shapes under `spec.templates`, each with its own `$params`, and a schema entry then instantiates one by naming it under `$instantiate:` and supplying its parameters under `$args:`. Substitution is literal: a `$<name>` scalar in the template's body is replaced by the argument's value. There is no expression evaluation, no conditional and no loop, and a substituted value is inserted as it stands rather than being scanned for further markers.
+
+Three faults refuse the instantiation. The name under `$instantiate:` is not one the library declares. A parameter the template declares without a `default:` has no entry under `$args:`. Or an argument's value is not the type its parameter declares — and an `$args:` key naming no declared parameter is reported the same way, rather than being ignored, so a misspelled argument name is a refusal instead of a silently-defaulted parameter.
+
+Emitted messages:
+> schemalibrary: template not found: `"<template-name>"` not declared in spec.templates
+> schemalibrary: template parameter missing: `"<parameter-name>"` (template `"<template-name>"`)
+> schemalibrary: template parameter type mismatch: `<what the type check found>`
+> schemalibrary: template parameter type mismatch: argument `"<argument-name>"` is not declared in template `"<template-name>"`'s $params
+
+**How to fix:** for a template that is not found, correct the name to one the library declares under `spec.templates` — and check you are importing the library you meant. For a missing parameter, add it to `$args:`, or give the parameter a `default:` in the template so callers may leave it out. For a type mismatch, change the argument to the declared type or widen the parameter's `type:`; where the message names an argument that is not declared, correct its spelling or remove it.
+
+### A schema uses a JSON Schema keyword the library does not admit
+
+<!-- covers: pkg/types.ErrForbiddenKeyword -->
+
+`$dynamicAnchor` and `$dynamicRef` are not admitted in SchemaLibrary content. They defer which schema a reference resolves to until the value is being validated, which makes a library entry's meaning depend on where it was imported from rather than on what it says — and the compiler resolves a library's shapes ahead of any validation, so there is nothing for a deferred reference to resolve against.
+
+The refusal is applied at three points, which together close both ways the keyword could arrive. A schema entry is scanned as the library loads. A template's body is scanned as the library loads, so a template carrying the keyword literally fails at that point rather than at whichever build first instantiates it. And the substituted body is scanned again after an instantiation, so supplying the keyword as an argument value does not get past the first two.
+
+Emitted message:
+> schemalibrary: forbidden JSON Schema keyword: `"$dynamicRef"` at line `<line>`
+
+**How to fix:** replace the deferred reference with a `$ref` naming a `$defs` entry directly. Where the shape genuinely varies per use, express the variation as a template with `$params` and instantiate it per use — that is the substitution this surface offers, and it resolves before anything validates against the result.
+
+### A document nests deeper than the reader will descend
+
+<!-- covers: pkg/types.ErrOrderedMapDecodeDepthExceeded -->
+
+Every authored mapping is read into a structure that preserves the order its keys were written in, because that order reaches the rendered output and is part of what makes a build byte-identical across runs. That reader descends a bounded number of levels — a hundred — and refuses to go deeper, so input that would otherwise exhaust the reader's own stack is reported as the refusal it is.
+
+Emitted message:
+> OrderedMap: decode depth exceeded (depth=`<depth>`)
+
+**How to fix:** real authored documents nest a handful of levels, so a document reaching a hundred is generated, machine-translated, or accidentally self-referential. Look for a value that expanded into itself — a YAML anchor referencing content it sits inside is refused by its own halt above, but a generator emitting the same shape repeatedly is not. Where the depth is genuine, lift the deep branch into an entity of its own and reference it by name.
+
+### A provider declares a well-known annotation at a scope it does not render
+
+<!-- covers: pkg/types.ErrWellKnownAnnotationScope -->
+
+A Plugin serving a provider says two things about itself that have to agree. Under `spec.provider.wellKnownAnnotations` it lists the annotations it acts on, each with the scopes it reads them at. Under `contract.inputKinds` it says which input kinds it renders at all. A key declared at a scope whose input kind the same entity does not claim is those two statements contradicting each other in one file, so the entity is refused as it loads.
+
+The check is a comparison of the entity against itself, which is why it needs no plugin binary and fires wherever the entity is read — including a catalog walk on a machine that has never fetched the artifact.
+
+Two entries are deliberately not compared. A boundary-scoped entry names no input kind, because it is resolved once for a whole boundary rather than on any one node's render path. An entry declaring no scope at all makes no per-path claim: it says only that the plugin reads the key somewhere.
+
+What the refusal does **not** establish is that a declaration left standing is true. Nothing can prove that the plugin serving a provider reads a key it says it reads; what a comparison of two authored fields can do is refuse the pair that cannot both be true. A key declared at a scope the provider does render, whose plugin reads nothing there, passes here.
+
+Emitted message:
+> provider `"<plugin-name>"` declares well-known annotation `"<key>"` at scope `"<scope>"`, but its contract.inputKinds.`<field>` is not claimed; declare the key only at a scope the provider renders, or claim the input kind: wellKnownAnnotations: a key is declared at a scope the provider's contract does not render
+
+**How to fix:** the message names both halves. Either drop that scope from the annotation's `scope:` list, leaving the scopes the provider does render, or claim the input kind under `contract.inputKinds` if the provider does in fact render it.
+
 ## When resolving the catalog
 
 After loading, the compiler walks the Manifest's two tiers (type map, then name map) to pick the Recipe for every Component, and it walks any `extends` chains on Manifests, Components, or Features.
@@ -1001,6 +1112,96 @@ Emitted message:
 
 **How to fix:** nothing in your own files — this reports an inconsistency inside the compiler rather than a fault in what you wrote, and it is worth reporting as a defect with the type the message names. The component's type is almost certainly fine; if you need to get past it while the defect is investigated, writing the type as a relative path to a local entity file takes that component off the catalog-resolution path.
 
+### A reference names no entity the catalog holds
+
+<!-- covers: pkg/closure.ErrUnresolvableURI -->
+
+Before a build renders anything, the whole set of entities a Release depends on is walked and each one pinned, so the lockfile records exactly what the build will read. A reference the catalog cannot answer stops that walk: nothing can be pinned for it, and carrying on would write a lockfile short an entry the build needs later, with nothing saying so.
+
+The refusal names the reference and where it was collected, because one entity is reached from many places and the place that names it is where the correction goes. A library reference is reported on its own, without a collection path — a library is reached from the entities that `$ref` or `$import` it, and the failing name is the whole of the fault.
+
+Emitted message, for a catalog entity — the trailing part lists the places that reference it:
+> resolve: no entity in the catalog matches this URI: entity `"<reference>"` (referenced from `<referring paths>`)
+
+for a library:
+> resolve: no entity in the catalog matches this URI: library `"<reference>"`
+
+and for a plugin bound to a provider socket, which is named by the workspace configuration key that carried it rather than by a catalog document:
+> resolve: no entity in the catalog matches this URI: entity `"<reference>"` (referenced from .aggrega-config.yaml.plugins.providers)
+
+**How to fix:** read the reference exactly as the message quotes it. A name that does not exist, a version that was never published, and a bare name whose registry the workspace is not pointed at all arrive here identically, so check the three in that order: correct the spelling; confirm the version exists; confirm the registry holding it is configured and reachable. Where the entity is one you author locally, confirm the file is inside the catalog the build walks.
+
+### A library reference is not written in the identity form
+
+<!-- covers: pkg/closure.ErrInvalidLibraryRef -->
+
+A cross-library `$ref:` or `$import:` names the library by identity and then the entry inside it: the library's bare name, optionally a `:` and a version floor, then `#` and the path of the entry on the surface the field reads. There is no registry host in that form. Which registry a name resolves through is workspace configuration, and which version a build uses is the lockfile's answer, so a reference carrying either would fix in the document something the build is supposed to decide.
+
+Refused here: a value carrying a registry host; an in-document anchor written where a cross-library reference was expected; an empty library name; and `@` written as the version separator, which is reported with the corrected spelling rather than as a generic shape complaint, because it is the mistake this form attracts most.
+
+Emitted message:
+> resolve: invalid library reference URI: `"<the value as written>"`
+
+and where `@` was used as the separator, quoting what the value should read instead:
+> resolve: invalid library reference URI: version separator is ':', not '@' — use `"<the corrected value>"`
+
+**How to fix:** rewrite the value as `<Library>#<entry-path>`, adding `:<version>` after the library name only where you need a floor on which version may be selected. Drop any registry host. Where the reference was meant to point inside the same document, an in-document anchor is a different thing from a library reference, and the field you wrote it on expects the library form.
+
+### Two consumers of one library require incompatible versions
+
+<!-- covers: pkg/closure.ErrMVSConflict -->
+
+Several entities may reference one library, each naming a version floor or none at all, and the version the build selects is the highest floor any of them named. That is what lets a consumer asking for less still receive a version that satisfies it, and it is why adding a consumer with a higher floor moves everyone up rather than splitting the build across two copies.
+
+The rule holds only while the floors agree on the leading version number. Two consumers naming different majors are asking for two libraries that happen to share a name, and no single selection satisfies both — so rather than pick one and let the other consumer read a shape it was not written against, the build stops and names the disagreement. A consumer naming no floor takes part in nothing here: the selection is decided by the consumers that pinned.
+
+Emitted message, listing each conflicting consumer against the version it required:
+> resolve: minimum version selection conflict — incompatible library version requirements: library `"<library>"` has consumers requiring incompatible majors: `<consumer>`=`<version>`, `<consumer>`=`<version>`
+
+**How to fix:** raise the lower consumer's floor to the same major, which is the ordinary answer once the newer shape is what everyone wants. Where both majors are genuinely needed at once, they are two libraries: publish the older shape under a name of its own and point the consumer that needs it there, so each reference names the thing it was written against.
+
+### The chain of module imports is deeper than the pin walk descends
+
+<!-- covers: pkg/closure.ErrSubAggregateDepth -->
+
+Pinning walks every module an application imports, then every module those import, so the whole set reaches the lockfile rather than only the first level. A module already recorded is not walked a second time, which is what ends an ordinary loop — an application importing a module that imports it back terminates without complaint, having recorded each once.
+
+A depth bound of ten backstops the chain that repeat-detection cannot see: one presenting a fresh identity at every level, as a module re-published under a new version at each step does. The bound is the same one the graph builder applies, so a composition that pins is a composition that also builds.
+
+Emitted message:
+> resolve: sub-aggregate inclusion depth exceeded: `"<module>"` at depth `<depth>`
+
+**How to fix:** shorten the chain. A chain this deep usually mirrors how an organisation is arranged rather than how the deployment is, so look for levels that contribute no components of their own and collapse them into their parent. Where each level exists only to re-publish the level beneath it under a new version, the versions are the chain: import the module you actually want directly, at the version you want.
+
+This is the pinning walk's bound. The graph builder applies its own, reported under "Sub-aggregate nesting depth exceeded" below, and the two are separate reports of the same limit met at two points — the first while the lockfile is being filled, the second while the graph is being built.
+
+### The catalog view a build was given cannot load the bodies pinning needs
+
+<!-- covers: pkg/closure.ErrNoAggregateLoader, pkg/closure.ErrNoRecipeLoader -->
+
+Two of the axes pinning walks need more than a version answer from the catalog: they need the documents themselves. The modules an application imports have to be read to find what *they* import in turn. The Recipes, FeatureRecipes and Plugins a deployment binds have to be read to find the artifacts and libraries *they* name. A catalog view that can resolve a version but cannot hand back those bodies leaves both axes with nothing to read.
+
+Both are refused up front rather than skipped, and the reason is what a skip would produce: a lockfile short a whole class of entries, written without complaint, that a later build reconstructs faithfully and finds incomplete. Neither message carries values of its own, because neither is about a document you wrote — each states which axis cannot be computed:
+> resolve: catalog lookup cannot load resolved sub-aggregate bodies
+> resolve: catalog lookup cannot load resolved recipe and plugin bodies
+
+**How to fix:** nothing in your files produces either, and there is no authoring change that clears one — the fault is in how the build was wired rather than in what it was asked to build. Report it with the command you ran and the workspace configuration it ran against.
+
+### An annotation-transform plugin names a component it was not given
+
+<!-- covers: internal/compiler/pipeline.ErrAnnotationInjectionRejected -->
+
+An operator may attach a governance plugin in a role that adds annotations, and that attachment is a declaration: the operator asked for the transformation, so what the plugin adds is explicit rather than injected behind anyone's back. The role is confined to match. The plugin is handed the component coordinates the deployment declares, and may add string-valued annotations onto those. The shape it returns admits nothing else — no other field, no other kind of value — so the one confinement left to check after its output is applied is whether every injection named a coordinate it was given.
+
+An injection naming a boundary-and-component pair outside that set stops the build. A plugin reaching a component the deployment never exposed would be configuring infrastructure nobody declared, and the annotations it adds are expanded into Feature attachments exactly as authored ones are, so the effect would be resources appearing from a component the operator did not put in front of it.
+
+Each accepted injection also carries a companion annotation, `aggrega.ai/injected-by`, naming the plugin that made it. The host writes that annotation; a plugin cannot supply one, so what it says about where an injected annotation came from is not the plugin's to shape.
+
+Emitted message:
+> annotation-transform plugin output was rejected: an injection targets a component coordinate the host did not supply: injection targets boundary `"<boundary>"` component `"<component>"` (annotation `"<key>"`)
+
+**How to fix:** the fault is the plugin's rather than your documents' — correct it so it injects only onto the coordinates it is handed, each of which arrives in its input. Where the component in the message is one you expected the plugin to see, check that the deployment declares it inside a boundary: only declared component coordinates are handed over. Removing the attachment from `plugins.governance` is the immediate way to unblock a build while the plugin is corrected.
+
 ## When building the topology
 
 Once every Component has a resolved Recipe, the compiler stitches Components together into the IR graph by reading each Component's `uses:` block and cross-referencing targets and feature attachments.
@@ -1113,6 +1314,162 @@ Emitted message, with `Feature` in place of `Component` when a Feature chain is 
 > cyclic extends chain (Component `<name>`, at `.spec.extends`, circular extends detected: `<entity-name>` already in chain). Remove the circular extends reference
 
 **How to fix:** break the loop in the chain of Component or Feature definitions the message walks through.
+
+### A component the composition holds is placed in no boundary
+
+<!-- covers: internal/compiler/topology.ErrUnplacedComponent -->
+
+A Release places a component in a boundary two ways, and either one counts. It names the component under a boundary's `components`, addressed by the id the component carries once the whole composition is flattened. Or it routes the module that contributes the component into a boundary under `aggregates`, which places every component that module contains at once.
+
+A component reaching neither is rendered outside every boundary the deployment declared. Its output directory, its sync wave, its annotations and its per-component `infra` then come from nowhere — and the build would otherwise succeed, emit the artifacts, and say nothing about the operator's configuration never having been applied to it. Two components separated by that line also render into different outputs and lose the ordering they have when placed together.
+
+Two shapes deliberately do not meet it. A Release that declares top-level `components` rather than named boundaries places everything it names: normalising such a Release gives it a boundary of its own holding exactly those components. And a component whose whole module the deployment placed nowhere is reported once against the module instead, under the entry below — one fault, one remedy, one key to edit — rather than once per component whose own declaration is correct.
+
+Emitted message. The value at the end is the id the component carries once the composition is flattened, which for a component a module contributed is that module's name, a dot, and the component's own:
+> component placed in no boundary: name it under a boundary's `components`, or place the sub-module that contributes it under `aggregates` (Release `<name>`, at `<authored key>`, `"<component-id>"`)
+
+**How to fix:** name the component under a boundary's `components`, using exactly the id the message quotes — for a component a module contributed that is the prefixed id, not the name written inside the module's own file. Or, where the whole module belongs in one boundary, route it there under `aggregates` and let every component it holds be placed at once.
+
+### A sub-module's components are placed in no boundary
+
+<!-- covers: internal/compiler/topology.ErrUnplacedSubModule -->
+
+The module-scale form of the rule above: a module the composition brought in has contributed components, and no boundary holds any of them. It is reported once for the module rather than once per component, because one module placed nowhere is one authoring fault with one remedy at one key — and reporting it per component would name components whose own declarations are perfectly correct.
+
+The rule reads placement rather than spelling, so a module whose components are each named individually under a boundary's `components` is placed and passes: refusing it for want of a routing entry would reject an authoring form the language admits. A module placed only in part also passes — which of its components carry their own entries is the component rule's question, and any it left out are reported there, each at its own key.
+
+A module that contributed no components does not meet it: there is nothing to place. Neither does one a false `active:` toggle removed, which was never composed at all.
+
+Emitted message, positioned at the `aggregates` entry that declared the module, under the local name the importing document wrote:
+> sub-module placed in no boundary: route it into a boundary under `aggregates`, or name its components there under `components` (Release `<name>`, at `<authored key>`, `"<module-path>"`)
+
+**How to fix:** add an `aggregates` entry for the module under the boundary it belongs in, which places every component it contributes. Or, where its components belong in different boundaries, name each of them under the boundary it belongs to, using the prefixed ids they carry once flattened.
+
+### A boundary names a component the composition does not hold
+
+<!-- covers: internal/compiler/topology.ErrUnresolvedBoundaryComponent -->
+
+The over-naming counterpart of the two rules above, and a separate question rather than a branch of either: those ask of a component whether anything placed it, this asks of an entry the deployment wrote whether anything answers to it. Neither implies the other. A deployment can name a component that does not exist while every component that does exist is properly placed, and it can leave a real component unplaced while every entry it wrote resolves.
+
+The entry that names nothing configures nothing: its `directory`, `subDirectory`, `syncWave`, annotations and per-component `infra` are written for a component that is not there, so nothing renders under them and the build would otherwise succeed with the operator's configuration silently inert.
+
+A boundary names a component two ways and both are checked. Under `components`, an entry addresses the component by the id it carries once the composition is flattened — so a component a module contributes is written with that module's prefix ahead of its own name. Inside an `aggregates` routing entry, an entry addresses the component by the local name it carries inside that module, which resolves to the same id. The message quotes the id the entry *addressed*, which on the routed axis is not the name the file spells: the file carries the local half and the module supplies the rest.
+
+A subsystem contributes nothing to a component's id, so a component declared inside a subsystem is addressed by its bare name. An entry written as though the subsystem were part of the id addresses nothing and meets this.
+
+A component switched off by a false `active:` toggle does not meet it. Switching a component off is an authoring act, and the deployment that configures it is not expected to be rewritten in the same edit — refusing the entry would make the toggle unusable for as long as any deployment named the component.
+
+Emitted message:
+> boundary names a component the composition does not hold: correct the name, or remove the entry (Release `<name>`, at `<authored key>`, `"<addressed id>"`)
+
+**How to fix:** compare the id the message quotes against the components the composition actually holds. A missing module prefix and a subsystem name written into the id are the two common causes; drop the subsystem, add the module prefix, or correct the spelling. Where the entry is left over from a component that has since been removed or renamed, delete it.
+
+### A `uses` edge targets a component an `active:` toggle removed
+
+<!-- covers: internal/compiler/topology.ErrUsesPrunedComponent -->
+
+The sibling of the dangling-target halt above, reported separately so the author is told *why* the target is missing. The target is not absent because it was never declared — it is declared, and it was deliberately removed from this build because its `active:` toggle resolved to false, taking its edges with it. A component that survived still depends on it, and letting the edge vanish would leave that consumer's injected values silently empty at deploy time.
+
+Emitted message:
+> uses edge target was pruned because its active toggle resolved to false: uses edge `<consumer>`/`<socket>`/`<alias>` targets `"<target>"`, which was pruned from the topology because its active toggle resolved to false
+
+**How to fix:** decide which of the two belongs in this environment. Switch the target back on — where its toggle reads a parameter, that means supplying the parameter for this Release. Or gate the consumer behind the same toggle, so the two leave together and no edge is left pointing at nothing. Or, where the consumer genuinely no longer needs it, remove the edge from the consumer's `uses:` block.
+
+### An `active:` toggle does not resolve to true or false
+
+<!-- covers: internal/compiler/topology.ErrInvalidActive -->
+
+An `active:` toggle reaches the graph builder already resolved to a literal — a boolean written directly, or a parameter reference the Release's values were substituted into before the document was read. It is then read strictly: a literal that is not a boolean stops the build rather than defaulting to anything. The rule is the same for a component's toggle and for a module's.
+
+**An empty literal is the case worth naming**, because it is what an unfulfilled parameter produces. A toggle reading `{{ .parameters.<key> }}` resolves to nothing while that parameter has no value, and reading nothing as "present" would deploy the very entity the author gated behind the parameter. Only a toggle nobody wrote defaults to present, and that is read from the toggle's absence rather than from its value — which is why writing `active:` with nothing after it is not the same as leaving the key out.
+
+Emitted message:
+> active toggle did not resolve to a boolean (node `"<node>"`, active resolved to `"<value>"`)
+
+and, where it resolved to nothing at all, with the advice that names the usual cause:
+> active toggle did not resolve to a boolean (node `"<node>"`, active resolved to `""`). a toggle reading a parameter resolves to nothing until that parameter is fulfilled
+
+**How to fix:** write `true` or `false`. Where the toggle reads a parameter, supply that parameter in the Release, or give it a `default:` where it is declared in the Aggregate so every environment has an answer. To make an entity unconditionally present, remove the `active:` key rather than leaving it empty.
+
+### A module a composition imports cannot be loaded, or imports itself
+
+<!-- covers: internal/compiler/topology.ErrSubAggregateLoad -->
+
+An application composes other applications by naming them under `aggregates:`, and each is loaded and walked in turn so its components join the graph. Two things stop that walk here.
+
+The module cannot be loaded at all — the reference resolves to nothing the catalog can hand back, or the document behind it cannot be read. The reason the loader gave is carried beneath the halt rather than folded into it, so what failed is reported in the loader's own words.
+
+Or the module names a type already on the chain being walked. Expanding that would reproduce the chain that contains it, without end. It is reported at the point the reference closes the loop, naming both the type and where in the composition it sits.
+
+Emitted message, for a circular reference:
+> sub-aggregate load failed (circular sub-aggregate reference `"<module-type>"`, at `"<path in the composition>"`)
+
+and for a load failure, where the halt reads as the sentence alone, positioned at the module's path, with the loader's own reason beneath it:
+> sub-aggregate load failed
+
+**How to fix:** for a load failure, read the reason beneath the halt — a name or a version the catalog cannot answer is the common case, and the correction goes in the `aggregates:` entry that names it. For a circular reference, break the loop: the path in the message is where the chain closes, and one of the modules along it has to stop importing the one that imports it. Where two modules genuinely need each other's components, the shared part belongs in a third module both import.
+
+### Two instances flatten to one identifier
+
+<!-- covers: internal/compiler/topology.ErrSubAggregateNameCollision -->
+
+Composing an application flattens every component into a single set, and a component a module contributed carries that module's name, a dot, and its own name. The set refuses to hold two entries under one identifier: the second would replace the first, and one of the two components would disappear from the output with nothing said about it.
+
+The authoring surface does not offer the names that would produce this. An instance name is written from letters, digits, `-` and `_`, so it cannot carry the dot the compiler joins with, and two identifiers built from different module names cannot meet. The check therefore backstops a composition assembled by something other than the ordinary authoring path, and meeting one is worth reporting rather than working around.
+
+Emitted message:
+> flattened node ID collision: rename one of the colliding instances so their flattened IDs differ (id `"<identifier>"`, path `"<path in the composition>"`, collides with existing entry from `"<the other contributor>"`)
+
+**How to fix:** rename one of the two instances the message names, in the document that declares it and in every Release entry that addresses it.
+
+### A re-published component alias points back at itself
+
+<!-- covers: internal/compiler/topology.ErrReexportCycle -->
+
+A module publishes part of itself by exporting components under aliases, and an application that imports it may re-publish one of those aliases under a name of its own. Resolving such an alias follows the chain of re-publications to the component it ultimately names, so that an edge pointing at the public name reaches a real component.
+
+A chain that revisits an alias before reaching a component never lands. The walk stops rather than following it forever, and names the chain it walked so the link that closes the loop is visible. The import tree is acyclic, so this backstops an alias table assembled by something other than the ordinary authoring path rather than something an application can write.
+
+Emitted message:
+> re-exported component alias forms a cycle (alias chain `<first> -> <second> -> <first>`)
+
+**How to fix:** read the chain and point one of its links at a component rather than at another alias.
+
+### An application reached graph building without being normalised
+
+<!-- covers: internal/compiler/topology.ErrUnnormalizedAggregate -->
+
+An application written with components at its top level and one written with named subsystems become the same shape as they are read: the top-level components are folded into a subsystem the compiler supplies, and the top level is cleared. That fold is what lets everything downstream ask one question of one shape.
+
+An application arriving at graph building with **both** populated was not produced by that reading. The two shapes are mutually exclusive where they are authored — a document declaring both is refused as it loads — and the fold is what makes them one shape afterwards, so nothing an author can write reaches this. It backstops an application assembled by something other than the ordinary load path, and meeting one is worth reporting rather than working around.
+
+Its message opens:
+> aggregate reached topology un-normalized (non-empty root components alongside a synthesized default subsystem)
+
+and continues with the construction path the compiler expects, which is a note for whoever is debugging the build rather than an authoring instruction.
+
+**How to fix:** nothing in your files produces it, and there is no authoring change that clears it. Report it with the command you ran.
+
+### A label-transform plugin's patch reaches outside node labels
+
+<!-- covers: internal/compiler/topology.ErrMutatorPatchRejected -->
+
+A governance plugin attached in a label-transform role is handed a labels-only view of the graph — one entry per node, each carrying that node's labels and nothing else — and returns patches against it. The host applies them and then checks that what came back is still that same view: the same nodes, each carrying only labels, each label value a string.
+
+Anything else is refused and the build stops. Adding or removing a node, or changing a node field other than its labels, is precisely the silent appearance of infrastructure nobody declared — so rather than absorb a change the role does not cover, the build says which confinement rule the patch broke. Labels are the whole of the role's surface, and an operator who attached the plugin declared that much and no more.
+
+Emitted messages. The patch was rejected before it was applied:
+> mutator patch rejected: patch `<n>` does not decode as a JSON Patch document: `<what the reader could not do>`
+> mutator patch rejected: patch `<n>` does not apply to the node-label surface: `<what the patch engine refused>`
+
+or the result of applying it was not the view the host handed over:
+> mutator patch rejected: mutated node set changed size (a mutator may not add or remove nodes)
+> mutator patch rejected: mutated node set introduced node `"<node>"` (a mutator may not add nodes)
+> mutator patch rejected: node `"<node>"` gained a field outside `"labels"` (a mutator may only touch labels)
+> mutator patch rejected: node `"<node>"` lost its `"labels"` field
+> mutator patch rejected: node `"<node>"` carries a non-string label value after patching: `<what the reader found>`
+
+**How to fix:** the fault is the plugin's rather than your documents'. Correct it so every operation it returns addresses an entry under some node's `labels`, and sets only string values — a numeric or boolean label value is the common one, since the surface accepts strings alone. Removing the attachment from `plugins.governance` is the immediate way to unblock a build while the plugin is corrected.
 
 ### Intentional omission: the topology is not required to be acyclic
 
@@ -1293,6 +1650,50 @@ Emitted message. The refusal comes first, then each refused mechanism under the 
 An edge authored on an attachment is located as `component "<consumer>" attachment "<attachment>"`, and one wired in the Release as `Release component "<consumer>"`. Where the socket was declared on the attached Feature, the message names the feature type in place of the component type.
 
 **How to fix:** switch to one of the allowlisted mechanisms, or, if the entity should support the mechanism you need, widen that socket's `inject:` allowlist in its catalog `usesSchema` entry.
+
+### An `inject:` entry carries both a literal and a source key
+
+<!-- covers: internal/compiler/ir.ErrInjectEntryAmbiguous -->
+
+An `inject:` entry delivers one of two things: a literal, written under `value:`, or a key read from the component the connection points at, written under `from:`. An entry carrying both says two things at once and offers no rule for choosing between them, so it is refused rather than having one of the two quietly win.
+
+The authoring schema admits exactly one of the pair, so a document read the ordinary way is refused before the graph is built at all. This is the check standing behind that one, over the structures the graph is assembled from, so a set of components that reached the builder by some other route is still refused rather than silently having one field picked.
+
+Every offending entry in the build is reported at once, each named by where it sits: the block it is in, the delivery mechanism under it, and the entry's position in that mechanism's list. Entries reached through a connection are named through the socket and alias that connection was written under.
+
+Emitted message, with the offending positions separated by semicolons:
+> inject entry carries both `value:` and `from:`; schema requires exactly one: .spec.components["`<component>`"].inject.env[`<n>`]; .spec.components["`<component>`"].uses["`<socket>`"]["`<alias>`"].inject.file[`<n>`]
+
+**How to fix:** open each position the message names and delete whichever of the two the entry does not need. Keep `from:` where the value should come from the component the connection points at — it names a key that component's `provides:` declares. Keep `value:` where the value is a literal this side supplies.
+
+### The Feature filling an attachment slot does not satisfy the slot's selector
+
+<!-- covers: internal/compiler/analyzer.ErrSlotSelectorUnsatisfied -->
+
+A Component declares named binding points for the Features it expects, and a slot may declare a `selector:` constraining the labels of whatever fills it. An attachment binds a slot by carrying the slot's name; when one does, the labels of the Feature it names are matched against that constraint, and a fill that does not satisfy it stops the build. A slot declaring no constraint accepts any fill.
+
+Whether a slot may be left unbound at all is a different question with a different remedy, reported by its own halt above: this one presupposes a fill and asks whether the fill is admissible, so an unbound slot is not its business.
+
+Two outcomes report under this one condition, and the message tells them apart by how many values it carries. Two values are a constraint that was read and came out false. A third value is the reason the constraint could not be read at all — an expression the label matcher could not evaluate — which is a fault in the slot's own declaration rather than in what was attached to it.
+
+Emitted message, where the fill's labels did not satisfy the constraint:
+> attachment slot selector unsatisfied (`"<selector>"`, `"<feature-type>"`)
+
+and where the constraint itself could not be evaluated:
+> attachment slot selector unsatisfied (`"<selector>"`, `"<feature-type>"`, `"<why it could not be evaluated>"`)
+
+**How to fix:** for a fill that did not satisfy the constraint, attach a Feature whose labels do — the selector in the message says which labels are being asked for — or widen the slot's `selector:` in the Component that declares it. Where the message carries a third value, the selector expression is the fault: correct it in the Component's slot declaration.
+
+### A catalog lookup fails during static analysis **[pending]**
+
+<!-- covers: internal/compiler/analyzer.ErrCatalogLookup -->
+
+Reserved, and raised by nothing today. It will report a catalog lookup that fails while the graph is being checked — a state that cannot arise while every component and feature an Aggregate or Release names is checked before those checks begin — once that stage surfaces such an inconsistency as a halt rather than ending its reading silently.
+
+Its message reads:
+> catalog lookup failed
+
+No build prints it. It is catalogued here so that a short code you have in hand always resolves to something, whichever page you arrived from, and so that the condition is named ahead of the work that will raise it rather than appearing without warning.
 
 ## When rendering output
 
@@ -1677,6 +2078,8 @@ Path-template missing-variable emit shape:
 
 #### Resolving a `source:` coordinate registers a narrower function set
 
+<!-- covers: pkg/closure.ErrSourceTemplateAtLockTime, pkg/closure.ErrSourceTemplateParse, pkg/closure.ErrSourceTemplateProvidesRef -->
+
 A structured `source:` block is resolved so the artifact it names can be pinned, and that resolution registers **Aggrega's `optional` and nothing else** — Sprig's functions are not available on it. Of the surfaces a Recipe or FeatureRecipe authors templates on, this is the one whose function set differs, so an expression that renders correctly elsewhere in the same Recipe can be refused here. Calling a Sprig function in a `source:` field, or in a `locals:` entry on the same entity, halts at parse time; the message names the entity, the entry, and the function it could not resolve:
 
 > resolve: parse template at `<name>:<version>`.spec.locals.`<key>`: resolve: source-template evaluation failure at lock time (also resolve: source-template parse error) (cause: template: `<name>:<version>`.spec.locals.`<key>`:1: function `"<function>"` not defined)
@@ -1692,9 +2095,115 @@ A structured `source:` block is resolved so the artifact it names can be pinned,
 
 **What this surface does pass over is an entry a coordinate genuinely cannot resolve**: one reading data that exists only while an artifact is rendered, `.context.instance_id` being the case it is there for. Such an entry is skipped and the coordinate resolves from its own fields, so a Recipe carrying one is still pinned. Where the coordinate itself needed that entry, the resolution halts naming the `source:` field rather than the `locals:` entry — the missing-key report described for this surface above — because what cannot be produced at that point is the coordinate.
 
+**Neither a `source:` field nor a `locals:` entry on the same entity may read `.provides`.** A `locals:` block feeds a `provides:` block and never the reverse, so a template on this surface reading `.provides` is refused as the reverse reference it is rather than resolving to nothing. The refusal is not a lock-time absence that a later phase would satisfy — no ordering makes the reference valid — so it is reported the same way wherever the coordinate is resolved. The message names the field, says what is wrong with the reference, and gives the surface the expression may read instead:
+
+> source-version template at `<name>:<version>`.spec.source.`<field>` references `.provides`, which is an invalid reverse reference (locals feed provides, never the reverse) — refactor to read only `.values` and `.infra` (and `.locals` over the same): resolve: source-template evaluation failure at lock time (also resolve: source-template references .provides (invalid reverse reference))
+
 **Where the halt surfaces:** while the lockfile is being filled or refreshed — `aggrega pull`, or a build that fills it (`--auto-pull`, `--upgrade`, or the workspace `auto_pull` setting). A missing key on a `source:` field, as against an unavailable function, reports the same condition at execution rather than parse time, naming the field and the key it could not read.
 
 **How to fix:** `optional` is registered on this surface *and* on every value template, path template and assertion, which makes it the portable choice — `{{ optional .values "chart_version" "25.0.8" }}` in place of `{{ default "25.0.8" .values.chart_version }}`. Read the semantic difference before substituting: `optional` fires on the key being **absent**, while `default` fires on the value being **empty**, so a key authored as an empty string or a zero keeps its authored value under `optional` and is replaced under `default`. Where the expression genuinely needs a Sprig function — reshaping a string rather than supplying a fallback — write it on the surface that consumes it (`valuesMapping`, a Workload body, an `artifacts:` entry) rather than in `locals:`, so that a `source:`-bearing entity's `locals:` block holds only expressions this surface can evaluate.
+
+### A governance plugin rejected the build
+
+<!-- covers: internal/compiler/analyzer.ErrPolicyViolation -->
+
+An operator may attach a governance plugin in a verdict role, over the graph the compiler built or over the artifacts it rendered. Such a plugin reads and returns a verdict. The host has no path that would apply a change coming back from it, so a verdict role can reject a build and cannot rewrite one into compliance — the rejection is the whole of what it can do, and what to change is left to whoever reads it.
+
+Only a halt verdict stops the build. Warn and info verdicts are reported and the build carries on. Every halt verdict a plugin returned is reported, in the order the plugin emitted them, so one run tells you about all of them.
+
+The message a build prints is the plugin's own, surfaced exactly as it was returned and framed only by the plugin that returned it — so how specific it is, and how actionable, is the plugin's to decide rather than the compiler's. Whatever optional detail the verdict carried follows in brackets, each part named: a code, a rule identifier, a classification, a source reference, a location, a suggestion. The condition it is recorded under is `policy violation`, which is what a short code in the diagnostic's head resolves to.
+
+The refusal is attributed to the governance attachment rather than to one of your documents, so it carries no file position: there is no key that produced it, and the answer is either to satisfy the policy or to reconsider the attachment.
+
+Emitted message:
+> policy plugin `"<plugin>"` rejected the build: `<the plugin's own message>` [code=`<code>`; rule_id=`<rule>`; classification=`<class>`; source_ref=`<reference>`; location=`<where>`; suggest=`<suggestion>`]
+
+The bracketed part is present only where the verdict carried detail, and each part inside it only where the plugin set it.
+
+**How to fix:** read the plugin's message and the suggestion where it supplied one. Where the finding is correct, change what it objects to. Where the policy should not apply to this deployment, that is a question about the attachment: governance attachments are configured under `plugins.governance` in the workspace configuration, and which plugin runs in which role is an operator's decision rather than something a document can override.
+
+### A governance attachment's settings do not match the plugin's declared schema
+
+<!-- covers: internal/compiler/pipeline.ErrPolicySettingsInvalid -->
+
+A governance plugin may declare a schema for the settings its attachment passes it. The settings written under the attachment's `with.settings` are checked against that schema **before** the plugin is dispatched, so a misconfigured attachment is reported as the configuration fault it is rather than reaching the plugin as ill-shaped input and coming back as whatever the plugin makes of it.
+
+That ordering is the point of the check. It also makes this cleanly distinct from a rejection: the plugin has not run, no verdict was reached, and nothing about the build was judged. A plugin declaring no settings schema accepts any settings, so an attachment against one of those never meets this.
+
+Emitted message:
+> with.settings does not satisfy the plugin's declared settings schema: `<what the schema check found>`: policy attachment settings do not satisfy the plugin's declared settings schema
+
+**How to fix:** correct the settings under that attachment's `with.settings` in `plugins.governance`. The detail in the middle of the message names the key at fault and what the schema expected there; the plugin's own reference documents the settings it declares.
+
+### A pipeline step failed
+
+<!-- covers: internal/compiler/featurerecipe_pipeline.ErrPipelineStepFailed -->
+
+A FeatureRecipe may declare a pipeline: a sequence of steps, each dispatching a plugin export over the documents the node has emitted, so that a Feature can shape output the component's own Recipe produced. This is the condition a step reports under when it fails for any reason other than a patch addressing something the document set does not hold, which has a report of its own below.
+
+What failed is named after the step's id and its index, and the clause that follows says which part gave way: rendering the step's `with` input, the call itself, output the host could not read, an error the plugin returned, an error-severity diagnostic the plugin emitted, a patch the patch engine rejected, or a patch naming a scope the walk does not have.
+
+**A failed step is rolled back whole.** The documents are restored to what they were before the step ran, and the step's own outputs are dropped with them, so a later step's `when` or `with` cannot read a partial result. A step declared `optional: true` then reports as a warning and the walk carries on; a step that is not optional stops the build. What `optional:` does **not** tolerate is a violated declared contract — see the entry below.
+
+Emitted messages:
+> pipeline step failed: step `"<id>"` (index `<n>`) `with`: `<what the render could not do>`
+> pipeline step failed: step `"<id>"` (index `<n>`) invoke: `<what the call could not do>`
+> pipeline step failed: step `"<id>"` (index `<n>`) error diagnostic: `<the plugin's message>`
+> pipeline step failed: scope `"<scope>"` key `"<key>"`: `<what the patch engine refused>`
+> pipeline step failed: unknown patch scope `"<scope>"`
+
+**How to fix:** read the step id, then the clause after the index — it says which half of the step to look at. A `with` failure is a template in the step's own `with:` block, and is yours to fix. An error diagnostic is the plugin's own words about your input. A refused patch and an unknown scope are the plugin's output against what the node emitted, and are the plugin author's. Where a step is genuinely allowed to fail — an optional enrichment rather than a required transformation — declare it `optional: true`, remembering that this tolerates a failure and not a broken contract.
+
+### A pipeline step's typed input or output does not satisfy its declared contract
+
+<!-- covers: internal/compiler/featurerecipe_pipeline.ErrPipelineContractViolation -->
+
+A plugin export may declare a schema for the input it takes and for the outputs it returns. Both are checked: the rendered `with` value before the call, and the returned outputs after it. A diagnostic whose severity the shared contract does not declare is refused on the same footing.
+
+**This halts even for a step declared `optional: true`**, and the distinction is the whole of why the condition is separate from a step failure. Optional tolerates a step that could not do its job — a call that failed, a plugin that objected. It does not tolerate output the host cannot route, or input that was never the shape the export said it takes: a declared contract is a commitment, and a build that quietly skipped a step whose contract was broken would be reporting success over a Feature that did nothing.
+
+Emitted messages:
+> pipeline step `"<id>"` `with` input does not satisfy the declared input contract: `<what the schema check found>`: pipeline step typed-I/O contract violation
+> pipeline step `"<id>"` returned outputs that do not satisfy the declared output contract: `<what the schema check found>`: pipeline step typed-I/O contract violation
+
+and for a diagnostic severity the contract does not declare, which arrives inside the step-failure frame:
+> pipeline step failed: step `"<id>"` (index `<n>`): `<the severity the host could not route>`: pipeline step typed-I/O contract violation
+
+**How to fix:** for an input violation, correct the step's `with:` block against the schema its export declares — the detail names the field and what was expected. An output violation and an undeclared severity are the plugin's to fix; the step's declaration is not what is wrong, so marking it optional will not clear either.
+
+### A pipeline patch addresses a document the set does not hold, or one with no tree to address
+
+<!-- covers: internal/compiler/featurerecipe_pipeline.ErrPipelineTargetAbsent, internal/compiler/featurerecipe_pipeline.ErrPipelineTargetOpaque -->
+
+A pipeline step addresses a document by a scope and a key, and two shapes of address are refused.
+
+**The set does not hold it.** The step patched a scope-and-key pair that is not among the documents it was handed. Nothing would be edited, so rather than apply a patch to nothing and report success, the walk stops:
+> pipeline patch targets a document not present in the set: scope `"<scope>"` key `"<key>"`
+
+**It carries no tree to address.** Some units have no structure a patch can point into — a binary body, free text, a region the provider cannot safely walk. Such a unit is still handed to the step, tagged with its media type and its bytes, so it can be selected and emitted whole; what it cannot be is patched, because there is nothing for a path to resolve against. A patch against one stops rather than being silently skipped:
+> pipeline patch targets an opaque (non-structured) unit: scope `"<scope>"` key `"<key>"`
+
+What counts as structured is the provider's own reading of the unit rather than a fixed test, so the same content can be addressable under one provider and opaque under another.
+
+Both are the walk's own refusals, and a build reports them against the node whose pipeline made the patch, so the message above arrives beneath a halt naming that node.
+
+**How to fix:** both are the plugin author's rather than yours. A step receives the document set it is being run over and can read which keys are in it, so an absent target is a step addressing a document this node did not emit — patch a document that is there, or emit the one you meant first and patch it in a later step. For an opaque unit, replace the patch with an emit of the whole unit: an opaque body is replaced rather than edited.
+
+### A patch's `test` operation did not match the document
+
+<!-- covers: internal/compiler/jsonpatch.ErrTestFailed -->
+
+A patch may carry a `test` operation, which asserts what is at a path before the operations after it are applied. The engine refuses the whole patch when the assertion does not hold, which is what makes a conditional patch conditional rather than optimistic: a plugin that tests before it edits is saying it will not touch a document it does not recognise.
+
+Two shapes report under it. There is nothing at the path at all, which the message says. Or there is a value and it is not the one asserted, which is reported as the bare refusal — neither the asserted value nor the one found is quoted.
+
+Emitted messages:
+> jsonpatch: test operation failed: no value at path
+> jsonpatch: test operation failed
+
+Where a pipeline step's output carried the patch, the refusal arrives beneath that step's failure, naming the step. Where a label-transform plugin's patch carried it, it arrives beneath the label-patch refusal.
+
+**How to fix:** the fault is the plugin's rather than your documents'. A test that expected a value the document does not have usually means the plugin is running against a shape it was not written for — a different provider's output, or a document a step earlier in the same pipeline already changed. Where the patch is yours to correct, either relax the test to what the document actually carries, or make the step's `when` gate skip the case rather than testing for it inside the patch.
 
 ## Conditions that do not halt a build
 
@@ -1790,6 +2299,24 @@ Safeguards behind an earlier refusal. When a Component or Feature extends anothe
 
 They are catalogued because they are declared and carry codes of their own, so a code in hand resolves. Nothing you can author produces one, and meeting one would mean the earlier refusal did not run — worth reporting as a defect rather than working around.
 
+### An explicit value displaced one an annotation supplied
+
+<!-- covers: internal/compiler/analyzer.ErrOverriddenAnnotation -->
+
+An advisory. Annotation-driven expansion turns an annotation a deployment carries into a Feature attachment with configuration of its own. Where the same attachment also carries configuration written explicitly — on the component, on a scope above it, or in the deployment — the explicit value wins at each key the two both cover. That is the intended rule and the emitted output is not wrong, so the build finishes. What the advisory names is the consequence: the annotation's contribution to that key is no longer visible anywhere in the output, and the author who wrote the annotation may not know it was suppressed.
+
+It reports **every** displacement rather than only the ones that changed something. The merge overwrites the suppressed value, so there is no comparison left to make and nothing that could say whether the two agreed — the record that a displacement happened is the whole of the evidence. It is read once the whole attachment cascade and the expansion have been folded together, which is the earliest point at which that record exists.
+
+Its message opens:
+> annotation contribution overridden by an explicit value
+
+and continues with the annotation that was displaced, then the coordinates of the key that displaced it, then where the displaced annotation was written. The position ahead of it is the document the finding sits in and the key inside it:
+> `<file>` at `<authored key>`: annotation contribution overridden by an explicit value (`"<annotation-key>"`, component `"<component>"`, attachment `"<attachment>"`, pillar `"<pillar>"`, key `"<the key at issue>"`, annotation declared at `"<where the annotation was written>"`)
+
+Two of those values are easy to misread. The **component** is named only where the displacing entry has one: an entry written for a whole scope has no component of its own, and naming one it never had would send a reader to a key nobody wrote. And **annotation declared at** names where the *displaced* annotation was written, which is the scope it was inherited from wherever it was not written on the component that displaced it — so it is not the component key repeated under another caption.
+
+**What to do about it:** nothing, where the explicit value is what you meant. The advisory exists so that the precedence is a choice rather than a surprise. Where it is not what you meant, there are two ways out and they differ in scope. Delete the explicit entry, and the annotation's value flows through to that key. Or remove the annotation from the component or scope that carries it, and no contribution is made at all — which also affects every other key that annotation supplies. Where both sides are wanted but for different keys, narrow whichever one is reaching further than intended so the two no longer overlap.
+
 ## Finding a halt from the short code the build printed
 
 A halting diagnostic's bracketed head names the category the failure is attributable to and, where the failure names one of the conditions catalogued here, that condition's **short code** — the letter `E` and four digits, as in `[CATALOG_ERROR E0209]`. A number is handed out once and then fixed, so a short code you paste into a report or a search still names the condition it named when you recorded it. The other two identifiers a condition carries, and which of the three to reach for when, are taught in [sentinels.md](./sentinels.md).
@@ -1803,11 +2330,23 @@ Where one entry appears against two short codes, it covers two distinct conditio
 <!-- BEGIN GENERATED: halt-condition-sentences -->
 | Short code | Opens with | Documented under |
 | --- | --- | --- |
+| `E0002` | `catalog lookup failed` | A catalog lookup fails during static analysis **[pending]** |
 | `E0003` | `malformed attachment requirement` | Malformed attachment requirement |
+| `E0004` | `annotation contribution overridden by an explicit value` | An explicit value displaced one an annotation supplied |
+| `E0005` | `policy violation` | A governance plugin rejected the build |
 | `E0006` | `required attachment slot unfilled` | Required attachment slot not bound |
 | `E0007` | `selector violation` | Cross-node type safety violation via `selector:` |
+| `E0008` | `attachment slot selector unsatisfied` | The Feature filling an attachment slot does not satisfy the slot's selector |
+| `E0009` | `pipeline step typed-I/O contract violation` | A pipeline step's typed input or output does not satisfy its declared contract |
+| `E0010` | `pipeline step failed` | A pipeline step failed |
+| `E0011` | `pipeline patch targets a document not present in the set` | A pipeline patch addresses a document the set does not hold, or one with no tree to address |
+| `E0012` | `pipeline patch targets an opaque (non-structured) unit` | A pipeline patch addresses a document the set does not hold, or one with no tree to address |
 | `E0013` | `feature type mismatch between Aggregate and Release` | Feature type mismatch between Aggregate and Release |
+| `E0014` | ``inject entry carries both `value:` and `from:`; schema requires exactly one`` | An `inject:` entry carries both a literal and a source key |
 | `E0015` | `uses-edge inject dictates a delivery mechanism the socket does not permit` | `uses` edge dictates delivery on a socket that allowlists none; `uses` edge dictates a delivery mechanism outside the socket's allowlist |
+| `E0016` | `jsonpatch: test operation failed` | A patch's `test` operation did not match the document |
+| `E0017` | `annotation-transform plugin output was rejected: an injection targets a component coordinate the host did not supply` | An annotation-transform plugin names a component it was not given |
+| `E0018` | `policy attachment settings do not satisfy the plugin's declared settings schema` | A governance attachment's settings do not match the plugin's declared schema |
 | `E0029` | `artifact template references a pillar the Recipe does not declare` | An `artifacts:` template reads a pillar the Recipe does not declare |
 | `E0032` | `assembled output collision: two contributors write the same output path` | Two contributors write the same output path |
 | `E0035` | `provider expected to assemble its dispatch group provides no boundary assembler` | The plugin serving a provider cannot assemble what that provider combines |
@@ -1824,9 +2363,17 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0060` | `template references a root the render context does not define` | Template references a root the render context does not define; Self-inject value template references cross-node data |
 | `E0061` | `unknown provider` | Unknown provider |
 | `E0066` | `uses edge target does not exist` | Dangling `uses` target |
+| `E0067` | `active toggle did not resolve to a boolean` | An `active:` toggle does not resolve to true or false |
 | `E0068` | `max sub-aggregate nesting depth exceeded` | Sub-aggregate nesting depth exceeded |
+| `E0069` | `mutator patch rejected` | A label-transform plugin's patch reaches outside node labels |
+| `E0070` | `re-exported component alias forms a cycle` | A re-published component alias points back at itself |
 | `E0071` | `release edge retargets a developer-declared edge` | Release retargets a developer-declared edge |
+| `E0072` | `sub-aggregate load failed` | A module a composition imports cannot be loaded, or imports itself |
+| `E0073` | `flattened node ID collision: rename one of the colliding instances so their flattened IDs differ` | Two instances flatten to one identifier |
 | `E0074` | `release per-edge configuration has no edge to apply to` | Release per-edge configuration has no edge to apply to |
+| `E0075` | `aggregate reached topology un-normalized (non-empty root components alongside a synthesized default subsystem)` | An application reached graph building without being normalised |
+| `E0076` | `` sub-module placed in no boundary: route it into a boundary under `aggregates`, or name its components there under `components` `` | A sub-module's components are placed in no boundary |
+| `E0077` | `uses edge target was pruned because its active toggle resolved to false` | A `uses` edge targets a component an `active:` toggle removed |
 | `E0089` | `every published version this reference could select has been withdrawn` | Every version a reference could select has been withdrawn |
 | `E0090` | `format is advertised by more than one importer plugin` | A parse or import format is advertised by more than one plugin |
 | `E0091` | `format is advertised by more than one parser plugin` | A parse or import format is advertised by more than one plugin |
@@ -1844,6 +2391,15 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0103` | `no catalog version satisfies the referenced version constraint` | No catalog version satisfies a version constraint |
 | `E0104` | `wasm plugin reference must carry a pluginType scope (<pluginType>/<name>); an empty scope cannot bind to an OCI location` | A plugin or recipe reference carries no scope |
 | `E0105` | `recipe reference must be provider-scoped (<provider>/<name>); an empty provider cannot bind to an OCI location` | A plugin or recipe reference carries no scope |
+| `E0106` | `resolve: invalid library reference URI` | A library reference is not written in the identity form |
+| `E0107` | `resolve: minimum version selection conflict — incompatible library version requirements` | Two consumers of one library require incompatible versions |
+| `E0108` | `resolve: catalog lookup cannot load resolved sub-aggregate bodies` | The catalog view a build was given cannot load the bodies pinning needs |
+| `E0109` | `resolve: catalog lookup cannot load resolved recipe and plugin bodies` | The catalog view a build was given cannot load the bodies pinning needs |
+| `E0110` | `resolve: source-template evaluation failure at lock time` | Resolving a `source:` coordinate registers a narrower function set |
+| `E0111` | `resolve: source-template parse error` | Resolving a `source:` coordinate registers a narrower function set |
+| `E0112` | `resolve: source-template references .provides (invalid reverse reference)` | Resolving a `source:` coordinate registers a narrower function set |
+| `E0113` | `resolve: sub-aggregate inclusion depth exceeded` | The chain of module imports is deeper than the pin walk descends |
+| `E0114` | `resolve: no entity in the catalog matches this URI` | A reference names no entity the catalog holds |
 | `E0122` | `deprecation: build consumes a deprecated entity` | The build consumes an artifact its publisher has deprecated |
 | `E0126` | `externalinputs: acquisition is disabled for unpinned inputs` | An unpinned external input is requested while acquisition is off |
 | `E0127` | `externalinputs: fetched bytes mismatch the pinned digest` | Fetched bytes do not match a pinned digest |
@@ -1876,6 +2432,19 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0173` | `declared parameter is read by no reference in the Aggregate` | A declared parameter is read by nothing |
 | `E0174` | `uses socket name is a near miss for a declared socket` | A `uses:` socket name is one edit from a declared socket |
 | `E0175` | `YAML load failed: check the file exists, is readable, and contains well-formed YAML` | A file cannot be read, or its text is not well-formed YAML |
+| `E0188` | `artifacts entry: shape must be a string scalar or {$import: <local-path>}` | An inline-or-import field is written in neither shape |
+| `E0189` | `artifactslibrary: entry must be a mapping of filename to a string body` | A library entry's body is not the shape that library holds |
+| `E0190` | `schemalibrary: forbidden JSON Schema keyword` | A schema uses a JSON Schema keyword the library does not admit |
+| `E0191` | `mappinglibrary: entry body must be a string scalar` | A library entry's body is not the shape that library holds |
+| `E0192` | `OrderedMap: decode depth exceeded` | A document nests deeper than the reader will descend |
+| `E0193` | `parameters: shape must be an inline object or {$import: <local-path>}` | A Release's `parameters:` block is written in neither of its two shapes |
+| `E0194` | `schemalibrary: template not found` | A `$instantiate:` reference cannot be resolved |
+| `E0195` | `schemalibrary: template parameter missing` | A `$instantiate:` reference cannot be resolved |
+| `E0196` | `schemalibrary: template parameter type mismatch` | A `$instantiate:` reference cannot be resolved |
+| `E0197` | `valuesmapping: shape must be a string scalar or {$import: <path-or-library-identity>}` | An inline-or-import field is written in neither shape |
+| `E0198` | `wellKnownAnnotations: a key is declared at a scope the provider's contract does not render` | A provider declares a well-known annotation at a scope it does not render |
+| `E0199` | `workloadlibrary: entry body must be a string scalar` | A library entry's body is not the shape that library holds |
+| `E0200` | `workload: shape must be a string scalar or {$import: <path-or-library-identity>}` | An inline-or-import field is written in neither shape |
 | `E0201` | `assertion name declared twice across the extends chain` | An assertion name is declared twice along an `extends:` chain |
 | `E0202` | `cyclic extends chain` | Cyclic extends chain; Cyclic extends on Components or Features |
 | `E0203` | `featurerecipe eval-provider constraint: render input-kind fields are forbidden when provider is eval` | A FeatureRecipe on the `eval` provider declares a render input kind |
@@ -1905,6 +2474,8 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0255` | `annotation routes through a pillar its authoring side may not use` | An annotation routes through a pillar its authoring side may not use |
 | `E0256` | `annotation binding declares one path in both pillar lists` | An annotation binding declares one path in both pillar lists |
 | `E0257` | `declared schema contract failed to compile, so nothing was validated against it: correct the contract where it is declared, or remove it if the configuration it covers needs no validation` | A declared schema contract does not compile |
+| `E0260` | `` component placed in no boundary: name it under a boundary's `components`, or place the sub-module that contributes it under `aggregates` `` | A component the composition holds is placed in no boundary |
+| `E0261` | `boundary names a component the composition does not hold: correct the name, or remove the entry` | A boundary names a component the composition does not hold |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
