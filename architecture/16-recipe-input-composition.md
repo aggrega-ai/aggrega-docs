@@ -117,121 +117,12 @@ This preserves the one-deployment-unit-per-author model: a Recipe synthesizes th
 
 ### The Full Surface
 
-The complete Workload schema:
+The Workload's field set is large and it grows. Rather than restate it here, where a copy would fall behind the contract without anything reporting that it had, this chapter points at the two surfaces that carry the whole of it:
 
-```yaml
-apiVersion: aggrega.ai/v1alpha1
-kind: Workload
-
-form: stateless        # controller shape: stateless (default) | stateful | daemon | scheduled | task
-
-replicas: 1            # default 1
-
-initContainers:        # ordered list; runs before main containers
-  - name: init
-    image: ...
-    command: []
-    args: []
-    variables: {}
-    attachments: {}
-    volumeMounts: []
-    resources: { ... }
-    securityContext: { ... }
-
-containers:            # ordered map (YAML author order preserved)
-  <name>:
-    image: "..."
-    command: []
-    args: []
-    variables:         # string → string environment variables
-      KEY: "value"
-    attachments:       # env/file name → { from: slot_name, as: env|file, path?: /path }
-      ENV_NAME:
-        from: slot_name
-        as: env | file
-        path: /path/here       # required when as: file
-    ports:             # named port → port number
-      web: 8080
-      admin: 9090
-    resources:
-      requests:
-        cpu: "100m"
-        memory: "128Mi"
-      limits:
-        cpu: "500m"
-        memory: "512Mi"
-    health:
-      ready:
-        http: "/healthz"             # OR tcp: 8080 OR exec: ["cmd", "arg"]
-        timeoutSeconds: 5
-        initialDelaySeconds: 0
-        periodSeconds: 10
-      live:
-        # same shape
-      startup:
-        # same shape
-    volumeMounts:
-      - name: <volume-name>
-        path: /mount/path
-        readonly: false
-    restartPolicy: Always | OnFailure | Never
-    lifecycle:
-      postStart:
-        exec: ["cmd"]             # OR httpGet: {...}
-      preStop:
-        exec: ["cmd"]
-    securityContext:
-      runAsUser: 1000
-      runAsGroup: 1000
-      runAsNonRoot: true
-      readOnlyRootFilesystem: false
-      allowPrivilegeEscalation: false
-      capabilities:
-        add: []
-        drop: []
-
-volumes:               # ordered map
-  <name>:
-    # exactly one of:
-    ephemeral:
-      sizeLimit: "1Gi"
-    configmap:
-      source: cm-name
-      items: []                 # optional key selection
-    secret:
-      source: secret-name
-      items: []
-    persistent:
-      size: "10Gi"
-      class: "gp3"
-    persistentTemplate:
-      size: "10Gi"
-      class: "gp3"
-
-services:              # ordered map
-  <name>:
-    type: ClusterIP | NodePort | LoadBalancer | Headless
-    ports:             # port name → port number
-      web: 8080
-
-scheduling:
-  nodeSelector: {}
-  affinity: { ... }
-  tolerations: []
-  topologySpreadConstraints: []
-
-podSecurityContext:
-  runAsUser: 1000
-  runAsGroup: 1000
-  fsGroup: 2000
-  supplementalGroups: []
-
-serviceAccount: "my-sa"  # just the name; actual RBAC via Features
-```
+- **[The generated Workload schema reference](../language-reference/schema/entities/workload.md)** — every field, its type, its default and its constraints, generated from the published JSON Schema and compared against it on every build, so it cannot describe a shape the compiler does not accept.
+- **[The Workload authoring page](../language-reference/entities/workload.md)** — field-level authoring guidance: what each field means, what each provider renders it to, and which combinations the build refuses.
 
 *The Workload JSON Schema 2020-12 declaration is authoritative and ships embedded in the compiler binary. Recipe-side `workload:` consumption (inline or `$import:`) and the helm and compose synthesizers ship today; see the Provider Capability Matrix for per-provider support.*
-
-The Workload entity authoring page at [../language-reference/entities/workload.md](../language-reference/entities/workload.md) covers field-level authoring details.
 
 ### Secrets Integration with `featuresSchema`
 
