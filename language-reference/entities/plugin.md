@@ -273,7 +273,7 @@ spec:
 
 ## Inspecting a Plugin
 
-`aggrega inspect <path-to-Plugin.yaml>` renders a `Plugin` file: its identity and socket type, the capabilities its block declares, the per-export capability table in author order, the runtime constraints, and — at `--detail` — the signature pointer and the runtime config keys. A `Plugin` is inspectable by file path; the bare-name catalog lookup resolves Components only. See [`../cli/aggrega-inspect.md`](../cli/aggrega-inspect.md).
+`aggrega inspect <path-to-Plugin.yaml>` renders a `Plugin` file: its identity and socket type, the capabilities its block declares, the per-export capability table in author order, the runtime constraints, and — at `--detail` — the signature pointer and the runtime config keys. A `Plugin` is addressable by file path, or by its `<pluginType>/<name>` coordinate against the catalog. See [`../cli/aggrega-inspect.md`](../cli/aggrega-inspect.md).
 
 ## Cross-references
 

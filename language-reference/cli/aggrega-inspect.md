@@ -10,7 +10,7 @@ A single positional argument routes by content shape; no subcommand is needed. T
 | --- | --- | --- |
 | Starts with `./`, `../`, or `/`, or ends with `.yaml` / `.yml` | **File branch** | Per-file inspection keyed off the file's `kind:` header. |
 | Starts with `oci://` | **OCI branch** | Reserved for catalog distribution; not yet implemented. Resolve to a local path or use a catalog name. |
-| Anything else | **Catalog branch** | Look up the named Component in the catalog search stack; resolve `extends:` chains; render the merged schema. |
+| Anything else | **Catalog branch** | Look up the identifier in the catalog search stack across every entity kind; resolve `extends:` chains; render the matched kind's own view. |
 
 ## Three detail levels
 
@@ -45,7 +45,7 @@ For kinds that default as-authored, `--raw` is a no-op and `--resolved` triggers
 | FeatureRecipe | as-authored | `--show-implements` resolves the `spec.implements` Feature reference. |
 | MappingLibrary | as-authored | Entries are opaque Go-template strings; rendering happens at consumption time. |
 | SchemaLibrary | as-authored | Entries are reusable schema and template definitions resolved at consumption time. |
-| Plugin | as-authored | The file is a self-contained plugin contract: socket types, per-export capabilities, runtime constraints, and signature pointer. Inspectable by file path; the bare-name catalog lookup resolves Components only. |
+| Plugin | as-authored | The file is a self-contained plugin contract: socket types, per-export capabilities, runtime constraints, and signature pointer. Addressable by file path, or by its `<pluginType>/<name>` coordinate against the catalog. |
 | Manifest | resolved | The `extends:` chain is applied; the resolved component and feature mappings are laid out. |
 | Aggregate | resolved | The topology is built — the uses-graph and ordering are computed. |
 | Release | resolved | The full pipeline runs: resolve, expand annotations, run guards, build topology, build IR. |
@@ -70,7 +70,19 @@ A file whose `kind:` is unrecognized reports the unknown kind and the file it ca
 
 ## Catalog resolution
 
-The catalog search stack is assembled with a layered precedence: `--catalog` flags (prepended, in order) come first, then the workspace's `catalog_dirs` from `.aggrega-config.yaml`, then a default of the current directory when neither is set. The stack is first-win — the earliest directory to declare an entity identity owns it; a later directory's copy is shadowed. The catalog branch resolves a named Component against this stack; the file and release branches load referenced catalog entities from it when a Manifest mapping or `extends:` parent must be resolved.
+The catalog search stack is assembled with a layered precedence: `--catalog` flags (prepended, in order) come first, then the workspace's `catalog_dirs` from `.aggrega-config.yaml`, then a default of the current directory when neither is set. The stack is first-win — the earliest directory to declare an entity identity owns it; a later directory's copy is shadowed. The catalog branch resolves the identifier against this stack across every entity kind, in a fixed precedence, and renders the first match through that kind's own view; the file and release branches load referenced catalog entities from it when a Manifest mapping or `extends:` parent must be resolved.
+
+## Deprecation and withdrawal notices
+
+A publisher can record a marker against an artifact after publishing it, stating that the published version is deprecated or withdrawn. When the catalog branch resolves an entity, `inspect` reports any such marker beneath the entity's own view — for every kind it resolves by name, not only for a Component.
+
+The notice names the severity the publisher recorded — `warning`, `error` or `retracted` — together with the version the marker was recorded on, the reason, the replacement where one is named, and the date it was issued. All three severities are reported. That is wider than the set which changes what a build resolves to: a version marked `retracted` is excluded from version selection, while `warning` and `error` are advisory and still selected. `inspect` shows you what a publisher said; it does not decide what you get.
+
+The notice is read from the local index of the registry the entity resolves from, which `aggrega registry update` builds — so it needs no network and works in an offline workspace. Because the index is a snapshot, the notice ends by stating when that snapshot was taken and names the command that refreshes it. A workspace with no index built reports nothing, and an absent notice therefore means "nothing recorded in this snapshot" rather than "nothing recorded".
+
+A marker is reported only when its own signature verifies against the signers the registry's trust policy honors. An unsigned marker, or one whose signature does not verify, is not reported: a claim that cannot be authenticated is not presented as fact.
+
+The notice accompanies the human-readable views. `--output yaml` emits the entity document alone, so a consumer parsing it receives exactly the document.
 
 ## Worked examples
 
