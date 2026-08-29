@@ -168,6 +168,65 @@ Emitted message:
 
 **How to fix:** remove the input-kind fields from the eval Recipe. An eval Recipe legitimately declares only `provides:` (and optionally `locals:`); it produces deterministic pointer strings for downstream consumers without rendering any artifacts.
 
+#### An output-label key uses a reserved namespace
+
+<!-- covers: pkg/validator.ErrRecipeOutputLabelReservedNamespace -->
+
+A Recipe names a label key under `aggrega.ai/` or `app.kubernetes.io/` — in `outputLabels:`, the block that stamps literal labels onto rendered output, or in `outputComponentLabels:`, the block that names component label keys whose values are promoted onto it. Both prefixes belong to the platform's own provenance keyspace: they are the keys the build stamps itself, so a Recipe that stamped one would be writing into the space that says where a resource came from. Reserving them is also what keeps a Recipe's label set disjoint from the provenance set, so the two never have to be reconciled when they are merged. This rule is checked when the Recipe is loaded.
+
+The reservation is on the bare root only. A key that merely carries a reserved root deeper inside a namespace of its own — `component.aggrega.ai/hosting`, say — is a different keyspace the platform does not own, and stays authorable.
+
+Emitted message. One condition covers both blocks, so its sentence cannot say which of the two was authored; the advice after it names the block by quoting the key you typed and the block you typed it in:
+> recipe output-labels constraint: key uses a reserved namespace (Recipe `<name>:<version>`, rule output-labels, at `<path>`). key `"<key>"` in outputLabels uses a reserved namespace (`"aggrega.ai/"` and `"app.kubernetes.io/"` are reserved for platform provenance)
+
+A key written in the promoted block reports under that block's rule name and names it in the advice:
+> recipe output-labels constraint: key uses a reserved namespace (Recipe `<name>:<version>`, rule output-component-labels, at `<path>`). key `"<key>"` in outputComponentLabels uses a reserved namespace (`"aggrega.ai/"` and `"app.kubernetes.io/"` are reserved for platform provenance)
+
+The literal block's keys are checked in sorted order and the promoted block's in the order you wrote them, so a Recipe breaking the rule in several places always reports the same one first.
+
+**How to fix:** move the key into a namespace you own — your own domain, or a sub-prefixed one such as `component.aggrega.ai/…` — or drop it if the value you wanted is one the build already stamps. The provenance keys a rendered resource carries are listed in [../providers/well-known-annotations.md](../providers/well-known-annotations.md); reading one back needs no Recipe declaration.
+
+#### A promoted component label is also declared literally
+
+<!-- covers: pkg/validator.ErrRecipeOutputComponentLabelCollision -->
+
+A Recipe names one key in both `outputComponentLabels:` and `outputLabels:`. The two blocks stamp onto the same label surface from different sources — the first promotes the value the component carries, the second writes the value the Recipe author typed — so a key named in both would arrive with two candidate values and nothing to say which wins. This rule is checked when the Recipe is loaded, after the reserved-namespace rule above, so a Recipe breaking both reports the reserved namespace first: that fault's fix does not depend on what the other block contains.
+
+Emitted message:
+> recipe output-component-labels constraint: key is also declared in outputLabels (Recipe `<name>:<version>`, rule output-component-labels, at `<path>`). key `"<key>"` is promoted through outputComponentLabels and also declared literally in outputLabels; keep whichever source the label should come from and drop the other
+
+**How to fix:** decide where the label's value comes from and delete the other declaration. Keep the `outputComponentLabels:` entry when the value should track whatever the component carries, so two components bound to one Recipe stamp their own values; keep the `outputLabels:` entry when the value is the Recipe's own and is the same wherever the Recipe is bound.
+
+### FeatureRecipe shape rules
+
+A FeatureRecipe composes its output from the same input kinds a Recipe does, and two of the same composition rules constrain it. Both are checked when the FeatureRecipe is loaded, and both report in the shape a Recipe-shape halt takes — the rule's sentence, then the document at fault, the rule's name, and the advice for that occurrence — under a `CATALOG_ERROR` tag.
+
+There is deliberately **no** at-least-one-input-kind rule here, and that is the difference from a Recipe. A FeatureRecipe that declares only a provider and what it implements is a legitimate pure-wiring attachment: it renders nothing, and its effect is the connection the Feature it implements carries. One that only declares `injectMapping:` is legitimate the same way.
+
+#### A FeatureRecipe's `valuesMapping` requires `source`
+
+<!-- covers: pkg/validator.ErrFeatureRecipeValuesMappingRequiresSource -->
+
+A FeatureRecipe declares `valuesMapping` but not `source`. A values mapping is an overlay, so without a chart, module, or file to overlay onto there is nothing for the mapped values to reach.
+
+Emitted message:
+> FeatureRecipe: valuesMapping requires source (FeatureRecipe `<name>:<version>`, rule values-mapping, at `<path>`). declare a source: pointer alongside valuesMapping (or remove the valuesMapping if no overlay is intended)
+
+**How to fix:** add the `source:` pointer the overlay was written for, or remove the `valuesMapping` and let the attachment do its work another way — `artifacts:` to emit files of its own, `injectMapping:` to reshape what it delivers, or neither, for a pure-wiring attachment.
+
+#### A FeatureRecipe on the `eval` provider declares a render input kind
+
+<!-- covers: pkg/validator.ErrFeatureRecipeEvalProviderConstraint -->
+
+A FeatureRecipe binds the `eval` provider and also declares one or more of `source`, `valuesMapping`, `workload`, or `artifacts`. The `eval` provider evaluates in memory and has no rendering surface, so a render input kind declared beside it names output that nothing will produce.
+
+`injectMapping:` is **not** one of the forbidden fields and stays available here. It transforms what an attachment delivers rather than rendering anything, which is exactly the work an eval FeatureRecipe exists to do.
+
+Emitted message, listing every forbidden field the document declared rather than the first one found:
+> featurerecipe eval-provider constraint: render input-kind fields are forbidden when provider is eval (FeatureRecipe `<name>:<version>`, rule eval, at `<path>`). forbidden fields declared: `<field1>, <field2>, ...`
+
+**How to fix:** remove the render input kinds from the eval FeatureRecipe, or bind it to a provider that renders. An eval FeatureRecipe legitimately declares `provides:`, `locals:` and `injectMapping:` and nothing that emits.
+
 ### Instance name fails the naming pattern
 
 <!-- covers: pkg/resolver.ErrInvalidInstanceName -->
@@ -178,6 +237,241 @@ Emitted message:
 > invalid instance name: names must match `^[a-zA-Z0-9_-]+$` (letters, digits, hyphen, underscore; no dots) (Aggregate `<name>`, at `<field-path>`, instance name `<instance-name>` is invalid: must match `^[a-zA-Z0-9_-]+$`)
 
 **How to fix:** rename the offending instance to use only alphanumerics, hyphens, and underscores. If the name came from an auto-generated source, adjust the generator; if you intended to express a nested-aggregate path, use the sub-aggregate import mechanism rather than embedding a dot in the name.
+
+### A file cannot be read, or its text is not well-formed YAML
+
+<!-- covers: pkg/resolver.ErrYAMLLoad -->
+
+One of the documents a build starts from — the Aggregate, the Release, or the Manifest — could not be turned into a document at all. Either the file could not be read from disk, or its bytes did not parse as YAML. Nothing downstream runs, because there is no document to check against a schema, no components to place, and no parameters to interpolate.
+
+The halt is raised at every point one of the three is read, and the diagnostic names which document was being read and the path it was read from. The path is what tells a missing file from a malformed one: a read failure quotes the operating system's own reason, and a parse failure quotes the YAML parser's, which carries the line the parser gave up on.
+
+Emitted message, where the file could not be read:
+> YAML load failed: check the file exists, is readable, and contains well-formed YAML (Aggregate, at `<path>`, failed to read file: `<underlying reason>`)
+
+and where its text did not parse:
+> YAML load failed: check the file exists, is readable, and contains well-formed YAML (Aggregate, at `<path>`, failed to unmarshal YAML: `<underlying reason>`)
+
+`Release` and `Manifest` appear in place of `Aggregate` when one of those is the document being read. The same condition also covers the two documents a parameter contract is read from — an Aggregate's declared `parameters:` and the file a Release's `parameters: { $import: … }` points at, when that file's own bytes fail to parse rather than its load failing outright.
+
+**How to fix:** read the path in the message rather than the document's name — the two differ whenever a reference resolved somewhere unexpected. For a read failure, confirm the file exists at that path, that the path is spelled as the referring document writes it, and that the build has permission to read it; a file present locally and absent from a build agent's checkout is the common case. For a parse failure, open the file at the line the parser named — an unquoted value containing a colon, a tab used for indentation, and a list item indented under the wrong key are the three that account for most of them.
+
+### A `{{ .parameters.* }}` reference cannot be interpolated
+
+<!-- covers: pkg/resolver.ErrInvalidParameterRef -->
+
+The Aggregate's text is evaluated as a template before it is read as a document, so that a `{{ .parameters.<key> }}` reference is replaced by the value the Release supplied for it. This halt fires when that evaluation cannot be completed: the text does not parse as a template, or it parses and fails while running.
+
+Interpolation happens **before** the Aggregate is parsed as YAML, which is why a fault here is reported against the Aggregate as a whole rather than at a key inside it — at that point the document has no keys yet. It is also why the reference may be left unquoted: the substitution happens in the raw bytes, and YAML's own quoting rule then decides the value's type, so a bare reference yields the value's natural type and a quoted one yields a string.
+
+A reference naming a key the Release did not supply is **not** this halt. An absent key resolves to an empty value here and is caught, with its type and its contract, by the parameter checks described under "Parameter type mismatch / contract violation" above. What this halt reports is text the template engine could not process at all — an unclosed `{{`, a mis-spelled function name, a pipeline whose stages do not fit together.
+
+Emitted messages, for a template that does not parse and for one that fails while running:
+> invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template (Aggregate, template parse error: `<underlying reason>`)
+> invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template (Aggregate, template execution error: `<underlying reason>`)
+
+**How to fix:** open the Aggregate and read the underlying reason, which names the position in the text and the construct that failed. Confirm every `{{` has its `}}`, that a function you called is one the surface offers — parameter interpolation offers Sprig's functions and nothing else, so the `optional` helper is **not** available here — and that a pipeline's stages accept what the stage before them produces.
+
+### The Release directory declares one Aggregate or Manifest twice
+
+<!-- covers: pkg/resolver.ErrDuplicateTriadIdentity -->
+
+A Release resolves its `aggregate:` and `manifest:` references by scanning its own directory first, and that scan found two Aggregates — or two Manifests — carrying the same `metadata.name`. A bare-identity reference names an entity by that name, so two files claiming one name leave the reference with two answers and no rule for choosing between them.
+
+This is the same-directory counterpart of the catalog's duplicate-identity refusal, and the two are reported separately so the message names the directory you are standing in rather than a catalog tier you may not have been thinking about.
+
+Emitted message:
+> duplicate Aggregate/Manifest identity (metadata.name) in the Release directory: Aggregate `"<name>"` declared more than once in `<release-directory>`
+
+with `Manifest` in place of `Aggregate` where two Manifests collide.
+
+**How to fix:** give one of the two entities a different `metadata.name`, or move it out of the Release's directory. Two Releases that genuinely deploy different Aggregates of the same name belong in directories of their own; copying a Release into a sibling file without renaming what it carries is the usual way this arises.
+
+### A Release's `aggregate:` or `manifest:` reference resolves to nothing
+
+<!-- covers: pkg/resolver.ErrTriadRefUnresolvable -->
+
+A Release names an Aggregate or a Manifest by bare identity and no entity of that name was found on any of the surfaces a bare identity is looked up on: the Release's own directory, the catalog, and the registry.
+
+Emitted message, where nothing matched anywhere:
+> aggregate/manifest reference unresolvable: no Aggregate named `"<reference>"` in the Release directory, catalog, or registry
+
+A file in the Release's directory that could not be indexed changes the report, because it changes what can honestly be claimed. Such a file might have been the entity, so the message says so rather than asserting an absence it cannot establish, and carries the parse failure that stopped it being read:
+> aggregate/manifest reference unresolvable: Aggregate `"<reference>"` not found; unparseable file `<path>` could not be indexed and may be it: `<parse failure>`
+
+and where an unparseable file is the one the reference names outright:
+> aggregate/manifest reference unresolvable: needed Aggregate `"<reference>"` is the unparseable file `<path>`: `<parse failure>`
+
+**How to fix:** where the reference is genuinely absent, correct its spelling — the identity is the entity's `metadata.name`, not its filename — or add the entity to the Release's directory or the catalog the build reads. Where the message names an unparseable file, fix that file first: its parse failure is quoted in the message, and repairing it often resolves the reference in the same edit. A `./` or `../` reference is a path rather than an identity and is resolved as one, so a leading dot changes which of the two mistakes you are looking for.
+
+### A component is placed in more than one boundary
+
+<!-- covers: pkg/resolver.ErrDuplicateBoundaryComponent -->
+
+A Release's boundary tree places one component in two different boundaries. The two placements are neither merged nor ranked, and they cannot be: a component's boundary decides where its output is written, which sub-directory it lands in, which sync wave it joins, and which boundary annotations and boundary infra it inherits — while its per-edge `uses:` surface is read by a separate walk. A component named twice would take its output location from one placement and its per-edge configuration from the other.
+
+**A boundary places components two ways, and both count.** Naming a component directly under `components:` places it; routing a whole sub-module into a boundary under `aggregates:` places every component that module contains. So this halt also covers one sub-module routed into two boundaries, a module routed into one boundary with a module nested inside it routed into another, and a component named at one boundary while the module containing it is routed into a different one.
+
+Routing a module into a boundary and also naming one of its components under that **same** boundary is not a conflict — both placements agree on where the component belongs — and builds.
+
+The conflicting placements are recorded in the order they were written, so the earlier site a message names is always the earlier one in your document rather than whichever was reached first.
+
+Emitted messages. The sentence states the rule and what follows names both sites and how each of them placed the component. Where two direct declarations meet:
+> component declared in more than one boundary: declare each component in exactly one boundary (Release `<name>`, at `<field-path>`, component `"<component>"` is declared in boundary `"<boundary-a>"` and again in boundary `"<boundary-b>"` (source `<path>`); a component belongs to exactly one boundary — remove whichever declaration is not intended)
+
+Where a direct declaration meets a routed module, the message says which is which, because the remedies differ:
+> component declared in more than one boundary: declare each component in exactly one boundary (Release `<name>`, at `<field-path>`, component `"<component>"` is declared in boundary `"<boundary-a>"` while the sub-module `"<module>"` that contains it is routed into boundary `"<boundary-b>"` (source `<path>`); a component belongs to exactly one boundary — either route the sub-module into `"<boundary-a>"` or drop the component declaration)
+
+and where two routed modules claim the same components:
+> component declared in more than one boundary: declare each component in exactly one boundary (Release `<name>`, at `<field-path>`, sub-module `"<module-a>"` is routed into boundary `"<boundary-a>"` and sub-module `"<module-b>"` into boundary `"<boundary-b>"` (source `<path>`); routing one sub-module into a boundary places every component it contains there, so these two placements claim the same components — remove whichever routing is not intended)
+
+**How to fix:** delete whichever of the two placements you did not mean. The message names both, so the choice is yours rather than the compiler's. Where a direct declaration and a routed module disagree, decide whether the component belongs with its module or on its own: routing the module places it alongside everything else the module contains, and naming it directly separates it from them.
+
+### A Manifest annotation binding claims the reserved `aggrega.ai/` prefix
+
+<!-- covers: pkg/resolver.ErrManifestReservedPrefix -->
+
+A Manifest declares an annotation binding under a key beginning with the bare `aggrega.ai/` prefix. That prefix is where the build stamps the keys it emits itself, so a binding claiming a key inside it would put your routing and the platform's own output in one keyspace, competing for the same names.
+
+**It halts, and it could not be an advisory.** The reservation is the whole of what makes that keyspace the platform's; admitting the binding and mentioning it afterwards would leave the collision in the build.
+
+The rule is about the keyspace an authored binding claims, so a key the presented Manifest does not declare a binding for is passed over rather than reported — there is no binding to be in violation.
+
+Emitted message. The offending key leads, because it is what the sentence is about, and the values after it are each introduced by what they are:
+> manifest annotation binding uses reserved prefix (Manifest, at `<field-path>`, `"<key>"`, reserved prefix `"aggrega.ai/"`, routing to Feature `"<feature-uri>"`, author the binding under a domain of your own such as `"feature.<your-domain>/"`)
+
+**How to fix:** rename the binding key into a namespace you control. A sub-prefixed key is the supported shape and is not reserved: `feature.aggrega.ai/…` for a standard-library shortcut, or your own domain — `acme.aggrega.ai/…`, `compliance.example.com/…` — for an enterprise one. Renaming the key changes what an author writes on a component to trigger the binding, so update the annotations that use it in the same edit. The platform's own keys under the bare prefix are listed in [../providers/well-known-annotations.md](../providers/well-known-annotations.md).
+
+### Two Manifest annotation bindings compete for one routing slot
+
+<!-- covers: pkg/resolver.ErrManifestCrossBindingPillarCollision -->
+
+Two annotation bindings in one Manifest route to the same Feature, through the same pillar, at the same path. A binding's job is to say where an annotation's value lands, and two bindings naming one destination leave the value with two routes and nothing to choose between them at expansion time.
+
+Only one binding may declare a given path-and-pillar pair per target Feature. Two bindings targeting the same Feature at *different* paths are ordinary authoring and build; so are two bindings routing the same path to two *different* Features.
+
+The bindings are walked in the order the Manifest declares them, so the binding a message names first is always the earlier one in your document.
+
+Emitted message:
+> manifest annotation bindings collide on same Feature path+pillar (Manifest, at `<path>`, annotation bindings `"<first-key>"` and `"<second-key>"` both target Feature `"<feature-uri>"` with path `"<path>"` routing to pillar `"<pillar>"`; only one binding may declare a given (path, pillar) pair per Feature)
+
+**How to fix:** decide which binding owns the destination and remove the path from the other's `maps.infra` or `maps.values` list, or drop the second binding entirely. Where the two bindings exist because you wanted two annotation keys to reach one Feature field, keep one binding and let both annotation keys route through it; where they exist because two different values were meant to land in two places, correct whichever path was written by mistake.
+
+### A Release reached resolution without passing through the load path
+
+<!-- covers: pkg/resolver.ErrUnnormalizedRelease -->
+
+A Release arrived at resolution carrying both a non-empty top-level `components:` surface and a synthesized `default` boundary. That combination cannot be produced by a Release that was loaded normally: the load path folds a top-level `components:` block into the default boundary and clears it, and a document that authored both outright is refused by its schema before it gets this far.
+
+So this halt does not report anything you wrote. It reports that something reached resolution around the load path — a Release constructed in memory by an embedding program rather than read from a file, most often — and it stops there rather than letting a build proceed on a document whose two component surfaces disagree. Reading them in either order would produce output that silently omits or duplicates components, and the boundary walk and the per-edge walk would not even agree with each other about which.
+
+Emitted message:
+> release reached resolve un-normalized (non-empty root components alongside a synthesized default boundary): construct releases through the normalization core (types.NormalizeRelease via the load path), not a hand-built literal
+
+**How to fix:** nothing, if you are authoring YAML — reaching this halt from `aggrega build`, `aggrega validate` or the editor means the compiler has a defect worth reporting, and the Release you were building is not at fault. If you are embedding the compiler and building a Release value in your own code, construct it through the load path rather than assembling the struct directly, so the normalization that folds the root components into the default boundary runs.
+
+### A library reference expands into itself
+
+<!-- covers: pkg/refcycle.ErrCycle -->
+
+A cross-document reference chain comes back to a document it has already reached, so expanding it would never finish. Two authoring surfaces reach the same condition, and both are chains between library entities rather than anything inside one file: a `$ref:` from a schema pillar into a SchemaLibrary entry that references its way back, and an `$import:` into a MappingLibrary or a WorkloadLibrary entry that does the same.
+
+The chain is compared on a **canonical** key — the library's identity and the entry's name, with any registry host and version spelling removed — so a cycle cannot escape the check by naming the same entry two different ways along its path. A reference that expands and terminates is fine however many times it appears and however deep the chain runs; depth on its own never causes this halt, and reusing one library entry from many places is the pattern libraries exist for.
+
+Emitted message, for a `$import:` chain, which names the whole loop in the order it was walked so you can see which step closes it:
+> circular reference expansion: `<Library>#/mappings/<entry>` -> `<Library>#/mappings/<entry>` -> `<Library>#/mappings/<entry>`
+
+A `$ref:` chain is reported by the compact-form compiler instead, which frames it with the document and keyword it was reading:
+> compactform at `<consumer-file>` (keyword `"$ref"`): circular cross-document $ref expansion: `<Library>#/schemas/<entry>` -> `<Library>#/schemas/<entry>` -> `<Library>#/schemas/<entry>`
+
+**How to fix:** read the chain in the message and break it at whichever step was not intended. A cycle usually means two library entries were each written to extend the other; collapse the shared part into a third entry both reference, or inline it into one of them. The last step shown is the one that closed the loop, but it is not necessarily the wrong one — the whole chain is printed precisely because which link to cut is your decision.
+
+The same condition also backs the anchor-recursion refusal documented under "YAML anchor aliased inside its own content" above. That one is a loop **inside** a single document's own text; this one is a loop **between** documents. The chain in the message tells the two apart at a glance: a loop between documents names library entries, and a loop inside one names an anchor.
+
+### A declared schema cannot be resolved
+
+<!-- covers: pkg/validator/jsonschema.ErrSchemaResolve -->
+
+A schema reached the point of being used to validate something and could not be assembled into a schema at all. The commonest cause is a `$ref:` that names nothing resolvable; a schema that does not satisfy the JSON Schema meta-schema reaches the same halt, as does a `then:` or `else:` branch under a conditional keyword that cannot be resolved on its own.
+
+The refusal comes **before** anything is validated against the schema, and that ordering is the point. Passing over an unreadable schema would leave everything it covers unvalidated while the build reported success — a check that has stopped running with nothing to say that it stopped.
+
+Emitted message, naming the position inside the schema, the keyword that could not be resolved, and what the resolution reported:
+> validator/jsonschema: schema resolution failed (at `<path-inside-the-schema>`, keyword `"<keyword>"`, `<what resolution reported>`)
+
+Where the failure is at the schema's root rather than at a keyword inside it, the position and keyword are omitted and the sentence carries the reported reason alone.
+
+**How to fix:** open the schema at the position the message names. A `$ref:` is the usual culprit: confirm the target exists, that an in-document reference spells its `#/$defs/…` path exactly, and that a cross-document reference names a SchemaLibrary entry the build's dependency closure actually holds. Where the message names a `then:` or `else:` branch, that branch is a schema in its own right and has to be resolvable on its own terms.
+
+### An `x-aggrega-when:` or `x-aggrega-validate:` predicate cannot be evaluated
+
+<!-- covers: pkg/validator/jsonschema.ErrExtensionEval -->
+
+A schema declares one of the two template-valued extension keywords and the template could not be used: it is not a string, it does not parse as a template, it failed while running, or it rendered something other than `true` or `false`.
+
+`x-aggrega-when:` decides whether a conditional branch of a schema applies; `x-aggrega-validate:` decides whether a value satisfies a rule the schema's own keywords cannot express. Both are read as verdicts, which is why a result that is not one is refused rather than interpreted: a predicate rendering an empty string would be read as false and would silently retire the rule it was written to enforce.
+
+Emitted message:
+> validator/jsonschema: x-aggrega extension evaluation failed (at `<path-inside-the-schema>`, keyword `"x-aggrega-validate"`, `<what evaluation reported>`)
+
+with `"x-aggrega-when"` in place of the keyword where the conditional's predicate is the one at fault, and the reported reason naming the template fault — a parse position, a missing function, or the non-boolean the template produced.
+
+**How to fix:** open the schema at the position the message names and read the reported reason. Confirm the keyword's value is a string, that the template parses, and that every path it walks is one the value under validation actually has — a predicate reads the value as `.value`, and reaching for anything else is the commonest mistake. Make sure the template ends by producing `true` or `false`: a comparison does, while a template that merely renders the value does not.
+
+### A Workload does not satisfy the Workload schema
+
+<!-- covers: pkg/validator.ErrWorkloadValidation -->
+
+A Recipe's or FeatureRecipe's `workload:` block was read and checked against the Workload schema, and one or more fields do not satisfy it — a misspelled key, a value of the wrong type, a required field left out, a value outside a declared range or enumeration.
+
+The report is **grouped**: one halt carries every field at fault, so a Workload with four mistakes tells you about all four in one build rather than one per build. The header names the Workload, the Recipe that declares it, and the file; each finding beneath it names the field path inside the Workload, what the schema required there, and the fix where one can be stated.
+
+Emitted message:
+> workload validation failed (Workload in Recipe `<name>:<version>`, at `<path>`, schema stage):
+>   `.containers.<name>.<field>`: `<what the schema required>` — `<the fix, where one can be stated>`
+>   `.initContainers[<i>].<field>`: `<what the schema required>` — `<the fix, where one can be stated>`
+
+A failure with no per-field detail — the block could not be read at all, rather than read and found wanting — carries the whole reason as its single finding instead.
+
+The build reports the halt under a `CATALOG_ERROR` tag, because a `workload:` block is written by the Recipe's author rather than by the Aggregate or the Release.
+
+**How to fix:** open the Recipe at the field paths listed and correct each one. The paths are given from the Workload's own root, so `.containers.main.health.ready` is the `ready` block under the `main` container's `health` key. A named container is addressed by its key and an init container by its position, which is why the two read differently. What each field accepts is in the Workload authoring reference.
+
+### A Workload attachment names a slot the entity does not declare, or a delivery the slot forbids
+
+<!-- covers: pkg/validator.ErrWorkloadFeaturesSchema -->
+
+A container's `attachments:` entry inside a `workload:` block refers to an attachment slot, and the reference does not line up with the slots the Component or Feature declares in its `featuresSchema`. Three shapes reach this halt, and the finding says which one you have.
+
+- **The slot is not declared.** The entry's `from:` names a slot the entity's `featuresSchema` does not carry — a misspelling, or a slot that was renamed on one side only.
+- **The slot is blackbox.** The slot declares an empty `inject:` allowlist, which reserves delivery to the Recipe's own plumbing. Such a slot is filled and consumed internally, so a Workload cannot reach for it.
+- **The delivery is outside the slot's allowlist.** The entry's `as:` names a mechanism the slot's `inject:` list does not permit.
+
+Every offending entry across every container is reported together, so one build names them all. Findings are grouped under one header naming the Workload, its Recipe, and the file.
+
+Emitted message:
+> workload featuresSchema cross-check failed (Workload in Recipe `<name>:<version>`, at `<path>`, featuresSchema stage):
+>   `.containers.<name>.attachments.<KEY>.from`: references slot `"<slot>"` which is not declared in the Component's featuresSchema — either declare the slot in the Component (or Feature) featuresSchema, or rename the reference to an existing slot
+>   `.containers.<name>.attachments.<KEY>.from`: slot `"<slot>"` is blackbox (no `inject:` allowlist) and cannot be referenced from a Workload attachments entry — blackbox slots are delivered by Recipe-internal plumbing; remove the Workload-side reference, or widen the slot's inject allowlist if Workload-side delivery is intended
+>   `.containers.<name>.attachments.<KEY>.as`: delivery mechanism `"<as>"` is not permitted by slot `"<slot>"` (inject allowlist: `[<mechanisms>]`) — use one of the allowlisted delivery mechanisms (`[<mechanisms>]`), or widen the slot's inject allowlist in the Component/Feature featuresSchema
+
+**How to fix:** each finding names both sides, so the choice is which side to change. For an undeclared slot, correct the `from:` spelling or declare the slot in the entity's `featuresSchema` — the field path's `.from` suffix points at the reference. For a blackbox slot, remove the Workload-side reference and let the Recipe deliver the material, unless Workload-side delivery is genuinely wanted, in which case give the slot an `inject:` allowlist. For a refused mechanism, switch `as:` to one the allowlist names, or add yours to it.
+
+### A Workload references a slot whose fill publishes no locator
+
+<!-- covers: pkg/validator.ErrSlotNotReferenceable -->
+
+A container's `attachments:` entry names a slot by reference, and the attachment filling that slot does not publish the `provides` keys such a reference reads. Referring to a slot by name means asking for the resource it stands for to be addressed in the rendered output — by the name of the resource, and by the field inside it. A fill that publishes neither has no locator to point at, so the reference cannot be turned into anything.
+
+**Which keys are required depends on the entry**, and the finding says which it wanted. An entry that names its own `key:` supplies the field itself, so only the resource's `name` must be published — which is what lets it reference a multi-key resource. An entry that names no `key:` reads the slot's single published field, so both `name` and `key` must be there.
+
+The check reads only whether the keys are present; it never inspects their values. Every offending entry is reported together, under one header.
+
+Emitted message:
+> workload attachment slot is not referenceable (Workload in Recipe `<name>:<version>`, at `<path>`, slotReferenceability stage):
+>   `.containers.<name>.attachments.<KEY>.from`: slot `"<slot>"` is not referenceable: its resolved provides does not expose `"<key>"` (a workload attachment reference reads the provides keys name and key) — reference a slot filled by an attachment whose schema.provides declares the keys this reference reads, or deliver it through the slot's inject pipe rather than a workload reference
+
+**How to fix:** two directions, and which is right depends on what you meant. Where the reference is correct, the attachment filling the slot is the thing to change: attach a Feature whose `schema.provides` declares `name` — and `key`, where the entry names none of its own — so there is a locator to point at. Where the material was never meant to be addressed by name in the output, drop the reference and deliver it through the slot's `inject:` pipe instead, which carries the value rather than a pointer to where it lives.
 
 ## When resolving the catalog
 
@@ -392,6 +686,320 @@ Emitted message, captioned with the Recipe the empty `source:` was written in an
 > recipe source is an empty string, which names neither sourceless mode nor sourced mode (Recipe `<recipe>`, node `<instance>`). omit the source field for sourceless mode, or name a non-empty path or URI for sourced mode
 
 **How to fix:** omit the `source:` field entirely (or set it to null) if the Recipe is sourceless, or provide a non-empty path / URI / structured source object if the Recipe is sourced.
+
+### No Recipe is mapped for a component or feature instance
+
+<!-- covers: pkg/catalog.ErrNoRecipeResolved -->
+
+An instance's type has no Manifest mapping that resolves to a Recipe the catalog holds. Recipe selection is **mapping-only**: the compiler never picks a Recipe by reading `spec.implements:` and choosing among the candidates, so an unmapped type halts however many Recipes implement it. `implements` informs the choice; the author makes it; the Manifest records it.
+
+The same condition covers a mapping that exists but leads nowhere — a value at an accepted reference shape naming a Recipe the catalog does not hold, including one present under a different version than the value pins, and one whose bare name two capabilities both offer. Neither resolves to a Recipe the author can be said to have chosen. A mapping value whose *shape* no reference can express is reported separately, under "Manifest mapping value carries more segments than a recipe reference accepts" above, so the claim that an entity is absent is only ever made about a reference that could have resolved.
+
+Emitted messages. Where a mapping exists and names something absent:
+> no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type: component `"<instance>"` (type `"<type>"`): the Manifest maps it to recipe `"<uri>"`, which is not in the catalog
+
+Where no mapping exists and Recipes implementing the type are present, they are listed as the candidates to pin:
+> no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type: component `"<instance>"` (type `"<type>"`); recipes implementing it: `[<recipe-uris>]`; pin one in the Manifest
+
+And where nothing implements the type at all, there is nothing to list:
+> no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type: component `"<instance>"` (type `"<type>"`); no recipe implements this type
+
+A feature instance reports the same three shapes with `feature` in place of `component` and `feature recipe` in place of `recipe`.
+
+**How to fix:** add the mapping the message asks for, under `spec.mappings.components.type` in the Manifest, keyed by the component type and valued with the Recipe. Where the message lists candidates, pick one of them — that list is exactly the Recipes declaring they implement the type. Where it names a Recipe not in the catalog, either correct the value or add the Recipe to a catalog directory the build reads; a version in the value has to match a version the catalog holds. Where nothing implements the type, the missing piece is the Recipe itself.
+
+### A Manifest maps two version-distinct keys onto one type
+
+<!-- covers: pkg/catalog.ErrAmbiguousTypeMapping -->
+
+A type lookup matched more than one Manifest mapping key. Type keys are matched version-tolerantly, so `core/api-server`, `core/api-server:1.0.0` and `core/api-server:2.0.0` written as separate mapping keys all answer for the same base type — and a lookup that reaches two of them has two Recipes to choose between and no rule for preferring one.
+
+The build halts rather than resolving whichever key it happened to read first. Picking one would make the rendered output depend on the order the mapping was walked in, which is exactly the thing byte-identical output rules out.
+
+Emitted message:
+> manifest maps multiple version-distinct keys to the same base type; the type-to-recipe lookup is ambiguous: type `"<type>"` matches version-distinct keys `[<keys>]` — pin the authored type's version or remove the duplicate mapping keys
+
+**How to fix:** two directions, and the message names both. Remove the duplicate mapping keys, keeping the one that should answer for the type — this is right when the extra keys are leftovers from a version bump. Or pin the version on the authoring side, so the type the component declares names the exact key you meant, which is right when the several keys are deliberate and different components genuinely want different Recipes.
+
+### Two catalog entities in one directory share an identity
+
+<!-- covers: pkg/catalog.ErrDuplicateEntityIdentity -->
+
+Two entities of the same kind, loaded from the same catalog directory, carry the same identity. An identity is what a reference names, so two files claiming one identity leave every reference to it with two answers.
+
+**Within a directory this halts; across directories it does not.** The same identity present in two different catalog directories is resolved as a first-win shadow — the directory listed earlier wins — which is what lets a local directory override a published entity deliberately. Only a collision *inside* one directory is an authoring mistake with no reading that makes it intentional.
+
+The rule is the same for every indexed kind: Component, Feature, Recipe, FeatureRecipe, Plugin, SchemaLibrary, MappingLibrary, WorkloadLibrary, ArtifactsLibrary and Aggregate. The halt is positioned at the second file, and names the kind and the identity that collided.
+
+Emitted message:
+> duplicate entity identity within a single catalog directory (Component identity `"<identity>"`)
+
+with the kind's own word in place of `Component` — `recipe identity`, `feature recipe identity`, `Plugin identity`, `SchemaLibrary identity` and so on.
+
+**How to fix:** rename one of the two entities, or move it into a directory of its own. For a Recipe or FeatureRecipe the identity includes the provider scope and the version, so two files that differ only in version do not collide — a genuine collision there means the same version was published twice. Copying an entity file to start a new one and forgetting to change `metadata.name` is the usual cause.
+
+### No catalog version satisfies a version constraint
+
+<!-- covers: pkg/catalog.ErrUnsatisfiableEntityVersion -->
+
+A reference names an entity the catalog holds and pins a version the catalog does not: an exact version that is absent, or a caret range nothing available matches. It is distinct from a plain miss, where the name itself is unknown — here the entity exists and only the version is unsatisfiable, which is why the message says so rather than reporting the entity as missing and sending you looking for a typo in the name.
+
+Every kind reaches this through one selection, so an unsatisfiable pin behaves the same wherever it is written: a version typo on a Manifest's Recipe mapping is refused exactly as the same typo on a component type is.
+
+The condition is recoverable, which is what lets the editor show it as a diagnostic while you keep typing rather than abandoning the document. On the command line it is joined into a halt.
+
+Emitted message, for a pin on an `extends:` pointer:
+> no catalog version satisfies the referenced version constraint (Component `<name>`, at `.extends`, no catalog version satisfies extends parent `"<reference>"`)
+
+with `Feature` in place of `Component` where a Feature's chain carries the pin.
+
+**How to fix:** change the pin to a version the catalog holds, or add that version to the catalog. `aggrega inspect` lists the versions an entity is available at. A caret range that matches nothing usually means the available versions are all below the floor it names — widen the range, or publish the version the reference is waiting for.
+
+### Every version a reference could select has been withdrawn
+
+<!-- covers: pkg/catalog.ErrAllVersionsRetracted -->
+
+A reference resolves to a repository the registry holds, and every version discovery could have chosen from it has been marked withdrawn. There is nothing eligible left to select.
+
+**This is deliberately not reported as a missing entity.** The repository exists and still holds those versions; calling it absent would name the wrong problem, send you looking for a typo, and read like a quiet fallback rather than the refusal it is. The message names each withdrawn version with the reason recorded against it, so what you are told is what the publisher recorded.
+
+Naming a withdrawn version **outright** is not this halt. An exact version bypasses discovery entirely, so pinning one is how you deliberately keep using it; the build reports the withdrawal and carries on.
+
+Emitted message:
+> every published version this reference could select has been withdrawn: `<reference>`: withdrawn: `<version>` (`<recorded reason>`), `<version>` (`<recorded reason>`)
+
+**How to fix:** read the recorded reasons, which usually name what to move to. Migrate to whatever replaces the withdrawn entity — that is the outcome a withdrawal is asking for. Where you have to keep the old one for now, pin an exact version in the reference: naming the version is what says you accept it, and the build then reports the withdrawal each time rather than refusing.
+
+### A `plugins.providers` binding names a plugin that does not serve the capability
+
+<!-- covers: pkg/catalog.ErrProviderBindingUnsatisfied -->
+
+The workspace's `plugins.providers` block selects a plugin identity for a capability, and no provider-rendering Plugin serving that capability carries that identity. The binding is an explicit choice the catalog cannot honour, so it halts rather than quietly falling back to another plugin — a fallback would render your output through a plugin you had said not to use, and say nothing.
+
+A binding selects by the plugin's **coordinate identity** — the plugin type and the plugin's name, which is also what the lockfile pins — and it may carry a version after it.
+
+Emitted message:
+> plugins.providers entry names a plugin no provider-rendering plugin serving the capability matches: capability `"<capability>"` is bound to plugin `"<plugin-identity>"`, but no provider-rendering plugin serving `"<capability>"` matches that identity
+
+**How to fix:** check the binding's spelling against the plugin's own coordinate first — a binding naming the capability where it should name the plugin is the common slip. Then confirm the plugin is in the catalog the build reads and that it lists this capability under `spec.provider.capabilities`; a plugin that once served the capability and no longer declares it produces exactly this message. Removing the binding is the right fix where only one plugin serves the capability, since the binding then has nothing to disambiguate.
+
+### No provider plugin version satisfies a Recipe's provider pin
+
+<!-- covers: pkg/catalog.ErrProviderVersionUnsatisfiable -->
+
+A Recipe binds a version-pinned provider — `helm:1.0.0`, or `helm:^1.0.0` — and no provider-rendering Plugin version satisfies the pin. The pin is an explicit request, so the build halts rather than ignoring it and rendering through whatever version happens to serve the provider; silently overriding a pin would produce output the author's own declaration says should not exist.
+
+Two situations reach it, and the message tells them apart: nothing serves the capability at all, or something serves it and none of its versions satisfies the constraint.
+
+This is distinct from an unsatisfiable *entity* version above. That one is about a catalog entity named at a version the catalog does not hold; this one is about selecting the plugin that renders a capability.
+
+Emitted messages:
+> no provider-rendering plugin version satisfies the recipe's provider version pin: capability `"<capability>"` pins `"<version>"` but no provider-rendering plugin serves it
+> no provider-rendering plugin version satisfies the recipe's provider version pin: capability `"<capability>"` pins `"<version>"` but no serving plugin version satisfies it
+
+**How to fix:** widen or correct the pin in the Recipe's `provider:` field, or add the plugin version it asks for to the catalog. A caret pin matches versions at or above the floor within the same major, so a pin of `^2.0.0` is not satisfied by a `1.x` plugin however recent. Where the message says nothing serves the capability, the pin is not the problem: the plugin is missing entirely, and dropping the pin will not help.
+
+### No plugin advertises a requested parse or import format
+
+<!-- covers: pkg/catalog.ErrNoParserForFormat, pkg/catalog.ErrNoImporterForFormat -->
+
+A format was requested and no plugin advertises it. The two sockets that route by format each have their own condition, and they differ only in which work was asked for: a **parser** plugin reads a foreign source format, and an **importer** plugin brings foreign content in as Aggrega entities.
+
+The format space is open and belongs entirely to the plugins. Neither socket holds a list of formats the compiler knows: a plugin declares the formats it handles as capabilities, and a new format ships as a new plugin with no change to the compiler. So this halt reports the advertised set as it stands rather than a fixed enumeration, and every miss is loud — there is no default to fall back to, so the request either has an advertiser or it cannot be honoured.
+
+Emitted messages:
+> no parser plugin advertises the requested format: no parser plugin advertises `"parse:<format>"`
+> no importer plugin advertises the requested format: no importer plugin advertises `"import:<format>"`
+
+A single parser plugin advertising the format but carrying a version shape that cannot be resolved is treated as no advertiser rather than as a silent pass, and says so:
+> no parser plugin advertises the requested format: no parser plugin version resolves for `"parse:<format>"`
+
+**How to fix:** confirm the format is spelled as the plugin advertises it — the capability is the socket's prefix and the format name, so a plugin advertising `parse:hcl` serves the format `hcl` and nothing else. Then confirm the plugin is present in the catalog the build reads. Where no plugin for the format exists, that plugin is the missing piece; the compiler cannot read a format nothing advertises.
+
+### A parse or import format is advertised by more than one plugin
+
+<!-- covers: pkg/catalog.ErrAmbiguousParserPlugin, pkg/catalog.ErrAmbiguousImporterPlugin -->
+
+Two or more distinct plugins advertise the same format, and the request cannot be routed without guessing which one to use.
+
+**A catalog holding both is legal and loads without complaint.** Two publishers may each ship a parser or an importer for one format, and federating their catalogs is a supported thing to do. The ambiguity is a point-of-use condition: it halts when the contested format is actually requested, so a competing pair sitting outside a build's reach never blocks it.
+
+Every candidate is named, sorted, so the message is the same on every run.
+
+Emitted messages:
+> format is advertised by more than one parser plugin: format `"<format>"` is advertised by parser plugins `[<plugin-names>]`
+> format is advertised by more than one importer plugin: format `"<format>"` is advertised by importer plugins `[<plugin-names>]`
+
+**How to fix:** narrow the catalog the build reads so only the plugin you want is in it — pointing `--catalog` at the directory holding your choice is the direct way. Keeping both and choosing between them per workspace is supported for the **provider** socket, through a `plugins.providers` entry, and that surface is described under "A capability is served by more than one provider plugin" above; the parse and import sockets have no such selection, so removing the competing plugin from the build's catalog is the remedy for them.
+
+### A plugin reference carries a registry host or an artifact path
+
+<!-- covers: pkg/catalog.ErrQualifiedPluginReference -->
+
+A Plugin reference leads with a registry-host-shaped segment — one containing a dot or a colon, as a DNS name or a host-and-port does — or with an artifact path. A Plugin is addressed by its **coordinate identity**: its plugin type, a slash, its name, and optionally a version. The pull binds that identity to a physical location by prefixing the configured registry and the plugin path itself, so a reference that already carries one would be prefixed twice and bind to a location that cannot be fetched.
+
+It is refused where the location is formed rather than at the fetch, so the message names what you wrote instead of surfacing later as an unreadable tag error.
+
+Emitted message, framed by the pull that was forming the location, with the remedy on the line beneath:
+> catalog: tier-3 pull `<uri>`: wasm plugin reference must be the plugin coordinate identity (`<pluginType>/<name>:<version>`), not a registry-qualified or artifact path: `"<identity>"`
+>   remediation: remove the registry host and the artifact path, leaving the coordinate alone — `<pluginType>/<name>:<version>`, for example `provider/helm:1.0.0`; the pull prefixes the configured registry itself, so a reference that already carries one is prefixed twice
+
+**How to fix:** strip everything ahead of the plugin type, leaving the coordinate on its own — `provider/helm:1.0.0`, not `hub.example.com/plugin/provider/helm:1.0.0`. The registry a build pulls from is workspace configuration rather than part of an identity, which is what lets one catalog be served from more than one registry without editing the entities in it.
+
+### A plugin or recipe reference carries no scope
+
+<!-- covers: pkg/catalog.ErrUnscopedPluginReference, pkg/catalog.ErrUnscopedRecipeReference -->
+
+A Plugin or Recipe reference has no leading scope segment — no slash at all, or an empty one before the slash, as in `/name`. Both kinds are identified by two parts, and the first is what keeps two same-named entities apart: a Plugin by its **plugin type** and its name, a Recipe by its **provider** and its name. Two sockets may each hold a plugin called `redact`, and two providers may each ship a recipe called `postgres`, so the scope is part of the identity rather than decoration on it.
+
+A location built from an empty scope carries an empty path segment — a doubled slash — which cannot resolve, so the reference is refused where the location is formed rather than left to fail later as an unreadable fetch.
+
+The two remedies are opposites of the qualified-plugin case above and of each other, which is why each is worded on its own: here a reference is **short** a segment and you add one, while a qualified reference carries an extra one and you remove it.
+
+Emitted messages, each framed by the pull and carrying its own remedy beneath:
+> catalog: tier-3 pull `<uri>`: wasm plugin reference must carry a pluginType scope (`<pluginType>/<name>`); an empty scope cannot bind to an OCI location: `"<identity>"`
+>   remediation: add the missing pluginType segment — write the reference as `<pluginType>/<name>`, for example `provider/helm` or `governance/redact`, using the pluginType the plugin entity declares under `metadata.pluginType`
+
+> catalog: tier-3 pull `<uri>`: recipe reference must be provider-scoped (`<provider>/<name>`); an empty provider cannot bind to an OCI location: `"<identity>"`
+>   remediation: no local catalog directory held this reference, so it was looked for in the registry, where a provider segment is required; re-run as `aggrega pull --release <release> --catalog <dir>` so the directory that holds it is searched first (`--catalog` is repeatable)
+
+**How to fix:** for a plugin, prefix the plugin type the Plugin entity declares under `metadata.pluginType`. For a recipe, prefix the provider the Recipe declares under `spec.capability`. The recipe remedy names a second possibility worth reading: reaching the registry at all means the local catalog directories were searched first and none held the reference, so if the recipe is meant to come from a local directory, point the build at that directory rather than adding a scope.
+
+### The build consumes an artifact its publisher has deprecated
+
+<!-- covers: pkg/deprecation.ErrDeprecatedEntity -->
+
+A reference this build resolves carries a deprecation marker its publisher recorded, and that marker's severity is at or above the severity the workspace configured as its halting threshold. A marker is attached to a published artifact after the fact, so an artifact that built cleanly yesterday can carry one today without anything in your own files changing.
+
+**Reporting and halting are separate, and only halting is configurable.** Every recorded marker is reported, at every severity, and no configuration silences that. Whether a marker also *stops* the build is what `halt_on_deprecated_severity` decides, comparing the recorded severity against the configured threshold in the order `warning` < `error` < `retracted`. With no threshold configured, nothing halts and every marker is an advisory. A severity outside the three, or a threshold outside them, never meets: a malformed value can neither cause a halt nor suppress one.
+
+**Every notice is printed before the build stops, not only the one that halted**, so raising the threshold never costs you a finding — the halt itself names the single reference it stopped on. Findings are sorted by reference, so the same lockfile reports the same sequence on every run and the halting one is always the same.
+
+Two stores are checked and both report the same way: the references the lockfile pins, and the plugins recorded as trusted for an accept-or-reject verdict. Neither check reaches a registry — both read what was already recorded — so the build stays ahead-of-time.
+
+Emitted message. Each finding is printed as it is walked, and the halt then repeats the one that met the threshold and names the setting that stopped the build:
+> ```text
+>   deprecation: <reference> is retracted: <the publisher's recorded message> (recorded in the lockfile at pull, as of <when>; re-run `aggrega pull` to refresh it)
+> ```
+> deprecation: build consumes a deprecated entity: `<reference>` is retracted: `<the publisher's recorded message>` (recorded in the lockfile at pull, as of `<when>`; re-run `aggrega pull` to refresh it): halt_on_deprecated_severity is `"error"`
+
+A marker at one of the two advisory severities is stated as `deprecated (warning)` or `deprecated (error)` in place of `retracted`. The distinction is kept because the two mean different things — discouraged but still selectable, against excluded from selection — and reporting the stronger as the weaker would understate what happened.
+
+**How to fix:** read the recorded message, which is the publisher's own account of what to move to, and migrate. Where you cannot migrate yet, raising `halt_on_deprecated_severity` — or unsetting it — turns the halt back into an advisory you keep seeing; that is a deliberate acceptance rather than a workaround, and the notice keeps printing. A marker recorded against a version you no longer use disappears when the lockfile is refreshed with `aggrega pull`.
+
+### A trusted plugin's recorded digest disagrees with the cached artifact
+
+<!-- covers: pkg/resolver.ErrVerdictPluginTrustMismatch -->
+
+A plugin attached in a role that accepts or rejects a build has a digest recorded as trusted for it, and the plugin's cached manifest reports a different one. The two are compared **before** the plugin's executable is read, and a disagreement stops the resolution there.
+
+The comparison is what makes the recorded digest an authority rather than a restatement. Without one, a plugin's bytes are only ever checked against a pin derived from the very manifest whose bytes it then validates — self-consistent by construction, and unable to notice that the whole artifact has been replaced. Comparing what was recorded against what the manifest now reports is what gives that check an outside opinion.
+
+This is distinct from a content-digest mismatch, which reports resolved *bytes* disagreeing with the digest claimed for them. Here nothing has been read, and the bytes may well agree with the manifest; what disagrees is which artifact is being resolved at all. Keeping the two apart matters because the remedies are opposites — one is a corrupted or tampered artifact, the other a legitimately changed plugin whose new identity has not been reviewed yet.
+
+Emitted message:
+> resolve verdict-socket plugin `"<plugin-identity>"`: the digest recorded as trusted for it is `<recorded-digest>`, but the plugin manifest in the content cache reports `<cached-digest>`; review what changed and re-record the trusted digest, or restore the recorded artifact: the digest recorded as trusted for this plugin does not match the digest its cached manifest reports
+
+**How to fix:** find out what changed before you re-record anything — this is a plugin that can reject your builds, and the recorded digest is the statement that someone looked at it. Where the change is expected, because you upgraded the plugin deliberately, review the new artifact and re-record the trusted digest for it. Where it is not expected, restore the artifact the record names; the disagreement is telling you the identity moved without anyone deciding it should.
+
+### An `extends:` chain cannot be assembled
+
+<!-- covers: pkg/validator.ErrInheritanceMerge -->
+
+A Component's or Feature's `extends:` chain was walked and could not be turned into a single resolved entity. Two situations reach it: the chain names a parent the catalog does not hold, and the chain is longer than the walk's depth bound of ten.
+
+It is distinct from a cycle, which has its own condition and its own remedy — see "Cyclic extends chain" above — and from an unsatisfiable version pin, where the parent exists and only the version does not. This condition covers a chain that cannot be assembled for either of the two reasons below.
+
+Emitted message, where a parent is absent:
+> inheritance merge failed (Component `<name>`, at `.spec.extends`, parent entity `"<reference>"` not found in catalog). Verify the extends URI points to an existing catalog entity
+
+and where the chain is too long:
+> inheritance merge failed (Component `<name>`, at `.spec.extends`, inheritance chain exceeds maximum depth of 10). Reduce the inheritance chain length
+
+`Feature` appears in place of `Component` where a Feature's chain is the one that failed.
+
+**How to fix:** for an absent parent, confirm the `extends:` value names an entity the catalog holds, spelled as that entity's own `metadata.name` — case included. For a chain past the depth bound, collapse the middle of it: a chain that deep usually means each tier adds a little, and folding several tiers into one base entity is both the fix and the clearer shape.
+
+### An assertion name is declared twice along an `extends:` chain
+
+<!-- covers: pkg/validator.ErrAssertionNameCollision -->
+
+An entity and something it extends both declare an assertion under the same name, and the two declare **different** rules. An extending entity's assertions add to its base's; they never replace one. So a name declared twice with two different rules would silently retire the base's invariant, which is the opposite of what extending an entity is for.
+
+Declaring the same name with the *identical* rule is not a collision and builds. That is what keeps the check idempotent along a chain: without it, a three-deep chain would collide with its own middle tier every time.
+
+Order is part of the contract rather than incidental. Assertions evaluate in the merged order and the first failing one halts, so a base's invariant is checked before a descendant's, and along a chain the set accumulates from the root down.
+
+Emitted message:
+> assertion name declared twice across the extends chain (Component `<name>`, at `.spec.assertions.<key>`, assertion `"<key>"` is already present on the base Component `"<base>"`, declaring a different rule). Rename the extending entity's assertion; an extending entity's assertions add to the base's and never replace one
+
+**How to fix:** rename the extending entity's assertion, which the message names along with the base that already declares it. Where you meant to *replace* the base's rule, that is not something extending supports — narrow the base's assertion so it holds for every entity extending it, or move the rule down onto the entities that actually need it. Where the two rules are meant to be the same, make them textually identical and the collision goes away.
+
+### An external input's URL uses a scheme that is not allowed
+
+<!-- covers: pkg/externalinputs.ErrSchemeNotAllowed -->
+
+A URL an entity points at uses a scheme outside the allowed set. Three are allowed: `https`; `http`, but only to a loopback host, so cleartext can only ever reach the local machine; and `oci`, for content pulled from a registry.
+
+Emitted messages, for a non-loopback `http` URL and for any other scheme:
+> externalinputs: `"<url>"`: plain http is allowed for loopback hosts only (allowed schemes: https, http to a loopback host, oci): externalinputs: URL scheme is not allowed
+> externalinputs: `"<url>"`: scheme `"<scheme>"` is not allowed (allowed schemes: https, http to a loopback host, oci): externalinputs: URL scheme is not allowed
+
+**How to fix:** switch the URL to `https`, or to `oci` where the content is published in a registry. A plain `http` URL to a remote host is refused rather than downgraded, so pointing it at the secure scheme is the fix; a local development server keeps working over `http` because a loopback host is allowed.
+
+### An unpinned external input is requested while acquisition is off
+
+<!-- covers: pkg/externalinputs.ErrAcquisitionDisabled -->
+
+Something a build needs is fetched from a URL that the lockfile does not pin, and this run is not permitted to acquire anything. This is the frozen-closure guarantee doing its job: a run that may not acquire is one whose inputs are exactly what was pinned, and fetching an unpinned URL would quietly widen that set.
+
+Emitted message:
+> externalinputs: `"<url>"` is not pinned in the lockfile; re-run with acquisition enabled or run the standalone acquisition pass to pin it: externalinputs: acquisition is disabled for unpinned inputs
+
+**How to fix:** pin the input. `aggrega pull --release <release>` fetches it and records its digest in the lockfile, after which every later run serves it from the pinned record without needing to acquire. Re-running with acquisition enabled does the same thing as part of the build. Where the URL is new because something you authored started pointing at it, the pull is the step that was skipped; where it is unexpected, the reference that introduced it is worth finding before you pin it.
+
+### Fetched bytes do not match a pinned digest
+
+<!-- covers: pkg/externalinputs.ErrDigestMismatch -->
+
+A pinned URL was fetched again — because its stored copy was missing — and what came back is not what the lockfile pinned. **The recorded digest always wins:** nothing is written to the store, and no bytes are returned.
+
+A refill is fetched by the recorded digest rather than by the URL's tag, so a tag that has been moved to point at different content cannot change what a pinned entry serves. Reaching this halt therefore means the content behind the digest itself failed to come back intact.
+
+Emitted messages, for content pulled from a registry and for content fetched over HTTPS:
+> externalinputs: `"<url>"`: refilled manifest digest is `<digest>`, pinned digest is `<digest>`: externalinputs: fetched bytes mismatch the pinned digest
+> externalinputs: `"<url>"`: refetched bytes hash to `<digest>`, pinned digest is `<digest>`: externalinputs: fetched bytes mismatch the pinned digest
+
+**How to fix:** treat it as a supply-chain question first rather than a lockfile to refresh — the pin is the statement that these exact bytes were what you built against, and the refusal is that statement holding. Confirm the source still publishes the content the digest names, and check whether anything between you and it is rewriting responses; a proxy or a mirror serving a substitute is a common cause. Only once you know what changed and accept it should you re-pin with `aggrega pull`, which records the new digest.
+
+### A stored external input no longer matches its record
+
+<!-- covers: pkg/externalinputs.ErrStoreCorrupt -->
+
+A pinned input was read back from the local store and does not match the record pinned for it. The check runs on every read, before the bytes are served, so a store that has been corrupted or tampered with surfaces at the point of use rather than silently feeding a build.
+
+What is compared depends on how the input is pinned. Content fetched over HTTPS is pinned by hashing the payload, so it is re-hashed on every read and both digests are reported. Content pulled from a registry is pinned by its manifest digest, which commits to the payload through the registry's own manifest rather than by hashing it directly, so a stored copy is checked against the recorded size — full digest verification anchors at acquisition and at every digest-addressed refill instead.
+
+Emitted messages:
+> externalinputs: `"<url>"`: store blob sha256 is `<digest>`, pinned digest is `<digest>`: externalinputs: store blob mismatches its pinned record
+> externalinputs: `"<url>"`: store blob sha256/`<digest>` is `<n>` bytes but the pinned record says `<n>`: externalinputs: store blob mismatches its pinned record
+
+**How to fix:** delete the offending blob from the store and let the next run refill it from the source, which is verified against the recorded digest before anything is written. If a refill then reports a digest mismatch as well, the disagreement is upstream rather than local and the entry above is the one to read. A store shared between machines, or one restored from a backup taken mid-write, is the usual local cause.
+
+### A guard needs a catalog entity the build resolved and cannot see
+
+<!-- covers: pkg/resolver.ErrGuardEntityViewInconsistency -->
+
+A semantic guard reached for the catalog entity behind a component's type, and the entity is absent from the view the guard was given — even though resolution resolved that type as a catalog reference. A genuinely unresolvable reference halts earlier, at resolution, so reaching a guard with the entity missing means the build's resolved set and the guard's view have come apart.
+
+The build stops rather than skipping the guard. Skipping would retire a check with nothing to say that it had gone, and the components the guard was about would pass unexamined while the build reported success.
+
+A type written as a relative path — beginning `./` or `../` — is a local file rather than a catalog identity, so it legitimately has no catalog entity and is skipped rather than reported. Only a bare-token catalog reference reaches this halt.
+
+Emitted message:
+> guard catalog-entity view inconsistency (Aggregate `<name>`, at `<field-path>`, type `"<type>"` was resolved as a catalog reference but is absent from the guard's catalog view (build resolved-set / guard view divergence))
+
+**How to fix:** nothing in your own files — this reports an inconsistency inside the compiler rather than a fault in what you wrote, and it is worth reporting as a defect with the type the message names. The component's type is almost certainly fine; if you need to get past it while the defect is investigated, writing the type as a relative path to a local entity file takes that component off the catalog-resolution path.
 
 ## When building the topology
 
@@ -1088,6 +1696,100 @@ A structured `source:` block is resolved so the artifact it names can be pinned,
 
 **How to fix:** `optional` is registered on this surface *and* on every value template, path template and assertion, which makes it the portable choice — `{{ optional .values "chart_version" "25.0.8" }}` in place of `{{ default "25.0.8" .values.chart_version }}`. Read the semantic difference before substituting: `optional` fires on the key being **absent**, while `default` fires on the value being **empty**, so a key authored as an empty string or a zero keeps its authored value under `optional` and is replaced under `default`. Where the expression genuinely needs a Sprig function — reshaping a string rather than supplying a fallback — write it on the surface that consumes it (`valuesMapping`, a Workload body, an `artifacts:` entry) rather than in `locals:`, so that a `source:`-bearing entity's `locals:` block holds only expressions this surface can evaluate.
 
+## Conditions that do not halt a build
+
+Every condition above stops a build. A few conditions carry a short code and a message of their own without ever stopping one, and they are catalogued here so that a code you have in hand always resolves to something, whichever page you arrived from.
+
+They fall into three kinds, and the difference is worth knowing before you go looking for a fix.
+
+- **An advisory.** The build reports it and carries on, and the rendered output is the same whether or not you act on it. Each is taught in full on [warnings.md](./warnings.md) — what makes it fire, where in the compilation it is read, what it prints, and what to do about it — and the entries below say which section, rather than repeating it here.
+- **A condition the editor absorbs.** It is answered by the editor integration itself and reaches neither a build's output nor a diagnostic.
+- **A safeguard behind an earlier refusal.** The rule it protects is enforced ahead of it by a condition that does halt, so a build meets the earlier one first.
+
+### An annotation binding declares one path in both pillar lists
+
+<!-- covers: pkg/resolver.ErrAnnotationBindingPillarOverlap -->
+
+An advisory. A Manifest annotation binding names the same dotted path in both its `maps.infra` and its `maps.values` list. Declaring the overlap is legal and the compiler does not police it: the routing tie-break deterministically sends the path through `infra`, which leaves the `values` side of that path unreachable from the Aggregate.
+
+Its message opens:
+> annotation binding declares one path in both pillar lists
+
+It is what warns you before a build meets the halt described under "An annotation routes through a pillar its authoring side may not use" above — the advisory is the early surface, that halt is the enforcement one. The lint is taught under "Binding-map-overlap lint" in [warnings.md](./warnings.md).
+
+### An attachment name is one edit from a declared slot
+
+<!-- covers: pkg/resolver.ErrAttachmentSlotNearMiss -->
+
+An advisory. A component attaches a Feature under a name that is not one of its type's declared slots but sits within a single edit of one — the shape a slot-name typo takes. An attachment under a name no slot declares is legal, so nothing halts; what the advisory names is the consequence, which is that the attachment is a free attachment rather than a fill of the slot you meant, and the slot stays empty.
+
+Its message opens:
+> attachment name is a near miss for a declared slot
+
+Taught under "Attachment-slot near-miss lint" in [warnings.md](./warnings.md), with the pairing threshold and what it deliberately does not catch.
+
+### A `uses:` socket name is one edit from a declared socket
+
+<!-- covers: pkg/resolver.ErrUsesSocketNearMiss -->
+
+An advisory. A component's own `uses:` block names a socket its type does not declare but which sits within a single edit of one. A developer owns their application's topology and may name a socket the catalog did not anticipate, so an undeclared socket name is legal on that surface and nothing halts. What the advisory names is the consequence: the misspelled name draws an ad-hoc connection of its own, carrying no selector and no per-edge contract, while the socket you meant stays unwired.
+
+Its message opens:
+> uses socket name is a near miss for a declared socket
+
+Taught under "Uses-socket near-miss lint" in [warnings.md](./warnings.md). The two neighbouring surfaces where an undeclared socket name **does** halt are covered under "`uses:` socket not declared in the target's `usesSchema`" above.
+
+### A Recipe publishes a `provides` key its Component does not declare
+
+<!-- covers: pkg/resolver.ErrProvidesKeyNotDeclared -->
+
+An advisory. The Recipe bound to a component publishes a key under `provides:` that the component's type does not declare in its `spec.schema.provides:` contract. Publishing more than the Component declares is legal and stays legal — the contract is subset-required and superset-permitted. What the advisory names is a consequence that is invisible from either side: a consumer reading across a `uses:` edge sees the target's **declared** contract, not whatever its Recipe emits, so an undeclared key is not delivered and a consuming template reading it renders empty.
+
+Its message opens:
+> Recipe publishes a provides key its Component does not declare
+
+The opposite case is not advisory: a Component declaring a key its Recipe does not publish leaves the contract unfulfilled and halts. Taught under "Undeclared-provides-key lint" in [warnings.md](./warnings.md).
+
+### A declared parameter is read by nothing
+
+<!-- covers: pkg/resolver.ErrUnreadParameter -->
+
+An advisory. An Aggregate declares an entry under `spec.parameters:` and no `{{ .parameters.<key> }}` reference in that Aggregate's own text reads it, so whatever a Release supplies for it, the rendered output is the same. The compiler does not police which knobs an author exposes, and a parameter may legitimately be declared ahead of the reference that will read it, so this advises rather than halting.
+
+Its message opens:
+> declared parameter is read by no reference in the Aggregate
+
+Taught under "Unread declared-parameter warnings" in [warnings.md](./warnings.md), including why a default is not an exemption and which references the reading can and cannot see.
+
+### An editor position falls outside the document
+
+<!-- covers: pkg/yamlpos.ErrPositionOutOfRange -->
+
+A condition the editor absorbs. Editor features that depend on where your cursor is — go-to-definition, hover, completion — locate the cursor inside the document's parsed structure first. This condition is what that step reports when the position addresses a line the document does not have, which happens transiently while an edit is in flight and the position the editor sent was measured against text the document has already moved past.
+
+Its message reads:
+> position out of range
+
+**It reaches no build and no diagnostic.** Every feature that can meet it answers with no result rather than surfacing an error, which is the behaviour the editor protocol asks for: a request that cannot be answered returns nothing, and the editor asks again after the next keystroke.
+
+There is nothing to fix in your files, and nothing appears in a build. A feature that stays unresponsive rather than recovering on the next edit is worth reporting as a defect.
+
+### The schema-merge walk's own chain safeguards
+
+<!-- covers: pkg/validator/merger.ErrCyclicExtension, pkg/validator/merger.ErrMaxDepth, pkg/validator/merger.ErrMergeInvalid -->
+
+Safeguards behind an earlier refusal. When a Component or Feature extends another and both declare schemas, those schemas are combined into one. The walk that does the combining carries its own guards against a chain that loops, a chain deeper than ten levels, and an input it cannot merge structurally:
+
+> merger: cyclic extends chain
+
+> merger: extends chain exceeds maximum depth
+
+> merger: invalid merge input
+
+**A build does not reach them, because the rule each protects is enforced earlier.** An `extends:` chain is walked and checked before any schema is combined, so a loop is refused there — see "Cyclic extends chain" above — and so is a chain past the depth bound, under "An `extends:` chain cannot be assembled". By the time schemas are merged, the chain has already been established as finite, acyclic, and complete.
+
+They are catalogued because they are declared and carry codes of their own, so a code in hand resolves. Nothing you can author produces one, and meeting one would mean the earlier refusal did not run — worth reporting as a defect rather than working around.
+
 ## Finding a halt from the short code the build printed
 
 A halting diagnostic's bracketed head names the category the failure is attributable to and, where the failure names one of the conditions catalogued here, that condition's **short code** — the letter `E` and four digits, as in `[CATALOG_ERROR E0209]`. A number is handed out once and then fixed, so a short code you paste into a report or a search still names the condition it named when you recorded it. The other two identifiers a condition carries, and which of the three to reach for when, are taught in [sentinels.md](./sentinels.md).
@@ -1125,33 +1827,83 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0068` | `max sub-aggregate nesting depth exceeded` | Sub-aggregate nesting depth exceeded |
 | `E0071` | `release edge retargets a developer-declared edge` | Release retargets a developer-declared edge |
 | `E0074` | `release per-edge configuration has no edge to apply to` | Release per-edge configuration has no edge to apply to |
+| `E0089` | `every published version this reference could select has been withdrawn` | Every version a reference could select has been withdrawn |
+| `E0090` | `format is advertised by more than one importer plugin` | A parse or import format is advertised by more than one plugin |
+| `E0091` | `format is advertised by more than one parser plugin` | A parse or import format is advertised by more than one plugin |
 | `E0092` | `capability is served by more than one provider plugin; add a plugins.providers entry to select one` | A capability is served by more than one provider plugin |
+| `E0093` | `manifest maps multiple version-distinct keys to the same base type; the type-to-recipe lookup is ambiguous` | A Manifest maps two version-distinct keys onto one type |
+| `E0094` | `duplicate entity identity within a single catalog directory` | Two catalog entities in one directory share an identity |
 | `E0095` | `malformed recipe reference in a Manifest mapping value` | Manifest mapping value carries more segments than a recipe reference accepts |
 | `E0096` | `manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key` | Recipe `implements` does not match the mapped component type |
+| `E0097` | `no importer plugin advertises the requested format` | No plugin advertises a requested parse or import format |
+| `E0098` | `no parser plugin advertises the requested format` | No plugin advertises a requested parse or import format |
+| `E0099` | `no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type` | No Recipe is mapped for a component or feature instance |
+| `E0100` | `plugins.providers entry names a plugin no provider-rendering plugin serving the capability matches` | A `plugins.providers` binding names a plugin that does not serve the capability |
+| `E0101` | `no provider-rendering plugin version satisfies the recipe's provider version pin` | No provider plugin version satisfies a Recipe's provider pin |
+| `E0102` | `wasm plugin reference must be the plugin coordinate identity (<pluginType>/<name>:<version>), not a registry-qualified or artifact path` | A plugin reference carries a registry host or an artifact path |
+| `E0103` | `no catalog version satisfies the referenced version constraint` | No catalog version satisfies a version constraint |
+| `E0104` | `wasm plugin reference must carry a pluginType scope (<pluginType>/<name>); an empty scope cannot bind to an OCI location` | A plugin or recipe reference carries no scope |
+| `E0105` | `recipe reference must be provider-scoped (<provider>/<name>); an empty provider cannot bind to an OCI location` | A plugin or recipe reference carries no scope |
+| `E0122` | `deprecation: build consumes a deprecated entity` | The build consumes an artifact its publisher has deprecated |
+| `E0126` | `externalinputs: acquisition is disabled for unpinned inputs` | An unpinned external input is requested while acquisition is off |
+| `E0127` | `externalinputs: fetched bytes mismatch the pinned digest` | Fetched bytes do not match a pinned digest |
+| `E0128` | `externalinputs: URL scheme is not allowed` | An external input's URL uses a scheme that is not allowed |
+| `E0129` | `externalinputs: store blob mismatches its pinned record` | A stored external input no longer matches its record |
+| `E0146` | `circular reference expansion` | A library reference expands into itself |
+| `E0149` | `attachment name is a near miss for a declared slot` | An attachment name is one edit from a declared slot |
 | `E0150` | `attachment does not conform to its declared slot shape` | Attachment does not conform to its declared slot shape |
+| `E0151` | `component declared in more than one boundary: declare each component in exactly one boundary` | A component is placed in more than one boundary |
+| `E0152` | `duplicate Aggregate/Manifest identity (metadata.name) in the Release directory` | The Release directory declares one Aggregate or Manifest twice |
 | `E0153` | `feature merge conflict: reconcile the Aggregate and Release declarations for the feature` | Manifest merge strategy |
+| `E0154` | `guard catalog-entity view inconsistency` | A guard needs a catalog entity the build resolved and cannot see |
 | `E0155` | `duplicate delivery key across inject sources` | Duplicate delivery key across inject sources |
 | `E0156` | `invalid inject key: the from-key must name a declared provides key of the target component type` | Inject `from` key is not in the target's `provides` |
 | `E0157` | `invalid instance name: names must match ^[a-zA-Z0-9_-]+$ (letters, digits, hyphen, underscore; no dots)` | Instance name fails the naming pattern |
+| `E0158` | `invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template` | A `{{ .parameters.* }}` reference cannot be interpolated |
+| `E0160` | `manifest annotation bindings collide on same Feature path+pillar` | Two Manifest annotation bindings compete for one routing slot |
+| `E0161` | `manifest annotation binding uses reserved prefix` | A Manifest annotation binding claims the reserved `aggrega.ai/` prefix |
 | `E0162` | `missing required feature: attach a Feature of the required type to the component` | Required feature not attached |
 | `E0163` | `required uses socket not populated` | Required `uses:` socket not populated |
 | `E0164` | `parameter contract violated` | Parameter type mismatch / contract violation |
 | `E0165` | `required parameter not supplied` | Parameter type mismatch / contract violation |
 | `E0166` | `parameters $import: load failed` | External parameters file cannot be loaded |
+| `E0167` | `Recipe publishes a provides key its Component does not declare` | A Recipe publishes a `provides` key its Component does not declare |
 | `E0168` | `authored pillar does not conform to its declared schema` | Authored values or infra do not conform to the declared schema |
 | `E0169` | `self-inject on component without spec.inject allowlist` | Self-inject on a component without an allowlist; Self-inject mechanism not in the component's allowlist |
+| `E0170` | `aggregate/manifest reference unresolvable` | A Release's `aggregate:` or `manifest:` reference resolves to nothing |
 | `E0171` | `unknown uses socket: name a socket the entity declares in its usesSchema — only a component's own uses block may name one the catalog did not declare` | `uses:` socket not declared in the target's `usesSchema` |
+| `E0172` | `release reached resolve un-normalized (non-empty root components alongside a synthesized default boundary)` | A Release reached resolution without passing through the load path |
+| `E0173` | `declared parameter is read by no reference in the Aggregate` | A declared parameter is read by nothing |
+| `E0174` | `uses socket name is a near miss for a declared socket` | A `uses:` socket name is one edit from a declared socket |
+| `E0175` | `YAML load failed: check the file exists, is readable, and contains well-formed YAML` | A file cannot be read, or its text is not well-formed YAML |
+| `E0201` | `assertion name declared twice across the extends chain` | An assertion name is declared twice along an `extends:` chain |
 | `E0202` | `cyclic extends chain` | Cyclic extends chain; Cyclic extends on Components or Features |
+| `E0203` | `featurerecipe eval-provider constraint: render input-kind fields are forbidden when provider is eval` | A FeatureRecipe on the `eval` provider declares a render input kind |
+| `E0204` | `FeatureRecipe: valuesMapping requires source` | A FeatureRecipe's `valuesMapping` requires `source` |
+| `E0205` | `inheritance merge failed` | An `extends:` chain cannot be assembled |
 | `E0206` | `recipe eval-provider constraint: input-kind fields are forbidden when provider is eval` | `eval`-provider constraint |
+| `E0207` | `recipe output-component-labels constraint: key is also declared in outputLabels` | A promoted component label is also declared literally |
+| `E0208` | `recipe output-labels constraint: key uses a reserved namespace` | An output-label key uses a reserved namespace |
 | `E0209` | `Recipe: valuesMapping requires source` | `valuesMapping` requires `source` |
 | `E0210` | `Recipe: at least one input kind required` | At least one input kind must be present |
 | `E0211` | `filename collision across input kinds: two input-kind blocks produced a file under one output name` | Emission-time filename collision across input kinds |
+| `E0212` | `workload attachment slot is not referenceable` | A Workload references a slot whose fill publishes no locator |
+| `E0213` | `workload featuresSchema cross-check failed` | A Workload attachment names a slot the entity does not declare, or a delivery the slot forbids |
+| `E0214` | `workload validation failed` | A Workload does not satisfy the Workload schema |
 | `E0215` | `document envelope validation failed` | YAML anchor aliased inside its own content; Divergent Release (extends + aggregate pointer) |
+| `E0216` | `validator/jsonschema: x-aggrega extension evaluation failed` | An `x-aggrega-when:` or `x-aggrega-validate:` predicate cannot be evaluated |
+| `E0218` | `validator/jsonschema: schema resolution failed` | A declared schema cannot be resolved |
+| `E0219` | `merger: cyclic extends chain` | The schema-merge walk's own chain safeguards |
+| `E0220` | `merger: extends chain exceeds maximum depth` | The schema-merge walk's own chain safeguards |
+| `E0221` | `merger: invalid merge input` | The schema-merge walk's own chain safeguards |
+| `E0229` | `position out of range` | An editor position falls outside the document |
+| `E0246` | `the digest recorded as trusted for this plugin does not match the digest its cached manifest reports` | A trusted plugin's recorded digest disagrees with the cached artifact |
 | `E0249` | `cloudformation-provider: an export name a cross-boundary link derives is already declared by another Outputs entry in the same stack` | An authored export name is one the build derives for a cross-stack reference |
 | `E0251` | `recipe source is an empty string, which names neither sourceless mode nor sourced mode` | Recipe `source:` is an empty string |
 | `E0253` | `annotation binding does not resolve against its target Feature` | Annotation binding does not resolve against its target Feature |
 | `E0254` | `annotation subkey does not conform to the target Feature's schema at the routed pillar` | A bound annotation value does not conform to the target Feature's schema |
 | `E0255` | `annotation routes through a pillar its authoring side may not use` | An annotation routes through a pillar its authoring side may not use |
+| `E0256` | `annotation binding declares one path in both pillar lists` | An annotation binding declares one path in both pillar lists |
 | `E0257` | `declared schema contract failed to compile, so nothing was validated against it: correct the contract where it is declared, or remove it if the configuration it covers needs no validation` | A declared schema contract does not compile |
 <!-- END GENERATED: halt-condition-sentences -->
 
