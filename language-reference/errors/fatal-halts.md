@@ -716,12 +716,14 @@ A `locals:` block resolves in the order its entries are written, and an entry re
 **Both resolutions of a `locals:` block decide this fault, and one of them is pinning.** A block is resolved for two different purposes: so the Recipe's own templates can read it while an artifact is rendered, and so a structured `source:` coordinate can be resolved and the artifact it names pinned. The fault is decided from the declared key order and the authored text, which is everything it needs, so both resolutions reach it and report the same condition — `aggrega pull`, and a build that fills the lockfile, refuse the block exactly as a render does. Two consequences are worth knowing while authoring. The **whole** block is read while a coordinate is resolved, so an out-of-order entry halts even where every `source:` field is literal and reads no local. And a Recipe whose `source:` is a plain string, or which declares no `source:` at all, resolves no coordinate, so on that Recipe the fault is reported when output is rendered.
 
 Emitted message, for an entry in a component Recipe's own `locals:` block. It is positioned at the authored key inside the Recipe, and every offending entry is reported in one build; where more than one is, the findings are grouped under `locals entries that read a sibling they cannot`:
-> locals entry references a sibling defined later in the same block (`"<expression>"`, the key it names is `"<referenced>"`, resolved at this point `"<the locals available here>"`). define `"<referenced>"` above `"<key>"` in the locals block
+> locals entry references a sibling defined later in the same block (`"<expression>"`, the key it names is `"<referenced>"`, resolved at this point `"<the locals available here>"`, reached through the component `"<component>"`). define `"<referenced>"` above `"<key>"` in the locals block
 
 A self-reference is the same condition — the key is declared and unresolved — and no reordering fixes it, so the message says so in place of the move-it instruction:
-> locals entry references a sibling defined later in the same block (`"<expression>"`, the key it names is `"<key>"`, resolved at this point `"<the locals available here>"`). a locals entry cannot read itself; compute the value from .values and .infra directly
+> locals entry references a sibling defined later in the same block (`"<expression>"`, the key it names is `"<key>"`, resolved at this point `"<the locals available here>"`, reached through the component `"<component>"`). a locals entry cannot read itself; compute the value from .values and .infra directly
 
-The same fault in a `locals:` block a Feature's recipe declares reports the same way: positioned at the authored key inside that recipe, and grouped with any sibling entries carrying the same fault. Where the recipe is attached at more than one place, the fault is reported once for each — each attachment binds that block independently, so each is its own occurrence rather than a repeat of one.
+**One Recipe is bound by many components, so one mistake in a shared block is reported once for each component that binds it — and `reached through the component` is what tells those findings apart.** They share a position, because they are all about the same authored entry in the same document; the position is where to edit, and the component name is which of your components each finding stands for. The findings are not merged into one, because merging would say that something is wrong without saying which components it reaches, and that is the part you have to act on.
+
+The same fault in a `locals:` block a Feature's recipe declares reports the same way: positioned at the authored key inside that recipe, named by the component the attachment sits on, and grouped with any sibling entries carrying the same fault. Where the recipe is attached at more than one place, the fault is reported once for each — each attachment binds that block independently, so each is its own occurrence rather than a repeat of one.
 
 Where that shape reports a self-reference, its position clause names the referencing entry itself rather than a later one, because that is where the key sits.
 
@@ -733,8 +735,11 @@ Where that shape reports a self-reference, its position clause names the referen
 
 A template reads `.locals.<key>` for a key the `locals:` block does not declare at all — a misspelling, or a key that was renamed or removed. Every surface that reads the pillar raises this halt: a `locals:` entry, a `provides:` template, a Recipe `source:` template, and the resolution of a structured `source:` coordinate, which reads the whole block to pin the artifact the coordinate names. The locals pillar is an open keyed map, so an unknown key under it passes the root check and would otherwise resolve to an empty string; the halt is what stops that empty value from reaching an emitted artifact.
 
-Emitted message:
+Emitted message, where the offending reference stands in a `provides:` template:
 > template references a key the locals block does not declare (Recipe `<recipe>` provides[`<key>`] references `<expression>`, the locals block declares no `<referenced>`, it declares `<the keys it does declare>`). correct the key name
+
+Emitted message, where it stands in a `locals:` entry itself. It carries the component the block was bound through, for the reason the ordering halt above states — one shared block is reported once per component that binds it, and this is what separates those findings:
+> template references a key the locals block does not declare (`"<expression>"`, the missing key is `"<referenced>"`, the block declares `"<the keys it does declare>"`, reached through the component `"<component>"`). correct the key name
 
 **How to fix:** correct the key name to one the block declares; the message lists them. The halt is distinct from the ordering halt above because the remedies differ — no reordering makes a key that does not exist resolve.
 
