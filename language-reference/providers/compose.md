@@ -120,6 +120,8 @@ A Workload `services` entry's `type` field decides whether compose publishes por
 
 When multiple services on a single Workload publish overlapping ports, the most-publishing entry wins per port (any `NodePort` or `LoadBalancer` reference triggers publishing).
 
+**Port transport.** A published entry carries the transport declared on the container port it names, as compose's `/protocol` suffix: `53:53/udp`. A port that declares no transport publishes as `<host>:<container>` with no suffix, leaving compose's own default in force. Compose spells a published port's transport as `tcp` or `udp`; a port declaring `SCTP` has no compose spelling, so it halts with a `TRANSLATION_ERROR` rather than publishing a port that would carry a different transport. A container port that no service publishes reaches no part of the compose file at all, so a transport declared on such a port has nothing to be spelled onto and does not halt.
+
 ## Multi-container Workloads
 
 A Workload with multiple containers becomes one main service plus one sidecar service per non-main container. The main container is the one named `main` (when present) or the first container in declaration order. Sidecars share the main service's network namespace via `network_mode: "service:<main>"` — the closest compose primitive to a Kubernetes pod's shared-network model.

@@ -77,6 +77,8 @@ For each node:
 
 Each emitted resource carries the full Aggrega provenance labels and annotations plus a selector pair (`app: <nodeID>`) wired between the Deployment/StatefulSet and its Services. Container names in the rendered Deployment are the Workload's container keys with `.` and `_` characters replaced by `-` (Kubernetes name-sanitisation).
 
+**Port transport.** A container port that declares a transport emits it verbatim as `protocol:` on the rendered `containerPort`, and every Service port naming that container port carries the same value — the transport is declared once, on the container port, so the exposure cannot disagree with it. A port that declares no transport emits no `protocol` key on either resource, leaving the cluster's default in force. All three values the Workload admits (`TCP`, `UDP`, `SCTP`) are emitted verbatim; helm needs no degradation, since Kubernetes expresses each of them directly.
+
 Output file naming follows the same `<nodeID>-<kind>.yaml` convention as sourced mode: `<nodeID>-deployment.yaml`, `<nodeID>-service-<svcName>.yaml`, `<nodeID>-pvc-<volName>.yaml`.
 
 ## Sourceless mode keyset

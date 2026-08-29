@@ -135,7 +135,7 @@ Container field authoring follows these conventions:
 - **`image`** is typically a template expression referencing `.values.image` (the Developer's selected image) with optional `.infra.*` overrides for environment-specific registry prefixing.
 - **`variables`** is a plain string → string map for environment variables. The map blends two distinct data sources via Go template expressions: **developer-pillar literals** (entries whose template expressions read `.values` / `.infra` / `.locals` — payload originating in the Component's pillars) and **cross-component-pipe data** (entries whose template expressions read `.context.inject.env.<KEY>` — payload originating in another component's `provides:` and routed through the topology pipe). The two sources flow into the same `variables` map; authors choose one per entry based on whether the value is component-local or cross-component-derived. Common patterns: `LOG_LEVEL: "{{ .values.log_level }}"` is developer-pillar (component-local); `DB_HOST: "{{ .context.inject.env.DB_HOST }}"` is cross-component-pipe (the value originates in a target component's `provides.host` routed through the caller's `uses[].inject.env.DB_HOST` declaration). Both forms compile to a single Kubernetes `env:` list on the rendered Deployment; the dual-source semantic is at authoring time only.
 - **`attachments`** references slots declared in the Component's `featuresSchema` (see the integration section below).
-- **`ports`** is a named-port map (`web: 8080`, `admin: 9901`); port names match container-scoped port names and are referenced by `services.<service>.ports.<portname>`.
+- **`ports`** is a named-port map (`web: 8080`, `admin: 9901`); port names match container-scoped port names and are referenced by `services.<service>.ports.<portname>`. A port that carries a transport other than the target's default is authored in the expanded form instead — see [Port transport protocols](#port-transport-protocols) below.
 - **`volumeMounts`** references volumes declared elsewhere in the Workload's `volumes:` section by name.
 - **`resources`** declares the container's `requests` and `limits` — the `cpu` and `memory` quantities, and optionally extended-resource keys for GPUs and other devices (see [GPU and device workloads](#gpu-and-device-workloads) below).
 - **`health`** uses the intent shape (`http: /path`, `tcp: <port>`, `exec: [cmd, ...]`) — see the Health Probes section below.
@@ -195,6 +195,51 @@ The convention has two practical consequences. First, **cross-node collisions ar
 The collision risk that does remain is at the **K8s name-length boundary**: Kubernetes Service names cap at 63 characters, and the synthesised `<instance_id>-<service-key>` form can exceed that limit when both segments are long. The Aggrega compiler does not enforce the limit; the Service applies cleanly at render time but Kubernetes rejects the apply. Authors with deeply nested instance IDs (e.g., `data-layer.regional.eu-west.primary`) plus long service keys should keep the combined length under 63 characters.
 
 **Provider-specific note (compose).** The compose provider derives `depends_on` automatically from IR uses-edges. Those entries are emitted ungated — they carry `service_started` semantics regardless of whether the target declares a healthcheck — so a service whose dependencies all come from `uses` edges emits the short-form list (`depends_on: [<target>]`). Gating an edge-derived entry on the target's health is not implemented. The long form is emitted where an entry does carry a condition, which is how a wait on an init container is expressed; see [providers/compose.md](../providers/compose.md#init-containers).
+
+## Port transport protocols
+
+A container port is authored in either of two equivalent forms. The bare number is the short form and declares no transport, so the target applies its own default — TCP on every target that has one:
+
+```yaml
+containers:
+  main:
+    image: "{{ .values.image }}"
+    ports:
+      web: 8080
+```
+
+The expanded form carries the number and the transport together, and is what a port needs when it carries anything other than that default:
+
+```yaml
+containers:
+  main:
+    image: "{{ .values.image }}"
+    ports:
+      web: 8080                 # short form — no transport declared
+      dns:
+        port: 53
+        protocol: UDP           # TCP | UDP | SCTP
+      sigtran:
+        port: 2905
+        protocol: SCTP
+```
+
+The two forms may be mixed freely inside one `ports` map, and a port with no transport to declare stays in the short form.
+
+**The transport is declared once, on the container port.** A `services.<service>.ports` entry names a container port and takes that port's transport with it, so a service exposure cannot disagree with the port the container opened. There is no `protocol` key on a service port, and authoring one is rejected.
+
+**Why the field exists.** Deployment targets treat an unspecified transport as the streaming one. A component that needs a datagram port — realtime media, telephony, name resolution, private networking, a game server — could otherwise declare only the number, and the stack would deploy with every gate passing while no client connected, because the traffic is datagram and the port that got opened is not. Declaring the transport is what makes that expressible.
+
+**The compiler does not interpret the value.** It reads no transport out of a port's *name* and does not check the declared transport against what the process behind the port actually speaks: the value is data you declare and the target's engine emits. A port named `dns` carrying no `protocol` key is a TCP port, and a port named `web` declaring `protocol: UDP` is a UDP port.
+
+**Per-target behaviour.**
+
+| Target | A port with no transport declared | A declared transport |
+| --- | --- | --- |
+| helm | `containerPort` and the Service port carry no `protocol` key | emitted verbatim as `protocol:` on the container port and on every Service port naming it |
+| compose | published as `<host>:<container>`, unchanged | published as `<host>:<container>/tcp` or `/udp`; `SCTP` has no compose spelling and **halts the build** rather than publishing a port that would carry a different transport |
+
+A container port that no service publishes reaches no part of a compose file at all — that is compose's standing behaviour for container ports — so a transport declared on such a port has nothing to be spelled onto and does not halt.
 
 ## Health probes — intent shape
 
