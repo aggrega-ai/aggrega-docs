@@ -674,6 +674,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0257` | `resolver/schema-contract-compile-failure` | `declared schema contract failed to compile, so nothing was validated against it: correct the contract where it is declared, or remove it if the configuration it covers needs no validation` |
 | `E0258` | `compiler-renderer-compose/unsupported-compose-port-protocol` | `TRANSLATION_ERROR: compose publishes a port's transport as a tcp or udp suffix; this port declares a transport compose cannot express` |
 | `E0259` | `compiler-renderer/boundary-scope-attachment-not-declared-at-a-boundary` | `attachment binds a FeatureRecipe with executionScope: boundary and no boundary holding the component declares it` |
+| `E0260` | `compiler-topology/unplaced-component` | `` component placed in no boundary: name it under a boundary's `components`, or place the sub-module that contributes it under `aggregates` `` |
 
 - `E0002` is declared ahead of the code that reports it, so no build raises it yet. It will report a catalog lookup that fails during static analysis — a state that cannot arise while every component and feature an Aggregate or Release names is checked before analysis begins — once that stage surfaces such an inconsistency as a halt rather than ending its reading silently.
 
