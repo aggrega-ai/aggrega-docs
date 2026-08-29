@@ -584,6 +584,118 @@ Emitted message:
 
 **How to fix:** the message names both halves. Either drop that scope from the annotation's `scope:` list, leaving the scopes the provider does render, or claim the input kind under `contract.inputKinds` if the provider does in fact render it.
 
+### A compact-form schema uses a keyword the compact form does not know
+
+<!-- covers: pkg/compactform.ErrUnknownKeyword -->
+
+A schema written in the compact form carries a key that is neither a compact-form keyword, nor one of the JSON Schema keywords the form passes through, nor one of the three markers the form reserves — `$jsonschema:`, `$mode:` and `$ref:`. Unknown keys are refused as the schema is read rather than dropped, because a mistyped constraint that is ignored becomes no constraint at all, and a schema that looks enforced and enforces nothing is worse than one that fails.
+
+The refusal is met wherever a schema is compiled. A SchemaLibrary's entries are compiled as the catalog loads; a Component's `spec.schema`, its per-socket `valueSchema` and `infraSchema`, and the schemas a Feature and a provider Plugin declare are compiled when the catalog is resolved — where the same fault arrives inside "A declared schema contract does not compile" below, carrying the sentence quoted here as its detail.
+
+The compact-form compiler's own sentence names the position inside the schema, the source line, and the key it did not recognise:
+> compactform at `<path-inside-the-schema>`:`<line>` (keyword `"<key>"`): unknown keyword
+
+A key written beside a cross-document `$ref:` reports under the same condition, with a sentence of its own, because only three siblings may accompany such a reference:
+> compactform at `<path-inside-the-schema>`:`<line>` (keyword `"<key>"`): cross-document $ref sibling not allowed (allowed: properties, required, description)
+
+and where that sibling asked to reopen the merged shape, the sentence carries the way to do it instead:
+> compactform at `<path-inside-the-schema>`:`<line>` (keyword `"additionalProperties"`): cross-document $ref sibling not allowed (allowed: properties, required, description); use $jsonschema: to embed an open-object schema if the merged shape must accept arbitrary properties
+
+The condition it is recorded under is `compactform: unknown keyword`, which is what its short code resolves to.
+
+**How to fix:** correct the key at the position the sentence names, against the keyword vocabulary in [`compact-form-authoring.md`](../vocabulary/compact-form-authoring.md) — a misspelling is the commonest cause. Where the shape genuinely needs a JSON Schema keyword the compact form does not carry, write that fragment under `$jsonschema:`, which embeds JSON Schema verbatim. Beside a cross-document reference, keep only `properties:`, `required:` and `description:`; anything else belongs in the library entry the reference points at.
+
+### A compact-form schema declares a field literally named `type`
+
+<!-- covers: pkg/compactform.ErrAmbiguousDispatch -->
+
+The compact form decides what a mapping means from the shape of its content: a `type:` key marks a constraint leaf, structural JSON Schema keywords mark a fragment to pass through, and a mapping of plain names marks an object whose children are schemas. A schema declaring a field *named* `type` is the one shape those readings cannot tell apart — it looks like a constraint leaf and is meant as an object with one field — so the form asks the author to say which, with a `$mode:` key set to `compact` or `jsonschema`.
+
+This condition is what a `$mode:` written with any other value reports. The marker exists to settle the ambiguity, so a value that settles nothing is refused rather than guessed at.
+
+The compact-form compiler's own sentence:
+> compactform at `<path-inside-the-schema>`:`<line>` (keyword `"$mode"`): value must be `compact` or `jsonschema`
+
+The condition it is recorded under is `compactform: ambiguous dispatch — $mode required`, which is what its short code resolves to.
+
+**How to fix:** set `$mode: compact` where the mapping is a compact-form object whose fields happen to include one called `type`, or `$mode: jsonschema` where the mapping is a JSON Schema fragment to be taken as written. Where neither reading was intended, renaming the field clears the ambiguity without a marker at all.
+
+### A `$jsonschema:` escape carries content that is not a schema
+
+<!-- covers: pkg/compactform.ErrEscapeContentInvalid -->
+
+The `$jsonschema:` key embeds a JSON Schema fragment verbatim, for shapes the compact form does not express. What it embeds is taken as written and is never translated, so it has to *be* a schema: a block scalar that parses as YAML, or a nested mapping. Content that is neither is refused here rather than passed on to be validated against, where the failure would be reported against the schema's consumer instead of against the schema.
+
+Four shapes report under this condition, and the sentence says which one you have. The escape body does not parse as YAML. The escape's value is neither a block scalar nor a mapping. A `properties:` key holds something that is not a mapping of names to schemas. And, at the outermost level, the document handed to the compiler is empty or carries a node the reader has no rule for.
+
+The compact-form compiler's own sentences:
+> compactform at `<path-inside-the-schema>`:`<line>` (keyword `"$jsonschema"`): escape content does not parse as YAML: `<what the parse reported>`
+> compactform at `<path-inside-the-schema>`:`<line>` (keyword `"$jsonschema"`): expected block-scalar string or nested mapping
+> compactform at `<path-inside-the-schema>`:`<line>` (keyword `"properties"`): expected a mapping of property names to schemas
+> compactform: unsupported YAML node kind
+
+The condition it is recorded under is `compactform: $jsonschema content invalid`, which is what its short code resolves to.
+
+**How to fix:** write the escape body as a block scalar under `$jsonschema:` — a body whose first line reads as a YAML key is otherwise absorbed into the surrounding mapping, which is the common cause — and check that what it holds is valid JSON Schema on its own. Where the fragment was small enough to express in the compact form, dropping the escape is the simpler answer.
+
+### A compact-form constraint does not apply to the type it was written on
+
+<!-- covers: pkg/compactform.ErrConstraintTypeMismatch -->
+
+Compact-form constraints are dispatched by the field's declared type: `min:` and `max:` become a numeric bound on a number, a length bound on a string, and a count bound on an array. So a constraint has to sit on a field whose type accepts it, and the type has to be a single value for the dispatch to have an answer at all.
+
+Four shapes report under this condition. A constraint written where `type:` is absent or names a union, so nothing decides which bound was meant. A constraint written on a type that takes no bound of that kind — an object, or a boolean. A `type:` whose value is neither a scalar name nor a sequence of names. And a `valuesType:` given something other than a scalar name.
+
+The compact-form compiler's own sentences:
+> compactform at `<path-inside-the-schema>`:`<line>` (keyword `"<constraint>"`): constraint applies to a single declared type (integer/number/string/array); `type:` is unresolved (union or absent) — narrow `type:` to a single value or remove this constraint
+> compactform at `<path-inside-the-schema>`:`<line>` (keyword `"<constraint>"`): constraint applies to integer/number/string/array; declared type is `<the type as written>`
+> compactform at `<path-inside-the-schema>`:`<line>` (keyword `"type"`): expected a scalar type name or a sequence of type names (JSON Schema 2020-12 array-of-types); got unsupported node kind
+> compactform at `<path-inside-the-schema>`:`<line>` (keyword `"valuesType"`): expected a scalar type name
+
+The condition it is recorded under is `compactform: constraint not valid for declared type`, which is what its short code resolves to.
+
+**How to fix:** the sentence names both halves — the constraint and the type it met. Narrow `type:` to a single name where it holds a union, add it where it is missing, or drop the constraint where the field genuinely takes any of several types. A bound that has to vary with the type is expressed as a set of alternatives under `$jsonschema:`, where each branch carries its own type and its own bound.
+
+### A `$ref:` is not written in a form the compiler can resolve
+
+<!-- covers: pkg/compactform.ErrReferenceUnresolvable, pkg/compactform.ErrUnresolvedSchemaLibraryRef -->
+
+A schema references another shape with `$ref:`, either inside the same document or across documents into a SchemaLibrary entry. Two conditions cover the two ways a reference fails, and the sentence tells you which you have: the reference is not *written* in a form the compiler reads, or it is well-formed and names a target that is not there.
+
+**The reference is not readable.** The value is empty, or its cross-document form is not `<Library>#/schemas/<Entry>`, or it separates the version with `@` — which is reported with the corrected spelling rather than as a generic complaint, because it is the mistake this form attracts most:
+> compactform at `<path-inside-the-schema>`:`<line>` (keyword `"$ref"`): expected a non-empty reference URL
+> compactform at `<consumer-document>` (keyword `"$ref"`): cross-document $ref shape must be `<LibraryName>#/schemas/<EntryName>`: `<the value as written>`
+> compactform at `<consumer-document>` (keyword `"$ref"`): cross-document $ref version separator is ':', not '@' — use `<the corrected value>`: `<the value as written>`
+
+The condition those are recorded under is `compactform: $ref unresolvable`.
+
+**The target is not there.** The reference reads correctly and the library or the entry inside it is absent — or no library catalog was supplied to resolve against at all:
+> compactform at `<consumer-document>` (keyword `"$ref"`): SchemaLibrary `<library>` not found in catalog (referenced from `<consumer-document>`): `<the value as written>`
+> compactform at `<consumer-document>` (keyword `"$ref"`): entry `<entry>` not found in SchemaLibrary `<library>`: `<the value as written>`
+> compactform at `<path-inside-the-schema>`:`<line>` (keyword `"$ref"`): cross-document $ref but no SchemaLibrary catalog supplied: `<the value as written>`
+
+The condition those are recorded under is `compactform: cross-document $ref target not found`.
+
+Keeping the two apart is what makes the report actionable: the first is a value to rewrite in the document you are looking at, and the second is a question about what the build can see. A reference that expands into itself is a third thing again, and reports as "A library reference expands into itself" above.
+
+**How to fix:** for an unreadable reference, rewrite the value — `<Library>#/schemas/<Entry>` for a cross-document reference, `#/$defs/<name>` for one inside the same document — and use `:` before a version floor rather than `@`. For an absent target, confirm the entry's name against the library that publishes it, and confirm the library is reachable from the Release's dependency closure: a library nothing declares a dependency on is not loaded, so a correct reference into it still resolves to nothing.
+
+### A `$ref:` addresses a library by registry location
+
+<!-- covers: pkg/compactform.ErrHostInLibraryRef -->
+
+A cross-document `$ref:` names its library by identity — the library's bare name, then `#` and the path of the entry — and never by the registry it happens to be published to. Which registry a name resolves through is workspace configuration and which version is used is the lockfile's answer, so a reference carrying a host would fix in the schema two things the build is meant to decide, and would move the schema between workspaces as a broken reference.
+
+Where the host-bearing value still parses into a library and an entry, the sentence carries the identity-form spelling to use instead:
+> compactform at `<consumer-document>` (keyword `"$ref"`): cross-document $ref carries a registry host; reference the library by identity (use `<Library>#/schemas/<Entry>`): `<the value as written>`
+
+and where it does not, the sentence ends after the value:
+> compactform at `<consumer-document>` (keyword `"$ref"`): cross-document $ref carries a registry host; reference the library by identity: `<the value as written>`
+
+The condition it is recorded under is `compactform: cross-document $ref carries a registry host; reference the library by identity`, which is what its short code resolves to.
+
+**How to fix:** drop the host and everything before the library name, leaving `<Library>#/schemas/<Entry>`. Where a version floor is wanted, write it after the library name as `:<version>`. The same rule governs the `$import:` fields on a Recipe and a FeatureRecipe, which report separately under "A library `$import:` addresses its library by registry location" below.
+
 ## When resolving the catalog
 
 After loading, the compiler walks the Manifest's two tiers (type map, then name map) to pick the Recipe for every Component, and it walks any `extends` chains on Manifests, Components, or Features.
@@ -1593,6 +1705,8 @@ Neither connection is the offender and both are yours to change: rename one of t
 
 **How to fix:** rename one of the conflicting keys, or drop the duplicate declaration. Note that a FeatureRecipe's `injectMapping` overwriting a developer key is intentional Onion-Model interception and is not flagged.
 
+A key claimed by a Feature attached to the component meets the same shared space from the third of its three authoring surfaces, and reports under "An attachment delivers a key another inject source already claimed" below.
+
 ### Self-inject on a component without an allowlist
 
 <!-- covers: pkg/resolver.ErrSelfInjectForbidden -->
@@ -1683,6 +1797,38 @@ and where the constraint itself could not be evaluated:
 > attachment slot selector unsatisfied (`"<selector>"`, `"<feature-type>"`, `"<why it could not be evaluated>"`)
 
 **How to fix:** for a fill that did not satisfy the constraint, attach a Feature whose labels do — the selector in the message says which labels are being asked for — or widen the slot's `selector:` in the Component that declares it. Where the message carries a third value, the selector expression is the fault: correct it in the Component's slot declaration.
+
+### An attachment delivers a key another inject source already claimed
+
+<!-- covers: internal/compiler/renderer.ErrAttachmentInjectKeyCollision -->
+
+Three authoring surfaces deliver into one component's injection pipe: the component's own `inject:` block, the `inject:` blocks on the entries of its dependency block, and the block on each Feature attached to it. They share one keyed space per delivery mechanism, so a key two of them claim is ambiguous about which value arrives, and the build stops rather than let one surface silently displace another.
+
+This condition is the attachment's side of that space. It is reported when an attachment claims a key some earlier delivery already holds — the entry above under "Duplicate delivery key across inject sources" is the same rule read from the developer-authored side, and between them the whole pipe is covered.
+
+**Order is what decides who collided.** The first claim under a key is the one that holds it, and later claims are the ones reported — so an attachment whose key is taken is told so, while an attachment that claimed first is not told about a later one that displaced nothing. A claim that delivered nothing at all leaves the key free and takes part in none of this.
+
+The finding is positioned at the attachment's own entry inside the component's block, which is the position to edit; the message names the key and the mechanism whose keyed space it is in. Each colliding key is reported on its own, so an attachment duplicating two keys tells you about both.
+
+Emitted message:
+> duplicate delivery key across attachment-inject and another inject source (`"<key>"`, mechanism `"<mechanism>"`)
+
+**How to fix:** neither side is the offender and both are yours to change. Rename the key on whichever side you control — most often the component's own `inject:` entry, since the Feature's mapping is written in a catalog document — or drop one of the two deliveries. Where the attachment is genuinely meant to supply the value, remove the developer-authored claim rather than the attachment's. Note that a Feature deliberately overriding a developer key through its own mapping is a different mechanism and is not reported here.
+
+### A component declares an inject mechanism the attached Feature maps nothing to
+
+<!-- covers: internal/compiler/renderer.ErrUnmappedCustomMechanism -->
+
+A Component's `spec.inject` allowlist may name delivery mechanisms beyond the standard ones — a mechanism the component's own plumbing understands, which anything delivering into it has to produce a value for. When a Feature is attached to such a component, the FeatureRecipe's `injectMapping` is what says which mechanism each value it produces is delivered under. A mechanism the component declared and the mapping produces no key for is a delivery that would silently never happen, so the build stops instead.
+
+**A mapping that says nothing about mechanisms is not a mapping that says none.** A FeatureRecipe whose mapping renders as a flat dictionary of deliveries makes no claim about mechanisms at all — that is the ordinary spelling for a Feature producing environment-variable deliveries — and neither does an attachment binding a FeatureRecipe with no mapping to evaluate. Neither is reported here; this condition is only about a mapping that names mechanisms and omits one the component declared.
+
+Each unmapped mechanism is its own finding, so a component declaring two that an attachment maps neither of tells you about both. The finding is positioned at the attachment's entry in your own file, and names the FeatureRecipe as well — because that is the document the mapping is written in, and it is somewhere else entirely.
+
+Emitted message:
+> custom inject mechanism has no matching key in injectMapping output; add the mechanism's key to the Recipe injectMapping (`"<mechanism>"`, recipe `"<featurerecipe>"`)
+
+**How to fix:** the message names both halves. Add the mechanism's key to the FeatureRecipe's `injectMapping` so the Feature produces a value for it, or drop the mechanism from the Component's `spec.inject` allowlist where nothing is expected to deliver under it. Where the FeatureRecipe belongs to someone else's catalog, attaching a Feature whose mapping covers the mechanism is the third answer.
 
 ### A catalog lookup fails during static analysis **[pending]**
 
@@ -2185,7 +2331,7 @@ A pipeline step addresses a document by a scope and a key, and two shapes of add
 
 What counts as structured is the provider's own reading of the unit rather than a fixed test, so the same content can be addressable under one provider and opaque under another.
 
-Both are the walk's own refusals, and a build reports them against the node whose pipeline made the patch, so the message above arrives beneath a halt naming that node.
+Both are the walk's own refusals, and a build reports them against the node whose pipeline made the patch, so the message above arrives beneath a halt naming that node. That halt is the build-stopping form of the same two addressing faults, documented under "A pipeline step addresses documents the node does not have" below — which also covers the third address a step can reach nothing with, a request for the documents of a host component at a site that stands against none.
 
 **How to fix:** both are the plugin author's rather than yours. A step receives the document set it is being run over and can read which keys are in it, so an absent target is a step addressing a document this node did not emit — patch a document that is there, or emit the one you meant first and patch it in a later step. For an opaque unit, replace the patch with an emit of the whole unit: an opaque body is replaced rather than edited.
 
@@ -2204,6 +2350,341 @@ Emitted messages:
 Where a pipeline step's output carried the patch, the refusal arrives beneath that step's failure, naming the step. Where a label-transform plugin's patch carried it, it arrives beneath the label-patch refusal.
 
 **How to fix:** the fault is the plugin's rather than your documents'. A test that expected a value the document does not have usually means the plugin is running against a shape it was not written for — a different provider's output, or a document a step earlier in the same pipeline already changed. Where the patch is yours to correct, either relax the test to what the document actually carries, or make the step's `when` gate skip the case rather than testing for it inside the patch.
+
+### A `workload:` form and the fields beside it do not agree
+
+<!-- covers: internal/compiler/rendercore.ErrPersistentTemplateRequiresStatefulForm, internal/compiler/rendercore.ErrReferenceFormRequiresEndpoint, internal/compiler/rendercore.ErrEndpointRequiresReferenceForm, internal/compiler/rendercore.ErrScheduledFormRequiresSchedule, internal/compiler/rendercore.ErrScheduleRequiresScheduledForm -->
+
+A `workload:` declares a `form:` — the shape of the thing being run, stated in terms every target understands rather than in any one target's vocabulary. Some fields only make sense on one form, and a form declared without the field it needs has nothing coherent to render. Both directions are checked, before any target translates the workload, so the disagreement is reported once against what you wrote rather than once per target in whatever words each target has for it.
+
+Five pairings are enforced, and each reports its own sentence naming both halves and what to write:
+
+> workload declares a persistentTemplate volume but is not form: stateful; declare form: stateful
+> workload is form: reference but declares no endpoint; set endpoint to the external host or URL the reference points at
+> workload declares an endpoint but is not form: reference; declare form: reference or remove the endpoint
+> workload is form: scheduled but declares no schedule; set schedule to a 5-field cron expression or an @-macro (e.g. @daily)
+> workload declares a schedule but is not form: scheduled; declare form: scheduled or remove the schedule
+
+Each is positioned at the component instance whose workload was being read, and reported as a translation fault, because the disagreement is between two fields of one authored block.
+
+The conditions they are recorded under, which is what their short codes resolve to, are `persistentTemplate volume requires form: stateful`, `form: reference requires an endpoint`, `endpoint requires form: reference`, `form: scheduled requires a schedule` and `schedule requires form: scheduled`.
+
+**One pairing runs one way only.** A `form: stateful` workload with no per-replica claim template is ordinary and draws nothing — the rule is that a claim template needs the stable per-replica identity only that form gives, not that the form needs a claim template. The other two pairings run both ways, because an endpoint and a schedule each have exactly one form they mean anything on.
+
+**An omitted `form:` reads as `stateless`**, so a workload that declares an endpoint and no form at all meets the endpoint pairing rather than passing unchecked.
+
+**How to fix:** each sentence names the two fields and gives both answers. Add the field the form needs, or change the form to the one the field belongs on, or remove the field where it was left behind by an edit — deleting a `schedule:` value and leaving the key is the shape this attracts most.
+
+### A workload `schedule:` is not an expression the check accepts
+
+<!-- covers: internal/compiler/rendercore.ErrInvalidCronSchedule -->
+
+A `form: scheduled` workload carries a `schedule:` saying when it runs, and the value is checked for structure before any target reads it. Two spellings are accepted: one of the five macros `@hourly`, `@daily`, `@weekly`, `@monthly` and `@yearly`, or a five-field crontab expression whose fields use only digits and the characters `*`, `,`, `-` and `/`.
+
+**What the check does and does not read.** It counts the fields and looks at the characters in them. It does not evaluate ranges, step arithmetic or day-of-week naming, so a five-field expression whose numbers are out of range passes here and is the target's to reject. A six-field expression carrying a leading seconds field is refused: five fields is what this surface accepts, and a target that wants seconds takes them another way.
+
+Emitted message:
+> workload schedule is not a valid cron expression; use a 5-field crontab expression (e.g. "0 0 * * *") or one of @hourly, @daily, @weekly, @monthly, @yearly
+
+The condition it is recorded under is `schedule is not a valid cron expression`, which is what its short code resolves to.
+
+**How to fix:** count the fields first — a schedule with four or six of them is the commonest cause, and a stray space inside one field splits it into two. Replace a named day or month with its number, and reach for a macro where one says what you meant.
+
+### A library `$import:` is not written in the bare-name form
+
+<!-- covers: internal/compiler/renderer.ErrArtifactImportShape, internal/compiler/renderer.ErrMappingImportShape, internal/compiler/renderer.ErrWorkloadImportShape -->
+
+Three fields on a Recipe and a FeatureRecipe may take their body from a library instead of writing it in place: an `artifacts.<name>:` entry, a `valuesMapping:`, and a `workload:`. Each writes `$import:` with the library's bare name, then `#`, then the path of the entry on the surface that field reads — `#/artifacts/`, `#/mappings/` and `#/workloads/` respectively. A value that is not in that shape names nothing the build can resolve, and is refused as the field is resolved.
+
+The three fields are deliberate mirrors of one another, so the fault reads the same on all three and only the surface changes:
+> artifacts $import: is not a bare-name artifacts-library reference (<Library>#/artifacts/<entry>): `"<the value as written>"`
+> valuesMapping $import: is not a bare-name mapping-library reference (<Library>#/mappings/<entry>): `"<the value as written>"`
+> workload $import: is not a bare-name workload-library reference (<Library>#/workloads/<entry>): `"<the value as written>"`
+
+**A version written with `@` is reported with the spelling to use instead**, rather than falling through to a complaint that the library was not found, because it is the mistake this form attracts most:
+> artifacts $import: is not a bare-name artifacts-library reference (<Library>#/artifacts/<entry>): version separator is ':', not '@' — use `"<the corrected value>"`
+
+**One further shape reports here, and it is not a spelling mistake.** An ArtifactsLibrary bundle's own file body may not itself be an `$import:` of another bundle: one file slot cannot expand into many files, so a nested import is refused rather than resolved into something the author did not write. Compose the bundles at the point they are consumed instead:
+> artifacts $import: is not a bare-name artifacts-library reference (<Library>#/artifacts/<entry>): bundle `"<bundle>"` file `"<filename>"` body is a field-root $import: (nested library import inside a bundle file is not supported; compose at the consumption site)
+
+**How to fix:** rewrite the value as `<Library>#<entry-path>`, adding `:<version>` after the library name only where you need a floor on which version may be selected. Check the fragment matches the field — an entry path of `#/mappings/…` on a `workload:` names a surface that field does not read, and reports here rather than as a missing entry. The same identity form governs a schema's `$ref:`, whose refusals are documented under "A `$ref:` is not written in a form the compiler can resolve" above.
+
+### A library `$import:` names a library or an entry the catalog does not hold
+
+<!-- covers: internal/compiler/renderer.ErrArtifactsLibraryNotFound, internal/compiler/renderer.ErrArtifactsLibraryEntryNotFound, internal/compiler/renderer.ErrMappingLibraryNotFound, internal/compiler/renderer.ErrMappingEntryNotFound, internal/compiler/renderer.ErrWorkloadLibraryNotFound, internal/compiler/renderer.ErrWorkloadEntryNotFound -->
+
+An `$import:` is written correctly and what it points at is not there. Six conditions cover the two halves of a reference across the three library kinds, and which one you get says which half to look at: the library itself is absent from what the build can see, or the library is there and does not publish the entry.
+
+The set a reference resolves against is the workspace's own catalog plus the libraries the lockfile pinned and brought in as the build loaded. So a library nothing in the Release's dependency closure declares a dependency on is not in that set, however correct the reference into it reads.
+
+**The library is not there:**
+> artifacts-library import references an ArtifactsLibrary not present in the catalog: ArtifactsLibrary `"<library>"` (bundle `"<entry>"`)
+> mapping-library import references a MappingLibrary not present in the catalog: MappingLibrary `"<library>"` (entry `"<entry>"`)
+> workload-library import references a WorkloadLibrary not present in the catalog: WorkloadLibrary `"<library>"` (entry `"<entry>"`)
+
+**The entry is not there:**
+> artifacts-library import references a bundle not present in the ArtifactsLibrary: bundle `"<entry>"` in ArtifactsLibrary `"<library>"`
+> mapping-library import references an entry not present in the MappingLibrary: entry `"<entry>"` in MappingLibrary `"<library>"`
+> workload-library import references an entry not present in the WorkloadLibrary: entry `"<entry>"` in WorkloadLibrary `"<library>"`
+
+Each names both the library and the entry whichever half failed, so one report is enough to tell a missing library from a missing entry without opening anything.
+
+**How to fix:** for a missing entry, check the name against what the library publishes — an entry name is a key in that library's own map, and is case-sensitive. For a missing library, the reference is usually right and the closure is what is short: declare the dependency on that library so it is loaded, and refresh the lockfile so it is pinned. A library reachable in one workspace and not another is the same fault seen from the other side.
+
+### A library `$import:` addresses its library by registry location
+
+<!-- covers: internal/compiler/renderer.ErrHostInLibraryImport -->
+
+A library `$import:` names its library by identity, never by the registry it happens to be published to. Which registry a name resolves through is workspace configuration and which version is used is the lockfile's answer, so a reference carrying a host fixes in a catalog document two things the build is meant to decide — and the document then stops working in any workspace configured differently.
+
+**Where such a reference can still reach this halt is narrower than it looks.** A Recipe's and a FeatureRecipe's own `$import:` fields are refused earlier, by their schema, which admits no registry prefix at any of the three positions. What remains is the reference no schema describes: one read out of a library entry's own body, which the entity consuming it did not write and cannot see until the body is resolved.
+
+Emitted messages. From an artifacts entry, naming the Recipe, the key and the value:
+> library $import: carries a registry host; reference the library by bare-name identity (Recipe `"<recipe>"`, artifact `"<key>"`, $import `"<the value as written>"`)
+
+and from the `valuesMapping:` and `workload:` surfaces, where the resolver reports the value alone:
+> library $import: carries a registry host; reference the library by bare-name identity: `"<the value as written>"`
+
+**How to fix:** drop the host and everything before the library name, leaving `<Library>#<entry-path>`. Where the offending value is inside a library you consume rather than one you publish, the correction belongs to that library's author; until it lands, importing a different entry or writing the body in place clears the build.
+
+### Two artifact outputs of one Recipe carry the same filename
+
+<!-- covers: internal/compiler/renderer.ErrArtifactOutputCollision -->
+
+A Recipe's `artifacts:` block names one output per key, and a bundle imported at a key contributes its files beneath it. Two outputs arriving at one filename would mean one overwriting the other, so the build stops instead of choosing which survives.
+
+**This is a residue guard, and saying so is part of what it is.** An output is named by the key it was authored under, mapping keys are unique inside one document, and the authoring surface bounds a key to a single filename — so two authored entries cannot collide, and a key cannot spell the nested name another key's bundle produces either. What the guard still covers is content that reached the projection without passing an authored document's own duplicate-key refusal: state assembled while the build runs rather than read from a file. A collision reported here therefore points at how the build was assembled rather than at a line you can see.
+
+It is raised per Recipe over that Recipe's own outputs, which is what separates it from two *different* contributors landing on one path in an assembly — that is "Two contributors write the same output path" above, with a different remedy.
+
+Emitted message:
+> artifacts output filename collision: two artifact outputs carry the same filename (Recipe `"<recipe>"`, artifact output `"<filename>"` emitted more than once)
+
+**How to fix:** open the Recipe the message names and check its `artifacts:` keys against the files any bundle it imports contributes. Where the keys are genuinely distinct and the collision still stands, nothing in the document is at fault and the report is worth raising with whoever maintains the build.
+
+### An ArtifactsLibrary bundle file leaves the key it was imported at
+
+<!-- covers: internal/compiler/renderer.ErrArtifactsLibraryFileEscapesKey -->
+
+An `artifacts:` entry importing a bundle expands into one output per file in that bundle, each nested under the key the import was written at. So the key names a directory and every file the bundle contributes belongs beneath it. A file name that climbs out of that directory, names an absolute location, or names nothing at all does not, and the build stops rather than place the file somewhere the consuming Recipe never chose.
+
+**What it prevents is a silent re-layout rather than a write outside the output directory.** Where the files are written is guarded again, so a name climbing far enough is refused there in any case. The name that survives that guard is the one climbing exactly one level: it lands back inside the output directory, at a position nobody chose. That is worse than a refused write, because every collision guard on this path reads a name as it was composed rather than as it resolves — so two such files can resolve onto one output with nothing reporting a collision, and which one survives is decided by nothing anybody wrote.
+
+**A nested layout inside the key is untouched.** A bundle is free to carry its own subdirectories, and nesting them under the consumption key is what the key is for.
+
+The consuming Recipe and the published bundle are usually written by different authors, so the message names both halves together with the remedy:
+> artifacts-library bundle file name leaves the artifacts key its output is nested under (Recipe `"<recipe>"`, artifact `"<key>"`, bundle file `"<filename>"`). rename the file inside the ArtifactsLibrary bundle so its name stays under the artifacts key it is consumed at
+
+**How to fix:** rename the file inside the ArtifactsLibrary so its name stays under the key. Where the library is not yours, importing a different bundle or writing the entry in place clears the build while the correction is made upstream. A file meant to land somewhere else entirely is a second `artifacts:` entry at the key it belongs under, not a name that walks there.
+
+### An imported artifact no longer matches the digest its Recipe recorded
+
+<!-- covers: internal/compiler/renderer.ErrArtifactContentMismatch -->
+
+An `artifacts:` entry that imports a local file has its content frozen when the Recipe is resolved: the digest of the file's bytes is recorded beside the entry. Every build re-reads the file, digests it again, and refuses the disagreement — so a file edited after resolution never renders as though it had been checked.
+
+**What is compared is the entry's content, not what rendering it produced.** An artifact body is a template, and evaluating it substitutes values that differ per component instance, so a digest over the output would disagree for every instance whose values differ. The recorded content is the same text for every instance that binds the Recipe, which is what makes one recorded digest the right thing to compare against.
+
+**A Recipe that was never frozen records nothing and is not compared.** Absence of a pin is not a mismatch; it means there is nothing to compare, and the entry renders as written.
+
+Three surfaces carry the same check over different documents — a component's own Recipe, a Feature attached to a component, and a Feature attached to a boundary — so the FeatureRecipe's content is measured against the FeatureRecipe's own recorded digest rather than the host component's. On the two attachment surfaces the message names the attachment as well, which is what says which document to open.
+
+Emitted messages:
+> imported artifact content does not match the recipe's recorded digest (`"<artifact>"`, imported file `"<path>"`, its content digests to `"<digest>"`, the recorded pin is `"<digest>"`)
+> imported artifact content does not match the recipe's recorded digest (`"<artifact>"`, imported file `"<path>"`, its content digests to `"<digest>"`, the recorded pin is `"<digest>"`, attachment `"<attachment>"`)
+
+**How to fix:** two answers, and which is right depends on whether the edit was meant. Where it was, re-resolve so the pin is taken again from the file's current bytes. Where it was not, restore the file — the recorded digest is the record of what the Recipe was published against, and a build that rendered the changed file would be shipping content nothing verified.
+
+### A `provides:` template could not be evaluated
+
+<!-- covers: internal/compiler/renderer.ErrProvidesEvaluation -->
+
+A `provides:` entry is a template producing the value another component reads through a dependency connection. This condition is what an entry that could not be evaluated reports: a template that does not parse, a function it calls that this surface does not register, or a reference that descends through something the render context did not supply.
+
+It is distinct from the two refusals that run *before* evaluation on the same block — a reference to a root outside the self-contained set, and a reference the block's own author order refuses — both documented above. Those name the expression to change; this one carries whatever the evaluation itself reported, which is why the entry is named beside it.
+
+Emitted message, naming the component instance, the entry inside the block, and what the evaluation reported:
+> provides template evaluation failed (node `"<instance>"`, provides[`"<key>"`], `<what the evaluation reported>`)
+
+**How to fix:** open the Recipe's `provides:` block at the key the message names and read the reported reason — it usually names a parse position or a function. Missing-key handling on this surface renders an absent final key as nothing rather than failing, so a failure here is a structural fault: a template that does not parse, or a reference descending through a container that was never supplied. Where the value is genuinely optional, read it through the `optional` helper rather than descending into something that may not be there.
+
+### A realizer does not publish a `provides` key its contract declares
+
+<!-- covers: internal/compiler/renderer.ErrProvidesContractUnfulfilled -->
+
+A Component and a Feature each declare, under `schema.provides`, the keys anything binding them will publish — the output contract a consumer writes its connections against. The Recipe bound to a Component and the FeatureRecipe bound to a Feature have to produce every key that contract names. One that does not is refused, because the missing key would otherwise deliver nothing at all: the consumer's reference would arrive as an unset variable, an empty argument, or a file that is not there, with nothing said about why.
+
+**The contract is key presence, and nothing more.** Every declared key has to appear; extra keys are allowed. The values themselves are never inspected — they are opaque pointers piped as strings, so the types a contract declares stay a statement to the consumer rather than a check the build makes.
+
+**Every shortfall is reported.** A Recipe short of three keys raises three findings, each positioned at its own entry in that Recipe's `provides:` block, so all three are corrected from one build. The message names the missing key, the type whose contract declares it, and the instance the Recipe was bound to — the last of which is what tells two findings apart when one Recipe serves several instances of one type.
+
+Emitted message:
+> realizer does not publish a provides key its abstract entity's schema.provides contract declares (`"<key>"`, declared by component type `"<type>"`, bound to component instance `"<instance>"`)
+
+The Feature-and-FeatureRecipe pairing reports the same condition through the attachment's own resolution, naming the pair and the key:
+> realizer does not publish a provides key its abstract entity's schema.provides contract declares (`<attachment context>`, `<the FeatureRecipe>` does not publish provides key `"<key>"` declared by `<the Feature>`'s schema.provides contract)
+
+There it reports the first missing key in sorted order and stops, so that pairing names one key per build while the Component pairing names all of them. Keys are walked in sorted order either way, which is what makes both the same across runs.
+
+**How to fix:** add the missing key to the realizer's `provides:` block, or remove it from the abstract entity's `schema.provides` where nothing is expected to publish it. A key whose template renders to nothing counts as unpublished, so an entry that is present and empty reports here too — supply a value, or drop the declaration.
+
+### An assertion stopped the build
+
+<!-- covers: internal/compiler/renderer.ErrAssertionFailed -->
+
+A Component, Feature, Recipe or FeatureRecipe may carry `assertions:` — named templates whose purpose is to refuse an input rather than to produce text. An assertion is the one template surface that registers `fail`, and calling it is what stops the build; the argument is the message its author wrote for whoever meets it.
+
+Assertions are evaluated at two points, so a rule reads the state it is about: those on a Component or Feature run once the catalog has resolved and before anything renders, and those on a Recipe or FeatureRecipe run once the binding is settled and before that binding renders.
+
+**A reference to a key nothing supplies also reports here.** The surface evaluates with strict missing-key handling, precisely so a predicate whose reference rendered as empty cannot compare against nothing and quietly pass — a single typo would otherwise retire the rule the assertion was written to enforce. This is why a plain `default` does not supply a fallback on this surface: the bare reference stops the evaluation before the fallback can run. Gate the reference with `hasKey`, read it through `index` and then apply `default`, or use the `optional` helper.
+
+Emitted message, naming the entity kind and type, the instance, and the assertion, then carrying the message the assertion itself wrote:
+> `<entity-kind>` `"<type>"` instance `"<instance>"` assertion `"<name>"`: assertion `"<kind>/<type>/<instance>/<name>"`: assertion failed: `<the message the assertion wrote>`
+
+and where the evaluation failed rather than the predicate:
+> `<entity-kind>` `"<type>"` instance `"<instance>"` assertion `"<name>"`: assertion `"<kind>/<type>/<instance>/<name>"` parse: `<what the parse reported>`
+
+**How to fix:** the message after the last colon is the assertion author's, and it is the one that says what to change — an assertion is written so that meeting it tells you the answer. Where the report is a missing key rather than the author's sentence, the assertion itself is at fault: correct the reference, or guard it as described above. Where the rule should not apply to this deployment, that is a question about the entity carrying the assertion rather than about your own file.
+
+### A pipeline step addresses documents the node does not have
+
+<!-- covers: internal/compiler/renderer.ErrPipelineTargetNotEmitted, internal/compiler/renderer.ErrPipelineHostScopeUnavailable, internal/compiler/rendercore.ErrPipelinePatchTargetNotStructured -->
+
+A pipeline step addresses a document by a scope and a key. Three conditions cover the ways an address reaches nothing, and each stops the build rather than let a step report success over an edit that never happened.
+
+**The node did not emit it.** A patch names a scope-and-key pair that is not among the documents this node produced:
+> node `"<instance>"`: pipeline PATCH targets a document the node did not emit
+
+**There is no host to address.** A step reached for the documents of a host component at a site that stands against none — a component's own pipeline, whose only scope is its own output, or a Feature attached to a boundary rather than to one component. The host scope is empty wherever such a pipeline runs, so an address into it resolves against nothing:
+> node `"<instance>"`: pipeline /host operation from a step with no host component
+
+**The document carries no tree to address.** Some units have no structure a path can point into — a binary body, free text, a region the target cannot safely walk. Such a unit is still handed to the step so it can be selected and emitted whole; what it cannot be is patched:
+> node `"<instance>"`: pipeline PATCH target is not parseable structured YAML/JSON
+> pipeline PATCH target is not parseable structured YAML/JSON (node `"<instance>"`, document `"<key>"`)
+
+Each arrives with the walk's own account of the address beneath it, and each is positioned at the component instance whose pipeline made it.
+
+**Two of the three are also reported ahead of any walk.** Whether a site has host documents at all follows from where the pipeline was written, so a step declaring it operates on host documents at a site that has none is named once the build knows what every plugin declares, without waiting for a node to render — and a Feature attached to a boundary is named alongside the step:
+> pipeline /host operation from a step with no host component
+> pipeline /host operation from a step with no host component (`"<attachment>"`)
+
+The two readings are a division of one condition rather than the same finding twice: what a declaration can settle is settled from the declaration, and what only the run can see stays with the run — a step declaring its own scope may still return an operation against another.
+
+These three are the build-stopping form of the addressing refusals the pipeline walk itself reports, documented under "A pipeline patch addresses a document the set does not hold, or one with no tree to address" above.
+
+**How to fix:** all three are the step author's rather than yours. For an absent target, patch a document the node does emit, or emit the one you meant in an earlier step and patch it in a later one — a step can read which keys it was handed. For a missing host, move the step to a site that stands against a host component, address the site's own documents instead, or drop it. For a unit with no tree, replace the patch with an emit of the whole unit: an opaque body is replaced rather than edited.
+
+### A pipeline patch addresses output that has not been assembled yet
+
+<!-- covers: internal/compiler/renderer.ErrPipelinePatchPreAssembly -->
+
+Some providers fold a dispatch group's per-node output into one document — a merged compose file, an umbrella chart. Until that merge happens there are no discrete documents, only fragments, so a patch addressing one has nothing to point into. A pipeline against such a component is therefore deferred whole and replayed once the merge has produced the documents, which is the ordinary path and needs nothing from the author.
+
+This condition is what reaches the build when a patch arrives at a fragment anyway. The case it names is an attached Feature's own output: a Feature's documents are written under its own position as discrete files whichever provider the component uses, so they never join the component's merge — and a step patching them has no merged document waiting for it and nothing to address when it finally runs.
+
+**Emitting is never affected.** An emit adds a document rather than editing one, and runs per node for every provider, so it is outside this entirely.
+
+The condition is reported ahead of any walk, from what the plugins and providers declare, and again as a floor while a node renders. Emitted messages:
+> pipeline PATCH targets an assembler provider's pre-assembly fragments (`"<attachment>"`)
+> pipeline PATCH targets an assembler provider's pre-assembly fragments (node `"<instance>"`, `<scope>`-scope document `"<key>"` is rendered by an assembler provider). the post-assembly phase re-runs this PATCH once the documents are discrete
+
+**How to fix:** address the component's documents instead of the Feature's own, which is the form that is replayed after the merge; or give the Feature's own output a provider that does not merge its dispatch group; or drop the step. Which of the three is right depends on what the step was written to change, and the message names the scope it addressed so you can tell.
+
+### A pipeline step's plugin does not claim the provider rendering what it addresses
+
+<!-- covers: internal/compiler/renderer.ErrPluginProviderIncompatible -->
+
+A plugin used by a pipeline step may declare the providers it has been tested against. That list is an explicit claim rather than an implicit "anything similar": running a plugin against a provider it does not name risks a patch written for another output shape, so the build stops instead of trying it.
+
+**Which provider a step is matched against is the one rendering the documents that step addresses** — the component's own provider for a step against the component's documents, and the Feature's own provider for a step against the Feature's. At a Feature attached to a component both arise, and they are two different values from two different documents.
+
+**An empty or absent claim list matches nothing**, so every step using such a plugin reports here. A plugin the build could not *ask* is a different case and does not: an unobtainable self-report is the absence of a claim rather than an empty one, and such a step stops with the resolution, load or self-report failure itself, which is the thing to repair.
+
+It is reported once the build knows what every plugin declares about itself, ahead of the run that would invoke the step, and once per authored step rather than once per build — so an author sees every offending step of a pipeline from one build. Provider names are matched exactly.
+
+Emitted messages, the first from a component's own pipeline and the second from a Feature's, which names the attachment as well:
+> pipeline plugin is not compatible with the rendering provider (`"<provider>"`)
+> pipeline plugin is not compatible with the rendering provider (`"<attachment>"`, `"<provider>"`)
+
+**How to fix:** the finding is positioned at the authored step, and the provider it names is what the declaration has to be reconciled against. Where the plugin is yours, add the provider to the compatibility it declares once you have tested against it. Where it is not, select a plugin version that claims the provider, render that scope through a provider the plugin does claim, or drop the step.
+
+### A provider refused a node's input
+
+<!-- covers: internal/compiler/renderer.ErrProviderNodeInputInvalid -->
+
+A provider may check the input it is handed for a component before rendering it, and report what it finds. Findings at halt severity stop the build; findings at warning and information severity are surfaced alongside the build's output and change nothing about the bytes emitted.
+
+This is the provider's own reading of your input rather than the compiler's, so what it objects to and how specifically it says so are the provider's to decide. The compiler names the component and the provider, and carries the provider's messages as they were returned; where a provider reported several, they arrive together separated by semicolons, so one build tells you about all of them.
+
+The same routing is used whether the input belongs to a component's own Recipe or to an attached Feature, so a provider's check reads identically on both.
+
+Emitted message:
+> provider rejected node input: node `"<instance>"`, provider `"<provider>"`: `<the provider's messages>`
+
+**How to fix:** read the provider's messages — they name what in the resolved input it could not accept. The input is assembled from the Recipe's values and the component's own configuration, so the correction is usually in one of those; the provider's own reference page says what it requires. Where the provider is objecting to something you cannot change from a document, that is a question for whoever authored the Recipe or the plugin.
+
+### A provider rendered the same input twice and produced different output
+
+<!-- covers: internal/compiler/renderer.ErrRenderNondeterministic -->
+
+Given identical input, a build produces identical output — that is the contract review tools and deployment tooling read a build's result against. An opt-in build mode checks it directly: each component is rendered twice from the same input and the emitted bytes are compared. A provider whose two renders disagree carries state across the two, or is otherwise not a function of its input, and the build stops.
+
+**The ordinary build renders each component once**, so this condition is only ever met in the checking mode. Nothing about a normal build changes for it being available.
+
+What is compared is the provider's raw emitted output — the same bytes the rendered artifacts are carved from — so a difference anywhere in what it produced is caught rather than only a difference that survives into a final file.
+
+Emitted message:
+> rendering node `"<instance>"`: node `"<instance>"` (provider `"<provider>"`): two renders of identical input produced different output: provider render is not deterministic
+
+**How to fix:** the fault is the provider's rather than your documents', and nothing you can write clears it. Report it to whoever publishes the plugin serving that provider, naming the component the message identifies — the usual causes are a timestamp, a random value, or an ordering that follows a map's iteration rather than the order the author wrote. Until it is fixed, the ordinary build mode is unaffected, and pinning the plugin to a version that passed is the practical answer.
+
+### Assembled output still carries a cross-boundary placeholder
+
+<!-- covers: internal/compiler/renderer.ErrOrphanCrossBoundaryLinkSentinel -->
+
+Where a dependency connection crosses between two assembled outputs, the value it carries cannot be known while the consuming side is rendered — it is published by the other side and resolved once both have been assembled. So the build writes a placeholder into the consuming component's input, and the provider replaces it with its own form of cross-reference once the assembly exists.
+
+This condition is what a placeholder that survived that replacement reports. Surviving means the resolution never reached it: the value landed somewhere the provider could not address — spliced into a larger string rather than standing as a whole value, most often — or a crossing was stamped with nothing on the other side to resolve it. A placeholder is never valid output, so the build stops rather than ship a file containing one.
+
+The message names the provider that wrote the file and the path the file stands at, and is positioned at the boundary the output was assembled for: a path is unique only within a boundary and a provider together, so all three are what identify one file. Every offending file is reported rather than the first.
+
+Emitted message:
+> assembled output retains an unresolved cross-boundary link placeholder (`"<provider>"`, `"<output-path>"`)
+
+**How to fix:** the commonest cause is a value the consuming side interpolated into a longer string. A cross-reference has to stand as the whole of the value it is injected as, so change the Recipe's mapping to deliver it whole and compose around it in the target's own vocabulary instead. Where the value stands whole and the placeholder still survives, the fault is on the provider's side of the resolution and belongs to whoever publishes that plugin.
+
+### A boundary assembler named a sub-directory that is not one directory
+
+<!-- covers: internal/compiler/renderer.ErrNestSegmentNotOneDirectory -->
+
+A provider that places each contributor under its own position inside one enclosing output names the directory those positions sit under, and the build composes each component's identity into it. The value has to name exactly one directory: a value carrying a path separator, or naming the current or the parent directory, would place a component's files somewhere other than beneath its own position — either outside the assembly altogether or silently rearranged inside it.
+
+The build stops rather than compose such a path. The message names the provider whose assembler returned the value and the value itself, so it is clear which assembler to change and what it returned.
+
+**An assembler that names nothing is unaffected.** The build then applies its own default and the layout is exactly as it would otherwise be, so declining to name a sub-directory is a legitimate answer rather than an omission.
+
+Emitted message:
+> boundary assembler named a per-node sub-directory that is not a single directory name: provider `"<provider>"` returned `"<value>"`; the value must name one directory, carrying no path separator and naming neither the current nor the parent directory
+
+**How to fix:** nothing in any catalog document produces this value, so there is nothing in your own files to correct — it comes from the plugin serving the provider. Report it to whoever publishes that plugin, quoting the value the message names. Where the plugin is yours, return a single directory name, or return nothing and let the default layout apply.
+
+### A boundary-scope Feature is attached only to a component
+
+<!-- covers: internal/compiler/renderer.ErrBoundaryScopeAttachmentNotDeclaredAtABoundary -->
+
+A FeatureRecipe may declare that it generates once for a boundary rather than once for each component — one shared resource for everything the boundary holds, instead of one per component. The boundary is therefore where such an attachment has to be written: an attachment of that name written only against a component names no scope for the recipe to generate for, so nothing decides which boundary it would run at, which values it would read, or where its output would be written.
+
+**Writing it on a component as well is ordinary and is not reported.** An attachment declared at a boundary reaches every component that boundary holds, including those in scopes nested inside it, so carrying it is the normal shape. What is checked is whether the component's own scope or one enclosing it declares the name — the search walks outward from where the component sits and stops at the first scope that does. A component restating at itself an attachment its enclosing scope already declares renders exactly as the scope-only form, and is admitted for the same reason.
+
+**A component placed in no scope has nothing to walk**, so a boundary-scope attachment on it is reported here — which is the honest reading, since there is no scope such a recipe could generate for.
+
+Emitted message, naming the attachment and the scope the component sits in:
+> attachment binds a FeatureRecipe with executionScope: boundary and no boundary holding the component declares it (`"<attachment>"`, on a component in boundary `"<boundary>"`)
+
+and for a component in no scope, which contributes no such value:
+> attachment binds a FeatureRecipe with executionScope: boundary and no boundary holding the component declares it (`"<attachment>"`)
+
+**How to fix:** declare the attachment under `features:` on the boundary it should generate for — the scope the component sits in, or one enclosing it — rather than only on the component. Where per-component generation was what you meant, attach a Feature whose FeatureRecipe does not declare the boundary scope instead.
 
 ## Conditions that do not halt a build
 
@@ -2317,6 +2798,25 @@ Two of those values are easy to misread. The **component** is named only where t
 
 **What to do about it:** nothing, where the explicit value is what you meant. The advisory exists so that the precedence is a choice rather than a surprise. Where it is not what you meant, there are two ways out and they differ in scope. Delete the explicit entry, and the annotation's value flows through to that key. Or remove the annotation from the component or scope that carries it, and no contribution is made at all — which also affects every other key that annotation supplies. Where both sides are wanted but for different keys, narrow whichever one is reaching further than intended so the two no longer overlap.
 
+### A connection crosses between two different providers' assembled outputs
+
+<!-- covers: internal/compiler/renderer.ErrCrossProviderLinkUnsupported -->
+
+Where a dependency connection's two ends assemble into different outputs, a provider that advertises cross-boundary linking wires it natively — publishing a reference on the producing side and resolving it on the consuming one. That wiring is written in one provider's own vocabulary, and a provider cannot resolve a reference another one published. So a connection whose two ends render through *different* providers is wired by neither.
+
+**This advises and does not stop the build.** The connection still carries its value: the injection contract pipes the producing side's scalar across to the consuming side exactly as it does anywhere else, so what stands is a working connection wired the ordinary way rather than a broken one. What the finding tells you is that the native wiring you may have expected did not happen — and the output is unchanged whether you act on it or not.
+
+**One provider advertising linking is enough to report.** Both ends need not claim it: one claim means the native wiring was expected and is impossible, and the author who attached that provider is the one who wanted it. Requiring both claims would say nothing in the ordinary mixed deployment, where one provider links and the other does not, which is the case this is for.
+
+**Where the ends were placed does not enter it.** An assembled output is identified by its path and its provider together, so two ends whose providers differ are always in different outputs whatever their placement. What is read is the two providers and their two claims.
+
+It is reported once per such connection, positioned at the document and the key the connection was written in.
+
+Emitted message, leading with the far end and then naming the socket and each end's provider:
+> cross-boundary link between endpoints rendered by different providers is not supported (`"<target-component>"`, socket `"<socket>"`, consumer provider `"<provider>"`, target provider `"<provider>"`)
+
+**How to fix:** where the scalar value the connection already carries is enough, nothing needs doing — this is a notice rather than a fault. Where the native wiring is wanted, the two ends have to render through one provider: move one end into a boundary that routes through the other's provider, or serve both capabilities with one. Where neither is possible, the value-carrying form is what the deployment has, and the connection works.
+
 ## Finding a halt from the short code the build printed
 
 A halting diagnostic's bracketed head names the category the failure is attributable to and, where the failure names one of the conditions catalogued here, that condition's **short code** — the letter `E` and four digits, as in `[CATALOG_ERROR E0209]`. A number is handed out once and then fixed, so a short code you paste into a report or a search still names the condition it named when you recorded it. The other two identifiers a condition carries, and which of the three to reach for when, are taught in [sentinels.md](./sentinels.md).
@@ -2347,21 +2847,53 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0016` | `jsonpatch: test operation failed` | A patch's `test` operation did not match the document |
 | `E0017` | `annotation-transform plugin output was rejected: an injection targets a component coordinate the host did not supply` | An annotation-transform plugin names a component it was not given |
 | `E0018` | `policy attachment settings do not satisfy the plugin's declared settings schema` | A governance attachment's settings do not match the plugin's declared schema |
+| `E0019` | `endpoint requires form: reference` | A `workload:` form and the fields beside it do not agree |
+| `E0020` | `schedule is not a valid cron expression` | A workload `schedule:` is not an expression the check accepts |
+| `E0021` | `persistentTemplate volume requires form: stateful` | A `workload:` form and the fields beside it do not agree |
+| `E0022` | `pipeline PATCH target is not parseable structured YAML/JSON` | A pipeline step addresses documents the node does not have |
+| `E0023` | `form: reference requires an endpoint` | A `workload:` form and the fields beside it do not agree |
+| `E0024` | `schedule requires form: scheduled` | A `workload:` form and the fields beside it do not agree |
+| `E0025` | `form: scheduled requires a schedule` | A `workload:` form and the fields beside it do not agree |
+| `E0026` | `imported artifact content does not match the recipe's recorded digest` | An imported artifact no longer matches the digest its Recipe recorded |
+| `E0027` | `artifacts $import: is not a bare-name artifacts-library reference (<Library>#/artifacts/<entry>)` | A library `$import:` is not written in the bare-name form |
+| `E0028` | `artifacts output filename collision: two artifact outputs carry the same filename` | Two artifact outputs of one Recipe carry the same filename |
 | `E0029` | `artifact template references a pillar the Recipe does not declare` | An `artifacts:` template reads a pillar the Recipe does not declare |
+| `E0030` | `artifacts-library import references a bundle not present in the ArtifactsLibrary` | A library `$import:` names a library or an entry the catalog does not hold |
+| `E0031` | `artifacts-library import references an ArtifactsLibrary not present in the catalog` | A library `$import:` names a library or an entry the catalog does not hold |
 | `E0032` | `assembled output collision: two contributors write the same output path` | Two contributors write the same output path |
+| `E0033` | `assertion failed` | An assertion stopped the build |
+| `E0034` | `duplicate delivery key across attachment-inject and another inject source` | An attachment delivers a key another inject source already claimed |
 | `E0035` | `provider expected to assemble its dispatch group provides no boundary assembler` | The plugin serving a provider cannot assemble what that provider combines |
 | `E0036` | `merged-path assembly has conflicting assembly-name annotation values` | Chart-name mismatch on a merged helm-chart umbrella |
+| `E0037` | `cross-boundary link between endpoints rendered by different providers is not supported` | A connection crosses between two different providers' assembled outputs |
 | `E0038` | `derived name collision: one name is derived more than once in one key space` | The same name is derived more than once inside the output |
 | `E0039` | `FeatureRecipe template references a per-component-only field with executionScope: boundary` | FeatureRecipe template references a field outside its scope's allowlist |
+| `E0040` | `library $import: carries a registry host; reference the library by bare-name identity` | A library `$import:` addresses its library by registry location |
 | `E0041` | `multiple contributors share an instance ID at the same dispatch path` | Instance-ID collision across boundaries assembling to the same path |
 | `E0042` | `locals entry references a sibling defined later in the same block` | `locals:` entry references a sibling defined later in the same block |
 | `E0043` | `template references a key the locals block does not declare` | `locals:` key does not exist |
+| `E0044` | `mapping-library import references an entry not present in the MappingLibrary` | A library `$import:` names a library or an entry the catalog does not hold |
+| `E0045` | `valuesMapping $import: is not a bare-name mapping-library reference (<Library>#/mappings/<entry>)` | A library `$import:` is not written in the bare-name form |
+| `E0046` | `mapping-library import references a MappingLibrary not present in the catalog` | A library `$import:` names a library or an entry the catalog does not hold |
+| `E0047` | `assembled output retains an unresolved cross-boundary link placeholder` | Assembled output still carries a cross-boundary placeholder |
 | `E0048` | `dispatch path produced multiple provider outputs` | Path collision: two contributors emit at incompatible paths |
 | `E0049` | `path template references a field not in the documented allowlist` | Path-template references a variable outside the allowlist |
+| `E0050` | `pipeline /host operation from a step with no host component` | A pipeline step addresses documents the node does not have |
+| `E0051` | `pipeline PATCH targets an assembler provider's pre-assembly fragments` | A pipeline patch addresses output that has not been assembled yet |
+| `E0052` | `pipeline PATCH targets a document the node did not emit` | A pipeline step addresses documents the node does not have |
+| `E0053` | `pipeline plugin is not compatible with the rendering provider` | A pipeline step's plugin does not claim the provider rendering what it addresses |
+| `E0054` | `provider rejected node input` | A provider refused a node's input |
+| `E0055` | `realizer does not publish a provides key its abstract entity's schema.provides contract declares` | A realizer does not publish a `provides` key its contract declares |
+| `E0056` | `provides template evaluation failed` | A `provides:` template could not be evaluated |
 | `E0057` | `provides block references a root outside the self-contained set` | `provides:` template references a non-self-contained root |
+| `E0058` | `provider render is not deterministic` | A provider rendered the same input twice and produced different output |
 | `E0059` | `duplicate delivery key across self-inject and uses-inject` | Duplicate delivery key across inject sources |
 | `E0060` | `template references a root the render context does not define` | Template references a root the render context does not define; Self-inject value template references cross-node data |
 | `E0061` | `unknown provider` | Unknown provider |
+| `E0062` | `custom inject mechanism has no matching key in injectMapping output; add the mechanism's key to the Recipe injectMapping` | A component declares an inject mechanism the attached Feature maps nothing to |
+| `E0063` | `workload-library import references an entry not present in the WorkloadLibrary` | A library `$import:` names a library or an entry the catalog does not hold |
+| `E0064` | `workload $import: is not a bare-name workload-library reference (<Library>#/workloads/<entry>)` | A library `$import:` is not written in the bare-name form |
+| `E0065` | `workload-library import references a WorkloadLibrary not present in the catalog` | A library `$import:` names a library or an entry the catalog does not hold |
 | `E0066` | `uses edge target does not exist` | Dangling `uses` target |
 | `E0067` | `active toggle did not resolve to a boolean` | An `active:` toggle does not resolve to true or false |
 | `E0068` | `max sub-aggregate nesting depth exceeded` | Sub-aggregate nesting depth exceeded |
@@ -2400,6 +2932,13 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0112` | `resolve: source-template references .provides (invalid reverse reference)` | Resolving a `source:` coordinate registers a narrower function set |
 | `E0113` | `resolve: sub-aggregate inclusion depth exceeded` | The chain of module imports is deeper than the pin walk descends |
 | `E0114` | `resolve: no entity in the catalog matches this URI` | A reference names no entity the catalog holds |
+| `E0115` | `compactform: ambiguous dispatch — $mode required` | A compact-form schema declares a field literally named `type` |
+| `E0116` | `compactform: constraint not valid for declared type` | A compact-form constraint does not apply to the type it was written on |
+| `E0117` | `compactform: $jsonschema content invalid` | A `$jsonschema:` escape carries content that is not a schema |
+| `E0118` | `compactform: cross-document $ref carries a registry host; reference the library by identity` | A `$ref:` addresses a library by registry location |
+| `E0119` | `compactform: $ref unresolvable` | A `$ref:` is not written in a form the compiler can resolve |
+| `E0120` | `compactform: unknown keyword` | A compact-form schema uses a keyword the compact form does not know |
+| `E0121` | `compactform: cross-document $ref target not found` | A `$ref:` is not written in a form the compiler can resolve |
 | `E0122` | `deprecation: build consumes a deprecated entity` | The build consumes an artifact its publisher has deprecated |
 | `E0126` | `externalinputs: acquisition is disabled for unpinned inputs` | An unpinned external input is requested while acquisition is off |
 | `E0127` | `externalinputs: fetched bytes mismatch the pinned digest` | Fetched bytes do not match a pinned digest |
@@ -2468,12 +3007,15 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0229` | `position out of range` | An editor position falls outside the document |
 | `E0246` | `the digest recorded as trusted for this plugin does not match the digest its cached manifest reports` | A trusted plugin's recorded digest disagrees with the cached artifact |
 | `E0249` | `cloudformation-provider: an export name a cross-boundary link derives is already declared by another Outputs entry in the same stack` | An authored export name is one the build derives for a cross-stack reference |
+| `E0250` | `boundary assembler named a per-node sub-directory that is not a single directory name` | A boundary assembler named a sub-directory that is not one directory |
 | `E0251` | `recipe source is an empty string, which names neither sourceless mode nor sourced mode` | Recipe `source:` is an empty string |
+| `E0252` | `artifacts-library bundle file name leaves the artifacts key its output is nested under` | An ArtifactsLibrary bundle file leaves the key it was imported at |
 | `E0253` | `annotation binding does not resolve against its target Feature` | Annotation binding does not resolve against its target Feature |
 | `E0254` | `annotation subkey does not conform to the target Feature's schema at the routed pillar` | A bound annotation value does not conform to the target Feature's schema |
 | `E0255` | `annotation routes through a pillar its authoring side may not use` | An annotation routes through a pillar its authoring side may not use |
 | `E0256` | `annotation binding declares one path in both pillar lists` | An annotation binding declares one path in both pillar lists |
 | `E0257` | `declared schema contract failed to compile, so nothing was validated against it: correct the contract where it is declared, or remove it if the configuration it covers needs no validation` | A declared schema contract does not compile |
+| `E0259` | `attachment binds a FeatureRecipe with executionScope: boundary and no boundary holding the component declares it` | A boundary-scope Feature is attached only to a component |
 | `E0260` | `` component placed in no boundary: name it under a boundary's `components`, or place the sub-module that contributes it under `aggregates` `` | A component the composition holds is placed in no boundary |
 | `E0261` | `boundary names a component the composition does not hold: correct the name, or remove the entry` | A boundary names a component the composition does not hold |
 <!-- END GENERATED: halt-condition-sentences -->
