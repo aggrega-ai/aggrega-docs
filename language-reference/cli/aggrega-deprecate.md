@@ -114,6 +114,39 @@ such moment — it is reporting what it found just then.
 For the same reason, the absence of a withdrawal is not evidence that none exists —
 only that none had been recorded when you last refreshed.
 
+## Where you are told
+
+Which command tells you about a withdrawal follows from which record it reads. The
+table further up covers the marker recorded in your lockfile — what this Release
+pinned. This one covers the local registry index — what a registry published — which
+is the record the version exclusion reads.
+
+| Command | What it tells you about a recorded withdrawal |
+| --- | --- |
+| `aggrega registry update` | Names each marker it meets while walking the registry: the repository, the version it was recorded on, the severity, and whether the marker was recorded. Each registry then reports how many markers its index now holds. |
+| `aggrega search` | Reports the version a resolution would take rather than a retracted one, and names the retracted versions in a `NOTES` column. `--include-retracted` reports the highest published version instead. |
+| `aggrega inspect` | Prints the recorded severity beneath the entity, with the version it was recorded on, the reason, the replacement where one is named, and the date it was issued — for every kind it resolves by name. |
+| `aggrega pull` | Names each version it skipped, the reason recorded against it, and the version it took instead. A version you named explicitly still resolves, and the withdrawal is announced rather than acted on. |
+| `aggrega plugin add` | The same, on either route it resolves an unpinned plugin reference by. Where the markers could not be read, it says so and states that the published versions were not screened. |
+| `aggrega build` | Nothing from this record. It reads your lockfile alone and never the index, so what it reports is the marker recorded against the version you pinned. |
+| `aggrega serve` | Nothing from this record. Its own resolution does not consult the withdrawal records, so a retracted version can still be selected there; it publishes the lockfile's marker to your editor as before. |
+
+Read the last two rows together with the rest: a command tells you about a withdrawal
+only where it is doing something the withdrawal bears on — choosing a version, or
+showing you what a publisher said. Silence from a command that does neither is not
+evidence that nothing is recorded.
+
+A notice names the severity the publisher recorded. A retracted artifact is reported
+as `retracted`; the two advisory severities are reported as deprecated, naming which
+of the two. So what you read back matches the value that was authored and the value
+you would configure a halt threshold with.
+
+Two kinds of notice are kept apart because they report different events. A
+`deprecation:` line tells you something about an artifact. A `retraction:` line tells
+you what you did not get — a version that was skipped, or a screening that could not
+be performed. Where one command emits both about the same artifact, they are two
+facts rather than one statement made twice.
+
 ## Which resolutions the exclusion covers
 
 The exclusion acts wherever a command **chooses** a version for you. That is the

@@ -74,3 +74,22 @@ workspace can act on, the second says this run had no trust basis on which to ju
 marker at all. A registry whose markers were not examined contributes no withdrawal
 to version selection, so an author who attached a marker and sees that line knows why
 it has no effect.
+
+## What a routine refresh does not pick up
+
+A refresh revalidates each repository before deciding to re-read it: where the tag
+listing and the selected version's manifest digest are both unchanged, the cached
+record is reused as it stands, and that repository's published versions are not
+re-examined for markers.
+
+A deprecation marker moves neither of those. It is attached to the published artifact
+as a separate signed object pointing back at it — which is exactly what lets a
+publisher deprecate a version without re-publishing it — so attaching one adds no tag
+and leaves the artifact's own manifest untouched. **A marker attached to a version
+whose repository is otherwise unchanged is therefore not picked up by a routine
+refresh**, and the count that run reports is the count the reused records already
+carried rather than a fresh one.
+
+Pass `--upgrade` to re-read every repository and pick it up. This matters beyond the
+report: the version exclusion and `aggrega inspect` both read this index, so a version
+retracted since your last full re-read is neither excluded from selection nor shown.
