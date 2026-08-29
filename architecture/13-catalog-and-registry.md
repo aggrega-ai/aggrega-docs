@@ -127,7 +127,7 @@ aggrega-catalog/
 | `gateway` | API and AI gateways | server | populated |
 | `mesh` | Service meshes | server | created when the first entity lands |
 | `network` | Network primitives | server, resource | created when the first entity lands |
-| `messaging` | Event buses, queues, streams, and the external carriers a message leaves the deployment through | stateful-server, server, resource | populated |
+| `messaging` | Event buses, queues, streams, the realtime media services that carry voice and video between participants, and the external carriers a message leaves the deployment through | stateful-server, server, resource | populated |
 | `storage` | Object/file storage, managed cloud resources (no compute) | resource | populated |
 | `compute` | Generic compute primitives (server, worker, task, function bases) | server, worker, task, function | populated |
 | `observability` | Telemetry, tracing, monitoring | varies | populated |
