@@ -886,15 +886,32 @@ Emitted message:
 
 <!-- covers: internal/compiler/renderer.ErrPathCollision -->
 
-Two boundary contributors evaluate to the same physical assembly path but disagree on a property that must be uniform across the contributors at that path — for example, two boundaries assembling under the same `directory:` route through different providers, or one boundary declares a per-(path, provider) tuple a second boundary cannot satisfy.
+Two boundaries whose path declarations evaluate to the same assembly path route through **different providers**. Both assemble there, and each writes files the other knows nothing about, so one silently displaces the other on disk — and the build that produced the displaced output looks as though it succeeded.
 
-**Emitted messages.** One finding is reported per contributing boundary, so every boundary whose output reached the path is named on its own rather than folded into a list inside one message. The report they arrive under states what they have in common:
+The default `subDirectory:` gives each provider a sub-path of its own, so two providers reach one path only where the declarations were written to evaluate alike: two boundaries sharing a `directory:` and both pinning `subDirectory:` to the same literal, say.
+
+**Emitted messages.** One finding is reported per contributing boundary, so every boundary whose output reached the path is named on its own rather than folded into a list inside one message. The fault is two providers meeting at one path, so there are always at least two findings, and they arrive together under a report stating what they have in common:
 > assembly paths reached by more than one provider
 
 Each finding names the path, the boundary whose output reached it, and the provider that boundary routes through:
 > dispatch path produced multiple provider outputs (`"<path>"`, boundary `"<boundary>"`, provider `"<provider>"`)
 
-**How to fix:** either give each boundary a distinct `directory:` (so they assemble to separate paths), give the contributors distinct `subDirectory:` values so each provider's output lands at a path of its own, or align the conflicting property across the contributors. The compose-bridge pattern intentionally collapses two sub-boundaries into one assembly path; that pattern requires both boundaries to target the same provider and to carry compatible cascade-resolved annotations.
+A build whose `api-net` and `db-net` boundaries both declare `directory: ./dist/shared` and `subDirectory: merged`, one routing through `helm` and the other through `compose`, prints:
+
+```text
+[OPS_ERROR E0048]
+  assembly paths reached by more than one provider
+  caused by (2):
+    [OPS_ERROR]
+      dispatch path produced multiple provider outputs ("dist/shared/merged", boundary "db-net", provider "compose")
+  ---
+    [OPS_ERROR]
+      dispatch path produced multiple provider outputs ("dist/shared/merged", boundary "api-net", provider "helm")
+```
+
+The report carries the short code and each finding beneath it carries its category alone, which is the shape every collected-failure report uses — see [error-translation.md](error-translation.md) for that grammar.
+
+**How to fix:** either give each boundary a distinct `directory:` (so they assemble to separate paths), or leave `subDirectory:` at its default so each provider's output lands at a sub-path of its own. The compose-bridge pattern intentionally collapses two sub-boundaries into one assembly path; that pattern requires both boundaries to target the same provider and to carry compatible cascade-resolved annotations.
 
 ### Instance-ID collision across boundaries assembling to the same path
 
