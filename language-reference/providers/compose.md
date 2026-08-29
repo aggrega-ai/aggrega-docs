@@ -138,6 +138,11 @@ Several map onto a compose service field:
 | `terminationGracePeriodSeconds` | `stop_grace_period: <n>s` |
 | `dnsConfig.nameservers` / `dnsConfig.searches` | `dns` / `dns_search` |
 | `hostAliases` | one `extra_hosts` entry per hostname, in author order |
+| `hostNetwork: true` | `network_mode: host` |
+
+**Running on the node's network.** A workload declaring `hostNetwork: true` gets `network_mode: host` on its own service, and that service is then left off the boundary network rather than being attached to it: compose refuses a service that declares both `networks:` and `network_mode:`, so the two are alternatives rather than additions. The practical consequence is the one host networking always carries — peers no longer reach the service by its compose service name over that network, because it is no longer on it; they reach it on the host's own addresses, which is what the declaration asked for. Every other service on the boundary is unaffected.
+
+Two shapes compose with it. A sidecar keeps naming the main service (`network_mode: "service:<main>"`), so it follows the main service onto the host's network without declaring anything itself — the same way a Kubernetes pod's containers share one namespace. An init service does not: it joins the boundary network in its own right, because sharing the main service's namespace would make the main service's wait on it circular. So a workload with both `hostNetwork` and `initContainers` runs its own service on the host's network while its init services stay on the boundary network, which is narrower than the pod shape it models; an `unsupported-field` warning names that difference rather than leaving it to be found at run time.
 
 The rest have no single-host equivalent. **None is dropped in silence:** each authored one raises an `unsupported-field` warning naming the field, so an author learns which setting the target could not honour rather than discovering it from the running stack.
 

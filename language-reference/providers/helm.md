@@ -79,6 +79,8 @@ Each emitted resource carries the full Aggrega provenance labels and annotations
 
 **Port transport.** A container port that declares a transport emits it verbatim as `protocol:` on the rendered `containerPort`, and every Service port naming that container port carries the same value — the transport is declared once, on the container port, so the exposure cannot disagree with it. A port that declares no transport emits no `protocol` key on either resource, leaving the cluster's default in force. All three values the Workload admits (`TCP`, `UDP`, `SCTP`) are emitted verbatim; helm needs no degradation, since Kubernetes expresses each of them directly.
 
+**Running on the node's network.** A Workload declaring `hostNetwork: true` emits `hostNetwork: true` on the rendered pod spec, so the pod runs in the node's own network namespace and the ports its containers open are reachable on the node's addresses. Kubernetes expresses the choice directly, so nothing is degraded. The declaration reaches the pod spec and nothing else: it adds, removes and rewrites no port, and the emitted Services are identical with and without it. A Workload that does not declare it emits no `hostNetwork` key at all.
+
 Output file naming follows the same `<nodeID>-<kind>.yaml` convention as sourced mode: `<nodeID>-deployment.yaml`, `<nodeID>-service-<svcName>.yaml`, `<nodeID>-pvc-<volName>.yaml`.
 
 ## Sourceless mode keyset

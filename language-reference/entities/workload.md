@@ -358,7 +358,7 @@ containers:
 
 A workload that needs specialised hardware — a GPU, or another vendor-provided device — expresses two independent concerns: the pod-level runtime the device-enabled node exposes (`runtimeClassName`), and the per-container quantity of the device the workload claims (an extended-resource key under a container's `resources`). A typical GPU workload declares both together, but each stands on its own and either may appear without the other.
 
-Both fields describe compute — the pod and the container that runs on the device — so they belong on a workload that runs containers. A workload that carries only an external endpoint and declares no containers of its own has no pod or container to attach them to: setting `runtimeClassName` on such an endpoint-only workload is a build-time halt naming the fix, and with no containers there is nowhere to place a device resource request.
+Both fields describe compute — the pod and the container that runs on the device — so they belong on a workload that runs containers. A workload that carries only an external endpoint and declares no containers of its own has no pod or container to attach them to: setting `runtimeClassName` on such an endpoint-only workload halts the build, naming `runtimeClassName` and the Recipe whose Workload declared it, and with no containers there is nowhere to place a device resource request.
 
 ### `runtimeClassName`
 
@@ -389,6 +389,78 @@ containers:
 The workload selects the `nvidia` runtime for its pod and claims one GPU for the `inference` container. The GPU quantity appears in both `requests` and `limits`: a device is not oversubscribable, so its request and limit are set to the same value.
 
 **Provider translation.** These are Kubernetes-native concepts. The helm provider emits `runtimeClassName` on the rendered pod spec and each extended-resource key verbatim under the container's `resources.requests` / `resources.limits`, so they reach the cluster through the Kubernetes output. A single host has no runtime-class or extended-device concept: the compose provider carries neither field, and a workload declaring `runtimeClassName` or an extended-resource key renders on a compose target without it.
+
+## Running on the node's network
+
+By default a workload runs in a network namespace of its own: its containers see only their own
+interfaces, and traffic reaches them through the target's address translation. `hostNetwork: true`
+asks for the other arrangement — the workload runs in the **node's own network namespace**, so it
+sees the node's interfaces and the ports its containers open are reachable on the node's own
+addresses, with no translation in between.
+
+That is what a whole class of software needs. Realtime media, telephony, virtual private networking
+and similar traffic carry the peer's address inside the payload, so an address rewritten in transit
+arrives describing somewhere the peer cannot reach; running on the node's addresses is what keeps
+the two consistent.
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Workload
+hostNetwork: true
+containers:
+  media:
+    image: "{{ .values.image }}"
+    ports:
+      rtp:
+        port: 7881
+        protocol: UDP
+```
+
+### What it declares, and what it does not
+
+`hostNetwork` chooses a **network namespace**, and that is the whole of it.
+
+- **It declares no ports.** The ports a workload opens are still declared under
+  `containers.<name>.ports`, exactly as they are without it, and they still mean the same thing.
+  Declaring `hostNetwork` neither adds a port nor removes the need to declare one.
+- **It declares no *number* of ports.** An application that wants many contiguous ports — a media
+  server sizing a range to a machine's processor count, say — configures that range in its own
+  configuration body, from values its operator supplies, the same way it configures anything else it
+  reads at start-up. That is an application setting rather than a workload one, and the workload
+  contract is not where it lives.
+- **Nothing is inferred.** The compiler reads no meaning from the value and derives it from nothing
+  else: not from a port's name, not from a component's type or labels, not from how many ports are
+  declared. A workload runs on the node's network when, and only when, it says so.
+
+Because it describes compute, `hostNetwork` belongs on a workload that runs containers. A workload
+carrying only an external endpoint declares no containers, so it has no network namespace to choose:
+declaring `hostNetwork` on an endpoint-only workload halts the build, naming `hostNetwork` and the
+Recipe whose Workload declared it.
+
+### Provider translation
+
+The helm provider emits `hostNetwork: true` on the rendered pod spec, which is how Kubernetes
+expresses the same choice. The declaration reaches the pod spec and nothing else — the emitted
+Services are identical with and without it.
+
+The compose provider emits `network_mode: host` on the workload's own service. One consequence
+follows from how compose models networks: a service in that mode is not attached to the boundary
+network, because compose treats attaching to a network and adopting the host's namespace as
+alternatives rather than additions. Its peers therefore reach it on the host's own addresses instead
+of by service name — which is what host networking means on any target — and every other service on
+the boundary is unaffected.
+
+Two shapes compose with it on that target. A sidecar container follows the main service onto the
+host's network without declaring anything, because it takes the main service's namespace by naming
+it. An [init container](#containers-vs-initcontainers) does not: it becomes a service that the main service waits
+on, so it joins the boundary network in its own right rather than adopting a namespace that would
+make that wait circular. A workload declaring both `hostNetwork` and `initContainers` therefore runs
+its own service on the node's network while its init services stay on the boundary network — a
+narrower arrangement than the single shared namespace the pod shape gives, and one the compose
+provider names in an `unsupported-field` warning rather than leaving to be discovered at run time.
+
+A workload that does not declare `hostNetwork` renders identically on every target to one authored
+before the field existed: the key is absent from the output entirely rather than emitted as `false`.
 
 ## Attachment integration with the Component's `featuresSchema`
 
