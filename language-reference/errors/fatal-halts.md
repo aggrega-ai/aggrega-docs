@@ -913,20 +913,22 @@ A Manifest annotation binding's `feature:` field names a Feature that the catalo
 One condition covers the three ways a binding's route fails to resolve, and the diagnostic names which of them was met:
 
 - **Feature not found.** The `feature:` value references a Feature URI absent from the loaded catalog.
-- **Feature schema compile error.** The named Feature loads but its `spec.schema:` is malformed and cannot be compiled to a JSON Schema 2020-12 representation. This variant carries the compile failure's own diagnostic behind it, so the reason the schema did not compile is readable from the same halt.
+- **Feature schema does not resolve.** The named Feature loads, but its `spec.schema:` does not resolve to a JSON Schema 2020-12 representation — the content is malformed, or it names a cross-document reference that cannot be followed. This variant carries the resolution failure's own diagnostic behind it, so the reason the schema did not resolve is readable from the same halt.
 - **Binding path not in target schema.** The binding's `maps.infra` or `maps.values` entry names a dotted path the Feature's `spec.schema.<pillar>.<path>` does not declare.
 
 Emitted message (Feature-not-found variant):
 
-> annotation binding does not resolve against its target Feature (Manifest, at `.spec.mappings.features.annotations.<key>`, annotation binding `<key>` targets Feature `<feature-uri>`, but no such Feature is loaded in the catalog)
+> annotation binding does not resolve against its target Feature (Manifest, at `.spec.mappings.features.annotations.<key>`, `"<key>"`, routes to Feature `"<feature-uri>"`, which this build's catalog does not hold; correct or publish the Feature named under `"feature"`)
 
-Emitted message (schema-compile variant):
+Emitted message (schema-does-not-resolve variant):
 
-> annotation binding does not resolve against its target Feature: annotation binding `<key>` targets Feature `<feature-uri>` whose spec.schema does not compile: `<compile failure>`
+> annotation binding does not resolve against its target Feature (Manifest, annotation binding routes to Feature `"<feature-uri>"`, whose declared schema does not resolve: `<resolution failure>`)
+
+This variant names the Feature and the resolution failure, and carries neither the binding key nor a source position — the fault is in the Feature's own `spec.schema:`, which the binding only names. Find the offending binding by searching `mappings.features.annotations` for the Feature URI the message quotes.
 
 Emitted message (path-not-found variant):
 
-> annotation binding does not resolve against its target Feature (Manifest, at `.spec.mappings.features.annotations.<key>`, annotation binding `<key>` routes through pillar `<pillar>` at path `<path>` on Feature `<feature-uri>`, but the Feature's spec.schema does not declare a property at that path)
+> annotation binding does not resolve against its target Feature (Manifest, at `.spec.mappings.features.annotations.<key>`, `"<key>"`, routes to Feature `"<feature-uri>"`, at pillar `"<pillar>"`, and path `"<path>"`, which that Feature does not declare a property for under `"schema"`)
 
 **How to fix:** confirm the binding's `feature:` URI exists in the catalog and matches the case-sensitive URI a Recipe `implements:`. If the path-not-found variant fires on a path the Feature schema does declare, confirm the dotted path spelling (case-sensitive) and the pillar name (`infra` vs `values`).
 
