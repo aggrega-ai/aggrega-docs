@@ -711,6 +711,115 @@ Emitted message, as the plugin receives it:
 
 **How to fix:** nothing in your own files causes this and no authoring change clears it — it is a property of the plugins the build is configured with. The plugin that asks for a parse from inside a parse is the one to correct, so report the condition to whoever publishes it, quoting the message. Where that plugin is yours, have it read the source it was handed directly rather than asking the host to parse another one while it is itself serving a parse.
 
+### The workspace configuration file does not satisfy its schema
+
+<!-- covers: pkg/workspaceconfig.ErrConfigInvalid -->
+
+A workspace is described by an `.aggrega-config.yaml` at its root: which registry it publishes to and pulls from, where the artifact cache lives, which plugins are attached at which sockets, and what each registry's signing stance is. That file is read and checked against its schema before any entity file is opened, because everything that follows is read out of it.
+
+**A missing file is not a failure.** A workspace with no configuration file gets the documented defaults, so this halt always names a file that exists and disagrees with the schema, never one that is absent.
+
+The check runs before the document is turned into typed settings. That ordering is what lets the message name the field path the schema objected to, rather than reporting a type mismatch from somewhere further along with no field to point at.
+
+Four shapes report here beyond a plain schema objection, each because the schema alone can only say something too generic to act on: a `workspace:` key written with nothing under it, a key whose home is the top level written underneath `workspace:` instead, a `cache:` block written under a name the file does not use, and two settings whose values the schema admits but the workspace cannot use — an `artifact_cache_dir` that is absolute or that names the workspace root itself, and a `signing.kinds` entry naming something that is not a publishable artifact kind.
+
+**Emitted messages.** A schema objection names the file, the field path, and what the schema said:
+> workspaceconfig: `<path>`: `<field-path>`: `<the schema's own objection>`: workspaceconfig: file failed schema validation
+
+The fix-it forms replace the middle with a sentence about the specific shape. An `artifact_cache_dir` naming the workspace root:
+> workspaceconfig: `<path>`: artifact_cache_dir `"<value>"` names the workspace root itself; a catalog directory at the workspace root would then be stepped over as cache, leaving nothing to load — give the cache its own subdirectory (for example `.aggrega/cache`): workspaceconfig: file failed schema validation
+
+an unusable `signing.kinds` entry, which also names the wildcard that covers every kind:
+> workspaceconfig: `<path>`: signing.kinds entry `"<kind>"` is not a signable artifact kind; use a catalog entity or plugin kind, or `"all"` for every kind: workspaceconfig: file failed schema validation
+
+and an empty `workspace:` marker:
+> workspaceconfig: `<path>`: `workspace` must be a mapping; write `workspace: {}` to mark a workspace root with no catalog directories: workspaceconfig: file failed schema validation
+
+Two more name a key written in the wrong place — `default_registry`, `offline`, `auto_pull` and `artifact_cache_dir` all sit at the top level rather than under `workspace:`, and the parse cache's block is `parse_cache:`. Each says which key it means and where that key belongs.
+
+**How to fix:** open the file the message names and go to the field path it quotes. Where the message carries a fix-it sentence, it names the correct spelling or placement directly and no further reading is needed. Where it carries a schema objection instead, the field path is the key at fault and the objection says what the schema wanted there — the entity pages do not govern this file, so read the objection rather than looking for an entity contract. An `artifact_cache_dir` is written relative to the workspace root and needs a subdirectory of its own, so that a catalog directory at the workspace root is not mistaken for cache and skipped.
+
+### A plugin binding sets a key the socket it attaches to does not read
+
+<!-- covers: pkg/workspaceconfig.ErrCapabilityOnCrossCuttingSocket -->
+<!-- covers: pkg/workspaceconfig.ErrInertFieldOnProviderSocket -->
+
+Sockets in the workspace configuration attach plugins in two different ways, and a key that belongs to one way means nothing on the other. Rather than accept the key and quietly ignore it, the configuration is refused, so an operator learns the setting is inert instead of wondering later why it had no effect.
+
+The two mismatches are mirror images of each other.
+
+- **A cross-cutting socket bound by capability.** The governance, linter and importer sockets attach a plugin directly by `uri:`. The plugin at one of them serves no capability, so a `capability:` binding there would be looked up against nothing and match nothing — an attachment that can never resolve.
+- **A provider socket setting a key with no referent.** A provider binding names a capability and the plugin that serves it, and the plugin drives a fixed set of exports rather than one selectable entry, so `function:` names nothing on it. `with:` is refused for a different reason: render configuration for a provider is written in the Recipe, so putting it on the workspace binding places it on the wrong side of the developer-and-operator split.
+
+**Emitted messages.** A capability on a cross-cutting socket:
+> workspaceconfig: the `<socket>` socket is bound by capability `"<capability>"`, but the cross-cutting sockets attach by uri: their plugin serves no capability, so a capability lookup matches nothing; attach it with `uri:` instead: workspaceconfig: a cross-cutting socket is bound by capability but attaches by uri
+
+an inert `function:` on a provider binding:
+> workspaceconfig: the provider socket binding for capability `"<capability>"` sets `function:`, but a provider drives a fixed set of phase-keyed exports rather than one selectable entry, so `function:` names nothing there; remove it: workspaceconfig: a provider socket binding sets a field with no referent on that socket
+
+and an inert `with:`, which reports in the same shape and names where the configuration belongs instead:
+> workspaceconfig: the provider socket binding for capability `"<capability>"` sets `with:`, but provider render configuration belongs in the Recipe, not the workspace provider binding; remove it: workspaceconfig: a provider socket binding sets a field with no referent on that socket
+
+**How to fix:** the fix is in `.aggrega-config.yaml` and each message names the exact edit. On a governance, linter or importer attachment, replace the `capability:` with the `uri:` of the plugin you meant to attach. On a provider binding, remove the named key — and where it was `with:`, move that configuration into the Recipe that renders through the provider, which is the surface that reads it.
+
+### A capability is bound to more than one provider plugin
+
+<!-- covers: pkg/workspaceconfig.ErrDuplicateProviderTarget -->
+
+A capability names one way of turning a workload into artifacts, and exactly one plugin serves it in a resolved workspace. Two bindings for one capability leave no answer to which of them renders, and a workspace configuration is assembled from several layers — a shared file, a workspace file, and the append companions each may contribute — so the second binding is often contributed by a layer whose author could not see the first.
+
+The refusal is what makes that visible. Letting one binding win silently would make rendered output depend on which layer happened to be read last.
+
+Emitted message, naming the capability and the rule:
+> workspaceconfig: capability `"<capability>"` is bound to more than one provider plugin; keep exactly one plugins.providers entry per capability: workspaceconfig: capability is bound to more than one provider plugin
+
+**How to fix:** keep one `plugins.providers` entry for the capability the message names and remove the other. Where the two come from different configuration layers, the layer you control is the one to edit — removing your own entry adopts the one the shared layer contributes, and keeping yours means the shared layer's entry has to go instead. Two plugins that genuinely both serve the workspace serve two different capabilities, so if both are wanted, give each its own capability rather than binding one twice.
+
+### A governance attachment declares no role, or one that is not a known role
+
+<!-- covers: pkg/workspaceconfig.ErrGovernanceRoleInvalid -->
+
+A governance attachment carries a role, and the role — not the plugin's own declared kind — is what fixes where the attachment runs and what it may do: whether it accepts or rejects a build, and whether it reads the graph or the rendered artifacts. Attachments are dispatched by reading that role, so an attachment carrying none, or one nobody recognises, would attach to nothing and be passed over in silence.
+
+That silence is what the refusal prevents. A governance plugin that is configured and never consulted produces exactly the output of a build that was never governed, and nothing in the result says which one you are holding.
+
+**Emitted messages**, both naming the attachment and listing the roles that exist. A missing role:
+> workspaceconfig: governance attachment `"<uri>"` declares no role; set `role:` to one of `<the known roles>`: workspaceconfig: a governance attachment declares no role or an unknown role
+
+and an unrecognised one:
+> workspaceconfig: governance attachment `"<uri>"` declares unknown role `"<role>"`; use one of `<the known roles>`: workspaceconfig: a governance attachment declares no role or an unknown role
+
+**How to fix:** set `role:` on the attachment under `plugins.governance` to one of the roles the message lists. Which one is a decision about what you want the plugin to do rather than about the plugin: a role that accepts or rejects reads the build and returns a verdict, and a role that transforms is an explicit instruction to let the plugin change what it is given. The message lists the full set, so the spelling to use is in the message itself.
+
+### A registry alias matches more than one host
+
+<!-- covers: pkg/workspaceconfig.ErrAmbiguousRegistryAlias -->
+
+A registry may be given a short alias in the workspace configuration so that commands and references can name it without spelling out its host. An alias selects exactly one host. This condition is what a token matching the alias of two registry entries reports: there is no answer to which host was meant, and choosing one would silently send artifacts to, or fetch them from, a registry the author did not name.
+
+Emitted message, naming the alias, how many entries claimed it, and which hosts they are:
+> workspaceconfig: registry alias `"<alias>"` matches `<count>` hosts (`<hosts>`); address the registry by host or remove the duplicate alias: workspaceconfig: registry alias matches more than one host
+
+**How to fix:** open `.aggrega-config.yaml` and give the alias to one of the hosts the message lists, or address the registry by its host and drop the alias from the reference. The message names every host holding the alias, so which entries to look at is in the message. Where the entries come from different configuration layers, edit the layer you own.
+
+### The lockfile does not satisfy its schema
+
+<!-- covers: pkg/lockfile.ErrLockfileInvalid -->
+
+A release's lockfile records what the build resolved to: for every entity, library and plugin it reaches, the version selected and the digest of the bytes at that version. It is read and checked against its schema before it is turned into typed pins, so a document that does not fit is refused with the field path it failed at rather than silently producing pins with holes in them.
+
+**The lockfile is machine-written.** It is produced by the pull that resolves a release, and it is committed so the same build resolves the same way later. So a schema failure is nearly always a hand edit or a merge that left the document half-resolved, rather than something authored deliberately.
+
+**A missing lockfile is a different condition and reports differently** — the lockfile is required, so its absence is reported where the build looks for it, with the instruction to run the pull that creates it.
+
+Emitted message, naming the file, the field path and the schema's own objection:
+> lockfile: `<path>`: `<field-path>`: `<the schema's own objection>`: lockfile: file failed schema validation
+
+A document that is entirely empty reports separately, since there is no field to name:
+> lockfile: `<path>`: document is empty
+
+**How to fix:** do not repair the lockfile by hand. Re-run the pull for the release, which rewrites the document from the resolution it performs, and commit the result — re-resolving is what produces a document whose pins agree with what the release actually reaches. Where the failure followed a merge, resolving the conflict by re-pulling rather than by editing is what avoids a document that parses and pins the wrong versions. The field path in the message is worth reading first: it tells you whether the damage is in one entry or in the document's overall shape.
+
 ## When resolving the catalog
 
 After loading, the compiler walks the Manifest's two tiers (type map, then name map) to pick the Recipe for every Component, and it walks any `extends` chains on Manifests, Components, or Features.
@@ -1454,6 +1563,278 @@ The same comparison run while a plugin is being validated reports the two sets w
 > plugin `"<plugin>"`: recorded host-function record `<recorded set>` does not match the .wasm imports `<derived set>`: wasm: stamped host-function record does not match .wasm imports
 
 **How to fix:** nothing in your entity files causes this and no authoring change clears it. Re-publish the plugin through the ordinary publish path, which derives the record from the binary and writes the two together. Where you consume a published plugin, the entity and the binary it points at were published out of step, so report the mismatch to whoever publishes it, quoting both sets from the message — and do not hand-edit the record to agree, since it is derived rather than authored and the next derivation discards the edit.
+
+### The lockfile no longer matches what the release resolves to
+
+<!-- covers: pkg/lockfile.ErrLockfileDrift -->
+
+A release's lockfile pins every entity, library and plugin the release reaches, each with the version selected and the digest of the bytes at that version. Resolving the release again produces the same set, and the two are compared. This condition is what a disagreement reports.
+
+**Every disagreement is collected before any of them is reported**, across all six of the axes the lockfile pins, so one run tells you the whole picture rather than one entry at a time.
+
+Three shapes of disagreement are reported, and they are worth telling apart because the remedies differ:
+
+- **A reference the lockfile does not pin.** The release now reaches something the lockfile has no entry for — a dependency added since the pull that wrote it.
+- **A pinned reference whose pair moved.** The lockfile pins one version-and-digest pair and the resolution produced another. That is a re-published tag, an edited entity in the workspace catalog, or vendored content whose bytes changed.
+- **A pinned reference the release no longer reaches.** The lockfile still pins something nothing in the release depends on any more.
+
+The comparison is on content, so identical content reached by a different route does not drift: what has to differ for this to fire is the bytes.
+
+Emitted message. The condition's own sentence opens it, and every collected disagreement follows, each naming its axis:
+> lockfile: out of date; it no longer matches the current catalog: entity `"<uri>"` not in lockfile
+> `<axis>` `"<uri>"` changed: lockfile=(`<version>`,`<digest>`) current=(`<version>`,`<digest>`)
+> `<axis>` `"<uri>"` no longer used by the release
+
+**How to fix:** re-resolve the release and commit the rewritten lockfile — `aggrega pull --upgrade --release <release>` is what produces one that agrees with what the release now reaches. Read the entries before you do, because the third shape is the one worth pausing on: a reference the release no longer reaches is usually a dependency you removed on purpose, but where you did not remove it, something else changed that made it unreachable. A pair that moved on a reference you did not touch means the content at that version is not the content that was reviewed, which is a question for whoever publishes it rather than something to adopt without looking.
+
+### An artifact is not at the source the build was told to find it
+
+<!-- covers: pkg/oci.ErrFetchNotFound -->
+
+A catalog reference names an artifact and a version. This condition reports that nothing answers to that pair — either at the registry the reference resolves to, or in the local artifact cache the build reads from.
+
+**A build reads the cache; it does not reach out on its own.** Acquisition is a separate step: the pull that resolves a release fetches what the release needs and writes it into the cache, and the build then reads what is there. So this condition reaches a build as a cache miss, and reaches a pull as a registry that has no such artifact. Where a build is configured to fill its lockfile as it starts, the acquisition it runs is that same pull.
+
+Emitted messages. A registry with no such tag, and a fetch that resolved a manifest whose content blob is absent:
+> oci: `"<reference>:<version>"`: oci: artifact not found at remote source
+
+> oci: content for `"<reference>:<version>"`: oci: artifact not found at remote source
+
+a cache read that found no entry, which is the shape a build meets:
+> oci: cache miss for `<reference>@<version>`: oci: artifact not found at remote source
+
+and the same for a cached artifact whose manifest is missing beside it:
+> oci: manifest cache miss for `<reference>@<version>`: oci: artifact not found at remote source
+
+An offline workspace with no lockfile reports under this condition too, since there is no route to what the build needs:
+> aggrega build: lockfile `<path>` missing and workspace is offline; run `aggrega pull --release <release>` from a connected environment first: oci: artifact not found at remote source
+
+**How to fix:** check the reference and the version first — a version that no longer exists and a name with a typo in it produce the same answer, and the message quotes both so they can be compared against the catalog. Where the reference is right, the artifact has not been acquired: run the pull for the release, which fetches what the release reaches and populates the cache. Where the workspace is offline, that pull has to run from somewhere with network access; an offline build reads only what is already cached, and this is what it says when the cache does not hold it.
+
+### The registry will not serve an artifact without credentials it accepts
+
+<!-- covers: pkg/oci.ErrFetchUnauthorized -->
+
+The registry answered, and it declined: either no credentials were presented, or the ones presented were not accepted. It is distinct from a registry that could not be reached at all — here the conversation happened and the answer was no.
+
+Four moments report it, all while artifacts are being acquired or published: resolving a reference, pulling its content, listing what versions a repository holds, and checking a credential at the moment it is stored.
+
+Emitted messages, each naming what was being asked for and quoting what the registry said:
+> oci: resolve `"<reference>:<version>"`: `<what the registry replied>`: oci: authentication required or failed
+
+listing the versions of a repository, which names the status instead:
+> oci: tags/list `"<repository>"`: status `<code>`: oci: authentication required or failed
+
+and checking a credential as it is stored:
+> oci: verify credential for `"<host>"`: `<what the registry replied>`: oci: authentication required or failed
+
+Where the failure is surfaced by a step that supplies remediation, the line ends with the login to run against the host it derived:
+> remediation: docker login `<host>` (or helm registry login `<host>` for Helm-specific OCI) before re-running aggrega pull --release `<release>`
+
+**How to fix:** this is the operator's rather than the entity author's — nothing in an Aggregate, Component or Recipe causes it. Log in to the host the message names and run the acquisition again. Where you are already logged in, the credential in the store is not one that host accepts for that repository: log in again to refresh it, and check that the account has read access to the repository the reference resolves to, since a private repository answers exactly this way to an account that cannot see it. Where the reference resolves to a host you did not expect, the registry alias or the default registry in `.aggrega-config.yaml` is pointing somewhere else.
+
+### The registry could not be reached
+
+<!-- covers: pkg/oci.ErrFetchNetworkUnreachable -->
+
+The conversation with the registry never happened: name resolution, the connection, or the secure handshake failed. It is the counterpart of a registry that answered and declined — nothing was established here either way, so the artifact's state at the far end is unknown rather than known to be missing.
+
+It is also what a transport failure with no more specific cause reports while a Recipe's source is being acquired, so it is the general "the far end could not be reached" answer on that path rather than a claim about which layer failed.
+
+Emitted message, naming the source being acquired and quoting the underlying transport failure, with the remediation the condition carries:
+> sourceresolver: kind=`<kind>` url=`<url>` version=`<version>`: oci: network unreachable (cause: `<the transport failure>`); remediation: check network connectivity to `<host>`; corporate proxies typically need HTTPS_PROXY exported
+
+**How to fix:** the fix is the operator's and it is outside your catalog. Check that the host in the message is reachable from where the command is running. Where the environment reaches the network through a proxy, the proxy has to be exported to the environment, which the remediation names — a proxy configured only for a browser or a package manager will not be picked up. Where the host is reachable by hand but not from here, the difference is usually credentials at a proxy or an interception certificate the handshake did not accept. Once the artifacts are cached, later builds read the cache and do not need the network at all.
+
+### Fetched or cached bytes do not match the digest committed for them
+
+<!-- covers: pkg/oci.ErrFetchIntegrity -->
+<!-- covers: pkg/oci.ErrCachedManifestIntegrity -->
+
+Every artifact carries a manifest that commits to the digest of its content, and the lockfile independently pins the digest of that manifest. Both commitments are checked by re-hashing the bytes in hand and comparing. This is what a comparison that fails reports, and it fires the same way on bytes just fetched and on bytes read back out of the cache.
+
+**Two conditions, and which one fires says which layer disagreed.** One names content that does not match the digest its own manifest commits to. The other names a cached manifest that does not match the digest the lockfile pinned for it — the check that keeps a tampered manifest from becoming the authority a later content check trusts. The pin is what makes that second check meaningful: it comes from the lockfile rather than from re-deriving the manifest out of the cached bytes, so the two are genuinely independent.
+
+**Neither check needs the network.** Both are hash comparisons over bytes already in hand, which is what lets a fully offline build still establish that what it is reading is what was pinned.
+
+**Emitted messages.** Content against its manifest:
+> oci: content digest `<computed>` != manifest layer `<committed>`: oci: content digest mismatch
+
+a plugin entity, which a manifest commits to in a different position:
+> oci: config digest `<computed>` != manifest config `<committed>`: oci: content digest mismatch
+
+a cached manifest against the pinned digest:
+> oci: cached manifest digest `<computed>` != pinned `<pinned>`: oci: cached manifest digest mismatch
+
+Both are framed by whatever was being read. A pinned entity being re-verified:
+> pinned entity `<uri>`: `<the message above>`
+
+An archive entry naming a path that escapes the archive reports under the content condition too, since a bundle that tries it is not the bundle that was committed to:
+> path traversal entry `"<name>"`: oci: content digest mismatch
+
+Both carry the same remediation where the surfacing step supplies one:
+> remediation: run aggrega pull --upgrade --release `<release>` to refresh the lockfile and cache
+
+**How to fix:** nothing in your entity files causes this and no authoring change clears it. Refresh the cache and the lockfile together with `aggrega pull --upgrade --release <release>`, which re-fetches from the source and rewrites both. Where that clears it, the cached copy had been altered or truncated since it was written. Where the mismatch survives a refresh, the bytes the publisher serves genuinely differ from what was pinned — a re-published version, which is a question for whoever publishes it, and one worth asking before adopting the new digest rather than after.
+
+### A manifest carries no layer of the expected kind, or more than one
+
+<!-- covers: pkg/oci.ErrNoContentLayer -->
+<!-- covers: pkg/oci.ErrAmbiguousContentLayer -->
+
+An artifact's manifest lists its layers, and the one carrying the content is selected by its media type rather than by its position. That is what lets an artifact bundle more than one layer — a chart with a detached provenance layer beside it, say — and still have the content picked out reliably.
+
+Two shapes leave nothing to select. No layer of the expected type means the manifest describes something other than what the reference was read as. More than one means the choice has no answer, and picking the first would sometimes be right and sometimes silently wrong.
+
+**Emitted messages**, each naming the media type that was expected. None:
+> oci: manifest has no layer of media type `"<media-type>"`: oci: manifest has no layer of the expected content media type
+
+and more than one, which also names how many:
+> oci: manifest has `<count>` layers of media type `"<media-type>"`; expected exactly one: oci: manifest has multiple layers of the expected content media type
+
+**How to fix:** the fix is the publisher's rather than yours — the manifest is not something a catalog author writes. Check first that the reference points where you meant: a reference that resolves to a different artifact kind produces the first shape, because the manifest is a real manifest for something else. Where the reference is right, the artifact was published with a manifest that does not describe it as the kind it is claimed to be, so quote the media type from the message to whoever publishes it. Publishing through the ordinary publish path produces a manifest with exactly one content layer, so an artifact in either shape was assembled some other way.
+
+### The registry could not answer what is attached to an artifact
+
+<!-- covers: pkg/oci.ErrReferrerDiscoveryUnavailable -->
+
+Signatures and other attachments hang off an artifact rather than sitting inside it, and finding them is a question put to the registry. This condition says the question went **unanswered** — the registry does not serve that lookup, the artifact the attachments hang off could not be located, or the request itself failed.
+
+**That is not the same as an answer of "nothing is attached", and conflating the two is exactly what this exists to prevent.** An artifact that genuinely carries no signature resolves normally and yields an empty list. This says the list was never obtained, so nothing at all is known about what is attached.
+
+**Whether it halts depends on whether a signature is required**, and both directions are deliberate:
+
+- **A signature is required.** The build stops. A required check that could not run has not passed, and admitting the artifact would rest on a question nobody managed to put.
+- **No signature is required.** The build carries on and says so out loud, rather than silently. The lookup produced nothing to verify either way, so refusing would reject an artifact on the strength of an unanswered question — but silence would read as a clean unsigned pull, which it is not.
+
+**Emitted messages.** A registry that does not serve the lookup:
+> oci: target does not support referrer discovery: `<target kind>`: oci: referrer discovery could not be completed
+
+the artifact itself not locatable:
+> oci: resolve subject `"<reference>"`: `<the underlying failure>`: oci: referrer discovery could not be completed
+
+and the lookup failing:
+> oci: list referrers of `"<reference>"`: `<the underlying failure>`: oci: referrer discovery could not be completed
+
+Where no signature is required, the same text appears as a notice instead:
+> signature verification could not run for `<uri>` (the registry could not answer the signature lookup and no signature is required; continuing): `<the message above>`
+
+**How to fix:** the fix is the operator's and it lies with the registry rather than with your catalog. Where the registry does not serve attachment lookups at all, it cannot carry signatures, so either mirror the artifact to one that can or stop requiring signatures from that host in `.aggrega-config.yaml` — and note which of those you are choosing, because the second one means signatures from that host are no longer being checked. Where the lookup failed for a registry that does serve it, this is a transport or permission problem on the attachment endpoint specifically, and re-running once the registry is reachable is the whole remedy.
+
+### An artifact that must be signed carries no signature
+
+<!-- covers: pkg/signing.ErrNoSignatureFound -->
+
+A signature is required for an artifact when either the workspace's own signing policy covers its kind or the registry it came from is configured to require one. This condition reports that the registry answered the attachment lookup, nothing was attached, and a signature was required.
+
+**The two requirements are one stance read at two scopes.** The workspace-wide policy forces a signature on an in-scope kind even from a host whose own entry requires none, so a host that requires nothing does not exempt an artifact the workspace-wide policy covers.
+
+**Where no signature is required, this is not a failure at all.** The artifact verifies if a signature is present and passes quietly if none is, which is what makes a host with no configured stance usable without ceremony.
+
+An artifact whose kind could not be determined while a workspace-wide policy is active is treated as requiring a signature rather than as exempt, so an unclassifiable artifact cannot slip past a policy that is switched on.
+
+Emitted message, framed by the reference it was checking:
+> pullverify: `<uri>`: signing: no signature found for an artifact that requires one
+
+**How to fix:** the fix is the operator's or the publisher's, not the entity author's. Where you expected the artifact to be signed, it was published without a signature — quote the reference to whoever publishes it, since only they can attach one. Where the artifact is not meant to be signed, the requirement is the thing to change: it comes either from the registry's entry in `.aggrega-config.yaml` or from the workspace-wide signing policy, and the message's reference tells you which host to look at. Turning a requirement off means artifacts from that host are no longer checked, so prefer narrowing the policy's scope to a kind over switching it off outright.
+
+### A signature does not verify
+
+<!-- covers: pkg/signing.ErrSignatureVerificationFailed -->
+
+A signature was found and checked, and the check failed. It is the general negative outcome of that check, covering a certificate chain that does not root in the trust material, a signature with no transparency-log record where one is required, a signature over a different artifact than the one in hand, a bundle that has been altered, and a bundle checked against a pinned key that does not verify against it.
+
+**It is deliberately distinct from a signature whose signer is not trusted.** That one is structurally sound and made by the wrong signer; this one did not check out at all. Keeping them apart is what lets you tell "the artifact is not what was signed" from "the artifact was signed by somebody you have not accepted".
+
+Where a registry's entry marks verification as advisory, the same text is reported as a notice and the run continues.
+
+**Emitted messages.** From the check itself, quoting what the verifier reported:
+> signing: signing: signature bundle does not verify: `<what the verifier reported>`
+
+framed by the reference being verified:
+> pullverify: `<uri>`: `<the message above>`
+
+and, where the registry's entry makes verification advisory, as a notice instead of a halt:
+> signature verification failed for `<uri>` (advisory; continuing): `<the message above>`
+
+**How to fix:** nothing in your entity files causes this and no authoring change clears it. Treat it as a statement about the artifact rather than about your configuration: the bytes in hand are not the bytes that were signed, or the signature is not one the configured trust material can check. Re-acquire the artifact first, since a truncated or altered cached copy fails exactly this way and a fresh fetch clears it. Where it survives a fresh fetch, quote the reference and the verifier's own words to whoever publishes the artifact. Do not reach for the advisory setting to get past it — that setting keeps the check running and stops it halting, which is a deliberate choice to accept unverified artifacts from that host rather than a way to fix one.
+
+### A signature verifies but its signer is not one the registry trusts
+
+<!-- covers: pkg/signing.ErrUntrustedIdentity -->
+
+The signature checked out — the certificate chain roots in the trust material and the transparency record is there — and the identity in that certificate matches none of the identities configured as acceptable for the registry. The artifact was signed by a real signer that has not been accepted.
+
+**Both halves of an identity are compared**, the subject and the issuer that vouched for it, and either can be the one that did not match. The message names both where they can be read off the certificate, because a signer presenting an expected subject under an issuer nobody accepted looks identical to a wrong subject unless both are shown.
+
+Emitted messages. With both halves readable:
+> signing: signing: signature identity is not trusted for this registry: `<what the verifier reported>`; signer presented issuer `"<issuer>"` with identity `"<subject>"`, but no trusted identity permits that issuer
+
+and where they cannot be read, falling back to the verifier's own report:
+> signing: signing: signature identity is not trusted for this registry: `<what the verifier reported>`
+
+**How to fix:** this is the operator's decision, and it is a real one rather than a formality. Compare the issuer and identity in the message against the trusted identities configured for that registry in `.aggrega-config.yaml`. Where the signer is one you mean to accept, add it — an entry names an identity, or a pattern matching one, together with the issuer, and both have to be right. Where it is not, the artifact was signed by somebody you have not accepted, and adding the identity to make the build pass is the one response to avoid. Registries that advertise their own trust policy can have it pinned when the registry is added, which is the way to get the intended identities in without transcribing them.
+
+### A keyless trust policy names no acceptable signer
+
+<!-- covers: pkg/signing.ErrNoTrustedIdentities -->
+
+Keyless verification decides whether to accept an artifact by matching the identity in its signing certificate against a set of identities configured as acceptable. An empty set is refused rather than treated as a policy at all: matching against nothing would either accept every signer or reject every one, and neither is what an operator who configured verification meant.
+
+Emitted message, which is the condition's own sentence:
+> signing: keyless verification requires at least one trusted identity
+
+**How to fix:** configure at least one trusted identity for the registry in `.aggrega-config.yaml`. An entry names the identity — as an exact subject or a pattern matching one — together with the issuer that vouches for it, and both are required. Where the registry advertises its own trust policy, pinning that policy when the registry is added fills the set from what the registry publishes. Where you do not intend to verify signatures from this registry at all, that is a different setting from an empty identity set, and setting it explicitly is what says so.
+
+### The pinned trust root cannot be read
+
+<!-- covers: pkg/signing.ErrTrustRootLoad -->
+
+Verification without network access rests on a trust root pinned in the workspace: a file whose contents are the material every signature is checked against. This condition reports that the file at the configured path could not be turned into usable trust material — it is absent, it is not readable, or its contents are not a trust root.
+
+**It halts rather than falling back.** A pinned root is a deliberate choice to check signatures against material you control, so quietly fetching one instead would replace that choice with a different one and produce a verification result nobody asked for.
+
+Emitted message, naming the path and quoting what the read reported:
+> signing: cannot load pinned trust root: `<path>`: `<what the read reported>`
+
+**How to fix:** this is the operator's. Check that the path configured for the trust root exists and is readable by whoever runs the command — a path relative to a different working directory, and a file present but unreadable, both report here. Where the file exists and is readable, its contents are not a trust root, so replace it with a current bundle from the source you obtained it from rather than editing it. Where a pinned root was not intended, the configuration is what to change: unset the pin and the verification uses the material it would otherwise be given.
+
+### A pinned verification key is not the key profile the verifier accepts
+
+<!-- covers: pkg/signing.ErrUnsupportedKey -->
+
+Signing and verifying against a held key use one key profile, and a key of any other kind is refused rather than attempted. It is a statement about the key's type, not about whether it verifies anything.
+
+**The two moments it reports at are different jobs.** One is loading a key to sign with, which happens where an artifact is published; the other is checking a signature against a key pinned for a registry, which happens where an artifact is verified. The refusal is the same in both.
+
+**Emitted messages**, each naming the type of key that was actually supplied. A pinned verification key:
+> signing: signing: unsupported held-key type: pinned key is `<the type supplied>`, want ECDSA P-256
+
+and a key loaded to sign with:
+> signing: signing: unsupported held-key type: held key is `<the type supplied>`, want ECDSA P-256
+
+**How to fix:** supply a key of the profile the message names. Where you are verifying, the key is the one pinned for the registry in `.aggrega-config.yaml` and it has to be the public half of the key the publisher signs with — a mismatch here usually means the wrong file was pinned, since a key that is the right type but the wrong key reports as a signature that does not verify instead. Where you are signing, generate a key of the named profile, or use the keyless path, which needs no held key at all.
+
+### The workspace is offline and the step needs the network
+
+<!-- covers: pkg/egress.ErrOfflineEgress -->
+
+A workspace can be marked offline, and that setting is a refusal rather than a preference: every step that would reach the network is refused where it is constructed, before anything is dialled. Refusing early is what makes the failure say "this workspace is offline" instead of surfacing later as a timeout with no explanation.
+
+**One decision, read in one place.** A step that needs to know in advance whether the network could be reached asks the same question the fetch itself asks, so a check and the operation it guards cannot come to different conclusions.
+
+It reaches several kinds of work, all of them the same refusal: acquiring an artifact from a registry, acquiring a Recipe's source over the network, fetching an external input, obtaining an identity to sign with, and fetching trust material. A build reading a populated cache reaches none of them, which is the point of the setting.
+
+Emitted message, which carries its own remediation and is the condition's own sentence:
+> egress: network access refused because the workspace is offline; remediation: unset workspace.offline (or AGGREGA_OFFLINE) or run `aggrega pull --release <release>` from a connected environment to populate the cache
+
+Framed by whatever needed the network. Fetching a registry's advertised trust policy:
+> registrytrust: fetch `<host>`: `<the message above>`
+
+and acquiring a Recipe's source:
+> sourceresolver: kind=`<kind>` url=`<url>` version=`<version>`: `<the message above>`
+
+**How to fix:** the message names both ways, and which one applies is yours to decide. Where the workspace is meant to be offline, the missing content is what to fix: run the pull from somewhere with network access so the cache holds everything the release reaches, then the offline build needs nothing further. Where it is not meant to be offline, the setting is on — either `workspace.offline` in `.aggrega-config.yaml` or the environment variable the message names, and the environment variable is the one that catches people out because it is not in any file. Note that an offline workspace cannot sign with the keyless path at all, since issuing a certificate and recording it are network operations with no offline form.
 
 ## When building the topology
 
@@ -3105,15 +3486,42 @@ A workload that declares per-instance storage is rendered as a StatefulSet, and 
 
 **How to fix:** declare exactly one service of the headless type on the workload. Where none is declared, add it — a workload with per-instance storage needs one, and it is what gives each instance an address that stays with it. Where more than one is declared, keep the one that should govern and give the others an ordinary type, or remove them; a second headless service is usually one that did not need to be headless.
 
+### A Recipe's `source:` names a kind nothing knows how to acquire
+
+<!-- covers: pkg/sourceresolver.ErrUnknownKind -->
+
+A Recipe's `source:` says what kind of thing it points at — a chart, a module, a compose project — and each kind is acquired by the part that knows how to acquire that kind. This condition reports a kind with nothing registered to serve it, so there is nothing to route the request to.
+
+It is a dispatch failure and not a transport one: nothing was attempted, because there was nothing to attempt it with. That is what separates it from an acquisition that ran and failed.
+
+Emitted message, naming the kind that was asked for:
+> sourceresolver: kind=`<kind>`: sourceresolver: no adapter registered for source kind
+
+**How to fix:** correct the kind on the Recipe's `source:` to one the toolchain serves — a misspelling and a kind that genuinely has no adapter produce the same message, and the spelling is quoted in it, so the first thing to check is the Recipe against the source kinds the language reference lists. Where the kind is spelled as you intended, that kind is not one this build can acquire, and no authoring change to the Recipe will make it so; point the `source:` at a form that is served instead.
+
+### A source artifact is cached without a workspace root to anchor it
+
+<!-- covers: pkg/sourceresolver/cacheslot.ErrEmptyWorkspaceRoot -->
+
+An acquired source artifact is stored in a slot underneath the workspace's artifact cache, and the path to that slot is built from the workspace root outward. This condition reports the root arriving empty, which would leave the slot path relative — resolving against whatever directory the process happens to be in when the bytes are written, and putting the cache somewhere nobody chose.
+
+It is refused rather than resolved, because a slot written to the wrong place is worse than no slot: later reads look in the right one, find nothing, and re-acquire, so what you would see is a cache that never seems to hold anything, and nothing else pointing at why.
+
+Emitted message. The condition's own sentence opens it, and what identifies the artifact follows:
+> cacheslot: empty workspaceRoot (kind=`<kind>` url=`<url>` chart=`<chart>` version=`<version>`)
+
+**How to fix:** nothing in your entity files causes this and no authoring change clears it — the workspace root is supplied by whatever is driving the build, not written in a catalog. Run the build from inside the workspace, so the root is discovered rather than passed as nothing. Where you drive the compiler from software of your own, pass the workspace root explicitly; a caller that genuinely wants the cache relative to the current directory passes a single dot, which is accepted and says so deliberately.
+
 ## Conditions that do not halt a build
 
-Every condition above stops a build. A few conditions carry a short code and a message of their own without ever stopping one, and they are catalogued here so that a code you have in hand always resolves to something, whichever page you arrived from.
+Every condition above stops a build. Some conditions carry a short code and a message of their own without ever stopping one, and they are catalogued here so that a code you have in hand always resolves to something, whichever page you arrived from.
 
-They fall into three kinds, and the difference is worth knowing before you go looking for a fix.
+They fall into four kinds, and the difference is worth knowing before you go looking for a fix.
 
 - **An advisory.** The build reports it and carries on, and the rendered output is the same whether or not you act on it. Each is taught in full on [warnings.md](./warnings.md) — what makes it fire, where in the compilation it is read, what it prints, and what to do about it — and the entries below say which section, rather than repeating it here.
 - **A condition the editor absorbs.** It is answered by the editor integration itself and reaches neither a build's output nor a diagnostic.
 - **A safeguard behind an earlier refusal.** The rule it protects is enforced ahead of it by a condition that does halt, so a build meets the earlier one first.
+- **A refusal on a command that is not a build.** It is a hard stop with a real remedy — it ends the command that met it, and nothing is published, written or changed — but no stage of compilation reaches it, so no build reports it. Publishing an artifact, adding a registry and checking a whole catalog are where these are met, and each entry says which command it belongs to and who holds the fix.
 
 ### An annotation binding declares one path in both pillar lists
 
@@ -3251,6 +3659,198 @@ Emitted message, which is the condition's own sentence:
 
 **How to fix:** nothing in your entity files causes this, and nothing you can write in a catalog or a workspace clears it. Where you are running the published command-line tool, this is not a condition you can reach — an installed command that will not start is reporting something else, and the message it printed is the one to read. Where you embed the plugin runner in software of your own, supply the lookup that resolves a plugin reference to its bytes when you construct it.
 
+### A registry alias is already bound to another host
+
+<!-- covers: pkg/workspaceconfig.ErrDuplicateRegistryAlias -->
+
+A refusal on adding a registry to the workspace, not on a build. An alias is a short name that selects one registry entry, so it is unique across entries. Registering an alias already held by a different host is refused rather than allowed to shadow the existing binding, which would silently change where every reference using that alias points.
+
+Re-adding the **same** host under its existing alias is not a conflict — that updates the entry in place, which is what re-running the command to change a host's other settings does.
+
+Emitted message, naming the alias and the host that already holds it:
+> workspaceconfig: registry alias `"<alias>"` is already used by host `"<host>"`; choose a different alias or address that host directly: workspaceconfig: registry alias is already used by another host
+
+**How to fix:** the fix is the operator's, at the command line. Give the new registry a different alias, or leave it unaliased and refer to it by host. Where you meant to move the alias to the new host, remove it from the entry the message names in `.aggrega-config.yaml` first — the refusal exists so that moving an alias is something you do on purpose rather than a side effect of adding a registry.
+
+### A registry serves a trust document that cannot be read as one
+
+<!-- covers: pkg/registrytrust.ErrMalformedTrust -->
+
+A refusal on adding a registry, not on a build. A registry may publish the signing identities it expects artifacts to be signed by, so that adding the registry can pin them rather than making an operator transcribe them. This condition reports a registry that answered with a document that is not usable as a trust policy.
+
+**It is a hard refusal precisely because the endpoint answered.** A registry publishing nothing is an ordinary, expected outcome that is tolerated; one publishing something unreadable is a misconfiguration, and pinning nothing from it would leave the registry silently unpinned while looking like it had been.
+
+Three shapes report here: content that does not decode at all, including a document carrying a field the format does not define; an identity entry naming neither an exact identity nor a pattern; and an identity entry with no issuer. The last two are refused because such an entry can never match a signature, so it would weaken the pin while appearing to strengthen it.
+
+**Emitted messages.** Content that does not decode:
+> registrytrust: advertised trust config is malformed: `<what the decoder reported>`
+
+an identity entry with nothing to match on:
+> registrytrust: advertised trust config is malformed: `<list>`[`<index>`]: an identity entry must set identity or identity_regexp
+
+and one with no issuer:
+> registrytrust: advertised trust config is malformed: `<list>`[`<index>`]: an identity entry must set issuer
+
+Each is framed by the command that met it:
+> aggrega registry add: `<the message above>`
+
+**How to fix:** the fix belongs to whoever operates the registry, not to you — quote the message to them, since it names the exact entry and what is missing from it. To proceed meanwhile, add the registry without pinning its advertised policy and supply the identities or the key yourself; the command takes them directly, which is also what you do for a registry that publishes no policy at all.
+
+### A registry publishes no trust document
+
+<!-- covers: pkg/registrytrust.ErrNoTrustAdvertised -->
+
+An ordinary, expected outcome rather than a fault, and it stops nothing. A registry may publish the signing identities it expects, and most do not. Asked for one, such a registry answers that it has none, and adding the registry carries on — the outcome is reported as a notice and identities are pinned by hand instead.
+
+It is deliberately distinct from a registry that could not be reached. This one answered; the answer was that it publishes no policy. Keeping the two apart is what lets a deliberate absence be tolerated while a reachability problem is still visible as one.
+
+Reported as a notice, which names the registry and what to do instead:
+> Notice: registry `<host>` advertises no trust config (registrytrust: registry advertises no trust config); pin identities manually with --identity/--key
+
+**How to fix:** nothing is broken. If you want signatures from this registry checked, supply the identity or the key when adding it, exactly as the notice says — that is the normal path for a registry that publishes no policy. If you do not, the registry is added without a signing stance and artifacts from it are verified only when they carry a signature.
+
+### A tag is already published with different content
+
+<!-- covers: pkg/oci.ErrImmutableTagConflict -->
+
+A refusal on publishing, not on a build. Published bytes are frozen: before anything is uploaded, the target version is looked up and the digest it points at is compared with the digest the content in hand would produce. A version already pointing at different content is refused.
+
+**Re-publishing byte-identical content is not a conflict.** The digests match, nothing is uploaded, and the command reports that the version is already published — so re-running a publish that partly succeeded is safe.
+
+**There is no flag that overrides this.** Changed content is published under a new version, which is what leaves consumers a version to move to deliberately rather than a version that changed underneath them.
+
+**Emitted messages**, naming the version, the digest it holds and the digest that was offered. Publishing a catalog entity, which also names the check that verifies the version bump:
+> aggrega push: `<reference>`:`<version>` is already published as `<existing digest>`; refusing to overwrite with `<proposed digest>` — publish a new version (aggrega lint --pre-publish verifies the bump): oci: tag already published with different content
+
+and publishing a data artifact:
+> aggrega push-artifact: `<reference>`:`<version>` is already published as `<existing digest>`; refusing to overwrite with `<proposed digest>` — publish a new version: oci: tag already published with different content
+
+**How to fix:** raise the version and publish again. For a catalog entity that means `metadata.version` and the per-version directory the entity sits in, which move together. Before you do, check that the change is one you meant: the two digests differing on a version you believe you have not touched means the content on disk is not the content that was published, and finding out why is worth more than publishing over it. The pre-publish check named in the message compares a version against the one before it and is the way to confirm the bump is right.
+
+### An entity's version directory does not match its declared version
+
+<!-- covers: pkg/oci.ErrEntityVersionPathMismatch -->
+
+A refusal on publishing, not on a build. Every publishable entity except a Plugin sits in a directory named for its version, and that name has to equal the entity's own `metadata.version`. The two are checked against each other before the entity is packaged.
+
+The check exists because the two are read by different things. The directory name is what a catalog walk uses to find the versions of an entity; the declared version is what the published artifact is tagged with. Letting them differ would publish content under a version its own directory does not claim, so a later walk would offer a version the catalog does not hold.
+
+Emitted message, naming the file and both values:
+> oci: `<path>`: path version `"<directory name>"` != metadata.version `"<declared version>"`: oci: entity per-version subdirectory mismatch
+
+**How to fix:** this is yours as the entity's author, and the message names both values so which one is wrong is usually obvious from context. Bringing them into line means either renaming the directory to the declared version or editing `metadata.version` to the directory's name — pick whichever matches the version you intend to publish, and check that nothing else already occupies it. A version bump that edited the field and left the directory behind is the common shape of this.
+
+### An entity kind has no artifact media type
+
+<!-- covers: pkg/oci.ErrUnknownEntityKind -->
+
+A refusal on publishing, not on a build. Each publishable entity kind has a media type that says what its artifact is, and packaging an entity looks that up by kind. This condition reports a kind with no entry.
+
+**No build reaches it.** The one other place the same lookup runs treats a missing entry as "this is not a library" and carries on, so the condition is never surfaced there.
+
+Emitted message, which is the condition's own sentence:
+> oci: unknown entity kind for mediatype dispatch
+
+**How to fix:** check the `kind:` field of the file you are publishing against the entity kinds the language reference lists — a misspelled or unsupported kind reports here, and correcting the field is the whole remedy. Where the kind is one the language reference documents as publishable, that is a gap in the toolchain rather than in your entity, and it is worth reporting with the kind quoted.
+
+### Two catalog identities publish to one repository location
+
+<!-- covers: pkg/oci.ErrOCILocationCollision -->
+
+A refusal on checking a whole catalog, not on a build. Where an entity is published to is derived from its identity and lowercased, so two identities differing only in letter case land at the same place. Publishing both would leave one entity's bytes overwritten by the other's, and nothing in either entity would say so.
+
+The check runs over the whole catalog at once, because a collision is a property of a pair rather than of either entity on its own — neither is wrong by itself, and reading either in isolation shows nothing.
+
+Emitted message. The condition's own sentence opens it, and every colliding group follows, each naming the shared location and the identities that reach it:
+> oci: distinct catalog identities map to the same OCI repository location:
+>   - `<location>` <- `<identity>`, `<identity>`
+
+**How to fix:** rename one of the entities the message names, in its `metadata.name` and in the directory that mirrors it. Which one to rename is yours to choose; the case-only pairs are the common shape, and picking one spelling and using it consistently is what stops the pair recurring. Renaming is a real change to an entity's identity, so anything referring to the old name has to move with it — that is a reason to settle the collision before either name is published rather than after.
+
+### Keyless signing was asked for without the services it needs
+
+<!-- covers: pkg/signing.ErrKeylessLive -->
+
+A refusal on signing while publishing, not on a build. Keyless signing has no offline form: it obtains an identity, has a short-lived certificate issued for it, records the signature where it can be checked later, and then discards the key. Every one of those is an exchange with a running service. This condition reports that the identity the flow starts from was not available, so the flow is refused rather than started and abandoned partway.
+
+Two shapes report it: nothing configured to supply an identity at all, and something configured that yielded nothing.
+
+**An offline workspace reports differently**, under the refusal that covers every network step, because the refusal happens before an identity is ever asked for.
+
+**Emitted messages.** No source of identity:
+> signing: keyless signing requires a live identity provider, Fulcio, and Rekor: an identity token source is required
+
+and a source that produced nothing:
+> signing: keyless signing requires a live identity provider, Fulcio, and Rekor: an identity token is required
+
+**How to fix:** the fix is the operator's, in how the publish is run. In an automated pipeline the identity comes from the pipeline's own credentials, so this usually means the job was not granted the permission that issues them. Run interactively and the identity comes from signing in, which the command will prompt for. Where you do not want a live identity at all, sign with a held key instead — that path needs none of these services, and it is what to use from an environment that cannot reach them.
+
+### An unsigned publish targets a registry or a policy that requires a signature
+
+<!-- covers: pkg/signing.ErrUnsignedPushRefused -->
+<!-- covers: pkg/signing.ErrSigningPolicyRequiresSignature -->
+
+A refusal on publishing, not on a build. Where a signature is required, unsigned content is not published. The check runs before any bytes are uploaded, so nothing partial reaches the registry.
+
+**Two conditions, because a requirement has two sources and the remedies differ.** One is the destination registry's own stance, which applies to everything published there. The other is the workspace's signing policy, which covers a set of artifact kinds wherever they are published. When both hold, the registry's is reported, because naming the destination is the more useful of the two.
+
+**There is no flag that publishes unsigned content here.** Turning signing off explicitly does not relax the refusal — it only changes the default for artifacts where signing is optional.
+
+The signature is produced before the upload rather than after, so a signing failure also lands here: nothing is published, and an unsigned artifact cannot reach a registry that requires one even transiently.
+
+**Emitted messages.** The registry's own requirement:
+> aggrega push: registry `"<host>"` requires signatures; re-run signing the artifact (there is no flag to push unsigned content here): signing: registry requires signatures; refusing to push unsigned content
+
+the workspace policy's, which names the kind that brought the artifact into scope:
+> aggrega push: the signing policy requires a signature for kind `"<kind>"`; re-run signing the artifact (there is no flag to push unsigned content here): signing: signing policy requires a signature for this artifact kind; refusing to push unsigned content
+
+and a signature that could not be produced, which reports under the registry's condition and quotes the underlying failure:
+> aggrega push: sign `<reference>`:`<version>`: `<the underlying failure>`: signing: registry requires signatures; refusing to push unsigned content
+
+One shape of signing failure is named specifically, because a generic rejection sends people to re-obtain a credential that cannot help:
+> aggrega push: sign `<reference>`:`<version>`: the identity token carries no verified email or subject claim — the OIDC flow/client did not return an email-scoped identity (re-exporting or re-acquiring the token will not help); configure the identity provider/client/scope to return one: `<the underlying failure>`: signing: registry requires signatures; refusing to push unsigned content
+
+**How to fix:** the fix is the operator's. Sign the artifact and publish again — either with a held key or with the keyless path, whichever the workspace is set up for. Where you did not expect a signature to be required, the message says which source required it: a registry's own stance is in that registry's entry in `.aggrega-config.yaml`, and the kind-scoped requirement is in the workspace-wide signing policy. Relaxing either is a decision about what you are willing to publish unsigned, so narrowing the policy's scope is usually better than switching it off.
+
+### A detached signature does not verify against the key supplied
+
+<!-- covers: pkg/signing.ErrSignatureInvalid -->
+
+The negative outcome of checking a bare signature over a payload against a public key, entirely offline: the payload differs from what was signed, the signature has been altered, or the key is not the one that produced it.
+
+**Nothing in the shipped toolchain reaches it.** The check it belongs to has no caller outside its own tests, so no command a user runs — build, pull or publish — reports it. It is catalogued here so that the code resolves to something, not because a build can print it. The verification a pull actually performs is over a full signature bundle and reports separately.
+
+Emitted message, quoting what the verifier reported:
+> signing: signing: signature does not verify: `<what the verifier reported>`
+
+**How to fix:** nothing in your entity files causes this, and nothing you can write in a catalog or a workspace clears it. Where you are running the published command-line tool, this is not a condition you can reach, and a signature problem you are actually looking at is being reported by one of the bundle-verification conditions above instead. Where you use the signing package directly from software of your own, the payload, the signature and the key have to be the three that belong together — a payload re-serialised between signing and verifying is the usual cause, since the bytes then differ even though the content reads the same.
+
+### A resolved artifact is not a documentation bundle
+
+<!-- covers: pkg/docscache.ErrNotDocsBundle -->
+
+A reference that resolves to an artifact of some other kind — a catalog entity, a plugin — is rejected rather than cached as documentation, so a mis-pointed reference fails where it is pointed rather than later as a bundle that cannot be read.
+
+**Nothing in the shipped toolchain reaches it.** The acquisition step it belongs to has no caller outside its own tests, so no command a user runs reports it. It is catalogued here so that the code resolves to something.
+
+Emitted message, naming the reference and both media types:
+> docscache: `<reference>`@`<version>` has media type `"<what was found>"`, want `"<what a documentation bundle is>"`: docscache: artifact is not a documentation bundle
+
+**How to fix:** nothing in your entity files causes this, and no authoring change clears it. Where you are running the published command-line tool, this is not a condition you can reach. Where you use the documentation cache directly from software of your own, the reference is pointing at something that is not a documentation bundle: check it against the reference the bundle is published under, since a reference that is well-formed and points at another artifact resolves successfully and fails only here.
+
+### A page is absent from a documentation bundle
+
+<!-- covers: pkg/docscache.ErrPageNotFound -->
+
+A condition the documentation resource surface absorbs. A documentation bundle was cached and its contents verified, and the page asked for is not in it. It is distinct from having no bundle at all: the bundle is present and sound, and the entry is missing from it.
+
+**It reaches no build and no diagnostic.** Its one consumer is the surface that serves documentation pages to an editor or an assistant, and that surface turns it into an ordinary not-found answer for the resource that was requested. So the condition is answered where it arises and never becomes a message anyone reads.
+
+Emitted message, naming the page and the bundle it was looked for in:
+> docscache: page `"<page>"` in `<reference>`@`<version>`: docscache: page not found in documentation bundle
+
+**How to fix:** nothing is broken in your files. A page that is missing from the bundle is missing because the bundle predates it or the path asked for is not the path it is published under — refreshing the cached bundle to the current version is what brings a newly added page in. Where the page has never existed, the request named a path the documentation does not use, and the published documentation is where to find the one it does.
+
 ## Finding a halt from the short code the build printed
 
 A halting diagnostic's bracketed head names the category the failure is attributable to and, where the failure names one of the conditions catalogued here, that condition's **short code** — the letter `E` and four digits, as in `[CATALOG_ERROR E0209]`. A number is handed out once and then fixed, so a short code you paste into a report or a search still names the condition it named when you recorded it. The other two identifiers a condition carries, and which of the three to reach for when, are taught in [sentinels.md](./sentinels.md).
@@ -3386,13 +3986,32 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0120` | `compactform: unknown keyword` | A compact-form schema uses a keyword the compact form does not know |
 | `E0121` | `compactform: cross-document $ref target not found` | A `$ref:` is not written in a form the compiler can resolve |
 | `E0122` | `deprecation: build consumes a deprecated entity` | The build consumes an artifact its publisher has deprecated |
+| `E0123` | `docscache: artifact is not a documentation bundle` | A resolved artifact is not a documentation bundle |
+| `E0124` | `docscache: page not found in documentation bundle` | A page is absent from a documentation bundle |
+| `E0125` | ``egress: network access refused because the workspace is offline; remediation: unset workspace.offline (or AGGREGA_OFFLINE) or run `aggrega pull --release <release>` from a connected environment to populate the cache`` | The workspace is offline and the step needs the network |
 | `E0126` | `externalinputs: acquisition is disabled for unpinned inputs` | An unpinned external input is requested while acquisition is off |
 | `E0127` | `externalinputs: fetched bytes mismatch the pinned digest` | Fetched bytes do not match a pinned digest |
 | `E0128` | `externalinputs: URL scheme is not allowed` | An external input's URL uses a scheme that is not allowed |
 | `E0129` | `externalinputs: store blob mismatches its pinned record` | A stored external input no longer matches its record |
+| `E0130` | `lockfile: out of date; it no longer matches the current catalog` | The lockfile no longer matches what the release resolves to |
+| `E0131` | `lockfile: file failed schema validation` | The lockfile does not satisfy its schema |
+| `E0132` | `oci: manifest has multiple layers of the expected content media type` | A manifest carries no layer of the expected kind, or more than one |
+| `E0133` | `oci: cached manifest digest mismatch` | Fetched or cached bytes do not match the digest committed for them |
+| `E0134` | `oci: entity per-version subdirectory mismatch` | An entity's version directory does not match its declared version |
+| `E0135` | `oci: content digest mismatch` | Fetched or cached bytes do not match the digest committed for them |
+| `E0136` | `oci: network unreachable` | The registry could not be reached |
+| `E0137` | `oci: artifact not found at remote source` | An artifact is not at the source the build was told to find it |
+| `E0138` | `oci: authentication required or failed` | The registry will not serve an artifact without credentials it accepts |
+| `E0139` | `oci: tag already published with different content` | A tag is already published with different content |
+| `E0140` | `oci: manifest has no layer of the expected content media type` | A manifest carries no layer of the expected kind, or more than one |
+| `E0141` | `oci: distinct catalog identities map to the same OCI repository location` | Two catalog identities publish to one repository location |
+| `E0142` | `oci: referrer discovery could not be completed` | The registry could not answer what is attached to an artifact |
+| `E0143` | `oci: unknown entity kind for mediatype dispatch` | An entity kind has no artifact media type |
 | `E0144` | `cached signature bundle does not match its recorded digest` | A cached signature bundle does not match the digest recorded for it |
 | `E0145` | `plugin reference is not a Plugin entity` | A plugin reference is not a Plugin entity |
 | `E0146` | `circular reference expansion` | A library reference expands into itself |
+| `E0147` | `registrytrust: advertised trust config is malformed` | A registry serves a trust document that cannot be read as one |
+| `E0148` | `registrytrust: registry advertises no trust config` | A registry publishes no trust document |
 | `E0149` | `attachment name is a near miss for a declared slot` | An attachment name is one edit from a declared slot |
 | `E0150` | `attachment does not conform to its declared slot shape` | Attachment does not conform to its declared slot shape |
 | `E0151` | `component declared in more than one boundary: declare each component in exactly one boundary` | A component is placed in more than one boundary |
@@ -3419,6 +4038,18 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0173` | `declared parameter is read by no reference in the Aggregate` | A declared parameter is read by nothing |
 | `E0174` | `uses socket name is a near miss for a declared socket` | A `uses:` socket name is one edit from a declared socket |
 | `E0175` | `YAML load failed: check the file exists, is readable, and contains well-formed YAML` | A file cannot be read, or its text is not well-formed YAML |
+| `E0176` | `signing: keyless signing requires a live identity provider, Fulcio, and Rekor` | Keyless signing was asked for without the services it needs |
+| `E0177` | `signing: no signature found for an artifact that requires one` | An artifact that must be signed carries no signature |
+| `E0178` | `signing: keyless verification requires at least one trusted identity` | A keyless trust policy names no acceptable signer |
+| `E0179` | `signing: signature does not verify` | A detached signature does not verify against the key supplied |
+| `E0180` | `signing: signature bundle does not verify` | A signature does not verify |
+| `E0181` | `signing: signing policy requires a signature for this artifact kind; refusing to push unsigned content` | An unsigned publish targets a registry or a policy that requires a signature |
+| `E0182` | `signing: cannot load pinned trust root` | The pinned trust root cannot be read |
+| `E0183` | `signing: registry requires signatures; refusing to push unsigned content` | An unsigned publish targets a registry or a policy that requires a signature |
+| `E0184` | `signing: unsupported held-key type` | A pinned verification key is not the key profile the verifier accepts |
+| `E0185` | `signing: signature identity is not trusted for this registry` | A signature verifies but its signer is not one the registry trusts |
+| `E0186` | `sourceresolver: no adapter registered for source kind` | A Recipe's `source:` names a kind nothing knows how to acquire |
+| `E0187` | `cacheslot: empty workspaceRoot` | A source artifact is cached without a workspace root to anchor it |
 | `E0188` | `artifacts entry: shape must be a string scalar or {$import: <local-path>}` | An inline-or-import field is written in neither shape |
 | `E0189` | `artifactslibrary: entry must be a mapping of filename to a string body` | A library entry's body is not the shape that library holds |
 | `E0190` | `schemalibrary: forbidden JSON Schema keyword` | A schema uses a JSON Schema keyword the library does not admit |
@@ -3452,6 +4083,13 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0219` | `merger: cyclic extends chain` | The schema-merge walk's own chain safeguards |
 | `E0220` | `merger: extends chain exceeds maximum depth` | The schema-merge walk's own chain safeguards |
 | `E0221` | `merger: invalid merge input` | The schema-merge walk's own chain safeguards |
+| `E0222` | `workspaceconfig: registry alias matches more than one host` | A registry alias matches more than one host |
+| `E0223` | `workspaceconfig: a cross-cutting socket is bound by capability but attaches by uri` | A plugin binding sets a key the socket it attaches to does not read |
+| `E0224` | `workspaceconfig: file failed schema validation` | The workspace configuration file does not satisfy its schema |
+| `E0225` | `workspaceconfig: capability is bound to more than one provider plugin` | A capability is bound to more than one provider plugin |
+| `E0226` | `workspaceconfig: registry alias is already used by another host` | A registry alias is already bound to another host |
+| `E0227` | `workspaceconfig: a governance attachment declares no role or an unknown role` | A governance attachment declares no role, or one that is not a known role |
+| `E0228` | `workspaceconfig: a provider socket binding sets a field with no referent on that socket` | A plugin binding sets a key the socket it attaches to does not read |
 | `E0229` | `position out of range` | An editor position falls outside the document |
 | `E0230` | `cloudformation-provider: one mapping key is written more than once` | A CloudFormation fragment writes one key twice |
 | `E0231` | `cloudformation-provider: cross-boundary link resolve received no consumer stack template` | A cross-boundary reference has no consuming stack to be written into |
