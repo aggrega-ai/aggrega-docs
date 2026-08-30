@@ -696,6 +696,21 @@ The condition it is recorded under is `compactform: cross-document $ref carries 
 
 **How to fix:** drop the host and everything before the library name, leaving `<Library>#/schemas/<Entry>`. Where a version floor is wanted, write it after the library name as `:<version>`. The same rule governs the `$import:` fields on a Recipe and a FeatureRecipe, which report separately under "A library `$import:` addresses its library by registry location" below.
 
+### A plugin asks the host to parse a source while a parse is already running for it
+
+<!-- covers: internal/wasm.ErrProducerConsumptionReentry -->
+
+A plugin may ask the host to parse a source and hand back the result, so that a plugin needing a document in some format does not have to carry a reader for it. The host runs the plugin that produces the parse and returns what it produced. This condition is what happens when the plugin reached that way asks for a parse of its own: the request would re-enter the same mechanism it is already running inside, and the host refuses instead of descending. One level of this is what the mechanism offers, and the refusal is what holds it to one.
+
+**The denial reaches the plugin, not the build.** The host does not stop there and unwind; it answers the call with a failure envelope carrying the sentence below and a code naming the refusal, and the plugin that asked receives it as the answer to its request. What the build then does depends on what that plugin does with the answer — a plugin that treats it as fatal ends the build, one that reports and carries on does not. The refusal itself is the same either way.
+
+It is neither plugin's fault in particular: the guard covers whatever pair of plugins the request routed through rather than one named pairing, so the same refusal is met wherever the mechanism is re-entered.
+
+Emitted message, as the plugin receives it:
+> aggrega_parse_source: producer-consumption re-entry denied: a producer reached through the host may not issue a further producer-consumption call
+
+**How to fix:** nothing in your own files causes this and no authoring change clears it — it is a property of the plugins the build is configured with. The plugin that asks for a parse from inside a parse is the one to correct, so report the condition to whoever publishes it, quoting the message. Where that plugin is yours, have it read the source it was handed directly rather than asking the host to parse another one while it is itself serving a parse.
+
 ## When resolving the catalog
 
 After loading, the compiler walks the Manifest's two tiers (type map, then name map) to pick the Recipe for every Component, and it walks any `extends` chains on Manifests, Components, or Features.
@@ -1313,6 +1328,132 @@ Emitted message:
 > annotation-transform plugin output was rejected: an injection targets a component coordinate the host did not supply: injection targets boundary `"<boundary>"` component `"<component>"` (annotation `"<key>"`)
 
 **How to fix:** the fault is the plugin's rather than your documents' — correct it so it injects only onto the coordinates it is handed, each of which arrives in its input. Where the component in the message is one you expected the plugin to see, check that the deployment declares it inside a boundary: only declared component coordinates are handed over. Removing the attachment from `plugins.governance` is the immediate way to unblock a build while the plugin is corrected.
+
+### A plugin reference is not a Plugin entity
+
+<!-- covers: pkg/pluginpath.ErrPluginEntityNotFound -->
+
+A plugin is referenced by its Plugin entity, written as `name:version` or `provider/name:version`. The binary the entity points at is reached through the entity, never named directly, so the entity is what carries the capability claim, the runtime limits and the recorded command set the load checks the binary against. A reference that names no Plugin entity therefore has nothing to check the binary against, and the build stops rather than load bytes on an unchecked reference.
+
+Two shapes report here, and they are checked at different moments. A reference whose **form** cannot be an entity — a filesystem path, or an artifact reference such as an `oci://` URL, a bare `.wasm`, or an `@sha256:` digest — is refused up front on the surfaces that take only entity references. A reference that is well-formed but names no entity the catalog holds is refused after the lookup. Both report the same condition, so a build's response to either is the same.
+
+**Not every surface refuses a non-entity form.** The pipeline-plugin surface takes entity references only; the surfaces an operator attaches a plugin to directly accept any form and pass a non-entity reference on to be resolved as an artifact. So the same reference can be accepted at one attachment point and refused at another, and that difference is the surface's, not the reference's.
+
+Emitted messages. A filesystem path:
+> plugin reference is not a Plugin entity: `"<reference>"` is a filesystem path, but a pipeline plugin must be a Plugin entity URI (e.g. `name:version` or `provider/name:version`)
+
+an artifact reference:
+> plugin reference is not a Plugin entity: `"<reference>"` is an artifact reference (an `oci://` scheme, a bare `.wasm`, or an `@sha256:` digest), but a pipeline plugin must be a Plugin entity URI (e.g. `name:version` or `provider/name:version`)
+
+and a well-formed reference naming no entity:
+> plugin reference is not a Plugin entity: `"<reference>"` must be a Plugin entity URI (e.g. `name:version` or `provider/name:version`); bare-`.wasm` and artifact references are no longer accepted
+
+**How to fix:** write the reference as the Plugin entity's identity and version. Where you were pointing at a file or an artifact directly, publish or author a Plugin entity for it and reference that instead — the entity is where the claims the load checks live, so there is no equivalent form that skips it. Where the reference already looks like an entity identity, the entity is missing from the catalog the build resolves against rather than misspelled in form: check the version exists and that the catalog holding it is in the workspace.
+
+### A cached signature bundle does not match the digest recorded for it
+
+<!-- covers: pkg/pluginpath.ErrPluginBundleDigestMismatch -->
+
+A plugin whose signature was verified when it was fetched carries that fact forward as a recorded digest of the signature material, cached alongside the plugin. Before such a plugin loads, the build re-reads that cached material and re-hashes it, and the hash has to be the recorded one. A bundle that is missing, unreadable, or hashes to something else means the reviewed material is not what is on disk now, and the build stops rather than run a plugin whose signature evidence has changed underneath the record.
+
+**The re-check is a hash comparison and nothing more.** It re-verifies no signature, contacts no network and consults no trust material, so it holds in a build with no network access at all — which is what lets a verified-once plugin stay verified across later offline builds.
+
+Emitted messages, naming the plugin, where its bytes came from, and the cached file. Unreadable or absent:
+> plugin `"<reference>"` resolved from `<source>`: cached signature bundle `<path>` is unreadable: cached signature bundle does not match its recorded digest
+
+and drifted:
+> plugin `"<reference>"` resolved from `<source>`: cached signature bundle `<path>` has digest `<actual>`, recorded digest is `<recorded>`: cached signature bundle does not match its recorded digest
+
+**How to fix:** nothing in your entity files causes this — the cache is the build's, not yours. Re-fetch the plugin so the bundle and its record are written together again, which is what an ordinary pull does. Where re-fetching restores it, the cached copy had been removed or altered since the fetch that recorded it; where the mismatch survives a re-fetch, the recorded digest and the material the publisher serves genuinely disagree, and that is a question for whoever publishes the plugin.
+
+### A plugin recorded as a trusted gate is no longer attached
+
+<!-- covers: pkg/pluginstrust.ErrVerdictAttachmentNotConfigured -->
+
+A plugin that returns an accept-or-reject verdict over a build is recorded once it has been resolved, so the workspace holds a record of which gates were reviewed. This condition is what a recorded gate that nothing attaches any more reports. The reason it stops the build rather than passing quietly is that its output would otherwise be indistinguishable from output the gate approved: a build with the gate silently absent and a build the gate let through produce the same files, and nobody reviewing the result could tell which they were holding.
+
+It is a different question from a plugin whose bytes have drifted. That one refuses to run a plugin that is not the reviewed one — a question of identity. This one refuses to build with a reviewed gate missing altogether — a question of presence. The remedies differ accordingly: restore the artifact, against restore the attachment.
+
+**What it establishes, and what it does not.** Holding the configuration to the record establishes that every recorded gate is still attached and that each one's artifact is the recorded one. It establishes nothing about whether an attached gate returns a verdict at all: an attachment whose entry function names a declared export that returns no verdict runs, reports nothing, and lets the build through, and no comparison against the record notices — the plugin that ran is exactly the recorded one and it simply ran nothing. Two neighbouring cases do stop the build, and they are named so this bound is not read as wider than it is: an entry function naming an export the plugin does not declare is refused when the plugin loads, and an output carrying a key the verdict shape does not declare is refused rather than read as an empty verdict list.
+
+Emitted message, naming the record, the dropped gates and both remedies:
+> a plugin recorded as trusted for an accept-or-reject verdict is no longer attached at any verdict role: `<record-path>` records `<plugin>` as trusted, but no verdict attachment in the workspace configuration names it; a gate that was reviewed and is now absent leaves output indistinguishable from output that gate approved. Attach the plugin again under `plugins.governance` at an `ir-verdict` or `render-verdict` role, or under `plugins.linter`; or, if it was meant to go, run `aggrega pull --upgrade --release <release> <plugin>` to drop it from the record — an ordinary `aggrega pull` leaves the record as it is, so only an explicit upgrade removes an entry
+
+Where more than one gate was dropped, they are named together on one upgrade command rather than one command each: a targeted upgrade takes several targets and leaves every pin it did not name alone, so naming them together is both shorter and narrower than the full refresh the alternative would need.
+
+**How to fix:** the message offers two remedies because only you know which applies. If the gate was removed by mistake, attach the plugin again under `plugins.governance` at a verdict role, or under `plugins.linter`. If it was meant to go, say so explicitly with the targeted upgrade the message spells out, which is what drops its entry. Do not edit or delete the record to clear this — it is a committed record of what was reviewed, and an ordinary pull deliberately leaves it alone, because adopting a removal silently is exactly what this refusal exists to prevent.
+
+### A Plugin entity's claims disagree with the plugin's own self-report
+
+<!-- covers: internal/wasm.ErrWasmContractMismatch -->
+
+A Plugin entity states what the plugin it points at offers: which exports it has, what each of them operates on and at what scope, and — for a plugin serving a provider — how it behaves when rendering. The plugin reports the same things about itself when it is loaded. This condition is what a disagreement between the two reports.
+
+The comparison is per export, keyed by name, and it runs in one direction: **everything the entity claims must match, and the plugin may offer more.** An entity that describes part of the plugin's surface is not required to enumerate the rest, so an export the plugin declares and the entity omits is not a disagreement. What is a disagreement is a claimed export the plugin does not declare, or a claimed export whose operates or scope differs from what the plugin reports. The free-form selector is not compared.
+
+Where the entity also authors a render-behaviour block, its fields are compared one by one — the input kinds, the assembly mode, the artifact-template delimiter pair, the assembly-name annotation, the source filter, the reusable-instance claim and the cross-boundary-linking claim — and the first to disagree is the one named. An entity that authors no such block skips that comparison entirely.
+
+**The same check runs at publish**, so a mismatch normally surfaces before the entity is published rather than when a build loads it.
+
+Emitted messages. A claimed export the plugin does not have:
+> entity `"<entity>"` claims export `"<export>"`, which the plugin's describe() does not declare: wasm: entity contract claim does not match plugin describe()
+
+a field on a claimed export:
+> entity `"<entity>"` export `"<export>"` declares operates `"<claimed>"` but the plugin's describe() reports `"<reported>"`: wasm: entity contract claim does not match plugin describe()
+
+and a render-behaviour field, which reports in the same shape naming the field that disagreed:
+> entity `"<entity>"` declares boundary_assembly `"<claimed>"` but the plugin's describe() reports `"<reported>"`: wasm: entity contract claim does not match plugin describe()
+
+**How to fix:** this is the Plugin entity's claim to correct, not your Aggregate or Release. Bring the claim into line with what the plugin reports — the message names both values, so which way it has to move is visible in the message itself. Where the entity is one you publish, re-generating it from the binary is the reliable way to make the two agree; where you consume a published entity, select a version whose claim matches the binary it points at, and report the disagreement to whoever published it.
+
+### A Plugin entity's recorded command set does not match the plugin
+
+<!-- covers: internal/wasm.ErrWasmCommandsMirrorMismatch -->
+
+A plugin that contributes terminal commands has those commands recorded in its Plugin entity. That record is machine-written rather than authored: it is read out of the plugin and written down, so it reflects the binary exactly. This condition is what a record that has stopped reflecting it reports — a difference in a command's name, in its short help text, or in the order the commands are declared in.
+
+**The comparison is full equality, and that is deliberate.** The capability and export claims elsewhere on the entity are curated: an author may legitimately describe part of the surface and leave the rest out, so those are checked as a subset. The command record is not curated, so anything short of exact agreement means the record has drifted from what the plugin actually offers, and a command list that is close but not right is what would mis-route an invocation.
+
+**A plugin loaded without an entity is not checked here.** The record lives on the entity, so bytes loaded directly carry none and the comparison has nothing to run against.
+
+Emitted message, naming both sets and how to re-record them:
+> wasm: plugin `"<plugin>"`: recorded command mirror `<recorded set>` does not match the plugin describe() commands `<reported set>`; re-run `aggrega plugin sync` and commit the result: wasm: recorded command mirror does not match plugin describe()
+
+The same comparison at publish reports the sets without the re-record instruction:
+> plugin `"<plugin>"`: recorded command mirror `<recorded set>` does not match the plugin describe() commands `<reported set>`: wasm: recorded command mirror does not match plugin describe()
+
+**How to fix:** re-record the set from the binary and commit the result — the message names the command that does it. Do not hand-edit the record to match: it is machine-owned, and a hand-edit that happens to agree today is re-derived and overwritten the next time it is recorded. Where you consume a published entity rather than publishing it, the entity was published with a record its own binary does not support, and that is a question for its publisher.
+
+### A Plugin entity's recorded version does not match the plugin
+
+<!-- covers: internal/wasm.ErrWasmPluginVersionMismatch -->
+
+A Plugin entity's version is taken from the version the plugin reports about its own build when the entity is generated, so the two agree by construction. This condition is what a hand-edit that has moved them apart reports, and it is checked before any bytes are published so a divergent pair does not reach a catalog.
+
+The comparison is an exact string match. A plugin built without a recorded build version reports an empty one, and that empty value is then what the entity's version has to equal — the check does not treat "no version reported" as "any version accepted", because the point of it is that a published entity's version always says what its binary actually reports.
+
+Emitted message:
+> plugin `"<plugin>"`: recorded metadata.version `"<recorded>"` does not match the plugin describe() version `"<reported>"`: wasm: entity metadata.version does not match plugin describe()
+
+**How to fix:** re-record the entity's version from the binary rather than choosing one. Where you meant to publish a new version, rebuild the plugin so it reports that version and re-generate the entity from it, so the two move together; setting the entity's version alone is exactly what this refuses. Where the plugin reports no version at all, the entity's version has to be empty to match, and the durable answer is to build the plugin with its version recorded.
+
+### A Plugin entity's recorded host functions do not match the binary
+
+<!-- covers: internal/wasm.ErrWasmHostFunctionsStampMismatch -->
+
+A plugin declares which of the host's own calls it uses, and that set is recorded on its Plugin entity when the plugin is published — read out of the binary itself rather than authored. When the plugin is fetched, the set is derived again from the bytes whose content has just been verified, and compared to the record. A difference in either direction stops the fetch.
+
+**This sits on top of the content pin rather than repeating it**, and it catches two things the pin alone does not: a binary published by something other than the ordinary publish path, which carries no record or one that does not describe its own bytes; and a fault in the recording step itself. The pin establishes that the bytes are the bytes that were pinned; this establishes that what was written down about them is true of them.
+
+An entity carrying no record is compared against an empty set, which matches a plugin that uses none of the host's calls — the same benign agreement either way round, so an entity without a record is not refused for lacking one.
+
+Emitted message, naming the plugin, both sets, and the artifact the bytes came from:
+> plugin `"<plugin>"`: stamped spec.runtime.hostFunctions `<recorded set>` does not match `<derived set>` derived from the verified .wasm `<artifact>`: wasm: stamped host-function record does not match .wasm imports
+
+The same comparison run while a plugin is being validated reports the two sets without the artifact:
+> plugin `"<plugin>"`: recorded host-function record `<recorded set>` does not match the .wasm imports `<derived set>`: wasm: stamped host-function record does not match .wasm imports
+
+**How to fix:** nothing in your entity files causes this and no authoring change clears it. Re-publish the plugin through the ordinary publish path, which derives the record from the binary and writes the two together. Where you consume a published plugin, the entity and the binary it points at were published out of step, so report the mismatch to whoever publishes it, quoting both sets from the message — and do not hand-edit the record to agree, since it is derived rather than authored and the next derivation discards the edit.
 
 ## When building the topology
 
@@ -2686,6 +2827,284 @@ and for a component in no scope, which contributes no such value:
 
 **How to fix:** declare the attachment under `features:` on the boundary it should generate for — the scope the component sits in, or one enclosing it — rather than only on the component. Where per-component generation was what you meant, attach a Feature whose FeatureRecipe does not declare the boundary scope instead.
 
+### The sandbox refused a plugin
+
+<!-- covers: internal/wasm.ErrWasmManifestRejected -->
+
+Every plugin reports what it is and what it needs before it is allowed to do any work, and the sandbox reads that report against what it is prepared to grant. This condition covers the whole class of report the sandbox will not accept, and the sentence says which part of it was refused: a version of the plugin interface the host does not speak, a kind of plugin the host has no vocabulary for, a plugin asking for outbound network access or filesystem access, a plugin naming a host call outside the set the host offers or importing from a namespace outside the set it admits, a missing or malformed export, a field carrying a value outside the set it is closed to, or a self-report that is not readable at all.
+
+The refusal happens before the plugin runs, and a refused plugin is shut down before the failure travels, so nothing it asked for is granted even briefly.
+
+**Some of what a plugin cannot have is not checked here because it is never granted.** The host gives a guest a frozen clock, no filesystem, no environment, and nowhere for its own output to go, so a guest that tries to reach any of them fails at the attempt rather than being refused up front. What this condition covers is the report the plugin makes about itself, checked before it starts.
+
+**Emitted messages.** The condition's sentence closes each one, and what precedes it names the plugin and the part of its report that was refused. An interface version the host does not speak:
+> plugin `"<plugin>"` declares abi_version `"<declared>"`; host speaks `"<supported>"`: wasm: plugin rejected by the sandbox
+
+a kind of plugin the host has no vocabulary for:
+> plugin `"<plugin>"` declares unknown plugin_type `"<declared>"`: wasm: plugin rejected by the sandbox
+
+a self-report that cannot be read:
+> wasm: plugin `"<plugin>"` describe() output is not valid JSON: `<what the read reported>`: wasm: plugin rejected by the sandbox
+
+a plugin missing the export its kind requires, named from the same registry the kind itself is read from:
+> `<kind>` plugin `"<plugin>"` declares no `"<export>"` export: wasm: plugin rejected by the sandbox
+
+a field closed to a fixed set, carrying something else — the same shape covers the assembly mode, and the per-export operates and scope fields:
+> plugin `"<plugin>"` export `"<export>"` declares unknown scope `"<declared>"` (want `"own"`, `"host"`, or empty): wasm: plugin rejected by the sandbox
+
+a paired capability declared without both its exports, or the exports without the claim:
+> plugin `"<plugin>"` declares the cross-boundary linking capability but does not export both `"link_publish"` and `"link_resolve"`: wasm: plugin rejected by the sandbox
+
+and the host calls a plugin claims against the ones its binary actually uses, which is checked in both directions so a plugin can neither advertise a surface it does not use nor hide one it does:
+> plugin `"<plugin>"` declares host function `"<name>"` in describe() that its wasm does not import: wasm: plugin rejected by the sandbox
+> plugin `"<plugin>"` imports host function `"<name>"` that its describe() does not declare: wasm: plugin rejected by the sandbox
+
+**How to fix:** nothing in your entity files causes this and no authoring change clears it — the report being refused is the plugin's own. Where you consume a published plugin, report the message to whoever publishes it and select a version the host accepts in the meantime. Where the plugin is yours, the message names the field and both values, so the correction is the one the sentence points at: speak the interface version the host speaks, declare a kind it knows, keep every field inside the set it is closed to, declare the export your kind requires, and declare exactly the host calls your binary uses — no more, and no fewer.
+
+### A plugin is not the kind of plugin the socket expects
+
+<!-- covers: internal/wasm.ErrWasmPluginTypeMismatch -->
+
+Each attachment point states what kind of plugin it dispatches to, and every plugin reports its own kind. This condition is what a disagreement between the two reports: a plugin serving a provider attached where a linter is expected, a parser attached where an importer is expected, a plugin that is not a terminal command run as one. The check happens as the plugin loads, so a plugin of the wrong kind never reaches the work it would have been asked to do.
+
+The reason it stops rather than trying anyway is that the kinds do not share an interface. A plugin of another kind would be called through exports it does not have, and what came back would be read against a shape it never produced.
+
+**Reading a plugin's self-report without asserting a kind is not affected.** A surface that only wants to know what a plugin says about itself — listing what is configured, generating an entity for one — states no expectation, and this check is skipped there.
+
+Emitted message, naming the plugin and both kinds, with the expected kind given in words as well as in its declared value:
+> wasm: plugin `"<plugin>"`: expected a `<kind in words>` plugin (plugin type `"<expected>"`) but its describe() reports plugin type `"<reported>"`: wasm: declared plugin type does not match plugin describe()
+
+**How to fix:** attach a plugin of the kind the attachment point takes — the message names the kind expected. Where the plugin is the one you meant, the attachment is in the wrong place: move it to the surface its kind belongs to. Where you author the plugin and it should be the expected kind, it is reporting the wrong one about itself, and that is a correction in the plugin rather than in the configuration attaching it.
+
+### A plugin failed while it was running
+
+<!-- covers: internal/wasm.ErrWasmGuestPanic -->
+<!-- covers: internal/wasm.ErrWasmPluginExited -->
+<!-- covers: internal/wasm.ErrWasmGuestError -->
+
+A plugin that was asked to do something did not come back with a result. Three conditions cover this, and what separates them is only how the failure travelled — a plugin that crashed, a plugin that stopped its own execution, and a plugin that ran to the end and reported that it could not do what was asked. They are one taxonomy deliberately, so that a build treats every way a plugin can fail alike.
+
+**A plugin that crashed.** Most faults inside a plugin — an unreachable instruction, a division by zero, a read outside its memory — are turned into ordinary failures on the way out and never reach this condition. It is the net behind that path, for a crash that escapes it.
+
+**A plugin that stopped its own execution.** A plugin asking to exit is doing something the plugin model does not have a use for: a plugin returns its result through the call it was made with, not by exiting. Its own execution stops; the build process is untouched.
+
+**A plugin that reported a failure.** The result envelope a plugin returns has a place for it to say it could not complete, and a message that says so is carried through as a failure rather than read as a result.
+
+**Emitted messages**, each naming the plugin or the export and carrying whatever the failure supplied. A crash carries the recovered value:
+> wasm: guest plugin `"<plugin>"` panicked in `<export>`: `<the recovered value>`: wasm: guest plugin panicked during call
+
+a self-stopped plugin carries the code it stopped with:
+> wasm: plugin `"<plugin>"` call to `<export>` invoked proc_exit(`<code>`): wasm: plugin invoked proc_exit
+
+and a reported failure carries the plugin's own message:
+> call `"<export>"`: wasm: guest plugin reported an error: `<the plugin's message>`
+
+**How to fix:** nothing in your entity files causes any of the three, and no authoring change clears them — each is a fault inside the plugin. Report the message to whoever publishes it, naming the export it identifies, and pin the plugin to a version that worked while it is corrected. Where the plugin is yours: return a failure on the result envelope rather than crashing or exiting, so the build gets a message it can show; and where the reported failure is the plugin's own considered answer, its message is what a reader will see, so it is worth saying what about the input it could not accept.
+
+### A plugin returned something that is not the shape the socket reads
+
+<!-- covers: internal/wasm.ErrWasmOutputShape -->
+
+Every attachment point reads the result it gets back against the shape it expects, and refuses anything else — a field the shape does not declare, a field whose value is not the type declared for it, or bytes that are not a well-formed result at all.
+
+**It refuses rather than reading what it can, and the reason is that reading what it can would be silent.** Which export an attachment calls can be chosen per attachment, so an attachment can name an export whose result is a different shape entirely. Skipping the parts that do not fit yields an empty result — and an empty result is itself a legitimate answer: no verdict returned, no finding raised. The two would then be indistinguishable, and a build would carry on exactly as though the plugin had approved it.
+
+Emitted message, naming the export the result came back from and carrying the reason the read failed — together they identify the export the attachment should have named:
+> call `"<export>"`: wasm: guest plugin returned an output that is not the shape the socket reads: `<what could not be read>`
+
+**How to fix:** check the entry function the attachment names against the exports the plugin declares — an attachment pointed at the wrong export is the common cause, and the reason in the message names the field that does not belong. Where the export is the right one, the plugin is returning a shape the attachment point does not read, which is a correction in the plugin; report it to whoever publishes it, quoting both the export and the reason.
+
+### A plugin returned a diagnostic at a severity that is not declared
+
+<!-- covers: internal/wasm.ErrWasmDiagnosticSeverity -->
+
+A plugin may return observations alongside its result, and each carries a severity from a closed set: one that stops the build and names what to fix, one that is shown beside a build that still completes, and one that records the observation and changes nothing. A severity outside that set is one the host has no route for, and the build stops.
+
+**It refuses rather than choosing a route, and both alternatives are worse.** Passing over an observation it cannot route would treat it as nothing to do — which, where the plugin is deciding whether to accept the build, reads as approval: an objection the plugin raised would let the build through without ever being shown. Treating it as the stopping severity would reject a build on a value nobody chose. Both are silent, so the host says the value is wrong and the plugin is corrected instead.
+
+The check runs once, where the result is read, rather than at each place an observation is later shown — which is also the only point at which the plugin's identity is still to hand, since an observation folded into a report no longer knows which plugin raised it.
+
+Emitted message, naming the plugin, the export, which observation was at fault, its value, and the values that are declared:
+> plugin `"<plugin>"` call `"<export>"`: wasm: guest plugin returned a diagnostic whose severity the contract does not declare: diagnostic `<index>` has severity `"<value>"`; the declared severities are `"halt"`, `"warn"` and `"info"`
+
+**How to fix:** nothing in your entity files causes this — the value came from the plugin. Report it to whoever publishes the plugin, quoting the value the message names. Where the plugin is yours, emit one of the three declared severities; the message names them, and the index tells you which observation to look at.
+
+### A workload declares a form compose cannot express
+
+<!-- covers: plugins/internal/composecore.ErrUnsupportedComposeForm -->
+
+The compose provider renders long-running services. A workload declaring that it runs one copy per machine, that it runs on a schedule, or that it runs once and finishes has no clean single-machine equivalent, so the render stops rather than emit a plain service — which would start it, keep it running, and misrepresent what was asked for.
+
+Emitted message. The provider's own sentence names the form it was given, and the condition it is recorded under follows it as the cause:
+> compose: workload form `"<form>"` has no compose mapping; compose supports stateless and stateful only
+> caused by: TRANSLATION_ERROR: compose cannot express this workload form
+
+**How to fix:** where the target genuinely is a single-machine compose environment, express the work as a long-running service — the stateless and stateful forms are the two it renders. Where the form is what you meant, render that boundary through a provider whose target has an equivalent: a per-machine copy, a scheduled run and a run-to-completion job all have direct expressions elsewhere, and the choice of provider is the boundary's rather than the workload's.
+
+### A container declares a field compose has no primitive for
+
+<!-- covers: plugins/internal/composecore.ErrUnsupportedComposeLifecycle -->
+<!-- covers: plugins/internal/composecore.ErrUnsupportedComposeEnvFrom -->
+
+Two container fields have no compose equivalent, and both stop the render rather than be dropped.
+
+**Hooks that run when a container starts or is about to stop.** compose has nothing that runs them, and a hook that is quietly not run is a correctness surprise that surfaces at run time rather than at build time.
+
+**Bulk environment drawn from a named object.** compose can read variables from a file, but a reference to an object is not a file — reinterpreting one as the other would change what the container is given without saying so.
+
+Both are checked for ordinary containers and for containers that run before the main one, so the same field halts wherever it is declared and the message names which container it came from.
+
+**Emitted messages**, each with the condition it is recorded under following as the cause:
+> compose: node `"<node>"` declares container lifecycle hooks; compose has no lifecycle-hook primitive
+> caused by: TRANSLATION_ERROR: compose has no lifecycle-hook primitive; container declares lifecycle hooks
+
+> compose: node `"<node>"` declares container envFrom; compose has no env-from-object primitive
+> caused by: TRANSLATION_ERROR: compose has no env-from-object primitive; container declares envFrom
+
+**How to fix:** for a compose target, remove the field and do its work another way — start-up work belongs in a container that runs before the main one, and shutdown work in the container's own signal handling; bulk environment can be written out as explicit variables, or supplied from a file the compose target can read. Where the field is what you meant, render that boundary through a provider whose target has the primitive.
+
+### A published port declares a transport compose cannot spell
+
+<!-- covers: plugins/internal/composecore.ErrUnsupportedComposePortProtocol -->
+
+A published compose port carries its transport as a suffix on the entry, and that suffix has two spellings. A port declaring any other transport has no compose spelling at all.
+
+**It stops rather than drop the suffix**, because a published port that quietly falls back to the default transport comes up carrying traffic its clients cannot reach — which is exactly the failure declaring a transport exists to prevent, reintroduced at the moment of translation.
+
+**A port declaring no transport is unaffected.** It publishes with no suffix, exactly as a port that never carried a transport would.
+
+Emitted message. The condition's own sentence is what is printed here, beneath the frame naming the node and container the port was declared on:
+> TRANSLATION_ERROR: compose publishes a port's transport as a tcp or udp suffix; this port declares a transport compose cannot express
+
+**How to fix:** for a compose target, declare the port's transport as one of the two compose can spell, or leave it undeclared and let the entry publish without a suffix. Where the transport is what you meant, render that boundary through a provider whose target can express it.
+
+### A resources quantity cannot be converted to a compose value
+
+<!-- covers: plugins/internal/composecore.ErrUnconvertibleComposeQuantity -->
+
+A container's processor and memory quantities are written in a form compose does not use, so they are converted. This condition is what a quantity that cannot be converted without loss reports — a memory quantity that is not a whole number of bytes, or a suffix the conversion has no rule for. It stops rather than round the value or emit an approximation, because a limit that is quietly not the limit that was asked for is the kind of difference nobody looks for until something is stopped for exceeding it.
+
+**Emitted messages**, each naming the quantity and the forms that convert:
+> compose: cannot convert cpu quantity `"<value>"` to a deploy.resources cpus value; use a millicpu (e.g. 500m) or a plain core count (e.g. 0.5, 2)
+> caused by: TRANSLATION_ERROR: resources quantity cannot be converted to a compose deploy.resources value
+
+> compose: cannot convert memory quantity `"<value>"` to a deploy.resources byte count; use an integer quantity with a binary (Ki/Mi/Gi/Ti/Pi) or decimal (k/M/G/T/P) suffix, or a plain byte integer
+> caused by: TRANSLATION_ERROR: resources quantity cannot be converted to a compose deploy.resources value
+
+**How to fix:** write the quantity in one of the forms the message lists. A fractional memory quantity is the common cause and the fix is to write the same amount as a whole number in a smaller unit. Processor quantities take either a thousandths-of-a-core value or a plain count.
+
+### A health probe cannot be turned into a compose healthcheck
+
+<!-- covers: plugins/internal/composecore.ErrTranslationProbeNoPort -->
+<!-- covers: plugins/internal/composecore.ErrTranslationProbeShape -->
+
+A declared health probe becomes a compose healthcheck, and two things can stop that.
+
+**A probe that checks a path over HTTP, on a container that publishes no port.** The check is built as a request to a port on the container, so with no port declared there is no address to build it against.
+
+**A probe that declares no way of checking at all** — neither a path, nor a port to connect to, nor a command to run. There is nothing to turn into a check. This one is a guard behind the schema rather than a shape you are likely to write: a probe is checked for having one of the three before it reaches here.
+
+**Emitted messages.** Each is the condition's own sentence, printed beneath a frame naming the node and the container the probe was declared on:
+> TRANSLATION_ERROR: probe http: requires at least one container port; container declares none
+
+> TRANSLATION_ERROR: probe declares no shape (http/tcp/exec)
+
+**How to fix:** declare the port the check should be made against on the same container as the probe — a probe over HTTP reads the first container port, so the port has to exist for the check to be built. Where the container genuinely publishes nothing, check it another way: a probe that runs a command needs no port. For a probe with no way of checking declared, give it one of the three.
+
+### A configmap volume has no file behind it
+
+<!-- covers: plugins/internal/composecore.ErrTranslationConfigMapMissingArtifact -->
+
+A volume that mounts configuration is delivered through compose's own mechanism for it, referenced by name, and the entry holding the content comes from a file the Recipe emits. This condition is what a reference with no matching entry reports: the file is not there, so the mount would exist with nothing behind it and the container would come up reading an empty path.
+
+**The check runs over the whole assembled output rather than per component**, and that is deliberate: the reference and the entry holding the content arrive by different routes and may come from different components of the same group, so the assembled output is the first point at which both are present. A per-component check would refuse a reference whose content another component in the same group supplies.
+
+Every unresolved reference is reported rather than the first, in a stable order, so one build names all of them.
+
+Emitted message, naming each service, the reference it made, and where it mounts:
+> compose AssembleBoundary: service `"<service>"` references config `"<name>"` mounted at `"<path>"`; declare each one as a top-level configs: entry from the Recipe's artifacts: input
+> caused by: TRANSLATION_ERROR: configmap volume requires a file emitted via the Recipe's artifacts: input; none found
+
+**How to fix:** emit the file from the Recipe's `artifacts:` input under the name the volume references — the two are matched by that name, so a mismatch between what the volume asks for and what the Recipe emits is the common cause. Where the content was meant to come from somewhere else, the volume is the wrong mechanism for it: a value that belongs in the environment goes there instead.
+
+### Two entries reach one stack output name
+
+<!-- covers: plugins/internal/cfncore.ErrOutputNameCollision -->
+
+A stack output name admits only letters and digits, so one is built from what you wrote by dropping every separator and capitalising each word. Two entries that differ only in punctuation or in the case of a letter therefore arrive at the same name. The render stops rather than emit one output where two entries were written, which would silently drop one of them.
+
+Every name behind which two or more entries met is reported, and every entry behind each name is named, in a stable order — so one build shows you the whole collision rather than one side of it.
+
+Emitted message:
+> cloudformation-provider: two entries an author wrote reach one stack Output name: `<the entries that met>` reach the Output name `"<name>"`; an Output name admits only letters and digits, so building one drops every separator and capitalises each word — rename an entry, or a component, so no two of them differ only by a separator or by a letter's case
+
+**How to fix:** rename one of the entries, or one of the components, so the two no longer differ only by a separator or by a letter's case — the message names both sides. Renaming for the difference to survive the transformation means changing a word rather than its punctuation: two names differing only in a hyphen, an underscore, or a capital letter will meet again.
+
+### A CloudFormation fragment writes one key twice
+
+<!-- covers: plugins/internal/cfncore.ErrDuplicateMappingKey -->
+
+A mapping holds one value per key, so a fragment that writes the same key twice would keep whichever body came last and discard the other. Where the mapping is the block holding resources or outputs, the discarded body is a resource or an output that was written down and would not be in the result. The render stops instead.
+
+Both places the key was written are reported, because a key written twice is usually two edits meant to be two different keys — and the author needs both to tell which one to change.
+
+Emitted message:
+> cloudformation-provider: one mapping key is written more than once: the key `"<key>"` is written at line `<first>` and again at line `<second>`; a mapping holds one value per key, so one of the two bodies would be dropped — remove one, or rename one so each key is written once
+
+**How to fix:** open the fragment at the two lines the message names. Where the two bodies were meant to be one thing, remove the one that is now redundant; where they were meant to be two, rename one so each has a key of its own. The fragment is a template, so check the rendered text rather than only the source where a key is composed rather than written literally.
+
+### A cross-boundary reference has no consuming stack to be written into
+
+<!-- covers: plugins/internal/cfncore.ErrLinkConsumerStackMissing -->
+
+Where a dependency connection crosses between two separately assembled outputs, the consuming side is rendered with a placeholder and the reference is written in once both sides exist. This condition is what happens when the consuming side's assembled output holds no stack template at all: there is no document to write the reference into, so the placeholder cannot be replaced.
+
+Emitted message, which is the condition's own sentence:
+> cloudformation-provider: cross-boundary link resolve received no consumer stack template
+
+**How to fix:** nothing you write inside the consuming component produces this — it is the shape of what its boundary assembled. Check that the consuming side is rendered by the CloudFormation provider at all: a connection crossing into a boundary that assembles something else has no stack for the reference to land in, and the connection belongs between two boundaries the same provider assembles. Where both sides should be CloudFormation, the consuming boundary produced no stack template, which is a question for whoever authored the Recipes contributing to it.
+
+### A cross-boundary reference was spliced into a longer string
+
+<!-- covers: plugins/internal/cfncore.ErrLinkSentinelInterpolated -->
+
+A CloudFormation cross-reference is an object rather than text, so it can only replace a value whole. This condition is what a placeholder that survived only inside a larger string reports — a value composed around it, rather than delivered as the whole of what was injected. There is nothing to swap the object for, so the render stops rather than emit a reference in a shape the target cannot read.
+
+Emitted message, naming the value and the connection it arrived on:
+> cloudformation-provider: cross-boundary link value is interpolated into a larger string; only a whole-scalar injection can carry a cross-stack reference: output key `"<key>"` on socket `"<socket>"`
+
+**How to fix:** deliver the value whole rather than composing around it. Where the consuming side needs the value inside a longer string — a connection string, a URL — build that composition in the target's own vocabulary from the reference, rather than in the Recipe's template before the reference exists. The mapping that injects the value is where the splice happens, so that is the line to change.
+
+### Two rendered resources land at one output file
+
+<!-- covers: plugins/internal/helmcore.ErrRenderedFileCollision -->
+
+Each rendered resource is written to a file whose name comes from what the resource is and what it is called. Two resources that share those carry the same file name, so one would occupy the other's slot and the render stops rather than emit one file where two resources were rendered.
+
+**Two resources that render identically are not a collision.** Where the content matches byte for byte, keeping one loses nothing and the render carries on — so a template included twice with the same result is not reported.
+
+Emitted message, naming both templates that produced them and the file they met at:
+> helm: node `"<node>"`: rendered resources `"<one template>"` and `"<the other>"` both derive output `"<file>"` with differing content
+> caused by: two rendered resources derive the same output filename with differing content
+
+**How to fix:** give the two resources distinct identities — the name is what usually differs, and the file name follows from it. The message names both templates, so open them and check what each is producing: two templates rendering the same resource under one name is often one of them being an older copy. Where both are wanted, they are two resources and each needs its own name.
+
+### A synthesized StatefulSet has no single service to govern it
+
+<!-- covers: plugins/internal/helmcore.ErrStatefulSetNoHeadlessService -->
+<!-- covers: plugins/internal/helmcore.ErrStatefulSetAmbiguousHeadlessService -->
+
+A workload that declares per-instance storage is rendered as a StatefulSet, and a StatefulSet names one service that governs it — the one giving each instance its stable address. That service is the one declared without a cluster address of its own. Two shapes stop the render: none declared, so there is nothing to name; and more than one, so which of them governs has no answer. Either would produce a StatefulSet the target rejects, so the render stops instead of emitting one.
+
+**Emitted messages**, each printed beneath a frame naming the node, with the condition it is recorded under following as the cause:
+> synthesized StatefulSet requires a headless governing Service (declare a service with type: Headless); none found
+> caused by: synthesized StatefulSet has no headless governing Service
+
+> synthesized StatefulSet declares more than one headless Service; the governing Service is ambiguous (declare exactly one type: Headless service)
+> caused by: synthesized StatefulSet has more than one headless Service
+
+**How to fix:** declare exactly one service of the headless type on the workload. Where none is declared, add it — a workload with per-instance storage needs one, and it is what gives each instance an address that stays with it. Where more than one is declared, keep the one that should govern and give the others an ordinary type, or remove them; a second headless service is usually one that did not need to be headless.
+
 ## Conditions that do not halt a build
 
 Every condition above stops a build. A few conditions carry a short code and a message of their own without ever stopping one, and they are catalogued here so that a code you have in hand always resolves to something, whichever page you arrived from.
@@ -2817,6 +3236,21 @@ Emitted message, leading with the far end and then naming the socket and each en
 
 **How to fix:** where the scalar value the connection already carries is enough, nothing needs doing — this is a notice rather than a fault. Where the native wiring is wanted, the two ends have to render through one provider: move one end into a boundary that routes through the other's provider, or serve both capabilities with one. Where neither is possible, the value-carrying form is what the deployment has, and the connection works.
 
+### A command-line plugin runner was built without a way to find plugins
+
+<!-- covers: internal/cliplugin.ErrNoResolver -->
+
+A plugin that contributes a terminal command is run by a component that first has to turn the plugin's reference into bytes. This condition reports that component having been built without the part that does the turning, so there is no route from the reference to anything to run.
+
+**It concerns a terminal command rather than a build**, so no stage of compilation reaches it: it is raised where an installed command is dispatched, and the answer it produces is that command's failure to start rather than a halt in any build.
+
+**No path in the shipped command-line tool can raise it.** Every place the tool builds that component supplies the lookup, so the guard fires only where something else builds it and leaves the lookup out.
+
+Emitted message, which is the condition's own sentence:
+> cliplugin: no plugin resolver configured
+
+**How to fix:** nothing in your entity files causes this, and nothing you can write in a catalog or a workspace clears it. Where you are running the published command-line tool, this is not a condition you can reach — an installed command that will not start is reporting something else, and the message it printed is the one to read. Where you embed the plugin runner in software of your own, supply the lookup that resolves a plugin reference to its bytes when you construct it.
+
 ## Finding a halt from the short code the build printed
 
 A halting diagnostic's bracketed head names the category the failure is attributable to and, where the failure names one of the conditions catalogued here, that condition's **short code** — the letter `E` and four digits, as in `[CATALOG_ERROR E0209]`. A number is handed out once and then fixed, so a short code you paste into a report or a search still names the condition it named when you recorded it. The other two identifiers a condition carries, and which of the three to reach for when, are taught in [sentinels.md](./sentinels.md).
@@ -2830,6 +3264,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 <!-- BEGIN GENERATED: halt-condition-sentences -->
 | Short code | Opens with | Documented under |
 | --- | --- | --- |
+| `E0001` | `cliplugin: no plugin resolver configured` | A command-line plugin runner was built without a way to find plugins |
 | `E0002` | `catalog lookup failed` | A catalog lookup fails during static analysis **[pending]** |
 | `E0003` | `malformed attachment requirement` | Malformed attachment requirement |
 | `E0004` | `annotation contribution overridden by an explicit value` | An explicit value displaced one an annotation supplied |
@@ -2906,6 +3341,17 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0075` | `aggregate reached topology un-normalized (non-empty root components alongside a synthesized default subsystem)` | An application reached graph building without being normalised |
 | `E0076` | `` sub-module placed in no boundary: route it into a boundary under `aggregates`, or name its components there under `components` `` | A sub-module's components are placed in no boundary |
 | `E0077` | `uses edge target was pruned because its active toggle resolved to false` | A `uses` edge targets a component an `active:` toggle removed |
+| `E0078` | `producer-consumption re-entry denied: a producer reached through the host may not issue a further producer-consumption call` | A plugin asks the host to parse a source while a parse is already running for it |
+| `E0079` | `wasm: recorded command mirror does not match plugin describe()` | A Plugin entity's recorded command set does not match the plugin |
+| `E0080` | `wasm: entity contract claim does not match plugin describe()` | A Plugin entity's claims disagree with the plugin's own self-report |
+| `E0081` | `wasm: guest plugin returned a diagnostic whose severity the contract does not declare` | A plugin returned a diagnostic at a severity that is not declared |
+| `E0082` | `wasm: guest plugin reported an error` | A plugin failed while it was running |
+| `E0083` | `wasm: guest plugin panicked during call` | A plugin failed while it was running |
+| `E0084` | `wasm: stamped host-function record does not match .wasm imports` | A Plugin entity's recorded host functions do not match the binary |
+| `E0085` | `wasm: plugin rejected by the sandbox` | The sandbox refused a plugin |
+| `E0086` | `wasm: plugin invoked proc_exit` | A plugin failed while it was running |
+| `E0087` | `wasm: declared plugin type does not match plugin describe()` | A plugin is not the kind of plugin the socket expects |
+| `E0088` | `wasm: entity metadata.version does not match plugin describe()` | A Plugin entity's recorded version does not match the plugin |
 | `E0089` | `every published version this reference could select has been withdrawn` | Every version a reference could select has been withdrawn |
 | `E0090` | `format is advertised by more than one importer plugin` | A parse or import format is advertised by more than one plugin |
 | `E0091` | `format is advertised by more than one parser plugin` | A parse or import format is advertised by more than one plugin |
@@ -2944,6 +3390,8 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0127` | `externalinputs: fetched bytes mismatch the pinned digest` | Fetched bytes do not match a pinned digest |
 | `E0128` | `externalinputs: URL scheme is not allowed` | An external input's URL uses a scheme that is not allowed |
 | `E0129` | `externalinputs: store blob mismatches its pinned record` | A stored external input no longer matches its record |
+| `E0144` | `cached signature bundle does not match its recorded digest` | A cached signature bundle does not match the digest recorded for it |
+| `E0145` | `plugin reference is not a Plugin entity` | A plugin reference is not a Plugin entity |
 | `E0146` | `circular reference expansion` | A library reference expands into itself |
 | `E0149` | `attachment name is a near miss for a declared slot` | An attachment name is one edit from a declared slot |
 | `E0150` | `attachment does not conform to its declared slot shape` | Attachment does not conform to its declared slot shape |
@@ -3005,7 +3453,23 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0220` | `merger: extends chain exceeds maximum depth` | The schema-merge walk's own chain safeguards |
 | `E0221` | `merger: invalid merge input` | The schema-merge walk's own chain safeguards |
 | `E0229` | `position out of range` | An editor position falls outside the document |
+| `E0230` | `cloudformation-provider: one mapping key is written more than once` | A CloudFormation fragment writes one key twice |
+| `E0231` | `cloudformation-provider: cross-boundary link resolve received no consumer stack template` | A cross-boundary reference has no consuming stack to be written into |
+| `E0232` | `cloudformation-provider: cross-boundary link value is interpolated into a larger string; only a whole-scalar injection can carry a cross-stack reference` | A cross-boundary reference was spliced into a longer string |
+| `E0233` | `cloudformation-provider: two entries an author wrote reach one stack Output name` | Two entries reach one stack output name |
+| `E0235` | `TRANSLATION_ERROR: configmap volume requires a file emitted via the Recipe's artifacts: input; none found` | A configmap volume has no file behind it |
+| `E0236` | `TRANSLATION_ERROR: probe http: requires at least one container port; container declares none` | A health probe cannot be turned into a compose healthcheck |
+| `E0237` | `TRANSLATION_ERROR: probe declares no shape (http/tcp/exec)` | A health probe cannot be turned into a compose healthcheck |
+| `E0238` | `TRANSLATION_ERROR: resources quantity cannot be converted to a compose deploy.resources value` | A resources quantity cannot be converted to a compose value |
+| `E0239` | `TRANSLATION_ERROR: compose has no env-from-object primitive; container declares envFrom` | A container declares a field compose has no primitive for |
+| `E0240` | `TRANSLATION_ERROR: compose cannot express this workload form` | A workload declares a form compose cannot express |
+| `E0241` | `TRANSLATION_ERROR: compose has no lifecycle-hook primitive; container declares lifecycle hooks` | A container declares a field compose has no primitive for |
+| `E0243` | `two rendered resources derive the same output filename with differing content` | Two rendered resources land at one output file |
+| `E0244` | `synthesized StatefulSet has more than one headless Service` | A synthesized StatefulSet has no single service to govern it |
+| `E0245` | `synthesized StatefulSet has no headless governing Service` | A synthesized StatefulSet has no single service to govern it |
 | `E0246` | `the digest recorded as trusted for this plugin does not match the digest its cached manifest reports` | A trusted plugin's recorded digest disagrees with the cached artifact |
+| `E0247` | `a plugin recorded as trusted for an accept-or-reject verdict is no longer attached at any verdict role` | A plugin recorded as a trusted gate is no longer attached |
+| `E0248` | `wasm: guest plugin returned an output that is not the shape the socket reads` | A plugin returned something that is not the shape the socket reads |
 | `E0249` | `cloudformation-provider: an export name a cross-boundary link derives is already declared by another Outputs entry in the same stack` | An authored export name is one the build derives for a cross-stack reference |
 | `E0250` | `boundary assembler named a per-node sub-directory that is not a single directory name` | A boundary assembler named a sub-directory that is not one directory |
 | `E0251` | `recipe source is an empty string, which names neither sourceless mode nor sourced mode` | Recipe `source:` is an empty string |
@@ -3015,6 +3479,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0255` | `annotation routes through a pillar its authoring side may not use` | An annotation routes through a pillar its authoring side may not use |
 | `E0256` | `annotation binding declares one path in both pillar lists` | An annotation binding declares one path in both pillar lists |
 | `E0257` | `declared schema contract failed to compile, so nothing was validated against it: correct the contract where it is declared, or remove it if the configuration it covers needs no validation` | A declared schema contract does not compile |
+| `E0258` | `TRANSLATION_ERROR: compose publishes a port's transport as a tcp or udp suffix; this port declares a transport compose cannot express` | A published port declares a transport compose cannot spell |
 | `E0259` | `attachment binds a FeatureRecipe with executionScope: boundary and no boundary holding the component declares it` | A boundary-scope Feature is attached only to a component |
 | `E0260` | `` component placed in no boundary: name it under a boundary's `components`, or place the sub-module that contributes it under `aggregates` `` | A component the composition holds is placed in no boundary |
 | `E0261` | `boundary names a component the composition does not hold: correct the name, or remove the entry` | A boundary names a component the composition does not hold |
