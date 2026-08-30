@@ -1336,8 +1336,10 @@ The build stops rather than skipping the guard. Skipping would retire a check wi
 
 A type written as a relative path — beginning `./` or `../` — is a local file rather than a catalog identity, so it legitimately has no catalog entity and is skipped rather than reported. Only a bare-token catalog reference reaches this halt.
 
+Wherever the condition is met, it reports in the same words, so the text names the type and the fault rather than the check that raised it.
+
 Emitted message:
-> guard catalog-entity view inconsistency (Aggregate `<name>`, at `<field-path>`, type `"<type>"` was resolved as a catalog reference but is absent from the guard's catalog view (build resolved-set / guard view divergence))
+> guard catalog-entity view inconsistency (Aggregate `<name>`, at `<field-path>`, the catalog this build reads holds no entry for a component type it had already resolved, which nothing you authored can cause — the type is `"<type>"`)
 
 **How to fix:** nothing in your own files — this reports an inconsistency inside the compiler rather than a fault in what you wrote, and it is worth reporting as a defect with the type the message names. The component's type is almost certainly fine; if you need to get past it while the defect is investigated, writing the type as a relative path to a local entity file takes that component off the catalog-resolution path.
 
