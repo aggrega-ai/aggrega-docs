@@ -1897,6 +1897,30 @@ Where it names one that does not:
 
 **How to fix:** add a `target:` to the entry, which wires the edge and applies the configuration to it; correct the alias to the one the Aggregate declared for that connection, so the entry configures the existing edge; correct the component name to one the Aggregate declares; or remove the entry if the configuration is no longer wanted.
 
+### Component identity cannot be stamped on what it emits
+
+<!-- covers: internal/compiler/analyzer.ErrUnusableComponentIdentity -->
+
+A component's identity is not only a key in your Aggregate — it is a **name inside the cluster**. Every resource a component emits is stamped with it, under `aggrega.ai/component-id` and `app.kubernetes.io/name`, and the workload synthesizers name what they emit after it. So the identity has to be a name the target will accept, and it has to be one that means what it says.
+
+Nothing rewrites it on the way. A component's identity reaches its output exactly as you wrote it, which is what makes the name in your Aggregate the name you can look for in your cluster. That is worth having, and it is why an identity the target would refuse is reported here rather than quietly repaired into something you never wrote.
+
+Two shapes are refused.
+
+**An identity a label value cannot be.** A Kubernetes label value is at most 63 characters, admits letters, digits, `-`, `_` and `.`, and must begin and end with a letter or a digit. The authored-name rules are close to this but not the same — they set no length limit and they allow a name to begin or end with `-` or `_` — so `_api`, `api-` and a name over 63 characters are all names you can write and none of them can be stamped.
+
+**An identity that opens as a generated one does.** Where a Feature is attached to a whole boundary rather than to a single component, its resources cannot be stamped with any one component's name, so the compiler builds an identity for them from what you wrote: the name you attached the Feature under, and the path of the boundary you attached it to. Those built identities all open with `bfr--`, which is what tells a reader that a resource came from a boundary-attached Feature rather than from a component. **So `bfr--` is reserved at the start of a component identity.** A component named `bfr--api` would be stamped identically to a generated one, and nothing in the emitted output could tell the two apart. Only the full opening is reserved: a component named `bfr`, `bfr-api` or `bfrontend` is an ordinary name and builds.
+
+The check reads the identity a component actually carries, which for a component contributed by an imported Aggregate is the qualified one — the module's name, a dot, and the component's own. So two names that are each short enough on their own can still join into an identity that is not, and the halt names the joined identity while pointing at the key you wrote.
+
+Emitted message, for an identity the target would refuse:
+> component identity cannot be the name its emitted resources are stamped with: rename the component (Aggregate, at `<field-path>`, `"<identity>"`, which must `"<rule>"`)
+
+and for one opening as a generated identity does:
+> component identity cannot be the name its emitted resources are stamped with: rename the component (Aggregate, at `<field-path>`, `"<identity>"`, which must not open with the reserved `"bfr--"`)
+
+**How to fix:** rename the component, on every surface that names it — the Aggregate that declares it, and the Release that places and configures it. Give it a name that begins and ends with a letter or a digit, stays within 63 characters once any module prefix is added, and does not open with `bfr--`. Renaming a component changes the name its resources carry in the cluster, so on an already-deployed application treat it as you would any other resource rename.
+
 ### Required `uses:` socket not populated
 
 <!-- covers: pkg/resolver.ErrMissingRequiredSocket -->
@@ -4121,6 +4145,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0259` | `attachment binds a FeatureRecipe with executionScope: boundary and no boundary holding the component declares it` | A boundary-scope Feature is attached only to a component |
 | `E0260` | `` component placed in no boundary: name it under a boundary's `components`, or place the sub-module that contributes it under `aggregates` `` | A component the composition holds is placed in no boundary |
 | `E0261` | `boundary names a component the composition does not hold: correct the name, or remove the entry` | A boundary names a component the composition does not hold |
+| `E0262` | `component identity cannot be the name its emitted resources are stamped with: rename the component` | Component identity cannot be stamped on what it emits |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
