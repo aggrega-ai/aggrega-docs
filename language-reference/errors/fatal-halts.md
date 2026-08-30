@@ -2633,10 +2633,13 @@ Whether two contributors emitting one filename collide depends on where their pr
 
 The build halts rather than writing one of the two files and discarding the other. There is no correct silent resolution: renaming or suffixing one file would invent a name nobody authored, and merging their contents would invent a document nobody wrote. Every colliding path is reported, and every contributor writing it is named, so one build tells you the whole picture rather than one collision at a time.
 
-Emitted message:
-> assembled output collision: two contributors write the same output path: `<output-path>` is written by `<contributor-1>` and `<contributor-2>`; rename one of the colliding files so each output path is written once
+**Emitted messages.** One finding is reported per colliding path, each positioned at the boundary its output was assembled within, so a build whose contributors met on two paths tells you about both and each finding can be navigated to on its own:
+> assembled output collision: two contributors write the same output path (output path `"<output-path>"`, written by `"<contributor-1> and <contributor-2>"`)
 
-When the contributors declared different formats for their file, each is named with the format it declared — a disagreement there usually means two unrelated files were meant, and one of them is misnamed.
+Each contributor is named for what it is, which is what says where its name is written: `component <name>` for a component instance, `feature <name>` for a feature attached to a boundary, and `the <provider> assembly` for the assembly's own merged output. The contributors are listed in name order, so the sentence is the same on every build of the same input.
+
+Where more than one path collides, the findings arrive together under a report stating what they have in common:
+> assembled output paths written by more than one contributor
 
 **How to fix:** rename the emitted file in whichever Recipe you control — an `artifacts:` key, or the filename a Workload translation derives — so the two no longer meet. Where the two contributors genuinely belong to separate outputs, give their boundaries distinct `directory:` paths so each assembles on its own.
 
