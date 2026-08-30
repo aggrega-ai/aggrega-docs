@@ -426,6 +426,8 @@ The build reports the halt under a `CATALOG_ERROR` tag, because a `workload:` bl
 
 **How to fix:** open the Recipe at the field paths listed and correct each one. The paths are given from the Workload's own root, so `.containers.main.health.ready` is the `ready` block under the `main` container's `health` key. A named container is addressed by its key and an init container by its position, which is why the two read differently. What each field accepts is in the Workload authoring reference.
 
+**A field the schema wants as text, refused because the value is a number or a boolean, almost always means an unquoted template expression.** A `workload:` block is rendered before it is checked, so an expression written without quotes expands into bare text and YAML then reads that text as whatever it looks like. A whole-core sizing quantity, a version made only of digits, a port, and the words `yes`, `no`, `on` and `off` all read as something other than text. The finding says which type YAML read, and the remedy is to quote the expression in the Recipe — `cpu: "{{ .infra.compute.cpu }}"` rather than `cpu: {{ .infra.compute.cpu }}` — so the value stays text whatever the operator supplies. Note that the operator's own value is not at fault here and quoting it in the Release changes nothing: the quotes have to be in the Recipe, around the expression.
+
 ### A Workload attachment names a slot the entity does not declare, or a delivery the slot forbids
 
 <!-- covers: pkg/validator.ErrWorkloadFeaturesSchema -->
