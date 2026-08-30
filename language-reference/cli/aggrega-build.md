@@ -11,6 +11,14 @@ Two flags carry behaviour the flag reference below cannot convey on its own:
 
 `--trace` and `--trace-unredacted` are covered in [Trace output](#trace-output) and [Showing the withheld values](#showing-the-withheld-values) below.
 
+## The plugin trust record
+
+Two of a build's behaviours depend on `plugins-trust.yaml`, the committed file beside the Release's lockfile that records which plugin each verdict-returning attachment resolved to — a `plugins.governance` attachment in an `ir-verdict` or `render-verdict` role, and every `plugins.linter` attachment. [`aggrega pull`](aggrega-pull.md) writes it and the [plugin trust record schema](../schema/other/plugins-trust.md) describes its fields; what follows is only what a build itself does with it.
+
+**A build is held to the record before any of those plugins runs.** A plugin served from the cache whose artifact digest is not the recorded one is refused rather than run — that is the resolution such an attachment normally takes, and [`aggrega pull`](aggrega-pull.md) sets out which other ways of resolving one the recorded digest does not govern. And a recorded entry that no attachment in `.aggrega-config.yaml` accounts for any more halts the build: dropping a gate changes no rendered byte, so output produced without a reviewed gate looks exactly like output that gate approved. The halt names the plugin and offers the two remedies that differ by what you meant — attach it again if the removal was a mistake, or ask for the removal explicitly if it was not — and it prints the command ready to run. An attachment the record does not yet hold is a first sighting and halts nothing.
+
+**`aggrega build --upgrade` rewrites that file.** It implies `--auto-pull` and runs a *bare* full refresh, which re-resolves every dependency and therefore re-resolves and rewrites every recorded identity, and drops every entry no attachment accounts for. So if this file turns up modified after an upgrade build, that is why: the flag's reach is every dependency, and the recorded identities are part of what gets re-resolved even though they are not lockfile pins. Unlike `aggrega pull --upgrade`, the build flag takes no target, so it cannot be narrowed to one plugin: to adopt or drop a single identity, run [`aggrega pull --upgrade --release <release> <plugin>`](aggrega-pull.md) instead, which leaves every other pin and every other recorded identity untouched.
+
 ## Workspace resolution and determinism
 
 The Release's schema-required `manifest:` reference is resolved relative to the Release

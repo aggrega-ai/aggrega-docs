@@ -75,3 +75,4 @@ The captured subset is a set of plugin socket attachments and the catalog direct
 - [global-flags.md](global-flags.md) — the global config file, the `--config` flag, and the precedence ladder.
 - [environment-variables.md](environment-variables.md) — the `AGGREGA_*` variables that override configuration at runtime.
 - [aggrega-registry.md](aggrega-registry.md) — manage registries and their trust policy directly.
+- [aggrega-cache.md](aggrega-cache.md) — what the directory `artifact_cache_dir` names actually holds, and why an entity sitting there that no lockfile pins is not found by a build.

@@ -191,6 +191,38 @@ The merged parameter map remains alive through rendering to support **path-templ
 
 For the broader parameter-hoisting checklist (Aggregate declaration → values reference → Release fulfilment → Recipe consumption) and the cross-pillar mechanics, see [`vocabulary/data-pillars.md`](../vocabulary/data-pillars.md) §"Parameters" and §"The parameter-hoisting checklist". For the template-context fields exposed during interpolation and the path-template carve-out, see [`templates/parameters-context.md`](../templates/parameters-context.md).
 
+## Switching a component or module off: `active:`
+
+A component instance and a sub-aggregate module each accept an `active:` toggle deciding whether that entity is part of the compiled topology at all. Omit it and the entity is present; that is the default and the ordinary case.
+
+```yaml
+spec:
+  parameters:
+    enable_cache:
+      type: boolean
+      default: false
+  components:
+    api:
+      type: core/server:1.0.0
+    redis:
+      type: core/redis:1.0.0
+      active: "{{ .parameters.enable_cache }}"
+  aggregates:
+    reporting:
+      type: my-catalog/reporting-module:1.0.0
+      active: false
+```
+
+Write a boolean directly, or a template over `.parameters` that resolves to one. The template form is the reason the toggle exists: it lets a Release decide an entity's presence by fulfilling a parameter, so one Aggregate covers environments that differ by which pieces they deploy — without the Release declaring anything the Aggregate did not.
+
+**What a false toggle removes.** The entity is pruned before the graph is built, and the prune cascades: a component takes its own `uses:` edges and its attached Features with it, and a module takes everything it contributed — its components, their edges, their attachments. Nothing the pruned entity brought is rendered. What the prune does *not* reach is a reference to it from somewhere that survived, which is the next paragraph.
+
+**A surviving component that still points at a pruned one halts the build.** If `api` declares a `uses:` edge onto `redis` and `redis` is switched off, the build stops rather than letting the edge vanish, which would leave `api`'s injected values silently empty at deploy time. Decide which of the two belongs in this environment: switch the target back on, gate the consumer behind the same parameter so the pair leaves together, or drop the edge from the consumer's `uses:` block.
+
+**A toggle that is written must resolve to a boolean, and an empty value is not one.** The toggle is read strictly after its template is resolved, and a literal that does not parse as a boolean stops the build instead of defaulting to anything. The case worth watching for is a toggle reading a parameter that has no value: it resolves to nothing, and reading nothing as "present" would deploy the very entity you gated behind that parameter. So writing `active:` with nothing after it is **not** the same as leaving the key out — only a toggle nobody wrote defaults to present. Give the parameter a `default:` in `spec.parameters` so every environment has an answer, or fulfil it in the Release. To make an entity unconditionally present, remove the `active:` key rather than emptying it. The halt is described under "An `active:` toggle does not resolve to true or false" in [the halting-conditions reference](../errors/fatal-halts.md).
+
+**A component switched off stays nameable from a Release.** A Release may still name it in a boundary, and that is deliberate: switching a component off is an authoring act, and the deployment that configures it is not expected to be rewritten in the same edit.
+
 ## Annotations on subsystems and components
 
 Subsystems and component instances both carry an `annotations:` field. Developer-authored annotations on the Aggregate surface drive the Aggregate-side annotation cascade — a subsystem annotation propagates to every nested subsystem and every contained component, with closer-level overrides at per-key granularity. The Manifest's `mappings.features.annotations` map declares the bindings that translate annotation keys into synthetic Feature attachments at build time. The Aggregate-as-Authoring-Surface invariant restricts these annotations to routing through the binding's `maps.values` paths; a binding declaring only `maps.infra` paths fires from the Release side, not from the Aggregate side.
