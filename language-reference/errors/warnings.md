@@ -271,3 +271,28 @@ aggrega validate ./catalog/recipe/compose/mariadb/1.0.0/recipe.yaml --no-unsuppo
 The flag is display-only and does not change the rendered output. `aggrega lint` has no equivalent flag because it runs no render pass — it checks publishing conventions only, so no render warning can arise there.
 
 Reach for the flag when you have accepted the reduced fidelity deliberately — a compose target used for local development, where the production Workload's scheduling and service-account fields are expected to be inert. Leave it off otherwise: the warning is how you learn that a field you authored is not reaching the target.
+
+## A plugin ran with no recorded digest to check it against
+
+**Fires when** the compiler is about to run a plugin, a recorded digest is meant to govern that plugin's bytes, and the workspace records none for it. The plugin runs; the warning is how you learn that nothing compared the bytes it ran against the bytes anyone reviewed.
+
+`aggrega pull` writes the digest of every plugin it resolves into the Release's lockfile, and every later resolution compares the bytes it finds against that digest. A workspace that has not been pulled yet, or one whose lockfile predates a plugin the configuration has since attached, has no digest for that plugin — so the comparison has nothing to compare, and without this line it would pass silently.
+
+<!-- unregistered-output: warning text, which is reported without halting and which no halting condition registers -->
+
+```text
+warning: plugin "governance/label-injector:1.0.0" resolved from cache with no recorded digest to check it against, so it runs unverified; run `aggrega pull --release <release>` to record it
+```
+
+The line names the source the bytes came from — the same word `aggrega pull` and `aggrega plugin list` use for it — and ends in what to run, because the fix is always the same: pull the Release, which records the digest and makes every later run of that plugin a checked one.
+
+**It is raised once per plugin, however many times that plugin runs.** A render resolves its provider once per node, and the long-running editor service resolves an attachment on every request; repeating the line each time would bury it. One line per plugin reference is enough, because the condition is a property of the workspace rather than of any one node.
+
+**Two resolutions raise nothing, and neither is an oversight:**
+
+- **A plugin the compiler carries inside itself.** `aggrega pull` records what it fetched, and there is nothing to fetch for bytes that ship in the binary — so no digest is ever recorded for one, and there would be nothing you could run to change that. The binary is those bytes' identity. The compiler's own plugins and their versions are listed by `aggrega plugin list` and stamped into the lockfile's `toolchain` section.
+- **A resolution where no digest was ever meant to apply.** `aggrega validate --plugin ./some.wasm` points at a file you named on the command line, and `aggrega lint` inspects the very artifact it is checking; in both, the plugin is the subject rather than a tool being trusted, so there is no record it could be held to.
+
+**Why a warning and not a halt.** Reading a document is worth doing on a workspace nobody has prepared yet — refusing to validate or lint until someone runs `aggrega pull` would make the reporting commands unusable at exactly the moment they are most useful. `aggrega build` is the exception in the other direction: it does not reach this warning, because it will not produce artifacts without a lockfile at all.
+
+**The one command that refuses instead.** When an editor asks the compiler service for a Release's graph, the service stops and asks for a lockfile rather than drawing a graph with a warning beside it. A drawn graph is what a reader then reasons about, and one built from unverified bytes would look exactly like one that was checked. See [`aggrega serve`](../cli/aggrega-serve.md).

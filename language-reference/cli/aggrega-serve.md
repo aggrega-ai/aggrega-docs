@@ -66,6 +66,10 @@ The operations that search the whole workspace rather than one buffer — `compl
 
 When an active Release has a lockfile, the daemon checks it for drift at startup and on each `aggrega/irGraph`, surfacing drift as a non-blocking warning. `aggrega/irGraph` requires a lockfile to be present.
 
+**`aggrega/irGraph` is the one operation that refuses rather than warns, and it is the only one.** Everywhere else — including `aggrega/validate` — a plugin the workspace has no recorded digest for is run anyway, with [a warning](../errors/warnings.md) saying nothing checked its bytes. A graph is different in kind: it is a picture a reader then reasons about, and one built from unverified bytes would be drawn exactly like one that was checked, with the warning sitting somewhere the reader is not looking. So the handler stops before it resolves anything and answers `lockfile-absent`, naming the lockfile it looked for and the Release, so a client can offer `aggrega pull --release <release>` directly.
+
+**`aggrega/validate` reads the lockfile for its pins and its deprecation notices only.** It does not hold the plugins it runs to the recorded digests, and it does not rebuild the transform-plugin attachment set from the lockfile — it validates against the workspace configuration as it stands in front of you, which is what an editor has to do while you are editing that configuration. `aggrega validate` and `aggrega build` do both, and remain the authoritative surfaces for a verdict about a committed workspace.
+
 ## Error codes
 
 Responses use the standard JSON-RPC error codes plus an application-level range in the 1xxx band: file-not-validated, release-not-resolved, lockfile-absent, entity-not-resolvable, and shutting-down. An editor client can branch on the code without parsing the message. The two bands mean different things to a client: a 1xxx code names a state of the workspace the user can act on — validate the file, generate the lockfile, choose a Release — while a standard code such as invalid-params names a malformed request, which the client corrects rather than the user.

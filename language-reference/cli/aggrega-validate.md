@@ -36,6 +36,13 @@ This makes `--release` a true pre-build check: it catches what a build would rej
 
 Because it runs the same checks a build runs, it also runs the same attached gate plugins — so it is held to the same record of trusted plugin identities a build is held to. A workspace attaching a plugin that returns an accept-or-reject verdict has a [plugin trust record](./aggrega-pull.md#the-plugin-trust-record) beside its Release, and `--release` compares the configuration against it before any of those plugins runs: a recorded gate the configuration no longer attaches halts the validation, and a plugin resolved from the cache `aggrega pull` populates whose artifact is not the recorded one is refused rather than run. A workspace that has recorded nothing has no record, which changes nothing. The other two scopes are not held to it: they do not read the workspace's plugin attachments, so no such plugin runs in them.
 
+The same holds for the plugins that **change** the graph rather than judging it. A `label-transform` or `annotation-transform` attachment shapes what the rendered output would be, so the lockfile pins both its identity and the source files it reads — and `--release` runs those attachments the way a build runs them: reconstructed from the lockfile, holding each one to its recorded digest, and reading the source content the lockfile carries rather than the file on disk. Two consequences are worth knowing before you meet them:
+
+- **Attaching a transform plugin in `.aggrega-config.yaml` does not change what `--release` does until you pull.** This is the same rule a build follows, and for the same reason: the attachment set is a byte-determining input, so it is adopted at the pull rather than the moment it is edited.
+- **A cached plugin whose bytes no longer match the digest the lockfile recorded is refused**, exactly as it would be during a build. Before, `--release` would have run it.
+
+If the Release has no lockfile, `--release` still validates — it warns that it could not check a plugin's identity and names what to run, rather than refusing. See [warnings](../errors/warnings.md).
+
 ## Single-entity correctness (an entity path)
 
 `aggrega validate <entity-path>` checks one catalog entity file. It applies a tiered set of checks, halting at the first blocking failure so a schema break surfaces loudly before any catalog work:
