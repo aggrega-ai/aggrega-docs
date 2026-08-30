@@ -3610,7 +3610,7 @@ There is nothing to fix in your files, and nothing appears in a build. A feature
 
 <!-- covers: pkg/validator/merger.ErrCyclicExtension, pkg/validator/merger.ErrMaxDepth, pkg/validator/merger.ErrMergeInvalid -->
 
-Safeguards behind an earlier refusal. When a Component or Feature extends another and both declare schemas, those schemas are combined into one. The walk that does the combining carries its own guards against a chain that loops, a chain deeper than ten levels, and an input it cannot merge structurally:
+Safeguards a build does not reach. When a Component or Feature extends another and both declare schemas, those schemas are combined into one. The library that does the combining guards against a chain that loops, a chain deeper than ten levels, and an input it cannot merge structurally:
 
 > merger: cyclic extends chain
 
@@ -3618,9 +3618,13 @@ Safeguards behind an earlier refusal. When a Component or Feature extends anothe
 
 > merger: invalid merge input
 
-**A build does not reach them, because the rule each protects is enforced earlier.** An `extends:` chain is walked and checked before any schema is combined, so a loop is refused there — see "Cyclic extends chain" above — and so is a chain past the depth bound, under "An `extends:` chain cannot be assembled". By the time schemas are merged, the chain has already been established as finite, acyclic, and complete.
+**A build does not reach any of the three, and the first two are unreachable for a different reason than the third.**
 
-They are catalogued because they are declared and carry codes of their own, so a code in hand resolves. Nothing you can author produces one, and meeting one would mean the earlier refusal did not run — worth reporting as a defect rather than working around.
+The first two belong to a chain walker the schema-merge library offers alongside the combining step — one that follows a parent link written inside a schema document, rather than the `extends:` an entity declares. Nothing publishes that link and nothing in the shipped toolchain calls that walker, so its cycle and depth safeguards guard a shape no build constructs. The chain that *is* combined comes from the inheritance walk instead, which refuses a loop and an over-deep chain before any schema is combined — see "Cyclic extends chain" above, and "An `extends:` chain cannot be assembled" for the depth bound.
+
+The third belongs to the combining step itself, which a build **does** reach whenever an extending entity and its base both declare schemas. It guards against being handed an empty chain, or a chain entry whose schema is missing, and the caller can hand it neither: it assembles the chain only from schemas it has already found present, and combines only when that chain came out non-empty.
+
+They are catalogued because they are declared and carry codes of their own, so a code in hand resolves. Nothing you can author produces one, and meeting one would mean the arrangement described above no longer holds — worth reporting as a defect rather than working around.
 
 ### An explicit value displaced one an annotation supplied
 
@@ -3861,10 +3865,12 @@ A condition the documentation resource surface absorbs. A documentation bundle w
 
 **It reaches no build and no diagnostic.** Its one consumer is the surface that serves documentation pages to an editor or an assistant, and that surface turns it into an ordinary not-found answer for the resource that was requested. So the condition is answered where it arises and never becomes a message anyone reads.
 
+**And in the shipped toolchain it does not arise at all**, because it needs a cached bundle to be missing a page and no bundle is ever cached: the acquisition step that would cache one has no caller outside its own tests, the same absence recorded under "A resolved artifact is not a documentation bundle" above. Every documentation-page request therefore answers with the no-bundle-cached condition instead. What follows describes the condition for a reader using the documentation cache directly from software of their own.
+
 Emitted message, naming the page and the bundle it was looked for in:
 > docscache: page `"<page>"` in `<reference>`@`<version>`: docscache: page not found in documentation bundle
 
-**How to fix:** nothing is broken in your files. A page that is missing from the bundle is missing because the bundle predates it or the path asked for is not the path it is published under — refreshing the cached bundle to the current version is what brings a newly added page in. Where the page has never existed, the request named a path the documentation does not use, and the published documentation is where to find the one it does.
+**How to fix:** nothing is broken in your files. A page that is missing from the bundle is missing because the bundle predates it or the path asked for is not the path it is published under — resolving the bundle again at the current version is what brings a newly added page in. Where the page has never existed, the request named a path the documentation does not use, and the published documentation is where to find the one it does.
 
 ## Finding a halt from the short code the build printed
 
