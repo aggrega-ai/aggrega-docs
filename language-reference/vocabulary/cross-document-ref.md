@@ -4,7 +4,9 @@ This page documents the resolution semantics of cross-document `$ref:` reference
 
 `$ref:` is JSON Schema 2020-12-native. It appears inside `schema:` content (Component, Feature, SchemaLibrary entries), inside compact-form schemas, and inside the synthesized JSON Schema layer that `usesSchema:` and `featuresSchema:` emit. This page focuses on the cross-document case, where `$ref:` targets a SchemaLibrary entry in a separate file or OCI artifact.
 
-For entity-level inheritance (Component-extends-Component, Release-extends-Release), see [inheritance-and-interface.md](inheritance-and-interface.md). For whole-content imports at non-schema sites (`valuesMapping:`, `workload:`, `parameters:`), `$import:` is the keyword; this page does not cover that surface.
+For entity-level inheritance (Component-extends-Component, Release-extends-Release), see [inheritance-and-interface.md](inheritance-and-interface.md).
+
+`$import:` is the other keyword that reaches content outside the document, and the two answer different questions. `$ref:` names an **entry in a SchemaLibrary** by identity — the catalog resolves it, the lockfile supplies the version — and it composes at any node. `$import:` names a **file** beside the entity and replaces whole content with what that file holds. `$import:` applies on the schema surface as well as at `valuesMapping:`, `workload:`, `artifacts:` and `parameters:`; for `$import:` on a schema, see [compact-form-authoring.md](compact-form-authoring.md) §"Importing a contract from a file".
 
 ## `$ref:` resolution semantics
 

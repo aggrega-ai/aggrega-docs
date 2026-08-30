@@ -507,6 +507,52 @@ For compact-form leaves, the standard pattern is `field_name: { type: ..., const
 
 For the rare ambiguous case (e.g., a compact-form schema with a field literally named `type` that the inferred-form dispatch would interpret as the JSON Schema keyword), the explicit form is the canonical fix — see "Reserved keywords at every inferred-form scope" above.
 
+## Importing a contract from a file — `$import:`
+
+A contract does not have to sit inside the entity that declares it. `$import:` names a file to read it from:
+
+```yaml
+spec:
+  schema:
+    $import: ./contracts/api-server.schema.yaml
+```
+
+The whole `spec.schema` then comes from that file, which is authored exactly as the block it replaces — pillars at the top, compact form or JSON Schema YAML underneath:
+
+```yaml
+# contracts/api-server.schema.yaml
+values:
+  greeting: { type: string, enum: [hello, howdy], default: hello }
+infra:
+  image_tag: { type: string, default: "1.0" }
+provides:
+  host: { type: string }
+```
+
+A single pillar can be imported on its own, with its siblings authored inline beside it:
+
+```yaml
+spec:
+  schema:
+    values:
+      $import: ./contracts/values.yaml
+    infra:
+      image_tag: { type: string, default: "1.0" }
+```
+
+The same form works at a `usesSchema:` socket's `valueSchema:` and `infraSchema:`.
+
+The rules that govern it:
+
+- **`$import:` is the only key at the position where it appears.** A sibling written beside it is refused, rather than one of the two being dropped.
+- **A relative path is read against the directory holding the entity file that declared it**, never against the directory a build runs from — the same base `valuesMapping:`, `workload:` and `artifacts:` use.
+- **The imported file carries schema content, not an entity document.** A file whose content is not a YAML map is refused, naming the file.
+- **An imported file may itself be a single `$import:`**, which resolves recursively; a chain that returns to a file already being read is refused, naming the chain.
+
+The import is read when the entity is loaded, so every surface that reads that entity sees the same contract: `aggrega validate`, a build, `aggrega inspect`, and the editor. A file that cannot be read, or content that is not a schema, is refused at that point rather than leaving the contract unenforced.
+
+`$import:` and `$ref:` are not interchangeable. `$import:` names a file and replaces whole content; `$ref:` names a SchemaLibrary entry by identity and composes at any node. A `$import:` value carrying a library identity or a registry host is refused with a steer to `$ref:`. See [cross-document-ref.md](cross-document-ref.md).
+
 ## Aggrega extension namespace — `x-aggrega-*`
 
 The compact form recognises any keyword prefixed with `x-aggrega-` as an Aggrega-specific extension. The namespace is open: new annotations enter the catalog without per-keyword vocabulary edits. Authors writing `x-aggrega-source`, `x-aggrega-selector`, `x-aggrega-narrowed-from`, or future annotations land their content at the right scope in the resolved JSON Schema without compile-time rejection.
