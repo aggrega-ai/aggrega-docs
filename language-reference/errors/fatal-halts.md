@@ -821,15 +821,19 @@ After loading, the compiler walks the Manifest's two tiers (type map, then name 
 
 A chain of `extends` pointers loops back on itself.
 
-Emitted message. The sentence naming the condition opens it, and what follows names the entity, the authored key, and the pointer that closed the loop:
-> cyclic extends chain (`<kind>` `<name>`, at `.spec.extends`, circular extends detected: `<entity-name>` already in chain). Remove the circular extends reference
+Emitted message. The sentence naming the condition opens it, and what follows names the entity the resolution started from, the authored key, and then the edge that **closes** the loop — the entity carrying the offending `extends:` and the reference it declares:
+> cyclic extends chain (`<kind>` `<name>`, at `.spec.extends`, `<entity>` extends `<reference>`, which is already in the chain). Remove the extends on `<entity>`, or point it at an entity outside the chain
+
+The entity named first and the entity named in the edge are usually **different**, and that is the point: a loop is reported against every entity on it, while the `extends:` line to edit is the one the edge names. Follow the edge, not the heading.
 
 A loop among Manifests opens with that same sentence and names the offending pair after it:
 > cyclic extends chain: Manifest `<name>` extends `<reference>`, which is already in the chain; remove the circular reference
 
 The opening sentence is the same either way, which is what makes it the part of the output to match on: it is the text [sentinels.md](./sentinels.md) lists for this condition, and it does not change with where the loop was found.
 
-**How to fix:** inspect the `extends:` fields along the chain reported in the message and break the cycle by removing one of the pointers or by collapsing the duplicated content into a single base entity.
+**A loop is reported as a loop however long it is.** The chain walk applies its depth bound only to a chain that ends, so a cycle spanning more entities than the bound allows still reports here rather than as an over-deep chain — the remedy for a loop is never to shorten it.
+
+**How to fix:** open the entity the edge names, and either remove its `extends:` or point it at an entity that is not already on the chain. Where several tiers were meant to share content, collapsing the duplicated content into a single base entity removes the loop and the duplication together.
 
 ### Recipe `implements` does not match the mapped component type
 
@@ -1248,19 +1252,33 @@ Emitted message:
 
 <!-- covers: pkg/validator.ErrInheritanceMerge -->
 
-A Component's or Feature's `extends:` chain was walked and could not be turned into a single resolved entity. Two situations reach it: the chain names a parent the catalog does not hold, and the chain is longer than the walk's depth bound of ten.
+A Component's or Feature's `extends:` chain names a parent the catalog does not hold, so the chain cannot be turned into a single resolved entity.
 
-It is distinct from a cycle, which has its own condition and its own remedy — see "Cyclic extends chain" above — and from an unsatisfiable version pin, where the parent exists and only the version does not. This condition covers a chain that cannot be assembled for either of the two reasons below.
+It is distinct from a cycle, which has its own condition and its own remedy — see "Cyclic extends chain" above; from a chain past the depth bound, which has its own condition below; and from an unsatisfiable version pin, where the parent exists and only the version does not.
 
-Emitted message, where a parent is absent:
-> inheritance merge failed (Component `<name>`, at `.spec.extends`, parent entity `"<reference>"` not found in catalog). Verify the extends URI points to an existing catalog entity
+Emitted message, naming the entity carrying the unresolvable `extends:` and the reference it declares:
+> inheritance merge failed (Component `<name>`, at `.spec.extends`, `<entity>` extends `<reference>`, which no catalog entity provides). Verify the extends reference names an entity present in the catalog
 
-and where the chain is too long:
-> inheritance merge failed (Component `<name>`, at `.spec.extends`, inheritance chain exceeds maximum depth of 10). Reduce the inheritance chain length
+`Feature` appears in place of `Component` where a Feature's chain is the one that failed. As with a loop, the entity named first is the one the resolution started from and the entity named in the edge is the one whose `extends:` line to open; along a multi-tier chain those differ.
+
+**How to fix:** confirm the `extends:` value names an entity the catalog holds, spelled as that entity's own `metadata.name` — case included.
+
+### An `extends:` chain runs past the depth bound
+
+<!-- covers: pkg/validator.ErrExtendsChainTooDeep -->
+
+A Component's or Feature's `extends:` chain ends cleanly but runs through more entities than the bound of ten allows.
+
+It carries a condition of its own rather than sharing the one above, because the two remedies have nothing in common: an absent parent is a reference to correct, and an over-deep chain is a shape to flatten. The bound is a guard against an authoring accident rather than a structural limit — architects typically extend a baseline by one or two tiers, and a chain ten deep is usually a base tree that grew rather than a deliberate design.
+
+**Only a chain that ENDS reaches it.** A chain that loops back on itself is reported as a loop whatever its length, so this condition never stands in for a cycle and its advice — shorten the chain — is never given for one.
+
+Emitted message, naming the bound and the length the chain reached:
+> extends chain exceeds maximum depth (Component `<name>`, at `.spec.extends`, the bound is 10 and this chain reaches `<length>`). Shorten the chain, or extend a base that sits closer to its root
 
 `Feature` appears in place of `Component` where a Feature's chain is the one that failed.
 
-**How to fix:** for an absent parent, confirm the `extends:` value names an entity the catalog holds, spelled as that entity's own `metadata.name` — case included. For a chain past the depth bound, collapse the middle of it: a chain that deep usually means each tier adds a little, and folding several tiers into one base entity is both the fix and the clearer shape.
+**How to fix:** collapse the middle of the chain. A chain that deep usually means each tier adds a little, and folding several tiers into one base entity is both the fix and the clearer shape. Where the tiers are genuinely distinct, an entity further down the chain can extend a base nearer the root directly instead of inheriting through every tier between.
 
 ### An assertion name is declared twice along an `extends:` chain
 
@@ -1966,9 +1984,9 @@ Emitted message:
 A Component's `extends:` chain or a Feature's `extends:` chain loops back on itself.
 
 Emitted message, with `Feature` in place of `Component` when a Feature chain is the one that loops:
-> cyclic extends chain (Component `<name>`, at `.spec.extends`, circular extends detected: `<entity-name>` already in chain). Remove the circular extends reference
+> cyclic extends chain (Component `<name>`, at `.spec.extends`, `<entity>` extends `<reference>`, which is already in the chain). Remove the extends on `<entity>`, or point it at an entity outside the chain
 
-**How to fix:** break the loop in the chain of Component or Feature definitions the message walks through.
+**How to fix:** open the entity the edge names — which along a chain of three or more is not the entity named at the head of the message — and remove or repoint its `extends:`.
 
 ### A component the composition holds is placed in no boundary
 
@@ -3615,25 +3633,21 @@ Its message reads:
 
 There is nothing to fix in your files, and nothing appears in a build. A feature that stays unresponsive rather than recovering on the next edit is worth reporting as a defect.
 
-### The schema-merge walk's own chain safeguards
+### The schema-merge step's own input guard
 
-<!-- covers: pkg/validator/merger.ErrCyclicExtension, pkg/validator/merger.ErrMaxDepth, pkg/validator/merger.ErrMergeInvalid -->
+<!-- covers: pkg/validator/merger.ErrMergeInvalid -->
 
-Safeguards a build does not reach. When a Component or Feature extends another and both declare schemas, those schemas are combined into one. The library that does the combining guards against a chain that loops, a chain deeper than ten levels, and an input it cannot merge structurally:
-
-> merger: cyclic extends chain
-
-> merger: extends chain exceeds maximum depth
+A guard a build does not reach. When a Component or Feature extends another and both declare schemas, those schemas are combined into one. The library that does the combining refuses an input it cannot merge structurally:
 
 > merger: invalid merge input
 
-**A build does not reach any of the three, and the first two are unreachable for a different reason than the third.**
+**It belongs to the combining step, which a build does reach** whenever an extending entity and its base both declare schemas. What it guards against is being handed an empty chain, or a chain entry whose schema is missing — and the caller can hand it neither: it assembles the chain only from schemas it has already found present, and combines only when that chain came out non-empty.
 
-The first two belong to a chain walker the schema-merge library offers alongside the combining step — one that follows a parent link written inside a schema document, rather than the `extends:` an entity declares. Nothing publishes that link and nothing in the shipped toolchain calls that walker, so its cycle and depth safeguards guard a shape no build constructs. The chain that *is* combined comes from the inheritance walk instead, which refuses a loop and an over-deep chain before any schema is combined — see "Cyclic extends chain" above, and "An `extends:` chain cannot be assembled" for the depth bound.
+The guard stays because it is an exported library's refusal of malformed input. Removing it would remove no halt a build can reach; it would turn a clear refusal into a crash for a caller outside the compiler that passed such an input, which is strictly worse.
 
-The third belongs to the combining step itself, which a build **does** reach whenever an extending entity and its base both declare schemas. It guards against being handed an empty chain, or a chain entry whose schema is missing, and the caller can hand it neither: it assembles the chain only from schemas it has already found present, and combines only when that chain came out non-empty.
+**The chain itself is not this step's concern.** A chain that loops and a chain that runs past the depth bound are refused by the single `extends:` walk before any schema is combined — see "Cyclic extends chain" and "An `extends:` chain runs past the depth bound" above.
 
-They are catalogued because they are declared and carry codes of their own, so a code in hand resolves. Nothing you can author produces one, and meeting one would mean the arrangement described above no longer holds — worth reporting as a defect rather than working around.
+It is catalogued because it is declared and carries a code of its own, so a code in hand resolves. Nothing you can author produces one, and meeting one would mean the arrangement described above no longer holds — worth reporting as a defect rather than working around.
 
 ### An explicit value displaced one an annotation supplied
 
@@ -3859,12 +3873,14 @@ Emitted message, quoting what the verifier reported:
 
 A reference that resolves to an artifact of some other kind — a catalog entity, a plugin — is rejected rather than cached as documentation, so a mis-pointed reference fails where it is pointed rather than later as a bundle that cannot be read.
 
-**Nothing in the shipped toolchain reaches it.** The acquisition step it belongs to has no caller outside its own tests, so no command a user runs reports it. It is catalogued here so that the code resolves to something.
+**Where it arises.** The assistant-facing server acquires its documentation bundle once, when a client connects, from the workspace's configured registry under the reserved `docs` namespace. This is the check that acquisition runs on what came back.
+
+**It never stops a session.** The acquisition reports its outcome on the server's log stream and the connection proceeds either way; what a rejected artifact costs is the documentation resources, which then answer not-found for that session.
 
 Emitted message, naming the reference and both media types:
 > docscache: `<reference>`@`<version>` has media type `"<what was found>"`, want `"<what a documentation bundle is>"`: docscache: artifact is not a documentation bundle
 
-**How to fix:** nothing in your entity files causes this, and no authoring change clears it. Where you are running the published command-line tool, this is not a condition you can reach. Where you use the documentation cache directly from software of your own, the reference is pointing at something that is not a documentation bundle: check it against the reference the bundle is published under, since a reference that is well-formed and points at another artifact resolves successfully and fails only here.
+**How to fix:** nothing in your entity files causes this, and no authoring change clears it. The reference the acquisition used is pointing at something that is not a documentation bundle — check the workspace's configured registry, since the bundle reference is derived from it, and a reference that is well-formed and points at another artifact resolves successfully and fails only here.
 
 ### A page is absent from a documentation bundle
 
@@ -3874,12 +3890,12 @@ A condition the documentation resource surface absorbs. A documentation bundle w
 
 **It reaches no build and no diagnostic.** Its one consumer is the surface that serves documentation pages to an editor or an assistant, and that surface turns it into an ordinary not-found answer for the resource that was requested. So the condition is answered where it arises and never becomes a message anyone reads.
 
-**And in the shipped toolchain it does not arise at all**, because it needs a cached bundle to be missing a page and no bundle is ever cached: the acquisition step that would cache one has no caller outside its own tests, the same absence recorded under "A resolved artifact is not a documentation bundle" above. Every documentation-page request therefore answers with the no-bundle-cached condition instead. What follows describes the condition for a reader using the documentation cache directly from software of their own.
+**Which of the two not-found answers you get is worth knowing apart**, even though the surface renders them the same. This one means the bundle is cached and sound and the page is not in it. The other — no bundle cached at all — means the acquisition did not complete, and the server's log stream says why.
 
 Emitted message, naming the page and the bundle it was looked for in:
 > docscache: page `"<page>"` in `<reference>`@`<version>`: docscache: page not found in documentation bundle
 
-**How to fix:** nothing is broken in your files. A page that is missing from the bundle is missing because the bundle predates it or the path asked for is not the path it is published under — resolving the bundle again at the current version is what brings a newly added page in. Where the page has never existed, the request named a path the documentation does not use, and the published documentation is where to find the one it does.
+**How to fix:** nothing is broken in your files. A page that is missing from the bundle is missing because the bundle predates it or the path asked for is not the path it is published under — the bundle is acquired at the version the server reports as its own, so a page added after that version is not in it. Where the page has never existed, the request named a path the documentation does not use, and the published documentation is where to find the one it does.
 
 ## Finding a halt from the short code the build printed
 
@@ -4109,9 +4125,8 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0215` | `document envelope validation failed` | YAML anchor aliased inside its own content; Divergent Release (extends + aggregate pointer) |
 | `E0216` | `validator/jsonschema: x-aggrega extension evaluation failed` | An `x-aggrega-when:` or `x-aggrega-validate:` predicate cannot be evaluated |
 | `E0218` | `validator/jsonschema: schema resolution failed` | A declared schema cannot be resolved |
-| `E0219` | `merger: cyclic extends chain` | The schema-merge walk's own chain safeguards |
-| `E0220` | `merger: extends chain exceeds maximum depth` | The schema-merge walk's own chain safeguards |
-| `E0221` | `merger: invalid merge input` | The schema-merge walk's own chain safeguards |
+| `E0220` | `extends chain exceeds maximum depth` | An `extends:` chain runs past the depth bound |
+| `E0221` | `merger: invalid merge input` | The schema-merge step's own input guard |
 | `E0222` | `workspaceconfig: registry alias matches more than one host` | A registry alias matches more than one host |
 | `E0223` | `workspaceconfig: a cross-cutting socket is bound by capability but attaches by uri` | A plugin binding sets a key the socket it attaches to does not read |
 | `E0224` | `workspaceconfig: file failed schema validation` | The workspace configuration file does not satisfy its schema |

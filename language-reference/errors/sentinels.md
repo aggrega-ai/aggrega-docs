@@ -324,6 +324,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | --- | --- | --- |
 | `ErrAssertionNameCollision()` | `validator/assertion-name-collision` | `assertion name declared twice across the extends chain` |
 | `ErrCyclicExtension()` | `validator/cyclic-extension` | `cyclic extends chain` |
+| `ErrExtendsChainTooDeep()` | `validator/extends-chain-too-deep` | `extends chain exceeds maximum depth` |
 | `ErrFeatureRecipeEvalProviderConstraint()` | `validator/feature-recipe-eval-provider-constraint` | `featurerecipe eval-provider constraint: render input-kind fields are forbidden when provider is eval` |
 | `ErrFeatureRecipeValuesMappingRequiresSource()` | `validator/feature-recipe-values-mapping-requires-source` | `FeatureRecipe: valuesMapping requires source` |
 | `ErrInheritanceMerge()` | `validator/inheritance-merge` | `inheritance merge failed` |
@@ -354,8 +355,6 @@ A few names appear in more than one package. Those are re-exports of one shared 
 
 | Sentinel | Code | Message |
 | --- | --- | --- |
-| `ErrCyclicExtension()` | `validator-merger/cyclic-extension` | `merger: cyclic extends chain` |
-| `ErrMaxDepth()` | `validator-merger/max-depth` | `merger: extends chain exceeds maximum depth` |
 | `ErrMergeInvalid()` | `validator-merger/merge-invalid` | `merger: invalid merge input` |
 
 ### pkg/workspaceconfig
@@ -633,8 +632,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0215` | `validator-envelope/entity-envelope` | `document envelope validation failed` |
 | `E0216` | `validator-jsonschema/extension-eval` | `validator/jsonschema: x-aggrega extension evaluation failed` |
 | `E0218` | `validator-jsonschema/schema-resolve` | `validator/jsonschema: schema resolution failed` |
-| `E0219` | `validator-merger/cyclic-extension` | `merger: cyclic extends chain` |
-| `E0220` | `validator-merger/max-depth` | `merger: extends chain exceeds maximum depth` |
+| `E0220` | `validator/extends-chain-too-deep` | `extends chain exceeds maximum depth` |
 | `E0221` | `validator-merger/merge-invalid` | `merger: invalid merge input` |
 | `E0222` | `workspaceconfig/ambiguous-registry-alias` | `workspaceconfig: registry alias matches more than one host` |
 | `E0223` | `workspaceconfig/capability-on-cross-cutting-socket` | `workspaceconfig: a cross-cutting socket is bound by capability but attaches by uri` |
@@ -681,6 +679,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 - `E0157` is retired: nothing reports it now, and the number is never handed to a different condition. It named an Aggregate key — a component, feature, subsystem or nested-module instance name — that did not match the authored-name pattern. Every one of those key surfaces is constrained to that same spelling by the Aggregate schema, which refuses the document while validating its envelope and reports the offending key with a line and column; that condition's code is `E0215`.
 - `E0159` is retired: nothing reports it now, and the number is never handed to a different condition. It named a target reference whose dot-separated segments did not all match the instance-name pattern, and no build reported it before the condition was withdrawn.
 - `E0217` is retired: nothing reports it now, and the number is never handed to a different condition. It named a schema-validation failure that could not be reported against a particular field, and no build reported it before the condition was withdrawn.
+- `E0219` is retired: nothing reports it now, and the number is never handed to a different condition. It named a cyclic `extends` chain, reported by a second chain walk the schema-merge library kept beside its combining step; one walk reports every cyclic chain now, and its code is `E0202`.
 - `E0234` is retired: nothing reports it now, and the number is never handed to a different condition. It named a Recipe source that is an empty string, reported while rendering through the compose provider; one condition covering every provider reports that now, and its code is `E0251`.
 - `E0242` is retired: nothing reports it now, and the number is never handed to a different condition. It named a Recipe source that is an empty string, reported while rendering through the Helm provider; one condition covering every provider reports that now, and its code is `E0251`.
 <!-- END GENERATED: condition-short-codes -->
