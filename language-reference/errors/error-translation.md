@@ -9,8 +9,8 @@ For the per-error catalog (every fatal halt with how-to-fix guidance), see [`fat
 Every CLI-bubbling error carries one of six category tags. The tag identifies the surface where the fix lives:
 
 - **`[DEVELOPER_ERROR]`** — the failure attaches to Aggregate authoring. The fix is in the Aggregate YAML or in the developer-authored portion of the catalog (Component values, `uses` sockets, Feature attachments). Example surfaces: resolver halts on Aggregate-side issues; analyzer selector and `appliesTo` violations.
-- **`[OPS_ERROR]`** — the failure attaches to Release authoring. The fix is in the Release YAML (boundary topology, parameter values, Feature attachments at the Release level). Example surfaces: Release schema validation; boundary-path template evaluation; `subDirectory` collisions across providers.
-- **`[CATALOG_ERROR]`** — the failure attaches to a catalog entity (Recipe, FeatureRecipe, Component, Feature, Plugin, Manifest). The fix is in the catalog content. Example surfaces: Recipe shape rules; Workload `featuresSchema` cross-checks; template parse errors in catalog-authored templates.
+- **`[OPS_ERROR]`** — the failure attaches to the operator's own documents, the Release and the Manifest. The fix is in the Release YAML (boundary topology, parameter values, Feature attachments at the Release level) or in the Manifest YAML (which Recipe a type is deployed through, and the annotation bindings written beside it). Example surfaces: Release schema validation; boundary-path template evaluation; `subDirectory` collisions across providers; Manifest mapping and annotation-binding refusals.
+- **`[CATALOG_ERROR]`** — the failure attaches to a catalog entity (Recipe, FeatureRecipe, Component, Feature, Plugin). The fix is in the catalog content. Example surfaces: Recipe shape rules; Workload `featuresSchema` cross-checks; template parse errors in catalog-authored templates.
 - **`[TRANSLATION_ERROR]`** — the failure attaches to provider-side synthesis (the helm, helm-chart, or compose provider attempting to translate a Workload, valuesMapping output, or sourced overlay into provider-native artifacts). The fix is typically in the Workload's `services` / `containers` / `volumes` shape, the Recipe's `valuesMapping` template output, or the source-mode overlay structure.
 - **`[FETCH_ERROR]`** — the failure attaches to fetching a pinned dependency from a registry or remote source, not to any authoring surface. The fix is usually operational: authenticate to the registry (`docker login <registry>`), restore connectivity, or re-pin a drifted or tampered artifact (`aggrega pull --upgrade --release <release>`). Example surfaces: a catalog entity or chart not found at the registry; authentication required or failed; the network unreachable; a cached artifact's digest not matching the lockfile. Fetch errors carry a concrete remediation pointer in the message.
 - **`[POLICY_ERROR]`** — the build was rejected by a policy plugin attached at a governance verdict role. This is not an authoring-surface fault: the input is well-formed, but it fails a governance rule (compliance, FinOps, or security) the plugin enforces. The fix is to bring the deployment into compliance with the enforced policy, or to reconsider the policy attachment. The message names the rejecting plugin and carries the rule message it supplied.
@@ -85,7 +85,7 @@ Reading top-down: the phase that failed, then the entity (with its file path) th
 When the failure forks beneath a frame — a phase that collected several independent violations before halting — the continuation carries a count, and every collected failure renders beneath it, separated by the same `---` rule the multi-error chains below use:
 
 ```text
-[CATALOG_ERROR E0099]
+[OPS_ERROR E0099]
   recipe resolution
   caused by (2):
     no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type: component "edge" (type "example/gateway/nginx-reviewed"); no recipe implements this type
@@ -175,8 +175,8 @@ For most authoring contexts, the category prefix and the source pointer together
 | Category | Where the fix lives | Example surfaces |
 | --- | --- | --- |
 | `[DEVELOPER_ERROR]` | Aggregate YAML | Selector / `appliesTo` violations; Aggregate-side `uses` socket mismatch; resolver halts on developer authoring. |
-| `[OPS_ERROR]` | Release YAML | Boundary path template references unsupported field; `subDirectory` causes path collision; resolver halts on Release authoring. |
-| `[CATALOG_ERROR]` | Recipe / FeatureRecipe / Component / Feature / Manifest | Recipe shape rules; FeatureRecipe template references a per-component-only field with `executionScope: boundary`; Workload `featuresSchema` cross-check fails. |
+| `[OPS_ERROR]` | Release YAML / Manifest YAML | Boundary path template references unsupported field; `subDirectory` causes path collision; resolver halts on Release authoring; a Manifest mapping or annotation binding is refused. |
+| `[CATALOG_ERROR]` | Recipe / FeatureRecipe / Component / Feature / Plugin | Recipe shape rules; FeatureRecipe template references a per-component-only field with `executionScope: boundary`; Workload `featuresSchema` cross-check fails. |
 | `[TRANSLATION_ERROR]` | Workload / valuesMapping output / source overlay | Helm probe port resolution; compose service-name collision across boundaries; chart-name mismatch on `helm-chart` umbrella. |
 | `[FETCH_ERROR]` | Registry / remote-source acquisition (operational, not authoring) | Artifact not found at the registry; authentication required; network unreachable; cached digest mismatch vs the lockfile. Fix: authenticate, restore connectivity, or `aggrega pull --upgrade --release <release>`. |
 | `[POLICY_ERROR]` | Policy plugin (governance rule) | A policy plugin attached at a governance verdict role rejected the assembled build against a rule it enforces. Fix: satisfy the enforced policy or reconsider the attachment. |
