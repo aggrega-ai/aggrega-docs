@@ -1360,8 +1360,10 @@ A type written as a relative path — beginning `./` or `../` — is a local fil
 
 Wherever the condition is met, it reports in the same words, so the text names the type and the fault rather than the check that raised it.
 
+It also names no document and no key inside one, which is deliberate and is the one place this halt reads differently from every other. Every other halt positions itself on the file and the field you would edit to clear it; there is no such file here, so a position would send you to a key that is not at fault. The type the two views disagree on is reported instead, because that is what makes the divergence reproducible for whoever investigates it.
+
 Emitted message:
-> guard catalog-entity view inconsistency (Aggregate `<name>`, at `<field-path>`, the catalog this build reads holds no entry for a component type it had already resolved, which nothing you authored can cause — the type is `"<type>"`)
+> the compiler's own views of the catalog disagree (internal error: this build resolved a component type that the catalog it reads then held no entry for. This is a fault in the compiler rather than in an authored document, so there is nothing to correct in the Aggregate, the Release or the catalog. Please report it, naming the command that produced this build and the type the views disagree on: `"<type>"`)
 
 **How to fix:** nothing in your own files — this reports an inconsistency inside the compiler rather than a fault in what you wrote, and it is worth reporting as a defect with the type the message names. The component's type is almost certainly fine; if you need to get past it while the defect is investigated, writing the type as a relative path to a local entity file takes that component off the catalog-resolution path.
 
@@ -4065,7 +4067,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0151` | `component declared in more than one boundary: declare each component in exactly one boundary` | A component is placed in more than one boundary |
 | `E0152` | `duplicate Aggregate/Manifest identity (metadata.name) in the Release directory` | The Release directory declares one Aggregate or Manifest twice |
 | `E0153` | `feature merge conflict: reconcile the Aggregate and Release declarations for the feature` | Manifest merge strategy |
-| `E0154` | `guard catalog-entity view inconsistency` | A guard needs a catalog entity the build resolved and cannot see |
+| `E0154` | `the compiler's own views of the catalog disagree` | A guard needs a catalog entity the build resolved and cannot see |
 | `E0155` | `duplicate delivery key across inject sources` | Duplicate delivery key across inject sources |
 | `E0156` | `invalid inject key: the from-key must name a declared provides key of the target component type` | Inject `from` key is not in the target's `provides` |
 | `E0158` | `invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template` | A `{{ .parameters.* }}` reference cannot be interpolated |

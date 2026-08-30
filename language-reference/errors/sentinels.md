@@ -224,7 +224,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrDuplicateBoundaryComponent()` | `resolver/duplicate-boundary-component` | `component declared in more than one boundary: declare each component in exactly one boundary` |
 | `ErrDuplicateTriadIdentity()` | `resolver/duplicate-triad-identity` | `duplicate Aggregate/Manifest identity (metadata.name) in the Release directory` |
 | `ErrFeatureMergeConflict()` | `resolver/feature-merge-conflict` | `feature merge conflict: reconcile the Aggregate and Release declarations for the feature` |
-| `ErrGuardEntityViewInconsistency()` | `resolver/guard-entity-view-inconsistency` | `guard catalog-entity view inconsistency` |
+| `ErrGuardEntityViewInconsistency()` | `resolver/guard-entity-view-inconsistency` | `the compiler's own views of the catalog disagree` |
 | `ErrInjectKeyCollision()` | `resolver/inject-key-collision` | `duplicate delivery key across inject sources` |
 | `ErrInvalidInjectKey()` | `resolver/invalid-inject-key` | `invalid inject key: the from-key must name a declared provides key of the target component type` |
 | `ErrInvalidParameterRef()` | `resolver/invalid-parameter-ref` | `invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template` |
@@ -570,7 +570,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0151` | `resolver/duplicate-boundary-component` | `component declared in more than one boundary: declare each component in exactly one boundary` |
 | `E0152` | `resolver/duplicate-triad-identity` | `duplicate Aggregate/Manifest identity (metadata.name) in the Release directory` |
 | `E0153` | `resolver/feature-merge-conflict` | `feature merge conflict: reconcile the Aggregate and Release declarations for the feature` |
-| `E0154` | `resolver/guard-entity-view-inconsistency` | `guard catalog-entity view inconsistency` |
+| `E0154` | `resolver/guard-entity-view-inconsistency` | `the compiler's own views of the catalog disagree` |
 | `E0155` | `resolver/inject-key-collision` | `duplicate delivery key across inject sources` |
 | `E0156` | `resolver/invalid-inject-key` | `invalid inject key: the from-key must name a declared provides key of the target component type` |
 | `E0158` | `resolver/invalid-parameter-ref` | `invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template` |
