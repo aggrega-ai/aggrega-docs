@@ -12,11 +12,15 @@ For fatal compilation halts (the diagnostics that stop a build), see [fatal-halt
 
 **Emit shape:**
 
+<!-- unregistered-output: lint text, which is reported without halting and which no halting condition registers -->
+
 ```text
 LINT: Component "core/web-server" at ./catalog/component/core/web-server.yaml declares property "storage_size" in both values: and infra: pillars (path: spec.schema)
 ```
 
 For nested properties, the warning includes the dotted path:
+
+<!-- unregistered-output: lint text, which is reported without halting and which no halting condition registers -->
 
 ```text
 LINT: Feature "core/db-pool" at ./catalog/feature/core/db-pool.yaml declares property "connection.timeout" in both values: and infra: pillars (path: spec.schema.connection)
@@ -72,7 +76,7 @@ The first quoted value is the name the attachment was written under, which is wh
 
 **Fires when** a component's own `uses:` block names a socket that is not one of its Component type's declared `usesSchema` sockets, but is within one edit of one — a single inserted, deleted, or substituted character, or two adjacent characters swapped. That is the shape a socket-name typo takes, and the lint names both spellings so the author can see the pair.
 
-**Why it exists.** Declaring a socket does not close the `uses:` surface on a developer's own component: a socket name no `usesSchema` entry declares is legal, because catalog silence about a socket means the connection was not anticipated rather than forbidden, and the developer owns the application's topology. The cost is that a misspelled socket name becomes an *ad-hoc connection* of its own rather than wiring the socket the author meant — the build succeeds, the intended socket simply stays unwired, and the ad-hoc edge carries no selector and no per-edge contract. The lint is the disclosed mitigation for exactly that case. For what an ad-hoc socket gives up and what it keeps, see [entities/component.md](../entities/component.md) "Ad-hoc sockets".
+**Why it exists.** Declaring a socket does not close the `uses:` surface on a developer's own component: a socket name no `usesSchema` entry declares is legal, because catalog silence about a socket means the connection was not anticipated rather than forbidden, and the developer owns the application's topology. The cost is that a misspelled socket name becomes an *ad-hoc connection* of its own rather than wiring the socket the author meant — the build succeeds, the intended socket simply stays unwired, and the ad-hoc edge carries no selector and no per-edge contract. The lint is the disclosed mitigation for exactly that case. For what an ad-hoc socket gives up and what it keeps, see [entities/component.md](../entities/component.md) "Topology Sockets: `usesSchema`".
 
 **Which surface it covers.** The component's own `uses:` block only — the one surface where an undeclared socket name is accepted. A Feature attachment's `uses:` may only name a socket the attached Feature declares, and a Release's per-edge `uses:` may only name a socket the consuming Component declares; a wrong name on either of those already halts the build, so there is nothing for a warning to add.
 
@@ -108,6 +112,8 @@ The Recipe compared is the one the instance is actually bound to, matched by the
 
 **Emit shape.** One line per component instance and key, naming the Recipe that published the key and the Component that does not declare it:
 
+<!-- unregistered-output: lint text, which is reported without halting and which no halting condition registers -->
+
 ```text
   lint: Aggregate model-api-key-sharing-shared at .spec.subsystems.model.components["gateway"].type: Recipe "openai-compatible" publishes provides key "provider", which Component "core/ai-model/openai-compatible" does not declare in its schema.provides contract — a consumer across a uses edge reads the declared contract, so this key is not delivered and a template reading it renders empty; declare the key on the Component if consumers are meant to read it, or move it to the Recipe's locals if it is the Recipe's own working state
 ```
@@ -140,6 +146,8 @@ The finding belongs to the instance that carries it, so ten instances of one Com
 **Pipeline placement.** The tracker runs at base rendering, alongside template evaluation. The Recipe's `valuesMapping:` template is parsed and walked to collect the dot-qualified field paths it references (`.values.port`, `.infra.replicas`, `.context.uses.<alias>.values.retry_budget`); each group's resolved key set is compared against that reference set, and the difference is the unread set.
 
 **Emit shape.** One line per unread key, naming the node, the group's path, the key, and the Recipe whose `valuesMapping:` does not reference it:
+
+<!-- unregistered-output: warning text, which is reported without halting and which no halting condition registers -->
 
 ```text
   warning: node "data.main-db": unused .values key "database_name" (not referenced by valuesMapping of recipe "helm-postgres-sourced-with-artifacts")
@@ -208,6 +216,8 @@ On the compose target the class currently covers `scheduling`, `serviceAccount`,
 The `aggrega.ai/` annotations are platform directives a provider reads and applies to what it renders — a namespace, a registry prefix, a service account. Which of them a provider reads is that provider's own declaration, made per input kind, because a provider that owns every field of a deployment unit it synthesizes itself often has nowhere to put the same value when it renders a vendored artifact. [Well-Known Annotations](../providers/well-known-annotations.md) is the matrix.
 
 When a node carries such an annotation and the resolved target's declaration does not cover that key on the node's input kind, the annotation reaches no consumer, changes nothing, and **says so with a warning** naming the key, the target and the input kind:
+
+<!-- unregistered-output: warning text, which is reported without halting and which no halting condition registers -->
 
 ```text
 warning: node "frontend" (provider "helm-chart"): target "helm-chart" does not support annotation aggrega.ai/namespace on sourced input and ignored it

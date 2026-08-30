@@ -19,6 +19,8 @@ Every CLI-bubbling error carries one of six category tags. The tag identifies th
 
 A printed diagnostic opens with the bracketed head and the source pointer, and puts the message on its own indented line:
 
+<!-- unregistered-output: an output grammar, whose metavariables stand in for whichever condition was met rather than quoting one -->
+
 ```text
 [CATEGORY SHORTCODE] <source>
   <message>
@@ -29,6 +31,8 @@ The head carries two tokens, and they answer different questions. The category i
 A failure that names no condition of Aggrega's own prints the category alone. Nothing stands in for the absent token.
 
 The same error reduced to one line, the form suitable for log output rather than for a terminal, carries the category and drops the short code:
+
+<!-- unregistered-output: an output grammar, whose metavariables stand in for whichever condition was met rather than quoting one -->
 
 ```text
 [CATEGORY] <source>: <message>
@@ -49,6 +53,8 @@ A rule evaluated over the finished graph reports in that third shape, and the ke
 The key is the only part that differs, and it is what names which of the two components to edit. Both findings carry the same short code because both are the same condition, met twice — the short code names the rule, and the key names the occurrence.
 
 Two further lines belong to the shape, for a failure that carries the context to fill them — the template expression that failed, and a snapshot of the pillars in scope where it failed:
+
+<!-- unregistered-output: an output grammar, whose metavariables stand in for whichever condition was met rather than quoting one -->
 
 ```text
 [CATEGORY SHORTCODE] <source>

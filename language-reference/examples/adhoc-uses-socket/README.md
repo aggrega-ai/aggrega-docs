@@ -208,5 +208,5 @@ Two costs are worth stating plainly:
   the `assistant` socket is the Aggregate author's, and only theirs.
 
 For the full contract, see
-[entities/component.md](../../entities/component.md) "Ad-hoc sockets" and
+[entities/component.md](../../entities/component.md) "Topology Sockets: `usesSchema`" and
 [architecture/07-dependency-resolution.md](../../../architecture/07-dependency-resolution.md).
