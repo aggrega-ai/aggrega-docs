@@ -227,7 +227,6 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrGuardEntityViewInconsistency()` | `resolver/guard-entity-view-inconsistency` | `guard catalog-entity view inconsistency` |
 | `ErrInjectKeyCollision()` | `resolver/inject-key-collision` | `duplicate delivery key across inject sources` |
 | `ErrInvalidInjectKey()` | `resolver/invalid-inject-key` | `invalid inject key: the from-key must name a declared provides key of the target component type` |
-| `ErrInvalidInstanceName()` | `resolver/invalid-instance-name` | `invalid instance name: names must match ^[a-zA-Z0-9_-]+$ (letters, digits, hyphen, underscore; no dots)` |
 | `ErrInvalidParameterRef()` | `resolver/invalid-parameter-ref` | `invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template` |
 | `ErrManifestCrossBindingPillarCollision()` | `resolver/manifest-cross-binding-pillar-collision` | `manifest annotation bindings collide on same Feature path+pillar` |
 | `ErrManifestReservedPrefix()` | `resolver/manifest-reserved-prefix` | `manifest annotation binding uses reserved prefix` |
@@ -575,7 +574,6 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0154` | `resolver/guard-entity-view-inconsistency` | `guard catalog-entity view inconsistency` |
 | `E0155` | `resolver/inject-key-collision` | `duplicate delivery key across inject sources` |
 | `E0156` | `resolver/invalid-inject-key` | `invalid inject key: the from-key must name a declared provides key of the target component type` |
-| `E0157` | `resolver/invalid-instance-name` | `invalid instance name: names must match ^[a-zA-Z0-9_-]+$ (letters, digits, hyphen, underscore; no dots)` |
 | `E0158` | `resolver/invalid-parameter-ref` | `invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template` |
 | `E0160` | `resolver/manifest-cross-binding-pillar-collision` | `manifest annotation bindings collide on same Feature path+pillar` |
 | `E0161` | `resolver/manifest-reserved-prefix` | `manifest annotation binding uses reserved prefix` |
@@ -680,6 +678,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 
 - `E0002` is declared ahead of the code that reports it, so no build raises it yet. It will report a catalog lookup that fails during static analysis — a state that cannot arise while every component and feature an Aggregate or Release names is checked before analysis begins — once that stage surfaces such an inconsistency as a halt rather than ending its reading silently.
 
+- `E0157` is retired: nothing reports it now, and the number is never handed to a different condition. It named an Aggregate key — a component, feature, subsystem or nested-module instance name — that did not match the authored-name pattern. Every one of those key surfaces is constrained to that same spelling by the Aggregate schema, which refuses the document while validating its envelope and reports the offending key with a line and column; that condition's code is `E0215`.
 - `E0159` is retired: nothing reports it now, and the number is never handed to a different condition. It named a target reference whose dot-separated segments did not all match the instance-name pattern, and no build reported it before the condition was withdrawn.
 - `E0217` is retired: nothing reports it now, and the number is never handed to a different condition. It named a schema-validation failure that could not be reported against a particular field, and no build reported it before the condition was withdrawn.
 - `E0234` is retired: nothing reports it now, and the number is never handed to a different condition. It named a Recipe source that is an empty string, reported while rendering through the compose provider; one condition covering every provider reports that now, and its code is `E0251`.

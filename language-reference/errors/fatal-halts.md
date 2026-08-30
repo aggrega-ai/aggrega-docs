@@ -227,17 +227,6 @@ Emitted message, listing every forbidden field the document declared rather than
 
 **How to fix:** remove the render input kinds from the eval FeatureRecipe, or bind it to a provider that renders. An eval FeatureRecipe legitimately declares `provides:`, `locals:` and `injectMapping:` and nothing that emits.
 
-### Instance name fails the naming pattern
-
-<!-- covers: pkg/resolver.ErrInvalidInstanceName -->
-
-An authored instance name — a key under `components`, `subsystems`, `features`, `secrets`, a sub-aggregate alias, or a `uses:` alias — contains characters outside the allowed pattern `^[a-zA-Z0-9_-]+$`. Dots, spaces, slashes, and other punctuation are not permitted in user-authored instance names; the dot in particular is reserved as the compiler's internal path separator for nested-aggregate flattening.
-
-Emitted message:
-> invalid instance name: names must match `^[a-zA-Z0-9_-]+$` (letters, digits, hyphen, underscore; no dots) (Aggregate `<name>`, at `<field-path>`, instance name `<instance-name>` is invalid: must match `^[a-zA-Z0-9_-]+$`)
-
-**How to fix:** rename the offending instance to use only alphanumerics, hyphens, and underscores. If the name came from an auto-generated source, adjust the generator; if you intended to express a nested-aggregate path, use the sub-aggregate import mechanism rather than embedding a dot in the name.
-
 ### A file cannot be read, or its text is not well-formed YAML
 
 <!-- covers: pkg/resolver.ErrYAMLLoad -->
@@ -4044,7 +4033,6 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0154` | `guard catalog-entity view inconsistency` | A guard needs a catalog entity the build resolved and cannot see |
 | `E0155` | `duplicate delivery key across inject sources` | Duplicate delivery key across inject sources |
 | `E0156` | `invalid inject key: the from-key must name a declared provides key of the target component type` | Inject `from` key is not in the target's `provides` |
-| `E0157` | `invalid instance name: names must match ^[a-zA-Z0-9_-]+$ (letters, digits, hyphen, underscore; no dots)` | Instance name fails the naming pattern |
 | `E0158` | `invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template` | A `{{ .parameters.* }}` reference cannot be interpolated |
 | `E0160` | `manifest annotation bindings collide on same Feature path+pillar` | Two Manifest annotation bindings compete for one routing slot |
 | `E0161` | `manifest annotation binding uses reserved prefix` | A Manifest annotation binding claims the reserved `aggrega.ai/` prefix |
