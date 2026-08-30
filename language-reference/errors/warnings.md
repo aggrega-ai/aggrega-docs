@@ -4,6 +4,30 @@ Non-fatal warnings the compiler emits during compilation. Warnings do not halt t
 
 For fatal compilation halts (the diagnostics that stop a build), see [fatal-halts.md](./fatal-halts.md).
 
+## Every advisory, by short code
+
+Some of what the compiler reports without halting is a **condition** of its own: it carries a short code, the same four-digit identifier a halting diagnostic prints, and a fixed sentence its message opens with. The table below runs the lookup from one to the other, so a code you have in hand resolves to what the finding is about even when the line you are reading is a warning rather than a halt.
+
+**What earns a place here is a declaration, not a description.** Every rule the compiler evaluates states what a violation does — stop the build, or report the finding and let the build finish — and the rows below are the second kind. So an advisory added to the compiler appears here without a row being written by hand, and one that becomes a halting condition leaves.
+
+Two bounds on what the table covers, and both are worth knowing before you conclude a code is missing:
+
+- **Not everything on this page is one of these.** Several of the findings taught below are raised by a pass of its own rather than by a declared rule, and some carry no condition at all — the lines they print are still exactly as described in their sections, but there is no code to resolve and so no row. The `unsupported-field` class code is the shape to expect there: it names a class of finding rather than a condition.
+- **A row here does not promise a section below.** An advisory raised late in rendering is catalogued rather than taught, so a code may resolve to a sentence here and have its fuller treatment in [fatal-halts.md](./fatal-halts.md) under "Conditions that do not halt a build", which catalogues every condition that carries a code without stopping a build.
+
+[sentinels.md](./sentinels.md) resolves any short code a build prints, advisory or halting, and is the place to start when you do not yet know which kind you are holding.
+
+<!-- BEGIN GENERATED: advisory-short-codes -->
+| Short code | Opens with |
+| --- | --- |
+| `E0004` | `annotation contribution overridden by an explicit value` |
+| `E0037` | `cross-boundary link between endpoints rendered by different providers is not supported` |
+| `E0149` | `attachment name is a near miss for a declared slot` |
+| `E0167` | `Recipe publishes a provides key its Component does not declare` |
+| `E0173` | `declared parameter is read by no reference in the Aggregate` |
+| `E0174` | `uses socket name is a near miss for a declared socket` |
+<!-- END GENERATED: advisory-short-codes -->
+
 ## Schema-pillar-overlap lint
 
 **Fires when** a Component or Feature declares the same property name in both the `values:` and `infra:` pillars of its `spec.schema:` block at the same nesting depth. Schema authors who put the same field name in both pillars usually mean to put it in one or the other; the lint flags the duplication so the author can resolve which pillar owns the field.
