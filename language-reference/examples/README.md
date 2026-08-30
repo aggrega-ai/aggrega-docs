@@ -31,6 +31,11 @@ These complement the numbered walkthrough chapters in
 [Examples Overview](../09-examples.md): the chapters teach one pattern at a time
 inline; the workspaces here are whole stacks you can build, read, and adapt.
 
+Where a page prints what a build produced, that block is copied from a real run
+so you can compare your own output against it — and any lines left out are
+marked. [Reading the output on these pages](reading-the-output.md) states that
+convention and the mark it uses.
+
 The set is organised as a **progressive-complexity path** — from the smallest
 authoring surface to the advanced compiler frontier. Read it top-to-bottom as a
 learning path, or jump to the tier that matches what you're doing.

@@ -109,6 +109,7 @@ start-up, and the ClusterIP Service exposes the forward port:
 ```yaml
 spec:
   type: ClusterIP
+  [… omitted: the selector matching the aggregator's Pods]
   ports:
     - name: forward
       port: 24224
@@ -120,6 +121,7 @@ container:
 
 ```yaml
 image: fluent/fluentd:v1.19.3-debian-2.1
+[… omitted: the start-up command that writes the fluent.conf shown above]
 ports:
   - name: forward
     containerPort: 24224

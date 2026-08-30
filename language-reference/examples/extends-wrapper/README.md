@@ -131,9 +131,9 @@ The rendered `dist/compose/docker-compose.yaml` carries the evidence:
       - /bin/sh
       - -c
       - echo 'server { listen 8080; location /api/ { proxy_pass http://internal:8081; } }' > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'
-    # ... ports ...
+    [… omitted: the published port]
     labels:
-      # ... the other provenance labels ...
+      [… omitted: the other provenance labels every rendered document carries]
       aggrega.ai/recipe-uri: nginx:1.0.0
 ```
 

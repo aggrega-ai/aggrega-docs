@@ -500,8 +500,10 @@ The Release supplies parameter values for production. The Aggregate's typed-para
 7. **Recipe assertion evaluation.** Recipe assertions evaluated (the two Bitnami-specific rules from the Recipe's `assertions:` block); pass.
 8. **Rendering.** MariaDB Recipe's `valuesMapping:` (loaded from the MappingLibrary entry) renders into Helm chart values:
 
+Unlike the example directories, this page walks through a catalog that is not shipped as a workspace you can build, so the values below show the shape the mapping produces rather than output you can regenerate and compare against line by line. Every example directory prints output you can — see [Reading the output on these pages](reading-the-output.md).
+
 ```yaml
-# Rendered chart values for MariaDB (excerpt)
+# Chart values for MariaDB — the shape the mapping renders
 image:
   tag: "11.4.4-debian-12-r0"
   pullPolicy: IfNotPresent

@@ -94,12 +94,15 @@ registry, the job service, and the portal:
 env:
   - name: POSTGRESQL_HOST
     value: harbor.db-default
+  [… omitted: the backend's port]
   - name: POSTGRESQL_USERNAME
     value: harbor
   - name: POSTGRESQL_DATABASE
     value: registry
+  [… omitted: the backend's SSL mode, and the cache's host and port]
   - name: HARBOR_REGISTRY_HOST
     value: harbor.registry-default
+  [… omitted: the registry's port, and the job service's and portal's hosts and ports]
   - name: _REDIS_URL_CORE
     value: redis://harbor.cache-default:6379/0
 ```

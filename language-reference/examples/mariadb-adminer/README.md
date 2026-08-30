@@ -358,6 +358,7 @@ charts/
 │       ├── pvc.yaml
 │       └── netpol.yaml           # injected artifact (see below)
 └── web/                   # the local ./charts/adminer, copied verbatim
+    [… omitted: web's own Chart.yaml, values.yaml and templates, laid out as db's are]
 ```
 
 Install it (the sub-charts are vendored under `charts/`, so no

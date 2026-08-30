@@ -76,6 +76,7 @@ still inherits both:
 metadata:
   name: metrics.store
   namespace: observability
+  [… omitted: the labels every rendered document carries]
   annotations:
     aggrega.ai/boundary-path: observability
 ```
@@ -88,6 +89,7 @@ apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: metrics.query-scrape
+  [… omitted: the namespace, labels and annotations every rendered document carries]
 spec:
   selector:
     matchLabels:

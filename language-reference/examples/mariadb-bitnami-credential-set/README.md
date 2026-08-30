@@ -39,8 +39,10 @@ Kubernetes Secret and publishes its name as `provides.name`:
 
 ```yaml
 # dist/app/helm/features/root_password/db-secret-db-root-password.yaml
+[… omitted: the apiVersion and the Secret kind]
 metadata:
   name: db-root-password
+  [… omitted: the labels and annotations every rendered document carries]
 stringData:
   mariadb-root-password: "dev-root-pw-change-me"
   mariadb-password: "dev-user-pw-change-me"

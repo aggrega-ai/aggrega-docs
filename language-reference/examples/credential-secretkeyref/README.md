@@ -40,10 +40,12 @@ re-derivation and no convention for the two sides to agree on:
 
 ```yaml
 # features/password/db-secret-db-password.yaml
+[… omitted: the apiVersion and the Secret kind]
 metadata:
-  name: "db-password"
+  name: db-password
+  [… omitted: the labels and annotations every rendered document carries]
 stringData:
-  "POSTGRES_PASSWORD": "dev-pw-change-me"
+  POSTGRES_PASSWORD: "dev-pw-change-me"
 
 # db-statefulset.yaml (container env)
 - name: POSTGRES_PASSWORD

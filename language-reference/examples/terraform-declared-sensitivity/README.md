@@ -94,13 +94,19 @@ tofu init && tofu plan     # or: terraform init && terraform plan
 ```text
   # module.store.terraform_data.reference will be created
   + resource "terraform_data" "reference" {
+      [… omitted: an id attribute, reported as known only after apply]
       + input            = (sensitive value)
+      [… omitted: an output attribute, reported as known only after apply]
       + triggers_replace = [
           + "app-artifacts",
           + "AKIAEXAMPLE0001",
         ]
     }
 ```
+
+Your own plan carries those two attributes between the lines shown. They are
+[marked as left out](../reading-the-output.md) rather than missing, so a line you
+cannot account for is a real difference rather than something this page dropped.
 
 The credential is redacted; the two public values beside it are not. Delete
 `aggrega_override.tf.json` and re-run the plan to see the credential printed in

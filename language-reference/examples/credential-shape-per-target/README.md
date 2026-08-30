@@ -91,8 +91,7 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: db-password
-  # labels and annotations naming the aggregate, component, environment,
-  # provider and boundary — the same set every rendered document carries
+  [… omitted: the labels and annotations naming the aggregate, component, environment, provider and boundary — the same set every rendered document carries]
 stringData:
   POSTGRES_PASSWORD: "postgres-superuser-password"
 ```
@@ -105,7 +104,7 @@ apiVersion: external-secrets.io/v1
 kind: ExternalSecret
 metadata:
   name: db-password
-  # the same label and annotation set as above
+  [… omitted: the same label and annotation set as above]
 spec:
   refreshInterval: "1h"
   secretStoreRef:

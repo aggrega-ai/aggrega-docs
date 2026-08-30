@@ -44,8 +44,10 @@ FeatureRecipe, which renders one Secret carrying both keys:
 
 ```yaml
 # features/app_credentials/app-secret-app-app-credentials.yaml
+[… omitted: the apiVersion and the Secret kind]
 metadata:
   name: app-app-credentials
+  [… omitted: the labels and annotations every rendered document carries]
 stringData:
   db_username: "appuser"
   db_password: "dev-pw-change-me"

@@ -66,14 +66,18 @@ Two Secrets are emitted, one per agent, each carrying that agent's own material:
 
 ```yaml
 # dist/per-consumer/helm/features/model_api_key/researcher-secret-researcher-model-api-key.yaml
+[… omitted: the apiVersion and the Secret kind]
 metadata:
   name: researcher-model-api-key
+  [… omitted: the labels and annotations every rendered document carries]
 stringData:
   OPENAI_API_KEY: "researcher-key-change-me"
 
 # dist/per-consumer/helm/features/model_api_key/writer-secret-writer-model-api-key.yaml
+[… omitted: the apiVersion and the Secret kind]
 metadata:
   name: writer-model-api-key
+  [… omitted: the labels and annotations every rendered document carries]
 stringData:
   OPENAI_API_KEY: "writer-key-change-me"
 ```
@@ -137,14 +141,18 @@ same names as in the per-consumer form, both carrying the same material:
 
 ```yaml
 # dist/shared/helm/features/model_api_key/researcher-secret-researcher-model-api-key.yaml
+[… omitted: the apiVersion and the Secret kind]
 metadata:
   name: researcher-model-api-key
+  [… omitted: the labels and annotations every rendered document carries]
 stringData:
   OPENAI_API_KEY: "team-key-change-me"
 
 # dist/shared/helm/features/model_api_key/writer-secret-writer-model-api-key.yaml
+[… omitted: the apiVersion and the Secret kind]
 metadata:
   name: writer-model-api-key
+  [… omitted: the labels and annotations every rendered document carries]
 stringData:
   OPENAI_API_KEY: "team-key-change-me"
 ```

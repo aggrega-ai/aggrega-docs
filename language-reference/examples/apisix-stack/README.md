@@ -79,6 +79,7 @@ deployment:
   role_traditional:
     config_provider: etcd
   admin:
+    [… omitted: the client range the Admin API accepts]
     admin_key:
       - name: admin
         key: edd1c9f034335f136f87ad84b625c8f1

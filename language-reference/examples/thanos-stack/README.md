@@ -84,6 +84,7 @@ args:
       endpoint: metrics.objstore-default:9000
       insecure: true
       aws_sdk_auth: true
+[… omitted: the container ports for the two addresses named in the args]
 env:
   - name: AWS_ACCESS_KEY_ID
     value: admin

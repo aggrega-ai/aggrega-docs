@@ -73,11 +73,13 @@ Both reads resolve to the ServiceAccount the attachment actually emitted:
 
 ```yaml
 # features/identity/app-serviceaccount-app-workload-identity.yaml
+[… omitted: the apiVersion]
 kind: ServiceAccount
 metadata:
   name: app-workload-identity
   annotations:
     iam.gke.io/gcp-service-account: "app-dev@example-project.iam.gserviceaccount.com"
+    [… omitted: the boundary and recipe annotations, and the labels, that every rendered document carries]
 ```
 
 ```yaml
