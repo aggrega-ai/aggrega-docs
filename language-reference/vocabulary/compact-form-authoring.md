@@ -374,6 +374,39 @@ spec:
 
 The complementary statement — *whatever binds this point handles secret material*, regardless of what the fill declares about its own leaves — is not a leaf declaration at all. It is `sensitive` on an attachment slot; see [entities/component.md](../entities/component.md) "Attachment Slots".
 
+### Declaring a whole object sensitive
+
+The keyword may sit on an object rather than on a scalar, and it then covers **everything beneath that object** — the object's own children, and anything nested further down. It is the declaration to reach for when a whole block is material and marking each leaf separately would leave the next leaf someone adds unmarked.
+
+**The object's children must sit in an explicit `properties:` block.** This is the one place the inferred object form does not serve, and the reason is worth knowing rather than working around:
+
+```yaml
+spec:
+  schema:
+    values:
+      credentials:
+        type: object
+        sensitive: true
+        properties:            # required here
+          username: { type: string }
+          password: { type: string }
+```
+
+Writing the children directly beside the marker, the way the inferred object form allows everywhere else, is **refused at compile time** — the first child is reported as an unknown keyword, positioned on the child's own key:
+
+```yaml
+values:
+  credentials:
+    type: object
+    sensitive: true
+    password:                  # refused: unknown keyword "password"
+      type: string
+```
+
+The refusal is correct rather than a limitation to route around. A node is read as a constraint leaf as soon as it carries a compact-form keyword, and `sensitive:` is one — so from that point every sibling key has to be a keyword too, and `password` is not one. The `properties:` block is what says "the keys below are property names, not more keywords", and it is the same disambiguation [Inferred vs explicit object form](#inferred-vs-explicit-object-form) describes. Reading the diagnostic as "the marker cannot go on an object" is the misreading to avoid: it can, and the block is how you say so.
+
+A leaf inside a declared object needs no marker of its own. Adding one is harmless and says nothing new, since the object's declaration already covers it.
+
 ### What the keyword does not do
 
 The name invites assumptions the keyword does not earn, so state the ceiling plainly:
@@ -394,6 +427,8 @@ The one thing a declaration does change is the CLI's own debug output. A declare
 - the per-leaf attachment block `aggrega inspect` prints for a resolved Release.
 
 The key is always kept and only its value is replaced, so a reader still sees that the leaf is authored and that something was withheld. A leaf the author did not declare prints its value verbatim beside a withheld sibling — the substitution follows the declaration and nothing else, so a field named `password` that carries no declaration is printed, and a declared field named `key` is not.
+
+**A declaration reaches every leaf beneath it, and it reaches all three surfaces the same way.** Where the declaration sits on an object, each value nested inside that object is withheld as well, at any depth — the object's declaration names them, so withholding them claims nothing the author did not write. The match is on whole path segments rather than on text, so a *sibling* whose name merely begins with a declared name is untouched: declaring `dbPassword` does not withhold `dbPasswordHint`.
 
 The trace's withholding can be turned off for one build, when the withheld value is the one being debugged: `aggrega build --trace --trace-unredacted` writes the values into the trace files and marks each of those files with a header saying so. It is an invocation-time choice with no configuration setting, it reaches the trace alone, and it is documented with [`cli/aggrega-build.md`](../cli/aggrega-build.md) "Showing the withheld values". The `aggrega inspect` layouts have no such switch.
 
