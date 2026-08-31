@@ -272,6 +272,24 @@ The flag is display-only and does not change the rendered output. `aggrega lint`
 
 Reach for the flag when you have accepted the reduced fidelity deliberately — a compose target used for local development, where the production Workload's scheduling and service-account fields are expected to be inert. Leave it off otherwise: the warning is how you learn that a field you authored is not reaching the target.
 
+## A declared-sensitive value travels as a literal
+
+**Fires when** an attachment fills a slot by delivering a datum its schema declares sensitive into a delivery key as a **literal value**, rather than as a reference the target resolves when it deploys.
+
+**Emit shape.** One line per delivery key, naming the attachment instance, the delivery mechanism the key lands in, and the key itself, attributed to the node and the target that rendered it:
+
+<!-- unregistered-output: warning text, which is reported without halting and which no halting condition registers -->
+
+```text
+  warning: node "db" (provider "compose"): attachment "user_password" delivers a value declared sensitive to env delivery key "MARIADB_PASSWORD" as a literal; where the target supports it, fill the slot with an attachment that delivers a reference instead
+```
+
+**The class code.** The advisory carries the stable, machine-matchable class code `sensitive-by-value`, so tooling matches the class rather than parsing the message text. The code travels on the structured diagnostic the language server publishes as well as on the terminal line, so an editor client receives the same class an author reads.
+
+**It is a class of its own, and `--no-unsupported-field-warnings` does not cover it.** That flag silences the unsupported-field class above; this advisory still surfaces alongside it. There is no flag that silences this one.
+
+**The build succeeds and the rendered bytes are unchanged.** The advisory travels out-of-band from the rendered artifacts, as the unsupported-field class does, so what reaches your output is the same whether the line surfaces or not.
+
 ## A plugin ran with no recorded digest to check it against
 
 **Fires when** the compiler is about to run a plugin, a recorded digest is meant to govern that plugin's bytes, and the workspace records none for it. The plugin runs; the warning is how you learn that nothing compared the bytes it ran against the bytes anyone reviewed.

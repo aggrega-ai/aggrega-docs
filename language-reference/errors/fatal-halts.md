@@ -52,17 +52,22 @@ The same remedy applies wherever the halt was met, and the frame tells you which
 
 The Release supplied a value whose type or shape does not match what the Aggregate declared for that parameter. The parameter-contract validator catches type mismatches, enum violations, range violations, pattern violations, `validate:` predicate failures, and missing required parameters before any template interpolation runs.
 
-Emitted message shape:
-> parameter contract violated at `<aggregate-path>` slot `<slot-name>`: `<constraint detail>` (got `<received-type>` value `<received-value>`)
+Emitted message — the sentence that states the condition, then the entity at fault, the field path, and the constraint detail:
+> parameter contract violated (Aggregate, at `.spec.parameters.<parameter>`, parameter `"<parameter>"` expected type `<declared type>`; got `<received type>`)
 
-For a parameter declared `required: true` with no `default:` and no Release-supplied value, the validator emits the missing-parameter form:
-> required parameter not supplied at `<aggregate-path>` slot `<slot-name>`
+For a parameter declared `required: true` with no `default:` and no Release-supplied value, the report carries a different condition and a different short code:
+> required parameter not supplied (Aggregate, at `.spec.parameters.<parameter>`, parameter `"<parameter>"` is required but not supplied by Release)
 
-A parameter declaring a `validate:` predicate adds two further forms. When the supplied value does not satisfy the predicate, the validator emits that parameter's `validateMessage:` if it declares one, and otherwise:
-> parameter `<parameter-path>` failed validate predicate
+**Only the detail after the field path changes with the constraint that was not met.** The sentence and the parenthesised frame around it are the same every time, which makes the sentence the part to match on and the detail the part to read. The details a build prints, one per constraint kind:
+> parameter `"<parameter>"` value `<value>` not in enum [`<members>`]
+> parameter `"<parameter>"` value `"<value>"` does not match pattern `"<pattern>"`
+> parameter `"<parameter>"` value `<value>` above max `<max>`
+> parameter `"<parameter>"` failed validate predicate
+> parameter `"<parameter>"` validate predicate error: `<detail>`
 
-When the predicate itself cannot be evaluated, the failure is reported against the predicate rather than against the value:
-> parameter `<parameter-path>` validate predicate error: `<detail>`
+A parameter declaring a `validateMessage:` replaces that whole detail with its own text, so the report reads `parameter contract violated (Aggregate, at .spec.parameters.<parameter>, <the validateMessage you wrote>)` — the frame is unchanged and your sentence sits where the constraint detail would.
+
+The predicate-error detail covers both ways a `validate:` predicate can fail to produce a verdict: a function the surface does not register, and a reference to something other than `.value`. Each is reported against the predicate rather than against the value, and each names what it could not resolve.
 
 A `validate:` predicate reads the value under validation as `.value`, and that is the only name it defines. A predicate naming anything else is refused before it runs, so a mistyped reference is reported as the naming mistake it is instead of resolving to nothing and surfacing as a value that failed validation.
 
@@ -109,10 +114,17 @@ Emitted message:
 
 A Recipe declares `workload:` (synthesized mode) for a provider that does not implement Workload synthesis. Synthesized-mode support is a property of the provider — the standard-library catalog declares `workloadSchema` on synthesis-capable providers by convention, but the check keys on provider capability, not on that field's presence.
 
-The check runs at render time, via the central input-kind gate, after the node's provider is bound; the message names the node and the provider.
+**Two surfaces report it, and only one of them decides the build.** The halt is raised at render time, after the node's provider is bound and once the node's mode has been classified from the input kinds its Recipe declares, so that report names the **node**. [`aggrega validate`](../cli/aggrega-validate.md) reports the same finding earlier, before any node is bound, reading the Recipe on its own — so that report names the **Recipe and its version** instead. The two do not read the same set of Recipes: the early report is raised for any Recipe that declares `workload:` at all, while the halt is raised only for a node whose mode resolves to synthesized, and `source:` takes precedence over `workload:` when a Recipe declares both. So a Recipe declaring both is named by the early report and builds without halting.
 
-Emitted message:
-> CATALOG_ERROR: node `<node-id>`: provider `<provider-name>` does not support synthesised recipes (this provider supports: `<kinds>`); declare one of the supported input kinds, or target a provider that supports synthesised
+Emitted message at render time. The category the failure is attributed to reaches you in the diagnostic's bracketed head rather than inside the message, and the message names the node, the provider, the mode the node resolved to, and the kinds that provider does support:
+
+> node `"<node-id>"`: provider `"<provider-name>"` does not support `<mode>` recipes (this provider supports: `<kinds>`); declare one of the supported input kinds, or target a provider that supports `<mode>`
+
+The head carries the category and **no short code**, because this rule is not one of the conditions the table at the end of this page resolves — so match on the sentence rather than looking for a code to search by.
+
+`aggrega validate` reports the same clause under the Recipe that carries the block, prefixed with the surface that read it:
+
+> input-kind: Recipe `"<name>:<version>"`: provider `"<provider-name>"` does not support synthesised recipes (this provider supports: `<kinds>`); declare one of the supported input kinds, or target a provider that supports synthesised
 
 **How to fix:** either bind the Recipe to a provider that synthesizes (most commonly `helm` or `compose`), or migrate the Recipe to a different input kind (`artifacts:` for direct manifest emission, or `source:` + `valuesMapping:` if a chart/module exists).
 
@@ -871,14 +883,15 @@ The `features` section produces the same message against its own coordinate, and
 
 **Not to be confused with** a well-shaped value naming a recipe the catalog does not hold: that is a genuinely absent entity and still reports as one, naming the URI and the mapping entry that referenced it.
 
-### Ambiguous Recipe selection **[pending]**
+### Several Recipes implement one Component type
 
-Two or more Recipes tie for specificity when resolving a single Component through the catalog's three-form (exact / caret-range / unversioned) implements-index lookup — for example, two exact-version Recipes declaring the same `spec.implements:` URI, or two unversioned Recipes for the same Component type. The ambiguity-detection sentinel is designed but not yet shipped; today the catalog's exact-string lookup resolves only literal-key matches, and the broader three-form precedence (which is where within-form ties surface) ships alongside the range-match implementation. Until then, ambiguity does not surface as a fatal halt — authors with multiple Recipes declaring the same `spec.implements:` should disambiguate by version.
+Two or more Recipes declare the same Component type under `spec.implements:` — two exact-version Recipes for one type, or an unversioned Recipe alongside a pinned one.
 
-Intended message (not yet emitted):
-> Component `<component-id>` in Aggregate `<aggregate-name>` resolves to multiple Recipes with equal specificity: `<recipe-1>`, `<recipe-2>`. Disambiguate with a name-keyed Manifest entry.
+**This raises no halt of its own, and it is not an ambiguity the build has to resolve.** Recipe selection is mapping-only: nothing reads `spec.implements:` and chooses among the candidates, so however many Recipes implement a type, the one that renders an instance is the one the Manifest maps it to. `spec.implements:` is read as a consistency anchor — confirming the Recipe an author mapped is one that declares the type they mapped it under — and as the source of the pin candidates a halt suggests. It never selects.
 
-**How to fix:** add a name-keyed entry in the local Manifest that explicitly routes this Component to one Recipe. Name-keyed entries beat type-keyed entries, so the ambiguity resolves.
+What you meet instead is the halt for an instance the Manifest maps to nothing, and that halt lists every Recipe implementing the type so you can pin one — see "No Recipe is mapped for a component or feature instance" below. It reports the same way whether one Recipe implements the type or five, which is why there is no separate ambiguity condition to look up.
+
+**How to fix:** add the mapping. A type-keyed entry routes every instance of the type; a name-keyed entry routes one named instance and is read first, so it is also how you give one instance a different Recipe from its siblings.
 
 ### Divergent Release (extends + aggregate pointer)
 
@@ -2282,21 +2295,27 @@ An attachment declared at a broader scope — subsystem-wide, cascading onto eve
 
 <!-- covers: pkg/resolver.ErrInjectKeyCollision, internal/compiler/renderer.ErrSelfInjectKeyCollision -->
 
-The same delivery key (for example, the same env var name) is claimed by two developer-authored inject sources — one at the Component level and one under a `uses[]` entry, or two `uses[]` entries on the same component.
+The same delivery key (for example, the same env var name) is claimed twice among the developer-authored inject sources for one component — at the Component level and under a `uses[]` entry, by two `uses[]` entries on the same component, or under two delivery mechanisms of the Component's own `inject:` block. Delivery cannot come from two places at once, so a key claimed twice is a contradiction rather than a question of which one wins.
 
-The build reads this in three places, because they see different sets of dependency connections and ask different questions of them, and each reports in its own form.
+The build reads this in four places, because they see different sets of authored sources and dependency connections and ask different questions of them, and each reports in its own form.
 
 The first reads the connections you wrote in the Aggregate, and reports as your files are resolved. It names the delivery mechanism, the key, and then the socket and alias of the first connection in author order that also claims it:
 
 > duplicate delivery key across inject sources (Aggregate `<name>`, at `.spec.components.<component>.inject.<mechanism>.<key>`, `"<mechanism>"`, `"<key>"`, `"<socket>"`, `"<alias>"`)
 
-The second reads the connections the finished topology carries, which includes any a Feature attachment contributed on your behalf. It runs before anything renders, and it names the delivery key you wrote alongside the dependency socket that also delivers it:
+The second reads that same authored block and asks a different question of it: whether the component claims one key under two of its own delivery mechanisms, with no connection involved at all. It reports once per mechanism claiming the key, positioned at that mechanism's own entry, and names the mechanism the report is about, the key, and then every other mechanism claiming it, in author order:
+
+> duplicate delivery key across inject sources (Aggregate `<name>`, at `.spec.components.<component>.inject.<mechanism>.<key>`, `"<mechanism>"`, `"<key>"`, `"<other-mechanism>"`)
+
+Neither mechanism is the offender and both reports are yours to change: rename the key under one of them, or drop one of the two deliveries. Which mechanisms a component may use at all is a separate question, answered by its `spec.inject` allowlist — see "Self-inject mechanism not in the component's allowlist" below.
+
+The third reads the connections the finished topology carries, which includes any a Feature attachment contributed on your behalf. It runs before anything renders, and it names the delivery key you wrote alongside the dependency socket that also delivers it:
 
 > duplicate delivery key across self-inject and uses-inject (`"<key>"`, socket `"<socket>"`)
 
 One authored key delivered through two dependency sockets reports once per socket, so a single build tells you about all of them rather than about whichever was reached first.
 
-The third reads the same finished topology and asks a different question of it: whether two of a component's own dependency connections deliver one key between them, with the component itself claiming nothing. It reports once at each connection, positioned at that connection's own delivery entry, and names the entry's path followed by every socket delivering the key:
+The fourth reads the same finished topology and asks a different question of it: whether two of a component's own dependency connections deliver one key between them, with the component itself claiming nothing. It reports once at each connection, positioned at that connection's own delivery entry, and names the entry's path followed by every socket delivering the key:
 
 > duplicate delivery key across inject sources (`"inject.<mechanism>.<key>"`, `"<socket>"`, `"<socket>"`)
 
@@ -2304,7 +2323,7 @@ A socket named twice is what tells you the two connections sit on one socket und
 
 Neither connection is the offender and both are yours to change: rename one of the keys, or drop one of the two deliveries.
 
-**Where the key is a path, the field path names the mechanism's block instead.** What a delivery key spells is the mechanism's own business, and a `file` mechanism delivers into a mount path — so such a key contains dots while a field path divides its own steps with them. A field path stops at the last step it can name without ambiguity rather than spelling one that would read as a walk through keys your document does not contain, so for a key like `/etc/app/config.yaml` it reads `.spec.components.<component>.inject.<mechanism>` and stops there. The message names the key either way, which is what keeps the report equally actionable — but where in the message to read it differs across the three forms above, so read the field path for the block and then take the key from whichever of the three you have: where the detail leads with the delivery mechanism, the key is the quoted value straight after it; where the detail leads with the key on its own, it is the first quoted value; and where the detail leads with the delivery entry's own path, the key is that path's last step.
+**Where the key is a path, the field path names the mechanism's block instead.** What a delivery key spells is the mechanism's own business, and a `file` mechanism delivers into a mount path — so such a key contains dots while a field path divides its own steps with them. A field path stops at the last step it can name without ambiguity rather than spelling one that would read as a walk through keys your document does not contain, so for a key like `/etc/app/config.yaml` it reads `.spec.components.<component>.inject.<mechanism>` and stops there. The message names the key either way, which is what keeps the report equally actionable — but where in the message to read it differs across the four forms above, so read the field path for the block and then take the key from whichever of the four you have: where the detail leads with the delivery mechanism, the key is the quoted value straight after it; where the detail leads with the key on its own, it is the first quoted value; and where the detail leads with the delivery entry's own path, the key is that path's last step.
 
 **How to fix:** rename one of the conflicting keys, or drop the duplicate declaration. Note that a FeatureRecipe's `injectMapping` overwriting a developer key is intentional Onion-Model interception and is not flagged.
 
@@ -2824,8 +2843,7 @@ Missing-key handling depends on the template surface. Where an empty rendering l
 
 The **helper set is the same across value templates, path templates and assertions**: Sprig's functions plus Aggrega's `optional`, with `fail` added on the assertion surface because an assertion is the only surface whose purpose is to halt the build rather than produce text. Between those three what differs is the missing-key policy — `optional` is available in a path template too, where it reads a key out of `.parameters` without the strict policy firing first. Resolving a `source:` coordinate differs in the function set itself, and has its own subsection below. Parameter interpolation in an Aggregate offers Sprig's functions alone, so `optional` is not available there.
 
-Path-template missing-variable emit shape:
-> path template references a field not in the documented allowlist: boundary `<boundary-name>` references unknown field `<dotted-path>`; allowlist: see aggrega-docs/language-reference/path-template-variables.md
+The message a path-template miss prints is quoted under the entry that documents that condition, "Path-template references a variable outside the allowlist" above, so it is written once rather than restated here.
 
 **How to fix:** for path-template misses, correct the field name to one in the allowlist documented at [`path-template-variables.md`](../path-template-variables.md). For an assertion miss, correct the reference — most reports are a misspelled key — or, where the field is genuinely optional, gate it with `hasKey`, read it through `index` before applying `default`, or use the `optional` helper; wrapping the bare reference in a `default` will not clear the halt, because the reference resolves before the fallback runs. For value-template misses where empty rendering is undesired, use the `optional` helper or supply the missing key as a typed `parameters.*` declaration on the Aggregate with a Release value, as an upstream Component's `provides:` entry wired through `uses[].inject`, or as a `locals:` entry on the same entity.
 

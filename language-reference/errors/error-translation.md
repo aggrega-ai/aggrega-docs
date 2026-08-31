@@ -82,6 +82,19 @@ An error often crosses more than one surface on its way to the CLI: a load phase
 
 Reading top-down: the phase that failed, then the entity (with its file path) that caused it, then the rule it violated. A nested frame that adds nothing beyond its parent (same category, same source, a message the parent already contains) is deduplicated rather than repeated, and a terminal explanation renders only when the frames above it don't already carry its text.
 
+A chain runs deeper whenever a failure crosses more surfaces on its way out, and the rule holds at every depth. A template refused inside a Recipe's synthesized Workload crosses three — the node being rendered, the Recipe's template surface, and the template itself:
+
+```text
+[CATALOG_ERROR E0060] db
+  rendering node "db"
+  caused by: [CATALOG_ERROR]
+    recipe "mariadb" workload template
+    caused by: [CATALOG_ERROR] workload[mariadb]
+      template references a root the render context does not define (template "workload[mariadb]" references ".nosuchroot.database", the render context defines .context, .values, .infra, .locals, .provides, .features, .metadata, .attachment_name, .inject, .inject_raw, .steps, .source, .workload, .boundary)
+```
+
+Read it top-down as before, and note three things the extra depth makes visible. **The short code appears once, on the head**, however many continuations follow it. **The innermost frame is where the condition's own sentence sits**, so the deepest line is both the one to match on and the one that says what to change. And **a frame with no source pointer prints its category alone**: the middle frame above names the surface it failed on inside its message, because that surface is a template rather than a file and has no position to point at.
+
 When the failure forks beneath a frame — a phase that collected several independent violations before halting — the continuation carries a count, and every collected failure renders beneath it, separated by the same `---` rule the multi-error chains below use:
 
 ```text
