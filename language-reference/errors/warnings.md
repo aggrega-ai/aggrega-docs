@@ -239,7 +239,7 @@ On the compose target the class currently covers `scheduling`, `serviceAccount`,
 
 The `aggrega.ai/` annotations are platform directives a provider reads and applies to what it renders — a namespace, a registry prefix, a service account. Which of them a provider reads is that provider's own declaration, made per input kind, because a provider that owns every field of a deployment unit it synthesizes itself often has nowhere to put the same value when it renders a vendored artifact. [Well-Known Annotations](../providers/well-known-annotations.md) is the matrix.
 
-When a node carries such an annotation and the resolved target's declaration does not cover that key on the node's input kind, the target applies nothing for that key, and the build **says so with a warning** naming the key, the target and the input kind:
+When a node carries such an annotation and the resolved target's declaration covers that key on none of the input kinds the node declares, the target applies nothing for that key, and the build **says so with a warning** naming the key, the target and every input kind the node declares:
 
 <!-- unregistered-output: warning text, which is reported without halting and which no halting condition registers -->
 
@@ -247,9 +247,10 @@ When a node carries such an annotation and the resolved target's declaration doe
 warning: node "frontend" (provider "helm-chart"): target "helm-chart" does not support annotation aggrega.ai/namespace on sourced input and ignored it
 ```
 
-Three things follow from how annotations reach a node, and each of them is deliberate:
+Four things follow from how annotations reach a node, and each of them is deliberate:
 
 - **One authored line can produce several warnings.** A boundary annotation cascades to every component under it, and those components may render through different targets and different input kinds. Each warning is a true statement about one node, so you get one per node that cannot act on the key — which is also what tells you *which* nodes are affected.
+- **A node declaring more than one input kind is judged on all of them.** Its Recipe's declared kinds compose by addition and their outputs are added together, so a target reading the key on any one of them applies it and the value appears in that node's rendered output. Nothing is warned about in that case, because there is nothing to report. A warning appears only when every declared kind misses the key, and it names them all — `on sourced or synthesised input`.
 - **Only the bare `aggrega.ai/` keys are checked.** A sub-prefixed key — `compliance.aggrega.ai/data-class`, or your own `acme.aggrega.ai/team` — is your vocabulary, which the compiler carries through without interpreting. Nothing warns about one, ever.
 - **A target that declares no support claim at all raises nothing.** The warning compares what you authored against what the provider said it reads; a provider that has said nothing gives it nothing to compare against, and inferring a refusal from silence would report a claim the provider's author never made.
 

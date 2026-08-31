@@ -128,11 +128,19 @@ The node-scoped keys, per provider per input kind. Column headers drop the `aggr
 
 A Recipe may declare more than one input kind at once — a `workload:` with `artifacts:` alongside it, for instance. Read the grid per kind: the synthesized output of such a node is the `synthesized` row, and its artifact files are the artifacts case. The `artifacts-only` row is the input kind where a Recipe declares `artifacts:` and nothing else.
 
-**You do not have to consult the grid to find out.** Setting a key on a node whose target does not read it on that node's input kind produces a warning naming the key, the target and the input kind, so a cell you landed in by accident announces itself at the moment you build rather than waiting for you to think of looking here:
+**You do not have to consult the grid to find out.** Setting a key on a node whose target reads it on none of that node's input kinds produces a warning naming the key, the target and every input kind the node declares, so a cell you landed in by accident announces itself at the moment you build rather than waiting for you to think of looking here:
 
 ```text
 warning: node "frontend" (provider "helm-chart"): target "helm-chart" does not support annotation aggrega.ai/namespace on sourced input and ignored it
 ```
+
+**On a node declaring more than one input kind the warning is about the node, not about one of its halves.** Because the kinds compose by addition, a target reading the key on any one of them does apply it, and the node's rendered output carries the result — so no warning is raised. A warning appears only when every declared kind misses the key, and it names them all:
+
+```text
+warning: node "backend" (provider "helm"): target "helm" does not support annotation aggrega.ai/cluster-domain on sourced or synthesised input and ignored it
+```
+
+So a `workload:` alongside a `source:` is enough to make `aggrega.ai/service-account` take effect on that node, and the build stays quiet about it — which is the honest report, because the value reaches the synthesised half and appears in the emitted manifests.
 
 The value still passes through untouched — the build does not halt, because a boundary spanning components on heterogeneous targets will always have some node that cannot act on a given key, and that is an ordinary deployment rather than a mistake. A boundary annotation cascades, so one authored line yields one warning per node that cannot act on it, which is how you see *which* nodes are affected. It belongs to the `unsupported-field` class and is silenced with that class's flag; [Warnings](../errors/warnings.md) has the detail. Two limits worth knowing: only the bare `aggrega.ai/` keys are checked, since a sub-prefixed key is your own vocabulary, and a provider that declares no support claim at all produces no warning, because there is nothing to compare what you authored against.
 
