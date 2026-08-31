@@ -28,6 +28,25 @@ features:
 
 The pattern is enforced at resolution via JSON Schema `patternProperties`.
 
+### What a component name costs, and why capitals cost more under some targets
+
+The pattern above says what you may write. What a name *costs* is a separate question, and it differs by the target a component is deployed to — so it is worth knowing before you pick a name rather than at the point a build refuses one.
+
+A component's name becomes the identity every resource it emits is stamped with, and each target derives its own names from that identity: a chart installer derives a release name, a container orchestrator derives service names. A target whose alphabet is narrower than the pattern cannot carry a character it does not admit, and Aggrega will not quietly fold such a character onto a similar one — two names an author can tell apart must not become one name in a cluster. So a character the target does not admit is written out as an escape instead, and an escape is longer than the character it replaces.
+
+**The practical consequence: an uppercase letter is free under some targets and expensive under others.**
+
+* Under a target whose names admit uppercase — a container-orchestration compose file, for instance — `PaymentsAPI` is carried through exactly as you wrote it and costs eleven characters.
+* Under a target whose names are lowercase-only — a chart installer's release name — every capital is escaped, and a name of six capitals alone already exceeds what that target accepts.
+
+There is a second effect, and it is the sharper one: an escape begins with a hyphen. A target that requires a name to *begin* with a lowercase letter or a digit will therefore refuse a name whose **first** character is one it does not admit, however short the rest is — no shortening reaches that.
+
+**The guidance follows from the two effects.** Prefer lowercase letters and digits, with hyphens or underscores between words, and begin a name with a letter or a digit. `payments-api` and `payments_api` are carried through unchanged by every target Aggrega ships a provider for; `PaymentsAPI` is not.
+
+None of this is a rule the compiler applies on its own account — it holds no target's naming rules and invents no limit. Each target's provider answers for its own names, so a name is refused only when the target a component is actually deployed to says it cannot use it, and the refusal carries that target's own reason and points at the `spec.components` key you wrote. A name that is fine under one target and refused under another is the expected behaviour rather than an inconsistency.
+
+Names Aggrega itself composes — the identity of a feature attached at a boundary, for instance — are handled the other way round: they are shortened to fit the target rather than refused, because they are assembled from parts written in several places and no single author can see the length they reach. Only a name you wrote is refused.
+
 ## The Dot as a Reserved Path Separator
 
 The period character (`.`) is reserved from all user-authored instance names. The dot serves the structural purpose of a compiler-generated path separator for cross-aggregate component references.

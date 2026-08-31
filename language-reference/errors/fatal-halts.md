@@ -1926,19 +1926,57 @@ Nothing rewrites it on the way. A component's identity reaches its output exactl
 
 Two shapes are refused.
 
-**An identity a label value cannot be.** A Kubernetes label value is at most 63 characters, admits letters, digits, `-`, `_` and `.`, and must begin and end with a letter or a digit. The authored-name rules are close to this but not the same — they set no length limit and they allow a name to begin or end with `-` or `_` — so `_api`, `api-` and a name over 63 characters are all names you can write and none of them can be stamped.
+**An identity the stamping alphabet cannot carry.** The identity is written into the label value every emitted resource carries, and that alphabet admits letters, digits, `-`, `_` and `.`, and requires the value to begin and end with a letter or a digit. The authored-name rules are close to this but not the same — they allow a name to begin or end with `-` or `_` — so `_api` and `api-` are both names you can write and neither can be stamped.
 
-**An identity that opens as a generated one does.** Where a Feature is attached to a whole boundary rather than to a single component, its resources cannot be stamped with any one component's name, so the compiler builds an identity for them from what you wrote: the name you attached the Feature under, and the path of the boundary you attached it to. Those built identities all open with `bfr--`, which is what tells a reader that a resource came from a boundary-attached Feature rather than from a component. **So `bfr--` is reserved at the start of a component identity.** A component named `bfr--api` would be stamped identically to a generated one, and nothing in the emitted output could tell the two apart. Only the full opening is reserved: a component named `bfr`, `bfr-api` or `bfrontend` is an ordinary name and builds.
+**How long a name may be is not asked here.** That belongs to the target a component is deployed to, and different targets answer differently: this condition covers the shapes no target could carry. A name refused for its length is reported by [the target's own refusal](#the-target-will-not-accept-a-name-derived-from-an-authored-identity) instead, which carries that target's reason and the length it would accept.
 
-The check reads the identity a component actually carries, which for a component contributed by an imported Aggregate is the qualified one — the module's name, a dot, and the component's own. So two names that are each short enough on their own can still join into an identity that is not, and the halt names the joined identity while pointing at the key you wrote.
+**An identity that opens as a composed one does.** Resources a Feature emits cannot be stamped with a component name you wrote, so Aggrega composes an identity for them out of the parts you did write, behind a fixed opening that says where the Feature was attached. Where the Feature is attached to a **single component**, the identity is composed from that component and the key the Feature is attached under, and it opens with `cfr--`. Where it is attached to a whole **boundary**, no one component's name applies at all, so the identity is composed from the path of the boundary and the name the Feature is attached under, and it opens with `bfr--`. The opening is what tells a reader which of the two a resource came from, rather than from a component. **So `bfr--` and `cfr--` are both reserved at the start of a component identity.** A component named `bfr--api` or `cfr--api` would be stamped identically to a composed one, and nothing in the emitted output could tell the two apart. Only the full opening is reserved: a component named `bfr`, `cfr`, `bfr-api` or `bfrontend` is an ordinary name and builds.
+
+The check reads the identity a component actually carries, which for a component contributed by an imported Aggregate is the qualified one — the module's name, a dot, and the component's own. So two names that are each acceptable on their own can still join into an identity that is not, and the halt names the joined identity while pointing at the key you wrote.
 
 Emitted message, for an identity the target would refuse:
 > component identity cannot be the name its emitted resources are stamped with: rename the component (Aggregate, at `<field-path>`, `"<identity>"`, which must `"<rule>"`)
 
-and for one opening as a generated identity does:
-> component identity cannot be the name its emitted resources are stamped with: rename the component (Aggregate, at `<field-path>`, `"<identity>"`, which must not open with the reserved `"bfr--"`)
+and for one opening as a composed identity does, where `<opening>` is whichever of the reserved openings the name matched:
+> component identity cannot be the name its emitted resources are stamped with: rename the component (Aggregate, at `<field-path>`, `"<identity>"`, which must not open with the reserved `"<opening>"`)
 
-**How to fix:** rename the component, on every surface that names it — the Aggregate that declares it, and the Release that places and configures it. Give it a name that begins and ends with a letter or a digit, stays within 63 characters once any module prefix is added, and does not open with `bfr--`. Renaming a component changes the name its resources carry in the cluster, so on an already-deployed application treat it as you would any other resource rename.
+**How to fix:** rename the component, on every surface that names it — the Aggregate that declares it, and the Release that places and configures it. Give it a name that begins and ends with a letter or a digit and opens with neither `bfr--` nor `cfr--`. Renaming a component changes the name its resources carry in the cluster, so on an already-deployed application treat it as you would any other resource rename.
+
+### The target will not accept a name derived from an authored identity
+
+<!-- covers: internal/compiler/renderer.ErrComponentIdentityTargetRefuses -->
+
+Every target derives its own names from a component's identity: a chart installer derives a release name, a container orchestrator derives service names. This halt is that target saying it cannot use one of them.
+
+**Aggrega holds no target's naming rules.** It does not know how long a name may be, which characters a target admits, or what a target's grammar requires at the start of a name — and it deliberately does not, because those differ by target, by the kind of resource a name lands on, and sometimes by one service inside one provider. So before a name is settled the compiler asks the provider that will render the component, and this halt reports the provider's answer. That is why the message carries the target's own word for what refused (`release name`, `service name`) and the target's own reason, rather than a rule written into the compiler.
+
+**Why the name is refused rather than shortened.** A name you wrote is the deployed name of your workload: shortening it would rename every resource in every existing output, and it would do so on your behalf without your having asked. The person who can choose a different name is the person who wrote this one, so the halt points at the `spec.components` key you wrote and leaves the name alone. Names Aggrega itself composes — the identity of a Feature attached to a whole boundary, for instance — are shortened instead, because they are assembled from parts written across several documents and no single author can see the length they reach.
+
+**Two answers a target can give, and they lead different places.** Where a shorter name would be accepted, the halt states the length that would work, so a new name is chosen once rather than twice. Where no length would help — a character the target's grammar refuses in the position it landed in — no length is stated, because shortening cannot reach it. The most common case of the second kind: a target whose names are lowercase-only escapes each character it does not admit, and every escape begins with a hyphen, so a name whose *first* character is escaped produces a name beginning with a hyphen. A target requiring a lowercase letter or a digit there refuses it however short the rest is.
+
+A third form appears only for a composed name: a target may state a length shorter than the shortest identity the compiler can compose from the parts it was given, since a composed identity reserves room for a discriminator. The halt says so and names the remedy — shorten the authored parts — rather than reporting the provider as faulty.
+
+Emitted message, for an authored identity:
+> the target will not accept a name derived from this component's authored identity: rename the component (component `"<identity>"`, written at `<field-path>`, which the target cannot use as a `<name-kind>`, `<the target's reason>`). choose a name of at most `<n>` characters that the target accepts
+
+**How to fix:** rename the component to one the target accepts, on every surface that names it — the Aggregate that declares it, and the Release that places and configures it. Where the message states a length, stay within it. Where it does not, read the target's reason: it is usually a character the target does not admit, and most often an uppercase letter at the start of the name. Prefer lowercase letters and digits with hyphens or underscores between words; [the naming chapter](../02-naming-conventions.md) explains what a name costs under each kind of target. Renaming a component changes the name its resources carry, so on an already-deployed application treat it as you would any other resource rename.
+
+Where the identity is one the compiler composed rather than one you wrote, the same halt reports the composed value and asks you to shorten the parts it was built from — the name you attached a Feature under, and the boundary path you attached it to.
+
+### A provider never accepted a name the compiler composed
+
+<!-- covers: internal/compiler/renderer.ErrNameBoundNotConverging -->
+
+This one reports a defect in a **plugin**, not in anything you wrote.
+
+Settling a composed name is an exchange: the compiler proposes an identity, the provider either accepts it or says how short it would have to be, the compiler composes a shorter one, and the provider is asked again. A second refusal is normal and expected — shortening to a length can land a character where that target's grammar will not have it, and the provider saying so is how a compiler that knows no target's grammar and a provider that does reach agreement.
+
+What is not normal is a provider that never accepts anything: one that states a length, is handed a name of that length, and refuses it again. The exchange is bounded, and on reaching the bound the build stops and names the provider rather than using a name the provider never agreed to. A name settled by giving up would be stamped on real resources with nothing in the output recording that no agreement was reached, and the consequence would surface at apply time rather than in the build that produced it.
+
+Emitted message:
+> provider guest never accepted a component identity the compiler composed for it (provider guest `"<provider>"`, refused `<n>` proposals, the last of them `"<identity>"`). report the defect to whoever maintains that provider plugin
+
+**How to fix:** report it to whoever maintains the named provider plugin, quoting the last proposal from the message. There is no authoring change that works around it: the compiler already offered every length the provider asked for. If the provider is one you maintain, the check to make is that a name cut to a bound it states is a name it then accepts.
 
 ### Required `uses:` socket not populated
 
@@ -4170,6 +4208,8 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0260` | `` component placed in no boundary: name it under a boundary's `components`, or place the sub-module that contributes it under `aggregates` `` | A component the composition holds is placed in no boundary |
 | `E0261` | `boundary names a component the composition does not hold: correct the name, or remove the entry` | A boundary names a component the composition does not hold |
 | `E0262` | `component identity cannot be the name its emitted resources are stamped with: rename the component` | Component identity cannot be stamped on what it emits |
+| `E0263` | `the target will not accept a name derived from this component's authored identity: rename the component` | The target will not accept a name derived from an authored identity |
+| `E0264` | `provider guest never accepted a component identity the compiler composed for it` | A provider never accepted a name the compiler composed |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
