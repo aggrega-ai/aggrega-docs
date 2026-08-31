@@ -123,21 +123,42 @@ Labels:
 
 ### Recipe with `--show-implements`
 
-A Recipe's default view shows its mode (synthesized or sourced), its provider, and its value mapping. `--show-implements` resolves the `spec.implements` reference against the catalog and renders the bound Component:
+A Recipe's default view shows one section per input mode it declares, its capability, and its value mapping. `--show-implements` resolves the `spec.implements` reference against the catalog and renders the bound Component, together with the attachments that Component requires:
 
 ```text
 $ aggrega inspect ./recipes/api-server-recipe.yaml --show-implements --catalog ./catalog
 
 Recipe: core/api-server-recipe:1.0.0
 Implements: core/api-server:1.0.0
-Provider: helm
+Capability: helm
 ## Synthesized
   workload: inline
 valuesMapping: (none)
 Implements Component: core/api-server:1.0.0
-  required features:
-    - core/metrics
+  requires attachment (observability): core/metrics
 ```
+
+### Recipe declaring several input modes
+
+A Recipe's input modes compose by addition: a `source:` to render, a `workload:` to synthesize and an `artifacts:` map each contribute output, and a Recipe may declare any combination of them. `inspect` reports every mode the Recipe declares rather than picking one, so what you see is the set you authored:
+
+```text
+$ aggrega inspect ./recipes/api-server-composed.yaml
+
+Recipe: core/api-server-composed:1.0.0
+Implements: core/api-server:1.0.0
+Capability: helm
+## Sourced
+  source: oci://charts.example.com/api-server:2.1.0
+## Synthesized
+  workload: inline
+valuesMapping: inline template
+Artifacts: 2
+  - servicemonitor.yaml
+  - networkpolicy.yaml
+```
+
+The sections are ordered `source:` → `workload:` → `artifacts:`, the same order a build applies when it resolves a Recipe to a single mode name and when it reports which declared mode the bound provider cannot honour — so this view and a build's diagnostics name the modes in one order. A Recipe declaring neither a `source:` nor a `workload:` is reported as artifacts-only, which is the one case where the view names a single mode.
 
 ### Manifest (resolved by default)
 
