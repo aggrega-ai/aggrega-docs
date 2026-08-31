@@ -703,6 +703,32 @@ The condition it is recorded under is `compactform: cross-document $ref carries 
 
 **How to fix:** drop the host and everything before the library name, leaving `<Library>#/schemas/<Entry>`. Where a version floor is wanted, write it after the library name as `:<version>`. The same rule governs the `$import:` fields on a Recipe and a FeatureRecipe, which report separately under "A library `$import:` addresses its library by registry location" below.
 
+### A schema `$import:` cannot be applied
+
+<!-- covers: pkg/catalog.ErrUnusableSchemaImport -->
+
+A Component's or Feature's `spec.schema` — its whole block or one pillar of it — and a `usesSchema` socket's `valueSchema:` or `infraSchema:` may each be written as `$import:` naming a file beside the entity. The import is applied when the entity is loaded, so every later reader sees the imported contract rather than the pointer. This condition is what happens when the directive yields no content, and the surface would otherwise be left holding an unread pointer.
+
+One condition covers every way the directive fails, because each leaves the same surface unusable and gives you the same thing to do — correct the directive, or the file it names. The diagnostic opens with the fixed sentence and then says which way, so the sentence is the part to match on and the clause after it is what to act on:
+
+> a schema `$import:` could not be applied. `<surface>`: `<the clause for this occurrence>`
+
+The clause names the surface it read — `spec.schema`, a pillar of it such as `spec.schema.values`, or a socket's `valueSchema` — followed by the specific fault. The faults, and what each means:
+
+- **`$import:` must be the only key when a schema is imported from a file.** The directive shares its mapping with authored schema content. `$import:` replaces a whole value, so a sibling key has nothing to combine with.
+- **`$import:` value must be a path to a file.** The value is empty, or is not a single string.
+- **`$import:` takes a file path beside this entity, not a registry location `<value>`.** The value addresses a registry. Which registry a name resolves through is workspace configuration, so a schema surface never carries one; the message names the reference form to use instead.
+- **`$import:` takes a file path beside this entity; reference the SchemaLibrary entry `<value>` with `$ref:` instead.** The value addresses a library entry. A library entry is referenced, not imported — `$ref:` is the keyword that resolves one.
+- **resolve imported schema path `<value>`: `<detail>`**, and **read imported schema `<value>`: `<detail>`.** The path does not resolve against the directory holding the entity, or the file cannot be read.
+- **parse imported schema `<value>`: `<detail>`.** The file was read and its text is not well-formed YAML.
+- **imported schema `<value>` must be a YAML map of schema content; it is not.** The file parsed to a scalar or a sequence, so there is no schema content to substitute.
+
+The head carries the category and this condition's short code, `E0266`, which is the identifier to record when you need this halt named durably — in a continuous-integration gate, an issue, or a runbook. A number is handed out once and then fixed, so it stays the same however the wording around it improves; [the table of every condition](./sentinels.md#every-condition-by-short-code) resolves it.
+
+A path is resolved against the directory holding the entity file, the same base every other import-bearing field uses. An import whose content itself declares an `$import:` is followed, and a chain that returns to a file already in flight reports as "A library reference expands into itself" above rather than here.
+
+**How to fix:** make `$import:` the only key in its mapping, and give it a relative path to a YAML file beside the entity whose top level is a map of schema content. To consume a shape a SchemaLibrary publishes, use `$ref: <Library>#/schemas/<Entry>` instead — a library entry is referenced rather than imported.
+
 ### A plugin asks the host to parse a source while a parse is already running for it
 
 <!-- covers: internal/wasm.ErrProducerConsumptionReentry -->
@@ -4234,6 +4260,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0263` | `the target will not accept a name derived from this component's authored identity: rename the component` | The target will not accept a name derived from an authored identity |
 | `E0264` | `provider guest never accepted a component identity the compiler composed for it` | A provider never accepted a name the compiler composed |
 | `E0265` | `provider does not support the node's input kind` | `workload:` requires a provider that can synthesize |
+| `E0266` | ``a schema `$import:` could not be applied`` | A schema `$import:` cannot be applied |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

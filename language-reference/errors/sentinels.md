@@ -90,6 +90,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrUnsatisfiableEntityVersion()` | `catalog/unsatisfiable-entity-version` | `no catalog version satisfies the referenced version constraint` |
 | `ErrUnscopedPluginReference()` | `catalog/unscoped-plugin-reference` | `wasm plugin reference must carry a pluginType scope (<pluginType>/<name>); an empty scope cannot bind to an OCI location` |
 | `ErrUnscopedRecipeReference()` | `catalog/unscoped-recipe-reference` | `recipe reference must be provider-scoped (<provider>/<name>); an empty provider cannot bind to an OCI location` |
+| `ErrUnusableSchemaImport()` | `catalog/unusable-schema-import` | ``a schema `$import:` could not be applied`` |
 
 ### pkg/closure
 
@@ -676,6 +677,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0263` | `compiler-renderer/component-identity-target-refuses` | `the target will not accept a name derived from this component's authored identity: rename the component` |
 | `E0264` | `compiler-renderer/name-bound-not-converging` | `provider guest never accepted a component identity the compiler composed for it` |
 | `E0265` | `compiler-renderer/unsupported-input-kind` | `provider does not support the node's input kind` |
+| `E0266` | `catalog/unusable-schema-import` | ``a schema `$import:` could not be applied`` |
 
 - `E0002` is declared ahead of the code that reports it, so no build raises it yet. It will report a catalog lookup that fails during static analysis — a state that cannot arise while every component and feature an Aggregate or Release names is checked before analysis begins — once that stage surfaces such an inconsistency as a halt rather than ending its reading silently.
 
