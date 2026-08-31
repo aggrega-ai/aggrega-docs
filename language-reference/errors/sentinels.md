@@ -336,6 +336,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrRecipeOutputLabelReservedNamespace()` | `validator/recipe-output-label-reserved-namespace` | `recipe output-labels constraint: key uses a reserved namespace` |
 | `ErrRecipeValuesMappingRequiresSource()` | `validator/recipe-values-mapping-requires-source` | `Recipe: valuesMapping requires source` |
 | `ErrSlotNotReferenceable()` | `validator/slot-not-referenceable` | `workload attachment slot is not referenceable` |
+| `ErrUnknownSchemaPillar()` | `validator/unknown-schema-pillar` | `a schema block declares a key that names no data pillar` |
 | `ErrWorkloadFeaturesSchema()` | `validator/workload-features-schema` | `workload featuresSchema cross-check failed` |
 | `ErrWorkloadValidation()` | `validator/workload-validation` | `workload validation failed` |
 
@@ -678,6 +679,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0264` | `compiler-renderer/name-bound-not-converging` | `provider guest never accepted a component identity the compiler composed for it` |
 | `E0265` | `compiler-renderer/unsupported-input-kind` | `provider does not support the node's input kind` |
 | `E0266` | `catalog/unusable-schema-import` | ``a schema `$import:` could not be applied`` |
+| `E0267` | `validator/unknown-schema-pillar` | `a schema block declares a key that names no data pillar` |
 
 - `E0002` is declared ahead of the code that reports it, so no build raises it yet. It will report a catalog lookup that fails during static analysis — a state that cannot arise while every component and feature an Aggregate or Release names is checked before analysis begins — once that stage surfaces such an inconsistency as a halt rather than ending its reading silently.
 

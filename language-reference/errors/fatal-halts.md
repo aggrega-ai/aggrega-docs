@@ -729,6 +729,24 @@ A path is resolved against the directory holding the entity file, the same base 
 
 **How to fix:** make `$import:` the only key in its mapping, and give it a relative path to a YAML file beside the entity whose top level is a map of schema content. To consume a shape a SchemaLibrary publishes, use `$ref: <Library>#/schemas/<Entry>` instead — a library entry is referenced rather than imported.
 
+### A schema block names a key that is not a data pillar
+
+<!-- covers: pkg/validator.ErrUnknownSchemaPillar -->
+
+A Component's or Feature's `spec.schema` block carries the entity's data pillars, and three keys are the whole of what it admits: `values`, the shape the developer fills per instance; `infra`, the physical sizing the operator supplies; and `provides`, the keys the entity exposes to whatever consumes it. This condition is what happens when the block carries some other key at its top level.
+
+The set is closed rather than open, for the same reason each pillar's own content is validated closed: a block that enumerates a legal surface makes anything outside that surface an error. A key nothing recognises would carry a contract nothing ever compiles, validates against, or hands to a consumer — so what you wrote beneath it would look declared and be inert. That is harder to notice than a contract you never wrote at all, which is why the block is refused rather than the stray key ignored.
+
+The diagnostic opens with the fixed sentence, then names the entity and the key it did not recognise:
+
+> a schema block declares a key that names no data pillar. `<Kind>` `"<name>"`: spec.schema unknown pillar key `"<key>"`; allowed: values, infra, provides. See vocabulary/data-pillars.md for the canonical pillar set.
+
+The head carries the category and this condition's short code, `E0267`, which is the identifier to record when you need this halt named durably — in a continuous-integration gate, an issue, or a runbook. A number is handed out once and then fixed, so it stays the same however the wording around it improves; [the table of every condition](./sentinels.md#every-condition-by-short-code) resolves it.
+
+**Two things written at that position are not keys of this set, and neither reports here.** A `$import:` naming a file beside the entity is replaced by that file's content before the block is read, so what this condition inspects is the imported document's own top level — a stray key *inside* the imported file reports here, and the directive itself never does. And a Component that declares `extends` writes the bare string `inherited` in place of the block, which is a scalar carrying no keys at all.
+
+**How to fix:** the sentence names the key it met and the three it admits, so the commonest cause — a misspelling, or a singular where the pillar name is plural — is visible from the diagnostic alone. Where the content beneath the stray key belongs to a pillar, move it under `values:`, `infra:` or `provides:` as its ownership dictates; [`data-pillars.md`](../vocabulary/data-pillars.md) says which pillar owns what. Where it was meant as schema content in its own right, it belongs one level deeper, inside a pillar, rather than beside them. A shape published by a SchemaLibrary is reached with `$ref: <Library>#/schemas/<Entry>` written inside a pillar, not at the block.
+
 ### A plugin asks the host to parse a source while a parse is already running for it
 
 <!-- covers: internal/wasm.ErrProducerConsumptionReentry -->
@@ -4261,6 +4279,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0264` | `provider guest never accepted a component identity the compiler composed for it` | A provider never accepted a name the compiler composed |
 | `E0265` | `provider does not support the node's input kind` | `workload:` requires a provider that can synthesize |
 | `E0266` | ``a schema `$import:` could not be applied`` | A schema `$import:` cannot be applied |
+| `E0267` | `a schema block declares a key that names no data pillar` | A schema block names a key that is not a data pillar |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
