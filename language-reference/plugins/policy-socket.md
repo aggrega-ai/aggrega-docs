@@ -1,5 +1,7 @@
 # The governance socket
 
+_The whole socket rather than one role of it: the four roles — two that judge a build, two that shape it — both policy engines that ship in the compiler, and how an operator attaches a plugin._
+
 An operator attaches a Wasm governance plugin to inspect a build and act on what
 it finds. The compiler host stays dumb and unopinionated: it routes the build
 payload to the guest and acts on what the guest returns, and it never interprets
