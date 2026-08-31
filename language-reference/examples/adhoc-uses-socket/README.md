@@ -110,6 +110,7 @@ consumer resolves the entities from the hub and neither the build nor
       ADMINER_DEFAULT_SERVER: db
       ASSISTANT_ENDPOINT: https://api.anthropic.com
       ASSISTANT_MODEL: claude-sonnet-4-5
+    [… omitted: the service's ports, provenance labels, networks and depends_on]
 ```
 
 Four variables, three of them delivered over edges, and **the output does not

@@ -79,8 +79,10 @@ them takes a mark:
 - **A caption or a note.** A `#` line naming the file the lines came from, or a
   short note beside a value, is visibly the page talking rather than the build.
 - **A `#` on every line of a quoted message.** Where a page shows a command and
-  the message it printed in one block, the message is commented out line by line
-  so the whole block stays runnable. The words are the printed words.
+  the message it printed in one block, the message is commented out so the whole
+  block stays runnable. A single long printed line may be wrapped across several
+  `#` lines to stay readable at this width. Either way the words are the printed
+  words, in the printed order.
 
 The mark exists for the one case you could not otherwise detect: lines that are
 simply not there.
