@@ -267,7 +267,7 @@ A field that lives in two pillars with different validation layers can carry dup
 
 When the `usesSchema` allows port 80 but `workloadSchema` declares ports below 1024 invalid, the runtime will fire the `workloadSchema` rejection during base rendering — the Layer 3 validation per [validation-surface.md](validation-surface.md). The first layer's constraint passed; the second layer caught the violation.
 
-The duplication is deliberate: each layer covers a different concern. The Component's `usesSchema` governs the cognitive contract (the developer's `uses:` declaration). The provider-rendering plugin's `spec.provider.workloadSchema` governs the rendered-output contract (what the provider accepts). When both apply to the same field, the strictest wins; authors who hit the second layer's rejection see a `CATALOG_ERROR:` attributed to the Recipe and the provider that rendered it.
+The duplication is deliberate: each layer covers a different concern. The Component's `usesSchema` governs the cognitive contract (the developer's `uses:` declaration). The provider-rendering plugin's `spec.provider.workloadSchema` governs the rendered-output contract (what the provider accepts). When both apply to the same field, the strictest wins; authors who hit the second layer's rejection see a halt whose bracketed head carries the `CATALOG_ERROR` category, attributed to the Recipe and the provider that rendered it.
 
 ### Feature attachment / Component pillar isolation
 

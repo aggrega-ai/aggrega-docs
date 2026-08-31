@@ -1,6 +1,6 @@
 # Output composition
 
-A single Aggrega build produces output files into per-boundary directories under `dist/` through six distinct mechanisms — sourced rendering, workload synthesis, FeatureRecipe Resource Generation, FeatureRecipe plugin-pipeline patches, Release-level composition, and direct artifact emission. The mechanisms run in a defined order; outputs collide deterministically when two mechanisms produce a file with the same name in the same boundary directory; the build halts before emission with a `CATALOG_ERROR:` naming every contributor when a collision is detected.
+A single Aggrega build produces output files into per-boundary directories under `dist/` through six distinct mechanisms — sourced rendering, workload synthesis, FeatureRecipe Resource Generation, FeatureRecipe plugin-pipeline patches, Release-level composition, and direct artifact emission. The mechanisms run in a defined order; outputs collide deterministically when two mechanisms produce a file with the same name in the same boundary directory; the build halts before emission under the `CATALOG_ERROR` category, naming every contributor, when a collision is detected.
 
 This page documents the six mechanisms in one place and names the rendering order across them. The per-chapter and per-entity references cover their own surfaces; the collision-detection rules across all six live here.
 
@@ -76,7 +76,7 @@ Each mechanism lives at a specific Recipe / FeatureRecipe authoring surface and 
 
 **Output shape.** One file per artifact entry, named per the entry's key in the `artifacts:` map. The Recipe author dictates filename and content directly.
 
-**Status today:** **`accepted but blocked`** per [Status of the Language → Recipe input kinds](../10-status.md#recipe-input-kinds). The schema accepts `artifacts:` declarations; the artifact evaluator returns a `CATALOG_ERROR:` naming the field as not yet implemented. Recipes that declare this field halt the build until the implementation ships.
+**Status today:** **`accepted but blocked`** per [Status of the Language → Recipe input kinds](../10-status.md#recipe-input-kinds). The schema accepts `artifacts:` declarations; the artifact evaluator refuses under the `CATALOG_ERROR` category, naming the field as not yet implemented. Recipes that declare this field halt the build until the implementation ships.
 
 ## Rendering order
 
@@ -97,7 +97,7 @@ The order matters because downstream mechanisms can read upstream outputs — fo
 
 ## Collision-detection rule set
 
-When two mechanisms produce a file with the same name in the same boundary directory, the build halts with a `CATALOG_ERROR:` naming every contributor. The rule set:
+When two mechanisms produce a file with the same name in the same boundary directory, the build halts under the `CATALOG_ERROR` category, naming every contributor. The rule set:
 
 ### Recipe shape rule: `artifacts:` entry-key collision
 
@@ -109,7 +109,7 @@ A Recipe's three input kinds — sourced, synthesized, and artifacts — each em
 
 ### Compose service-name collision (Release-level)
 
-When two different nodes (in any combination of boundaries) contribute services with the same name to the merged compose output, the compose provider's `BoundaryComposer` halts with a `TRANSLATION_ERROR:` naming every contributing `(boundary, node, serviceName)` tuple. Detected at Release-level composition per [`providers/compose.md`](../providers/compose.md) Release-level output section.
+When two different nodes (in any combination of boundaries) contribute services with the same name to the merged compose output, the compose provider halts as it composes the boundary, under the `TRANSLATION_ERROR` category, naming every contributing `(boundary, node, serviceName)` tuple. Detected at Release-level composition per [`providers/compose.md`](../providers/compose.md) Release-level output section.
 
 ### Helm-chart sub-chart alias and directory
 

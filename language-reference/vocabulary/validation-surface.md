@@ -38,13 +38,13 @@ A redeclared `usesSchema` or `featuresSchema` entry produces no composition fail
 
 **Validation runs.** At base rendering, after the Recipe's own valuesMapping has resolved. Layer 3 gates synthesized-mode dispatch on provider capability.
 
-**Error shape.** A capability decline carries a `CATALOG_ERROR:` prefix naming the node and provider:
+**Error shape.** A capability decline is attributed to the catalog-authoring domain, so its report opens with a bracketed head carrying that category, and the message names the node and the provider:
 
 ```text
-CATALOG_ERROR: node <node-id>: provider <provider-name> does not support synthesised recipes (this provider supports: <kinds>); declare one of the supported input kinds, or target a provider that supports synthesised
+[CATALOG_ERROR] node <node-id>: provider <provider-name> does not support synthesised recipes (this provider supports: <kinds>); declare one of the supported input kinds, or target a provider that supports synthesised
 ```
 
-The `CATALOG_ERROR:` shape signals the catalog entity is at fault, not the developer's Aggregate.
+The `[CATALOG_ERROR]` head signals the catalog entity is at fault, not the developer's Aggregate. On a terminal the head also carries the condition's short code and the message moves to its own indented line; the one-line form above is what reaches a log.
 
 A related guardrail protects provider dispatch itself: when more than one provider-rendering Plugin serves the same target, the workspace resolves the ambiguity via a provider binding in `.aggrega-config.yaml`, chosen at `aggrega pull` and recorded in the lockfile. With no binding and exactly one candidate Plugin, that candidate is used; with no binding and more than one candidate, the build halts loudly, naming the candidate plugins. Ambiguity is resolved per workspace at the point of use, not by a catalog-wide uniqueness rule.
 
@@ -56,7 +56,7 @@ A related guardrail protects provider dispatch itself: when more than one provid
 
 **Validation runs.** The annotation-expansion sub-phase of resolution, after Manifest binding-target validation (the catalog-load check confirming each declared path exists in the referenced Feature schema) and alongside Layer 2 schema validation on explicit attachments. For each effective per-component annotation: parse the value into the Scalar / Structured / Nil sum type; route per-subkey through the binding's pillar-grouped `maps` declaration with side-vs-pillar enforcement (Aggregate-side fires `maps.values`; Release-side fires `maps.infra`); validate the per-leaf runtime value against the Feature schema's declared type at the routed pillar. Multiple subkey errors collect-and-emit-all before halting.
 
-**Error shape.** Schema-validation errors at this layer follow the Layer 2 shape — entity, path (annotation key plus subkey route), constraint detail. Side-vs-pillar partition violations and ambiguous-routing failures carry the `OPS_ERROR:` prefix and name the annotation key, the routed pillar, the authoring side, and the source location.
+**Error shape.** Schema-validation errors at this layer follow the Layer 2 shape — entity, path (annotation key plus subkey route), constraint detail. Side-vs-pillar partition violations and ambiguous-routing failures are attributed to the operator's own documents, so their reports open with an `[OPS_ERROR]` head, and they name the annotation key, the routed pillar, the authoring side, and the source location.
 
 ## One error-formatting convention across layers
 
@@ -66,7 +66,7 @@ The four layers share one observable convention: **every Aggrega-attributable va
 - Layer 3 (Provider source / Workload) errors are catalog-entity-attributable by definition — the Recipe + Provider pair authored the schema that rejected the developer's input. These are attributed to the catalog-authoring domain, and the attribution reaches you in the diagnostic's bracketed head rather than as a word typed into the message: a halting report opens `[CATALOG_ERROR E0nnn]`, where the category names the domain and the short code names the condition. Match on the short code, which is fixed once issued.
 - Layer 4 (annotation-binding value validation) errors follow the Layer 2 shape — the validating Feature schema lives in the referenced Feature's `spec.schema`, and runtime values flow through the Manifest binding's `maps` routing into that schema for per-leaf type checking.
 
-For the full inventory of Aggrega-prefixed sentinels and the surfaces that produce them, see [`errors/error-translation.md`](../errors/error-translation.md). For the per-error catalog (the `CATALOG_ERROR:` Recipe shape rules, condition by condition), see [`errors/fatal-halts.md`](../errors/fatal-halts.md).
+For the full inventory of Aggrega-prefixed sentinels and the surfaces that produce them, see [`errors/error-translation.md`](../errors/error-translation.md). For the per-error catalog (the `[CATALOG_ERROR]` Recipe shape rules, condition by condition), see [`errors/fatal-halts.md`](../errors/fatal-halts.md).
 
 ## Layer interaction when fields overlap
 
@@ -86,8 +86,8 @@ A second overlap pattern: cross-pillar constraints declared at the pillar layer 
 | --- | --- | --- | --- |
 | 1 — JSON Schema envelope | Structural shape (apiVersion, kind, metadata, top-level spec) | Resolution (load) | unprefixed YAML / unmarshal error |
 | 2 — Pillar schemas (`schema:` / `featuresSchema` / `usesSchema`) | Per-pillar data validation (values, infra, secrets, uses) | Resolution (after envelope) | unprefixed schema-validation error |
-| 3 — Provider-capability gate (per-provider `workloadSchema` content validation honest-pending) | Synthesized-mode support (provider capability) | Base rendering | `CATALOG_ERROR:` |
-| 4 — Annotation-binding value validation | Annotation-value contributions routed into the target Feature's `spec.schema` via the Manifest binding's `maps` paths | The annotation-expansion sub-phase of resolution, alongside Layer 2 | schema-validation error; side-vs-pillar / ambiguous-routing surfaces carry `OPS_ERROR:` |
+| 3 — Provider-capability gate (per-provider `workloadSchema` content validation honest-pending) | Synthesized-mode support (provider capability) | Base rendering | `[CATALOG_ERROR]` |
+| 4 — Annotation-binding value validation | Annotation-value contributions routed into the target Feature's `spec.schema` via the Manifest binding's `maps` paths | The annotation-expansion sub-phase of resolution, alongside Layer 2 | schema-validation error; side-vs-pillar / ambiguous-routing surfaces open `[OPS_ERROR]` |
 
 ## Cross-references
 
