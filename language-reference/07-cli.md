@@ -29,13 +29,13 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 | --- | --- |
 | `aggrega acquire` | Pin the external inputs a Release's render consumes |
 | `aggrega auth` | Manage the signing identity |
-| `aggrega build` | Compile Aggregate + Release into Helm artifacts via the 5-step pipeline |
+| `aggrega build` | Compile an Aggregate and Release into provider-native artifacts |
 | `aggrega cache` | Inspect and maintain the on-disk caches |
 | `aggrega config` | Inspect and manage the workspace configuration |
 | `aggrega deprecate` | Attach a signed deprecation marker to an already-published artifact |
 | `aggrega get-schema` | Print the JSON Schema for an entity or contract kind |
 | `aggrega import` | Turn a foreign source description into draft Aggrega authoring files |
-| `aggrega inspect` | Inspect a catalog entity by name or an entity file (resolves by entity kind) |
+| `aggrega inspect` | Inspect a catalog entity by name, or an entity file by path |
 | `aggrega lint` | Check catalog publishing conventions across the catalog, a Release, or one entity |
 | `aggrega login` | Authenticate to an OCI registry and store the credential |
 | `aggrega logout` | Remove a stored registry credential |

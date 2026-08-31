@@ -133,7 +133,7 @@ aggrega pull [<uri>...] [flags]
 | --- | --- | --- |
 | `--catalog` | `[]` | Catalog directory; repeatable. Each --catalog is prepended to the workspace catalog_dirs search stack (first match wins). Defaults to the current directory. |
 | `--detail` | `false` | Print, per resolved entity, what this pull did — fetched fresh from a registry, reused a cache slot, found in a local catalog, served from inside the compiler binary, or external. Stdout only; not written to the lockfile |
-| `--include-prerelease` | `false` | Reserved for future version-selection logic; currently a no-op |
+| `--include-prerelease` | `false` | Not yet implemented: accepted and ignored, so a script that passes it keeps working when it starts having an effect |
 | `--progress` | `false` | Force the pull-progress surface on even when stderr is not a terminal, printing plain static phase lines. The default is auto: the interactive phase checklist is shown only when stderr is a terminal |
 | `--quiet` | `false` | Silence the pull-progress surface on stderr. Does not affect stdout. Takes precedence over --progress |
 | `--release` | — | Path to Release YAML file (required) |

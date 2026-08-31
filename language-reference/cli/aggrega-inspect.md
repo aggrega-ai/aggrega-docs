@@ -363,7 +363,7 @@ aggrega inspect [identifier] [flags]
 | `--list` | `false` | Render identifiers only. |
 | `--no-color` | `false` | Disable colorized output (alias for --color=never). |
 | `--output`, `-o` | `text` | Output format: text\|yaml. |
-| `--plugin` | — | Filesystem path to a raw .wasm artifact; derives and prints the host functions it imports (the pre-publish, not-yet-stamped view). Takes no identifier argument. |
+| `--plugin` | — | Filesystem path to a raw .wasm artifact; derives and prints the host functions it imports, before `aggrega plugin sync` records them in a Plugin entity. Takes no identifier argument. |
 | `--raw` | `false` | Render the entity as authored, without resolution. |
 | `--resolved` | `false` | Render the entity fully resolved. |
 | `--show-implements` | `false` | For a Recipe or FeatureRecipe, resolve spec.implements against the catalog and render the bound Component or Feature. |

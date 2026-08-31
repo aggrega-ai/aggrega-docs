@@ -2238,9 +2238,9 @@ When the target declares no `provides:` keys at all there are no alternatives to
 The Component declares a presence mandate — a `features.aggrega.ai/requiredType.<label>` annotation — naming a Feature type that is not present among the attachments this component instance ends up with, counting every scope: the Aggregate's component-level and subsystem-level blocks, the Release's boundary-level and component-level blocks, and annotation-driven expansion.
 
 Emitted message:
-> missing required feature: attach a Feature of the required type to the component (`<component-type>`, `<required-type>`, `<label>`)
+> missing required feature: attach a Feature of the required type to the component (`<required-type>`, required by component type `<component-type>`, under the requirement label `<label>`)
 
-The three values are the component type that declares the mandate, the Feature type it demands, and the label the mandate carries — so a component demanding two different types reports two messages that differ, and two components declaring the mandate from different types are told which type made each demand. The report is positioned at the component's own key under `components:`, and a component written inside a subsystem is positioned under that subsystem's key first.
+The three values are the Feature type the mandate demands — which the sentence above already names, so it stands bare — then the component type that declares the mandate and the label the mandate carries, each captioned so a reader can tell two entity references apart. A component demanding two different types reports two messages that differ, and two components declaring the mandate from different types are told which type made each demand. The report is positioned at the component's own key under `components:`, and a component written inside a subsystem is positioned under that subsystem's key first.
 
 The name an attachment is written under does not matter here: the mandate asks whether an attachment of the named type is present at all. Binding a slot satisfies it, and so does an attachment under any other name.
 
@@ -2253,11 +2253,11 @@ The name an attachment is written under does not matter here: the mandate asks w
 A presence mandate's declaration cannot be evaluated. An annotation value is an opaque string, so nothing validates its shape before the compiler reads it: a value that is not a Feature type URI, or a key that names the mandate family without a label after the prefix, is reported as a broken declaration rather than as an unsatisfied requirement — a typo must never read as a satisfied requirement.
 
 Emitted messages:
-> malformed attachment requirement (`<component-type>`, `<key>`, the value must be a Feature type URI of the form `<publisher>/<name>` in lower-case kebab segments, as in `core/prometheus-exporter`)
+> malformed attachment requirement (`<key>`, declared by component type `<component-type>`, which cannot be evaluated because the value must be a Feature type URI of the form `<publisher>/<name>` in lower-case kebab segments, as in `core/prometheus-exporter`). Correct that annotation on the component type's catalog entity.
 >
-> malformed attachment requirement (`<component-type>`, `<key>`, the key needs a label naming the requirement, as in `features.aggrega.ai/requiredType.database`)
+> malformed attachment requirement (`<key>`, declared by component type `<component-type>`, which cannot be evaluated because the key needs a label naming the requirement, as in `features.aggrega.ai/requiredType.database`). Correct that annotation on the component type's catalog entity.
 
-The first value is the component type whose declaration is broken and the second is the annotation key, so the message names the entity to correct even though the report is positioned at the component instance that uses that type — the instance is where you see it, and the catalog entity is where the remedy is.
+The message leads with the annotation key — the declaration the halt is about — and names the component type whose declaration is broken after it, so it names the entity to correct even though the report is positioned at the component instance that uses that type: the instance is where you see it, and the catalog entity is where the remedy is.
 
 This halt is raised as soon as the composition is assembled, which is earlier than every check that reads the finished graph. A build carrying a broken mandate therefore reports it on its own: the checks that would run later are not reached, because they reason about what the declaration says and the declaration cannot be read. Correct it and rebuild to see the rest.
 
@@ -2270,9 +2270,9 @@ This halt is raised as soon as the composition is assembled, which is earlier th
 A catalog entity declares an attachment slot with `required: true` in its `featuresSchema`, and nothing binds that slot's name on an instance of the entity. The check runs against the attachments the instance ends up with after every scope has folded — the Aggregate's component-level and subsystem-level `features:` blocks, the Release's boundary-level and component-level blocks, and attachments produced by annotation-driven expansion — so a credential attached once at a scope the instance inherits from binds the slot exactly as a fill authored on the instance does.
 
 Emitted message:
-> required attachment slot unfilled (`<component-type>`, `<slot>`)
+> required attachment slot unfilled (`<slot>`, declared required by component type `<component-type>`). Attach a Feature at that name, on the component or at a scope above it.
 
-The two values are the component type that declares the slot and the slot's own name, so one instance leaving two slots unbound reports two messages that differ. The report is positioned at the slot's key under the component's `features:` block; because that key is exactly what is missing, an editor places it on the nearest key that does exist — the `features:` block where the component writes one, and the component itself where it does not.
+The two values are the slot's own name and the component type that declares it, so one instance leaving two slots unbound reports two messages that differ. The report is positioned at the slot's key under the component's `features:` block; because that key is exactly what is missing, an editor places it on the nearest key that does exist — the `features:` block where the component writes one, and the component itself where it does not.
 
 **How to fix:** attach a Feature under the slot's name — on the component, or at a broader scope every consumer of the slot shares. An attachment under a different name does not bind the slot: a slot is a named binding point, so the name is the binding. If the slot should no longer be required, update the catalog entity's `featuresSchema` to drop the `required` declaration.
 
@@ -2410,15 +2410,15 @@ A Component declares named binding points for the Features it expects, and a slo
 
 Whether a slot may be left unbound at all is a different question with a different remedy, reported by its own halt above: this one presupposes a fill and asks whether the fill is admissible, so an unbound slot is not its business.
 
-Two outcomes report under this one condition, and the message tells them apart by how many values it carries. Two values are a constraint that was read and came out false. A third value is the reason the constraint could not be read at all — an expression the label matcher could not evaluate — which is a fault in the slot's own declaration rather than in what was attached to it.
+Two outcomes report under this one condition, and the message tells them apart by what its last value says. A fill that did not satisfy the constraint names the Feature whose labels went unmatched. A constraint that could not be read at all names the reason instead — an expression the label matcher could not evaluate — which is a fault in the slot's own declaration rather than in what was attached to it.
 
 Emitted message, where the fill's labels did not satisfy the constraint:
-> attachment slot selector unsatisfied (`"<selector>"`, `"<feature-type>"`)
+> attachment slot selector unsatisfied (`"<selector>"`, declared on slot `"<slot>"`, not satisfied by the labels of the Feature filling it, `"<feature-type>"`). Add the labels the slot's selector requires to the Feature's labels, or fill the slot with a Feature that already carries them.
 
 and where the constraint itself could not be evaluated:
-> attachment slot selector unsatisfied (`"<selector>"`, `"<feature-type>"`, `"<why it could not be evaluated>"`)
+> attachment slot selector unsatisfied (`"<selector>"`, declared on slot `"<slot>"`, which could not be evaluated: `"<why it could not be evaluated>"`). Correct the selector on the slot's declaration in the component's catalog entity.
 
-**How to fix:** for a fill that did not satisfy the constraint, attach a Feature whose labels do — the selector in the message says which labels are being asked for — or widen the slot's `selector:` in the Component that declares it. Where the message carries a third value, the selector expression is the fault: correct it in the Component's slot declaration.
+**How to fix:** for a fill that did not satisfy the constraint, attach a Feature whose labels do — the selector in the message says which labels are being asked for — or widen the slot's `selector:` in the Component that declares it. Where the message says the constraint could not be evaluated, the selector expression is the fault: correct it in the Component's slot declaration.
 
 ### An attachment delivers a key another inject source already claimed
 
@@ -2591,16 +2591,16 @@ One halt covers the two label expressions a catalog author writes to constrain w
 **A `uses:` edge whose target fails its socket's `selector:`.** A `usesSchema` socket declares a `selector:` field that excludes the target Component attached at the other end of the edge. The selector is the catalog author's way of saying "this socket only accepts targets whose labels match this expression"; an edge that satisfies the socket-name lookup but fails the selector expression is a type-safety violation. The synthesized JSON Schema carries the selector as the `x-aggrega-selector:` extension keyword consumed by the native Go selector engine.
 
 Emitted message:
-> selector violation ("<selector-expression>", "<target-id>")
+> selector violation ("<selector-expression>", declared on socket "<socket-name>", not satisfied by the labels of "<target-id>"). Add the labels the selector requires to the target's component type, or wire the socket to a component that already carries them.
 
 **An attachment whose component fails the Feature's `appliesTo:`.** A Feature declares which components it may attach to, on `appliesTo:` and on `appliesToAnyOf:`. The single expression's requirements hold together and the alternatives hold alternatively, any one of them being enough; both surfaces must hold, and a surface the Feature omits is satisfied by anything. An attachment whose component carries labels the Feature's declaration does not admit is the same class of violation as the edge case above.
 
 Emitted message:
-> selector violation ("<feature-type>", "<appliesTo-expression>")
+> selector violation ("<appliesTo-expression>", declared by Feature "<feature-type>", not satisfied by the labels of "<component-id>"). Add the labels the Feature's appliesTo requires to this component's type, or attach a Feature whose applicability the component already satisfies.
 
-Either expression may also be written in a form the label grammar cannot read at all. That is reported as the same halt carrying a third value, the reason it could not be read — its presence is what tells an expression that could not be evaluated apart from one that was evaluated and came out false:
+Either expression may also be written in a form the label grammar cannot read at all. That is reported as the same halt whose last value is the reason it could not be read rather than the label set it went unsatisfied by — which is what tells an expression that could not be evaluated apart from one that was evaluated and came out false:
 
-> selector violation ("<feature-type>", "<appliesTo-expression>", "<why-it-could-not-be-read>")
+> selector violation ("<appliesTo-expression>", declared by Feature "<feature-type>", which could not be evaluated: "<why-it-could-not-be-read>"). Correct the appliesTo selector on the Feature's catalog entity.
 
 The halt carries the authoring key it is about — the `uses:` socket entry, or the `features:` entry naming the attachment — alongside the file that declares it, so the position it reports is the entry you edit rather than the head of the document. A Component authored inside a subsystem is positioned at the subsystem it was authored under, level by level.
 

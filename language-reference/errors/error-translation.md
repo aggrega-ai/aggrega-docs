@@ -44,10 +44,10 @@ A rule evaluated over the finished graph reports in that third shape, and the ke
 
 ```text
 [DEVELOPER_ERROR E0162] aggregate.yaml at .spec.components.checkout
-  missing required feature: attach a Feature of the required type to the component ("core/compute/api-server", "core/observability/monitoring", "monitoring")
+  missing required feature: attach a Feature of the required type to the component ("core/observability/monitoring", required by component type "core/compute/api-server", under the requirement label "monitoring")
 ---
 [DEVELOPER_ERROR E0162] aggregate.yaml at .spec.components.inventory
-  missing required feature: attach a Feature of the required type to the component ("core/compute/api-server", "core/observability/monitoring", "monitoring")
+  missing required feature: attach a Feature of the required type to the component ("core/observability/monitoring", required by component type "core/compute/api-server", under the requirement label "monitoring")
 ```
 
 The key is the only part that differs, and it is what names which of the two components to edit. Both findings carry the same short code because both are the same condition, met twice — the short code names the rule, and the key names the occurrence.
@@ -173,10 +173,10 @@ When a single compile detects multiple independent violations (most commonly dur
 
 ```text
 [DEVELOPER_ERROR E0007] aggregate.yaml at .spec.components.edge.uses.reviewed_upstream.internal
-  selector violation ("gateway.example.com/audit-tier=reviewed", "internal")
+  selector violation ("gateway.example.com/audit-tier=reviewed", declared on socket "reviewed_upstream", not satisfied by the labels of "internal"). Add the labels the selector requires to the target's component type, or wire the socket to a component that already carries them.
 ---
 [DEVELOPER_ERROR E0007] aggregate.yaml at .spec.components.edge2.uses.reviewed_upstream.internal
-  selector violation ("gateway.example.com/audit-tier=reviewed", "internal")
+  selector violation ("gateway.example.com/audit-tier=reviewed", declared on socket "reviewed_upstream", not satisfied by the labels of "internal"). Add the labels the selector requires to the target's component type, or wire the socket to a component that already carries them.
 ```
 
 The `---` separator is literal — readers and downstream tools can split on it to enumerate the joined errors. Each sub-error is a failure in its own right rather than a detail of its neighbour, so each carries a full head: its own category, and its own short code. Two violations of one rule name the same short code, as above; two violations of different rules name different ones.

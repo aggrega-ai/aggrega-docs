@@ -13,7 +13,7 @@ aggrega registry
 
 | Command | Description |
 | --- | --- |
-| `aggrega registry add` | Register a registry and its signature trust policy in the workspace config |
+| `aggrega registry add` | Register a registry and its signature trust policy |
 | `aggrega registry list` | List configured registries and their trust posture |
 | `aggrega registry remove` | Remove a registry and its trust policy from a config file |
 | `aggrega registry update` | Build the local searchable index of configured registries |
@@ -49,7 +49,7 @@ aggrega registry
 
 | Flag | Default | Description |
 | --- | --- | --- |
-| `--upgrade` | `false` | Re-read every repository from the registry, ignoring the cached revalidation validators (picks up changes a conditional refresh would skip) |
+| `--upgrade` | `false` | Re-read every repository from the registry, ignoring what is already cached (picks up changes a conditional refresh would skip) |
 <!-- END GENERATED: cli-registry -->
 
 ## What `registry update` reports about deprecation markers
