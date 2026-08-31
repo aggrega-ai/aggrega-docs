@@ -250,19 +250,7 @@ The shipping emit set, attached to every rendered Kubernetes manifest by helm an
 - **`helm-chart`** — labels land in `metadata.labels` on every sub-chart resource via the same label-injection mechanism as helm.
 - **`compose`** — labels land in `services.<name>.labels` on every emitted compose service. Sourced-mode (post-merge label injection on the merged base + valuesMapping document) and synthesised-mode (workload synthesis directly setting the service's labels block) both produce the same set. The Kubernetes-specific `app.kubernetes.io/name` is omitted from compose output.
 
-For resources a FeatureRecipe emits, the `aggrega.ai/component-id` value is built from the attachment rather than from the host component's name, and how it is built depends on where the Feature is attached. Either way the result is a valid Kubernetes label string, and either way the value is also the naming basis for the resources that FeatureRecipe generates — on a Kubernetes target it is the prefix of the rendered output files and the Helm release name those resources render against — so it is an identity inside the cluster and not only a label.
-
-Either way the value is **composed** from the parts you wrote, joined by `--`, behind a fixed opening that says which of the two it is. Two openings are in use, and a component identity you write may open with neither — which is what keeps a name you wrote and a name Aggrega composed from ever being mistaken for one another.
-
-Where the Feature is attached to a **component**, the parts are a fixed `cfr` opening, the identity of the component the Feature is attached to, and the key it is attached under. A Feature attached to component `api` under `mon` reaches `cfr--api--mon`. The host component is part of the value because one Feature name attached to several components emits a separate set of resources on each, and each set needs an identity of its own: attaching `mon` to both `api` and `worker` reaches `cfr--api--mon` and `cfr--worker--mon` rather than one value for both. An attachment named exactly after the component hosting it reaches a value distinct from that component's own for the same reason — `mon` attached to `mon` reaches `cfr--mon--mon`.
-
-Where the Feature is attached to a **boundary** — the `compose-bridge` gateway service is the canonical example — the parts are a fixed `bfr` opening, then each segment of the boundary's path outermost first, then the name the Feature is attached under. A Feature named `gateway` on a boundary at `bridge` reaches `bfr--bridge--gateway`; the same Feature on a boundary at `prod/eu` reaches `bfr--prod--eu--gateway`.
-
-A character a label value cannot carry is written out rather than replaced, so a hyphen you wrote stays a hyphen and anything else becomes a short escape: a Feature named `my zone` contributes `my-zx000020zone`. Two attachments you can tell apart therefore reach two values — whatever you named them, and however deep the boundary sits — because `--` is a run no written part can contain, so moving the division between the parts changes the value instead of colliding with it.
-
-How long a composed value may be is the **target's** answer rather than a number Aggrega holds: the target the resources are rendered for is asked, and the value is shortened until that target accepts it. A Kubernetes label value carries at most 63 characters, and a Helm release name derived from the same identity is bounded tighter still, so the same attachment can settle shorter under one target than under another. A value that fits is emitted exactly as composed, which is the ordinary case and the case for every attachment in the standard-library catalog. One that does not is shortened: each part keeps its beginning, and a ten-character digest of the whole identity is appended behind a marker no name you can write produces — so a shortened value is recognisable as one and can never be read as a value that fitted. A deeply nested `gateway` attachment can therefore render as `bfr--region-region-region-region-r--gateway-gate---ze24e3a2ba5e`. Two shortened values are very unlikely to meet, and a build halts rather than letting two of them share a name if they do.
-
-See [`errors/fatal-halts.md`](../errors/fatal-halts.md) “The same name is derived more than once inside the output” for which pairs halt and how to separate them.
+For resources a FeatureRecipe emits, the `aggrega.ai/component-id` value is built from the attachment rather than from the host component's name, and it is an identity inside the cluster and not only a label: on a Kubernetes target it is also the prefix of the rendered output files and the Helm release name those resources render against. How that value is composed — the two openings, the parts and their `--` join, how a character a label cannot carry is written out, and how a value too long for its target is shortened — is provider-independent, so it is stated once at [`vocabulary/labels-and-annotations.md`](../vocabulary/labels-and-annotations.md) "Provenance labels emitted on rendered output" rather than repeated here. This page owns the other half: where on each provider's rendered output the labels land.
 
 The `aggrega.ai/recipe-uri` resolves to the FeatureRecipe's own `name:version`, not the consuming Recipe's identity — downstream tooling reading the label to identify the producing entity gets the correct provenance for both component-emitted and FR-emitted output.
 
@@ -293,7 +281,7 @@ spec:
   boundaries:
     production:
       annotations:
-        aggrega.ai/namespace: prod-zone
+        aggrega.ai/namespace: prod-east
         aggrega.ai/image-registry: registry.corp.com
         aggrega.ai/image-pull-secret: corp-registry-creds
       components:
@@ -309,12 +297,12 @@ spec:
   boundaries:
     production:
       annotations:
-        aggrega.ai/namespace: prod-zone
+        aggrega.ai/namespace: prod-east
       components:
         api: {}
         legacy-thing:
           annotations:
-            aggrega.ai/namespace: legacy-zone   # override — this component deploys elsewhere
+            aggrega.ai/namespace: legacy-east   # override — this component deploys elsewhere
 ```
 
 ## Aggregate-side annotation cascade

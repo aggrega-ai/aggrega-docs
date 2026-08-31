@@ -42,7 +42,7 @@ See [`entities/recipe.md`](entities/recipe.md) for the Recipe authoring surface 
 
 The `inject:` block accepts two equivalent syntaxes — a compact map form and a verbose array form. Both produce identical runtime behaviour; the compiler normalizes both to a `map[string]string` shape during parsing.
 
-- **Compact form (`KEY: "string"`) — available.** A flat map keyed by local identifier (env var name, file path, arg flag); the value's semantics depend on placement (literal in `component.inject`, provides-key reference in `uses[].inject` / `feature.inject` / `secret.inject`).
+- **Compact form (`KEY: "string"`) — available.** A flat map keyed by local identifier (env var name, file path, arg flag); the value's semantics depend on placement (literal in `component.inject`, provides-key reference in `uses[].inject` and in an attachment's own `inject`).
 
 - **Verbose form (`[{in: ..., from: ..., value: ...}]`) — available.** An array of objects with explicit `in:`, `from:` (provides-key reference), and `value:` (literal string) keys. Disambiguates the placement-dependent semantics of the compact form.
 

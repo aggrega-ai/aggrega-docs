@@ -36,7 +36,7 @@ in to the live database.
   Component's `featuresSchema` declares two slot kinds, and the example exercises
   both: a *black-box* slot whose FeatureRecipe delivers the value internally, and
   a *transparent* slot whose value the developer delivers explicitly with a
-  `secret.inject` block on the attachment.
+  `inject:` block on the attachment.
 - **Remote chart sources.** The managed Kubernetes target sources the upstream
   Bitnami MariaDB chart by OCI reference. `aggrega pull` pins the chart in a
   lockfile and fetches it into a content-addressed cache; `aggrega build` renders
@@ -174,7 +174,7 @@ models:
   not — dictate how.
 - `user_password` is a **transparent** slot (`inject: [env, file]`): the
   credential exposes its value, and the developer maps it to an environment
-  variable with the `secret.inject` block on the attachment.
+  variable with the `inject:` block on the attachment.
 
 The values here are inline literals so the stack runs from a single command —
 suitable for local development and demos. For shared or production environments,

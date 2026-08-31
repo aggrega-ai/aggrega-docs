@@ -28,7 +28,7 @@ Each mechanism lives at a specific Recipe / FeatureRecipe authoring surface and 
 
 **Output shape.** Provider-specific:
 
-- **helm provider** — one controller object chosen by the Workload's `form` (Deployment for stateless, StatefulSet for stateful, DaemonSet for daemon, Job for task) + per-service Service + per-persistent-volume PVC. Files named `<nodeID>-<kind>.yaml` (e.g., `<nodeID>-deployment.yaml`, `<nodeID>-statefulset.yaml`, `<nodeID>-daemonset.yaml`, `<nodeID>-job.yaml`, `<nodeID>-service-<svcName>.yaml`, `<nodeID>-pvc-<volName>.yaml`).
+- **helm provider** — one controller object chosen by the Workload's `form` (Deployment for stateless, StatefulSet for stateful, DaemonSet for daemon, Job for task, CronJob for scheduled) + per-service Service + one PVC per `persistent` volume. **Two naming shapes, and they are not the same:** the controller object is named for the node and its kind — `<nodeID>-deployment.yaml`, `<nodeID>-statefulset.yaml`, `<nodeID>-daemonset.yaml`, `<nodeID>-job.yaml`, `<nodeID>-cronjob.yaml` — while a per-resource file is named for **the resource it carries**, with the kind last: `<nodeID>-<svcName>-service.yaml` and `<nodeID>-<volName>-pvc.yaml`, because each is named from that resource's own `metadata.name` (see [`entities/workload.md`](../entities/workload.md) "Synthesised-name convention"). A Workload whose only exposure is an external name emits `<nodeID>-service.yaml` instead, there being no service key to carry.
 - **compose provider** — intermediate `<nodeID>.compose-fragment.yaml` files that flow into Release-level composition.
 - **helm-chart provider** — not supported; helm-chart's role is sourced-mode chart composition only. A Recipe targeting helm-chart with `workload:` is rejected at render time (the helm-chart provider reports no synthesis capability).
 
@@ -57,9 +57,9 @@ Each mechanism lives at a specific Recipe / FeatureRecipe authoring surface and 
 
 **Status today:** **available** per [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases). Each declared step runs during `aggrega build`: the host dispatches the step's Wasm plugin against the rendered set, applies the returned patches, and emits the step's side effects. See [`plugins/plugin-contract.md`](../plugins/plugin-contract.md) for the plugin contract surface.
 
-### 5 — Release-level composition (per-provider Boundary Composer)
+### 5 — Release-level composition (per-provider boundary assembly)
 
-**Authoring surface.** Driven by the Release shape — no per-Recipe authoring. The compose provider's `BoundaryComposer` aggregates all per-node fragments into one `docker-compose.yaml` per boundary; the helm-chart provider's `BoundaryComposer` aggregates per-node sub-chart copies into one umbrella chart per boundary.
+**Authoring surface.** Driven by the Release shape — no per-Recipe authoring. A capability that assembles a boundary does so once, after every node in that boundary has rendered: the compose capability gathers all per-node fragments into one `docker-compose.yaml` per boundary, and the helm-chart capability gathers per-node sub-chart copies into one umbrella chart per boundary.
 
 **Pipeline placement.** After base rendering, once every node's per-Recipe output has accumulated for the boundary.
 
@@ -76,7 +76,7 @@ Each mechanism lives at a specific Recipe / FeatureRecipe authoring surface and 
 
 **Output shape.** One file per artifact entry, named per the entry's key in the `artifacts:` map. The Recipe author dictates filename and content directly.
 
-**Status today:** **`accepted but blocked`** per [Status of the Language → Recipe input kinds](../10-status.md#recipe-input-kinds). The schema accepts `artifacts:` declarations; the artifact evaluator refuses under the `CATALOG_ERROR` category, naming the field as not yet implemented. Recipes that declare this field halt the build until the implementation ships.
+**Status today:** **available** per [Status of the Language → Recipe input kinds](../10-status.md#recipe-input-kinds). Each entry is evaluated with the full template context after workload synthesis and source resolution, and the resulting file is emitted under the entry's key. What a target does with an emitted artifact depends on the capability: a provider that accepts a standalone artifact emits it as its own file, while one that only accepts artifacts alongside another input kind folds the entry into what it assembles — so a body that is not the shape that assembler expects halts under the `TRANSLATION_ERROR` category rather than being emitted verbatim. Check the per-capability grid at [`architecture/16-recipe-input-composition.md`](../../architecture/16-recipe-input-composition.md) before authoring an artifact for a capability.
 
 ## Rendering order
 
@@ -87,11 +87,11 @@ The six mechanisms run in a defined order so downstream mechanisms can read upst
 3. **Inject mapping** — FeatureRecipe `injectMapping:` blocks evaluate (the inject pipe is intercepted before Recipe rendering).
 4. **Values mapping** — Recipe `valuesMapping:` evaluates (sourced mode + sourceless mode produce values dictionaries).
 5. **Workload synthesis** — Recipe Workload synthesis (mechanism 2 emits manifests for synthesised mode).
-6. **Artifact evaluation** — Recipe `artifacts:` evaluation (mechanism 6 — `accepted but blocked` today).
+6. **Artifact evaluation** — Recipe `artifacts:` evaluation (mechanism 6).
 7. **Provider render** — the provider renders (mechanism 1 — sourced mode produces flat manifests; sourceless mode produces generative manifests).
 8. **Feature rendering** — FeatureRecipe rendering for every Feature attachment on the node (mechanisms 3 + 4 — Resource Generation runs here; the plugin pipeline runs later, at step 9).
 9. **The plugin pipeline** — post-render mutation: FeatureRecipe `pipeline:` plugin steps apply RFC 6902 patches and emit additional resources (mechanism 4).
-10. **Release-level composition** — per-provider `BoundaryComposer` aggregates per-node fragments into per-boundary outputs (mechanism 5).
+10. **Release-level composition** — the capability's boundary assembly gathers per-node fragments into per-boundary outputs (mechanism 5).
 
 The order matters because downstream mechanisms can read upstream outputs — for example, a plugin-pipeline step can patch a provider-rendered Deployment, and a Release-level composer can merge fragments emitted by the provider render, by feature rendering, and by the plugin pipeline.
 
@@ -121,7 +121,7 @@ Within a boundary, two nodes that render to the same Kubernetes resource name pr
 
 **The largest case is closed by construction rather than checked.** A sourced chart that names its resources after the release name can no longer produce this, because two component identities that differ at all arrive at two release names — see [`providers/helm.md`](../providers/helm.md) "How the release name is derived". What remains is a chart that writes a resource name into its templates literally, which no derivation can tell apart from any other literal.
 
-The naming convention `<nodeID>-<kind>.yaml` plus the synthesised Service-name convention `<nodeID>-<svcName>` (per [`entities/workload.md`](../entities/workload.md) "Synthesised-name convention") makes cross-node collisions structurally impossible by construction. Authors who hit a runtime K8s rejection on a Deployment / Service name should look first at whether two different Recipes are emitting same-named resources via different rendering paths (e.g., a sourced chart's `templates/deployment.yaml` colliding with a workload-synthesised Deployment's `metadata.name`).
+Every synthesised name opens with the node's own identity — the controller object's, and each per-resource name through the synthesised Service-name convention `<nodeID>-<svcName>` (per [`entities/workload.md`](../entities/workload.md) "Synthesised-name convention") — which makes cross-node collisions structurally impossible by construction. Authors who hit a runtime K8s rejection on a Deployment / Service name should look first at whether two different Recipes are emitting same-named resources via different rendering paths (e.g., a sourced chart's `templates/deployment.yaml` colliding with a workload-synthesised Deployment's `metadata.name`).
 
 ## Cross-mechanism interaction patterns
 
@@ -137,7 +137,7 @@ A single Aggregate can have one component bound to a sourced helm Recipe (mechan
 
 ### Compose Release-level merge across boundaries
 
-The compose provider's `BoundaryComposer` is unusual — it aggregates per-node fragments not just within one boundary but across every compose-targeted boundary in the Release into a **single** `docker-compose.yaml`. This is the canonical compose shape (one compose file per project); the per-boundary fragmentation is intermediate state.
+The compose capability's boundary assembly is unusual — it gathers per-node fragments not just within one boundary but across every compose-targeted boundary in the Release into a **single** `docker-compose.yaml`. This is the canonical compose shape (one compose file per project); the per-boundary fragmentation is intermediate state.
 
 Service-name collisions across boundaries are therefore real and detected at the Release-level merge per the rule above. Two compose-targeted boundaries that each declare a service named `api` collide unless the boundaries are isolated (different Releases, different `dist/` directories).
 
@@ -151,6 +151,6 @@ Service-name collisions across boundaries are therefore real and detected at the
 - [`errors/fatal-halts.md`](../errors/fatal-halts.md) — the Recipe shape rules on unique `artifacts:` entry keys and on cross-input-kind filename collision.
 - [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) — per-template-site evaluation timing across the rendering order.
 - [`plugins/plugin-contract.md`](../plugins/plugin-contract.md) — the plugin-pipeline contract surface (mechanism 4 design target).
-- [`10-status.md`](../10-status.md) — current readiness state for mechanism 6 (`artifacts:` `accepted but blocked`) and mechanism 4's plugin-pipeline runtime (**available**).
+- [`10-status.md`](../10-status.md) — current readiness state for mechanism 6 (`artifacts:`) and mechanism 4's plugin-pipeline runtime.
 - [`architecture/10-compilation-pipeline.md`](../../architecture/10-compilation-pipeline.md) — full compilation pipeline including the order of the rendering stages.
 - [`architecture/16-recipe-input-composition.md`](../../architecture/16-recipe-input-composition.md) — three Recipe input kinds (the upstream framing for mechanisms 1 + 2 + 6).

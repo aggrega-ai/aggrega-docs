@@ -181,6 +181,17 @@ settings mean. This keeps the check engine-neutral — each guest describes the
 shape of the settings it reads, and the host enforces exactly that shape and
 nothing more.
 
+**An attachment that declares no settings is validated as JSON `null`.** That is
+what lets a guest make its settings mandatory: a schema admitting only an object
+refuses an attachment that supplies none, and the build halts. The consequence
+runs the other way too, and it is the one to author for deliberately: **a guest
+whose settings are genuinely optional must declare a schema that admits `null`
+as well as an object**, or it cannot be attached without settings at all. The
+governance guests that ship with the compiler declare `"type": ["object",
+"null"]` for exactly this reason — attach one with no `with:` block and it runs
+on its defaults. A guest that declares `"type": "object"` alone has made its
+settings required, whether or not that was the intent.
+
 ## The ABI is Aggrega's own
 
 The socket contract is Aggrega's own ABI, not any policy engine's. That is what
@@ -943,6 +954,14 @@ Terraform expression stays a string in its `${ ... }` form. Terraform-JSON bodie
 a Terraform template file (`.tftpl`) — template text rather than standalone
 configuration — is not projected and surfaces `parse_error` like any
 non-structured content.
+
+**That list says what the adapter's parser accepts, not what the compiler emits.**
+The two are not the same set, and an auto-loaded variables file is the case where
+they differ: the compiler emits no such overlay on any path — a sourced module's
+inputs are the arguments of that component's module block in the boundary's root
+configuration — so the shape reaches a policy's view only when a vendored module
+ships one of its own, which the sourced path copies into the output verbatim. A
+policy written to expect the compiler to produce one will never fire.
 
 When an artifact's content does not parse, the adapter does not silently allow it:
 it keeps the raw content, exposes no parsed documents for that artifact, and

@@ -73,7 +73,7 @@ For each node:
 
 - One **controller object** chosen by the Workload's `form`: `stateless` (and the default) emits a **Deployment**, `stateful` a **StatefulSet**, `daemon` a **DaemonSet**, `task` a **Job**, `scheduled` a **CronJob** whose `spec.schedule` is the Workload's `schedule` field (a 5-field cron expression or an `@` macro); a `scheduled` workload with no schedule, or a malformed one, halts loudly. The Deployment and StatefulSet carry the replica count; DaemonSet, Job, and CronJob carry none. A `stateful` Workload requires exactly one `type: Headless` Service declared in the Workload to govern the StatefulSet; the provider wires the StatefulSet's `serviceName` to that Service's rendered name, and the build halts if no headless Service is declared (or if more than one is). A `persistentTemplate` volume is a companion of `form: stateful` — declaring one on any other form halts with a message naming the fix.
 - One **Service** per declared `services:` entry on the Workload, exposing the named ports the service spec lists.
-- One **PersistentVolumeClaim** per `persistentTemplate` volume, sized and shaped from the volume's spec.
+- One **PersistentVolumeClaim** per `persistent` volume, sized and shaped from the volume's spec. A `persistentTemplate` volume emits no standalone claim: it becomes a `volumeClaimTemplates` entry inside the StatefulSet's own spec, which is why it is a companion of `form: stateful`.
 
 Each emitted resource carries the full Aggrega provenance labels and annotations plus a selector pair (`app: <nodeID>`) wired between the Deployment/StatefulSet and its Services. Container names in the rendered Deployment are the Workload's container keys with `.` and `_` characters replaced by `-` (Kubernetes name-sanitisation).
 
@@ -81,7 +81,7 @@ Each emitted resource carries the full Aggrega provenance labels and annotations
 
 **Running on the node's network.** A Workload declaring `hostNetwork: true` emits `hostNetwork: true` on the rendered pod spec, so the pod runs in the node's own network namespace and the ports its containers open are reachable on the node's addresses. Kubernetes expresses the choice directly, so nothing is degraded. The declaration reaches the pod spec and nothing else: it adds, removes and rewrites no port, and the emitted Services are identical with and without it. A Workload that does not declare it emits no `hostNetwork` key at all.
 
-Output file naming follows the same `<nodeID>-<kind>.yaml` convention as sourced mode: `<nodeID>-deployment.yaml`, `<nodeID>-service-<svcName>.yaml`, `<nodeID>-pvc-<volName>.yaml`.
+Output file naming has two shapes. The controller object is named for the node and its kind — `<nodeID>-deployment.yaml`, `<nodeID>-statefulset.yaml`, `<nodeID>-daemonset.yaml`, `<nodeID>-job.yaml`, `<nodeID>-cronjob.yaml`. A per-resource file is named for the resource it carries, with the kind last: `<nodeID>-<svcName>-service.yaml` and `<nodeID>-<volName>-pvc.yaml`, each taken from that resource's own `metadata.name` per the synthesised-name convention at [entities/workload.md](../entities/workload.md). A Workload exposed only by external name emits `<nodeID>-service.yaml`, there being no service key to carry.
 
 ## Sourceless mode keyset
 

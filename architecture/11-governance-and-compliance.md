@@ -38,36 +38,35 @@ All internal components (e.g., `acme/postgres`) must use `extends: "acme/corpora
 **The Wasm Validation Failsafe:**
 To prevent a developer from bypassing the internal catalog and pulling a naked `core/postgres` component directly from the public hub, the enterprise registers a topological validation plugin. It is evaluated during static analysis — after the graph is assembled and before any artifact is rendered — which is why it sees the whole topology rather than one component at a time.
 
-```javascript
-// Evaluated by the governance ir-verdict role over the assembled graph
-export function verdict_ir(graph) {
-    let failures = [];
-    for (const [id, node] of Object.entries(graph.nodes)) {
-        if (!node.values.owner) {
-            failures.push({
-                pass: false,
-                message: `Governance Violation: Node '${id}' is missing the 'owner' field. You must use components that extend 'acme/corporate-baseline'.`
-            });
-        }
-    }
-    return failures;
+```rego
+# Evaluated by the governance ir-verdict role over the assembled graph
+package acme.governance
+
+import rego.v1
+
+deny contains msg if {
+    some id, _ in input.graph.spec.nodes
+    not input.graph.spec.values_mapping[id].owner
+    msg := sprintf("node %v declares no owner; use a component that extends 'acme/corporate-baseline'.", [id])
 }
 ```
 
-If the plugin returns a failure, the compiler instantly halts.
+A decision the policy collects under its deny key is a rejection, and the build halts on it.
 
 **Forbidding free-form connections:**
 A developer may wire an edge through a socket the catalog did not declare — an ad-hoc socket (see [dependency-resolution](07-dependency-resolution.md)). That openness is deliberate, and so is the fact that the compiler holds no opinion about it: an organisation that wants every connection to go through a socket its Architects declared expresses that as policy rather than relying on the compiler. Every edge in the graph carries `socket_declaration`, which reads `declared` or `ad-hoc`, so the rule is one line:
 
-```javascript
-// Evaluated by the governance ir-verdict role over the assembled graph
-export function verdict_ir(graph) {
-    return graph.edges
-        .filter((e) => e.socket_declaration === "ad-hoc")
-        .map((e) => ({
-            pass: false,
-            message: `Governance Violation: '${e.source}' connects to '${e.target}' through the free-form socket '${e.socket}'. Declare the socket in the component type's usesSchema.`
-        }));
+```rego
+# Evaluated by the governance ir-verdict role over the assembled graph
+package acme.governance
+
+import rego.v1
+
+deny contains msg if {
+    some e in input.graph.spec.edges
+    e.socket_declaration == "ad-hoc"
+    msg := sprintf("%v connects to %v through the free-form socket %v; declare the socket in the component type's usesSchema.",
+                   [e.source, e.target, e.socket])
 }
 ```
 
@@ -80,20 +79,20 @@ Relying on out-of-band mechanisms (like `CODEOWNERS` on a git repository) to gov
 
 Developers should not be forced to manually type environmental compliance tags (e.g., `environment: production` or `soc2_in_scope: true`) into their `Aggregate`, as these change depending on the GitOps target.
 
-For dynamic metadata, enterprises utilize the **Mutation Gate — the governance socket's `label-transform` role**, which runs during topology construction. After the graph is expanded, and before static analysis evaluates it, the compiler executes the Wasm mutation plugin authored by the enterprise. This plugin silently evaluates the deployment context and returns JSONPatches to inject the required metadata directly into the component's labels, completely bypassing the developer's YAML (e.g., injecting the label `compliance.aggrega.ai/data-class: restricted` based on environment boundaries).
+For dynamic metadata, enterprises utilize the **Mutation Gate — the governance socket's `label-transform` role**, which runs during topology construction. After the graph is expanded, and before static analysis evaluates it, the compiler executes the Wasm plugin the enterprise attached. That plugin reads the deployment's environment and the labels the nodes already declare, and names the labels the build's nodes should carry — so the required metadata reaches the component without the developer typing it (e.g., the label `compliance.aggrega.ai/data-class: restricted` decided from environment boundaries).
 
-```javascript
-// Evaluated by the governance label-transform role, during topology construction
-// Silently returns a JSONPatch to tag the node based on the physical Release parameters
-export function mutate(context, graph) {
-    let patches = [];
-    for (const [nodeId, node] of Object.entries(graph.nodes)) {
-        if (context.parameters.env === "production" && node.labels["component.aggrega.ai/type"] === "stateful-server") {
-            patches.push({ op: "add", path: `/nodes/${nodeId}/labels/acme.com~1soc2-scope`, value: "true" });
-            patches.push({ op: "add", path: `/nodes/${nodeId}/labels/acme.com~1environment`, value: "prod" });
-        }
-    }
-    return patches;
+A policy at this role **names the label** — the node, the key, and the value it takes — rather than writing the edit instruction the build applies. The reason matters to whoever authors one: the instruction addresses a label by path, and an Aggrega label key routinely contains a `/`, which is the path separator, so a hand-written path would address a nested location instead of one label. The build addresses the label the decision names, and the labels-only projection this role receives puts its nodes one level shallower than a verdict over the whole graph.
+
+```rego
+# Evaluated by the governance label-transform role, during topology construction
+package acme.tagging
+
+import rego.v1
+
+labels contains {"node": id, "key": "acme.com/soc2-scope", "value": "true"} if {
+    input.compilation_context.environment == "production"
+    some id, node in input.graph.nodes
+    node.labels["component.aggrega.ai/type"] == "stateful-server"
 }
 ```
 
@@ -189,11 +188,12 @@ what an enterprise writes to get it. A platform team with fifty rules to state d
 not want fifty plugins. It wants its rules as *content* — files it reviews, versions
 and ships like any other artifact — with one attached engine evaluating them.
 
-That is what a policy-language engine attached to the socket provides, and a Rego
-engine ships inside the compiler for exactly this purpose. An operator attaches it,
-declares the `.rego` files it should load, and the rules run: no external toolchain,
-nothing fetched at build time, and no policy logic in the compiler. Evaluation happens
-inside the WebAssembly guest, which is where all domain intelligence lives.
+That is what a policy-language engine attached to the socket provides, and two of them
+ship inside the compiler for exactly this purpose: a Rego engine and a CEL engine. An
+operator attaches one, declares the policy files it should load, and the rules run: no
+external toolchain, nothing fetched at build time, and no policy logic in the compiler.
+Evaluation happens inside the WebAssembly guest, which is where all domain intelligence
+lives.
 
 The same engine serves every governance role, so an estate covers its whole surface
 with one attached plugin and several attachments of it:

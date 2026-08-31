@@ -137,8 +137,8 @@ The other three governance roles carry JSON. A guest serving more than one role 
 A policy guest inspects a build and returns a list of verdicts; the host acts on
 each verdict's severity and never interprets the policy itself. The full
 treatment — the four roles, severities, the operator-supplied input channel, writing
-a policy for the Rego engine that ships inside the compiler, wrapping a foreign
-policy engine, the reference guests, and how an operator attaches a
+a policy for either of the two engines that ship inside the compiler, wrapping a
+foreign policy engine, the reference guests, and how an operator attaches a
 policy — is on the [governance socket page](policy-socket.md). This section records
 the pipeline placement and the typed wire shapes.
 
@@ -270,7 +270,7 @@ The pipeline placement table at the top of this page reflects today's state plus
 
 ## Cross-references
 
-- [`policy-socket.md`](policy-socket.md) — the comprehensive governance-socket treatment: the four roles, verdict severities, the operator input channel, writing a policy for the Rego engine that ships inside the compiler, wrapping a foreign policy engine, and the reference guests.
+- [`policy-socket.md`](policy-socket.md) — the comprehensive governance-socket treatment: the four roles, verdict severities, the operator input channel, writing a policy for either of the two engines that ship inside the compiler, wrapping a foreign policy engine, and the reference guests.
 - [`10-status.md#compilation-pipeline-phases`](../10-status.md#compilation-pipeline-phases) — Status page plugin-pipeline classification (Wasm plugin pipeline runtime readiness).
 - [`architecture/04-entity-taxonomy.md`](../../architecture/04-entity-taxonomy.md) §"Domain 3: Infrastructure Base" — Two-Part Plugin Principle for credential FeatureRecipes (Fetcher + Injector pattern).
 - [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md) — the OCI taxonomy that leads with the provider segment.

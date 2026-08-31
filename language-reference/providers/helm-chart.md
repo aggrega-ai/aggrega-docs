@@ -53,7 +53,18 @@ spec:
 
 The chart at the source path **must contain a valid `Chart.yaml`** at its root; missing it surfaces a clear error before the copy runs. The chart's directory layout is preserved when copied — `templates/`, `values.yaml`, `Chart.yaml`, and any other files are present in the sub-chart directory after composition.
 
-A nil or empty source is rejected; helm-chart has no sourceless or generative fallback.
+Both ways of failing to name a chart are refused, and the two refusals come from
+different places — worth knowing, because only one of them changes if you switch
+capability. A `source:` that is **present and yet declares nothing** is refused by
+the compiler before any provider runs, so the outcome is the same whichever
+capability the Recipe names; the diagnostic tells you to omit the field for
+sourceless mode or name a non-empty path. **Omitting `source:` altogether** is
+legal authoring — it is how a Recipe asks for sourceless mode — and it is refused
+here because **helm-chart declares only the sourced input kind**, so the compiler
+refuses the combination with the same message it gives for any capability asked
+for an input kind it does not declare. What is helm-chart's own is the declaration, not
+a refusal of its own: for Kubernetes resources generated from a `workload:` block,
+use the `helm` capability instead.
 
 ## Path-keyed composition — the umbrella shape
 

@@ -53,7 +53,7 @@ The compact form `KEY: "string"` has different semantics depending on where it a
 | :--- | :--- | :--- |
 | `component.inject` | Literal value | Always a **literal string** (sugar for `value:`) |
 | `uses[target].inject` | Provides key reference | Always a **provides key** (sugar for `from:`) |
-| `feature.inject` / `secret.inject` | Provides key reference | Always a **provides key** — resolved against the attachment's own `provides` |
+| `features[<name>].inject` | Provides key reference | Always a **provides key** — resolved against the attachment's own `provides` |
 
 **Verbose Form Keywords (`from:` and `value:`):**
 The verbose form uses the `in` keyword for the local identifier plus exactly one of `from:` (provides key reference) or `value:` (literal string):
@@ -103,9 +103,9 @@ A developer requesting the same delivery key (e.g., the same env var name) from 
 | :--- | :--- | :--- |
 | `component.inject` | `uses[].inject` | ❌ fatal halt — duplicate delivery key |
 | `uses[target_A].inject` | `uses[target_B].inject` | ❌ fatal halt — duplicate delivery key |
-| `component.inject` | `feature.inject` / `secret.inject` | ❌ fatal halt — duplicate delivery key |
-| `uses[].inject` | `feature.inject` / `secret.inject` | ❌ fatal halt — duplicate delivery key |
-| `feature[A].inject` / `secret[A].inject` | `feature[B].inject` / `secret[B].inject` | ❌ fatal halt — duplicate delivery key |
+| `component.inject` | `features[<name>].inject` | ❌ fatal halt — duplicate delivery key |
+| `uses[].inject` | `features[<name>].inject` | ❌ fatal halt — duplicate delivery key |
+| `features[A].inject` | `features[B].inject` | ❌ fatal halt — duplicate delivery key |
 | `component.inject` (same key twice) | — | ❌ fatal halt — duplicate delivery key |
 | Any developer-authored inject | FeatureRecipe `injectMapping` | ✅ Legal — interception by design (Onion Model "last wins") |
 
