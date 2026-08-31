@@ -369,6 +369,8 @@ metadata:
 
 This split is uniform across all three input kinds. (The Compose provider has no annotation concept and its label values are unconstrained, so it emits the whole set as service labels.) See [11-governance-and-compliance.md](11-governance-and-compliance.md) for compile-time provenance stamping.
 
+Because a provider stamps provenance where its own output format carries it, a provider whose format offers no such place for a given file emits that file unchanged and says so. Compose is the case to know: its provenance site is a service's `labels:` block, so a compose artifact fragment contributing only top-level `networks:`, `volumes:` or `configs:` carries no provenance, and the build emits a "skipped provenance label injection" warning naming the artifact. That warning is expected for a fragment of that shape rather than a sign of a problem — the services the same component emits carry the full set, and nothing about the emitted bytes changes. What it rules out is the third possibility: a file leaving the build unstamped without being named.
+
 ### Per-Provider Artifact Semantics
 
 *The per-provider semantics below describe how each provider integrates artifacts into its native output. The artifacts render path ships today.*
