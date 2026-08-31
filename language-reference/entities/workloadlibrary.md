@@ -125,7 +125,7 @@ A few common misconceptions worth heading off:
 
 - **Not a substitute for inline `workload:`.** Most Recipes carry workload content specific enough to belong inline, where the author reads it alongside the rest of the Recipe. A WorkloadLibrary helps when the SAME workload shape appears across many Recipes; for one-off content, inline authoring is the right choice.
 
-- **Not a place for partial fragments.** An entry renders to a complete Workload document. Content meant to be spliced into a surrounding mapping belongs in a MappingLibrary; schema definitions belong in a SchemaLibrary. The three library kinds split by content type, not by reuse pattern.
+- **Not a place for partial fragments.** An entry renders to a complete Workload document. Content meant to be spliced into a surrounding mapping belongs in a MappingLibrary; schema definitions belong in a SchemaLibrary. The library kinds split by content type, not by reuse pattern.
 
 - **Not an independently deployable entity.** A library entry is Workload content, and Workload content is never addressable on its own — it exists as the input a Recipe or FeatureRecipe consumes. Publishing a WorkloadLibrary makes its entries importable; it does not make them deployable.
 

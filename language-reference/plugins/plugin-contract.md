@@ -272,7 +272,7 @@ The pipeline placement table at the top of this page reflects today's state plus
 
 - [`policy-socket.md`](policy-socket.md) — the comprehensive governance-socket treatment: the four roles, verdict severities, the operator input channel, writing a policy for the Rego engine that ships inside the compiler, wrapping a foreign policy engine, and the reference guests.
 - [`10-status.md#compilation-pipeline-phases`](../10-status.md#compilation-pipeline-phases) — Status page plugin-pipeline classification (Wasm plugin pipeline runtime readiness).
-- [`architecture/09-ai-features.md`](../../architecture/09-ai-features.md) — Two-Part Plugin Principle for credential FeatureRecipes (Fetcher + Injector pattern).
+- [`architecture/04-entity-taxonomy.md`](../../architecture/04-entity-taxonomy.md) §"Domain 3: Infrastructure Base" — Two-Part Plugin Principle for credential FeatureRecipes (Fetcher + Injector pattern).
 - [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md) — the OCI taxonomy that leads with the provider segment.
 - [`entities/featurerecipe.md`](../entities/featurerecipe.md) — FeatureRecipe `pipeline:` authoring surface.
 - [`when-to-use-a-pipeline-step.md`](when-to-use-a-pipeline-step.md) — decision guide: a pipeline step vs a templated FeatureRecipe.

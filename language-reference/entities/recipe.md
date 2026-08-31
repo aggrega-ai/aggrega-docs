@@ -482,7 +482,7 @@ The field's mechanics mirror the FeatureRecipe semantics: sequential evaluation 
 
 ## The `assertions:` block
 
-`Recipe.spec.assertions:` is an optional Go template body that expresses **implementation invariants of the Recipe** — cross-field rules that hold given the specific chart or module the Recipe wraps. Unlike Component assertions (which express contract-level invariants regardless of which Recipe binds), Recipe assertions are properties of the specific implementation chosen.
+`Recipe.spec.assertions:` is an optional map of **named** rules expressing **implementation invariants of the Recipe** — cross-field rules that hold given the specific chart or module the Recipe wraps. Each key is a rule identifier that appears in the failure message; each value is a Go template body. Unlike Component assertions (which express contract-level invariants regardless of which Recipe binds), Recipe assertions are properties of the specific implementation chosen.
 
 ```yaml
 spec:
@@ -491,13 +491,14 @@ spec:
     # Planned provider-declared form; the built-in resolver today uses { kind, url, version }.
     chart: oci://registry-1.docker.io/bitnamicharts/mariadb
     version: "20.0.0"
-  assertions: |
-    {{- /* Bitnami 20.x: serviceMonitor namespace requirement */ -}}
-    {{- if and (eq .values.architecture "replication") .values.metrics.serviceMonitor.enabled -}}
-      {{- if not .values.metrics.serviceMonitor.namespace -}}
-        {{- fail "Bitnami MariaDB 20.x requires metrics.serviceMonitor.namespace when architecture=replication and metrics.serviceMonitor.enabled=true" -}}
+  assertions:
+    # Bitnami 20.x: serviceMonitor namespace requirement.
+    service-monitor-namespace-required: |
+      {{- if and (eq .values.architecture "replication") .values.metrics.serviceMonitor.enabled -}}
+        {{- if not .values.metrics.serviceMonitor.namespace -}}
+          {{- fail "Bitnami MariaDB 20.x requires metrics.serviceMonitor.namespace when architecture=replication and metrics.serviceMonitor.enabled=true" -}}
+        {{- end -}}
       {{- end -}}
-    {{- end -}}
 ```
 
 The rule above is specific to Bitnami chart 20.x; it does not apply if a different MariaDB Recipe binds. The Component-level rules from the contract still apply alongside, evaluated at an earlier pipeline phase.

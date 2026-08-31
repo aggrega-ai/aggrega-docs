@@ -180,13 +180,13 @@ Providers translate each intent to their native shape:
 
 | Intent | Helm (K8s) | Compose |
 | --- | --- | --- |
-| `http: /path` | `httpGet.path: /path, httpGet.port: <first port or "http">` | `CMD-SHELL "curl -f http://localhost:<port>/path"` |
+| `http: /path` | `httpGet.path: /path, httpGet.port: <alphabetically-first port name>` | `CMD-SHELL "curl -f http://localhost:<port>/path"` |
 | `tcp: <port>` | `tcpSocket.port: <port>` | `CMD-SHELL "nc -z localhost <port>"` |
 | `exec: [cmd]` | `exec.command: [cmd]` | `CMD [cmd]` |
 
-Port resolution for `http:` without explicit port: uses the first named port in `containers.<name>.ports` by author order. If no ports are declared, the Recipe fails validation.
+Port resolution for `http:` without an explicit port takes the alphabetically-first port name the container declares under `containers.<name>.ports`, on both targets. A container declaring no named port cannot carry an HTTP probe, and the build halts naming the probe.
 
-Compose degrades HTTP/TCP probes to healthcheck shell commands; this is noted as a warning comment in the generated `docker-compose.yaml`.
+Compose degrades HTTP/TCP probes to healthcheck shell commands.
 
 ### Volume Types
 

@@ -154,33 +154,37 @@ spec:
         password: auth.replicationPassword
       description: "Replication credentials, required when architecture: replication."
 
-  assertions: |
-    {{- /* Architectural rule: replication requires at least 2 secondary replicas */ -}}
-    {{- if eq .values.architecture "replication" -}}
-      {{- if lt .values.secondary.replicaCount 2 -}}
-        {{- fail "architecture=replication requires secondary.replicaCount >= 2" -}}
+  assertions:
+    # Architectural rule: replication requires at least 2 secondary replicas.
+    replication-needs-two-secondaries: |
+      {{- if eq .values.architecture "replication" -}}
+        {{- if lt .values.secondary.replicaCount 2 -}}
+          {{- fail "architecture=replication requires secondary.replicaCount >= 2" -}}
+        {{- end -}}
       {{- end -}}
-    {{- end -}}
 
-    {{- /* Architectural rule: replication requires replication_credentials secret */ -}}
-    {{- if eq .values.architecture "replication" -}}
-      {{- if not .features.replication_credentials -}}
-        {{- fail "architecture=replication requires replication_credentials secret to be supplied" -}}
+    # Architectural rule: replication requires the replication credential.
+    replication-needs-credentials: |
+      {{- if eq .values.architecture "replication" -}}
+        {{- if not .features.replication_credentials -}}
+          {{- fail "architecture=replication requires replication_credentials secret to be supplied" -}}
+        {{- end -}}
       {{- end -}}
-    {{- end -}}
 
-    {{- /* Architectural rule: backup requires schedule when enabled */ -}}
-    {{- if and .values.backup.enabled (not .values.backup.schedule) -}}
-      {{- fail "backup.schedule is required when backup.enabled=true" -}}
-    {{- end -}}
+    # Architectural rule: backup requires a schedule when enabled.
+    backup-needs-schedule: |
+      {{- if and .values.backup.enabled (not .values.backup.schedule) -}}
+        {{- fail "backup.schedule is required when backup.enabled=true" -}}
+      {{- end -}}
 
-    {{- /* Architectural rule: total node count cap */ -}}
-    {{- $total := add .values.primary.replicaCount (default 0 .values.secondary.replicaCount) -}}
-    {{- if gt $total 9 -}}
-      {{- fail (printf "total node count exceeds 9: got %d (primary=%d, secondary=%d)"
-                       $total .values.primary.replicaCount
-                       (default 0 .values.secondary.replicaCount)) -}}
-    {{- end -}}
+    # Architectural rule: total node count cap.
+    total-node-count-within-cap: |
+      {{- $total := add .values.primary.replicaCount (default 0 .values.secondary.replicaCount) -}}
+      {{- if gt $total 9 -}}
+        {{- fail (printf "total node count exceeds 9: got %d (primary=%d, secondary=%d)"
+                         $total .values.primary.replicaCount
+                         (default 0 .values.secondary.replicaCount)) -}}
+      {{- end -}}
 ```
 
 The body schema lives in the SchemaLibrary; the Component imports it via `$ref:`. The `infra:` and `provides:` pillars are inline (small and Component-specific). The `usesSchema:` is empty — MariaDB is a leaf in the dependency graph, it does not declare outbound sockets. The `featuresSchema:` declares two slots: a required root credential and an optional replication credential. The `assertions:` block carries four rules covering architectural invariants the Component contract requires regardless of which Recipe binds.
@@ -317,18 +321,20 @@ spec:
       secondary: 0
       {{- end }}
 
-  assertions: |
-    {{- /* Bitnami chart 20.x: serviceMonitor namespace required for replication */ -}}
-    {{- if and (eq .values.architecture "replication") .values.metrics.serviceMonitor.enabled -}}
-      {{- if not .values.metrics.serviceMonitor.namespace -}}
-        {{- fail "Bitnami MariaDB 20.x requires metrics.serviceMonitor.namespace when architecture=replication and metrics.serviceMonitor.enabled=true" -}}
+  assertions:
+    # Bitnami chart 20.x: serviceMonitor namespace required for replication.
+    service-monitor-namespace-required: |
+      {{- if and (eq .values.architecture "replication") .values.metrics.serviceMonitor.enabled -}}
+        {{- if not .values.metrics.serviceMonitor.namespace -}}
+          {{- fail "Bitnami MariaDB 20.x requires metrics.serviceMonitor.namespace when architecture=replication and metrics.serviceMonitor.enabled=true" -}}
+        {{- end -}}
       {{- end -}}
-    {{- end -}}
 
-    {{- /* Bitnami 20.x: ARM64 incompatible with podAntiAffinityPreset=hard */ -}}
-    {{- if and (eq .values.primary.podAntiAffinityPreset "hard") (eq .infra.cpu_arch "arm64") -}}
-      {{- fail "Bitnami MariaDB 20.x is incompatible with ARM64 nodes when podAntiAffinityPreset=hard; use 'soft' or omit" -}}
-    {{- end -}}
+    # Bitnami 20.x: ARM64 incompatible with podAntiAffinityPreset=hard.
+    arm64-rejects-hard-anti-affinity: |
+      {{- if and (eq .values.primary.podAntiAffinityPreset "hard") (eq .infra.cpu_arch "arm64") -}}
+        {{- fail "Bitnami MariaDB 20.x is incompatible with ARM64 nodes when podAntiAffinityPreset=hard; use 'soft' or omit" -}}
+      {{- end -}}
 ```
 
 The Recipe is small. The mapping body lives in the MappingLibrary; the Recipe imports it via library-form `$import:`. The `provides:` block computes connection details from the rendered chart's deterministic-naming output. The `assertions:` block carries two rules tied to Bitnami chart 20.x — implementation invariants distinct from the Component-level contract invariants.

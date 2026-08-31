@@ -141,7 +141,7 @@ The expansion is gradual — schema additions are additive and per-entity, so au
 - **Release `metadata.labels`** — environment-attribution complementing `metadata.environment` (per the roadmap (see Status of the Language), environment is moving to optional; labels can carry the same intent without the schema-level requirement).
 - **Release `metadata.annotations`** — Release-shape provenance (issue tracker references, release-decision authoring trail).
 
-Labels and annotations are not yet uniform across catalog kinds — `metadata.annotations` sits on a subset of the kinds carrying `metadata.labels`, and some kinds carry neither. The expansion target makes the labels/annotations vocabulary uniform across every catalog kind. The expansion does not retrofit existing content — adding labels or annotations to an entity that has none carries them through the IR's per-node metadata struct or the catalog provenance struct as appropriate.
+Labels and annotations are not yet uniform across catalog kinds — `metadata.annotations` sits on a subset of the kinds carrying `metadata.labels`, and some kinds carry neither. The expansion target makes the labels/annotations vocabulary uniform across every catalog kind. Each schema addition is additive, so the expansion retrofits nothing: a document that omits the new field stays valid and renders exactly as it did. Where a kind's new metadata is readable from is stated for that kind when the field lands on it — the surfaces that carry the fields today, and what each one reaches, are the cascade summary below.
 
 ## Cascade summary
 

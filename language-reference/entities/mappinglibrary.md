@@ -118,6 +118,6 @@ A few common misconceptions worth heading off:
 
 - **Not a substitute for inline `valuesMapping:`.** Most Recipes carry simple `valuesMapping:` content that benefits from being authored inline — the Recipe stays self-contained and the author reads the mapping content alongside the rest of the Recipe. MappingLibrary helps when the SAME fragment appears across many Recipes; for one-off mappings, inline authoring is the right choice.
 
-- **Not a place for schema content.** Schema definitions (JSON Schema 2020-12) belong in SchemaLibrary; template fragments belong here. The two library kinds split by content type, not by reuse pattern.
+- **Not a place for schema content.** Schema definitions (JSON Schema 2020-12) belong in SchemaLibrary; template fragments belong here. The library kinds split by content type, not by reuse pattern.
 
 - **Not parametric reuse beyond Go template's mechanisms.** Authors needing parametric variation use Go template's `{{ define }}` + `{{ template arg }}` mechanics inside library entries, or compose Components / Features that wrap the library entries with their own variation. The library entity itself ships no parametric-helper machinery (no `$templates:` analogous to SchemaLibrary's parametric-helpers); Go template's composition vocabulary covers the same use case.

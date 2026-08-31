@@ -1,6 +1,6 @@
 # The `assertions:` block
 
-Component, Feature, Recipe, and FeatureRecipe carry an optional `spec.assertions:` field — a Go template body the compiler evaluates after schema validation but before rendering. The block expresses **cross-field rules** that JSON Schema cannot capture compactly: invariants involving multiple fields where no single field is "the one being validated." This page covers the authoring grammar, the evaluation phase, the template context, and the responsibility split between Component / Feature assertions (architectural invariants of the contract) and Recipe / FeatureRecipe assertions (implementation invariants of the specific provider).
+Component, Feature, Recipe, and FeatureRecipe carry an optional `spec.assertions:` field — a map of **named** rules the compiler evaluates after schema validation but before rendering. Each key is a rule identifier that appears in the failure message; each value is a Go template body. A single template body written directly under `assertions:` is not the field's shape and is rejected when the entity is read, so every rule is authored under a name of its own. The block expresses **cross-field rules** that JSON Schema cannot capture compactly: invariants involving multiple fields where no single field is "the one being validated." This page covers the authoring grammar, the evaluation phase, the template context, and the responsibility split between Component / Feature assertions (architectural invariants of the contract) and Recipe / FeatureRecipe assertions (implementation invariants of the specific provider).
 
 For per-field constraints (range, pattern, enum, format), use JSON Schema's native keywords inside `schema:`. For per-field custom predicates, use the compact form's `validate:` field. For conditional shape, use `when:`. The `assertions:` field complements these — it is the home for genuine cross-field rules.
 
@@ -72,19 +72,21 @@ spec:
       secondary:
         replicaCount: { type: integer, min: 0, max: 9, default: 0 }
 
-  assertions: |
-    {{- /* Replication mode requires at least 2 secondary replicas */ -}}
-    {{- if eq .values.architecture "replication" -}}
-      {{- if lt .values.secondary.replicaCount 2 -}}
-        {{- fail "architecture=replication requires secondary.replicaCount >= 2" -}}
+  assertions:
+    # Replication mode requires at least 2 secondary replicas.
+    replication-needs-two-secondaries: |
+      {{- if eq .values.architecture "replication" -}}
+        {{- if lt .values.secondary.replicaCount 2 -}}
+          {{- fail "architecture=replication requires secondary.replicaCount >= 2" -}}
+        {{- end -}}
       {{- end -}}
-    {{- end -}}
 
-    {{- /* Total node count limit for safe replication coordination */ -}}
-    {{- $total := add .values.primary.replicaCount .values.secondary.replicaCount -}}
-    {{- if gt $total 9 -}}
-      {{- fail (printf "total node count must not exceed 9; got %d" $total) -}}
-    {{- end -}}
+    # Total node count limit for safe replication coordination.
+    total-node-count-within-cap: |
+      {{- $total := add .values.primary.replicaCount .values.secondary.replicaCount -}}
+      {{- if gt $total 9 -}}
+        {{- fail (printf "total node count must not exceed 9; got %d" $total) -}}
+      {{- end -}}
 ```
 
 Both rules express properties of the MariaDB contract. Whatever Recipe binds — a Bitnami chart, a hand-rolled alternative — the rules apply.
@@ -111,22 +113,24 @@ spec:
   valuesMapping:
     $import: BitnamiHelpers#/mappings/MariaDBBitnamiCore
 
-  assertions: |
-    {{- /* Bitnami chart 20.x requires explicit ServiceMonitor namespace
-           when replication and metrics scraping are both enabled */ -}}
-    {{- if and (eq .values.architecture "replication") .values.metrics.serviceMonitor.enabled -}}
-      {{- if not .values.metrics.serviceMonitor.namespace -}}
-        {{- fail "Bitnami MariaDB 20.x requires metrics.serviceMonitor.namespace when architecture=replication and metrics.serviceMonitor.enabled=true" -}}
+  assertions:
+    # Bitnami chart 20.x requires an explicit ServiceMonitor namespace when
+    # replication and metrics scraping are both enabled.
+    service-monitor-namespace-required: |
+      {{- if and (eq .values.architecture "replication") .values.metrics.serviceMonitor.enabled -}}
+        {{- if not .values.metrics.serviceMonitor.namespace -}}
+          {{- fail "Bitnami MariaDB 20.x requires metrics.serviceMonitor.namespace when architecture=replication and metrics.serviceMonitor.enabled=true" -}}
+        {{- end -}}
       {{- end -}}
-    {{- end -}}
 
-    {{- /* ARM-node incompatibility */ -}}
-    {{- if and (eq .values.primary.podAntiAffinityPreset "hard") (eq .infra.cpu_arch "arm64") -}}
-      {{- fail "Bitnami MariaDB 20.x is incompatible with ARM nodes when podAntiAffinityPreset=hard; use 'soft' or omit" -}}
-    {{- end -}}
+    # ARM-node incompatibility.
+    arm-rejects-hard-anti-affinity: |
+      {{- if and (eq .values.primary.podAntiAffinityPreset "hard") (eq .infra.cpu_arch "arm64") -}}
+        {{- fail "Bitnami MariaDB 20.x is incompatible with ARM nodes when podAntiAffinityPreset=hard; use 'soft' or omit" -}}
+      {{- end -}}
 ```
 
-Each rule is specific to the Bitnami chart 20.x implementation. If a different MariaDB Recipe binds — a hand-rolled chart, an alternative implementation — these rules do not apply. The Component-level rules (architecture-replication-secondary-count, total-node-count) still apply because those are properties of the contract.
+Each rule is specific to the Bitnami chart 20.x implementation. If a different MariaDB Recipe binds — a hand-rolled chart, an alternative implementation — these rules do not apply. The Component-level rules (`replication-needs-two-secondaries`, `total-node-count-within-cap`) still apply because those are properties of the contract.
 
 ## Why Component and Recipe assertions are separate
 
@@ -169,64 +173,71 @@ The compiler surfaces the message in the Loud Guardrails error format with the e
 
 ```yaml
 spec:
-  assertions: |
-    {{- if and (eq .values.architecture "replication") (lt .values.secondary.replicaCount 2) -}}
-      {{- fail "replication requires secondary.replicaCount >= 2" -}}
-    {{- end -}}
+  assertions:
+    replication-needs-two-secondaries: |
+      {{- if and (eq .values.architecture "replication") (lt .values.secondary.replicaCount 2) -}}
+        {{- fail "replication requires secondary.replicaCount >= 2" -}}
+      {{- end -}}
 ```
 
 ### Mid-size — multi-rule Component contract
 
 ```yaml
 spec:
-  assertions: |
-    {{- /* Replication minimum */ -}}
-    {{- if eq .values.architecture "replication" -}}
-      {{- if lt .values.secondary.replicaCount 2 -}}
-        {{- fail "architecture=replication requires secondary.replicaCount >= 2" -}}
+  assertions:
+    # Replication minimum.
+    replication-needs-two-secondaries: |
+      {{- if eq .values.architecture "replication" -}}
+        {{- if lt .values.secondary.replicaCount 2 -}}
+          {{- fail "architecture=replication requires secondary.replicaCount >= 2" -}}
+        {{- end -}}
       {{- end -}}
-    {{- end -}}
 
-    {{- /* Total node limit */ -}}
-    {{- $total := add .values.primary.replicaCount .values.secondary.replicaCount -}}
-    {{- if gt $total 9 -}}
-      {{- fail (printf "total node count exceeds 9: got %d (primary=%d, secondary=%d)"
-                       $total .values.primary.replicaCount .values.secondary.replicaCount) -}}
-    {{- end -}}
+    # Total node limit.
+    total-node-count-within-cap: |
+      {{- $total := add .values.primary.replicaCount .values.secondary.replicaCount -}}
+      {{- if gt $total 9 -}}
+        {{- fail (printf "total node count exceeds 9: got %d (primary=%d, secondary=%d)"
+                         $total .values.primary.replicaCount .values.secondary.replicaCount) -}}
+      {{- end -}}
 
-    {{- /* Backup requires schedule when enabled */ -}}
-    {{- if and .values.backup.enabled (not .values.backup.schedule) -}}
-      {{- fail "backup.schedule must be specified when backup.enabled=true" -}}
-    {{- end -}}
+    # Backup requires a schedule when enabled.
+    backup-needs-schedule: |
+      {{- if and .values.backup.enabled (not .values.backup.schedule) -}}
+        {{- fail "backup.schedule must be specified when backup.enabled=true" -}}
+      {{- end -}}
 ```
 
 ### Production — Recipe with implementation rules
 
 ```yaml
 spec:
-  assertions: |
-    {{- /* Bitnami 20.x: serviceMonitor namespace requirement */ -}}
-    {{- if and (eq .values.architecture "replication") .values.metrics.serviceMonitor.enabled -}}
-      {{- if not .values.metrics.serviceMonitor.namespace -}}
-        {{- fail "Bitnami MariaDB 20.x requires metrics.serviceMonitor.namespace when architecture=replication and metrics.serviceMonitor.enabled=true" -}}
+  assertions:
+    # Bitnami 20.x: serviceMonitor namespace requirement.
+    service-monitor-namespace-required: |
+      {{- if and (eq .values.architecture "replication") .values.metrics.serviceMonitor.enabled -}}
+        {{- if not .values.metrics.serviceMonitor.namespace -}}
+          {{- fail "Bitnami MariaDB 20.x requires metrics.serviceMonitor.namespace when architecture=replication and metrics.serviceMonitor.enabled=true" -}}
+        {{- end -}}
       {{- end -}}
-    {{- end -}}
 
-    {{- /* TLS certificate consistency */ -}}
-    {{- if .values.tls.enabled -}}
-      {{- if not (and .values.tls.certFilename .values.tls.certKeyFilename) -}}
-        {{- fail "tls.enabled=true requires both tls.certFilename and tls.certKeyFilename" -}}
+    # TLS certificate consistency.
+    tls-needs-both-certificate-files: |
+      {{- if .values.tls.enabled -}}
+        {{- if not (and .values.tls.certFilename .values.tls.certKeyFilename) -}}
+          {{- fail "tls.enabled=true requires both tls.certFilename and tls.certKeyFilename" -}}
+        {{- end -}}
       {{- end -}}
-    {{- end -}}
 
-    {{- /* Replication-mode storage class consistency */ -}}
-    {{- if eq .values.architecture "replication" -}}
-      {{- $primaryClass := .values.primary.persistence.storageClass -}}
-      {{- $secondaryClass := .values.secondary.persistence.storageClass -}}
-      {{- if and $primaryClass $secondaryClass (ne $primaryClass $secondaryClass) -}}
-        {{- fail "replication mode requires primary and secondary to use the same storageClass" -}}
+    # Replication-mode storage class consistency.
+    replication-needs-one-storage-class: |
+      {{- if eq .values.architecture "replication" -}}
+        {{- $primaryClass := .values.primary.persistence.storageClass -}}
+        {{- $secondaryClass := .values.secondary.persistence.storageClass -}}
+        {{- if and $primaryClass $secondaryClass (ne $primaryClass $secondaryClass) -}}
+          {{- fail "replication mode requires primary and secondary to use the same storageClass" -}}
+        {{- end -}}
       {{- end -}}
-    {{- end -}}
 ```
 
 ## Tooling integration

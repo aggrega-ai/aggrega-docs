@@ -79,7 +79,7 @@ aggrega-catalog/
 │           └── aggregate.yaml
 │
 ├── recipe/                   # DOMAIN 3: Concrete Implementations
-│   │                         # Organized by PROVIDER (the capability a Recipe declares).
+│   │                         # Organized by CAPABILITY (the one a Recipe declares).
 │   │                         # Each recipe is a directory (may bundle source charts/modules).
 │   │                         #   recipe/helm/mariadb-bitnami/recipe.yaml
 │   │                         #   OCI: hub.aggrega.ai/recipe/helm/mariadb-bitnami:1.0.0
@@ -98,7 +98,7 @@ aggrega-catalog/
 │   └── eval/                 # Wasm Pass-Through formatter stubs
 │
 ├── feature-recipe/           # DOMAIN 3: Concrete Implementations
-│   │                         # Provider leads the path, same as recipes.
+│   │                         # Capability leads the path, same as recipes.
 │   │
 │   ├── helm/
 │   │   ├── k8s-secret-from-parameter/
@@ -166,13 +166,14 @@ spec:
     provides:
       host: { type: string, required: true }
 
-  assertions: |
-    {{- /* Ops can write cross-pillar invariants against the unified instance content */ -}}
-    {{- if eq .values.ha_mode true -}}
-      {{- if lt (len .uses.databases) 2 -}}
-        {{- fail "ha_mode=true requires at least two database attachments" -}}
+  assertions:
+    # Ops can write cross-pillar invariants against the unified instance content.
+    ha-mode-needs-two-databases: |
+      {{- if eq .values.ha_mode true -}}
+        {{- if lt (len .uses.databases) 2 -}}
+          {{- fail "ha_mode=true requires at least two database attachments" -}}
+        {{- end -}}
       {{- end -}}
-    {{- end -}}
 ```
 
 **The compiler-synthesized JSON Schema fragment**
@@ -328,11 +329,11 @@ Within Tier 2, `catalog_dirs` is an ordered **first-win precedence stack**. When
 
 **Where the cascade operates.** The cascade fetches the entity into memory; further resolution mechanics layered on top — the Manifest's two-tier `type` vs `name` lookup, the `implements` three-form version matching (exact / major-compatible range / unversioned) at [vocabulary/inheritance-and-interface](../language-reference/vocabulary/inheritance-and-interface.md), and the per-axis Recipe selection by provider and component instance — operate on entities the resolver has already pulled through this cascade.
 
-### 6. Artifact Packaging & The OCI Taxonomy (Provider as the Leading Segment)
+### 6. Artifact Packaging & The OCI Taxonomy (Capability as the Leading Segment)
 
 Aggrega treats infrastructure logic the same way Docker treats container images, utilizing Open Container Initiative (OCI) standards via ORAS (OCI Registry As Storage). Users can host their Aggrega catalog on any standard registry (GHCR, AWS ECR, Aggrega Hub).
 
-Because Recipes are strictly **1:1 with a physical provider** — a single Recipe cannot target multiple providers — the cleanest way to organize them in an OCI registry is to put the **Provider in the leading repository segment**.
+Because Recipes are strictly **1:1 with a rendering capability** — a Recipe names one capability in `spec.capability` and cannot target two — the cleanest way to organize them in an OCI registry is to put the **capability in the leading repository segment**.
 
 The OCI taxonomy covers all entity types. URI segments map 1:1 to filesystem paths and OCI repository names:
 
@@ -340,10 +341,10 @@ The OCI taxonomy covers all entity types. URI segments map 1:1 to filesystem pat
 * `hub.aggrega.ai/component/core/compute/api-server:1.0.0` — Component, publisher `core`, category `compute`
 * `hub.aggrega.ai/feature/core/data-masking:1.0.0` — Feature, publisher `core` (flat, no categories)
 * `hub.aggrega.ai/aggregate/core/db-module:1.0.0` — Reusable Aggregate module
-* `hub.aggrega.ai/recipe/helm/mariadb-bitnami:1.0.0` — Recipe, provider `helm`
-* `hub.aggrega.ai/recipe/helm-chart/mariadb:1.0.0` — Recipe, provider `helm-chart`
-* `hub.aggrega.ai/recipe/compose/mariadb:1.0.0` — Recipe, provider `compose`
-* `hub.aggrega.ai/feature-recipe/helm/k8s-secret-from-parameter:1.0.0` — FeatureRecipe
+* `hub.aggrega.ai/recipe/helm/mariadb-bitnami:1.0.0` — Recipe, capability `helm`
+* `hub.aggrega.ai/recipe/helm-chart/mariadb:1.0.0` — Recipe, capability `helm-chart`
+* `hub.aggrega.ai/recipe/compose/mariadb:1.0.0` — Recipe, capability `compose`
+* `hub.aggrega.ai/feature-recipe/helm/k8s-secret-from-parameter:1.0.0` — FeatureRecipe, capability `helm`
 * `hub.aggrega.ai/schema-library/aggrega/datastores:1.0.0` — SchemaLibrary, shared schema definitions
 * `hub.aggrega.ai/mapping-library/aggrega/bitnami-helpers:1.0.0` — MappingLibrary, shared Go-template mapping fragments
 * `hub.aggrega.ai/plugin/security/lakera-guard:1.0.0` — Wasm plugin
@@ -365,7 +366,7 @@ The publishable kinds span the catalog authoring kinds together with the Aggrega
 
 How a kind ships depends on whether it is self-contained. Component, Feature, Aggregate, Plugin, and the library kinds are single documents, published as the authored entity file unchanged. Recipe and FeatureRecipe bundle their co-located sources — the `source:` tree, `$import:`-referenced templates, and inline `artifacts:` — so they ship as a gzipped tar. The trailing segments of each mediatype carry a version and an encoding: the version segment is common to every publishable kind, while the encoding segment follows how the kind ships — `+tar+gz` on the bundled kinds and `+yaml` on the single documents. Downstream tooling dispatches on the full mediatype string — kind, version, and encoding together.
 
-Recipe names do NOT include the `ops/` prefix or the provider name. The entity type directory and provider directory provide all context needed.
+Recipe names do NOT include the `ops/` prefix or the capability name. The entity type directory and capability directory provide all context needed.
 
 **Naming Convention:** Domain 2 entities (Component, Feature, Aggregate) use `{publisher}/{name}` where the publisher segment names the vendor/author (`core` = official standard library, `acme` = enterprise). Domain 3 entities (Recipe, FeatureRecipe) use `{capability}/{name}`, where the capability is the provider the entity declares in `spec.capability`; a reference may also name the entity bare, as the leaf alone. The `ops/` prefix is a legacy naming convention and MUST NOT be used — all Recipes are Domain 3 (Ops) by definition, and the entity type directory (`recipe/`, `feature-recipe/`) already identifies the domain. Recipe names do NOT include the capability either, since it is already the leading segment of the canonical URI.
 
@@ -421,7 +422,7 @@ Re-resolution to a newer version requires explicit user action: `aggrega pull --
 
 ### 10. Catalog entity name-shape enforcement
 
-Catalog entity names follow per-entity-kind patterns documented at [`../language-reference/02-naming-conventions.md`](../language-reference/02-naming-conventions.md) "Catalog Entity Naming" and detailed in the per-entity reference pages at [`../language-reference/entities/`](../language-reference/entities/). The `metadata.name` field a catalog YAML declares is not always identical to the entity's canonical reference URI: Component and Feature embed publisher and grouping segments directly in `metadata.name`; Recipe and FeatureRecipe declare a leaf-only `metadata.name`, and their canonical two-segment URI pairs that leaf with the `spec.capability` the entity declares; every library kind declares a PascalCase token in `metadata.name`.
+Catalog entity names follow per-entity-kind patterns — enumerated below, and detailed per kind in the reference pages at [`../language-reference/entities/`](../language-reference/entities/). They are a different surface from the instance names a developer writes in an Aggregate or a Release, which share one pattern regardless of kind; that pattern is at [`../language-reference/02-naming-conventions.md`](../language-reference/02-naming-conventions.md#instance-names) "Instance Names". The `metadata.name` field a catalog YAML declares is not always identical to the entity's canonical reference URI: Component and Feature embed publisher and grouping segments directly in `metadata.name`; Recipe and FeatureRecipe declare a leaf-only `metadata.name`, and their canonical two-segment URI pairs that leaf with the `spec.capability` the entity declares; every library kind declares a PascalCase token in `metadata.name`.
 
 Per-entity-kind shapes:
 

@@ -259,19 +259,19 @@ health:
     periodSeconds: 10
 ```
 
-Three intent forms (`http:`, `tcp:`, `exec:`) are mutually exclusive within a single probe declaration. Port resolution for `http:` without an explicit port uses the first named port in `containers.<name>.ports` by author order; if no ports are declared on the container, the compiler reports a validation error.
+Three intent forms (`http:`, `tcp:`, `exec:`) are mutually exclusive within a single probe declaration. Port resolution for `http:` without an explicit port takes the alphabetically-first port **name** the container declares under `containers.<name>.ports` — the same rule on both targets, so a probe reads the same port whichever one renders it. A container that declares no named port cannot carry an HTTP probe: the build halts with a translation error naming the offending probe.
 
 **Per-provider translation.** Each provider translates the abstract probe intent into its native shape at synthesis time:
 
 | Intent | Helm (K8s) | Compose | Loss notes |
 | --- | --- | --- | --- |
-| `http: /path` | `httpGet.path: /path, httpGet.port: <first port or "http">` | `CMD-SHELL "curl -f http://localhost:<port>/path"` | Compose lacks a native HTTP probe shape; the CMD-SHELL wrapper depends on `curl` being present in the container image. |
+| `http: /path` | `httpGet.path: /path, httpGet.port: <alphabetically-first port name>` | `CMD-SHELL "curl -f http://localhost:<port>/path"` | Compose lacks a native HTTP probe shape; the CMD-SHELL wrapper depends on `curl` being present in the container image. |
 | `tcp: <port>` | `tcpSocket.port: <port>` | `CMD-SHELL "nc -z localhost <port>"` | Compose lacks a native TCP probe shape; the CMD-SHELL wrapper depends on `nc` being present in the container image. |
 | `exec: [cmd, ...]` | `exec.command: [cmd, ...]` | `CMD [cmd, ...]` | One-to-one mapping; both providers carry the command list verbatim. |
 
-Compose's `CMD-SHELL` wrappers approximate HTTP and TCP probes through shell-evaluable predicates; the approximation loses the timeout / interval / retries semantics that K8s probes carry directly on the probe spec. Compose-targeted boundaries that need precise probe gating either use the native `exec:` shape (which translates without loss) or supplement the compose `healthcheck:` config with explicit retry parameters in the Recipe's compose-side overlay.
+Compose's `CMD-SHELL` wrappers approximate HTTP and TCP probes through shell-evaluable predicates. What compose lacks is the native probe shape, not the timing fields: an authored `periodSeconds`, `timeoutSeconds`, `failureThreshold` and `initialDelaySeconds` are carried across onto the healthcheck as `interval`, `timeout`, `retries` and `start_period` — [providers/compose.md](../providers/compose.md) "Probes" carries the field-by-field mapping. The native `exec:` shape needs no wrapper at all and translates one-to-one on both targets.
 
-The compose provider emits a warning comment in the generated `docker-compose.yaml` whenever a probe is degraded from native HTTP/TCP to a CMD-SHELL wrapper.
+A wrapped probe is translated **silently**: nothing in the emitted `docker-compose.yaml` marks it, and no diagnostic reports the wrapping. What the build does report on this path is a probe slot that reaches no output at all — a compose service carries one healthcheck, so where a Workload declares more than one of `ready:`, `live:` and `startup:` only the preferred slot is translated (`live` over `ready` over `startup`) and an `unsupported-field` warning names the slot translated and the slots dropped.
 
 **Provider-specific note (compose).** Authoring a `health:` block on a compose-targeted Workload does not gate `depends_on` ordering on health: the compose provider's `depends_on` entries derived from `uses:` edges always use `service_started` semantics, regardless of whether the target Workload declares health probes. Gating those entries on the target's health is not implemented — the long form that would carry such a condition is itself emitted, for init-container waits, so what is missing is the choice to gate an edge on health rather than the shape to express it. See [providers/compose.md](../providers/compose.md) for the full inference rules.
 

@@ -178,15 +178,16 @@ When an Aggregate-side or Release-side annotation matches a binding, the compile
 
 ## The `assertions:` block
 
-`Feature.spec.assertions:` is an optional Go template body that expresses **architectural invariants of the Feature contract** — cross-field rules over the Feature's `values:` and the attached Component's resolved state. The compiler evaluates the template after schema validation and before the bound FeatureRecipe renders; a failing assertion halts the build with the assertion's specific error message.
+`Feature.spec.assertions:` is an optional map of **named** rules expressing **architectural invariants of the Feature contract** — cross-field rules over the Feature's `values:` and the attached Component's resolved state. Each key is a rule identifier that appears in the failure message; each value is a Go template body. The compiler evaluates them after schema validation and before the bound FeatureRecipe renders, in the order they are written, and the first failing rule halts the build with that rule's own error message.
 
 ```yaml
 spec:
   appliesTo: "component.aggrega.ai/type=server"
-  assertions: |
-    {{- if and (eq .values.mode "active-active") (lt .values.replicas 2) -}}
-      {{- fail "mode=active-active requires replicas >= 2" -}}
-    {{- end -}}
+  assertions:
+    active-active-needs-two-replicas: |
+      {{- if and (eq .values.mode "active-active") (lt .values.replicas 2) -}}
+        {{- fail "mode=active-active requires replicas >= 2" -}}
+      {{- end -}}
 ```
 
 Like Component assertions, Feature assertions express contract-level invariants — properties the Feature attachment must satisfy regardless of which FeatureRecipe implements the rendering. For cross-field rules that depend on the specific implementation (a Wasm plugin requirement, a chart quirk), use the FeatureRecipe's `assertions:` field instead. For the full authoring grammar, template context, and the responsibility split between Feature and FeatureRecipe assertions, see [templates/assertions-block.md](../templates/assertions-block.md).

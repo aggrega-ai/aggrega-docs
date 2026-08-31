@@ -22,7 +22,7 @@ FeatureRecipes bind to a Feature interface via `implements` and declare a concre
 
 1. **The three input kinds — `source` + `valuesMapping` (sourced), `workload` (synthesized), and `artifacts`:** identical in shape to the base Recipe (see [Recipe Input Composition](../../architecture/16-recipe-input-composition.md) and [`entities/recipe.md`](recipe.md)). A FeatureRecipe that carries any of these is **resource-generating** — it renders resources alongside the base component, emitted under `features/{instance}/` whatever family the Feature belongs to: a `ServiceMonitor` or `ExternalSecret` CRD as inline or `$import` `artifacts:`; an external chart or module via `source:` + `valuesMapping:`; or its own compute (for example a sidecar-agent Deployment) via `workload:`. `valuesMapping:` shares the base Recipe's three authoring modes (inline block scalar, file `$import:`, library `$import:` to a MappingLibrary entry) — see [`entities/recipe.md`](recipe.md) "The `valuesMapping` field — three authoring modes". By convention a FeatureRecipe *modifies* the base component or *adds resources alongside* it, but the schema does not restrict which input kinds it may use — the compiler renders whatever the FeatureRecipe declares, gated only by the bound provider's capability, and stays unopinionated about whether a given kind is "modifier-appropriate" (see [the founding invariants](../../architecture/05-invariants.md)). Synthesis (`workload:`) requires a provider that supports it; otherwise the build halts at render with the provider-capability diagnostic.
 2. **`injectMapping` (Pre-Render Interception):** A native Go template block executed *before* the Base Recipe renders. It outputs a JSON dictionary that the compiler natively deep-merges over the Caller's `.context.inject` memory pipe, allowing Wasm-free, Caller-Side mutation of environment variables and connection strings.
-3. **`pipeline`:** A sequential array of WebAssembly (Wasm) plugin steps for Post-Render Workload Mutation (e.g., injecting an Envoy sidecar via JSONPatch, or mounting a secret volume). Each step's `plugin` field names a `Plugin` entity by its URI (`name:version` or `provider/name:version`); the entity's `spec.plugin` is the content-addressed `.wasm` artifact, and a bare `.wasm` or artifact reference is not accepted here. See the [Wasm plugin developer guide](../plugins/plugin-developer-guide.md) for authoring and referencing a plugin, and [architecture/09-ai-features.md](../../architecture/09-ai-features.md) for the Two-Part Plugin Principle (Fetcher / Injector). The compiler executes each step in declared order: it dispatches the named plugin's guest export against the rendered output and applies the returned JSON Patches and emitted side effects; see [Status of the Language](../10-status.md#compilation-pipeline-phases) for the execution state of each pipeline surface. A `pipeline:` stands on its own: a FeatureRecipe may declare one and no input kind at all, in which case it emits no resources of its own and its whole effect is what its steps patch into, or emit alongside, the documents the build has already rendered.
+3. **`pipeline`:** A sequential array of WebAssembly (Wasm) plugin steps for Post-Render Workload Mutation (e.g., injecting an Envoy sidecar via JSONPatch, or mounting a secret volume). Each step's `plugin` field names a `Plugin` entity by its URI (`name:version` or `provider/name:version`); the entity's `spec.plugin` is the content-addressed `.wasm` artifact, and a bare `.wasm` or artifact reference is not accepted here. See the [Wasm plugin developer guide](../plugins/plugin-developer-guide.md) for authoring and referencing a plugin, and [architecture/04-entity-taxonomy.md](../../architecture/04-entity-taxonomy.md) §"Domain 3: Infrastructure Base" for the Two-Part Plugin Principle (Fetcher / Injector). The compiler executes each step in declared order: it dispatches the named plugin's guest export against the rendered output and applies the returned JSON Patches and emitted side effects; see [Status of the Language](../10-status.md#compilation-pipeline-phases) for the execution state of each pipeline surface. A `pipeline:` stands on its own: a FeatureRecipe may declare one and no input kind at all, in which case it emits no resources of its own and its whole effect is what its steps patch into, or emit alongside, the documents the build has already rendered.
 
 A FeatureRecipe may also carry **none** of these blocks: a pure-wiring Feature whose effect is the `uses`-edge it carries renders nothing, and its FeatureRecipe exists only to satisfy resolution — every feature instance resolves to a FeatureRecipe, the same way every component resolves to a Recipe. Among the blocks above, `injectMapping` is the one field with no base-Recipe counterpart; the three input kinds and `pipeline` are shared with the base Recipe.
 
@@ -281,7 +281,7 @@ A reference to an entry the block defines **later** halts naming the ordering fa
 
 ## The `assertions:` block
 
-`FeatureRecipe.spec.assertions:` is an optional Go template body that expresses **implementation invariants of the FeatureRecipe** — cross-field rules that hold given the specific Wasm plugin pipeline, chart, or mechanism the FeatureRecipe wraps. Like Recipe assertions, FeatureRecipe assertions are properties of the specific implementation; the Feature-level contract rules apply independently at an earlier pipeline phase.
+`FeatureRecipe.spec.assertions:` is an optional map of **named** rules expressing **implementation invariants of the FeatureRecipe** — cross-field rules that hold given the specific Wasm plugin pipeline, chart, or mechanism the FeatureRecipe wraps. Each key is a rule identifier that appears in the failure message; each value is a Go template body. Like Recipe assertions, FeatureRecipe assertions are properties of the specific implementation; the Feature-level contract rules apply independently at an earlier pipeline phase.
 
 ```yaml
 spec:
@@ -289,14 +289,15 @@ spec:
   pipeline:
     - id: fetch-secret
       plugin: pipeline-step/aws-secrets-manager:1.2.0
-  assertions: |
-    {{- /* aws-secrets-manager plugin 1.x requires explicit region when no AWS_DEFAULT_REGION
-           is implied through the Aggregate's infra block */ -}}
-    {{- if not .values.region -}}
-      {{- if not .infra.aws.region -}}
-        {{- fail "aws-secrets-manager plugin 1.x requires either values.region or infra.aws.region to be set" -}}
+  assertions:
+    # aws-secrets-manager plugin 1.x requires an explicit region when none is
+    # implied through the Aggregate's infra block.
+    region-supplied-for-secrets-manager: |
+      {{- if not .values.region -}}
+        {{- if not .infra.aws.region -}}
+          {{- fail "aws-secrets-manager plugin 1.x requires either values.region or infra.aws.region to be set" -}}
+        {{- end -}}
       {{- end -}}
-    {{- end -}}
 ```
 
 The rule above is specific to the `aws-secrets-manager` plugin 1.x; it does not apply if a different `core/referenced-secret` FeatureRecipe binds. The Feature-level contract rules from the Feature definition still apply alongside.
