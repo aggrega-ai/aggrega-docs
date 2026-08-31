@@ -38,13 +38,13 @@ A redeclared `usesSchema` or `featuresSchema` entry produces no composition fail
 
 **Validation runs.** At base rendering, after the Recipe's own valuesMapping has resolved. Layer 3 gates synthesized-mode dispatch on provider capability.
 
-**Error shape.** A capability decline is attributed to the catalog-authoring domain, so its report opens with a bracketed head carrying that category, and the message names the node and the provider:
+**Error shape.** A capability decline is attributed to the catalog-authoring domain, so its report opens with a bracketed head carrying that category and a pointer to the node. The message opens with the fixed sentence stating the condition, then names the node, the provider, and the kinds that provider does support:
 
 ```text
-[CATALOG_ERROR] node <node-id>: provider <provider-name> does not support synthesised recipes (this provider supports: <kinds>); declare one of the supported input kinds, or target a provider that supports synthesised
+[CATALOG_ERROR] <node-id>: provider does not support the node's input kind (node "<node-id>"). provider "<provider-name>" does not support synthesised recipes (this provider supports: <kinds>); declare one of the supported input kinds, or target a provider that supports synthesised
 ```
 
-The `[CATALOG_ERROR]` head signals the catalog entity is at fault, not the developer's Aggregate. On a terminal the head also carries the condition's short code and the message moves to its own indented line; the one-line form above is what reaches a log.
+The `[CATALOG_ERROR]` head signals the catalog entity is at fault, not the developer's Aggregate. On a terminal the head also carries the condition's short code — `E0265` for this one, which [the table of every condition](../errors/sentinels.md#every-condition-by-short-code) resolves — and the message moves to its own indented line; the one-line form above is what reaches a log. The opening sentence is fixed per condition, so it is the part to match on when you are working from text; everything after it varies with the node at fault.
 
 A related guardrail protects provider dispatch itself: when more than one provider-rendering Plugin serves the same target, the workspace resolves the ambiguity via a provider binding in `.aggrega-config.yaml`, chosen at `aggrega pull` and recorded in the lockfile. With no binding and exactly one candidate Plugin, that candidate is used; with no binding and more than one candidate, the build halts loudly, naming the candidate plugins. Ambiguity is resolved per workspace at the point of use, not by a catalog-wide uniqueness rule.
 

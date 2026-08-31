@@ -112,15 +112,17 @@ Emitted message:
 
 #### `workload:` requires a provider that can synthesize
 
+<!-- covers: internal/compiler/renderer.ErrUnsupportedInputKind -->
+
 A Recipe declares `workload:` (synthesized mode) for a provider that does not implement Workload synthesis. Synthesized-mode support is a property of the provider — the standard-library catalog declares `workloadSchema` on synthesis-capable providers by convention, but the check keys on provider capability, not on that field's presence.
 
 **Two surfaces report it, and only one of them decides the build.** The halt is raised at render time, after the node's provider is bound and once the node's mode has been classified from the input kinds its Recipe declares, so that report names the **node**. [`aggrega validate`](../cli/aggrega-validate.md) reports the same finding earlier, before any node is bound, reading the Recipe on its own — so that report names the **Recipe and its version** instead. The two do not read the same set of Recipes: the early report is raised for any Recipe that declares `workload:` at all, while the halt is raised only for a node whose mode resolves to synthesized, and `source:` takes precedence over `workload:` when a Recipe declares both. So a Recipe declaring both is named by the early report and builds without halting.
 
-Emitted message at render time. The category the failure is attributed to reaches you in the diagnostic's bracketed head rather than inside the message, and the message names the node, the provider, the mode the node resolved to, and the kinds that provider does support:
+Emitted message at render time. The category the failure is attributed to reaches you in the diagnostic's bracketed head rather than inside the message. The message opens with the fixed sentence stating the condition, then names the node, the provider, the mode the node resolved to, and the kinds that provider does support:
 
-> node `"<node-id>"`: provider `"<provider-name>"` does not support `<mode>` recipes (this provider supports: `<kinds>`); declare one of the supported input kinds, or target a provider that supports `<mode>`
+> provider does not support the node's input kind (node `"<node-id>"`). provider `"<provider-name>"` does not support `<mode>` recipes (this provider supports: `<kinds>`); declare one of the supported input kinds, or target a provider that supports `<mode>`
 
-The head carries the category and **no short code**, because this rule is not one of the conditions the table at the end of this page resolves — so match on the sentence rather than looking for a code to search by.
+The head carries the category and this condition's short code, `E0265`, which is the identifier to record when you need this halt named durably — in a continuous-integration gate, an issue, or a runbook. A number is handed out once and then fixed, so it stays the same however the wording around it improves; [the table of every condition](./sentinels.md#every-condition-by-short-code) resolves it, and the opening sentence above is what to match on when you are working from text rather than from an identifier.
 
 `aggrega validate` reports the same clause under the Recipe that carries the block, prefixed with the surface that read it:
 
@@ -4229,6 +4231,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0262` | `component identity cannot be the name its emitted resources are stamped with: rename the component` | Component identity cannot be stamped on what it emits |
 | `E0263` | `the target will not accept a name derived from this component's authored identity: rename the component` | The target will not accept a name derived from an authored identity |
 | `E0264` | `provider guest never accepted a component identity the compiler composed for it` | A provider never accepted a name the compiler composed |
+| `E0265` | `provider does not support the node's input kind` | `workload:` requires a provider that can synthesize |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
