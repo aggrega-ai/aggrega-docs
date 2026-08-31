@@ -4,12 +4,26 @@ The cloudformation provider renders Aggrega Recipes into AWS CloudFormation stac
 
 ## Fragment recipes assembled into a stack
 
-A cloudformation Recipe authors a **fragment** — the CloudFormation resources contributed by a single component — rather than a whole template. When a boundary's components render, the provider assembles every fragment in the dispatch group into one stack template: the resources merge under a single `Resources` map, and each component's `provides` values surface as stack `Outputs`. Two authoring shapes are accepted:
+A cloudformation Recipe authors a **fragment** — the CloudFormation resources contributed by a single component — rather than a whole template. When a boundary's components render, the provider assembles every fragment in the dispatch group into one stack template: the resources merge under a single `Resources` map, each component's `provides` values surface as stack `Outputs`, and the template's other top-level sections are accounted for one by one under [Top-level sections in the assembled stack](#top-level-sections-in-the-assembled-stack). Two authoring shapes are accepted:
 
 - **Fragment (artifacts) input.** A Recipe authors resource fragments directly; the provider normalizes them to pure-JSON long-form intrinsics and merges them into the assembled stack.
 - **Sourced input.** A Recipe references an existing CloudFormation template (YAML or JSON); the provider normalizes it to long-form JSON and validates its structure before assembly.
 
 The assembled template is pure JSON. Intrinsics are emitted verbatim and never evaluated at build time — the compiler cannot resolve a value that only exists after the stack deploys, and evaluating one would break the ahead-of-time contract.
+
+## Top-level sections in the assembled stack
+
+Several components assemble into one stack, so every top-level section a CloudFormation template admits has to be accounted for by the assembly. Each one falls into exactly one of three groups.
+
+**Assembled under names the provider scopes, or reads as written.** `Resources` and `Outputs`, which [Names in the assembled stack](#names-in-the-assembled-stack) covers in full. `AWSTemplateFormatVersion` is written by the provider rather than read from any component: the template language admits a single value for it, so there is nothing for a component to decide.
+
+**Carried under exactly the names you wrote.** `Parameters`, `Mappings`, `Conditions`, `Metadata` and `Rules`. Each of these is a map keyed by names you chose, so each component's entries reach the assembled stack under those names, unrewritten — which is what lets a resource's `Condition:`, an `Fn::FindInMap`, or a `Ref` to a parameter resolve against the declaration that arrived alongside it. Each is carried on its own, because each is authored on its own: a rule asserts over a parameter of the same document, a condition may reference no parameter at all, and CloudFormation does not permit a parameter reference inside a mapping.
+
+Two components declaring different names in one of these sections both land. Two declaring one name with identical content merge into a single entry and the build proceeds. Two declaring one name with **different** content halt the build, naming the section, the name, and both components — because one of the two bodies would otherwise be discarded, leaving the component that wrote it with a declaration the stack does not carry. That is the same reconciliation the resource and output names follow, and renaming either one clears it.
+
+**Named rather than carried.** `Description` and `Transform` are each a single statement about a whole template rather than a map of names you chose, so an assembly drawing on several components has no answer for either. Two descriptions are two answers to one question and neither is the stack's. A transform reinterprets the entire template, so adopting one component's would change how every other component's content is read — a larger claim than any one component is in a position to make. The assembled stack therefore carries neither, and every component that authored one gets a warning naming the component and the section, so nothing is dropped without being said. The warning is advisory and out-of-band: the emitted template is byte-for-byte what it would be without it, and `--no-unsupported-field-warnings` silences it along with the rest of that class.
+
+Nothing sets a description or a transform on the assembled stack, and that is the deliberate position rather than a gap awaiting a keyword — the stack draws on more contributors than any one of them can speak for. A component that needs a transform's behaviour writes the resources it would have expanded to.
 
 ## Names in the assembled stack
 
@@ -48,6 +62,10 @@ Restating a name is not itself a conflict. A name written more than once with id
 ## Structural input validation
 
 A sourced CloudFormation template is structurally validated before it renders: the provider parses the template and normalizes its intrinsics, halting the build with a clear message that names the offending node when a template is malformed. The parse checks shape, not semantics — it does not contact AWS, resolve references, or evaluate intrinsics.
+
+**A template that parses is not thereby carried whole.** The parse says the document is well formed; what reaches the assembled stack is decided separately and per section, under [Top-level sections in the assembled stack](#top-level-sections-in-the-assembled-stack) — a sourced template goes through the same accounting a fragment does.
+
+Nor does the parse ask whether the template's references resolve. Whether a `Ref` names a parameter, or an `Fn::FindInMap` a map, is a question about the assembled stack rather than about any one input document, and it is CloudFormation's to answer at deploy time. The build states what it did not carry instead of judging what the result refers to.
 
 ## Cloud-target annotations
 
