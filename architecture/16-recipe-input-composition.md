@@ -371,6 +371,27 @@ This split is uniform across all three input kinds. (The Compose provider has no
 
 Because a provider stamps provenance where its own output format carries it, a provider whose format offers no such place for a given file emits that file unchanged and says so. Compose is the case to know: its provenance site is a service's `labels:` block, so a compose artifact fragment contributing only top-level `networks:`, `volumes:` or `configs:` carries no provenance, and the build emits a "skipped provenance label injection" warning naming the artifact. That warning is expected for a fragment of that shape rather than a sign of a problem — the services the same component emits carry the full set, and nothing about the emitted bytes changes. What it rules out is the third possibility: a file leaving the build unstamped without being named.
 
+CloudFormation is the other case to know, and it differs in *where* provenance lands rather than in whether it lands. A CloudFormation template carries no document-level metadata block that travels with a resource, so provenance goes on each resource's own `Metadata` attribute, under one `aggrega.ai/provenance` key holding the whole set:
+
+```json
+"StoreBucket": {
+  "Type": "AWS::S3::Bucket",
+  "Metadata": {
+    "aggrega.ai/provenance": {
+      "aggrega.ai/component-id": "store",
+      "aggrega.ai/recipe-uri": "store-recipe:1.0.0",
+      "aggrega.ai/boundary-path": "stack"
+    }
+  }
+}
+```
+
+Three properties follow from that site. The `Metadata` attribute is available on every resource whatever its type, so every resource an assembled stack carries is stamped — including the many resource types that accept no tags at all, which a tag-based stamp would have had no place on. The stamp is *added to* whatever `Metadata` the author wrote rather than replacing it, so an author's own entries stand alongside it. And because it is per resource rather than per template, a stack that several components assemble into carries each resource's own contributing identity — its component, its Recipe and its boundary — which a single template-wide entry could not express.
+
+The whole set travels together under that key. A `Metadata` value is unconstrained JSON, so there is no charset split to make; the two keys only a Kubernetes runtime reads — the standard recommended-label name and the deployment-ordering annotation a GitOps controller consumes — are left out, since neither names anything in a stack. The plain `aggrega.ai/sync-wave` provenance entry stays, because it records the wave the component declared rather than instructing a controller.
+
+The shape with no site here is a template or fragment declaring no resource — one contributing only `Parameters`, `Mappings`, `Conditions` or `Rules`. It carries no provenance, reaches the assembled stack with its own content intact, and the build emits a "skipped provenance injection" warning naming it. As with compose, that warning is expected for a contribution of that shape: the resources the same component contributes elsewhere carry the full set, and the emitted bytes are the same whether or not anything is listening.
+
 ### Per-Provider Artifact Semantics
 
 *The per-provider semantics below describe how each provider integrates artifacts into its native output. The artifacts render path ships today.*
