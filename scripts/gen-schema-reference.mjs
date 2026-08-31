@@ -228,6 +228,216 @@ function inlineUnnamedRefs(node, baseId, registry, seen = new Set()) {
   return out;
 }
 
+// The characters a key may be built from, named so a reader can say them out
+// loud. A key constraint is published as a regular expression, and two maps
+// whose expressions differ by a single character accept different key shapes —
+// one takes a single name, the other a qualified dotted one. Naming the
+// characters turns that one-character difference into a word.
+const LETTERS = { article: "a", noun: "letter", plural: "letters" };
+const CHARACTER_NAMES = {
+  "a-z": { article: "a", noun: "lower-case letter", plural: "lower-case letters" },
+  "A-Z": { article: "an", noun: "upper-case letter", plural: "upper-case letters" },
+  "0-9": { article: "a", noun: "digit", plural: "digits" },
+  _: { article: "an", noun: "underscore", plural: "underscores" },
+  ".": { article: "a", noun: "dot", plural: "dots" },
+  "-": { article: "a", noun: "hyphen", plural: "hyphens" },
+  "/": { article: "a", noun: "slash", plural: "slashes" },
+  ":": { article: "a", noun: "colon", plural: "colons" },
+};
+
+// Splits a character-class body into its atoms: a range such as `a-z`, or a
+// single literal character. A trailing hyphen is a literal, which is why the
+// range test requires a character to follow it.
+function classAtoms(body) {
+  const atoms = [];
+  let i = 0;
+  while (i < body.length) {
+    if (body[i] === "\\") {
+      atoms.push(body[i + 1]);
+      i += 2;
+      continue;
+    }
+    if (body[i + 1] === "-" && i + 2 < body.length) {
+      atoms.push(`${body[i]}-${body[i + 2]}`);
+      i += 3;
+      continue;
+    }
+    atoms.push(body[i]);
+    i += 1;
+  }
+  return atoms;
+}
+
+// Names one character class, in the order the class declares its atoms. Returns
+// null as soon as an atom has no name, so a key alphabet is never described
+// partially — the caller then states the pattern verbatim instead.
+function nameCharacterClass(body) {
+  const atoms = classAtoms(body);
+  const bothCases = atoms.includes("a-z") && atoms.includes("A-Z");
+  const named = [];
+  const seen = new Set();
+  for (const atom of atoms) {
+    const name = bothCases && (atom === "a-z" || atom === "A-Z") ? LETTERS : CHARACTER_NAMES[atom];
+    if (!name) return null;
+    if (seen.has(name.noun)) continue;
+    seen.add(name.noun);
+    named.push(name);
+  }
+  return named.length > 0 ? named : null;
+}
+
+// Joins named characters into a list. `plural` reads after a quantity ("one or
+// more letters, digits or hyphens"), `article` opens a clause ("a letter or
+// digit"), and `bare` follows a word that already carries the article.
+function joinNames(names, form) {
+  const words = names.map((name, index) => {
+    if (form === "plural") return name.plural;
+    if (form === "article" && index === 0) return `${name.article} ${name.noun}`;
+    return name.noun;
+  });
+  if (words.length === 1) return words[0];
+  return `${words.slice(0, -1).join(", ")} or ${words[words.length - 1]}`;
+}
+
+// Splits an anchored pattern into a sequence of character-class terms, each with
+// its quantifier. Returns null for a pattern built from anything else — a group,
+// an alternation, a repetition count, a negated class — so nothing paraphrases a
+// shape it did not read.
+function patternTerms(pattern) {
+  if (!pattern.startsWith("^") || !pattern.endsWith("$")) return null;
+  const body = pattern.slice(1, -1);
+  const terms = [];
+  let i = 0;
+  while (i < body.length) {
+    if (body[i] !== "[" || body[i + 1] === "^") return null;
+    let j = i + 1;
+    let cls = "";
+    while (j < body.length && body[j] !== "]") {
+      if (body[j] === "\\") {
+        cls += body[j] + body[j + 1];
+        j += 2;
+        continue;
+      }
+      cls += body[j];
+      j += 1;
+    }
+    if (j >= body.length) return null;
+    i = j + 1;
+    let quantifier = "";
+    if ("+*?".includes(body[i])) {
+      quantifier = body[i];
+      i += 1;
+    }
+    terms.push({ cls, quantifier });
+  }
+  return terms.length > 0 ? terms : null;
+}
+
+// Prose for a key pattern, in the terms an author writes keys in, plus whether
+// the pattern admits a dot. Returns null for a pattern this cannot phrase.
+function describeKeyPattern(pattern) {
+  const terms = patternTerms(pattern);
+  if (!terms) return null;
+  const named = terms.map((term) => ({ ...term, names: nameCharacterClass(term.cls) }));
+  if (named.some((term) => term.names === null)) return null;
+
+  const clauses = named.map((term, index) => {
+    const lead = index === 0 ? "" : "then ";
+    if (term.quantifier === "+") return `${lead}one or more ${joinNames(term.names, "plural")}`;
+    if (term.quantifier === "*") return `${lead}any number of ${joinNames(term.names, "plural")}`;
+    if (term.quantifier === "?") return `${lead}an optional ${joinNames(term.names, "bare")}`;
+    return index === 0 ? `begins with ${joinNames(term.names, "article")}` : `then ${joinNames(term.names, "article")}`;
+  });
+
+  const admitsDot = terms.some((term) => classAtoms(term.cls).includes("."));
+  return { clause: clauses.join(", "), admitsDot };
+}
+
+// A length bound on a key, stated as a sentence.
+function describeLengthBound(minLength, maxLength) {
+  if (minLength !== undefined && maxLength !== undefined) {
+    return `Between ${minLength} and ${maxLength} characters long.`;
+  }
+  if (minLength !== undefined) return `At least ${minLength} characters long.`;
+  return `At most ${maxLength} characters long.`;
+}
+
+// What a key of this object may look like, as one sentence sequence, or an empty
+// string when the object constrains its keys in no way.
+//
+// Two JSON Schema mechanisms carry a key constraint and both are read here:
+// `propertyNames` constrains every key of the object, and `patternProperties`
+// admits keys matching a regular expression. Each reaches the reader as prose
+// about the characters a key is built from, with the expression beside it —
+// never as a bare expression on its own, because an author cannot be asked to
+// tell two maps apart by spotting a one-character difference between two of
+// them. Where the schema writes its own prose for the constraint, that prose is
+// what is published: it was written for this key, and a generated paraphrase
+// beside it would be a second copy of the same fact.
+//
+// One sentence sequence serves both the property table and the section body, so
+// a map documented in both places is described the same way in each.
+function keyConstraint(schema) {
+  const parts = [];
+
+  const names = schema.propertyNames;
+  if (names && typeof names === "object") {
+    if (names.description) {
+      parts.push(cell(names.description));
+    } else if (names.pattern) {
+      const prose = describeKeyPattern(names.pattern);
+      if (prose) {
+        parts.push(`${prose.clause}.${prose.admitsDot ? "" : " A dot is not permitted."}`);
+      }
+    }
+    if (names.enum) {
+      parts.push(`One of ${names.enum.map((v) => `\`${JSON.stringify(v)}\``).join(", ")}.`);
+    }
+    if (names.minLength !== undefined || names.maxLength !== undefined) {
+      parts.push(describeLengthBound(names.minLength, names.maxLength));
+    }
+    // Prose that already quotes the expression states it once; restating it
+    // below would publish the same expression twice in one sentence sequence.
+    if (names.pattern && !parts.some((part) => part.includes(names.pattern))) {
+      parts.push(`Pattern: \`${names.pattern}\`.`);
+    }
+  }
+
+  const patterns =
+    schema.patternProperties && typeof schema.patternProperties === "object"
+      ? Object.keys(schema.patternProperties)
+      : [];
+  for (const pattern of patterns) {
+    const prose = describeKeyPattern(pattern);
+    let explanation = "";
+    if (prose) {
+      explanation = `${prose.clause}.${prose.admitsDot ? "" : " A dot is not permitted."}`;
+    } else {
+      // A pattern too involved to phrase is explained by what the schema says a
+      // key matching it names, so the expression never lands unexplained.
+      const entry = schema.patternProperties[pattern];
+      if (entry && typeof entry === "object" && entry.description) explanation = cell(entry.description);
+    }
+    if (explanation) parts.push(explanation);
+    if (!explanation.includes(pattern)) parts.push(`Pattern: \`${pattern}\`.`);
+  }
+
+  return parts.filter((part) => part.length > 0).join(" ");
+}
+
+// The value schema of a pattern-keyed map, when exactly one pattern is declared.
+// With more than one there is no single value type to name, so this returns null
+// and the caller says nothing rather than picking one of them.
+function patternValueSchema(schema) {
+  if (!schema || typeof schema !== "object") return null;
+  const patterns = schema.patternProperties;
+  if (!patterns || typeof patterns !== "object") return null;
+  const keys = Object.keys(patterns);
+  if (keys.length !== 1) return null;
+  const value = patterns[keys[0]];
+  return value && typeof value === "object" ? value : null;
+}
+
 // A short human type label for one subschema, suitable for a table cell.
 function describeType(schema) {
   if (!schema || typeof schema !== "object") return "any";
@@ -242,8 +452,14 @@ function describeType(schema) {
   }
   if (schema.type === "object") {
     const noProps = !schema.properties || Object.keys(schema.properties).length === 0;
-    if (noProps && schema.additionalProperties && typeof schema.additionalProperties === "object") {
-      return `map of ${describeType(schema.additionalProperties)}`;
+    if (noProps) {
+      // A pattern-keyed map is a map, and calling it an object hides both that
+      // its keys are constrained and what its values are.
+      const patternValue = patternValueSchema(schema);
+      if (patternValue) return `map of ${describeType(patternValue)}`;
+      if (schema.additionalProperties && typeof schema.additionalProperties === "object") {
+        return `map of ${describeType(schema.additionalProperties)}`;
+      }
     }
     return "object";
   }
@@ -256,11 +472,17 @@ function labelOfType(type) {
   return Array.isArray(type) ? type.join(" or ") : String(type);
 }
 
-// The description column for one property: its prose plus any enum, constant,
-// or default facets that help a reader.
+// The description column for one property: its prose plus any key-constraint,
+// enum, constant, or default facets that help a reader.
+//
+// The key constraint belongs here as well as in a section body: a map whose
+// values are a named type is documented as a single table row and nothing
+// recurses into it, so a row is the only place its key shape can reach a reader.
 function describeProp(schema) {
   const parts = [];
   if (schema.description) parts.push(String(schema.description));
+  const keys = keyConstraint(schema);
+  if (keys) parts.push(`Keys: ${keys}`);
   if (schema.enum) {
     parts.push("Allowed values: " + schema.enum.map((v) => `\`${JSON.stringify(v)}\``).join(", "));
   } else if (schema.const !== undefined) {
@@ -283,9 +505,18 @@ function renderObjectSection(schema, path, depth, headingLevel, showDescription)
   const props = schema.properties || {};
   const names = Object.keys(props);
   const requiredSet = new Set(schema.required || []);
+  const keys = keyConstraint(schema);
+  const patternValue = patternValueSchema(schema);
 
   if (names.length === 0) {
-    if (schema.additionalProperties && typeof schema.additionalProperties === "object") {
+    if (keys) {
+      // A map that constrains its keys is not free-form, and it does not
+      // "permit none" either: it permits exactly the keys described here.
+      out.push(`**Keys:** ${keys}`, "");
+      const values = patternValue || (typeof schema.additionalProperties === "object" ? schema.additionalProperties : null);
+      if (values) out.push(`Values are \`${cell(describeType(values))}\`.`, "");
+      if (schema.additionalProperties === false) out.push("_Any other key is not permitted._", "");
+    } else if (schema.additionalProperties && typeof schema.additionalProperties === "object") {
       out.push(`Free-form object; values are \`${cell(describeType(schema.additionalProperties))}\`.`, "");
     } else if (schema.additionalProperties === false) {
       out.push("_This object declares no fixed properties and permits none._", "");
@@ -318,8 +549,19 @@ function renderObjectSection(schema, path, depth, headingLevel, showDescription)
   }
   out.push("");
 
+  if (keys) {
+    // A pattern admits keys beyond the ones listed above, so it is labelled as
+    // additional; propertyNames constrains every key, listed ones included.
+    out.push(`**${schema.patternProperties ? "Additional keys" : "Keys"}:** ${keys}`, "");
+  }
+
   if (schema.additionalProperties === false) {
-    out.push("_Additional properties are not permitted._", "");
+    out.push(
+      schema.patternProperties
+        ? "_Any other property is not permitted._"
+        : "_Additional properties are not permitted._",
+      ""
+    );
   } else if (schema.additionalProperties === true) {
     out.push("_Additional properties are permitted._", "");
   }

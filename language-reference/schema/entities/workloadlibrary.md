@@ -39,6 +39,6 @@ The WorkloadLibrary's content. spec.workloads is required and must declare at le
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workloads` | map of string | yes | Named map of reusable Workload template fragments. Each entry's body is opaque to the envelope validation — content semantics are handled by the Go template parser at consumption time. |
+| `workloads` | map of string | yes | Named map of reusable Workload template fragments. Each entry's body is opaque to the envelope validation — content semantics are handled by the Go template parser at consumption time. Keys: PascalCase identifier. Entry keys appear in canonical reference URLs (`#/workloads/<name>`); the envelope-level constraint prevents non-PascalCase keys from propagating through the catalog ecosystem. Pattern: `^[A-Z][A-Za-z0-9]*$`. |
 
 _Additional properties are not permitted._

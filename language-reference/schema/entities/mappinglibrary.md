@@ -39,6 +39,6 @@ The MappingLibrary's content. spec.mappings is required and must declare at leas
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `mappings` | map of string | yes | Named map of reusable Go template fragments. Each entry's body is opaque to the envelope validation — content semantics are handled by the Go template parser at consumption time. |
+| `mappings` | map of string | yes | Named map of reusable Go template fragments. Each entry's body is opaque to the envelope validation — content semantics are handled by the Go template parser at consumption time. Keys: PascalCase identifier. Entry keys appear in canonical reference URLs (`#/mappings/<name>`); the envelope-level constraint prevents non-PascalCase keys from propagating through the catalog ecosystem. Pattern: `^[A-Z][A-Za-z0-9]*$`. |
 
 _Additional properties are not permitted._

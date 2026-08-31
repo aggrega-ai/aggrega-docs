@@ -39,6 +39,6 @@ The ArtifactsLibrary's content. spec.artifacts is required and must declare at l
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `artifacts` | map of map of string | yes | Named map of reusable artifact bundles. Each bundle groups the output files that belong together (for example a CRD, its RBAC, and a ConfigMap). Each file body is opaque to the envelope validation — content semantics are handled by the Go template parser at consumption time. |
+| `artifacts` | map of map of string | yes | Named map of reusable artifact bundles. Each bundle groups the output files that belong together (for example a CRD, its RBAC, and a ConfigMap). Each file body is opaque to the envelope validation — content semantics are handled by the Go template parser at consumption time. Keys: PascalCase identifier. Entry keys appear in canonical reference URLs (`#/artifacts/<name>`); the envelope-level constraint prevents non-PascalCase keys from propagating through the catalog ecosystem. The <name> addresses the whole bundle, never an individual file within it. Pattern: `^[A-Z][A-Za-z0-9]*$`. |
 
 _Additional properties are not permitted._

@@ -55,10 +55,10 @@ The Developer Intent surface: the global parameter contract, nested aggregate im
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `parameters` | map of object | no | Global environment contract. Each entry is a typed-contract object authoring the compact-form vocabulary subset (type, description, default, enum, min/max, minLength/maxLength, pattern, format, validate, validateMessage, required, items, valuesType, properties). Nested structure is expressed via the typed-form properties: sub-field. Release fulfillment may be inline (parameters: {...}) or single-source file import (parameters: {$import: <path>}); the parameter-contract layer validates the merged map against this contract before parameter interpolation. See aggrega-docs/language-reference/entities/aggregate.md for the full vocabulary. |
-| `aggregates` | object | no | Nested aggregates acting as imported modules. |
+| `aggregates` | map of object | no | Nested aggregates acting as imported modules. Keys: one or more letters, digits, underscores or hyphens. A dot is not permitted. Pattern: `^[a-zA-Z0-9_-]+$`. |
 | `exportedComponents` | map of string | no | The Public API Interface. Maps an exposed public name to an internal component ID. Parent Aggregates importing this module reference components by these public names. |
-| `subsystems` | object | no | Named logical groupings of an Aggregate's components into subsystems. Mutually exclusive with top-level components — declaring both is rejected. A subsystem the author names default is an ordinary declared subsystem, distinct from the synthesized default the compiler creates for a components-only Aggregate. |
-| `components` | object | no | The map of logical atomic components that make up this Aggregate, authored directly at the top level. Top-level components and subsystems are mutually exclusive — declaring both is rejected. When components are authored here (without subsystems), the compiler folds them into a synthesized default subsystem at load, so every downstream pass sees a uniform subsystem-bearing structure; the synthesized default is marked as such in the IR. |
+| `subsystems` | map of subsystem | no | Named logical groupings of an Aggregate's components into subsystems. Mutually exclusive with top-level components — declaring both is rejected. A subsystem the author names default is an ordinary declared subsystem, distinct from the synthesized default the compiler creates for a components-only Aggregate. Keys: one or more letters, digits, underscores or hyphens. A dot is not permitted. Pattern: `^[a-zA-Z0-9_-]+$`. |
+| `components` | map of component_instance | no | The map of logical atomic components that make up this Aggregate, authored directly at the top level. Top-level components and subsystems are mutually exclusive — declaring both is rejected. When components are authored here (without subsystems), the compiler folds them into a synthesized default subsystem at load, so every downstream pass sees a uniform subsystem-bearing structure; the synthesized default is marked as such in the IR. Keys: one or more letters, digits, underscores or hyphens. A dot is not permitted. Pattern: `^[a-zA-Z0-9_-]+$`. |
 
 _Additional properties are not permitted._
 
@@ -84,7 +84,11 @@ Agnostic injection routing. Maps local variables to target provides keys (uses[]
 
 The Structural Topology - Developer Owned. Declares logical network edges and dependencies.
 
-_This object declares no fixed properties and permits none._
+**Keys:** one or more letters, digits, underscores or hyphens. A dot is not permitted. Pattern: `^[a-zA-Z0-9_-]+$`.
+
+Values are `string[] or map of object`.
+
+_Any other key is not permitted._
 
 ### `subsystem`
 
@@ -92,9 +96,9 @@ _This object declares no fixed properties and permits none._
 | --- | --- | --- | --- |
 | `description` | string | no | Optional documentation describing this subsystem's purpose and the logical grouping it represents. |
 | `annotations` | map of string or object or null | no | Developer-authored annotations on this subsystem. Values are strings or null; explicit null on a key inherited from a parent subsystem removes the inherited binding from this subsystem (annotation-driven Feature opt-out). Annotations declared here are inherited by nested subsystems and by contained components; closer-level wins per-key. Cascades down to the .context.annotations.aggregate bucket on each derived IR node. |
-| `features` | object | no | Cross-cutting features attached to all components in this subsystem. Same schema as component-level features (type, values, uses, inject). Flattened into each component at graph finalization, positioned after component-level features in execution order. |
-| `subsystems` | object | no |  |
-| `components` | object | no |  |
+| `features` | map of object | no | Cross-cutting features attached to all components in this subsystem. Same schema as component-level features (type, values, uses, inject). Flattened into each component at graph finalization, positioned after component-level features in execution order. Keys: one or more letters, digits, underscores or hyphens. A dot is not permitted. Pattern: `^[a-zA-Z0-9_-]+$`. |
+| `subsystems` | map of subsystem | no | Keys: one or more letters, digits, underscores or hyphens. A dot is not permitted. Pattern: `^[a-zA-Z0-9_-]+$`. |
+| `components` | map of component_instance | no | Keys: one or more letters, digits, underscores or hyphens. A dot is not permitted. Pattern: `^[a-zA-Z0-9_-]+$`. |
 
 _Additional properties are not permitted._
 
@@ -109,6 +113,6 @@ _Additional properties are not permitted._
 | `values` | object | no | Opaque cognitive properties passed to the Component, validated by its schema. |
 | `uses` | uses_block | no |  |
 | `inject` | inject_block | no | Component-level self-inject. Injects the component's own values (via 'value:') or own provides keys (via 'from:') directly into the delivery pipe (.context.inject). Only allowed if the Component catalog entity declares 'spec.inject' with the corresponding mechanisms. The compiler validates that no inject key collides with keys declared in uses[].inject — collisions cause ErrInjectKeyCollision fatal halt. |
-| `features` | object | no | The Features attached to this component, keyed by the instance name the author gives each attachment. This is the single attachment surface: an operational Feature, a credential Feature (one labeled feature.aggrega.ai/kind: secret) and an identity Feature are all attached here, under the same keyword and the same shape. What differs between them is what the attachment produces, not how it is declared. An attachment whose instance name matches a slot the Component declares in featuresSchema fills that slot; any other instance name is a free attachment. |
+| `features` | map of object | no | The Features attached to this component, keyed by the instance name the author gives each attachment. This is the single attachment surface: an operational Feature, a credential Feature (one labeled feature.aggrega.ai/kind: secret) and an identity Feature are all attached here, under the same keyword and the same shape. What differs between them is what the attachment produces, not how it is declared. An attachment whose instance name matches a slot the Component declares in featuresSchema fills that slot; any other instance name is a free attachment. Keys: one or more letters, digits, underscores or hyphens. A dot is not permitted. Pattern: `^[a-zA-Z0-9_-]+$`. |
 
 _Additional properties are not permitted._

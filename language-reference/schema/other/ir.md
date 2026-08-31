@@ -183,12 +183,12 @@ _Additional properties are permitted._
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `nodes` | object | yes | Dictionary of all application nodes, keyed by their absolute ID. Purely topological. |
+| `nodes` | map of IRNode | yes | Dictionary of all application nodes, keyed by their absolute ID. Purely topological. Keys: one or more letters, digits, underscores, dots or hyphens. Pattern: `^[a-zA-Z0-9_.-]+$`. |
 | `edges` | IREdge[] | yes | Explicit logical network paths and dependencies between nodes. |
 | `values_mapping` | object | yes | The single source of truth for opaque pass-through cognitive payloads, mapped by node ID. |
 | `infra_mapping` | object | yes | The physical sizing payload injected from the Release, mapped by node ID. |
-| `feature_values_mapping` | object | yes | Normalized map of Node IDs to their attached Feature configurations. One bucket carries every attachment on a node whatever it produces — operational Features, credential Features, identity Features — keyed by the instance name the author gave each attachment. |
-| `boundary_features` | object | no | Un-folded projection of each boundary's Feature attachments, keyed by boundary path then by instance name. Mirrors the boundaries' feature attachments as the single source both lock-time source resolution and the render-time boundary-scope dispatch read, so neither re-walks the routing tree. Present only when the graph has boundary-level Feature attachments. |
+| `feature_values_mapping` | map of map of IRFeatureEntry | yes | Normalized map of Node IDs to their attached Feature configurations. One bucket carries every attachment on a node whatever it produces — operational Features, credential Features, identity Features — keyed by the instance name the author gave each attachment. Keys: one or more letters, digits, underscores, dots or hyphens. Pattern: `^[a-zA-Z0-9_.-]+$`. |
+| `boundary_features` | map of map of IRBoundaryFeature | no | Un-folded projection of each boundary's Feature attachments, keyed by boundary path then by instance name. Mirrors the boundaries' feature attachments as the single source both lock-time source resolution and the render-time boundary-scope dispatch read, so neither re-walks the routing tree. Present only when the graph has boundary-level Feature attachments. Keys: one or more letters, digits, underscores, dots, slashes or hyphens. Pattern: `^[a-zA-Z0-9_./-]+$`. |
 | `provenance` | IRProvenance | yes |  |
 
 _Additional properties are not permitted._

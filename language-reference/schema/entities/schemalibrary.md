@@ -39,7 +39,7 @@ The SchemaLibrary's content. spec.schemas is required and must declare at least 
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `schemas` | map of object | yes | Named map of reusable schema definitions. Each entry's content is validated by the compact-form compiler at parse time; the envelope-level validation only checks the structural wrapping. |
-| `templates` | map of object | no | Optional named map of parameterized helpers. Schema entries reference templates by name via $instantiate:; literal scalar substitution only — no embedded Go templates, no conditionals, no loops. The library substitution layer is intentionally narrower than full template evaluation so authoring stays in the schema language rather than introducing a separate templating surface. |
+| `schemas` | map of object | yes | Named map of reusable schema definitions. Each entry's content is validated by the compact-form compiler at parse time; the envelope-level validation only checks the structural wrapping. Keys: PascalCase identifier — `^[A-Z][A-Za-z0-9]*$`. Entry keys appear in bare-name identity references (`<Library>#/schemas/<name>`); the envelope-level constraint prevents non-PascalCase keys from propagating through the catalog ecosystem. |
+| `templates` | map of object | no | Optional named map of parameterized helpers. Schema entries reference templates by name via $instantiate:; literal scalar substitution only — no embedded Go templates, no conditionals, no loops. The library substitution layer is intentionally narrower than full template evaluation so authoring stays in the schema language rather than introducing a separate templating surface. Keys: PascalCase identifier — `^[A-Z][A-Za-z0-9]*$`. Same envelope-level discipline as schema entry keys; template names are referenced via $instantiate: at instantiation time. |
 
 _Additional properties are not permitted._
