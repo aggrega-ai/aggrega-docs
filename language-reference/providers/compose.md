@@ -4,12 +4,13 @@ The compose provider renders Aggrega Recipes into a Docker Compose file. The pro
 
 ## Supported input kinds
 
-The compose provider accepts two of the three Recipe input kinds:
+The compose provider accepts all three Recipe input kinds:
 
 - **Sourced mode.** A Recipe with `source:` pointing at an existing compose file plus `valuesMapping:` producing an overlay document. The base compose file is loaded, the overlay is evaluated, and the two are deep-merged per docker-compose's native overlay semantics.
 - **Workload mode.** A Recipe with `workload:` (inline or `$import:`-loaded) declares a `Workload` document. The provider synthesises one or more compose services from the Workload spec.
+- **Artifacts mode.** A Recipe's `artifacts:` entries evaluate to compose fragments, which merge into the assembled file under the rules in [Artifacts-emitted compose fragments](#artifacts-emitted-compose-fragments). Artifacts may ride alongside a source or a Workload, and they may also be a Recipe's whole output: a Recipe declaring `artifacts:` and neither `source:` nor `workload:` renders here, contributing whatever its fragments declare. That is how a component that is only resources — a shared network and volume set, a seeded config — reaches a compose deployment without a placeholder Workload standing in for compute it does not have.
 
-A bare `valuesMapping:`-only Recipe with no `source:` and no `workload:` is unsupported by the compose provider. The compiler halts at render time with a message explaining that compose Recipes must declare either `workload:` or `source:`.
+The three kinds compose by addition, and a Recipe declaring none of them is refused when it loads. A `valuesMapping:` with no `source:` beside it is refused when the Recipe loads too, whichever provider it names: there is nothing for the overlay to be applied to, and the diagnostic asks you to declare the `source:` pointer or drop the `valuesMapping:`.
 
 ## Workload feature mapping
 
