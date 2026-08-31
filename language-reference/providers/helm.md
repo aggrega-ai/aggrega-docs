@@ -161,6 +161,6 @@ spec:
 - [`entities/recipe.md`](../entities/recipe.md) — Recipe authoring surface and the three input kinds.
 - [`entities/workload.md`](../entities/workload.md) — Workload schema for synthesised mode.
 - [`providers/helm-chart.md`](helm-chart.md) — sister provider that emits a Helm chart scaffold rather than flat manifests.
-- [`providers/well-known-annotations.md`](well-known-annotations.md) — well-known annotations the helm provider honours (`aggrega.ai/namespace`, etc.).
+- [`providers/well-known-annotations.md`](well-known-annotations.md) — well-known annotations the helm provider applies (`aggrega.ai/namespace`, etc.).
 - [`architecture/16-recipe-input-composition.md`](../../architecture/16-recipe-input-composition.md) — cross-provider Provider Capability Matrix.
 - [`10-status.md#providers`](../10-status.md#providers) — current readiness classification.

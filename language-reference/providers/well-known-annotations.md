@@ -20,13 +20,13 @@ The **reserved vocabulary** is the wider set, and it lives in two places instead
 
 ### How to read this matrix
 
-The six category tables below name every annotation in the reserved `aggrega.ai/` vocabulary, what it controls, and what the provider does when it is absent. Whether a given provider honours a given key is a finer question, because a provider renders more than one **input kind** — a vendored artifact (`sourced`), a Workload the provider synthesizes itself (`synthesized`), or a Recipe's `artifacts:` as a node's whole output (`artifacts-only`) — and a key can be read on one of those paths while being unreachable on another. Which provider renders which input kind is at [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md); what each one honours is [Support by provider and input kind](#support-by-provider-and-input-kind) below, which is this page's authoritative statement.
+The six category tables below name every annotation in the reserved `aggrega.ai/` vocabulary, what it controls, and what the provider does when it is absent. Whether a given provider applies a given key is a finer question, because a provider renders more than one **input kind** — a vendored artifact (`sourced`), a Workload the provider synthesizes itself (`synthesized`), or a Recipe's `artifacts:` as a node's whole output (`artifacts-only`) — and a key can be read on one of those paths while being unreachable on another. Which provider renders which input kind is at [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md); what each one applies is [Support by provider and input kind](#support-by-provider-and-input-kind) below, which is this page's authoritative statement.
 
 Every cell in that grid carries one of three tiers:
 
-- **Honoured** — the provider reads the key on this input kind and it changes the rendered output deterministically.
-- **Honoured conditionally** — the compiler emits an *additive* override beside the target artifact instead of editing the artifact, so whether the value takes effect depends on that artifact exposing a matching key of its own. Effective in practice, never a guarantee. **No provider implements a conditional cell today**, and the declaration surface carries no way to express one, so the generated grid below emits only the other two tiers. The tier is named because the route genuinely exists for a vendored artifact, and a two-tier vocabulary would force the matrix either to claim a guarantee it cannot make or to deny that the route exists at all.
-- **Not honoured** — no provider reads the key on this path. The value travels through the build as an opaque string and shapes no rendered output there; the category table's **Default** column says what you get instead.
+- **Applied** — the provider applies the key on this input kind, and the rendered output changes deterministically as a result.
+- **Applied conditionally** — the compiler emits an *additive* override beside the target artifact instead of editing the artifact, so whether the value takes effect depends on that artifact exposing a matching key of its own. Effective in practice, never a guarantee. **No provider implements a conditional cell today**, and the declaration surface carries no way to express one, so the generated grid below emits only the other two tiers. The tier is named because the route genuinely exists for a vendored artifact, and a two-tier vocabulary would force the matrix either to claim a guarantee it cannot make or to deny that the route exists at all.
+- **Not applied** — no provider applies the key on this path: the target has no render slot for it there, so the placement mechanism contributes nothing to what is rendered, and the category table's **Default** column says what you get instead. The value still passes through the build as an opaque string, untouched. The tier is named for the mechanism rather than for the fate of the value, because those are different questions and only the first is one a cell can answer: what a provider applies is a property of that target's render slots, which is exactly what the declaration behind each cell states.
 
 Two scopes, and only one of them makes input kind a meaningful axis:
 
@@ -35,7 +35,7 @@ Two scopes, and only one of them makes input kind a meaningful axis:
 
 ### Category 1 — Placement
 
-| Annotation | Honoured by | Purpose | Default |
+| Annotation | Applied by | Purpose | Default |
 | --- | --- | --- | --- |
 | `aggrega.ai/namespace` | `helm` (sourced, synthesized); `compose` (sourced, synthesized) | Kubernetes namespace (helm); per-boundary Docker network name (compose) | Not injected if absent (helm); network derived from the boundary path (compose) |
 | `aggrega.ai/project-name` | not yet consumed | Reserved for a Docker Compose project name | — |
@@ -46,14 +46,14 @@ Two scopes, and only one of them makes input kind a meaningful axis:
 
 ### Category 2 — Registry
 
-| Annotation | Honoured by | Purpose | Default |
+| Annotation | Applied by | Purpose | Default |
 | --- | --- | --- | --- |
 | `aggrega.ai/image-registry` | `helm`, `compose` — synthesized only | Registry prefix for container images, applied to every synthesised container image reference | No prefix |
 | `aggrega.ai/image-pull-secret` | `helm` — synthesized only | Kubernetes `imagePullSecrets` name, unioned into the synthesised pod's existing entries | None |
 
 ### Category 3 — Networking
 
-| Annotation | Honoured by | Purpose | Default |
+| Annotation | Applied by | Purpose | Default |
 | --- | --- | --- | --- |
 | `aggrega.ai/cluster-domain` | not yet consumed | Reserved for a DNS suffix for cross-namespace service discovery | — |
 | `aggrega.ai/ingress-class` | not yet consumed | Reserved for a Kubernetes IngressClass on Ingress resources | — |
@@ -61,7 +61,7 @@ Two scopes, and only one of them makes input kind a meaningful axis:
 
 ### Category 4 — Security
 
-| Annotation | Honoured by | Purpose | Default |
+| Annotation | Applied by | Purpose | Default |
 | --- | --- | --- | --- |
 | `aggrega.ai/service-account` | `helm` — synthesized only | Kubernetes `ServiceAccount` for synthesised Pods; overrides the Recipe's `workload.serviceAccount` when both are set | The Recipe's `workload.serviceAccount`, or unset when the Recipe declares none |
 | `aggrega.ai/pod-security-standard` | not yet consumed | Reserved for a Pod Security Standards level | — |
@@ -69,7 +69,7 @@ Two scopes, and only one of them makes input kind a meaningful axis:
 
 ### Category 5 — Packaging
 
-| Annotation | Honoured by | Purpose | Default |
+| Annotation | Applied by | Purpose | Default |
 | --- | --- | --- | --- |
 | `aggrega.ai/chart-name` | `helm-chart` — per assembly | Umbrella chart name | Aggregate name and boundary name joined, or the boundary name alone when the Aggregate is unnamed |
 | `aggrega.ai/chart-version` | not yet consumed | Reserved for a Helm chart version | — |
@@ -78,7 +78,7 @@ Two scopes, and only one of them makes input kind a meaningful axis:
 
 ### Category 6 — Cloud target
 
-| Annotation | Honoured by | Purpose | Default |
+| Annotation | Applied by | Purpose | Default |
 | --- | --- | --- | --- |
 | `aggrega.ai/aws-account` | `cloudformation` — per cross-boundary reference | AWS account the stack (boundary) deploys into | Same-account — a cross-stack reference resolves through a same-account stack-export import |
 | `aggrega.ai/aws-region` | `cloudformation` — per cross-boundary reference | AWS region the stack (boundary) deploys into | Same-region — a cross-stack reference resolves through a same-region stack-export import |
@@ -102,16 +102,16 @@ and supplies no role.
 
 ### Support by provider and input kind
 
-The node-scoped keys, per provider per input kind. Column headers drop the `aggrega.ai/` prefix every key carries. `honoured` and `—` carry the tiers defined above, `—` being *not honoured*; `n/a` means the provider does not render that input kind at all, so no path exists there for the key to be honoured on or missed on.
+The node-scoped keys, per provider per input kind. Column headers drop the `aggrega.ai/` prefix every key carries. `applied` and `—` carry the tiers defined above, `—` being *not applied*; `n/a` means the provider does not render that input kind at all, so no path exists there for the key to be applied on or missed on.
 
 <!-- BEGIN GENERATED: well-known-annotation-support -->
 | Provider | Input kind | `namespace` | `image-registry` | `image-pull-secret` | `service-account` |
 | --- | --- | --- | --- | --- | --- |
-| `helm` | sourced | honoured | — | — | — |
-| `helm` | synthesized | honoured | honoured | honoured | honoured |
+| `helm` | sourced | applied | — | — | — |
+| `helm` | synthesized | applied | applied | applied | applied |
 | `helm` | artifacts-only | — | — | — | — |
-| `compose` | sourced | honoured | — | — | — |
-| `compose` | synthesized | honoured | honoured | — | — |
+| `compose` | sourced | applied | — | — | — |
+| `compose` | synthesized | applied | applied | — | — |
 | `compose` | artifacts-only | n/a | n/a | n/a | n/a |
 | `helm-chart` | sourced | — | — | — | — |
 | `helm-chart` | synthesized | n/a | n/a | n/a | n/a |
@@ -136,14 +136,14 @@ warning: node "frontend" (provider "helm-chart"): target "helm-chart" does not s
 
 The value still passes through untouched — the build does not halt, because a boundary spanning components on heterogeneous targets will always have some node that cannot act on a given key, and that is an ordinary deployment rather than a mistake. A boundary annotation cascades, so one authored line yields one warning per node that cannot act on it, which is how you see *which* nodes are affected. It belongs to the `unsupported-field` class and is silenced with that class's flag; [Warnings](../errors/warnings.md) has the detail. Two limits worth knowing: only the bare `aggrega.ai/` keys are checked, since a sub-prefixed key is your own vocabulary, and a provider that declares no support claim at all produces no warning, because there is nothing to compare what you authored against.
 
-**Why a vendored artifact honours fewer keys.** A node-scoped annotation is honoured where the provider has a render slot for it. When the provider synthesizes the deployment unit itself it owns every field of the result, so a registry prefix, a pull secret and a service account all have somewhere to land. A vendored artifact — a Helm chart, a compose file, a Terraform module — carries its own configuration interface instead, and the compiler does not read that interface, so it cannot know which of the artifact's own keys a registry prefix or a service account would correspond to. Placement that the surrounding render call controls still applies, which is why a chart rendered from source honours `aggrega.ai/namespace`. Placement that would mean deciding where inside someone else's artifact a value belongs does not, and an author supplies it through that artifact's own values. This is why the sourced rows are sparse where the synthesized rows are full, and it is the shape to expect of any key added later.
+**Why a vendored artifact applies fewer keys.** A node-scoped annotation is applied where the provider has a render slot for it. When the provider synthesizes the deployment unit itself it owns every field of the result, so a registry prefix, a pull secret and a service account all have somewhere to land. A vendored artifact — a Helm chart, a compose file, a Terraform module — carries its own configuration interface instead, and the compiler does not read that interface, so it cannot know which of the artifact's own keys a registry prefix or a service account would correspond to. Placement that the surrounding render call controls still applies, which is why `aggrega.ai/namespace` is applied to a chart rendered from source. Placement that would mean deciding where inside someone else's artifact a value belongs does not, and an author supplies it through that artifact's own values. This is why the sourced rows are sparse where the synthesized rows are full, and it is the shape to expect of any key added later.
 
 ### Keys resolved per assembly and per reference
 
 Four of the shipped keys are not node-scoped, so they sit outside the grid above rather than being folded into it: input kind is not a meaningful axis for them, and giving each one a row per input kind would repeat a single cell three times and imply a distinction that does not exist. Each declares the boundary scope, and the table below is generated from those declarations.
 
 <!-- BEGIN GENERATED: well-known-annotation-boundary-scope -->
-| Annotation | Honoured by | Purpose | Default |
+| Annotation | Applied by | Purpose | Default |
 | --- | --- | --- | --- |
 | `aggrega.ai/chart-name` | `helm-chart` | Name of the assembled umbrella Helm chart. | The leaf boundary name is used. |
 | `aggrega.ai/aws-account` | `cloudformation` | The AWS account the stack (boundary) deploys into. A cross-boundary reference reads it to decide whether a peer stack sits in the same account. | The peer is treated as same-account, and a cross-stack reference resolves through a same-account stack-export import rather than a cross-account stack-output read. |

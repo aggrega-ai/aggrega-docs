@@ -239,7 +239,7 @@ On the compose target the class currently covers `scheduling`, `serviceAccount`,
 
 The `aggrega.ai/` annotations are platform directives a provider reads and applies to what it renders — a namespace, a registry prefix, a service account. Which of them a provider reads is that provider's own declaration, made per input kind, because a provider that owns every field of a deployment unit it synthesizes itself often has nowhere to put the same value when it renders a vendored artifact. [Well-Known Annotations](../providers/well-known-annotations.md) is the matrix.
 
-When a node carries such an annotation and the resolved target's declaration does not cover that key on the node's input kind, the annotation reaches no consumer, changes nothing, and **says so with a warning** naming the key, the target and the input kind:
+When a node carries such an annotation and the resolved target's declaration does not cover that key on the node's input kind, the target applies nothing for that key, and the build **says so with a warning** naming the key, the target and the input kind:
 
 <!-- unregistered-output: warning text, which is reported without halting and which no halting condition registers -->
 
