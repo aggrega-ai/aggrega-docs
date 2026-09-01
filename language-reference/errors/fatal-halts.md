@@ -3477,6 +3477,79 @@ Emitted message, naming the plugin, the export, which observation was at fault, 
 
 **How to fix:** nothing in your entity files causes this — the value came from the plugin. Report it to whoever publishes the plugin, quoting the value the message names. Where the plugin is yours, emit one of the three declared severities; the message names them, and the index tells you which observation to look at.
 
+### A provider returned two output files under one path
+
+<!-- covers: internal/compiler/renderer.ErrProviderRenderDuplicatePath -->
+
+A provider returns its output as a list of files, each naming the path it is written at. The host collects them keyed by path and writes each file's bytes verbatim, running no serializer of its own. Two files naming the same path leave that collection with two values for one key.
+
+**It refuses rather than choosing one, because neither choice can be told from the other afterwards.** Keeping the last discards a file the provider said to write; keeping the first discards a later one. Either way the output on disk is well-formed and short by one file, with nothing recording that a file was dropped — and the path that survived is the path that would have survived anyway, so nothing about the result says a collision happened. Which of the two was meant is a question only the provider can answer.
+
+It is raised wherever a provider returns files: rendering one node, and assembling a dispatch group's output into one artifact. The condition and the fix are the same on both, so both report it.
+
+Emitted message, naming the path returned twice and the node or dispatch path it was returned for:
+> provider guest returned two output files under one path; a conforming guest returns each output path at most once (path `"<path>"`, node `"<node>"`)
+
+**How to fix:** nothing in your entity files causes this — the paths came from the provider. Report it to whoever publishes it, quoting the path the message names. Where the provider is yours, return each output path at most once: build the path list against a set so a second file at one path is caught where it is produced, and give the second file a distinct path if both are wanted.
+
+### A provider's link wiring names an output file that was never emitted
+
+<!-- covers: internal/compiler/renderer.ErrLinkPatchFileNotEmitted -->
+
+When a connection crosses between two dispatch groups, the provider on each side is asked to wire it: the consumed end publishes an identity, the consuming end resolves against it, and each may return structural wiring to apply to its own group's output. Each piece of wiring names the output file it applies to. A later pass carves that file, applies the operations, and reassembles it byte-faithfully.
+
+**A name that matches no emitted file leaves that pass nothing to carve, and it refuses rather than passing the wiring over.** The operations it carries are what resolves the connection, so dropping them leaves assembled output referencing an endpoint that nothing wired — which fails at deploy time, far from the provider that caused it, and looks like a mistake in the connection rather than in the wiring.
+
+The files a piece of wiring may name are the files that group's own render returned. They are handed to the provider on the same call, so the provider never has to guess a name: it selects one from the set it was given.
+
+Emitted message, naming the file the wiring asked for and the endpoint it was returned for:
+> link patch names an output file the dispatch group did not emit; a conforming link patch names a file the group's own render returned (file `"<file>"`, node `"<node>"`)
+
+**How to fix:** nothing in your entity files causes this — the name came from the provider. Report it to whoever publishes it, quoting the file the message names. Where the provider is yours, name the file from the assembled files the call hands you rather than from a name built independently — a path composed by hand goes stale the moment the render that produces it changes, and this is what that looks like.
+
+### A pipeline step's file emission carries no file
+
+<!-- covers: internal/compiler/renderer.ErrPipelineEmitFileAbsent -->
+
+A pipeline step may emit a new document alongside the ones it patches. Each emission declares its kind, and an emission of the file kind carries the file it writes: the path, and the content.
+
+**Here the kind is right and the file is absent**, so the step declared an intention its reply does not carry out. That is the difference between this and the undefined-kind halt below: the host knows exactly what to do with an `emit_file` emission and has nothing to do it to.
+
+**It refuses rather than emitting nothing, because an emission that quietly contributed no file would be invisible.** A step that emits a document is often the whole reason it is in the pipeline, and its output is a file that was not there before — so a build that skipped it would produce output missing a document, with the step reporting that it ran.
+
+Emitted message, naming the node and which of the step's emissions was at fault:
+> emit_file side effect carries no file; a conforming emit_file side effect carries a file with its path and content (node `"<node>"`, side effect `<index>`)
+
+**How to fix:** nothing in your entity files causes this — the reply came from the plugin. Report it to whoever publishes it, quoting the index the message names. Where the plugin is yours, populate the file member on every `emit_file` emission, with both its path and its content; the index says which emission of that step's reply to look at.
+
+### A pipeline step declares an emission kind the contract does not define
+
+<!-- covers: internal/compiler/renderer.ErrPipelineSideEffectKindUndefined -->
+
+Each emission a pipeline step returns declares its kind, and the contract defines two: one writes a file, one contributes a custom-resource document. The kind is an open string on the wire, which is what lets a later kind be added without breaking existing plugins.
+
+**That openness is exactly why an undefined kind refuses rather than being passed over.** A value the host does not define cannot be told apart, by its shape alone, from one a later version will define — so a host that skipped it would silently drop whatever the step meant by it, on every build, while the step reported success. Refusing keeps the extension point open without making it a hole: a kind this build does not define is reported as undefined, quoting the value the step sent, rather than accepted and ignored.
+
+Emitted message, naming the node, which emission was at fault, and the kind it declared:
+> side effect declares a kind the plugin contract does not define; a conforming side effect declares emit_file or emit_crd (node `"<node>"`, side effect `<index>`, kind `"<value>"`)
+
+**How to fix:** nothing in your entity files causes this — the value came from the plugin. Report it to whoever publishes it, quoting the kind the message names. Where the plugin is yours, declare one of the kinds the message lists; a misspelling of a defined kind is the common cause, and the value quoted back is what you sent.
+
+### A provider's reassembly is handed a unit its own carve never produced
+
+<!-- covers: internal/compiler/rendercore.ErrPipelinePatchUnitNotCarved -->
+
+A provider whose output shape cannot be addressed directly may carve it for itself: it splits an output file into addressable units, each under a token, and hands them back. A pipeline step then addresses a unit by that token, and reassembly splices the edited units back into the file byte-faithfully. The two halves are one contract — the tokens a file is carved under are the tokens its reassembly resolves.
+
+**When reassembly is handed a token the carve of that same file did not produce, there is no byte range for the edited content to go back into.** It refuses rather than dropping the unit, because a dropped unit yields a file that is well-formed and missing an edit a step was asked to make: nothing failed, nothing is malformed, and the edit is simply absent.
+
+The two halves can only disagree where they are split — a codec that carves for itself and borrows the standard structural reassembly for the rest. Carving under one set of tokens and reassembling against another then produces exactly this. A codec that owns both halves cannot reach it: its own reassembly answers for its own tokens.
+
+Emitted message, naming the token that resolved to nothing and the file it was named against:
+> reassemble names a patched unit token the carve did not produce; a conforming codec carves and reassembles a file under the same tokens (token `"<token>"`, file `"<file>"`)
+
+**How to fix:** nothing in your entity files causes this. Where the provider is yours, make the tokens one half produces the tokens the other resolves: derive them once and carry them, rather than deriving them independently on each side, and where the carve rewrites a file before splitting it, reassemble against the same rewritten form. Where the provider is not yours, report it to whoever publishes it, quoting the token the message names.
+
 ### A workload declares a form compose cannot express
 
 <!-- covers: plugins/internal/composecore.ErrUnsupportedComposeForm -->
@@ -4296,6 +4369,11 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0265` | `provider does not support the node's input kind` | `workload:` requires a provider that can synthesize |
 | `E0266` | ``a schema `$import:` could not be applied`` | A schema `$import:` cannot be applied |
 | `E0267` | `a schema block declares a key that names no data pillar` | A schema block names a key that is not a data pillar |
+| `E0268` | `reassemble names a patched unit token the carve did not produce; a conforming codec carves and reassembles a file under the same tokens` | A provider's reassembly is handed a unit its own carve never produced |
+| `E0269` | `provider guest returned two output files under one path; a conforming guest returns each output path at most once` | A provider returned two output files under one path |
+| `E0270` | `link patch names an output file the dispatch group did not emit; a conforming link patch names a file the group's own render returned` | A provider's link wiring names an output file that was never emitted |
+| `E0271` | `emit_file side effect carries no file; a conforming emit_file side effect carries a file with its path and content` | A pipeline step's file emission carries no file |
+| `E0272` | `side effect declares a kind the plugin contract does not define; a conforming side effect declares emit_file or emit_crd` | A pipeline step declares an emission kind the contract does not define |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
