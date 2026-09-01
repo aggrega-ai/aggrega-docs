@@ -2766,10 +2766,12 @@ Whether two contributors emitting one filename collide depends on where their pr
 
 The build halts rather than writing one of the two files and discarding the other. There is no correct silent resolution: renaming or suffixing one file would invent a name nobody authored, and merging their contents would invent a document nobody wrote. Every colliding path is reported, and every contributor writing it is named, so one build tells you the whole picture rather than one collision at a time.
 
-**Emitted messages.** One finding is reported per colliding path, each positioned at the boundary its output was assembled within, so a build whose contributors met on two paths tells you about both and each finding can be navigated to on its own:
-> assembled output collision: two contributors write the same output path (output path `"<output-path>"`, written by `"<contributor-1> and <contributor-2>"`)
+**Emitted messages.** One finding is reported per colliding path — once, however many boundaries fed the assembly it happened in — so a build whose contributors met on two paths tells you about both and neither collision is reported twice:
+> assembled output collision: two contributors write the same output path (output path `"<output-path>"`, written by `"<contributor-1> and <contributor-2>"`, assembled within `"<boundary-1> and <boundary-2>"`)
 
 Each contributor is named for what it is, which is what says where its name is written: `component <name>` for a component instance, `feature <name>` for a feature attached to a boundary, and `the <provider> assembly` for the assembly's own merged output. The contributors are listed in name order, so the sentence is the same on every build of the same input.
+
+The boundaries the assembly was fed by are named too, and they are listed rather than singled out. Boundaries whose `directory:` declarations evaluate alike assemble as one, and nothing about a collision says which of them the contributors that met were declared in — so the finding gives you every boundary whose declaration could separate them and asserts about none of them that it is the one at fault. The finding is reported against the deployment document as a whole for the same reason: naming one boundary inside it would send you to a document that may have contributed nothing to the path.
 
 Where more than one path collides, the findings arrive together under a report stating what they have in common:
 > assembled output paths written by more than one contributor
@@ -3331,7 +3333,7 @@ Where a dependency connection crosses between two assembled outputs, the value i
 
 This condition is what a placeholder that survived that replacement reports. Surviving means the resolution never reached it: the value landed somewhere the provider could not address — spliced into a larger string rather than standing as a whole value, most often — or a crossing was stamped with nothing on the other side to resolve it. A placeholder is never valid output, so the build stops rather than ship a file containing one.
 
-The message names the provider that wrote the file and the path the file stands at, and is positioned at the boundary the output was assembled for: a path is unique only within a boundary and a provider together, so all three are what identify one file. Every offending file is reported rather than the first.
+The message names the provider that wrote the file and the path the file stands at: a path is unique only within one assembly, so the two together are what identify one file. Every offending file is reported rather than the first, and each is reported once however many boundaries fed the assembly it stands in. It is reported against the deployment document as a whole rather than against a boundary inside it — the fault is in the translation rather than in anything you wrote, so no boundary declaration is the thing to change.
 
 Emitted message:
 > assembled output retains an unresolved cross-boundary link placeholder (`"<provider>"`, `"<output-path>"`)
