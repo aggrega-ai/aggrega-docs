@@ -648,13 +648,13 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0231` | `cloudformation-provider-cfncore/link-consumer-stack-missing` | `cloudformation-provider: cross-boundary link resolve received no consumer stack template` |
 | `E0232` | `cloudformation-provider-cfncore/link-sentinel-interpolated` | `cloudformation-provider: cross-boundary link value is interpolated into a larger string; only a whole-scalar injection can carry a cross-stack reference` |
 | `E0233` | `cloudformation-provider-cfncore/output-name-collision` | `cloudformation-provider: two entries an author wrote reach one stack Output name` |
-| `E0235` | `compiler-renderer-compose/translation-config-map-missing-artifact` | `TRANSLATION_ERROR: configmap volume requires a file emitted via the Recipe's artifacts: input; none found` |
-| `E0236` | `compiler-renderer-compose/translation-probe-no-port` | `TRANSLATION_ERROR: probe http: requires at least one container port; container declares none` |
-| `E0237` | `compiler-renderer-compose/translation-probe-shape` | `TRANSLATION_ERROR: probe declares no shape (http/tcp/exec)` |
-| `E0238` | `compiler-renderer-compose/unconvertible-compose-quantity` | `TRANSLATION_ERROR: resources quantity cannot be converted to a compose deploy.resources value` |
-| `E0239` | `compiler-renderer-compose/unsupported-compose-env-from` | `TRANSLATION_ERROR: compose has no env-from-object primitive; container declares envFrom` |
-| `E0240` | `compiler-renderer-compose/unsupported-compose-form` | `TRANSLATION_ERROR: compose cannot express this workload form` |
-| `E0241` | `compiler-renderer-compose/unsupported-compose-lifecycle` | `TRANSLATION_ERROR: compose has no lifecycle-hook primitive; container declares lifecycle hooks` |
+| `E0235` | `compiler-renderer-compose/translation-config-map-missing-artifact` | `configmap volume requires a file emitted via the Recipe's artifacts: input; none found` |
+| `E0236` | `compiler-renderer-compose/translation-probe-no-port` | `probe http: requires at least one container port; container declares none` |
+| `E0237` | `compiler-renderer-compose/translation-probe-shape` | `probe declares no shape (http/tcp/exec)` |
+| `E0238` | `compiler-renderer-compose/unconvertible-compose-quantity` | `resources quantity cannot be converted to a compose deploy.resources value` |
+| `E0239` | `compiler-renderer-compose/unsupported-compose-env-from` | `compose has no env-from-object primitive; container declares envFrom` |
+| `E0240` | `compiler-renderer-compose/unsupported-compose-form` | `compose cannot express this workload form` |
+| `E0241` | `compiler-renderer-compose/unsupported-compose-lifecycle` | `compose has no lifecycle-hook primitive; container declares lifecycle hooks` |
 | `E0243` | `compiler-renderer-helm/rendered-file-collision` | `two rendered resources derive the same output filename with differing content` |
 | `E0244` | `compiler-renderer-helm/stateful-set-ambiguous-headless-service` | `synthesized StatefulSet has more than one headless Service` |
 | `E0245` | `compiler-renderer-helm/stateful-set-no-headless-service` | `synthesized StatefulSet has no headless governing Service` |
@@ -670,7 +670,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0255` | `resolver/annotation-side-pillar-mismatch` | `annotation routes through a pillar its authoring side may not use` |
 | `E0256` | `resolver/annotation-binding-pillar-overlap` | `annotation binding declares one path in both pillar lists` |
 | `E0257` | `resolver/schema-contract-compile-failure` | `declared schema contract failed to compile, so nothing was validated against it: correct the contract where it is declared, or remove it if the configuration it covers needs no validation` |
-| `E0258` | `compiler-renderer-compose/unsupported-compose-port-protocol` | `TRANSLATION_ERROR: compose publishes a port's transport as a tcp or udp suffix; this port declares a transport compose cannot express` |
+| `E0258` | `compiler-renderer-compose/unsupported-compose-port-protocol` | `compose publishes a port's transport as a tcp or udp suffix; this port declares a transport compose cannot express` |
 | `E0259` | `compiler-renderer/boundary-scope-attachment-not-declared-at-a-boundary` | `attachment binds a FeatureRecipe with executionScope: boundary and no boundary holding the component declares it` |
 | `E0260` | `compiler-topology/unplaced-component` | `` component placed in no boundary: name it under a boundary's `components`, or place the sub-module that contributes it under `aggregates` `` |
 | `E0261` | `compiler-topology/unresolved-boundary-component` | `boundary names a component the composition does not hold: correct the name, or remove the entry` |

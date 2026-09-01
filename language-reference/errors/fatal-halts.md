@@ -3471,7 +3471,7 @@ The compose provider renders long-running services. A workload declaring that it
 
 Emitted message. The provider's own sentence names the form it was given, and the condition it is recorded under follows it as the cause:
 > compose: workload form `"<form>"` has no compose mapping; compose supports stateless and stateful only
-> caused by: TRANSLATION_ERROR: compose cannot express this workload form
+> caused by: compose cannot express this workload form
 
 **How to fix:** where the target genuinely is a single-machine compose environment, express the work as a long-running service — the stateless and stateful forms are the two it renders. Where the form is what you meant, render that boundary through a provider whose target has an equivalent: a per-machine copy, a scheduled run and a run-to-completion job all have direct expressions elsewhere, and the choice of provider is the boundary's rather than the workload's.
 
@@ -3490,10 +3490,10 @@ Both are checked for ordinary containers and for containers that run before the 
 
 **Emitted messages**, each with the condition it is recorded under following as the cause:
 > compose: node `"<node>"` declares container lifecycle hooks; compose has no lifecycle-hook primitive
-> caused by: TRANSLATION_ERROR: compose has no lifecycle-hook primitive; container declares lifecycle hooks
+> caused by: compose has no lifecycle-hook primitive; container declares lifecycle hooks
 
 > compose: node `"<node>"` declares container envFrom; compose has no env-from-object primitive
-> caused by: TRANSLATION_ERROR: compose has no env-from-object primitive; container declares envFrom
+> caused by: compose has no env-from-object primitive; container declares envFrom
 
 **How to fix:** for a compose target, remove the field and do its work another way — start-up work belongs in a container that runs before the main one, and shutdown work in the container's own signal handling; bulk environment can be written out as explicit variables, or supplied from a file the compose target can read. Where the field is what you meant, render that boundary through a provider whose target has the primitive.
 
@@ -3508,7 +3508,7 @@ A published compose port carries its transport as a suffix on the entry, and tha
 **A port declaring no transport is unaffected.** It publishes with no suffix, exactly as a port that never carried a transport would.
 
 Emitted message. The condition's own sentence is what is printed here, beneath the frame naming the node and container the port was declared on:
-> TRANSLATION_ERROR: compose publishes a port's transport as a tcp or udp suffix; this port declares a transport compose cannot express
+> compose publishes a port's transport as a tcp or udp suffix; this port declares a transport compose cannot express
 
 **How to fix:** for a compose target, declare the port's transport as one of the two compose can spell, or leave it undeclared and let the entry publish without a suffix. Where the transport is what you meant, render that boundary through a provider whose target can express it.
 
@@ -3520,10 +3520,10 @@ A container's processor and memory quantities are written in a form compose does
 
 **Emitted messages**, each naming the quantity and the forms that convert:
 > compose: cannot convert cpu quantity `"<value>"` to a deploy.resources cpus value; use a millicpu (e.g. 500m) or a plain core count (e.g. 0.5, 2)
-> caused by: TRANSLATION_ERROR: resources quantity cannot be converted to a compose deploy.resources value
+> caused by: resources quantity cannot be converted to a compose deploy.resources value
 
 > compose: cannot convert memory quantity `"<value>"` to a deploy.resources byte count; use an integer quantity with a binary (Ki/Mi/Gi/Ti/Pi) or decimal (k/M/G/T/P) suffix, or a plain byte integer
-> caused by: TRANSLATION_ERROR: resources quantity cannot be converted to a compose deploy.resources value
+> caused by: resources quantity cannot be converted to a compose deploy.resources value
 
 **How to fix:** write the quantity in one of the forms the message lists. A fractional memory quantity is the common cause and the fix is to write the same amount as a whole number in a smaller unit. Processor quantities take either a thousandths-of-a-core value or a plain count.
 
@@ -3539,9 +3539,9 @@ A declared health probe becomes a compose healthcheck, and two things can stop t
 **A probe that declares no way of checking at all** — neither a path, nor a port to connect to, nor a command to run. There is nothing to turn into a check. This one is a guard behind the schema rather than a shape you are likely to write: a probe is checked for having one of the three before it reaches here.
 
 **Emitted messages.** Each is the condition's own sentence, printed beneath a frame naming the node and the container the probe was declared on:
-> TRANSLATION_ERROR: probe http: requires at least one container port; container declares none
+> probe http: requires at least one container port; container declares none
 
-> TRANSLATION_ERROR: probe declares no shape (http/tcp/exec)
+> probe declares no shape (http/tcp/exec)
 
 **How to fix:** declare the port the check should be made against on the same container as the probe — a probe over HTTP reads the first container port, so the port has to exist for the check to be built. Where the container genuinely publishes nothing, check it another way: a probe that runs a command needs no port. For a probe with no way of checking declared, give it one of the three.
 
@@ -3557,7 +3557,7 @@ Every unresolved reference is reported rather than the first, in a stable order,
 
 Emitted message, naming each service, the reference it made, and where it mounts:
 > compose AssembleBoundary: service `"<service>"` references config `"<name>"` mounted at `"<path>"`; declare each one as a top-level configs: entry from the Recipe's artifacts: input
-> caused by: TRANSLATION_ERROR: configmap volume requires a file emitted via the Recipe's artifacts: input; none found
+> caused by: configmap volume requires a file emitted via the Recipe's artifacts: input; none found
 
 **How to fix:** emit the file from the Recipe's `artifacts:` input under the name the volume references — the two are matched by that name, so a mismatch between what the volume asks for and what the Recipe emits is the common cause. Where the content was meant to come from somewhere else, the volume is the wrong mechanism for it: a value that belongs in the environment goes there instead.
 
@@ -4250,13 +4250,13 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0231` | `cloudformation-provider: cross-boundary link resolve received no consumer stack template` | A cross-boundary reference has no consuming stack to be written into |
 | `E0232` | `cloudformation-provider: cross-boundary link value is interpolated into a larger string; only a whole-scalar injection can carry a cross-stack reference` | A cross-boundary reference was spliced into a longer string |
 | `E0233` | `cloudformation-provider: two entries an author wrote reach one stack Output name` | Two entries reach one stack output name |
-| `E0235` | `TRANSLATION_ERROR: configmap volume requires a file emitted via the Recipe's artifacts: input; none found` | A configmap volume has no file behind it |
-| `E0236` | `TRANSLATION_ERROR: probe http: requires at least one container port; container declares none` | A health probe cannot be turned into a compose healthcheck |
-| `E0237` | `TRANSLATION_ERROR: probe declares no shape (http/tcp/exec)` | A health probe cannot be turned into a compose healthcheck |
-| `E0238` | `TRANSLATION_ERROR: resources quantity cannot be converted to a compose deploy.resources value` | A resources quantity cannot be converted to a compose value |
-| `E0239` | `TRANSLATION_ERROR: compose has no env-from-object primitive; container declares envFrom` | A container declares a field compose has no primitive for |
-| `E0240` | `TRANSLATION_ERROR: compose cannot express this workload form` | A workload declares a form compose cannot express |
-| `E0241` | `TRANSLATION_ERROR: compose has no lifecycle-hook primitive; container declares lifecycle hooks` | A container declares a field compose has no primitive for |
+| `E0235` | `configmap volume requires a file emitted via the Recipe's artifacts: input; none found` | A configmap volume has no file behind it |
+| `E0236` | `probe http: requires at least one container port; container declares none` | A health probe cannot be turned into a compose healthcheck |
+| `E0237` | `probe declares no shape (http/tcp/exec)` | A health probe cannot be turned into a compose healthcheck |
+| `E0238` | `resources quantity cannot be converted to a compose deploy.resources value` | A resources quantity cannot be converted to a compose value |
+| `E0239` | `compose has no env-from-object primitive; container declares envFrom` | A container declares a field compose has no primitive for |
+| `E0240` | `compose cannot express this workload form` | A workload declares a form compose cannot express |
+| `E0241` | `compose has no lifecycle-hook primitive; container declares lifecycle hooks` | A container declares a field compose has no primitive for |
 | `E0243` | `two rendered resources derive the same output filename with differing content` | Two rendered resources land at one output file |
 | `E0244` | `synthesized StatefulSet has more than one headless Service` | A synthesized StatefulSet has no single service to govern it |
 | `E0245` | `synthesized StatefulSet has no headless governing Service` | A synthesized StatefulSet has no single service to govern it |
@@ -4272,7 +4272,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0255` | `annotation routes through a pillar its authoring side may not use` | An annotation routes through a pillar its authoring side may not use |
 | `E0256` | `annotation binding declares one path in both pillar lists` | An annotation binding declares one path in both pillar lists |
 | `E0257` | `declared schema contract failed to compile, so nothing was validated against it: correct the contract where it is declared, or remove it if the configuration it covers needs no validation` | A declared schema contract does not compile |
-| `E0258` | `TRANSLATION_ERROR: compose publishes a port's transport as a tcp or udp suffix; this port declares a transport compose cannot express` | A published port declares a transport compose cannot spell |
+| `E0258` | `compose publishes a port's transport as a tcp or udp suffix; this port declares a transport compose cannot express` | A published port declares a transport compose cannot spell |
 | `E0259` | `attachment binds a FeatureRecipe with executionScope: boundary and no boundary holding the component declares it` | A boundary-scope Feature is attached only to a component |
 | `E0260` | `` component placed in no boundary: name it under a boundary's `components`, or place the sub-module that contributes it under `aggregates` `` | A component the composition holds is placed in no boundary |
 | `E0261` | `boundary names a component the composition does not hold: correct the name, or remove the entry` | A boundary names a component the composition does not hold |
