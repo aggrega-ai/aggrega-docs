@@ -45,7 +45,7 @@ not a Wasm mutator or pipeline step.)
 
 ## What the rendered output proves
 
-Build it and inspect `dist/<boundary>/helm/features/feature.aggrega.ai/monitoring/<component>-servicemonitor.yaml`:
+Build it and inspect `dist/<boundary>/helm/features/<component>/feature.aggrega.ai/monitoring/<component>-servicemonitor-<component>-scrape.yaml`:
 
 ```bash
 aggrega build --release release.yaml

@@ -55,7 +55,7 @@ name normalizes underscores in the slot name to hyphens, so `user_password`
 becomes the valid Kubernetes resource name `db-user-password`:
 
 ```yaml
-# features/user_password/db-secret-db-user-password.yaml
+# features/db/user_password/db-secret-db-user-password.yaml
 metadata:
   name: "db-user-password"
 stringData:

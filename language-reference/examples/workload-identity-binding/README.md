@@ -72,7 +72,7 @@ containers:
 Both reads resolve to the ServiceAccount the attachment actually emitted:
 
 ```yaml
-# features/identity/app-serviceaccount-app-workload-identity.yaml
+# features/app/identity/app-serviceaccount-app-workload-identity.yaml
 [… omitted: the apiVersion]
 kind: ServiceAccount
 metadata:

@@ -65,7 +65,7 @@ researcher:
 Two Secrets are emitted, one per agent, each carrying that agent's own material:
 
 ```yaml
-# dist/per-consumer/helm/features/model_api_key/researcher-secret-researcher-model-api-key.yaml
+# dist/per-consumer/helm/features/researcher/model_api_key/researcher-secret-researcher-model-api-key.yaml
 [… omitted: the apiVersion and the Secret kind]
 metadata:
   name: researcher-model-api-key
@@ -73,7 +73,7 @@ metadata:
 stringData:
   OPENAI_API_KEY: "researcher-key-change-me"
 
-# dist/per-consumer/helm/features/model_api_key/writer-secret-writer-model-api-key.yaml
+# dist/per-consumer/helm/features/writer/model_api_key/writer-secret-writer-model-api-key.yaml
 [… omitted: the apiVersion and the Secret kind]
 metadata:
   name: writer-model-api-key
@@ -140,7 +140,7 @@ declaration does **not** produce one Secret. Two Secrets are emitted, with the
 same names as in the per-consumer form, both carrying the same material:
 
 ```yaml
-# dist/shared/helm/features/model_api_key/researcher-secret-researcher-model-api-key.yaml
+# dist/shared/helm/features/researcher/model_api_key/researcher-secret-researcher-model-api-key.yaml
 [… omitted: the apiVersion and the Secret kind]
 metadata:
   name: researcher-model-api-key
@@ -148,7 +148,7 @@ metadata:
 stringData:
   OPENAI_API_KEY: "team-key-change-me"
 
-# dist/shared/helm/features/model_api_key/writer-secret-writer-model-api-key.yaml
+# dist/shared/helm/features/writer/model_api_key/writer-secret-writer-model-api-key.yaml
 [… omitted: the apiVersion and the Secret kind]
 metadata:
   name: writer-model-api-key
@@ -220,13 +220,13 @@ The nearer scope wins for `researcher`; `writer` keeps the subsystem-wide
 attachment untouched:
 
 ```yaml
-# dist/composed/helm/features/model_api_key/researcher-secret-researcher-model-api-key.yaml
+# dist/composed/helm/features/researcher/model_api_key/researcher-secret-researcher-model-api-key.yaml
 metadata:
   name: researcher-model-api-key
 stringData:
   OPENAI_API_KEY: "researcher-own-key-change-me"
 
-# dist/composed/helm/features/model_api_key/writer-secret-writer-model-api-key.yaml
+# dist/composed/helm/features/writer/model_api_key/writer-secret-writer-model-api-key.yaml
 metadata:
   name: writer-model-api-key
 stringData:

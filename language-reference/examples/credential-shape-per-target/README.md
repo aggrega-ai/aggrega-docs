@@ -84,7 +84,7 @@ other two are the credential resources, one per filled slot, and they are where
 the targets differ.
 
 **Local target**, from `k8s-secret-from-parameter`, at
-`dist/helm/helm/features/password/db-secret-db-password.yaml`:
+`dist/helm/helm/features/db/password/db-secret-db-password.yaml`:
 
 ```yaml
 apiVersion: v1
@@ -97,7 +97,7 @@ stringData:
 ```
 
 **Store target**, from `k8s-external-secret`, at
-`dist/helm/helm/features/password/db-externalsecret-db-password.yaml`:
+`dist/helm/helm/features/db/password/db-externalsecret-db-password.yaml`:
 
 ```yaml
 apiVersion: external-secrets.io/v1
@@ -131,10 +131,10 @@ Comparing the two output trees shows the difference and shows where it stops
 
 ```console
 $ diff -r local store
-Only in store/helm/helm/features/app_user_password: db-externalsecret-db-app-user-password.yaml
-Only in local/helm/helm/features/app_user_password: db-secret-db-app-user-password.yaml
-Only in store/helm/helm/features/password: db-externalsecret-db-password.yaml
-Only in local/helm/helm/features/password: db-secret-db-password.yaml
+Only in store/helm/helm/features/db/app_user_password: db-externalsecret-db-app-user-password.yaml
+Only in local/helm/helm/features/db/app_user_password: db-secret-db-app-user-password.yaml
+Only in store/helm/helm/features/db/password: db-externalsecret-db-password.yaml
+Only in local/helm/helm/features/db/password: db-secret-db-password.yaml
 ```
 
 Four lines, and nothing else: two credential resources present only in the local
