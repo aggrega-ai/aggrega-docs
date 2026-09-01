@@ -1,8 +1,8 @@
 # Provider Reference Index
 
-Aggrega's standard-library providers each accept a different subset of the three Recipe input kinds (sourced, synthesized, artifacts). The canonical capability matrix lives in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md) under "Provider Capability Matrix." Read that section for the authoritative grid.
+Aggrega's standard-library providers each accept a different subset of the three Recipe input kinds (sourced, synthesized, artifacts). The canonical capability matrix lives in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md) under "Provider Capability Matrix." Read that section for the authoritative grid, and the per-provider prose beneath it for which *combinations* of input kinds each provider accepts — a grid states each kind on its own and cannot say that two of them may be declared together.
 
-This page is a signpost. It states what each standard-library provider produces and routes you to the page that covers it; which input kinds a provider accepts is answered by the authoritative grid linked above.
+This page is a signpost. It states what each standard-library provider produces and routes you to the page that covers it; which input kinds a provider accepts, and in which combinations, is answered by the sections linked above.
 
 ## The standard-library providers
 
@@ -30,6 +30,7 @@ Authoring a per-boundary `syncWave:` is covered on the [Release entity page](../
 | If you want to know… | Look at |
 | --- | --- |
 | Which provider supports which input kind | [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md) Provider Capability Matrix section |
+| Which *combinations* of input kinds a provider accepts, and what a refusal prints | [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md#what-each-provider-accepts-in-full) "What each provider accepts, in full" |
 | How a provider's plugin socket receives input and returns output | [architecture.md](architecture.md) |
 | Per-provider authoring shape (chart structure, compose top-level keys, Terraform bodies, CloudFormation fragments) | The matching per-provider page ([helm.md](helm.md), [helm-chart.md](helm-chart.md), [compose.md](compose.md), [terraform.md](terraform.md), [cloudformation.md](cloudformation.md)) |
 | Which boundary annotations each provider consumes and their defaults | [well-known-annotations.md](well-known-annotations.md) |

@@ -426,6 +426,8 @@ Multi-provider composition happens at the Release level. Boundaries hold mixed-p
 
 Each provider declares which input kinds it renders; a central input-kind gate accepts the supported combinations and rejects the rest with a uniform diagnostic when the node renders. Capability is a property of the provider, not the Recipe — a provider renders a subset of the three kinds. The `artifacts:` column distinguishes artifacts riding *alongside* a sourced/synthesized primary from a *standalone* artifacts-only Recipe (no `source:`, no `workload:`).
 
+**Read each column on its own.** A row says which kinds a provider renders taken one at a time. It does not say that two ticked kinds may be declared together. Because the kinds compose by addition, each declared kind is dispatched and emitted separately, so a pair can be refused for a reason neither column carries — most often because both kinds produce a file under the same output name. Which combinations each provider actually accepts is stated in prose under [What each provider accepts, in full](#what-each-provider-accepts-in-full).
+
 <!-- BEGIN GENERATED: provider-capability-matrix -->
 | Provider | `source:` + `valuesMapping:` | `workload:` | `artifacts:` (alongside) | artifacts-only (standalone) |
 | --- | --- | --- | --- | --- |
@@ -439,3 +441,49 @@ Each provider declares which input kinds it renders; a central input-kind gate a
 <!-- END GENERATED: provider-capability-matrix -->
 
 *Cells marked `✅` ship; `❌` is a provider-capability decline surfaced by the gate. The per-node compose fragments are merged per boundary today; a further Release-level cross-boundary merge is a future refinement.*
+
+### What each provider accepts, in full
+
+**`helm` — every combination.** `source:` + `valuesMapping:`, `workload:`, `artifacts:`, any two of them, or all three. It is the only provider distributed with the compiler that refuses no combination, and the reason is how it names output: each emitted file is named after the resource inside it, so a chart's rendered manifests and a synthesized Workload's manifests never land on one name. A Recipe declaring all three emits the chart's files, the Workload's files and the artifact files side by side in the boundary's output directory.
+
+**`compose` — every combination except the two in which `source:` and `workload:` appear together.** Each kind on its own builds, and `artifacts:` rides alongside either one. `source:` with `workload:` cannot build, and neither can all three together; [Why `compose` cannot combine a source with a workload](#why-compose-cannot-combine-a-source-with-a-workload) says why, and it is not a capability decline.
+
+**`helm-chart` — `source:` + `valuesMapping:`, alone or with `artifacts:` alongside. Nothing else.** It does not synthesize a `workload:`, and it has no artifacts-only form: a Recipe whose only input kind is `artifacts:` halts. The reason is where this provider puts an artifact — inside the component's own chart — so a Recipe with no `source:` leaves it no chart to put one in.
+
+**`terraform` — three shapes:** `source:` + `valuesMapping:` on its own, `artifacts:` on its own, or the two together. It does not synthesize a `workload:`.
+
+**`cloudformation` — the same three shapes as `terraform`, with the same single exclusion.** `source:` + `valuesMapping:` on its own, `artifacts:` on its own, or the two together; no `workload:`.
+
+#### What a declined input kind looks like
+
+A Recipe that declares an input kind its bound provider does not render halts the build when the node renders, and it halts whatever else the Recipe declares alongside that kind — pairing a `workload:` with a `source:` the provider *can* render does not carry the workload through. The halt names the provider, the kind it cannot render, and the kinds it does render:
+
+```
+[CATALOG_ERROR E0265] unit
+  provider does not support the node's input kind (node "unit"). provider "terraform" does not support synthesised recipes (this provider supports: sourced, artifacts-only); declare one of the supported input kinds, or target a provider that supports synthesised
+```
+
+The artifacts-only decline reads the same way and names that form: `provider "helm-chart" does not support artifacts-only recipes (this provider supports: sourced)`. `E0265` is the identifier to record when this halt needs naming durably — in a continuous-integration gate, an issue, or a runbook; [the table of every condition](../language-reference/errors/sentinels.md#every-condition-by-short-code) resolves it.
+
+### Why `compose` cannot combine a source with a workload
+
+The compose provider produces one fragment per component and names that fragment after the component. Sourced rendering and Workload synthesis each produce that component's fragment under that one name, so a Recipe declaring both produces two files called the same thing, and the build halts on the collision:
+
+```
+[CATALOG_ERROR E0211] unit
+  rendering node "unit"
+  caused by: [CATALOG_ERROR] aggregate.yaml at .spec.components.unit
+    filename collision across input kinds: two input-kind blocks produced a file under one output name (output name "unit.compose-fragment.yaml", produced by "source, workload")
+```
+
+The fragment's name comes from the component's own identifier and there is no authoring surface for it, so no change to the Recipe's own content avoids the collision. The halt is a property of the *pair* rather than of either kind — compose renders a source, and compose synthesizes a Workload, and the grid is right to tick both. To use both shapes for one component under compose, split them across two components, or fold the source's content into the Workload.
+
+### What a merged document carries from `artifacts:`
+
+Two providers merge their contributors into a single document per assembly path: `compose` into one `docker-compose.yaml`, `cloudformation` into one stack template. A merged document can only carry the sections its assembler models, so an `artifacts:` tick says where a fragment's content is *placed* and not that every key inside the fragment survives.
+
+**`compose` carries `services:`, `volumes:` and `configs:` from an artifact fragment, and those three only.** Anything else a fragment declares at the top level is dropped without a warning — `networks:`, because networks are derived per boundary rather than accumulated from contributors, and equally a `secrets:` block, a top-level `name:`, or an `x-`-prefixed extension key. [The compose provider page](../language-reference/providers/compose.md#artifacts-emitted-compose-fragments) gives the per-key merge rules and the alternative for cross-network routing.
+
+**`cloudformation` carries `Resources`, `Outputs`, `Parameters`, `Mappings`, `Conditions`, `Metadata` and `Rules`.** `Description` and `Transform` are not carried, and unlike compose the build says so: each raises an unsupported-field warning naming the section and the component, so nothing is dropped silently. The warning is advisory — the emitted template is byte-for-byte what it would be without it, and `--no-unsupported-field-warnings` silences the class. `Outputs` is carried under a name the provider scopes to the contributing component, so two components contributing an output of the same name to one stack keep them apart. [Top-level sections in the assembled stack](../language-reference/providers/cloudformation.md#top-level-sections-in-the-assembled-stack) accounts for every section one by one.
+
+The other three providers do not merge, so no artifact key is at risk of being dropped by an assembler. `helm` assembles nothing: each component's manifests reach the boundary's output directory as themselves. `terraform` and `helm-chart` *nest* — each component's files land in a directory of their own, a Terraform module directory or a subchart, and a root document at the boundary references them — so an artifact entry is placed as a whole file rather than read into a shared document. Where a `helm-chart` artifact entry lands, and why its delimiter pair differs, is under [Per-Provider Artifact Semantics](#per-provider-artifact-semantics).
