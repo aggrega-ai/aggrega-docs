@@ -58,7 +58,7 @@ Because the labels arrive verbatim, a catalog author's own namespace reaches the
 
 `.context` is the compiler-assembled execution context for a single node — the identity, topology, and delivery-pipe data the renderer threads through every template site. Five fields:
 
-- **`.context.instance_id` (string).** The node's flattened instance ID (e.g., `data-layer.main-db` for a node imported from a sub-aggregate). Used for resource-name prefixing.
+- **`.context.instance_id` (string).** The node's identity **as a name** — the value the build itself uses to name and label what it emits, so a template composing a resource name or an in-cluster address from it predicts the name the build actually produces. It is the name you wrote for a node your own Aggregate declares. For a node an imported Aggregate contributes it is the flattened identity with the module separator written out (`data-layer.main-db` becomes `data-layer-zdmain-db`), because a dot is not a character a resource name can hold and, inside a cluster address, it separates a service from its namespace. The dotted form is what your documents and the build's diagnostics use to address that node; see [Naming conventions](../02-naming-conventions.md).
 - **`.context.labels` (string-valued map).** Catalog-authored labels plus any `label-transform` additions made at topology construction.
 - **`.context.annotations` (three buckets, see below).** Cascaded annotations grouped by origin.
 - **`.context.inject` (InjectPipe, see below).** The pre-hydrated, intercepted delivery pipe — the standard surface Recipe templates read for cross-component values.

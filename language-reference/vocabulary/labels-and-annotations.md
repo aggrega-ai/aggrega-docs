@@ -69,8 +69,8 @@ The shipping label set, emitted uniformly by the helm, helm-chart, and compose p
 
 | Label | Source | Always emitted? |
 | --- | --- | --- |
-| `app.kubernetes.io/name` | Node ID (or, for a resource a FeatureRecipe emits, the identifier derived for that attachment — see below) | Yes on Kubernetes manifests; not emitted on compose services (the standard label is K8s-specific) |
-| `aggrega.ai/component-id` | Node ID (or, for a resource a FeatureRecipe emits, the identifier derived for that attachment — see below) | Yes |
+| `app.kubernetes.io/name` | Component identity — the name you wrote, or for a component an imported Aggregate contributes its qualified name with the module separator written out (see below); or, for a resource a FeatureRecipe emits, the identifier derived for that attachment | Yes on Kubernetes manifests; not emitted on compose services (the standard label is K8s-specific) |
+| `aggrega.ai/component-id` | Component identity — the name you wrote, or for a component an imported Aggregate contributes its qualified name with the module separator written out (see below); or, for a resource a FeatureRecipe emits, the identifier derived for that attachment | Yes |
 | `aggrega.ai/recipe-uri` | `<recipe-name>:<recipe-version>` of the producing Recipe (or producing FeatureRecipe for FR-emitted resources) | When the producing entity has both name and version set |
 | `aggrega.ai/boundary-path` | Boundary path the component was routed into | When the boundary path is non-empty |
 | `aggrega.ai/aggregate-name` | Aggregate `metadata.name` | When set |
@@ -79,6 +79,8 @@ The shipping label set, emitted uniformly by the helm, helm-chart, and compose p
 | `aggrega.ai/sync-wave` | Per-boundary `syncWave` integer driving GitOps deployment ordering | When non-zero |
 
 For resources a FeatureRecipe emits, the `aggrega.ai/component-id` value is built from the attachment rather than from the host component's name — for every way a FeatureRecipe can deliver those resources, whether it synthesises a workload, emits a standalone artifact set, or renders a chart or a fragment its author supplied. So a query selecting an attachment's resources by identity returns all of them, and none of them is indistinguishable from a resource the host component emitted itself. How the value is built depends on where the Feature is attached; either way the result is a valid Kubernetes label string.
+
+For a component an imported Aggregate contributes, the identity is that component's qualified name with the separator joining the module to the component **written out** — `data-layer.main-db` is stamped as `data-layer-zdmain-db` — because a dot is not a character a resource name or a cluster address can carry safely. A name you wrote carrying no separator is stamped byte for byte.
 
 The identity says what a resource **belongs to**. That is a different question from what a resource is **called**, and for one delivery the two have different answers:
 

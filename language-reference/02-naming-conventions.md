@@ -54,7 +54,23 @@ The period character (`.`) is reserved from all user-authored instance names. Th
 When a root Aggregate imports a sub-aggregate named `data-layer` containing a component named `main-db`, the compiler constructs the flattened absolute ID `data-layer.main-db` by joining the aggregate instance name and the component instance name with a dot. This dotted path appears in:
 
 * **Developer `uses` targets:** `target: data-layer.public_db` — referencing an exported component from a nested aggregate.
-* **Recipe template context:** `{{ .context.instance_id }}` receives the full dotted path as the Recipe's identity string when rendering artifacts for the component.
+* **The build's own diagnostics:** a halt or a warning about that component names it by its dotted path, so the name you read is the one you can search your documents for.
+
+### The separator does not reach a name
+
+A dotted path is an address inside your documents, and it is **not** a name a deployment target will accept. A Kubernetes Service name admits no dot at all; worse, a dot inside a cluster address is what separates a service from the namespace it lives in, so a dotted name handed to a consumer as a host would resolve to a different service rather than failing.
+
+So the separator is **written out** of every name and label the build derives from a component's identity, and it is written out rather than replaced: `data-layer.main-db` becomes `data-layer-zdmain-db`. Replacing it with a character a target does accept would let two different components arrive at one name — `data-layer.main-db` and a component someone wrote as `data-layer-main-db` — and a name two components reach identifies neither.
+
+What that reaches, and what it does not:
+
+* **It reaches the names and labels derived from the identity** — `metadata.name` on a resource Aggrega synthesises, the `aggrega.ai/component-id` and `app.kubernetes.io/name` labels, the selectors that match them, the emitted filenames, and `{{ .context.instance_id }}`, which is the value a Recipe spends when it predicts one of those names. They move together, so a Recipe that composes a hostname from `.context.instance_id` still names the resource the build emits.
+* **It does not reach a name you wrote.** A component name carrying no separator comes back byte for byte, so only a component an imported Aggregate contributes is spelled differently in the output than in the document.
+* **It does not reach the names inside a chart or fragment an author supplied.** Those belong to whoever wrote them, and a name carried out of a third-party chart — a custom-resource name of the form `<plural>.<group>`, where a dot is legal — is emitted exactly as that chart wrote it.
+
+**Writing the separator out costs characters, and a bounded name can run out of them.** The separator is replaced by a short escape rather than by a single character, so a qualified identity is a little longer written than it reads in your documents. That matters only where the name it becomes is bounded: the target that renders a component says how long a label value it will accept, and where the written identity would exceed that, the build halts rather than emitting a value the target would reject. The halt states the length the identity itself must fit in — the length **before** it is written out, so a name chosen inside it works the first time — and the fix is to shorten the authored parts: the name the importing document gives the sub-aggregate, or the component's own name inside it.
+
+The separator is the usual reason a name is written longer than it reads, but it is not the only one. Two shapes an authored name may legally take also cannot be carried through as written, because leaving them would make an escape ambiguous: a name ending in a hyphen, and a name whose hyphen is immediately followed by `z`. Each is written out in the same way, at the same cost. Every other authored name comes back byte for byte, so a name built from letters, digits, underscores and hyphens between words is unaffected by any of this.
 
 Socket names in a developer's `uses` block must match a key in the catalog entity's `usesSchema`. A `uses` socket with no matching `usesSchema` key fails with an unknown-uses-socket validation error at resolution. A catalog entity with no `usesSchema` at all cannot have instances that declare `uses`.
 

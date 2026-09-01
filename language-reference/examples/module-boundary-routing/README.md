@@ -64,9 +64,15 @@ Each boundary's `directory` is the artifact root for everything placed in it, so
 the two modules' components separate on disk by the boundary that routed them:
 
 ```
-dist/observability/helm/   metrics.objstore, metrics.store, metrics.query
-dist/data/helm/            documents.proxy, documents.backend
+dist/observability/helm/   metrics-zdobjstore, metrics-zdstore, metrics-zdquery
+dist/data/helm/            documents-zdproxy, documents-zdbackend
 ```
+
+The filenames carry each component's identity with the module separator written
+out, because a dot is not a character a resource name can hold — `metrics.store`
+in the Aggregate is `metrics-zdstore` in the cluster. Composing a module is the
+only thing that puts a separator in an identity, so a component you name directly
+is spelled the same in both places.
 
 Every resource carries the routing boundary's namespace and records which
 boundary placed it. The store gateway is never named in the routing entry and
@@ -74,7 +80,7 @@ still inherits both:
 
 ```yaml
 metadata:
-  name: metrics.store
+  name: metrics-zdstore
   namespace: observability
   [… omitted: the labels every rendered document carries]
   annotations:
@@ -88,12 +94,12 @@ artifact under that same boundary, carrying the operator's scrape settings:
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
-  name: metrics.query-scrape
+  name: metrics-zdquery-scrape
   [… omitted: the namespace, labels and annotations every rendered document carries]
 spec:
   selector:
     matchLabels:
-      app.kubernetes.io/name: metrics.query
+      app.kubernetes.io/name: metrics-zdquery
   endpoints:
     - port: http
       interval: 30s
