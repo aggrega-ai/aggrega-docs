@@ -1522,22 +1522,22 @@ Emitted message:
 
 <!-- covers: pkg/pluginpath.ErrPluginEntityNotFound -->
 
-A plugin is referenced by its Plugin entity, written as `name:version` or `provider/name:version`. The binary the entity points at is reached through the entity, never named directly, so the entity is what carries the capability claim, the runtime limits and the recorded command set the load checks the binary against. A reference that names no Plugin entity therefore has nothing to check the binary against, and the build stops rather than load bytes on an unchecked reference.
+A plugin is referenced by its Plugin entity, always scoped by the plugin's own socket type: `<pluginType>/<name>`, optionally with a version, as in `parser/yaml` or `parser/yaml:1.0.0`. The scope is mandatory rather than one form among several — an unscoped `name:version` is refused, because two sockets may hold a plugin of the same name and the scope is what makes the entity resolvable. The binary the entity points at is reached through the entity, never named directly, so the entity is what carries the capability claim, the runtime limits and the recorded command set the load checks the binary against. A reference that names no Plugin entity therefore has nothing to check the binary against, and the build stops rather than load bytes on an unchecked reference.
 
 Two shapes report here, and they are checked at different moments. A reference whose **form** cannot be an entity — a filesystem path, or an artifact reference such as an `oci://` URL, a bare `.wasm`, or an `@sha256:` digest — is refused up front on the surfaces that take only entity references. A reference that is well-formed but names no entity the catalog holds is refused after the lookup. Both report the same condition, so a build's response to either is the same.
 
 **Not every surface refuses a non-entity form.** The pipeline-plugin surface takes entity references only; the surfaces an operator attaches a plugin to directly accept any form and pass a non-entity reference on to be resolved as an artifact. So the same reference can be accepted at one attachment point and refused at another, and that difference is the surface's, not the reference's.
 
 Emitted messages. A filesystem path:
-> plugin reference is not a Plugin entity: `"<reference>"` is a filesystem path, but a pipeline plugin must be a Plugin entity URI (e.g. `name:version` or `provider/name:version`)
+> plugin reference is not a Plugin entity: `"<reference>"` is a filesystem path, but a pipeline plugin must be a plugin-type-scoped Plugin entity URI (`<pluginType>/<name>`, optionally versioned, as in `parser/yaml` or `parser/yaml:1.0.0`)
 
 an artifact reference:
-> plugin reference is not a Plugin entity: `"<reference>"` is an artifact reference (an `oci://` scheme, a bare `.wasm`, or an `@sha256:` digest), but a pipeline plugin must be a Plugin entity URI (e.g. `name:version` or `provider/name:version`)
+> plugin reference is not a Plugin entity: `"<reference>"` is an artifact reference (an `oci://` scheme, a bare `.wasm`, or an `@sha256:` digest), but a pipeline plugin must be a plugin-type-scoped Plugin entity URI (`<pluginType>/<name>`, optionally versioned, as in `parser/yaml` or `parser/yaml:1.0.0`)
 
 and a well-formed reference naming no entity:
-> plugin reference is not a Plugin entity: `"<reference>"` must be a Plugin entity URI (e.g. `name:version` or `provider/name:version`); bare-`.wasm` and artifact references are no longer accepted
+> plugin reference is not a Plugin entity: `"<reference>"` must be a plugin-type-scoped Plugin entity URI (`<pluginType>/<name>`, optionally versioned, as in `parser/yaml` or `parser/yaml:1.0.0`); bare-`.wasm` and artifact references are no longer accepted
 
-**How to fix:** write the reference as the Plugin entity's identity and version. Where you were pointing at a file or an artifact directly, publish or author a Plugin entity for it and reference that instead — the entity is where the claims the load checks live, so there is no equivalent form that skips it. Where the reference already looks like an entity identity, the entity is missing from the catalog the build resolves against rather than misspelled in form: check the version exists and that the catalog holding it is in the workspace.
+**How to fix:** write the reference as the Plugin entity's socket-type-scoped identity, optionally with its version — `<pluginType>/<name>` or `<pluginType>/<name>:<version>`. Where you were pointing at a file or an artifact directly, publish or author a Plugin entity for it and reference that instead — the entity is where the claims the load checks live, so there is no equivalent form that skips it. Where the reference already looks like an entity identity, the entity is missing from the catalog the build resolves against rather than misspelled in form: check the version exists and that the catalog holding it is in the workspace.
 
 ### A cached signature bundle does not match the digest recorded for it
 
