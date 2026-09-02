@@ -48,8 +48,8 @@ Two scopes, and only one of them makes input kind a meaningful axis:
 
 | Annotation | Applied by | Purpose | Default |
 | --- | --- | --- | --- |
-| `aggrega.ai/image-registry` | `helm`, `compose` — synthesized only | Registry prefix for container images, applied to every synthesised container image reference | No prefix |
-| `aggrega.ai/image-pull-secret` | `helm` — synthesized only | Kubernetes `imagePullSecrets` name, unioned into the synthesised pod's existing entries | None |
+| `aggrega.ai/image-registry` | `helm`, `compose` — synthesized only | Registry prefix for container images, applied to every synthesized container image reference | No prefix |
+| `aggrega.ai/image-pull-secret` | `helm` — synthesized only | Kubernetes `imagePullSecrets` name, unioned into the synthesized pod's existing entries | None |
 
 ### Category 3 — Networking
 
@@ -63,7 +63,7 @@ Two scopes, and only one of them makes input kind a meaningful axis:
 
 | Annotation | Applied by | Purpose | Default |
 | --- | --- | --- | --- |
-| `aggrega.ai/service-account` | `helm` — synthesized only | Kubernetes `ServiceAccount` for synthesised Pods; overrides the Recipe's `workload.serviceAccount` when both are set | The Recipe's `workload.serviceAccount`, or unset when the Recipe declares none |
+| `aggrega.ai/service-account` | `helm` — synthesized only | Kubernetes `ServiceAccount` for synthesized Pods; overrides the Recipe's `workload.serviceAccount` when both are set | The Recipe's `workload.serviceAccount`, or unset when the Recipe declares none |
 | `aggrega.ai/pod-security-standard` | not yet consumed | Reserved for a Pod Security Standards level | — |
 | `aggrega.ai/iam-role` | not yet consumed | Reserved for a cloud identity role bound to a workload | — |
 
@@ -137,10 +137,10 @@ warning: node "frontend" (provider "helm-chart"): target "helm-chart" does not s
 **On a render declaring more than one input kind the warning is about that render as a whole, not about one of its halves.** Because the kinds compose by addition, a target reading the key on any one of them does apply it, and that render's output carries the result — so no warning is raised. A warning appears only when every kind that render declares misses the key, and it names them all:
 
 ```text
-warning: node "backend" (provider "helm"): target "helm" does not support annotation aggrega.ai/cluster-domain on sourced or synthesised input and ignored it
+warning: node "backend" (provider "helm"): target "helm" does not support annotation aggrega.ai/cluster-domain on sourced or synthesized input and ignored it
 ```
 
-So a `workload:` alongside a `source:` is enough to make `aggrega.ai/service-account` take effect on that node, and the build stays quiet about it — which is the honest report, because the value reaches the synthesised half and appears in the emitted manifests.
+So a `workload:` alongside a `source:` is enough to make `aggrega.ai/service-account` take effect on that node, and the build stays quiet about it — which is the honest report, because the value reaches the synthesized half and appears in the emitted manifests.
 
 **Read the grid per render, not per component.** A feature attached to a node generates its resources through the target its own FeatureRecipe names, at the input kinds that FeatureRecipe declares — so it lands in its own row of this grid, which need not be the row its host component lands in. A component synthesizing its Workload while an attached feature contributes `artifacts:` alongside it reads the `synthesized` row for the component's own manifests and the `artifacts-only` row for the attachment's files, and a key applied on the first can be missed on the second. The warning follows the same split and tells you about each separately, because they are different files. A feature attached to a boundary rather than to a named component reads the grid the same way.
 
@@ -256,11 +256,11 @@ The shipping emit set, attached to every rendered Kubernetes manifest by helm an
 
 ### Per-provider emission notes
 
-- **`helm`** — labels land in `metadata.labels` on every rendered Kubernetes resource (Deployment, Service, PVC, etc.). Both sourced-mode (Helm SDK render with post-render label injection) and synthesised-mode (workload synthesis) paths produce the same set.
+- **`helm`** — labels land in `metadata.labels` on every rendered Kubernetes resource (Deployment, Service, PVC, etc.). Both sourced-mode (Helm SDK render with post-render label injection) and synthesized-mode (workload synthesis) paths produce the same set.
 - **`helm-chart`** — labels land in `metadata.labels` on every sub-chart resource via the same label-injection mechanism as helm.
-- **`compose`** — labels land in `services.<name>.labels` on every emitted compose service. Sourced-mode (post-merge label injection on the merged base + valuesMapping document) and synthesised-mode (workload synthesis directly setting the service's labels block) both produce the same set. The Kubernetes-specific `app.kubernetes.io/name` is omitted from compose output.
+- **`compose`** — labels land in `services.<name>.labels` on every emitted compose service. Sourced-mode (post-merge label injection on the merged base + valuesMapping document) and synthesized-mode (workload synthesis directly setting the service's labels block) both produce the same set. The Kubernetes-specific `app.kubernetes.io/name` is omitted from compose output.
 
-For resources a FeatureRecipe emits, the `aggrega.ai/component-id` value is built from the attachment rather than from the host component's name — for every way a FeatureRecipe can deliver those resources, so an attachment's resources are never indistinguishable by label from the host component's own. Whether that identity is also what those resources are **named** after depends on the delivery: a workload Aggrega synthesises is named after the identity, while a chart or fragment the attachment's author supplied keeps the host component's Helm release name and output-file prefix, because the author's own templates render against that name. How the value is composed — the two openings, the parts and their `--` join, how a character a label cannot carry is written out, how a value too long for its target is shortened, and which names it is and is not the basis for — is provider-independent, so it is stated once at [`vocabulary/labels-and-annotations.md`](../vocabulary/labels-and-annotations.md) "Provenance labels emitted on rendered output" rather than repeated here. This page owns the other half: where on each provider's rendered output the labels land.
+For resources a FeatureRecipe emits, the `aggrega.ai/component-id` value is built from the attachment rather than from the host component's name — for every way a FeatureRecipe can deliver those resources, so an attachment's resources are never indistinguishable by label from the host component's own. Whether that identity is also what those resources are **named** after depends on the delivery: a workload Aggrega synthesizes is named after the identity, while a chart or fragment the attachment's author supplied keeps the host component's Helm release name and output-file prefix, because the author's own templates render against that name. How the value is composed — the two openings, the parts and their `--` join, how a character a label cannot carry is written out, how a value too long for its target is shortened, and which names it is and is not the basis for — is provider-independent, so it is stated once at [`vocabulary/labels-and-annotations.md`](../vocabulary/labels-and-annotations.md) "Provenance labels emitted on rendered output" rather than repeated here. This page owns the other half: where on each provider's rendered output the labels land.
 
 The `aggrega.ai/recipe-uri` resolves to the FeatureRecipe's own `name:version`, not the consuming Recipe's identity — downstream tooling reading the label to identify the producing entity gets the correct provenance for both component-emitted and FR-emitted output.
 

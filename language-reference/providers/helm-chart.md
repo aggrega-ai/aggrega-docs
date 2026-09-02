@@ -15,7 +15,7 @@ The helm-chart provider accepts two input kinds:
 
 A Recipe targeting helm-chart that declares `workload:` is rejected at render time with a diagnostic pointing the author at the helm provider:
 
-> source is required (helm-chart provider supports sourced mode only; for synthesised K8s manifests use the helm provider with workload:)
+> source is required (helm-chart provider supports sourced mode only; for synthesized K8s manifests use the helm provider with workload:)
 
 The split is deliberate: workload synthesis (translating an abstract Workload into Kubernetes resources) is the helm provider's exclusive concern. helm-chart's role is umbrella + sub-chart composition for charts the author has already produced.
 

@@ -128,7 +128,7 @@ The head carries the category and this condition's short code, `E0265`, which is
 
 `aggrega validate` reports the same clause under the Recipe that carries the block, prefixed with the surface that read it:
 
-> input-kind: Recipe `"<name>:<version>"`: provider `"<provider-name>"` does not support synthesised recipes (this provider supports: `<kinds>`); declare one of the supported input kinds, or target a provider that supports synthesised
+> input-kind: Recipe `"<name>:<version>"`: provider `"<provider-name>"` does not support synthesized recipes (this provider supports: `<kinds>`); declare one of the supported input kinds, or target a provider that supports synthesized
 
 **How to fix:** either bind the Recipe to a provider that synthesizes (most commonly `helm` or `compose`), or migrate the Recipe to a different input kind (`artifacts:` for direct manifest emission, or `source:` + `valuesMapping:` if a chart/module exists).
 
@@ -171,7 +171,7 @@ Emitted message:
 A collision in a FeatureRecipe carries the attachment as well:
 > filename collision across input kinds: two input-kind blocks produced a file under one output name (output name `<filename>`, produced by `<origin1>, <origin2>`, attachment `<instance>`)
 
-**How to fix:** rename the colliding file in whichever input kind you control. If the collision involves a Workload-translated filename and an `artifacts:` entry, the Workload-translated names follow the provider's translation conventions (e.g., `<instance-id>-deployment.yaml` for helm) — adjust the `artifacts:` filename to a name the provider does not synthesise.
+**How to fix:** rename the colliding file in whichever input kind you control. If the collision involves a Workload-translated filename and an `artifacts:` entry, the Workload-translated names follow the provider's translation conventions (e.g., `<instance-id>-deployment.yaml` for helm) — adjust the `artifacts:` filename to a name the provider does not synthesize.
 
 #### `eval`-provider constraint
 
@@ -969,7 +969,7 @@ Emitted message:
 
 <!-- covers: pkg/resolver.ErrAnnotationBindingTargetUnresolved -->
 
-A Manifest annotation binding's `feature:` field names a Feature that the catalog does not load, or the binding's `maps.infra` / `maps.values` lists declare dotted paths that the named Feature's `spec.schema` does not actually carry. Either condition halts workspace load — the binding would synthesise Feature attachments routing values into paths the runtime cannot resolve.
+A Manifest annotation binding's `feature:` field names a Feature that the catalog does not load, or the binding's `maps.infra` / `maps.values` lists declare dotted paths that the named Feature's `spec.schema` does not actually carry. Either condition halts workspace load — the binding would synthesize Feature attachments routing values into paths the runtime cannot resolve.
 
 One condition covers the three ways a binding's route fails to resolve, and the diagnostic names which of them was met:
 
@@ -2792,7 +2792,7 @@ One half of the halt is unaffected by all of this: a single contributor's own ou
 
 Most such names are a provider's own, derived from the component instance and the resource, so two components can arrive at one name whenever the parts they are derived from agree — and one component can arrive at one name twice the same way, when two of its own resources are built from parts that agree. Because the name lives in the file's own bytes, the assembly cannot see it: the provider reports the names it derived, and the build compares them.
 
-One kind of name is the build's own rather than a provider's, and it is reported the same way: the identity every resource a FeatureRecipe emits is labelled with, which reaches your output as the `aggrega.ai/component-id` label. It is reported under the kind of name `component-id`, so you can find the same string in your own emitted output. Where a FeatureRecipe synthesises its resources, that identity is also what they are named after; where it renders a chart or a fragment its author supplied, the names inside that render stay the host component's and only the labels carry the identity.
+One kind of name is the build's own rather than a provider's, and it is reported the same way: the identity every resource a FeatureRecipe emits is labelled with, which reaches your output as the `aggrega.ai/component-id` label. It is reported under the kind of name `component-id`, so you can find the same string in your own emitted output. Where a FeatureRecipe synthesizes its resources, that identity is also what they are named after; where it renders a chart or a fragment its author supplied, the names inside that render stay the host component's and only the labels carry the identity.
 
 For a feature attached to a **component** it is composed from the component the feature is attached to and the key you wrote under `features:`, behind a fixed opening. The host component is part of the value because one feature name attached to several components emits a separate set of resources on each, and each set needs an identity of its own.
 

@@ -285,7 +285,7 @@ Each annotation key inherits, overrides, and opts out independently. A component
 
 ### Top-level component annotations
 
-Top-level components (declared directly under `spec.components` rather than inside a subsystem) carry no inherited cascade. Their `annotations:` field declares values directly on the component scope; expansion synthesises Feature attachments from each declared annotation that the Manifest carries a matching binding for.
+Top-level components (declared directly under `spec.components` rather than inside a subsystem) carry no inherited cascade. Their `annotations:` field declares values directly on the component scope; expansion synthesizes Feature attachments from each declared annotation that the Manifest carries a matching binding for.
 
 For the Aggregate-side cascade rule applied to bindings, the side-vs-pillar partition, and a worked end-to-end example showing the bindings translating annotations into synthetic Feature attachments, see [providers/well-known-annotations.md](../providers/well-known-annotations.md) §"Aggregate-side annotation cascade".
 

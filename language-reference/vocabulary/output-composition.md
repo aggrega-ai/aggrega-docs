@@ -6,7 +6,7 @@ This page documents the six mechanisms in one place and names the rendering orde
 
 ## The six output-producing mechanisms
 
-Each mechanism lives at a specific Recipe / FeatureRecipe authoring surface and produces files under specific naming conventions. The mechanisms accumulate per node — a single component instance can drive multiple mechanisms at once (a sourced base Recipe + a Workload-synthesised companion file + a FeatureRecipe-emitted ExternalSecret CRD + a plugin-pipeline patch applied to the synthesised Deployment).
+Each mechanism lives at a specific Recipe / FeatureRecipe authoring surface and produces files under specific naming conventions. The mechanisms accumulate per node — a single component instance can drive multiple mechanisms at once (a sourced base Recipe + a Workload-synthesized companion file + a FeatureRecipe-emitted ExternalSecret CRD + a plugin-pipeline patch applied to the synthesized Deployment).
 
 ### 1 — Recipe sourced rendering (`source:` + `valuesMapping:`)
 
@@ -28,7 +28,7 @@ Each mechanism lives at a specific Recipe / FeatureRecipe authoring surface and 
 
 **Output shape.** Provider-specific:
 
-- **helm provider** — one controller object chosen by the Workload's `form` (Deployment for stateless, StatefulSet for stateful, DaemonSet for daemon, Job for task, CronJob for scheduled) + per-service Service + one PVC per `persistent` volume. **Two naming shapes, and they are not the same:** the controller object is named for the node and its kind — `<nodeID>-deployment.yaml`, `<nodeID>-statefulset.yaml`, `<nodeID>-daemonset.yaml`, `<nodeID>-job.yaml`, `<nodeID>-cronjob.yaml` — while a per-resource file is named for **the resource it carries**, with the kind last: `<nodeID>-<svcName>-service.yaml` and `<nodeID>-<volName>-pvc.yaml`, because each is named from that resource's own `metadata.name` (see [`entities/workload.md`](../entities/workload.md) "Synthesised-name convention"). A Workload whose only exposure is an external name emits `<nodeID>-service.yaml` instead, there being no service key to carry.
+- **helm provider** — one controller object chosen by the Workload's `form` (Deployment for stateless, StatefulSet for stateful, DaemonSet for daemon, Job for task, CronJob for scheduled) + per-service Service + one PVC per `persistent` volume. **Two naming shapes, and they are not the same:** the controller object is named for the node and its kind — `<nodeID>-deployment.yaml`, `<nodeID>-statefulset.yaml`, `<nodeID>-daemonset.yaml`, `<nodeID>-job.yaml`, `<nodeID>-cronjob.yaml` — while a per-resource file is named for **the resource it carries**, with the kind last: `<nodeID>-<svcName>-service.yaml` and `<nodeID>-<volName>-pvc.yaml`, because each is named from that resource's own `metadata.name` (see [`entities/workload.md`](../entities/workload.md) "Synthesized-name convention"). A Workload whose only exposure is an external name emits `<nodeID>-service.yaml` instead, there being no service key to carry.
 - **compose provider** — intermediate `<nodeID>.compose-fragment.yaml` files that flow into Release-level composition.
 - **helm-chart provider** — not supported; helm-chart's role is sourced-mode chart composition only. A Recipe targeting helm-chart with `workload:` is rejected at render time (the helm-chart provider reports no synthesis capability).
 
@@ -52,7 +52,7 @@ Each mechanism lives at a specific Recipe / FeatureRecipe authoring surface and 
 
 **Output shape.** Plugin-specific. A step returns two output classes:
 
-- **RFC 6902 patches** that the apply engine applies to the addressed documents in the rendered set (e.g., appending a sidecar container, mounting a secret volume, rewriting an env var on the synthesised Deployment).
+- **RFC 6902 patches** that the apply engine applies to the addressed documents in the rendered set (e.g., appending a sidecar container, mounting a secret volume, rewriting an env var on the synthesized Deployment).
 - **Side effects** — full new resources emitted alongside the patch through a step's `side_effects` (typically the Fetcher's vault-fetch CRD that the Injector then references).
 
 **Status today:** **available** per [Status of the Language → Compilation pipeline phases](../10-status.md#compilation-pipeline-phases). Each declared step runs during `aggrega build`: the host dispatches the step's Wasm plugin against the rendered set, applies the returned patches, and emits the step's side effects. See [`plugins/plugin-contract.md`](../plugins/plugin-contract.md) for the plugin contract surface.
@@ -86,7 +86,7 @@ The six mechanisms run in a defined order so downstream mechanisms can read upst
 2. **Locals publication and source resolution** — those locals are published onto `.locals`, and the Recipe's `source:` URI template evaluates against them (resolving the source pointer if templated). The source surface shares the locals context, so it reads `.locals` and not `.provides`.
 3. **Inject mapping** — FeatureRecipe `injectMapping:` blocks evaluate (the inject pipe is intercepted before Recipe rendering).
 4. **Values mapping** — Recipe `valuesMapping:` evaluates (sourced mode + sourceless mode produce values dictionaries).
-5. **Workload synthesis** — Recipe Workload synthesis (mechanism 2 emits manifests for synthesised mode).
+5. **Workload synthesis** — Recipe Workload synthesis (mechanism 2 emits manifests for synthesized mode).
 6. **Artifact evaluation** — Recipe `artifacts:` evaluation (mechanism 6).
 7. **Provider render** — the provider renders (mechanism 1 — sourced mode produces flat manifests; sourceless mode produces generative manifests).
 8. **Feature rendering** — FeatureRecipe rendering for every Feature attachment on the node (mechanisms 3 + 4 — Resource Generation runs here; the plugin pipeline runs later, at step 9).
@@ -121,19 +121,19 @@ Within a boundary, two nodes that render to the same Kubernetes resource name pr
 
 **The largest case is closed by construction rather than checked.** A sourced chart that names its resources after the release name can no longer produce this between two components, because two naming bases that differ at all arrive at two release names — see [`providers/helm.md`](../providers/helm.md) "How the release name is derived". Two cases remain. A chart that writes a resource name into its templates literally is one, and no derivation can tell such a name apart from any other literal. The other is two Feature attachments on **one** component that each deliver a chart their author wrote: both render against that component's release name, by design, so two charts naming a resource after `.Release.Name` meet there — give the two charts' resources distinct names, or attach them to different components.
 
-Every synthesised name opens with the node's own identity — the controller object's, and each per-resource name through the synthesised Service-name convention `<nodeID>-<svcName>` (per [`entities/workload.md`](../entities/workload.md) "Synthesised-name convention") — which makes cross-node collisions structurally impossible by construction. Authors who hit a runtime K8s rejection on a Deployment / Service name should look first at whether two different Recipes are emitting same-named resources via different rendering paths (e.g., a sourced chart's `templates/deployment.yaml` colliding with a workload-synthesised Deployment's `metadata.name`).
+Every synthesized name opens with the node's own identity — the controller object's, and each per-resource name through the synthesized Service-name convention `<nodeID>-<svcName>` (per [`entities/workload.md`](../entities/workload.md) "Synthesized-name convention") — which makes cross-node collisions structurally impossible by construction. Authors who hit a runtime K8s rejection on a Deployment / Service name should look first at whether two different Recipes are emitting same-named resources via different rendering paths (e.g., a sourced chart's `templates/deployment.yaml` colliding with a workload-synthesized Deployment's `metadata.name`).
 
 ## Cross-mechanism interaction patterns
 
-### Workload-synthesised + plugin-pipeline patch
+### Workload-synthesized + plugin-pipeline patch
 
-The canonical pattern: mechanism 2 (workload synthesis) emits a base Deployment; mechanism 4 (the Injector plugin) applies an RFC 6902 patch that mounts a secret volume into the Deployment. The two mechanisms compose — the Deployment is the same K8s resource, with the patch layering ConfigMap / Secret references onto the synthesised base.
+The canonical pattern: mechanism 2 (workload synthesis) emits a base Deployment; mechanism 4 (the Injector plugin) applies an RFC 6902 patch that mounts a secret volume into the Deployment. The two mechanisms compose — the Deployment is the same K8s resource, with the patch layering ConfigMap / Secret references onto the synthesized base.
 
-This is the dominant pattern for credential injection on synthesised workloads. The Fetcher (mechanism 3, Resource Generation) emits an `ExternalSecret` CRD that the cluster fetches at runtime; the Injector (mechanism 4, a plugin-pipeline patch) modifies the Deployment to mount the resulting K8s Secret.
+This is the dominant pattern for credential injection on synthesized workloads. The Fetcher (mechanism 3, Resource Generation) emits an `ExternalSecret` CRD that the cluster fetches at runtime; the Injector (mechanism 4, a plugin-pipeline patch) modifies the Deployment to mount the resulting K8s Secret.
 
 ### Sourced + Workload synthesis on different boundaries
 
-A single Aggregate can have one component bound to a sourced helm Recipe (mechanism 1) on boundary A and a sibling component bound to a Workload-synthesising helm Recipe (mechanism 2) on boundary B. Each boundary's directory carries the appropriate output shape; cross-boundary file naming does not collide because per-boundary `dist/` directories are sibling-isolated.
+A single Aggregate can have one component bound to a sourced helm Recipe (mechanism 1) on boundary A and a sibling component bound to a Workload-synthesizing helm Recipe (mechanism 2) on boundary B. Each boundary's directory carries the appropriate output shape; cross-boundary file naming does not collide because per-boundary `dist/` directories are sibling-isolated.
 
 ### Compose Release-level merge across boundaries
 

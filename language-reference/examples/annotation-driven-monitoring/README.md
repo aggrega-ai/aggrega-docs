@@ -70,7 +70,7 @@ Three facts the table makes concrete:
 1. **Annotation-driven, not author-declared.** The Aggregate has no monitoring
    `features:` anywhere, yet six ServiceMonitors render. They exist *only*
    because the annotation expanded `core/prometheus-exporter` onto each component (the
-   attachment's IR origin is annotation-synthesised, not explicit).
+   attachment's IR origin is annotation-synthesized, not explicit).
 2. **Per-subkey deep merge.** `payments` and `batch` set only `interval`, yet
    their ServiceMonitors carry `port: metrics` and `path: /metrics` — inherited
    from the platform annotation's structured value, merged per subkey. A subtree

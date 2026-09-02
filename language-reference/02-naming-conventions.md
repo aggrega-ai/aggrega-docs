@@ -64,7 +64,7 @@ So the separator is **written out** of every name and label the build derives fr
 
 What that reaches, and what it does not:
 
-* **It reaches the names and labels derived from the identity** — `metadata.name` on a resource Aggrega synthesises, the `aggrega.ai/component-id` and `app.kubernetes.io/name` labels, the selectors that match them, the emitted filenames, and `{{ .context.instance_id }}`, which is the value a Recipe spends when it predicts one of those names. They move together, so a Recipe that composes a hostname from `.context.instance_id` still names the resource the build emits.
+* **It reaches the names and labels derived from the identity** — `metadata.name` on a resource Aggrega synthesizes, the `aggrega.ai/component-id` and `app.kubernetes.io/name` labels, the selectors that match them, the emitted filenames, and `{{ .context.instance_id }}`, which is the value a Recipe spends when it predicts one of those names. They move together, so a Recipe that composes a hostname from `.context.instance_id` still names the resource the build emits.
 * **It does not reach a name you wrote.** A component name carrying no separator comes back byte for byte, so only a component an imported Aggregate contributes is spelled differently in the output than in the document.
 * **It does not reach the names inside a chart or fragment an author supplied.** Those belong to whoever wrote them, and a name carried out of a third-party chart — a custom-resource name of the form `<plural>.<group>`, where a dot is legal — is emitted exactly as that chart wrote it.
 
@@ -143,7 +143,7 @@ Both registers name the same conditions from two directions, and neither replace
 
 A subset of fields across the language carry document-path values — strings that point at a position inside another document (a rendered Workload's volumes section, a Component's featuresSchema entry, a Manifest's mappings tier). The values follow [RFC 6901 JSON Pointer](https://datatracker.ietf.org/doc/html/rfc6901) syntax — slash-separated tokens identifying the path through the target document.
 
-**RFC 6901 is the path-grammar baseline for every document-path surface in Aggrega.** The Wasm plugin contract consumes RFC 6901 patches (per [`plugins/plugin-contract.md`](plugins/plugin-contract.md) `label-transform` role JSONPatch output); the URI grammar's format-string inventory names RFC 6901 alongside Go template syntax and Sprig helpers (per [`vocabulary/uri-grammar.md`](vocabulary/uri-grammar.md) "Format-string inventory"); the per-Recipe `.locals` exports use RFC 6901 to point at synthesised-Workload positions Wasm Injector plugins receive in the plugin pipeline through their step's `with` payload. One grammar, multiple consuming surfaces.
+**RFC 6901 is the path-grammar baseline for every document-path surface in Aggrega.** The Wasm plugin contract consumes RFC 6901 patches (per [`plugins/plugin-contract.md`](plugins/plugin-contract.md) `label-transform` role JSONPatch output); the URI grammar's format-string inventory names RFC 6901 alongside Go template syntax and Sprig helpers (per [`vocabulary/uri-grammar.md`](vocabulary/uri-grammar.md) "Format-string inventory"); the per-Recipe `.locals` exports use RFC 6901 to point at synthesized-Workload positions Wasm Injector plugins receive in the plugin pipeline through their step's `with` payload. One grammar, multiple consuming surfaces.
 
 **The naming-suffix discipline** distinguishes the two authoring sides of these path values via a deliberate suffix split aligned with the broader Field Casing section above:
 
@@ -151,7 +151,7 @@ A subset of fields across the language carry document-path values — strings th
   * `componentRefPath` — a schema-defined field referencing a target component's path inside the IR Graph.
   * `targetPath` — a schema-defined field naming the path the Wasm Injector should patch.
 * **`.locals` export keys** carrying RFC 6901 JSON Pointers use **snake_case `*_path`** suffix. The keys are part of the Recipe's internal export surface — read by the Recipe's own subsequent templates, and by a Wasm plugin pipeline through the `pipeline[].with` payload that references `.locals` — so they follow the snake_case convention. Examples:
-  * `volumes_path` — `.locals.volumes_path: "/spec/template/spec/volumes"` exposing the synthesised Workload's volumes-array position.
+  * `volumes_path` — `.locals.volumes_path: "/spec/template/spec/volumes"` exposing the synthesized Workload's volumes-array position.
   * `containers_path` — `.locals.containers_path: "/spec/template/spec/containers"` exposing the containers-array position.
   * `resource_path` — `.locals.resource_path: "/resource/aws_s3_bucket/main"` exposing a Terraform-native resource path.
   * `root_path` — `.locals.root_path: "/data"` exposing the root path the renderer's pipe consumes.

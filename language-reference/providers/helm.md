@@ -11,7 +11,7 @@ This page is the helm provider's authoring reference. For the cross-provider inp
 The helm provider accepts all three of the Recipe input kinds in different roles:
 
 - **Sourced mode.** A Recipe with `source: <chart-path>` points at an on-disk Helm chart directory. The Helm Go SDK loads the chart, the base-rendering values dictionary is coalesced with the chart's defaults, and the chart's templates render to flat Kubernetes YAML.
-- **Workload (synthesised) mode.** A Recipe with `workload:` (inline or `$import:`-loaded) declares a Workload document. The provider synthesises one or more Kubernetes resources per node — a Deployment (or StatefulSet) plus per-service Services and per-persistent-volume PVCs — directly from the Workload spec.
+- **Workload (synthesized) mode.** A Recipe with `workload:` (inline or `$import:`-loaded) declares a Workload document. The provider synthesizes one or more Kubernetes resources per node — a Deployment (or StatefulSet) plus per-service Services and per-persistent-volume PVCs — directly from the Workload spec.
 - **Sourceless (generative) mode.** A Recipe with neither `source:` nor `workload:` falls back to the provider's built-in flat generator. The values dictionary feeds a Deployment plus an optional Service shaped from a small fixed key vocabulary (see [Sourceless mode](#sourceless-mode-keyset) below).
 
 A Recipe may declare exactly one of `source:` or `workload:`; combining them is a base-rendering validation error.
@@ -67,9 +67,9 @@ Two of Helm's conditions are properties of the basis rather than of the derivati
 
 **Changing the basis a release name is derived from renames the cluster resources a chart names after `.Release.Name`, and Kubernetes does not rename a resource in place.** The applying tool creates the resource under its new name and removes the one under the old name, which for stateful resources means the storage bound to the old name is released. Treat such a change as a replacement to be planned — drained, migrated, or scheduled — rather than as an update to be rolled out.
 
-## Workload (synthesised) mode
+## Workload (synthesized) mode
 
-A Recipe with `workload:` (inline or `$import:`-loaded) synthesises Kubernetes resources from the Workload's abstract intent. The Workload schema is documented at [entities/workload.md](../entities/workload.md); this section covers what the helm provider emits.
+A Recipe with `workload:` (inline or `$import:`-loaded) synthesizes Kubernetes resources from the Workload's abstract intent. The Workload schema is documented at [entities/workload.md](../entities/workload.md); this section covers what the helm provider emits.
 
 For each node:
 
@@ -83,7 +83,7 @@ Each emitted resource carries the full Aggrega provenance labels and annotations
 
 **Running on the node's network.** A Workload declaring `hostNetwork: true` emits `hostNetwork: true` on the rendered pod spec, so the pod runs in the node's own network namespace and the ports its containers open are reachable on the node's addresses. Kubernetes expresses the choice directly, so nothing is degraded. The declaration reaches the pod spec and nothing else: it adds, removes and rewrites no port, and the emitted Services are identical with and without it. A Workload that does not declare it emits no `hostNetwork` key at all.
 
-Output file naming has two shapes. The controller object is named for the node and its kind — `<nodeID>-deployment.yaml`, `<nodeID>-statefulset.yaml`, `<nodeID>-daemonset.yaml`, `<nodeID>-job.yaml`, `<nodeID>-cronjob.yaml`. A per-resource file is named for the resource it carries, with the kind last: `<nodeID>-<svcName>-service.yaml` and `<nodeID>-<volName>-pvc.yaml`, each taken from that resource's own `metadata.name` per the synthesised-name convention at [entities/workload.md](../entities/workload.md). A Workload exposed only by external name emits `<nodeID>-service.yaml`, there being no service key to carry.
+Output file naming has two shapes. The controller object is named for the node and its kind — `<nodeID>-deployment.yaml`, `<nodeID>-statefulset.yaml`, `<nodeID>-daemonset.yaml`, `<nodeID>-job.yaml`, `<nodeID>-cronjob.yaml`. A per-resource file is named for the resource it carries, with the kind last: `<nodeID>-<svcName>-service.yaml` and `<nodeID>-<volName>-pvc.yaml`, each taken from that resource's own `metadata.name` per the synthesized-name convention at [entities/workload.md](../entities/workload.md). A Workload exposed only by external name emits `<nodeID>-service.yaml`, there being no service key to carry.
 
 ## Sourceless mode keyset
 
@@ -105,7 +105,7 @@ Sourceless mode is the lowest-ceremony path for components whose only physical r
 - **Provenance injection.** The sourced and sourceless paths converge on the same label-and-annotation set; sourced renders inject them via post-render YAML rewriting (after the Helm SDK has already rendered), so chart authors do not need to thread Aggrega labels through their own templates.
 - **Deterministic value coercion.** When the base-rendering values dict contains a hash-randomised Go map (rather than an OrderedMap), the sourceless extractor sorts keys alphabetically before emission — the deterministic choice when no author order is available upstream. OrderedMap-backed values preserve author order through the entire pipeline.
 - **Ordered env emission.** Kubernetes environment variables are an ordered list (later entries can `$(VAR)`-reference earlier ones); the provider emits them in author order from the OrderedMap-backed `environment` map. Authoring environment-variable order matters for correctness.
-- **Namespace cascade — the two modes reach the resource differently.** Both read `aggrega.ai/namespace` from the boundary annotation cascade, and neither invents a namespace when no boundary declares one. In synthesised mode the provider writes `metadata.namespace` directly, and omits the field entirely when the cascade yields no value. In sourced mode the provider supplies the value as the chart's release namespace — `default` when the cascade yields none — and the chart's own template decides whether to project it. A sourced resource therefore carries the namespace only where its chart writes the field, which is why a chart shipping in the standard-library catalog reads the cascade value directly through its `valuesMapping`: doing so lets it omit the field when no boundary declares a namespace, matching synthesised output, which the release namespace alone cannot express because it is never empty.
+- **Namespace cascade — the two modes reach the resource differently.** Both read `aggrega.ai/namespace` from the boundary annotation cascade, and neither invents a namespace when no boundary declares one. In synthesized mode the provider writes `metadata.namespace` directly, and omits the field entirely when the cascade yields no value. In sourced mode the provider supplies the value as the chart's release namespace — `default` when the cascade yields none — and the chart's own template decides whether to project it. A sourced resource therefore carries the namespace only where its chart writes the field, which is why a chart shipping in the standard-library catalog reads the cascade value directly through its `valuesMapping`: doing so lets it omit the field when no boundary declares a namespace, matching synthesized output, which the release namespace alone cannot express because it is never empty.
 
 ## Worked examples
 
@@ -161,7 +161,7 @@ spec:
 ## Cross-references
 
 - [`entities/recipe.md`](../entities/recipe.md) — Recipe authoring surface and the three input kinds.
-- [`entities/workload.md`](../entities/workload.md) — Workload schema for synthesised mode.
+- [`entities/workload.md`](../entities/workload.md) — Workload schema for synthesized mode.
 - [`providers/helm-chart.md`](helm-chart.md) — sister provider that emits a Helm chart scaffold rather than flat manifests.
 - [`providers/well-known-annotations.md`](well-known-annotations.md) — well-known annotations the helm provider applies (`aggrega.ai/namespace`, etc.).
 - [`architecture/16-recipe-input-composition.md`](../../architecture/16-recipe-input-composition.md) — cross-provider Provider Capability Matrix.

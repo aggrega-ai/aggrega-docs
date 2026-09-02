@@ -462,7 +462,7 @@ A Recipe that declares an input kind its bound provider does not render halts th
 
 ```
 [CATALOG_ERROR E0265] unit
-  provider does not support the node's input kind (node "unit"). provider "terraform" does not support synthesised recipes (this provider supports: sourced, artifacts-only); declare one of the supported input kinds, or target a provider that supports synthesised
+  provider does not support the node's input kind (node "unit"). provider "terraform" does not support synthesized recipes (this provider supports: sourced, artifacts-only); declare one of the supported input kinds, or target a provider that supports synthesized
 ```
 
 The artifacts-only decline reads the same way and names that form: `provider "helm-chart" does not support artifacts-only recipes (this provider supports: sourced)`. `E0265` is the identifier to record when this halt needs naming durably — in a continuous-integration gate, an issue, or a runbook; [the table of every condition](../language-reference/errors/sentinels.md#every-condition-by-short-code) resolves it.

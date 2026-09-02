@@ -79,7 +79,7 @@ The directory layout is per-boundary, per-instance:
             ├── 09-artifact-evaluation/
             │   └── <per-artifact-file>.yaml
             ├── 10-engine-synthesis/
-            │   └── <per-synthesised-file>.yaml
+            │   └── <per-synthesized-file>.yaml
             ├── 11-engine-emission.log
             └── 12-labels-injected.log
 ```
@@ -95,7 +95,7 @@ Each slot captures a specific compiler state:
 - `07-values-mapping.yaml` — the rendered `valuesMapping:` output (the dictionary the provider receives). Present only when the Recipe declares `valuesMapping:`.
 - `08-workload-synthesis.yaml` — the context as it stood when the `workload:` template was evaluated and its output parsed. Present only when the Recipe declares `workload:` (inline or `$import:`-loaded). The parsed `Workload` itself is not in this slot: it appears from `09-artifact-evaluation/` onward, once it is settled rather than in flight.
 - `09-artifact-evaluation/` — one file per evaluated artifact. Present only when the Recipe declares `artifacts:` (with entries inline or per-entry `$import:`-loaded).
-- `10-engine-synthesis/` — one file per synthesised manifest the provider produced from the Workload (helm/compose workload-mode). Present only when the provider ran a synthesis path.
+- `10-engine-synthesis/` — one file per synthesized manifest the provider produced from the Workload (helm/compose workload-mode). Present only when the provider ran a synthesis path.
 - `11-engine-emission.log` — the post-emission summary (file count, output paths) for the node.
 - `12-labels-injected.log` — the provenance labels and annotations written onto rendered output for the node.
 

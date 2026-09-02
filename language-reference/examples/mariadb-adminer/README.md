@@ -24,7 +24,7 @@ in to the live database.
   service name and the Kubernetes build wires a Service DNS name, from the
   same edge.
 - **Workload synthesis.** The compose and self-contained Kubernetes Recipes
-  declare a capability-agnostic `Workload`; the provider synthesises a
+  declare a capability-agnostic `Workload`; the provider synthesizes a
   `docker-compose.yaml` service, or the Kubernetes objects the Workload's `form`
   calls for — a `Deployment` and a `Service` for the stateless web UI, and for
   the `form: stateful` database a `StatefulSet` whose per-replica volume claim
@@ -224,7 +224,7 @@ Open <http://localhost:8080> and log in:
 This target renders plain Kubernetes manifests directly from the `Workload`,
 with no external chart — a single offline build.
 
-The database's `Workload` declares `form: stateful`, so it synthesises a
+The database's `Workload` declares `form: stateful`, so it synthesizes a
 `StatefulSet` whose data directory is a per-replica volume claim template rather
 than a `Deployment` sharing one claim. Two companions travel with that form: the
 volume is declared as a `persistentTemplate`, and a Headless `Service` supplies
@@ -268,7 +268,7 @@ Open <http://localhost:8080> and log in with Server `db-default`, username
 ## Target 3 — Kubernetes (managed Bitnami chart)
 
 The third layer implements the *same* `core/datastore/mariadb` Component
-against the upstream **Bitnami MariaDB Helm chart** instead of synthesising
+against the upstream **Bitnami MariaDB Helm chart** instead of synthesizing
 manifests. The Recipe sources the chart by OCI reference and maps the
 Component's values onto the chart's value schema:
 
@@ -312,7 +312,7 @@ pins it in `release-helm-bitnami.lock`, and fetches it into the content-addresse
 build cache (the one online step); `aggrega build` then renders from the cache,
 so lock-time and build-time resolve the identical chart. The injected credentials
 flow into the chart's `auth` values, and the chart generates the Kubernetes
-`Secret` the database reads. Adminer is rendered by the same synthesised Recipe
+`Secret` the database reads. Adminer is rendered by the same synthesized Recipe
 as Target 2 and dials the chart's primary Service (`db-mariadb`). The two
 self-contained targets above are the zero-dependency way to run the stack
 end to end.

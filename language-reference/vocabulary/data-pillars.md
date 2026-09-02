@@ -66,7 +66,7 @@ Authors encounter `infra:` at four distinct surfaces, each with different scope 
 | 3 | Release boundary `features.<id>.infra:` | Per-feature-attachment under that boundary | Same precedence as 2 — feature-attachment-scoped |
 | 4 | Release boundary `components.<id>.features.<id>.infra:` | Per-attachment-on-component | Highest specificity — overrides surfaces 1-3 for that exact attachment |
 
-Surfaces 1 and 2 are the most-authored pair: an Operator declares boundary-level defaults (e.g., `replicas: 3` for production) and overrides per-component where a specific instance needs different sizing. Surfaces 3 and 4 cover Feature-attachment sizing — Features carry their own infra payload that the FeatureRecipe consumes when synthesising sidecars or per-Feature resources.
+Surfaces 1 and 2 are the most-authored pair: an Operator declares boundary-level defaults (e.g., `replicas: 3` for production) and overrides per-component where a specific instance needs different sizing. Surfaces 3 and 4 cover Feature-attachment sizing — Features carry their own infra payload that the FeatureRecipe consumes when synthesizing sidecars or per-Feature resources.
 
 ### "Infra primarily localized" — the rule with exceptions
 
@@ -271,7 +271,7 @@ The duplication is deliberate: each layer covers a different concern. The Compon
 
 ### Feature attachment / Component pillar isolation
 
-A Feature attachment does **not** write into the parent Component's pillars. Each attached Feature carries its own pillar payload (its own `values:` block and its own `infra:` block). The FeatureRecipe synthesising the Feature's resources reads its own pillar payload independently of the Component's; the rendered output for the Feature lives alongside the Component's rendered output but does not merge into the Component's primary resources.
+A Feature attachment does **not** write into the parent Component's pillars. Each attached Feature carries its own pillar payload (its own `values:` block and its own `infra:` block). The FeatureRecipe synthesizing the Feature's resources reads its own pillar payload independently of the Component's; the rendered output for the Feature lives alongside the Component's rendered output but does not merge into the Component's primary resources.
 
 Two consequences for authors:
 
