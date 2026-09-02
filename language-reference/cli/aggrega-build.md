@@ -9,7 +9,7 @@ Two flags carry behaviour the flag reference below cannot convey on its own:
 - `--catalog <dir>` — a directory containing catalog entities — the Component, Feature, Recipe and FeatureRecipe authoring kinds together with the library kinds, Aggregates and Plugins — loaded **recursively**. Each `--catalog` directory is searched before the configured ones, in the order given. To search a project-local catalog alongside a shared one, pass both (`--catalog ./catalog --catalog ../shared-catalog`) or list them under `catalog_dirs`. With `--detail`, any entity a higher-precedence directory shadows is reported on stderr, with the other build warnings.
 - `--detail` — reports what the implicit auto-pull did, the same transient pull-event diagnostic that [`aggrega pull --detail`](aggrega-pull.md) emits. When a lockfile already exists, build does not pull, so there is nothing to report: the flag prints a one-line note to stdout and proceeds — it never fabricates a resolution tier the committed lockfile does not carry. For the post-pull resolution *state* of a Release's dependencies, use [`aggrega inspect`](aggrega-inspect.md).
 
-`--trace` and `--trace-unredacted` are covered in [Trace output](#trace-output) and [Showing the withheld values](#showing-the-withheld-values) below.
+`--dry-run` is covered in [Previewing a build without writing it](#previewing-a-build-without-writing-it), and `--trace` and `--trace-unredacted` in [Trace output](#trace-output) and [Showing the withheld values](#showing-the-withheld-values) below.
 
 ## The plugin trust record
 
@@ -56,6 +56,54 @@ build:
 ```
 
 The width is applied at a single marshal point shared by every renderer, so output stays byte-identical across runs of the same input. Values outside the `[2, 9]` range are rejected by config-schema validation.
+
+## Previewing a build without writing it
+
+`--dry-run` runs the same compile a build runs — the same dependency gates, the same render, the same providers — and prints what it would emit instead of writing it. Each artifact is reported with the path it would occupy and the content it would hold:
+
+```
+aggrega build --release releases/production.yaml --dry-run
+```
+
+```
+==> dist/main/helm/webapp-configmap-webapp.yaml <==
+apiVersion: v1
+kind: ConfigMap
+...
+
+Total build time:               2.5s
+Dry run: 1 files would be written to dist/; nothing was written
+```
+
+The artifacts are reported in the order a build writes them, so the same input reports the same bytes in the same sequence, and the path reported is the path a build would write to.
+
+**What is not written.** The output directory is left exactly as it stands — it is not cleaned either, so a previous build's output survives a dry run intact. The lockfile is not written. Nothing is written to `.trace/`. And no external input is acquired, which is the part worth understanding rather than taking on trust, because it is not a consequence of skipping the final write.
+
+**External inputs are frozen for the run.** A render can request content from a remote URL — a chart's values schema with a remote reference, for example — and on an ordinary build an unpinned request is fetched and pinned, which writes a blob into the input store before any artifact is written at all. So a dry run freezes the external-input set, exactly as `--no-acquire-inputs` does: a request for a URL the lockfile already pins is served from the store — refetched by its pinned digest if the store's copy has gone missing, which cannot change what the render sees — and a request for an unpinned URL halts naming it rather than being fetched.
+
+That halt is also the only way a dry run can differ from the build it stands in for, and it says so. Where a reference was declined, the run names it and points at the command that pins it:
+
+```
+  note: the lockfile does not pin every external reference this render requested, so the dry run declined the following and cannot show what a real build would emit:
+    - https://charts.example.com/values-schema.json
+  Run `aggrega acquire --release releases/production.yaml` to pin the inputs the render needs, then run the dry run again
+```
+
+Run [`aggrega acquire`](aggrega-acquire.md) once and the dry run has everything it needs; nothing else about it changes.
+
+**A dry run needs a lockfile and never fills one.** Build is read-only by default, and a dry run holds to that whichever way a fill was requested. `--auto-pull` and `--upgrade` are refused outright (below); the `auto_pull` workspace setting is overridden for that one invocation, so a workspace that fills by default can still be previewed. With no lockfile a dry run halts with the same remediation an ordinary read-only build gives: run [`aggrega pull`](aggrega-pull.md) first.
+
+**The flags it refuses.** Three flags write, so pairing them with a dry run has no honest outcome — ignoring the write would make a requested fill vanish, and honouring it would break the one promise the dry run makes. Each pairing halts before any work, naming the flag you passed and the step to run instead:
+
+| Paired with | Why it refuses |
+| --- | --- |
+| `--auto-pull` | fills the lockfile; run `aggrega pull` as its own step |
+| `--upgrade` | re-resolves every dependency and rewrites the lockfile; run `aggrega pull --upgrade` as its own step |
+| `--trace` | writes per-node files to `.trace/`; run the traced build without `--dry-run` |
+
+Everything else composes normally. `--verify-determinism` renders each node twice and compares the bytes without writing any of them, and `--catalog`, `--quiet`, `--progress`, `--debug` and the warning filters behave exactly as they do on a build that writes.
+
+**What it is for, and what it is not.** A dry run answers "what would this Release emit", which is a question only a render can answer — so it is not a substitute for [`aggrega validate`](aggrega-validate.md), which checks correctness without rendering, or for [`aggrega inspect`](aggrega-inspect.md), which queries the graph before the render. Reach for a dry run when the answer you want is the artifacts themselves: reviewing what a Release change does to the output, or checking a Recipe edit before committing anything to `dist/`.
 
 ## Trace output
 
@@ -160,6 +208,12 @@ Compile with a separate catalog directory:
 aggrega build --release releases/production.yaml --catalog ../platform-catalog/
 ```
 
+See what a Release would emit without writing any of it:
+
+```
+aggrega build --release releases/production.yaml --dry-run
+```
+
 Compile with trace dumps for debugging:
 
 ```
@@ -192,6 +246,7 @@ aggrega build [flags]
 | `--debug` | `false` | Emit human-readable verbose diagnostics on stderr — per-phase wall-clock timing and entity/dependency counts. Wins over --quiet: verbose output always emits. Distinct from --trace, which writes machine-readable per-node intermediate files to .trace/ |
 | `--detail` | `false` | Build is read-only by default and prints no resolution detail. When workspace auto_pull is enabled and no lockfile is present, build fills the lockfile in-process; this flag then prints per resolved entity what that fill did — fetched fresh from a registry, reused a cache slot, found in a local catalog, served from inside the compiler binary, or external. Stdout only; not persisted. No-op when a lockfile already exists (no fill this build) |
 | `--disable-plugin-cache` | `false` | Skip the persistent on-disk plugin compile cache for this build and compile plugin guests fresh in an in-memory cache that is discarded when the build ends. Off by default, which reuses the shared on-disk cache across builds. Does not change rendered output |
+| `--dry-run` | `false` | Render the Release and print what it would emit instead of writing it: each artifact's would-be path and its content go to stdout, and the output directory and the lockfile are left untouched. External inputs are frozen for the run, so a render that requests an unpinned external URL halts naming it rather than fetching and pinning it; pinned inputs are still served from the content-addressed store (and refilled by digest when the blob is missing). Refuses to combine with --auto-pull, --upgrade or --trace, each of which writes — run the dependency fill, or a traced build, as its own step |
 | `--no-acquire-inputs` | `false` | Freeze the external-input set: a render that requests an unpinned external URL halts with a diagnostic instead of fetching and pinning it. Pinned inputs are still served from the content-addressed store (and refilled by digest when the blob is missing) |
 | `--no-unsupported-field-warnings` | `false` | Silence the unsupported-field warning class: the notices a target raises for something you authored that it cannot honor — a Workload field it cannot express (as a lower-fidelity target such as compose does), or an aggrega.ai/ annotation it does not act on for the node's input kind. Other render warnings still surface. Display-only; does not change the rendered output |
 | `--progress` | `false` | Force the build-progress surface on even when stderr is not a terminal, printing plain static phase lines. The default is auto: the interactive phase checklist is shown only when stderr is a terminal. --quiet and --debug both override --progress |
