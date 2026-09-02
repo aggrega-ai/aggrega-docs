@@ -101,8 +101,17 @@ function renderPage(embedded) {
     "_Generated reference. Do not edit by hand — regenerate from the CLI's plugin listing._",
     ""
   );
+  // The introduction deliberately does NOT enumerate the sockets the embedded
+  // set covers, and re-adding a list here would reintroduce a defect rather
+  // than improve the prose. The table below is generated from the binary's own
+  // listing and its Type column already enumerates them; a hard-coded list
+  // beside it is a second copy of what that column says, and the copy is what
+  // goes stale — silently, because both sides of a drift comparison move
+  // together when the wrong sentence lives in the generator. So this text
+  // explains what the two columns MEAN, which is knowledge the listing does not
+  // carry, and leaves the enumeration to the column that is derived.
   out.push(
-    "Aggrega ships a set of provider and linter Wasm plugins compiled directly into the CLI binary. These embedded built-ins resolve with no filesystem, cache, or network access, so a fresh binary renders and lints out of the box. Each provider serves one or more render capabilities; a linter is cross-cutting and serves none. Run `aggrega plugin list` to see this set in your own binary, or `aggrega plugin list -o json` for the full per-plugin detail.",
+    "Aggrega ships a set of Wasm plugins compiled directly into the CLI binary. These embedded built-ins resolve with no filesystem, cache, or network access, so a fresh binary has a working plugin set with nothing to install. Each row's Type is the socket the plugin implements, and its Capabilities are what it serves within that socket — the render targets a provider renders, or the source formats a parser reads, written `parse:<format>`. A socket that carries no capability axis, such as the linter and governance sockets, serves none and shows an em dash. Run `aggrega plugin list` to see this set in your own binary, or `aggrega plugin list -o json` for the full per-plugin detail.",
     ""
   );
 

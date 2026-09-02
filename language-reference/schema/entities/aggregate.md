@@ -76,9 +76,9 @@ Agnostic injection routing. Maps local variables to target provides keys (uses[]
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `env` | inject_delivery | no |  |
-| `file` | inject_delivery | no |  |
-| `arg` | inject_delivery | no |  |
+| `env` | inject_delivery | no | A single delivery mechanism, authored as an array of entries. Each entry carries an 'in' (local identifier — env var name, file path, arg flag, or custom mechanism-specific key) plus exactly one of 'from' (a provides key to resolve) or 'value' (a literal string, optionally containing Go template expressions evaluated at self-inject resolution). 'from' resolves against the target's provides in uses[].inject context, or against the component's own provides in component.inject context. |
+| `file` | inject_delivery | no | A single delivery mechanism, authored as an array of entries. Each entry carries an 'in' (local identifier — env var name, file path, arg flag, or custom mechanism-specific key) plus exactly one of 'from' (a provides key to resolve) or 'value' (a literal string, optionally containing Go template expressions evaluated at self-inject resolution). 'from' resolves against the target's provides in uses[].inject context, or against the component's own provides in component.inject context. |
+| `arg` | inject_delivery | no | A single delivery mechanism, authored as an array of entries. Each entry carries an 'in' (local identifier — env var name, file path, arg flag, or custom mechanism-specific key) plus exactly one of 'from' (a provides key to resolve) or 'value' (a literal string, optionally containing Go template expressions evaluated at self-inject resolution). 'from' resolves against the target's provides in uses[].inject context, or against the component's own provides in component.inject context. |
 
 ### `uses_block`
 
@@ -111,7 +111,7 @@ _Additional properties are not permitted._
 | `description` | string | no | Optional documentation describing this component instance's role in the application. Passed through to the IR graph for augmenting rendering. |
 | `annotations` | map of string or object or null | no | Developer-authored annotations on this component. Values are strings or null; explicit null on a key inherited from a parent subsystem removes the inherited binding from this component (annotation-driven Feature opt-out). Component-level annotations override inherited subsystem-level annotations per key; sibling components in the same subsystem retain their own annotation maps independently. |
 | `values` | object | no | Opaque cognitive properties passed to the Component, validated by its schema. |
-| `uses` | uses_block | no |  |
+| `uses` | uses_block | no | The Structural Topology - Developer Owned. Declares logical network edges and dependencies. |
 | `inject` | inject_block | no | Component-level self-inject. Injects the component's own values (via 'value:') or own provides keys (via 'from:') directly into the delivery pipe (.context.inject). Only allowed if the Component catalog entity declares 'spec.inject' with the corresponding mechanisms. The compiler validates that no inject key collides with keys declared in uses[].inject — collisions cause ErrInjectKeyCollision fatal halt. |
 | `features` | map of object | no | The Features attached to this component, keyed by the instance name the author gives each attachment. This is the single attachment surface: an operational Feature, a credential Feature (one labeled feature.aggrega.ai/kind: secret) and an identity Feature are all attached here, under the same keyword and the same shape. What differs between them is what the attachment produces, not how it is declared. An attachment whose instance name matches a slot the Component declares in featuresSchema fills that slot; any other instance name is a free attachment. Keys: one or more letters, digits, underscores or hyphens. A dot is not permitted. Pattern: `^[a-zA-Z0-9_-]+$`. |
 

@@ -117,7 +117,7 @@ _Additional properties are not permitted._
 | `subsystem_path` | string | no | The logical spatial hierarchy mapped from the Aggregate subsystems (e.g., 'finance-module/ledger-api'). Allows rendering plugins to generate logical metadata tags. |
 | `synthesized_subsystem` | boolean | no | True when this node's subsystem was synthesized by the compiler — the `default` subsystem created for an Aggregate that declares top-level `components` rather than named `subsystems`. Derived provenance, never authored: it distinguishes the synthesized `default` from a subsystem a user explicitly named `default`. Independent of `synthesized_boundary` (a node may be synthesized on either axis or both). Absent (false) for every authored subsystem. |
 | `synthesized_boundary` | boolean | no | True when this node's boundary was synthesized by the compiler — the `default` boundary created for a Release that declares top-level `components` rather than named `boundaries`. Derived provenance, never authored: it distinguishes the synthesized `default` from a boundary a user explicitly named `default`, and routes the node's artifacts to `dist/` flat instead of `dist/boundaries/default/`. Absent (false) for every authored boundary. |
-| `catalog_metadata` | CatalogMetadata | no |  |
+| `catalog_metadata` | CatalogMetadata | no | The Enterprise Metadata Suite explicitly extracted from the Catalog entity, exposing lifecycle and ownership data to Wasm linters. |
 | `catalog_annotations` | map of string | no | Immutable, intrinsic component characteristics authored by the Platform Architect in Domain 2. |
 | `release_annotations` | map of string | no | Physical topology strings and Ops realities cascading from boundaries in the Release. |
 | `aggregate_annotations` | map of string | no | Cognitive metadata, developer intent, and FinOps cascading from subsystems in the Aggregate. |
@@ -189,7 +189,7 @@ _Additional properties are permitted._
 | `infra_mapping` | object | yes | The physical sizing payload injected from the Release, mapped by node ID. |
 | `feature_values_mapping` | map of map of IRFeatureEntry | yes | Normalized map of Node IDs to their attached Feature configurations. One bucket carries every attachment on a node whatever it produces — operational Features, credential Features, identity Features — keyed by the instance name the author gave each attachment. Keys: one or more letters, digits, underscores, dots or hyphens. Pattern: `^[a-zA-Z0-9_.-]+$`. |
 | `boundary_features` | map of map of IRBoundaryFeature | no | Un-folded projection of each boundary's Feature attachments, keyed by boundary path then by instance name. Mirrors the boundaries' feature attachments as the single source both lock-time source resolution and the render-time boundary-scope dispatch read, so neither re-walks the routing tree. Present only when the graph has boundary-level Feature attachments. Keys: one or more letters, digits, underscores, dots, slashes or hyphens. Pattern: `^[a-zA-Z0-9_./-]+$`. |
-| `provenance` | IRProvenance | yes |  |
+| `provenance` | IRProvenance | yes | Traceability metadata for diagnostics and auditing. |
 
 _Additional properties are not permitted._
 

@@ -40,7 +40,7 @@ _Additional properties are not permitted._
 | `manifest_digest` | string | no | OCI manifest digest of the resolved artifact (e.g. `sha256:...`). The signature commits to this digest; the content `digest` above is the portable identity used for the cache pin and integrity check. Present only for a registry-resolved entity. |
 | `referenced_from` | string[] | no | Authoring-site origins — dotted paths into Release / Aggregate / Manifest YAML (e.g. `aggregate.spec.components.api.type`) recording why this URI is in the closure. Default: `[]` |
 | `signature` | VerifiedSignature | no | Verified-signature fact recorded when this entity's signature was verified at pull time, against the resolving registry's trust policy. |
-| `deprecation` | DeprecationRecord | no |  |
+| `deprecation` | DeprecationRecord | no | Verified retroactive deprecation marker recorded when a signed, trusted deprecation marker was discovered on this artifact at pull time. A marker is a signed OCI referrer of the artifact it deprecates, attached after publication without re-publishing the artifact. Records the marker's severity and message plus the verified signer that authored it. Build reads this fact and enforces the deprecation policy from the lockfile alone; it never re-discovers or re-verifies the marker. |
 
 _Additional properties are not permitted._
 
@@ -76,7 +76,7 @@ _Additional properties are not permitted._
 | `manifest_digest` | string | no | OCI manifest digest of the resolved Wasm artifact (e.g. `sha256:...`). The signature commits to this digest; the content `digest` above is the portable identity used for the cache pin and integrity check. Present only for a registry-resolved artifact. |
 | `referenced_from` | string[] | no | Authoring-site origins — dotted paths recording why this URI is in the closure (e.g. `.aggrega-config.yaml.plugins.governance`). Default: `[]` |
 | `signature` | VerifiedSignature | no | Verified-signature fact recorded when this plugin's signature was verified at pull time, against the same per-registry trust policy as catalog entities. |
-| `deprecation` | DeprecationRecord | no |  |
+| `deprecation` | DeprecationRecord | no | Verified retroactive deprecation marker recorded when a signed, trusted deprecation marker was discovered on this artifact at pull time. A marker is a signed OCI referrer of the artifact it deprecates, attached after publication without re-publishing the artifact. Records the marker's severity and message plus the verified signer that authored it. Build reads this fact and enforces the deprecation policy from the lockfile alone; it never re-discovers or re-verifies the marker. |
 
 _Additional properties are not permitted._
 

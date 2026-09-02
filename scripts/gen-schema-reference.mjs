@@ -180,6 +180,49 @@ function resolvePointer(doc, pointer) {
   return node;
 }
 
+// The description to publish for a reference that names a type but carries no
+// description of its own.
+//
+// A property written as a bare reference — `{"$ref": "#/$defs/Selector"}` — has
+// no `description` key at all, so the description column for that row would be
+// blank however well the definition it points at is documented. The target's
+// prose is the only prose available, so it is what gets published.
+//
+// This resolves the class rather than each instance. Writing a description
+// beside every bare reference is the per-property alternative, and it has to be
+// repeated at each site, kept in agreement with the definition, and remembered
+// for the next reference anyone adds. Reading through to the target covers every
+// such reference at once, including the ones added later, and a description
+// written at the referring site still wins: that description was written for
+// that field, where the target's was written for the type.
+//
+// A target that is itself a bare reference is followed, bounded by `seen` so a
+// cycle terminates instead of recursing.
+//
+// Returns null — never an error — when the reference cannot be resolved. A
+// reference that names a type is not resolved anywhere else in this generator,
+// so an unresolvable one is already silent here; refusing on one would reject
+// schemas this generator accepts today, which is a wider change than supplying
+// a description the reader would otherwise not get.
+function referencedDescription(ref, baseId, registry, seen = new Set()) {
+  const documentId = absoluteDocumentId(ref, baseId);
+  if (!documentId) return null;
+  const { pointer } = splitRef(ref);
+  const absolute = `${documentId}#${pointer}`;
+  if (seen.has(absolute)) return null;
+  const document = registry.get(documentId);
+  if (!document) return null;
+  const target = resolvePointer(document, pointer);
+  if (!target || typeof target !== "object") return null;
+  if (typeof target.description === "string" && target.description.trim().length > 0) {
+    return target.description;
+  }
+  if (typeof target.$ref === "string") {
+    return referencedDescription(target.$ref, documentId, registry, new Set(seen).add(absolute));
+  }
+  return null;
+}
+
 // Replaces every reference that does not name a type with the value it points
 // at, so the renderer downstream sees a plain subschema and needs to know
 // nothing about references. Doing this once, here, is what keeps the type
@@ -225,6 +268,17 @@ function inlineUnnamedRefs(node, baseId, registry, seen = new Set()) {
   for (const [key, value] of Object.entries(node)) {
     out[key] = inlineUnnamedRefs(value, baseId, registry, seen);
   }
+
+  // A reference that names a type is left standing rather than inlined: it is
+  // documented once in its schema's Definitions section, and the Type column
+  // shows the name a reader can look up. Only its description is read through,
+  // and only when it has none of its own, so the row that is the reference's
+  // one appearance is never left with an empty description.
+  if (typeof out.$ref === "string" && out.description === undefined) {
+    const inherited = referencedDescription(out.$ref, baseId, registry);
+    if (inherited !== null) out.description = inherited;
+  }
+
   return out;
 }
 

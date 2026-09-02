@@ -19,8 +19,8 @@ The payload the host hands the mutator plugin on each invocation: release-level 
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `compilation_context` | CompilationContext | yes |  |
-| `graph` | MutatorGraph | yes |  |
+| `compilation_context` | CompilationContext | yes | Release-level metadata the mutator reads when deciding which compliance, FinOps, or governance rules apply to the build. |
+| `graph` | MutatorGraph | yes | The labels-only projection of the topology graph exposed to the mutator plugin. Intentionally narrower than the full topology result: edges, values, and feature payloads are not exposed because the mutator's job is labelling, not topology reshaping. |
 | `sources` | MutatorSource[] | no | Definition files the host reads and hands to the plugin verbatim, as an ordered list sorted by path. The host reads the bytes as opaque content and does not parse them. Absent when the attachment declares no sources. |
 | `settings` | object | no | A free-form settings object the host hands to the plugin verbatim. The host does not parse or act on its content. Absent when the attachment declares no settings. |
 
