@@ -27,6 +27,14 @@ source and builds one release per run, echoing the equivalent direct `aggrega
 build` command first. Run `./build-release.sh` in a single-release example, or
 name the release for a multi-release one (`./build-release.sh helm`).
 
+Lockfiles are generated rather than shipped, so a fresh clone has none and the
+first build needs one. `aggrega build` is read-only by default: with no lockfile
+it halts and names the two ways forward. Pass `--auto-pull` through the helper
+for that first build — `./build-release.sh -- --auto-pull`, or
+`./build-release.sh helm -- --auto-pull` when naming a release — to resolve the
+lockfile during the build; running `aggrega pull --release <release>.yaml` once
+beforehand does the same and lets every later build run with no flag.
+
 These complement the numbered walkthrough chapters in
 [Examples Overview](../09-examples.md): the chapters teach one pattern at a time
 inline; the workspaces here are whole stacks you can build, read, and adapt.
