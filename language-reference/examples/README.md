@@ -44,6 +44,11 @@ so you can compare your own output against it — and any lines left out are
 marked. [Reading the output on these pages](reading-the-output.md) states that
 convention and the mark it uses.
 
+One directory here is not a workspace: [policy-in-ci](policy-in-ci/) holds two
+rule scripts that read a build's output directory and refuse it when it breaks a
+rule, with the pipeline step for each. They run over the outputs of the
+workspaces below, and over yours.
+
 The set is organised as a **progressive-complexity path** — from the smallest
 authoring surface to the advanced compiler frontier. Read it top-to-bottom as a
 learning path, or jump to the tier that matches what you're doing.

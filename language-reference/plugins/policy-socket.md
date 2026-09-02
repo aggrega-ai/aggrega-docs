@@ -1089,6 +1089,77 @@ plugins:
           required_label: app.kubernetes.io/name
 ```
 
+## Running policy in CI, over the build output
+
+Everything above attaches a policy **inside** a build. There is a second route,
+and it needs nothing from the socket: run your own tool in the pipeline, over the
+files the build wrote.
+
+It works because of what a build emits. The Kubernetes and Compose targets write
+YAML; the Terraform target writes native HCL, or JSON in its `.tf.json` form.
+Those are the formats the ecosystem's configuration tools already read — and
+`aggrega build` writes plain files to a directory, with no wrapper format, no
+index, and nothing to unpack. So a tool that reads YAML, JSON or HCL runs over a
+build's output the same way it runs over configuration a person wrote by hand,
+and Aggrega grows no socket, no plugin kind and no configuration key for it.
+
+So an existing rule corpus needs no port. If you already keep rules in Conftest,
+the Kyverno CLI, kubeconform, Checkov or OPA, those rules run over an Aggrega
+build's output as they stand, and the tool that evaluates them is the one your
+pipeline already installs.
+
+Two ready-to-use rule scripts, each with the pipeline step that invokes it and
+both refusals they produced over real builds, are at
+[`examples/policy-in-ci/`](../examples/policy-in-ci/). They use
+[`yq`](https://github.com/mikefarah/yq) and nothing else, so they run with no
+policy toolchain installed; the shape they show — read the output directory,
+decide, exit non-zero with the offending artifacts named — is the shape any tool
+in this position takes.
+
+### Which route a rule belongs to
+
+Both routes are first-class, and a workspace commonly uses both. What decides is
+what the rule needs to see and when it needs to act.
+
+**Attach it to the socket when:**
+
+- **the build must not produce the artifact at all.** An `ir-verdict` policy runs
+  at the static-analysis gate, before anything is rendered, so a halt there
+  leaves nothing written — no output file to review, quarantine, or accidentally
+  apply. A pipeline check necessarily runs after the files exist.
+- **the rule needs facts only the build holds.** The `ir-verdict` role reads the
+  assembled graph: nodes, edges and their sockets, every attachment with the slot
+  it filled, which values an author declared sensitive, the routing paths. None
+  of that survives into rendered output — a Kubernetes manifest does not record
+  which socket delivered a value or which Feature contributed a resource — so a
+  rule about topology or about provenance has one home, and it is the socket.
+- **the rule must hold wherever the build runs.** A governance attachment lives
+  in the workspace configuration, so it applies to a developer's local build as
+  much as to the pipeline's. A pipeline check applies where the pipeline runs.
+- **the rule should shape the build rather than judge it.** Only a transform role
+  does that, and only because an operator attached it.
+
+**Run it in CI when:**
+
+- **the rule already exists**, in a tool your team runs and reviews, over a
+  format that tool already parses. Re-expressing it as socket policy content is
+  work with no new coverage at the end of it.
+- **the rule is about the artifacts as the target will receive them** — the final
+  file set, after every transform, in the form that gets applied. That is the
+  `render-verdict` role's subject too, so on this point alone the two routes see
+  the same thing and the choice turns on the others.
+- **the finding is for a reviewer rather than for the build.** A pipeline that
+  publishes the artifacts and the findings side by side gives a reviewer both;
+  a halted build gives them a message.
+- **the check reaches beyond one build** — comparing this build's output against
+  the last one, against a cluster's live state, or against an inventory no build
+  payload carries. A policy at either verdict role sees the build it is attached
+  to, and that is all it sees.
+
+The routes compose rather than compete: a topology invariant halts the build from
+`ir-verdict`, and the same pipeline then runs the estate's existing artifact
+rules over what that build wrote.
+
 ## Cross-references
 
 - [`plugin-contract.md`](plugin-contract.md) — the socket's pipeline placement,
@@ -1102,3 +1173,5 @@ plugins:
 - [`../schema/other/aggrega-config.md`](../schema/other/aggrega-config.md) — the
   workspace configuration schema, including the `plugins.governance` attachment
   surface.
+- [`../examples/policy-in-ci/`](../examples/policy-in-ci/) — two runnable rule
+  scripts over a build's output, with the pipeline step for each.
