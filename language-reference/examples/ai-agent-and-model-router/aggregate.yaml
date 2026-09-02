@@ -1,0 +1,133 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: ai-agent-and-model-router
+  version: "1.0.0"
+  description: >
+    An agent application that reaches two upstream provider models through one
+    in-cluster router. This file, the Manifest and the Release are the whole of
+    what anyone authors here: every Component, Feature and Recipe named below
+    ships in the standard-library catalog.
+spec:
+  # ── Parameter hoisting ──────────────────────────────────────────────────
+  # The router's administrative key has two consumers: the router itself, which
+  # requires it of every caller, and the agent, which presents it. Both read
+  # this one typed parameter, so the value has a single authored home and the
+  # Release fulfils it per environment. Two literals would render two Secrets
+  # that agree today and can be edited apart tomorrow.
+  parameters:
+    router_admin_key:
+      type: string
+      description: >
+        The key the router requires of callers and the agent presents. One value
+        with one home; fulfilled per environment in the Release.
+  components:
+    # ── The router ──────────────────────────────────────────────────────────
+    # The routing component. Its authoring surface is the model map: each entry
+    # publishes an alias a caller may ask for and names the upstream target that
+    # alias resolves to. Both entries below publish the SAME alias, which is what
+    # makes routing_strategy do anything — with distinct aliases the gateway
+    # routes by name alone and the strategy changes no answer.
+    #
+    # Each target is a deterministic pointer string. The compiler does not
+    # contact a provider, does not check that a target exists, and cannot tell a
+    # provider-qualified model name from any other string; the running proxy
+    # resolves it when it serves a request.
+    router:
+      type: core/gateway/litellm
+      values:
+        models:
+          - name: assistant
+            target: openai/gpt-4o
+          - name: assistant
+            target: anthropic/claude-sonnet-4
+        routing_strategy: latency-based-routing
+      features:
+        # Two credentials, and the difference between them is the whole point of
+        # putting a router in front of a model.
+        #
+        # master_key guards the router's own API: with it attached, a caller must
+        # present the key. provider_key is the credential the router presents
+        # UPSTREAM on the caller's behalf — so the agent never holds it, and
+        # repointing the map at a different provider changes no application.
+        master_key:
+          type: core/referenced-secret
+          values:
+            key: master-key
+            origin: "{{ .parameters.router_admin_key }}"
+        provider_key:
+          type: core/referenced-secret
+          values:
+            key: provider-key
+            origin: upstream-provider-key-change-me
+
+        # Two attachments that bring resources of their own rather than filling a
+        # slot the Component declared. Each is admitted by its own selector: both
+        # of these require component.aggrega.ai/type=server, which the router
+        # carries. The `host` is developer intent — which name an application
+        # answers on is part of what the application is — while the scrape and
+        # routing knobs are operator sizing and live in the Release.
+        published:
+          type: core/public-ingress
+          values:
+            host: assistant.example.internal
+        metrics:
+          type: core/prometheus-exporter
+
+    # ── The model the agent asks for ────────────────────────────────────────
+    # A broker model: no inference runs here. The component is the agent-facing
+    # handle for whatever serves the alias, and `model` is the alias it asks the
+    # router for — the same name the router's map publishes above.
+    #
+    # Nothing checks that those two names match. The compiler routes strings and
+    # cannot read one; if this alias named something the map does not publish,
+    # the build would still succeed and the running request would fail. Keeping
+    # them in step is the author's job.
+    model:
+      type: core/ai-model/openai-compatible
+      values:
+        model: assistant
+        provider_name: litellm
+
+    # ── Where the agent keeps its run state ─────────────────────────────────
+    # The agent's checkpointer socket is required and selects on the datastore
+    # category, so the deployment chooses which store arrives. A key-value cache
+    # suits run state; a bare declaration takes every schema default.
+    checkpointer:
+      type: core/datastore/valkey
+
+    # ── The agent ───────────────────────────────────────────────────────────
+    # Two sockets, both declared by the Component and both filled here. The
+    # aliases below (router_model, run_state) name the edges; the socket names
+    # are what the Recipe matches on, and what each selector is evaluated
+    # against.
+    agent:
+      type: core/ai-agent/langgraph
+      values:
+        graph_entrypoint: app.graph:graph
+        recursion_limit: 25
+      uses:
+        # The String Pipe. The model component's Recipe publishes `endpoint` and
+        # `model`; the agent's Recipe reads them off this edge and delivers them
+        # as OPENAI_BASE_URL and OPENAI_MODEL. No inject block is needed here,
+        # because the delivery is the consuming Recipe's own — the edge is what
+        # the developer declares, and the Recipe decides what to do with it.
+        model:
+          router_model:
+            target: model
+        checkpointer_db:
+          run_state:
+            target: checkpointer
+      features:
+        # The key the agent presents to the router, read from the same parameter
+        # the router's own master_key reads. Delivered as OPENAI_API_KEY, which
+        # is the variable the client library reads: the agent talks to the router
+        # in exactly the dialect it would use to talk to a provider directly.
+        model_api_key:
+          type: core/referenced-secret
+          values:
+            key: api-key
+            origin: "{{ .parameters.router_admin_key }}"

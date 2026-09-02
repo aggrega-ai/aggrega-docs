@@ -1,0 +1,78 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: ai-agent-and-model-router-dev
+  environment: development
+  version: "1.0.0"
+spec:
+  aggregate: ai-agent-and-model-router
+  manifest: ai-agent-and-model-router-manifest
+
+  # The parameter the Aggregate declared, fulfilled for this environment. The
+  # Release fulfils parameters; it cannot declare values, and it cannot add a
+  # component the Aggregate did not.
+  parameters:
+    router_admin_key: dev-router-admin-key-change-me
+
+  # Single scope: components are authored directly with no boundaries block, so
+  # they fold into one synthesized boundary and the artifacts land flat under
+  # dist/helm/.
+  components:
+    router:
+      infra:
+        # Operator sizing. Everything omitted takes the schema default — the
+        # image tag, the CPU and memory requests, and the bookkeeping database
+        # (omitted here, so the router runs stateless).
+        port: 4000
+      features:
+        # An attachment's operator sizing is authored under the attachment's own
+        # name, in its own infra pillar — the same split the component above
+        # has, one level in.
+        published:
+          infra:
+            # The routing knobs. service_name is deliberately omitted: left
+            # unset, the routing targets the Service the router's own Recipe
+            # emits, which is what this deployment wants. ingress_class_name is
+            # omitted too, so the field does not render and the cluster's
+            # default class claims the resource. Both of those fallbacks are
+            # delivered by the bound FeatureRecipe.
+            service_port_name: http
+            path: /
+        metrics:
+          infra:
+            # All three scrape knobs, supplied here rather than left out: a
+            # rendered ServiceMonitor needs each of them, and this attachment's
+            # realization does not supply a fallback of its own. `port` names a
+            # Service port, and the router's Recipe emits one named port — http
+            # — which is also the port the proxy serves its metrics path on.
+            interval: 30s
+            port: http
+            path: /metrics
+    model:
+      infra:
+        # The router's address, written by the operator because this is a broker
+        # component: nothing runs behind it in-cluster, so there is no Recipe
+        # output to read the address from.
+        #
+        # It is a deterministic pointer. `router-default` is the Service the
+        # router's Recipe emits — <component name>-<service key> — so the name is
+        # known ahead of time and can be written down before anything is
+        # deployed. The compiler does not resolve it, does not verify it, and
+        # cannot: it has no access to a running cluster, and to it this is a
+        # string like any other. Rename the router component and this line must
+        # be changed by hand.
+        endpoint: "http://router-default:4000/v1"
+
+    # Declared with nothing to configure. Every knob the cache exposes takes its
+    # schema default, including the port the agent is handed. A component still
+    # has to appear here: one left out is placed in no scope and the build halts.
+    checkpointer: {}
+
+    agent:
+      infra:
+        # The application image. The catalog packages the agent runtime; the
+        # graph the agent runs is this deployment's own code.
+        image: ghcr.io/example/assistant:1.4.0

@@ -69,6 +69,19 @@ developer surface and the String Pipe with zero platform authoring.
   which socket was declared. The control release shows the other half of the
   line: an `inject` key the target does not declare in its `provides` halts the
   build, ad-hoc socket or not.
+- **[ai-agent-and-model-router](ai-agent-and-model-router/)** — an agent
+  application reaching two upstream provider models through one in-cluster
+  router, compiled to Kubernetes. The router's alias map reaches the rendered
+  configuration, so the routing table is readable in the artifact rather than
+  implied by it, and two entries publishing the same alias are what give the
+  routing strategy something to decide. Five attachments over three Feature
+  kinds, each visible in the output: an Ingress and a ServiceMonitor the
+  component's own Recipe knows nothing about, and three credentials — the key
+  the router requires of callers, the key it presents upstream on their behalf,
+  and the key the agent presents to it, the first and last read from one hoisted
+  parameter so they cannot drift apart. Also shows where the compiler is blind:
+  two pairs of names have to agree, nothing checks either, and the build
+  succeeds when they do not.
 
 ## Authoring
 

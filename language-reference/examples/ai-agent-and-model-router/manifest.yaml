@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: ai-agent-and-model-router-manifest
+  version: "1.0.0"
+  description: >
+    Ops mapping for the Kubernetes target. Every component type and every
+    attached Feature is routed to the standard-library Recipe that implements it
+    on this target.
+spec:
+  mappings:
+    components:
+      type:
+        # Recipe references are provider-qualified (provider/name:version). Most
+        # of these types ship Recipes under more than one provider, so a bare
+        # name would match several and the build would halt rather than pick
+        # one. The router is the exception and the reason this whole example is
+        # Kubernetes-only: its routing table is a configuration body, and it is
+        # realized on this target alone.
+        core/gateway/litellm:1.0.0: helm/litellm-gateway:1.0.0
+        core/ai-model/openai-compatible:1.0.0: helm/openai-compatible:1.0.0
+        core/ai-agent/langgraph:1.0.0: helm/langgraph:1.0.0
+        core/datastore/valkey:1.0.0: helm/valkey:1.0.0
+    features:
+      type:
+        # One mapping per Feature TYPE, not per attachment. All three
+        # core/referenced-secret attachments — two on the router, one on the
+        # agent — resolve through this single line, and each still renders its
+        # own Secret, named from the component that consumes it.
+        #
+        # This realization writes the credential straight into the rendered
+        # Secret, which suits a development target and not a shared one.
+        # Changing this one line to helm/k8s-external-secret renders an
+        # ExternalSecret naming an entry in a cluster secret store instead, and
+        # every consumer's rendered reference stays byte-identical, because the
+        # locator is published by the producing side rather than agreed between
+        # both. What does change is what `origin` MEANS: this realization reads
+        # it as the value to store, the other as the key to fetch — so the
+        # origin values are re-authored as store keys, even though the
+        # Aggregate's structure stays exactly as it is.
+        core/referenced-secret:1.0.0: helm/k8s-secret-from-parameter:1.0.0
+        core/public-ingress:1.0.0: helm/public-ingress:1.0.0
+        core/prometheus-exporter:1.0.0: helm/prometheus-exporter:1.0.0
