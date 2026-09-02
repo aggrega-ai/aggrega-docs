@@ -29,6 +29,16 @@ The allowlist is closed by design: surfaces such as `.context.inject`, `.values`
 
 The `directory:` field defaults to the boundary path (a stable build-time identifier derived from the boundary tree). The `subDirectory:` field defaults to `{{ .capability }}` so that each capability's artifacts land in their own sub-folder under the boundary's directory; setting `subDirectory: "."` or `subDirectory: ""` flattens that grouping.
 
+### What these templates do not decide: `artifacts:` placement
+
+One segment of the output path is not a path template's to set. A file a Recipe's `artifacts:` block names is written under a directory named for the component that declared it, inside whatever `subDirectory:` evaluates to. That segment is fixed and always present, for a target that writes its contributors' files side by side rather than nesting each contributor in a chart or a module of its own.
+
+The reason is what names the file. A manifest a target renders or synthesizes is named by the target from the component it belongs to, so it already identifies its component. An artifact is named by the key its author wrote — `app-config.yaml`, `netpol.yaml` — and that key says nothing about the component, because the Recipe declaring it does not know which components will be bound to it. Two components in one boundary bound to one Recipe would write one path, and neither the Recipe author nor the Release author has a surface on which to separate them.
+
+Only the directory is added; the filename stays the authored key, so the file an author reads back in the output carries the name they wrote.
+
+**What `subDirectory:` still buys, and how the two compose.** `subDirectory:` moves **every** file a contributor emits — rendered manifests, synthesized manifests and artifacts together — so it is the tool for giving one component a directory of its own for downstream tooling that operates on a single component's whole manifest set, or for routing several components into one shared folder. The `artifacts:` segment applies underneath whatever it evaluates to. Writing `subDirectory: "{{ .capability }}/{{ .component_id }}"` on a component whose Recipe declares `artifacts:` therefore produces the component's name twice — the artifact lands at `<capability>/<component>/<component>/<key>` while that component's rendered manifests land at `<capability>/<component>/<key>`. Reach for the override when you want the component's *whole* output gathered, and leave it off when separating the artifacts is all you need, which the default already does.
+
 `.capability` is resolved per component, and a boundary's `directory:` is evaluated for two distinct purposes. The per-boundary evaluation that publishes `.parent_boundary.directory` to child boundaries runs before any component is bound, so `.capability` is empty there. The per-component evaluation that fixes where a contributor's artifacts actually land carries that component's capability. A parent authoring `directory: "d-{{ .capability }}"` therefore publishes `d-` down the cascade while its own artifacts land under `d-compose`.
 
 ## Parent-boundary cascade
@@ -130,7 +140,7 @@ deploy/eu-west-1/<capability>/db/...
 deploy/eu-west-1/shared/...
 ```
 
-This pattern fits enterprises that want per-component artifact directories for downstream tooling that operates on a single component's manifests.
+This pattern fits enterprises that want per-component artifact directories for downstream tooling that operates on a single component's manifests. Where a component's Recipe also declares `artifacts:`, read [What these templates do not decide](#what-these-templates-do-not-decide-artifacts-placement) above before choosing this shape: those files carry a component segment already, so this override adds a second one.
 
 ## Diagnostics
 

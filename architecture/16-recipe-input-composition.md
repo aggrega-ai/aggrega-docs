@@ -309,7 +309,7 @@ artifacts:
     ...
 ```
 
-Produces `dist/boundaries/.../configmap-config.yaml` and `dist/boundaries/.../pdb.yaml`.
+Produces `configmap-config.yaml` and `pdb.yaml`. The key fixes the filename; where the file lands is the target's decision, and the section on per-provider emission below covers it.
 
 For a file `$import:` entry the key is the output filename too. The imported file supplies the *content*; it does not supply the name, so an author who wants a particular output filename writes that name as the key:
 
@@ -396,7 +396,9 @@ The shape with no site here is a template or fragment declaring no resource — 
 
 *The per-provider semantics below describe how each provider integrates artifacts into its native output. The artifacts render path ships today.*
 
-**helm provider:** artifacts are Kubernetes YAML documents written directly to the output directory, alongside manifests rendered from the chart and manifests synthesized from the Workload.
+**helm provider:** artifacts are Kubernetes YAML documents written under a directory named for the component that declared them, inside the output directory holding the manifests rendered from the chart and synthesized from the Workload. The reason is the naming: a rendered or synthesized manifest is named by the provider from the component it belongs to, while an artifact is named by the key its author wrote, which says nothing about which component that is — so two components bound to one Recipe would write one path with neither author able to separate them. The directory is the component's own name, so the file the author reads back in the output is the name they wrote, one level down.
+
+An operator who wants a different layout has the boundary's `subDirectory:` template, which moves **every** file a contributor emits rather than the artifacts alone. See [`../language-reference/path-template-variables.md`](../language-reference/path-template-variables.md).
 
 **compose provider:** artifacts are compose fragments. Top-level keys (`services:`, `networks:`, `volumes:`, `configs:`) are merged into the per-boundary combined `docker-compose.yaml` during the boundary composition step.
 

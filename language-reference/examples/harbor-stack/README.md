@@ -159,14 +159,14 @@ Each consumer's Recipe reads its own edge's value and composes it into the
 configuration that consumer emits, so the three rendered artifacts name three
 different databases:
 
-`dist/app/helm/harbor.core-deployment.yaml`
+`dist/app/helm/harbor-zdcore-deployment.yaml`
 
 ```yaml
             - name: _REDIS_URL_CORE
               value: redis://harbor.cache-default:6379/0
 ```
 
-`dist/app/helm/harbor-registry-config.yaml`
+`dist/app/helm/harbor.registry/harbor-registry-config.yaml`
 
 ```yaml
     redis:
@@ -174,13 +174,20 @@ different databases:
       db: 1
 ```
 
-`dist/app/helm/harbor-jobservice-config.yaml`
+`dist/app/helm/harbor.jobservice/harbor-jobservice-config.yaml`
 
 ```yaml
       redis_pool:
         redis_url: "redis://harbor.cache-default:6379/2"
         namespace: "harbor_job_service_namespace"
 ```
+
+The two configuration files sit one directory deeper than the deployment. A file
+a Recipe's `artifacts:` block names is written under the component that declared
+it, because the name such a file carries is the key its author wrote and says
+nothing about which component it belongs to — two components sharing one Recipe
+would otherwise write one path. A manifest the target renders or synthesizes is
+already named after its component, so it stays at the boundary's own directory.
 
 The host and port in each of these arrive from the cache's `provides` over the
 same edge; the database index and the key namespace come from that edge's own
@@ -191,7 +198,7 @@ interpreting them.
 **Per-connection configuration reaches only the consumer that authored it.** An
 edge's `values` block lands in the render context of the component at the
 consuming end, never the target's. The cache's own artifacts —
-`harbor.cache-deployment.yaml` and `harbor.cache-default-service.yaml` — carry no
+`harbor-zdcache-deployment.yaml` and `harbor-zdcache-default-service.yaml` — carry no
 trace of any of it, and stay byte-for-byte identical whatever the three services
 ask for: move all three indices and the cache's manifests do not change, while
 each consumer's configuration follows its own edge. A shared target renders

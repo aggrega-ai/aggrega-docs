@@ -24,7 +24,8 @@ developer values:
 
 The catalog resolves from the sibling hub catalog named in `.aggrega-config.yaml`,
 so no `--catalog` flag is needed. The bare release writes three files under
-`dist/helm/helm/`; the configured release writes five.
+`dist/helm/helm/`; the configured release writes those three plus two more under
+`dist/helm/helm/db/`.
 
 ## Bare — the additive baseline
 
@@ -61,7 +62,21 @@ values:
 ```
 
 The build now writes two additional ConfigMaps and wires them into the
-StatefulSet. The two values ride in **separate** ConfigMaps because each mounts
+StatefulSet:
+
+```text
+dist/helm/helm/db/initdb-configmap.yaml
+dist/helm/helm/db/config-configmap.yaml
+```
+
+Both sit under `db/`, the component's own name. The Recipe names them in its
+`artifacts:` block, and a file named there carries the key its author wrote
+rather than anything identifying the component — so the build writes it under the
+component that declared it, and two components sharing one Recipe cannot land on
+one path. The StatefulSet and the two Services are named by the target from the
+component they belong to, so they stay at the boundary's own directory.
+
+The two values ride in **separate** ConfigMaps because each mounts
 whole into a different container path:
 
 - `init_scripts` → ConfigMap `db-initdb`, one data key per script (`01-schema.sql`,
