@@ -4,7 +4,7 @@ _Generated reference. Do not edit by hand — regenerate from the published JSON
 
 Schema id: `https://aggrega.ai/schemas/wasm-linter-v1alpha1.schema.json`
 
-The wire shapes the publishing-linter.wasm plugin socket consumes (LinterInput) and emits (LinterOutput). The linter runs at publish time over a previous-version + proposed-version entity pair (the schema-evolution rule) and at workspace lint time over individual entities (per-rule structural rules). One shipping Wasm plugin hosts many rules; the dispatcher selects which rule to run via the LinterInput.rule_id field. The two wire shapes are co-canonical with the corresponding PDK mirrors at aggrega-pdk/<lang>/src/types; per-language round-trip tests catch drift.
+The wire shapes the publishing-linter.wasm plugin socket consumes (LinterInput) and emits (LinterOutput). The linter runs at publish time over a previous-version + proposed-version entity pair (the schema-evolution rule) and at workspace lint time over individual entities (per-rule structural rules). One shipping Wasm plugin hosts many rules; the dispatcher selects which rule to run via the LinterInput.rule_id field. This schema is the single source of both wire shapes: the Go, Rust and TypeScript payload types are generated from it into the shared plugin-ABI package, and each plugin kit re-exports those generated types rather than declaring its own copy. Per-language round-trip tests encode and decode a fixture through the generated type and validate it against this schema, so a generated type that stopped matching the schema fails.
 
 ## One of the following shapes
 
@@ -19,9 +19,9 @@ The payload the host hands the publishing-linter plugin on each invocation. rule
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `rule_id` | string | yes | The rule the plugin should dispatch to. At v0.1.0 the only recognised value is 'schema-evolution'; the recognised set expands as further rules ship. Unknown rule_ids produce an 'unknown_rule' finding in the output. |
+| `rule_id` | string | yes | The rule the plugin should dispatch to, named by its rule id — the same kebab-case identifier the resulting finding carries in rule_id, so a suppressed or reported rule is named the same way on every surface. The recognised set is whatever the shipped plugin dispatches, and it expands as further rules ship; a rule id the plugin does not recognise produces an 'unknown_rule' finding rather than a silent pass. |
 | `entity_kind` | string (enum) | yes | The entity kind the proposed/previous values encode. The schema-evolution rule's classification varies per kind; structural rules scope to specific kinds. Allowed values: `"Component"`, `"Feature"`, `"Recipe"`, `"FeatureRecipe"`, `"SchemaLibrary"`, `"MappingLibrary"`, `"Aggregate"` |
-| `proposed` | object | yes | Parsed structure of the entity being classified. YAML → JSON conversion happens host-side; the plugin consumes the structured value via serde_json. |
+| `proposed` | object | yes | Parsed structure of the entity being classified. The host converts YAML to JSON before sending, so the plugin receives an already-structured value and never sees raw bytes. |
 | `previous` | object | no | Parsed structure of the previous-version entity, for rules that perform pairwise comparison (schema-evolution). Omitted when the rule does not need a previous-version reference (e.g., first publication, structural-only rules). |
 | `implemented_component` | object | no | Parsed structure of the Component a linted Recipe names in spec.implements, resolved by the host. It is a related entity of a DIFFERENT kind from the one being linted, which is what distinguishes it from previous: previous carries another version of the same entity, while this carries the Component whose declared output contract the Recipe realizes. The host resolves it through the same catalog lookup a build uses, keyed on the Component's name, so all three pin forms spec.implements accepts (unversioned, exact, major-compatible range) reach the same entry. Omitted when the linted entity is not a Recipe, when it names no Component, or when no Component of that name is reachable in the workspace's catalog directories. An absent value means the comparison is unavailable, not that the contract is empty: a rule that reads this field emits no finding when it is absent. |
 | `source_path` | string | no | Filesystem path the entity was loaded from. Populated by host callers walking the catalog filesystem; consumed by path-aware rules (e.g., category-matches-directory). Omitted when the caller has no path context. |
@@ -42,15 +42,15 @@ _Additional properties are not permitted._
 
 ### `Policies`
 
-Per-workspace publishing-discipline configuration the rule set consults. Mirrors workspaceconfig.PublishingDisciplineConfig field-for-field. Schema is the contract: both the Go workspaceconfig struct's godoc AND the Rust policies.rs struct doc cross-reference this $def. Field omission defaults each flag to false; the host's serialiser writes only fields with non-default values.
+Per-workspace publishing-discipline configuration the rule set consults, assembled by the host from the workspace configuration's publishing-discipline settings and any command-line overrides. This schema is the contract for the shape. Field omission defaults each flag to false, and the host writes only the fields whose value is not the default.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `allow_dynamic_refs` | boolean | no | When true, $dynamicAnchor / $dynamicRef usage in SchemaLibrary entries is permitted (suppresses the dynamic_refs rule). Default false. |
-| `allow_id_overrides` | boolean | no | When true, $id overrides in SchemaLibrary entries are permitted (suppresses the id_overrides rule). Default false. |
-| `allow_direct_x_aggrega_extensions` | boolean | no | When true, direct x-aggrega-selector / x-aggrega-inject authoring is permitted (suppresses the x_aggrega_discouragement rule). Default false. |
-| `allow_aggrega_ai_prefix` | boolean | no | When true, the annotation-prefix rule is suppressed entirely (both the bare aggrega.ai/ check and the feature.aggrega.ai/ kind-conditional check). Default false. Mirrors workspaceconfig.PublishingDisciplineConfig.AllowAggregaAIPrefix; the host serialises the field through the LinterInput.policies passthrough. |
-| `allow_nonstandard_names` | boolean | no | When true, name-shape violations are permitted (suppresses the name_shape rule). Default false. |
+| `allow_dynamic_refs` | boolean | no | When true, $dynamicAnchor / $dynamicRef usage in SchemaLibrary entries is permitted (suppresses the dynamic-refs rule). Default false. |
+| `allow_id_overrides` | boolean | no | When true, $id overrides in SchemaLibrary entries are permitted (suppresses the id-overrides rule). Default false. |
+| `allow_direct_x_aggrega_extensions` | boolean | no | When true, direct x-aggrega-selector / x-aggrega-inject authoring is permitted (suppresses the x-aggrega-discouragement rule). Default false. |
+| `allow_aggrega_ai_prefix` | boolean | no | When true, the annotation-prefix rule is suppressed entirely (both the bare aggrega.ai/ check and the feature.aggrega.ai/ kind-conditional check). Default false. |
+| `allow_nonstandard_names` | boolean | no | When true, name-shape violations are permitted (suppresses the name-shape rule). Default false. |
 | `allow_category_mismatches` | boolean | no | When true, suppress the category-matches-directory rule's findings. The standard-catalog convention requires Components under core/<category>/ to declare component.aggrega.ai/category={category} matching the directory segment, where {category} is one of the 15 closed-set values. Workspaces with legitimate persistent exceptions opt out here. Default false. |
 | `allow_undeclared_recipe_provides` | boolean | no | When true, suppress the provides-declared-by-component rule's findings. That rule reports each key a Recipe publishes in spec.provides that the Component named by its spec.implements does not declare in the provides pillar of its spec.schema. Publishing beyond the declared contract is accepted at build time, so the finding is advisory; a workspace whose Recipes deliberately publish keys their Component does not declare opts out here. Default false. |
 

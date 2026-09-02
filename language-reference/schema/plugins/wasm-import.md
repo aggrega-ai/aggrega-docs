@@ -20,7 +20,7 @@ The payload an importer guest receives: the source format that selects how to re
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `format` | string | yes | The name of the source format to import, matching one of the importer's advertised import:<format> capabilities. The importer reads the sources as this format. |
-| `bytes` | string | yes | The primary source bytes to import, base64-encoded on the wire. The importer decodes the base64 to recover the original bytes and reads them as the named format. |
+| `bytes` | string | yes | The primary source bytes to import, which the importer reads as the named format. Each kit carries them in its own field type — raw where that type is a byte type, base64-encoded where it is a string the importer decodes to recover them — and the generated encoder converts between the field and the form the wire carries bytes in. |
 | `sources` | ImportSource[] | no | Named sources for a multi-file or directory import, each carrying its own bytes. Absent for a single-file import, where the primary bytes carry the whole source. |
 | `settings` | any | no | An opaque import-options document the consumer supplies for importer-specific behavior. The host pipes it through without interpreting it; the importer reads whatever shape it documents. Absent when the consumer supplies no options. |
 
@@ -33,7 +33,7 @@ One named source within a multi-file or directory import: a name locating the so
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `name` | string | yes | The name of this source within the import, such as a relative file path. |
-| `bytes` | string | yes | This source's bytes, base64-encoded on the wire. The importer decodes the base64 to recover the original bytes. |
+| `bytes` | string | yes | This source's bytes. Each kit carries them in its own field type — raw where that type is a byte type, base64-encoded where it is a string the importer decodes to recover them — and the generated encoder converts between the field and the form the wire carries bytes in. |
 
 _Additional properties are not permitted._
 

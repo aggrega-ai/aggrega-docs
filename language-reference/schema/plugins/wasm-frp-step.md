@@ -59,7 +59,7 @@ One addressable piece a provider's emitted output carves into — the hybrid vie
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `token` | string | yes | The opaque positional address the codec assigns — the emitted filename for a single-document file, or `<filename>#<ordinal>` (file order) when one file carries several documents. The guest treats it as opaque: it content-selects a unit and echoes the token, never parsing it. |
-| `bytes` | string | no | The unit's original bytes, the reassembly source, base64-encoded on the wire. Reassembly is byte-faithful by construction: untouched bytes are re-joined from this verbatim. |
+| `bytes` | string | no | The unit's original bytes, the reassembly source. Reassembly is byte-faithful by construction: untouched bytes are re-joined from this verbatim. Each kit carries them in its own field type — raw where that type is a byte type, base64-encoded where it is a string the step decodes to recover them — and the generated encoder converts between the field and the form the wire carries bytes in. |
 | `media_type` | string | no | The unit's content type (for example `application/yaml` for the stock YAML codec), so the guest knows what it is looking at. |
 | `tree` | any | no | The unit's RFC-6902-addressable normalized view when the codec produced one, or absent when it did not. A unit with a tree is structured (a PATCH target); a unit with no tree is opaque. The document is opaque to the host, which pipes the bytes through without interpreting them, so the tree carries any JSON value at this schema layer. |
 
