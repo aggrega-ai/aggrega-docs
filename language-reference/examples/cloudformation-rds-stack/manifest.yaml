@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: manifest
+  version: "1.0.0"
+  description: >
+    Ops mapping for the AWS CloudFormation target. Each component type and each
+    attached Feature binds to the Recipe that implements it on this target.
+    Recipe selection at build time is by component type against the loaded
+    catalog.
+spec:
+  mappings:
+    components:
+      type:
+        # Recipe references are provider-qualified (provider/name:version)
+        # because the standard-library catalog ships several Recipes
+        # implementing core/datastore/mariadb — one per target. The Operator's
+        # mapping is what chooses the target: a bare `mariadb:1.0.0` would match
+        # Recipes under more than one provider and the build would halt loudly
+        # rather than silently pick one.
+        core/datastore/mariadb:1.0.0: cloudformation/mariadb-rds:1.0.0
+        example/compute/db-reader:1.0.0: cloudformation/db-reader:1.0.0
+    features:
+      type:
+        # The credential Feature routes like any other. This FeatureRecipe
+        # renders nothing — RDS owns the master password, and the database
+        # Recipe carries the directive that says so — so its whole contribution
+        # is that the slot the Component declares is bound.
+        core/generated-secret:1.0.0: cloudformation/generated-secret:1.0.0
+        # The resource-bringing attachment routes the same way. Its
+        # FeatureRecipe emits a fragment, so what it contributes assembles into
+        # the same stack as the component it is attached to.
+        example/storage-alarm:1.0.0: cloudformation/storage-alarm:1.0.0
+        # The boundary-wide attachment routes the same way. Its FeatureRecipe
+        # renders once per boundary rather than once per component.
+        core/shared-config:1.0.0: cloudformation/shared-config:1.0.0

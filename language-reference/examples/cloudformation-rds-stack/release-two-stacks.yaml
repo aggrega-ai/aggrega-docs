@@ -1,0 +1,63 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: cloudformation-two-stacks
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: aggregate
+  manifest: manifest
+  boundaries:
+    # The same developer intent, split across two stacks instead of one. Nothing
+    # in the Aggregate changed: the application still declares that it uses the
+    # database, and the operator decides here that the two are provisioned
+    # separately. The reference between them crosses a stack edge as a result,
+    # and the provider wires it as a cross-stack read rather than as a reference
+    # inside one template.
+    data:
+      directory: two-stacks-data
+      features:
+        shared-settings:
+          type: core/shared-config
+          infra:
+            tier: production-data
+      components:
+        payments-db:
+          # Operator sizing for the attachment the Aggregate declared. The
+          # developer said how much headroom the application needs; where the
+          # alarm notifies, and how long a dip must persist before it fires, are
+          # decided here. The Release supplies infra for an attachment and never
+          # values — those stay in the Aggregate.
+          features:
+            storage-headroom:
+              infra:
+                evaluation_periods: 3
+                notify_target: "arn:aws:sns:eu-west-1:123456789012:payments-oncall"
+          infra:
+            engine_version: "11.4"
+            storage:
+              size: 100Gi
+              type: gp3
+            ha:
+              enabled: true
+              read_replicas: 0
+            backup:
+              enabled: true
+              retention_days: 14
+    app:
+      directory: two-stacks-app
+      # The boundary-wide attachment is declared on both boundaries, and renders
+      # once for each — so each stack carries its own, with that boundary's own
+      # resolved settings.
+      features:
+        shared-settings:
+          type: core/shared-config
+          infra:
+            tier: production-app
+      components:
+        reporting-app:
+          infra:
+            tier: Standard

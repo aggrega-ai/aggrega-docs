@@ -139,6 +139,18 @@ cross-boundary networking across providers.
   environment), the credential subsystem, and cross-boundary references resolving
   through Service DNS. Consumes the standard catalog; keeps only `app/adminer` and
   the `app/db-binding` wiring local.
+- **[cloudformation-rds-stack](cloudformation-rds-stack/)** — a managed database
+  and the application that reads it, assembled into AWS CloudFormation stack
+  templates, with **two attachments that bring resources of their own**: a
+  component-scope alarm on the database and a boundary-wide shared-settings
+  parameter. Shows where an attachment's resources land in an assembled stack and
+  how the two halves are named on different rules — a resource logical ID comes
+  from the attachment's own Recipe, while an output is named for the host
+  component. The same intent builds as one stack and as two, so the application's
+  reference to the database is a reference inside one template in the first case
+  and an export read back by name in the second. A third release halts: it
+  attaches the alarm twice to one component, and the build names both colliding
+  ends and which of the stack's two name spaces they reached.
 - **[cross-boundary-networking](cross-boundary-networking/)** — one developer
   intent (an Adminer UI reaching a database across a boundary seam) deployed
   **two ways**: the Docker Compose variant uses the standard-library

@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: aggregate-name-collision
+  version: "1.0.0"
+  description: >
+    The same database as the working example, with the alarm attached twice
+    instead of once. This build is expected to fail: it is here to show what the
+    provider does when two contributors reach one name in the assembled stack.
+    An attachment names its resources from its own FeatureRecipe, so two
+    attachments of one Feature reach one name — and renaming the component they
+    are attached to does not change either of them.
+spec:
+  components:
+    payments-db:
+      type: core/datastore/mariadb
+      values:
+        database: appdb
+        user: appuser
+        charset: utf8mb4
+        collation: utf8mb4_general_ci
+      features:
+        root_password:
+          type: core/generated-secret
+        # Two attachments of one Feature, under two different attachment names.
+        # The attachment names differ, so the two are distinct attachments — but
+        # the resource each one emits is named by the FeatureRecipe from the host
+        # component, which is the same component for both.
+        storage-headroom:
+          type: example/storage-alarm
+          values:
+            free_storage_bytes: 21474836480
+        storage-headroom-strict:
+          type: example/storage-alarm
+          values:
+            free_storage_bytes: 53687091200
