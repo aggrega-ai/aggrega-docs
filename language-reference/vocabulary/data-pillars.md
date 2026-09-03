@@ -271,7 +271,7 @@ The duplication is deliberate: each layer covers a different concern. The Compon
 
 ### Feature attachment / Component pillar isolation
 
-A Feature attachment does **not** write into the parent Component's pillars. Each attached Feature carries its own pillar payload (its own `values:` block and its own `infra:` block). The FeatureRecipe synthesizing the Feature's resources reads its own pillar payload independently of the Component's; the rendered output for the Feature lives alongside the Component's rendered output but does not merge into the Component's primary resources.
+A Feature attachment does **not** write into the parent Component's pillars. Each attached Feature carries its own pillar payload (its own `values:` block and its own `infra:` block). The FeatureRecipe synthesizing the Feature's resources reads its own pillar payload independently of the Component's. The isolation is of the *inputs*: what an attachment reads is its own, whatever becomes of what it writes. Where the target's provider writes discrete documents, the attachment's rendered output sits alongside the Component's under a directory of its own; where the provider folds a boundary's contributors into one document, the attachment contributes to that document as the Component does, and each resource still carries the attachment's own identity so what came from where stays readable.
 
 Two consequences for authors:
 
