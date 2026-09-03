@@ -47,6 +47,21 @@ A CloudFormation logical ID is unique within one template and admits only letter
 
 Because a logical ID admits no separator character, both names read as capitalised words run together. Two instance names differing only in punctuation can still derive one resource name — `payments-db` and `payments_db` both derive `PaymentsDb` — and the build halts, naming both instances and the name they landed on, rather than emitting one resource where two components were declared. Renaming either instance clears it.
 
+### A resource logical ID outside the alphabet halts
+
+Uniqueness and the alphabet are two separate requirements, and a set of names can satisfy the first and fail the second. Because the provider emits a resource logical ID exactly as the Recipe wrote it, the ID a Recipe authors has to be one a CloudFormation template can hold on its own: letters and digits, and nothing else.
+
+This is where the two naming surfaces part company. An output name is built by the provider, which reads the publishing component and the entry as words and joins them, so an output name lies inside the alphabet however you spell either half. A resource logical ID is passed through, so whatever the Recipe wrote is what the template gets.
+
+That makes it a constraint on component names too, whenever a Recipe writes a component instance's name straight into the logical ID. A component name may carry a hyphen or an underscore; a logical ID may not. **A component you target at this provider through such a Recipe is therefore named in letters and digits alone** — `paymentsdb` rather than `payments-db` — and anything else halts the build.
+
+The halt names the contributor whose Recipe authored the ID, the ID itself, and each character in it which cannot be there, and it says what you may write instead. Two things clear it, and the first is the one always available to you:
+
+- Have the Recipe author a logical ID of its own rather than passing a name straight through. The standard-library CloudFormation Recipes take this route — they read the instance name's separators as word boundaries, so instance `payments-db` names its resource `PaymentsDb` and you keep the component name you chose. Deriving an ID that way trades this halt for the collision rule above: two instance names differing only in punctuation derive one resource name.
+- Where a Recipe does pass a name straight through, rename whatever it passes in letters and digits alone. For a component's own Recipe that is the component name. A Feature attached to a component names its resources from its own FeatureRecipe, so renaming the host component does not reach them — the ID that Recipe writes is what has to change.
+
+**The provider refuses; it does not quietly repair.** Rewriting the ID on your behalf would look like the helpful thing to do, and it is not. A logical ID is how CloudFormation identifies a resource across updates, so changing one is not a rename — it addresses a different resource. An ID the provider substituted would point somewhere other than the resource already deployed under the ID you wrote, and the substitution is one you never asked for and would have to discover from the emitted template. A build that stops names the problem while it is still yours to fix.
+
 ### Two entry names can meet at one output name
 
 Building an output name drops every separator and capitalises each word, and the component half and the entry half are joined with nothing between them. Three kinds of entry name therefore meet at a single output name, and none of them is exotic:
