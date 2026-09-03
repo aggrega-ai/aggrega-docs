@@ -3348,20 +3348,35 @@ Emitted message:
 
 **How to fix:** the commonest cause is a value the consuming side interpolated into a longer string. A cross-reference has to stand as the whole of the value it is injected as, so change the Recipe's mapping to deliver it whole and compose around it in the target's own vocabulary instead. Where the value stands whole and the placeholder still survives, the fault is on the provider's side of the resolution and belongs to whoever publishes that plugin.
 
-### A boundary assembler named a sub-directory that is not one directory
+### A provider named a directory for a contributor that is not one directory
 
 <!-- covers: internal/compiler/renderer.ErrNestSegmentNotOneDirectory -->
 
-A provider that places each contributor under its own position inside one enclosing output names the directory those positions sit under, and the build composes each component's identity into it. The value has to name exactly one directory: a value carrying a path separator, or naming the current or the parent directory, would place a component's files somewhere other than beneath its own position — either outside the assembly altogether or silently rearranged inside it.
+A provider that places each contributor under its own position inside one enclosing output declares the directory those positions sit under, and the build composes each component's identity into it. The value has to name exactly one directory: a value carrying a path separator, or naming the current or the parent directory, would place a component's files somewhere other than beneath its own position — either outside the assembly altogether or silently rearranged inside it.
 
-The build stops rather than compose such a path. The message names the provider whose assembler returned the value and the value itself, so it is clear which assembler to change and what it returned.
+The build stops rather than compose such a path. The message names the provider that declared the value and the value itself, so it is clear which provider to change and what it declared.
 
-**An assembler that names nothing is unaffected.** The build then applies its own default and the layout is exactly as it would otherwise be, so declining to name a sub-directory is a legitimate answer rather than an omission.
+**A provider that declares no such directory is unaffected.** Each contributor then sits directly at the deployment directory under its own name, so declining to name an enclosing directory is a legitimate answer rather than an omission.
 
 Emitted message:
-> boundary assembler named a per-node sub-directory that is not a single directory name: provider `"<provider>"` returned `"<value>"`; the value must name one directory, carrying no path separator and naming neither the current nor the parent directory
+> provider named a directory for each contributor's own sub-directory that is not a single directory name: provider `"<provider>"` declared nest_segment `"<value>"`; the value must name one directory, carrying no path separator and naming neither the current nor the parent directory
 
-**How to fix:** nothing in any catalog document produces this value, so there is nothing in your own files to correct — it comes from the plugin serving the provider. Report it to whoever publishes that plugin, quoting the value the message names. Where the plugin is yours, return a single directory name, or return nothing and let the default layout apply.
+**How to fix:** nothing in any catalog document produces this value, so there is nothing in your own files to correct — it comes from the plugin serving the provider. Report it to whoever publishes that plugin, quoting the value the message names. Where the plugin is yours, declare a single directory name, or declare none and let each contributor sit at the deployment directory.
+
+### A provider named a directory for an attached Feature that is not one directory
+
+<!-- covers: internal/compiler/renderer.ErrAttachmentSegmentNotOneDirectory -->
+
+A Feature attached to a component or to a boundary writes its own files under a directory of their own, and which directory that is belongs to the provider rendering them: one target reads only the files sitting directly in a directory, so an attachment's files belong beside the ones already there, while another discovers its units in a named child directory and needs them inside it. The build composes the attachment's own coordinates into whatever the provider names.
+
+The value has to name exactly one directory, for the same reason the enclosing directory of a contributor does: a value carrying a path separator, or naming the current or the parent directory, would place the attachment's files outside the position it rendered into. The build stops rather than compose such a path, and the message names the provider that declared the value and the value itself.
+
+**A provider that declares no such directory is unaffected.** The build then writes an attachment's files under `features/`, which is where they sit for every provider that names nothing, so declining to name one is a legitimate answer rather than an omission.
+
+Emitted message:
+> provider named a directory for an attached feature's files that is not a single directory name: provider `"<provider>"` declared attachment_segment `"<value>"`; the value must name one directory, carrying no path separator and naming neither the current nor the parent directory
+
+**How to fix:** nothing in any catalog document produces this value, so there is nothing in your own files to correct — it comes from the plugin serving the provider. Report it to whoever publishes that plugin, quoting the value the message names. Where the plugin is yours, declare a single directory name, or declare none and let the default apply.
 
 ### A boundary-scope Feature is attached only to a component
 
@@ -4357,7 +4372,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0247` | `a plugin recorded as trusted for an accept-or-reject verdict is no longer attached at any verdict role` | A plugin recorded as a trusted gate is no longer attached |
 | `E0248` | `wasm: guest plugin returned an output that is not the shape the socket reads` | A plugin returned something that is not the shape the socket reads |
 | `E0249` | `cloudformation-provider: an export name a cross-boundary link derives is already declared by another Outputs entry in the same stack` | An authored export name is one the build derives for a cross-stack reference |
-| `E0250` | `boundary assembler named a per-node sub-directory that is not a single directory name` | A boundary assembler named a sub-directory that is not one directory |
+| `E0250` | `provider named a directory for each contributor's own sub-directory that is not a single directory name` | A provider named a directory for a contributor that is not one directory |
 | `E0251` | `recipe source is an empty string, which names neither sourceless mode nor sourced mode` | Recipe `source:` is an empty string |
 | `E0252` | `artifacts-library bundle file name leaves the artifacts key its output is nested under` | An ArtifactsLibrary bundle file leaves the key it was imported at |
 | `E0253` | `annotation binding does not resolve against its target Feature` | Annotation binding does not resolve against its target Feature |
@@ -4380,6 +4395,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0270` | `link patch names an output file the dispatch group did not emit; a conforming link patch names a file the group's own render returned` | A provider's link wiring names an output file that was never emitted |
 | `E0271` | `emit_file side effect carries no file; a conforming emit_file side effect carries a file with its path and content` | A pipeline step's file emission carries no file |
 | `E0272` | `side effect declares a kind the plugin contract does not define; a conforming side effect declares emit_file or emit_crd` | A pipeline step declares an emission kind the contract does not define |
+| `E0273` | `provider named a directory for an attached feature's files that is not a single directory name` | A provider named a directory for an attached Feature that is not one directory |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

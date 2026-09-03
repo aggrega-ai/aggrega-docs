@@ -662,7 +662,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0247` | `pluginstrust/verdict-attachment-not-configured` | `a plugin recorded as trusted for an accept-or-reject verdict is no longer attached at any verdict role` |
 | `E0248` | `wasm/wasm-output-shape` | `wasm: guest plugin returned an output that is not the shape the socket reads` |
 | `E0249` | `cloudformation-provider-cfncore/link-export-name-shadowed` | `cloudformation-provider: an export name a cross-boundary link derives is already declared by another Outputs entry in the same stack` |
-| `E0250` | `compiler-renderer/nest-segment-not-one-directory` | `boundary assembler named a per-node sub-directory that is not a single directory name` |
+| `E0250` | `compiler-renderer/nest-segment-not-one-directory` | `provider named a directory for each contributor's own sub-directory that is not a single directory name` |
 | `E0251` | `compiler-renderer/empty-source` | `recipe source is an empty string, which names neither sourceless mode nor sourced mode` |
 | `E0252` | `compiler-renderer/artifacts-library-file-escapes-key` | `artifacts-library bundle file name leaves the artifacts key its output is nested under` |
 | `E0253` | `resolver/annotation-binding-target-unresolved` | `annotation binding does not resolve against its target Feature` |
@@ -685,6 +685,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0270` | `compiler-renderer/link-patch-file-not-emitted` | `link patch names an output file the dispatch group did not emit; a conforming link patch names a file the group's own render returned` |
 | `E0271` | `compiler-renderer/pipeline-emit-file-absent` | `emit_file side effect carries no file; a conforming emit_file side effect carries a file with its path and content` |
 | `E0272` | `compiler-renderer/pipeline-side-effect-kind-undefined` | `side effect declares a kind the plugin contract does not define; a conforming side effect declares emit_file or emit_crd` |
+| `E0273` | `compiler-renderer/attachment-segment-not-one-directory` | `provider named a directory for an attached feature's files that is not a single directory name` |
 
 - `E0002` is declared ahead of the code that reports it, so no build raises it yet. It will report a catalog lookup that fails during static analysis — a state that cannot arise while every component and feature an Aggregate or Release names is checked before analysis begins — once that stage surfaces such an inconsistency as a halt rather than ending its reading silently.
 
