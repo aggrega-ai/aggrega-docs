@@ -17,7 +17,7 @@ Each mechanism lives at a specific Recipe / FeatureRecipe authoring surface and 
 **Output shape.** Provider-specific:
 
 - **helm provider** — flat Kubernetes YAML files, named for the component identity and then for the resource itself: `<component-id>-<kind>[-<namespace>]-<name>.yaml`, with a document carrying no kind or no name named for its template path instead. The name comes from the resource rather than from the template, so two templates in different subdirectories that share a filename stay two files. The Helm SDK renders the chart with the merged values; Aggrega injects provenance labels and annotations post-render.
-- **helm-chart provider** — sub-chart files copied verbatim under `charts/<instance_id>/`; per-boundary umbrella `Chart.yaml` + `values.yaml` emitted alongside.
+- **helm-chart provider** — sub-chart files copied under `charts/<instance_id>/`, verbatim except the chart's own `name`, which the umbrella sets to the instance's encoded identity so two components vendoring charts that declare one name stay distinguishable (see [`providers/helm-chart.md`](../providers/helm-chart.md)); per-boundary umbrella `Chart.yaml` + `values.yaml` emitted alongside.
 - **compose provider** — intermediate `<nodeID>.compose-fragment.yaml` files that flow into Release-level composition (mechanism 5).
 
 ### 2 — Recipe Workload synthesis (`workload:`)

@@ -330,7 +330,7 @@ Recipe sources a small local chart:
 spec:
   capability: helm-chart
   implements: core/datastore/mariadb
-  source: ./charts/mariadb          # copied verbatim as the sub-chart
+  source: ./charts/mariadb          # copied as the sub-chart, bar its own name
   valuesMapping: |
     { "database": "{{ .values.database }}",
       "rootPassword": "{{ .context.inject.env.MARIADB_ROOT_PASSWORD }}",
@@ -349,7 +349,7 @@ Output under `dist/app/helm-chart/`:
 Chart.yaml                 # umbrella; lists db and web as sub-chart dependencies
 values.yaml                # alias-keyed: db.* and web.* value blocks
 charts/
-├── db/                    # the local ./charts/mariadb, copied verbatim
+├── db/                    # the local ./charts/mariadb; its Chart.yaml name is `db`
 │   ├── Chart.yaml
 │   ├── values.yaml
 │   └── templates/
@@ -357,7 +357,7 @@ charts/
 │       ├── service.yaml
 │       ├── pvc.yaml
 │       └── netpol.yaml           # injected artifact (see below)
-└── web/                   # the local ./charts/adminer, copied verbatim
+└── web/                   # the local ./charts/adminer; its Chart.yaml name is `web`
     [… omitted: web's own Chart.yaml, values.yaml, and a templates/ holding deployment.yaml and service.yaml — Adminer keeps no state, so it has no pvc.yaml, and the injected netpol.yaml is db's alone]
 ```
 
@@ -375,10 +375,14 @@ you can install or vendor.
 
 Two distinct delimiter regimes apply, and they do not overlap:
 
-- **Sourced sub-charts are copied verbatim.** The files under `./charts/mariadb`
-  and `./charts/adminer` are bundled into the umbrella unchanged — their Helm
-  `{{ }}` directives are *not* touched by the compiler and resolve at
-  `helm install` time. The composer's only job there is assembly, not templating.
+- **Sourced sub-charts are copied, bar their own name.** The files under
+  `./charts/mariadb` and `./charts/adminer` are bundled into the umbrella
+  unchanged — their Helm `{{ }}` directives are *not* touched by the compiler and
+  resolve at `helm install` time. The composer's only job there is assembly, not
+  templating. The one field it does set is each placed `Chart.yaml`'s `name`,
+  which becomes the component instance's identity (`db`, `web`) so that two
+  components vendoring charts declaring one name remain distinguishable; see
+  [`providers/helm-chart.md`](../../providers/helm-chart.md).
 - **`$import:` artifacts are dual-delimiter.** A Recipe may inject extra template
   files via `artifacts: { name: { $import: ... } }`. *Those* files — and only
   those — are pre-rendered by the compiler with the `[[ ]]` delimiters before they

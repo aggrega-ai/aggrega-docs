@@ -10,7 +10,7 @@ This page is the helm-chart provider's authoring reference. For the helm vs helm
 
 The helm-chart provider accepts two input kinds:
 
-- **Sourced mode.** A Recipe with `source: <chart-path>` points at an on-disk Helm chart directory. The chart is copied verbatim into the umbrella structure as a sub-chart; no rendering or templating is performed at the per-node level. Aggrega's role is composition (umbrella assembly across the boundary's nodes), not template evaluation.
+- **Sourced mode.** A Recipe with `source: <chart-path>` points at an on-disk Helm chart directory. The chart is copied into the umbrella structure as a sub-chart, verbatim except for the chart's own `name` — see ["The chart name the umbrella owns"](#the-chart-name-the-umbrella-owns); no rendering or templating is performed at the per-node level. Aggrega's role is composition (umbrella assembly across the boundary's nodes), not template evaluation.
 - **`$import:`-loaded `artifacts:` mode.** A Recipe with `artifacts:` entries authored as `$import:` per-entry declares additional template files that the helm-chart provider injects into the sub-chart's `templates/` directory after the source-chart copy. Each file is pre-templated against Aggrega's TemplateContext using `[[ ]]` delimiters (see "`artifacts:` injection rule" below) so any `{{ }}` Helm templating in the same file survives into the downstream `helm install` render.
 
 A Recipe targeting helm-chart that declares `workload:` is rejected at render time with a diagnostic pointing the author at the helm provider:
@@ -51,7 +51,7 @@ spec:
     replicaCount: {{ optional .infra `replicas` 2 }}
 ```
 
-The chart at the source path **must contain a valid `Chart.yaml`** at its root; missing it surfaces a clear error before the copy runs. The chart's directory layout is preserved when copied — `templates/`, `values.yaml`, `Chart.yaml`, and any other files are present in the sub-chart directory after composition.
+The chart at the source path **must contain a valid `Chart.yaml`** at its root; missing it surfaces a clear error before the copy runs. The chart's directory layout is preserved when copied — `templates/`, `values.yaml`, `Chart.yaml`, and any other files are present in the sub-chart directory after composition. Every file arrives with the bytes you wrote, down to comments, key order and quoting; the single exception is the `name` field of the chart's own `Chart.yaml`, which the umbrella sets — see ["The chart name the umbrella owns"](#the-chart-name-the-umbrella-owns).
 
 Both ways of failing to name a chart are refused, and the two refusals come from
 different places — worth knowing, because only one of them changes if you switch
@@ -81,7 +81,7 @@ name: <effective-chart-name>                # see "Chart-name resolution" below
 version: 0.1.0
 description: Aggrega umbrella chart at <assembly-path>
 dependencies:
-  - name: <user-chart-name>                 # from the source chart's Chart.yaml
+  - name: <encoded-instance-id>               # the name the placed sub-chart carries
     version: <user-chart-version>           # from the source chart's Chart.yaml
     alias: <encoded-instance-id>              # see "How a name is derived" below
     repository: file://charts/<instance_id>    # the sub-chart's own directory
@@ -93,9 +93,21 @@ The umbrella's chart `name` is resolved through the boundary annotation cascade.
 
 The cascade resolves the DRY tension naturally: declare `aggrega.ai/chart-name` once on the parent boundary and child boundaries inherit it through the cascade; sibling boundaries with no common parent must declare matching values explicitly. Boundaries with no `aggrega.ai/chart-name` declared anywhere in their cascade fall back to the aggregate name and the contributing boundary name, each encoded and joined as described below.
 
-Each dependency entry's `name` is the chart name extracted from the source chart's own `Chart.yaml`; the `alias` is the node's encoded instance_id. The alias scopes the sub-chart's values under `values.yaml.<alias>.*`, matching Helm's umbrella-values convention so per-instance values propagate correctly when the umbrella is installed.
+Each dependency entry's `name` is the name the placed sub-chart carries — the component instance's own encoded identity, the same value as the `alias` — for the reasons in ["The chart name the umbrella owns"](#the-chart-name-the-umbrella-owns). Its `version` is still the version from the source chart's own `Chart.yaml`. The alias scopes the sub-chart's values under `values.yaml.<alias>.*`, matching Helm's umbrella-values convention so per-instance values propagate correctly when the umbrella is installed.
 
 The sub-chart's own directory keeps the instance_id exactly as authored, so `charts/<instance_id>/` is where each contributor's files land and what the dependency's `repository` points at. Two instances of the same source chart therefore coexist without a filesystem collision, and each keeps its own values block under its own alias.
+
+### The chart name the umbrella owns
+
+**The one thing Aggrega changes inside a chart you vendored is that chart's own `name` field.** In the placed sub-chart's `Chart.yaml`, `name` is set to the component instance's encoded identity — the same value as the dependency's `alias` — and the umbrella's dependency entry names that value too, so the two sides always agree.
+
+Nothing else in the chart is touched. Every other file arrives byte for byte as you wrote it, and inside `Chart.yaml` every other field, every comment, the key order and the quoting are exactly as authored. A key nested somewhere else in the manifest that also happens to be called `name` — a maintainer's name, for instance — is left alone.
+
+**Why the umbrella needs that field.** A chart's `name` is what Helm binds an umbrella's dependency to. It is written by whoever authored the chart, which for a chart acquired from upstream is not the person deploying it — so two components in one assembly path can perfectly reasonably vendor charts whose manifests declare the same name. If both sub-charts kept that shared name, both of the umbrella's dependencies would resolve to whichever of the two Helm loaded first: one component's chart would render twice and the other's not at all, while each component's values still arrived, so the output would look complete and be wrong. Deriving the placed name from the component instance removes the shared name altogether, which is why nothing has to be refused — including the two cases that have no other remedy: **vendoring the same chart under two components**, where the name is shared by construction, and **vendoring a chart you did not write**, whose name you cannot change.
+
+**The one thing you can observe.** A template that reads its own chart's name — `{{ .Chart.Name }}`, and anything derived from it such as the common `{{ .Chart.Name }}-{{ .Release.Name }}` resource-naming idiom — reads the encoded instance identity, not the name written in the source chart's `Chart.yaml`. That is what such a template already read before the field was set, because Helm reports a sub-chart under the alias its parent binds it by; setting the field makes the file on disk agree with what the render already produced. So for the worked example below, a template in the `api-east` sub-chart reads `api-east`.
+
+If a resource name has to carry the chart's authored name, put that name in the chart's `values.yaml` and read it from there — a value is yours and Aggrega does not touch it.
 
 ### How a name is derived
 
@@ -125,7 +137,8 @@ When a sub-chart's `valuesMapping:` evaluates against its TemplateContext, the r
 ## Provider-specific quirks
 
 - **Sub-chart `Chart.yaml` is required.** The copy operation enforces a present `Chart.yaml` at the source-path root. Missing it halts the build before the umbrella step runs.
-- **Default sub-chart version.** When the source chart's `Chart.yaml` declares no version (an unusual but valid Helm chart shape), the umbrella assigns `0.1.0` as a fallback for the dependency entry.
+- **The placed chart's `name` is the umbrella's.** It is set to the component instance's encoded identity, and it is the only thing inside a vendored chart that Aggrega changes. See ["The chart name the umbrella owns"](#the-chart-name-the-umbrella-owns).
+- **A source chart must declare a version, and a name.** The dependency entry's version is the one the source chart's own `Chart.yaml` declares, so a chart that declares no version halts the build rather than being given one — a dependency pinned to a version the sub-chart does not carry would leave the umbrella's per-instance values unable to reach it. A chart whose `Chart.yaml` declares no name, holds more than one YAML document, or does not parse halts for the same reason: the umbrella cannot compose a sub-chart it cannot read.
 - **Encoded aliases and chart names.** An instance_id, aggregate name or boundary path carrying a character a Helm chart name or dependency alias does not accept appears encoded in the rendered umbrella, per "How a name is derived" above. An identity built only from letters, digits, underscores and hyphens the derivation keeps appears exactly as authored.
 - **`file://` repository pointer.** The umbrella's dependency entries use a `file://charts/<instance_id>` repository pointer, naming the sub-chart's own directory; this is the local-filesystem convention for in-tree sub-charts and lets `helm dependency build` resolve the umbrella without external registry calls.
 - **No template rendering at the helm-chart level.** The provider does not invoke the Helm SDK's render pipeline; it copies and composes. Authors who need pre-rendered flat manifests should use the helm provider's sourced mode instead.
@@ -157,17 +170,19 @@ dist/<boundary-directory>/helm-chart/
 ├── Chart.yaml                       # umbrella; lists api-east and api-west as dependencies
 ├── values.yaml                      # alias-keyed: api-east + api-west values blocks
 └── charts/
-    ├── api-east/                    # full copy of ./charts/api-server
+    ├── api-east/                    # ./charts/api-server, name: api-east
     │   ├── Chart.yaml
     │   ├── values.yaml
     │   └── templates/
     │       └── deployment.yaml
-    └── api-west/                    # full copy of ./charts/api-server
+    └── api-west/                    # ./charts/api-server, name: api-west
         ├── Chart.yaml
         ├── values.yaml
         └── templates/
             └── deployment.yaml
 ```
+
+Both sub-charts are copies of the one source chart, and each carries its own instance's name in its `Chart.yaml` — which is what lets one chart be vendored twice in a single umbrella. Everything else in both copies is identical to the source.
 
 A `helm install <release-name> dist/<boundary-directory>/helm-chart` against this layout installs both instances as a single Helm release, with the umbrella's alias-keyed values driving each sub-chart's templates.
 
