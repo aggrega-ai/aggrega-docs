@@ -20,7 +20,7 @@ module "db" {
 }
 ```
 
-Each component's own files — the vendored module or the authored body, and the provenance stamp — sit in the sub-directory its block points at. This is Terraform's standard root-composes-children structure, whose convention is that nested modules live under a `modules/` sub-directory, and it is the layout every terraform boundary gets, whether it holds one component or several.
+Each component's own files — the vendored module or the authored body, and the provenance stamp — sit in the sub-directory its block points at. This is Terraform's standard root-composes-children structure, whose convention is that nested modules live under a `modules/` sub-directory, and it is the layout every terraform boundary gets, whether it holds one component or several. A Feature attached to a component or to the boundary is declared as a `module` block of its own in the same root configuration — see [Where an attached Feature's output lands](#where-an-attached-features-output-lands).
 
 The shape is load-bearing rather than cosmetic, for two reasons.
 
@@ -40,6 +40,32 @@ A module argument is a position Terraform evaluates, which is why it is where th
 - Where **every** input carries a `default`, the plan **succeeds** and builds from the module's defaults rather than from the values the deployment declared. Nothing warns, so this is the case to know about: a plan that looks right is describing a configuration nobody asked for.
 
 Plan the boundary's own output directory instead — the one holding `aggrega.modules.tf`, immediately above `modules/`. That is where the deployment's values are, and it is the one place a single plan sees the whole boundary.
+
+### Where an attached Feature's output lands
+
+A Feature attachment that renders configuration of its own gets a **module of its own**, declared in the same root configuration as the components beside it. This is what makes its configuration part of the deployment at all: Terraform loads only the files sitting directly in a directory and treats a nested directory as a completely separate module that has to be called explicitly, so an attachment's files are read because the root declares a block naming the directory they sit in.
+
+An attachment's files sit inside the position of whatever it attached to, filed by that thing's name and by the name the attachment was given. `features/` is the directory this target puts an attached Feature's files in. So for a component `api` carrying an attachment named `aux`, the root configuration declares two modules:
+
+```hcl
+module "api_features_api_aux" {
+  source = "./modules/api/features/api/aux"
+}
+
+module "api" {
+  source = "./modules/api"
+}
+```
+
+A Feature attached at the **boundary** rather than at a component is filed by its own name, since it attached to no component: an attachment named `aux` on a boundary holding component `api` yields `./modules/aux/features/aux` beside `./modules/api`.
+
+**A block's name is derived from the directory its `source` points at**, with each character outside Terraform's grammar for a module name replaced by an underscore. That mapping is not one-to-one, so where two contributors would arrive at a single module name the build halts and names both, rather than emitting a configuration Terraform would reject.
+
+Two things follow from an attachment being a module of its own.
+
+**Its resources sit in the boundary's one dependency graph.** A reference or a `depends_on` reaches between an attachment and the component it attached to, and one `terraform plan` sees both — the same property the root-composes-children shape gives components, for the same reason.
+
+**Its top-level names are its own.** Terraform merges every top-level file in a directory into a single namespace — `output`, `variable`, `resource` and `locals` alike — so two contributors sharing one directory would collide on any name they both declare, whatever their files are called. Each contributor in a module directory of its own declares its own names without contending with its neighbours'.
 
 ## Supported input kinds
 
