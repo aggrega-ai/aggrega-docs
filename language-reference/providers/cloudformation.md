@@ -11,6 +11,16 @@ A cloudformation Recipe authors a **fragment** — the CloudFormation resources 
 
 The assembled template is pure JSON. Intrinsics are emitted verbatim and never evaluated at build time — the compiler cannot resolve a value that only exists after the stack deploys, and evaluating one would break the ahead-of-time contract.
 
+### A Feature attached to a component contributes to the same stack
+
+A Feature attached to a component contributes its resources to the stack its host component assembles into, on the same terms as the host component's own Recipe. There is no separate template beside it: the assembled stack is the whole of what this provider emits for an output directory, so an attached Feature's resources are either in that stack or they are not deployed at all. Detaching the Feature removes exactly those resources and leaves the host component's own untouched.
+
+Because they land in the assembled stack, they share its names. An attached Feature's resource logical IDs sit in the same space as the host component's and as those of every other Feature attached alongside it, so [Names in the assembled stack](#names-in-the-assembled-stack) applies to them unchanged. Where two contributors meet on one name the halt names the component and the key the Feature is attached under, so both ends of the collision are searchable in your own files.
+
+**An attached Feature's outputs publish under its host component's name, and its resource logical IDs do not.** The two halves of the stack are named on different rules, so they answer this differently. A resource logical ID is emitted exactly as the FeatureRecipe authored it, like any Recipe's. An output is named for the publishing component and the entry together — and for a Feature attached to a component, the publishing component is the **host**: a Feature attached to `payments-db` publishing `alarm` reaches `PaymentsDbAlarm`, the same name it would reach had the host component published that entry itself. So an entry name the host also publishes meets the attachment's at one output name, and the build halts naming the component and the key the Feature is attached under alongside the component on its own. Choosing entry names that read as the Feature's own — `backup-alarm` rather than `alarm` — keeps them clear of the host's.
+
+Each resource a Feature contributes keeps the identity composed for that attachment in the provenance the build writes onto it, rather than the host component's, so the two stay distinguishable inside a stack both contributed to. [Labels and annotations](../vocabulary/labels-and-annotations.md) covers how that identity is built.
+
 ## Top-level sections in the assembled stack
 
 Several components assemble into one stack, so every top-level section a CloudFormation template admits has to be accounted for by the assembly. Each one falls into exactly one of three groups.
