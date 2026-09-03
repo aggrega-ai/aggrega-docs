@@ -111,6 +111,14 @@ A Recipe's three input kinds — sourced, synthesized, and artifacts — each em
 
 When two different nodes (in any combination of boundaries) contribute services with the same name to the merged compose output, the compose provider halts as it composes the boundary, under the `TRANSLATION_ERROR` category, naming every contributing `(boundary, node, serviceName)` tuple. Detected at Release-level composition per [`providers/compose.md`](../providers/compose.md) Release-level output section.
 
+A service is refused on the name alone, without comparing what the two nodes declared. A compose service is a single running container, so two nodes that each wanted one get one between them, and a contributor's intent is lost however identical the two definitions are.
+
+### Compose volume-name and config-name conflict (Release-level)
+
+When two different nodes contribute a top-level `volumes:` or `configs:` entry of the same name to the merged compose output, and the two declarations differ, the compose provider halts under the `TRANSLATION_ERROR` category, naming the entry and every contributing `(boundary, node)` tuple. Detected at Release-level composition per [`providers/compose.md`](../providers/compose.md) Release-level output section.
+
+Unlike the service rule above, this one compares the declarations, and a shared name is legitimate where the contributors agree. A named volume or config is one object, so two nodes declaring it identically have both asked for exactly the entry the merged document ends up with and nothing is lost. Two nodes declaring it differently disagree about that one object, and keeping either declaration would discard the other from a build that would otherwise succeed. Two declarations count as agreeing when they describe the same entry in the assembled file, so a body written as an empty mapping and one omitted altogether agree.
+
 ### Helm-chart sub-chart alias and directory
 
 A helm-chart sub-chart sits at `charts/<instance_id>/` and its values are scoped under its alias, which is the instance ID encoded for the alias position. Two instances cannot arrive at one alias unless their instance IDs are the same string, because the encoding writes out the characters an alias does not accept rather than substituting for them — so an alias identifies exactly one sub-chart, and the values written under it reach that sub-chart alone. Instance IDs are in turn unique per boundary by Aggregate-flattening rules, so the directory cannot collide either. Both halves are structural: neither rests on a check.

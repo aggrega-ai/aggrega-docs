@@ -190,7 +190,7 @@ For most authoring contexts, the category prefix and the source pointer together
 | `[DEVELOPER_ERROR]` | Aggregate YAML | Selector / `appliesTo` violations; Aggregate-side `uses` socket mismatch; resolver halts on developer authoring. |
 | `[OPS_ERROR]` | Release YAML / Manifest YAML | Boundary path template references unsupported field; `subDirectory` causes path collision; resolver halts on Release authoring; a Manifest mapping or annotation binding is refused. |
 | `[CATALOG_ERROR]` | Recipe / FeatureRecipe / Component / Feature / Plugin | Recipe shape rules; FeatureRecipe template references a per-component-only field with `executionScope: boundary`; Workload `featuresSchema` cross-check fails. |
-| `[TRANSLATION_ERROR]` | Workload / valuesMapping output / source overlay | Helm probe port resolution; compose service-name collision across boundaries; chart-name mismatch on `helm-chart` umbrella. |
+| `[TRANSLATION_ERROR]` | Workload / valuesMapping output / source overlay | Helm probe port resolution; compose service-name collision across boundaries; two compose contributors declaring one top-level volume or config name with conflicting bodies; chart-name mismatch on `helm-chart` umbrella. |
 | `[FETCH_ERROR]` | Registry / remote-source acquisition (operational, not authoring) | Artifact not found at the registry; authentication required; network unreachable; cached digest mismatch vs the lockfile. Fix: authenticate, restore connectivity, or `aggrega pull --upgrade --release <release>`. |
 | `[POLICY_ERROR]` | Policy plugin (governance rule) | A policy plugin attached at a governance verdict role rejected the assembled build against a rule it enforces. Fix: satisfy the enforced policy or reconsider the attachment. |
 
