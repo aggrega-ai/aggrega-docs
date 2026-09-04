@@ -2584,6 +2584,8 @@ The halt fires identically whether the reference is bare or wrapped in a `defaul
 
 Which pillars are declared and which are open is a property of the surface, not something a template can influence: the compiler reads it from the shape of the render context it is about to deliver. That is what lets the typo halt and the optional key render on the same template.
 
+**A surface may also narrow a key its pillar otherwise defines, and such a report is not a misspelling.** Where a key carries an answer that is meaningless — or belongs to a different node — on one particular surface, that surface refuses the reference rather than resolving it to the wrong thing, and the diagnostic lists the keys it does define. The case to know: `{{ .context.rendered_name }}` on a **Feature attachment's own** templates. The value standing there is the host component's answer, and an attachment binds its own recipe and therefore its own provider — so it is absent whenever the host supplies no source even where the attachment's author did, and it comes from a different platform entirely whenever the two capabilities differ. `{{ .context.instance_id }}` is admitted on that surface and names the host component the attachment is resolving for. See [`../templates/rendered-resource-names.md`](../templates/rendered-resource-names.md) for what each of the two keys names and where each is readable.
+
 Emitted message when the root itself is not defined:
 > template references a root the render context does not define (template `<template-name>` references `<dotted-path>`, the render context defines `<the roots that context defines>`)
 
@@ -2631,6 +2633,30 @@ Every one of these reports carries the same halting condition, whichever documen
 **How to fix:** either declare the pillar the template reads, or stop reading it. Declaring it is the fix when the `artifacts:` body belongs with that Recipe shape — add the `workload:` the template's container, port or volume references expect, or the `source:` whose chart or module path it interpolates. Dropping the reference is the fix when the body was written against a different Recipe and reuses a fragment that does not apply here; where the value genuinely comes from elsewhere, publish it through the producing node's `provides:` and read it from the inject pipe instead of reaching for a pillar this Recipe does not fill. Guarding the reference with a fallback wrapper does not clear the halt — the pillar is missing, not the key under it — and neither does moving the reference to another entry in the same Recipe, because every entry in one `artifacts:` block is evaluated against the same pillars.
 
 This halt is distinct from "Template references a root the render context does not define" above, and the two are worth telling apart because the remedies differ. That one fires on a root the surface does not define at all, or on a mistyped key beneath a pillar whose shape is fixed — `{{ .workload.containres }}` on a Recipe that *does* declare a workload. This one fires on a correctly spelled reference to a pillar that is simply not there.
+
+### A template reads a rendered name the node's provider does not report
+
+<!-- covers: internal/compiler/renderer.ErrRenderedNameUnavailable -->
+
+A template reads `{{ .context.rendered_name }}` — the name the bound provider gives output it renders from source the author supplied — on a node whose provider reports no such name. The reference is well-formed and the key is one the render context defines; what is absent is an answer for this node.
+
+The refusal exists because the alternative is worse than a halt. The name reaches a template as a plain string, so a node with none would render the reference away and emit an address one segment short — `.svc.cluster.local` where a hostname was meant — at exit zero, with nothing in the build to read. That artifact deploys, and what it names does not exist. Refusing before anything is evaluated reports the fault against the template the author wrote instead.
+
+Whether a node's provider reports such a name is settled by the Recipe binding, ahead of every evaluation, so nothing here is guessed.
+
+**Two reports, and which one you get depends on the node rather than on where you wrote the reference.** A node that supplies no source of its own has its resources named after its identity, so there is a correct value and the report names it. A node that does supply source, under a provider that derives no name for it, has no substitute — and offering the identity there would send you to a value naming none of that node's resources, so the report says so instead.
+
+Emitted message, where the node supplies no source of its own:
+> template reads the name the target renders author-supplied source under, and this node's provider reports no such name; a conforming template reads a value the node's own provider supplies (`".context.rendered_name"`, provider `"<provider>"`). read `{{ .context.instance_id }}` instead: this node supplies no source of its own, so its resources are named after the node's identity
+
+And where it does supply source, under a provider deriving no such name:
+> template reads the name the target renders author-supplied source under, and this node's provider reports no such name; a conforming template reads a value the node's own provider supplies (`".context.rendered_name"`, provider `"<provider>"`). write a value that does not depend on a name this target derives: it reports none for the output it renders from supplied source, so there is nothing of that kind to read here
+
+Where the reference sits in a template other than a `provides:` entry, the report additionally names the field it was written in — `field "valuesMapping"`, `field "artifacts[probe.tf.json]"` — because an `artifacts:` entry's key is an output filename and carries the character the position separates its own segments with, so the position stops at the block that holds the entry.
+
+**Which templates it covers:** every template a Recipe writes inline — its `provides:` entries, its `valuesMapping:`, its `workload:` body, each `artifacts:` entry, and each pipeline step's `with:` and `when:`. One template surface is outside it: a `valuesMapping:`, `workload:` or `artifacts:` entry supplied through `$import:` carries no text in the Recipe until the render resolves the imported file, so a reference inside such a file renders as an empty value rather than halting.
+
+**How to fix:** read the key the report names. Where your node's output is something the compiler built — a synthesized workload, a placed artifact set — `{{ .context.instance_id }}` is the name those resources actually carry, and it is the right value rather than a fallback. Where your node supplies a chart or module of its own and the report offers no substitute, the name you were reaching for is not one that provider derives: publish something that does not depend on it, or name the resource in the source you supplied and read that name back from a value you set. [`../templates/rendered-resource-names.md`](../templates/rendered-resource-names.md) sets out which providers report a name and, for each of the others, why none exists to report.
 
 ### Cross-node type safety violation via `selector:`
 
@@ -4380,6 +4406,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0270` | `link patch names an output file the dispatch group did not emit; a conforming link patch names a file the group's own render returned` | A provider's link wiring names an output file that was never emitted |
 | `E0271` | `emit_file side effect carries no file; a conforming emit_file side effect carries a file with its path and content` | A pipeline step's file emission carries no file |
 | `E0272` | `side effect declares a kind the plugin contract does not define; a conforming side effect declares emit_file or emit_crd` | A pipeline step declares an emission kind the contract does not define |
+| `E0273` | `template reads the name the target renders author-supplied source under, and this node's provider reports no such name; a conforming template reads a value the node's own provider supplies` | A template reads a rendered name the node's provider does not report |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

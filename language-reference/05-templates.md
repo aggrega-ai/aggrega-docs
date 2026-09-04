@@ -8,4 +8,5 @@ Template context shape and evaluation ordering are load-bearing contracts — ch
 
 - [Template expansion matrix](templates/expansion-matrix.md) — the authoritative per-site table covering every template evaluation point, which pillars the site reads, and how outputs flow into the IR graph or downstream sub-passes.
 - [Template context contract](templates/template-context-contract.md) — the formal shape of the runtime TemplateContext the compiler hands to templates, including the dual-state `.inject` / `.inject_raw` pair and the enriched `.context.uses` JOIN projection.
+- [Naming a rendered resource](templates/rendered-resource-names.md) — which of the two identity keys names what, the difference between a `uses` **target** and the **reference** a producer publishes, which providers report a name for output rendered from supplied source and why the others report none, and the halt that refuses the key where no such name exists.
 - [Sprig functions and helpers](templates/sprig-functions.md) — the Sprig helpers available inside Go templates plus Aggrega-specific extensions and safety helpers.
