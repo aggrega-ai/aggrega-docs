@@ -185,7 +185,7 @@ an attachment the publishing component is the host.** The alarm publishes one
 entry, `alarm-id`, and it surfaces as:
 
 ```json
-    "paymentsQzhdbQQalarmQzhid": {
+    "paymentsXzhdbXXalarmXzhid": {
       "Value": {
         "Ref": "PaymentsDbStorageHeadroom"
       }
@@ -194,7 +194,7 @@ entry, `alarm-id`, and it surfaces as:
 
 The two halves are readable once you know the rule: a logical ID admits letters
 and digits alone, so the provider spells out what that alphabet refuses instead
-of dropping it — `Qzh` is the hyphen you wrote, and `QQ` is where the component
+of dropping it — `Xzh` is the hyphen you wrote, and `XX` is where the component
 name ends and the entry name begins. `payments-db` publishing `alarm-id`, and
 nothing else, reaches that name. [Names in the assembled
 stack](../../providers/cloudformation.md#how-an-output-name-is-built) sets the
@@ -281,7 +281,7 @@ inside the single template:
 In the two-stack build the producer stack publishes that value as an export:
 
 ```json
-    "paymentsQzhdbQQhost": {
+    "paymentsXzhdbXXhost": {
       "Value": {
         "Fn::GetAtt": [
           "PaymentsDb",
@@ -339,10 +339,10 @@ host component and the entry, and the host is the same component for both.
   dispatch groups whose contributors derive one name more than once in one key space
   caused by (2):
     [TRANSLATION_ERROR]
-      derived name collision: one name is derived more than once in one key space ("paymentsQzhdbQQalarmQzhid", key space "output-logical-ids", derived by component "payments-db", carrying attachment "storage-headroom", provider "cloudformation", dispatch path "name-collision/cloudformation")
+      derived name collision: one name is derived more than once in one key space ("paymentsXzhdbXXalarmXzhid", key space "output-logical-ids", derived by component "payments-db", carrying attachment "storage-headroom", provider "cloudformation", dispatch path "name-collision/cloudformation")
   ---
     [TRANSLATION_ERROR]
-      derived name collision: one name is derived more than once in one key space ("paymentsQzhdbQQalarmQzhid", key space "output-logical-ids", derived by component "payments-db", carrying attachment "storage-headroom-strict", provider "cloudformation", dispatch path "name-collision/cloudformation")
+      derived name collision: one name is derived more than once in one key space ("paymentsXzhdbXXalarmXzhid", key space "output-logical-ids", derived by component "payments-db", carrying attachment "storage-headroom-strict", provider "cloudformation", dispatch path "name-collision/cloudformation")
 
 build-release: aggrega exited 1 (surfaced raw; a non-zero exit is expected for guardrail-demonstration releases)
 ```
