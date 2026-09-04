@@ -41,6 +41,124 @@ A module argument is a position Terraform evaluates, which is why it is where th
 
 Plan the boundary's own output directory instead — the one holding `aggrega.modules.tf`, immediately above `modules/`. That is where the deployment's values are, and it is the one place a single plan sees the whole boundary.
 
+### Consuming another component's published value
+
+A component wired to another with a `uses` edge reads that component's published values through its own `.context.inject` pipe (or through `.context.uses.<alias>.provides.<name>`). What it reads is a string the compiler pipes without interpreting, and where that string lands is **text Terraform evaluates in the scope the Recipe wrote it into**. A terraform boundary has two such scopes, and only one of them declares the module calls a cross-component reference needs:
+
+- the **root configuration** declares every contributor as a `module` block, so `module.<name>.<output>` resolves there;
+- a **component's own directory** declares no module calls at all, so `module.<name>.<output>` names nothing there — **whatever `<name>` is**. Substituting the correct name changes nothing, because what is missing is the declaration, not the spelling.
+
+So the consuming Recipe's input kind decides whether a consumed reference can resolve, and the value being consumed does not.
+
+**Write a consuming Recipe as a `source:` Recipe.** Its `valuesMapping:` becomes the arguments of its own `module` block in the root configuration — the one position that is both evaluated and in a scope where its neighbours are declared.
+
+#### A worked pair
+
+The producer publishes an address naming **its own module call**, which is the form its consumer's scope declares. `.context.instance_id` is on the provides-evaluation surface, and for a component the deployment's Aggregate declares it is the name that component's `module` block carries:
+
+```yaml
+# Recipe — the producer. Its vendored module declares `output "endpoint"`.
+spec:
+  capability: terraform
+  implements: example/storage/object-store:1.0.0
+  source: ./module
+  valuesMapping: |
+    bucket: "{{ .values.bucket }}"
+  provides:
+    endpoint: "${module.{{ .context.instance_id }}.endpoint}"
+```
+
+The consumer vendors a module declaring an input, and maps the injected value onto it:
+
+```yaml
+# Recipe — the consumer. Its vendored module declares `variable "store_endpoint"`.
+spec:
+  capability: terraform
+  implements: example/compute/reporting-api:1.0.0
+  source: ./module
+  valuesMapping: |
+    store_endpoint: "{{ .context.inject.env.STORE_ENDPOINT }}"
+```
+
+The Aggregate wires them, naming the published key the edge carries:
+
+```yaml
+spec:
+  components:
+    store:
+      type: example/storage/object-store
+      values:
+        bucket: app-artifacts
+
+    api:
+      type: example/compute/reporting-api
+      uses:
+        store:
+          store:
+            target: store
+            inject:
+              env:
+                - in: STORE_ENDPOINT
+                  from: endpoint
+```
+
+The build emits one root configuration in which the reference and its referent are declared together:
+
+```hcl
+module "api" {
+  source = "./modules/api"
+
+  store_endpoint = "${module.store.endpoint}"
+}
+
+module "store" {
+  source = "./modules/store"
+
+  bucket = "app-artifacts"
+}
+```
+
+Terraform resolves `module.store.endpoint` because the same configuration declares `module "store"`, and the value reaches the consumer's module as an ordinary input.
+
+#### Three ways this goes wrong, and what each looks like
+
+**A Recipe that authors its own body cannot consume a cross-component reference.** An `artifacts:` Recipe resolves its values into the body it writes, and that body emits into the component's own directory. The reference is then sitting in a scope that declares no module calls:
+
+```
+Error: Reference to undeclared module
+  on modules/api/main.tf line 11, in output "seen":
+  11:   value = "${module.store.endpoint}"
+No module call named "store" is declared in module.api.
+```
+
+There is no spelling that fixes this, because a nested module's expressions cannot name a sibling module at all — a nested module receives a neighbour's value only as an **input**, which is the `module` block argument the sourced path already supplies. **A component that consumes another component's published value is authored as a `source:` Recipe.**
+
+**An address naming something inside the producer's own module resolves against the root, not against that module.** A `provides` entry spelling `aws_db_instance.this.endpoint` names a resource the producer's module declares; written as an interpolation it is evaluated where the consumer's argument sits, which is the root:
+
+```
+Error: Reference to undeclared resource
+  on aggrega.modules.tf line 19, in module "api":
+  19:   store_endpoint = "${aws_db_instance.this.endpoint}"
+There is no managed resource "aws_db_instance" "this" definition in the root module.
+```
+
+Publish `${module.<...>.<output>}` and give the module an `output` block for the value, rather than reaching into its resources.
+
+**A `provides` entry carrying no interpolation is delivered as text.** This is the one that does not fail: the compiler pipes strings and cannot tell a pointer from a literal, so `aws_db_instance.this.endpoint` written without `${ ... }` renders as a quoted string, the build succeeds, the engine validates, and the consumer receives the characters `aws_db_instance.this.endpoint`. Write the `${ ... }` wrapper whenever the value is meant as a reference — it is what marks the string as something for Terraform to evaluate.
+
+#### One bound worth knowing before you rely on it
+
+`.context.instance_id` spells the component's identity, and a `module` block's name is derived from the directory the component's files sit in. **For a component the deployment's own Aggregate declares, those are the same name.** For a component composed in from another Aggregate they are not: the composed identity and the module name are written into their two alphabets differently, and the reference then fails loudly at the root rather than quietly:
+
+```
+Error: Reference to undeclared module
+  on aggrega.modules.tf line 25, in module "api":
+  25:   store_endpoint = "${module.nested-zdinner.endpoint}"
+No module call named "nested-zdinner" is declared in the root module.
+```
+
+Declare a producer whose address another component resolves in the deployment's own Aggregate, alongside the component that consumes it.
+
 ### Where an attached Feature's output lands
 
 A Feature attachment that renders configuration of its own gets a **module of its own**, declared in the same root configuration as the components beside it. This is what makes its configuration part of the deployment at all: Terraform loads only the files sitting directly in a directory and treats a nested directory as a completely separate module that has to be called explicitly, so an attachment's files are read because the root declares a block naming the directory they sit in.
