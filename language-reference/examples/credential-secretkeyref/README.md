@@ -39,7 +39,7 @@ resource, because both read `.features.password.provides.name` — there is no
 re-derivation and no convention for the two sides to agree on:
 
 ```yaml
-# features/db/password/db-secret-db-password.yaml
+# db--password--db-secret-db-password.yaml
 [… omitted: the apiVersion and the Secret kind]
 metadata:
   name: db-password

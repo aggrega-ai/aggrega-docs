@@ -43,7 +43,7 @@ The Manifest maps `core/referenced-secret-set` to the `k8s-secret-set`
 FeatureRecipe, which renders one Secret carrying both keys:
 
 ```yaml
-# features/app/app_credentials/app-secret-app-app-credentials.yaml
+# app--app-zucredentials--app-secret-app-app-credentials.yaml
 [… omitted: the apiVersion and the Secret kind]
 metadata:
   name: app-app-credentials

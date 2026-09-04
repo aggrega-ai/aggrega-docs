@@ -52,10 +52,14 @@ an env `secretKeyRef`. The generated Secret and the container's reference name t
 **same** resource because both read `.features.user_password.provides.name` — there
 is no re-derivation and no convention for the two sides to agree on. The published
 name normalizes underscores in the slot name to hyphens, so `user_password`
-becomes the valid Kubernetes resource name `db-user-password`:
+becomes the valid Kubernetes resource name `db-user-password`. The filename that
+carries it is a separate derivation and reads differently: it prefixes the
+component and the slot name as the attachment's own coordinates, encoded for a
+filename alphabet that admits only lowercase letters and digits, so the
+underscore appears there as an escape rather than as a hyphen.
 
 ```yaml
-# features/db/user_password/db-secret-db-user-password.yaml
+# db--user-zupassword--db-secret-db-user-password.yaml
 metadata:
   name: "db-user-password"
 stringData:
