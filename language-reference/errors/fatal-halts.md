@@ -2851,7 +2851,7 @@ A cloudformation Recipe's `Outputs:` block is authored CloudFormation, and an en
 
 Only the coincidence halts. Declaring an export name on an `Outputs` entry is supported, and one matching no derived name publishes alongside the derived ones without comment.
 
-The halt gives the derived export name together with the four parts it was built from, so you can see which cross-boundary reference produced it, and it names the stack output your declaration sits under — marked as a name the provider assembles rather than one a Recipe wrote, because building that name drops every separator and capitalises each word, so several differently-written entries reach one of them and none can be read back out of it. **The export name is the part to search for.** Your entry spells it exactly as the halt does, which is what makes the two a collision, so it is the one string that appears both in the message and in your own files.
+The halt gives the derived export name together with the four parts it was built from, so you can see which cross-boundary reference produced it, and it names the stack output your declaration sits under — marked as a name the provider assembles rather than one a Recipe wrote, because the provider builds that name by encoding the component and the entry into the letters and digits a logical ID admits, so it is not the string either of them was written as. **The export name is the part to search for.** Your entry spells it exactly as the halt does, which is what makes the two a collision, so it is the one string that appears both in the message and in your own files.
 
 The comparison is scoped to one stack: the export names that stack declares, against the names derived for the cross-boundary references publishing into it. Two stacks are not compared against each other, and an export name written as a CloudFormation intrinsic resolves at deploy time, so there is no name to compare. What a name meets among the exports already deployed into an account and region is a property of the deployment, which a build does not observe.
 
@@ -3673,14 +3673,14 @@ Emitted message, naming each service, the reference it made, and where it mounts
 
 <!-- covers: plugins/internal/cfncore.ErrOutputNameCollision -->
 
-A stack output name admits only letters and digits, so one is built from what you wrote by dropping every separator and capitalising each word. Two entries that differ only in punctuation or in the case of a letter therefore arrive at the same name. The render stops rather than emit one output where two entries were written, which would silently drop one of them.
+A stack output name admits only letters and digits, so one is built from what you wrote by encoding the characters that alphabet does not admit rather than by dropping them. Two entries you wrote apart therefore stay apart, and this halt is what reports the case where two of them nonetheless reach one name. The render stops rather than emit one output where two entries were written, which would silently drop one of them.
 
 Every name behind which two or more entries met is reported, and every entry behind each name is named, in a stable order — so one build shows you the whole collision rather than one side of it.
 
 Emitted message:
-> cloudformation-provider: two entries an author wrote reach one stack Output name: `<the entries that met>` reach the Output name `"<name>"`; an Output name admits only letters and digits, so building one drops every separator and capitalises each word — rename an entry, or a component, so no two of them differ only by a separator or by a letter's case
+> cloudformation-provider: two entries an author wrote reach one stack Output name: `<the entries that met>` reach the Output name `"<name>"`; an Output name is built by encoding the component and the entry into the letters and digits a logical id admits, rather than by dropping what it does not, so two entries an author wrote apart stay apart — renaming either end clears the build
 
-**How to fix:** rename one of the entries, or one of the components, so the two no longer differ only by a separator or by a letter's case — the message names both sides. Renaming for the difference to survive the transformation means changing a word rather than its punctuation: two names differing only in a hyphen, an underscore, or a capital letter will meet again.
+**How to fix:** rename one of the entries, or one of the components, so the two no longer reach one name — the message names both sides. The name carries the punctuation and the letter case you wrote, encoded rather than dropped, so a difference of either survives into it and two entries written differently are named apart.
 
 ### A CloudFormation fragment writes one key twice
 

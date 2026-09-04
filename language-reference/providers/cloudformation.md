@@ -17,7 +17,7 @@ A Feature attached to a component contributes its resources to the stack its hos
 
 Because they land in the assembled stack, they share its names. An attached Feature's resource logical IDs sit in the same space as the host component's and as those of every other Feature attached alongside it, so [Names in the assembled stack](#names-in-the-assembled-stack) applies to them unchanged. Where two contributors meet on one name the halt names the component and the key the Feature is attached under, so both ends of the collision are searchable in your own files.
 
-**An attached Feature's outputs publish under its host component's name, and its resource logical IDs do not.** The two halves of the stack are named on different rules, so they answer this differently. A resource logical ID is emitted exactly as the FeatureRecipe authored it, like any Recipe's. An output is named for the publishing component and the entry together — and for a Feature attached to a component, the publishing component is the **host**: a Feature attached to `payments-db` publishing `alarm` reaches `PaymentsDbAlarm`, the same name it would reach had the host component published that entry itself. So an entry name the host also publishes meets the attachment's at one output name, and the build halts naming the component and the key the Feature is attached under alongside the component on its own. Choosing entry names that read as the Feature's own — `backup-alarm` rather than `alarm` — keeps them clear of the host's.
+**An attached Feature's outputs publish under its host component's name, and its resource logical IDs do not.** The two halves of the stack are named on different rules, so they answer this differently. A resource logical ID is emitted exactly as the FeatureRecipe authored it, like any Recipe's. An output is named for the publishing component and the entry together — and for a Feature attached to a component, the publishing component is the **host**: a Feature attached to `payments-db` publishing `alarm` reaches `paymentsQzhdbQQalarm`, the same name it would reach had the host component published that entry itself. So an entry name the host also publishes meets the attachment's at one output name, and the build halts naming the component and the key the Feature is attached under alongside the component on its own. Choosing entry names that read as the Feature's own — `backup-alarm` rather than `alarm` — keeps them clear of the host's.
 
 Each resource a Feature contributes keeps the identity composed for that attachment in the provenance the build writes onto it, rather than the host component's, so the two stay distinguishable inside a stack both contributed to. [Labels and annotations](../vocabulary/labels-and-annotations.md) covers how that identity is built.
 
@@ -45,15 +45,44 @@ A CloudFormation logical ID is unique within one template and admits only letter
 
 **Resource logical IDs come from the Recipe.** The provider emits them exactly as authored and rewrites none of them, so the name you read in the assembled template is the name the Recipe wrote. The standard-library CloudFormation Recipes derive it from the component instance's own name, reading that name's separators as word boundaries: instance `payments-db` names its resource `PaymentsDb`. Two instances of the same type therefore describe two resources rather than competing for one.
 
-**Output names are scoped by the component that published them.** Each `provides` entry surfaces as an output named for the publishing component and the entry together — component `payments-db` publishing `host` surfaces as `PaymentsDbHost` — so two components publishing the same entry reach two separate outputs, and an output's meaning does not change when another component joins the stack. A cross-stack consumer imports by the export name rather than by this one, so the export name is unaffected.
+**Output names are scoped by the component that published them.** Each `provides` entry surfaces as an output named for the publishing component and the entry together — component `payments-db` publishing `host` surfaces as `paymentsQzhdbQQhost` — so two components publishing the same entry reach two separate outputs, and an output's meaning does not change when another component joins the stack. A cross-stack consumer imports by the export name rather than by this one, so the export name is unaffected.
 
-Because a logical ID admits no separator character, both names read as capitalised words run together. Two instance names differing only in punctuation can still derive one resource name — `payments-db` and `payments_db` both derive `PaymentsDb` — and a difference of letter case can fold the same way, since a word's first letter is capitalised however you wrote it. The build halts, naming every instance that arrived at the name along with the name they landed on, rather than emitting one resource where two components were declared. Every one of them is named rather than some, because nothing about a collision makes one instance's derivation the intended one. Renaming all but one of them clears it.
+#### How an output name is built
+
+A logical ID admits no separator character, so a name built from something you wrote has to carry your separators across somehow. **Dropping them would be lossy**: `payments-db` and `payments_db` are two components, and a name that dropped the punctuation would identify neither. So the provider **encodes** what the alphabet refuses instead, spelling each refused character out in characters the alphabet does admit.
+
+The scheme reserves one character to open an escape with — an uppercase `Q` — and writes everything else as you typed it, capitals included:
+
+| what you wrote | what it becomes | why |
+| --- | --- | --- |
+| a letter or digit, `Q` excepted | itself | the alphabet admits it |
+| `-` | `Qzh` | the alphabet refuses a hyphen |
+| `_` | `Qzu` | the alphabet refuses an underscore |
+| `.` | `Qzd` | the alphabet refuses a full stop |
+| `/` | `Qzs` | the alphabet refuses a solidus, which a nested component identity carries |
+| `Q` | `Qzx000051` | reserved to open an escape, so it is spelled out by code point |
+| anything else | `Qzx` and the character's code point | one rule covers every remaining character |
+| the two halves meeting | `QQ` | two openers in a row, which neither half can contain |
+
+Reading it back is unambiguous, and that is the point rather than a nicety. A `Q` is kept as itself only when the character after it is one the alphabet admits, so an encoded half never ends with one and never carries two in a row — which leaves `QQ` free to mean the join, and only the join.
+
+So three names that differ only in where their punctuation sits stay apart:
+
+```
+component payments-db  publishing host      →  paymentsQzhdbQQhost
+component payments_db  publishing host      →  paymentsQzudbQQhost
+component payments     publishing db-host   →  paymentsQQdbQzhhost
+```
+
+**The names are longer and less immediately readable than the component name you wrote, and that is the trade.** A name that identifies exactly one entry is worth more than a shorter one that identifies neither of two — and you address an output through the export name rather than by typing this one, so what it costs is a second glance when reading an emitted template.
+
+**Resource logical IDs are a different rule**, because the provider does not build them: it emits what the Recipe wrote. The standard-library CloudFormation Recipes derive one by reading the instance name's separators as word boundaries — instance `payments-db` names its resource `PaymentsDb` — and **that derivation drops the separators**, so two instance names differing only in punctuation, or only in a letter's case, still derive one resource name. The build halts, naming every instance that arrived at the name along with the name they landed on, rather than emitting one resource where two components were declared. Every one of them is named rather than some, because nothing about a collision makes one instance's derivation the intended one. Renaming all but one of them clears it.
 
 ### A resource logical ID outside the alphabet halts
 
 Uniqueness and the alphabet are two separate requirements, and a set of names can satisfy the first and fail the second. Because the provider emits a resource logical ID exactly as the Recipe wrote it, the ID a Recipe authors has to be one a CloudFormation template can hold on its own: letters and digits, and nothing else.
 
-This is where a derived name and a passed-through one part company. An output name is built by the provider, which reads the publishing component and the entry as words and joins them, so an output name lies inside the alphabet however you spell either half. A resource logical ID is passed through, so whatever the Recipe wrote is what the template gets.
+This is where a derived name and a passed-through one part company. An output name is built by the provider, which encodes the publishing component and the entry, so an output name lies inside the alphabet however you spell either half. A resource logical ID is passed through, so whatever the Recipe wrote is what the template gets.
 
 That makes it a constraint on component names too, whenever a Recipe writes a component instance's name straight into the logical ID. A component name may carry a hyphen or an underscore; a logical ID may not. **A component you target at this provider through such a Recipe is therefore named in letters and digits alone** — `paymentsdb` rather than `payments-db` — and anything else halts the build.
 
@@ -74,17 +103,28 @@ The halt names the contributor whose Recipe wrote the name, the section it was w
 
 **Only a section's own names are held to the alphabet, never the keys inside an entry.** A mapping's second-level keys are yours to choose freely — `us-east-1` under a `RegionCidr` map is the ordinary case, and it reaches the emitted template untouched. The keys inside a parameter's, a condition's or a rule's body name attributes, assertions and intrinsics rather than anything the stack addresses: a rule's `Assertions`, and an `Fn::Contains` written inside it, are keys of that kind. None of them is a logical ID, and none is checked.
 
-### Two entry names can meet at one output name
+### Two entry names you wrote apart stay apart
 
-Building an output name drops every separator and capitalises each word, and the component half and the entry half are joined with nothing between them. Three kinds of entry name therefore meet at a single output name, and none of them is exotic:
+Three kinds of entry name sit close enough to meet at a single output name, and none of them is exotic. Because the two halves are encoded rather than folded, and meet at a sequence neither half can contain, all three reach names of their own:
 
-- Entries differing only in punctuation. A component publishing both `db-host` and `db_host` reaches `DbHost` twice.
-- Entries differing only in a letter's case. `host` and `Host` reach `Host` alike, because a word's first letter is capitalised either way.
-- Entries that meet across the join. Component `payments-db` publishing `host` and component `payments` publishing `db-host` both reach `PaymentsDbHost`, and neither name contains the other.
+- Entries differing only in punctuation. A component publishing both `db-host` and `db_host` reaches `dbQzhhost` and `dbQzuhost`.
+- Entries differing only in a letter's case. `host` and `Host` reach `host` and `Host`, because a letter is carried in the case you wrote it in.
+- Entries that meet across the join. Component `payments-db` publishing `host` reaches `paymentsQzhdbQQhost`; component `payments` publishing `db-host` reaches `paymentsQQdbQzhhost`.
 
-**The build halts rather than emit one output where two entries were written.** Within a single component the halt names both entries exactly as they were written, the section each was written in — an `Outputs:` block or a `provides:` block — and the component that carried them, so both ends of the collision are searchable in your own files. Between two components the halt names the output name and both components. Renaming either entry, or either component, clears it.
+**Two entries still meet where they genuinely name one thing.** The output name is built from the publishing component and the entry, so anything sharing both reaches one name however it is encoded. The case you are most likely to meet is one Feature attached twice to a single component: an attachment publishes under its **host**, so two attachments of one Feature on one component both publish `alarm-id` from `payments-db`, and there is nothing in the pair to tell apart. **The build halts rather than emit one output where two were written**, naming the component and the attachment key each side was carrying, so both ends are searchable in your own files. Either attach the Feature once, or use a Feature whose published entry names read as that attachment's own.
 
-This holds whether or not the two entries carry the same value. Two entries with the same value still describe two outputs a deployment asked for, so folding them into one would leave one of the two written-down outputs absent from the stack.
+This holds whether or not the two entries carry the same value. Two entries with the same value still describe two outputs a deployment asked for, so merging them into one would leave one of the two written-down outputs absent from the stack.
+
+#### A name a Recipe composes in a template is not covered by this
+
+The encoding above is the provider's, and it applies to the output names the **provider** builds. **It is not available to you inside a Recipe template, and a name your template composes therefore carries none of its guarantees.** Saying so plainly matters because the hazard is invisible from inside the template: the fold available there reads its argument as words and drops everything between them, so joining two values *before* folding loses the join along with the punctuation.
+
+A FeatureRecipe naming a resource from an instance and an attachment key, joined by a space and then folded, is the shape to watch — `app` with `cache` and `app-cache` with nothing both fold to `AppCache`, and the two collide before any property of the fold applies. Two things keep such a name distinct, and both are yours rather than the provider's:
+
+- **Keep the composed parts in letters and digits**, so nothing is dropped and nothing has to be told apart.
+- **Do not join two values that can each contain the other's separator.** Where a name must carry two parts, make one of them a fixed literal the other cannot contain.
+
+Where a composed name does collide, it collides as a resource logical ID rather than as an output name, so the halt you meet is the resource-name one above.
 
 ### A key written twice in one mapping halts
 
