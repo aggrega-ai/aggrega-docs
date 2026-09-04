@@ -38,7 +38,7 @@ Manifest maps that credential to `k8s-secret-set`, which materializes one
 Kubernetes Secret and publishes its name as `provides.name`:
 
 ```yaml
-# dist/app/helm/features/db/root_password/db-secret-db-root-password.yaml
+# dist/app/helm/db--root-zupassword--db-secret-db-root-password.yaml
 [… omitted: the apiVersion and the Secret kind]
 metadata:
   name: db-root-password

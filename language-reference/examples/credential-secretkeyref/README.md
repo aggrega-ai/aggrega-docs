@@ -33,7 +33,7 @@ the synthesizer renders as an env `secretKeyRef`.
 aggrega build --release release-helm.yaml --catalog ../../../../aggrega-hub/aggrega-catalog
 ```
 
-The generated Secret (`dist/helm/helm/features/db/password/db-secret-db-password.yaml`) and the
+The generated Secret (`dist/helm/helm/db--password--db-secret-db-password.yaml`) and the
 database's `secretKeyRef` (`dist/helm/helm/db-statefulset.yaml`) name the **same**
 resource, because both read `.features.password.provides.name` — there is no
 re-derivation and no convention for the two sides to agree on:

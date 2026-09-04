@@ -174,9 +174,9 @@ Over a deployment that fills three credential slots by value:
 
 ```console
 $ ./deny-inline-credential-material.sh ../ai-agent-and-model-router/dist
-REFUSED: helm/features/agent/model_api_key/agent-secret-agent-model-api-key.yaml (document 1): Secret/agent-model-api-key carries inline material under api-key
-REFUSED: helm/features/router/master_key/router-secret-router-master-key.yaml (document 1): Secret/router-master-key carries inline material under master-key
-REFUSED: helm/features/router/provider_key/router-secret-router-provider-key.yaml (document 1): Secret/router-provider-key carries inline material under provider-key
+REFUSED: helm/agent--model-zuapi-zukey--agent-secret-agent-model-api-key.yaml (document 1): Secret/agent-model-api-key carries inline material under api-key
+REFUSED: helm/router--master-zukey--router-secret-router-master-key.yaml (document 1): Secret/router-master-key carries inline material under master-key
+REFUSED: helm/router--provider-zukey--router-secret-router-provider-key.yaml (document 1): Secret/router-provider-key carries inline material under provider-key
 REFUSED: 3 finding(s) across 12 document(s), 3 of them credential-carrying
 $ echo $?
 1

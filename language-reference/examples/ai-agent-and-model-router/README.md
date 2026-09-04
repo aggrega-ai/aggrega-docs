@@ -112,27 +112,34 @@ aggrega lint --release release.yaml
 
 ```
 dist/helm/
+├── agent--model-zuapi-zukey--agent-secret-agent-model-api-key.yaml
 ├── agent-deployment.yaml
 ├── checkpointer-default-service.yaml
 ├── checkpointer-deployment.yaml
 ├── model-service.yaml
+├── router--master-zukey--router-secret-router-master-key.yaml
+├── router--metrics--router-servicemonitor-router-scrape.yaml
+├── router--provider-zukey--router-secret-router-provider-key.yaml
+├── router--published--router-ingress-router-ingress.yaml
 ├── router-default-service.yaml
 ├── router-deployment.yaml
-├── router/
-│   └── litellm-gateway-config.configmap.yaml
-└── features/
-    ├── agent/model_api_key/agent-secret-agent-model-api-key.yaml
-    └── router/
-        ├── master_key/router-secret-router-master-key.yaml
-        ├── metrics/router-servicemonitor-router-scrape.yaml
-        ├── provider_key/router-secret-router-provider-key.yaml
-        └── published/router-ingress-router-ingress.yaml
+└── router/
+    └── litellm-gateway-config.configmap.yaml
 ```
 
-Everything an attachment brought sits under `features/`, filed by the component
-it attached to and the name the attachment was given. Nothing an attachment
-produced is mixed into the component's own artifacts, so what came from where is
-readable off the tree.
+Everything an attachment brought sits in the same directory as the component's
+own manifests, carrying two coordinates in its filename: the component it
+attached to, and the name the attachment was given. `router--metrics--` is the
+`metrics` attachment on `router`. What came from where is still readable off the
+tree, and every file is where a tool that reads one directory will find it —
+which is what this target's consumers do unless you tell them otherwise.
+
+The two coordinates are encoded rather than written as you typed them, because
+they share one string with the file's own name. A character a filename cannot
+safely carry becomes `-z` and a letter: `master_key` is `master-zukey`, and
+`feature.aggrega.ai/monitoring` — an attachment name a Feature's own annotation
+mints — would be `feature-zdaggrega-zdai-zsmonitoring`. The file's own name keeps
+whatever dots it carries, so the `.yaml` suffix still reads as a suffix.
 
 Where a page here prints what a build produced, the block is copied from a real
 run — see [Reading the output on these pages](../reading-the-output.md) for the
@@ -264,7 +271,7 @@ five puts something there.
 
 `core/referenced-secret`, filling a slot the router's Component declares. It
 renders its own Secret, and the router's container references it. From
-`dist/helm/features/router/master_key/router-secret-router-master-key.yaml`:
+`dist/helm/router--master-zukey--router-secret-router-master-key.yaml`:
 
 ```yaml
 stringData:
@@ -288,7 +295,7 @@ by the attachment and read by the consumer, so neither side re-derives it.
 
 The same Feature in a different slot, and the difference between the two slots is
 the point of the router. From
-`dist/helm/features/router/provider_key/router-secret-router-provider-key.yaml`:
+`dist/helm/router--provider-zukey--router-secret-router-provider-key.yaml`:
 
 ```yaml
 stringData:
@@ -325,7 +332,7 @@ but the key to the router.
 ### `model_api_key` on the agent — the key it presents to the router
 
 `core/referenced-secret` again, on the other side of the same conversation. From
-`dist/helm/features/agent/model_api_key/agent-secret-agent-model-api-key.yaml`:
+`dist/helm/agent--model-zuapi-zukey--agent-secret-agent-model-api-key.yaml`:
 
 ```yaml
 stringData:
@@ -351,7 +358,7 @@ consumes it. What the shared parameter shares is the value, not the resource.
 `core/public-ingress`, which fills no slot: it is admitted by its own selector,
 `component.aggrega.ai/type=server`, which the router carries. It brings a
 resource the router's Recipe knows nothing about. The whole `spec` of
-`dist/helm/features/router/published/router-ingress-router-ingress.yaml`:
+`dist/helm/router--published--router-ingress-router-ingress.yaml`:
 
 ```yaml
 spec:
@@ -381,7 +388,7 @@ claim the resource.
 
 `core/prometheus-exporter`, admitted by the same selector, bringing another
 resource of its own. The whole `spec` of
-`dist/helm/features/router/metrics/router-servicemonitor-router-scrape.yaml`:
+`dist/helm/router--metrics--router-servicemonitor-router-scrape.yaml`:
 
 ```yaml
 spec:

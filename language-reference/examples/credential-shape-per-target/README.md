@@ -84,7 +84,7 @@ other two are the credential resources, one per filled slot, and they are where
 the targets differ.
 
 **Local target**, from `k8s-secret-from-parameter`, at
-`dist/helm/helm/features/db/password/db-secret-db-password.yaml`:
+`dist/helm/helm/db--password--db-secret-db-password.yaml`:
 
 ```yaml
 apiVersion: v1
@@ -97,7 +97,7 @@ stringData:
 ```
 
 **Store target**, from `k8s-external-secret`, at
-`dist/helm/helm/features/db/password/db-externalsecret-db-password.yaml`:
+`dist/helm/helm/db--password--db-externalsecret-db-password.yaml`:
 
 ```yaml
 apiVersion: external-secrets.io/v1
@@ -131,11 +131,18 @@ Comparing the two output trees shows the difference and shows where it stops
 
 ```console
 $ diff -r local store
-Only in store/helm/helm/features/db/app_user_password: db-externalsecret-db-app-user-password.yaml
-Only in local/helm/helm/features/db/app_user_password: db-secret-db-app-user-password.yaml
-Only in store/helm/helm/features/db/password: db-externalsecret-db-password.yaml
-Only in local/helm/helm/features/db/password: db-secret-db-password.yaml
+Only in store/helm/helm: db--app-zuuser-zupassword--db-externalsecret-db-app-user-password.yaml
+Only in local/helm/helm: db--app-zuuser-zupassword--db-secret-db-app-user-password.yaml
+Only in store/helm/helm: db--password--db-externalsecret-db-password.yaml
+Only in local/helm/helm: db--password--db-secret-db-password.yaml
 ```
+
+Four lines, all in one directory, because an attachment's files sit beside the
+component's own on this target rather than in a subdirectory. The filename is
+what carries the two coordinates: `db--password--` is the `password` attachment
+on `db`, and `db--app-zuuser-zupassword--` is the `app_user_password` one — the
+underscore encoded as `-zu`, because the coordinate and the file's own name share
+one string here.
 
 Four lines, and nothing else: two credential resources present only in the local
 target's tree, two present only in the store target's. `diff -r` reports no

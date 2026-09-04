@@ -45,11 +45,29 @@ not a Wasm mutator or pipeline step.)
 
 ## What the rendered output proves
 
-Build it and inspect `dist/<boundary>/helm/features/<component>/feature.aggrega.ai/monitoring/<component>-servicemonitor-<component>-scrape.yaml`:
+Build it and inspect `dist/<boundary>/helm/<component>--feature-zdaggrega-zdai-zsmonitoring--<component>-servicemonitor-<component>-scrape.yaml`:
 
 ```bash
 aggrega build --release release.yaml
 ```
+
+**That filename is worth decoding, because nothing here typed it.** This target
+reads only the files sitting directly in a directory, so an attachment's files
+land beside the component's own and carry their two coordinates in the filename
+instead of in directory segments: the component the Feature is attached to, then
+the name it is attached under. Here the second coordinate is not a name anyone
+wrote — the annotation mints it, and it is the annotation key itself,
+`feature.aggrega.ai/monitoring`. A dot and a slash cannot go into a filename as
+written, so each becomes `-z` and a letter: `-zd` for the dot, `-zs` for the
+slash. For the `api` component in the `payments` boundary the build writes
+
+```text
+dist/payments/helm/api--feature-zdaggrega-zdai-zsmonitoring--api-servicemonitor-api-scrape.yaml
+```
+
+The encoding is why the slash in that key opens no directory of its own — which
+is the point, since a file one level down is a file a scrape-config consumer
+reading the boundary directory would not pick up.
 
 This example consumes `core/prometheus-exporter` and its ServiceMonitor
 FeatureRecipe (plus the `helm` provider) from the **standard library**. The
