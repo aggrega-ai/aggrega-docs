@@ -45,11 +45,11 @@ Plan the boundary's own output directory instead — the one holding `aggrega.mo
 
 A Feature attachment that renders configuration of its own gets a **module of its own**, declared in the same root configuration as the components beside it. This is what makes its configuration part of the deployment at all: Terraform loads only the files sitting directly in a directory and treats a nested directory as a completely separate module that has to be called explicitly, so an attachment's files are read because the root declares a block naming the directory they sit in.
 
-An attachment's files sit inside the position of whatever it attached to, filed by that thing's name and by the name the attachment was given. `features/` is the directory this target puts an attached Feature's files in. So for a component `api` carrying an attachment named `aux`, the root configuration declares two modules:
+An attachment's module directory sits **beside** the component's, one level under `modules/`, and is named for the two things that identify it — the component hosting it and the name it was attached under, joined on `--`. So for a component `api` carrying an attachment named `aux`, the root configuration declares two modules:
 
 ```hcl
-module "api_features_api_aux" {
-  source = "./modules/api/features/api/aux"
+module "api--aux" {
+  source = "./modules/api--aux"
 }
 
 module "api" {
@@ -57,7 +57,11 @@ module "api" {
 }
 ```
 
-A Feature attached at the **boundary** rather than at a component is filed by its own name, since it attached to no component: an attachment named `aux` on a boundary holding component `api` yields `./modules/aux/features/aux` beside `./modules/api`.
+A Feature attached at the **boundary** rather than at a component has no host component to name, so its directory is its own name alone: an attachment named `aux` on a boundary holding component `api` yields `./modules/aux` beside `./modules/api`.
+
+**Why beside rather than inside.** Terraform merges every top-level file in a module directory into one namespace, so two contributors sharing a directory collide on any name they both declare, whatever their files are called. A directory each is what lets an attachment declare its own `output`, `variable`, `resource` and `locals` without contending with its host's. The nested position would also read as one contributor's directory containing another's, which the root configuration has no way to describe.
+
+**The join is escaped per coordinate.** Each of the two coordinates is written into the directory alphabet before they are joined, so a coordinate that itself contains `--` cannot be confused with the join: a host named `a--b` with an attachment `c` is distinguishable from a host `a` with an attachment `b--c`. ASCII letters in both cases, digits, the full stop and the underscore pass through as written; a hyphen you wrote is kept wherever the character after it is one of those; anything else is escaped. **The same rule and the same alphabet produce a chart target's child directories**, so one attachment's directory is spelled the same way whichever of the two targets renders it.
 
 **A block's name is derived from the directory its `source` points at**, with each character outside Terraform's grammar for a module name replaced by an underscore. That mapping is not one-to-one, so where two contributors would arrive at a single module name the build halts and names both, rather than emitting a configuration Terraform would reject.
 
@@ -66,6 +70,8 @@ Two things follow from an attachment being a module of its own.
 **Its resources sit in the boundary's one dependency graph.** A reference or a `depends_on` reaches between an attachment and the component it attached to, and one `terraform plan` sees both — the same property the root-composes-children shape gives components, for the same reason.
 
 **Its top-level names are its own.** Terraform merges every top-level file in a directory into a single namespace — `output`, `variable`, `resource` and `locals` alike — so two contributors sharing one directory would collide on any name they both declare, whatever their files are called. Each contributor in a module directory of its own declares its own names without contending with its neighbours'.
+
+Note what this target does **not** require, because a chart target's constraint is different and the shared layout can be read as implying more than it does: a module nested inside another contributor's directory is still reachable here, since the root configuration reads each contributor's `source` from the position the build composed rather than rebuilding it from an identifier. What this target refuses is two contributors *sharing* a directory. A chart target refuses the nested position outright, because it discovers a child chart one level down and no further.
 
 ## Supported input kinds
 

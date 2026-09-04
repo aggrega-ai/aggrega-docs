@@ -70,7 +70,7 @@ use the `helm` capability instead.
 
 The provider runs in two phases per assembly path:
 
-1. **Per-node copy.** For each node bound to a helm-chart Recipe, the provider copies the source chart's full directory tree into a sub-chart slot. Files land flat in the per-node output map; the assembler names `charts` as the sub-directory its contributors sit under, and the orchestrator nests them at `charts/<instance_id>/` when assembling the umbrella.
+1. **Per-contributor copy.** For each node bound to a helm-chart Recipe, the provider copies the source chart's full directory tree into a sub-chart slot. Files land flat in the per-contributor output map; the assembler names `charts` as the sub-directory its contributors sit under, and the orchestrator gives each contributor a directory of its own there when assembling the umbrella — `charts/<instance_id>/` for a component. A Feature attachment that vendors a chart is a contributor too, and gets a directory beside the component's rather than inside it; see ["Where an attachment's chart lands"](#where-an-attachments-chart-lands).
 2. **Per-`(path, provider)` umbrella assembly.** Once all per-node copies for the path complete, the assembler emits an umbrella `Chart.yaml` + `values.yaml` at the assembly path's root. The umbrella declares one dependency per contributing node and routes per-node values under instance-id-keyed sub-blocks. When the assembly path receives contributors from more than one boundary (boundaries with shared `directory:`), every contributor lands as a dependency in the same umbrella.
 
 The umbrella `Chart.yaml` has the shape:
@@ -95,7 +95,32 @@ The cascade resolves the DRY tension naturally: declare `aggrega.ai/chart-name` 
 
 Each dependency entry's `name` is the name the placed sub-chart carries — the component instance's own encoded identity, the same value as the `alias` — for the reasons in ["The chart name the umbrella owns"](#the-chart-name-the-umbrella-owns). Its `version` is still the version from the source chart's own `Chart.yaml`. The alias scopes the sub-chart's values under `values.yaml.<alias>.*`, matching Helm's umbrella-values convention so per-instance values propagate correctly when the umbrella is installed.
 
-The sub-chart's own directory keeps the instance_id exactly as authored, so `charts/<instance_id>/` is where each contributor's files land and what the dependency's `repository` points at. Two instances of the same source chart therefore coexist without a filesystem collision, and each keeps its own values block under its own alias.
+A component's sub-chart directory keeps the instance_id exactly as authored, so `charts/<instance_id>/` is where its files land and what the dependency's `repository` points at. Two instances of the same source chart therefore coexist without a filesystem collision, and each keeps its own values block under its own alias.
+
+**The dependency's `name` and its `repository` are different strings, and that is by design.** `name` is what the chart at that location DECLARES, because Helm binds a dependency to a child chart by the child's own declared name; `repository` is where that chart sits. For a component the two happen to read alike, since both derive from the same instance id. For a Feature attachment they differ — the declared name carries the attachment's composed identity while the directory carries its two coordinates joined — so reading either as the other names something that is not there.
+
+### Where an attachment's chart lands
+
+A Feature attachment that vendors a chart gets a directory of its own **beside** the component it is attached to, one level under `charts/`:
+
+```
+charts/
+├── api/                    # the component's own chart
+├── api--guardrail/         # a Feature attached to `api` under `guardrail`
+└── api--audit/             # a second Feature attached to the same component
+```
+
+A Feature attached to a **boundary** rather than to a component has no host component to name, so its directory is its instance name alone: `charts/aux/`.
+
+**Why beside rather than inside.** Helm discovers a child chart at `charts/*` — one level, not a recursive walk. A chart placed deeper than that is not a child of anything; it is data inside another child's directory, reachable only through `.Files`. So a chart placed inside the component's own chart directory would be copied into the output, would make the build succeed, and would contribute none of its resources to what you deploy — with nothing reporting it. Placing each contributor at its own top-level directory is what makes the attachment's resources render.
+
+The umbrella also declares the attachment as one of its dependencies. Both halves are needed: a chart present under `charts/` and absent from `dependencies:` is a lint error, and a chart declared in `dependencies:` with no matching child chart present makes the umbrella refuse to load.
+
+**The two coordinates are joined, not concatenated.** A directory name is composed from the host and the instance through the same escaping rule described below, applied to each coordinate before they are joined on `--`. Running them together on `--` directly would be ambiguous: a host named `a--b` with an instance `c`, and a host `a` with an instance `b--c`, would reach one directory. Encoding each coordinate first keeps them apart, so an authored `--` inside a coordinate appears as `-zh-`.
+
+**What the directory name admits.** ASCII letters in both cases, digits, the full stop and the underscore pass through as you wrote them, so `API--aux` and `web.api--aux` read as you would expect. A hyphen you wrote is kept wherever the character after it is one of those, so `web-api--aux` is unchanged; a doubled hyphen escapes, because the pair is the join. Anything else is escaped by the same rule as a chart name. The set is drawn where it is because these directory names are both paths on disk and the location a dependency's `file://` pointer resolves, and a character that is fine in a filename can truncate or re-decode a URL.
+
+**Values follow the declared name, not the directory.** A child chart's values are scoped under the name that chart declares, so values for the chart above are addressed as `api--guardrail`'s *declared* name — `cfr-zh-api-zh-guardrail` — rather than as its directory.
 
 ### The chart name the umbrella owns
 
@@ -146,7 +171,7 @@ When a sub-chart's `valuesMapping:` evaluates against its TemplateContext, the r
 - **The placed chart's `name` is the umbrella's.** It is set to the encoded identity of whatever contributed the chart — a component instance's own identity, or, for a chart a Feature attachment brings, that attachment's own identity — and it is the only thing inside a vendored chart that Aggrega changes. See ["The chart name the umbrella owns"](#the-chart-name-the-umbrella-owns).
 - **A source chart must declare a version, and a name.** The dependency entry's version is the one the source chart's own `Chart.yaml` declares, so a chart that declares no version halts the build rather than being given one — a dependency pinned to a version the sub-chart does not carry would leave the umbrella's per-instance values unable to reach it. A chart whose `Chart.yaml` declares no name, holds more than one YAML document, or does not parse halts for the same reason: the umbrella cannot compose a sub-chart it cannot read.
 - **Encoded aliases and chart names.** An instance_id, aggregate name or boundary path carrying a character a Helm chart name or dependency alias does not accept appears encoded in the rendered umbrella, per "How a name is derived" above. An identity built only from letters, digits, underscores and hyphens the derivation keeps appears exactly as authored.
-- **`file://` repository pointer.** The umbrella's dependency entries use a `file://charts/<instance_id>` repository pointer, naming the sub-chart's own directory; this is the local-filesystem convention for in-tree sub-charts and lets `helm dependency build` resolve the umbrella without external registry calls.
+- **`file://` repository pointer.** The umbrella's dependency entries use a `file://` repository pointer naming the child chart's own directory — `file://charts/<instance_id>` for a component, and the attachment's own directory for a chart a Feature brings. This is the local-filesystem convention for in-tree child charts and lets `helm dependency build` resolve the umbrella without external registry calls. The pointer names a location and never the chart's declared name; the two differ for an attachment, and `helm dependency build` is the step that refuses a pointer naming a directory that is not there.
 - **No template rendering at the helm-chart level.** The provider does not invoke the Helm SDK's render pipeline; it copies and composes. Authors who need pre-rendered flat manifests should use the helm provider's sourced mode instead.
 
 ## Worked example
