@@ -122,6 +122,18 @@ The umbrella also declares the attachment as one of its dependencies. Both halve
 
 **Values follow the declared name, not the directory.** A child chart's values are scoped under the name that chart declares, so values for the chart above are addressed as `api--guardrail`'s *declared* name — `cfr-zh-api-zh-guardrail` — rather than as its directory.
 
+**You never write that key yourself.** You write the values on the attachment, and the umbrella's `values.yaml` is composed for you with the block already at the address the placed chart is addressed by. For a Feature attached to a component that is the `values:` you declare on the attachment, read by the FeatureRecipe's own `valuesMapping:`; for a Feature attached to a boundary it is the `infra:` you declare there, since a boundary-attached Feature has no component values pillar. Whichever it is, the map that `valuesMapping:` resolves to becomes the attachment's own block in the umbrella:
+
+```yaml
+# the umbrella's values.yaml, composed for you
+api:                              # the component's own chart
+  replicaCount: 3
+cfr-zh-api-zh-guardrail:          # the chart the Feature attached under `guardrail` brought
+  auditEndpoint: "https://audit.internal"
+```
+
+**This is the only route those values have.** A chart a Feature brings arrives with its files as its author wrote them — apart from the single manifest field described in ["The chart name the umbrella owns"](#the-chart-name-the-umbrella-owns) — so nothing writes your values into that chart, and the umbrella's block is what supplies them. A chart whose block never arrived is not a broken chart: it renders the defaults its own `values.yaml` ships and reports success, so give a default a value you would notice if you want to see the difference while authoring.
+
 ### The chart name the umbrella owns
 
 **The one thing Aggrega changes inside a chart you vendored is that chart's own `name` field.** In the placed chart's `Chart.yaml`, `name` is set to the encoded identity of whatever contributed that chart.
@@ -163,7 +175,7 @@ billing-svc:
   replicaCount: 2
 ```
 
-When a sub-chart's `valuesMapping:` evaluates against its TemplateContext, the resulting values map populates this alias-keyed sub-block automatically.
+When a sub-chart's `valuesMapping:` evaluates against its TemplateContext, the resulting values map populates this alias-keyed sub-block automatically. That holds for every contributor to the umbrella, not for components alone: a Feature attachment that vendors a chart is a contributor in its own right, so its FeatureRecipe's `valuesMapping:` populates a block of its own, keyed by the name its placed chart declares. See ["Where an attachment's chart lands"](#where-an-attachments-chart-lands).
 
 ## Provider-specific quirks
 
