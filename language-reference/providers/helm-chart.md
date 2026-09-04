@@ -99,7 +99,13 @@ The sub-chart's own directory keeps the instance_id exactly as authored, so `cha
 
 ### The chart name the umbrella owns
 
-**The one thing Aggrega changes inside a chart you vendored is that chart's own `name` field.** In the placed sub-chart's `Chart.yaml`, `name` is set to the component instance's encoded identity — the same value as the dependency's `alias` — and the umbrella's dependency entry names that value too, so the two sides always agree.
+**The one thing Aggrega changes inside a chart you vendored is that chart's own `name` field.** In the placed chart's `Chart.yaml`, `name` is set to the encoded identity of whatever contributed that chart.
+
+For a component, that is the component instance's own identity — the same value as the dependency's `alias` — and the umbrella's dependency entry names that value too, so the two sides always agree.
+
+A chart a **Feature attachment** brings is a contributor in its own right, and it declares its own identity rather than repeating the identity of the component it is attached to. That identity is composed from two things you wrote — the component hosting the attachment, and the name the Feature is attached under — behind a short opening that marks it as an attachment's identity rather than a component's; the composed value is then written for the chart-name position through the derivation below, exactly as any other identity is.
+
+So attaching a chart-vendoring Feature to a component named `api` under the name `guardrail` places a chart declaring `cfr-zh-api-zh-guardrail`, while that component's own chart still declares `api`. The two are separate contributors, and each declares a name of its own rather than both declaring the host's.
 
 Nothing else in the chart is touched. Every other file arrives byte for byte as you wrote it, and inside `Chart.yaml` every other field, every comment, the key order and the quoting are exactly as authored. A key nested somewhere else in the manifest that also happens to be called `name` — a maintainer's name, for instance — is left alone.
 
@@ -137,7 +143,7 @@ When a sub-chart's `valuesMapping:` evaluates against its TemplateContext, the r
 ## Provider-specific quirks
 
 - **Sub-chart `Chart.yaml` is required.** The copy operation enforces a present `Chart.yaml` at the source-path root. Missing it halts the build before the umbrella step runs.
-- **The placed chart's `name` is the umbrella's.** It is set to the component instance's encoded identity, and it is the only thing inside a vendored chart that Aggrega changes. See ["The chart name the umbrella owns"](#the-chart-name-the-umbrella-owns).
+- **The placed chart's `name` is the umbrella's.** It is set to the encoded identity of whatever contributed the chart — a component instance's own identity, or, for a chart a Feature attachment brings, that attachment's own identity — and it is the only thing inside a vendored chart that Aggrega changes. See ["The chart name the umbrella owns"](#the-chart-name-the-umbrella-owns).
 - **A source chart must declare a version, and a name.** The dependency entry's version is the one the source chart's own `Chart.yaml` declares, so a chart that declares no version halts the build rather than being given one — a dependency pinned to a version the sub-chart does not carry would leave the umbrella's per-instance values unable to reach it. A chart whose `Chart.yaml` declares no name, holds more than one YAML document, or does not parse halts for the same reason: the umbrella cannot compose a sub-chart it cannot read.
 - **Encoded aliases and chart names.** An instance_id, aggregate name or boundary path carrying a character a Helm chart name or dependency alias does not accept appears encoded in the rendered umbrella, per "How a name is derived" above. An identity built only from letters, digits, underscores and hyphens the derivation keeps appears exactly as authored.
 - **`file://` repository pointer.** The umbrella's dependency entries use a `file://charts/<instance_id>` repository pointer, naming the sub-chart's own directory; this is the local-filesystem convention for in-tree sub-charts and lets `helm dependency build` resolve the umbrella without external registry calls.
