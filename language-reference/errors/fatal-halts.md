@@ -3363,21 +3363,6 @@ Emitted message:
 
 **How to fix:** nothing in any catalog document produces this value, so there is nothing in your own files to correct — it comes from the plugin serving the provider. Report it to whoever publishes that plugin, quoting the value the message names. Where the plugin is yours, declare a single directory name, or declare none and let each contributor sit at the deployment directory.
 
-### A provider named a directory for an attached Feature that is not one directory
-
-<!-- covers: internal/compiler/renderer.ErrAttachmentSegmentNotOneDirectory -->
-
-A Feature attached to a component or to a boundary writes its own files under a directory of their own, and which directory that is belongs to the provider rendering them: one target reads only the files sitting directly in a directory, so an attachment's files belong beside the ones already there, while another discovers its units in a named child directory and needs them inside it. The build composes the attachment's own coordinates into whatever the provider names.
-
-The value has to name exactly one directory, for the same reason the enclosing directory of a contributor does: a value carrying a path separator, or naming the current or the parent directory, would place the attachment's files outside the position it rendered into. The build stops rather than compose such a path, and the message names the provider that declared the value and the value itself.
-
-**A provider that declares no such directory is unaffected.** The build then writes an attachment's files under `features/`, which is where they sit for every provider that names nothing, so declining to name one is a legitimate answer rather than an omission.
-
-Emitted message:
-> provider named a directory for an attached feature's files that is not a single directory name: provider `"<provider>"` declared attachment_segment `"<value>"`; the value must name one directory, carrying no path separator and naming neither the current nor the parent directory
-
-**How to fix:** nothing in any catalog document produces this value, so there is nothing in your own files to correct — it comes from the plugin serving the provider. Report it to whoever publishes that plugin, quoting the value the message names. Where the plugin is yours, declare a single directory name, or declare none and let the default apply.
-
 ### A boundary-scope Feature is attached only to a component
 
 <!-- covers: internal/compiler/renderer.ErrBoundaryScopeAttachmentNotDeclaredAtABoundary -->
@@ -4395,7 +4380,6 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0270` | `link patch names an output file the dispatch group did not emit; a conforming link patch names a file the group's own render returned` | A provider's link wiring names an output file that was never emitted |
 | `E0271` | `emit_file side effect carries no file; a conforming emit_file side effect carries a file with its path and content` | A pipeline step's file emission carries no file |
 | `E0272` | `side effect declares a kind the plugin contract does not define; a conforming side effect declares emit_file or emit_crd` | A pipeline step declares an emission kind the contract does not define |
-| `E0273` | `provider named a directory for an attached feature's files that is not a single directory name` | A provider named a directory for an attached Feature that is not one directory |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
