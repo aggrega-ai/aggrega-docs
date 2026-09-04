@@ -1,8 +1,8 @@
 # Sprig Functions and Helpers
 
-The Aggrega template engine wires the [Sprig v3](https://github.com/Masterminds/sprig) function library plus one Aggrega-specific helper (`optional`) into every Go template the renderer evaluates. Authors writing Recipe `valuesMapping:`, FeatureRecipe `injectMapping:`, or any other template surface the renderer evaluates have the full Sprig helper set available alongside Go `text/template` built-ins and the runtime context fields documented in [template-context-contract.md](template-context-contract.md).
+The Aggrega template engine wires the [Sprig v3](https://github.com/Masterminds/sprig) function library plus Aggrega's own helpers (`optional` and `capitalizedWords`) into every Go template the renderer evaluates. Authors writing Recipe `valuesMapping:`, FeatureRecipe `injectMapping:`, or any other template surface the renderer evaluates have the full Sprig helper set available alongside Go `text/template` built-ins and the runtime context fields documented in [template-context-contract.md](template-context-contract.md).
 
-🔴 **Read "the renderer evaluates" as the scope it is, because one authoring surface sits outside it.** A structured `source:` coordinate is resolved so the artifact it names can be pinned, and that resolution is not a rendering pass: it registers **`optional` and nothing else**, so a Sprig call there halts the build. The reach is the entity's whole `locals:` block, not only the entries the coordinate reads. Resolving a coordinate fixes what gets pinned rather than producing an artifact, which is why its function set is deliberately narrower — see [`errors/fatal-halts.md`](../errors/fatal-halts.md) "Resolving a `source:` coordinate registers a narrower function set" for the halt and the portable form to use instead.
+🔴 **Read "the renderer evaluates" as the scope it is, because one authoring surface sits outside it.** A structured `source:` coordinate is resolved so the artifact it names can be pinned, and that resolution is not a rendering pass: it registers **Aggrega's own helpers and nothing else**, so a Sprig call there halts the build. The reach is the entity's whole `locals:` block, not only the entries the coordinate reads. Resolving a coordinate fixes what gets pinned rather than producing an artifact, which is why its function set is deliberately narrower — see [`errors/fatal-halts.md`](../errors/fatal-halts.md) "Resolving a `source:` coordinate registers a narrower function set" for the halt and the portable form to use instead.
 
 The Sprig surface is registered through `sprig.FuncMap()` at the parameter-interpolation pass and through Aggrega's own helper bundle (which embeds the Sprig set) at the renderer's value-template surfaces. The version pin lives in `aggrega-cli/go.mod`.
 
@@ -72,7 +72,36 @@ When the template lives inside a YAML block-scalar (`|` form) or as a bare-value
 
 **When to prefer `optional` over `default`.** Use `optional` when the field can legitimately be zero, empty, or false and the catalog author needs to distinguish "author didn't set this" from "author set this to a falsy value." Use `default` when the conflation is acceptable (e.g., string fields where empty is invalid; numeric fields where zero is invalid).
 
-**Per-surface availability.** `optional` is registered on the value-template surfaces (Recipe `valuesMapping`, FeatureRecipe `injectMapping`, `provides`, `pipeline.with`, the Workload body) and on the assertion evaluator. Path templates (`directory:` / `subDirectory:` on Release boundaries) exclude `optional` by design — the path-template surface uses strict missing-key handling, and a presence-aware fallback would weaken that discipline.
+**Per-surface availability.** `optional` is registered on every surface the renderer evaluates: the value-template surfaces (Recipe `valuesMapping`, FeatureRecipe `injectMapping`, `provides`, `pipeline.with`, the Workload body), the assertion evaluator, and path templates (`directory:` / `subDirectory:` on Release boundaries). What differs on the path-template surface is not the helper set but the missing-key policy: a path template treats an absent key as an error rather than as empty, because a silently empty path segment produces a broken filesystem layout that is only discovered after the build. `optional` reads a key without that strict policy firing first, which is what makes it usable there.
+
+### `capitalizedWords` — fold a name into letters and digits
+
+`capitalizedWords <string>` reads its argument as words separated by runs of anything outside ASCII letters and digits, capitalises each word's first letter, and joins them. Every character of the result is a letter or a digit.
+
+It exists because some targets accept only letters and digits in the names they address resources by, while a component id may legitimately carry a dot, a hyphen or an underscore. Writing that conversion by hand in each Recipe that needs it produces several spellings of one idea; a single helper gives every author the same answer.
+
+```yaml
+# separators become word boundaries
+{{ capitalizedWords `payments-db` }}          # → PaymentsDb
+{{ capitalizedWords `payments_db` }}          # → PaymentsDb
+{{ capitalizedWords `payments.db` }}          # → PaymentsDb
+
+# a run of separators is one boundary, and leading or trailing ones add nothing
+{{ capitalizedWords `-payments--db-` }}       # → PaymentsDb
+
+# characters already inside a word keep the case they were authored with
+{{ capitalizedWords `MY-app` }}               # → MYApp
+
+# a word beginning with a digit is carried as authored
+{{ capitalizedWords `1st-app` }}              # → 1stApp
+
+# anything outside the alphabet is a boundary, including a non-ASCII letter
+{{ capitalizedWords `café-app` }}             # → CafApp
+```
+
+🔴 **The result does not identify the name it came from.** Every separator is dropped, so two ids differing only in where their separators sit reach the same result — `payments-db` and `payments_db` both give `PaymentsDb`. The helper cannot detect that, because it sees one name at a time; catching it belongs to whatever addresses resources by the result. A target that does so refuses the collision rather than emitting a deployment with one of the two missing: building for CloudFormation, two components whose ids fold onto one name halt the build, and the message names every id that reached it. Choose ids that differ in more than punctuation, and the question does not arise.
+
+**Per-surface availability.** `capitalizedWords` is registered wherever `optional` is: every surface the renderer evaluates, and the resolution of a structured `source:` coordinate. It is not available in Aggregate parameter interpolation, which offers the Sprig set alone.
 
 ## Common helpers NOT available
 
@@ -87,12 +116,12 @@ Helm extends Go's `text/template` with chart-template helpers that are commonly 
 
 MappingLibrary fragments can target either of two consumption sites:
 
-- **Aggrega-side consumption** (Recipe `valuesMapping:`, FeatureRecipe `injectMapping:`, etc., evaluated by Aggrega's renderer). The available helpers are: full Sprig v3 (`default`, `coalesce`, `quote`, `nindent`, `indent`, `b64enc`, etc.) **plus** `optional` (Aggrega-specific). The chart-template helpers (`include`, `tpl`, `required`, `warn`) are NOT available.
-- **Helm chart-internal consumption** (chart `values.yaml` content or chart `templates/*.yaml` rendered downstream by Helm's own template engine). The available helpers are: full Sprig v3 **plus** Helm's chart-template helpers (`include`, `tpl`, `required`, `warn`). `optional` (Aggrega-specific) is NOT available.
+- **Aggrega-side consumption** (Recipe `valuesMapping:`, FeatureRecipe `injectMapping:`, etc., evaluated by Aggrega's renderer). The available helpers are: full Sprig v3 (`default`, `coalesce`, `quote`, `nindent`, `indent`, `b64enc`, etc.) **plus** Aggrega's own (`optional`, `capitalizedWords`). The chart-template helpers (`include`, `tpl`, `required`, `warn`) are NOT available.
+- **Helm chart-internal consumption** (chart `values.yaml` content or chart `templates/*.yaml` rendered downstream by Helm's own template engine). The available helpers are: full Sprig v3 **plus** Helm's chart-template helpers (`include`, `tpl`, `required`, `warn`). Aggrega's own helpers are NOT available.
 
 The two helper sets share the Sprig surface but diverge on the engine-specific extensions. MappingLibrary entries that target Helm chart-internal consumption use Helm conventions (`.Values.<key>` capital-V root, `| default`, `include`-based composition); entries that target Aggrega-side consumption use Aggrega conventions (lowercase `.values.<key>`, `optional` for presence-aware fallback). The library entity stores fragments verbatim; the authoring shape follows where the fragment is meant to render.
 
-Aggrega's only custom helper on top of Sprig is `optional` (documented above). The remainder of the helper surface is exactly what `sprig.FuncMap()` exposes.
+Aggrega's custom helpers on top of Sprig are `optional` and `capitalizedWords`, both documented above. The remainder of the helper surface is exactly what `sprig.FuncMap()` exposes.
 
 ## Cross-references
 
