@@ -60,7 +60,9 @@ The key is **omitted** where nothing that produced the entry assigned a code, an
 
 ## How an entity is addressed
 
-Every entity a response names carries the same identity: `kind`, `name`, `file` and `origin`. Join on it against `aggrega/catalogIndex` for anything you want to display, so the describing fields live in one place and two responses cannot disagree about the same entity.
+Every entity a response names is addressed the same way: `kind`, `name` and `file`. Join on those three against `aggrega/catalogIndex` for anything you want to display, so the describing fields live in one place and two responses cannot disagree about the same entity.
+
+Where a response can name entities from more than one place, each identity carries `origin` beside those three keys. `aggrega/catalogIndex` and `aggrega/attachCandidates` both do, because their entities come from the workspace documents and from the configured catalog directories. A response drawing on one place only reports the three keys and no `origin`, since a key with one possible value tells you nothing — every entity such a response names is a workspace document, and its `file` is a workspace-relative path you can open. So read `origin` where it is present rather than requiring it everywhere; the three keys are what you join on either way.
 
 `origin` says where the daemon read the entity from, and it is what makes `file` readable.
 
@@ -112,7 +114,7 @@ Naming a `socket` in the request scopes the answer to that one socket, and it is
 
 **It reports and never creates.** The method resolves nothing, reaches no registry or network, and writes nothing: it creates no edge and proposes no text. Composing and applying the edit is the editor's, which is where the buffer and the undo history are.
 
-For the entity identities in `targets` — `kind`, `name`, `file` and `origin` — join against `aggrega/catalogIndex` as described in [How an entity is addressed](#how-an-entity-is-addressed). The describing fields are reported there and deliberately not repeated here, so the two responses cannot disagree about the same entity. Targets are workspace Components, so each carries `origin: "workspace"`.
+For the entity identities in `targets` — `kind`, `name` and `file` — join against `aggrega/catalogIndex` as described in [How an entity is addressed](#how-an-entity-is-addressed). The describing fields are reported there and deliberately not repeated here, so the two responses cannot disagree about the same entity. Targets are workspace Components, so every one has a `file` you can open and none carries an `origin`: this response draws on a single place, and the join is on the three keys.
 
 ## What the effective-configuration response covers
 
