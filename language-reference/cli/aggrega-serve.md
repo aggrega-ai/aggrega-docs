@@ -23,6 +23,7 @@ The wire protocol is JSON-RPC 2.0 with Content-Length framing, under the `aggreg
 - `aggrega/connectionCandidates {node, socket?}` — what the named entity may connect to. `node` is an entity's `metadata.name`, the same coordinate `aggrega/attachCandidates` takes under that name. See [What a connection-candidate response tells you](#what-a-connection-candidate-response-tells-you) below, because the two halves of the answer are not equally complete and the response says which is which.
 - `aggrega/releaseCandidates` — the workspace's Release documents, as absolute paths. Takes no parameters: the set is a property of the workspace root the daemon resolved. Membership is decided by document kind — the file's `kind:` is `Release` — and not by filename, so a Release named without a conventional prefix is offered and a file merely named like one is not. This is what an editor's "which Release?" picker should list, because it is the same set the active-Release cascade below chooses from.
 - `aggrega/activeRelease` — which Release the daemon resolved for this workspace, as an absolute path in a `release` field. Takes no parameters. The field is always present, and an empty value means the workspace has no active Release — a successful answer, not the release-not-resolved error, so a client that refreshes this on every daemon restart is not made to treat an ordinary workspace as a failure. Ask for it rather than working the answer out from one of the cascade's inputs: an input the cascade did not end up using names a different Release than the one in force.
+- `aggrega/effectiveConfiguration` — the configuration in force for this session, and the layer each setting came from. Takes no parameters: the answer is a property of the workspace the daemon resolved when it started. `layers` lists the config files and environment overrides that contributed, lowest precedence first; `settings` carries each attributed setting as its dotted name, its effective value, and the `source` that determined it. A `source` is spelled exactly as the matching entry in `layers`, so the two join directly. See [What the effective-configuration response covers](#what-the-effective-configuration-response-covers), because the attributed set is narrower than the configuration schema and a client that reads it as complete will be wrong.
 - `aggrega/invalidate {file, granularity?}` — a cache-invalidation signal from the editor's file watcher.
 
 **Notifications:**
@@ -104,6 +105,27 @@ Naming a `socket` in the request scopes the answer to that one socket, and it is
 **It reports and never creates.** The method resolves nothing, reaches no registry or network, and writes nothing: it creates no edge and proposes no text. Composing and applying the edit is the editor's, which is where the buffer and the undo history are.
 
 For the entity identities in `targets` — `kind`, `name`, `file` and `origin` — join against `aggrega/catalogIndex` as described in [How an entity is addressed](#how-an-entity-is-addressed). The describing fields are reported there and deliberately not repeated here, so the two responses cannot disagree about the same entity. Targets are workspace Components, so each carries `origin: "workspace"`.
+
+## What the effective-configuration response covers
+
+`aggrega/effectiveConfiguration` answers two questions: what configuration applies in this session, and which layer decided each setting. It is the same answer [`aggrega config show --origin`](aggrega-config.md) prints, computed once and reported on both surfaces, so the two cannot disagree about where a setting came from.
+
+**A `source` is one of three shapes.** A config file's absolute path; an environment variable behind an `env:` prefix, such as `env:AGGREGA_SIGNING_REQUIRED`; or `(built-in defaults)` for a setting no layer changed. The first two appear verbatim in `layers`. The defaults do not, because the defaults are not a layer that contributed — they are what applies where no layer spoke.
+
+**The attributed set is narrower than the configuration schema. Do not read this response as covering every setting.** The settings it reports are a fixed list, and the schema declares more than that list names. A setting can be real, documented, and carry a default while appearing nowhere in `settings` — the compiled-module cache size is one such setting today. So a client looks a setting up by name and handles its absence; it must not infer that a setting missing from the response is unset, nor present the response to a user as the whole of their configuration.
+
+**Two further bounds, each of which makes an answer coarser than it looks.**
+
+- **A list or map setting is attributed as a whole**, to the layer that last changed it. Per-entry attribution is not tracked, so a list assembled from two layers reports only the later one, and an entry contributed by an earlier layer is not distinguishable from one the later layer wrote.
+- **The signing requirement is attributed to the *first* layer that turned it on**, not the last that mentioned it. That setting composes so that any layer switching it on wins and no later layer can switch it off, so the first layer to turn it on is the one that made the effective value what it is.
+
+**Every reported value is the session's own resolution, read when the daemon started.** Editing a config file does not change a value here; restarting the daemon does. That is deliberate — the values are the configuration the daemon is itself acting on, which is what makes them comparable with the workspace root and configuration layer the handshake reported. A client showing configuration alongside a file the user is editing should say which of the two it is showing.
+
+**The layer attribution is worked out when you ask, against the files as they stand.** So a config file edited during a session can move a `source` while the value beside it stays as the daemon resolved it. The two halves answer different questions — what is in force, and which layer decided it — and only the first is frozen at startup. Restart the daemon to bring them back into step.
+
+**It reports and never writes.** The method changes no configuration, creates no file, and resolves nothing from a registry or the network.
+
+**Single-layer file contents are not served here.** The command line can print one layer's own bytes verbatim, comments and formatting preserved; this method reports the resolution rather than the bytes. A client wanting a layer's text has the path in `layers` and can open it.
 
 ## Cache model
 
