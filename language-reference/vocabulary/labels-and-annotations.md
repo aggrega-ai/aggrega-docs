@@ -126,6 +126,17 @@ The five surfaces accumulate; an attachment present at any surface contributes t
 
 The five surfaces are deliberate per the architecture's separation of concerns — Developer (tiers 1-2), Ops (tiers 3-4), Platform Operator (tier 5) — rather than redundant. Authors choose the surface that matches who owns the attachment and at what scope.
 
+### Which labels decide whether a Feature applies
+
+A Feature declares where it may attach with `spec.appliesTo` and `spec.appliesToAnyOf`, and the build judges that declaration against **the finalised labels of the node the attachment lands on**. Attaching a Feature to a node those labels do not satisfy halts the build; a Feature declaring neither surface states no requirement and applies anywhere.
+
+The finalised label set is assembled in two steps, and neither of them is the one authors most often assume.
+
+1. **A node takes its labels from the Component catalog entity its `type:` names.** They are a property of the component *type*, not of the instance: the Aggregate cannot label a component instance, and the Release cannot either. An Aggregate's own `metadata.labels` describe the Aggregate as a reusable module and do not cascade to the components inside it. So two instances of one type carry identical labels, and changing what a node's labels are means changing the type it points at — or changing that type's entity.
+2. **A `label-transform` attachment may then rewrite them.** Where the workspace configuration attaches a governance plugin in the `label-transform` role, it runs at topology construction and may add, change or remove node labels before anything is judged against them. It may touch nothing else, so labels are the one part of a node it can move — and they are exactly the part applicability turns on.
+
+**A proposal made against the labels a single document declares is therefore an approximation, not a prediction.** Reading a Component entity's `metadata.labels` tells you what a node of that type starts with, which is the right answer often enough to be useful and wrong in two specific ways: a document that merely shares a node's name is a different subject with different labels, and a `label-transform` attachment can move the set out from under any document at all. Tools that offer attachment suggestions from source alone are working from that approximation; the judgement a build makes is over the finalised set.
+
 ### Attachment precedence
 
 When two contributions supply the same field of the same attachment, four rules decide which one the rendered output carries. They are applied **in this order**, and the order is what makes the outcome predictable:
