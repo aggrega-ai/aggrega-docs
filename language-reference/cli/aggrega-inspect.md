@@ -31,7 +31,7 @@ Each kind has a natural default resolution depth (see the table below). `--raw` 
 
 For kinds that default as-authored, `--raw` is a no-op and `--resolved` triggers what resolution the kind supports. For kinds that default resolved, `--raw` is the as-authored bypass.
 
-`--raw` reproduces the file, so a value an author declared sensitive appears in it exactly as authored. That is the contract, not a gap — an as-authored view that quietly withheld part of itself would not be as-authored. Handle `--raw` output the way you handle the entity file it came from. The same applies to `--output yaml`; see [Machine-readable output](#machine-readable-output) below.
+`--raw` reproduces the file, so a value an author declared sensitive appears in it exactly as authored. That is the contract, not a gap — an as-authored view that quietly withheld part of itself would not be as-authored. Handle `--raw` output the way you handle the entity file it came from. `--output yaml` reproduces the file the same way for every kind that has one to reproduce; a Release inspected without `--raw` is the exception, because it has none — see [Machine-readable output](#machine-readable-output) below.
 
 ## Per-kind defaults
 
@@ -82,7 +82,7 @@ The notice is read from the local index of the registry the entity resolves from
 
 A marker is reported only when its own signature verifies against the signers the registry's trust policy honors. An unsigned marker, or one whose signature does not verify, is not reported: a claim that cannot be authenticated is not presented as fact.
 
-The notice accompanies the human-readable views. `--output yaml` emits the entity document alone, so a consumer parsing it receives exactly the document.
+The notice accompanies the human-readable views. `--output yaml` appends no notice, so a consumer parsing it receives a document and nothing else.
 
 ## Worked examples
 
@@ -277,7 +277,23 @@ spec:
 
 `--output yaml` emits the render subject — the as-authored entity for catalog kinds, the resolved structure for instance kinds — as YAML, suitable for piping and diffing. For a Release the render subject is the compiled graph, so `aggrega inspect <release> --output yaml` is how that graph is read from the command line; an editor integration reads the same graph over the daemon's protocol.
 
-**Every one of these outputs is verbatim, and that includes values an author declared sensitive.** The text layouts replace such a value with `<redacted>`; the machine-readable ones do not, deliberately. They exist to be parsed and diffed, so an output that withheld part of itself would misrepresent the input it claims to reproduce and would break the round-trip its consumers depend on. Declaring a leaf sensitive is not sufficient to keep it out of them — the compiled graph carries the authored `values` as it received them, encoded rather than hidden. Pipe, store and share these outputs the way you would the Aggregate and Release files themselves.
+**An as-authored output is verbatim, and that includes values an author declared sensitive.** For every kind whose `--output yaml` reproduces a file, that is the contract rather than a gap: an output claiming to reproduce the input cannot withhold part of it and still be reproducing it. Pipe, store and share those outputs the way you would the entity files they came from.
+
+**A Release's compiled graph is not one of them, and it withholds.** The graph is not a file anyone wrote — it is what the compilation computed from the Aggregate, the Release and the catalog — so there is no as-authored contract to keep, and the same declarations that govern the readable layouts govern it. Wherever the graph carries a leaf an author declared sensitive, the value is replaced by a single-key object naming it as withheld:
+
+```yaml
+values:
+    secretName: db-creds
+    vault:
+        token:
+            aggrega_withheld: declared
+```
+
+The key survives, so the graph still answers which leaves a node and its attachments carry; only the value is gone. An undeclared sibling in the same payload is emitted as authored — `secretName` above is a public locator its author left undeclared, and it prints. The reason accompanying the marker says why the value is absent: `declared` for a leaf a declaration covers, and `unreadable` where the payload arrived in a shape this command could not read, in which case the whole payload is withheld rather than any part of it guessed at.
+
+**If you parse this graph, read this before upgrading.** Where a pipeline reads a declared-sensitive value out of `aggrega inspect <release> --output yaml` — an attachment's `values` or `infra`, or a boundary attachment's `infra` — it now receives the marker object above in place of the value, so a consumer expecting a string meets an object. That change is deliberate: the value is one an author declared sensitive, and a command a person runs in a terminal should not be the thing that puts it on screen, into a shell history or into a pasted bug report. Pass `--unredacted` where a pipeline genuinely needs the values, and treat what it produces the way you treat the entity files themselves.
+
+An editor integration reads the same graph over the daemon's protocol and withholds it on its own side, so what a panel draws follows the same declarations. The editor's setting for showing sensitive values continues to work, because the protocol still carries the whole graph and the withholding there happens in the editor.
 
 ## Attachment slot and sensitivity clause
 
@@ -335,7 +351,7 @@ The walk order is values pillar first (in author order), then infra pillar (same
 
 ## Declared-sensitive values
 
-A leaf whose schema declares `sensitive: true` prints the fixed text `<redacted>` in place of its value. The key, the pillar prefix and the provenance bracket are all kept — only the value is replaced — so the layout still answers which leaves an entity carries and where each came from. Two surfaces are affected: an Aggregate's per-node `Values:` block, and a resolved Release's per-leaf attachment block.
+A leaf whose schema declares `sensitive: true` prints the fixed text `<redacted>` in place of its value. The key, the pillar prefix and the provenance bracket are all kept — only the value is replaced — so the layout still answers which leaves an entity carries and where each came from. Two readable surfaces are affected: an Aggregate's per-node `Values:` block, and a resolved Release's per-leaf attachment block. A Release's compiled graph under `--output yaml` withholds the same leaves in the structured form described at [Machine-readable output](#machine-readable-output).
 
 ```text
 Components:
@@ -356,6 +372,14 @@ Only a declared leaf is withheld, and the attachment-level `[sensitive]` clause 
 ```
 
 Nothing is inferred from a field's name: a field called `password` that carries no declaration prints its value, and a declared field called `key` does not. Redaction covers what the tool prints; it never reaches a rendered artifact, and `dist/` is emitted exactly as the render produced it. The keyword and the full ceiling on what declaring it achieves are at [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md) "Declaring a leaf sensitive".
+
+### Showing the withheld values
+
+`--unredacted` prints the declared-sensitive values instead of withholding them, on every `inspect` surface at once — the readable layouts above and a Release's compiled graph alike. It exists because the withheld value is sometimes the one being investigated: a credential arriving from the wrong attachment looks identical to the right one when both read as withheld.
+
+It is scoped to the one command. `aggrega build --trace-unredacted` is the same idea on the build's trace files, and neither flag reaches the other's output; a rendered artifact under `dist/` is unaffected by both, because it is emitted exactly as the render produced it whether either is passed or not.
+
+Whatever the output reaches then carries those values in the clear — a terminal, a pipe, a file, a screen recording, a pasted bug report. Unlike the trace files, which each open with a header saying they were captured unredacted, output on a terminal carries no such marking: only the command line says it was passed.
 
 ## When to reach for inspect
 
@@ -388,4 +412,5 @@ aggrega inspect [identifier] [flags]
 | `--raw` | `false` | Render the entity as authored, without resolution. |
 | `--resolved` | `false` | Render the entity fully resolved. |
 | `--show-implements` | `false` | For a Recipe or FeatureRecipe, resolve spec.implements against the catalog and render the bound Component or Feature. |
+| `--unredacted` | `false` | Print the values an author declared sensitive instead of withholding them. Anything the output reaches — a terminal, a pipe, a file, a screen recording — then carries those values in the clear. |
 <!-- END GENERATED: cli-inspect -->
