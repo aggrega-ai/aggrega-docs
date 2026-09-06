@@ -213,6 +213,29 @@ Neither is recoverable from the other. An entity can be reached without ever app
 
 Operations are cache-driven: call `aggrega/validate` for a file before `hover` / `completion` / `resolve` / `diagnostics` on it. That seeding call does not need a Release — a validation naming none still parses the buffer and populates the cache — so these operations work in a workspace that has no Release to name. The parse cache is checked against each file's on-disk modification time on every read, so external edits (an editor save, a `git checkout`) are picked up automatically — the editor's `aggrega/invalidate` is an optimization, not a correctness requirement.
 
+## Sizes in an answer
+
+**An answer that reports a byte quantity reports it twice: as the number, and as the same quantity
+written out.** The written field is the numeric field's name with `Text` appended — `size` and
+`sizeText`, `totalSize` and `totalSizeText`, `reclaimedBytes` and `reclaimedBytesText`, and so on
+through every answer that carries a size.
+
+Display the written form and compute with the number. The point of sending both is that a client
+never has to spell a size itself: the daemon writes it with the same formatter the command line uses,
+so `aggrega cache status` and `aggrega/cacheStatus` show a given cache identically, down to the
+rounding. A client that composed its own text would drift from that the first time it disagreed about
+a boundary.
+
+The written form uses binary units — `512 B`, `1.0 KiB`, `5.0 MiB`, `3.0 GiB` — which is the same
+vocabulary `aggrega/cacheEvict` accepts in `maxSize`, so a size read out of one answer can be sent
+back in the next request without being rewritten. Above bytes the text carries one decimal place, so
+it names the quantity as a reader wants to see it rather than to the byte; when you need the exact
+count, that is what the numeric field is for.
+
+Where the number is optional the text is optional with it, and the two are never half-present: the
+plugin size on a publish answer carries `pluginSize` and `pluginSizeText` together or carries
+neither.
+
 ## Workspace root and active Release
 
 The daemon resolves its workspace the same way every `aggrega` command does. Discovery walks up from the working directory: a `.aggrega-config.yaml` carrying a `workspace:` block anchors the root, and failing that a heuristic marker does — an `.aggrega/` directory, then `aggregate*.yaml`, `release*.yaml`, or `manifest*.yaml`. A `.aggrega-config.yaml` *without* a `workspace:` block does not anchor; it still contributes its settings, but a bare settings file cannot turn every parent directory into a workspace root. `--workspace-root` overrides discovery. When no marker is found, the working directory is used — the daemon starts and operations simply resolve nothing, rather than refusing to run.
