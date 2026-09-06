@@ -28,6 +28,22 @@ The server exposes three surfaces to the connected assistant:
 
   A few commands are deliberately absent, each for a stated reason: the daemon and this server itself would never return a result; a command that reads a password from the terminal has nothing to read it from; one that writes a shell completion script has no shell to install it into; and acquiring an identity token interactively has no non-interactive form to offer. Commands that sign or publish are present and work from a token supplied in the environment — where the command line would open a browser, the tool refuses and names what to supply instead, rather than waiting on a person who is not there.
 
+## What an assistant can do without asking you first
+
+**An assistant connected to this server can call every tool the server exposes, without asking you, unless your client is configured to deny it.** The server offers the tools; it does not decide which of them any particular call is allowed to use. That decision is your client's, and it is yours to make there.
+
+This matters because the tool surface is the command line. Anything you can type, an assistant can call — including the operations that change your machine.
+
+**Some of those operations reach further than the workspace you are working in, and cannot be undone by running something else.** Two are worth knowing by name:
+
+- `aggrega cache evict` trims the compiled-module store, and `aggrega cache clear` wipes it. That store is shared by **every** Aggrega project on the machine. Modules removed from it are recompiled on demand, so nothing is lost permanently — but the next build of any project pays that cost.
+- `aggrega cache prune` reclaims artifact-cache entries no lockfile references. Where a project's lockfile is not present to be read, its pinned artifacts are not protected by it, and reclaiming them means fetching them again.
+- `aggrega registry add` and `aggrega registry remove` write to the configuration shared across every workspace by default, so they change what resolves everywhere on the machine, not only here.
+
+The inventory tools say so in their own answers. `cache-status` marks each cache class with its reach — `workspace` for the artifact cache under this project's own cache directory, `machine` for the stores every project shares — and names the machine-wide ones outright, so an assistant reading the inventory before proposing a reclamation is told which parts of it are not yours alone. The maintenance operations report the same reach for each element they removed.
+
+**Where you set the boundary.** The protocol itself defines no per-tool permission — its authentication is about whether a client may connect at all, not about which tools it may then call. The permission decision lives in your MCP client. Every widely used client can allow and deny individual tools by name from a single server, and can disable a server entirely for a given project; the setting's name and location differ per client, so consult your client's own documentation for tool permissions. If you want the reads and not the writes, allow the tools you want and deny the rest there. A permissive configuration, or a client with no such setting, leaves every exposed tool callable.
+
 ## Finding out what a workspace holds
 
 Almost every tool takes a subject: an entity name, or the path of a Release. Two do not, and they are how an assistant that has just arrived gets one.

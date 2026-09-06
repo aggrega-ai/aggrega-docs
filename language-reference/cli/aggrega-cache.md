@@ -41,6 +41,18 @@ The artifact cache under `artifact_cache_dir` (`.aggrega/cache` by default) hold
 
 For the cache layout, the `artifact_cache_dir` contract, and why a resolution artifact is deliberately not readable as authored content, see [architecture/13-catalog-and-registry.md](../../architecture/13-catalog-and-registry.md).
 
+## Which caches belong to this project, and which to the machine
+
+Not every cache these commands act on is scoped to the project you are standing in, and the difference decides how far a reclamation reaches.
+
+**Yours alone.** The artifact cache under `artifact_cache_dir` — the entities, source artifacts, pinned external inputs and documentation bundles this project has resolved. Reclaiming from it affects this project and nothing else.
+
+**Shared by every Aggrega project on this machine.** The compiled-module store and the plugin-describe store. A provider guest is compiled once and reused by every project, which is what makes the second build of anything fast, so removing an entry means the next build of *any* project on the machine recompiles it. Nothing is lost permanently — a removed module is rebuilt on demand — but the cost lands on whoever builds next, which may not be you.
+
+`aggrega cache status` states this per class rather than leaving it to be inferred from the name: each class is reported as covering the workspace or the machine, and the same reach is reported for each element `prune`, `evict` and `clear` remove. `evict` acts only on the shared compiled-module store; `clear` acts on everything, which is why it asks before it starts.
+
+**This applies wherever the operation is invoked from, not only at a terminal.** The same operations are reachable from an editor session and from an assistant's tool call, and their answers carry the same reach for the same reason. Where an assistant may invoke them on your behalf, see [`aggrega mcp`](aggrega-mcp.md).
+
 ## See also
 
 - [`aggrega-pull`](aggrega-pull.md) — resolve a Release's dependencies into the lockfile and the cache.
