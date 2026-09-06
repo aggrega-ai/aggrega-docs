@@ -23,7 +23,7 @@ aggrega registry
 | Flag | Default | Description |
 | --- | --- | --- |
 | `--advisory` | `false` | Downgrade verification failures for this registry to warnings instead of halting |
-| `--fetch-trust` | `true` | Fetch and pin the registry's advertised trust policy on first use. Use --no-fetch-trust to skip; manual --identity/--key also skip the fetch. |
+| `--fetch-trust` | `true` | Fetch and pin the registry's advertised trust policy on first use. Use --fetch-trust=false to skip; manual --identity/--key also skip the fetch. |
 | `--global` | `false` | Write the entry to the global config shared across every workspace. A registry defaults here. |
 | `--identity` | `[]` | Trusted keyless identity as `identity=issuer` (repeatable; OR-set). E.g. dev@example.com=https://accounts.google.com. Overrides the fetched trust policy. |
 | `--key` | — | Path to a pinned cosign-compatible public-key PEM for keyed verification. Overrides the fetched trust policy. |

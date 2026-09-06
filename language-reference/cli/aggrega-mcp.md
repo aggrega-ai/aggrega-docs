@@ -34,7 +34,7 @@ The server exposes three surfaces to the connected assistant:
 
 This matters because the tool surface is the command line. Anything you can type, an assistant can call — including the operations that change your machine.
 
-**Some of those operations reach further than the workspace you are working in, and cannot be undone by running something else.** Two are worth knowing by name:
+**Some of those operations reach further than the workspace you are working in, and cannot be undone by running something else.** These are the ones worth knowing by name:
 
 - `aggrega cache evict` trims the compiled-module store, and `aggrega cache clear` wipes it. That store is shared by **every** Aggrega project on the machine. Modules removed from it are recompiled on demand, so nothing is lost permanently — but the next build of any project pays that cost.
 - `aggrega cache prune` reclaims artifact-cache entries no lockfile references. Where a project's lockfile is not present to be read, its pinned artifacts are not protected by it, and reclaiming them means fetching them again.

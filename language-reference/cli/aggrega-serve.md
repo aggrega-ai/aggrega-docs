@@ -20,6 +20,13 @@ The wire protocol is JSON-RPC 2.0 with Content-Length framing, under the `aggreg
 - `aggrega/irGraph {release}` — the compiled IR graph for a Release, for editor introspection. `release` is a path relative to the workspace root, naming a Release inside it — the same value `aggrega build --release` takes when run from the root. Any other form is refused with the standard invalid-params error naming what to send instead: an absolute path, a path that resolves outside the workspace root, and an empty value are all rejected rather than resolved, so a request never reports on a file the workspace does not hold. Note that `aggrega/releaseCandidates` answers with absolute paths, so a client feeding one surface from the other converts between the two. The graph is returned verbatim, values an author declared sensitive included: it is a machine-readable projection, so it reproduces its input rather than withholding part of it. See [`aggrega-inspect`](aggrega-inspect.md) "Machine-readable output".
 - `aggrega/resolveDependencies {release, upgrade?, targets?, verify?}` — resolve the Release's catalog and source dependencies into the cache and write its lockfile. `release` is a path relative to the workspace root, the same value `aggrega/irGraph` takes and refused in the same shapes. `upgrade` discards the recorded pins and re-resolves, floating each dependency to the highest available version; `targets` narrows that to the entity references it names, holding every other pin. `verify` checks the recorded resolution against what resolves today and writes nothing at all, answering `verified: true` and the `toolchain` the lockfile records. The answer names the `lockfile` it wrote and every reference it pinned, in `entities`, `libraries` and `plugins`, alongside `sourceArtifacts`, `trustedPlugins`, and any `notices` the resolution raised. There is no catalog-directory parameter: the search stack is the one the workspace configures. This request reaches registries and writes — see [Reaching a registry, and writing](#reaching-a-registry-and-writing).
 - `aggrega/acquireExternalInputs {release}` — pin the external inputs the Release's render consumes into the content-addressed store and record them in its lockfile. `release` carries the same contract as above. The answer names the `lockfile` and the inputs this call newly pinned, each as its `url`, `sha256` and `size`; an empty list is the ordinary answer for a Release whose inputs are already recorded. The rendered artifacts are discarded, so the workspace's output directory is untouched. This request reaches registries and writes — see [Reaching a registry, and writing](#reaching-a-registry-and-writing).
+- `aggrega/cacheStatus` — what the on-disk caches hold: one entry per cached element with its size and, where it has one, its content digest, grouped by class. Takes no parameters. Each class carries a `reach` — `workspace` for the artifact cache under this workspace's own cache directory, `machine` for the compiled-module and plugin-describe stores every project on the machine shares — and `scope` names the machine-wide classes directly. It writes nothing. See [Reaching a registry, and writing](#reaching-a-registry-and-writing) for why the reach is on an answer that changes nothing.
+- `aggrega/cachePrune`, `aggrega/cacheEvict {maxSize}`, `aggrega/cacheClear` — reclaim cached content. A prune removes what no workspace lockfile references; an eviction trims the compiled-module store to `maxSize`, a byte quantity spelled as the command line spells it (`5GiB`, `512MiB`, or a byte count); a clear wipes every cache this session addresses. Each answer names what it removed, with each removal carrying the `reach` of the class it came from, and each carries `scope`. **These reach beyond the workspace** — see [Reaching a registry, and writing](#reaching-a-registry-and-writing).
+- `aggrega/registryList` — the registries this workspace is configured to reach: each entry's host, optional alias, whether it is the default, its trust posture as discrete fields, and whether a credential for that host is present. Takes no parameters. It contacts no registry. The credential state reports **presence only** — never the credential, never its shape, and never whether the registry would accept it, which would take a network round trip a listing does not make — and it is read from the machine-wide credential store, which `credentialStateIsMachineWide` says outright.
+- `aggrega/search {query?, kinds?, selector?, capabilities?, pluginType?, registry?, limit?, includeRetracted?}` — search the local index of the configured registries. Every field narrows and every one is optional, so an empty params object asks for everything the index holds. It contacts no network: the index is the offline snapshot written under this workspace's own cache directory. The reported version is the one a resolution would take — a version whose retraction carries a signature this workspace trusts is excluded and named in `retracted` — and the answer carries its own provenance: `indexes` gives each searched registry's snapshot age, `stale` marks one worth refreshing, and `missingIndexHosts` names configured registries with no local index, whose contents are therefore absent from the answer.
+- `aggrega/registryAdd {host, name?, identities?, keyPath?, trustedRoot?, requireSignatures?, advisory?, fetchTrust?, global?, workspace?}` — register a registry and its signature trust policy. `host` is required; everything else shapes the policy or the write target. `fetchTrust` defaults to **true** when the key is absent, matching the command line, and takes the registry's own advertised policy on first contact; `trust` in the answer says which of three things happened — the policy was pinned, the registry advertised none, or no fetch was attempted. **This writes the machine-wide configuration by default** — see [Reaching a registry, and writing](#reaching-a-registry-and-writing).
+- `aggrega/registryRemove {registry, global?, workspace?}` — drop a registry's entry, addressed by host or friendly alias. A token matching nothing is refused rather than answered as a success over an unchanged configuration. **This writes the machine-wide configuration by default** — see [Reaching a registry, and writing](#reaching-a-registry-and-writing).
+- `aggrega/registryUpdate {registry?, upgrade?}` — refresh the local searchable index `aggrega/search` reads. An absent `registry` refreshes every configured one; naming one refreshes only that registry. `upgrade` ignores the cached revalidation and re-reads every repository, which picks up a change a conditional refresh skips — a deprecation marker added to a version whose digest did not move. The answer carries each host's record count, the repositories it could not read, the deprecation markers it met, and `indexRoot`, the directory under this workspace's own cache the indexes were written to. **This is the only request here that goes out to a registry** — see [Reaching a registry, and writing](#reaching-a-registry-and-writing).
 - `aggrega/catalogIndex` — the entity index: the `kind`, `name`, `apiVersion`, `description`, `labels`, source file and `origin` of every entity the daemon can see. Takes no parameters: the set is a property of the workspace root and the catalog directories the daemon resolved. It spans both places an entity comes from — the Aggrega documents under the workspace root, and the Features the configured catalog directories carry — because this is the surface a client joins against when it needs an entity's descriptive fields, and an index that knew only one of the two would leave part of every candidate list unresolvable. A workspace document counts as an entity when it declares both a `kind:` and a `metadata.name`, so foreign YAML that happens to sit in the tree — a chart's values file, a CI configuration — is skipped rather than listed. See [How an entity is addressed](#how-an-entity-is-addressed) for what `origin` and an empty `file` mean.
 - `aggrega/entityDefinition {name}` — what the named entity resolves to: its `kind`, its own `name` and `version`, and its `definition` as a YAML document with inheritance already applied. `name` is an entity's identity, written the way one entity references another, and it may carry a version suffix. This is the only request here that starts from a name rather than from a cursor, so it is what to ask when you already know which entity you mean. A name that resolves to nothing is refused rather than answered with an empty document; see [Telling the two by-name refusals apart](#telling-the-two-by-name-refusals-apart).
 - `aggrega/releaseClosure {release}` — a Release's dependency closure: which entities it reaches and at which resolved versions, in `entities`, `libraries` and `plugins`, alongside the `aggregate` and `manifest` identities its two pointers resolved to. `release` is a path relative to the workspace root naming a Release inside it, the same value `aggrega/irGraph` takes and refused in the same shapes, and it requires a lockfile for the same reason. Nothing is rendered. See [A closure is not the graph](#a-closure-is-not-the-graph), because a client already receiving the graph does not have this.
@@ -221,9 +228,14 @@ The operations that search the whole workspace rather than one buffer — `compl
 
 ## Reaching a registry, and writing
 
-Two requests reach registries and change the workspace: `aggrega/resolveDependencies` and
-`aggrega/acquireExternalInputs`. Everything else here answers from the workspace and from what is
-already cached, and writes nothing.
+Most requests here answer from the workspace and from what is already cached, and write nothing. A
+named few do more, and they divide along two independent axes: what a request **reaches**, and how
+far what it **changes** carries.
+
+**Three requests go out to a registry.** `aggrega/resolveDependencies` and
+`aggrega/acquireExternalInputs` fetch what a Release needs; `aggrega/registryUpdate` walks every
+configured registry to rebuild the local search index. Nothing else here contacts a network — a
+listing reports what the configuration pins, and a search reads an offline snapshot.
 
 **The rule is about when an operation runs, not about which surface runs it.** An operation that
 fetches or writes runs because a request named it, and never as a side effect of validating a
@@ -238,6 +250,40 @@ to a person — a registry that needs credentials, a capability more than one pr
 the request fails with a message naming what to supply rather than blocking on an answer that will
 never arrive. A refusal leaves the workspace exactly as it was: no lockfile is written and no partial
 record is left behind.
+
+### Some changes reach past this workspace, and the answer says which
+
+A session is opened over one workspace, so an answer with nothing to say about its own reach reads as
+being about that workspace. For several of these requests that reading would be wrong, so each one
+carries its scope and a client should show it before acting on the result.
+
+**Registering or removing a registry writes the configuration shared across every workspace on the
+machine, by default.** A registry and the identities you trust on it are usually the same wherever
+you work, so that is where the entry goes unless the request sends `workspace: true`. The consequence
+is worth stating plainly: `aggrega/registryAdd` and `aggrega/registryRemove` change what every
+project on that machine resolves through, including projects nobody in this session has named. Both
+answers carry `scope`, with the `configFile` that was written and `machineWide` saying whether it is
+the shared one. Removal is the sharper of the two, because re-adding is not the same act — the trust
+policy that was pinned is gone, and a later registration pins whatever the registry advertises then.
+
+**Reclaiming cache content reaches past the workspace too.** The compiled-module and plugin-describe
+stores are shared by every project on the machine, so `aggrega/cachePrune`, `aggrega/cacheEvict` and
+`aggrega/cacheClear` can remove content another project depends on. Each removal carries the `reach`
+of the class it came from, and each answer carries `scope.machineWideClasses`. `aggrega/cacheStatus`
+carries the same reach on every class even though it changes nothing, because a client deciding
+whether to reclaim needs it **before** it acts.
+
+**Refreshing the search index is the other way round.** `aggrega/registryUpdate` reaches every
+configured registry, and what it writes lands under this workspace's own configured cache directory —
+so it changes nothing another project resolves through. `indexRoot` in the answer names that
+directory.
+
+**A partial refresh answers rather than failing.** A request naming one registry that could not be
+reached is an error, because there is no answer to give. A request refreshing every configured
+registry when only some were reachable **succeeds**: the reachable ones were indexed and written,
+`failed` names the rest, and each host carries its own error. Read `failed` rather than the presence
+of an error — the command line reports that same walk as a non-zero exit because a shell has no other
+channel, and this surface has one.
 
 ## Lockfile awareness
 
