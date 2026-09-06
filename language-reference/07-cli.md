@@ -21,6 +21,7 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 - [`aggrega serve`](cli/aggrega-serve.md) — a long-running compiler-as-service daemon (JSON-RPC over stdin/stdout) for IDE integration.
 - [`aggrega version`](cli/aggrega-version.md) — print the CLI version; `-o json` emits a machine-readable object.
 - [`aggrega get-schema`](cli/aggrega-get-schema.md) — print the canonical JSON Schema for an entity or contract kind; `--list` names every kind. The authoritative shape to author a file against.
+- [`aggrega scaffold`](cli/aggrega-scaffold.md) — print a starter document for an entity kind, derived from that kind's schema: the required fields, with the fixed ones filled in and a placeholder everywhere a value is needed. It writes no file; redirect it where you want it.
 - [`aggrega mcp`](cli/aggrega-mcp.md) — run a Model Context Protocol server over stdio so an MCP-capable client becomes an Aggrega-aware authoring assistant. See the [Authoring Guide](../authoring/getting-started.md).
 - [Global flags](cli/global-flags.md) — flags shared across subcommands (workspace location, registry configuration, output verbosity). Offline is a workspace-configuration setting rather than a command flag — see the [configuration schema](schema/other/aggrega-config.md) and [environment variables](cli/environment-variables.md).
 
@@ -45,6 +46,7 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 | `aggrega push` | Bundle and publish a catalog entity to an OCI registry |
 | `aggrega push-artifact` | Publish a standalone data artifact (such as a documentation bundle) to an OCI registry |
 | `aggrega registry` | Manage registries and their signature trust policy |
+| `aggrega scaffold` | Draft a starter document for an entity kind from its schema |
 | `aggrega search` | Search the local index of configured registries |
 | `aggrega serve` | Run as a long-running compiler-as-service over JSON-RPC 2.0 on stdin/stdout |
 | `aggrega sign` | Sign one or more already-published artifacts and attach their signatures |
