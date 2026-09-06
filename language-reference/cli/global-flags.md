@@ -18,6 +18,8 @@ The `--config <path>` global flag is the per-invocation form of the same overrid
 
 Config-mutating commands choose where they write from the nature of the setting: machine-wide tool config (a registry) defaults to the global file, while build-participating config (a provider binding or a mutator/policy/linter/importer socket attachment) defaults to the committed workspace file. Pass `--global` or `--workspace` to override, and the command prints where it wrote.
 
+Whichever file the global layer resolves to is the file those commands write when they write globally. `--config` and `$AGGREGA_CONFIG` therefore select the write target as well as the read source: a command run with `--config <path>` reads its configuration from that file and applies its change to that same file, so what a command writes is what the next command in the same invocation shape reads back.
+
 To seed a global config on a fresh machine — registering a registry and its signature trust policy so signed artifacts pull and verify without hand-editing YAML — run [`aggrega config init`](aggrega-config.md). To see the configuration that applies right now — the ordered cascade of files and environment overrides that contributed, the effective merged result, and, with `--origin`, the layer each setting came from — run [`aggrega config show`](aggrega-config.md).
 
 ## Configuration precedence
