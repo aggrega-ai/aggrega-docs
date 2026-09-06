@@ -33,3 +33,12 @@ coordinate is `<registry>/docs/<name>:<tag>` — for example,
 `hub.aggrega.ai/docs/aggrega-docs:1.0.0`. Because the bundle is a plain data
 artifact and not a catalog entity, it is fetched with any OCI-compatible client
 using that reference and media type.
+
+## See also
+
+- [./aggrega-sign.md](./aggrega-sign.md) — a data artifact is signed after the fact, by reference;
+  this command attaches no signature of its own.
+- [./aggrega-serve.md](./aggrega-serve.md) — the daemon carries the same publication at
+  `aggrega/publishArtifact`, so an editor can run it without leaving the session.
+- [./aggrega-mcp.md](./aggrega-mcp.md) — the same capability as the `publish-artifact` tool, which an
+  assistant can call. Read what that page says about allowing it before you do.

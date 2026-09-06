@@ -61,6 +61,13 @@ The signing inputs can be supplied through the environment, overriding the `.agg
 - [./aggrega-auth.md](./aggrega-auth.md) — acquire an OIDC identity token once for a batch of keyless signs.
 - [./aggrega-push.md](./aggrega-push.md) — publish, optionally signing at push time (sign-before-push).
 - [./aggrega-pull.md](./aggrega-pull.md) — the consuming side, which verifies signatures against the per-registry trust policy.
+- [./aggrega-serve.md](./aggrega-serve.md) — the daemon carries the same batch at
+  `aggrega/signArtifacts`, resolving its identity from the request or the environment and refusing
+  rather than prompting; a request there names no key, so keyed signing reads the workspace's own
+  `signing:` block.
+- [./aggrega-mcp.md](./aggrega-mcp.md) — the same capability as the `sign-artifacts` tool, which an
+  assistant can call, and which accepts `key_path`. Read what that page says about allowing it before
+  you do.
 
 <!-- BEGIN GENERATED: cli-sign -->
 **Synopsis**

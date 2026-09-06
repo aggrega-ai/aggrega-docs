@@ -27,6 +27,10 @@ The wire protocol is JSON-RPC 2.0 with Content-Length framing, under the `aggreg
 - `aggrega/registryAdd {host, name?, identities?, keyPath?, trustedRoot?, requireSignatures?, advisory?, fetchTrust?, global?, workspace?}` — register a registry and its signature trust policy. `host` is required; everything else shapes the policy or the write target. `fetchTrust` defaults to **true** when the key is absent, matching the command line, and takes the registry's own advertised policy on first contact; `trust` in the answer says which of three things happened — the policy was pinned, the registry advertised none, or no fetch was attempted. **This writes the machine-wide configuration by default** — see [Reaching a registry, and writing](#reaching-a-registry-and-writing).
 - `aggrega/registryRemove {registry, global?, workspace?}` — drop a registry's entry, addressed by host or friendly alias. A token matching nothing is refused rather than answered as a success over an unchanged configuration. **This writes the machine-wide configuration by default** — see [Reaching a registry, and writing](#reaching-a-registry-and-writing).
 - `aggrega/registryUpdate {registry?, upgrade?}` — refresh the local searchable index `aggrega/search` reads. An absent `registry` refreshes every configured one; naming one refreshes only that registry. `upgrade` ignores the cached revalidation and re-reads every repository, which picks up a change a conditional refresh skips — a deprecation marker added to a version whose digest did not move. The answer carries each host's record count, the repositories it could not read, the deprecation markers it met, and `indexRoot`, the directory under this workspace's own cache the indexes were written to. **This reaches every registry it refreshes** — see [Reaching a registry, and writing](#reaching-a-registry-and-writing).
+- `aggrega/publishEntity {entity, registry?, dryRun?, sign?, plugin?, identityToken?, fulcioUrl?, rekorUrl?, timestampUrl?}` — bundle a catalog entity and publish it to a registry. `entity` is a path relative to the workspace root naming the document to publish, refused in the same three shapes `release` is — absent, absolute, or resolving outside the root. A Plugin entity also needs `plugin`, the same kind of path, naming the executable published inside the entity's own manifest. `registry` is the destination and defaults to the workspace's configured one. `dryRun` computes the bundle and contacts nothing. Omitting `sign` follows the destination registry's own policy, which is what the command line does when its flag is absent, while sending it is the caller's choice — and neither relaxes the refusal, because a registry or workspace policy that requires a signature refuses an unsigned publication whatever the field says. The answer carries `reference`, `tag`, `kind`, `mediaType`, the `size` pair, the published `digest`, `signed`, `alreadyPublished`, `dryRun` and `reach`. **This writes to a registry and reaches past this machine** — see [Reaching a registry, and writing](#reaching-a-registry-and-writing).
+- `aggrega/publishArtifact {file, name, tag, mediaType?, registry?, dryRun?}` — publish a standalone data artifact, such as a documentation bundle. `file` is a path relative to the workspace root, carrying the same contract, and its bytes are published verbatim: no entity envelope is parsed and no kind is dispatched on. `name` and `tag` name what it is published as, and both are required. `mediaType` defaults to the documentation-bundle type. The answer carries `reference`, `tag`, `mediaType`, the `size` pair, the published `digest`, `alreadyPublished`, `dryRun` and `reach`. It signs nothing — a published artifact is signed afterwards by reference with `aggrega/signArtifacts`, which needs only the reference this answer reports. **This writes to a registry and reaches past this machine** — see [Reaching a registry, and writing](#reaching-a-registry-and-writing).
+- `aggrega/signArtifacts {references, identityToken?, fulcioUrl?, rekorUrl?, timestampUrl?}` — sign already-published artifacts and attach each signature. `references` carries one or more registry addresses rather than paths, so they take no workspace-relative contract; an empty list, or an empty entry in it, is refused. One identity serves the whole batch and is resolved before any reference is signed, so a batch with no credential available at all refuses at the start rather than partway through. Signing a reference nothing published is refused rather than attached to nothing. The answer carries `signed`, each entry naming a `reference` and the published `digest` its signature commits to, alongside `reach`; a batch in which any reference failed is answered as a failure naming each one rather than as a result with a short list. **This writes to a registry and reaches past this machine** — see [Reaching a registry, and writing](#reaching-a-registry-and-writing).
+- `aggrega/deprecateArtifact {reference, severity, reason, replacement?, message?}` or `{from}` — attach a signed deprecation marker to an already-published artifact. Send either a single `reference` with its `severity` and `reason`, or `from` naming a batch file relative to the workspace root — sending both is refused. The content fields are required rather than prompted for: nobody is watching this stream, so a request missing one is refused naming what to send. The same keyless inputs the two signing requests take apply here, because the marker is signed by its own digest. The answer carries `marked`, each entry naming the `reference` withdrawn, its `severity`, the `issuedOn` stamp and the marker's own manifest `digest` — the marker is attached as an untagged referrer of the artifact it withdraws, so nothing else addresses it — alongside `reach`. **This writes to a registry and reaches past this machine** — see [Reaching a registry, and writing](#reaching-a-registry-and-writing).
 - `aggrega/catalogIndex` — the entity index: the `kind`, `name`, `apiVersion`, `description`, `labels`, source file and `origin` of every entity the daemon can see. Takes no parameters: the set is a property of the workspace root and the catalog directories the daemon resolved. It spans both places an entity comes from — the Aggrega documents under the workspace root, and the Features the configured catalog directories carry — because this is the surface a client joins against when it needs an entity's descriptive fields, and an index that knew only one of the two would leave part of every candidate list unresolvable. A workspace document counts as an entity when it declares both a `kind:` and a `metadata.name`, so foreign YAML that happens to sit in the tree — a chart's values file, a CI configuration — is skipped rather than listed. See [How an entity is addressed](#how-an-entity-is-addressed) for what `origin` and an empty `file` mean.
 - `aggrega/entityDefinition {name}` — what the named entity resolves to: its `kind`, its own `name` and `version`, and its `definition` as a YAML document with inheritance already applied. `name` is an entity's identity, written the way one entity references another, and it may carry a version suffix. This is the only request here that starts from a name rather than from a cursor, so it is what to ask when you already know which entity you mean. A name that resolves to nothing is refused rather than answered with an empty document; see [Telling the two by-name refusals apart](#telling-the-two-by-name-refusals-apart).
 - `aggrega/releaseClosure {release}` — a Release's dependency closure: which entities it reaches and at which resolved versions, in `entities`, `libraries` and `plugins`, alongside the `aggregate` and `manifest` identities its two pointers resolved to. `release` is a path relative to the workspace root naming a Release inside it, the same value `aggrega/irGraph` takes and refused in the same shapes, and it requires a lockfile for the same reason. Nothing is rendered. See [A closure is not the graph](#a-closure-is-not-the-graph), because a client already receiving the graph does not have this.
@@ -292,10 +296,13 @@ Most requests here answer from the workspace and from what is already cached, an
 named few do more, and they divide along two independent axes: what a request **reaches**, and how
 far what it **changes** carries.
 
-**Three requests go out to a registry.** `aggrega/resolveDependencies` and
-`aggrega/acquireExternalInputs` fetch what a Release needs; `aggrega/registryUpdate` walks every
-configured registry to rebuild the local search index. Nothing else here contacts a network — a
-listing reports what the configuration pins, and a search reads an offline snapshot.
+**Seven requests go out to a registry, and they divide into the ones that read and the ones that
+publish.** `aggrega/resolveDependencies` and `aggrega/acquireExternalInputs` fetch what a Release
+needs; `aggrega/registryUpdate` walks every configured registry to rebuild the local search index.
+`aggrega/publishEntity`, `aggrega/publishArtifact`, `aggrega/signArtifacts` and
+`aggrega/deprecateArtifact` write to one — bytes, a signature, or a withdrawal marker. Nothing else
+here contacts a network: a listing reports what the configuration pins, a search reads an offline
+snapshot, and a publication asked for with `dryRun` computes what it would send and contacts nobody.
 
 **The rule is about when an operation runs, not about which surface runs it.** An operation that
 fetches or writes runs because a request named it, and never as a side effect of validating a
@@ -306,16 +313,43 @@ byte-identical lockfile and filling the same content-addressed store.
 
 **Nothing is prompted for.** Nobody is watching this stream, so identity is resolved from a supplied
 or ambient credential source and never by asking. Where the terminal command would have put a question
-to a person — a registry that needs credentials, a capability more than one provider plugin serves —
-the request fails with a message naming what to supply rather than blocking on an answer that will
-never arrive. A refusal leaves the workspace exactly as it was: no lockfile is written and no partial
-record is left behind.
+to a person — a registry that needs credentials, a capability more than one provider plugin serves,
+the text a withdrawal is to carry — the request fails with a message naming what to supply rather than
+blocking on an answer that will never arrive. A refusal leaves the workspace exactly as it was: no
+lockfile is written and no partial record is left behind, and a publication that could not resolve a
+credential refuses before any bytes reach the registry.
 
 ### Some changes reach past this workspace, and the answer says which
 
 A session is opened over one workspace, so an answer with nothing to say about its own reach reads as
 being about that workspace. For several of these requests that reading would be wrong, so each one
 carries its scope and a client should show it before acting on the result.
+
+**Publishing, signing and withdrawing reach past the machine entirely, which is the widest reach
+anything here has.** The other writes below change what this machine resolves; these change what
+*everyone* resolving from that registry does. Published bytes are what every consumer of that
+registry gets, and re-publishing different content over a tag is refused rather than offered, so no
+request here takes a publication back — the answer is to publish a new version. A signature and a
+withdrawal marker are attached as siblings of the artifact rather than replacing it, so the bytes
+themselves are untouched; but anyone who fetches the artifact afterwards fetches them too, and
+**neither can be recalled from anyone who already has it**. A withdrawal is the sharpest of the three
+to read wrongly: the version stays fetchable, while a retraction a workspace trusts takes it out of
+what a resolution there will choose.
+
+**Signing uses credentials, and where they come from is worth knowing before you wire a client.**
+Keyless signing resolves an identity token, in order, from `identityToken` on the request, then
+`AGGREGA_IDENTITY_TOKEN` in the daemon's environment, then the ambient GitHub Actions OIDC endpoint
+where one is reachable, then `SIGSTORE_ID_TOKEN`. When none of those yields a token the operation
+refuses and names what to send; it never opens a browser, because there is nobody to look at it.
+Keyed signing is the offline alternative, and **a request names no key path**: a session locates what
+it reads inside the workspace it opened, and a private key is never kept inside a workspace, so the
+key comes from the `signing:` block of the workspace's own configuration instead. See
+[`aggrega sign`](aggrega-sign.md) for the two signing modes and what each contacts.
+
+Every one of the four answers carries `reach`, holding `registry` — the host the call addressed — and
+`beyondThisMachine`, which is derived from what the call actually did rather than from what it asked
+for: true exactly when bytes, a signature or a marker landed somewhere other people resolve from, and
+false for a dry run. Show it before acting on the result.
 
 **Registering or removing a registry writes the configuration shared across every workspace on the
 machine, by default.** A registry and the identities you trust on it are usually the same wherever

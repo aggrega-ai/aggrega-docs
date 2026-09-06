@@ -56,6 +56,11 @@ Precedence is flag > environment > config > default. See [environment-variables.
 - [./aggrega-sign.md](./aggrega-sign.md) — sign an already-published artifact after the fact (the post-publish counterpart of `--sign`).
 - [./aggrega-lint.md](./aggrega-lint.md) — the publish gate (`--pre-publish`) that should precede a push.
 - [./aggrega-pull.md](./aggrega-pull.md) — the consuming side, which resolves and pins what `push` publishes.
+- [./aggrega-serve.md](./aggrega-serve.md) — the daemon carries this same publication at
+  `aggrega/publishEntity`, so an editor can run it without leaving the session; it runs only when a
+  request names it, and answers with the reference, the published digest and how far the call reached.
+- [./aggrega-mcp.md](./aggrega-mcp.md) — the same capability as the `publish-entity` tool, which an
+  assistant can call. Read what that page says about allowing it before you do.
 - [../../architecture/13-catalog-and-registry.md](../../architecture/13-catalog-and-registry.md) — the catalog, registry, and OCI mediatype model.
 
 <!-- BEGIN GENERATED: cli-push -->
