@@ -31,7 +31,9 @@ Each kind has a natural default resolution depth (see the table below). `--raw` 
 
 For kinds that default as-authored, `--raw` is a no-op and `--resolved` triggers what resolution the kind supports. For kinds that default resolved, `--raw` is the as-authored bypass.
 
-`--raw` reproduces the file, so a value an author declared sensitive appears in it exactly as authored. That is the contract, not a gap — an as-authored view that quietly withheld part of itself would not be as-authored. Handle `--raw` output the way you handle the entity file it came from. `--output yaml` reproduces the file the same way for every kind that has one to reproduce; a Release inspected without `--raw` is the exception, because it has none — see [Machine-readable output](#machine-readable-output) below.
+`--raw` reproduces the file, so a value an author declared sensitive appears in it exactly as authored. That is the contract, not a gap — an as-authored view that quietly withheld part of itself would not be as-authored. Handle `--raw` output the way you handle the entity file it came from. `--output yaml` reproduces the file the same way, for every kind including a Release.
+
+The compiled graph a Release resolves to is a different document, and it has its own flag: `--ir-graph`. See [Machine-readable output](#machine-readable-output) below.
 
 ## Per-kind defaults
 
@@ -82,7 +84,7 @@ The notice is read from the local index of the registry the entity resolves from
 
 A marker is reported only when its own signature verifies against the signers the registry's trust policy honors. An unsigned marker, or one whose signature does not verify, is not reported: a claim that cannot be authenticated is not presented as fact.
 
-The notice accompanies the human-readable views. `--output yaml` appends no notice, so a consumer parsing it receives a document and nothing else.
+The notice accompanies the human-readable views. Neither `--output yaml` nor `--ir-graph` appends one, so a consumer parsing either receives a document and nothing else.
 
 ## Worked examples
 
@@ -275,23 +277,34 @@ spec:
 
 ## Machine-readable output
 
-`--output yaml` emits the render subject — the as-authored entity for catalog kinds, the resolved structure for instance kinds — as YAML, suitable for piping and diffing. For a Release the render subject is the compiled graph, so `aggrega inspect <release> --output yaml` is how that graph is read from the command line; an editor integration reads the same graph over the daemon's protocol.
+Two flags produce machine-readable output, and they answer different questions. `--output` picks a **format** for the document this command already renders; `--ir-graph` asks for a **different document** — the compiled graph a Release resolves to — in addition to it. They are independent: passing both gives you the graph and the as-authored YAML, each once.
 
-**An as-authored output is verbatim, and that includes values an author declared sensitive.** For every kind whose `--output yaml` reproduces a file, that is the contract rather than a gap: an output claiming to reproduce the input cannot withhold part of it and still be reproducing it. Pipe, store and share those outputs the way you would the entity files they came from.
+`--output yaml` emits the entity as authored, suitable for piping and diffing. **That output is verbatim, and that includes values an author declared sensitive** — an output claiming to reproduce the input cannot withhold part of it and still be reproducing it. Pipe, store and share it the way you would the entity file it came from.
 
-**A Release's compiled graph is not one of them, and it withholds.** The graph is not a file anyone wrote — it is what the compilation computed from the Aggregate, the Release and the catalog — so there is no as-authored contract to keep, and the same declarations that govern the readable layouts govern it. Wherever the graph carries a leaf an author declared sensitive, the value is replaced by a single-key object naming it as withheld:
+### The compiled graph: `--ir-graph`
 
-```yaml
-values:
-    secretName: db-creds
-    vault:
-        token:
-            aggrega_withheld: declared
+`aggrega inspect <release> --ir-graph` writes the graph the run resolved to standard output as JSON, ahead of the view the command renders anyway. One JSON document, one trailing newline, so a consumer that decodes the stream reads the graph and stops.
+
+It applies to a Release, which is the only kind that resolves to a graph. Asked of any other kind, or of a catalog entity by name, the command refuses and says so rather than rendering that entity's own view and quietly dropping the request.
+
+The same flag, with the same meaning, is on [`aggrega build`](aggrega-build.md) and [`aggrega validate`](aggrega-validate.md): each hands back the graph that run computed, in addition to whatever else that command produces. An editor integration reads the same graph over the daemon's protocol.
+
+**`--output yaml` no longer emits the graph.** It used to, for a Release inspected without `--raw`, and it does not any more: it reproduces the authored Release, exactly as it does for every other kind. A pipeline reading the graph from that flag reads it from `--ir-graph` instead, and receives JSON rather than YAML.
+
+**The graph withholds.** It is not a file anyone wrote — it is what the compilation computed from the Aggregate, the Release and the catalog — so there is no as-authored contract to keep, and the same declarations that govern the readable layouts govern it. Wherever the graph carries a leaf an author declared sensitive, the value is replaced by a single-key object naming it as withheld:
+
+```json
+"values": {
+  "secretName": "db-creds",
+  "vault": {
+    "token": { "aggrega_withheld": "declared" }
+  }
+}
 ```
 
 The key survives, so the graph still answers which leaves a node and its attachments carry; only the value is gone. An undeclared sibling in the same payload is emitted as authored — `secretName` above is a public locator its author left undeclared, and it prints. The reason accompanying the marker says why the value is absent: `declared` for a leaf a declaration covers, and `unreadable` where the payload arrived in a shape this command could not read, in which case the whole payload is withheld rather than any part of it guessed at.
 
-**If you parse this graph, read this before upgrading.** Where a pipeline reads a declared-sensitive value out of `aggrega inspect <release> --output yaml` — an attachment's `values` or `infra`, or a boundary attachment's `infra` — it now receives the marker object above in place of the value, so a consumer expecting a string meets an object. That change is deliberate: the value is one an author declared sensitive, and a command a person runs in a terminal should not be the thing that puts it on screen, into a shell history or into a pasted bug report. Pass `--unredacted` where a pipeline genuinely needs the values, and treat what it produces the way you treat the entity files themselves.
+Pass `--unredacted` where a pipeline genuinely needs the values, and treat what it produces the way you treat the entity files themselves. `aggrega build` and `aggrega validate` carry no such affordance on this stream, so the graph they hand back always withholds.
 
 An editor integration reads the same graph over the daemon's protocol and withholds it on its own side, so what a panel draws follows the same declarations. The editor's setting for showing sensitive values continues to work, because the protocol still carries the whole graph and the withholding there happens in the editor.
 
@@ -351,7 +364,7 @@ The walk order is values pillar first (in author order), then infra pillar (same
 
 ## Declared-sensitive values
 
-A leaf whose schema declares `sensitive: true` prints the fixed text `<redacted>` in place of its value. The key, the pillar prefix and the provenance bracket are all kept — only the value is replaced — so the layout still answers which leaves an entity carries and where each came from. Two readable surfaces are affected: an Aggregate's per-node `Values:` block, and a resolved Release's per-leaf attachment block. A Release's compiled graph under `--output yaml` withholds the same leaves in the structured form described at [Machine-readable output](#machine-readable-output).
+A leaf whose schema declares `sensitive: true` prints the fixed text `<redacted>` in place of its value. The key, the pillar prefix and the provenance bracket are all kept — only the value is replaced — so the layout still answers which leaves an entity carries and where each came from. Two readable surfaces are affected: an Aggregate's per-node `Values:` block, and a resolved Release's per-leaf attachment block. A Release's compiled graph under `--ir-graph` withholds the same leaves in the structured form described at [Machine-readable output](#machine-readable-output).
 
 ```text
 Components:
@@ -405,6 +418,7 @@ aggrega inspect [identifier] [flags]
 | `--color` | `auto` | Colorize output: auto\|always\|never. |
 | `--detail` | `false` | Render full field bodies. |
 | `--flat` | `false` | Render a tree-shaped entity (Aggregate, Release) as a flat list, each node prefixed with its full dotted path. No effect on tabular kinds. |
+| `--ir-graph` | `false` | Also write the IR graph this run computed to stdout, as JSON, in addition to everything this command already produces. Values an author declared sensitive are withheld from it. Applies to a Release, the one kind that resolves to a graph; any other kind refuses the request rather than silently dropping it. Pass --unredacted to print the withheld values instead |
 | `--list` | `false` | Render identifiers only. |
 | `--no-color` | `false` | Disable colorized output (alias for --color=never). |
 | `--output`, `-o` | `text` | Output format: text\|yaml. |

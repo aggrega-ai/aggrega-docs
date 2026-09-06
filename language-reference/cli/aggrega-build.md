@@ -57,6 +57,16 @@ build:
 
 The width is applied at a single marshal point shared by every renderer, so output stays byte-identical across runs of the same input. Values outside the `[2, 9]` range are rejected by config-schema validation.
 
+### Handing back the compiled graph
+
+`--ir-graph` writes the graph this build resolved to standard output as JSON. It is additive: the artifacts are still written to `dist/`, the summary is still printed, and the rendered bytes are unchanged. The graph goes out ahead of everything else the build prints there — one JSON document and one trailing newline — so a consumer decoding the stream reads it and stops.
+
+The graph handed back is the one the render consumed, so it describes exactly the build that produced the artifacts beside it rather than a second resolution of the same Release. It combines with `--dry-run`: the graph is written and the artifact report follows it, with nothing written to disk.
+
+Values an author declared sensitive are withheld from it, in the structured form described at [`aggrega inspect`](aggrega-inspect.md#machine-readable-output). This command carries no affordance for revealing them on this stream — `--trace-unredacted` reaches the trace files and nothing else — so the graph a build hands back always withholds.
+
+The same flag, with the same meaning, is on [`aggrega inspect`](aggrega-inspect.md) and [`aggrega validate`](aggrega-validate.md).
+
 ## Previewing a build without writing it
 
 `--dry-run` runs the same compile a build runs — the same dependency gates, the same render, the same providers — and prints what it would emit instead of writing it. Each artifact is reported with the path it would occupy and the content it would hold:
@@ -247,6 +257,7 @@ aggrega build [flags]
 | `--detail` | `false` | Build is read-only by default and prints no resolution detail. When workspace auto_pull is enabled and no lockfile is present, build fills the lockfile in-process; this flag then prints per resolved entity what that fill did — fetched fresh from a registry, reused a cache slot, found in a local catalog, served from inside the compiler binary, or external. Stdout only; not persisted. No-op when a lockfile already exists (no fill this build) |
 | `--disable-plugin-cache` | `false` | Skip the persistent on-disk plugin compile cache for this build and compile plugin guests fresh in an in-memory cache that is discarded when the build ends. Off by default, which reuses the shared on-disk cache across builds. Does not change rendered output |
 | `--dry-run` | `false` | Render the Release and print what it would emit instead of writing it: each artifact's would-be path and its content go to stdout, and the output directory and the lockfile are left untouched. External inputs are frozen for the run, so a render that requests an unpinned external URL halts naming it rather than fetching and pinning it; pinned inputs are still served from the content-addressed store (and refilled by digest when the blob is missing). Refuses to combine with --auto-pull, --upgrade or --trace, each of which writes — run the dependency fill, or a traced build, as its own step |
+| `--ir-graph` | `false` | Also write the IR graph this run computed to stdout, as JSON, in addition to everything this command already produces. Values an author declared sensitive are withheld from it. The artifacts are still written and the summary is still printed; the graph is written ahead of both |
 | `--no-acquire-inputs` | `false` | Freeze the external-input set: a render that requests an unpinned external URL halts with a diagnostic instead of fetching and pinning it. Pinned inputs are still served from the content-addressed store (and refilled by digest when the blob is missing) |
 | `--no-unsupported-field-warnings` | `false` | Silence the unsupported-field warning class: the notices a target raises for something you authored that it cannot honor — a Workload field it cannot express (as a lower-fidelity target such as compose does), or an aggrega.ai/ annotation it does not act on for the node's input kind. Other render warnings still surface. Display-only; does not change the rendered output |
 | `--progress` | `false` | Force the build-progress surface on even when stderr is not a terminal, printing plain static phase lines. The default is auto: the interactive phase checklist is shown only when stderr is a terminal. --quiet and --debug both override --progress |

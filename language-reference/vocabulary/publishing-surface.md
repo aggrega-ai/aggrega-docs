@@ -28,7 +28,7 @@ The Consumer column is exhaustive for what ships today, and two of its consequen
 
 ### IR consumption — per-node `catalog_metadata`
 
-The compiler carries the publishing surface fields from each Component into that node's `catalog_metadata` block, visible in IR JSON output (`aggrega ir --blueprint`). The block holds `maintainers`, `license`, `repository`, `home` and `keywords` — the five fields the IR carries; `description` is not among them. Tooling built against the IR graph contract reads the metadata from there rather than re-reading the catalog YAML.
+The compiler carries the publishing surface fields from each Component into that node's `catalog_metadata` block, visible in the IR graph a run hands back (`aggrega inspect <release> --ir-graph`). The block holds `maintainers`, `license`, `repository`, `home` and `keywords` — the five fields the IR carries; `description` is not among them. Tooling built against the IR graph contract reads the metadata from there rather than re-reading the catalog YAML.
 
 **Component nodes only.** The block is populated by looking the node's component type up in the catalog as a Component, so a Feature's, Recipe's, FeatureRecipe's or Plugin's publishing surface never reaches the IR — those entities carry the fields, and the fields validate, but no IR node results from them.
 
@@ -64,7 +64,7 @@ The `maintainers` field carries an array of objects, each with `name`, `email`, 
 
 **Intent (informational + IR provenance).** The field is informational for catalog publishing: the architectural intent is "who is responsible for this catalog entity" — an ownership signal that travels with the entity. No surface presents it as a contact list, and no built-in check compares it against anything.
 
-**Verified consumer (per-node `catalog_metadata`).** The compiler carries each Component's `metadata.maintainers` into that node's `catalog_metadata.maintainers` in the IR, visible in `aggrega ir --blueprint` output when the source Component declared one. That is the field's only reader. A governance policy attached under `plugins.governance` in the `ir-verdict` role sees it there, so an ownership rule — every entity names at least one maintainer, a maintainer's domain matches an approved set — is expressible against the IR rather than against the catalog YAML. No such rule ships; the socket is where one goes.
+**Verified consumer (per-node `catalog_metadata`).** The compiler carries each Component's `metadata.maintainers` into that node's `catalog_metadata.maintainers` in the IR, visible in the graph `aggrega inspect <release> --ir-graph` hands back when the source Component declared one. That is the field's only reader. A governance policy attached under `plugins.governance` in the `ir-verdict` role sees it there, so an ownership rule — every entity names at least one maintainer, a maintainer's domain matches an approved set — is expressible against the IR rather than against the catalog YAML. No such rule ships; the socket is where one goes.
 
 The compiler does not enforce or validate maintainer content beyond JSON Schema's structural shape (name required; email and url optional, both string). Whether the listed maintainers actually own the entity, whether their email is reachable, whether a repository commit is signed by one of them — these are catalog-governance concerns, and no shipped check evaluates any of them. They belong to a governance policy an operator attaches, not to the compiler.
 

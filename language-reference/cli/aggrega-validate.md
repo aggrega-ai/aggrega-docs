@@ -43,6 +43,16 @@ The same holds for the plugins that **change** the graph rather than judging it.
 
 If the Release has no lockfile, `--release` still validates — it warns that it could not check a plugin's identity and names what to run, rather than refusing. See [warnings](../errors/warnings.md).
 
+### Handing back the compiled graph
+
+`--ir-graph` writes the graph this validation resolved to standard output as JSON, ahead of the verdict line. It is additive: the same checks run, the same diagnostics are written, and the exit code is the same as without it. The graph handed back is the one the validation was performed over, so it cannot describe a different resolution than the verdict reports on.
+
+It applies to this scope alone — the whole-catalog and single-entity scopes drive a synthesized harness rather than a Release, and resolve no graph — and asking for it elsewhere is refused rather than silently ignored. If the run stops before the graph is resolved, nothing is written to standard output and the command's own diagnostics say what stopped it.
+
+Note the flag next to it. `--response-format` sets how much of **this command's own report** is written (`detailed` or `concise`); `--ir-graph` asks for a **second document** beside that report. One is volume, the other is subject, and neither moves the verdict.
+
+Values an author declared sensitive are withheld from the graph, in the structured form described at [`aggrega inspect`](aggrega-inspect.md#machine-readable-output). This command carries no affordance for revealing them, so the graph it hands back always withholds; `aggrega inspect <release> --ir-graph --unredacted` is where a pipeline that genuinely needs the values asks for them.
+
 ## Single-entity correctness (an entity path)
 
 `aggrega validate <entity-path>` checks one catalog entity file. It applies a tiered set of checks, halting at the first blocking failure so a schema break surfaces loudly before any catalog work:
@@ -124,6 +134,7 @@ aggrega validate [entity-path] [flags]
 | Flag | Default | Description |
 | --- | --- | --- |
 | `--catalog` | `[]` | Catalog directory; repeatable. Each --catalog is prepended to the workspace catalog_dirs search stack (first match wins). Defaults to the current directory. |
+| `--ir-graph` | `false` | Also write the IR graph this run computed to stdout, as JSON, in addition to everything this command already produces. Values an author declared sensitive are withheld from it. Applies to the --release scope, the one scope that resolves a Release to a graph. It selects a DOCUMENT, where --response-format sets how much of this command's own report is written; neither affects the verdict or the exit code |
 | `--no-unsupported-field-warnings` | `false` | Silence the unsupported-field warning class: the notices a target raises for something you authored that it cannot honor — a Workload field it cannot express (as a lower-fidelity target such as compose does), or an aggrega.ai/ annotation it does not act on for the node's input kind. Other render warnings still surface. Display-only; does not change the rendered output. Applies to the entity scope, the one scope that renders |
 | `--plugin` | — | Path to a raw .wasm to validate against its describe() self-report — the pre-publish authoring check. Alone it needs --type; with a Plugin entity argument it cross-checks the binary against the entity's declared type, capability claim, command mirror, and host-function record. |
 | `--release` | — | Path to a Release YAML to validate over its resolved dependency closure (mutually exclusive with an entity argument) |
