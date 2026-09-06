@@ -195,7 +195,9 @@ Neither is recoverable from the other. An entity can be reached without ever app
 
 **It requires a lockfile, like the graph does.** The versions the listing reports are the ones this Release resolved to, and a workspace nobody has prepared has not resolved them yet. A listing produced without one would report what the catalog happens to hold today, which is a different question from what this deployment depends on. The refusal names the lockfile and the Release, so a client can offer `aggrega pull --release <release>` directly.
 
-**`kind` on a closure entry is present only where it is known.** A reference is collected from a position in a document, and some positions say what kind they point at while others do not. The field is reported where the reference site recorded one and omitted where it did not, rather than guessed from the shape of the name.
+**`kind` on a closure entry is present only where it is known.** A reference is collected from a position in a document, and some positions say what kind they point at while others do not. The field is reported where the reference site recorded one and omitted where it did not, rather than guessed from the shape of the name. It is reported as the word an author writes at the head of a document, which is the same word every surface reporting a closure uses for the same entry.
+
+**The same word asks for the same document elsewhere.** `aggrega inspect <release> --closure` answers this question at the command line, and the release mode of the `describe` tool answers it over the assistant tool protocol. All three run one resolution over the Release, so they cannot come to disagree about what a deployment depends on. See [`aggrega inspect`](aggrega-inspect.md) "The dependency closure".
 
 ## Cache model
 

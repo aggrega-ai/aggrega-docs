@@ -33,7 +33,7 @@ For kinds that default as-authored, `--raw` is a no-op and `--resolved` triggers
 
 `--raw` reproduces the file, so a value an author declared sensitive appears in it exactly as authored. That is the contract, not a gap — an as-authored view that quietly withheld part of itself would not be as-authored. Handle `--raw` output the way you handle the entity file it came from. `--output yaml` reproduces the file the same way, for every kind including a Release.
 
-The compiled graph a Release resolves to is a different document, and it has its own flag: `--ir-graph`. See [Machine-readable output](#machine-readable-output) below.
+A Release answers two further questions, and each is a different document with its own flag. The compiled graph a Release resolves to is `--ir-graph`; its dependency closure is `--closure`. See [Machine-readable output](#machine-readable-output) and [The dependency closure: `--closure`](#the-dependency-closure---closure) below.
 
 ## Per-kind defaults
 
@@ -60,7 +60,7 @@ Most kinds have no pipeline — `inspect` reads the file and renders it. Three i
 
 - **Manifest** applies its `extends:` chain — file-import following — and renders the merged component and feature mappings. `--raw` shows the file as authored.
 - **Aggregate** builds its topology: the uses-graph is constructed and the dependency ordering is computed. The default view shows components with their values and edges, followed by the dependency graph. `--raw` shows the authored subsystem tree.
-- **Release** runs the entire compilation pipeline up to the IR — resolve, expand annotations, run guards, build topology, build IR — and renders the per-boundary node tree with each node's Feature attachments and their provenance. `--raw` emits the Release file verbatim with no pipeline.
+- **Release** runs the entire compilation pipeline up to the IR — resolve, expand annotations, run guards, build topology, build IR — and renders the per-boundary node tree with each node's Feature attachments and their provenance. `--raw` emits the Release file verbatim with no pipeline. `--closure` asks a different question about the same Release and runs no pipeline at all; see [The dependency closure: `--closure`](#the-dependency-closure---closure).
 
 There is no separate depth flag; the `--raw` / `--resolved` toggle is the only resolution control, layered on each kind's natural default.
 
@@ -308,6 +308,46 @@ Pass `--unredacted` where a pipeline genuinely needs the values, and treat what 
 
 An editor integration reads the same graph over the daemon's protocol and withholds it on its own side, so what a panel draws follows the same declarations. The editor's setting for showing sensitive values continues to work, because the protocol still carries the whole graph and the withholding there happens in the editor.
 
+## The dependency closure: `--closure`
+
+`aggrega inspect <release> --closure` reports the Release's dependency closure: every catalog entity it reaches, at the version each resolved to, together with the Aggregate and Manifest identities its two pointers resolved to and the shared documents those entities draw on. Nothing is rendered and no artifact is produced — the closure is resolved, not built, so no provider is loaded to answer it.
+
+**The closure and the resolved view are different documents, and neither is recoverable from the other.** The resolved view — what this command renders for a Release by default — says what the deployment looks like: its boundaries, its component nodes, what is wired to what, and what is attached to each node. The closure says what was pulled in to build it, and at which versions. An entity can be reached without ever appearing as a node — the Recipe a Manifest maps a component type to is reached by every build and is a node in none of them — and a node records the component type it was declared as, not the version that type resolved to. So a reader asking "why did this version move?", "what would changing this shared document affect?" or "what does this deployment actually depend on?" is asking for the closure, and a reader holding the resolved view does not already have it by reading harder.
+
+**The same word asks for the same document on every surface.** `--closure` here, `aggrega/releaseClosure` over the daemon's protocol (see [`aggrega serve`](aggrega-serve.md) "A closure is not the graph"), and the release mode of the `describe` tool over the assistant tool protocol all answer this question about a Release; a Release name over any of them reaches the same resolution, so the three cannot come to disagree about what a deployment depends on.
+
+**It is one document, so it is asked for on its own.** `--closure` selects the closure in place of the resolved view, and it cannot be combined with `--raw`, `--resolved`, `--output` or `--ir-graph` — each of those asks for a different document about the same Release, and a command that accepted two requests would have to silently answer one of them. Combining them is refused, naming the pair.
+
+**It applies to a Release and to nothing else.** A catalog entity, an Aggregate file, a Manifest — none of them resolves a closure, so the request is refused rather than answered by rendering that subject's own view and dropping it. A dropped request reads to the caller exactly like a subject whose closure is empty.
+
+**Three outcomes, told apart.** A Release that resolves is answered with the listing. A Release path that names no file is refused, saying the file is not there. A Release that is there and whose closure cannot be resolved is refused with what could not be resolved and where the reference came from, followed by any files the catalog load refused — because a refused file is the usual reason an entity the deployment reaches went missing. An empty listing is never the answer to any of the three: it would report a mistyped path, or a broken workspace, as a deployment that depends on nothing.
+
+The three verbosity levels apply as they do to every kind. `--list` prints the references alone, one per line, for piping. The default adds the resolved identities, the version each reference resolved to, the shared documents drawn on, and any Manifest mapping whose target does not implement the type it is mapped to. `--detail` adds the kind of each reference where the reference site recorded one — some positions in a document say what kind they point at and others do not, so it is reported where it is known rather than guessed from the shape of the name.
+
+```text
+$ aggrega inspect ./release.yaml --catalog ./catalog --closure
+
+Release: prod-release:1.0.0
+  Aggregate: fullstack-app
+  Manifest: prod-manifest
+  Environment: production
+
+Entities (11):
+  ./aggregate.yaml
+  ./manifest.yaml
+  core/compute/api-server (1.0.0)
+  core/compute/web-ui (1.0.0)
+  core/datastore/postgres (1.0.0)
+  core/k8s-dns-resolver (1.0.0)
+  db-module (1.0.0)
+  helm-api-server-synthesized-with-artifacts:1.0.0 (1.0.0)
+  helm-postgres-synthesized-with-artifacts:1.0.0 (1.0.0)
+  helm-web-ui-synthesized-with-artifacts:1.0.0 (1.0.0)
+  k8s-dns-patcher:1.0.0 (1.0.0)
+```
+
+Where a workspace has recorded which versions a Release resolves to, that record seeds the resolution, so the versions reported are the ones this deployment is built from rather than whatever the catalog happens to hold today. A workspace with no such record resolves over the catalog as it stands.
+
 ## Attachment slot and sensitivity clause
 
 Each Feature attachment in the Release view carries a clause naming two facts the compiler derives about the attachment itself: which attachment slot it fills, and whether it handles declared-sensitive material. The clause sits between the attachment's name and its provenance bracket, and it reads identically in both provenance forms below.
@@ -415,6 +455,7 @@ aggrega inspect [identifier] [flags]
 | Flag | Default | Description |
 | --- | --- | --- |
 | `--catalog` | `[]` | Catalog directory; repeatable. Each --catalog is prepended to the workspace catalog_dirs search stack (first match wins). Defaults to the current directory. |
+| `--closure` | `false` | Report the Release's dependency closure — every catalog entity it reaches, at the version each resolved to — in place of the resolved-node view. Applies to a Release, which is the only kind that resolves a closure; any other kind refuses the request rather than silently dropping it. |
 | `--color` | `auto` | Colorize output: auto\|always\|never. |
 | `--detail` | `false` | Render full field bodies. |
 | `--flat` | `false` | Render a tree-shaped entity (Aggregate, Release) as a flat list, each node prefixed with its full dotted path. No effect on tabular kinds. |
