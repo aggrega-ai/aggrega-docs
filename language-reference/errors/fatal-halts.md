@@ -4137,6 +4137,8 @@ The table below pairs the two, scoped to this page: for every condition catalogu
 
 Where one entry appears against two short codes, it covers two distinct conditions and each registers its own sentence; read the sentences rather than the shared heading to tell which one a build reported.
 
+`aggrega explain <code>` does this lookup for you at the terminal, taking either of the condition's codes and printing the condition together with the entry below that documents it. It is described in [aggrega explain](../cli/aggrega-explain.md).
+
 <!-- BEGIN GENERATED: halt-condition-sentences -->
 | Short code | Opens with | Documented under |
 | --- | --- | --- |
