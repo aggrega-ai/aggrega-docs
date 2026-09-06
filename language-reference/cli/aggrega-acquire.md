@@ -2,6 +2,14 @@
 
 Pin the external inputs a Release's render consumes
 
+## See also
+
+- [./aggrega-pull.md](./aggrega-pull.md) — resolves the catalog and source dependencies this
+  command's render runs against, and writes the lockfile the pins are recorded in.
+- [./aggrega-serve.md](./aggrega-serve.md) — the daemon carries this same operation at
+  `aggrega/acquireExternalInputs`, so an editor can run it without leaving the session; it runs only
+  when a request names it, and records the same pins this command does.
+
 <!-- BEGIN GENERATED: cli-acquire -->
 **Synopsis**
 
