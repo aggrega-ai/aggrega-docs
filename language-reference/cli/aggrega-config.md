@@ -30,6 +30,7 @@ aggrega config
 | `--force` | `false` | Overwrite an existing config file. Without it, init refuses when the target file already exists. |
 | `--global` | `false` | Write the entry to the global config shared across every workspace. This is the default. |
 | `--registry` | `hub.aggrega.ai` | Registry host to seed with its trust policy. Defaults to the official hub. |
+| `--report` | `false` | Report the seeded configuration as content, naming the file it is for, and write nothing. Without it the entry is written to the resolved config file. |
 | `--workspace` | `false` | Write the entry to this project's workspace config instead of the global config. |
 
 **`aggrega config show` flags**
@@ -51,6 +52,9 @@ The `config` subcommands seed, inspect, and freeze the configuration that govern
 
 - `--registry <host>` seeds a different registry — an air-gapped or private hub — instead of the official one.
 - If the target file already exists, `init` refuses rather than overwrite it; `--force` writes anyway, merging the registry entry into the existing file and preserving other settings.
+- `--report` returns the seeded configuration as content instead of writing it. Nothing is created or modified, and the answer names the file the content is for — which matters here, because the target is the machine-wide global config unless `--workspace` selects this project's own. A caller that keeps its own document model, such as an editor, puts the content there, where it is visible before it is saved and can be amended or undone. `--report` needs no `--force`: an existing file is never overwritten because nothing is written at all, and the content reported is the merge a forced write would produce.
+
+A seeded configuration is a document you own and go on editing, which is why it can be reported rather than written. Freezing the effective configuration, below, produces a record of what the configuration resolved to — state the compiler keeps about itself rather than content anyone composes — so it always writes.
 
 ### `config show` — inspect what applies right now
 
@@ -69,6 +73,8 @@ The captured subset is a set of plugin socket attachments and the catalog direct
 
 - By default capture freezes only the sockets that determine the rendered output — the provider bindings and the transform-role governance attachments — since only those must travel with the project for byte-identical builds. The catalog directories are always captured.
 - `--all-plugins` widens the captured sockets to include the verdict-role governance, linter, and importer sockets as well. Without it those three stay free to vary by environment.
+
+Capture always writes, and offers no way to be handed the content instead. What it produces is a record of what the configuration resolved to, not a document anyone composes, so there is nothing for an author to review and amend — reporting it would invite editing a snapshot of a resolution.
 
 ## See also
 
