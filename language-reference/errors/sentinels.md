@@ -687,6 +687,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0272` | `compiler-renderer/pipeline-side-effect-kind-undefined` | `side effect declares a kind the plugin contract does not define; a conforming side effect declares emit_file or emit_crd` |
 | `E0273` | `compiler-renderer/rendered-name-unavailable` | `template reads the name the target renders author-supplied source under, and this node's provider reports no such name; a conforming template reads a value the node's own provider supplies` |
 | `E0274` | `pullops/verdict-plugin-identity-changed` | `the plugin identity recorded as trusted no longer matches what this resolution reports` |
+| `E0275` | `editops/edit-refused-invalid-result` | `the edit was refused because the resulting document would not be valid, and nothing was written` |
 
 - `E0002` is declared ahead of the code that reports it, so no build raises it yet. It will report a catalog lookup that fails during static analysis — a state that cannot arise while every component and feature an Aggregate or Release names is checked before analysis begins — once that stage surfaces such an inconsistency as a halt rather than ending its reading silently.
 
