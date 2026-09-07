@@ -1574,6 +1574,25 @@ Where more than one gate was dropped, they are named together on one upgrade com
 
 **How to fix:** the message offers two remedies because only you know which applies. If the gate was removed by mistake, attach the plugin again under `plugins.governance` at a verdict role, or under `plugins.linter`. If it was meant to go, say so explicitly with the targeted upgrade the message spells out, which is what drops its entry. Do not edit or delete the record to clear this — it is a committed record of what was reviewed, and an ordinary pull deliberately leaves it alone, because adopting a removal silently is exactly what this refusal exists to prevent.
 
+### A gate recorded as trusted resolves to a different identity
+
+<!-- covers: internal/pullops.ErrVerdictPluginIdentityChanged -->
+
+A plugin that returns an accept-or-reject verdict over a build is recorded once it has been resolved, together with the version and the artifact digest it resolved to. This condition is what a later resolution reports when it reaches a different version or different bytes for a gate the record already holds, and the run never asked for that identity to be taken up.
+
+One condition covers both a moved version and moved bytes, because the record is addressed by the plugin's identity and carries the version and the digest as fields of one entry: comparing a resolution against it is a single comparison with a single outcome. A re-publish that changed no bytes and a re-push at the same version are the same event as far as a reviewer is concerned — the identity is no longer the one that was reviewed.
+
+It is a different question from a recorded gate that nothing attaches any more, which is a question of presence rather than of identity. It is also different from a plugin whose cached bytes disagree with the recorded digest: that one refuses to *run* a plugin that is not the reviewed one, and its remedy is to restore or re-record the artifact, while this one refuses to *adopt* a new identity without being asked, and its remedy is to name the plugin in an upgrade. Two remedies, two conditions.
+
+**Asking for the new identity is what a pull already offers, and there are two ways to ask.** A full refresh re-resolves everything, and a targeted upgrade re-resolves the plugins it names; either is read as the new identity having been asked for, and the record is brought up to date. Any other pull holds the recorded identity and stops, which is the point of recording it — a record that took up whatever resolved next would follow the resolution instead of governing it. A first sighting is not a disagreement: an identity the record does not hold yet is simply filled in.
+
+**The comparison also runs on a pull that only verifies**, which writes nothing. A verify that skipped the record while checking the lockfile beside it would report an agreement it never looked for.
+
+Emitted message, naming the plugin, both identities, and both remedies:
+> plugin `"<plugin-identity>"`: `<record-path>` records version `<recorded-version>` with digest `<recorded-digest>` as trusted for it, but this resolution reports version `<resolved-version>` with digest `<resolved-digest>`; review what changed and adopt it with `aggrega pull --upgrade --release <release> <plugin>`, or restore the recorded identity: the plugin identity recorded as trusted no longer matches what this resolution reports
+
+**How to fix:** decide which of the two identities is the one you mean, because only you can. If the move is one you intend — the gate was republished and you have reviewed what changed — adopt it with the targeted upgrade the message spells out, which re-resolves that plugin and rewrites its entry. If you did not expect it, the recorded identity is the one that was reviewed: restore the version or the artifact the record names, and investigate why the reference now resolves elsewhere. Do not edit the record to clear this — it is a committed statement of what was reviewed, and an ordinary pull leaves it alone deliberately, because taking up a changed gate silently is exactly what this refusal exists to prevent.
+
 ### A Plugin entity's claims disagree with the plugin's own self-report
 
 <!-- covers: internal/wasm.ErrWasmContractMismatch -->
@@ -4411,6 +4430,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0271` | `emit_file side effect carries no file; a conforming emit_file side effect carries a file with its path and content` | A pipeline step's file emission carries no file |
 | `E0272` | `side effect declares a kind the plugin contract does not define; a conforming side effect declares emit_file or emit_crd` | A pipeline step declares an emission kind the contract does not define |
 | `E0273` | `template reads the name the target renders author-supplied source under, and this node's provider reports no such name; a conforming template reads a value the node's own provider supplies` | A template reads a rendered name the node's provider does not report |
+| `E0274` | `the plugin identity recorded as trusted no longer matches what this resolution reports` | A gate recorded as trusted resolves to a different identity |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
