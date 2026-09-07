@@ -34,6 +34,7 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 | `aggrega cache` | Inspect and maintain the on-disk caches |
 | `aggrega config` | Inspect and manage the workspace configuration |
 | `aggrega deprecate` | Attach a signed deprecation marker to an already-published artifact |
+| `aggrega edit-document` | Apply one bounded structured edit to a document, preserving every byte it does not touch |
 | `aggrega explain` | Explain the halting condition a code names |
 | `aggrega get-schema` | Print the JSON Schema for an entity or contract kind |
 | `aggrega import` | Turn a foreign source description into draft Aggrega authoring files |
