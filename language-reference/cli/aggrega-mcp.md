@@ -92,6 +92,14 @@ The one exception among those reference reads is acquiring the documentation bun
 
 Declining is reported rather than absorbed, because a render that carries on around a refusal still emits files — they simply stop short of what a build would emit, and nothing about the files themselves says so. So a completed render names every reference it had to decline, and its summary points at the command that pins them: `aggrega acquire --release <path>`. A fully-pinned render says nothing about any of this. See [`aggrega acquire`](aggrega-acquire.md) for what pinning fetches and records, and [`aggrega build`](aggrega-build.md), where the same freeze applies to a dry run and an unpinned reference halts it instead of being reported alongside the files.
 
+## What a build tells you besides its files
+
+**A build carries every advisory it raised, on the answer itself.** These are the findings `aggrega build` prints while it works — a name one edit from a declared one, a parameter nothing reads, a target that cannot honor an authored field, a non-halting governance verdict. None of them changes the outcome: a build that carries advisories still succeeded, and the files it returns are the files it produced. They arrive in the order the build raised them, which is the order a terminal prints them, so a reader comparing the two finds one sequence rather than two.
+
+They are on the answer rather than only in the summary text because an assistant driving this surface reads no terminal, and a finding nobody is told about is a finding that was not made. Each carries a `severity` — `warn` for something wanting attention, `info` for an observation recorded — and a `message`; a `code` where its class assigns one, so you can react to a specific condition without matching text; and a `key_path` naming the key in the authored document the finding is about, where it is about one. A finding about the shape of the deployed topology names no key, because its coordinates are the deployment's rather than a document's, and says what it concerns in its message instead.
+
+A Release raising nothing says nothing: the key is absent rather than present and empty, so its presence alone tells you there is something to read.
+
 ## Asking which container an attachment belongs in
 
 `attachment-container` answers the question between a candidacy answer and an insertion point. You have settled *what* to attach to a node; before you can ask where in a file to write it, you need to know which file and which container inside it. Pass `graph_node` — a node id on a compiled graph, as the graph keys it — and the `release` whose graph it is. Both are required: a node id is a key of one Release's graph and means nothing without it. Like the candidacy and insertion-point tools it is not in the default list — ask `describe-capabilities` for it.
