@@ -3814,7 +3814,7 @@ They fall into four kinds, and the difference is worth knowing before you go loo
 - **An advisory.** The build reports it and carries on, and the rendered output is the same whether or not you act on it. Each is taught in full on [warnings.md](./warnings.md) — what makes it fire, where in the compilation it is read, what it prints, and what to do about it — and the entries below say which section, rather than repeating it here.
 - **A condition the editor absorbs.** It is answered by the editor integration itself and reaches neither a build's output nor a diagnostic.
 - **A safeguard behind an earlier refusal.** The rule it protects is enforced ahead of it by a condition that does halt, so a build meets the earlier one first.
-- **A refusal on a command that is not a build.** It is a hard stop with a real remedy — it ends the command that met it, and nothing is published, written or changed — but no stage of compilation reaches it, so no build reports it. Publishing an artifact, adding a registry and checking a whole catalog are where these are met, and each entry says which command it belongs to and who holds the fix.
+- **A refusal on a command that is not a build.** It is a hard stop with a real remedy — it ends the command that met it, and nothing is published, written or changed — but no stage of compilation reaches it, so no build reports it. Publishing an artifact, adding a registry, editing a document and checking a whole catalog are where these are met, and each entry says which command it belongs to and who holds the fix.
 
 ### An annotation binding declares one path in both pillar lists
 
@@ -4148,6 +4148,25 @@ Emitted message, naming the page and the bundle it was looked for in:
 
 **How to fix:** nothing is broken in your files. A page that is missing from the bundle is missing because the bundle predates it or the path asked for is not the path it is published under — the bundle is acquired at the version the server reports as its own, so a page added after that version is not in it. Where the page has never existed, the request named a path the documentation does not use, and the published documentation is where to find the one it does.
 
+### An edit would produce a document its schema refuses
+
+<!-- covers: internal/editops.ErrEditRefusedInvalidResult -->
+
+A refusal on a document edit, not on a build. One structured edit — adding a component, attaching a Feature, wiring an edge, or setting a value — is composed and spliced into the document, and the result is then checked against the schema for the kind of document it is. Where that check objects, the edit is refused and nothing is written. It belongs to [aggrega edit-document](../cli/aggrega-edit-document.md), and to the same capability reached by an editor over [aggrega serve](../cli/aggrega-serve.md) or by an assistant, which are thin entry points onto one implementation.
+
+**The kind is read off the document, never supplied by the caller.** A caller naming the kind could name the wrong one, and the result would then be checked against a schema the document is not written to — which would admit exactly the edit this check exists to refuse.
+
+**The file is left byte-for-byte as it was**, and the write is atomic, so a refused edit is indistinguishable from one never attempted, and a corrected request can be retried against the document you started with.
+
+**Its subject is a request that was well-formed.** The request named an edit this capability applies, and the document it would have produced is one the authoring schema would have refused had you typed it by hand — which is why no authoring rule is restated for it: asking a deployment document to carry a developer value is refused by the same schema either way. A request that never addressed an edit — a node path that reaches nothing in the document, a value written as a mapping where a scalar is called for, an entry already there carrying something else — is refused on its own terms, and each surface reports that in its own channel.
+
+**A document that was already invalid reports it too.** The check runs even where the edit changed nothing, so an edit against a document the product would refuse to read says so rather than reporting success.
+
+Emitted message, carrying the schema's own objection after the sentence — the document kind and the file, then the position, the key at fault and what the schema said there:
+> the edit was refused because the resulting document would not be valid, and nothing was written: document envelope validation failed (`<kind>`, at `<path>`); `<line>`:`<column>`: `<field-path>`: … `<the schema's own objection>`
+
+**How to fix:** open the document at the position the message quotes and read the objection, which says what the schema wanted at that key. The change to make is usually to the request rather than to the document — ask for an entry the schema admits in that place, and the same request applies cleanly. Where the key is one that document's kind may not carry at all, it belongs on the authoring surface that may, and the entity page for the kind names the fields it declares. What is *semantically* admissible is not decided at this point — whether a dependency socket is one the producer declares, say — so this refusal is always about the shape of the document, never about what may be consumed across a connection.
+
 ## Finding a halt from the short code the build printed
 
 A halting diagnostic's bracketed head names the category the failure is attributable to and, where the failure names one of the conditions catalogued here, that condition's **short code** — the letter `E` and four digits, as in `[CATALOG_ERROR E0209]`. A number is handed out once and then fixed, so a short code you paste into a report or a search still names the condition it named when you recorded it. The other two identifiers a condition carries, and which of the three to reach for when, are taught in [sentinels.md](./sentinels.md).
@@ -4431,6 +4450,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0272` | `side effect declares a kind the plugin contract does not define; a conforming side effect declares emit_file or emit_crd` | A pipeline step declares an emission kind the contract does not define |
 | `E0273` | `template reads the name the target renders author-supplied source under, and this node's provider reports no such name; a conforming template reads a value the node's own provider supplies` | A template reads a rendered name the node's provider does not report |
 | `E0274` | `the plugin identity recorded as trusted no longer matches what this resolution reports` | A gate recorded as trusted resolves to a different identity |
+| `E0275` | `the edit was refused because the resulting document would not be valid, and nothing was written` | An edit would produce a document its schema refuses |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
