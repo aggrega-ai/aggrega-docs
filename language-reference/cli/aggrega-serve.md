@@ -48,7 +48,7 @@ The wire protocol is JSON-RPC 2.0 with Content-Length framing, under the `aggreg
 **Notifications:**
 
 - `aggrega/shutdown` — begin a cooperative drain: in-flight requests finish, new requests are refused, then the daemon exits.
-- `aggrega/publishDiagnostics` — a server-pushed diagnostic set (used for lockfile-drift warnings and at-startup state). Each entry carries a `source` naming which of the daemon's two layers raised it: `aggrega` for a finding about the authored documents, and `aggrega-build` for an advisory a render raised — the same findings `aggrega build` prints. The field is always present on every entry, so a client can group the two rather than showing one undifferentiated list, and never has to tell an absent source apart from the other layer.
+- `aggrega/publishDiagnostics` — a server-pushed diagnostic set (used for lockfile-drift warnings and at-startup state). Each entry carries a `source` naming which of the daemon's diagnostic layers raised it: `aggrega` for a finding about the authored documents, `aggrega-build` for an advisory a render raised — the same findings `aggrega build` prints — and `aggrega-lint` for a publishing-conventions finding, the same findings `aggrega lint` prints. The field is always present on every entry, so a client can group them rather than showing one undifferentiated list, and never has to tell an absent source apart from one of the layers.
 
 ## Live validation
 
@@ -64,18 +64,46 @@ Read the key rather than inferring from the diagnostics, because the two answers
 
 ### What a diagnostic entry carries
 
-Each entry positions itself with `line` and `column`, both 1-based in the position encoding negotiated at the handshake, and adds `end_line` and `end_column` when it spans a whole token. `message` is the text a client shows the user, `severity` classifies it, and `source` names which of the daemon's two layers raised it, as described above.
+Each entry positions itself with `line` and `column`, both 1-based in the position encoding negotiated at the handshake, and adds `end_line` and `end_column` when it spans a whole token. `message` is the text a client shows the user, `severity` classifies it, and `source` names which of the daemon's layers raised it, as described above.
 
-`code` is a stable, machine-matchable code for what the entry reports, so a client can branch on it without matching the message text. **One key carries the code whoever assigned it**, and `source` tells you which kind you are holding, because the two layers name things from different vocabularies.
+The layers answer different questions about one file, so an entry from each can stand on the same line without either being a duplicate of the other: one says the deployment is not correct, another that the entity is not publishable. A client that showed them as one list would report a single problem twice, and reading `source` is what separates them.
+
+`code` is a stable, machine-matchable code for what the entry reports, so a client can branch on it without matching the message text. **One key carries the code whoever assigned it**, and `source` tells you which kind you are holding, because the layers name things from different vocabularies.
 
 - On an `aggrega` entry — a finding about the authored documents — the code is the string the condition is registered under, written as the declaring package and then the rule in kebab-case. It is the same value a Go consumer reads with `CodeOf`, whose form and matchable surface are described in [the error-sentinels reference](../errors/sentinels.md).
 - On an `aggrega-build` entry — an advisory a render raised — the code is the advisory's own class code, such as `unsupported-field`, assigned wherever that advisory was raised, whether that is a rendering plugin or the render itself. The code names what the finding is and not who found it, so a single class reaches you under one code however many places raise it. A class code names a class of advisory rather than a registered condition, so it has no row in the sentinel reference; [the warnings reference](../errors/warnings.md) describes the `unsupported-field` class and the flag that silences it.
+- On an `aggrega-lint` entry — a publishing-conventions finding — the code is the identity of the rule that produced it, which is the value `aggrega lint --output json` carries for that same finding. One rule keeps one identity across the two surfaces, so a client that groups or suppresses a rule in the editor groups and suppresses the same rule in the terminal. Such an identity names no registered condition either, so it has no row in the sentinel reference; the rules are described in [the `aggrega lint` reference](./aggrega-lint.md).
 
-Either way the key answers one question — what is this, in terms a machine can match — so an editor extension that highlights, groups, or suppresses one class of finding keys on the code, and keeps working when the wording of a message changes.
+Whichever the layer, the key answers one question — what is this, in terms a machine can match — so an editor extension that highlights, groups, or suppresses one class of finding keys on the code, and keeps working when the wording of a message changes.
 
 Note which object carries which: this is a **string** on a diagnostic entry, distinct from the **numeric** `code` on a JSON-RPC error envelope described under [Error codes](#error-codes) below. A response carries one or the other, never both in one place.
 
-The key is **omitted** where nothing that produced the entry assigned a code, and both kinds have that case. A buffer no YAML parser will read reports the parser's own text and no code, because no condition of Aggrega's own stands behind it; a stage that reports a failure without naming a condition likewise has none to report; and an advisory whose raiser assigned no code arrives without one. So treat `code` as optional, the same way `end_line` and `end_column` are, and branch on it only when it is present. A code is what a diagnostic reports and never what selects one: no request takes a code, and writing one back into your own code gives you a string rather than a way to match.
+The key is **omitted** where nothing that produced the entry assigned a code, and every kind has that case. A buffer no YAML parser will read reports the parser's own text and no code, because no condition of Aggrega's own stands behind it; a stage that reports a failure without naming a condition likewise has none to report; and an advisory whose raiser assigned no code arrives without one. So treat `code` as optional, the same way `end_line` and `end_column` are, and branch on it only when it is present. A code is what a diagnostic reports and never what selects one: no request takes a code, and writing one back into your own code gives you a string rather than a way to match.
+
+## Publishing conventions, on request and on every edit
+
+The daemon answers two different questions about a catalog entity, and they are the questions [`aggrega validate`](./aggrega-validate.md) and [`aggrega lint`](./aggrega-lint.md) answer in the terminal: whether the deployment is **correct**, and whether the entity is **publishable** by the catalog's conventions. A validation always answers the first. It answers the second only when you ask for it.
+
+**`aggrega/lint` asks for it outright.** Send `entity` for one catalog entity, `release` for every entity that Release's dependency closure reaches, or neither to check every entity under the configured catalog directories — the three scopes the command has. Sending both `entity` and `release` names two different subjects and is refused. The answer carries `checked`, the number of entity documents the run covered, and `files`, the findings grouped by the document each concerns and ordered by path, each file's entries in the diagnostic shape described above. `halted` says whether the run's own verdict refuses publication.
+
+Set `prePublish` alongside `entity` to compare that entity against its previously published version and classify the proposed version bump against it. That is the one mode here that reaches a registry, and it runs because the request named it: what admits an operation that reaches out is that a caller asked for it. It is meaningful with `entity` alone, so `prePublish` with no entity is refused.
+
+`aggrega/lint` publishes nothing into the session. It answers about the subject it was given, and writing its findings into the editor's problem list would replace what a validation published for files the request never covered. Nothing is written to disk under any mode.
+
+**`serve.lint_on_validate` runs the same rules on every validation, and it is off unless you turn it on.** Turn it on in `.aggrega-config.yaml`, in the workspace whose entities you want the advice about:
+
+```yaml
+serve:
+  lint_on_validate: true
+```
+
+There is no flag for it, because the question it answers is about a workspace's own content and the person who has that question is the one authoring the workspace rather than whoever launched the daemon. With it on, a validation of a catalog entity also publishes the conventions findings under the `aggrega-lint` source; with it off — the default — a validation reports the correctness layers alone and no conventions finding reaches you. An editor session says nothing about whether an entity is publishable until you ask for that layer.
+
+Three things hold on that layer whatever the key says. Only the mode that reads local content runs, so no registry is consulted, nothing is fetched and nothing is written; the pre-publication comparison is reached by sending `aggrega/lint` with `prePublish`, never by a validation, because a check running on every edit is exactly where a registry must not be reached. The rules are evaluated against the buffer the request carried rather than the file on disk, so a name you correct stops being reported before you save. And the findings are **advisory** — a document that draws them still validates, and its Release still resolves and renders — so it adds a layer and never a refusal.
+
+The key gates that layer and nothing else. `aggrega/lint` answers whatever it is asked under either value, because a caller sending it has asked for the check by name.
+
+Only the kinds that get published to a catalog are checked, because that is what the conventions are about. Documents that are not catalog content — an Aggregate and a Release among them — are passed over, and so is YAML that is not an Aggrega document at all. That is what keeps a session quiet about the documents an author spends most of their time in.
 
 ## How an entity is addressed
 
@@ -427,6 +455,7 @@ The account of how the workspace's Release cascade ran travels on the `aggrega/a
 - [./aggrega-build.md](./aggrega-build.md) — the daemon runs the same compiler pipeline the build command does; the build command remains the authoritative, lockfile-verified surface.
 - [./aggrega-version.md](./aggrega-version.md) — the version command an editor extension uses to check daemon compatibility.
 - [./aggrega-pull.md](./aggrega-pull.md) — the lockfile the daemon's drift surface reads.
+- [./aggrega-lint.md](./aggrega-lint.md) — the publishing conventions the daemon reports on request, and on every validation once `serve.lint_on_validate` is on.
 
 <!-- BEGIN GENERATED: cli-serve -->
 **Synopsis**

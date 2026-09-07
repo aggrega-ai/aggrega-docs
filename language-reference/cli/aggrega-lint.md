@@ -63,6 +63,31 @@ The per-rule override flags are per-invocation gates and intentionally have **no
 
 The `x-aggrega-*` discouragement rule also runs during `aggrega build`, where it surfaces as a **warning**; `aggrega lint --pre-publish` raises the same finding to an **error**. Local builds carry the advisory; the publish gate enforces it.
 
+## While you are authoring, in your editor
+
+Your editor asks two different questions about a catalog entity, and they are the two this page opens with. Is the deployment **correct** — does it parse, do the pillars resolve, does it render? That is [`aggrega validate`](./aggrega-validate.md), and an editor session always answers it. Is the entity **publishable** — does the name follow the convention, does the file sit in the directory its category expects, are the annotation prefixes right? That is these rules, and an editor session answers it only when you ask.
+
+**It is off unless you turn it on.** Turn it on with `serve.lint_on_validate` in the `.aggrega-config.yaml` of the workspace whose entities you want the advice about:
+
+```yaml
+serve:
+  lint_on_validate: true
+```
+
+There is no command-line flag for it, and that is deliberate: the question is about a particular workspace's own content, and you are the one authoring that workspace rather than the one launching the language server — your editor does that.
+
+With it on, every entity you validate also carries these findings, each naming the rule that produced it, alongside the correctness ones. Three things follow, and they are what make it usable while typing:
+
+- **The findings stay advisory.** An entity that breaks a convention still validates, and its Release still resolves and renders. Turning the setting on adds a layer of advice; it never makes your editor refuse to work.
+- **You can tell the two apart.** Every published problem names the layer that raised it, so a naming problem and a resolution failure on the same file read as two different things rather than as one problem reported twice.
+- **What you have typed is what gets checked.** The rules read the buffer rather than the file on disk, so a name you correct stops being reported before you save.
+
+Only the local-content mode runs on that layer: no registry is consulted, nothing is fetched, nothing is written. **The `--pre-publish` comparison is reached by asking for it** — your editor sends a request for it, the same way you type `--pre-publish` in the terminal — and never by editing the setting above. A check that runs every time you touch a document is precisely where a registry must not be reached, so that mode stays something you invoke rather than something that rides along.
+
+Asking for the check outright works whatever the setting says, at all three of the scopes above. So a workspace that has never turned the per-edit layer on can still ask its editor to sweep the catalog, a Release's closure, or one entity — and get the same findings this command prints. The setting decides only whether the check also runs where you did not ask for it by name.
+
+The protocol details — the request, its parameters and the shape of its answer — are in [the `aggrega serve` reference](./aggrega-serve.md).
+
 ## Choosing the linter
 
 The rules ship as a standard publishing-linter Wasm plugin. Because the rules live in a plugin rather than in the compiler, an enterprise can point `aggrega lint` at a different plugin to enforce its own catalog discipline without changing the compiler.
@@ -101,6 +126,7 @@ aggrega lint core/datastore/postgres/component.yaml --pre-publish --allow-nonsta
 - [./aggrega-build.md](./aggrega-build.md) — validates as part of compilation; surfaces the `x-aggrega-*` advisory at `warn` severity.
 - [./aggrega-push.md](./aggrega-push.md) — publishes an entity to the registry; `aggrega lint --pre-publish` is the gate that precedes it.
 - [./aggrega-pull.md](./aggrega-pull.md) — resolves and pins dependencies.
+- [./aggrega-serve.md](./aggrega-serve.md) — the language server that reports these findings in your editor, and the setting that turns the per-edit layer on.
 - [../errors/warnings.md](../errors/warnings.md) — non-fatal warnings, including the local-mode lint findings.
 
 <!-- BEGIN GENERATED: cli-lint -->
