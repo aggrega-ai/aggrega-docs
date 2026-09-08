@@ -44,7 +44,7 @@ aggrega config
 
 ## What it does
 
-The `config` subcommands seed, inspect, and freeze the configuration that governs a build. Configuration resolves through a layered cascade — a machine-wide global file beneath the workspace-tree config files, with environment variables and flags overriding on top. See [global-flags.md](global-flags.md#global-config-file) for the global config file and the full precedence model.
+The `config` subcommands seed, inspect, and freeze the configuration that governs a build. For which file a setting belongs in and how the layers combine, see [Configuration](configuration.md) — it starts with the two files most projects need and keeps the rest behind that.
 
 ### `config init` — seed a working configuration
 
@@ -79,7 +79,8 @@ Capture always writes, and offers no way to be handed the content instead. What 
 
 ## See also
 
-- [global-flags.md](global-flags.md) — the global config file, the `--config` flag, and the precedence ladder.
+- [configuration.md](configuration.md) — which file a setting belongs in, the precedence ladder, and the mechanisms a larger project reaches for.
+- [global-flags.md](global-flags.md) — the `--config` and `--workspace-root` flags.
 - [environment-variables.md](environment-variables.md) — the `AGGREGA_*` variables that override configuration at runtime.
 - [aggrega-registry.md](aggrega-registry.md) — manage registries and their trust policy directly.
 - [aggrega-cache.md](aggrega-cache.md) — what the directory `artifact_cache_dir` names actually holds, and why an entity sitting there that no lockfile pins is not found by a build.

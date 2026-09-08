@@ -23,7 +23,8 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 - [`aggrega get-schema`](cli/aggrega-get-schema.md) — print the canonical JSON Schema for an entity or contract kind; `--list` names every kind. The authoritative shape to author a file against.
 - [`aggrega scaffold`](cli/aggrega-scaffold.md) — print a starter document for an entity kind, derived from that kind's schema: the required fields, with the fixed ones filled in and a placeholder everywhere a value is needed. It writes no file; redirect it where you want it.
 - [`aggrega mcp`](cli/aggrega-mcp.md) — run a Model Context Protocol server over stdio so an MCP-capable client becomes an Aggrega-aware authoring assistant. See the [Authoring Guide](../authoring/getting-started.md).
-- [Global flags](cli/global-flags.md) — flags shared across subcommands (workspace location, registry configuration, output verbosity). Offline is a workspace-configuration setting rather than a command flag — see the [configuration schema](schema/other/aggrega-config.md) and [environment variables](cli/environment-variables.md).
+- [Configuration](cli/configuration.md) — which file a setting belongs in, and how the layers combine. Start here: it opens with the two files most projects need and keeps the mechanisms a larger project reaches for behind that.
+- [Global flags](cli/global-flags.md) — flags shared across subcommands (workspace location, registry configuration, output verbosity). Offline is a configuration setting rather than a command flag — see [Configuration](cli/configuration.md), the [configuration schema](schema/other/aggrega-config.md) and [environment variables](cli/environment-variables.md).
 
 <!-- BEGIN GENERATED: command-list -->
 | Command | Description |

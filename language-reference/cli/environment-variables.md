@@ -4,17 +4,9 @@ The `aggrega` CLI reads a fixed set of `AGGREGA_`-prefixed environment variables
 
 ## Precedence
 
-Every configurable setting resolves through one layered ladder:
+An environment variable sits **above the committed configuration files** — a runtime override a pipeline or a secret-injecting orchestrator applies without editing a tracked file — and **below a command-line flag**, so an explicit value typed on the command line is never silently overridden by the ambient environment. [Configuration](configuration.md#what-overrides-what) carries the full ladder and the layering of the files beneath.
 
-```
-CLI flag  >  environment variable  >  .aggrega-config.yaml  >  built-in default
-```
-
-- A **flag** is the most explicit, per-invocation signal and always wins.
-- An **environment variable** sits above the committed config file (a runtime override) and below the flag (an explicit command-line value is never silently overridden by the ambient environment).
-- The **`.aggrega-config.yaml` cascade** is below the environment, and the **built-in default** is the base.
-
-A variable that is unset (or empty) falls through to the layer below — it never overwrites a configured value with a blank. To see the configuration that applies right now — the ordered cascade of config files and environment overrides that contributed, then the effective merged result — run [`aggrega config show`](aggrega-config.md); its `--origin` view attributes each effective setting to the layer it came from.
+A variable that is unset (or empty) falls through to the layer below — it never overwrites a configured value with a blank. To see the configuration that applies right now, and which layer decided each setting, run [`aggrega config show --origin`](aggrega-config.md).
 
 ## Naming
 
@@ -38,7 +30,7 @@ Per-registry settings (`registries[].*`) have **no** environment variable: a lis
 | `AGGREGA_SKIP_SIGNATURE_VERIFICATION` | `skip_signature_verification` | Boolean. Globally disables signature verification — loud: every pull logs a warning. |
 | `AGGREGA_WORKSPACE_ROOT` | (pairs with `--workspace-root`) | Absolute workspace root, skipping discovery. Not a config field; the flag wins when set. |
 
-`AGGREGA_CONFIG` points at an explicit global config file to load beneath the workspace cascade; it selects which file applies rather than overriding a single setting. When it is unset, the global layer loads automatically from the XDG default location (`~/.config/aggrega/config.yaml`). See [global-flags.md](global-flags.md#global-config-file).
+`AGGREGA_CONFIG` points at an explicit machine-wide config file to load beneath the project's own files; it selects which file applies rather than overriding a single setting. When it is unset, that layer loads automatically from `$XDG_CONFIG_HOME/aggrega/config.yaml`, falling back to `~/.config/aggrega/config.yaml`. See [Configuration](configuration.md#naming-the-machine-wide-file-explicitly).
 
 ### Booleans
 
@@ -92,8 +84,9 @@ See [aggrega-auth.md](aggrega-auth.md). Either path lets a batch of `aggrega sig
 
 ## See also
 
+- [configuration.md](configuration.md) — which file a setting belongs in, and the full precedence model these variables sit inside.
 - [global-flags.md](global-flags.md) — `--workspace-root` and `AGGREGA_CONFIG`.
 - [aggrega-push.md](aggrega-push.md) and [aggrega-sign.md](aggrega-sign.md) — signing variables and the identity-token alias.
 - [aggrega-auth.md](aggrega-auth.md) — `aggrega auth token` for acquiring the identity token interactively.
 - [aggrega-pull.md](aggrega-pull.md) and [aggrega-build.md](aggrega-build.md) — offline, auto-pull, catalog-dir, and cache variables.
-- [../../architecture/13-catalog-and-registry.md](../../architecture/13-catalog-and-registry.md) — the `.aggrega-config.yaml` model these variables override.
+- [../../architecture/13-catalog-and-registry.md](../../architecture/13-catalog-and-registry.md) — the registry and signing settings several of these variables override.
