@@ -25,11 +25,12 @@ The block carries only the root-defining catalog directories; every other settin
 level beside it. A project that vendors no catalog content still writes the block, empty —
 `workspace: {}` — because the block's presence is the marker.
 
-**One file on your machine**, at `~/.config/aggrega/config.yaml`. It holds settings that belong to
-the machine rather than to any one project — the registries you pull from and the signature trust
-policy for each, how large the compiled-module store may grow, and any command-extension plugin you
-have installed. Those are the same wherever you are working, so declaring them once is the point.
-It loads automatically when it is there, and nothing breaks when it is not.
+**One global file on your machine**, at `~/.config/aggrega/config.yaml`. Every workspace on that
+machine resolves through it, and it holds settings that belong to the machine rather than to any one
+project — the registries you pull from and the signature trust policy for each, how large the
+compiled-module store may grow, and any command-extension plugin you have installed. Those are the
+same wherever you are working, so declaring them once is the point. It loads automatically when it
+is there, and nothing breaks when it is not.
 
 ```yaml
 # ~/.config/aggrega/config.yaml
@@ -39,7 +40,7 @@ registries:
       required: true
 ```
 
-`aggrega config init` writes that machine-wide file for you, registering a registry together with
+`aggrega config init` writes that global file for you, registering a registry together with
 the signature trust policy it advertises. `aggrega config show` prints what applies right now, and
 `aggrega config show --origin` says which file — or which environment variable — decided each
 setting.
@@ -57,8 +58,7 @@ CLI flag  >  environment variable  >  configuration file  >  built-in default
 A flag is the most explicit signal there is and wins outright. An environment variable overrides
 the committed file, which is what lets a pipeline change a setting without editing a tracked file.
 A variable that is unset — or set to an empty string — falls through to the layer below rather than
-blanking a configured value. Between the two files, your project's file wins over the machine-wide
-one.
+blanking a configured value. Between the two files, your project's file wins over the global one.
 
 That is the whole model for a single project on a single machine. Everything below exists for
 projects that outgrow it.
@@ -111,8 +111,8 @@ Where one file sets both the base list and its companion, that file's value is t
 followed by the appended entries.
 
 The `plugins.cli` list composes across files on its own and has no companion: a command extension
-declared machine-wide registers its command in every project, one declared in a project registers
-only there, and both register together.
+declared in the global file registers its command in every project, one declared in a project
+registers only there, and both register together.
 
 ### A configuration file your pipeline owns
 
@@ -181,9 +181,9 @@ anchor rank against each other rather than by nearness:
 Marking the root with a `workspace:` block is the explicit choice and the one to prefer; the file
 and directory markers let a project that has not declared one still be built.
 
-### Naming the machine-wide file explicitly
+### Naming the global file explicitly
 
-The machine-wide layer resolves in this order:
+The global layer resolves in this order:
 
 1. `--config <path>`, the per-invocation form.
 2. `$AGGREGA_CONFIG`.
@@ -199,7 +199,7 @@ That choice also selects where a configuration-writing command writes. A command
 so what one command writes is what the next one reads back.
 
 Which of the two files a command writes to by default comes from the nature of the setting:
-machine-wide tooling such as a registry goes to the machine-wide file, while build-participating
+machine-wide tooling such as a registry goes to the global file, while build-participating
 settings such as a provider binding or a socket attachment go to the project's committed file, so
 they travel with the project. Pass `--global` or `--workspace` to override, and the command prints
 the file it wrote.

@@ -10,13 +10,13 @@ Use `<path>` as the workspace root, skipping discovery entirely. When the flag i
 
 ## Global config file
 
-`--config <path>` names the machine-wide config file explicitly for one invocation. It wins over `$AGGREGA_CONFIG`, which in turn wins over the default location — and because both name a file deliberately, a path that does not exist is a loud error rather than a silent fallback. Unlike the `AGGREGA_*` setting variables, neither overrides a single setting; they select which file applies. Whichever file resolves, the project's own config files still layer on top of it. [Configuration](configuration.md#naming-the-machine-wide-file-explicitly) carries the resolution order and what belongs in that file.
+`--config <path>` names the global config file explicitly for one invocation. It wins over `$AGGREGA_CONFIG`, which in turn wins over the default location — and because both name a file deliberately, a path that does not exist is a loud error rather than a silent fallback. Unlike the `AGGREGA_*` setting variables, neither overrides a single setting; they select which file applies. Whichever file resolves, the project's own config files still layer on top of it. [Configuration](configuration.md#naming-the-global-file-explicitly) carries the resolution order and what belongs in that file.
 
 `--config` and `$AGGREGA_CONFIG` select the write target as well as the read source: a command run with `--config <path>` reads its configuration from that file and applies its change to that same file, so what a command writes is what the next command in the same invocation shape reads back.
 
-Config-mutating commands choose which file they write from the nature of the setting: machine-wide tool config (a registry) defaults to the machine-wide file, while build-participating config (a provider binding or a governance/linter/importer socket attachment) defaults to the committed project file. Pass `--global` or `--workspace` to override, and the command prints where it wrote.
+Config-mutating commands choose which file they write from the nature of the setting: machine-wide tool config (a registry) defaults to the global file, while build-participating config (a provider binding or a governance/linter/importer socket attachment) defaults to the committed project file. Pass `--global` or `--workspace` to override, and the command prints where it wrote.
 
-To seed a machine-wide config on a fresh machine — registering a registry and its signature trust policy so signed artifacts pull and verify without hand-editing YAML — run [`aggrega config init`](aggrega-config.md). To see what applies right now, and with `--origin` which layer decided each setting, run [`aggrega config show`](aggrega-config.md).
+To seed a global config on a fresh machine — registering a registry and its signature trust policy so signed artifacts pull and verify without hand-editing YAML — run [`aggrega config init`](aggrega-config.md). To see what applies right now, and with `--origin` which layer decided each setting, run [`aggrega config show`](aggrega-config.md).
 
 ## Configuration precedence
 

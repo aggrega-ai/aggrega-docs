@@ -30,7 +30,7 @@ Per-registry settings (`registries[].*`) have **no** environment variable: a lis
 | `AGGREGA_SKIP_SIGNATURE_VERIFICATION` | `skip_signature_verification` | Boolean. Globally disables signature verification — loud: every pull logs a warning. |
 | `AGGREGA_WORKSPACE_ROOT` | (pairs with `--workspace-root`) | Absolute workspace root, skipping discovery. Not a config field; the flag wins when set. |
 
-`AGGREGA_CONFIG` points at an explicit machine-wide config file to load beneath the project's own files; it selects which file applies rather than overriding a single setting. When it is unset, that layer loads automatically from `$XDG_CONFIG_HOME/aggrega/config.yaml`, falling back to `~/.config/aggrega/config.yaml`. See [Configuration](configuration.md#naming-the-machine-wide-file-explicitly).
+`AGGREGA_CONFIG` points at an explicit global config file to load beneath the project's own files; it selects which file applies rather than overriding a single setting. When it is unset, that layer loads automatically from `$XDG_CONFIG_HOME/aggrega/config.yaml`, falling back to `~/.config/aggrega/config.yaml`. See [Configuration](configuration.md#naming-the-global-file-explicitly).
 
 ### Booleans
 
