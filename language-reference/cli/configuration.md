@@ -163,6 +163,26 @@ to or because every reader of them resolves them elsewhere:
 - `AGGREGA_CATALOG_DIRS` comes from the environment and has no declaring file at all, so supply
   absolute paths in it.
 
+### One setting whose store is shared
+
+Almost every setting governs something that belongs to the project you are working in — which
+directories it resolves catalog content through, which plugins render its targets, how strictly its
+content is judged, how large the daemon's in-memory caches may grow. A value in a project's file
+governs that project's own thing, and there is nothing to watch for.
+
+`compiled_module_cache.max_bytes` is the one exception, because what it caps is not per-project.
+Compiled plugin code is kept in a single directory that every project on your machine reuses, so a
+given plugin is compiled once rather than once per project. The cap itself resolves like any other
+setting — write it in a project's file and that value wins for that project — but the store still
+has only one size, and the size in force is the one from the most recent build. Two projects that
+cap it differently both take effect in turn, and the lower cap discards compiled code the other
+project paid for.
+
+So put it in the global file when you want one answer for everything you build, and keep it above
+what a single build compiles. `aggrega cache status` reports what the store currently holds, and
+`aggrega config show --origin` tells you which file the cap you are running under actually came
+from.
+
 ### The other ways a project root is recognised
 
 `--workspace-root <path>`, or its `AGGREGA_WORKSPACE_ROOT` counterpart, names the root outright and
