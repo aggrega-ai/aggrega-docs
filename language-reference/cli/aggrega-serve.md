@@ -8,9 +8,11 @@ The daemon is normally spawned as a subprocess by an editor extension, not run b
 
 The wire protocol is JSON-RPC 2.0 with Content-Length framing, under the `aggrega/` method namespace. It is intentionally **not** the Language Server Protocol — Aggrega has domain operations (an IR-graph query, a cache-invalidation signal) that LSP has no analogue for. An editor extension translates between the editor's LSP requests and these `aggrega/*` methods; LSP-shaped position, range, and location values are reused where they fit.
 
+**Two methods keep their protocol-standard `$/` names rather than being renamed into the `aggrega/` namespace**, because both are transport concerns that carry no Aggrega meaning and a client already speaking the protocol handles them with nothing added: `$/cancelRequest`, which stops a request the client no longer wants an answer to, and `$/progress`, which is how the daemon reports a long operation while it runs. Both are described below.
+
 **Requests:**
 
-- `aggrega/initialize` — handshake. Negotiates the position encoding (the server prefers UTF-8, then UTF-16, then UTF-32, and defaults to UTF-16) and reports the resolved workspace root and the marker that resolved it.
+- `aggrega/initialize` — handshake. Negotiates the position encoding (the server prefers UTF-8, then UTF-16, then UTF-32, and defaults to UTF-16) and reports the resolved workspace root and the marker that resolved it. Send `capabilities.window.workDoneProgress: true` to say your client can handle progress notifications; the reply's `capabilities.workDoneProgress` echoes that, and the field is absent for a client that declared nothing. See [Watching a long operation](#watching-a-long-operation).
 - `aggrega/validate {file, content, release?}` — validate a file's content; returns diagnostics. `release` is a path relative to the workspace root naming the Release to validate against — the same value `aggrega/irGraph` takes, and the same value `aggrega build --release` takes when run from the root. It is optional, and it selects how far the answer reaches: name a Release and the checks that need one run against it; omit it and the answer covers what the document can be held to on its own, and carries `checked` to say so. A value that is present but malformed is refused either way — an absolute path, or one resolving outside the workspace root, is rejected rather than resolved. See [Live validation](#live-validation).
 - `aggrega/diagnostics {file}` — return the cached diagnostics for a file.
 - `aggrega/hover {uri, position}` — hover content for the entity at a position.
@@ -56,6 +58,8 @@ The wire protocol is JSON-RPC 2.0 with Content-Length framing, under the `aggreg
 
 **Notifications:**
 
+- `$/cancelRequest {id}` — client to server: stop the in-flight request sent under that id. The daemon cancels that request's work; an operation observes the cancellation at its next step boundary rather than instantly, so work already under way runs on for a moment. Cancelling an id nothing is running is a safe no-op.
+- `$/progress {token, value}` — server to client: what a long operation is doing while it does it, on the token the request asked to be reported on. Sent only for a request that carried one. See [Watching a long operation](#watching-a-long-operation).
 - `aggrega/shutdown` — begin a cooperative drain: in-flight requests finish, new requests are refused, then the daemon exits.
 - `aggrega/publishDiagnostics` — a server-pushed diagnostic set (used for lockfile-drift warnings and at-startup state). Each entry carries a `source` naming which of the daemon's diagnostic layers raised it: `aggrega` for a finding about the authored documents, `aggrega-build` for an advisory a build raised — every advisory it raised, which is the same set `aggrega build` prints — and `aggrega-lint` for a publishing-conventions finding, the same findings `aggrega lint` prints. The field is always present on every entry, so a client can group them rather than showing one undifferentiated list, and never has to tell an absent source apart from one of the layers.
 
@@ -567,6 +571,52 @@ registry when only some were reachable **succeeds**: the reachable ones were ind
 `failed` names the rest, and each host carries its own error. Read `failed` rather than the presence
 of an error — the command line reports that same walk as a non-zero exit because a shell has no other
 channel, and this surface has one.
+
+## Watching a long operation
+
+Most requests here answer from what is already on disk and answer at once. A few do real work first — resolve a Release's dependencies, pin its external inputs, publish, sign, withdraw — and the caller waits. **Those report what they are doing while they do it, and it is opt-in per request.**
+
+**Opting in takes two steps, in this order.**
+
+1. **Declare the capability at the handshake, and wait for the reply.** Send `capabilities.window.workDoneProgress: true` on `aggrega/initialize`. Do not send anything else until that reply has arrived: requests are serviced concurrently, so a request written before the handshake answered can be running alongside the handshake that was to negotiate for it. Every client already owes the protocol that ordering; this is one more thing that depends on it.
+2. **Put a token in the request's params.** Add `workDoneToken` to the params of the request you want reported on. The value is yours to choose — a string or a number — and it is what ties the notifications to that call. Mint a fresh one per call.
+
+**The notification.** Each one is `$/progress` with `params.token` set to your token and `params.value` carrying one payload:
+
+| `value.kind` | carries | when |
+| --- | --- | --- |
+| `begin` | `title` — what is happening, in a phrase you can put in front of a reader | once, when the work starts |
+| `report` | `message` — one line of the operation's own account of itself | any number of times, as the operation writes them |
+| `end` | nothing beyond the kind | once, when the work is over |
+
+**Correlate on the token, never on the request id.** A notification carries no id — it is not a response to anything — and the token is the only thing in it that points back at your call. That is deliberate: in many clients the request id belongs to the transport and never reaches the code that issued the call, whereas the token is a value that code already holds.
+
+**A `report` carries the compiler's own text.** The message is one line the operation wrote as it worked, passed through with its surrounding whitespace removed and nothing else changed — not re-worded, not summarised, not re-composed — and a line the operation wrote blank is dropped rather than reported as an empty message. So a client shows what it is given as it stands. It is the same property the response's own diagnostics have: one condition keeps one wording however many surfaces report it.
+
+**One line of output is one `report`.** An operation that writes several lines at once produces one notification per line, and a line the operation writes in pieces is reported once it is complete — so a message is never half a sentence.
+
+**There is no fraction and no percentage, and that is not an omission awaiting work.** The operations that report here work through a set whose size is not known when the work starts — how many references a resolution walks, how many layers a publication uploads — so any fraction would be invented. Draw an indeterminate indicator and show the latest `message`.
+
+**Frames arrive before the response and never after it.** A `begin` arrives once the work has actually started, so a request refused on its params — a path that is absolute, a missing required field — produces **no** notification at all, only its error. The `end` arrives before the response, and whether the operation succeeded is on the response rather than repeated in the `end`.
+
+**Stopping the work is a separate notification.** Send `$/cancelRequest` with the id you sent the request under. The token plays no part in cancelling, and cancelling does not suppress the frames already sent.
+
+### Which requests report, and what to expect of the rest
+
+**Exactly these report:** `aggrega/resolveDependencies`, `aggrega/acquireExternalInputs`, `aggrega/publishEntity`, `aggrega/publishArtifact`, `aggrega/signArtifacts`, `aggrega/deprecateArtifact`.
+
+Two things are true of every one of them, and both are why it is on the list: **it reaches a registry or a remote URL on your behalf**, so how long it takes is set by something outside the machine; and **it already writes its own account of itself as it goes** — the account a person watching a terminal reads. So reporting hands you that same account rather than a second one composed for the wire, and nothing about what the operation does had to change to produce it.
+
+**Every other request accepts a token and sends nothing.** Sending one is harmless rather than an error: it is accepted, no notification arrives, and the answer is exactly the answer you would have got without it. So a client may attach a token to whatever it likes and simply draw nothing when nothing comes.
+
+🔴 **Do not read the silence as "this one is instant."** Most of the rest do answer from what is already on disk — a validation, a hover, a completion, a graph, a cache listing, a configuration read — but not all of them: refreshing a registry index, adding a plugin, and a pre-publication check all reach a registry, and compiling a Release is real work. Those take as long as they take and report nothing today. Show an indeterminate indicator for any request you are prepared to wait on, and treat notifications as detail you get when it is available rather than as the thing that tells you work is under way.
+
+### Two refusals
+
+Both are `invalid-params` errors and both name what to do, because a token that quietly did nothing would leave you watching for a stream that was never coming.
+
+- **A token from a session that declared no `window.workDoneProgress` capability is refused**, naming the capability to declare. Declare it at the handshake, or leave the token out.
+- **A token that is neither a string nor a number is refused**, naming the two shapes. An absent token, and an explicit `null`, are not refusals — both mean you asked for no report.
 
 ## Lockfile awareness
 
