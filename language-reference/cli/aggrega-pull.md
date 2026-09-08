@@ -117,8 +117,9 @@ The workspace settings pull reads can be overridden through the environment, abo
 
 - [./aggrega-build.md](./aggrega-build.md) — verifies the lockfile and auto-pulls when configured.
 - [./aggrega-serve.md](./aggrega-serve.md) — the daemon carries this same resolution at
-  `aggrega/resolveDependencies`, so an editor can run it without leaving the session; it runs only
-  when a request names it, and writes the same lockfile this command does.
+  `aggrega/resolveDependencies`, and inside `aggrega/build` for a request whose `autoPull` field asks
+  for it, so an editor can run it without leaving the session; either way it runs only when a request
+  names it, and writes the same lockfile this command does.
 - [./aggrega-push.md](./aggrega-push.md) — publishes catalog entities to a registry.
 - [./aggrega-lint.md](./aggrega-lint.md) — the publish gate that precedes `aggrega push`.
 - [../../architecture/13-catalog-and-registry.md](../../architecture/13-catalog-and-registry.md) — the catalog, lockfile, and cache model in full.
