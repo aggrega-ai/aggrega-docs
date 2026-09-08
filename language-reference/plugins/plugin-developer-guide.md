@@ -47,10 +47,9 @@ A plugin entity may carry an optional `runtime` block that constrains how the ho
 
 **Remote content comes through the external-input fetch.** A plugin that needs remote content — a chart archive, a remote schema document — calls the PDK's fetch wrapper. On the wire the guest passes a URL to `aggrega_fetch_external_input` and receives a JSON envelope carrying either the content (base64-encoded) or an error message; the wrapper decodes the envelope into bytes-or-error. The host serves the URL under the external-input pin discipline:
 
-- A URL already pinned in the Release's lockfile is served from the local content-addressed store and verified against its recorded digest on every read. A missing store blob is refilled from the network by the recorded digest in every mode — a digest-verified refill cannot change output.
-- An unpinned URL is fetched, pinned into the store under its digest, and recorded for the lockfile when acquisition is enabled — the `aggrega build` default.
-- Under `aggrega build --no-acquire-inputs` the external-input set is frozen: an unpinned URL is refused with an error naming the URL and the remedy. Pinned inputs are still served.
-- `aggrega acquire` runs only the acquisition pass: it fetches and pins every external input the Release's render requests, discarding the rendered output, so a subsequent frozen build serves everything from the store.
+- A URL already pinned in the Release's lockfile is served from the local content-addressed store and verified against its recorded digest on every read. A missing store blob is refilled from the network by the recorded digest — a digest-verified refill cannot change output.
+- An unpinned URL is refused, with an error naming the URL and the remedy. A build renders the closure its lockfile records, so no build fetches an unpinned reference and there is no setting that makes one.
+- Pinning happens when the Release's dependencies are resolved: `aggrega pull` renders the Release to find out which external inputs its render requests, fetches each one, and records it in the lockfile beside the dependency pins. So a plugin author's loop is resolve once, then build offline as often as you like.
 
 Allowed schemes are `https`, `http` to loopback hosts only, and `oci` (pinned by manifest digest). The lockfile records every pinned input — its URL, `sha256` digest, size, and the plugins that required it — so a re-build serves the same bytes from the local store: reproducible, and offline once pinned.
 
@@ -61,9 +60,8 @@ import "github.com/aggrega-ai/aggrega-pdk-go/pkg/aggrega"
 
 chart, err := aggrega.FetchExternalInput("https://charts.example.com/postgresql-16.3.2.tgz")
 if err != nil {
-    // The error names the URL and the remedy — under a frozen external-input set an
-    // unpinned URL reports exactly what to pin and how. Surface it as a
-    // render failure; do not mask it.
+    // The error names the URL and the remedy — an unpinned URL reports exactly
+    // what to pin and how. Surface it as a render failure; do not mask it.
     return fmt.Errorf("fetching chart archive: %w", err)
 }
 ```
@@ -72,7 +70,7 @@ if err != nil {
 
 - A filesystem or network call fails at the call boundary: the guest holds no preopened directories and no sockets. This applies to every code path, including a library dependency that tries to read a file — read the source projection instead.
 - An import under a module outside `wasi_snapshot_preview1`, `extism:host/env`, and `extism:host/user` fails at load, with a diagnostic naming the module and the import. Individual WASI function names within an allowed module are never censored — a statically-linked language runtime's unused filesystem and socket imports are fine, because naming an import grants nothing.
-- An unpinned fetch in a frozen build (`--no-acquire-inputs`) fails with an error naming the URL; the remedy is to rebuild with acquisition enabled or run `aggrega acquire --release <release>` to fetch and pin the Release's inputs first.
+- A fetch of a URL the lockfile does not pin fails with an error naming the URL; the remedy is to run `aggrega pull --release <release>`, which pins every external input the Release's render consumes, and then build.
 
 There is no host-allowlist field for outbound network access. A plugin never reaches the network at build time — that is the ahead-of-time boundary — so no such field exists to author. Remote content arrives through the host-mediated, digest-pinned external-input channel above, never through ambient network access.
 

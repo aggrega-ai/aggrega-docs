@@ -1372,16 +1372,18 @@ Emitted messages, for a non-loopback `http` URL and for any other scheme:
 
 **How to fix:** switch the URL to `https`, or to `oci` where the content is published in a registry. A plain `http` URL to a remote host is refused rather than downgraded, so pointing it at the secure scheme is the fix; a local development server keeps working over `http` because a loopback host is allowed.
 
-### An unpinned external input is requested while acquisition is off
+### A render requests an external input the lockfile does not pin
 
 <!-- covers: pkg/externalinputs.ErrAcquisitionDisabled -->
 
-Something a build needs is fetched from a URL that the lockfile does not pin, and this run is not permitted to acquire anything. This is the frozen-closure guarantee doing its job: a run that may not acquire is one whose inputs are exactly what was pinned, and fetching an unpinned URL would quietly widen that set.
+Something a build needs is fetched from a URL the lockfile does not pin. A build renders the closure its lockfile records and fetches nothing, so there is no setting that would let this run acquire the URL instead: the frozen closure is what makes a build reproducible, and quietly widening the input set is the one thing it must not do.
+
+Reaching this halt is therefore informative rather than a configuration mistake. The pins were complete when the Release was resolved, so an unpinned URL now means something changed since then — a value that steers which references a render asks for, a chart that started pointing somewhere new, or a lockfile resolved against a different Release.
 
 Emitted message:
-> externalinputs: `"<url>"` is not pinned in the lockfile; re-run with acquisition enabled or run the standalone acquisition pass to pin it: externalinputs: acquisition is disabled for unpinned inputs
+> `"<url>"` is not pinned in the lockfile; run `aggrega pull --release <release>` to pin every external input this Release's render consumes, then build again: externalinputs: acquisition is disabled for unpinned inputs
 
-**How to fix:** pin the input. `aggrega pull --release <path>` renders the Release to find out which external inputs it consumes, fetches each one, and records its digest in the lockfile beside the dependency pins — after which every later run serves it from the pinned record without needing to acquire. Re-running with acquisition enabled does the same thing as part of the build. Where the URL is new because something you authored started pointing at it, resolving the Release again is the step that was skipped; where it is unexpected, the reference that introduced it is worth finding before you pin it.
+**How to fix:** pin the input. `aggrega pull --release <path>` renders the Release to find out which external inputs it consumes, fetches each one, and records its digest in the lockfile beside the dependency pins — after which every later build serves it from the pinned record and needs no network at all. Where the URL is new because something you authored started pointing at it, resolving the Release again is the step that was skipped; where it is unexpected, the reference that introduced it is worth finding before you pin it.
 
 ### Fetched bytes do not match a pinned digest
 
@@ -4307,7 +4309,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0123` | `docscache: artifact is not a documentation bundle` | A resolved artifact is not a documentation bundle |
 | `E0124` | `docscache: page not found in documentation bundle` | A page is absent from a documentation bundle |
 | `E0125` | ``egress: network access refused because the workspace is offline; remediation: unset workspace.offline (or AGGREGA_OFFLINE) or run `aggrega pull --release <release>` from a connected environment to populate the cache`` | The workspace is offline and the step needs the network |
-| `E0126` | `externalinputs: acquisition is disabled for unpinned inputs` | An unpinned external input is requested while acquisition is off |
+| `E0126` | `externalinputs: acquisition is disabled for unpinned inputs` | A render requests an external input the lockfile does not pin |
 | `E0127` | `externalinputs: fetched bytes mismatch the pinned digest` | Fetched bytes do not match a pinned digest |
 | `E0128` | `externalinputs: URL scheme is not allowed` | An external input's URL uses a scheme that is not allowed |
 | `E0129` | `externalinputs: store blob mismatches its pinned record` | A stored external input no longer matches its record |

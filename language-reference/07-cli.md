@@ -29,7 +29,6 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 <!-- BEGIN GENERATED: command-list -->
 | Command | Description |
 | --- | --- |
-| `aggrega acquire` | Pin the external inputs a Release's render consumes |
 | `aggrega auth` | Manage the signing identity |
 | `aggrega build` | Compile an Aggregate and Release into provider-native artifacts |
 | `aggrega cache` | Inspect and maintain the on-disk caches |
