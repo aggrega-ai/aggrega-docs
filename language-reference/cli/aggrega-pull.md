@@ -4,16 +4,21 @@
 
 ## What it does
 
-`aggrega pull` resolves two kinds of dependency in one pass:
+`aggrega pull` resolves three kinds of dependency in one pass:
 
 - **Catalog entities** — the Components, Features, Recipes, FeatureRecipes, schema and mapping libraries, and Wasm plugins the Release references, resolved transitively (through `extends:`, `implements:`, `aggregate:`, Feature attachments, and library `$import:` / `$ref:` sites) and fetched from the registry when not already local.
 - **Source artifacts** — the remote `source:` that an individual Recipe or FeatureRecipe points a provider at: a Helm chart (OCI or classic HTTPS) or a Compose fragment over HTTPS. Each is fetched, cached, and pinned.
+- **External inputs** — the remote documents a provider asks the host for while it renders, such as a `$ref` in a chart's `values.schema.json` that points at a URL. Each is fetched, stored under its content digest, and pinned.
+
+**External inputs are found by rendering, which is why `aggrega pull` renders the Release.** A catalog entity or a source artifact is named in a document, so resolving it is a matter of reading what you authored. An external input is not: the provider asks for it during the render, and which URLs it asks for follows from the values being rendered — so the only way to learn the set is to render. Pull therefore does what a build's render does, and drops the rendered artifacts, keeping the pins.
+
+Two things follow, and both are worth knowing before you wire pull into an automated pipeline. It costs more than a resolution that only read documents. And it can fail for a reason a resolution previously could not — a provider that cannot render this Release. When that happens the dependency pins are still written and the diagnostic says what could not be reached, so the run is not lost; see [Offline](#offline) for the shape of that outcome.
 
 It writes the result to `<release-stem>.lock` next to the Release. A workspace that attaches a plugin returning an accept-or-reject verdict also gets a second file in that directory — the [plugin trust record](#the-plugin-trust-record).
 
 ## The lockfile
 
-The lockfile pins each dependency to its URI, resolved version, and content digest. It has sections for catalog entities, schema and mapping libraries (each carrying back-pointers to the Components and Features that consume it), Wasm plugins, and source artifacts. The file is written in a canonical, deterministic form.
+The lockfile pins each dependency to its URI, resolved version, and content digest. It has sections for catalog entities, schema and mapping libraries (each carrying back-pointers to the Components and Features that consume it), Wasm plugins, source artifacts, and external inputs (each keyed by URL and carrying the plugins that asked for it). The file is written in a canonical, deterministic form.
 
 Commit `<release-stem>.lock` alongside the Release, the way you commit any pinned-dependency manifest. A lockfile diff shows reviewers exactly which dependency versions and digests changed; a library digest change names the consumers it affects.
 
@@ -71,12 +76,16 @@ Under `offline: true` — or `AGGREGA_OFFLINE` in the environment — `aggrega p
 
 Resolution then draws only on what the machine already holds: the `catalog_dirs` search stack and the cache under `.aggrega/cache`. Against a catalog and cache that satisfy every reference, an offline pull completes normally and writes an ordinary lockfile. The lockfile records each dependency's URI, resolved version and digest, and never which of those places served the bytes — so an offline pull and an online pull that resolve the same versions write the same lockfile.
 
-**A reference an offline pull cannot satisfy locally halts it.** The entry is never skipped:
+**A dependency an offline pull cannot satisfy locally halts it.** The entry is never skipped:
 
 - A catalog entity that resolves nowhere halts the pull, naming the reference and where it was referenced from, so both the missing dependency and the thing that asked for it are named.
 - A remote `source:` halts the pull, naming the source and telling you either to allow network access or to populate the cache from a connected environment.
 
-Offline is therefore a refusal to touch the network, not a reduced result: a pull resolves everything and writes a complete lockfile, or it stops. Nothing is pinned partially, so a lockfile that exists is one whose resolution completed — you never have to establish separately that the machine which produced it could reach every dependency it needed.
+**An external input is the one that does not halt, and it says so instead.** The render that finds them cannot fetch what is not already stored, so an offline pull over a Release with an unpinned external input completes, writes every dependency pin it resolved, and reports three things: that the render did not finish, what it did pin, and that a build of this Release will halt naming the URL. The dependency pins it wrote are correct — nothing about them depended on the render — so they are kept rather than thrown away for a reader to reproduce.
+
+That is deliberate rather than a gap, and there is no switch for it. A pull that discarded correct work would cost you the part that succeeded; a pull that stayed quiet would hand you a lockfile that looks complete and is not. Saying so is the only outcome that leaves you able to act: run the pull again from a connected environment, or from one whose cache already holds the content, and the same command pins it.
+
+So an offline pull is a refusal to touch the network rather than a reduced result for everything a document names, and for external inputs it is a completed resolution that tells you what it could not reach. A lockfile that exists is one whose dependency resolution completed; whether its external inputs are complete is what the pull's own output tells you, and what a build then holds it to.
 
 ## Integration with `aggrega build`
 

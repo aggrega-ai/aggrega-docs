@@ -1381,7 +1381,7 @@ Something a build needs is fetched from a URL that the lockfile does not pin, an
 Emitted message:
 > externalinputs: `"<url>"` is not pinned in the lockfile; re-run with acquisition enabled or run the standalone acquisition pass to pin it: externalinputs: acquisition is disabled for unpinned inputs
 
-**How to fix:** pin the input. `aggrega acquire --release <path>` fetches it and records its digest in the lockfile, after which every later run serves it from the pinned record without needing to acquire. Re-running with acquisition enabled does the same thing as part of the build. Where the URL is new because something you authored started pointing at it, the acquisition is the step that was skipped; where it is unexpected, the reference that introduced it is worth finding before you pin it.
+**How to fix:** pin the input. `aggrega pull --release <path>` renders the Release to find out which external inputs it consumes, fetches each one, and records its digest in the lockfile beside the dependency pins — after which every later run serves it from the pinned record without needing to acquire. Re-running with acquisition enabled does the same thing as part of the build. Where the URL is new because something you authored started pointing at it, resolving the Release again is the step that was skipped; where it is unexpected, the reference that introduced it is worth finding before you pin it.
 
 ### Fetched bytes do not match a pinned digest
 
