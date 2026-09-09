@@ -2593,7 +2593,7 @@ Emitted message, where it stands in a `locals:` entry itself. It carries the com
 
 **How to fix:** correct the key name to one the block declares; the message lists them. The halt is distinct from the ordering halt above because the remedies differ — no reordering makes a key that does not exist resolve.
 
-Only **direct** `.locals.<key>` references are checked. A key reached indirectly — through `index .locals`, a `with .locals` block, or a variable bound to `.locals` — is not analysed, because recognising the key would mean reading template text and inferring what a computed key means. An absent key reached that way renders as an empty value rather than halting; the indirect form remains the way to reach a key whose name is itself computed.
+The check reads the path a reference **resolves** to rather than its keystrokes, so an alias for the block is followed: a key reached through the dot a `with .locals` body rebinds, or through a variable bound to `.locals`, is checked on exactly the terms the direct spelling gets and halts the same way. What escapes the check is a key reached through a call whose result the template text cannot name — `{{ index .locals "nope" }}` — because what such a call yields is decided when the template runs rather than by what is written. An absent key reached that way does not halt, and it renders the literal text `<no value>` rather than nothing at all; `index` therefore remains the way to reach a key whose name is itself computed, at the cost of the check.
 
 ### Template references a root the render context does not define
 
