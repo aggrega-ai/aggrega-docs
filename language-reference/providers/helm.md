@@ -18,7 +18,7 @@ A Recipe may declare exactly one of `source:` or `workload:`; combining them is 
 
 ## `source:` keyset
 
-The helm provider accepts `source:` as a **bare filesystem path string only**. The path is interpreted relative to the compile invocation's working directory.
+The helm provider accepts `source:` as a **bare filesystem path string only**. A relative path is anchored to the directory holding the `recipe.yaml` that declares it, not to the directory the build is invoked from, and an absolute path is used as written.
 
 ```yaml
 spec:

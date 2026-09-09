@@ -308,7 +308,7 @@ services:
 
 ## Sourced mode
 
-The compose provider accepts `source:` as a **bare filesystem path string only**. The path is interpreted relative to the compile invocation's working directory and must point at a docker-compose YAML file that the provider can read and parse.
+The compose provider accepts `source:` as a **bare filesystem path string only**. A relative path is anchored to the directory holding the `recipe.yaml` that declares it, not to the directory the build is invoked from, and an absolute path is used as written. It must point at a docker-compose YAML file that the provider can read and parse.
 
 ```yaml
 spec:

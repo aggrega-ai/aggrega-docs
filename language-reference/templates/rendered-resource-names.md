@@ -163,11 +163,11 @@ The refusal covers `provides:` and every other template a Recipe writes inline �
 `valuesMapping:`, its `workload:` body, each `artifacts:` entry, and each pipeline step's `with:` and
 `when:`.
 
-🔴 **One authoring mode is outside it.** A `valuesMapping:`, `workload:` or `artifacts:` entry supplied
-through `$import:` carries no text in your Recipe until the render resolves the imported file, so a
-reference to this key **inside such a file** renders as an empty value rather than halting. Where an
-imported body names a rendered resource, pass the name in through a value the importing Recipe sets
-rather than reading the key inside the imported file.
+🔴 **Both import forms are outside it.** A `valuesMapping:`, `workload:` or `artifacts:` entry supplied
+through `$import:` — whether the import names a local file or a library entry — carries no text in your
+Recipe until the render resolves it, so a reference to this key **inside such a body** renders as an
+empty value rather than halting. Where an imported body names a rendered resource, pass the name in
+through a value the importing Recipe sets rather than reading the key inside the imported body.
 
 ## On a Feature attachment's own templates
 
