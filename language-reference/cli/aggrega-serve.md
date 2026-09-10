@@ -680,8 +680,17 @@ directory.
 reached is an error, because there is no answer to give. A request refreshing every configured
 registry when only some were reachable **succeeds**: the reachable ones were indexed and written,
 `failed` names the rest, and each host carries its own error. Read `failed` rather than the presence
-of an error — the command line reports that same walk as a non-zero exit because a shell has no other
-channel, and this surface has one.
+of an error.
+
+**The command line reports that same walk as a non-zero exit, and which reader you are decides what
+that exit is worth.** For a person at a terminal it is not the whole account: `aggrega registry update`
+prints how many of the selected registries it indexed, what each one found, which ones it did not
+index, and where the index was written — so the summary says what happened and the exit status says
+only whether all of it succeeded. For a script it is the whole account, because that command offers no
+structured output mode, so its exit status is the only machine-readable verdict available. That is why
+the two surfaces answer the same partial walk differently and both are right: this one hands a
+structured caller `failed` and succeeds, while the command line has one bit to spend and spends it on
+"was any registry missed".
 
 ## Watching a long operation
 
