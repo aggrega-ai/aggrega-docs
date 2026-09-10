@@ -14,5 +14,5 @@ aggrega import <file> [flags]
 | Flag | Default | Description |
 | --- | --- | --- |
 | `--format` | — | Name the source format explicitly, overriding shape detection (for example langflow or flowise) |
-| `--stdout` | `false` | Write the drafted files to standard output instead of to disk |
+| `--report` | `false` | Report the drafted files as content, naming the file each is for, and write nothing. Without it the drafts are written to disk. |
 <!-- END GENERATED: cli-import -->
