@@ -426,7 +426,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 
 **The table carries no category column, and that is not an omission: a category is a property of a particular failure rather than of the condition behind it.** Some conditions belong to one category by construction. For others the category follows from the kind of entity the failure is about, so one such condition reported once against an Aggregate and once against a Release carries a different category each time — and a single value written beside the condition here would be wrong for every condition of that second kind.
 
-**Where the categories are taught is [error-translation.md](./error-translation.md)** — the six of them, what each one means, and where the fix for each lives. A category and a short code answer different questions about the same failure: the category identifies the surface the fix belongs on, and the short code identifies which condition halted the build. Neither is derivable from the other, which is why each has its own published list.
+**Where the categories are taught is [error-translation.md](./error-translation.md)** — each one, what it means, and where the fix for it lives. A category and a short code answer different questions about the same failure: the category identifies the surface the fix belongs on, and the short code identifies which condition halted the build. Neither is derivable from the other, which is why each has its own published list — and why a failure with no authoring surface to name still carries a code you can look up here.
 
 <!-- BEGIN GENERATED: condition-short-codes -->
 | Code | Condition | Message |

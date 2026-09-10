@@ -1,12 +1,12 @@
 # Error translation discipline
 
-Aggrega's compilation pipeline emits errors from many surfaces — schema validators, the resolver, the IR builder, the providers, the Go template engine, and the underlying YAML / Helm / docker-compose libraries the providers wrap. Errors that bubble to the CLI open with a bracketed head naming two things — one of six categories, which says which surface is at fault, and the short code of the condition that halted the build — followed by a source pointer and a message. This page documents the shape of that output so authors interpret error messages directly.
+Aggrega's compilation pipeline emits errors from many surfaces — schema validators, the resolver, the IR builder, the providers, the Go template engine, and the underlying YAML / Helm / docker-compose libraries the providers wrap. Errors that bubble to the CLI open with a bracketed head naming two things — a category, which says which surface is at fault, and the short code of the condition that halted the build — followed by a source pointer and a message. This page documents the shape of that output so authors interpret error messages directly.
 
 For the per-error catalog (every fatal halt with how-to-fix guidance), see [`fatal-halts.md`](fatal-halts.md). For the four schema-validation layers and how their error shapes interact, see [`vocabulary/validation-surface.md`](../vocabulary/validation-surface.md).
 
-## The six error categories
+## The error categories
 
-Every CLI-bubbling error carries one of six category tags. The tag identifies the surface where the fix lives:
+A category tag identifies the surface where the fix lives:
 
 - **`[DEVELOPER_ERROR]`** — the failure attaches to Aggregate authoring. The fix is in the Aggregate YAML or in the developer-authored portion of the catalog (Component values, `uses` sockets, Feature attachments). Example surfaces: resolver halts on Aggregate-side issues; analyzer selector and `appliesTo` violations.
 - **`[OPS_ERROR]`** — the failure attaches to the operator's own documents, the Release and the Manifest. The fix is in the Release YAML (boundary topology, parameter values, Feature attachments at the Release level) or in the Manifest YAML (which Recipe a type is deployed through, and the annotation bindings written beside it). Example surfaces: Release schema validation; boundary-path template evaluation; `subDirectory` collisions across providers; Manifest mapping and annotation-binding refusals.
@@ -26,9 +26,15 @@ A printed diagnostic opens with the bracketed head and the source pointer, and p
   <message>
 ```
 
-The head carries two tokens, and they answer different questions. The category is one of the six above and says where the fix lives. The short code is the letter `E` and four digits, and it names the exact condition that halted the build: quote it in a report, type it into a search, or resolve it against the table of every condition in [`sentinels.md`](sentinels.md). Neither is derivable from the other, which is why both are printed.
+The head carries two tokens, and they answer different questions. The category is one of those above and says where the fix lives. The short code is the letter `E` and four digits, and it names the exact condition that halted the build: quote it in a report, type it into a search, or resolve it against the table of every condition in [`sentinels.md`](sentinels.md). Neither is derivable from the other, which is why both are printed.
 
-A failure that names no condition of Aggrega's own prints the category alone. Nothing stands in for the absent token.
+### Either token may be absent, and an absent one is omitted
+
+Nothing ever stands in for a token the diagnostic does not have — no placeholder, no empty brackets. There are three ways a head can be short, and each tells you something:
+
+- **No short code.** The failure names no condition of Aggrega's own — most often a fault reported by a library the compiler wraps. The head prints the category alone, so you still know which surface to look at.
+- **No category.** The failure is not a fault in an authored artifact, so there is no surface to name and none is guessed. The head prints the short code alone. In practice this is a fault in the compiler itself, and the message says so and asks you to report it — the compiler's own views of the catalog disagreeing with each other is the case that arises today. **Nothing in your Aggregate, your Release or your catalog is at fault when you see a head with no category**, which is exactly why one is not printed.
+- **Neither.** The brackets are omitted entirely and the diagnostic is its message. Not every failure the compiler reports crosses the categorised-error boundary: a command that refuses its arguments, or a file it cannot read, reports in its own words. Such a failure carries no category and no short code, so there is nothing to resolve against [`sentinels.md`](sentinels.md).
 
 The same error reduced to one line, the form suitable for log output rather than for a terminal, carries the category and drops the short code:
 
@@ -37,6 +43,8 @@ The same error reduced to one line, the form suitable for log output rather than
 ```text
 [CATEGORY] <source>: <message>
 ```
+
+A category absent from the head is absent here too, brackets included, so this line is never `[] <source>: <message>`. The one-line form is re-wrapped into enclosing frames as the failure travels up, so an empty tag would be carried into every one of them.
 
 The source is a structured pointer — typically `<file>:<line>:<column>` when a YAML position is available, or a logical identifier (the catalog entity name, the Release name, the boundary path) when no file position applies. A third shape, `<file> at <key>`, appears when the pointer knows both the document and the authoring key inside it but no byte position: the file is what you open, and the key is what to look at once open. The message is the per-surface diagnostic.
 
