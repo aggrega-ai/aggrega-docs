@@ -122,7 +122,7 @@ Everything above governs names on the authoring surface — an instance name you
 category-matches-directory        # a lint rule id, printed in `aggrega lint` output
 unsupported-field                 # a diagnostic class code
 artifact-provenance-skipped       # another
-resolver/parameter-contract-violation   # the code a halting condition is registered under
+parameter-contract-violation      # the code a halting condition is registered under
 ```
 
 Where a diagnostic class has a suppression flag, the code and the flag are the same words in the same order — `unsupported-field` is silenced by `--no-unsupported-field-warnings` — so the class you matched on tells you the flag to reach for, with nothing to translate. A class code is the stable name tooling matches to recognise a finding without parsing its message text; the message wording may improve, the code does not move.

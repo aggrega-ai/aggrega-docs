@@ -32,10 +32,10 @@ Either of the condition's two codes is accepted, because each of them reaches yo
 
 **The short code** is the one a terminal shows you, and it is the one to reach for when all you have is printed output. A number is handed out once and then fixed, so a short code you pasted into a report a year ago still names the condition it named then.
 
-**The descriptive code** is the qualified, hyphenated one a structured diagnostic carries as a field of its own, and which a program branches on. If that is what you are holding, pass that instead — the condition above is registered under `validator/recipe-values-mapping-requires-source`:
+**The descriptive code** is the hyphenated one a structured diagnostic carries as a field of its own, and which a program branches on. It names the condition in words and carries no prefix, so it stays fixed even when the compiler is reorganised around it. If that is what you are holding, pass that instead — the condition above is registered under `recipe-values-mapping-requires-source`:
 
 ```bash
-aggrega explain validator/recipe-values-mapping-requires-source
+aggrega explain recipe-values-mapping-requires-source
 ```
 
 A condition's two codes name the same condition, so both spellings answer identically. The short code is matched without regard to case, since it is a value you read off a screen and type back in.
@@ -69,7 +69,7 @@ aggrega build --release release.yaml || aggrega explain E0209
 Explain a code a program matched on:
 
 ```bash
-aggrega explain compiler-renderer-compose/unsupported-compose-port-protocol
+aggrega explain unsupported-compose-port-protocol
 ```
 
 ## The same answer from an assistant
