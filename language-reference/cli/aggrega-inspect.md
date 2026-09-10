@@ -17,7 +17,7 @@ A single positional argument routes by content shape; no subcommand is needed. T
 `--list`, the default, and `--detail` form a uniform three-level verbosity discipline that every kind honors. `--list` and `--detail` are mutually exclusive — passing both is refused rather than silently resolved.
 
 - **`--list`** — identifiers only. A Component lists its name and its uses-socket names; a MappingLibrary lists its mapping names; an Aggregate lists its component names with their types.
-- **default** — a structured overview tuned for interactive use. The shape is per-kind: a Component shows its schema and sockets; an Aggregate shows components, their values and edges, and the dependency graph; a Release shows the per-boundary node tree with Feature attachments.
+- **default** — a structured overview tuned for interactive use. It opens with the entity's identity and, where the entity authors one, its description; an entity with no description prints none rather than an empty line. The rest of the shape is per-kind: a Component shows its schema and sockets; an Aggregate shows components, their values and edges, and the dependency graph; a Release shows the per-boundary node tree with Feature attachments.
 - **`--detail`** — full field bodies. Everything the kind carries: a Component adds its self-inject mechanisms, required Features, and labels; a MappingLibrary expands each mapping's full template body; a Recipe adds its workload body, provides, and assertions.
 
 A few kinds use the levels to surface progressively more of an authored body. A MappingLibrary at `--list` shows mapping names; at the default level it adds each mapping's synthesized usage example; at `--detail` it expands the full template body.
@@ -101,7 +101,7 @@ Uses sockets:
   db: selector="component.aggrega.ai/type=stateful-server"
 ```
 
-The default view shows the resolved schema (after any `extends:` merge) and the declared uses-sockets. `--detail` adds the self-inject mechanisms, required Features, and labels; `--list` shows just the Component identifier and its socket names.
+The default view shows the Component's description where it authors one, then the resolved schema (after any `extends:` merge) and the declared uses-sockets. The Component above authors no description, which is why the transcript opens straight at the schema. `--detail` adds the self-inject mechanisms, required Features, and labels; `--list` shows just the Component identifier and its socket names.
 
 ### Feature
 
