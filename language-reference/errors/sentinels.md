@@ -432,7 +432,6 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | Code | Condition | Message |
 | --- | --- | --- |
 | `E0001` | `no-plugin-resolution-configured` | `cliplugin: no plugin resolver configured` |
-| `E0002` | `catalog-entity-not-found` | `catalog lookup failed` |
 | `E0003` | `malformed-attachment-requirement` | `malformed attachment requirement` |
 | `E0004` | `overridden-annotation` | `annotation contribution overridden by an explicit value` |
 | `E0005` | `policy-violation` | `policy violation` |
@@ -701,8 +700,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0274` | `verdict-plugin-identity-changed` | `the plugin identity recorded as trusted no longer matches what this resolution reports` |
 | `E0275` | `edit-refused-invalid-result` | `the edit was refused because the resulting document would not be valid, and nothing was written` |
 
-- `E0002` is declared ahead of the code that reports it, so no build raises it yet. It will report a catalog lookup that fails during static analysis — a state that cannot arise while every component and feature an Aggregate or Release names is checked before analysis begins — once that stage surfaces such an inconsistency as a halt rather than ending its reading silently.
-
+- `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0157` is retired: nothing reports it now, and the number is never handed to a different condition. It named an Aggregate key — a component, feature, subsystem or nested-module instance name — that did not match the authored-name pattern. Every one of those key surfaces is constrained to that same spelling by the Aggregate schema, which refuses the document while validating its envelope and reports the offending key with a line and column; that condition's code is `E0215`.
 - `E0159` is retired: nothing reports it now, and the number is never handed to a different condition. It named a target reference whose dot-separated segments did not all match the instance-name pattern, and no build reported it before the condition was withdrawn.
 - `E0217` is retired: nothing reports it now, and the number is never handed to a different condition. It named a schema-validation failure that could not be reported against a particular field, and no build reported it before the condition was withdrawn.

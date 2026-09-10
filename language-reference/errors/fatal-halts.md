@@ -2525,17 +2525,6 @@ Emitted message:
 
 **How to fix:** the message names both halves. Add the mechanism's key to the FeatureRecipe's `injectMapping` so the Feature produces a value for it, or drop the mechanism from the Component's `spec.inject` allowlist where nothing is expected to deliver under it. Where the FeatureRecipe belongs to someone else's catalog, attaching a Feature whose mapping covers the mechanism is the third answer.
 
-### A catalog lookup fails during static analysis **[pending]**
-
-<!-- covers: internal/compiler/analyzer.ErrCatalogLookup -->
-
-Reserved, and raised by nothing today. It will report a catalog lookup that fails while the graph is being checked — a state that cannot arise while every component and feature an Aggregate or Release names is checked before those checks begin — once that stage surfaces such an inconsistency as a halt rather than ending its reading silently.
-
-Its message reads:
-> catalog lookup failed
-
-No build prints it. It is catalogued here so that a short code you have in hand always resolves to something, whichever page you arrived from, and so that the condition is named ahead of the work that will raise it rather than appearing without warning.
-
 ## When rendering output
 
 After every contract is validated, the compiler evaluates Go templates on Component values, FeatureRecipe `injectMapping` blocks, and Recipe sources, then hands the result to the renderer.
@@ -4185,7 +4174,6 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | Short code | Opens with | Documented under |
 | --- | --- | --- |
 | `E0001` | `cliplugin: no plugin resolver configured` | A command-line plugin runner was built without a way to find plugins |
-| `E0002` | `catalog lookup failed` | A catalog lookup fails during static analysis **[pending]** |
 | `E0003` | `malformed attachment requirement` | Malformed attachment requirement |
 | `E0004` | `annotation contribution overridden by an explicit value` | An explicit value displaced one an annotation supplied |
 | `E0005` | `policy violation` | A governance plugin rejected the build |
