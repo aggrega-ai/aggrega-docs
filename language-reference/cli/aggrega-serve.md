@@ -119,7 +119,7 @@ So the three cases are distinguishable from the keys alone: no `code` means noth
 
 ### Expanding a code a diagnostic carried
 
-`aggrega/explainError {code}` turns either of a condition's identifiers into what the compiler declares about it and the published entries that teach the authoring fix. It is the same expansion [`aggrega explain`](aggrega-explain.md) performs at a terminal, and it answers from one place, so a code expanded here and the same code expanded there are one answer rather than two that happen to agree.
+`aggrega/explainError {code}` turns either of a condition's identifiers into what the compiler declares about it and the published entries that teach the authoring fix. It is the same expansion [`aggrega explain`](aggrega-explain.md) performs at a terminal and the `explain-error` tool performs for an assistant, and all three answer from one place, so a code expanded here and the same code expanded there are one answer rather than three that happen to agree.
 
 `code` is required and takes either identifier — the `shortCode` a diagnostic carried, or the `code` beside it — because a client holding one of them has no way to obtain the other without asking. An empty value is refused naming what to send.
 

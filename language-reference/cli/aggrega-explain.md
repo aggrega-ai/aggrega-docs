@@ -74,4 +74,8 @@ aggrega explain compiler-renderer-compose/unsupported-compose-port-protocol
 
 ## The same answer from an assistant
 
-An AI assistant connected through [`aggrega mcp`](aggrega-mcp.md) reaches the same declarations through the `explain-error` tool: hand it the diagnostic text and it returns the diagnostic together with the condition its short code names, so the assistant can branch on the descriptive code rather than on the wording of a message.
+An AI assistant connected through [`aggrega mcp`](aggrega-mcp.md) reaches this same expansion through the `explain-error` tool. Hand it the diagnostic text rather than a bare code — an assistant holds what the build printed — and where that text opens with a short code, the answer carries the condition, the sentence its diagnostics open with, and the published walk-through of the authoring fix, composed the same way as the reply above. It also carries the descriptive code, so the assistant can branch on that rather than on the wording of a message, and the address the condition is published at.
+
+Everything the sections above say about a missing walk-through holds there too: a condition the page documents no entry for, and a workspace with no cached copy of the documentation, each leave the condition answered with a note saying which it was. The assistant surface obtains the documentation once when the session opens, so an expansion reads what is already cached.
+
+The [daemon](aggrega-serve.md) answers the same question for an editor, from a code rather than from a diagnostic. All three are one expansion in three renderings rather than three answers that happen to agree.
