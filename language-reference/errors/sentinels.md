@@ -98,10 +98,10 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrNoRecipeResolved()` | `catalog/no-recipe-resolved` | `no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type` |
 | `ErrProviderBindingUnsatisfied()` | `catalog/provider-binding-unsatisfied` | `plugins.providers entry names a plugin no provider-rendering plugin serving the capability matches` |
 | `ErrProviderVersionUnsatisfiable()` | `catalog/provider-version-unsatisfiable` | `no provider-rendering plugin version satisfies the recipe's provider version pin` |
-| `ErrQualifiedPluginReference()` | `catalog/qualified-plugin-reference` | `wasm plugin reference must be the plugin coordinate identity (<pluginType>/<name>:<version>), not a registry-qualified or artifact path` |
+| `ErrQualifiedPluginReference()` | `catalog/plugin-reference-must-not-be-registry-qualified` | `wasm plugin reference must be the plugin coordinate identity (<pluginType>/<name>:<version>), not a registry-qualified or artifact path` |
 | `ErrUnsatisfiableEntityVersion()` | `catalog/unsatisfiable-entity-version` | `no catalog version satisfies the referenced version constraint` |
-| `ErrUnscopedPluginReference()` | `catalog/unscoped-plugin-reference` | `wasm plugin reference must carry a pluginType scope (<pluginType>/<name>); an empty scope cannot bind to an OCI location` |
-| `ErrUnscopedRecipeReference()` | `catalog/unscoped-recipe-reference` | `recipe reference must be provider-scoped (<provider>/<name>); an empty provider cannot bind to an OCI location` |
+| `ErrUnscopedPluginReference()` | `catalog/plugin-reference-must-be-scoped` | `wasm plugin reference must carry a pluginType scope (<pluginType>/<name>); an empty scope cannot bind to an OCI location` |
+| `ErrUnscopedRecipeReference()` | `catalog/recipe-reference-must-be-scoped` | `recipe reference must be provider-scoped (<provider>/<name>); an empty provider cannot bind to an OCI location` |
 | `ErrUnusableSchemaImport()` | `catalog/unusable-schema-import` | ``a schema `$import:` could not be applied`` |
 
 ### pkg/closure
@@ -109,11 +109,11 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | Sentinel | Code | Message |
 | --- | --- | --- |
 | `ErrInvalidLibraryRef()` | `closure/invalid-library-ref` | `resolve: invalid library reference URI` |
-| `ErrMVSConflict()` | `closure/mvs-conflict` | `resolve: minimum version selection conflict — incompatible library version requirements` |
-| `ErrNoAggregateLoader()` | `closure/no-aggregate-loader` | `resolve: catalog lookup cannot load resolved sub-aggregate bodies` |
-| `ErrNoRecipeLoader()` | `closure/no-recipe-loader` | `resolve: catalog lookup cannot load resolved recipe and plugin bodies` |
+| `ErrMVSConflict()` | `closure/version-selection-conflict` | `resolve: minimal version selection conflict — incompatible library version requirements` |
+| `ErrNoAggregateLoader()` | `closure/catalog-cannot-load-sub-aggregate-bodies` | `resolve: catalog lookup cannot load resolved sub-aggregate bodies` |
+| `ErrNoRecipeLoader()` | `closure/catalog-cannot-load-recipe-bodies` | `resolve: catalog lookup cannot load resolved recipe and plugin bodies` |
 | `ErrSourceTemplateAtLockTime()` | `closure/source-template-at-lock-time` | `resolve: source-template evaluation failure at lock time` |
-| `ErrSourceTemplateParse()` | `closure/source-template-parse` | `resolve: source-template parse error` |
+| `ErrSourceTemplateParse()` | `closure/source-template-not-parsable` | `resolve: source-template parse error` |
 | `ErrSourceTemplateProvidesRef()` | `closure/source-template-provides-ref` | `resolve: source-template references .provides (invalid reverse reference)` |
 | `ErrSubAggregateDepth()` | `closure/sub-aggregate-depth` | `resolve: sub-aggregate inclusion depth exceeded` |
 | `ErrUnresolvableURI()` | `closure/unresolvable-uri` | `resolve: no entity in the catalog matches this URI` |
@@ -123,7 +123,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | Sentinel | Code | Message |
 | --- | --- | --- |
 | `ErrAmbiguousDispatch()` | `compactform/ambiguous-dispatch` | `compactform: ambiguous dispatch — $mode required` |
-| `ErrCircularRef()` | `refcycle/cycle` | `circular reference expansion` |
+| `ErrCircularRef()` | `refcycle/reference-cycle` | `circular reference expansion` |
 | `ErrConstraintTypeMismatch()` | `compactform/constraint-type-mismatch` | `compactform: constraint not valid for declared type` |
 | `ErrEscapeContentInvalid()` | `compactform/escape-content-invalid` | `compactform: $jsonschema content invalid` |
 | `ErrHostInLibraryRef()` | `compactform/host-in-library-ref` | `compactform: cross-document $ref carries a registry host; reference the library by identity` |
@@ -205,9 +205,9 @@ A few names appear in more than one package. Those are re-exports of one shared 
 
 | Sentinel | Code | Message |
 | --- | --- | --- |
-| `ErrCommandsMismatch()` | `wasm/wasm-commands-mirror-mismatch` | `wasm: recorded command mirror does not match plugin describe()` |
+| `ErrCommandsMismatch()` | `wasm/wasm-command-set-mismatch` | `wasm: recorded command mirror does not match plugin describe()` |
 | `ErrContractMismatch()` | `wasm/wasm-contract-mismatch` | `wasm: entity contract claim does not match plugin describe()` |
-| `ErrHostFunctionsMismatch()` | `wasm/wasm-host-functions-stamp-mismatch` | `wasm: stamped host-function record does not match .wasm imports` |
+| `ErrHostFunctionsMismatch()` | `wasm/wasm-host-function-set-mismatch` | `wasm: stamped host-function record does not match .wasm imports` |
 | `ErrRejected()` | `wasm/wasm-manifest-rejected` | `wasm: plugin rejected by the sandbox` |
 | `ErrTypeMismatch()` | `wasm/wasm-plugin-type-mismatch` | `wasm: declared plugin type does not match plugin describe()` |
 
@@ -215,13 +215,13 @@ A few names appear in more than one package. Those are re-exports of one shared 
 
 | Sentinel | Code | Message |
 | --- | --- | --- |
-| `ErrCycle()` | `refcycle/cycle` | `circular reference expansion` |
+| `ErrCycle()` | `refcycle/reference-cycle` | `circular reference expansion` |
 
 ### pkg/registrytrust
 
 | Sentinel | Code | Message |
 | --- | --- | --- |
-| `ErrMalformedTrust()` | `registrytrust/malformed-trust` | `registrytrust: advertised trust config is malformed` |
+| `ErrMalformedTrust()` | `registrytrust/malformed-trust-policy` | `registrytrust: advertised trust config is malformed` |
 | `ErrNoTrustAdvertised()` | `registrytrust/no-trust-advertised` | `registrytrust: registry advertises no trust config` |
 
 ### pkg/resolver
@@ -237,7 +237,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrDuplicateBoundaryComponent()` | `resolver/duplicate-boundary-component` | `component declared in more than one boundary: declare each component in exactly one boundary` |
 | `ErrDuplicateTriadIdentity()` | `resolver/duplicate-triad-identity` | `duplicate Aggregate/Manifest identity (metadata.name) in the Release directory` |
 | `ErrFeatureMergeConflict()` | `resolver/feature-merge-conflict` | `feature merge conflict: reconcile the Aggregate and Release declarations for the feature` |
-| `ErrGuardEntityViewInconsistency()` | `resolver/guard-entity-view-inconsistency` | `the compiler's own views of the catalog disagree` |
+| `ErrGuardEntityViewInconsistency()` | `resolver/internal-catalog-view-disagreement` | `the compiler's own views of the catalog disagree` |
 | `ErrInjectKeyCollision()` | `resolver/inject-key-collision` | `duplicate delivery key across inject sources` |
 | `ErrInvalidInjectKey()` | `resolver/invalid-inject-key` | `invalid inject key: the from-key must name a declared provides key of the target component type` |
 | `ErrInvalidParameterRef()` | `resolver/invalid-parameter-ref` | `invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template` |
@@ -247,30 +247,30 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrMissingRequiredSocket()` | `resolver/missing-required-socket` | `required uses socket not populated` |
 | `ErrParameterContractViolation()` | `resolver/parameter-contract-violation` | `parameter contract violated` |
 | `ErrParameterMissing()` | `resolver/parameter-missing` | `required parameter not supplied` |
-| `ErrParametersImportLoad()` | `resolver/parameters-import-load` | `parameters $import: load failed` |
+| `ErrParametersImportLoad()` | `resolver/parameters-import-not-loadable` | `parameters $import: load failed` |
 | `ErrProvidesKeyNotDeclared()` | `resolver/provides-key-not-declared` | `Recipe publishes a provides key its Component does not declare` |
 | `ErrSchemaConformance()` | `resolver/schema-conformance` | `authored pillar does not conform to its declared schema` |
 | `ErrSchemaContractCompileFailure()` | `resolver/schema-contract-compile-failure` | `declared schema contract could not be compiled into a usable schema, so nothing was validated against it: correct the contract where it is declared, or remove it if the configuration it covers needs no validation` |
 | `ErrSelfInjectForbidden()` | `resolver/self-inject-forbidden` | `self-inject on component without spec.inject allowlist` |
 | `ErrTriadRefUnresolvable()` | `resolver/triad-ref-unresolvable` | `aggregate/manifest reference unresolvable` |
 | `ErrUnknownUsesSocket()` | `resolver/unknown-uses-socket` | `unknown uses socket: name a socket the entity declares in its usesSchema — only a component's own uses block may name one the catalog did not declare` |
-| `ErrUnnormalizedRelease()` | `resolver/unnormalized-release` | `release reached resolve un-normalized (non-empty root components alongside a synthesized default boundary)` |
+| `ErrUnnormalizedRelease()` | `resolver/release-not-in-canonical-form` | `release reached resolve un-normalized (non-empty root components alongside a synthesized default boundary)` |
 | `ErrUnreadParameter()` | `resolver/unread-parameter` | `declared parameter is read by no reference in the Aggregate` |
 | `ErrUsesSocketNearMiss()` | `resolver/uses-socket-near-miss` | `uses socket name is a near miss for a declared socket` |
 | `ErrVerdictPluginTrustMismatch()` | `resolver/verdict-plugin-trust-mismatch` | `the digest recorded as trusted for this plugin does not match the digest its cached manifest reports` |
-| `ErrYAMLLoad()` | `resolver/yaml-load` | `YAML load failed: check the file exists, is readable, and contains well-formed YAML` |
+| `ErrYAMLLoad()` | `resolver/document-not-loadable` | `YAML load failed: check the file exists, is readable, and contains well-formed YAML` |
 
 ### pkg/signing
 
 | Sentinel | Code | Message |
 | --- | --- | --- |
-| `ErrKeylessLive()` | `signing/keyless-live` | `signing: keyless signing requires a live identity provider, Fulcio, and Rekor` |
+| `ErrKeylessLive()` | `signing/keyless-signing-requires-network` | `signing: keyless signing requires a live identity provider, Fulcio, and Rekor` |
 | `ErrNoSignatureFound()` | `signing/no-signature-found` | `signing: no signature found for an artifact that requires one` |
 | `ErrNoTrustedIdentities()` | `signing/no-trusted-identities` | `signing: keyless verification requires at least one trusted identity` |
 | `ErrSignatureInvalid()` | `signing/signature-invalid` | `signing: signature does not verify` |
 | `ErrSignatureVerificationFailed()` | `signing/signature-verification-failed` | `signing: signature bundle does not verify` |
 | `ErrSigningPolicyRequiresSignature()` | `signing/signing-policy-requires-signature` | `signing: signing policy requires a signature for this artifact kind; refusing to push unsigned content` |
-| `ErrTrustRootLoad()` | `signing/trust-root-load` | `signing: cannot load pinned trust root` |
+| `ErrTrustRootLoad()` | `signing/trust-root-not-loadable` | `signing: cannot load pinned trust root` |
 | `ErrUnsignedPushRefused()` | `signing/unsigned-push-refused` | `signing: registry requires signatures; refusing to push unsigned content` |
 | `ErrUnsupportedKey()` | `signing/unsupported-key` | `signing: unsupported held-key type` |
 | `ErrUntrustedIdentity()` | `signing/untrusted-identity` | `signing: signature identity is not trusted for this registry` |
@@ -293,7 +293,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrFetchNetworkUnreachable()` | `oci/fetch-network-unreachable` | `oci: network unreachable` |
 | `ErrFetchNotFound()` | `oci/fetch-not-found` | `oci: artifact not found at remote source` |
 | `ErrFetchUnauthorized()` | `oci/fetch-unauthorized` | `oci: authentication required or failed` |
-| `ErrUnknownKind()` | `sourceresolver/unknown-kind` | `sourceresolver: no adapter registered for source kind` |
+| `ErrUnknownKind()` | `sourceresolver/unknown-source-kind` | `sourceresolver: no adapter registered for source kind` |
 
 - `ErrFetchIntegrity()` is the same value as `pkg/oci.ErrFetchIntegrity()`, so a match against either name succeeds.
 - `ErrFetchNetworkUnreachable()` is the same value as `pkg/oci.ErrFetchNetworkUnreachable()`, so a match against either name succeeds.
@@ -314,7 +314,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrArtifactsLibraryEntryShape()` | `types/artifacts-library-entry-shape` | `artifactslibrary: entry must be a mapping of filename to a string body` |
 | `ErrForbiddenKeyword()` | `types/forbidden-keyword` | `schemalibrary: forbidden JSON Schema keyword` |
 | `ErrMappingEntryNotScalar()` | `types/mapping-entry-not-scalar` | `mappinglibrary: entry body must be a string scalar` |
-| `ErrOrderedMapDecodeDepthExceeded()` | `types/ordered-map-decode-depth-exceeded` | `OrderedMap: decode depth exceeded` |
+| `ErrOrderedMapDecodeDepthExceeded()` | `types/document-nesting-depth-exceeded` | `OrderedMap: decode depth exceeded` |
 | `ErrParametersShape()` | `types/parameters-shape` | `parameters: shape must be an inline object or {$import: <local-path>}` |
 | `ErrTemplateNotFound()` | `types/template-not-found` | `schemalibrary: template not found` |
 | `ErrTemplateParamMissing()` | `types/template-param-missing` | `schemalibrary: template parameter missing` |
@@ -340,7 +340,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrExtendsChainTooDeep()` | `validator/extends-chain-too-deep` | `extends chain exceeds maximum depth` |
 | `ErrFeatureRecipeEvalProviderConstraint()` | `validator/feature-recipe-eval-provider-constraint` | `featurerecipe eval-provider constraint: render input-kind fields are forbidden when provider is eval` |
 | `ErrFeatureRecipeValuesMappingRequiresSource()` | `validator/feature-recipe-values-mapping-requires-source` | `FeatureRecipe: valuesMapping requires source` |
-| `ErrInheritanceMerge()` | `validator/inheritance-merge` | `inheritance merge failed` |
+| `ErrInheritanceMerge()` | `validator/extends-merge-failed` | `inheritance merge failed` |
 | `ErrRecipeEvalProviderConstraint()` | `validator/recipe-eval-provider-constraint` | `recipe eval-provider constraint: input-kind fields are forbidden when provider is eval` |
 | `ErrRecipeFilenameCollisionAcrossInputKinds()` | `validator/recipe-filename-collision-across-input-kinds` | `filename collision across input kinds: two input-kind blocks produced a file under one output name` |
 | `ErrRecipeNoInputKind()` | `validator/recipe-no-input-kind` | `Recipe: at least one input kind required` |
@@ -350,26 +350,26 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrSlotNotReferenceable()` | `validator/slot-not-referenceable` | `workload attachment slot is not referenceable` |
 | `ErrUnknownSchemaPillar()` | `validator/unknown-schema-pillar` | `a schema block declares a key that names no data pillar` |
 | `ErrWorkloadFeaturesSchema()` | `validator/workload-features-schema` | `workload featuresSchema cross-check failed` |
-| `ErrWorkloadValidation()` | `validator/workload-validation` | `workload validation failed` |
+| `ErrWorkloadValidation()` | `validator/workload-not-valid` | `workload validation failed` |
 
 ### pkg/validator/envelope
 
 | Sentinel | Code | Message |
 | --- | --- | --- |
-| `ErrEntityEnvelope()` | `validator-envelope/entity-envelope` | `document envelope validation failed` |
+| `ErrEntityEnvelope()` | `validator-envelope/entity-envelope-invalid` | `document envelope validation failed` |
 
 ### pkg/validator/jsonschema
 
 | Sentinel | Code | Message |
 | --- | --- | --- |
-| `ErrExtensionEval()` | `validator-jsonschema/extension-eval` | `validator/jsonschema: x-aggrega extension evaluation failed` |
-| `ErrSchemaResolve()` | `validator-jsonschema/schema-resolve` | `validator/jsonschema: schema resolution failed` |
+| `ErrExtensionEval()` | `validator-jsonschema/schema-extension-evaluation-failed` | `validator/jsonschema: x-aggrega extension evaluation failed` |
+| `ErrSchemaResolve()` | `validator-jsonschema/schema-not-resolvable` | `validator/jsonschema: schema resolution failed` |
 
 ### pkg/validator/merger
 
 | Sentinel | Code | Message |
 | --- | --- | --- |
-| `ErrMergeInvalid()` | `validator-merger/merge-invalid` | `merger: invalid merge input` |
+| `ErrMergeInvalid()` | `validator-merger/schema-merge-input-invalid` | `merger: invalid merge input` |
 
 ### pkg/workspaceconfig
 
@@ -377,7 +377,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | --- | --- | --- |
 | `ErrAmbiguousRegistryAlias()` | `workspaceconfig/ambiguous-registry-alias` | `registry alias matches more than one host` |
 | `ErrCapabilityOnCrossCuttingSocket()` | `workspaceconfig/capability-on-cross-cutting-socket` | `a cross-cutting socket is bound by capability but attaches by uri` |
-| `ErrConfigInvalid()` | `workspaceconfig/config-invalid` | `file failed schema validation` |
+| `ErrConfigInvalid()` | `workspaceconfig/workspace-config-invalid` | `file failed schema validation` |
 | `ErrDuplicateProviderTarget()` | `workspaceconfig/duplicate-provider-target` | `capability is bound to more than one provider plugin` |
 | `ErrDuplicateRegistryAlias()` | `workspaceconfig/duplicate-registry-alias` | `registry alias is already used by another host` |
 | `ErrGovernanceRoleInvalid()` | `workspaceconfig/governance-role-invalid` | `a governance attachment declares no role or an unknown role` |
@@ -431,8 +431,8 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 <!-- BEGIN GENERATED: condition-short-codes -->
 | Code | Condition | Message |
 | --- | --- | --- |
-| `E0001` | `cliplugin/no-resolver` | `cliplugin: no plugin resolver configured` |
-| `E0002` | `compiler-analyzer/catalog-lookup` | `catalog lookup failed` |
+| `E0001` | `cliplugin/no-plugin-resolution-configured` | `cliplugin: no plugin resolver configured` |
+| `E0002` | `compiler-analyzer/catalog-entity-not-found` | `catalog lookup failed` |
 | `E0003` | `compiler-analyzer/malformed-attachment-requirement` | `malformed attachment requirement` |
 | `E0004` | `compiler-analyzer/overridden-annotation` | `annotation contribution overridden by an explicit value` |
 | `E0005` | `compiler-analyzer/policy-violation` | `policy violation` |
@@ -446,7 +446,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0013` | `compiler-ir/feature-type-mismatch` | `feature type mismatch between Aggregate and Release` |
 | `E0014` | `compiler-ir/inject-entry-ambiguous` | ``inject entry carries both `value:` and `from:`; schema requires exactly one`` |
 | `E0015` | `compiler-ir/uses-inject-forbidden` | `uses-edge inject dictates a delivery mechanism the socket does not permit` |
-| `E0016` | `compiler-jsonpatch/test-failed` | `jsonpatch: test operation failed` |
+| `E0016` | `compiler-jsonpatch/patch-test-operation-failed` | `jsonpatch: test operation failed` |
 | `E0017` | `compiler-pipeline/annotation-injection-rejected` | `annotation-transform plugin output was rejected: an injection targets a component coordinate the host did not supply` |
 | `E0018` | `compiler-pipeline/policy-settings-invalid` | `policy attachment settings do not satisfy the plugin's declared settings schema` |
 | `E0019` | `compiler-rendercore/endpoint-requires-reference-form` | `endpoint requires form: reference` |
@@ -463,13 +463,13 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0030` | `compiler-renderer/artifacts-library-entry-not-found` | `artifacts-library import references a bundle not present in the ArtifactsLibrary` |
 | `E0031` | `compiler-renderer/artifacts-library-not-found` | `artifacts-library import references an ArtifactsLibrary not present in the catalog` |
 | `E0032` | `compiler-renderer/assembled-output-collision` | `assembled output collision: two contributors write the same output path` |
-| `E0033` | `compiler-renderer/assertion-failed` | `assertion failed` |
+| `E0033` | `compiler-renderer/authored-assertion-failed` | `assertion failed` |
 | `E0034` | `compiler-renderer/attachment-inject-key-collision` | `duplicate delivery key across attachment-inject and another inject source` |
-| `E0035` | `compiler-renderer/boundary-assembler-missing` | `provider expected to assemble its dispatch group provides no boundary assembler` |
+| `E0035` | `compiler-renderer/boundary-assembly-not-provided` | `provider expected to assemble its dispatch group provides no boundary assembler` |
 | `E0036` | `compiler-renderer/chart-name-mismatch` | `merged-path assembly has conflicting assembly-name annotation values` |
 | `E0037` | `compiler-renderer/cross-provider-link-unsupported` | `cross-boundary link between endpoints rendered by different providers is not supported` |
 | `E0038` | `compiler-renderer/derived-key-collision` | `derived name collision: one name is derived more than once in one key space` |
-| `E0039` | `compiler-renderer/fr-template-invalid-field` | `FeatureRecipe template references a per-component-only field with executionScope: boundary` |
+| `E0039` | `compiler-renderer/featurerecipe-template-invalid-field` | `FeatureRecipe template references a per-component-only field with executionScope: boundary` |
 | `E0040` | `compiler-renderer/host-in-library-import` | `library $import: carries a registry host; reference the library by bare-name identity` |
 | `E0041` | `compiler-renderer/instance-id-collision` | `multiple contributors share an instance ID at the same dispatch path` |
 | `E0042` | `compiler-renderer/locals-forward-reference` | `locals entry references a sibling defined later in the same block` |
@@ -477,44 +477,44 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0044` | `compiler-renderer/mapping-entry-not-found` | `mapping-library import references an entry not present in the MappingLibrary` |
 | `E0045` | `compiler-renderer/mapping-import-shape` | `valuesMapping $import: is not a bare-name mapping-library reference (<Library>#/mappings/<entry>)` |
 | `E0046` | `compiler-renderer/mapping-library-not-found` | `mapping-library import references a MappingLibrary not present in the catalog` |
-| `E0047` | `compiler-renderer/orphan-cross-boundary-link-sentinel` | `assembled output retains an unresolved cross-boundary link placeholder` |
+| `E0047` | `compiler-renderer/orphan-cross-boundary-link-placeholder` | `assembled output retains an unresolved cross-boundary link placeholder` |
 | `E0048` | `compiler-renderer/path-collision` | `dispatch path produced multiple provider outputs` |
 | `E0049` | `compiler-renderer/path-template-invalid-field` | `path template references a field not in the documented allowlist` |
 | `E0050` | `compiler-renderer/pipeline-host-scope-unavailable` | `pipeline /host operation from a step with no host component` |
-| `E0051` | `compiler-renderer/pipeline-patch-pre-assembly` | `pipeline PATCH targets an assembler provider's pre-assembly fragments` |
+| `E0051` | `compiler-renderer/pipeline-patch-targets-unassembled-fragments` | `pipeline PATCH targets an assembler provider's pre-assembly fragments` |
 | `E0052` | `compiler-renderer/pipeline-target-not-emitted` | `pipeline PATCH targets a document the node did not emit` |
 | `E0053` | `compiler-renderer/plugin-provider-incompatible` | `pipeline plugin is not compatible with the rendering provider` |
 | `E0054` | `compiler-renderer/provider-node-input-invalid` | `provider rejected node input` |
 | `E0055` | `compiler-renderer/provides-contract-unfulfilled` | `realizer does not publish a provides key its abstract entity's schema.provides contract declares` |
-| `E0056` | `compiler-renderer/provides-evaluation` | `provides template evaluation failed` |
+| `E0056` | `compiler-renderer/provides-evaluation-failed` | `provides template evaluation failed` |
 | `E0057` | `compiler-renderer/provides-self-containment` | `provides block references a root outside the self-contained set` |
 | `E0058` | `compiler-renderer/render-nondeterministic` | `provider render is not deterministic` |
 | `E0059` | `compiler-renderer/self-inject-key-collision` | `duplicate delivery key across self-inject and uses-inject` |
 | `E0060` | `compiler-renderer/template-unknown-root` | `template references a root the render context does not define` |
 | `E0061` | `compiler-renderer/unknown-provider` | `unknown provider` |
-| `E0062` | `compiler-renderer/unmapped-custom-mechanism` | `custom inject mechanism has no matching key in injectMapping output; add the mechanism's key to the Recipe injectMapping` |
+| `E0062` | `compiler-renderer/custom-mechanism-has-no-mapping` | `custom inject mechanism has no matching key in injectMapping output; add the mechanism's key to the Recipe injectMapping` |
 | `E0063` | `compiler-renderer/workload-entry-not-found` | `workload-library import references an entry not present in the WorkloadLibrary` |
 | `E0064` | `compiler-renderer/workload-import-shape` | `workload $import: is not a bare-name workload-library reference (<Library>#/workloads/<entry>)` |
 | `E0065` | `compiler-renderer/workload-library-not-found` | `workload-library import references a WorkloadLibrary not present in the catalog` |
 | `E0066` | `compiler-topology/dangling-uses-target` | `uses edge target does not exist` |
-| `E0067` | `compiler-topology/invalid-active` | `active toggle did not resolve to a boolean` |
-| `E0068` | `compiler-topology/max-depth` | `max sub-aggregate nesting depth exceeded` |
+| `E0067` | `compiler-topology/active-toggle-not-a-boolean` | `active toggle did not resolve to a boolean` |
+| `E0068` | `compiler-topology/sub-aggregate-nesting-depth-exceeded` | `max sub-aggregate nesting depth exceeded` |
 | `E0069` | `compiler-topology/mutator-patch-rejected` | `mutator patch rejected` |
 | `E0070` | `compiler-topology/reexport-cycle` | `re-exported component alias forms a cycle` |
 | `E0071` | `compiler-topology/release-edge-retarget` | `release edge retargets a developer-declared edge` |
-| `E0072` | `compiler-topology/sub-aggregate-load` | `sub-aggregate load failed` |
+| `E0072` | `compiler-topology/sub-aggregate-not-loadable` | `sub-aggregate load failed` |
 | `E0073` | `compiler-topology/sub-aggregate-name-collision` | `flattened node ID collision: rename one of the colliding instances so their flattened IDs differ` |
 | `E0074` | `compiler-topology/unbound-release-edge-config` | `release per-edge configuration has no edge to apply to` |
-| `E0075` | `compiler-topology/unnormalized-aggregate` | `aggregate reached topology un-normalized (non-empty root components alongside a synthesized default subsystem)` |
+| `E0075` | `compiler-topology/aggregate-not-in-canonical-form` | `aggregate reached topology un-normalized (non-empty root components alongside a synthesized default subsystem)` |
 | `E0076` | `compiler-topology/unplaced-sub-module` | `` sub-module placed in no boundary: route it into a boundary under `aggregates`, or name its components there under `components` `` |
-| `E0077` | `compiler-topology/uses-pruned-component` | `uses edge target was pruned because its active toggle resolved to false` |
-| `E0078` | `wasm/producer-consumption-reentry` | `producer-consumption re-entry denied: a producer reached through the host may not issue a further producer-consumption call` |
-| `E0079` | `wasm/wasm-commands-mirror-mismatch` | `wasm: recorded command mirror does not match plugin describe()` |
+| `E0077` | `compiler-topology/uses-target-not-active` | `uses edge target was pruned because its active toggle resolved to false` |
+| `E0078` | `wasm/wasm-nested-producer-consumption-denied` | `producer-consumption re-entry denied: a producer reached through the host may not issue a further producer-consumption call` |
+| `E0079` | `wasm/wasm-command-set-mismatch` | `wasm: recorded command mirror does not match plugin describe()` |
 | `E0080` | `wasm/wasm-contract-mismatch` | `wasm: entity contract claim does not match plugin describe()` |
-| `E0081` | `wasm/wasm-diagnostic-severity` | `wasm: guest plugin returned a diagnostic whose severity the contract does not declare` |
+| `E0081` | `wasm/wasm-diagnostic-severity-invalid` | `wasm: guest plugin returned a diagnostic whose severity the contract does not declare` |
 | `E0082` | `wasm/wasm-guest-error` | `wasm: guest plugin reported an error` |
 | `E0083` | `wasm/wasm-guest-panic` | `wasm: guest plugin panicked during call` |
-| `E0084` | `wasm/wasm-host-functions-stamp-mismatch` | `wasm: stamped host-function record does not match .wasm imports` |
+| `E0084` | `wasm/wasm-host-function-set-mismatch` | `wasm: stamped host-function record does not match .wasm imports` |
 | `E0085` | `wasm/wasm-manifest-rejected` | `wasm: plugin rejected by the sandbox` |
 | `E0086` | `wasm/wasm-plugin-exited` | `wasm: plugin invoked proc_exit` |
 | `E0087` | `wasm/wasm-plugin-type-mismatch` | `wasm: declared plugin type does not match plugin describe()` |
@@ -532,16 +532,16 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0099` | `catalog/no-recipe-resolved` | `no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type` |
 | `E0100` | `catalog/provider-binding-unsatisfied` | `plugins.providers entry names a plugin no provider-rendering plugin serving the capability matches` |
 | `E0101` | `catalog/provider-version-unsatisfiable` | `no provider-rendering plugin version satisfies the recipe's provider version pin` |
-| `E0102` | `catalog/qualified-plugin-reference` | `wasm plugin reference must be the plugin coordinate identity (<pluginType>/<name>:<version>), not a registry-qualified or artifact path` |
+| `E0102` | `catalog/plugin-reference-must-not-be-registry-qualified` | `wasm plugin reference must be the plugin coordinate identity (<pluginType>/<name>:<version>), not a registry-qualified or artifact path` |
 | `E0103` | `catalog/unsatisfiable-entity-version` | `no catalog version satisfies the referenced version constraint` |
-| `E0104` | `catalog/unscoped-plugin-reference` | `wasm plugin reference must carry a pluginType scope (<pluginType>/<name>); an empty scope cannot bind to an OCI location` |
-| `E0105` | `catalog/unscoped-recipe-reference` | `recipe reference must be provider-scoped (<provider>/<name>); an empty provider cannot bind to an OCI location` |
+| `E0104` | `catalog/plugin-reference-must-be-scoped` | `wasm plugin reference must carry a pluginType scope (<pluginType>/<name>); an empty scope cannot bind to an OCI location` |
+| `E0105` | `catalog/recipe-reference-must-be-scoped` | `recipe reference must be provider-scoped (<provider>/<name>); an empty provider cannot bind to an OCI location` |
 | `E0106` | `closure/invalid-library-ref` | `resolve: invalid library reference URI` |
-| `E0107` | `closure/mvs-conflict` | `resolve: minimum version selection conflict — incompatible library version requirements` |
-| `E0108` | `closure/no-aggregate-loader` | `resolve: catalog lookup cannot load resolved sub-aggregate bodies` |
-| `E0109` | `closure/no-recipe-loader` | `resolve: catalog lookup cannot load resolved recipe and plugin bodies` |
+| `E0107` | `closure/version-selection-conflict` | `resolve: minimal version selection conflict — incompatible library version requirements` |
+| `E0108` | `closure/catalog-cannot-load-sub-aggregate-bodies` | `resolve: catalog lookup cannot load resolved sub-aggregate bodies` |
+| `E0109` | `closure/catalog-cannot-load-recipe-bodies` | `resolve: catalog lookup cannot load resolved recipe and plugin bodies` |
 | `E0110` | `closure/source-template-at-lock-time` | `resolve: source-template evaluation failure at lock time` |
-| `E0111` | `closure/source-template-parse` | `resolve: source-template parse error` |
+| `E0111` | `closure/source-template-not-parsable` | `resolve: source-template parse error` |
 | `E0112` | `closure/source-template-provides-ref` | `resolve: source-template references .provides (invalid reverse reference)` |
 | `E0113` | `closure/sub-aggregate-depth` | `resolve: sub-aggregate inclusion depth exceeded` |
 | `E0114` | `closure/unresolvable-uri` | `resolve: no entity in the catalog matches this URI` |
@@ -576,15 +576,15 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0143` | `oci/unknown-entity-kind` | `oci: unknown entity kind for mediatype dispatch` |
 | `E0144` | `pluginpath/plugin-bundle-digest-mismatch` | `cached signature bundle does not match its recorded digest` |
 | `E0145` | `pluginpath/plugin-entity-not-found` | `plugin reference is not a Plugin entity` |
-| `E0146` | `refcycle/cycle` | `circular reference expansion` |
-| `E0147` | `registrytrust/malformed-trust` | `registrytrust: advertised trust config is malformed` |
+| `E0146` | `refcycle/reference-cycle` | `circular reference expansion` |
+| `E0147` | `registrytrust/malformed-trust-policy` | `registrytrust: advertised trust config is malformed` |
 | `E0148` | `registrytrust/no-trust-advertised` | `registrytrust: registry advertises no trust config` |
 | `E0149` | `resolver/attachment-slot-near-miss` | `attachment name is a near miss for a declared slot` |
 | `E0150` | `resolver/attachment-slot-shape` | `attachment does not conform to its declared slot shape` |
 | `E0151` | `resolver/duplicate-boundary-component` | `component declared in more than one boundary: declare each component in exactly one boundary` |
 | `E0152` | `resolver/duplicate-triad-identity` | `duplicate Aggregate/Manifest identity (metadata.name) in the Release directory` |
 | `E0153` | `resolver/feature-merge-conflict` | `feature merge conflict: reconcile the Aggregate and Release declarations for the feature` |
-| `E0154` | `resolver/guard-entity-view-inconsistency` | `the compiler's own views of the catalog disagree` |
+| `E0154` | `resolver/internal-catalog-view-disagreement` | `the compiler's own views of the catalog disagree` |
 | `E0155` | `resolver/inject-key-collision` | `duplicate delivery key across inject sources` |
 | `E0156` | `resolver/invalid-inject-key` | `invalid inject key: the from-key must name a declared provides key of the target component type` |
 | `E0158` | `resolver/invalid-parameter-ref` | `invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template` |
@@ -594,33 +594,33 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0163` | `resolver/missing-required-socket` | `required uses socket not populated` |
 | `E0164` | `resolver/parameter-contract-violation` | `parameter contract violated` |
 | `E0165` | `resolver/parameter-missing` | `required parameter not supplied` |
-| `E0166` | `resolver/parameters-import-load` | `parameters $import: load failed` |
+| `E0166` | `resolver/parameters-import-not-loadable` | `parameters $import: load failed` |
 | `E0167` | `resolver/provides-key-not-declared` | `Recipe publishes a provides key its Component does not declare` |
 | `E0168` | `resolver/schema-conformance` | `authored pillar does not conform to its declared schema` |
 | `E0169` | `resolver/self-inject-forbidden` | `self-inject on component without spec.inject allowlist` |
 | `E0170` | `resolver/triad-ref-unresolvable` | `aggregate/manifest reference unresolvable` |
 | `E0171` | `resolver/unknown-uses-socket` | `unknown uses socket: name a socket the entity declares in its usesSchema — only a component's own uses block may name one the catalog did not declare` |
-| `E0172` | `resolver/unnormalized-release` | `release reached resolve un-normalized (non-empty root components alongside a synthesized default boundary)` |
+| `E0172` | `resolver/release-not-in-canonical-form` | `release reached resolve un-normalized (non-empty root components alongside a synthesized default boundary)` |
 | `E0173` | `resolver/unread-parameter` | `declared parameter is read by no reference in the Aggregate` |
 | `E0174` | `resolver/uses-socket-near-miss` | `uses socket name is a near miss for a declared socket` |
-| `E0175` | `resolver/yaml-load` | `YAML load failed: check the file exists, is readable, and contains well-formed YAML` |
-| `E0176` | `signing/keyless-live` | `signing: keyless signing requires a live identity provider, Fulcio, and Rekor` |
+| `E0175` | `resolver/document-not-loadable` | `YAML load failed: check the file exists, is readable, and contains well-formed YAML` |
+| `E0176` | `signing/keyless-signing-requires-network` | `signing: keyless signing requires a live identity provider, Fulcio, and Rekor` |
 | `E0177` | `signing/no-signature-found` | `signing: no signature found for an artifact that requires one` |
 | `E0178` | `signing/no-trusted-identities` | `signing: keyless verification requires at least one trusted identity` |
 | `E0179` | `signing/signature-invalid` | `signing: signature does not verify` |
 | `E0180` | `signing/signature-verification-failed` | `signing: signature bundle does not verify` |
 | `E0181` | `signing/signing-policy-requires-signature` | `signing: signing policy requires a signature for this artifact kind; refusing to push unsigned content` |
-| `E0182` | `signing/trust-root-load` | `signing: cannot load pinned trust root` |
+| `E0182` | `signing/trust-root-not-loadable` | `signing: cannot load pinned trust root` |
 | `E0183` | `signing/unsigned-push-refused` | `signing: registry requires signatures; refusing to push unsigned content` |
 | `E0184` | `signing/unsupported-key` | `signing: unsupported held-key type` |
 | `E0185` | `signing/untrusted-identity` | `signing: signature identity is not trusted for this registry` |
-| `E0186` | `sourceresolver/unknown-kind` | `sourceresolver: no adapter registered for source kind` |
+| `E0186` | `sourceresolver/unknown-source-kind` | `sourceresolver: no adapter registered for source kind` |
 | `E0187` | `sourceresolver-cacheslot/empty-workspace-root` | `cacheslot: empty workspaceRoot` |
 | `E0188` | `types/artifact-entry-shape` | `artifacts entry: shape must be a string scalar or {$import: <local-path>}` |
 | `E0189` | `types/artifacts-library-entry-shape` | `artifactslibrary: entry must be a mapping of filename to a string body` |
 | `E0190` | `types/forbidden-keyword` | `schemalibrary: forbidden JSON Schema keyword` |
 | `E0191` | `types/mapping-entry-not-scalar` | `mappinglibrary: entry body must be a string scalar` |
-| `E0192` | `types/ordered-map-decode-depth-exceeded` | `OrderedMap: decode depth exceeded` |
+| `E0192` | `types/document-nesting-depth-exceeded` | `OrderedMap: decode depth exceeded` |
 | `E0193` | `types/parameters-shape` | `parameters: shape must be an inline object or {$import: <local-path>}` |
 | `E0194` | `types/template-not-found` | `schemalibrary: template not found` |
 | `E0195` | `types/template-param-missing` | `schemalibrary: template parameter missing` |
@@ -633,7 +633,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0202` | `validator/cyclic-extension` | `cyclic extends chain` |
 | `E0203` | `validator/feature-recipe-eval-provider-constraint` | `featurerecipe eval-provider constraint: render input-kind fields are forbidden when provider is eval` |
 | `E0204` | `validator/feature-recipe-values-mapping-requires-source` | `FeatureRecipe: valuesMapping requires source` |
-| `E0205` | `validator/inheritance-merge` | `inheritance merge failed` |
+| `E0205` | `validator/extends-merge-failed` | `inheritance merge failed` |
 | `E0206` | `validator/recipe-eval-provider-constraint` | `recipe eval-provider constraint: input-kind fields are forbidden when provider is eval` |
 | `E0207` | `validator/recipe-output-component-label-collision` | `recipe output-component-labels constraint: key is also declared in outputLabels` |
 | `E0208` | `validator/recipe-output-label-reserved-namespace` | `recipe output-labels constraint: key uses a reserved namespace` |
@@ -642,15 +642,15 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0211` | `validator/recipe-filename-collision-across-input-kinds` | `filename collision across input kinds: two input-kind blocks produced a file under one output name` |
 | `E0212` | `validator/slot-not-referenceable` | `workload attachment slot is not referenceable` |
 | `E0213` | `validator/workload-features-schema` | `workload featuresSchema cross-check failed` |
-| `E0214` | `validator/workload-validation` | `workload validation failed` |
-| `E0215` | `validator-envelope/entity-envelope` | `document envelope validation failed` |
-| `E0216` | `validator-jsonschema/extension-eval` | `validator/jsonschema: x-aggrega extension evaluation failed` |
-| `E0218` | `validator-jsonschema/schema-resolve` | `validator/jsonschema: schema resolution failed` |
+| `E0214` | `validator/workload-not-valid` | `workload validation failed` |
+| `E0215` | `validator-envelope/entity-envelope-invalid` | `document envelope validation failed` |
+| `E0216` | `validator-jsonschema/schema-extension-evaluation-failed` | `validator/jsonschema: x-aggrega extension evaluation failed` |
+| `E0218` | `validator-jsonschema/schema-not-resolvable` | `validator/jsonschema: schema resolution failed` |
 | `E0220` | `validator/extends-chain-too-deep` | `extends chain exceeds maximum depth` |
-| `E0221` | `validator-merger/merge-invalid` | `merger: invalid merge input` |
+| `E0221` | `validator-merger/schema-merge-input-invalid` | `merger: invalid merge input` |
 | `E0222` | `workspaceconfig/ambiguous-registry-alias` | `registry alias matches more than one host` |
 | `E0223` | `workspaceconfig/capability-on-cross-cutting-socket` | `a cross-cutting socket is bound by capability but attaches by uri` |
-| `E0224` | `workspaceconfig/config-invalid` | `file failed schema validation` |
+| `E0224` | `workspaceconfig/workspace-config-invalid` | `file failed schema validation` |
 | `E0225` | `workspaceconfig/duplicate-provider-target` | `capability is bound to more than one provider plugin` |
 | `E0226` | `workspaceconfig/duplicate-registry-alias` | `registry alias is already used by another host` |
 | `E0227` | `workspaceconfig/governance-role-invalid` | `a governance attachment declares no role or an unknown role` |
@@ -658,7 +658,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0229` | `yamlpos/position-out-of-range` | `position out of range` |
 | `E0230` | `cloudformation-provider-cfncore/duplicate-mapping-key` | `cloudformation-provider: one mapping key is written more than once` |
 | `E0231` | `cloudformation-provider-cfncore/link-consumer-stack-missing` | `cloudformation-provider: cross-boundary link resolve received no consumer stack template` |
-| `E0232` | `cloudformation-provider-cfncore/link-sentinel-interpolated` | `cloudformation-provider: cross-boundary link value is interpolated into a larger string; only a whole-scalar injection can carry a cross-stack reference` |
+| `E0232` | `cloudformation-provider-cfncore/link-placeholder-interpolated` | `cloudformation-provider: cross-boundary link value is interpolated into a larger string; only a whole-scalar injection can carry a cross-stack reference` |
 | `E0233` | `cloudformation-provider-cfncore/output-name-collision` | `cloudformation-provider: two entries an author wrote reach one stack Output name` |
 | `E0235` | `compiler-renderer-compose/translation-config-map-missing-artifact` | `configmap volume requires a file emitted via the Recipe's artifacts: input; none found` |
 | `E0236` | `compiler-renderer-compose/translation-probe-no-port` | `probe http: requires at least one container port; container declares none` |
@@ -675,7 +675,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0248` | `wasm/wasm-output-shape` | `wasm: guest plugin returned an output that is not the shape the socket reads` |
 | `E0249` | `cloudformation-provider-cfncore/link-export-name-shadowed` | `cloudformation-provider: an export name a cross-boundary link derives is already declared by another Outputs entry in the same stack` |
 | `E0250` | `compiler-renderer/nest-segment-not-one-directory` | `provider named a directory for each contributor's own sub-directory that is not a single directory name` |
-| `E0251` | `compiler-renderer/empty-source` | `recipe source is an empty string, which names neither sourceless mode nor sourced mode` |
+| `E0251` | `compiler-renderer/recipe-source-is-empty` | `recipe source is an empty string, which names neither sourceless mode nor sourced mode` |
 | `E0252` | `compiler-renderer/artifacts-library-file-escapes-key` | `artifacts-library bundle file name leaves the artifacts key its output is nested under` |
 | `E0253` | `resolver/annotation-binding-target-unresolved` | `annotation binding does not resolve against its target Feature` |
 | `E0254` | `resolver/annotation-subkey-not-conforming` | `annotation subkey does not conform to the target Feature's schema at the routed pillar` |
@@ -688,7 +688,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0261` | `compiler-topology/unresolved-boundary-component` | `boundary names a component the composition does not hold: correct the name, or remove the entry` |
 | `E0262` | `compiler-analyzer/unusable-component-identity` | `component identity cannot be the name its emitted resources are stamped with: rename the component` |
 | `E0263` | `compiler-renderer/component-identity-target-refuses` | `the target will not accept a name derived from this component's authored identity: rename the component` |
-| `E0264` | `compiler-renderer/name-bound-not-converging` | `provider guest never accepted a component identity the compiler composed for it` |
+| `E0264` | `compiler-renderer/provider-refused-every-component-identity` | `provider guest never accepted a component identity the compiler composed for it` |
 | `E0265` | `compiler-renderer/unsupported-input-kind` | `provider does not support the node's input kind` |
 | `E0266` | `catalog/unusable-schema-import` | ``a schema `$import:` could not be applied`` |
 | `E0267` | `validator/unknown-schema-pillar` | `a schema block declares a key that names no data pillar` |

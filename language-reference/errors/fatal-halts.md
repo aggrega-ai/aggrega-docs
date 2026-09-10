@@ -1476,7 +1476,7 @@ Several entities may reference one library, each naming a version floor or none 
 The rule holds only while the floors agree on the leading version number. Two consumers naming different majors are asking for two libraries that happen to share a name, and no single selection satisfies both — so rather than pick one and let the other consumer read a shape it was not written against, the build stops and names the disagreement. A consumer naming no floor takes part in nothing here: the selection is decided by the consumers that pinned.
 
 Emitted message, listing each conflicting consumer against the version it required:
-> resolve: minimum version selection conflict — incompatible library version requirements: library `"<library>"` has consumers requiring incompatible majors: `<consumer>`=`<version>`, `<consumer>`=`<version>`
+> resolve: minimal version selection conflict — incompatible library version requirements: library `"<library>"` has consumers requiring incompatible majors: `<consumer>`=`<version>`, `<consumer>`=`<version>`
 
 **How to fix:** raise the lower consumer's floor to the same major, which is the ordinary answer once the newer shape is what everyone wants. Where both majors are genuinely needed at once, they are two libraries: publish the older shape under a name of its own and point the consumer that needs it there, so each reference names the thing it was written against.
 
@@ -4290,7 +4290,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0104` | `wasm plugin reference must carry a pluginType scope (<pluginType>/<name>); an empty scope cannot bind to an OCI location` | A plugin or recipe reference carries no scope |
 | `E0105` | `recipe reference must be provider-scoped (<provider>/<name>); an empty provider cannot bind to an OCI location` | A plugin or recipe reference carries no scope |
 | `E0106` | `resolve: invalid library reference URI` | A library reference is not written in the identity form |
-| `E0107` | `resolve: minimum version selection conflict — incompatible library version requirements` | Two consumers of one library require incompatible versions |
+| `E0107` | `resolve: minimal version selection conflict — incompatible library version requirements` | Two consumers of one library require incompatible versions |
 | `E0108` | `resolve: catalog lookup cannot load resolved sub-aggregate bodies` | The catalog view a build was given cannot load the bodies pinning needs |
 | `E0109` | `resolve: catalog lookup cannot load resolved recipe and plugin bodies` | The catalog view a build was given cannot load the bodies pinning needs |
 | `E0110` | `resolve: source-template evaluation failure at lock time` | Resolving a `source:` coordinate registers a narrower function set |
