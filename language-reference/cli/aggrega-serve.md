@@ -761,7 +761,15 @@ A request that refuses answers with an error envelope, and the findings the run 
 
 ## Error codes
 
-Responses use the standard JSON-RPC error codes plus an application-level range in the 1xxx band: file-not-validated, lockfile-absent, entity-not-resolvable, shutting-down, and validation-in-flight. An editor client can branch on the code without parsing the message.
+Responses use the standard JSON-RPC error codes plus an application-level range in the 1xxx band. An editor client can branch on the code without parsing the message.
+
+- `1001` file-not-validated — the daemon holds no parse of the file and is producing none. Send `aggrega/validate` for it and ask again.
+- `1003` lockfile-absent — the Release the request named has no lockfile, and the operation asked for needs one.
+- `1004` entity-not-resolvable — the name matched no entity in any catalog tier, nor in the Release the request named.
+- `1005` shutting-down — the daemon is draining after a shutdown notification and refuses new requests. Do not retry against the same subprocess.
+- `1006` validation-in-flight — a validation of the file is running and did not finish within the budget the waiting request allowed it. Ask again shortly and send nothing.
+
+`1002` is not allocated, and it is available for the next condition that needs a code.
 
 **File-not-validated and validation-in-flight report opposite states, and the action each calls for is the opposite too.** File-not-validated means the daemon holds no parse of that file and is producing none: send `aggrega/validate` and ask again. It is stated in terms of the parse rather than of the file because a buffer no parser will read is in exactly that position — the validation ran and reported what it found, and there is still no parse to answer from. Validation-in-flight means a validation of it is running and did not finish within the budget the waiting request allowed it: ask again shortly and send nothing, because the state you need is already on its way and a second validation would only add work. Reading the two as one condition leads a client to send a validation in the case where sending one is the wrong move. The two bands mean different things to a client: a 1xxx code names a state of the workspace the user can act on — validate the file, generate the lockfile — while a standard code such as invalid-params names a malformed request, which the client corrects rather than the user. A `release` value that is present but malformed — absolute, or resolving outside the workspace root — falls in the second band: the workspace is not in a state the user has to repair, the request is. Omitting `release` is in neither band, because it is not an error at all; it selects the narrower of the two answers described under [Live validation](#live-validation).
 
