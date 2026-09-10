@@ -775,16 +775,16 @@ The check runs before the document is turned into typed settings. That ordering 
 Four shapes report here beyond a plain schema objection, each because the schema alone can only say something too generic to act on: a `workspace:` key written with nothing under it, a key whose home is the top level written underneath `workspace:` instead, a `cache:` block written under a name the file does not use, and two settings whose values the schema admits but the workspace cannot use — an `artifact_cache_dir` that is absolute or that names the workspace root itself, and a `signing.kinds` entry naming something that is not a publishable artifact kind.
 
 **Emitted messages.** A schema objection names the file, the field path, and what the schema said:
-> workspaceconfig: `<path>`: `<field-path>`: `<the schema's own objection>`: workspaceconfig: file failed schema validation
+> workspaceconfig: `<path>`: `<field-path>`: `<the schema's own objection>`: file failed schema validation
 
 The fix-it forms replace the middle with a sentence about the specific shape. An `artifact_cache_dir` naming the workspace root:
-> workspaceconfig: `<path>`: artifact_cache_dir `"<value>"` names the workspace root itself; a catalog directory at the workspace root would then be stepped over as cache, leaving nothing to load — give the cache its own subdirectory (for example `.aggrega/cache`): workspaceconfig: file failed schema validation
+> workspaceconfig: `<path>`: artifact_cache_dir `"<value>"` names the workspace root itself; a catalog directory at the workspace root would then be stepped over as cache, leaving nothing to load — give the cache its own subdirectory (for example `.aggrega/cache`): file failed schema validation
 
 an unusable `signing.kinds` entry, which also names the wildcard that covers every kind:
-> workspaceconfig: `<path>`: signing.kinds entry `"<kind>"` is not a signable artifact kind; use a catalog entity or plugin kind, or `"all"` for every kind: workspaceconfig: file failed schema validation
+> workspaceconfig: `<path>`: signing.kinds entry `"<kind>"` is not a signable artifact kind; use a catalog entity or plugin kind, or `"all"` for every kind: file failed schema validation
 
 and an empty `workspace:` marker:
-> workspaceconfig: `<path>`: `workspace` must be a mapping; write `workspace: {}` to mark a workspace root with no catalog directories: workspaceconfig: file failed schema validation
+> workspaceconfig: `<path>`: `workspace` must be a mapping; write `workspace: {}` to mark a workspace root with no catalog directories: file failed schema validation
 
 Two more name a key written in the wrong place — `default_registry`, `offline`, `auto_pull` and `artifact_cache_dir` all sit at the top level rather than under `workspace:`, and the parse cache's block is `parse_cache:`. Each says which key it means and where that key belongs.
 
@@ -803,13 +803,13 @@ The two mismatches are mirror images of each other.
 - **A provider socket setting a key with no referent.** A provider binding names a capability and the plugin that serves it, and the plugin drives a fixed set of exports rather than one selectable entry, so `function:` names nothing on it. `with:` is refused for a different reason: render configuration for a provider is written in the Recipe, so putting it on the workspace binding places it on the wrong side of the developer-and-operator split.
 
 **Emitted messages.** A capability on a cross-cutting socket:
-> workspaceconfig: the `<socket>` socket is bound by capability `"<capability>"`, but the cross-cutting sockets attach by uri: their plugin serves no capability, so a capability lookup matches nothing; attach it with `uri:` instead: workspaceconfig: a cross-cutting socket is bound by capability but attaches by uri
+> workspaceconfig: the `<socket>` socket is bound by capability `"<capability>"`, but the cross-cutting sockets attach by uri: their plugin serves no capability, so a capability lookup matches nothing; attach it with `uri:` instead: a cross-cutting socket is bound by capability but attaches by uri
 
 an inert `function:` on a provider binding:
-> workspaceconfig: the provider socket binding for capability `"<capability>"` sets `function:`, but a provider drives a fixed set of phase-keyed exports rather than one selectable entry, so `function:` names nothing there; remove it: workspaceconfig: a provider socket binding sets a field with no referent on that socket
+> workspaceconfig: the provider socket binding for capability `"<capability>"` sets `function:`, but a provider drives a fixed set of phase-keyed exports rather than one selectable entry, so `function:` names nothing there; remove it: a provider socket binding sets a field with no referent on that socket
 
 and an inert `with:`, which reports in the same shape and names where the configuration belongs instead:
-> workspaceconfig: the provider socket binding for capability `"<capability>"` sets `with:`, but provider render configuration belongs in the Recipe, not the workspace provider binding; remove it: workspaceconfig: a provider socket binding sets a field with no referent on that socket
+> workspaceconfig: the provider socket binding for capability `"<capability>"` sets `with:`, but provider render configuration belongs in the Recipe, not the workspace provider binding; remove it: a provider socket binding sets a field with no referent on that socket
 
 **How to fix:** the fix is in `.aggrega-config.yaml` and each message names the exact edit. On a governance, linter or importer attachment, replace the `capability:` with the `uri:` of the plugin you meant to attach. On a provider binding, remove the named key — and where it was `with:`, move that configuration into the Recipe that renders through the provider, which is the surface that reads it.
 
@@ -822,7 +822,7 @@ A capability names one way of turning a workload into artifacts, and exactly one
 The refusal is what makes that visible. Letting one binding win silently would make rendered output depend on which layer happened to be read last.
 
 Emitted message, naming the capability and the rule:
-> workspaceconfig: capability `"<capability>"` is bound to more than one provider plugin; keep exactly one plugins.providers entry per capability: workspaceconfig: capability is bound to more than one provider plugin
+> workspaceconfig: capability `"<capability>"` is bound to more than one provider plugin; keep exactly one plugins.providers entry per capability: capability is bound to more than one provider plugin
 
 **How to fix:** keep one `plugins.providers` entry for the capability the message names and remove the other. Where the two come from different configuration layers, the layer you control is the one to edit — removing your own entry adopts the one the shared layer contributes, and keeping yours means the shared layer's entry has to go instead. Two plugins that genuinely both serve the workspace serve two different capabilities, so if both are wanted, give each its own capability rather than binding one twice.
 
@@ -835,10 +835,10 @@ A governance attachment carries a role, and the role — not the plugin's own de
 That silence is what the refusal prevents. A governance plugin that is configured and never consulted produces exactly the output of a build that was never governed, and nothing in the result says which one you are holding.
 
 **Emitted messages**, both naming the attachment and listing the roles that exist. A missing role:
-> workspaceconfig: governance attachment `"<uri>"` declares no role; set `role:` to one of `<the known roles>`: workspaceconfig: a governance attachment declares no role or an unknown role
+> workspaceconfig: governance attachment `"<uri>"` declares no role; set `role:` to one of `<the known roles>`: a governance attachment declares no role or an unknown role
 
 and an unrecognised one:
-> workspaceconfig: governance attachment `"<uri>"` declares unknown role `"<role>"`; use one of `<the known roles>`: workspaceconfig: a governance attachment declares no role or an unknown role
+> workspaceconfig: governance attachment `"<uri>"` declares unknown role `"<role>"`; use one of `<the known roles>`: a governance attachment declares no role or an unknown role
 
 **How to fix:** set `role:` on the attachment under `plugins.governance` to one of the roles the message lists. Which one is a decision about what you want the plugin to do rather than about the plugin: a role that accepts or rejects reads the build and returns a verdict, and a role that transforms is an explicit instruction to let the plugin change what it is given. The message lists the full set, so the spelling to use is in the message itself.
 
@@ -849,7 +849,7 @@ and an unrecognised one:
 A registry may be given a short alias in the workspace configuration so that commands and references can name it without spelling out its host. An alias selects exactly one host. This condition is what a token matching the alias of two registry entries reports: there is no answer to which host was meant, and choosing one would silently send artifacts to, or fetch them from, a registry the author did not name.
 
 Emitted message, naming the alias, how many entries claimed it, and which hosts they are:
-> workspaceconfig: registry alias `"<alias>"` matches `<count>` hosts (`<hosts>`); address the registry by host or remove the duplicate alias: workspaceconfig: registry alias matches more than one host
+> workspaceconfig: registry alias `"<alias>"` matches `<count>` hosts (`<hosts>`); address the registry by host or remove the duplicate alias: registry alias matches more than one host
 
 **How to fix:** open `.aggrega-config.yaml` and give the alias to one of the hosts the message lists, or address the registry by its host and drop the alias from the reference. The message names every host holding the alias, so which entries to look at is in the message. Where the entries come from different configuration layers, edit the layer you own.
 
@@ -3963,7 +3963,7 @@ A refusal on adding a registry to the workspace, not on a build. An alias is a s
 Re-adding the **same** host under its existing alias is not a conflict — that updates the entry in place, which is what re-running the command to change a host's other settings does.
 
 Emitted message, naming the alias and the host that already holds it:
-> workspaceconfig: registry alias `"<alias>"` is already used by host `"<host>"`; choose a different alias or address that host directly: workspaceconfig: registry alias is already used by another host
+> workspaceconfig: registry alias `"<alias>"` is already used by host `"<host>"`; choose a different alias or address that host directly: registry alias is already used by another host
 
 **How to fix:** the fix is the operator's, at the command line. Give the new registry a different alias, or leave it unaliased and refer to it by host. Where you meant to move the alias to the new host, remove it from the entry the message names in `.aggrega-config.yaml` first — the refusal exists so that moving an alias is something you do on purpose rather than a side effect of adding a registry.
 
@@ -4401,13 +4401,13 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0218` | `validator/jsonschema: schema resolution failed` | A declared schema cannot be resolved |
 | `E0220` | `extends chain exceeds maximum depth` | An `extends:` chain runs past the depth bound |
 | `E0221` | `merger: invalid merge input` | The schema-merge step's own input guard |
-| `E0222` | `workspaceconfig: registry alias matches more than one host` | A registry alias matches more than one host |
-| `E0223` | `workspaceconfig: a cross-cutting socket is bound by capability but attaches by uri` | A plugin binding sets a key the socket it attaches to does not read |
-| `E0224` | `workspaceconfig: file failed schema validation` | The workspace configuration file does not satisfy its schema |
-| `E0225` | `workspaceconfig: capability is bound to more than one provider plugin` | A capability is bound to more than one provider plugin |
-| `E0226` | `workspaceconfig: registry alias is already used by another host` | A registry alias is already bound to another host |
-| `E0227` | `workspaceconfig: a governance attachment declares no role or an unknown role` | A governance attachment declares no role, or one that is not a known role |
-| `E0228` | `workspaceconfig: a provider socket binding sets a field with no referent on that socket` | A plugin binding sets a key the socket it attaches to does not read |
+| `E0222` | `registry alias matches more than one host` | A registry alias matches more than one host |
+| `E0223` | `a cross-cutting socket is bound by capability but attaches by uri` | A plugin binding sets a key the socket it attaches to does not read |
+| `E0224` | `file failed schema validation` | The workspace configuration file does not satisfy its schema |
+| `E0225` | `capability is bound to more than one provider plugin` | A capability is bound to more than one provider plugin |
+| `E0226` | `registry alias is already used by another host` | A registry alias is already bound to another host |
+| `E0227` | `a governance attachment declares no role or an unknown role` | A governance attachment declares no role, or one that is not a known role |
+| `E0228` | `a provider socket binding sets a field with no referent on that socket` | A plugin binding sets a key the socket it attaches to does not read |
 | `E0229` | `position out of range` | An editor position falls outside the document |
 | `E0230` | `cloudformation-provider: one mapping key is written more than once` | A CloudFormation fragment writes one key twice |
 | `E0231` | `cloudformation-provider: cross-boundary link resolve received no consumer stack template` | A cross-boundary reference has no consuming stack to be written into |

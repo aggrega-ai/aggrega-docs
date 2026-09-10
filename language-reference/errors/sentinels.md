@@ -375,13 +375,13 @@ A few names appear in more than one package. Those are re-exports of one shared 
 
 | Sentinel | Code | Message |
 | --- | --- | --- |
-| `ErrAmbiguousRegistryAlias()` | `workspaceconfig/ambiguous-registry-alias` | `workspaceconfig: registry alias matches more than one host` |
-| `ErrCapabilityOnCrossCuttingSocket()` | `workspaceconfig/capability-on-cross-cutting-socket` | `workspaceconfig: a cross-cutting socket is bound by capability but attaches by uri` |
-| `ErrConfigInvalid()` | `workspaceconfig/config-invalid` | `workspaceconfig: file failed schema validation` |
-| `ErrDuplicateProviderTarget()` | `workspaceconfig/duplicate-provider-target` | `workspaceconfig: capability is bound to more than one provider plugin` |
-| `ErrDuplicateRegistryAlias()` | `workspaceconfig/duplicate-registry-alias` | `workspaceconfig: registry alias is already used by another host` |
-| `ErrGovernanceRoleInvalid()` | `workspaceconfig/governance-role-invalid` | `workspaceconfig: a governance attachment declares no role or an unknown role` |
-| `ErrInertFieldOnProviderSocket()` | `workspaceconfig/inert-field-on-provider-socket` | `workspaceconfig: a provider socket binding sets a field with no referent on that socket` |
+| `ErrAmbiguousRegistryAlias()` | `workspaceconfig/ambiguous-registry-alias` | `registry alias matches more than one host` |
+| `ErrCapabilityOnCrossCuttingSocket()` | `workspaceconfig/capability-on-cross-cutting-socket` | `a cross-cutting socket is bound by capability but attaches by uri` |
+| `ErrConfigInvalid()` | `workspaceconfig/config-invalid` | `file failed schema validation` |
+| `ErrDuplicateProviderTarget()` | `workspaceconfig/duplicate-provider-target` | `capability is bound to more than one provider plugin` |
+| `ErrDuplicateRegistryAlias()` | `workspaceconfig/duplicate-registry-alias` | `registry alias is already used by another host` |
+| `ErrGovernanceRoleInvalid()` | `workspaceconfig/governance-role-invalid` | `a governance attachment declares no role or an unknown role` |
+| `ErrInertFieldOnProviderSocket()` | `workspaceconfig/inert-field-on-provider-socket` | `a provider socket binding sets a field with no referent on that socket` |
 
 ### pkg/yamlpos
 
@@ -648,13 +648,13 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0218` | `validator-jsonschema/schema-resolve` | `validator/jsonschema: schema resolution failed` |
 | `E0220` | `validator/extends-chain-too-deep` | `extends chain exceeds maximum depth` |
 | `E0221` | `validator-merger/merge-invalid` | `merger: invalid merge input` |
-| `E0222` | `workspaceconfig/ambiguous-registry-alias` | `workspaceconfig: registry alias matches more than one host` |
-| `E0223` | `workspaceconfig/capability-on-cross-cutting-socket` | `workspaceconfig: a cross-cutting socket is bound by capability but attaches by uri` |
-| `E0224` | `workspaceconfig/config-invalid` | `workspaceconfig: file failed schema validation` |
-| `E0225` | `workspaceconfig/duplicate-provider-target` | `workspaceconfig: capability is bound to more than one provider plugin` |
-| `E0226` | `workspaceconfig/duplicate-registry-alias` | `workspaceconfig: registry alias is already used by another host` |
-| `E0227` | `workspaceconfig/governance-role-invalid` | `workspaceconfig: a governance attachment declares no role or an unknown role` |
-| `E0228` | `workspaceconfig/inert-field-on-provider-socket` | `workspaceconfig: a provider socket binding sets a field with no referent on that socket` |
+| `E0222` | `workspaceconfig/ambiguous-registry-alias` | `registry alias matches more than one host` |
+| `E0223` | `workspaceconfig/capability-on-cross-cutting-socket` | `a cross-cutting socket is bound by capability but attaches by uri` |
+| `E0224` | `workspaceconfig/config-invalid` | `file failed schema validation` |
+| `E0225` | `workspaceconfig/duplicate-provider-target` | `capability is bound to more than one provider plugin` |
+| `E0226` | `workspaceconfig/duplicate-registry-alias` | `registry alias is already used by another host` |
+| `E0227` | `workspaceconfig/governance-role-invalid` | `a governance attachment declares no role or an unknown role` |
+| `E0228` | `workspaceconfig/inert-field-on-provider-socket` | `a provider socket binding sets a field with no referent on that socket` |
 | `E0229` | `yamlpos/position-out-of-range` | `position out of range` |
 | `E0230` | `cloudformation-provider-cfncore/duplicate-mapping-key` | `cloudformation-provider: one mapping key is written more than once` |
 | `E0231` | `cloudformation-provider-cfncore/link-consumer-stack-missing` | `cloudformation-provider: cross-boundary link resolve received no consumer stack template` |
