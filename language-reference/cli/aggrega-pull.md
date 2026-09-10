@@ -91,7 +91,7 @@ So an offline pull is a refusal to touch the network rather than a reduced resul
 
 - **Verification.** `aggrega build` verifies every resolved dependency against the lockfile and halts on drift between the lockfile and the current catalog or registry state. Run `aggrega pull --upgrade --release <release>` to adopt the new state.
 - **Auto-pull.** If the lockfile is missing and `auto_pull` is true (the default), `aggrega build` runs the pull first automatically. If `auto_pull` is false, the build halts and asks you to pull.
-- **Offline.** Under `offline: true`, `aggrega build` uses only the cache; a missing lockfile or a missing cache entry halts with an air-gap diagnostic.
+- **Offline.** Under `offline: true`, `aggrega build` uses only what the machine already holds, and refuses network access before any connection is attempted. A reference whose content the cache does not hold halts the build rather than failing partway through a fetch.
 - **Catalog search.** Pull honors `catalog_dirs` from `.aggrega-config.yaml` even when no `--catalog` is given, and resolves the same first-win search stack `aggrega build` does, so the dependencies it pins match what build searches.
 
 ## Determinism and integrity
