@@ -38,18 +38,22 @@ For Component and Feature `assertions:`, the template context exposes the resolv
 
 - `.values` — the developer's `values` content.
 - `.infra` — the Ops `infra` content (from Aggregate or Release).
-- `.uses` — the resolved `uses:` sockets (post-selector-resolution).
-- `.features` — the resolved attachments, each carrying its `type`, `values`, `infra`, and resolved `provides`.
+- `.uses` — the resolved `uses:` sockets (post-selector-resolution), keyed by **socket name**: the key is the socket the edge was authored under, not the alias written beneath it. Each entry describes the edge itself and carries nothing its target published — `target` is the resolved target's instance id, `alias` is the name the author gave that connection under the socket, and `origin_feature` is present when a Feature attachment synthesized the edge. So `.uses.<socket>.target` reads the resolved target, while a reference reaching through this map for a value the target published halts, because the entry carries no such field.
+- `.features` — the resolved attachments, keyed by the instance name the author gave each one. Each entry carries `type` (the attached Feature's catalog URI), `resolved_version` (the version bound for this build), and `values` (the attachment's own developer-intent content).
 - `.metadata` — the entity's metadata.
 
 For Recipe and FeatureRecipe `assertions:`, the context adds Recipe-specific fields:
 
-- `.provides` — the values produced by the Recipe.
+- `.provides` — the resolved `provides:` values of the component being evaluated, already computed by the time the assertion runs. A *target's* published values are not on this surface; they reach a caller in the render context instead.
 - `.locals` — the Recipe's locals.
 - `.recipe.metadata` — the Recipe's metadata.
 - `.recipe.source` — the Recipe's source pointer.
 
-Field access uses standard Go template syntax (`.values.architecture`, `.uses.primary_db.host`); the halting construct is `{{ fail "message" }}` per the Loud Guardrails contract — a failed assertion produces a clear, specific build-time error naming the violated invariant.
+Field access uses standard Go template syntax (`.values.architecture`, `.uses.databases.target`); the halting construct is `{{ fail "message" }}` per the Loud Guardrails contract — a failed assertion produces a clear, specific build-time error naming the violated invariant.
+
+**This surface evaluates with `missingkey=error`.** A reference to a key the context does not carry halts the build — naming the entity, the instance, the assertion and the absent key — rather than rendering as nothing. That strictness is what makes an assertion trustworthy: a predicate whose reference rendered empty would compare against nothing and pass, so a single typo would quietly retire the rule the assertion was written to enforce. It also means the bare reference resolves before any fallback can run, so an optional field needs a presence-aware form; [errors/fatal-halts.md](../errors/fatal-halts.md) carries the per-surface missing-key policy and the forms that work under it.
+
+**An assertion's `.uses` is not a Recipe template's `.context.uses`, and a reference written for one does not transfer to the other.** The render context carries a richer projection of the same edges: keyed by **alias**, with the socket name as a field on the entry, and with each target's published values nested under `provides` — so a Recipe template reads `.context.uses.<alias>.provides.<name>` where an assertion reads `.uses.<socket>.target`. Both assertion phases evaluate before rendering, which is why an assertion's view of an edge stops at the edge's own identity.
 
 For the broader template context shape and per-field availability semantics, see [template-context-contract.md](template-context-contract.md).
 

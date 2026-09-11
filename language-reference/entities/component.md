@@ -20,13 +20,12 @@ These labels describe universal behaviors, allowing policy engines and generated
 | `gateway.aggrega.ai/intelligence` | `semantic`, `l4-mesh` | Dictates what features a router can physically support (e.g., preventing token-budget features on a standard TCP mesh). |
 
 **(B) The Specialized AI Layer (The Cognitive Identity)**
-These labels describe the *cognitive* identity of the workload, allowing the architecture to secure modern AI frameworks and memory structures.
+These labels describe the *cognitive* identity of the workload, allowing the architecture to secure modern AI frameworks.
 
 | Label Prefix | Allowed Values (Convention) | Why Platform Ops needs it (The Policy Hook) |
 | :--- | :--- | :--- |
 | `model.aggrega.ai/capability` | `generative`, `embedding`, `transcription` | Used by the `usesSchema` selector strings (evaluated natively by the Go compiler during static analysis) to guarantee a developer doesn't accidentally route a generative text payload to an embedding endpoint. |
 | `agent.aggrega.ai/autonomy` | `autonomous`, `copilot` | Identifies the execution risk of the cognitive loop, allowing policies to mandate human-approval features for fully autonomous agents. |
-| `cognitive.aggrega.ai/memory` | `semantic`, `episodic`, `working` | Natively supports the CoALA framework. Policy engines read this label on a database to mandate `read/write` scopes for episodic logs, but strict `read-only` access for semantic enterprise facts. |
 
 **(C) The Cross-Cutters (Governance, State, & Hardware)**
 These represent the foundational enterprise tags that drive Zero-Trust validation and hardware routing.
