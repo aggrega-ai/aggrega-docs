@@ -526,8 +526,79 @@ function labelOfType(type) {
   return Array.isArray(type) ? type.join(" or ") : String(type);
 }
 
-// The description column for one property: its prose plus any key-constraint,
-// enum, constant, or default facets that help a reader.
+// The alternative shapes whose names the Type column joins, or null when the
+// value is not written as a set of alternatives.
+//
+// There are two places a property's alternatives are written, and both reach the
+// Type column the same way. A property may carry them itself, which renders as
+// `string or object`; or it may be a map whose entry VALUE carries them, which
+// renders as `map of string or object`. Reading both is what lets one sentence
+// below address either, and it is why a map's entries are not a separate case
+// for the reader: the phrase `the object form` names the same alternative in
+// `string or object` and in `map of string or object`.
+function alternativeShapes(schema) {
+  if (!schema || typeof schema !== "object") return null;
+  const own = schema.oneOf || schema.anyOf;
+  if (Array.isArray(own) && own.length > 0) return own;
+  const values = schema.additionalProperties;
+  if (values && typeof values === "object") {
+    const nested = values.oneOf || values.anyOf;
+    if (Array.isArray(nested) && nested.length > 0) return nested;
+  }
+  return null;
+}
+
+// What a value written in one of its alternative shapes may not be.
+//
+// A set of alternatives reaches the Type column as its shapes' type names joined
+// — `string or object` — so a constraint written inside one of them is dropped
+// on the way. That loses the half of the contract a reader cannot infer: the
+// prose beside such a value tells an author what to write, and without the
+// constraint they cannot tell whether the product rejects the other form or
+// merely discourages it. These sentences publish that, alongside the prose
+// rather than in place of it.
+//
+// Bounded three ways, each so that what is published is true rather than nearly
+// true.
+//
+// A shape is addressed by its own type name, and only where that name belongs to
+// one shape alone, so `the object form` picks out exactly one of them. Where two
+// shapes render to the same name nothing is said, because there would be no way
+// to say which was meant.
+//
+// The constraint is read only from a named field of a shape, and that field's
+// name is the subject of the sentence. A constraint written on a shape itself
+// says only that this shape is not one of the others, which cannot be stated
+// without naming a shape the reader is never shown.
+//
+// Only a refused pattern is phrased. It is the one form whose meaning survives
+// being put in a single clause, and anything else yields nothing rather than a
+// paraphrase of something this did not read — the same rule the key-pattern
+// prose above follows.
+function shapeConstraints(schema) {
+  const shapes = alternativeShapes(schema);
+  if (!shapes) return [];
+  const names = shapes.map((shape) => cell(describeType(shape)));
+  const sentences = [];
+  shapes.forEach((shape, index) => {
+    const name = names[index];
+    if (names.indexOf(name) !== names.lastIndexOf(name)) return;
+    const fields = shape && typeof shape === "object" ? shape.properties : null;
+    if (!fields || typeof fields !== "object") return;
+    for (const field of Object.keys(fields)) {
+      const refused = fields[field] && fields[field].not;
+      if (!refused || typeof refused !== "object") continue;
+      if (typeof refused.pattern !== "string") continue;
+      sentences.push(
+        `In the ${name} form, \`${field}\` must not match \`${refused.pattern}\`; a value that does is rejected.`
+      );
+    }
+  });
+  return sentences;
+}
+
+// The description column for one property: its prose plus any shape-constraint,
+// key-constraint, enum, constant, or default facets that help a reader.
 //
 // The key constraint belongs here as well as in a section body: a map whose
 // values are a named type is documented as a single table row and nothing
@@ -535,6 +606,10 @@ function labelOfType(type) {
 function describeProp(schema) {
   const parts = [];
   if (schema.description) parts.push(String(schema.description));
+  // Directly after the prose, because these qualify what that prose describes:
+  // the prose names the shapes a value may take, and these say what one of them
+  // may not contain. The key facets that follow are about a map's keys instead.
+  for (const sentence of shapeConstraints(schema)) parts.push(sentence);
   const keys = keyConstraint(schema);
   if (keys) parts.push(`Keys: ${keys}`);
   if (schema.enum) {
