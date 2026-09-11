@@ -68,7 +68,7 @@ See [`templates/expansion-matrix.md`](templates/expansion-matrix.md) for the per
 
 ## Compilation pipeline phases
 
-The 5-step Aggrega compilation pipeline is documented in [`../architecture/10-compilation-pipeline.md`](../architecture/10-compilation-pipeline.md). Per-phase status:
+The Aggrega compilation pipeline is documented in [`../architecture/10-compilation-pipeline.md`](../architecture/10-compilation-pipeline.md). Per-phase status:
 
 - **Resolution, topology construction, graph finalization, static analysis and rendering — available.**
 - **Inject mapping (`injectMapping` pre-render interception) and every base-rendering sub-stage — locals publication, values mapping, workload synthesis, artifact evaluation, provider render, feature rendering, and credential FeatureRecipe resource generation — available.**
@@ -115,14 +115,14 @@ See [`02-naming-conventions.md`](02-naming-conventions.md) for the field-casing 
 
 ## CLI commands
 
-The Aggrega CLI (`aggrega-cli/cmd/aggrega/`) registers the build pipeline plus introspection. Per-command status:
+The Aggrega CLI registers the build pipeline plus introspection. Per-command status:
 
-- **`aggrega build` — available.** Reads a Release file, resolves the Aggregate + Manifest, runs the 5-step pipeline, writes rendered artifacts to the boundary output directories. When a lockfile is present it verifies dependencies against it; when one is absent it auto-pulls (unless configured otherwise).
+- **`aggrega build` — available.** Reads a Release file, resolves the Aggregate + Manifest, runs the compilation pipeline, writes rendered artifacts to the boundary output directories. When a lockfile is present it verifies dependencies against it; when one is absent it auto-pulls (unless configured otherwise).
 - **`aggrega inspect` — available.** Inspects a catalog entity and reports its resolved shape. Subcommand surface remains in active development; the full reference page is pending.
 - **`aggrega pull` — available.** Resolves all of a Release's dependencies and writes a per-Release lockfile pinning every catalog entity and source artifact to a version and content digest, and every external input the Release's render requests to a content digest; caches the fetched content under `.aggrega/cache`. `--verify` checks an existing lockfile against current state. See [`cli/aggrega-pull.md`](cli/aggrega-pull.md).
 - **`aggrega push` — available.** Publishes a catalog entity to an OCI registry; `aggrega push --list-kinds` reports which kinds it accepts. See [`cli/aggrega-push.md`](cli/aggrega-push.md).
 - **`aggrega lint` — available.** Runs the publishing-discipline rules over a catalog entity at `warn` severity; `--pre-publish` runs them at `halt` severity and adds a version-bump check against the entity's currently-published version. The rules ship as an opt-in Wasm plugin. See [`cli/aggrega-lint.md`](cli/aggrega-lint.md).
-- **`aggrega serve` — available.** A long-running compiler-as-service daemon speaking JSON-RPC 2.0 over stdin/stdout, for IDE integration (diagnostics, hover, completion, go-to-definition, IR-graph). See [`cli/aggrega-serve.md`](cli/aggrega-serve.md).
+- **`aggrega serve` — available.** A long-running compiler-as-service daemon speaking JSON-RPC 2.0 over stdin/stdout, for editor and IDE integration. See [`cli/aggrega-serve.md`](cli/aggrega-serve.md) for the methods it serves.
 - **`aggrega version` — available.** Prints the CLI version; `-o json` emits a machine-readable version object.
 - **`aggrega validate` — available.** Checks correctness across the whole catalog, a Release, or a single entity, reporting diagnostics without rendering artifacts.
 - **`aggrega search` — available.** Searches the local index of configured registries for published entities; the index is built and refreshed by `aggrega registry update`.
