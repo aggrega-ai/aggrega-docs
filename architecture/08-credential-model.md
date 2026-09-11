@@ -47,7 +47,9 @@ Two things a slot may constrain:
 - **`inject`** — the delivery mechanisms a Workload may select for what fills the slot. An empty list is a *blackbox* slot: the Recipe's own plumbing delivers it (a chart's `existingSecret` knob, for instance), and a Workload may not reference it from a container.
 - **`selector`** — a label-selector string the filling Feature's labels must satisfy. This is where the `kind=secret` label earns its keep: an entity author who wants a slot filled only by a credential says so with a selector, and the check is a label-set evaluation the compiler performs during static analysis.
 
-Slot `required` is declared on the surface today; the presence mandate that halts a build for a missing attachment is expressed instead by the repeatable Component annotation `features.aggrega.ai/requiredType.<label>`, which names a Feature type the deployment must attach.
+A third thing a slot may do is demand that it end up bound. `required: true` makes the slot's name compulsory: the compiler halts during static analysis when nothing binds it, with a diagnostic naming the slot and the component type that declared it. The demand is read against the attachment set the component ends up with once every scope has cascaded, so an attachment contributed above the component binds the slot exactly as a fill authored on the component does.
+
+A second surface expresses a different demand. The repeatable Component annotation `features.aggrega.ai/requiredType.<label>` declares a **presence mandate**: at least one attachment must carry the Feature type the annotation names, under any name and at any scope, and a mandate nothing satisfies halts during the same static analysis with its own diagnostic. The two never answer for each other — a slot asks whether one named binding point is bound, a mandate whether some attachment carries a named type — so an entity that needs its Recipe to *read* what was attached declares a slot, while one whose contract simply demands a capability be present declares a mandate.
 
 ## What the compiler does and does not guarantee
 
@@ -150,6 +152,10 @@ A FeatureRecipe may do both: rewrite the delivery pipe *and* emit a resource. It
 
 ## Sharing one credential across consumers
 
+**The consumer may hold the credential.** A slot belongs to whichever entity needs the credential, and that is often the *caller* rather than the thing being called: a component that presents a key when it reaches out declares the slot for that key on its own catalog entity, and nothing about a `uses` edge obliges the target to supply one. `core/ai-agent/crewai` is the shipped shape — it declares an optional `model_api_key` slot carrying the `feature.aggrega.ai/kind=secret` selector, `inject: [env]`, and `sensitive: true`. What the standard-library model components publish for a consumer to read is a serving location and a model name, not a credential, so the key the agent presents when it calls that endpoint is declared and held on the agent. The model component it connects to may hold a key of its own for its *own* callers — `core/ai-model/openai-compatible` declares an `api_key` slot for exactly that — and the two are separate binding points: an attachment binds a slot by name on the component that declares it, so filling one says nothing about the other.
+
+That placement is what makes the two forms below deployment choices at all: with the slot on the consumer, one deployment can give each consumer its own key and another can give them all the same one, with no catalog entity changing between them.
+
 The same catalog entity serves both shapes, and the **deployment** chooses which:
 
 - **Per-consumer.** Each component instance fills its own slot with its own credential attachment. Each gets its own rendered resource.
@@ -239,8 +245,9 @@ Public positioning is worth stating plainly and narrowly, so a reader can calibr
 
 - [05-invariants.md](05-invariants.md) — the ahead-of-time and string-pipe invariants this chapter rests on.
 - [10-compilation-pipeline.md](10-compilation-pipeline.md) — where attachment resolution and Resource Generation sit in the pipeline.
-- [../language-reference/entities/component.md](../language-reference/entities/component.md) — `featuresSchema` slot authoring, including the slot-level `sensitive` declaration.
+- [../language-reference/entities/component.md](../language-reference/entities/component.md) — `featuresSchema` slot authoring, including the slot-level `sensitive` declaration, the `required` keyword, and the point-by-point contrast between a slot and a presence mandate.
 - [../language-reference/vocabulary/compact-form-authoring.md](../language-reference/vocabulary/compact-form-authoring.md) — the leaf-level `sensitive` keyword, where the declaration is read, and the `parameters:` asymmetry.
 - [../language-reference/entities/workload.md](../language-reference/entities/workload.md) — the container `attachments:` map and its validation rules.
 - [../language-reference/examples/04-secrets.md](../language-reference/examples/04-secrets.md) — the authoring checklist and worked transparent / blackbox examples.
 - [../language-reference/examples/05-credential-features.md](../language-reference/examples/05-credential-features.md) — the credential Feature families and an end-to-end walkthrough.
+- [../language-reference/examples/model-api-key-sharing/](../language-reference/examples/model-api-key-sharing/) — a consumer-declared credential slot filled three ways from one catalog entity: per consumer, shared at subsystem scope, and both at once, with each form's rendered output.
