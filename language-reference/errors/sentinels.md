@@ -153,7 +153,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 
 | Sentinel | Code | Message |
 | --- | --- | --- |
-| `ErrOfflineEgress()` | `offline-egress` | ``egress: network access refused because the workspace is offline; remediation: unset workspace.offline (or AGGREGA_OFFLINE) or run `aggrega pull --release <release>` from a connected environment to populate the cache`` |
+| `ErrOfflineEgress()` | `offline-egress` | ``egress: network access refused because the workspace is offline; remediation: pass `--offline=false` to allow the network for this one run, or clear the top-level `offline` key in the configuration file (or AGGREGA_OFFLINE) to allow it from now on; where the work is a build that needs content the machine does not have, run `aggrega pull --release <release>` from a connected environment first to populate the cache`` |
 
 ### pkg/externalinputs
 
@@ -554,7 +554,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0122` | `deprecated-entity` | `deprecation: build consumes a deprecated entity` |
 | `E0123` | `not-docs-bundle` | `docscache: artifact is not a documentation bundle` |
 | `E0124` | `page-not-found` | `docscache: page not found in documentation bundle` |
-| `E0125` | `offline-egress` | ``egress: network access refused because the workspace is offline; remediation: unset workspace.offline (or AGGREGA_OFFLINE) or run `aggrega pull --release <release>` from a connected environment to populate the cache`` |
+| `E0125` | `offline-egress` | ``egress: network access refused because the workspace is offline; remediation: pass `--offline=false` to allow the network for this one run, or clear the top-level `offline` key in the configuration file (or AGGREGA_OFFLINE) to allow it from now on; where the work is a build that needs content the machine does not have, run `aggrega pull --release <release>` from a connected environment first to populate the cache`` |
 | `E0126` | `acquisition-disabled` | `externalinputs: acquisition is disabled for unpinned inputs` |
 | `E0127` | `digest-mismatch` | `externalinputs: fetched bytes mismatch the pinned digest` |
 | `E0128` | `scheme-not-allowed` | `externalinputs: URL scheme is not allowed` |

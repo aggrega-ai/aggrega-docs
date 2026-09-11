@@ -60,6 +60,13 @@ the committed file, which is what lets a pipeline change a setting without editi
 A variable that is unset — or set to an empty string — falls through to the layer below rather than
 blanking a configured value. Between the two files, your project's file wins over the global one.
 
+**A flag wins by having been typed, not by the value it carries**, and for a true-or-false setting
+that is the difference between a usable top layer and none. `--offline` turns the posture on for one
+run; `--offline=false` turns it off for one run where a committed file or an exported variable has
+turned it on. A layer that read the value alone could not tell "off" from "not mentioned", so every
+command would look as though it had asked for the flag's default and there would be no way to
+countermand a configured setting at all.
+
 That is the whole model for a single project on a single machine. Everything below exists for
 projects that outgrow it.
 

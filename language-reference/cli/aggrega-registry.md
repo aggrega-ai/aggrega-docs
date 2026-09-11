@@ -93,3 +93,20 @@ carried rather than a fresh one.
 Pass `--upgrade` to re-read every repository and pick it up. This matters beyond the
 report: the version exclusion and `aggrega inspect` both read this index, so a version
 retracted since your last full re-read is neither excluded from selection nor shown.
+
+## Offline
+
+`aggrega registry update` is the one command in this group that reaches the network, and
+under the offline posture — the top-level `offline` key in a configuration file,
+`AGGREGA_OFFLINE`, or [`--offline`](global-flags.md#--offline) — it refuses before it
+walks anything. The refusal names which of the three set the posture.
+
+There is no partial form to fall back on, because the index records what each registry
+currently serves and that cannot be learned without asking one. What an offline workspace
+*can* do is read the index it already has: `aggrega search` and the deprecation notice on
+`aggrega inspect` both read the local snapshot and need no network at all, so a refresh is
+the only thing the posture takes away. To refresh for one run from an offline workspace,
+pass `--offline=false`.
+
+The other commands in this group — `add`, `list`, `remove` — change or read local
+configuration and are unaffected.

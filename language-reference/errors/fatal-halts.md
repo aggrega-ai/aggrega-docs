@@ -1928,8 +1928,10 @@ A workspace can be marked offline, and that setting is a refusal rather than a p
 
 It reaches several kinds of work, all of them the same refusal: acquiring an artifact from a registry, acquiring a Recipe's source over the network, fetching an external input, obtaining an identity to sign with, and fetching trust material. A build reading a populated cache reaches none of them, which is the point of the setting.
 
+**Where the whole command is a network round trip, the refusal comes first rather than last.** `push`, `push-artifact` and `registry update` exist to reach a registry, so they say so before reading your entity or walking your repositories, and they name which of the three places set the posture — the flag you typed, the environment variable, or the file and the key inside it. A `--dry-run` is the exception, and it is an exception because of what it does rather than what it is called: it reports what it would publish and calls nothing, so it is the form of a publish that is offline-safe and it keeps working.
+
 Emitted message, which carries its own remediation and is the condition's own sentence:
-> egress: network access refused because the workspace is offline; remediation: unset workspace.offline (or AGGREGA_OFFLINE) or run `aggrega pull --release <release>` from a connected environment to populate the cache
+> egress: network access refused because the workspace is offline; remediation: pass `--offline=false` to allow the network for this one run, or clear the top-level `offline` key in the configuration file (or AGGREGA_OFFLINE) to allow it from now on; where the work is a build that needs content the machine does not have, run `aggrega pull --release <release>` from a connected environment first to populate the cache
 
 Framed by whatever needed the network. Fetching a registry's advertised trust policy:
 > registrytrust: fetch `<host>`: `<the message above>`
@@ -1937,7 +1939,7 @@ Framed by whatever needed the network. Fetching a registry's advertised trust po
 and acquiring a Recipe's source:
 > sourceresolver: kind=`<kind>` url=`<url>` version=`<version>`: `<the message above>`
 
-**How to fix:** the message names both ways, and which one applies is yours to decide. Where the workspace is meant to be offline, the missing content is what to fix: run the pull from somewhere with network access so the cache holds everything the release reaches, then the offline build needs nothing further. Where it is not meant to be offline, the setting is on — either `workspace.offline` in `.aggrega-config.yaml` or the environment variable the message names, and the environment variable is the one that catches people out because it is not in any file. Note that an offline workspace cannot sign with the keyless path at all, since issuing a certificate and recording it are network operations with no offline form.
+**How to fix:** the message names three ways and which one applies is yours to decide. Where the posture is set and you want past it for this one command, pass `--offline=false`; that is what the flag is for, and it is the only answer available to somebody who did not write the configuration file themselves. Where the workspace is meant to be offline, the missing content is what to fix: run the pull from somewhere with network access so the cache holds everything the release reaches, then the offline build needs nothing further. Where it is not meant to be offline at all, clear the setting at its source — the top-level `offline` key in `.aggrega-config.yaml`, or the environment variable the message names, and the variable is the one that catches people out because it is not in any file. Note that an offline workspace cannot sign with the keyless path at all, since issuing a certificate and recording it are network operations with no offline form.
 
 ## When building the topology
 
@@ -4296,7 +4298,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0122` | `deprecation: build consumes a deprecated entity` | The build consumes an artifact its publisher has deprecated |
 | `E0123` | `docscache: artifact is not a documentation bundle` | A resolved artifact is not a documentation bundle |
 | `E0124` | `docscache: page not found in documentation bundle` | A page is absent from a documentation bundle |
-| `E0125` | ``egress: network access refused because the workspace is offline; remediation: unset workspace.offline (or AGGREGA_OFFLINE) or run `aggrega pull --release <release>` from a connected environment to populate the cache`` | The workspace is offline and the step needs the network |
+| `E0125` | ``egress: network access refused because the workspace is offline; remediation: pass `--offline=false` to allow the network for this one run, or clear the top-level `offline` key in the configuration file (or AGGREGA_OFFLINE) to allow it from now on; where the work is a build that needs content the machine does not have, run `aggrega pull --release <release>` from a connected environment first to populate the cache`` | The workspace is offline and the step needs the network |
 | `E0126` | `externalinputs: acquisition is disabled for unpinned inputs` | A render requests an external input the lockfile does not pin |
 | `E0127` | `externalinputs: fetched bytes mismatch the pinned digest` | Fetched bytes do not match a pinned digest |
 | `E0128` | `externalinputs: URL scheme is not allowed` | An external input's URL uses a scheme that is not allowed |

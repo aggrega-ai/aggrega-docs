@@ -72,7 +72,9 @@ Pulled content is stored under `.aggrega/cache`, split into an `entities/` subtr
 
 ## Offline
 
-Under `offline: true` — or `AGGREGA_OFFLINE` in the environment — `aggrega pull` refuses network access. The refusal happens before any connection is attempted rather than as a timeout partway through a fetch, so an offline pull reaches no registry and no remote source.
+Under the offline posture — the top-level `offline` key in a configuration file, `AGGREGA_OFFLINE` in the environment, or [`--offline`](global-flags.md#--offline) on the command line — `aggrega pull` refuses network access. The refusal happens before any connection is attempted rather than as a timeout partway through a fetch, so an offline pull reaches no registry and no remote source. Where a committed file or an exported variable set the posture and you want past it for one command, `--offline=false` allows the network for that run alone.
+
+**`--upgrade` is refused outright under the posture, and it is the one option here that is.** A full refresh floats every dependency to the highest version a registry currently offers, so it needs to ask a registry what it currently serves. An ordinary pull does not: it honours the pins it already records, resolves only what has none, and is therefore satisfiable from what the machine holds. The refusal says which of the three places set the posture and how to allow the network for one run.
 
 Resolution then draws only on what the machine already holds: the `catalog_dirs` search stack and the cache under `.aggrega/cache`. Against a catalog and cache that satisfy every reference, an offline pull completes normally and writes an ordinary lockfile. The lockfile records each dependency's URI, resolved version and digest, and never which of those places served the bytes — so an offline pull and an online pull that resolve the same versions write the same lockfile.
 
@@ -91,7 +93,7 @@ So an offline pull is a refusal to touch the network rather than a reduced resul
 
 - **Verification.** `aggrega build` verifies every resolved dependency against the lockfile and halts on drift between the lockfile and the current catalog or registry state. Run `aggrega pull --upgrade --release <release>` to adopt the new state.
 - **Auto-pull.** If the lockfile is missing and `auto_pull` is true (the default), `aggrega build` runs the pull first automatically. If `auto_pull` is false, the build halts and asks you to pull.
-- **Offline.** Under `offline: true`, `aggrega build` uses only what the machine already holds, and refuses network access before any connection is attempted. A reference whose content the cache does not hold halts the build rather than failing partway through a fetch.
+- **Offline.** Under the offline posture, `aggrega build` uses only what the machine already holds, and refuses network access before any connection is attempted. A reference whose content the cache does not hold halts the build rather than failing partway through a fetch, and a build with no lockfile at all halts naming the posture and the pull that would fill it. `--auto-pull` is not itself refused, since an incremental fill over references already cached or present in a local catalog needs nothing from a registry; `--upgrade` is, for the reason [Offline](#offline) gives.
 - **Catalog search.** Pull honors `catalog_dirs` from `.aggrega-config.yaml` even when no `--catalog` is given, and resolves the same first-win search stack `aggrega build` does, so the dependencies it pins match what build searches.
 
 ## Determinism and integrity
@@ -120,7 +122,7 @@ The goal across kinds is to let each kind's native tooling continue to own its a
 
 ## Environment variables
 
-The workspace settings pull reads can be overridden through the environment, above the committed config and below any flag: `AGGREGA_OFFLINE` (see [Offline](#offline)), `AGGREGA_CATALOG_DIRS` (OS-path-list separated; supply absolute paths), `AGGREGA_ARTIFACT_CACHE_DIR`, `AGGREGA_DEFAULT_REGISTRY`, and `AGGREGA_SKIP_SIGNATURE_VERIFICATION` (loud — every pull logs a warning when verification is globally disabled). See [environment-variables.md](environment-variables.md) for the full list and the precedence model.
+The workspace settings pull reads can be overridden through the environment, above the committed config and below any flag: `AGGREGA_OFFLINE` (see [Offline](#offline), and [`--offline`](global-flags.md#--offline) for the flag above it), `AGGREGA_CATALOG_DIRS` (OS-path-list separated; supply absolute paths), `AGGREGA_ARTIFACT_CACHE_DIR`, `AGGREGA_DEFAULT_REGISTRY`, and `AGGREGA_SKIP_SIGNATURE_VERIFICATION` (loud — every pull logs a warning when verification is globally disabled). See [environment-variables.md](environment-variables.md) for the full list and the precedence model.
 
 ## See also
 

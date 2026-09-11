@@ -36,6 +36,14 @@ Two signing modes:
 
 The keyless service URLs and the keyed key path can also be set in `.aggrega-config.yaml` under a `signing:` block (global and per-registry); a flag overrides the config, and the config overrides the public-good default. The OIDC identity token is never a config field (it is a short-lived secret), and the private key is never inline in config — only a path to it.
 
+## Offline
+
+Publishing is a network round trip and has no form that is not, so under the offline posture — the top-level `offline` key in a configuration file, `AGGREGA_OFFLINE`, or [`--offline`](global-flags.md#--offline) — `aggrega push` refuses before it reads your entity. The refusal names which of those three set the posture, which is what a reader needs when a project's committed configuration turned it on rather than anything they typed.
+
+`--dry-run` is the exception, and it is an exception because of what it does: it computes the bundle, prints the reference it would publish, and makes no call. That makes it the offline-safe form of publishing rather than a conflict with the posture, and it keeps working under it.
+
+To publish for one run from a workspace whose configuration is offline, pass `--offline=false`.
+
 ## Environment variables
 
 The signing inputs and the destination registry can be supplied through the environment, overriding `.aggrega-config.yaml` while a flag still wins:

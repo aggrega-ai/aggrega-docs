@@ -18,9 +18,36 @@ Config-mutating commands choose which file they write from the nature of the set
 
 To seed a global config on a fresh machine — registering a registry and its signature trust policy so signed artifacts pull and verify without hand-editing YAML — run [`aggrega config init`](aggrega-config.md). To see what applies right now, and with `--origin` which layer decided each setting, run [`aggrega config show`](aggrega-config.md).
 
+## `--offline`
+
+Refuse every network reach for this one run.
+
+Offline is a workspace posture rather than a mode of one command, and it is reachable from three places: this flag, `AGGREGA_OFFLINE`, and the top-level `offline` key in a configuration file. They mean the same thing and they sit in the usual order — the flag wins over the variable, which wins over the file.
+
+**The off direction is as much the flag's job as the on direction.** `--offline=false` allows the network for one command where a committed configuration file or an exported variable has turned the posture on. That matters when the file is not yours to edit: a project whose `.aggrega-config.yaml` carries `offline: true` refuses a publication for everyone who clones it, and passing `--offline=false` is the one answer that needs no commit and no exported variable.
+
+### What refuses, and what does not
+
+The line is what the work needs rather than which command was typed.
+
+**Refused, because it cannot be true without reaching a registry:**
+
+- `--upgrade`, wherever it appears. It re-resolves every dependency and floats each to the highest version a registry currently offers, and "highest available" is a claim about what a registry serves right now. Running it against a warm cache would pin whatever happened to be cached while reporting that it had floated to the newest, which is worse than a halt.
+- The commands whose own work is a network round trip: [`aggrega push`](aggrega-push.md), [`aggrega push-artifact`](aggrega-push-artifact.md), and [`aggrega registry update`](aggrega-registry.md). These say so before reading your entity or walking your repositories, and the refusal names which of the three places set the posture, so somebody who typed no flag knows where to look.
+
+**Not refused, because the machine may already be able to satisfy it:**
+
+- An ordinary [`aggrega pull`](aggrega-pull.md), and `aggrega build --auto-pull`. Both honour the pins already recorded and resolve only what has none, so a workspace whose references are all cached or present in a `catalog_dirs` catalog completes without reaching out at all. Where such a run genuinely does need to fetch something, it is refused at that point and told which reference it could not satisfy.
+- `aggrega build` against a filled lockfile, which reads the cache and never dials.
+- A `--dry-run` publication. Its whole behaviour is to report the reference it would publish and call nothing, which makes it the offline-safe form of publishing rather than a contradiction of the posture.
+
+An airgapped machine holding a local copy of its catalog and artifacts is the case this split exists to keep working: such a workspace is offline, and almost everything it does is still satisfiable.
+
 ## Configuration precedence
 
 A flag wins over everything: over an environment variable, over the configuration files, and over the built-in default. [Configuration](configuration.md#what-overrides-what) carries the full ladder, and [environment-variables.md](environment-variables.md) the list of `AGGREGA_`-prefixed variables.
+
+`aggrega config show --origin` reports which of those layers decided each setting, and a flag you typed is reported as the flag — so when a refusal names a layer you did not expect, that command is where you confirm it.
 
 ## See also
 
@@ -33,6 +60,7 @@ A flag wins over everything: over an environment variable, over the configuratio
 | --- | --- | --- |
 | `--config` | — | path to the global config file, overriding $AGGREGA_CONFIG and the default location. Workspace-tree config files still layer on top |
 | `--no-color` | `false` | Disable ANSI color in all output. Also honored via the NO_COLOR environment variable |
+| `--offline` | `false` | Refuse every network reach for this one run: the offline posture, turned on without editing configuration. Pass --offline=false to turn it off for one run where the configuration file or AGGREGA_OFFLINE already turns it on. What refuses is what cannot be true without a registry: --upgrade, whose whole job is to float each dependency to the highest version a registry currently offers, and the commands whose own work is a network round trip — push, push-artifact, and registry update. What still runs is whatever the machine can already satisfy: a build against a filled lockfile, --auto-pull over references already cached or present in a local catalog, and a dry run, which reports what it would publish and calls nothing |
 | `--plain` | `false` | Accessible mode: disable color and draw plain, static progress lines with no spinner animation or cursor repaint, even on a terminal. Intended for screen readers |
 | `--workspace-root` | — | absolute path to use as the workspace root (skips discovery) |
 <!-- END GENERATED: global-flags -->

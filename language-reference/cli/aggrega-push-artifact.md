@@ -34,6 +34,10 @@ coordinate is `<registry>/docs/<name>:<tag>` — for example,
 artifact and not a catalog entity, it is fetched with any OCI-compatible client
 using that reference and media type.
 
+## Offline
+
+Publishing an artifact is a network round trip, so under the offline posture — the top-level `offline` key in a configuration file, `AGGREGA_OFFLINE`, or [`--offline`](global-flags.md#--offline) — this command refuses before it reads the file, and the refusal names which of those three set the posture. `--dry-run` keeps working, because it computes the reference and makes no call. To publish for one run from an offline workspace, pass `--offline=false`.
+
 ## See also
 
 - [./aggrega-sign.md](./aggrega-sign.md) — a data artifact is signed after the fact, by reference;
