@@ -27,10 +27,10 @@ aggrega config
 
 | Flag | Default | Description |
 | --- | --- | --- |
+| `--dry-run` | `false` | Do everything except write: hand back the seeded configuration as content, naming the file it is for, and create or modify nothing. Every other behaviour is the write's, so an existing config file is refused exactly as a write refuses it — pass --force alongside it for the merge an overwriting write would produce. |
 | `--force` | `false` | Overwrite an existing config file. Without it, init refuses when the target file already exists. |
 | `--global` | `false` | Write the entry to the global config shared across every workspace. This is the default. |
 | `--registry` | `hub.aggrega.ai` | Registry host to seed with its trust policy. Defaults to the official hub. |
-| `--report` | `false` | Report the seeded configuration as content, naming the file it is for, and write nothing. Without it the entry is written to the resolved config file. |
 | `--workspace` | `false` | Write the entry to this project's workspace config instead of the global config. |
 
 **`aggrega config show` flags**
@@ -52,10 +52,12 @@ The `config` subcommands seed, inspect, and freeze the configuration that govern
 
 - `--registry <host>` seeds a different registry — an air-gapped or private hub — instead of the official one.
 - If the target file already exists, `init` refuses rather than overwrite it; `--force` writes anyway, merging the registry entry into the existing file and preserving other settings.
-- `--report` returns the seeded configuration as content instead of writing it. Nothing is created or modified, and the answer names the file the content is for — which matters here, because the target is the global config unless `--workspace` selects this project's own. A caller that keeps its own document model, such as an editor, puts the content there, where it is visible before it is saved and can be amended or undone. `--report` needs no `--force`: an existing file is never overwritten because nothing is written at all, and the content reported is the merge a forced write would produce.
-- Under `--report`, standard output carries that content and nothing else, so it stays parseable. The one thing the content cannot express is an absence: when a registry advertises no trust policy, the notice saying so — and telling you to pin identities with `--identity` or `--key` — goes to standard error. A configuration document with no trusted identities looks the same whether a policy was pinned and happened to be empty or none was advertised at all, so read both streams; a program that discards standard error is told nothing about it. When the registry does advertise a policy, the pinned policy is in the reported content itself and no separate notice is produced.
+- `--dry-run` does everything `init` does except write. It hands the seeded configuration back as content, creating and modifying nothing, and the answer names the file the content is for — which matters here, because the target is the global config unless `--workspace` selects this project's own. A caller that keeps its own document model, such as an editor, puts the content there, where it is visible before it is saved and can be amended or undone.
+- Because a dry run does everything else `init` does, its exit code predicts the write's. It refuses an existing config file exactly as a write refuses it, and for the same reason, so you can use it to ask whether `init` would succeed before committing to the change. To see the document an overwriting write would produce, pass `--force` alongside it: `--force --dry-run` reports the merge and still writes nothing.
+- The registry is still contacted for its advertised trust policy, because the policy in the reported content is the policy a write would have pinned. A dry run makes the same single unauthenticated request to that registry's own origin that a write makes.
+- Under `--dry-run`, standard output carries that content and nothing else, so it stays parseable. The one thing the content cannot express is an absence: when a registry advertises no trust policy, the notice saying so — and telling you to pin identities with `--identity` or `--key` — goes to standard error. A configuration document with no trusted identities looks the same whether a policy was pinned and happened to be empty or none was advertised at all, so read both streams; a program that discards standard error is told nothing about it. When the registry does advertise a policy, the pinned policy is in the reported content itself and no separate notice is produced.
 
-A seeded configuration is a document you own and go on editing, which is why it can be reported rather than written. Freezing the effective configuration, below, produces a record of what the configuration resolved to — state the compiler keeps about itself rather than content anyone composes — so it always writes.
+A seeded configuration is a document you own and go on editing, which is why it can be handed back rather than written. Freezing the effective configuration, below, produces a record of what the configuration resolved to — state the compiler keeps about itself rather than content anyone composes — so it always writes and offers no `--dry-run`.
 
 ### `config show` — inspect what applies right now
 

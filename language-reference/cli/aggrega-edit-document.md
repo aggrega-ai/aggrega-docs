@@ -13,9 +13,9 @@ aggrega edit-document <edit> <file> [flags]
 
 | Flag | Default | Description |
 | --- | --- | --- |
+| `--dry-run` | `false` | Do everything except write: hand back the edited document as content, naming the file it is for, and create or modify nothing. Every other behaviour is the write's, the schema gate included. Without it the document is written |
 | `--name` | — | The key the new entry is written under: the component instance name, the attachment's name, the connection's alias, or the value's key |
 | `--node` | `[]` | One segment of the structural path to the node the edit is about, from the document root. Repeat it once per segment, outermost first. It takes a segment at a time rather than one dotted path because a dot is a legal character in a name you type, so a joined path could address a key nobody wrote |
-| `--report` | `false` | Report the edited document as content, naming the file it is for, and write nothing. Without it the document is written |
 | `--socket` | — | The dependency socket a connection is wired inside. Read for wire-edge and ignored otherwise |
 | `--value` | — | What the entry carries, read as a YAML scalar. Its meaning follows from the edit: the entity the entry requests, the node a connection points at, or the scalar a value is set to |
 <!-- END GENERATED: cli-edit-document -->
@@ -108,12 +108,12 @@ was written: document envelope validation failed (Release, at prod.release.yaml)
 
 ## Seeing the result before it is saved
 
-With `--report` the edited document is written to standard output as content, naming the file it is for, and nothing is created:
+`--dry-run` does everything the plain command does except write: the edited document goes to standard output as content, naming the file it is for, and nothing is created:
 
 ```bash
 aggrega edit-document attach-feature storefront.aggregate.yaml \
   --node spec --node components --node web \
-  --name tls --value core/tls:1.0.0 --report
+  --name tls --value core/tls:1.0.0 --dry-run
 ```
 
 ```yaml
@@ -125,6 +125,8 @@ documents:
 ```
 
 **Without it the document is written.** The default is the write, because the product of this command is an edited document and a command that produces one owes it — a request that says nothing about delivery edits the file.
+
+**Every other behaviour is the write's**, the validation gate included. An edit whose result the schema would refuse is refused under `--dry-run` too, naming the same property and leaving the file exactly as it was — so the exit code you get from a dry run is the exit code the write would have given you.
 
 ## The same edit from an editor or an assistant
 
@@ -161,7 +163,7 @@ Review the result before anything is written:
 ```bash
 aggrega edit-document wire-edge storefront.aggregate.yaml \
   --node spec --node components --node web \
-  --socket cache --name sessions --value spec.components.redis --report
+  --socket cache --name sessions --value spec.components.redis --dry-run
 ```
 
 To find out which container an entry belongs in before you name one, and to read a position without applying anything, see [`aggrega serve`](aggrega-serve.md).

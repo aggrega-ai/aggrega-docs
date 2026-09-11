@@ -13,6 +13,6 @@ aggrega import <file> [flags]
 
 | Flag | Default | Description |
 | --- | --- | --- |
+| `--dry-run` | `false` | Do everything except write: hand back the drafted files as content, naming the file each is for, and create or modify nothing. Every other behaviour is the write's, the importer run included. Without it the drafts are written to disk. |
 | `--format` | — | Name the source format explicitly, overriding shape detection (for example langflow or flowise) |
-| `--report` | `false` | Report the drafted files as content, naming the file each is for, and write nothing. Without it the drafts are written to disk. |
 <!-- END GENERATED: cli-import -->
