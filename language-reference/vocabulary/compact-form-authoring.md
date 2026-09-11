@@ -251,6 +251,8 @@ secondary:
 
 `$defs:` blocks within a compact-form schema declare reusable definitions. Each entry is itself a compact-form (or JSON Schema, or mixed) schema. Reference via `#/$defs/<Name>` JSON Pointer fragment:
 
+**Declare the block inside the pillar whose fields reference it**, beside those fields — not beside the pillar. A `schema:` block accepts only the three data-pillar names at its own top level, so a `$defs:` written as a sibling of `values:` is refused when the entity loads, naming the offending key and the pillar set it may hold. The pointer is spelled `#/$defs/<Name>` either way.
+
 ```yaml
 $defs:
   PodResources:
@@ -472,10 +474,15 @@ The advisory is its own class, keyed on its own code, and `--no-unsupported-fiel
 
 ### Where the declaration is read, and where it is not
 
-The keyword is read on the node it sits on, and the read descends only through property maps. Three shapes therefore need the marker placed deliberately:
+The keyword is read on the node it sits on, and the read then follows every route by which a declaration can reach that datum: nested property maps, each composition branch, and the target of a `$ref`. A branch and a reference target both compose onto the property carrying them, so a declaration found through either is collected for that property; only a `properties` descent extends the path.
 
-- **Beside a `$ref`**, not inside the reference's target. A marker in the referenced schema is not collected for the referring leaf.
-- **Beside a composition keyword** (`allOf` / `anyOf` / `oneOf`), not inside a branch's own `properties`.
+A marker is read whether it sits beside one of those keywords or inside what the keyword reaches, so two shapes need no deliberate placement:
+
+- **Beside a `$ref`, or inside the reference's target.** A marker on the referring leaf declares that leaf. A marker in the referenced schema is collected for the referring leaf too, at that leaf's path plus the chain below it — never at a path inside the definition, where no authored value lives.
+- **Beside a composition keyword (`allOf` / `anyOf` / `oneOf`), or inside a branch's own `properties`.** A branch composes onto the object carrying it, so every branch is descended — the conditional branches of a node authored as JSON Schema included — and a declaration inside one is collected at the composing property's own path plus its chain.
+
+One shape does need the marker placed deliberately:
+
 - **On the array leaf itself**, not on its `items` element type. An array whose elements carry material is declared sensitive at the array, because an element type is not a property map and is not descended into.
 
 ### `parameters:` is a different vocabulary
@@ -627,9 +634,10 @@ spec:
 
       secondary:
         when: '{{ eq $.architecture "replication" }}'
-        replicaCount: { type: integer, min: 2, max: 8, default: 2 }
-        resources: { $ref: "#/$defs/PodResources" }
-        persistence: { $ref: "#/$defs/PersistenceSpec" }
+        properties:
+          replicaCount: { type: integer, min: 2, max: 8, default: 2 }
+          resources: { $ref: "#/$defs/PodResources" }
+          persistence: { $ref: "#/$defs/PersistenceSpec" }
 
       auth:
         oneOf:
@@ -648,18 +656,18 @@ spec:
 
       labels: { type: object, valuesType: string }
 
-    $defs:
-      PodResources:
-        requests:
-          cpu: { type: string, pattern: "^[0-9]+(m|\\.[0-9]+)?$" }
-          memory: { type: string, pattern: "^[1-9][0-9]*(Mi|Gi)$" }
-        limits:
-          cpu: { type: string, pattern: "^[0-9]+(m|\\.[0-9]+)?$" }
-          memory: { type: string, pattern: "^[1-9][0-9]*(Mi|Gi)$" }
+      $defs:
+        PodResources:
+          requests:
+            cpu: { type: string, pattern: "^[0-9]+(m|\\.[0-9]+)?$" }
+            memory: { type: string, pattern: "^[1-9][0-9]*(Mi|Gi)$" }
+          limits:
+            cpu: { type: string, pattern: "^[0-9]+(m|\\.[0-9]+)?$" }
+            memory: { type: string, pattern: "^[1-9][0-9]*(Mi|Gi)$" }
 
-      PersistenceSpec:
-        size: { type: string, pattern: "^[1-9][0-9]*(Mi|Gi|Ti)$", required: true }
-        storageClass: { type: string }
+        PersistenceSpec:
+          size: { type: string, pattern: "^[1-9][0-9]*(Mi|Gi|Ti)$", required: true }
+          storageClass: { type: string }
 ```
 
 The example fits in ~40 LOC of compact form; the equivalent JSON Schema YAML expands to roughly 2.5x the line count. The compactness gain compounds across larger Component contracts and is meaningful enough to make the compact form the default authoring surface for `schema:`, `parameters:`, and SchemaLibrary entries.
