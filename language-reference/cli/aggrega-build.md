@@ -11,6 +11,14 @@ Two flags carry behaviour the flag reference below cannot convey on its own:
 
 `--dry-run` is covered in [Previewing a build without writing it](#previewing-a-build-without-writing-it), and `--trace` and `--trace-unredacted` in [Trace output](#trace-output) and [Showing the withheld values](#showing-the-withheld-values) below.
 
+## Filling the lockfile as part of the build
+
+Build is read-only about dependencies by default: it needs a lockfile and writes none. `--auto-pull`, and the `auto_pull` workspace setting, add the pull step to the build, so one command resolves the Release's dependencies and compiles against what it resolved.
+
+**The Release is rendered once.** Which external inputs a Release consumes follows from rendering it rather than from anything its documents declare, so the pull step renders the Release to find out — and that render is the build's. An auto-pulling build therefore costs one render, the same as a plain build over a lockfile that is already in place.
+
+**The flags that shape a render apply to it.** `--trace`, `--verify-determinism`, `--disable-plugin-cache` and `--no-unsupported-field-warnings` reach the render an auto-pulling build performs on the same terms they reach a plain build's, so asking for a trace or a determinism check on a one-command build gets you one. `--dry-run` is the exception and it is a refusal rather than a silence: a dry run writes nothing while the pull step writes, so the pairing halts before any work (see [Previewing a build without writing it](#previewing-a-build-without-writing-it)).
+
 ## The plugin trust record
 
 Two of a build's behaviours depend on `plugins-trust.yaml`, the committed file beside the Release's lockfile that records which plugin each verdict-returning attachment resolved to — a `plugins.governance` attachment in an `ir-verdict` or `render-verdict` role, and every `plugins.linter` attachment. [`aggrega pull`](aggrega-pull.md) writes it and the [plugin trust record schema](../schema/other/plugins-trust.md) describes its fields; what follows is only what a build itself does with it.
