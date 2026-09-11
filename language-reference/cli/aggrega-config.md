@@ -38,7 +38,7 @@ aggrega config
 | Flag | Default | Description |
 | --- | --- | --- |
 | `--global` | `false` | Print the global config file's own bytes verbatim, preserving its comments and formatting. |
-| `--origin` | `false` | Annotate each effective setting with the layer it came from (a config file, an environment variable, or the built-in defaults). |
+| `--origin` | `false` | Annotate each effective setting with the layer it came from (a command-line flag, an environment variable, a config file, or the built-in defaults). |
 | `--workspace` | `false` | Print this project's workspace config file's own bytes verbatim, preserving its comments and formatting. |
 <!-- END GENERATED: cli-config -->
 
@@ -66,7 +66,7 @@ A seeded configuration is a document you own and go on editing, which is why it 
 Two focused views narrow the output:
 
 - `--global` or `--workspace` prints a single layer's own file bytes verbatim, comments and formatting preserved; when that layer's file does not exist it says so rather than failing. The two are mutually exclusive.
-- `--origin` annotates each effective setting with the layer it came from — a config file, an environment variable, or the built-in defaults. Scalar settings are attributed per value; list and map settings are attributed as a whole to the layer that last changed them.
+- `--origin` annotates each effective setting with the layer it came from — a command-line flag, an environment variable, a config file, or the built-in defaults, highest precedence first. A flag is named as you typed it, so a setting `--offline` decided on this run reports `--offline` as its source; an environment variable is named behind an `env:` prefix and a config file by its absolute path. Scalar settings are attributed per value; list and map settings are attributed as a whole to the layer that last changed them.
 
 ### `config capture` — freeze build-critical settings
 
