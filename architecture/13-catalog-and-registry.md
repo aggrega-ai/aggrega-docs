@@ -10,7 +10,9 @@ The Aggrega compiler relies on a strictly typed, OAM-inspired registry to resolv
 
 An official `aggrega-catalog` repository (and any compliant third-party catalog) is organized to physically enforce the Separation of Concerns. The structure explicitly separates abstract interfaces from their concrete infrastructure implementations.
 
-URI segments map 1:1 to filesystem path segments. Components use a three-segment URI (`{publisher}/{category}/{name}`) where the category segment carries one of 15 cognitive categories — the same word as the component's `component.aggrega.ai/category` label (the 1:1 directory mirror, checked by the publishing linter's `category-matches-directory` rule). Features remain flat (`{publisher}/{name}`) — a small set, growing slowly. Operational ontology classification (`stateful-server`, `server`, etc.) lives in the `component.aggrega.ai/type` label, never in directory structure; cognitive capability labels (`datastore.aggrega.ai/engine`, `agent.aggrega.ai/autonomy`, …) layer behavioral subsets on top. The hub web UI uses labels for filtering and search; categories serve both filesystem navigation and the catalog's browse axis.
+URI segments map 1:1 to filesystem path segments. Components use a three-segment URI (`{publisher}/{category}/{name}`) where the category segment carries one of a closed set of cognitive categories — the same word as the component's `component.aggrega.ai/category` label (the 1:1 directory mirror, checked by the publishing linter's `category-matches-directory` rule). Features remain flat (`{publisher}/{name}`) — a small set, growing slowly. Operational ontology classification (`stateful-server`, `server`, etc.) lives in the `component.aggrega.ai/type` label, never in directory structure; cognitive capability labels (`datastore.aggrega.ai/engine`, `agent.aggrega.ai/autonomy`, …) layer behavioral subsets on top. The hub web UI uses labels for filtering and search; categories serve both filesystem navigation and the catalog's browse axis.
+
+The tree below is illustrative. It shows the shape of the layout — which directory level carries which URI segment, and which entity kinds nest where — using a handful of entries per level rather than the catalog's current contents.
 
 ```text
 aggrega-catalog/
@@ -57,8 +59,6 @@ aggrega-catalog/
 │       │   └── worker.yaml
 │       ├── messaging/        # event buses, queues
 │       └── storage/          # object/file storage
-│                             # (mesh/, network/ and bigdata/ are created
-│                             #  when their first entity lands)
 │
 ├── feature/                  # DOMAIN 2: Abstract Interfaces
 │   │                         # Flat: {publisher}/{name} (no categories)
@@ -115,29 +115,11 @@ aggrega-catalog/
         └── lakera-guard.wasm 
 ```
 
-**The 15 Component Categories** (directory name = `component.aggrega.ai/category` label value, 1:1):
+**The component categories are a closed set**, and that set — not the filesystem — is the category authority. A category value with no entity yet is **reserved vocabulary**: the browse axis stays stable and an author knows where a future component will land, so an empty shelf is correct rather than a vacancy owing an occupant. Because the catalog carries no placeholder files, the directory for such a value is created when its first entity lands.
 
-| Category | Contains | Typical ontology label(s) | On disk |
-| --- | --- | --- | --- |
-| `ai-agent` | AI agent frameworks, platforms, and patterns | worker, server, stateful-server, task, resource | populated |
-| `ai-model` | Model providers and inference runtimes | server, resource | populated |
-| `ai-tool` | Tools agents invoke | function, server, stateful-server, resource | populated |
-| `ai-pipeline` | AI data/processing pipelines | worker, task | created when the first entity lands |
-| `datastore` | Persistent datastores (relational, vector, document, graph, KV) | stateful-server, resource | populated |
-| `gateway` | API and AI gateways | server | populated |
-| `mesh` | Service meshes | server | created when the first entity lands |
-| `network` | Network primitives | server, resource | created when the first entity lands |
-| `messaging` | Event buses, queues, streams, the realtime media services that carry voice and video between participants, and the external carriers a message leaves the deployment through | stateful-server, server, resource | populated |
-| `storage` | Object/file storage, managed cloud resources (no compute) | resource | populated |
-| `compute` | Generic compute primitives (server, worker, task, function bases) | server, worker, task, function | populated |
-| `observability` | Telemetry, tracing, monitoring | varies | populated |
-| `security` | Security and compliance components | varies | populated |
-| `bigdata` | Large-scale data processing | varies | created when the first entity lands |
-| `devtool` | Developer tooling | varies | populated |
+The authoritative list — every category, what it holds, the operational `type` values its entities typically carry, and which directories exist today — is the [Component Categories](https://github.com/aggrega-ai/aggrega-hub/blob/main/docs/catalog-conventions-and-patches.md#component-categories) section of the catalog conventions guide, published alongside the standard-library catalog it governs.
 
-The closed set above — not the filesystem — is the category authority. A category value with no entity yet is **reserved vocabulary**: the browse axis stays stable and an author knows where a future component will land, so an empty shelf is correct rather than a vacancy owing an occupant. Because the catalog carries no placeholder files, the directory for such a value is created when its first entity lands, and the `On disk` column above is what tells a reader which those are.
-
-The ontology column carries only the 7 operational primitives — cognitive vocabulary never appears on the `type` axis. The three-axis split: operational `type` (how infrastructure treats the component), cognitive `category` (what it is, mirrored by the directory), and per-role capability labels (behavioral subsets — an entity is `category: datastore` plus whatever `datastore.aggrega.ai/engine` value its own product identity carries, so `core/datastore/qdrant` carries `vector` and `core/datastore/redis` carries `kv`, and both axes are queryable). A capability whose truth depends on what a deployment configures is not carried in the catalog at all: it is injected at compile time by the governance socket's `label-transform` role, which reads the developer's declared `values`. AI-pure categories carry the `ai-` prefix; dual-use categories appear bare with AI flavor expressed by capability labels. Categories are chosen for how users navigate and browse, not how the compiler classifies — the compiler is blind to all of it. When a component moves to its category directory, the redundant type suffix is stripped (e.g., `openai-model.yaml` → `ai-model/openai.yaml`).
+The `type` axis carries only the 7 operational primitives — cognitive vocabulary never appears on it. The three-axis split: operational `type` (how infrastructure treats the component), cognitive `category` (what it is, mirrored by the directory), and per-role capability labels (behavioral subsets — an entity is `category: datastore` plus whatever `datastore.aggrega.ai/engine` value its own product identity carries, so `core/datastore/qdrant` carries `vector` and `core/datastore/redis` carries `kv`, and both axes are queryable). A capability whose truth depends on what a deployment configures is not carried in the catalog at all: it is injected at compile time by the governance socket's `label-transform` role, which reads the developer's declared `values`. AI-pure categories carry the `ai-` prefix; dual-use categories appear bare with AI flavor expressed by capability labels. Categories are chosen for how users navigate and browse, not how the compiler classifies — the compiler is blind to all of it. When a component moves to its category directory, the redundant type suffix is stripped (e.g., `openai-model.yaml` → `ai-model/openai.yaml`).
 
 ### 2. The Split Schema & Bridge Synthesis Pipeline
 
