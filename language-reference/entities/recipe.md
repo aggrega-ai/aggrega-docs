@@ -322,18 +322,20 @@ Each artifact entry's template evaluates with the same template context as `valu
 
 ## The `outputLabels:` field — author-declared labels on rendered output
 
-`Recipe.spec.outputLabels:` is a map of label key → value that the provider stamps onto every object the Recipe's rendered output produces. It is the honest home for a *realization trait* — a property of how a particular Recipe realizes a component, as opposed to what the component is. The motivating case is `hosting: managed | self-hosted`: a managed-service Recipe and a self-hosted-chart Recipe for the same component type carry different `outputLabels`, so downstream tooling (cost allocation, policy, inventory) can tell them apart on the emitted resources.
+`Recipe.spec.outputLabels:` is a map of label key → value that the provider stamps onto every object the Recipe's rendered output produces. It is the honest home for a *realization trait* — a property of how a particular Recipe realizes a component, as opposed to what the component is. Take the storage a realization persists with, written below as the illustrative key `example.io/storage-backing`: a Helm Recipe mounting a PersistentVolumeClaim and a Compose Recipe mounting a named volume realize the same component through different machinery, so they carry different `outputLabels` and downstream tooling (cost allocation, policy, inventory) can tell them apart on the emitted resources. The key is illustrative — `example.io/` is an example namespace, and a catalog picks the keys its own tooling reads.
 
 ```yaml
 spec:
   capability: helm
   implements: core/datastore/postgres:1.0.0
   outputLabels:
-    hosting: self-hosted
+    example.io/storage-backing: persistent-volume
     example.io/team: platform
 ```
 
 Output labels ride the same rail as the fixed build-provenance labels: they are merged into the label set every emitting surface stamps, so they land wherever provenance lands. What differs is ownership — provenance keys are compiler-owned, `outputLabels` are Recipe-author-owned.
+
+**A component's own identity label is not typed here — a catalog convention, not a rule the compiler enforces.** Keys that state what the component *is* rather than how one Recipe realizes it — its cognitive category, its operational type, its per-role capability labels, who operates the underlying resource, the licensing class of what it wraps — are declared on the Component's `metadata.labels`; see [entities/component](component.md) "The Semantic Label Taxonomy" for the axes. A Recipe puts one of those onto its rendered output by naming the key in `outputComponentLabels:` below, not by typing the key and a value here. The reason is that a literal entry is a *second copy* of a value the component already carries, and a second copy can disagree with the first: a Recipe author can type one posture on a node whose Component declares another, telling a downstream reader something the graph does not say. A promoted entry copies by reference and so has no second copy to drift. The core accepts whichever you write, beyond the reserved-namespace rule below; the convention is upheld by catalog authors.
 
 **Reserved namespaces.** The `aggrega.ai/` and `app.kubernetes.io/` namespaces are reserved for platform-native provenance. A Recipe that declares an `outputLabels` key under either prefix is rejected at load with a clear catalog error naming the offending key. Every other key is accepted. The core does not otherwise police the key or value — a key or value that is not valid for the target engine's label surface is the author's responsibility, and the downstream runtime rejects it; the compiler stays out of the way beyond the reserved-namespace rule.
 
@@ -372,7 +374,7 @@ A promoted key lands on exactly the same surface as a literal one — the per-pr
 
 **A promoted key the component does not declare stamps nothing.** The build continues and emits a warning naming the node, the Recipe and the missing key. This is deliberate: a Recipe bound to components whose label sets differ still renders, and the discrepancy is surfaced rather than halted on.
 
-**Single-posture components — a convention, not a rule.** Promotion carries whatever value the component declares, and the compiler does not interpret that value. A component whose identity label holds a placeholder standing in for "varies" therefore promotes that placeholder onto every object rendered for it. Where a component genuinely has more than one posture, the standard-library catalog convention is to express the trait as a literal `outputLabels` entry on each Recipe that realizes it, or to stamp nothing at all. That is a catalog convention upheld by its authors, not a constraint the compiler enforces.
+**Single-posture components — a convention, not a rule.** Promotion carries whatever value the component declares, and the compiler does not interpret that value. A component whose identity label holds a placeholder standing in for "varies" therefore promotes that placeholder onto every object rendered for it. Where a component genuinely has more than one posture, the standard-library catalog convention is for each Recipe to state the posture of *its own* realization through an `outputLabels` key the Recipe owns, rather than through the component's identity key, which the same convention routes through `outputComponentLabels:` instead — or to stamp nothing at all. The two keys answer different questions and neither replaces the other: the identity key says what the component is across every realization, the Recipe-owned key says what this one realization does. That is a catalog convention upheld by its authors, not a constraint the compiler enforces.
 
 ## The `locals:` block
 
