@@ -15,7 +15,7 @@ Implementing a credential pattern end-to-end touches six surfaces across the fou
 
 The split between White-Box and Black-Box determines how many touch-points a particular credential pattern requires. White-Box covers the first five surfaces above; Black-Box covers all six — the heavier of the two, and the one Recipe authors most often implement when wrapping packaged infrastructure (Bitnami charts, managed services, etc.).
 
-The three worked examples below demonstrate the pattern across the canonical scenarios: White-Box (Example 11), Black-Box (Example 12), and Feature-Level isolation (Example 13).
+The three worked examples below demonstrate the pattern across the canonical scenarios: White-Box (Example 11), Black-Box (Example 12), and a Feature's own credential (Example 13).
 
 ## Example 11: White-Box Secrets — Developer Controls Delivery
 
@@ -258,32 +258,69 @@ spec:
 
 ---
 
-## Example 13: Feature-Level Secrets — Isolated Proxy Credentials
+## Example 13: A Feature's Own Credential
 
-A Feature (like an AI guardrail proxy) demands its own API key. The credential is completely isolated from the parent Component — the Python worker never sees the proxy's authentication.
+A Feature can need a credential of its own — a guardrail proxy that authenticates to an upstream service, a log shipper with an ingest token. The Feature declares the binding point in its **own** `featuresSchema`, exactly as a Component does, and the FeatureRecipe bound to it reads what fills that slot when it renders the Feature's workload.
 
-**1. Platform Catalog: The Feature with `featuresSchema`**
+**Attachments do not nest.** An attachment declares `type`, `description`, `values`, `uses` and `inject`, and the schema closes it there. The credential is attached *beside* the Feature, on the same component, under the name the Feature's slot declares — the slot name is what ties the two together.
+
+The guard Feature below, and the Component the deployment names, are entities this example's own catalog carries. The credential Feature `core/referenced-secret` and the FeatureRecipe `k8s-secret-from-parameter` that implements it are standard-library entities, walked through in [Credential Features](05-credential-features.md).
+
+**1. Platform Catalog: The Feature declares its own slot**
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Feature
 metadata:
-  name: core/lakera-guard
+  name: local/guard
   version: 1.0.0
 spec:
-  featuresSchema:
-    lakera_api_key:
-      required: true
-      inject: []
-      description: Lakera Guard proxy API key.
   appliesTo: "component.aggrega.ai/type in (server, worker)"
+  featuresSchema:
+    guard_api_key:
+      selector: "feature.aggrega.ai/kind=secret"
+      sensitive: true
+      inject: [env]                  # the Feature's own workload may read it as an env var
+      description: The guardrail proxy's API key.
   schema:
     values:
       action: { type: string, enum: [redact, block], default: redact }
 ```
 
-**2. Dev Domain: The Aggregate**
-The `secrets` block nests inside the Feature, perfectly isolating the credential from the parent Component.
+**2. Ops Domain: The FeatureRecipe renders the proxy and reads the slot**
+
+The FeatureRecipe carries a `workload:`, so the attachment renders a workload of its own. Its container references the slot by name: `from:` names the slot, not the Secret the credential produces.
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: FeatureRecipe
+metadata:
+  name: guard-proxy
+  version: 1.0.0
+spec:
+  capability: helm
+  implements: local/guard:1.0.0
+  workload: |
+    apiVersion: aggrega.ai/v1alpha1
+    kind: Workload
+    form: stateless
+    replicas: 1
+    containers:
+      guard:
+        image: "guardrails/proxy:1.0.0"
+        variables:
+          GUARD_ACTION: "{{ .values.action }}"
+        attachments:
+          GUARD_API_KEY:
+            from: guard_api_key
+            as: env
+        ports:
+          proxy: 8443
+```
+
+**3. Dev Domain: The Aggregate**
+
+Two attachments on one component: the Feature, and the credential that fills the Feature's slot. The component itself declares no credential slot.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -294,24 +331,89 @@ metadata:
 spec:
   components:
     finance-agent:
-      type: core/python-worker:1.0.0        # Uses Component from Example 7
+      type: local/compute/guarded-worker
       values:
         image: "corp/finance-agent:v2"
       features:
         ai-guard:
-          type: core/lakera-guard:1.0.0
+          type: local/guard
           values:
-            action: "redact"
-          features:
-            lakera_api_key:
-              type: core/aws-secrets-manager:1.0.0
-              values:
-                path: /prod/lakera
-                key: "api_key"
-              inject:
-                env:
-                  - in: LAKERA_GUARD_API_KEY
-                    from: "api_key"
+            action: redact
+        # Named for the slot the guard Feature declares — that is what fills it.
+        guard_api_key:
+          type: core/referenced-secret
+          values:
+            origin: dev-guard-key-change-me
+            key: api-key
 ```
 
-**Compilation:** The compiler first executes the credential FeatureRecipe's Fetcher plugin to generate the vault CRD. Then, because the credential is scoped to the Feature, it passes the resolved pointer strictly to the `FeatureRecipe`'s Wasm pipeline. The Feature's plugin generates the sidecar proxy and mounts `LAKERA_GUARD_API_KEY` directly to it, leaving the parent Python worker container untouched.
+**4. Routing Domain: Manifest**
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: guarded-fleet-manifest
+  version: 1.0.0
+spec:
+  mappings:
+    components:
+      type:
+        local/compute/guarded-worker: helm/guarded-worker:1.0.0
+    features:
+      type:
+        local/guard: guard-proxy:1.0.0
+        core/referenced-secret: k8s-secret-from-parameter:1.0.0
+```
+
+**What the build renders.** The credential FeatureRecipe emits the Secret; the guard FeatureRecipe emits its own Deployment, carrying the reference to it. Both excerpts below omit the provenance labels every rendered resource carries.
+
+```yaml
+# the guard Feature's own Deployment
+containers:
+  - name: guard
+    image: guardrails/proxy:1.0.0
+    ports:
+      - name: proxy
+        containerPort: 8443
+    env:
+      - name: GUARD_ACTION
+        value: redact
+      - name: GUARD_API_KEY
+        valueFrom:
+          secretKeyRef:
+            name: finance-agent-guard-api-key
+            key: api-key
+```
+
+```yaml
+# the host component's Deployment, from the same build
+containers:
+  - name: main
+    image: corp/finance-agent:v2
+    ports:
+      - name: web
+        containerPort: 8080
+```
+
+**What that gives you, stated exactly.** The reference lands on the container that asked for it and on no other: the host component's rendered Deployment carries no reference to the Secret, because its Recipe's Workload declares no `attachments:` entry naming the slot. Nor could it declare one — the slot belongs to the Feature, so a host Recipe reaching for it halts:
+
+```text
+[CATALOG_ERROR E0213] finance-agent
+  rendering node "finance-agent"
+  caused by: workload featuresSchema cross-check failed (Workload in Recipe guarded-worker:1.0.0, featuresSchema stage):
+    .containers.main.attachments.GUARD_API_KEY.from: references slot "guard_api_key" which is not declared in the Component's featuresSchema — either declare the slot in the Component (or Feature) featuresSchema, or rename the reference to an existing slot
+```
+
+That is a statement about where the compiler routes bytes, and it is the whole of what the compiler offers here: the Secret it emits is an ordinary resource of the target platform, and what may read it once applied is that platform's concern. [Credential Model](../../architecture/08-credential-model.md) states that boundary in full.
+
+**Two more things to know before you author one.** A workload entry naming a slot that nothing fills halts, because there is no published locator to resolve:
+
+```text
+[CATALOG_ERROR E0212]
+  workload attachment slot is not referenceable (Workload in Recipe guard-proxy:1.0.0, slotReferenceability stage):
+  .containers.guard.attachments.GUARD_API_KEY.from: slot "guard_api_key" is not referenceable: its resolved provides does not expose "name" (a workload attachment reference reads the provides keys name and key) — reference a slot filled by an attachment whose schema.provides declares the keys this reference reads, or deliver it through the slot's inject pipe rather than a workload reference
+  .containers.guard.attachments.GUARD_API_KEY.from: slot "guard_api_key" is not referenceable: its resolved provides does not expose "key" (a workload attachment reference reads the provides keys name and key) — reference a slot filled by an attachment whose schema.provides declares the keys this reference reads, or deliver it through the slot's inject pipe rather than a workload reference
+```
+
+And on a Feature's slot, `required: true` is a declaration the workload cross-check reads; it does not halt on its own. A build whose guard Feature marks the slot required and attaches nothing to fill it completes. What makes the credential compulsory here is the workload reference above.

@@ -37,7 +37,7 @@ under the chosen key, and the Recipe reads it as
   value: dev-root-pw-change-me
 ```
 
-A Black-Box slot is never referenced from the workload's `secrets` block, and no
+A Black-Box slot is never referenced from a workload container's `attachments:` block, and no
 Kubernetes Secret resource is generated for it — the value reaches the container
 straight through the inject pipe.
 
