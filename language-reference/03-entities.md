@@ -14,7 +14,7 @@ Two surfaces document the authoring vocabulary, and they answer different questi
 
 ## Per-entity reference
 
-- [Aggregate](entities/aggregate.md) — the developer's declarative intent artifact. Declares components, their topology via `uses`, parameter contracts for per-environment variation, and Feature / Secret attachments.
+- [Aggregate](entities/aggregate.md) — the developer's declarative intent artifact. Declares components, their topology via `uses`, parameter contracts for per-environment variation, and Feature attachments.
 - [Component](entities/component.md) — Platform-Architect-authored catalog entity defining a reusable component kind. Declares its `values` and `infra` schemas (each a JSON Schema 2020-12 declaration in compact or full form), its `provides` output contract, its `usesSchema` inbound-edge contract, and credential slots via `featuresSchema`.
 - [Feature](entities/feature.md) — Platform-Architect-authored catalog entity for a cross-cutting concern (monitoring sidecar, data masking, routing policy). Declares its `values` and `infra` schemas (each a JSON Schema 2020-12 declaration), `appliesTo` attachment selectors, and interoperability constraints.
 - [Recipe](entities/recipe.md) — Ops-authored translation from a Component to a specific provider. Composes three input kinds (`source:` + `valuesMapping:`, `workload:`, `artifacts:` — each accepting inline content or `$import:` per the unified file-import vocabulary) plus a `provides` block that forms the caller-injection contract.

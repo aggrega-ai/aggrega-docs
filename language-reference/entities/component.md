@@ -62,7 +62,7 @@ The three forms above author pillar content, and they are available to a Compone
 
 The compiler resolves the `schema:` block — expanding compact form, dereferencing `$ref:` URLs, applying SchemaLibrary library-to-library chains — and unifies the resulting JSON Schema with the auto-generated bases derived from `usesSchema` and `featuresSchema` (see the section below) during the Component's validation pass. Validation runs against the resolved schema; the authoring path is opaque to downstream pipeline stages.
 
-Authored instances are validated against this resolved schema at build time: a component instance's developer-authored `values` and the Operator's resolved `infra`, plus the `values`/`infra` on any Feature or Secret attachment, must conform to the declared pillars — a wrong-typed value, an out-of-range number, a missing required field, or (for `values`, validated closed) an undeclared property halts the build at its authored source rather than producing a broken manifest at deploy time. An instance of a Component that `extends:` a base is validated against the base's pillar block, which the extending Component inherits unchanged — so an instance of the base and an instance of anything extending it face the same pillar contract. See [errors/fatal-halts.md](../errors/fatal-halts.md) §"Authored values or infra do not conform to the declared schema" for the diagnostics and the per-pillar rules (including how `infra` is validated against the Component-plus-provider key union).
+Authored instances are validated against this resolved schema at build time: a component instance's developer-authored `values` and the Operator's resolved `infra`, plus the `values`/`infra` on any Feature attachment, must conform to the declared pillars — a wrong-typed value, an out-of-range number, a missing required field, or (for `values`, validated closed) an undeclared property halts the build at its authored source rather than producing a broken manifest at deploy time. An instance of a Component that `extends:` a base is validated against the base's pillar block, which the extending Component inherits unchanged — so an instance of the base and an instance of anything extending it face the same pillar contract. See [errors/fatal-halts.md](../errors/fatal-halts.md) §"Authored values or infra do not conform to the declared schema" for the diagnostics and the per-pillar rules (including how `infra` is validated against the Component-plus-provider key union).
 
 **Declared defaults materialize into the rendered pillars.** Beyond validation, a `default:` declared on a `values` field (or an `infra` field) is filled into the rendered pillar at build time for every key the author omits — so a Recipe template reading `{{ .values.charset }}` receives the schema-declared `utf8mb4` rather than an empty value. Author-supplied values always win; nested objects fill per omitted child. Because materialization uses the same schema resolution as validation, defaults reached through a cross-document `$ref:` into a SchemaLibrary materialize too — both a whole-pillar reference (`values: {$ref: "BaseComponents#/schemas/BaseModelParameter"}`) and the base-plus-flavor shape (a base `$ref:` alongside sibling `properties`, each carrying its own defaults). Defaults declared only inside a local in-document `#/$defs/` reference, or under an `allOf` / `oneOf` / `anyOf` branch, are not materialized; the standard library composes pillars via cross-document `$ref:`, which is.
 
@@ -320,29 +320,30 @@ components:
   agent:
     type: core/ai-agent/orchestrator
     uses:
-      primary_datastore: { target: vector-db-instance }
-      log_destination:   { target: audit-sink }
+      primary_datastore:
+        main:  { target: vector-db-instance }
+      log_destination:
+        audit: { target: audit-sink }
 ```
 
 **Wiring forms — a socket accepts one or many targets.** The examples above wire each socket to a single target, but a socket may fan out to several. A socket value is authored in one of two forms:
 
 ```yaml
 uses:
-  # Single target (the common case).
-  primary_datastore: { target: vector-db-instance }
-
   # Compact form — a list of target names. Each entry produces an edge
-  # whose alias equals its target. Use when one socket connects to several
-  # peers of the same shape.
+  # whose alias equals its target. Use it for the single-target case, and
+  # when one socket connects to several peers of the same shape.
   shards: [orders-db, customers-db, inventory-db]
 
-  # Verbose form — an alias-keyed map. Each alias produces an edge to its
-  # own target and may carry its own inject directives. Use when the
-  # connections need distinct names or per-edge inject.
+  # Verbose form — an alias-keyed map. Each alias maps to an entry object
+  # carrying its own `target:`, and may carry its own inject directives.
+  # Use when the connections need distinct names or per-edge inject.
   databases:
     primary: { target: orders-db,    inject: { env: { DB_URL: url } } }
     replica: { target: orders-db-ro, inject: { env: { DB_URL: url } } }
 ```
+
+An alias always maps to an entry object, never to a bare target name: `databases: { primary: orders-db }` is rejected at load, and so is an entry object that omits `target:`. To wire a single target with no alias to invent, reach for the compact form — `primary_datastore: [vector-db-instance]` — which names the target once and derives the alias from it.
 
 Each entry — list element or map alias — becomes one edge, preserved in authoring order. The socket's `selector:` applies to every target wired through it (each edge is type-checked independently during static analysis), and `required: true` means at least one target must be wired.
 

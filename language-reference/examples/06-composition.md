@@ -261,9 +261,9 @@ spec:
 
 ---
 
-## Example 17: Feature Atomicity & Secret Topology
+## Example 17: Feature Atomicity & Attachment-Owned Topology
 
-Features and Secrets can autonomously declare their own `uses` edges, creating independent topological connections without polluting the parent component.
+A Feature attachment can autonomously declare its own `uses` edges, creating independent topological connections without polluting the parent component. Attachments share one surface: an operational Feature and a credential Feature — one labeled `feature.aggrega.ai/kind: secret` — are attached under the same `features:` keyword and in the same shape, and either may carry a `uses` block of its own.
 
 **1. Dev Domain: The Aggregate**
 
@@ -304,12 +304,11 @@ spec:
             env:
               DB_PASS: "password"
           uses:
-            # The Secret autonomously maps its own network dependency
+            # The credential Feature autonomously maps its own network dependency
             vault_backend:
               vault:
                 target: internal-vault
 
-      features:
         audit-logger:
           type: core/enterprise-logger:1.0.0
           values:
@@ -321,10 +320,12 @@ spec:
                 target: compliance-s3
 ```
 
+Both attachments sit in one `features:` block, because one component declares its attachments once — a credential Feature is not a second kind needing a keyword of its own.
+
 **Compilation:** The compiler draws three independent edge sets:
 
 1. `finance-agent` → `search-api` (Developer-owned topology, agent socket)
-2. `finance-agent[secret:db_password]` → `internal-vault` (Secret-owned topology, tagged `origin_feature: db_password`)
-3. `finance-agent[feature:audit-logger]` → `compliance-s3` (Feature-owned topology, tagged `origin_feature: audit-logger`)
+2. `finance-agent[feature:db_password]` → `internal-vault` (attachment-owned topology, tagged `origin_feature_instance: db_password`)
+3. `finance-agent[feature:audit-logger]` → `compliance-s3` (attachment-owned topology, tagged `origin_feature_instance: audit-logger`)
 
 Each edge set passes through the compiler's policy validation independently.
