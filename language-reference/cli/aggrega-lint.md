@@ -86,7 +86,7 @@ Only the local-content mode runs on that layer: no registry is consulted, nothin
 
 Asking for the check outright works whatever the setting says, at all three of the scopes above. So a workspace that has never turned the per-edit layer on can still ask its editor to sweep the catalog, a Release's closure, or one entity — and get the same findings this command prints. The setting decides only whether the check also runs where you did not ask for it by name.
 
-The protocol details — the request, its parameters and the shape of its answer — are in [the `aggrega serve` reference](./aggrega-serve.md).
+The protocol details sit across two pages: what the request means and when to send it are in [the `aggrega serve` reference](./aggrega-serve.md), and its parameters and the shape of its answer, field by field, are in [the wire-shape reference](../schema/other/serve-wire.md).
 
 ## Choosing the linter
 
