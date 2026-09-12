@@ -7,13 +7,21 @@ self-contained directory — a Developer-authored `Aggregate` and one or more
 The examples come in two modes — the two ends of one curriculum:
 
 - **Consumption** — the workspace *references* standard-library catalog entities
-  and authors only its own teaching-specific content locally. It lists both its
-  local `./catalog` and the standard catalog checkout under `catalog_dirs` in
-  `.aggrega-config.yaml` (the search stack resolves local entities first), so it
-  builds with no `--catalog` flag:
+  and authors only its own teaching-specific content locally. It builds with no
+  `--catalog` flag:
   ```bash
   aggrega build --release release.yaml
   ```
+  Where those referenced entities are read from depends on the workspace. One
+  that carries an `.aggrega-config.yaml` resolves through the `catalog_dirs` it
+  lists — the standard catalog checkout, and, where the workspace authors
+  teaching content of its own, a local `./catalog` ahead of it, since the search
+  stack is first-win and a local entity shadows a standard-library one of the same
+  identity. A workspace that authors nothing locally needs no local entry, and one
+  that carries no `.aggrega-config.yaml` at all resolves entirely through the
+  configured registry. The paths in `catalog_dirs` are relative to the workspace,
+  so a copy taken somewhere else needs them adjusted before they resolve again.
+
   A multi-target workspace that keeps a separate catalog per target passes the
   directories as a repeatable `--catalog` instead
   (`--catalog ./catalog-<target> --catalog <standard-catalog>`).
@@ -22,11 +30,22 @@ The examples come in two modes — the two ends of one curriculum:
   `mariadb-adminer` is the worked authoring example; the entities it builds are
   the same kind the consumption examples consume.
 
-Each workspace on the list below carries a `build-release.sh` helper that
-picks the right catalog source and builds one release per run, echoing the
-equivalent direct `aggrega build` command first. Run `./build-release.sh` in a
-single-release example, or name the release for a multi-release one
-(`./build-release.sh helm`).
+Each workspace on the list below carries a `build-release.sh` helper that builds
+one release per run, echoing the equivalent direct `aggrega build` command first.
+Run `./build-release.sh` in a single-release example, or name the release for a
+multi-release one (`./build-release.sh helm`).
+
+The helper works out the catalog source from the workspace it is run in: a
+`catalog-<target>/` directory sitting beside `release-<target>.yaml` is passed as
+`--catalog`, and otherwise the workspace's own `.aggrega-config.yaml` — or, with
+no such file, the configured registry — supplies the entities. It looks only in
+the workspace directory, so it never finds a catalog that sits somewhere else in
+a repository; pass `--catalog` yourself after `--` when building a workspace of
+your own that keeps its catalog elsewhere. It also reports, on every run, which
+`aggrega` binary it used and where that binary came from, so output you compare
+against a page here is never from an unidentified build — and it prefers building
+the CLI from source over reusing one that the sources have since moved past. Set
+`AGGREGA_BIN` to choose the binary yourself.
 
 Lockfiles are generated rather than shipped, so a fresh clone has none and the
 first build needs one. `aggrega build` is read-only by default: with no lockfile
