@@ -12,107 +12,168 @@ An official `aggrega-catalog` repository (and any compliant third-party catalog)
 
 URI segments map 1:1 to filesystem path segments. Components use a three-segment URI (`{publisher}/{category}/{name}`) where the category segment carries one of a closed set of cognitive categories — the same word as the component's `component.aggrega.ai/category` label (the 1:1 directory mirror, checked by the publishing linter's `category-matches-directory` rule). Features remain flat (`{publisher}/{name}`) — a small set, growing slowly. Operational ontology classification (`stateful-server`, `server`, etc.) lives in the `component.aggrega.ai/type` label, never in directory structure; cognitive capability labels (`datastore.aggrega.ai/engine`, `agent.aggrega.ai/autonomy`, …) layer behavioral subsets on top. The hub web UI uses labels for filtering and search; categories serve both filesystem navigation and the catalog's browse axis.
 
-The tree below is illustrative. It shows the shape of the layout — which directory level carries which URI segment, and which entity kinds nest where — using a handful of entries per level rather than the catalog's current contents.
+The tree below is illustrative in its contents and exact in its shape. Where an entity is drawn in full it runs all the way down to its leaf file, so a whole real path can be read off the diagram: which directory level carries which URI segment, where the mandatory version segment sits, and which filename each entity kind uses at the leaf. It shows a handful of entries per level rather than the catalog's full contents — `...` marks an elision, and the names written beside one are further entries at that same level.
 
 ```text
 aggrega-catalog/
-├── README.md
 │
 ├── schemalibrary/            # TIER 3: Reusable JSON Schema 2020-12 definitions
-│   │                         # Common shapes (PodResources, PersistenceSpec, etc.)
-│   │                         # consumed via $ref: <Library>#/schemas/<name>
-│   │                         #   schemalibrary/base-components.yaml
-│   │                         #   schemalibrary/networking-primitives.yaml
-│   └── ...
+│   │                         # Shared shapes (BaseComponentParameter,
+│   │                         # BaseDatastoreParameter) consumed from a Component or
+│   │                         # Feature schema via $ref: <Library>#/schemas/<name>
+│   │                         # Path: {name}/{version}/library.yaml
+│   │
+│   ├── ai-datastores/
+│   │   └── 1.0.0/
+│   │       └── library.yaml
+│   └── base-components/
+│       └── 1.0.0/
+│           └── library.yaml
 │
-├── mappinglibrary/           # TIER 3: Reusable Go template fragments
-│   │                         # Common valuesMapping helpers consumed via
-│   │                         # valuesMapping: { $import: <Library>#/mappings/<name> }
-│   │                         #   mappinglibrary/bitnami-helpers.yaml
-│   └── ...
+├── workloadlibrary/          # TIER 3: Reusable Workload template fragments
+│   │                         # Shared bodies (StatelessService) consumed from a
+│   │                         # Recipe via workload: { $import: <Library>#/workloads/<name> }
+│   │                         # Path: {name}/{version}/library.yaml
+│   │
+│   └── base-workloads/
+│       └── 1.0.0/
+│           └── library.yaml
 │
 ├── component/                # DOMAIN 2: Abstract Interfaces
 │   │                         # URI: {publisher}/{category}/{name}
+│   │                         # Path: {publisher}/{category}/{name}/{version}/component.yaml
 │   │                         #   type: core/datastore/mariadb:1.0.0
-│   │                         #   → component/core/datastore/mariadb.yaml
+│   │                         #   → component/core/datastore/mariadb/1.0.0/component.yaml
 │   │
-│   └── core/                 # "core" = official Aggrega standard library
-│       ├── ai-agent/         # AI agent frameworks, platforms, patterns
-│       │   ├── anthropic.yaml
-│       │   └── pydantic-ai.yaml
-│       ├── ai-model/         # model providers and inference runtimes
-│       │   ├── openai.yaml
-│       │   └── openai-embedding.yaml
-│       ├── ai-tool/          # tools agents invoke
-│       │   └── browser.yaml
-│       ├── ai-pipeline/      # AI data/processing pipelines
-│       ├── datastore/        # persistent datastores
-│       │   ├── base.yaml
-│       │   ├── mariadb.yaml
-│       │   └── postgres.yaml
-│       ├── gateway/          # API and AI gateways
-│       │   └── kong.yaml
-│       ├── compute/          # generic compute primitives
-│       │   ├── function.yaml
-│       │   ├── server.yaml
-│       │   ├── task.yaml
-│       │   └── worker.yaml
-│       ├── messaging/        # event buses, queues
-│       └── storage/          # object/file storage
+│   ├── core/                 # "core" = official Aggrega standard library
+│   │   ├── ai-agent/         # AI agent frameworks, platforms, patterns
+│   │   │   └── ...           # anthropic, crewai, langflow, pydantic-ai, …
+│   │   ├── ai-model/         # model providers and inference runtimes
+│   │   │   └── ...           # ai21, anthropic, azure-openai, openai, …
+│   │   ├── ai-tool/          # tools agents invoke
+│   │   │   └── ...           # browser, mcp, search, …
+│   │   ├── ai-pipeline/      # AI data/processing pipelines
+│   │   │   └── ...           # argo-workflows, temporal
+│   │   ├── datastore/        # persistent datastores
+│   │   │   ├── mariadb/
+│   │   │   │   └── 1.0.0/
+│   │   │   │       └── component.yaml
+│   │   │   ├── postgres/
+│   │   │   │   └── 1.0.0/
+│   │   │   │       └── component.yaml
+│   │   │   └── ...           # etcd, ferretdb, qdrant, redis, valkey, …
+│   │   ├── gateway/          # API and AI gateways
+│   │   │   └── ...           # apisix, contour, kong, nginx, …
+│   │   ├── compute/          # generic compute primitives
+│   │   │   └── ...           # function, keda, server, task, worker, …
+│   │   ├── messaging/        # event buses, queues
+│   │   │   └── ...           # kafka, nats, rabbitmq, …
+│   │   ├── observability/    # metrics, logs, traces
+│   │   │   └── ...           # grafana, loki, prometheus, tempo, …
+│   │   ├── security/         # identity, secrets, certificates
+│   │   │   └── ...           # cert-manager, external-secrets, keycloak, …
+│   │   ├── devtool/          # developer-facing tooling
+│   │   │   └── ...           # adminer, promptlayer, …
+│   │   └── storage/          # object/file storage
+│   │       └── minio/
+│   │           └── 1.0.0/
+│   │               └── component.yaml
+│   └── example/              # a second publisher, same three-segment shape
+│       └── compute/
+│           └── greeter/
+│               └── 1.0.0/
+│                   └── component.yaml
 │
 ├── feature/                  # DOMAIN 2: Abstract Interfaces
-│   │                         # Flat: {publisher}/{name} (no categories)
+│   │                         # Flat: {publisher}/{name} (no category segment)
+│   │                         # Path: {publisher}/{name}/{version}/feature.yaml
 │   │                         #   type: core/data-masking:1.0.0
-│   │                         #   → feature/core/data-masking.yaml
+│   │                         #   → feature/core/data-masking/1.0.0/feature.yaml
 │   │
-│   └── core/
-│       ├── secret-value.yaml # feature.aggrega.ai/kind: secret
-│       ├── data-masking.yaml
-│       ├── k8s-dns-resolver.yaml
-│       ├── env-override.yaml
-│       ├── ingress.yaml
-│       └── ...               # ~25 core features, flat
+│   ├── core/
+│   │   ├── data-masking/
+│   │   │   └── 1.0.0/
+│   │   │       └── feature.yaml
+│   │   ├── secret-value/     # feature.aggrega.ai/kind: secret
+│   │   │   └── 1.0.0/
+│   │   │       └── feature.yaml
+│   │   └── ...               # k8s-dns-resolver, public-ingress, retry-policy, …
+│   └── ...                   # other publishers, same flat shape
 │
 ├── aggregate/                # DOMAIN 1: Reusable Aggregate Modules
+│   │                         # Path: {publisher}/{name}/{version}/aggregate.yaml
 │   └── core/
-│       └── db-module/
-│           └── aggregate.yaml
+│       ├── keycloak/
+│       │   └── 1.0.0/
+│       │       └── aggregate.yaml
+│       └── ...               # agenta, apisix, dify, harbor, kong, thanos, …
 │
 ├── recipe/                   # DOMAIN 3: Concrete Implementations
-│   │                         # Organized by CAPABILITY (the one a Recipe declares).
-│   │                         # Each recipe is a directory (may bundle source charts/modules).
-│   │                         #   recipe/helm/mariadb-bitnami/recipe.yaml
-│   │                         #   OCI: hub.aggrega.ai/recipe/helm/mariadb-bitnami:1.0.0
+│   │                         # Organized by CAPABILITY (the one a Recipe declares
+│   │                         # in spec.capability).
+│   │                         # Path: {capability}/{name}/{version}/recipe.yaml
+│   │                         # The version directory may bundle the Recipe's own
+│   │                         # source charts or modules beside recipe.yaml.
+│   │                         #   OCI: hub.aggrega.ai/recipe/helm/mariadb:1.0.0
 │   │
 │   ├── helm/
-│   │   ├── mariadb-bitnami/
-│   │   │   └── recipe.yaml
+│   │   ├── mariadb/
+│   │   │   └── 1.0.0/
+│   │   │       └── recipe.yaml
 │   │   └── postgres/
-│   │       └── recipe.yaml
-│   ├── helm-chart/
-│   │   └── mariadb/
-│   │       └── recipe.yaml
+│   │       └── 1.0.0/
+│   │           └── recipe.yaml
 │   ├── compose/
 │   │   └── mariadb/
-│   │       └── recipe.yaml
-│   └── eval/                 # Wasm Pass-Through formatter stubs
+│   │       └── 1.0.0/
+│   │           └── recipe.yaml
+│   ├── terraform/
+│   │   └── mariadb-rds-module/
+│   │       └── 1.0.0/
+│   │           ├── recipe.yaml
+│   │           └── module/   # bundled Terraform source
+│   │               ├── main.tf
+│   │               └── variables.tf
+│   └── cloudformation/
+│       └── postgres-rds/
+│           └── 1.0.0/
+│               └── recipe.yaml
 │
 ├── feature-recipe/           # DOMAIN 3: Concrete Implementations
 │   │                         # Capability leads the path, same as recipes.
+│   │                         # Path: {capability}/{name}/{version}/recipe.yaml
 │   │
 │   ├── helm/
 │   │   ├── k8s-secret-from-parameter/
-│   │   │   └── recipe.yaml
-│   │   └── k8s-dns-patcher/
-│   │       └── recipe.yaml
+│   │   │   └── 1.0.0/
+│   │   │       └── recipe.yaml
+│   │   └── public-ingress/
+│   │       └── 1.0.0/
+│   │           ├── recipe.yaml
+│   │           └── chart/    # bundled Helm source
+│   │               ├── Chart.yaml
+│   │               └── templates/
+│   │                   └── ingress.yaml
 │   ├── compose/
 │   │   └── dotenv-secret/
-│   │       └── recipe.yaml
-│   └── eval/
+│   │       └── 1.0.0/
+│   │           └── recipe.yaml
+│   └── ...                   # terraform, cloudformation
 │
-└── plugin/                   # ARTIFACTS: Compiled Wasm Adapter Binaries
-    └── security/
-        └── lakera-guard.wasm 
+└── plugin/                   # ARTIFACTS: Plugin entities, each a content-addressed
+    │                         # reference to a Wasm artifact. The compiled artifact
+    │                         # is published separately and is not stored here.
+    │                         # Path: {pluginType}/{name}/{version}/plugin.yaml
+    │
+    ├── linter/
+    │   └── publishing/
+    │       └── 0.5.0/
+    │           └── plugin.yaml
+    └── provider/             # the directory mirrors metadata.pluginType
+        ├── helm/
+        │   └── 0.5.0/
+        │       └── plugin.yaml
+        └── ...               # cloudformation, compose, helm-chart, terraform
 ```
 
 **The component categories are a closed set**, and that set — not the filesystem — is the category authority. A category value with no entity yet is **reserved vocabulary**: the browse axis stays stable and an author knows where a future component will land, so an empty shelf is correct rather than a vacancy owing an occupant. Because the catalog carries no placeholder files, the directory for such a value is created when its first entity lands.
