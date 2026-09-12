@@ -394,6 +394,14 @@ A few names appear in more than one package. Those are re-exports of one shared 
 
 `ErrCacheMetadataInvalid` (`pkg/sourceresolver/metadata`) reports a corrupt source-artifact cache slot. It is declared as a wrapper around `ErrFetchIntegrity()` rather than as an identity of its own, so it does not appear in the tables above and a match against `ErrFetchIntegrity()` succeeds for it as well. Because it wraps a sentinel instead of declaring one, it is exported as a value rather than as a function: match it as `ErrCacheMetadataInvalid`, with no parentheses. Match the wrapper when you want that specific condition, and the wrapped sentinel when you want the whole integrity class.
 
+## Sentinels reachable under a second name in one package
+
+Where a package exports two accessors for one condition — the second declared as a forward to the first — the tables above carry the declaring accessor and leave the forwarding name out. Both names are exported from the same package, so an import that reaches either already reaches the other, and a second row would list one condition twice under a name that matches nothing new. Matching either name succeeds: the forward returns the same value the declaring accessor returns.
+
+This is not the cross-package case. A sentinel re-exported from another package carries a row in each package's table, because a matcher importing one of those packages cannot reach the other's name without importing that package too; a forward inside a single package needs no second row, because one import reaches both names.
+
+`ErrDuplicateRecipeIdentity()` in `pkg/catalog` is such a forward: it returns `ErrDuplicateEntityIdentity()`, which is the name the table for that package carries.
+
 ## Conditions with no matchable sentinel
 
 Some compilation stages declare their sentinels in packages the compiler does not export, so there is nothing for `errors.Is` to reference and no matcher can be written against them. They are described here rather than tabulated, because a table on this page is a promise that the left-hand column can be dereferenced.
