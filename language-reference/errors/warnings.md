@@ -50,6 +50,8 @@ For nested properties, the warning includes the dotted path:
 LINT: Feature "core/db-pool" at ./catalog/feature/core/db-pool.yaml declares property "connection.timeout" in both values: and infra: pillars (path: spec.schema.connection)
 ```
 
+**Editor visibility.** The finding reaches editor diagnostics through the language server, at warning severity, at the head of the file rather than on a key — it names a catalog entity rather than a position inside the document you are editing, so there is no authoring key for a marker to sit on. It is raised before the artifact-rendering stage, so it needs no dial: an editor session surfaces it whether or not `serve.build_on_inspect` is on.
+
 **Soft-skip discipline.** The walker terminates without warning when a schema branch carries one of the JSON Schema 2020-12 escape hatches that prevent statically-derivable property sets: `$ref` (cross-document or in-document references), `patternProperties` (key-shape-based property declarations), and the composition operators `oneOf` / `anyOf` / `allOf` (disjunctions and conjunctions whose branches may declare divergent property sets). Walking these branches would either require evaluating the referenced or composed schema at lint time (a class of work the lint does not perform) or produce false positives when one branch's `values:` property name happens to collide with another branch's `infra:` property name. The lint emits no warning for the affected nesting depth; deeper levels of the same schema are still walked and lintable.
 
 **Authoring note.** The compiler does not reject pillar-name overlaps — the lint is advisory. A Component with `storage_size` in both pillars compiles; the developer-side `values.storage_size` and the operator-side `infra.storage_size` are validated independently by their pillar schemas, and the Recipe's `valuesMapping:` template chooses which pillar's value flows into the rendered output. The lint exists because the authoring pattern is almost always a mistake; conscious cross-pillar duplication is rare enough that authors who genuinely want it can ignore the warning. For the broader cross-pillar mechanics — including the rare cases where deliberate cross-pillar piping is justified — see [vocabulary/data-pillars.md](../vocabulary/data-pillars.md) "Cross-pillar mechanics".
@@ -66,7 +68,7 @@ LINT: Feature "core/db-pool" at ./catalog/feature/core/db-pool.yaml declares pro
   lint: annotation binding declares one path in both pillar lists (Manifest, at .spec.mappings.features.annotations.compliance.aggrega.ai/data-class, annotation binding "compliance.aggrega.ai/data-class" on Feature "core/data-masking" declares path "classifier_endpoint" in both maps.infra and maps.values; the routing tie-break sends this subkey through the infra pillar, which makes it unreachable from the Aggregate side — declare two bindings under two annotation keys if both pillars are meant to route it)
 ```
 
-**Editor visibility.** The finding also reaches editor diagnostics through the language server, at warning severity, positioned on the annotation-binding block it names. An author who never reads terminal output still sees it.
+**Editor visibility.** The finding also reaches editor diagnostics through the language server, at warning severity, positioned on the annotation-binding block it names. An author who never reads terminal output still sees it. It is raised before the artifact-rendering stage, so it needs no dial: an editor session surfaces it whether or not `serve.build_on_inspect` is on.
 
 **Matching it programmatically.** The finding carries `ErrAnnotationBindingPillarOverlap` from `pkg/resolver`, so a consumer recognises the class with `errors.Is` rather than by matching the message text. Like every advisory sentinel it never reaches a build's verdict — see [sentinels.md](./sentinels.md) for the accessor and the condition's codes.
 
@@ -90,7 +92,7 @@ LINT: Feature "core/db-pool" at ./catalog/feature/core/db-pool.yaml declares pro
 
 The first quoted value is the name the attachment was written under, which is what the warning's opening sentence is about. The two that follow are introduced by the words that say what they are: the Component type the attachment sits on, and the declared slot it sits within one edit of.
 
-**Editor visibility.** The warning also reaches editor diagnostics through the language server, at warning severity, positioned on the offending attachment key. An author who never reads terminal output still sees the pair.
+**Editor visibility.** The warning also reaches editor diagnostics through the language server, at warning severity, positioned on the offending attachment key. An author who never reads terminal output still sees the pair. It is raised before the artifact-rendering stage, so it needs no dial: an editor session surfaces it whether or not `serve.build_on_inspect` is on.
 
 **Threshold and its trade-off.** The lint pairs names only at one edit's distance, and only when both names are at least four characters long. Below that length nearly every short name sits within one edit of every other, so pairing them would produce noise rather than signal; above one edit the pairs stop resembling typos. A transposition counts as one edit rather than two, because a swapped pair of characters is the commonest slip and a stricter count would miss it.
 
@@ -114,7 +116,7 @@ The first quoted value is the name the attachment was written under, which is wh
 
 The first quoted value is the socket name the author wrote, which is what the warning's opening sentence is about. The two that follow are introduced by the words that say what they are: the Component type the socket was named on, and the declared socket it sits within one edit of. The consequence the warning does not spell out is the one described above: the misspelled name is an ad-hoc connection, so it carries no selector and no per-edge contract, and the socket the author meant stays unwired.
 
-**Editor visibility.** The warning also reaches editor diagnostics through the language server, at warning severity, positioned on the component whose `uses:` block holds the offending name. An author who never reads terminal output still sees the pair.
+**Editor visibility.** The warning also reaches editor diagnostics through the language server, at warning severity, positioned on the component whose `uses:` block holds the offending name. An author who never reads terminal output still sees the pair. It is raised before the artifact-rendering stage, so it needs no dial: an editor session surfaces it whether or not `serve.build_on_inspect` is on.
 
 **Threshold and its trade-off.** The lint pairs names only at one edit's distance, and only when both names are at least four characters long — the same bound the attachment-slot near-miss lint uses, for the same reason. Below that length nearly every short name sits within one edit of every other, so pairing them would produce noise rather than signal; above one edit the pairs stop resembling typos. A transposition counts as one edit rather than two, because a swapped pair of characters is the commonest slip and a stricter count would miss it.
 
@@ -144,7 +146,7 @@ The Recipe compared is the one the instance is actually bound to, matched by the
 
 The finding belongs to the instance that carries it, so ten instances of one Component type publishing the same undeclared key raise ten lines rather than one, each positioned at its own instance. Every line is attributed to the Recipe that published the key, because that is the document you edit to resolve it. The walk is deterministic, so the same input produces the same advisory sequence on every run.
 
-**Editor visibility.** The advisory also reaches editor diagnostics through the language server, at warning severity, positioned on the component instance whose `type:` binds the Recipe. An author who never reads terminal output still sees it.
+**Editor visibility.** The advisory also reaches editor diagnostics through the language server, at warning severity, positioned on the component instance whose `type:` binds the Recipe. An author who never reads terminal output still sees it. It is raised before the artifact-rendering stage, so it needs no dial: an editor session surfaces it whether or not `serve.build_on_inspect` is on.
 
 **Authoring note.** The lint is advisory and never changes the build's verdict — a Recipe publishing more than its Component declares still builds. The fix is one of two, and which one is right is the author's call: declare the key on the Component when consumers are meant to read it, or leave it undeclared when it is the Recipe's own working state, in which case `locals:` is where such state belongs. The opposite case is not advisory: a Component declaring a key its Recipe does not publish leaves the contract unfulfilled and halts the build.
 
@@ -181,6 +183,8 @@ The finding belongs to the instance that carries it, so ten instances of one Com
 
 The order is fixed: the node's `.values`, then its `.infra`, then each `uses` alias in the order the edges were emitted, keys sorted within each group. The same input therefore produces the same warning sequence on every run.
 
+**Editor visibility.** The warning reaches editor diagnostics only where the language server runs the artifact-rendering stage while inspecting an IR graph — `aggrega serve --build-on-inspect`, or the `serve.build_on_inspect` config key it overrides, which is off by default. That dial adds the advisories a build raises while rendering, and none of the checks a build halts on. The entry names a node rather than an authoring key, so it sits at the head of the file.
+
 **Why a warning and not a fatal halt.** Developers may legitimately consume different `.values` subsets in conditional template logic — a Recipe whose template branches on `.values.mode` reads `mode` but conditionally reads `.values.replication_password` only when `mode == "replication"`. The static walk cannot tell whether an unreferenced key is a don't-care or a bug. The tracker's purpose is to make the discrepancy visible rather than to police it; silent omission is the failure mode the tracker prevents.
 
 **Recipe-author response.** When a Recipe author sees a Ghost Infrastructure warning for a key they expected the Recipe to consume, the fix is to wire the key into the template. When the unread key is a deliberate omission (a feature the chart does not support, an authoring affordance the Recipe deliberately ignores), the author can document the omission in the Recipe's header comment so future readers know the discrepancy is intentional.
@@ -207,15 +211,17 @@ A declared parameter is the authoring surface for varying one value per deployme
   lint: Aggregate fullstack-app at .spec.parameters.unread_probe: declared parameter is read by no reference in the Aggregate ("unread_probe")
 ```
 
-Findings arrive in the order the Aggregate declares its parameters, so the same Aggregate produces the same sequence on every run. Each carries the declaration's locator, which names the offending key — that is what lets the advisory also reach editor diagnostics positioned on the declaration rather than at the head of the file. The message names the key as well, which is why it appears twice on a terminal line that prints the locator too: an editor shows the message at the position it placed and never the locator text, so a message that left the key out would read identically for every unread declaration.
+Findings arrive in the order the Aggregate declares its parameters, so the same Aggregate produces the same sequence on every run. Each carries the declaration's locator, which names the offending key. The message names the key as well, which is why it appears twice on a terminal line that prints the locator too: an editor shows the message at the position it placed and never the locator text, so a message that left the key out would read identically for every unread declaration.
+
+**Editor visibility.** The advisory also reaches editor diagnostics through the language server, at warning severity, positioned on the declaration its locator names rather than at the head of the file. It is raised before the artifact-rendering stage, so it needs no dial: an editor session surfaces it whether or not `serve.build_on_inspect` is on.
 
 **Why a warning and not a fatal halt.** A parameter may be declared ahead of the reference that will read it, and a static walk cannot tell that from a mistake — the same reason the authored-key reading only ever advises. The compiler does not police which knobs an author exposes.
 
-## Per-entity partial-coverage warnings
+## Per-entity metadata coverage
 
-The standard library defines metadata.labels and metadata.annotations as authoring surfaces on every entity kind. Today the compiler renders these annotations through to provider output uniformly only on Components and Features; per-entity rendering coverage on Aggregate, Release, Manifest, Recipe, FeatureRecipe, Plugin, SchemaLibrary, and MappingLibrary is partial — see [Status of the Language](../10-status.md) for the per-entity matrix.
+Which entity envelopes carry `metadata.labels` and `metadata.annotations` varies by kind. Component, Feature and the library kinds carry both; Aggregate carries labels only; Recipe, FeatureRecipe, Manifest, Release and Plugin do not accept either key at the envelope level. [Status of the Language](../10-status.md) holds the per-entity position and is the surface to consult.
 
-When an entity-level `metadata.labels` or `metadata.annotations` declaration on an entity whose rendering coverage is partial reaches the renderer, the compiler emits a one-line warning naming the entity, the unrendered surface, and a link to the status page so the author knows the declaration was accepted by the schema but not consumed by today's rendering. The warning is informational; rendered output is produced regardless. The warning's emit shape and the per-entity coverage table track the rendering work as it lands.
+**Editor visibility.** No advisory covers this, on any setting: there is nothing to report, because an entity either carries these keys or does not accept them, and a key a kind does not accept is a question its schema answers when the document loads rather than something the rendering stage reports afterwards. An author checks the status page rather than waiting for a warning.
 
 ## Unsupported-field warnings
 
@@ -261,6 +267,8 @@ These consequences follow from how annotations reach a render, and each of them 
 
 Each warning carries the stable, machine-matchable class code `unsupported-field`, so tooling can match the class rather than parse the message text. Every member of the class — the omitted-outright field, the reduced-form field, and the unacted-on annotation — carries that one code, which is what lets a single filter suppress the whole class. The warnings travel out-of-band from the rendered artifacts, which means **rendered bytes are byte-identical whether or not the warnings surface** — suppressing them cannot change your output.
 
+**Editor visibility.** Every member of the class reaches editor diagnostics only where the language server runs the artifact-rendering stage while inspecting an IR graph — `aggrega serve --build-on-inspect`, or the `serve.build_on_inspect` config key it overrides, which is off by default. That dial adds the advisories a build raises while rendering, and none of the checks a build halts on. The class code above travels on the published diagnostic as it does on the terminal line, so an editor client matches the same class an author reads. Each entry names a node and a target rather than an authoring key, so it sits at the head of the file.
+
 ### Suppressing the class
 
 Both commands that render accept `--no-unsupported-field-warnings`, which silences this class alone while every other render warning still surfaces:
@@ -286,7 +294,9 @@ Reach for the flag when you have accepted the reduced fidelity deliberately — 
   warning: node "db" (provider "compose"): attachment "user_password" delivers a value declared sensitive to env delivery key "MARIADB_PASSWORD" as a literal; where the target supports it, fill the slot with an attachment that delivers a reference instead
 ```
 
-**The class code.** The advisory carries the stable, machine-matchable class code `sensitive-by-value`, so tooling matches the class rather than parsing the message text. The code travels on the structured diagnostic the language server publishes as well as on the terminal line, so an editor client receives the same class an author reads.
+**The class code.** The advisory carries the stable, machine-matchable class code `sensitive-by-value`, so tooling matches the class rather than parsing the message text. The code travels on the terminal line and on the structured diagnostic the language server publishes, so an author and an editor client read the same class — under the editor-visibility condition below, which governs whether the language server publishes this advisory at all.
+
+**Editor visibility.** The advisory reaches editor diagnostics only where the language server runs the artifact-rendering stage while inspecting an IR graph — `aggrega serve --build-on-inspect`, or the `serve.build_on_inspect` config key it overrides, which is off by default. That dial adds the advisories a build raises while rendering, and none of the checks a build halts on. The entry names a node and a target rather than an authoring key, so it sits at the head of the file.
 
 **It is a class of its own, and `--no-unsupported-field-warnings` does not cover it.** That flag silences the unsupported-field class above; this advisory still surfaces alongside it. There is no flag that silences this one.
 
@@ -307,6 +317,8 @@ warning: plugin "governance/label-injector:1.0.0" resolved from cache with no re
 The line names the source the bytes came from — the same word `aggrega pull` and `aggrega plugin list` use for it — and ends in what to run, because the fix is always the same: pull the Release, which records the digest and makes every later run of that plugin a checked one.
 
 **It is raised once per plugin, however many times that plugin runs.** A render resolves its provider once per node, and the long-running editor service resolves an attachment on every request; repeating the line each time would bury it. One line per plugin reference is enough, because the condition is a property of the workspace rather than of any one node.
+
+**Editor visibility.** This warning reaches no editor diagnostics at all, and `serve.build_on_inspect` makes no difference to it either way — it goes to standard error and nowhere else, so an editor session captures it in whatever log it keeps of the compiler rather than drawing it on a problems surface. That is deliberate, and it follows from the line above: the advisory is held to one per plugin reference for the life of the process, so it says nothing new as you edit, while a problem redrawn at editing cadence would crowd out the findings about the document in front of you. It changes no verdict and fails no resolution, so what a session answers is the same whether or not the line was written.
 
 **Two resolutions raise nothing, and neither is an oversight:**
 
