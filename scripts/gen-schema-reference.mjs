@@ -10,24 +10,48 @@
 //   AGGREGA_BIN=/path/to/aggrega node scripts/gen-schema-reference.mjs
 //   AGGREGA_SCHEMA_OUT=/path/to/out node scripts/gen-schema-reference.mjs
 //
-// The generator is deterministic: given the same binary it produces
-// byte-identical output. Schema kinds are processed in sorted order, object
-// keys are emitted in the order the schema declares them, and the output
-// directory is rebuilt from scratch on every run so no stale page survives.
+// Which binary answers decides what the pages say, so the generator establishes
+// that rather than inheriting it: with no AGGREGA_BIN it builds a compiler from
+// the sibling aggrega-cli module, and with AGGREGA_BIN set it uses the binary
+// named and builds nothing. Every run reports which binary it used and where
+// that binary came from. The full rules, and what each failure path does, are
+// beside resolveBinary() below.
+//
+// The generator is deterministic: the same binary produces byte-identical
+// output. Schema kinds are processed in sorted order, object keys are emitted
+// in the order the schema declares them, and the output directory is rebuilt
+// from scratch on every run so no stale page survives. That claim used to be
+// written as "given the same binary", which put the hard half of it on the
+// caller — the same run could describe two different sets of schemas depending
+// on what was on PATH, and say nothing either way. Determinism is still
+// relative to a binary; the difference is that the generator now decides which
+// one rather than accepting whichever it is handed.
 //
 // The pages are generated — never hand-edit them. To change a page, change the
 // schema the binary emits and regenerate.
 
 import { execFileSync } from "node:child_process";
-import { mkdirSync, readdirSync, rmSync, writeFileSync } from "node:fs";
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readdirSync,
+  realpathSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-
-const BIN = process.env.AGGREGA_BIN || "aggrega";
 
 // Repository root is the parent of this script's directory.
 const SCRIPT_DIR = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = dirname(SCRIPT_DIR);
+
+// The sibling compiler module, named the same way the example-build wrapper in
+// this directory names it, so the two scripts cannot come to disagree about
+// where the module is.
+const CLI_DIR = join(dirname(REPO_ROOT), "aggrega-cli");
 
 // Output directory for the generated pages. Defaults to the committed
 // language-reference/schema tree; set AGGREGA_SCHEMA_OUT to redirect the whole
@@ -63,8 +87,7 @@ function proseEntityKinds() {
     // An empty read must not pass as "no entity kinds": it would file every
     // kind under the catch-all group and drop every prose link, and the run
     // would still report success.
-    console.error(`No prose entity pages found under ${ENTITIES_DIR}.`);
-    process.exit(1);
+    refuse(`No prose entity pages found under ${ENTITIES_DIR}.`);
   }
   return new Set(names);
 }
@@ -85,8 +108,170 @@ const GROUP_TITLES = {
   other: "Other & workspace schemas",
 };
 
+// Every line this script writes to stderr carries its name, because the
+// schema-documentation drift gate interleaves this script's output with its own
+// and an unattributed line there belongs to nobody.
+function note(message) {
+  console.error(`gen-schema-reference: ${message}`);
+}
+
+function refuse(message) {
+  note(message);
+  process.exit(1);
+}
+
+// Binary resolution.
+//
+// The pages describe the schemas a compiler emits, so a binary that predates the
+// schemas in this working tree regenerates the committed pages unchanged and
+// exits zero — a result indistinguishable from "the pages were already current".
+// That is why there is no "whatever `aggrega` is on PATH" path here any more.
+// The generator either uses a binary the caller named, or builds one:
+//
+//   1. AGGREGA_BIN, if set — used exactly as given, and NOTHING is built.
+//      Naming a binary is a deliberate act, and an override this second-guessed
+//      would not be one. Two real flows depend on it: a release process that
+//      fetches a published binary rather than building one, and the
+//      schema-documentation drift gate, which builds its own binary and points
+//      this generator at it.
+//   2. Otherwise — a fresh `go build ./cmd/aggrega` in the sibling aggrega-cli
+//      module. A build that fails FAILS the generation and writes nothing: a
+//      generator that cannot build the compiler cannot know what the schemas
+//      say, so refusing is the honest outcome and the compiler's own error is
+//      the one worth reading.
+//
+// Every run reports which binary answered and where it came from. On stderr,
+// because a caller that discards stdout — the drift gate does exactly that —
+// must still see which artifact produced the pages; and nowhere near the pages
+// themselves, because a page whose bytes moved with the binary's version would
+// put that same drift gate into refusal on every version bump.
+//
+// The three fields, and the freshness wording, are the ones the example-build
+// wrapper in this directory already prints. Two scripts reporting the same fact
+// in different words read as two different facts.
+function announce(binary, origin, freshness) {
+  note(`binary    = ${binary}`);
+  note(`origin    = ${origin}`);
+  note(`freshness = ${freshness}`);
+}
+
+// How an explicitly named binary is described in the provenance above.
+//
+// A value carrying a path separator is a path, and is reported symlink-resolved:
+// such a binary is commonly a symlink into the module that built it, so naming
+// the link rather than its target reports two different-looking origins for what
+// is one artifact.
+//
+// A value with no separator is a COMMAND NAME, which the child process resolves
+// against PATH. It is reported as one rather than resolved here, because
+// resolving it here would be a second implementation of PATH lookup that can
+// disagree with the one that actually runs — and it would also resolve against
+// the current directory, which is not where the child would look. A provenance
+// line that is confidently wrong is worse than one that is honestly incomplete.
+function describeNamed(named) {
+  if (!named.includes("/")) return `${named} — a command name; PATH decides which file runs`;
+  try {
+    return realpathSync(named);
+  } catch {
+    return named;
+  }
+}
+
+// The directory holding a binary this run built. Removed when the process ends,
+// however it ends — including through the refusals above, which exit(1).
+let BUILD_DIR = null;
+process.on("exit", () => {
+  if (BUILD_DIR) rmSync(BUILD_DIR, { recursive: true, force: true });
+});
+
+function buildBinary() {
+  if (!existsSync(join(CLI_DIR, "go.mod"))) {
+    refuse(
+      `no Go module at ${CLI_DIR}, so there is no compiler to build and nothing was written. ` +
+        "A standalone aggrega-docs checkout has no sibling module: set AGGREGA_BIN to an aggrega binary and re-run."
+    );
+  }
+  BUILD_DIR = mkdtempSync(join(tmpdir(), "gen-schema-reference-"));
+  const binary = join(BUILD_DIR, "aggrega");
+  note(`building the compiler from ./cmd/aggrega in ${CLI_DIR} ...`);
+  // GOWORK is cleared rather than inherited, which is what the
+  // schema-documentation drift gate's own build does. The two builds have to
+  // produce the same binary, so they clear the same thing. It is
+  // belt-and-braces today — aggrega-cli/go.mod carries its own filesystem
+  // replace for each sibling module, and a go.mod replace travels with the
+  // module, so GOWORK is not what redirects them. It is load-bearing in the
+  // release-time configuration, where those replaces are removed and the
+  // require's pinned version is what resolves: an inherited GOWORK=off would
+  // then send this compile to the network.
+  const env = { ...process.env };
+  delete env.GOWORK;
+  try {
+    execFileSync("go", ["build", "-o", binary, "./cmd/aggrega"], {
+      cwd: CLI_DIR,
+      env,
+      stdio: ["ignore", "inherit", "inherit"],
+    });
+  } catch (err) {
+    if (err && err.code === "ENOENT") {
+      refuse(
+        `no go toolchain on PATH, so the compiler in ${CLI_DIR} cannot be built and nothing was written. ` +
+          "Install Go, or set AGGREGA_BIN to a prebuilt aggrega binary."
+      );
+    }
+    refuse(
+      `go build ./cmd/aggrega failed in ${CLI_DIR}; the compiler's own error is above, surfaced unchanged. ` +
+        "Nothing was written — a generator that cannot build the compiler cannot know what the schemas say. " +
+        "Fix the build, or set AGGREGA_BIN to a binary you trust."
+    );
+  }
+  return binary;
+}
+
+function resolveBinary() {
+  const named = process.env.AGGREGA_BIN;
+  if (named) {
+    announce(
+      named,
+      `AGGREGA_BIN override -> ${describeNamed(named)}`,
+      "NOT CHECKED — an explicitly named binary is used as named"
+    );
+    return named;
+  }
+  const binary = buildBinary();
+  announce(
+    binary,
+    `built from source in ${CLI_DIR}`,
+    "current by construction — built from the module in this working tree"
+  );
+  return binary;
+}
+
+// Assigned by main() before the first run(), so the cheap checks above this line
+// refuse in milliseconds rather than after a build.
+let BIN = null;
+
 function run(args) {
-  return execFileSync(BIN, args, { encoding: "utf-8", maxBuffer: 64 * 1024 * 1024 });
+  try {
+    return execFileSync(BIN, args, { encoding: "utf-8", maxBuffer: 64 * 1024 * 1024 });
+  } catch (err) {
+    if (err && err.code === "ENOENT") {
+      refuse(
+        process.env.AGGREGA_BIN
+          ? `AGGREGA_BIN='${BIN}' names nothing runnable — not an executable path, and not a command on PATH. ` +
+              `Unset it to build the compiler from ${CLI_DIR} instead.`
+          : `the binary this run built at ${BIN} could not be invoked; nothing was written.`
+      );
+    }
+    // The child's own diagnostics, which execFileSync captures rather than
+    // printing. Without this they are swallowed and the reader is left with a
+    // stack trace from this script about a failure inside another program.
+    const detail =
+      err && typeof err.stderr === "string" && err.stderr.trim().length > 0
+        ? `\n${err.stderr.trimEnd()}`
+        : "";
+    const status = err && err.status !== undefined && err.status !== null ? err.status : "unknown";
+    refuse(`\`${BIN} ${args.join(" ")}\` exited ${status}; nothing was written.${detail}`);
+  }
 }
 
 function listKinds() {
@@ -241,23 +426,19 @@ function inlineUnnamedRefs(node, baseId, registry, seen = new Set()) {
   if (typeof node.$ref === "string" && !refNamesAType(node.$ref)) {
     const documentId = absoluteDocumentId(node.$ref, baseId);
     if (!documentId) {
-      console.error(`Cannot resolve ${node.$ref}: the referring schema declares no $id.`);
-      process.exit(1);
+      refuse(`Cannot resolve ${node.$ref}: the referring schema declares no $id.`);
     }
     const absolute = `${documentId}#${splitRef(node.$ref).pointer}`;
     if (seen.has(absolute)) {
-      console.error(`Reference cycle while resolving ${absolute}.`);
-      process.exit(1);
+      refuse(`Reference cycle while resolving ${absolute}.`);
     }
     const document = registry.get(documentId);
     if (!document) {
-      console.error(`Cannot resolve ${node.$ref}: no schema is published with id ${documentId}.`);
-      process.exit(1);
+      refuse(`Cannot resolve ${node.$ref}: no schema is published with id ${documentId}.`);
     }
     const target = resolvePointer(document, splitRef(node.$ref).pointer);
     if (target === undefined || target === null || typeof target !== "object") {
-      console.error(`Cannot resolve ${node.$ref}: it points at nothing in ${documentId}.`);
-      process.exit(1);
+      refuse(`Cannot resolve ${node.$ref}: it points at nothing in ${documentId}.`);
     }
     const { $ref: _followed, ...written } = node;
     const resolved = inlineUnnamedRefs(target, documentId, registry, new Set(seen).add(absolute));
@@ -781,10 +962,11 @@ function renderIndex(byGroup) {
 }
 
 function main() {
+  BIN = resolveBinary();
+
   const kinds = listKinds();
   if (kinds.length === 0) {
-    console.error("No schema kinds returned by `get-schema --list`.");
-    process.exit(1);
+    refuse("No schema kinds returned by `get-schema --list`.");
   }
 
   // Read every schema before rendering any page. A schema may reference one
