@@ -49,17 +49,30 @@ The criterion is forward-looking — `linter.wasm` is `planned` per the Wasm plu
 
 ## Prefix discipline
 
-Annotation and label keys follow a uniform `<namespace>/<name>` shape. Three reserved prefix families govern who may author keys under each prefix:
+Annotation and label keys follow a uniform `<namespace>/<name>` shape. The prefix families below say who authors keys under each one and how each is upheld — **one prefix is reserved, and a build halts where something claims a new key inside it; the rest are catalog convention, with nothing to refuse a key.** The difference between the two is whether a build halts, so read the middle column before the others.
 
-| Prefix | Owner | Purpose | Examples |
-| --- | --- | --- | --- |
-| `aggrega.ai/` | Aggrega platform only | Platform-native annotations consumed directly by the provider | `aggrega.ai/namespace`, `aggrega.ai/region`, `aggrega.ai/environment` |
-| `feature.aggrega.ai/` | Official standard library | Feature-annotation shortcuts bound in Manifest `features.annotations` | `feature.aggrega.ai/tls-pinning`, `feature.aggrega.ai/data-masking` |
-| `component.aggrega.ai/` | Official standard library | Component-intrinsic trait labels (the `component.aggrega.ai/type` selector key lives here) | `component.aggrega.ai/type` |
-| `aggregate.aggrega.ai/` | Official standard library | Aggregate module-level identity labels | `aggregate.aggrega.ai/tier`, `aggregate.aggrega.ai/compliance` |
-| `<any-other-domain>/` | Enterprise / community | Custom annotations and labels | `acme.com/billing-tier`, `corp/cost-center` |
+<!-- The table is the statement of how many prefix families there are. Do not write that number into the prose above it: a count beside the rows it counts goes stale the moment a family is added or removed. -->
+
+| Prefix | Who authors keys here | How it is upheld | Purpose | Examples |
+| --- | --- | --- | --- | --- |
+| `aggrega.ai/` | Aggrega platform only | **Reserved, and enforced.** The platform defines the keys here, and you write the ones it defines — `aggrega.ai/namespace` on a Release boundary, say. Claiming a *new* key inside the prefix halts: a Manifest `features.annotations` binding under the bare prefix, and a Recipe output-label key under it in `outputLabels:` or `outputComponentLabels:` alike. See [`errors/fatal-halts.md`](../errors/fatal-halts.md) "A Manifest annotation binding claims the reserved `aggrega.ai/` prefix" and "An output-label key uses a reserved namespace". | Platform-native annotations consumed directly by the provider | `aggrega.ai/namespace`, `aggrega.ai/region`, `aggrega.ai/environment` |
+| `feature.aggrega.ai/` | Official standard library | **Convention.** Nothing refuses a key here; the vocabulary is the standard library's by agreement rather than by a check. | Feature-annotation shortcuts bound in Manifest `features.annotations` | `feature.aggrega.ai/tls-pinning`, `feature.aggrega.ai/data-masking` |
+| `component.aggrega.ai/` | Official standard library | **Convention.** Nothing refuses a key here. | Component-intrinsic trait labels (the `component.aggrega.ai/type` selector key lives here) | `component.aggrega.ai/type` |
+| `aggregate.aggrega.ai/` | Official standard library | **Convention.** Nothing refuses a key here. | Aggregate module-level identity labels | `aggregate.aggrega.ai/tier`, `aggregate.aggrega.ai/compliance` |
+| `<any-other-domain>/` | Enterprise / community | **Open.** Author under a domain you control. | Custom annotations and labels | `acme.com/billing-tier`, `corp/cost-center` |
 
 Authors writing custom annotations use a domain they control (typically reverse-DNS style). Authoring under `aggrega.ai/` directly (without a sub-prefix) is reserved for the platform; the Manifest's `features.annotations` bindings cannot bind keys directly under `aggrega.ai/` either — see [`entities/manifest.md`](../entities/manifest.md) "`aggrega.ai/` Prefix Reservation".
+
+### A reservation and a platform-defined key are not the same thing
+
+The reservation is on the **bare** `aggrega.ai/` root. Every `<scope>.aggrega.ai/` namespace beneath it is a keyspace of its own that the platform does not own, which is what keeps the catalog's vocabulary extensible: an enterprise catalog can author `acme.aggrega.ai/team` without contesting anything the build stamps.
+
+A few keys inside those open namespaces are nonetheless **defined by the platform and read by the build**, and that does not make their namespace reserved:
+
+- **`component.aggrega.ai/type`** is required on every Component's `metadata.labels` and takes one of a fixed set of values. Selectors match on it; the compiler does not branch on which value it holds.
+- **`features.aggrega.ai/requiredType.<label>`**, authored on a Component's `metadata.annotations`, declares that a Feature of the named type must be attached. The build checks the mandate against each node's finished attachment set and halts where nothing satisfies it — see [`errors/fatal-halts.md`](../errors/fatal-halts.md) "Required feature not attached". Note the plural: `features.aggrega.ai/` is a namespace of its own, distinct from the singular `feature.aggrega.ai/` in the table above, which carries Manifest binding shortcuts.
+
+Read the difference this way: a **reserved** prefix refuses a key you try to define inside it, while a **platform-defined key** is one named key the build knows about, sitting in a namespace you are otherwise free to author in. Every other key under `component.aggrega.ai/`, `features.aggrega.ai/` and the rest is metadata the build carries without interpreting.
 
 ## Provenance labels emitted on rendered output
 
@@ -108,7 +121,7 @@ For per-provider emission specifics (where on the rendered output the labels lan
 
 Alongside the compiler-owned provenance set, a Recipe author can declare their own labels to stamp onto the Recipe's rendered output, via `Recipe.spec.outputLabels:`. These ride the same emission rail as the provenance labels — they are merged into the same label set and land wherever provenance lands — but they are author-owned rather than compiler-owned. The intended use is a *realization trait*: a property of how a specific Recipe realizes a component (for example `hosting: managed` versus `hosting: self-hosted` for a managed-service Recipe versus a self-hosted-chart Recipe of the same component type), surfaced on the output so cost, policy, and inventory tooling can query it.
 
-The `aggrega.ai/` and `app.kubernetes.io/` namespaces are reserved for the provenance set; an `outputLabels` key under either prefix is rejected at load. A validated `outputLabels` map is therefore always disjoint from the provenance keys, so the two never collide on the merged output. Per-provider surfacing (helm object and pod-template on synthesis; object on source-render and artifacts; compose service labels; terraform per-resource tags on `.tf.json` artifact bodies) matches the provenance placement, and is documented in full on the [Recipe entity page](../entities/recipe.md) under "The `outputLabels:` field".
+The `aggrega.ai/` and `app.kubernetes.io/` namespaces are reserved for the provenance set; a key under either prefix is rejected at load — in `outputLabels:` and in `outputComponentLabels:`, the companion block that names a component label key and stamps the value the component itself declares. A validated output-label set is therefore always disjoint from the provenance keys, so the two never collide on the merged output. The test is the bare root: a scoped key such as `component.aggrega.ai/hosting` is in a namespace of its own and may be written literally or promoted. Per-provider surfacing (helm object and pod-template on synthesis; object on source-render and artifacts; compose service labels; terraform per-resource tags on `.tf.json` artifact bodies) matches the provenance placement, and is documented in full on the [Recipe entity page](../entities/recipe.md) under "The `outputLabels:` field" and "The `outputComponentLabels:` field".
 
 ## Feature attachment — five surfaces
 
