@@ -339,8 +339,8 @@ uses:
   # carrying its own `target:`, and may carry its own inject directives.
   # Use when the connections need distinct names or per-edge inject.
   databases:
-    primary: { target: orders-db,    inject: { env: { DB_URL: url } } }
-    replica: { target: orders-db-ro, inject: { env: { DB_URL: url } } }
+    primary: { target: orders-db,    inject: { env: [{ in: DB_URL, from: url }] } }
+    replica: { target: orders-db-ro, inject: { env: [{ in: DB_URL, from: url }] } }
 ```
 
 An alias always maps to an entry object, never to a bare target name: `databases: { primary: orders-db }` is rejected at load, and so is an entry object that omits `target:`. To wire a single target with no alias to invent, reach for the compact form — `primary_datastore: [vector-db-instance]` — which names the target once and derives the alias from it.
@@ -621,11 +621,13 @@ components:
       tls_enabled: true
     inject:
       env:
-        LOG_LEVEL: "{{ .values.log_level }}"
-        TLS_ENABLED: "{{ .values.tls_enabled }}"
+        - in: LOG_LEVEL
+          value: "{{ .values.log_level }}"
+        - in: TLS_ENABLED
+          value: "{{ .values.tls_enabled }}"
       file:
-        "/etc/web/health-probe":
-          content: "{{ .provides.health_endpoint }}"
+        - in: /etc/web/health-probe
+          from: health_endpoint
 ```
 
 **Field semantics.** `spec.inject:` is an array of mechanism names. Three values are defined:

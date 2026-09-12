@@ -139,7 +139,7 @@ spec:
           type: core/secret-provided
           values: { origin: dev-app-pw-change-me }
           inject:
-            env: { MARIADB_PASSWORD: value }
+            env: [{ in: MARIADB_PASSWORD, from: value }]
 
     web:
       type: app/adminer

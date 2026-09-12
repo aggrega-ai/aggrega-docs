@@ -75,7 +75,7 @@ Aggrega solves this by leveraging the existing `inject` mechanism, shifting the 
 * **Example 1: The Output Generation (Terraform RDS)**
   The Ops Recipe for the database creates the AWS RDS instance. Crucially, the Recipe is authored to natively output that newly generated dynamic URL into AWS Systems Manager (SSM) Parameter Store at a deterministically named path (e.g., `/aggrega/prod/db-url`).
 * **Example 2: The Input Injection (Kubernetes App)**
-  The Developer writes `inject: { env: { DB_URL: "host" } }`. During compilation, Aggrega maps the deterministic pointer string (`"/aggrega/prod/db-url"`) through the IR graph edges. The Wasm rendering plugin for the worker application translates this edge into a generated Kubernetes `ExternalSecret` configuration and a Pod environment variable mapped to `valueFrom: secretKeyRef`.
+  The Developer writes `inject: { env: [{ in: DB_URL, from: "host" }] }`. During compilation, Aggrega maps the deterministic pointer string (`"/aggrega/prod/db-url"`) through the IR graph edges. The Wasm rendering plugin for the worker application translates this edge into a generated Kubernetes `ExternalSecret` configuration and a Pod environment variable mapped to `valueFrom: secretKeyRef`.
 
 At runtime, Terraform provisions the DB and saves the URL to the vault. The container boots up, reads the vault, and connects flawlessly. The AOT compiler generated the relationships via stable pointer strings without ever needing the literal IP address.
 

@@ -271,9 +271,10 @@ components:
       databases:
         legacy_db:
           target: legacy-oracle
-          inject: 
-            env: 
-              ORACLE_DSN: "primary_endpoint" # Maps Local Env : Target Output Key
+          inject:
+            env:
+              - in: ORACLE_DSN            # Local env var
+                from: "primary_endpoint"  # Target provides key
 ```
 
 **2. Domain 4 (The Manifest): The Routing**

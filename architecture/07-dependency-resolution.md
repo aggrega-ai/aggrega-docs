@@ -31,7 +31,7 @@ Two surfaces are deliberately not open this way, because they do not author the 
 Developers write `uses:` as a sibling to `values:` and `features:`. To ensure a frictionless UX, the schema natively supports polymorphism:
 
 * **Arrays of Strings:** Used for simple logical component references (e.g., `tools: ["search-api"]`) where standard routing is sufficient.
-* **Maps of Objects:** Used when strict delivery contracts are required (e.g., `databases: { hr_db: { target: "corporate-hr", inject: { env: { DB_URL: "host" } } } }`).
+* **Maps of Objects:** Used when strict delivery contracts are required (e.g., `databases: { hr_db: { target: "corporate-hr", inject: { env: [{ in: DB_URL, from: "host" }] } } }`).
 * **No Wildcards:** Wildcards (e.g., `["*"]`) are rejected by the schema to prevent "Ghost Dependencies" and unauthorized auto-wiring.
 
 **Domain 3: The Ops Reality (Normalization)**
@@ -135,9 +135,10 @@ uses:
         # 2. Strict Map: Dictating the environment variable delivery
         databases:
           corporate-hr-db:
-            inject: 
-              env: 
-                HR_DATABASE_URI: "host" # Local Env : Target Provide Key
+            inject:
+              env:
+                - in: HR_DATABASE_URI # Local env var
+                  from: "host"        # Target provides key
 ```
 
 **3. The Ops Reality (Domain 3): The Recipe**

@@ -234,9 +234,9 @@ uses:
           inject:
             type: object
             properties:
-              env: { type: object, valuesType: string }
-              file: { type: object, valuesType: string }
-              ssm_param: { type: object, valuesType: string }
+              env: { type: array, items: { type: object } }
+              file: { type: array, items: { type: object } }
+              ssm_param: { type: array, items: { type: object } }
             additionalProperties: false
       x-aggrega-selector: "component.aggrega.ai/type=stateful-server"
 ```

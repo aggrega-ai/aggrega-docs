@@ -148,7 +148,8 @@ spec:
             key: "password"
           inject:
             file:
-              "/etc/secrets/db.json": "password"
+              - in: "/etc/secrets/db.json"
+                from: "password"
 ```
 
 **2. Ops Domain: The Base Recipe**

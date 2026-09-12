@@ -44,9 +44,9 @@ spec:
           inject:
             type: object
             properties:
-              env:  { type: object, additionalProperties: { type: string } }
-              file: { type: object, additionalProperties: { type: string } }
-            required: [inject]
+              env:  { type: array, items: { type: object } }
+              file: { type: array, items: { type: object } }
+        required: [inject]
 ```
 
 **2. Platform Catalog: The Credential Feature**
@@ -90,7 +90,8 @@ spec:
             key: "api_token"
           inject:
             env:
-              OPENAI_API_KEY: "api_token"   # Local env var : target provides key
+              - in: OPENAI_API_KEY   # Local env var
+                from: "api_token"    # Target provides key
 ```
 
 **4. Ops Domain: The FeatureRecipe (Fetcher + Injector Pipeline)**
@@ -309,7 +310,8 @@ spec:
                 key: "api_key"
               inject:
                 env:
-                  LAKERA_GUARD_API_KEY: "api_key"
+                  - in: LAKERA_GUARD_API_KEY
+                    from: "api_key"
 ```
 
 **Compilation:** The compiler first executes the credential FeatureRecipe's Fetcher plugin to generate the vault CRD. Then, because the credential is scoped to the Feature, it passes the resolved pointer strictly to the `FeatureRecipe`'s Wasm pipeline. The Feature's plugin generates the sidecar proxy and mounts `LAKERA_GUARD_API_KEY` directly to it, leaving the parent Python worker container untouched.

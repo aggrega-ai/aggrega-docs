@@ -58,8 +58,10 @@ spec:
             target: data-layer.public_db     # Dotted path into sub-aggregate
             inject:
               env:
-                DB_HOST: "host"
-                DB_PORT: "port"
+                - in: DB_HOST
+                  from: "host"
+                - in: DB_PORT
+                  from: "port"
 ```
 
 **3. Routing Domain: The Release**
@@ -165,13 +167,15 @@ spec:
             target: stripe-api
             inject:
               env:
-                STRIPE_URL: "primary_endpoint"
+                - in: STRIPE_URL
+                  from: "primary_endpoint"
         databases:
           oracle:
             target: legacy-oracle
             inject:
               env:
-                ORACLE_DSN: "primary_endpoint"
+                - in: ORACLE_DSN
+                  from: "primary_endpoint"
 ```
 
 **3. Routing Domain: Manifest & Release**
@@ -302,7 +306,8 @@ spec:
             path: /secret/data/finance/db
           inject:
             env:
-              DB_PASS: "password"
+              - in: DB_PASS
+                from: "password"
           uses:
             # The credential Feature autonomously maps its own network dependency
             vault_backend:

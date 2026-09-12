@@ -172,11 +172,13 @@ spec:
             target: app-db
             inject:
               env:
-                DB_HOST: "host"     # inject env var DB_HOST from provides key "host"
-                DB_PORT: "port"     # inject env var DB_PORT from provides key "port"
+                - in: DB_HOST       # inject env var DB_HOST from provides key "host"
+                  from: "host"
+                - in: DB_PORT       # inject env var DB_PORT from provides key "port"
+                  from: "port"
 ```
 
-> **Alternative (Verbose Form):** The `inject` block also supports an explicit `in`/`from` array syntax. Both forms normalize identically as the topology is built:
+> **The same entries in YAML flow style.** Each delivery mechanism is a list of entries, so the block style above and the flow style below are the same document:
 >
 > ```yaml
 > inject:
@@ -317,8 +319,10 @@ spec:
             target: app-db
             inject:
               env:
-                DB_HOST: "host"
-                DB_PORT: "port"
+                - in: DB_HOST
+                  from: "host"
+                - in: DB_PORT
+                  from: "port"
 ```
 
 **2. Routing Domain: Two Releases (Dev & Prod)**

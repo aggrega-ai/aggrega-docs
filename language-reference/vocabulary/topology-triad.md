@@ -4,10 +4,10 @@
 
 Because Aggrega is an Ahead-of-Time (AOT) static compiler, no data flows backward from the live infrastructure during compilation. It is mechanically impossible for the compiler to actively fetch a physical credential (like an AWS secret) and pass it "back" to the Developer's container environment.
 
-Instead, the platform relies on **True Control Inversion**. When a developer writes `inject: { env: { ORACLE_PASSWORD: "password" } }`, they are not initiating a data fetch; they are dictating a strict contract to the infrastructure.
+Instead, the platform relies on **True Control Inversion**. When a developer writes `inject: { env: [{ in: ORACLE_PASSWORD, from: "password" }] }`, they are not initiating a data fetch; they are dictating a strict contract to the infrastructure.
 
 1. **The Intent (Domain 1):** The Developer declares an abstract interface: *"I require a secret. I don't know where it lives. Just inject it into my environment as `ORACLE_PASSWORD` mapping to the catalog's `password` key."*
-2. **The Compiler Transfer (at rendering):** The Go compiler takes the mapping `{ ORACLE_PASSWORD: "password" }` and hands it to the Ops Recipe. No physical secret is fetched.
+2. **The Compiler Transfer (at rendering):** The Go compiler takes the entry `{ in: ORACLE_PASSWORD, from: "password" }` and hands it to the Ops Recipe. No physical secret is fetched.
 **3. The Plugin Output (Domain 3):** The credential FeatureRecipe's Wasm pipeline generates the precise interlocking artifacts required by the target infrastructure. For example, in Kubernetes, it outputs the `ExternalSecret` CRD (instructing the cluster to fetch the vault data) **AND** executes a JSONPatch against the target Pod to map the resulting local K8s Secret specifically to the developer's requested `"ORACLE_PASSWORD"` environment variable.
 **4. The Runtime Reality:** At runtime, the an operator in cluster simply executes these generated artifacts—fetching the credential and physically mounting it into the container—completely decoupling the physical security mechanics from the AOT compiler.
 
@@ -74,9 +74,10 @@ components:
       app_token: "xyz"
     inject:
       env:
-        MY_TOKEN: "xyz"                    # Compact: literal value
-        LOG_LEVEL: "debug"                 # Compact: literal value
-      env:                                 # Verbose form (same mechanism, different syntax)
+        - in: MY_TOKEN
+          value: "xyz"                     # Literal value
+        - in: LOG_LEVEL
+          value: "debug"                   # Literal value
         - in: CALLBACK_HOST
           from: "host"                     # From own provides (already evaluated)
         - in: APP_VERSION
@@ -87,11 +88,12 @@ components:
           target: postgres-db
           inject:
             env:
-              DB_HOST: "host"              # Compact: provides key from target
-              DB_PORT: "port"              # Compact: provides key from target
-            env:                           # Verbose form
+              - in: DB_HOST
+                from: "host"               # Provides key from target
+              - in: DB_PORT
+                from: "port"               # Provides key from target
               - in: DB_URL
-                from: "dsn"               # From target's provides
+                from: "dsn"                # From target's provides
 ```
 
 **Provider-specific note (compose).** When `uses:` edges resolve between compose-targeted nodes, the compose provider derives `depends_on` entries from those edges. Those entries always use `service_started` semantics regardless of any target's `health:` block; gating them on the target's health is not implemented. See [providers/compose.md](../providers/compose.md) for the full inference rules.
@@ -130,7 +132,8 @@ uses:
     my-postgres-cluster:
       inject:
         ssm_param: # Agnostic injection paradigm (AWS Systems Manager)
-          MY_DB_HOST: "host"  # Local Env : Target Provide Key
+          - in: MY_DB_HOST   # Local identifier
+            from: "host"     # Target provides key
 ```
 
 The compiler resolves this at compile-time (mapping to static AST strings or internal DNS names) and passes the two objects to the Recipe:
@@ -173,8 +176,9 @@ Many enterprise AI frameworks expect a structured `config.json` or `.pem` certif
           path: /prod/ai/openai
           key: "api_token"
         inject:
-          file: 
-            "/etc/secrets/openai.json": "api_token" # Local Path : Target Provide Key
+          file:
+            - in: "/etc/secrets/openai.json" # Local path
+              from: "api_token"              # Target provides key
     ```
 
 * **Ops Reality:** The Ops Recipe dynamically generates the Kubernetes `Volume`, `VolumeMount`, and `ExternalSecret` required to securely pull the vault data and mount it to `/etc/secrets/openai.json`.
@@ -192,8 +196,9 @@ Pre-compiled binaries (like Rust or Go worker nodes) often bypass environment va
         values:
           hostname: api.enterprise.com
         inject:
-          arg: 
-            "--callback-url=": "hostname" # Local Flag : Target Provide Key
+          arg:
+            - in: "--callback-url="  # Local flag
+              from: "hostname"       # Target provides key
     ```
 
 * **Ops Reality:** The Feature's Wasm plugin receives the resolved public URL via the Injection Contract and emits a JSONPatch to dynamically append the Kubernetes `args` array: `["/app/binary", "--callback-url=https://api.enterprise.com"]`, completely bypassing the Component's Base Recipe.
