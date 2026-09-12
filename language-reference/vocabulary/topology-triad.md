@@ -19,7 +19,7 @@ To deliver this physical reality to the application without violating the Separa
 **The Deterministic Addressing Rule (Internal Network Physics)**
 Aggrega's `.context.uses` pipe dynamically injects target strings into containers at compile time. Because the core Go compiler is completely blind to physical networking, what counts as a valid address string relies entirely on a **Social Contract** upheld by Platform Ops, not a compiler function — the compiler pipes whatever deterministic pointer string the Ops Recipe produced into the downstream template context without interpretation.
 
-**The Rule: The Ops Recipe must export a deterministic, stable address pointer.** The provider does not calculate IPs. Instead, the target's Ops Recipe *should* formulate a predictable string and expose it via the `.locals` contract (e.g., exporting `.locals.internal_host: "http://agent-b.namespace.svc.cluster.local"` in Kubernetes, or an interpolation string like `"${aws_db_instance.main.endpoint}"` in Terraform).
+**The Rule: The Ops Recipe must export a deterministic, stable address pointer.** The provider does not calculate IPs. Instead, the target's Ops Recipe *should* formulate a predictable string and expose it via the `.locals` contract (e.g., exporting `.locals.internal_host: "http://agent-b.namespace.svc.cluster.local"` in Kubernetes, or an interpolation string like `"${module.db.endpoint}"` in Terraform, where the module declares a matching `output` for the value).
 
 Relying on the compiler to fetch post-provisioning dynamic IPs directly violates the AOT execution model. Because the compiler evaluates the topology *before* the cloud provisions any actual compute, it cannot physically fetch data that does not yet exist. If a service requires a random IP that is only generated after the compute boots, the compiler cannot physically fetch it. The compiler's only job is to blindly pipe the deterministic pointer string provided by the Ops Recipe into the calling container's environment variables, leaving the final resolution to the cluster's DNS or the active IaC state manager.
 
@@ -157,7 +157,7 @@ Per-edge configuration is consumer-scoped: it surfaces only in the context of th
 **A. Environment Variables (`env`) & Dynamic Destination Resolution**
 The standard delivery mechanism for modern cloud-native applications. For explicit topological edges (e.g., an Agent talking to a Database), Aggrega uses `.context.uses` to inject the environment variable mapping.
 
-* **Use Case:** Receiving deterministic internal DNS names, Infrastructure-as-Code interpolation strings (e.g., `${aws_db_instance.main.endpoint}`), or static Vault pointers. The compiler wires these static references AOT so the runtime infrastructure or GitOps controller can resolve the live values.
+* **Use Case:** Receiving deterministic internal DNS names, Infrastructure-as-Code interpolation strings (e.g., `${module.db.endpoint}`), or static Vault pointers. The compiler wires these static references AOT so the runtime infrastructure or GitOps controller can resolve the live values.
 
 **B. File Mounts (`file`)**
 Many enterprise AI frameworks expect a structured `config.json` or `.pem` certificate to exist at a specific path on the disk, rather than relying on environment variables.

@@ -87,14 +87,27 @@ meet at the database's published contract, not at a shared target.
   value: aws_db_instance.db.endpoint
 ```
 
-**That value is not a hostname, and it is not meant to be one yet.** The
-endpoint of an RDS instance does not exist until Terraform creates the instance,
-so there is nothing for a compiler running ahead of time to look up. What the
-Recipe publishes is the *expression that will resolve to it*, and the compiler
-pipes that string through untouched. Terraform resolves it at apply time. This
-is the general rule rather than a special case for RDS: anything that depends on
-the state of a running system is expressed as a deterministic pointer the
-runtime resolves, never as a value the compiler fetches.
+**That value is not a hostname, and nothing in this build turns it into one.**
+The endpoint of an RDS instance does not exist until the instance is created, so
+there is nothing for a compiler running ahead of time to look up. What the
+Recipe publishes is a string written in Terraform's own address syntax; the
+compiler pipes it across the edge untouched, the application's Recipe receives
+it verbatim, and it renders into the Kubernetes manifest as the literal
+characters shown above. The container is handed that text.
+
+**Native wiring between two components is something a target does inside its own
+output, so there is none to do here.** The two ends of this edge render through
+different targets — the database into Terraform HCL, the application into a
+Kubernetes manifest — and a Terraform address has meaning only inside a Terraform
+configuration. Crossing that seam, the published value is delivered as text like
+any other string.
+
+This is the general rule rather than a special case for RDS: anything that
+depends on the state of a running system is expressed as a deterministic pointer
+the runtime resolves, never as a value the compiler fetches. The compiler's part
+is to deliver the pointer unchanged. **Making it resolve where it lands is the
+Recipe author's**: publish an address the consuming side can use, or give both
+components Recipes that render into the same target.
 
 ### External — nobody in this deployment runs the server
 
