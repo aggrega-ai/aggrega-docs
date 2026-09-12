@@ -22,10 +22,11 @@ The examples come in two modes — the two ends of one curriculum:
   `mariadb-adminer` is the worked authoring example; the entities it builds are
   the same kind the consumption examples consume.
 
-Each workspace carries a `build-release.sh` helper that picks the right catalog
-source and builds one release per run, echoing the equivalent direct `aggrega
-build` command first. Run `./build-release.sh` in a single-release example, or
-name the release for a multi-release one (`./build-release.sh helm`).
+Each workspace on the list below carries a `build-release.sh` helper that
+picks the right catalog source and builds one release per run, echoing the
+equivalent direct `aggrega build` command first. Run `./build-release.sh` in a
+single-release example, or name the release for a multi-release one
+(`./build-release.sh helm`).
 
 Lockfiles are generated rather than shipped, so a fresh clone has none and the
 first build needs one. `aggrega build` is read-only by default: with no lockfile
@@ -49,9 +50,13 @@ rule scripts that read a build's output directory and refuse it when it breaks a
 rule, with the pipeline step for each. They run over the outputs of the
 workspaces below, and over yours.
 
-The set is organised as a **progressive-complexity path** — from the smallest
-authoring surface to the advanced compiler frontier. Read it top-to-bottom as a
-learning path, or jump to the tier that matches what you're doing.
+What follows is a **curated list of examples in increasing complexity** —
+from the smallest authoring surface to the advanced compiler frontier — and
+not a complete list of what is here: the `examples/` directory holding this
+page carries more workspaces than the list names. An example joins the list
+only when it teaches something the ones already on it do not, so this stays a
+path to work through rather than an inventory to scan. Read it top-to-bottom,
+or jump to the tier that matches what you're doing.
 
 ## Catalog-only
 
