@@ -32,7 +32,8 @@ so no `--catalog` flag is needed. The bare release writes three files under
 `aggregate-bare.yaml` leaves both values unset. The rendered output is a
 StatefulSet, a ClusterIP Service, and a Headless Service — no ConfigMap, no
 `configmap` volume, no volume mount into the init directory, and no config-file
-command override. This is the ordinary shape of a minimal PostgreSQL database:
+argument on the container. This is the ordinary shape of a minimal PostgreSQL
+database:
 
 ```text
 dist/helm/helm/db-statefulset.yaml
@@ -42,8 +43,8 @@ dist/helm/helm/db-headless-service.yaml
 
 Because both values are presence-guarded in the Recipe, an unset value emits
 nothing — the ConfigMap body renders empty and is skipped, and the volume, mount,
-and command lines are guarded out. A deployment that never touches these values
-is unchanged by their existence.
+and server-argument lines are guarded out. A deployment that never touches these
+values is unchanged by their existence.
 
 ## Configured — scripts and configuration mounted
 
@@ -85,7 +86,7 @@ whole into a different container path:
   key order.
 - `custom_config` → ConfigMap `db-config`, one data key `postgresql.conf`. A
   second `configmap` volume mounts it at `/etc/postgresql`, and the container's
-  command points the server at it: `postgres -c
+  `args:` point the server at it: `postgres -c
   config_file=/etc/postgresql/postgresql.conf`. Settings the fragment omits keep
   their built-in defaults.
 
@@ -94,7 +95,7 @@ whole into a different container path:
 containers:
   - name: main
     image: postgres:16
-    command:
+    args:
       - postgres
       - -c
       - config_file=/etc/postgresql/postgresql.conf
@@ -114,14 +115,43 @@ volumes:
       name: db-config
 ```
 
+Those server arguments arrive as `args:` rather than as `command:`, and the
+difference decides whether the database comes up populated: `args:` supplies
+arguments **to** the image's entrypoint, while `command:` **replaces** it. That
+entrypoint is the startup script that creates the database on an empty data
+directory, reads the `POSTGRES_*` environment, and runs the files under
+`/docker-entrypoint-initdb.d`. Replacing it would start the server against the
+mounted `postgresql.conf` and skip both the initialization and the bootstrap
+scripts — the values the deployment set would render into the manifest and never
+run.
+
 Setting only one of the two values is equally valid — the other's ConfigMap,
-volume, and mount are simply absent, and the config-file command appears only
+volume, and mount are simply absent, and the config-file argument appears only
 when `custom_config` is set.
 
 ## Compose
 
-The Compose Recipe for `core/datastore/postgres` reads the same Component, but it
-honors `init_scripts` and `custom_config` only on the helm-synth target. Compose
-has no ConfigMap-equivalent primitive here, so a Compose deployment that sets
-either value renders without it. Reach for the helm target when bootstrap scripts
-or a custom `postgresql.conf` are required.
+The Compose Recipe for `core/datastore/postgres` reads the same Component and
+realizes both values through compose's own primitive: it renders top-level
+`configs:` entries, and the service mounts each one as a file.
+
+- `init_scripts` → one config per key, each mounted at its own filename under
+  `/docker-entrypoint-initdb.d`. The image runs the files it finds there once, in
+  filename order, and only when the data directory is empty — a database that
+  already holds data is left untouched.
+- `custom_config` → one config, mounted as the single file
+  `/etc/postgresql/postgresql.conf`, with the same `postgres -c config_file=…`
+  arguments pointing the server at it. Settings the fragment omits keep their
+  built-in defaults.
+
+Each half is presence-guarded here too, so a deployment that leaves one value
+unset renders as though that key did not exist.
+
+One setting is worth naming when writing a `custom_config` block for a compose
+deployment: `listen_addresses` accepts local connections only by default, so a
+block that omits it leaves the database unreachable from the other services on
+the compose network.
+
+The Manifest in this example routes `core/datastore/postgres` to the helm Recipe.
+Building the same Aggregate on compose means a Manifest that routes it to
+`compose/postgres` instead; the developer values are untouched.
