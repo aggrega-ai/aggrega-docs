@@ -1,6 +1,6 @@
 # Error translation discipline
 
-Aggrega's compilation pipeline emits errors from many surfaces — schema validators, the resolver, the IR builder, the providers, the Go template engine, and the underlying YAML / Helm / docker-compose libraries the providers wrap. Errors that bubble to the CLI open with a bracketed head naming two things — a category, which says which concern to look at (for most values, the authoring surface at fault), and the short code of the condition that halted the build — followed by a source pointer and a message. This page documents the shape of that output so authors interpret error messages directly.
+Aggrega's compilation pipeline emits errors from many surfaces — schema validators, the resolver, the IR builder, the providers, the Go template engine, and the underlying YAML / Helm / docker-compose libraries the providers wrap. Errors that bubble to the CLI open with a bracketed head naming two things — a category, which says which concern to look at (for most values, the authoring surface at fault), and the short code of the condition that halted the build — followed by a source pointer and a message. Where a plugin raised the condition, the code is qualified by the plugin that raised it, because a code is unique only within whoever handed it out. This page documents the shape of that output so authors interpret error messages directly.
 
 For the per-error catalog (every fatal halt with how-to-fix guidance), see [`fatal-halts.md`](fatal-halts.md). For the four schema-validation layers and how their error shapes interact, see [`vocabulary/validation-surface.md`](../vocabulary/validation-surface.md).
 
@@ -28,6 +28,25 @@ A printed diagnostic opens with the bracketed head and the source pointer, and p
 ```
 
 The head carries two tokens, and they answer different questions. The category is one of those above and says which concern to look at. The short code is the letter `E` and four digits, and it names the exact condition that halted the build: quote it in a report, type it into a search, or resolve it against the table of every condition in [`sentinels.md`](sentinels.md). Neither is derivable from the other, which is why both are printed — and where a category covers more than one remedy, as `[TRUST_ERROR]` does, the short code is what tells you which one you met.
+
+### A code a plugin raised is qualified by the plugin that raised it
+
+A short code is unique only within whoever handed it out. Aggrega's own codes cannot collide with one another: a condition declared under a number another condition already holds is refused before the compiler reads any input. Nothing holds that across plugin authors — each allocates codes for their own plugin's conditions, and no author can see another's allocations — so two plugins can publish the same short code for two conditions that have nothing to do with each other.
+
+The plugin's identity is what tells those apart, and a head reporting a condition a plugin raised carries it immediately before the code:
+
+<!-- unregistered-output: an output grammar, whose metavariables stand in for whichever plugin and condition were met rather than quoting one -->
+
+```text
+[CATEGORY PLUGIN/SHORTCODE] <source>
+  <message>
+```
+
+**The short code is always the final segment** — the letter `E` and four digits, after the last `/`. A plugin's identity carries separators of its own, and may carry a version, so reading from the end rather than from the first `/` is what makes the code recoverable from any head. Everything before that final segment is the plugin.
+
+Where you resolve the code depends on which of the two segments you are holding. A plugin that ships with Aggrega declares its conditions the same way the compiler does, so its codes are listed beside the compiler's in the table of every condition in [`sentinels.md`](sentinels.md), and `aggrega explain` resolves them. A plugin you obtained elsewhere allocates its own codes, and they are the plugin author's to document: that table lists the conditions Aggrega declares, and a code it does not list is one to look up in the plugin's own reference. Either way, quote the final segment alone to `aggrega explain` — the qualifier says whose code it is, not which code it is.
+
+A head printing a bare short code is reporting a condition Aggrega itself raised, which includes the case where a plugin failed and named no condition of its own. There the compiler's generic plugin-failure condition is what halted the build, and the plugin's message carries the detail.
 
 ### Either token may be absent, and an absent one is omitted
 
