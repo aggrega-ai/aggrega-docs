@@ -1,6 +1,8 @@
 # aggrega pull
 
-`aggrega pull` resolves all of a Release's dependencies and writes a **lockfile** that pins every dependency to an exact version and content digest. A subsequent `aggrega build` reads the lockfile and verifies against it, so builds are reproducible and offline-capable. `aggrega pull` is the one step that touches the network; build does not.
+`aggrega pull` resolves all of a Release's dependencies and writes a **lockfile** that pins every dependency to an exact version and content digest. A subsequent `aggrega build` uses what the lockfile pins, verifies it, and halts naming anything it needs that is not pinned there — so builds are reproducible and offline-capable.
+
+**Everything a build consumes is pinned at this one moment.** The catalog entities, the source artifacts a Recipe points a provider at, and the remote documents a provider asks for while it renders are resolved by the same command and recorded in the same lockfile write. `aggrega pull` is the step that touches the network; build does not. That is the whole of the rule, and the rest of this page is what follows from it.
 
 ## What it does
 
@@ -10,9 +12,7 @@
 - **Source artifacts** — the remote `source:` that an individual Recipe or FeatureRecipe points a provider at: a Helm chart (OCI or classic HTTPS) or a Compose fragment over HTTPS. Each is fetched, cached, and pinned.
 - **External inputs** — the remote documents a provider asks the host for while it renders, such as a `$ref` in a chart's `values.schema.json` that points at a URL. Each is fetched, stored under its content digest, and pinned.
 
-**External inputs are found by rendering, which is why `aggrega pull` renders the Release.** A catalog entity or a source artifact is named in a document, so resolving it is a matter of reading what you authored. An external input is not: the provider asks for it during the render, and which URLs it asks for follows from the values being rendered — so the only way to learn the set is to render. Pull therefore does what a build's render does, and drops the rendered artifacts, keeping the pins.
-
-Two things follow, and both are worth knowing before you wire pull into an automated pipeline. It costs more than a resolution that only read documents. And it can fail for a reason a resolution previously could not — a provider that cannot render this Release. When that happens the dependency pins are still written and the diagnostic says what could not be reached, so the run is not lost; see [Offline](#offline) for the shape of that outcome.
+Two of the three are read out of the documents you authored. The third is not: external inputs are found by rendering the Release, which is why this command renders one. Running the command needs none of that — [How the resolution finds external inputs](#how-the-resolution-finds-external-inputs) carries it in full, along with what the render costs, what happens when it cannot complete, and how a build that fills its own lockfile relates to it.
 
 It writes the result to `<release-stem>.lock` next to the Release. A workspace that attaches a plugin returning an accept-or-reject verdict also gets a second file in that directory — the [plugin trust record](#the-plugin-trust-record).
 
@@ -72,7 +72,23 @@ If a pinned version's bytes in the registry no longer match the digest the lockf
 
 ## The cache
 
-Pulled content is stored under `.aggrega/cache`, split into an `entities/` subtree for catalog entities and a `source-artifacts/` subtree for source artifacts. The cache is content-addressed, so identical version pins share storage across Releases. Each source-artifact slot holds the authoritative archive, a regenerated extraction, and a small metadata file; the extraction is regenerated on every read, so build output depends on the archive and the lockfile, not on the state of the extracted files.
+Pulled content is stored under `.aggrega/cache`, split into an `entities/` subtree for catalog entities, a `source-artifacts/` subtree for source artifacts, and an `inputs/` subtree for the external inputs a render consumes, each blob there named by its own content digest. The cache is content-addressed, so identical version pins share storage across Releases. Each source-artifact slot holds the authoritative archive, a regenerated extraction, and a small metadata file; the extraction is regenerated on every read, so build output depends on the archive and the lockfile, not on the state of the extracted files.
+
+The cache is anchored to the workspace rather than to the directory you ran the command from, so one workspace has one cache and a pull run from a subdirectory fills the same store a build run from the root reads.
+
+## Building where the network cannot be reached
+
+Because this command is the only step that reaches out, one connected run is enough to make every later build local. That run writes the lockfile and fills the workspace cache with the bytes those pins name, and a build then needs nothing beyond them.
+
+Three things travel to the disconnected machine:
+
+- **The Release and its lockfile.** Commit `<release-stem>.lock` beside the Release; it is what tells the build which version and digest every dependency resolved to.
+- **`plugins-trust.yaml`, where the workspace attaches a verdict-returning plugin.** A build compares the verdict attachments its configuration names against that record before any of them runs, so carrying the record is what holds the disconnected build to the identities that were reviewed. Commit it beside the lockfile, as [The plugin trust record](#the-plugin-trust-record) describes.
+- **The cache directory.** The entities, the source artifacts and the pinned inputs all live under it, and anything a local `catalog_dirs` directory does not supply is read from there.
+
+Build on the disconnected machine as usual. Setting the offline posture there is worth doing even though a build over a filled lockfile reads its closure from the cache: it turns a would-be network reach into an immediate refusal naming the posture, rather than a connection attempt that has to time out first. Anything the cache does not hold, and any external input the lockfile does not pin, halts the build naming what is missing and the resolution that would pin it — nothing is fetched quietly to fill the gap.
+
+**An airgapped machine and an offline workspace are different claims, and the difference is worth keeping.** A machine behind an air gap may hold a local copy of a registry, or a `catalog_dirs` catalog carrying everything it needs, in which case an ordinary pull on that machine is satisfiable without reaching out at all. The offline posture describes what a command may reach for, not what the machine holds; [Offline](#offline) sets out what it refuses and what it leaves alone.
 
 ## Offline
 
@@ -99,6 +115,22 @@ So an offline pull is a refusal to touch the network rather than a reduced resul
 - **Auto-pull.** If the lockfile is missing and `auto_pull` is true (the default), `aggrega build` runs the pull first automatically. If `auto_pull` is false, the build halts and asks you to pull.
 - **Offline.** Under the offline posture, `aggrega build` uses only what the machine already holds, and refuses network access before any connection is attempted. A reference whose content the cache does not hold halts the build rather than failing partway through a fetch, and a build with no lockfile at all halts naming the posture and the pull that would fill it. `--auto-pull` is not itself refused, since an incremental fill over references already cached or present in a local catalog needs nothing from a registry; `--upgrade` is, for the reason [Offline](#offline) gives.
 - **Catalog search.** Pull honors `catalog_dirs` from `.aggrega-config.yaml` even when no `--catalog` is given, and resolves the same first-win search stack `aggrega build` does, so the dependencies it pins match what build searches.
+
+## How the resolution finds external inputs
+
+Nothing in this section changes the rule above — there is still one moment at which anything is pinned, and it is this command. What it describes is how the command reaches the third of the three kinds, which matters when you are wiring the resolution into a pipeline, reading a run that degraded, or reasoning about why this command renders at all.
+
+**A catalog entity and a source artifact are each named in a document; an external input is not.** Resolving the first two is a matter of reading what you authored. An external input is named by a *provider*, part-way through a render, and which URLs it names follows from the values being rendered — a values entry that is absent leaves a whole subtree of a chart's schema uncompiled and every remote reference in that subtree unrequested. No read of the Release can enumerate the set.
+
+So the command does two things in one pass: it resolves and pins the closure the documents name, then renders that closure to see which remote documents the providers ask for. The rendered artifacts are dropped and the pins are kept. Both are internal to the one command, and neither is a second moment at which something might be pinned — there is one lockfile write, and it carries every pin.
+
+**Two consequences are worth knowing before wiring the resolution into an automated pipeline as a cheap step.** It costs more than a resolution that only reads documents, because it renders. And it can fail for a reason a document-only resolution could not: a provider that cannot render this Release. When that happens the dependency pins are still written, because nothing about them depended on the render, and the diagnostic names the stage that stopped, what was pinned, and that a build will halt naming the unpinned URL. The run is not lost, and [Offline](#offline) shows the same outcome reached a different way.
+
+**There is no switch to skip the render.** One would preserve as an option exactly the surprise a single moment removes: a Release that resolves cleanly while an input its render needs is left unpinned, found only at build time.
+
+**`--auto-pull` folds this same resolution into a build, and the build renders once.** The fill's render is the one that finds and pins the external inputs, and the build presents that render rather than performing a second one, so a one-command build costs the same render an ordinary build over a filled lockfile costs. [`aggrega build`](aggrega-build.md#filling-the-lockfile-as-part-of-the-build) sets out which of a build's render flags reach it.
+
+**The set follows from the Release's parameters, which is how component pins already behave.** Editing a Release's parameters between the resolution and the build can change which URLs the render asks for and leave the build requesting one that is not pinned — the same event as editing a Release and rebuilding without resolving again, and it halts the same way, with the remedy naming this command.
 
 ## Determinism and integrity
 

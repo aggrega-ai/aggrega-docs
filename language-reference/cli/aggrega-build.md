@@ -19,6 +19,14 @@ Build is read-only about dependencies by default: it needs a lockfile and writes
 
 **The flags that shape a render apply to it.** `--trace`, `--verify-determinism`, `--disable-plugin-cache` and `--no-unsupported-field-warnings` reach the render an auto-pulling build performs on the same terms they reach a plain build's, so asking for a trace or a determinism check on a one-command build gets you one. `--dry-run` is the exception and it is a refusal rather than a silence: a dry run writes nothing while the pull step writes, so the pairing halts before any work (see [Previewing a build without writing it](#previewing-a-build-without-writing-it)).
 
+## External inputs at build time
+
+A render can request content from a remote URL — a chart's values schema with a remote reference, for example — and a build never fetches one in order to add it to what the render may read. A request for a URL the lockfile already pins is served from the workspace's input store and verified against the recorded digest before any byte reaches the render. A request for an unpinned URL halts, naming the URL and the step that pins it; there is no setting that turns that halt into a fetch, because quietly widening the set of inputs a build reads is the one thing a reproducible build must not do.
+
+Where the store's copy of a pinned input has gone missing, that one input is refetched by the digest the lockfile already records and checked against it before anything is written or returned. That cannot change what the render sees — the digest was committed to when the input was pinned — so it repairs the store rather than adding to the closure, and the lockfile is left byte-unchanged. Under the offline posture there is no transport for even that, and the missing copy halts instead, naming the posture.
+
+Pinning happens when the Release's dependencies are resolved, so what a build may read is settled before the build starts. [`aggrega pull`](aggrega-pull.md) is that step, and it is the only one.
+
 ## The plugin trust record
 
 Two of a build's behaviours depend on `plugins-trust.yaml`, the committed file beside the Release's lockfile that records which plugin each verdict-returning attachment resolved to — a `plugins.governance` attachment in an `ir-verdict` or `render-verdict` role, and every `plugins.linter` attachment. [`aggrega pull`](aggrega-pull.md) writes it and the [plugin trust record schema](../schema/other/plugins-trust.md) describes its fields; what follows is only what a build itself does with it.
@@ -99,7 +107,7 @@ The artifacts are reported in the order a build writes them, so the same input r
 
 **What is not written.** The output directory is left exactly as it stands — it is not cleaned either, so a previous build's output survives a dry run intact. The lockfile is not written. Nothing is written to `.trace/`.
 
-**External inputs behave exactly as they do in an ordinary build.** A render can request content from a remote URL — a chart's values schema with a remote reference, for example — and no build fetches one: a request for a URL the lockfile already pins is served from the input store, refetched by its pinned digest if the store's copy has gone missing, which cannot change what the render sees; a request for an unpinned URL halts naming it. Pinning happens when you resolve the Release's dependencies, so a dry run reads the same closure the build it stands in for would read, and what it shows is what that build would write.
+**External inputs behave exactly as they do in an ordinary build**, on the terms [External inputs at build time](#external-inputs-at-build-time) sets out. A dry run therefore reads the same pinned closure the build it stands in for would read, and what it shows is what that build would write.
 
 Where a reference was declined, the run names every one it could not reach and points at the command that pins them:
 
