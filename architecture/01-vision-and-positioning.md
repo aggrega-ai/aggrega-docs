@@ -94,7 +94,7 @@ Aggrega strictly enforces Conway's Law and rejects the paradigm of proprietary l
 
 ### 5. Relationship to Adjacent Tools
 
-Aggrega's pluggable WebAssembly (Wasm) rendering socket means the community can author a `renderer.wasm` plugin for any target tool. The core project ships rendering plugins for Helm, Helm-chart, and Compose — covering Kubernetes GitOps, redistributable chart distribution, and local development — while the open socket lets teams target other static-artifact surfaces without touching the core. Teams evaluating Aggrega often come from ecosystems built around tools that sit in nearby but distinct parts of the stack. The tools below are grouped by how they relate to Aggrega: the artifact formats it renders to today, the AOT-compiler space it shares, the control planes that consume its output, and the adjacent configuration-management domain it does not target.
+Aggrega's pluggable WebAssembly (Wasm) rendering socket means the community can author a renderer plugin for any target tool. The core project ships rendering plugins for Helm, Helm-chart, and Compose — covering Kubernetes GitOps, redistributable chart distribution, and local development — while the open socket lets teams target other static-artifact surfaces without touching the core. Teams evaluating Aggrega often come from ecosystems built around tools that sit in nearby but distinct parts of the stack. The tools below are grouped by how they relate to Aggrega: the artifact formats it renders to today, the AOT-compiler space it shares, the control planes that consume its output, and the adjacent configuration-management domain it does not target.
 
 **Artifact formats Aggrega renders to today.** These are the outputs the shipped renderer plugins produce.
 

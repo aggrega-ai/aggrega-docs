@@ -101,7 +101,7 @@ If an Ops team wants to bring their own raw infrastructure-as-code, they bundle 
 1. **Parse:** The compiler reads the raw files into an in-memory representation.
 2. **Inject:** It evaluates the mapping layer (`valuesMapping:` — inline, file-import, or library-import) to inject the abstract context (e.g., mapping `{{ .values.storage_size }}` to `TF_VAR_db_size`).
 3. **Patch:** The Wasm plugins execute their surgical JSONPatch operations (like injecting an Envoy sidecar or an IAM policy) directly against the in-memory object.
-4. **Output:** The compiler passes the finalized in-memory JSON to the corresponding Wasm rendering socket (e.g., `terraform-renderer.wasm`), which serializes the object and outputs a deployment-ready `main.tf.json` or `template.json` string to be written to the target destination.
+4. **Output:** The compiler passes the finalized in-memory JSON to the corresponding Wasm rendering socket (e.g., the plugin bound for Terraform), which serializes the object and outputs a deployment-ready `main.tf.json` or `template.json` string to be written to the target destination.
 
 Because Terraform and CloudFormation natively accept JSON as first-class citizens, the underlying cloud provisioner executes the compiled output perfectly.
 

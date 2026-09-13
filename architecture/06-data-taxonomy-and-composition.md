@@ -239,7 +239,7 @@ It is critical to note that the semantic label (e.g., `untrusted-external`) dict
 
 * **Scenario A (Public SaaS API):** Labeled `untrusted-external` in the Catalog (triggers Policy Egress Guardrails). Executed via the `formatter.wasm` plugin (no compute provisioned).
 * **Scenario B (Internal Legacy Database):** Labeled `internal-trusted` (bypasses Egress Guardrails, stays inside the VPC). Executed via the `formatter.wasm` plugin (no compute provisioned).
-* **Scenario C (Self-Hosted Database):** Labeled `internal-trusted`. Executed via the `helm-renderer.wasm` plugin (physically provisioned as a Kubernetes StatefulSet).
+* **Scenario C (Self-Hosted Database):** Labeled `internal-trusted`. Executed via the Helm renderer plugin (physically provisioned as a Kubernetes StatefulSet).
 
 ### 10. The `eval` Provider: Virtual Components via Wasm Formatters
 
