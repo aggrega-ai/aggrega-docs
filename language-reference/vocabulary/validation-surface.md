@@ -8,7 +8,7 @@ This page documents the four layers, their pipeline placement, the error-shape c
 
 ### Layer 1 — JSON Schema envelope
 
-**Scope.** The structural shape of every catalog YAML: `apiVersion`, `kind`, `metadata.{name, version, description, maintainers, license, ...}`, the top-level `spec:` block, and the per-entity required fields the schema declares. Each entity kind (Aggregate, Component, Feature, Recipe, FeatureRecipe, Manifest, Plugin, Release, SchemaLibrary, MappingLibrary, WorkloadLibrary, ArtifactsLibrary) has its own JSON Schema at [`aggrega-schemas/json/`](../../../aggrega-schemas/json/).
+**Scope.** The structural shape of every catalog YAML: `apiVersion`, `kind`, `metadata.{name, version, description, maintainers, license, ...}`, the top-level `spec:` block, and the per-entity required fields the schema declares. Each entity kind (Aggregate, Component, Feature, Recipe, FeatureRecipe, Manifest, Plugin, Release, SchemaLibrary, MappingLibrary, WorkloadLibrary, ArtifactsLibrary) has its own JSON Schema at [`aggrega-schemas/json/`](../../../aggrega-schemas/json/). Workload has one there as well, and it is the one kind in that set an author writes inside another entity — a Recipe's or FeatureRecipe's `workload:` block, or a WorkloadLibrary entry — rather than as a catalog file of its own; the same envelope check governs it wherever it is written, and `aggrega validate` accepts a Workload file directly as a single-entity target.
 
 **Validation runs.** At resolution (resolver / load), per file. The compiler unmarshals each YAML into the corresponding Go struct; YAML keys outside the struct's declared fields surface as parse errors before any further validation runs.
 
