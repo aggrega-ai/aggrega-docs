@@ -456,13 +456,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0016` | `patch-test-operation-failed` | `jsonpatch: test operation failed` |
 | `E0017` | `annotation-injection-rejected` | `annotation-transform plugin output was rejected: an injection targets a component coordinate the host did not supply` |
 | `E0018` | `policy-settings-invalid` | `policy attachment settings do not satisfy the plugin's declared settings schema` |
-| `E0019` | `endpoint-requires-reference-form` | `endpoint requires form: reference` |
-| `E0020` | `invalid-cron-schedule` | `schedule is not a valid cron expression` |
-| `E0021` | `persistent-template-requires-stateful-form` | `persistentTemplate volume requires form: stateful` |
 | `E0022` | `pipeline-patch-target-not-structured` | `pipeline PATCH target is not parseable structured YAML/JSON` |
-| `E0023` | `reference-form-requires-endpoint` | `form: reference requires an endpoint` |
-| `E0024` | `schedule-requires-scheduled-form` | `schedule requires form: scheduled` |
-| `E0025` | `scheduled-form-requires-schedule` | `form: scheduled requires a schedule` |
 | `E0026` | `artifact-content-mismatch` | `imported artifact content does not match the recipe's recorded digest` |
 | `E0027` | `artifact-import-shape` | `artifacts $import: is not a bare-name artifacts-library reference (<Library>#/artifacts/<entry>)` |
 | `E0028` | `artifact-output-collision` | `artifacts output filename collision: two artifact outputs carry the same filename` |
@@ -667,16 +661,9 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0231` | `link-consumer-stack-missing` | `cloudformation-provider: cross-boundary link resolve received no consumer stack template` |
 | `E0232` | `link-placeholder-interpolated` | `cloudformation-provider: cross-boundary link value is interpolated into a larger string; only a whole-scalar injection can carry a cross-stack reference` |
 | `E0233` | `output-name-collision` | `cloudformation-provider: two entries an author wrote reach one stack Output name` |
-| `E0235` | `translation-config-map-missing-artifact` | `configmap volume requires a file emitted via the Recipe's artifacts: input; none found` |
 | `E0236` | `translation-probe-no-port` | `probe http: requires at least one container port; container declares none` |
 | `E0237` | `translation-probe-shape` | `probe declares no shape (http/tcp/exec)` |
-| `E0238` | `unconvertible-compose-quantity` | `resources quantity cannot be converted to a compose deploy.resources value` |
-| `E0239` | `unsupported-compose-env-from` | `compose has no env-from-object primitive; container declares envFrom` |
-| `E0240` | `unsupported-compose-form` | `compose cannot express this workload form` |
-| `E0241` | `unsupported-compose-lifecycle` | `compose has no lifecycle-hook primitive; container declares lifecycle hooks` |
 | `E0243` | `rendered-file-collision` | `two rendered resources derive the same output filename with differing content` |
-| `E0244` | `stateful-set-ambiguous-headless-service` | `synthesized StatefulSet has more than one headless Service` |
-| `E0245` | `stateful-set-no-headless-service` | `synthesized StatefulSet has no headless governing Service` |
 | `E0246` | `verdict-plugin-trust-mismatch` | `the digest recorded as trusted for this plugin does not match the digest its cached manifest reports` |
 | `E0247` | `verdict-attachment-not-configured` | `a plugin recorded as trusted for an accept-or-reject verdict is no longer attached at any verdict role` |
 | `E0248` | `wasm-output-shape` | `wasm: guest plugin returned an output that is not the shape the socket reads` |
