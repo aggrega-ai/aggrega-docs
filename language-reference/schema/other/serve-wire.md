@@ -263,12 +263,12 @@ _Additional properties are not permitted._
 
 ### `Position`
 
-A place in a document: a line and a character offset within it, both counted from zero, with the offset measured in UTF-16 code units.
+A place in a document: a line and a character offset within it, both counted from zero. The offset is measured in the units of the encoding the session settled on when it was opened, which is UTF-16 unless the client asked for another.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `line` | integer | yes | The line, counted from zero. |
-| `character` | integer | yes | The offset within the line, counted from zero in UTF-16 code units. |
+| `character` | integer | yes | The offset within the line, counted from zero, in the units of the encoding the session settled on. |
 
 _Additional properties are not permitted._
 
@@ -278,8 +278,8 @@ A span between two places in a document.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `start` | Position | yes | A place in a document: a line and a character offset within it, both counted from zero, with the offset measured in UTF-16 code units. |
-| `end` | Position | yes | A place in a document: a line and a character offset within it, both counted from zero, with the offset measured in UTF-16 code units. |
+| `start` | Position | yes | A place in a document: a line and a character offset within it, both counted from zero. The offset is measured in the units of the encoding the session settled on when it was opened, which is UTF-16 unless the client asked for another. |
+| `end` | Position | yes | A place in a document: a line and a character offset within it, both counted from zero. The offset is measured in the units of the encoding the session settled on when it was opened, which is UTF-16 unless the client asked for another. |
 
 _Additional properties are not permitted._
 
@@ -638,7 +638,7 @@ Answers where the thing under the cursor is defined.
 | `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `uri` | string | no | The document the cursor is in. |
-| `position` | Position | no | A place in a document: a line and a character offset within it, both counted from zero, with the offset measured in UTF-16 code units. |
+| `position` | Position | no | A place in a document: a line and a character offset within it, both counted from zero. The offset is measured in the units of the encoding the session settled on when it was opened, which is UTF-16 unless the client asked for another. |
 
 _Additional properties are not permitted._
 
@@ -651,7 +651,7 @@ Answers where the thing under the cursor is referred to.
 | `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `uri` | string | no | The document the cursor is in. |
-| `position` | Position | no | A place in a document: a line and a character offset within it, both counted from zero, with the offset measured in UTF-16 code units. |
+| `position` | Position | no | A place in a document: a line and a character offset within it, both counted from zero. The offset is measured in the units of the encoding the session settled on when it was opened, which is UTF-16 unless the client asked for another. |
 
 _Additional properties are not permitted._
 
@@ -664,7 +664,7 @@ Answers which documents implement the thing under the cursor.
 | `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `uri` | string | no | The document the cursor is in. |
-| `position` | Position | no | A place in a document: a line and a character offset within it, both counted from zero, with the offset measured in UTF-16 code units. |
+| `position` | Position | no | A place in a document: a line and a character offset within it, both counted from zero. The offset is measured in the units of the encoding the session settled on when it was opened, which is UTF-16 unless the client asked for another. |
 
 _Additional properties are not permitted._
 
@@ -677,7 +677,7 @@ Answers with what to show about the thing under the cursor.
 | `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `uri` | string | no | The document the cursor is in. |
-| `position` | Position | no | A place in a document: a line and a character offset within it, both counted from zero, with the offset measured in UTF-16 code units. |
+| `position` | Position | no | A place in a document: a line and a character offset within it, both counted from zero. The offset is measured in the units of the encoding the session settled on when it was opened, which is UTF-16 unless the client asked for another. |
 
 _Additional properties are not permitted._
 
@@ -690,7 +690,7 @@ Answers with what may be written at the cursor.
 | `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `uri` | string | no | The document the cursor is in. |
-| `position` | Position | no | A place in a document: a line and a character offset within it, both counted from zero, with the offset measured in UTF-16 code units. |
+| `position` | Position | no | A place in a document: a line and a character offset within it, both counted from zero. The offset is measured in the units of the encoding the session settled on when it was opened, which is UTF-16 unless the client asked for another. |
 | `context` | CompletionContext | no | What caused the request, where the client tracks it. |
 
 _Additional properties are not permitted._
@@ -1955,13 +1955,20 @@ _Additional properties are not permitted._
 
 ### `InsertionPointResult`
 
-Where in the document a new entry under the named container belongs.
+Where in the document a new entry under the named container belongs, and what a client needs in order to write it there: the point itself, whether a line break has to open the text, the container keys that are still missing, and the indentation each line takes.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `file` | string | yes | The document. |
 | `container` | array or null | yes | The path through the document to the container. |
 | `positionEncoding` | string | yes | The encoding the positions in this answer are expressed in. |
+| `position` | Position | yes | A place in a document: a line and a character offset within it, both counted from zero. The offset is measured in the units of the encoding the session settled on when it was opened, which is UTF-16 unless the client asked for another. |
+| `precededByLineBreak` | boolean | yes | Whether the text written at the position has to begin with a line break, because the position sits at the end of a line the document already carries. It is false only where the document carries nothing for the entry to follow. |
+| `missingContainerKeys` | array or null | yes | The container path's segments the document does not carry yet, outermost first. Each has to be written as a key of its own, indented one step further than the one before it, before the entry can go inside the innermost one. It is null where the whole path is already there. |
+| `entryIndent` | integer | yes | The column the entry's own first line starts at, counted in spaces from the start of the line. |
+| `indentStep` | integer | yes | How much further each nesting level is indented. |
+| `indentStepMeasured` | boolean | yes | Whether the step was measured from this document's own nesting. Where it is false the document exhibits no nesting to measure and the step is a fallback, so a client that would rather impose its own knows it is free to. |
+| `entryShape` | const "mapping" or const "sequence" or const "unknown" | yes | The shape the container carries its entries in, which is what decides how the entry's own text is composed. It is read off the container the document already carries and is never inferred from what the container is called. The set is closed. |
 
 _Additional properties are not permitted._
 
