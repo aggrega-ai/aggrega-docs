@@ -218,6 +218,12 @@ The protocol's error channel is kept for what has no tool result to live in: a t
 
 A tool's advertised schema also declares the rules its arguments must satisfy — which selectors are mutually exclusive, which argument is meaningful only alongside another, and which are required — so a client composing calls against the declared schema does not have to make the call to learn them.
 
+## What stops the server
+
+**Closing the connection stops it.** The server reads one message per line and exits cleanly when its standard input reaches end of stream, so a client that closes the connection shuts the server down. That is the ordinary case here, because you never launch the command yourself: the client that started it is what ends it, so quitting your editor, or disabling this server for a project, is what stopping it usually looks like.
+
+**Asking the process itself to stop reaches the server on the same terms.** An interrupt from a terminal, or a termination request from a supervisor or a container runtime, shuts it down on the first request, whether or not a client is sending anything: it stops accepting messages, ends the work a call in progress is doing, and exits cleanly. A second request ends the process at once. A call still running when the process is asked to stop therefore does not finish.
+
 ## When to use it
 
 Use `aggrega mcp` when you want an AI assistant to help author Aggrega entities against the real schemas and reference — so its suggestions are grounded in the exact structure the compiler accepts rather than guessed. It fits the authoring loop directly: the assistant reads a kind's schema and reference, scaffolds a skeleton, fills the fields your role owns, and validates before handing the draft back. See [Getting Started with Authoring](../../authoring/getting-started.md) for that loop.
