@@ -707,6 +707,18 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0273` | `rendered-name-unavailable` | `template reads the name the target renders author-supplied source under, and this node's provider reports no such name; a conforming template reads a value the node's own provider supplies` |
 | `E0274` | `verdict-plugin-identity-changed` | `the plugin identity recorded as trusted no longer matches what this resolution reports` |
 | `E0275` | `edit-refused-invalid-result` | `the edit was refused because the resulting document would not be valid, and nothing was written` |
+| `E0276` | `schema-evolution` | `the version being published changes the published predecessor in a way the documented evolution rubric objects to` |
+| `E0277` | `annotation-prefix` | `an annotation key on the entity uses a prefix the platform reserves` |
+| `E0278` | `name-shape` | `the entity's name does not follow the documented name shape for its kind` |
+| `E0279` | `dynamic-refs` | `a schema in the entity uses a dynamic reference construct that cross-document reference resolution cannot follow` |
+| `E0280` | `id-overrides` | `a schema in the entity declares an identifier of its own, where the platform owns that schema's identity` |
+| `E0281` | `category-matches-directory` | `the entity's category label does not match the category directory the entity is filed under` |
+| `E0282` | `x-aggrega-discouragement` | `the entity writes an Aggrega schema extension directly into schema content instead of declaring it under usesSchema or featuresSchema` |
+| `E0283` | `plugin-default-limits` | `the Plugin entity declares no runtime resource cap of its own, so the platform defaults apply` |
+| `E0284` | `secret-slot-declares-sensitive` | `an attachment slot admits only secret material and does not declare that it handles it` |
+| `E0285` | `provides-declared-by-component` | `the Recipe publishes a provides key the Component it implements does not declare, so a consumer wiring that key is refused` |
+| `E0286` | `publish-bump-below-classification` | `the version bump being published is smaller than the evolution check's classification of the change requires` |
+| `E0287` | `import-halting-diagnostic` | `the importer reported a diagnostic that stops the import, so the source was not fully turned into draft authoring files` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0157` is retired: nothing reports it now, and the number is never handed to a different condition. It named an Aggregate key — a component, feature, subsystem or nested-module instance name — that did not match the authored-name pattern. Every one of those key surfaces is constrained to that same spelling by the Aggregate schema, which refuses the document while validating its envelope and reports the offending key with a line and column; that condition's code is `E0215`.
