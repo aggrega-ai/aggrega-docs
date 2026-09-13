@@ -663,24 +663,9 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0227` | `governance-role-invalid` | `a governance attachment declares no role or an unknown role` |
 | `E0228` | `inert-field-on-provider-socket` | `a provider socket binding sets a field with no referent on that socket` |
 | `E0229` | `position-out-of-range` | `position out of range` |
-| `E0230` | `duplicate-mapping-key` | `cloudformation-provider: one mapping key is written more than once` |
-| `E0231` | `link-consumer-stack-missing` | `cloudformation-provider: cross-boundary link resolve received no consumer stack template` |
-| `E0232` | `link-placeholder-interpolated` | `cloudformation-provider: cross-boundary link value is interpolated into a larger string; only a whole-scalar injection can carry a cross-stack reference` |
-| `E0233` | `output-name-collision` | `cloudformation-provider: two entries an author wrote reach one stack Output name` |
-| `E0235` | `translation-config-map-missing-artifact` | `configmap volume requires a file emitted via the Recipe's artifacts: input; none found` |
-| `E0236` | `translation-probe-no-port` | `probe http: requires at least one container port; container declares none` |
-| `E0237` | `translation-probe-shape` | `probe declares no shape (http/tcp/exec)` |
-| `E0238` | `unconvertible-compose-quantity` | `resources quantity cannot be converted to a compose deploy.resources value` |
-| `E0239` | `unsupported-compose-env-from` | `compose has no env-from-object primitive; container declares envFrom` |
-| `E0240` | `unsupported-compose-form` | `compose cannot express this workload form` |
-| `E0241` | `unsupported-compose-lifecycle` | `compose has no lifecycle-hook primitive; container declares lifecycle hooks` |
-| `E0243` | `rendered-file-collision` | `two rendered resources derive the same output filename with differing content` |
-| `E0244` | `stateful-set-ambiguous-headless-service` | `synthesized StatefulSet has more than one headless Service` |
-| `E0245` | `stateful-set-no-headless-service` | `synthesized StatefulSet has no headless governing Service` |
 | `E0246` | `verdict-plugin-trust-mismatch` | `the digest recorded as trusted for this plugin does not match the digest its cached manifest reports` |
 | `E0247` | `verdict-attachment-not-configured` | `a plugin recorded as trusted for an accept-or-reject verdict is no longer attached at any verdict role` |
 | `E0248` | `wasm-output-shape` | `wasm: guest plugin returned an output that is not the shape the socket reads` |
-| `E0249` | `link-export-name-shadowed` | `cloudformation-provider: an export name a cross-boundary link derives is already declared by another Outputs entry in the same stack` |
 | `E0250` | `nest-segment-not-one-directory` | `provider named a directory for each contributor's own sub-directory that is not a single directory name` |
 | `E0251` | `recipe-source-is-empty` | `recipe source is an empty string, which names neither sourceless mode nor sourced mode` |
 | `E0252` | `artifacts-library-file-escapes-key` | `artifacts-library bundle file name leaves the artifacts key its output is nested under` |
@@ -689,7 +674,6 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0255` | `annotation-side-pillar-mismatch` | `annotation routes through a pillar its authoring side may not use` |
 | `E0256` | `annotation-binding-pillar-overlap` | `annotation binding declares one path in both pillar lists` |
 | `E0257` | `schema-contract-compile-failure` | `declared schema contract could not be compiled into a usable schema, so nothing was validated against it: correct the contract where it is declared, or remove it if the configuration it covers needs no validation` |
-| `E0258` | `unsupported-compose-port-protocol` | `compose publishes a port's transport as a tcp or udp suffix; this port declares a transport compose cannot express` |
 | `E0259` | `boundary-scope-attachment-not-declared-at-a-boundary` | `attachment binds a FeatureRecipe with executionScope: boundary and no boundary holding the component declares it` |
 | `E0260` | `unplaced-component` | `` component placed in no boundary: name it under a boundary's `components`, or place the sub-module that contributes it under `aggregates` `` |
 | `E0261` | `unresolved-boundary-component` | `boundary names a component the composition does not hold: correct the name, or remove the entry` |
@@ -719,14 +703,36 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0285` | `provides-declared-by-component` | `the Recipe publishes a provides key the Component it implements does not declare, so a consumer wiring that key is refused` |
 | `E0286` | `publish-bump-below-classification` | `the version bump being published is smaller than the evolution check's classification of the change requires` |
 | `E0287` | `import-halting-diagnostic` | `the importer reported a diagnostic that stops the import, so the source was not fully turned into draft authoring files` |
+| `E0288` | `plugin-cannot-express-input` | `a plugin has no expression for a construct this build declares` |
+| `E0289` | `plugin-required-input-unresolved` | `a plugin could not resolve something it requires to exactly one value` |
+| `E0290` | `plugin-output-name-collision` | `two things a plugin produced occupy one name in its output` |
+| `E0291` | `plugin-value-not-representable` | `a plugin has no representation for a value it was given` |
+| `E0292` | `plugin-failure-unclassified` | `a plugin reported a failure that none of the declared kinds names` |
+| `E0293` | `wasm-guest-condition-undeclared` | `wasm: guest plugin named a condition the socket does not declare` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0157` is retired: nothing reports it now, and the number is never handed to a different condition. It named an Aggregate key — a component, feature, subsystem or nested-module instance name — that did not match the authored-name pattern. Every one of those key surfaces is constrained to that same spelling by the Aggregate schema, which refuses the document while validating its envelope and reports the offending key with a line and column; that condition's code is `E0215`.
 - `E0159` is retired: nothing reports it now, and the number is never handed to a different condition. It named a target reference whose dot-separated segments did not all match the instance-name pattern, and no build reported it before the condition was withdrawn.
 - `E0217` is retired: nothing reports it now, and the number is never handed to a different condition. It named a schema-validation failure that could not be reported against a particular field, and no build reported it before the condition was withdrawn.
 - `E0219` is retired: nothing reports it now, and the number is never handed to a different condition. It named a cyclic `extends` chain, reported by a second chain walk the schema-merge library kept beside its combining step; one walk reports every cyclic chain now, and its code is `E0202`.
+- `E0230` is retired: nothing reports it now, and the number is never handed to a different condition. The condition this number named was withdrawn, and no build reports it.
+- `E0231` is retired: nothing reports it now, and the number is never handed to a different condition. The condition this number named was withdrawn, and no build reports it.
+- `E0232` is retired: nothing reports it now, and the number is never handed to a different condition. The condition this number named was withdrawn, and no build reports it.
+- `E0233` is retired: nothing reports it now, and the number is never handed to a different condition. The condition this number named was withdrawn, and no build reports it.
 - `E0234` is retired: nothing reports it now, and the number is never handed to a different condition. It named a Recipe source that is an empty string, reported while rendering through the compose provider; one condition covering every provider reports that now, and its code is `E0251`.
+- `E0235` is retired: nothing reports it now, and the number is never handed to a different condition. The condition this number named was withdrawn, and no build reports it.
+- `E0236` is retired: nothing reports it now, and the number is never handed to a different condition. The condition this number named was withdrawn, and no build reports it.
+- `E0237` is retired: nothing reports it now, and the number is never handed to a different condition. The condition this number named was withdrawn, and no build reports it.
+- `E0238` is retired: nothing reports it now, and the number is never handed to a different condition. The condition this number named was withdrawn, and no build reports it.
+- `E0239` is retired: nothing reports it now, and the number is never handed to a different condition. The condition this number named was withdrawn, and no build reports it.
+- `E0240` is retired: nothing reports it now, and the number is never handed to a different condition. The condition this number named was withdrawn, and no build reports it.
+- `E0241` is retired: nothing reports it now, and the number is never handed to a different condition. The condition this number named was withdrawn, and no build reports it.
 - `E0242` is retired: nothing reports it now, and the number is never handed to a different condition. It named a Recipe source that is an empty string, reported while rendering through the Helm provider; one condition covering every provider reports that now, and its code is `E0251`.
+- `E0243` is retired: nothing reports it now, and the number is never handed to a different condition. The condition this number named was withdrawn, and no build reports it.
+- `E0244` is retired: nothing reports it now, and the number is never handed to a different condition. The condition this number named was withdrawn, and no build reports it.
+- `E0245` is retired: nothing reports it now, and the number is never handed to a different condition. The condition this number named was withdrawn, and no build reports it.
+- `E0249` is retired: nothing reports it now, and the number is never handed to a different condition. The condition this number named was withdrawn, and no build reports it.
+- `E0258` is retired: nothing reports it now, and the number is never handed to a different condition. The condition this number named was withdrawn, and no build reports it.
 <!-- END GENERATED: condition-short-codes -->
 
 ## Matching guidance

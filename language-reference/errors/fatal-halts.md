@@ -2884,7 +2884,7 @@ The second coordinate follows the contributor here on the same terms as above, s
 
 ### An authored export name is one the build derives for a cross-stack reference
 
-<!-- covers: plugins/internal/cfncore.ErrLinkExportNameShadowed -->
+<!-- covers: internal/wasm.ErrPluginOutputNameCollision -->
 
 A cloudformation Recipe's `Outputs:` block is authored CloudFormation, and an entry in it may carry its own `Export:` with a `Name:`; that name reaches the assembled stack exactly as written. Separately, when a `uses` edge crosses from one boundary to another, the provider publishes the consumed value as a stack `Output` with an `Export` under a name it derives from the release, boundary, component, and provided key. This halt fires where the two meet: the name you wrote is the name the derivation produced for the same build, so the stack would declare one export name twice from two places, and an export name has to be unique.
 
@@ -2894,7 +2894,8 @@ The halt gives the derived export name together with the four parts it was built
 
 The comparison is scoped to one stack: the export names that stack declares, against the names derived for the cross-boundary references publishing into it. Two stacks are not compared against each other, and an export name written as a CloudFormation intrinsic resolves at deploy time, so there is no name to compare. What a name meets among the exports already deployed into an account and region is a property of the deployment, which a build does not observe.
 
-Emitted message — the publish's own detail; the surrounding report also names the `uses` edge being wired:
+Emitted message. The condition names the kind of failure and the provider's own sentence says what happened; the surrounding report also names the `uses` edge being wired:
+> two things a plugin produced occupy one name in its output
 > cloudformation-provider: an export name a cross-boundary link derives is already declared by another Outputs entry in the same stack: the link derives the export name `<export-name>` for provides key `<provides-key>` of component `<component>` in boundary `<boundary>` of deployment `<deployment>`, and another Outputs entry of the same stack already declares that same export name — that declaration sits under the stack output `<stack-output>`, a name this provider assembles rather than one a Recipe wrote; each shadowing Outputs entry spells its export name exactly as the halt does, so searching your Recipes for that name reaches the entry — rename the export name the entry declares, or remove that entry's Export block and let the link publish the export
 
 **How to fix:** search your Recipes for the export name the halt names — the `Outputs` entry declaring it spells it identically — then either rename that export name so it no longer matches, or remove that entry's `Export:` block and let the cross-stack wiring publish the export itself. Removing it is usually the right move where the entry existed to export the same value the edge consumes: the provider publishes an `Export` for that value anyway, so the authored one adds nothing. Keep the authored `Export:` and rename it instead where the entry exports the value for a different consumer that imports it under a name you chose.
@@ -3597,20 +3598,19 @@ Emitted message, naming the token that resolved to nothing and the file it was n
 
 ### A workload declares a form compose cannot express
 
-<!-- covers: plugins/internal/composecore.ErrUnsupportedComposeForm -->
+<!-- covers: internal/wasm.ErrPluginCannotExpressInput -->
 
 The compose provider renders long-running services. A workload declaring that it runs one copy per machine, that it runs on a schedule, or that it runs once and finishes has no clean single-machine equivalent, so the render stops rather than emit a plain service — which would start it, keep it running, and misrepresent what was asked for.
 
-Emitted message. The provider's own sentence names the form it was given, and the condition it is recorded under follows it as the cause:
-> compose: workload form `"<form>"` has no compose mapping; compose supports stateless and stateful only
-> caused by: compose cannot express this workload form
+Emitted message. The condition names the kind of failure — a provider with no expression for something the build declares — and the provider's own sentence names the form it was given:
+> a plugin has no expression for a construct this build declares
+> compose: workload form `"<form>"` has no compose mapping; compose supports stateless and stateful only: compose cannot express this workload form
 
 **How to fix:** where the target genuinely is a single-machine compose environment, express the work as a long-running service — the stateless and stateful forms are the two it renders. Where the form is what you meant, render that boundary through a provider whose target has an equivalent: a per-machine copy, a scheduled run and a run-to-completion job all have direct expressions elsewhere, and the choice of provider is the boundary's rather than the workload's.
 
 ### A container declares a field compose has no primitive for
 
-<!-- covers: plugins/internal/composecore.ErrUnsupportedComposeLifecycle -->
-<!-- covers: plugins/internal/composecore.ErrUnsupportedComposeEnvFrom -->
+<!-- covers: internal/wasm.ErrPluginCannotExpressInput -->
 
 Two container fields have no compose equivalent, and both stop the render rather than be dropped.
 
@@ -3620,18 +3620,18 @@ Two container fields have no compose equivalent, and both stop the render rather
 
 Both are checked for ordinary containers and for containers that run before the main one, so the same field halts wherever it is declared and the message names which container it came from.
 
-**Emitted messages**, each with the condition it is recorded under following as the cause:
-> compose: node `"<node>"` declares container lifecycle hooks; compose has no lifecycle-hook primitive
-> caused by: compose has no lifecycle-hook primitive; container declares lifecycle hooks
+**Emitted messages.** Both report the same condition — a provider with no expression for something the build declares — and the provider's own sentence is what says which field:
+> a plugin has no expression for a construct this build declares
+> compose: node `"<node>"` declares container lifecycle hooks; compose has no lifecycle-hook primitive: compose has no lifecycle-hook primitive; container declares lifecycle hooks
 
-> compose: node `"<node>"` declares container envFrom; compose has no env-from-object primitive
-> caused by: compose has no env-from-object primitive; container declares envFrom
+> a plugin has no expression for a construct this build declares
+> compose: node `"<node>"` declares container envFrom; compose has no env-from-object primitive: compose has no env-from-object primitive; container declares envFrom
 
 **How to fix:** for a compose target, remove the field and do its work another way — start-up work belongs in a container that runs before the main one, and shutdown work in the container's own signal handling; bulk environment can be written out as explicit variables, or supplied from a file the compose target can read. Where the field is what you meant, render that boundary through a provider whose target has the primitive.
 
 ### A published port declares a transport compose cannot spell
 
-<!-- covers: plugins/internal/composecore.ErrUnsupportedComposePortProtocol -->
+<!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
 
 A published compose port carries its transport as a suffix on the entry, and that suffix has two spellings. A port declaring any other transport has no compose spelling at all.
 
@@ -3639,30 +3639,30 @@ A published compose port carries its transport as a suffix on the entry, and tha
 
 **A port declaring no transport is unaffected.** It publishes with no suffix, exactly as a port that never carried a transport would.
 
-Emitted message. The condition's own sentence is what is printed here, beneath the frame naming the node and container the port was declared on:
+Emitted message. The condition names the kind of failure — a value with no representation in what the provider emits — and the provider's own sentence follows it:
+> a plugin has no representation for a value it was given
 > compose publishes a port's transport as a tcp or udp suffix; this port declares a transport compose cannot express
 
 **How to fix:** for a compose target, declare the port's transport as one of the two compose can spell, or leave it undeclared and let the entry publish without a suffix. Where the transport is what you meant, render that boundary through a provider whose target can express it.
 
 ### A resources quantity cannot be converted to a compose value
 
-<!-- covers: plugins/internal/composecore.ErrUnconvertibleComposeQuantity -->
+<!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
 
 A container's processor and memory quantities are written in a form compose does not use, so they are converted. This condition is what a quantity that cannot be converted without loss reports — a memory quantity that is not a whole number of bytes, or a suffix the conversion has no rule for. It stops rather than round the value or emit an approximation, because a limit that is quietly not the limit that was asked for is the kind of difference nobody looks for until something is stopped for exceeding it.
 
-**Emitted messages**, each naming the quantity and the forms that convert:
-> compose: cannot convert cpu quantity `"<value>"` to a deploy.resources cpus value; use a millicpu (e.g. 500m) or a plain core count (e.g. 0.5, 2)
-> caused by: resources quantity cannot be converted to a compose deploy.resources value
+**Emitted messages.** Each opens with the condition — a value with no representation in what the provider emits — then names the quantity and the forms that convert:
+> a plugin has no representation for a value it was given
+> compose: cannot convert cpu quantity `"<value>"` to a deploy.resources cpus value; use a millicpu (e.g. 500m) or a plain core count (e.g. 0.5, 2): resources quantity cannot be converted to a compose deploy.resources value
 
-> compose: cannot convert memory quantity `"<value>"` to a deploy.resources byte count; use an integer quantity with a binary (Ki/Mi/Gi/Ti/Pi) or decimal (k/M/G/T/P) suffix, or a plain byte integer
-> caused by: resources quantity cannot be converted to a compose deploy.resources value
+> a plugin has no representation for a value it was given
+> compose: cannot convert memory quantity `"<value>"` to a deploy.resources byte count; use an integer quantity with a binary (Ki/Mi/Gi/Ti/Pi) or decimal (k/M/G/T/P) suffix, or a plain byte integer: resources quantity cannot be converted to a compose deploy.resources value
 
 **How to fix:** write the quantity in one of the forms the message lists. A fractional memory quantity is the common cause and the fix is to write the same amount as a whole number in a smaller unit. Processor quantities take either a thousandths-of-a-core value or a plain count.
 
 ### A health probe cannot be turned into a compose healthcheck
 
-<!-- covers: plugins/internal/composecore.ErrTranslationProbeNoPort -->
-<!-- covers: plugins/internal/composecore.ErrTranslationProbeShape -->
+<!-- covers: internal/wasm.ErrPluginRequiredInputUnresolved -->
 
 A declared health probe becomes a compose healthcheck, and two things can stop that.
 
@@ -3670,16 +3670,18 @@ A declared health probe becomes a compose healthcheck, and two things can stop t
 
 **A probe that declares no way of checking at all** — neither a path, nor a port to connect to, nor a command to run. There is nothing to turn into a check. This one is a guard behind the schema rather than a shape you are likely to write: a probe is checked for having one of the three before it reaches here.
 
-**Emitted messages.** Each is the condition's own sentence, printed beneath a frame naming the node and the container the probe was declared on:
+**Emitted messages.** Both report the same condition — something the provider requires that it could not resolve to exactly one value — and the provider's own sentence says which:
+> a plugin could not resolve something it requires to exactly one value
 > probe http: requires at least one container port; container declares none
 
+> a plugin could not resolve something it requires to exactly one value
 > probe declares no shape (http/tcp/exec)
 
 **How to fix:** declare the port the check should be made against on the same container as the probe — a probe over HTTP reads the first container port, so the port has to exist for the check to be built. Where the container genuinely publishes nothing, check it another way: a probe that runs a command needs no port. For a probe with no way of checking declared, give it one of the three.
 
 ### A configmap volume has no file behind it
 
-<!-- covers: plugins/internal/composecore.ErrTranslationConfigMapMissingArtifact -->
+<!-- covers: internal/wasm.ErrPluginRequiredInputUnresolved -->
 
 A volume that mounts configuration is delivered through compose's own mechanism for it, referenced by name, and the entry holding the content comes from a file the Recipe emits. This condition is what a reference with no matching entry reports: the file is not there, so the mount would exist with nothing behind it and the container would come up reading an empty path.
 
@@ -3687,89 +3689,121 @@ A volume that mounts configuration is delivered through compose's own mechanism 
 
 Every unresolved reference is reported rather than the first, in a stable order, so one build names all of them.
 
-Emitted message, naming each service, the reference it made, and where it mounts:
-> compose AssembleBoundary: service `"<service>"` references config `"<name>"` mounted at `"<path>"`; declare each one as a top-level configs: entry from the Recipe's artifacts: input
-> caused by: configmap volume requires a file emitted via the Recipe's artifacts: input; none found
+Emitted message. The condition leads, then each service, the reference it made, and where it mounts:
+> a plugin could not resolve something it requires to exactly one value
+> compose AssembleBoundary: service `"<service>"` references config `"<name>"` mounted at `"<path>"`; declare each one as a top-level configs: entry from the Recipe's artifacts: input: configmap volume requires a file emitted via the Recipe's artifacts: input; none found
 
 **How to fix:** emit the file from the Recipe's `artifacts:` input under the name the volume references — the two are matched by that name, so a mismatch between what the volume asks for and what the Recipe emits is the common cause. Where the content was meant to come from somewhere else, the volume is the wrong mechanism for it: a value that belongs in the environment goes there instead.
 
 ### Two entries reach one stack output name
 
-<!-- covers: plugins/internal/cfncore.ErrOutputNameCollision -->
+<!-- covers: internal/wasm.ErrPluginOutputNameCollision -->
 
 A stack output name admits only letters and digits, so one is built from what you wrote by encoding the characters that alphabet does not admit rather than by dropping them. Two entries you wrote apart therefore stay apart, and this halt is what reports the case where two of them nonetheless reach one name. The render stops rather than emit one output where two entries were written, which would silently drop one of them.
 
 Every name behind which two or more entries met is reported, and every entry behind each name is named, in a stable order — so one build shows you the whole collision rather than one side of it.
 
-Emitted message:
+Emitted message, opening with the condition and continuing with the provider's own detail:
+> two things a plugin produced occupy one name in its output
 > cloudformation-provider: two entries an author wrote reach one stack Output name: `<the entries that met>` reach the Output name `"<name>"`; an Output name is built by encoding the component and the entry into the letters and digits a logical id admits, rather than by dropping what it does not, so two entries an author wrote apart stay apart — renaming either end clears the build
 
 **How to fix:** rename one of the entries, or one of the components, so the two no longer reach one name — the message names both sides. The name carries the punctuation and the letter case you wrote, encoded rather than dropped, so a difference of either survives into it and two entries written differently are named apart.
 
 ### A CloudFormation fragment writes one key twice
 
-<!-- covers: plugins/internal/cfncore.ErrDuplicateMappingKey -->
+<!-- covers: internal/wasm.ErrPluginOutputNameCollision -->
 
 A mapping holds one value per key, so a fragment that writes the same key twice would keep whichever body came last and discard the other. Where the mapping is the block holding resources or outputs, the discarded body is a resource or an output that was written down and would not be in the result. The render stops instead.
 
 Both places the key was written are reported, because a key written twice is usually two edits meant to be two different keys — and the author needs both to tell which one to change.
 
-Emitted message:
+Emitted message, opening with the condition and continuing with the provider's own detail:
+> two things a plugin produced occupy one name in its output
 > cloudformation-provider: one mapping key is written more than once: the key `"<key>"` is written at line `<first>` and again at line `<second>`; a mapping holds one value per key, so one of the two bodies would be dropped — remove one, or rename one so each key is written once
 
 **How to fix:** open the fragment at the two lines the message names. Where the two bodies were meant to be one thing, remove the one that is now redundant; where they were meant to be two, rename one so each has a key of its own. The fragment is a template, so check the rendered text rather than only the source where a key is composed rather than written literally.
 
 ### A cross-boundary reference has no consuming stack to be written into
 
-<!-- covers: plugins/internal/cfncore.ErrLinkConsumerStackMissing -->
+<!-- covers: internal/wasm.ErrPluginRequiredInputUnresolved -->
 
 Where a dependency connection crosses between two separately assembled outputs, the consuming side is rendered with a placeholder and the reference is written in once both sides exist. This condition is what happens when the consuming side's assembled output holds no stack template at all: there is no document to write the reference into, so the placeholder cannot be replaced.
 
-Emitted message, which is the condition's own sentence:
+Emitted message. The condition names the kind of failure, and the provider's own sentence says which input:
+> a plugin could not resolve something it requires to exactly one value
 > cloudformation-provider: cross-boundary link resolve received no consumer stack template
 
 **How to fix:** nothing you write inside the consuming component produces this — it is the shape of what its boundary assembled. Check that the consuming side is rendered by the CloudFormation provider at all: a connection crossing into a boundary that assembles something else has no stack for the reference to land in, and the connection belongs between two boundaries the same provider assembles. Where both sides should be CloudFormation, the consuming boundary produced no stack template, which is a question for whoever authored the Recipes contributing to it.
 
 ### A cross-boundary reference was spliced into a longer string
 
-<!-- covers: plugins/internal/cfncore.ErrLinkSentinelInterpolated -->
+<!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
 
 A CloudFormation cross-reference is an object rather than text, so it can only replace a value whole. This condition is what a placeholder that survived only inside a larger string reports — a value composed around it, rather than delivered as the whole of what was injected. There is nothing to swap the object for, so the render stops rather than emit a reference in a shape the target cannot read.
 
-Emitted message, naming the value and the connection it arrived on:
+Emitted message. The condition leads, then the value and the connection it arrived on:
+> a plugin has no representation for a value it was given
 > cloudformation-provider: cross-boundary link value is interpolated into a larger string; only a whole-scalar injection can carry a cross-stack reference: output key `"<key>"` on socket `"<socket>"`
 
 **How to fix:** deliver the value whole rather than composing around it. Where the consuming side needs the value inside a longer string — a connection string, a URL — build that composition in the target's own vocabulary from the reference, rather than in the Recipe's template before the reference exists. The mapping that injects the value is where the splice happens, so that is the line to change.
 
 ### Two rendered resources land at one output file
 
-<!-- covers: plugins/internal/helmcore.ErrRenderedFileCollision -->
+<!-- covers: internal/wasm.ErrPluginOutputNameCollision -->
 
 Each rendered resource is written to a file whose name comes from what the resource is and what it is called. Two resources that share those carry the same file name, so one would occupy the other's slot and the render stops rather than emit one file where two resources were rendered.
 
 **Two resources that render identically are not a collision.** Where the content matches byte for byte, keeping one loses nothing and the render carries on — so a template included twice with the same result is not reported.
 
-Emitted message, naming both templates that produced them and the file they met at:
-> helm: node `"<node>"`: rendered resources `"<one template>"` and `"<the other>"` both derive output `"<file>"` with differing content
-> caused by: two rendered resources derive the same output filename with differing content
+Emitted message. The condition leads, then both templates that produced them and the file they met at:
+> two things a plugin produced occupy one name in its output
+> helm: node `"<node>"`: rendered resources `"<one template>"` and `"<the other>"` both derive output `"<file>"` with differing content: two rendered resources derive the same output filename with differing content
 
 **How to fix:** give the two resources distinct identities — the name is what usually differs, and the file name follows from it. The message names both templates, so open them and check what each is producing: two templates rendering the same resource under one name is often one of them being an older copy. Where both are wanted, they are two resources and each needs its own name.
 
 ### A synthesized StatefulSet has no single service to govern it
 
-<!-- covers: plugins/internal/helmcore.ErrStatefulSetNoHeadlessService -->
-<!-- covers: plugins/internal/helmcore.ErrStatefulSetAmbiguousHeadlessService -->
+<!-- covers: internal/wasm.ErrPluginRequiredInputUnresolved -->
 
 A workload that declares per-instance storage is rendered as a StatefulSet, and a StatefulSet names one service that governs it — the one giving each instance its stable address. That service is the one declared without a cluster address of its own. Two shapes stop the render: none declared, so there is nothing to name; and more than one, so which of them governs has no answer. Either would produce a StatefulSet the target rejects, so the render stops instead of emitting one.
 
-**Emitted messages**, each printed beneath a frame naming the node, with the condition it is recorded under following as the cause:
-> synthesized StatefulSet requires a headless governing Service (declare a service with type: Headless); none found
-> caused by: synthesized StatefulSet has no headless governing Service
+**Emitted messages.** Both report the same condition — something the provider requires that it could not resolve to exactly one value — and the provider's own sentence says which of the two shapes was met. Each is printed beneath a frame naming the node:
+> a plugin could not resolve something it requires to exactly one value
+> synthesized StatefulSet requires a headless governing Service (declare a service with type: Headless); none found: synthesized StatefulSet has no headless governing Service
 
-> synthesized StatefulSet declares more than one headless Service; the governing Service is ambiguous (declare exactly one type: Headless service)
-> caused by: synthesized StatefulSet has more than one headless Service
+> a plugin could not resolve something it requires to exactly one value
+> synthesized StatefulSet declares more than one headless Service; the governing Service is ambiguous (declare exactly one type: Headless service): synthesized StatefulSet has more than one headless Service
 
 **How to fix:** declare exactly one service of the headless type on the workload. Where none is declared, add it — a workload with per-instance storage needs one, and it is what gives each instance an address that stays with it. Where more than one is declared, keep the one that should govern and give the others an ordinary type, or remove them; a second headless service is usually one that did not need to be headless.
+
+### A plugin reported a failure it did not classify
+
+<!-- covers: internal/wasm.ErrPluginFailureUnclassified -->
+
+A plugin that stops a build reports two things: a sentence of its own saying what happened, and which kind of failure that sentence names. The kinds are a small set the compiler declares — a construct with no expression, an input that could not be resolved to one value, two produced things wanting one name, a value with no representation — and this condition is the one a plugin chooses when its failure fits none of them.
+
+It is a fallback rather than a destination. A plugin reaching for it where one of the other kinds fits is telling you less than it knows, and the wording says plainly that the plugin declined to classify rather than that something merely went wrong — so an over-used fallback is legible rather than indistinguishable from a correct report.
+
+Emitted message. The condition leads and the plugin's own sentence follows it:
+> a plugin reported a failure that none of the declared kinds names
+> `<the plugin's own sentence>`
+
+**How to fix:** read the plugin's own sentence, which is where everything specific to your build is. The condition itself tells you only that the plugin had no kind for it. Where the plugin is yours, choose the kind the failure actually is; where it is not, the sentence is what to quote to whoever publishes it.
+
+### A plugin named a condition the socket does not declare
+
+<!-- covers: internal/wasm.ErrWasmGuestConditionUndeclared -->
+
+A plugin reports a condition this compiler declares rather than inventing a number of its own, so the identifier that reaches you is always one `aggrega explain` answers for. This halt is what a report naming anything else produces: a number nothing is registered under, a number that was retired, a short code spelled differently from the registration it resolves to, or a pair of identifiers naming two different conditions.
+
+**It stops rather than quietly standing the report down.** Dropping the identifiers and letting the generic plugin-failure condition stand would produce a build that looks exactly like one from a plugin that named no condition at all, so whoever has to fix it would never learn there was anything to fix. Reporting the offered number instead would hand you an identifier that resolves to nothing.
+
+**Your build still gets what stopped it.** The halt quotes the offending number, says why it resolves to no condition, names the generic conditions a plugin reaches for when it has no better identity, and carries the plugin's own sentence through unchanged.
+
+Emitted message:
+> wasm: guest plugin named a condition the socket does not declare: the guest named `"<offered>"`, and `<why it resolves to no condition>`; a plugin names a condition this compiler declares, and reaches for one of `<the generic conditions and their codes>` when it has none better: `<the plugin's own sentence>`
+
+**How to fix:** nothing in your entity files causes this — it is the plugin's report that is wrong, and the failure it was reporting is real. Act on the plugin's own sentence, which is the last part of the message. Where the plugin is yours, report a condition this compiler declares — one of the generic kinds the message lists, where the failure fits none of the more specific conditions; where the plugin is not yours, quote the offending number to whoever publishes it.
 
 ### A Recipe's `source:` names a kind nothing knows how to acquire
 
@@ -4398,24 +4432,9 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0227` | `a governance attachment declares no role or an unknown role` | A governance attachment declares no role, or one that is not a known role |
 | `E0228` | `a provider socket binding sets a field with no referent on that socket` | A plugin binding sets a key the socket it attaches to does not read |
 | `E0229` | `position out of range` | An editor position falls outside the document |
-| `E0230` | `cloudformation-provider: one mapping key is written more than once` | A CloudFormation fragment writes one key twice |
-| `E0231` | `cloudformation-provider: cross-boundary link resolve received no consumer stack template` | A cross-boundary reference has no consuming stack to be written into |
-| `E0232` | `cloudformation-provider: cross-boundary link value is interpolated into a larger string; only a whole-scalar injection can carry a cross-stack reference` | A cross-boundary reference was spliced into a longer string |
-| `E0233` | `cloudformation-provider: two entries an author wrote reach one stack Output name` | Two entries reach one stack output name |
-| `E0235` | `configmap volume requires a file emitted via the Recipe's artifacts: input; none found` | A configmap volume has no file behind it |
-| `E0236` | `probe http: requires at least one container port; container declares none` | A health probe cannot be turned into a compose healthcheck |
-| `E0237` | `probe declares no shape (http/tcp/exec)` | A health probe cannot be turned into a compose healthcheck |
-| `E0238` | `resources quantity cannot be converted to a compose deploy.resources value` | A resources quantity cannot be converted to a compose value |
-| `E0239` | `compose has no env-from-object primitive; container declares envFrom` | A container declares a field compose has no primitive for |
-| `E0240` | `compose cannot express this workload form` | A workload declares a form compose cannot express |
-| `E0241` | `compose has no lifecycle-hook primitive; container declares lifecycle hooks` | A container declares a field compose has no primitive for |
-| `E0243` | `two rendered resources derive the same output filename with differing content` | Two rendered resources land at one output file |
-| `E0244` | `synthesized StatefulSet has more than one headless Service` | A synthesized StatefulSet has no single service to govern it |
-| `E0245` | `synthesized StatefulSet has no headless governing Service` | A synthesized StatefulSet has no single service to govern it |
 | `E0246` | `the digest recorded as trusted for this plugin does not match the digest its cached manifest reports` | A trusted plugin's recorded digest disagrees with the cached artifact |
 | `E0247` | `a plugin recorded as trusted for an accept-or-reject verdict is no longer attached at any verdict role` | A plugin recorded as a trusted gate is no longer attached |
 | `E0248` | `wasm: guest plugin returned an output that is not the shape the socket reads` | A plugin returned something that is not the shape the socket reads |
-| `E0249` | `cloudformation-provider: an export name a cross-boundary link derives is already declared by another Outputs entry in the same stack` | An authored export name is one the build derives for a cross-stack reference |
 | `E0250` | `provider named a directory for each contributor's own sub-directory that is not a single directory name` | A provider named a directory for a contributor that is not one directory |
 | `E0251` | `recipe source is an empty string, which names neither sourceless mode nor sourced mode` | Recipe `source:` is an empty string |
 | `E0252` | `artifacts-library bundle file name leaves the artifacts key its output is nested under` | An ArtifactsLibrary bundle file leaves the key it was imported at |
@@ -4424,7 +4443,6 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0255` | `annotation routes through a pillar its authoring side may not use` | An annotation routes through a pillar its authoring side may not use |
 | `E0256` | `annotation binding declares one path in both pillar lists` | An annotation binding declares one path in both pillar lists |
 | `E0257` | `declared schema contract could not be compiled into a usable schema, so nothing was validated against it: correct the contract where it is declared, or remove it if the configuration it covers needs no validation` | A declared schema contract cannot be read as a schema |
-| `E0258` | `compose publishes a port's transport as a tcp or udp suffix; this port declares a transport compose cannot express` | A published port declares a transport compose cannot spell |
 | `E0259` | `attachment binds a FeatureRecipe with executionScope: boundary and no boundary holding the component declares it` | A boundary-scope Feature is attached only to a component |
 | `E0260` | `` component placed in no boundary: name it under a boundary's `components`, or place the sub-module that contributes it under `aggregates` `` | A component the composition holds is placed in no boundary |
 | `E0261` | `boundary names a component the composition does not hold: correct the name, or remove the entry` | A boundary names a component the composition does not hold |
@@ -4442,6 +4460,12 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0273` | `template reads the name the target renders author-supplied source under, and this node's provider reports no such name; a conforming template reads a value the node's own provider supplies` | A template reads a rendered name the node's provider does not report |
 | `E0274` | `the plugin identity recorded as trusted no longer matches what this resolution reports` | A gate recorded as trusted resolves to a different identity |
 | `E0275` | `the edit was refused because the resulting document would not be valid, and nothing was written` | An edit would produce a document its schema refuses |
+| `E0288` | `a plugin has no expression for a construct this build declares` | A workload declares a form compose cannot express; A container declares a field compose has no primitive for |
+| `E0289` | `a plugin could not resolve something it requires to exactly one value` | A health probe cannot be turned into a compose healthcheck; A configmap volume has no file behind it; A cross-boundary reference has no consuming stack to be written into; A synthesized StatefulSet has no single service to govern it |
+| `E0290` | `two things a plugin produced occupy one name in its output` | An authored export name is one the build derives for a cross-stack reference; Two entries reach one stack output name; A CloudFormation fragment writes one key twice; Two rendered resources land at one output file |
+| `E0291` | `a plugin has no representation for a value it was given` | A published port declares a transport compose cannot spell; A resources quantity cannot be converted to a compose value; A cross-boundary reference was spliced into a longer string |
+| `E0292` | `a plugin reported a failure that none of the declared kinds names` | A plugin reported a failure it did not classify |
+| `E0293` | `wasm: guest plugin named a condition the socket does not declare` | A plugin named a condition the socket does not declare |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
