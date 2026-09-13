@@ -237,17 +237,17 @@ Each external service is declared as a distinct component, not collapsed into a 
 
 It is critical to note that the semantic label (e.g., `untrusted-external`) dictates **network security policy**, not execution. It is completely decoupled from whether the resource is physically provisioned by Aggrega.
 
-* **Scenario A (Public SaaS API):** Labeled `untrusted-external` in the Catalog (triggers Policy Egress Guardrails). Executed via the `formatter.wasm` plugin (no compute provisioned).
-* **Scenario B (Internal Legacy Database):** Labeled `internal-trusted` (bypasses Egress Guardrails, stays inside the VPC). Executed via the `formatter.wasm` plugin (no compute provisioned).
+* **Scenario A (Public SaaS API):** Labeled `untrusted-external` in the Catalog (triggers Policy Egress Guardrails). Executed via the formatter plugin (no compute provisioned).
+* **Scenario B (Internal Legacy Database):** Labeled `internal-trusted` (bypasses Egress Guardrails, stays inside the VPC). Executed via the formatter plugin (no compute provisioned).
 * **Scenario C (Self-Hosted Database):** Labeled `internal-trusted`. Executed via the Helm renderer plugin (physically provisioned as a Kubernetes StatefulSet).
 
 ### 10. The `eval` Provider: Virtual Components via Wasm Formatters
 
 When an application interacts with a legacy on-premise database or a public SaaS API (like Stripe), the Universal Component Rule dictates that these external entities must be declared as distinct components in the `Aggregate`. However, Aggrega must not attempt to generate a physical Kubernetes Pod or AWS RDS instance artifact for them.
 
-To solve this without polluting the architecture with placeholder Helm charts, Aggrega introduces a first-class programmatic execution socket: the **`eval.wasm` plugin.**
+To solve this without polluting the architecture with placeholder Helm charts, Aggrega introduces a first-class programmatic execution socket: the **`eval` plugin.**
 
-The `eval.wasm` plugin tells the Go compiler: *"Do not provision physical compute. Do not output physical IaC files. Simply execute this WebAssembly logic to construct complex URIs, parse cryptographic hashes, or build connection strings, save the resulting formatted string in memory, and pass it to the component's dependents."*
+The `eval` plugin tells the Go compiler: *"Do not provision physical compute. Do not output physical IaC files. Simply execute this WebAssembly logic to construct complex URIs, parse cryptographic hashes, or build connection strings, save the resulting formatted string in memory, and pass it to the component's dependents."*
 
 This creates a broadly extensible, native mechanism for Platform Ops to format complex Database Source Names (DSNs), custom API URIs, or Kafka bootstrap strings without relying on the brittleness of standard Go text templates.
 
