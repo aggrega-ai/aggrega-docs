@@ -680,7 +680,25 @@ function describeType(schema) {
   if (schema.const !== undefined) return `const ${JSON.stringify(schema.const)}`;
   if (schema.enum) return schema.type ? `${labelOfType(schema.type)} (enum)` : "enum";
   if (schema.oneOf || schema.anyOf) {
-    return (schema.oneOf || schema.anyOf).map(describeType).join(" or ");
+    // A name is published once however many alternatives carry it.
+    //
+    // Alternatives may differ in SHAPE while sharing a TYPE — an object
+    // required to carry a particular key, beside an object required not to —
+    // and both render to the same name. Joining the names unmodified prints
+    // that name twice, which names no second thing a reader could look for and
+    // reads on the page as a rendering fault.
+    //
+    // What separates such alternatives is not a type name, so the type column
+    // is not where it can be said: the distinguishing key belongs to the
+    // prose beside the value, which is written to tell an author which form to
+    // write. This is the same bound the shape-constraint sentences below keep,
+    // where two alternatives sharing a name yield no sentence because there
+    // would be no way to say which of them was meant.
+    //
+    // Order is the schema's own and the first occurrence of a name holds its
+    // place, so the reading stays as deterministic as the rest of the output.
+    const names = (schema.oneOf || schema.anyOf).map(describeType);
+    return [...new Set(names)].join(" or ");
   }
   if (schema.type === "array") {
     return schema.items ? `${describeType(schema.items)}[]` : "array";

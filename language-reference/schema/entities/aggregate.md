@@ -68,7 +68,7 @@ _Additional properties are not permitted._
 
 A single delivery mechanism, authored as an array of entries. Each entry carries an 'in' (local identifier — env var name, file path, arg flag, or custom mechanism-specific key) plus exactly one of 'from' (a provides key to resolve) or 'value' (a literal string, optionally containing Go template expressions evaluated at self-inject resolution). 'from' resolves against the target's provides in uses[].inject context, or against the component's own provides in component.inject context.
 
-**Type:** `any or any[]`
+**Type:** `any[]`
 
 ### `inject_block`
 
