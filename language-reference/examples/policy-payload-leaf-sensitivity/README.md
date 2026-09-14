@@ -108,23 +108,27 @@ import rego.v1
 deny contains msg if {
 	some node_id, attachments in input.graph.spec.feature_values_mapping
 	some attachment_name, attachment in attachments
-	some leaf in attachment.sensitive_authored_leaves
+	some leaf in attachment.sensitive_payload_leaves
 	msg := sprintf("%v: the %v credential writes declared-sensitive material into the deployment at %v", [node_id, attachment_name, leaf])
 }
 ```
 
-`sensitive_authored_leaves` lists the leaves **this deployment authored a value
-at** whose path the attached Feature declares sensitive, each as a
-pillar-prefixed dotted path. Two consequences, and the example turns on both:
+`sensitive_payload_leaves` lists the leaves **this attachment's payload
+carries** whose path the attached Feature declares sensitive, each as a
+pillar-prefixed dotted path. The payload read is the one the attachment ends up
+carrying, so a leaf standing at a value the Feature's schema declares as a
+`default` is named alongside one a deployment wrote at it. Two consequences, and
+the example turns on both:
 
-- A leaf appears only where the join is exact — an authored path equal to a
-  declared-sensitive path. Nothing is read out of the path's own text and no
-  value is inspected. So `key`, authored beside `origin` in the same attachment,
-  never appears: its Feature declares nothing about it.
-- An attachment that authors nothing contributes nothing to the list. The
-  delegated release's attachment carries the whole-attachment answer and no
-  per-leaf list at all, because the key is omitted from the wire when it would
-  be empty.
+- A leaf appears only where a declaration **covers** it — the declaration names
+  that leaf, or names an object containing it, matched segment-wise over the
+  dotted path. Nothing is read out of the path's own text and no value is
+  inspected. So `key`, written beside `origin` in the same attachment, never
+  appears: its Feature declares nothing about it.
+- An attachment whose payload carries nothing at a declared leaf contributes
+  nothing to the list. The delegated release's attachment carries the
+  whole-attachment answer and no per-leaf list at all, because the key is
+  omitted from the wire when it would be empty.
 
 The attachment sits in `.aggrega-config.yaml` at the `ir-verdict` role, which is
 the role that receives the build graph:
@@ -169,9 +173,9 @@ diagnostic a policy refusal carries — see
   caused by: policy violation
 ```
 
-Read the leaf path. The attachment authored two values; the refusal names
-`values.origin` and does not mention `values.key`. That single sentence is the
-per-leaf marking doing its work — one attachment, two authored leaves, one
+Read the leaf path. The attachment's payload carries two values; the refusal
+names `values.origin` and does not mention `values.key`. That single sentence is
+the per-leaf marking doing its work — one attachment, two payload leaves, one
 declaration, one refusal.
 
 The refusal also arrives before anything is rendered. No `dist/infra-authored/`
@@ -274,7 +278,7 @@ The third sensitivity fact, `sensitive_inject`, does not help either: it names
 delivery keys whose referenced `provides` key is declared sensitive. Here the
 slot is delivery-closed and the deployment-supplies Feature publishes no
 `provides` pillar, so on this workspace it names nothing. Of the three facts,
-only the per-authored-leaf list answers "where did *this deployment* put data",
+only the per-leaf list answers "where does *this deployment's payload* carry data",
 which is what the house rule is about.
 
 For all three facts side by side, with the payload shapes and the cases where
@@ -329,7 +333,7 @@ plugin's published version in the same position.
 - `release-authored.yaml`, `release-delegated.yaml` — one per arm, each with its
   own boundary `directory:`. There is no flag for the output location, so two
   releases sharing one directory would have the second overwrite the first.
-- `policy.rego` — the house rule, keyed on the per-authored-leaf marking.
+- `policy.rego` — the house rule, keyed on the per-leaf marking.
 - `policy-attachment-wide.rego` — the control, keyed on the whole-attachment
   answer. Not attached by default.
 - `catalog/plugin/governance/rego/1.0.0/plugin.yaml` — the Plugin entity this

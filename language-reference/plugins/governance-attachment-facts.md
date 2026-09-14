@@ -131,7 +131,7 @@ compiler carries whichever was written without resolving either: a by-reference
 credential carries a pointer into a secret store, and a by-value one carries
 the material itself.
 
-## Where each authored leaf came from: `values_provenance` and `infra_provenance`
+## Where each leaf came from: `values_provenance` and `infra_provenance`
 
 Each is keyed by the dotted leaf path within its pillar, and each entry records
 that leaf's `origin` — the same `explicit` / `annotation` distinction, applied
@@ -144,7 +144,7 @@ it replaced, so a policy can see what was overridden rather than only what won.
 ## The three sensitivity units
 
 The payload carries **three** sensitivity facts, and they sit at three
-different units: one whole attachment, one delivery key, one authored leaf.
+different units: one whole attachment, one delivery key, one payload leaf.
 
 Each is computed from its own inputs. **None is derived from another**, and in
 particular the per-attachment answer is never spread down to the narrower
@@ -187,26 +187,33 @@ appears here; one filling from an unmarked key does not, even on the same
 attachment and the same mechanism. Empty when the attachment declares no
 delivery mechanism, or references no sensitive `provides` key.
 
-### `sensitive_authored_leaves` — one answer per authored leaf
+### `sensitive_payload_leaves` — one answer per payload leaf
 
-The leaves **this deployment authored a value at** whose path the attached
-Feature declares sensitive, each as the pillar-prefixed dotted path the
-authored datum occupies: `values.<path>` or `infra.<path>`.
+The leaves **this attachment's payload carries** whose path the attached
+Feature declares sensitive, each as the pillar-prefixed dotted path the datum
+occupies: `values.<path>` or `infra.<path>`.
 
-A leaf appears only where the join is **exact**: an authored leaf path equal to
-a path the Feature's schema declares sensitive. Nothing is read out of the
-path's own text and no value is inspected — whether the author wrote the
-material itself at a marked leaf, or a pointer to it, is not knowable here and
-is not what the marking claims.
+The payload read here is the one the attachment ends up carrying, not the block
+a deployment wrote. A leaf standing at a value the Feature's schema declares as
+a `default` is named alongside one a deployment wrote at it: a filled default is
+a datum the payload carries, and a marking read off the written block alone
+would leave it unnamed.
+
+A leaf appears where a path the Feature's schema declares sensitive **covers**
+it — the declaration names that leaf, or names an object containing it.
+Matching runs segment-wise over the dotted path, so a declaration at `db`
+covers `db.password` and does not reach a sibling leaf named `dbPassword`.
+Nothing is read out of the path's own text and no value is inspected — whether
+the author wrote the material itself at a marked leaf, or a pointer to it, is
+not knowable here and is not what the marking claims.
 
 The comparison runs over the payload flattened to its leaves, not over the
 pillar's top-level keys, so a leaf nested inside a nested map is compared like
 any other.
 
-Leaves arrive in the order the attachment authored them, the `values` pillar's
-before the `infra` pillar's — the same author order the payloads themselves
-carry, which is what keeps the wire byte-identical across runs of identical
-input.
+Leaves arrive in the order the payload holds them, the `values` pillar's before
+the `infra` pillar's — the same order the payloads themselves carry, which is
+what keeps the wire byte-identical across runs of identical input.
 
 This unit answers *where this deployment put data*, which varies by deployment
 necessarily. That is why it intersects with what was authored while `sensitive`
@@ -235,17 +242,17 @@ values leaf and its `password` provides key sensitive, filling a declared
   "sensitive_inject": {
     "env": { "DATABASE_PASSWORD": "password" }
   },
-  "sensitive_authored_leaves": ["values.literalPassword"]
+  "sensitive_payload_leaves": ["values.literalPassword"]
 }
 ```
 
 Three different questions, three different answers. The attachment handles
 declared-sensitive material at all (`sensitive`). The `DATABASE_PASSWORD`
 environment key is one that carries it (`sensitive_inject`). And this
-deployment put a value at `values.literalPassword` specifically
-(`sensitive_authored_leaves`) — while `values.secretName`, a locator the
+attachment's payload carries a value at `values.literalPassword` specifically
+(`sensitive_payload_leaves`) — while `values.secretName`, a locator the
 Feature deliberately leaves unmarked, is absent from that list even though the
-deployment authored it too.
+payload carries it too.
 
 A rule that denies a literal secret in a rendered artifact wants the third. A
 rule that requires every credential-handling attachment to carry an ownership
@@ -254,9 +261,12 @@ halt.
 
 ### Absence is not permission
 
-**A leaf is listed only where the join is exact. So the absence of
-`sensitive_authored_leaves` states that no authored leaf matched a declaration
-— never that nothing on the attachment carries sensitive material.**
+**A leaf is listed only where a declaration covers it. So an absent
+`sensitive_payload_leaves` states that this attachment names no leaf its Feature
+declares sensitive — never that the payload is insensitive.** It also does not
+separate an attachment that has no such leaf to name from a producer that does
+not report this axis at all: those two stay indistinguishable, and a reader of
+an absent key learns that and nothing more.
 
 A guest that reads an absent leaf list as permission to display or emit a value
 in the clear has read the marking backwards.
