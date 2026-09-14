@@ -26,6 +26,7 @@ Two bounds on what the table covers, and both are worth knowing before you concl
 | `E0167` | `Recipe publishes a provides key its Component does not declare` |
 | `E0173` | `declared parameter is read by no reference in the Aggregate` |
 | `E0174` | `uses socket name is a near miss for a declared socket` |
+| `E0256` | `annotation binding declares one path in both pillar lists` |
 <!-- END GENERATED: advisory-short-codes -->
 
 ## Schema-pillar-overlap lint
@@ -60,15 +61,18 @@ LINT: Feature "core/db-pool" at ./catalog/feature/core/db-pool.yaml declares pro
 
 **Fires when** a Manifest annotation binding declares the same dotted path in both its `maps.infra` and `maps.values` lists. The path would route through both pillars; the compiler's deterministic tie-break sends it through `infra:`, which makes the `values:` side unreachable from the Aggregate. The lint surfaces this so the author can either narrow the binding to a single pillar or accept the infra-side-only routing consciously.
 
-**Pipeline placement.** The lint runs at workspace load, after Manifest resolution but before any annotation expansion fires. It walks the bindings under `mappings.features.annotations` in the order they were authored, intersects each binding's `maps.infra` and `maps.values` lists, and reports one finding per overlapping path. Within one binding, overlapping paths are reported in sorted order, so repeated runs over identical input report an identical sequence.
+**Pipeline placement.** The lint runs after the Manifest is resolved and before any annotation expansion fires, so a build reports an overlapping binding whether or not an Aggregate annotation ever reaches that binding. It walks the bindings under `mappings.features.annotations` in the order they were authored, intersects each binding's `maps.infra` and `maps.values` lists, and reports one finding per overlapping path. Within one binding, the overlapping paths are reported in the order that binding's `maps.values` list declares them — the order you wrote them in — so repeated runs over identical input report an identical sequence.
 
 **Emit shape:**
 
 ```text
-  lint: annotation binding declares one path in both pillar lists (Manifest, at .spec.mappings.features.annotations.compliance.aggrega.ai/data-class, annotation binding "compliance.aggrega.ai/data-class" on Feature "core/data-masking" declares path "classifier_endpoint" in both maps.infra and maps.values; the routing tie-break sends this subkey through the infra pillar, which makes it unreachable from the Aggregate side — declare two bindings under two annotation keys if both pillars are meant to route it)
+  lint: annotation binding declares one path in both pillar lists (Manifest, at .spec.mappings.features.annotations, "compliance.aggrega.ai/data-class", on Feature "core/data-masking", at path "classifier_endpoint", which the routing tie-break sends through the pillar "infra", declare a second binding under another annotation key to route it through "values")
+  lint: annotation binding declares one path in both pillar lists (Manifest, at .spec.mappings.features.annotations.audit-scope, "audit-scope", on Feature "core/data-masking", at path "retention_endpoint", which the routing tie-break sends through the pillar "infra", declare a second binding under another annotation key to route it through "values")
 ```
 
-**Editor visibility.** The finding also reaches editor diagnostics through the language server, at warning severity, positioned on the annotation-binding block it names. An author who never reads terminal output still sees it. It is raised before the artifact-rendering stage, so it needs no dial: an editor session surfaces it whether or not `serve.build_on_inspect` is on.
+Those two lines come from one build over one Manifest, and what differs between their locators is the shape of the annotation key. A locator addresses a document by dotted path, so it stops at the first segment that carries a period of its own: `audit-scope` carries none and the locator reaches the binding, while `compliance.aggrega.ai/data-class` does, and the locator names the `annotations` block holding it instead. That is why the offending key is also the first quoted value of every finding — it is the one part the locator cannot always carry.
+
+**Editor visibility.** The finding also reaches editor diagnostics through the language server, at warning severity, positioned wherever its locator reaches — on the binding itself for a plain key, and on the enclosing `annotations` block for a key carrying a period. An author who never reads terminal output still sees it. It is raised before the artifact-rendering stage, so it needs no dial: an editor session surfaces it whether or not `serve.build_on_inspect` is on.
 
 **Matching it programmatically.** The finding carries `ErrAnnotationBindingPillarOverlap` from `pkg/resolver`, so a consumer recognises the class with `errors.Is` rather than by matching the message text. Like every advisory sentinel it never reaches a build's verdict — see [sentinels.md](./sentinels.md) for the accessor and the condition's codes.
 
