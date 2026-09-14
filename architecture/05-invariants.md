@@ -58,7 +58,7 @@ The governance socket carries a per-attachment **role**, and the role — not th
 
 ## 5. The Aggregate is the authoring surface; Release cannot declare `values:`
 
-The Release schema mechanically bans a `values:` block. Operators cannot write `values` on a Component, Feature, or Secret from a Release. This is schema enforcement at the JSON Schema level — not a social contract, not a convention — and it is loud: every entity document is validated against its kind's schema when it is loaded, so a Release carrying `values:` halts the build with a diagnostic naming the file and the offending key rather than being silently ignored.
+The Release schema mechanically bans a `values:` block. Operators cannot write `values` on a Component or a Feature from a Release. This is schema enforcement at the JSON Schema level — not a social contract, not a convention — and it is loud: every entity document is validated against its kind's schema when it is loaded, so a Release carrying `values:` halts the build with a diagnostic naming the file and the offending key rather than being silently ignored.
 
 This does not mean values are identical across environments. The supported path for per-environment variation is **Parameter Hoisting**:
 
