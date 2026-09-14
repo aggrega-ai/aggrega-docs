@@ -1,16 +1,16 @@
-# Aggrega Background Session Wire Protocol schema
+# Aggrega Background Daemon Wire Protocol schema
 
 _Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
 
 Schema id: `https://aggrega.ai/schemas/serve-wire-v1alpha1.schema.json`
 
-The message shapes exchanged with a background compiler session started by `aggrega serve`. The protocol is JSON-RPC 2.0 over standard input and output, each message framed by a Content-Length header; this document describes the message bodies and neither the framing nor the transport. A body is one of four things: a request the client sends, a notification the client sends, a notification the session sends, or the response the session returns for a request. Three properties of the surface decide how the shapes below are written. First, every request admits two fields beyond the ones its own method declares — `workspaceRoot`, naming the workspace the request acts on, and `workDoneToken`, the caller-minted value progress is reported under — so both appear on every request params object here, including the three methods whose subject is not a workspace and which accept `workspaceRoot` and ignore it. Second, the session refuses a request params object carrying a field the method does not accept, naming what it does accept, so every params object here is closed at its top level; a nested object inside a request is not closed, because the check reads only the outermost field names. Third, a result is composed by the session rather than supplied by a caller, so result objects are closed at every level whose shape is fixed, and open only where the value is opaque JSON the session carries through without reading. One consequence of the session's encoding is visible on the wire and is described rather than tidied away: a collection the session does not mark optional is emitted as `null` when it has no value to report and as an empty collection when the value it reports is empty, so both forms are admitted wherever that applies.
+The message shapes exchanged with a background compiler daemon started by `aggrega serve`. A client opens a session over that daemon with the handshake, and the session is what scopes the settings and the workspace the conversation was opened over; the daemon is the process that answers a request, sends a notification and holds what it has read. The protocol is JSON-RPC 2.0 over standard input and output, each message framed by a Content-Length header; this document describes the message bodies and neither the framing nor the transport. A body is one of four things: a request the client sends, a notification the client sends, a notification the daemon sends, or the response the daemon returns for a request. Three properties of the surface decide how the shapes below are written. First, every request admits two fields beyond the ones its own method declares — `workspaceRoot`, naming the workspace the request acts on, and `workDoneToken`, the caller-minted value progress is reported under — so both appear on every request params object here, including the three methods whose subject is not a workspace and which accept `workspaceRoot` and ignore it. Second, the daemon refuses a request params object carrying a field the method does not accept, naming what it does accept, so every params object here is closed at its top level; a nested object inside a request is not closed, because the check reads only the outermost field names. Third, a result is composed by the daemon rather than supplied by a caller, so result objects are closed at every level whose shape is fixed, and open only where the value is opaque JSON the daemon carries through without reading. One consequence of the daemon's encoding is visible on the wire and is described rather than tidied away: a collection the daemon does not mark optional is emitted as `null` when it has no value to report and as an empty collection when the value it reports is empty, so both forms are admitted wherever that applies.
 
 ## One of the following shapes
 
 - `Request`
 - `ClientNotification`
-- `SessionNotification`
+- `DaemonNotification`
 - `SuccessResponse`
 - `ErrorResponse`
 
@@ -36,7 +36,7 @@ A value the caller mints so it can match progress notifications to the call that
 
 ### `WorkspaceRootSubject`
 
-The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused.
+The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused.
 
 **Type:** `string`
 
@@ -58,15 +58,15 @@ Every method a client notification may name. The set is closed, and neither noti
 
 **Type:** `string (enum)`
 
-### `SessionNotificationMethod`
+### `DaemonNotificationMethod`
 
-Every method a notification the session sends may name. The set is closed.
+Every method a notification the daemon sends may name. The set is closed.
 
 **Type:** `string (enum)`
 
 ### `Request`
 
-A request the client sends and the session answers. The method names what is being asked; the params object carries that method's own fields plus the two every method admits. A request that omits params entirely is read as one whose fields are all absent.
+A request the client sends and the daemon answers. The method names what is being asked; the params object carries that method's own fields plus the two every method admits. A request that omits params entirely is read as one whose fields are all absent.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -89,21 +89,21 @@ A notification the client sends. It carries no identifier and is never answered.
 
 _Additional properties are not permitted._
 
-### `SessionNotification`
+### `DaemonNotification`
 
-A notification the session sends. It carries no identifier and is never answered.
+A notification the daemon sends. It carries no identifier and is never answered.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `jsonrpc` | ProtocolVersion | yes | The JSON-RPC version every message carries. Only 2.0 is spoken. |
-| `method` | SessionNotificationMethod | yes | Every method a notification the session sends may name. The set is closed. |
+| `method` | DaemonNotificationMethod | yes | Every method a notification the daemon sends may name. The set is closed. |
 | `params` | object | yes |  |
 
 _Additional properties are not permitted._
 
 ### `CancelRequestParams`
 
-Asks the session to abandon a request already in flight, naming it by the identifier the request carried. A request already finished, or never sent, is silently nothing to cancel.
+Asks the daemon to abandon a request already in flight, naming it by the identifier the request carried. A request already finished, or never sent, is silently nothing to cancel.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -113,7 +113,7 @@ _Additional properties are not permitted._
 
 ### `ShutdownParams`
 
-Asks the session to stop accepting work and finish what it has already taken. The notification carries no fields, and the notification itself is usually sent with no params object at all. A second one abandons the work still in flight instead of waiting for it.
+Asks the daemon to stop accepting work and finish what it has already taken. The notification carries no fields, and the notification itself is usually sent with no params object at all. A second one abandons the work still in flight instead of waiting for it.
 
 _This object declares no fixed properties and permits none._
 
@@ -162,7 +162,7 @@ _Additional properties are not permitted._
 
 ### `PublishDiagnosticsParams`
 
-The findings for one file, pushed by the session when a validation produced them for a document other than the one the request named.
+The findings for one file, pushed by the daemon when a validation produced them for a document other than the one the request named.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -201,7 +201,7 @@ What went wrong: a code a client may branch on, a message written for a person t
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `code` | ErrorCode | yes | The condition the answer reports. The negative codes are the protocol's own reserved set; the four-digit codes are conditions this session raises, each naming a state a client can act on. The set is closed. |
+| `code` | ErrorCode | yes | The condition the answer reports. The negative codes are the protocol's own reserved set; the four-digit codes are conditions this daemon raises, each naming a state a client can act on. The set is closed. |
 | `message` | string | yes | What went wrong, in prose. It is the same wording the same condition carries on every other surface that reports it. |
 | `data` | ErrorData | no | The artifacts and source position the message refers to, carried structurally so a client need not read them back out of the prose. Every field is optional and a condition populates only what it has in hand; no field stands in for another, so a client learns what it received from the field it read rather than from the code beside it. |
 
@@ -209,7 +209,7 @@ _Additional properties are not permitted._
 
 ### `ErrorCode`
 
-The condition the answer reports. The negative codes are the protocol's own reserved set; the four-digit codes are conditions this session raises, each naming a state a client can act on. The set is closed.
+The condition the answer reports. The negative codes are the protocol's own reserved set; the four-digit codes are conditions this daemon raises, each naming a state a client can act on. The set is closed.
 
 **Type:** `const -32700 or const -32600 or const -32601 or const -32602 or const -32603 or const 1001 or const 1003 or const 1004 or const 1005 or const 1006`
 
@@ -300,7 +300,7 @@ The params object of a method that declares no fields of its own. It still admit
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 
 _Additional properties are not permitted._
@@ -311,7 +311,7 @@ Opens a session over a workspace and states what the client can handle. This is 
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `capabilities` | ClientCapabilities | no | What the client can handle. Unstated is taken as unsupported. Unknown members are ignored rather than refused, so a client may state a capability this session does not yet read. |
+| `capabilities` | ClientCapabilities | no | What the client can handle. Unstated is taken as unsupported. Unknown members are ignored rather than refused, so a client may state a capability this daemon does not yet read. |
 | `workspaceRoot` | string | no | The absolute path of the workspace to open. Absent leaves the session with no workspace; an empty string is a path the client supplied and is not the same as sending none. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 
@@ -319,7 +319,7 @@ _Additional properties are not permitted._
 
 ### `ClientCapabilities`
 
-What the client can handle. Unstated is taken as unsupported. Unknown members are ignored rather than refused, so a client may state a capability this session does not yet read.
+What the client can handle. Unstated is taken as unsupported. Unknown members are ignored rather than refused, so a client may state a capability this daemon does not yet read.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -354,7 +354,7 @@ Checks the workspace, or one document in it, and answers with the findings.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `file` | string | no | The document to check. Absent checks what the workspace holds. |
 | `content` | string | no | The document's text as the client currently holds it, for checking a buffer that has not been saved. Absent reads the bytes on disk. |
@@ -364,26 +364,26 @@ _Additional properties are not permitted._
 
 ### `InvalidateParams`
 
-Tells the session that a document it holds a reading of has changed, so the next answer about it is computed from the new bytes.
+Tells the daemon that a document it holds a reading of has changed, so the next answer about it is computed from the new bytes.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `file` | string | no | The document that changed. |
-| `granularity` | string | no | How much of what the session holds to drop. |
+| `granularity` | string | no | How much of what the daemon holds to drop. |
 
 _Additional properties are not permitted._
 
 ### `DiagnosticsParams`
 
-Answers with the findings the session already holds for a document, without checking it again.
+Answers with the findings the daemon already holds for a document, without checking it again.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
-| `file` | string | no | The document to report on. The session must already hold a reading of it. |
+| `file` | string | no | The document to report on. The daemon must already hold a reading of it. |
 
 _Additional properties are not permitted._
 
@@ -393,7 +393,7 @@ Answers with the resolved graph a Release compiles to, without rendering it.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `release` | string | no | The Release to resolve, as a path relative to the workspace root. An absolute path is refused. |
 
@@ -405,7 +405,7 @@ Compiles a Release and writes the rendered artifacts into the workspace.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `release` | string | no | The Release to build, as a path relative to the workspace root. An absolute path is refused. |
 | `autoPull` | boolean | no | Whether to resolve the Release's dependencies first. Asking for it reaches the configured registries and writes the lockfile; unasked, the build reaches no registry. |
@@ -418,7 +418,7 @@ Compiles a Release and reports what writing the artifacts would have produced, w
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `release` | string | no | The Release to compile, as a path relative to the workspace root. |
 | `autoPull` | boolean | no | Accepted on the wire and refused by the method: this request writes nothing, so it cannot fill a lockfile and remain what it says it is. |
@@ -431,7 +431,7 @@ Answers with what one entity name resolves to and where the document defining it
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `name` | string | no | The entity to resolve, by name. |
 
@@ -443,7 +443,7 @@ Answers with everything a Release depends on, as resolution reached it.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `release` | string | no | The Release to inspect, as a path relative to the workspace root. |
 
@@ -455,7 +455,7 @@ Resolves a Release's dependencies, pinning them in the lockfile and acquiring th
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `release` | string | no | The Release to resolve, as a path relative to the workspace root. |
 | `upgrade` | boolean | no | Whether to re-resolve within the declared ranges rather than honouring what the lockfile already pins. |
@@ -470,7 +470,7 @@ Reclaims cached content until what remains fits under a size the request names.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `maxSize` | string | no | The size to reclaim down to, written the way a person writes one — for instance 500MB. |
 
@@ -482,7 +482,7 @@ Searches what the configured registries' local indexes offer. It reads the index
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `query` | string | no | The text to match against a record's name and description. |
 | `kinds` | string[] | no | The entity kinds to keep. Empty keeps every kind. |
@@ -501,7 +501,7 @@ Registers a registry and the trust policy resolution applies to what it serves. 
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `host` | string | no | The registry host to register. |
 | `name` | string | no | A friendly alias that resolves to the host. |
@@ -522,7 +522,7 @@ Removes a registered registry. It writes the machine-wide configuration file unl
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `registry` | string | no | The registry to remove, by host or by alias. |
 | `global` | boolean | no | Write the machine-wide configuration file, which is this method's own default. |
@@ -536,7 +536,7 @@ Refreshes the local index a search reads, reaching the registry to do it. What i
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `registry` | string | no | The one registry to refresh. Absent refreshes every configured host. |
 | `upgrade` | boolean | no | Whether to rebuild the index rather than adding to what it already holds. |
@@ -549,7 +549,7 @@ Removes a stored registry credential. The store is shared by every project on th
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `registry` | string | no | The registry whose stored credential to remove. |
 
@@ -561,7 +561,7 @@ Publishes an entity to a registry. What it lands is what every consumer of that 
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `entity` | string | no | The entity document to publish, as a path relative to the workspace root. |
 | `registry` | string | no | The registry to publish to. Absent uses the configured default. |
@@ -581,7 +581,7 @@ Publishes an arbitrary file to a registry under a name and tag the request gives
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `file` | string | no | The file to publish, as a path relative to the workspace root. |
 | `name` | string | no | The repository name to publish under. |
@@ -598,7 +598,7 @@ Signs what is already published. A signature cannot be recalled from anyone who 
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `references` | string[] | no | The published references to sign. |
 | `fulcioUrl` | string | no | The certificate authority to obtain a signing certificate from. |
@@ -614,7 +614,7 @@ Marks a published version as deprecated, so resolution can report or decline it.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `reference` | string | no | The published reference to mark. |
 | `severity` | string | no | How strongly the marker speaks — whether resolution reports the version or declines it. |
@@ -635,7 +635,7 @@ Answers where the thing under the cursor is defined.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `uri` | string | no | The document the cursor is in. |
 | `position` | Position | no | A place in a document: a line and a character offset within it, both counted from zero. The offset is measured in the units of the encoding the session settled on when it was opened, which is UTF-16 unless the client asked for another. |
@@ -648,7 +648,7 @@ Answers where the thing under the cursor is referred to.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `uri` | string | no | The document the cursor is in. |
 | `position` | Position | no | A place in a document: a line and a character offset within it, both counted from zero. The offset is measured in the units of the encoding the session settled on when it was opened, which is UTF-16 unless the client asked for another. |
@@ -661,7 +661,7 @@ Answers which documents implement the thing under the cursor.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `uri` | string | no | The document the cursor is in. |
 | `position` | Position | no | A place in a document: a line and a character offset within it, both counted from zero. The offset is measured in the units of the encoding the session settled on when it was opened, which is UTF-16 unless the client asked for another. |
@@ -674,7 +674,7 @@ Answers with what to show about the thing under the cursor.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `uri` | string | no | The document the cursor is in. |
 | `position` | Position | no | A place in a document: a line and a character offset within it, both counted from zero. The offset is measured in the units of the encoding the session settled on when it was opened, which is UTF-16 unless the client asked for another. |
@@ -687,7 +687,7 @@ Answers with what may be written at the cursor.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `uri` | string | no | The document the cursor is in. |
 | `position` | Position | no | A place in a document: a line and a character offset within it, both counted from zero. The offset is measured in the units of the encoding the session settled on when it was opened, which is UTF-16 unless the client asked for another. |
@@ -712,7 +712,7 @@ Answers which Features may be attached to an entity, judged against that entity'
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `node` | string | no | The entity to judge candidates against, by name, read from what the workspace documents declare. |
 | `graphNode` | string | no | The graph node to judge candidates against, whose labels are the finalised set the build itself evaluates applicability with. An answer computed over this says what the build will do. |
@@ -727,7 +727,7 @@ Answers which entities a socket on an entity may be wired to.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `node` | string | no | The entity whose sockets are being asked about. |
 | `socket` | string | no | The one socket to answer for. Absent answers for every socket the entity declares. |
@@ -740,7 +740,7 @@ Answers where in a document a new entry under a named container belongs, leaving
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `file` | string | no | The document to answer about. |
 | `container` | string[] | no | The path through the document to the container the entry belongs under. |
@@ -753,7 +753,7 @@ Answers which document, and where in it, an attachment on a graph node belongs.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `graphNode` | string | no | The graph node the attachment is for. |
 | `release` | string | no | The Release whose graph the node belongs to, as a path relative to the workspace root. |
@@ -766,7 +766,7 @@ Applies one bounded edit to a document the workspace carries: one entry added un
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `file` | string | no | The document to edit. |
 | `edit` | string | no | Which edit to apply. |
@@ -784,7 +784,7 @@ Seeds a configuration document. It writes the machine-wide file by default, sinc
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `registry` | string | no | The registry to seed the configuration for. |
 | `force` | boolean | no | Whether to overwrite a configuration document that already exists. |
@@ -800,7 +800,7 @@ Freezes the resolved configuration into this workspace's own document, so the wo
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `allPlugins` | boolean | no | Whether to freeze every attached plugin rather than only the ones the workspace itself configured. |
 
@@ -812,7 +812,7 @@ Converts a foreign source description into draft authoring documents. A source i
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `source` | string | no | The source description to convert. |
 | `outputDir` | string | no | The directory under the workspace to write the drafts into. Absent writes where the same conversion in this workspace would. |
@@ -840,7 +840,7 @@ Checks catalog publishing conventions over one entity, over everything a Release
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `entity` | string | no | The one entity document to check. |
 | `release` | string | no | The Release whose closure to check, as a path relative to the workspace root. |
@@ -854,7 +854,7 @@ Attaches a plugin to a socket the workspace configures. It reaches a registry to
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `type` | string | no | The socket the plugin attaches to. |
 | `query` | string | no | What to resolve to one plugin. |
@@ -873,7 +873,7 @@ Detaches a plugin from a socket the workspace configures.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `type` | string | no | The socket the plugin is attached to. |
 | `query` | string | no | Which attachment to remove. |
@@ -888,7 +888,7 @@ Aligns a Plugin entity's machine-owned records with the module it points at. It 
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `entity` | string | no | The Plugin entity document to align. |
 | `plugin` | string | no | The plugin module to read the records from. |
@@ -901,7 +901,7 @@ Generates Plugin catalog documents from a plugin's own declared metadata plus an
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `fromEmbedded` | boolean | no | Whether to read the metadata from the plugins the binary already carries. |
 | `plugin` | string | no | The plugin module to read the metadata from. |
@@ -917,7 +917,7 @@ Expands a code a finding carried into what the compiler declares about that cond
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the session resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `code` | string | no | The condition to expand, named by either the code a finding carried or its short code. |
 
@@ -937,12 +937,12 @@ _Additional properties are not permitted._
 
 ### `ServerCapabilities`
 
-What the session will do, settled against what the client said it can handle.
+What the daemon will do in this session, settled against what the client said it can handle.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `positionEncoding` | string | yes | The encoding every position in this session is expressed in. |
-| `workDoneProgress` | boolean | no | Whether the session will send progress notifications. Present only where the client declared it can receive them. |
+| `workDoneProgress` | boolean | no | Whether the daemon will send progress notifications in this session. Present only where the client declared it can receive them. |
 
 _Additional properties are not permitted._
 
@@ -1037,13 +1037,13 @@ _Additional properties are not permitted._
 
 ### `CacheClass`
 
-One cache the session reports on.
+One cache the daemon reports on.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `name` | string | yes | Which cache this is. |
 | `reach` | string | yes | Whether the cache belongs to this workspace or is shared across the machine. |
-| `prunable` | boolean | yes | Whether reclaiming this cache is something the session will do. |
+| `prunable` | boolean | yes | Whether reclaiming this cache is something the daemon will do. |
 | `elements` | array or null | yes | What the cache holds. |
 
 _Additional properties are not permitted._
@@ -1540,7 +1540,7 @@ What the session settled on for this client, and which configuration layer it re
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `capabilities` | ServerCapabilities | yes | What the session will do, settled against what the client said it can handle. |
+| `capabilities` | ServerCapabilities | yes | What the daemon will do in this session, settled against what the client said it can handle. |
 | `workspaceRoot` | string | yes | The workspace the session opened over. |
 | `configSource` | string | yes | Which configuration layer the session resolved its settings from. |
 | `workspaceMarker` | string | no | The file that identified the workspace root, where one did. |
@@ -1560,7 +1560,7 @@ _Additional properties are not permitted._
 
 ### `InvalidateResult`
 
-Whether the session was holding anything about the document to drop.
+Whether the daemon was holding anything about the document to drop.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -1570,7 +1570,7 @@ _Additional properties are not permitted._
 
 ### `DiagnosticsResult`
 
-The findings the session already holds for the document.
+The findings the daemon already holds for the document.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -2008,7 +2008,7 @@ _Additional properties are not permitted._
 
 ### `EditDocumentResult`
 
-What the edit wrote, and where. After a write the session's reading of the document is dropped, so the next answer about it is computed from the bytes the edit produced.
+What the edit wrote, and where. After a write the daemon's reading of the document is dropped, so the next answer about it is computed from the bytes the edit produced.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
