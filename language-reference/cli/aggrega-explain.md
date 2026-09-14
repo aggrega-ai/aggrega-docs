@@ -8,6 +8,24 @@ Explain the halting condition a code names
 ```
 aggrega explain <code>
 ```
+
+**Description**
+
+```
+Explain the halting condition a code names.
+
+A halting diagnostic opens with the category the failure is attributable to and the condition's short code — the letter E and four digits, as in [CATALOG_ERROR E0209]. That short code is the one to pass here; it is fixed once a condition is published, so a code quoted out of an old report still names the same condition.
+
+  aggrega explain E0209
+
+The descriptive code is accepted too — the hyphenated one naming the condition in words, which a structured diagnostic carries as a field of its own. A condition's two codes name the same condition and reach different readers, so either is a code you may be holding, and the condition above is registered under recipe-values-mapping-requires-source:
+
+  aggrega explain recipe-values-mapping-requires-source
+
+Every condition is declared inside this binary, so the identifiers and the sentence are reported without a network or a cache. The published reference supplies the walk-through of the authoring fix for every condition, and nothing else is resolved against it. It is read from the documentation bundle cached for this workspace, acquired on first use when it is absent. Where it cannot be acquired, the condition is still reported and the reason the walk-through is missing is stated.
+
+A number that named a condition and no longer does is reported as retired, with what it named, so a code quoted from an old report is never answered with a different condition.
+```
 <!-- END GENERATED: cli-explain -->
 
 ## What it does

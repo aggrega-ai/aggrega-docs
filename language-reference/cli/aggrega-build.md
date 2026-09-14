@@ -265,6 +265,25 @@ After the compile, inspect `.trace/boundaries/<boundary>/<instance>/` for per-pa
 aggrega build [flags]
 ```
 
+**Description**
+
+```
+Compile an Aggregate and Release pair into provider-native artifacts under each
+boundary's output directory.
+
+The Release is the single entry point: it names the Aggregate and the Manifest,
+declares the boundaries, and routes each component to a provider. What a
+provider emits is the provider's own shape — Helm manifests, a redistributable
+Helm chart, docker-compose YAML — so the output directory holds whatever the
+providers this Release routes to produce.
+
+Build is read-only by default and needs a lockfile. Run "aggrega pull" first to
+create one, or pass --auto-pull to fill it in-process for this build.
+
+Given identical input, build writes byte-identical output, which is what makes
+the rendered tree reviewable as a diff.
+```
+
 **Flags**
 
 | Flag | Default | Description |

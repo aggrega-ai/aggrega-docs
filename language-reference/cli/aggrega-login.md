@@ -9,6 +9,12 @@ Authenticate to an OCI registry and store the credential
 aggrega login <registry> [flags]
 ```
 
+**Description**
+
+```
+Store a username/password credential for a registry so subsequent push, pull, and lint --pre-publish authenticate transparently. The credential is written to the shared OCI credential store (the same store those commands read), honoring a configured credential helper or OS keychain when present. No external login tool is required.
+```
+
 **Flags**
 
 | Flag | Default | Description |

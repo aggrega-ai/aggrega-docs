@@ -136,6 +136,44 @@ aggrega lint core/datastore/postgres/component.yaml --pre-publish --allow-nonsta
 aggrega lint [entity-path] [flags]
 ```
 
+**Description**
+
+```
+aggrega lint checks publishing CONVENTIONS — naming, category-directory
+alignment, annotation prefixes, and the rest of the publishing-linter
+discipline. It does not check correctness (schema, pillars, resolution,
+render): that is aggrega validate.
+
+Three invocation shapes, mirroring validate:
+
+  aggrega lint                    conventions across every catalog entity
+  aggrega lint --release <path>   conventions across a Release's dependency closure
+  aggrega lint <entity>           publishing discipline for one entity
+
+Without an entity argument, lint runs the structural conventions rules
+over every catalog entity found under the catalog directories. With
+--release it runs them over the entities that Release's closure reaches.
+In both, findings are advisory (warn severity) and never halt.
+
+With an entity path, lint runs the publishing-linter rule set against
+that one entity. In default mode the rules run at warn severity over
+local content without consulting any registry. With --pre-publish the
+previous registry version is fetched and the schema-evolution
+classification is compared against the proposed version bump; mismatches
+halt. --pre-publish applies to the single-entity shape only. Per-workspace
+policy flags from .aggrega-config.yaml's lint.publishing_discipline block
+can be overridden per invocation via the --allow-*/--no-allow-* flag pairs.
+
+All three shapes accept -o json, which replaces the human report on standard
+output with one structured document: every finding with its severity, the rule
+that produced it, its message, and the entity file it concerns, plus counts by
+severity. A finding carries a line and column only when the rule that produced
+it located the issue that precisely; otherwise the file alone locates it. The
+message is the rule's own text, carried through unchanged, so the structured and
+human renderings never word a finding differently. The exit status is the same
+under either format.
+```
+
 **Flags**
 
 | Flag | Default | Description |

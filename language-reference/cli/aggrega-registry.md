@@ -9,6 +9,31 @@ Manage registries and their signature trust policy
 aggrega registry
 ```
 
+**Description**
+
+```
+Manage the OCI registries Aggrega publishes to and resolves from, together with
+the signature trust policy for each.
+
+A registry entry records where to reach the registry and what to require of the
+signatures on artifacts it serves — which identities are trusted, and whether a
+signature is required at all. That policy is what "aggrega pull" enforces when
+it verifies an artifact and what "aggrega push" honours when it decides whether
+to sign.
+
+"aggrega registry add" can fetch a registry's own advertised trust policy rather
+than having you write it out. "aggrega registry update" builds the local
+searchable index that "aggrega search" and "aggrega plugin add" read.
+
+A registry entry is written to the global config shared across every workspace
+on this machine, because a registry and the identities you trust on it are
+usually the same wherever you work. That makes adding or removing one a
+machine-wide change: every project on this machine resolves through the entry
+you just wrote or dropped. Pass --workspace to write it to this project's config
+file instead. Building the searchable index is the exception — that lands in
+this workspace's own artifact cache and reaches no other project.
+```
+
 **Subcommands**
 
 | Command | Description |
@@ -17,6 +42,37 @@ aggrega registry
 | `aggrega registry list` | List configured registries and their trust posture |
 | `aggrega registry remove` | Remove a registry and its trust policy from a config file |
 | `aggrega registry update` | Build the local searchable index of configured registries |
+
+**`aggrega registry add` description**
+
+```
+Register a registry host and its signature trust policy.
+
+The entry is written to the global config shared across every workspace, since a
+registry and the identities you trust on it are usually the same wherever you
+work. Pass --workspace to write it to this project's config file instead; the two
+flags are mutually exclusive.
+
+By default the registry's advertised trust policy is fetched once from the
+registry's own origin (https://<host>/.well-known/aggrega-trust) and pinned
+locally — trust-on-first-use. Verification at pull time always runs against the
+pinned local policy, never a live re-fetch. Pass --fetch-trust=false to skip the
+fetch and pin only what the flags supply.
+
+A trust policy can also be set by hand: keyless (one or more --identity entries,
+each an "identity=issuer" pair) or keyed (--key pointing at a pinned public-key
+PEM). Manual --identity / --key flags OVERRIDE the fetched set — when either is
+supplied, the fetch is skipped and the policy is built from the flags alone.
+Pass --trusted-root to pin a Sigstore trust-root bundle for air-gapped keyless
+verification. Adding the official hub host with no policy flags pins the built-in
+official baseline.
+
+When the registry advertises no trust policy (a 404 or an unreachable endpoint),
+the add does not fail: it writes the policy from the flags (or an empty policy)
+and prints a notice suggesting manual --identity / --key pinning.
+
+Existing settings in the target config file are preserved.
+```
 
 **`aggrega registry add` flags**
 
@@ -32,11 +88,47 @@ aggrega registry
 | `--trusted-root` | — | Path to a pinned Sigstore trust-root bundle for air-gapped keyless verification |
 | `--workspace` | `false` | Write the entry to this project's workspace config instead of the global config. |
 
+**`aggrega registry list` description**
+
+```
+List every registry configured in the effective merged config, one per line,
+with its friendly alias (if any), a short trust-posture summary, and a marker on
+the default registry.
+
+This reads the resolved configuration and never contacts a registry. Registries
+are listed in ascending host order.
+
+With -o json the same set is emitted as one structured document per registry:
+its host, its alias, whether it is the default, its trust posture as discrete
+fields rather than the table's rendered sentence, and whether a credential for
+that host is present in the shared credential store. The credential state reports
+presence only — a credential is never read out, measured, or shown in any form,
+and whether the registry would accept it is not asked, since that would take a
+network round trip. Reading it consults the local credential store, which honors
+a configured credential helper. The order is the same ascending host order the
+table uses.
+```
+
 **`aggrega registry list` flags**
 
 | Flag | Default | Description |
 | --- | --- | --- |
 | `--output`, `-o` | `table` | Output format: table\|json. |
+
+**`aggrega registry remove` description**
+
+```
+Remove a registry's trust-policy entry from a config file, addressed by its host
+or its friendly alias.
+
+By default the entry is removed from the global config shared across every
+workspace; pass --workspace to remove it from this project's workspace config
+instead. Setting both --global and --workspace is a usage error.
+
+The default_registry pointer is left untouched — removing a registry's trust
+policy reverts that host to default trust; it does not change which registry is
+the default.
+```
 
 **`aggrega registry remove` flags**
 
@@ -44,6 +136,49 @@ aggrega registry
 | --- | --- | --- |
 | `--global` | `false` | Remove the entry from the global config shared across every workspace. |
 | `--workspace` | `false` | Remove the entry from this project's workspace config instead of the global config. |
+
+**`aggrega registry update` description**
+
+```
+Walk each configured registry's repositories, read the latest published version
+of each, and write a deterministic local searchable index to the artifact cache.
+
+With no argument, every configured registry is indexed. With a single registry
+argument (a host or a friendly alias), only that registry is indexed.
+
+This is the one registry command that reaches the network. The index it writes
+lands in this workspace's own artifact cache, so refreshing it changes nothing
+another project on this machine resolves through. Credentials are read from a
+supplied or ambient source and never asked for: a registry that needs one you do
+not have fails with a message naming what it wanted.
+
+For each repository the highest strict-SemVer version is selected (pre-release
+versions are skipped) and its catalog facets — kind, description, category,
+labels, and, for plugins, socket type and capabilities — are recorded from the
+published manifest. A repository with no conforming version is skipped; a
+repository that cannot be read is skipped with a note, so one unreadable
+repository does not abandon the whole index.
+
+The per-repository records are byte-identical across two runs against the same
+registry state; the freshness timestamp is written to a sibling file so it never
+disturbs the records.
+
+A refresh revalidates each repository conditionally: it re-resolves the selected
+version's manifest digest and reuses the cached record untouched when the tag set
+and digest are unchanged, so an unchanged registry costs a round of cheap digest
+resolves rather than a full re-read of every repository's manifest and referrers.
+Use --upgrade to ignore the cached validators and re-read every repository — this
+picks up a change a conditional refresh skips, such as a deprecation marker added
+to an existing version whose digest did not change.
+
+Each published version's deprecation markers are read as the walk goes, and the ones
+whose own signature verifies are recorded into the index. Every marker met is
+reported, whether or not it was recorded, and each registry reports how many markers
+its index now records — including when that number is zero. Where signature
+verification is disabled for a registry, the walk reports that its markers were not
+examined rather than a count, so a registry that published nothing is never confused
+with one this run had no basis to judge.
+```
 
 **`aggrega registry update` flags**
 

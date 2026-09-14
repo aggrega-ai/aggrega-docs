@@ -837,6 +837,39 @@ The account of how the workspace's Release cascade ran travels on the `aggrega/a
 aggrega serve [flags]
 ```
 
+**Description**
+
+```
+Run the Aggrega compiler as a long-running service. The daemon
+reads JSON-RPC 2.0 messages from stdin and writes responses to stdout
+under the aggrega/ method namespace. State (parsed YAML, diagnostics,
+resolved catalog) holds across requests so IDE clients can issue many
+cheap operations without re-paying per-invocation startup cost.
+
+The daemon resolves its workspace root through the same path every
+aggrega command uses: --workspace-root when set (used as-is, validated
+to exist as a directory), otherwise discovery walking upward from the
+current working directory. A directory anchors the workspace when it
+holds a .aggrega-config.yaml carrying a workspace: block, or — as a
+fallback — any of .aggrega/, aggregate*.yaml, release*.yaml,
+manifest*.yaml.
+
+Configuration is the cascade composition of the .aggrega-config.yaml
+files from the workspace root down to the working directory (nearer
+overrides farther), beneath which $AGGREGA_CONFIG (when set) and the
+built-in defaults apply.
+
+The daemon honors the aggrega/shutdown JSON-RPC notification for a
+cooperative cross-platform exit: the daemon completes the in-flight
+handler if any, refuses new requests with code 1005, and exits
+cleanly within a 2-second drain budget.
+
+Asking the process itself to stop — an interrupt from the terminal, or
+a termination request from a supervisor or container runtime — takes
+the same path on the same terms: the first request drains the daemon
+and it exits cleanly, and a second ends the process at once.
+```
+
 **Flags**
 
 | Flag | Default | Description |

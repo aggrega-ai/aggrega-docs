@@ -450,6 +450,45 @@ For the underlying mechanics — how annotations cascade, how the side-vs-pillar
 aggrega inspect [identifier] [flags]
 ```
 
+**Description**
+
+```
+Render a readable view of any Aggrega entity — a catalog entity by name, an
+authored entity file by path, or a fully-resolved Release.
+
+It answers "what does this entity actually resolve to?": which entities extend
+which bases, which Recipe maps to each type, which Features attach to each node,
+and where each Feature's contributions came from.
+
+A single argument routes by its shape. A path — anything starting with ./, ../
+or /, or ending in .yaml or .yml — is read as a file and inspected by its own
+kind: header. Anything else is looked up by name in the catalog search stack.
+
+Three verbosity levels apply to every kind: --list for identifiers only, the
+default for a structured overview, and --detail for full field bodies. --list
+and --detail are mutually exclusive. Resolution depth has its own pair, --raw
+for the entity exactly as authored and --resolved for the kind's full depth,
+also mutually exclusive.
+
+Note that --raw reproduces the file as written, so a value the author declared
+sensitive appears as authored. That is what as-authored means; handle such
+output as you would the entity file itself. --output yaml reproduces the file
+the same way for every kind, a Release included.
+
+A Release answers two further questions, and each has its own flag because
+neither answer contains the other. --ir-graph asks for the IR graph a Release
+resolves to — what the deployment looks like, as JSON on stdout in addition to
+whatever else this command produces. --closure asks for the Release's dependency
+closure — every catalog entity it reaches and the version each resolved to,
+which is what was pulled in to build the deployment. An entity can be reached
+without appearing as a node, and a node does not carry the version its type
+resolved to, so holding one of the two is not holding the other.
+
+--ir-graph is orthogonal to --output, which picks the format of the command's
+own view. Values an author declared sensitive are withheld from the graph, as
+they are from the readable layouts. Pass --unredacted to print them instead.
+```
+
 **Flags**
 
 | Flag | Default | Description |

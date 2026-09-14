@@ -129,6 +129,31 @@ aggrega validate core/datastore/postgres/recipes/helm.yaml
 aggrega validate [entity-path] [flags]
 ```
 
+**Description**
+
+```
+Check CORRECTNESS across three symmetric scopes.
+
+With no argument, validate checks the WHOLE catalog: schema-pillar
+structure, cross-document library resolution, extends chains, and provider
+input-kind capabilities, over every catalog entity.
+
+With --release, validate checks the entities a Release's dependency closure
+reaches: closure-scoped pillars, extends, and pre-render authored-value
+conformance — the same correctness a build applies, scoped to that Release.
+
+With an entity path, validate checks one entity file. The kinds it accepts
+as a single-entity target are Component, Feature, Recipe, FeatureRecipe,
+Workload and Plugin. Each has its schema checked, then the checks its own
+kind carries: pillar structure for a Component or Feature; shape for a
+Workload, FeatureRecipe or Plugin; and for a Recipe, shape plus an end-to-end
+compile against a minimal generated deployment, so its resolution, its guards
+and a render of its output are all exercised. Any other kind is refused here
+today and is checked in a wider scope instead: a whole-catalog run reaches an
+Aggregate and the library kinds, and --release reaches a Manifest and a
+Release. The command writes nothing to disk.
+```
+
 **Flags**
 
 | Flag | Default | Description |

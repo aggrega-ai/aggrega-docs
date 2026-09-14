@@ -78,6 +78,28 @@ Precedence is flag > environment > config > default. See [environment-variables.
 aggrega push <entity-path> [flags]
 ```
 
+**Description**
+
+```
+Publish a single catalog entity to an OCI registry, where other workspaces
+resolve it with "aggrega pull".
+
+The entity is read from the path given, bundled for transport, and pushed to
+<registry>/<kind>/<metadata.name>:<metadata.version>. The tag is the entity's
+own metadata.version. Run "aggrega push --list-kinds" for the kinds this binary
+publishes, one per line and nothing else, so a script can read it directly.
+Release and Manifest are deployment-side inputs rather than catalog artifacts
+and are refused.
+
+A content digest is computed over the entity's authoring tree and embedded in
+the OCI manifest, so "aggrega pull" can detect tampering between publish and
+pull.
+
+Push signs before it publishes: where signing applies, the signature is made
+over the manifest digest before any bytes reach the registry, so a failed
+signing refuses the push rather than leaving unsigned content published.
+```
+
 **Flags**
 
 | Flag | Default | Description |

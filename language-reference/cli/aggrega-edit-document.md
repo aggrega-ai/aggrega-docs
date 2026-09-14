@@ -9,6 +9,44 @@ Apply one bounded structured edit to a document, preserving every byte it does n
 aggrega edit-document <edit> <file> [flags]
 ```
 
+**Description**
+
+```
+Apply one bounded structured edit to a document in the workspace.
+
+The edit is named first and the document second. One call adds one entry under one container, or sets one scalar, and it can do nothing else:
+
+  add-component   add a component instance under a components container
+  attach-feature  attach a Feature to the node you name
+  wire-edge       wire a connection inside one of that node's sockets
+  set-value       set one value on that node
+
+There is no edit that deletes, replaces a block you already wrote, reorders anything, or writes bytes you supply verbatim. The edits this command applies are add-component, attach-feature, wire-edge, set-value, and a name outside that set is refused rather than interpreted.
+
+Name the node with --node, once per path segment, from the document root. It is a segment at a time rather than one dotted string because a dot is a legal character in a name you type, so a joined path could address a key nobody wrote and the entry would be created there rather than refused:
+
+  aggrega edit-document add-component app.yaml \
+    --node spec --node components --name web --value example/service
+
+  aggrega edit-document wire-edge app.yaml \
+    --node spec --node components --node web \
+    --socket database --name db --value spec.components.store
+
+For add-component the path names the components container itself, because the entry being added is the node. For the other three it names the node the edit is about, and the container follows from the edit.
+
+--name is the key the entry is written under: the instance name, the attachment's name, the connection's alias, or the value's key. --value is what that entry carries, and what it means follows from the edit — the entity the entry requests, the node a connection points at, or the scalar a value is set to. It is read as a YAML scalar, so --value 3 sets a number, --value true a boolean, and --value '"3"' the string; omitting it sets nothing at all.
+
+Every byte the edit does not touch survives. The document is parsed only to locate the container and the line its block ends at, so comments, blank lines, quoting style, folded and literal scalars and the trailing-newline shape all carry through, and the nesting step is measured from the document's own indentation rather than imposed. The same request against the same document produces the same bytes.
+
+The result has to be a document you could have typed, and that is what the write is gated on: the composed document is checked against its own kind's schema and reaches disk only if that passes. A request that would produce something the schema refuses is refused, naming the property the schema would not admit and where, and the file is left byte-for-byte as it was — so a refused edit is indistinguishable from one never attempted and you can retry a corrected request against the document you started with.
+
+An entry that is already there, carrying what you asked for, is a no-op. An entry of that name carrying something else is refused rather than replaced.
+
+--dry-run does everything the plain command does except write: the edited document goes to standard output as content, naming the file it is for, and nothing is created — for a caller that puts the result in front of someone before it is saved. Every other behaviour is the write's, the schema gate included, so a request the write would refuse is refused under --dry-run too and its exit code predicts the write's. Without it the document is written.
+
+Whether what you wire is semantically admissible is not decided here. Whether a socket is one the producer declares, or whether a Feature's applicability is satisfied, is what aggrega validate answers.
+```
+
 **Flags**
 
 | Flag | Default | Description |

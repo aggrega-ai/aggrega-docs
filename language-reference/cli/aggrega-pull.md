@@ -178,6 +178,36 @@ The workspace settings pull reads can be overridden through the environment, abo
 aggrega pull [<uri>...] [flags]
 ```
 
+**Description**
+
+```
+Resolve the Release's catalog and source dependencies into the cache and write the per-Release lockfile.
+
+By default, pull reconciles the lockfile against the current dependency resolution while honoring
+the pins it already records. That pin discipline governs what a registry or the content cache
+serves: such an entity is fetched at its pinned version and verified against its pinned digest,
+and if the registry no longer serves the pinned bytes, pull halts rather than silently re-pinning.
+An entity a local catalog directory supplies is resolved from that directory instead, at the
+version its file declares, and its recorded pin is not consulted — so editing a pin by hand does
+not hold a locally-supplied entity at that version, and the reconcile rewrites the entry to match
+the file. A reference with no pin — newly added, or removed from the lockfile by hand — is
+resolved fresh and added. Entities no longer among the resolved dependencies are pruned.
+Re-running pull on an unchanged dependency set is a no-op.
+
+Use --upgrade with no positional arguments to discard the existing lockfile and re-resolve
+every entity from current registry state, floating each dependency to the highest available
+version. That form drops every recorded pin, so it asks for confirmation first; --yes answers in
+advance, and on a non-interactive stdin it refuses rather than waiting for an answer nobody can
+give. Pass one or more entity URIs after --upgrade to upgrade only those: each named pin
+is dropped and re-resolved fresh while every other pin — and the recorded external inputs —
+is held unchanged. A named target may also be a plugin that returns an accept-or-reject verdict;
+such a plugin carries no lockfile pin, and its identity is recorded beside the lockfile instead.
+Naming one the workspace still attaches adopts the identity it resolves to. Naming one the
+workspace no longer attaches drops its recorded identity — the one way to clear an entry that
+outlived the attachment it was recorded for. A bare --upgrade does both for every plugin at once.
+A URI given without --upgrade is a usage error.
+```
+
 **Flags**
 
 | Flag | Default | Description |

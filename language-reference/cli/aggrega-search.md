@@ -9,6 +9,49 @@ Search the local index of configured registries
 aggrega search [query] [flags]
 ```
 
+**Description**
+
+```
+Search the local index of the configured registries for entities matching a
+free-text query and optional facet filters.
+
+The index is the offline snapshot written by 'aggrega registry update'; search
+reads it and contacts no network. Run 'aggrega registry update' first, and again
+whenever you want to pick up newly published entities. A freshness line naming
+each searched registry and when its index was last updated is written to standard
+error, so standard output carries only the result data.
+
+The optional positional query is a case-insensitive substring matched against
+each entity's name and description. The facet filters narrow the result further,
+combining as AND across facets and OR within a repeatable facet:
+
+  --kind          entity kind (component, feature, recipe, featurerecipe,
+                  workload, plugin); repeatable, case-insensitive
+  --capability    a plugin capability; repeatable
+  --plugin-type   a plugin socket type (for example provider, governance)
+  -l, --selector  a label selector over the entity's catalog labels
+
+Category is matched through the label selector, not a dedicated flag: a catalog
+category is the label component.aggrega.ai/category, so
+'-l component.aggrega.ai/category=compute' scopes the result to that category.
+
+With no --registry, every configured registry's index is searched and the
+results are merged. With --registry (a host or a friendly alias), only that
+registry's index is searched.
+
+The version reported for an entity is the one a resolution would take: a
+version a publisher has retracted, where the retraction carries a signature
+this workspace's trust policy verifies, is not reported. Such an entity is
+still listed, and the versions left out are named in a NOTES column, so an
+entity whose every published version is retracted is reported as existing with
+no version to take rather than disappearing from the result. Pass
+--include-retracted to report the highest published version whatever its
+retraction status; the NOTES column names the retracted versions either way.
+The same holds for 'aggrega search -o json', where the 'version' field carries
+the version a resolution would take and a 'retracted' array names the versions
+left out.
+```
+
 **Flags**
 
 | Flag | Default | Description |

@@ -8,6 +8,24 @@ Draft a starter document for an entity kind from its schema
 ```
 aggrega scaffold <kind> [name]
 ```
+
+**Description**
+
+```
+Draft a starter document for an entity kind from its schema.
+
+The kind is the lowercase-hyphenated schema token — for example component, aggregate, release, recipe, manifest, or feature. Run aggrega get-schema --list to print the whole set; a token no schema answers to is refused with that set in the message, so a typo is corrected without a second lookup.
+
+The document is derived from that kind's own contract and from nothing else. It carries exactly the fields that kind's schema requires, with the fixed apiVersion and kind filled in and a placeholder everywhere a value is needed. It is not a worked example: there is no namespace, no category, no label set and no commented suggestion of what people usually write, because a catalog decides those for itself and a starter document that guessed at them would teach a requirement that does not exist.
+
+The optional name seeds metadata.name for a kind whose schema requires one. Every other required value is left as a placeholder to fill in.
+
+Nothing is written to disk. The document goes to standard output, so a redirect decides where it lands:
+
+  aggrega scaffold component my-service > my-service.yaml
+
+The same starter document is served to an assistant by the scaffold tool that aggrega mcp exposes, which returns these bytes alongside a machine-readable payload; this command is the terminal route to the same drafting.
+```
 <!-- END GENERATED: cli-scaffold -->
 
 ## What it does

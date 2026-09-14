@@ -9,6 +9,16 @@ Print the JSON Schema for an entity or contract kind
 aggrega get-schema [kind] [flags]
 ```
 
+**Description**
+
+```
+Print the canonical JSON Schema for an embedded kind.
+
+The kind is the lowercase-hyphenated schema name — for example component, aggregate, ir, or template-context. Entity kinds, the intermediate-representation and wire-format contracts, and the wasm-* plugin socket contracts are all addressable. The emitted bytes are identical to the distributed schema file.
+
+Use --list to enumerate every available kind, one per line.
+```
+
 **Flags**
 
 | Flag | Default | Description |

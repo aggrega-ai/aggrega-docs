@@ -76,6 +76,12 @@ The signing inputs can be supplied through the environment, overriding the `.agg
 aggrega sign <reference>... [flags]
 ```
 
+**Description**
+
+```
+Sign amends already-published artifacts by attaching a signature to each as an OCI referrer. It does not re-push, re-tag, or otherwise mutate the published bytes — the artifacts are immutable; each signature is a sibling manifest pointing back at its artifact. With --key signatures are produced offline from a held ECDSA P-256 key; without --key the keyless flow is used, which requires a live identity provider, Fulcio, and Rekor. Multiple references are signed in one invocation: the keyless identity is acquired once and reused across every artifact, and a fresh short-lived certificate is issued per artifact. Every signable reference is signed; failures are collected and reported at the end, and the command exits non-zero if any reference failed.
+```
+
 **Flags**
 
 | Flag | Default | Description |

@@ -44,6 +44,31 @@ rather than failing.
 aggrega version [flags]
 ```
 
+**Description**
+
+```
+Print the aggrega CLI's build identity.
+
+By default the output is a single human-readable line followed by a
+one-line pointer to the plugins compiled into the binary. With
+-o json, the output is a structured JSON object suitable for
+programmatic consumption (the VS Code extension uses this form to
+read the binary's version at activation time), in the same indented
+shape every aggrega command's JSON output uses.
+
+With --verbose, the output replaces the pointer line with a table of
+the embedded plugins — type, name, served capabilities, and commit —
+under a header naming the count and their shared version. With
+--verbose -o json, the JSON object gains an embeddedPlugins array
+carrying the same detail.
+
+Version strings are v-less (1.0.0, not v1.0.0), homogeneous with the
+version form catalog entities use. Tagged release builds report the
+release version; source builds report the literal "(devel)".
+Operators who see "(devel)" know they are running an unreleased
+build.
+```
+
 **Flags**
 
 | Flag | Default | Description |

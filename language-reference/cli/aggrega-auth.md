@@ -49,9 +49,25 @@ The identity token is short-lived and is **not persisted** by this command — p
 aggrega auth
 ```
 
+**Description**
+
+```
+Commands for the keyless signing identity (an OIDC identity token), distinct from `aggrega login`, which stores registry username/password credentials. The identity token is a short-lived secret used by keyless signing; it is never persisted by these commands.
+```
+
 **Subcommands**
 
 | Command | Description |
 | --- | --- |
 | `aggrega auth token` | Acquire an OIDC identity token interactively and print it to stdout |
+
+**`aggrega auth token` description**
+
+```
+Run the interactive OIDC flow once and print the raw identity token to stdout, so it can populate the environment for a batch of keyless signs:
+
+    export AGGREGA_IDENTITY_TOKEN=$(aggrega auth token)
+
+Only the token is written to stdout; any prompt or diagnostic goes to stderr, so command substitution captures the token alone. The token is short-lived and is not persisted by this command — the caller decides whether to export it. This is distinct from `aggrega login`, which stores registry credentials.
+```
 <!-- END GENERATED: cli-auth -->
