@@ -2448,10 +2448,10 @@ An `inject:` block on a `uses:` edge wires into a socket whose `usesSchema` entr
 
 The socket is read on whichever entity declared it: an edge authored on a Feature attachment resolves against the attached Feature's `usesSchema`, and every other edge against the consuming Component's.
 
-Emitted message. The refusal comes first, then the block to edit: the consuming component, the socket and alias, and the `inject:` block beneath them:
-> uses-edge inject dictates a delivery mechanism the socket does not permit: component `"<consumer>"`.uses[`"<socket>"`][`"<alias>"`].inject: socket `"<socket>"` on component type `"<component-type>"` declares no inject allowlist (Black-Box pattern) — delivery dictation is not allowed
+Emitted message. The refusal comes first, then the mechanisms the edge dictated, the socket, and the entity whose declaration was read — then what to do about it:
+> uses-edge inject dictates a delivery mechanism the socket does not permit (`"<mechanism>"`, on socket `"<socket>"`, declared on the component type `"<component-type>"`). The socket declares no delivery allowlist, so it permits no dictation at all — the entity that declared it delivers the dependency's values itself. Remove the inject block from this connection and read the values from the connection's provides in the consuming Recipe, or declare the mechanisms the socket permits in its usesSchema entry.
 
-An edge authored on an attachment is located as `component "<consumer>" attachment "<attachment>"`, and one wired in the Release as `Release component "<consumer>"`. Where the socket was declared on the attached Feature, the message names the feature type in place of the component type. Several offending edges in one build are reported together, joined by `; `.
+The finding is positioned at the authored entry it is about, in the document that entry was written in: `.spec.components.<consumer>.uses.<socket>.<alias>` for an edge a component's own `uses:` block drew, and `.spec.components.<consumer>.features.<attachment>.uses.<socket>.<alias>` for one an attachment drew — rooted at the block that declared the attachment, which may be a subsystem's or a boundary's rather than the component's own. Where the socket was declared on the attached Feature, the message names the feature type in place of the component type. Each offending edge is reported as its own finding, so one build names them all.
 
 **How to fix:** remove the `inject:` block from the edge and read the dependency's values from `.context.uses.<alias>.provides.<name>` in the consuming Recipe instead; or, if the connection is meant to be transparent, declare the delivery mechanisms the socket permits in its `usesSchema` entry's `inject:` allowlist.
 
@@ -2465,10 +2465,10 @@ An `inject:` block on a `uses:` edge names a delivery mechanism the socket's `in
 
 Every mechanism the block names is checked, and each one outside the allowlist is reported, so one build names them all rather than one per run.
 
-Emitted message. The refusal comes first, then each refused mechanism under the `inject:` block that named it, joined by `; `:
-> uses-edge inject dictates a delivery mechanism the socket does not permit: component `"<consumer>"`.uses[`"<socket>"`][`"<alias>"`].inject.`<mechanism>`: mechanism `"<mechanism>"` not in socket `"<socket>"` inject allowlist `[<mechanism-1> <mechanism-2>]` on component type `"<component-type>"`
+Emitted message. The refusal comes first, then the refused mechanism, the socket, what that socket does permit, and the entity whose declaration was read:
+> uses-edge inject dictates a delivery mechanism the socket does not permit (`"<mechanism>"`, on socket `"<socket>"`, which permits `"<mechanism-1>, <mechanism-2>"`, declared on the component type `"<component-type>"`). Dictate one of the mechanisms the socket permits, or widen that socket's inject allowlist in the declaring entity's usesSchema entry.
 
-An edge authored on an attachment is located as `component "<consumer>" attachment "<attachment>"`, and one wired in the Release as `Release component "<consumer>"`. Where the socket was declared on the attached Feature, the message names the feature type in place of the component type.
+The finding is positioned at the authored entry it is about, on the same paths the refusal above names. Where the socket was declared on the attached Feature, the message names the feature type in place of the component type.
 
 **How to fix:** switch to one of the allowlisted mechanisms, or, if the entity should support the mechanism you need, widen that socket's `inject:` allowlist in its catalog `usesSchema` entry.
 
