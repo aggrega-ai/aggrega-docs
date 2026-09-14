@@ -247,9 +247,9 @@ Emitted message, listing every forbidden field the document declared rather than
 
 <!-- covers: pkg/resolver.ErrYAMLLoad -->
 
-One of the documents a build starts from — the Aggregate, the Release, or the Manifest — could not be turned into a document at all. Either the file could not be read from disk, or its bytes did not parse as YAML. Nothing downstream runs, because there is no document to check against a schema, no components to place, and no parameters to interpolate.
+A file a build had to read could not be turned into a document at all. Either it could not be read from disk, or its bytes did not parse as YAML. Nothing downstream runs on it, because there is no document to check against a schema, no components to place, and no parameters to interpolate.
 
-The halt is raised at every point one of the three is read, and the diagnostic names which document was being read and the path it was read from. The path is what tells a missing file from a malformed one: a read failure quotes the operating system's own reason, and a parse failure quotes the YAML parser's, which carries the line the parser gave up on.
+The documents a build starts from — the Aggregate, the Release, and the Manifest — are the commonest subjects, and the halt is raised at every point one of the three is read. The diagnostic names which document was being read and the path it was read from. The path is what tells a missing file from a malformed one: a read failure quotes the operating system's own reason, and a parse failure quotes the YAML parser's, which carries the line the parser gave up on.
 
 Emitted message, where the file could not be read:
 > YAML load failed: check the file exists, is readable, and contains well-formed YAML (Aggregate, at `<path>`, failed to read file: `<underlying reason>`)
@@ -258,6 +258,12 @@ and where its text did not parse:
 > YAML load failed: check the file exists, is readable, and contains well-formed YAML (Aggregate, at `<path>`, failed to unmarshal YAML: `<underlying reason>`)
 
 `Release` and `Manifest` appear in place of `Aggregate` when one of those is the document being read. The same condition also covers the two documents a parameter contract is read from — an Aggregate's declared `parameters:` and the file a Release's `parameters: { $import: … }` points at, when that file's own bytes fail to parse rather than its load failing outright.
+
+**A schema `$import:` that names a file the build cannot get hold of reports here too**, because the fault is the same one: the directive is well-formed and the file it names did not yield a document. A catalog entity is the subject then rather than one of the three, so the clause names the schema surface it was resolving for — `spec.schema`, a pillar of it such as `spec.schema.values`, or a `usesSchema` socket's `valueSchema` — and the source pointer is the line the directive was authored on:
+
+> YAML load failed: check the file exists, is readable, and contains well-formed YAML. `<surface>`: read imported schema `<value>`: `<the operating system's reason>`
+
+with `resolve imported schema path` in place of `read` for the rarer failure to establish the entity's own directory at all, and `parse imported schema` where the file was read and its text is not well-formed YAML. A fault in the directive you wrote — a sibling key beside it, a value that is not a path, or imported content that parsed and is not a map — is a different condition and reports under "A schema `$import:` cannot be applied" below.
 
 **How to fix:** read the path in the message rather than the document's name — the two differ whenever a reference resolved somewhere unexpected. For a read failure, confirm the file exists at that path, that the path is spelled as the referring document writes it, and that the build has permission to read it; a file present locally and absent from a build agent's checkout is the common case. For a parse failure, open the file at the line the parser named — an unquoted value containing a colon, a tab used for indentation, and a list item indented under the wrong key are the three that account for most of them.
 
@@ -707,9 +713,9 @@ The condition it is recorded under is `compactform: cross-document $ref carries 
 
 <!-- covers: pkg/catalog.ErrUnusableSchemaImport -->
 
-A Component's or Feature's `spec.schema` — its whole block or one pillar of it — and a `usesSchema` socket's `valueSchema:` or `infraSchema:` may each be written as `$import:` naming a file beside the entity. The import is applied when the entity is loaded, so every later reader sees the imported contract rather than the pointer. This condition is what happens when the directive yields no content, and the surface would otherwise be left holding an unread pointer.
+A Component's or Feature's `spec.schema` — its whole block or one pillar of it — and a `usesSchema` socket's `valueSchema:` or `infraSchema:` may each be written as `$import:` naming a file beside the entity. The import is applied when the entity is loaded, so every later reader sees the imported contract rather than the pointer. This condition is what happens when something you wrote is at fault: the directive itself, or the shape of what the file it names turned out to hold.
 
-One condition covers every way the directive fails, because each leaves the same surface unusable and gives you the same thing to do — correct the directive, or the file it names. The diagnostic opens with the fixed sentence and then says which way, so the sentence is the part to match on and the clause after it is what to act on:
+Those faults are one condition because each leaves the same surface unusable and gives you the same thing to do — correct the directive, or the file it names. The diagnostic opens with the fixed sentence and then says which fault, so the sentence is the part to match on and the clause after it is what to act on:
 
 > a schema `$import:` could not be applied. `<surface>`: `<the clause for this occurrence>`
 
@@ -719,11 +725,11 @@ The clause names the surface it read — `spec.schema`, a pillar of it such as `
 - **`$import:` value must be a path to a file.** The value is empty, or is not a single string.
 - **`$import:` takes a file path beside this entity, not a registry location `<value>`.** The value addresses a registry. Which registry a name resolves through is workspace configuration, so a schema surface never carries one; the message names the reference form to use instead.
 - **`$import:` takes a file path beside this entity; reference the SchemaLibrary entry `<value>` with `$ref:` instead.** The value addresses a library entry. A library entry is referenced, not imported — `$ref:` is the keyword that resolves one.
-- **resolve imported schema path `<value>`: `<detail>`**, and **read imported schema `<value>`: `<detail>`.** The file could not be opened. A relative path is joined to the directory holding the entity before the file is opened, so a value naming a file that is not there — the usual case — reports under `read`, with the detail naming the path that was tried; `resolve` reports the rarer failure to establish that directory at all.
-- **parse imported schema `<value>`: `<detail>`.** The file was read and its text is not well-formed YAML.
-- **imported schema `<value>` must be a YAML map of schema content; it is not.** The file parsed to a scalar or a sequence, so there is no schema content to substitute.
+- **imported schema `<value>` must be a YAML map of schema content; it is not.** The file was found, read and parsed, and what it parsed to is a scalar or a sequence, so there is no schema content to substitute.
 
 The head carries the category and this condition's short code, `E0266`, which is the identifier to record when you need this halt named durably — in a continuous-integration gate, an issue, or a runbook. A number is handed out once and then fixed, so it stays the same however the wording around it improves; [the table of every condition](./sentinels.md#every-condition-by-short-code) resolves it.
+
+**A directive that is well-formed and names a file the build cannot get hold of reports elsewhere, under a different code.** A path that does not resolve, a file that is not there or cannot be read, and bytes that do not parse as YAML are not faults in what you wrote — there is no imported document to judge — so they report as the load they are, under "A file cannot be read, or its text is not well-formed YAML" above, which documents the clause each of them carries. Match on that condition, and record its code, when what you are catching is a missing or unreadable import file.
 
 A path is resolved against the directory holding the entity file, the same base every other import-bearing field uses. An import whose content itself declares an `$import:` is followed, and a chain that returns to a file already in flight reports as "A library reference expands into itself" above rather than here.
 
