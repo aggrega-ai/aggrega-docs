@@ -27,7 +27,7 @@ _Additional properties are not permitted._
 | --- | --- | --- | --- |
 | `name` | string | yes |  |
 | `version` | string | yes | Strict Semantic Versioning of the interface (e.g., 1.0.0). |
-| `description` | string | no | A concise, one-sentence summary of what the entity does. |
+| `description` | string | no | What this entity is and what it is for, written for someone deciding whether to use it. Open with a sentence naming the thing, then add what a reader needs in order to choose it and use it correctly — what it expects from a deployment, and anything surprising about how it behaves. A short paragraph is the usual length. |
 | `maintainers` | object[] | no | List of maintainers who own this entity. |
 | `license` | string | no | SPDX identifier for the license of the software this entity describes, such as MIT or AGPL-3.0. It records the terms of that software, not the terms of this file. |
 | `repository` | string | no | The URL to the Git repository where the source files live. |

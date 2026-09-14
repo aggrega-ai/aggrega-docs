@@ -42,7 +42,7 @@ The `description` field appears uniformly on the envelope, but the corpus also c
 
 | Type | Where it lives | Authored by | Purpose |
 | --- | --- | --- | --- |
-| Envelope description | `metadata.description` on every entity | Catalog publisher | One-line summary shown on editor hover cards and stamped onto the published artifact |
+| Envelope description | `metadata.description` on every entity | Catalog publisher | Summary of the entity as a whole, shown on editor hover cards and stamped onto the published artifact |
 | Instance description | `description` field next to a per-instance declaration (e.g., `featuresSchema.<slot>.description`, `usesSchema.<socket>.description`) | Schema author | Per-slot / per-socket / per-port description, for authors of consuming entities reading the declaration |
 | Field description | JSON Schema 2020-12 `description:` annotation inside `schema:` / `featuresSchema:` / `usesSchema:` content (compact form or full JSON Schema YAML) | Schema author | Per-field documentation that travels with the schema |
 
