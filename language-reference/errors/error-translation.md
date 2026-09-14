@@ -184,10 +184,10 @@ Every entity document — catalog entities, Aggregates, Manifests, Releases — 
 
 ```text
 [OPS_ERROR E0215] release.yaml
-  document envelope validation failed (Release, at release.yaml); 12:7: spec.boundaries.main.values: /$defs/boundary: unexpected property: "values". correct the document to match its kind's schema
+  document envelope validation failed (Release, at release.yaml); 12:7: spec.boundaries.main.values: against /$defs/boundary: unexpected property: "values". correct the document to match its kind's schema
 ```
 
-The diagnostic opens with the condition, names the kind and the file, and closes with what to do; each violation between them carries `line:column` alone, since the head has already named the file. Each offending key is reported at **its own** position rather than at the position of the block containing it, so the line and column point at the key you need to change. Where the position's shape comes from a reusable definition in the schema, the diagnostic names that definition — `/$defs/boundary` above — so it is clear which contract the key was measured against. A document with several violations lists each on its own position, in key order, and the report stops after four with a count of the rest.
+The diagnostic opens with the condition, names the kind and the file, and closes with what to do; each violation between them carries `line:column` alone, since the head has already named the file. Each offending key is reported at **its own** position rather than at the position of the block containing it, so the line and column point at the key you need to change. Where the position's shape comes from a reusable definition in the schema, the diagnostic names that definition after the word `against` — `against /$defs/boundary` above — so it is clear which contract the key was measured against, and the definition does not read as one more step along the key path you wrote. A document with several violations lists each on its own position, in key order, and the report stops after four with a count of the rest.
 
 Two things are worth knowing about where a position points, because both are useful rather than surprising:
 
