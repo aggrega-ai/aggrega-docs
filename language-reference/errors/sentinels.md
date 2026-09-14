@@ -257,7 +257,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrUnreadParameter()` | `unread-parameter` | `declared parameter is read by no reference in the Aggregate` |
 | `ErrUsesSocketNearMiss()` | `uses-socket-near-miss` | `uses socket name is a near miss for a declared socket` |
 | `ErrVerdictPluginTrustMismatch()` | `verdict-plugin-trust-mismatch` | `the digest recorded as trusted for this plugin does not match the digest its cached manifest reports` |
-| `ErrYAMLLoad()` | `document-not-loadable` | `YAML load failed: check the file exists, is readable, and contains well-formed YAML` |
+| `ErrYAMLLoad()` | `document-not-loadable` | `file load failed: the file could not be read, or its bytes did not parse` |
 
 ### pkg/signing
 
@@ -608,7 +608,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0172` | `release-not-in-canonical-form` | `release reached resolve un-normalized (non-empty root components alongside a synthesized default boundary)` |
 | `E0173` | `unread-parameter` | `declared parameter is read by no reference in the Aggregate` |
 | `E0174` | `uses-socket-near-miss` | `uses socket name is a near miss for a declared socket` |
-| `E0175` | `document-not-loadable` | `YAML load failed: check the file exists, is readable, and contains well-formed YAML` |
+| `E0175` | `document-not-loadable` | `file load failed: the file could not be read, or its bytes did not parse` |
 | `E0176` | `keyless-signing-requires-network` | `signing: keyless signing requires a live identity provider, Fulcio, and Rekor` |
 | `E0177` | `no-signature-found` | `signing: no signature found for an artifact that requires one` |
 | `E0178` | `no-trusted-identities` | `signing: keyless verification requires at least one trusted identity` |

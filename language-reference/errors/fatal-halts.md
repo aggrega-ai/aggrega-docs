@@ -231,34 +231,44 @@ Emitted message, listing every forbidden field the document declared rather than
 
 **How to fix:** remove the render input kinds from the eval FeatureRecipe, or bind it to a provider that renders. An eval FeatureRecipe legitimately declares `provides:`, `locals:` and `injectMapping:` and nothing that emits.
 
-### A file cannot be read, or its text is not well-formed YAML
+### A file cannot be read, or its bytes do not parse
 
 <!-- covers: pkg/resolver.ErrYAMLLoad -->
 
-A file a build had to read could not be turned into a document at all. Either it could not be read from disk, or its bytes did not parse as YAML. Nothing downstream runs on it, because there is no document to check against a schema, no components to place, and no parameters to interpolate.
+A file a build had to read yielded nothing the surface that named it could use. Either it could not be read from disk, or its bytes were parsed and did not parse cleanly. Nothing downstream runs on it, because there is no content to check against a schema, no components to place, and no template to render.
+
+The condition names no format, and that is deliberate. Most of the files it covers are read as YAML; a Recipe's workload, values-mapping and artifact bodies are read as Go template source and are never parsed at all. A sentence promising YAML would lead a diagnostic about a template file with a claim about that file's format. Which of the two failures happened, and for what kind of file, is what the clause after the sentence says.
 
 The documents a build starts from — the Aggregate, the Release, and the Manifest — are the commonest subjects, and the halt is raised at every point one of the three is read. The diagnostic names which document was being read and the path it was read from. The path is what tells a missing file from a malformed one: a read failure quotes the operating system's own reason, and a parse failure quotes the YAML parser's, which carries the line the parser gave up on.
 
 Emitted message, where the file could not be read:
-> YAML load failed: check the file exists, is readable, and contains well-formed YAML (Aggregate, at `<path>`, failed to read file: `<underlying reason>`)
+> file load failed: the file could not be read, or its bytes did not parse (Aggregate, at `<path>`, failed to read file: `<underlying reason>`)
 
 and where its text did not parse:
-> YAML load failed: check the file exists, is readable, and contains well-formed YAML (Aggregate, at `<path>`, failed to unmarshal YAML: `<underlying reason>`)
+> file load failed: the file could not be read, or its bytes did not parse (Aggregate, at `<path>`, failed to unmarshal YAML: `<underlying reason>`)
 
 `Release` and `Manifest` appear in place of `Aggregate` when one of those is the document being read. The same condition also covers the parameter contract read out of an Aggregate's declared `parameters:` block, which is read from the Aggregate's own text before anything is interpolated into it.
 
 **A Release's `parameters: { $import: … }` naming a file the build cannot get hold of reports here too**, and on both counts: the path names no file the build can read, or the file is read and its bytes do not parse. The Release is the subject, and the clause names the key that pointed at the file:
 
-> YAML load failed: check the file exists, is readable, and contains well-formed YAML (Release, at `.spec.parameters.$import: <path>`, failed to read file: `<underlying reason>`)
-> YAML load failed: check the file exists, is readable, and contains well-formed YAML (Release, at `.spec.parameters.$import: <path>`, failed to unmarshal YAML: `<underlying reason>`)
+> file load failed: the file could not be read, or its bytes did not parse (Release, at `.spec.parameters.$import: <path>`, failed to read file: `<underlying reason>`)
+> file load failed: the file could not be read, or its bytes did not parse (Release, at `.spec.parameters.$import: <path>`, failed to unmarshal YAML: `<underlying reason>`)
 
 The path is resolved as the build process sees it, so confirm the checkout the build runs against can reach it: a parameters file that is present on your machine and excluded from version control is absent during a continuous-integration run, which is the common way this one is met.
 
 **A schema `$import:` that names a file the build cannot get hold of reports here too**, because the fault is the same one: the directive is well-formed and the file it names did not yield a document. A catalog entity is the subject then rather than one of the three, so the clause names the schema surface it was resolving for — `spec.schema`, a pillar of it such as `spec.schema.values`, or a `usesSchema` socket's `valueSchema` — and the source pointer is the line the directive was authored on:
 
-> YAML load failed: check the file exists, is readable, and contains well-formed YAML. `<surface>`: read imported schema `<value>`: `<the operating system's reason>`
+> file load failed: the file could not be read, or its bytes did not parse. `<surface>`: read imported schema `<value>`: `<the operating system's reason>`
 
 with `resolve imported schema path` in place of `read` for the rarer failure to establish the entity's own directory at all, and `parse imported schema` where the file was read and its text is not well-formed YAML. A fault in the directive you wrote — a sibling key beside it, a value that is not a path, or imported content that parsed and is not a map — is a different condition and reports under "A schema `$import:` cannot be applied" below.
+
+**A Recipe's or FeatureRecipe's `valuesMapping:`, `workload:` or `artifacts.<name>:` import reports here too**, for the same reason and with the same remedy: the directive is well-formed and the file it names did not yield content. Those three bodies are Go template source rather than documents, so only the read can fail — nothing parses them at this point. The entity and the key that named the path travel in the clause, and the source pointer is the imported file's own path:
+
+> file load failed: the file could not be read, or its bytes did not parse (Recipe `<name>` valuesMapping file import, `<the operating system's reason>`)
+> file load failed: the file could not be read, or its bytes did not parse (Recipe `<name>` workload file import, `<the operating system's reason>`)
+> file load failed: the file could not be read, or its bytes did not parse (Recipe `<name>` artifact `<key>` file import, `<the operating system's reason>`)
+
+The same three keys on a FeatureRecipe report the same condition and read the same way. An artifacts import is read twice over a Release's life — once when `aggrega pull` freezes its content pin, and again when the entry is rendered — so the same missing file reports this condition at whichever of the two you reach first. A shape fault in the directive itself, such as a sibling key beside `$import:` or a host-bearing `oci://` reference, is a different condition and reports under its own entry.
 
 **How to fix:** read the path in the message rather than the document's name — the two differ whenever a reference resolved somewhere unexpected. For a read failure, confirm the file exists at that path, that the path is spelled as the referring document writes it, and that the build has permission to read it; a file present locally and absent from a build agent's checkout is the common case. For a parse failure, open the file at the line the parser named — an unquoted value containing a colon, a tab used for indentation, and a list item indented under the wrong key are the three that account for most of them.
 
@@ -724,7 +734,7 @@ The clause names the surface it read — `spec.schema`, a pillar of it such as `
 
 The head carries the category and this condition's short code, `E0266`, which is the identifier to record when you need this halt named durably — in a continuous-integration gate, an issue, or a runbook. A number is handed out once and then fixed, so it stays the same however the wording around it improves; [the table of every condition](./sentinels.md#every-condition-by-short-code) resolves it.
 
-**A directive that is well-formed and names a file the build cannot get hold of reports elsewhere, under a different code.** A path that does not resolve, a file that is not there or cannot be read, and bytes that do not parse as YAML are not faults in what you wrote — there is no imported document to judge — so they report as the load they are, under "A file cannot be read, or its text is not well-formed YAML" above, which documents the clause each of them carries. Match on that condition, and record its code, when what you are catching is a missing or unreadable import file.
+**A directive that is well-formed and names a file the build cannot get hold of reports elsewhere, under a different code.** A path that does not resolve, a file that is not there or cannot be read, and bytes that do not parse as YAML are not faults in what you wrote — there is no imported document to judge — so they report as the load they are, under "A file cannot be read, or its bytes do not parse" above, which documents the clause each of them carries. Match on that condition, and record its code, when what you are catching is a missing or unreadable import file.
 
 A path is resolved against the directory holding the entity file, the same base every other import-bearing field uses. An import whose content itself declares an `$import:` is followed, and a chain that returns to a file already in flight reports as "A library reference expands into itself" above rather than here.
 
@@ -4379,7 +4389,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0172` | `release reached resolve un-normalized (non-empty root components alongside a synthesized default boundary)` | A Release reached resolution without passing through the load path |
 | `E0173` | `declared parameter is read by no reference in the Aggregate` | A declared parameter is read by nothing |
 | `E0174` | `uses socket name is a near miss for a declared socket` | A `uses:` socket name is one edit from a declared socket |
-| `E0175` | `YAML load failed: check the file exists, is readable, and contains well-formed YAML` | A file cannot be read, or its text is not well-formed YAML |
+| `E0175` | `file load failed: the file could not be read, or its bytes did not parse` | A file cannot be read, or its bytes do not parse |
 | `E0176` | `signing: keyless signing requires a live identity provider, Fulcio, and Rekor` | Keyless signing was asked for without the services it needs |
 | `E0177` | `signing: no signature found for an artifact that requires one` | An artifact that must be signed carries no signature |
 | `E0178` | `signing: keyless verification requires at least one trusted identity` | A keyless trust policy names no acceptable signer |
