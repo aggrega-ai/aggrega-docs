@@ -56,7 +56,7 @@ A related guardrail protects provider dispatch itself: when more than one provid
 
 **Validation runs.** The annotation-expansion sub-phase of resolution, after Manifest binding-target validation (the catalog-load check confirming each declared path exists in the referenced Feature schema) and alongside Layer 2 schema validation on explicit attachments. For each effective per-component annotation: parse the value into the Scalar / Structured / Nil sum type; route per-subkey through the binding's pillar-grouped `maps` declaration with side-vs-pillar enforcement (Aggregate-side fires `maps.values`; Release-side fires `maps.infra`); validate the per-leaf runtime value against the Feature schema's declared type at the routed pillar. Multiple subkey errors collect-and-emit-all before halting.
 
-**Error shape.** Schema-validation errors at this layer follow the Layer 2 shape — entity, path (annotation key plus subkey route), constraint detail. Side-vs-pillar partition violations and ambiguous-routing failures are attributed to the operator's own documents, so their reports open with an `[OPS_ERROR]` head, and they name the annotation key, the routed pillar, the authoring side, and the source location.
+**Error shape.** Schema-validation errors at this layer follow the Layer 2 shape — entity, path (annotation key plus subkey route), constraint detail. Side-vs-pillar partition violations and ambiguous-routing failures are attributed to the document the annotation value was authored in, so a fault carried by an Aggregate opens a `[DEVELOPER_ERROR]` head and one carried by a Release opens an `[OPS_ERROR]` head, and both name the annotation key, the routed pillar, the authoring side, and the source location.
 
 ## One error-formatting convention across layers
 
@@ -87,7 +87,7 @@ A second overlap pattern: cross-pillar constraints declared at the pillar layer 
 | 1 — JSON Schema envelope | Structural shape (apiVersion, kind, metadata, top-level spec) | Resolution (load) | unprefixed YAML / unmarshal error |
 | 2 — Pillar schemas (`schema:` / `featuresSchema` / `usesSchema`) | Per-pillar data validation (values, infra, secrets, uses) | Resolution (after envelope) | unprefixed schema-validation error |
 | 3 — Provider-capability gate (per-provider `workloadSchema` content validation honest-pending) | Synthesized-mode support (provider capability) | Base rendering | `[CATALOG_ERROR]` |
-| 4 — Annotation-binding value validation | Annotation-value contributions routed into the target Feature's `spec.schema` via the Manifest binding's `maps` paths | The annotation-expansion sub-phase of resolution, alongside Layer 2 | schema-validation error; side-vs-pillar / ambiguous-routing surfaces open `[OPS_ERROR]` |
+| 4 — Annotation-binding value validation | Annotation-value contributions routed into the target Feature's `spec.schema` via the Manifest binding's `maps` paths | The annotation-expansion sub-phase of resolution, alongside Layer 2 | schema-validation error; side-vs-pillar / ambiguous-routing surfaces open the authoring document's own domain — `[DEVELOPER_ERROR]` from an Aggregate, `[OPS_ERROR]` from a Release |
 
 ## Cross-references
 
