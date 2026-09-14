@@ -247,7 +247,6 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrMissingRequiredSocket()` | `missing-required-socket` | `required uses socket not populated` |
 | `ErrParameterContractViolation()` | `parameter-contract-violation` | `parameter contract violated` |
 | `ErrParameterMissing()` | `parameter-missing` | `required parameter not supplied` |
-| `ErrParametersImportLoad()` | `parameters-import-not-loadable` | `parameters $import: load failed` |
 | `ErrProvidesKeyNotDeclared()` | `provides-key-not-declared` | `Recipe publishes a provides key its Component does not declare` |
 | `ErrSchemaConformance()` | `schema-conformance` | `authored pillar does not conform to its declared schema` |
 | `ErrSchemaContractCompileFailure()` | `schema-contract-compile-failure` | `declared schema contract could not be compiled into a usable schema, so nothing was validated against it: correct the contract where it is declared, or remove it if the configuration it covers needs no validation` |
@@ -601,7 +600,6 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0163` | `missing-required-socket` | `required uses socket not populated` |
 | `E0164` | `parameter-contract-violation` | `parameter contract violated` |
 | `E0165` | `parameter-missing` | `required parameter not supplied` |
-| `E0166` | `parameters-import-not-loadable` | `parameters $import: load failed` |
 | `E0167` | `provides-key-not-declared` | `Recipe publishes a provides key its Component does not declare` |
 | `E0168` | `schema-conformance` | `authored pillar does not conform to its declared schema` |
 | `E0169` | `self-inject-forbidden` | `self-inject on component without spec.inject allowlist` |
@@ -713,6 +711,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0157` is retired: nothing reports it now, and the number is never handed to a different condition. It named an Aggregate key — a component, feature, subsystem or nested-module instance name — that did not match the authored-name pattern. Every one of those key surfaces is constrained to that same spelling by the Aggregate schema, which refuses the document while validating its envelope and reports the offending key with a line and column; that condition's code is `E0215`.
 - `E0159` is retired: nothing reports it now, and the number is never handed to a different condition. It named a target reference whose dot-separated segments did not all match the instance-name pattern, and no build reported it before the condition was withdrawn.
+- `E0166` is retired: nothing reports it now, and the number is never handed to a different condition. It named the file a Release's `parameters: { $import: … }` points at when that file could not be read or its bytes did not parse; a file that yields no document is one condition wherever the path was written, and its code is `E0175`.
 - `E0217` is retired: nothing reports it now, and the number is never handed to a different condition. It named a schema-validation failure that could not be reported against a particular field, and no build reported it before the condition was withdrawn.
 - `E0219` is retired: nothing reports it now, and the number is never handed to a different condition. It named a cyclic `extends` chain, reported by a second chain walk the schema-merge library kept beside its combining step; one walk reports every cyclic chain now, and its code is `E0202`.
 - `E0230` is retired: nothing reports it now, and the number is never handed to a different condition. The condition this number named was withdrawn, and no build reports it.

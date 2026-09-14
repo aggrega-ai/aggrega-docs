@@ -73,18 +73,6 @@ A `validate:` predicate reads the value under validation as `.value`, and that i
 
 **How to fix:** change the Release value to match the parameter's declared `type` / `enum` / `min` / `max` / `pattern` constraints, supply a missing required parameter, correct a `validate:` predicate that names something other than `.value` or renders something other than `true` or `false`, or widen the Aggregate's declaration to accept the shape you actually need.
 
-### External parameters file cannot be loaded
-
-<!-- covers: pkg/resolver.ErrParametersImportLoad -->
-
-A Release declares `parameters: { $import: <path> }` pointing at an external parameter file that does not exist, cannot be read, or cannot be parsed as YAML.
-
-Emitted message:
-> parameters $import: load failed (Release, at `.spec.parameters.$import: <path>`, failed to read file: `<underlying-error>`)
-> parameters $import: load failed (Release, at `.spec.parameters.$import: <path>`, failed to unmarshal YAML: `<underlying-error>`)
-
-**How to fix:** verify the `$import:` path is correct relative to the Release file, confirm the file exists and is readable by the build process, and check that its contents parse as valid YAML. If the file is committed to the repository, confirm the Release's build context can see it (for example, a gitignored `.env` file is not available during a CI build).
-
 ### Recipe shape rules
 
 A Recipe composes its output from three input kinds — sourced, synthesized, and artifacts — described in [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md). The shape of a valid Recipe is constrained by the composition rules below. They differ in when they are checked — when the Recipe is loaded, when a node renders, or when output is emitted — so read each entry for the point at which its own condition is checked. The rules apply to Recipes that target a non-`eval` provider; the `eval` provider has its own constraint (below).
@@ -257,7 +245,14 @@ Emitted message, where the file could not be read:
 and where its text did not parse:
 > YAML load failed: check the file exists, is readable, and contains well-formed YAML (Aggregate, at `<path>`, failed to unmarshal YAML: `<underlying reason>`)
 
-`Release` and `Manifest` appear in place of `Aggregate` when one of those is the document being read. The same condition also covers the two documents a parameter contract is read from — an Aggregate's declared `parameters:` and the file a Release's `parameters: { $import: … }` points at, when that file's own bytes fail to parse rather than its load failing outright.
+`Release` and `Manifest` appear in place of `Aggregate` when one of those is the document being read. The same condition also covers the parameter contract read out of an Aggregate's declared `parameters:` block, which is read from the Aggregate's own text before anything is interpolated into it.
+
+**A Release's `parameters: { $import: … }` naming a file the build cannot get hold of reports here too**, and on both counts: the path names no file the build can read, or the file is read and its bytes do not parse. The Release is the subject, and the clause names the key that pointed at the file:
+
+> YAML load failed: check the file exists, is readable, and contains well-formed YAML (Release, at `.spec.parameters.$import: <path>`, failed to read file: `<underlying reason>`)
+> YAML load failed: check the file exists, is readable, and contains well-formed YAML (Release, at `.spec.parameters.$import: <path>`, failed to unmarshal YAML: `<underlying reason>`)
+
+The path is resolved as the build process sees it, so confirm the checkout the build runs against can reach it: a parameters file that is present on your machine and excluded from version control is absent during a continuous-integration run, which is the common way this one is met.
 
 **A schema `$import:` that names a file the build cannot get hold of reports here too**, because the fault is the same one: the directive is well-formed and the file it names did not yield a document. A catalog entity is the subject then rather than one of the three, so the clause names the schema surface it was resolving for — `spec.schema`, a pillar of it such as `spec.schema.values`, or a `usesSchema` socket's `valueSchema` — and the source pointer is the line the directive was authored on:
 
@@ -4376,7 +4371,6 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0163` | `required uses socket not populated` | Required `uses:` socket not populated |
 | `E0164` | `parameter contract violated` | Parameter type mismatch / contract violation |
 | `E0165` | `required parameter not supplied` | Parameter type mismatch / contract violation |
-| `E0166` | `parameters $import: load failed` | External parameters file cannot be loaded |
 | `E0167` | `Recipe publishes a provides key its Component does not declare` | A Recipe publishes a `provides` key its Component does not declare |
 | `E0168` | `authored pillar does not conform to its declared schema` | Authored values or infra do not conform to the declared schema |
 | `E0169` | `self-inject on component without spec.inject allowlist` | Self-inject on a component without an allowlist; Self-inject mechanism not in the component's allowlist |
