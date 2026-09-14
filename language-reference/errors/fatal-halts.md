@@ -719,7 +719,7 @@ The clause names the surface it read — `spec.schema`, a pillar of it such as `
 - **`$import:` value must be a path to a file.** The value is empty, or is not a single string.
 - **`$import:` takes a file path beside this entity, not a registry location `<value>`.** The value addresses a registry. Which registry a name resolves through is workspace configuration, so a schema surface never carries one; the message names the reference form to use instead.
 - **`$import:` takes a file path beside this entity; reference the SchemaLibrary entry `<value>` with `$ref:` instead.** The value addresses a library entry. A library entry is referenced, not imported — `$ref:` is the keyword that resolves one.
-- **resolve imported schema path `<value>`: `<detail>`**, and **read imported schema `<value>`: `<detail>`.** The path does not resolve against the directory holding the entity, or the file cannot be read.
+- **resolve imported schema path `<value>`: `<detail>`**, and **read imported schema `<value>`: `<detail>`.** The file could not be opened. A relative path is joined to the directory holding the entity before the file is opened, so a value naming a file that is not there — the usual case — reports under `read`, with the detail naming the path that was tried; `resolve` reports the rarer failure to establish that directory at all.
 - **parse imported schema `<value>`: `<detail>`.** The file was read and its text is not well-formed YAML.
 - **imported schema `<value>` must be a YAML map of schema content; it is not.** The file parsed to a scalar or a sequence, so there is no schema content to substitute.
 
