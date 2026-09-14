@@ -184,14 +184,14 @@ The `type` axis carries only the 7 operational primitives — cognitive vocabula
 
 ### 2. The Split Schema & Bridge Synthesis Pipeline
 
-To eliminate per-Component boilerplate around the topology socket declarations, Aggrega splits validation into two parts and bridges them at compile time:
+To eliminate per-Component boilerplate around the topology socket declarations, Aggrega splits validation into two parts and gates each where its subject lives:
 
-1. **`usesSchema` (declarative YAML).** Declares the topology sockets a catalog entity offers, and gives each one a contract. The Go CLI natively reads it to extract `x-aggrega-selector:` strings for label matching during static analysis and to validate allowed `inject` mechanisms. Each socket entry supports an optional `required: true` field (default `false`) — when set, the compiler emits a validation error if no dependency is declared in that socket. This is the soft equivalent of the `required: true` semantics on `featuresSchema` entries. Declaring a socket here is what the standard-library catalog does and remains the better path — but it is not the only way a developer can draw an edge. An Aggregate author may name a socket on their own component that this `usesSchema` does not declare, including on an entity that declares no `usesSchema` at all; such an ad-hoc socket carries no selector, no `inject` allowlist and no per-edge schema, precisely because there is no entry here to carry them. A Feature attachment's `uses` and a Release's per-edge `uses` are not open that way — both may only name a declared socket. See [dependency-resolution §"Domain 2: The Split Schema"](07-dependency-resolution.md) for the full contract and what an ad-hoc socket gives up.
+1. **`usesSchema` (declarative YAML).** Declares the topology sockets a catalog entity offers, and gives each one a contract. The Go CLI natively reads it to extract the `selector:` strings for label matching during static analysis and to validate allowed `inject` mechanisms. Each socket entry supports an optional `required: true` field (default `false`) — when set, the compiler emits a validation error if no dependency is declared in that socket. This is the soft equivalent of the `required: true` semantics on `featuresSchema` entries. Declaring a socket here is what the standard-library catalog does and remains the better path — but it is not the only way a developer can draw an edge. An Aggregate author may name a socket on their own component that this `usesSchema` does not declare, including on an entity that declares no `usesSchema` at all; such an ad-hoc socket carries no selector, no `inject` allowlist and no per-edge schema, precisely because there is no entry here to carry them. A Feature attachment's `uses` and a Release's per-edge `uses` are not open that way — both may only name a declared socket. See [dependency-resolution §"Domain 2: The Split Schema"](07-dependency-resolution.md) for the full contract and what an ad-hoc socket gives up.
 2. **Desugaring.** If developers use the YAML array shorthand (`uses: databases: ["db1"]`), the CLI normalizes it into a map (`{"db1": {"target": "db1"}}`).
-3. **Bridge synthesis.** The compiler walks each socket entry and emits a JSON Schema 2020-12 fragment with `x-aggrega-selector:` and `x-aggrega-inject:` extension keywords. The selector string from the YAML is preserved at the `x-aggrega-selector:` annotation for traceability — JSON Schema validation ignores extension keywords during structural validation, but the Go compiler extracts them programmatically during static analysis for native label matching.
-4. **Composition.** The Ops engineer writes a strict `schema:` declaration (compact form or full JSON Schema 2020-12) defining `values`, `infra`, and `provides`. The compiler composes the synthesized fragment with the user-authored schema via JSON Schema 2020-12 composition; the resulting unified schema validates the entity's instance content. This guarantees perfect cross-pillar validation without requiring the Ops engineer to write any `uses` boilerplate.
+3. **Bridge synthesis.** The compiler projects the `featuresSchema:` slot table into a JSON Schema 2020-12 fragment — one property per attachment slot, describing the shape of a fill that may bind it, with an `x-aggrega-inject:` extension keyword on a slot that declares an `inject` allowlist. JSON Schema validation ignores extension keywords during structural validation, and nothing reads one back off the fragment: a check wanting a slot's allowlist reads the slot itself. The `usesSchema:` socket table is projected into no fragment. A socket's `selector:` and `inject:` stay in the typed YAML the Architect wrote and are read from there, and a socket's per-edge `valueSchema:` / `infraSchema:` is wrapped and compiled on its own, with no constraint invented around it.
+4. **Composition.** The Ops engineer writes a strict `schema:` declaration (compact form or full JSON Schema 2020-12) defining `values`, `infra`, and `provides`. That declaration is the entity's own contract and is compiled on its own: neither the slot fragment nor the socket table is folded into it. Each surface is checked where its subject lives, so a socket fault is reported against the socket entry the Architect wrote rather than at a path inside the `schema:` block — and the Ops engineer still writes no `uses` boilerplate.
 
-**Example bridge synthesis:**
+**Example — a socket declaration and what the compiler does with it:**
 **The Platform Architect's YAML**
 
 ```yaml
@@ -219,34 +219,12 @@ spec:
       {{- end -}}
 ```
 
-**The compiler-synthesized JSON Schema fragment**
-
-```yaml
-uses:
-  type: object
-  properties:
-    databases:
-      type: object
-      additionalProperties:
-        type: object
-        properties:
-          target: { type: string }
-          inject:
-            type: object
-            properties:
-              env: { type: array, items: { type: object } }
-              file: { type: array, items: { type: object } }
-              ssm_param: { type: array, items: { type: object } }
-            additionalProperties: false
-      x-aggrega-selector: "component.aggrega.ai/type=stateful-server"
-```
-
-**Composition**
-The compiler composes the synthesized fragment with the user-authored `schema:` to produce the unified validation schema. The Static Analyzer reads `x-aggrega-selector:` from the synthesized fragment + `appliesTo` / `appliesToAnyOf` from the Feature entities, and evaluates label matching against each target's `metadata.labels` to validate cross-node type safety.
+**What the compiler does with it**
+The socket table is read as the typed YAML it is: the `selector:` string goes to the native label-matching engine, and the `inject:` list constrains which delivery mechanisms an edge through that socket may name. The `schema:` block is compiled separately, as the entity's own `values` / `infra` / `provides` contract. The Static Analyzer reads the `selector:` string from the socket entry the Architect wrote — together with `appliesTo` / `appliesToAnyOf` from the Feature entities — and evaluates label matching against each target's `metadata.labels` to validate cross-node type safety.
 
 ### Kubernetes-Style Selectors in usesSchema
 
-The Go compiler's native label-matching engine evaluates selector strings using standard Kubernetes-style selection semantics (`AND` via comma, `OR` via `in()`, `NOT` via `!=`/`notin()`). This same engine — and the same selector-string grammar — also evaluates the Feature attachment selectors (`appliesTo`, and each item of `appliesToAnyOf`). The selector layer is strictly the topology gate — the per-pillar `schema:` declarations validate `values`, `infra`, and `provides` content independently. After the Go compiler draws the topological edges at topology construction, the Static Analyzer extracts the `selector` strings from the synthesized JSON Schema fragment's `x-aggrega-selector:` annotation and evaluates them against the target node's Catalog `labels` to validate cross-node type safety.
+The Go compiler's native label-matching engine evaluates selector strings using standard Kubernetes-style selection semantics (`AND` via comma, `OR` via `in()`, `NOT` via `!=`/`notin()`). This same engine — and the same selector-string grammar — also evaluates the Feature attachment selectors (`appliesTo`, and each item of `appliesToAnyOf`). The selector layer is strictly the topology gate — the per-pillar `schema:` declarations validate `values`, `infra`, and `provides` content independently. After the Go compiler draws the topological edges at topology construction, the Static Analyzer reads the `selector` strings from the socket entries the Architect authored and evaluates them against the target node's Catalog `labels` to validate cross-node type safety.
 
 ```yaml
 usesSchema:
