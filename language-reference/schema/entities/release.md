@@ -93,7 +93,7 @@ Routes a nested Aggregate sub-module's internal components into this boundary. M
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `components` | map of boundary_component | no | Component instances within the nested aggregate to route into this boundary. Keys: one or more letters, digits, underscores or hyphens. A dot is not permitted. Pattern: `^[a-zA-Z0-9_-]+$`. |
+| `components` | map of boundary_component | no | Component instances within the nested aggregate to route into this boundary. Keys are the local name each component carries inside that sub-module — 'main-db' for the component a boundary's own `components` map addresses as 'data.main-db' — because that is the only name it has there. Keys: one or more letters, digits, underscores or hyphens. A dot is not permitted. Pattern: `^[a-zA-Z0-9_-]+$`. |
 | `aggregates` | map of aggregate_routing | no | Further nested aggregates within this sub-aggregate (for deeply nested module composition). Keys: one or more letters, digits, underscores or hyphens. A dot is not permitted. Pattern: `^[a-zA-Z0-9_-]+$`. |
 
 _Additional properties are not permitted._
