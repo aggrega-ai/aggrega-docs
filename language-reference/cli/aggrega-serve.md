@@ -841,5 +841,5 @@ aggrega serve [flags]
 
 | Flag | Default | Description |
 | --- | --- | --- |
-| `--build-on-inspect` | `false` | Run the artifact-rendering stage while inspecting an IR graph, so the advisories aggrega build raises while rendering also appear as editor problems. It adds none of the checks a build halts on, so the editor still draws a graph where a build would refuse. Nothing is written to disk: no rendered artifacts, no output directory, no lockfile. Off by default, matching aggrega inspect, which raises no such advisory either. When set, overrides the serve.build_on_inspect config key. |
+| `--build-on-inspect` | `false` | Run the artifact-rendering stage while inspecting an IR graph, so the advisories aggrega build raises while rendering also appear as editor problems. It adds none of the checks a build halts on. Nothing is written to disk: no rendered artifacts, no output directory, no lockfile. Off by default, matching aggrega inspect, which raises no such advisory either. When set, overrides the serve.build_on_inspect config key. |
 <!-- END GENERATED: cli-serve -->
