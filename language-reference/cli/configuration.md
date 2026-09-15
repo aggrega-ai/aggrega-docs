@@ -190,6 +190,46 @@ what a single build compiles. `aggrega cache status` reports what the store curr
 `aggrega config show --origin` tells you which file the cap you are running under actually came
 from.
 
+### Settings for a server other people reach
+
+`aggrega mcp` speaks the Model Context Protocol. On your own machine a client launches it as a
+subprocess and talks to it over standard input and output, and no configuration is involved at
+all. The `mcp` block is for the other shape: one long-running process on a host, reached over
+HTTP by callers who are not at its keyboard.
+
+```yaml
+# <project>/.aggrega-config.yaml
+mcp:
+  listen: 127.0.0.1:7777
+  allowed_origins:
+    - https://studio.example.com
+  limits:
+    max_concurrent_requests: 32
+```
+
+**`mcp.listen` is what chooses the transport.** Give it a `host:port` address or a
+`unix:<path>` socket and the command starts a listener; leave it out and the command speaks over
+standard input and output, which is what a subprocess client expects. `aggrega mcp --listen
+<address>` does the same for one invocation and wins over the key, the way every flag wins over
+every file.
+
+**`mcp.tls.cert_file` and `mcp.tls.key_file` put TLS in the process.** Set both and the listener
+serves HTTPS itself. Leave both out and it serves plaintext, which is accepted only on loopback or
+on a Unix socket — the shape you use when a proxy in front holds the certificate and forwards to
+the process. A plaintext listener on any other address is refused before anything binds, naming
+these two keys. Write both as absolute paths.
+
+**`mcp.allowed_origins` is consulted only when a request carries an `Origin` header**, which in
+practice means a browser sent it. List the origins you serve there; a request naming one that is
+not listed is refused, and a request carrying no such header is served regardless. A client that
+is not a browser sends no such header and needs no entry.
+
+**`mcp.limits` bounds what one caller can ask for** — how large a single request body may be, and
+how many requests run at once. Both are always in force; neither has a value that lifts it.
+
+Each of these keys has a default, and
+[schema/other/aggrega-config.md](../schema/other/aggrega-config.md) states it beside the key.
+
 ### The other ways a project root is recognised
 
 `--workspace-root <path>`, or its `AGGREGA_WORKSPACE_ROOT` counterpart, names the root outright and
@@ -242,3 +282,4 @@ the file it wrote.
 - [schema/other/aggrega-config.md](../schema/other/aggrega-config.md) — every configuration key,
   its type, and its default.
 - [aggrega-cache.md](aggrega-cache.md) — what `artifact_cache_dir` actually holds.
+- [aggrega-mcp.md](aggrega-mcp.md) — the server the `mcp` block configures.
