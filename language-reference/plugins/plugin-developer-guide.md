@@ -151,7 +151,7 @@ The commands and their flags are documented with the publishing and consume surf
 
 ## 9. Versioning the entity
 
-A `Plugin` entity carries a strict Semantic Version in `metadata.version`. A published version is immutable: re-publishing a version that already exists in the registry is rejected at the publish gate.
+A `Plugin` entity carries a strict Semantic Version in `metadata.version`. A published version is immutable: re-publishing a version that already exists in the registry with different content is rejected at the publish gate.
 
 When you change a plugin entity and re-publish, the publishing discipline classifies the change against the previously published version and requires the version bump to match. The classification is the version-bump rubric: a documentation- or comment-only change is `PATCH`; a strictly additive change (a new optional field, a new entry) is `MINOR`; a removal, a type narrowing, or a previously-optional field becoming required is `MAJOR`. Over-bumping is always allowed; under-bumping halts with a diagnostic naming the required bump. The first publication of an entity skips the bump check and surfaces a warning that no verification was performed. Run the check before publishing with `aggrega lint --pre-publish`; see [`../cli/aggrega-lint.md`](../cli/aggrega-lint.md) for the full rubric and the per-rule settings.
 

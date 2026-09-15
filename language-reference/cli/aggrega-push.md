@@ -21,6 +21,16 @@ The target registry is `--registry <ref>` when supplied, otherwise the workspace
 
 Publish computes a content digest over the entity's authoring tree and embeds it in the OCI manifest; `aggrega pull` verifies that digest when it fetches the entity, so tampering between publish and pull is caught.
 
+## Publishing over an existing version
+
+Before any bytes are uploaded, `aggrega push` resolves what the target registry already holds at the reference it is about to write and compares it against the content in front of it. Three outcomes:
+
+- **Nothing is published there yet** — the push proceeds and publishes normally.
+- **The same content** — nothing is uploaded, and the command reports the version as already published, so a repeated or retried push is not an error.
+- **Different content** — the push halts, naming the digest already published and the one it would have written. No flag forces it through.
+
+A version that is already published therefore keeps denoting the bytes published under it. Content that has changed is published under a new `metadata.version`; [`aggrega lint --pre-publish`](aggrega-lint.md) answers the next question — how far that version must move — by classifying the change against the previously published version.
+
 ## Signing
 
 `aggrega push` can sign the artifact as it publishes and attach the signature as an OCI referrer — a Sigstore (cosign-compatible) bundle on the artifact's immutable manifest digest. The signature is a sibling manifest, so signing never re-pushes or mutates the published bytes.
@@ -98,6 +108,9 @@ pull.
 Push signs before it publishes: where signing applies, the signature is made
 over the manifest digest before any bytes reach the registry, so a failed
 signing refuses the push rather than leaving unsigned content published.
+
+Push refuses to replace content already published at the same version:
+publish changed content under a new version instead.
 ```
 
 **Flags**
