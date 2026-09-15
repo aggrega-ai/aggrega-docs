@@ -4161,7 +4161,7 @@ Emitted message, quoting what the verifier reported:
 
 A reference that resolves to an artifact of some other kind — a catalog entity, a plugin — is rejected rather than cached as documentation, so a mis-pointed reference fails where it is pointed rather than later as a bundle that cannot be read.
 
-**Where it arises.** The assistant-facing server acquires its documentation bundle once, when a client connects, from the workspace's configured registry under the reserved `docs` namespace. This is the check that acquisition runs on what came back.
+**Where it arises.** The assistant-facing server acquires its documentation bundle once, when it starts and before it answers anything, from the workspace's configured registry under the reserved `docs` namespace. This is the check that acquisition runs on what came back.
 
 **It never stops a session.** The acquisition reports its outcome on the server's log stream and the connection proceeds either way; what a rejected artifact costs is the documentation resources, which then answer not-found for that session.
 
