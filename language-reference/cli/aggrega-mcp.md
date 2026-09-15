@@ -6,7 +6,7 @@ Run a Model Context Protocol server over stdio for AI-assistant integration
 **Synopsis**
 
 ```
-aggrega mcp
+aggrega mcp [flags]
 ```
 
 **Description**
@@ -54,6 +54,12 @@ server down on the first request, whether or not a client is sending
 anything: it stops accepting messages, ends the work a call in progress
 is doing, and exits cleanly. A second request ends the process at once.
 ```
+
+**Flags**
+
+| Flag | Default | Description |
+| --- | --- | --- |
+| `--listen` | — | Serve the protocol over HTTP on this address instead of standard input and output, in one of two forms: host:port, or unix: followed by a filesystem path. Without it, and with no mcp.listen in the workspace configuration, the server speaks over standard input and output. A listener with no certificate serves plaintext and is permitted only on loopback (127.0.0.1, ::1, localhost) or on a Unix socket, which is the shape a deployment behind a terminating proxy takes; any other address needs mcp.tls.cert_file and mcp.tls.key_file, which this process then uses to terminate TLS itself. When set, overrides the mcp.listen config key. |
 <!-- END GENERATED: cli-mcp -->
 
 ## What it does
