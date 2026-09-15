@@ -33,21 +33,23 @@ Aggregates serve as both the root application and reusable modules. A parent Agg
 
 ### Catalog Location
 
-Reusable Aggregate modules live in the catalog under:
+A reusable Aggregate module sits under the `aggregate/` kind directory at the path its `metadata.name` spells out, segment for segment, with a version directory at the leaf:
 
 ```text
 aggrega-catalog/
 └── aggregate/
-    └── {publisher}/             # e.g., `core`, `acme`
-        └── {module-name}/
+    └── {module-name}/           # the module's metadata.name, segment for segment
+        └── {version}/           # the module's metadata.version
             └── aggregate.yaml   # The module definition
 ```
 
-OCI URI: `hub.aggrega.ai/aggregate/{publisher}/{module-name}:{version}` (e.g., `hub.aggrega.ai/aggregate/core/db-module:1.0.0`).
+A module name may carry a leading `{publisher}` segment naming the vendor or author — `core` for the standard library, `acme` for an enterprise — and the published standard-library modules are named that way: `core/agenta` sits at `aggregate/core/agenta/1.0.0/aggregate.yaml`. A name that is a single token sits one level shallower, at `aggregate/{module-name}/{version}/aggregate.yaml`. Both forms are well-formed; the name is what the author writes, and the directory mirrors it. That mirroring is a catalog convention rather than something the compiler checks — a module is found by the name it declares, not by where its file sits.
+
+OCI URI: `hub.aggrega.ai/aggregate/{module-name}:{version}`, lowercased — so a module named `core/agenta` publishes to `hub.aggrega.ai/aggregate/core/agenta:1.0.0`, and one named `db-module` to `hub.aggrega.ai/aggregate/db-module:1.0.0`.
 
 ### The Module Pattern
 
-**Child module (`aggregate/core/db-module/aggregate.yaml`):**
+**Child module (`aggregate/child-database-module/1.0.0/aggregate.yaml`, published as `hub.aggrega.ai/aggregate/child-database-module:1.0.0`):**
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -76,7 +78,7 @@ metadata:
 spec:
   aggregates:
     finance-db-subsystem:
-      type: my-catalog/child-database-module:1.0.0
+      type: child-database-module:1.0.0
 
   components:
     billing-api:
