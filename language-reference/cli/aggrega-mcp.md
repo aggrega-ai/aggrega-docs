@@ -272,6 +272,8 @@ A tool's advertised schema also declares the rules its arguments must satisfy �
 
 **Asking the process itself to stop reaches the server on the same terms.** An interrupt from a terminal, or a termination request from a supervisor or a container runtime, shuts it down on the first request, whether or not a client is sending anything: it stops accepting messages, ends the work a call in progress is doing, and exits cleanly. A second request ends the process at once. A call still running when the process is asked to stop therefore does not finish.
 
+**A client can also stop one call without stopping the server.** Calls are answered concurrently, so a request to cancel one is read while that call is still running rather than waiting behind it. Cancelling a call ends the work it is doing and sends nothing further for it; every other call in progress carries on, and the server keeps serving. Cancelling a call that has already been answered, or one the server is not working on, does nothing — which is what makes a cancellation safe to send without first knowing whether the answer is already on its way back.
+
 ## When to use it
 
 Use `aggrega mcp` when you want an AI assistant to help author Aggrega entities against the real schemas and reference — so its suggestions are grounded in the exact structure the compiler accepts rather than guessed. It fits the authoring loop directly: the assistant reads a kind's schema and reference, scaffolds a skeleton, fills the fields your role owns, and validates before handing the draft back. See [Getting Started with Authoring](../../authoring/getting-started.md) for that loop.
