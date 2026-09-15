@@ -22,7 +22,7 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 - [`aggrega version`](cli/aggrega-version.md) — print the CLI version; `-o json` emits a machine-readable object.
 - [`aggrega get-schema`](cli/aggrega-get-schema.md) — print the canonical JSON Schema for an entity or contract kind; `--list` names every kind. The authoritative shape to author a file against.
 - [`aggrega scaffold`](cli/aggrega-scaffold.md) — print a starter document for an entity kind, derived from that kind's schema: the required fields, with the fixed ones filled in and a placeholder everywhere a value is needed. It writes no file; redirect it where you want it.
-- [`aggrega mcp`](cli/aggrega-mcp.md) — run a Model Context Protocol server over stdio so an MCP-capable client becomes an Aggrega-aware authoring assistant. See the [Authoring Guide](../authoring/getting-started.md).
+- [`aggrega mcp`](cli/aggrega-mcp.md) — run a Model Context Protocol server, over standard input and output or over HTTP, so an MCP-capable client becomes an Aggrega-aware authoring assistant. See the [Authoring Guide](../authoring/getting-started.md).
 - [Configuration](cli/configuration.md) — which file a setting belongs in, and how the layers combine. Start here: it opens with the two files most projects need and keeps the mechanisms a larger project reaches for behind that.
 - [Global flags](cli/global-flags.md) — flags shared across subcommands (workspace location, registry configuration, output verbosity, and the offline posture). Offline is reachable as a configuration setting and an environment variable too — see [Configuration](cli/configuration.md), the [configuration schema](schema/other/aggrega-config.md) and [environment variables](cli/environment-variables.md).
 
@@ -42,7 +42,7 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 | `aggrega lint` | Check catalog publishing conventions across the catalog, a Release, or one entity |
 | `aggrega login` | Authenticate to an OCI registry and store the credential |
 | `aggrega logout` | Remove a stored registry credential |
-| `aggrega mcp` | Run a Model Context Protocol server over stdio for AI-assistant integration |
+| `aggrega mcp` | Run a Model Context Protocol server over standard input and output, or over HTTP, for AI-assistant integration |
 | `aggrega plugin` | Inspect the Wasm plugins the CLI can resolve |
 | `aggrega pull` | Resolve catalog and source dependencies into the cache and write the per-Release lockfile |
 | `aggrega push` | Bundle and publish a catalog entity to an OCI registry |

@@ -1,6 +1,6 @@
 # aggrega mcp
 
-Run a Model Context Protocol server over stdio for AI-assistant integration
+Run a Model Context Protocol server over standard input and output, or over HTTP, for AI-assistant integration
 
 <!-- BEGIN GENERATED: cli-mcp -->
 **Synopsis**
@@ -12,21 +12,25 @@ aggrega mcp [flags]
 **Description**
 
 ```
-Run Aggrega as a Model Context Protocol (MCP) server over stdio, so an
-AI assistant can discover and drive Aggrega operations through a
-structured protocol instead of scraping command output.
+Run Aggrega as a Model Context Protocol (MCP) server, so an AI
+assistant can discover and drive Aggrega operations through a structured
+protocol instead of scraping command output.
 
-The server speaks newline-delimited JSON-RPC 2.0 on stdin/stdout. It is
-normally spawned as a subprocess by an MCP-capable client, not run by
-hand.
+Two transports reach the same server, and the invocation chooses between
+them. With no listen address the server speaks newline-delimited JSON-RPC
+2.0 over the process's standard input and output, which is how an
+MCP-capable client runs it: spawned as a subprocess, not typed by hand.
+Given --listen, or mcp.listen in the workspace configuration, it serves
+the protocol over HTTP instead — one long-running process on a host,
+reached by callers who are not at its keyboard.
 
-It speaks two MCP protocol revisions, 2026-07-28 and 2025-06-18, so a
-client of either connects. In 2026-07-28 nothing is settled for the
-connection as a whole: every request states the protocol version it
-speaks and the capabilities its sender offers, and the server reads both
-from the request it is answering rather than holding anything between
-messages. In 2025-06-18 a client settles those same facts once, by
-opening the connection with an initialize handshake.
+It speaks two MCP protocol revisions on both transports, 2026-07-28 and
+2025-06-18, so a client of either connects. In 2026-07-28 nothing is
+settled for the connection as a whole: every request states the protocol
+version it speaks and the capabilities its sender offers, and the server
+reads both from the request it is answering rather than holding anything
+between messages. In 2025-06-18 a client settles those same facts once,
+by opening the connection with an initialize handshake.
 
 Both revisions reach the same server, and a client learns the same
 things about it either way. A client on 2026-07-28 calls server/discover
@@ -41,18 +45,38 @@ it through tools/call and resources/read. The server exposes Aggrega
 operations — compiling and inspecting a Release, reading catalog
 entities — as tools and resources an assistant can call directly.
 
-Stream discipline is strict: stdout carries only protocol messages, one
-JSON object per line, so the client can parse the stream without
-heuristics. Every log, warning, and diagnostic is written to stderr
-instead. The server reads one message per line and exits cleanly when
-stdin reaches end of stream, so a client that closes the connection shuts
-the server down.
+On standard input and output, stream discipline is strict: stdout carries
+only protocol messages, one JSON object per line, so the client can parse
+the stream without heuristics. Every log, warning, and diagnostic is
+written to stderr instead. The server reads one message per line and
+exits cleanly when stdin reaches end of stream, so a client that closes
+the connection shuts the server down. A client ends one call by naming
+its id, and every other call carries on.
+
+Over HTTP there is one endpoint, /mcp, accepting POST. Every message is
+its own request and no session of any kind is kept, so nothing a client
+sends first decides how a later request is answered. Closing the
+connection ends the call it carried. A request carrying an Origin header
+is checked against mcp.allowed_origins, and mcp.limits bounds how large
+one request body may be and how many requests are answered at once.
+
+Every HTTP request is answered with a bearer-token challenge and nothing
+is served. The server requires a token on every request and carries no
+validation that can accept one, so a listener answers 401 to every caller
+whatever it sends, and serves nothing until token validation is in place.
+
+The workspace this process serves is fixed when it starts, on either
+transport: --workspace-root names it, AGGREGA_WORKSPACE_ROOT supplies it
+when the flag is absent, and with neither it is resolved from the working
+directory.
 
 Asking the process itself to stop — an interrupt from the terminal, or a
 termination request from a supervisor or container runtime — shuts the
 server down on the first request, whether or not a client is sending
 anything: it stops accepting messages, ends the work a call in progress
-is doing, and exits cleanly. A second request ends the process at once.
+is doing, and exits cleanly. A listener stops accepting and lets a call
+already being answered finish, within a bounded budget, before the
+process exits. A second request ends the process at once.
 ```
 
 **Flags**
@@ -64,7 +88,11 @@ is doing, and exits cleanly. A second request ends the process at once.
 
 ## What it does
 
-`aggrega mcp` runs a Model Context Protocol server over the process's standard input and output. It is not a command you run interactively — an MCP-capable client (Claude Desktop, Cursor, Windsurf, Cline, or any other) launches it as a subprocess and speaks the protocol over stdio. Running it turns the CLI into an Aggrega-aware authoring assistant inside your editor or chat client.
+`aggrega mcp` runs a Model Context Protocol server. **Two transports reach it, and the invocation chooses between them.**
+
+With no listen address it speaks over the process's standard input and output. In that shape it is not a command you run interactively — an MCP-capable client (Claude Desktop, Cursor, Windsurf, Cline, or any other) launches it as a subprocess and speaks the protocol over stdio. Running it turns the CLI into an Aggrega-aware authoring assistant inside your editor or chat client.
+
+Given `--listen <address>`, or `mcp.listen` in the workspace configuration, it serves the protocol over HTTP instead: one long-running process on a host, reached by callers who are not at its keyboard. See [Reaching the server over HTTPS](#reaching-the-server-over-https) for how that listener is configured and what it accepts.
 
 **It speaks two revisions of the protocol, `2026-07-28` and `2025-06-18`, so a client of either connects and reaches the same surfaces.** Which one a call speaks is stated on that call rather than agreed once for the connection. A client on `2026-07-28` sends the protocol version it speaks and its own capabilities with every request, and asks `server/discover` what the server supports; a client on `2025-06-18` settles those same things once, by opening the connection with an `initialize` handshake. Either way the server holds nothing between messages, so what you send first decides nothing about how a later call is answered. A request naming a revision the server does not speak is refused and told which two it can ask for, rather than being answered as if it had asked for one of them.
 
@@ -83,6 +111,57 @@ The server exposes three surfaces to the connected assistant:
   Some capabilities sit in both tiers: a tool shaped for the authoring loop runs the operation inside the server, and the tool named after the command that carries the same capability runs that command. The two do not behave alike, so each names the other and states the difference. The one that runs inside the server is the one to reach for — it answers with a machine-readable result alongside the readable text, so an assistant gets a verdict, a file list or a diagnostic as fields rather than as a transcript to parse. The command tool starts the real command in a separate process, so it does whatever that command does on the machine it runs on, including writing to disk where the command writes, and hands back only the command line it ran and the text that command printed. Reach for it when you need a flag the command declares that the other tool does not accept.
 
   A few commands are deliberately absent, each for a stated reason: the daemon and this server itself would never return a result; a command that reads a password from the terminal has nothing to read it from; one that writes a shell completion script has no shell to install it into; removing a stored credential acts on the machine-wide store rather than on any workspace you named; and acquiring an identity token interactively has no non-interactive form to offer. Absent on that same machine-wide ground is `aggrega plugin run-local`, which loads a `.wasm` guest from a path you give it: what the command is *for* is reading a file wherever you put it, so there is no workspace it could be confined to, and the read happens in the process itself before the guest exists. The guest is granted nothing when it does run — no directories, no sockets, no environment — but that is a limit on the module rather than on the read, so it is not what decides this. Run it at your terminal, where you are the one naming the path. **Signing and publishing are a different case entirely, and the difference is what keeps them off that list.** Each of them resolves an identity from a supplied or ambient input and refuses out loud when none is available, so each has a form that completes with nobody watching — whereas acquiring a token interactively is a verb no input can satisfy even in principle. So they are present, in both tiers: as the commands, and as the four in-process tools described under [Publishing, signing and withdrawing](#publishing-signing-and-withdrawing). Where the command line would open a browser, they refuse and name what to supply instead, rather than waiting on a person who is not there.
+
+## Reaching the server over HTTPS
+
+`aggrega mcp --listen <address>` serves the protocol over HTTP instead of over standard input and output. `mcp.listen` in the workspace configuration is the key that flag overrides; with neither, the command speaks over standard input and output exactly as a client that spawns it expects. It is the same server either way — the same workspace and the same protocol surfaces — and what changes is how a message reaches it, how a call ends, and what the deployment has to hold.
+
+**Read [Nothing is served without a token](#nothing-is-served-without-a-token) before you deploy one.** The listener is complete as a transport and refuses every request that reaches it.
+
+### The two deployment shapes
+
+**The process terminates TLS itself.** Set `mcp.tls.cert_file` to a PEM certificate chain and `mcp.tls.key_file` to its private key, and the listener serves HTTPS directly on whatever address you gave it. Both files are read when the process starts, so a replaced certificate is picked up by restarting the process. Setting one without the other is refused at startup rather than falling back: a certificate with no key cannot be presented and a key with no certificate names nothing, and a typo in one path is not a reason to start serving unencrypted traffic.
+
+**A proxy in front terminates TLS and forwards to a confined listener.** Leave both keys unset and the listener serves plaintext, which is accepted only on loopback or on a Unix socket — so nothing that is not already on that host can reach it. That is the shape a reverse proxy, a sidecar, or a service mesh uses, and it is the one where the certificate lives in front of this process rather than in it.
+
+**A plaintext listener on any other address is refused before anything binds**, and the refusal names both TLS keys. There is no setting that lifts this and no address that is an exception: a listener accepting from the network with no certificate of its own is never safe, so the process declines to start rather than starting in that shape.
+
+### The address forms
+
+`--listen` and `mcp.listen` take one of two forms:
+
+- **`host:port`** — a TCP address, such as `127.0.0.1:7777` or `0.0.0.0:8443`. Loopback means `127.0.0.1`, `::1`, or `localhost` when every address that name resolves to is a loopback address. Anything else is a network address and needs a certificate: an empty host, which is every interface the machine has; a specific interface address; and any other name, even one that resolves to a loopback address at this moment, because where a listener may bind should not depend on a resolution that can change under it.
+- **`unix:` followed by a filesystem path** — a Unix-domain socket, such as `unix:/run/aggrega/mcp.sock`. A socket is reachable only from the host it sits on, so it needs no certificate.
+
+A socket path is taken exactly as written, a relative one included. It is deliberately not resolved against the configuration file that declared it, because the same address also arrives from `--listen`, which has no declaring file — see [where a relative path points](configuration.md#where-a-relative-path-points).
+
+### What the listener accepts
+
+**One endpoint, `/mcp`, accepting `POST`.** Every JSON-RPC message is its own request and **no session of any kind is kept**: nothing a client sends first decides how a later request is answered, no session identifier is ever minted, and a session or stream-resumption header a client sends is ignored. Any other method on that endpoint is answered `405` with `Allow: POST`, and any other path `404` — both settled before the credential check, so probing learns nothing from a challenge on a path or a method that would serve nothing anyway.
+
+A request is answered with one JSON object and a status code. A notification — a message carrying no id — is answered `202` with an empty body. A message that is neither, including a JSON-RPC response, is answered `400`, because a client sends this server requests and notifications and nothing else.
+
+**Both protocol revisions are served here exactly as they are over standard input and output.** A `2026-07-28` request mirrors its body in transport headers so an intermediary can route it without parsing the body: `MCP-Protocol-Version` carries the revision the body states, `Mcp-Method` the method it names, and `Mcp-Name` the target, for the methods that address one by name. A header that disagrees with the body is answered `400`. A `2025-06-18` client opens with an `initialize` handshake, which is answered statelessly; it may carry the version header naming that revision or omit it. A request naming a revision the server does not speak is answered `400` listing the two it does, and one naming a method it does not serve is answered `404`.
+
+**`mcp.allowed_origins` is consulted only when a request carries an `Origin` header**, which in practice means a browser sent it: a request naming an origin the list does not carry is answered `403`, and one carrying no such header is served. A client that is not a browser sends no such header and needs no entry.
+
+**`mcp.limits` bounds the traffic that is accepted.** A body past `max_body_bytes` is answered `413` and is not read past the cap. A request arriving while `max_concurrent_requests` are already in flight is answered `503` rather than being queued behind work it cannot see. Each cap's default is stated beside its key in [the configuration reference](../schema/other/aggrega-config.md), and neither has a value that turns it off.
+
+### One process, one workspace
+
+**The workspace a serving process answers for is fixed when it starts.** `--workspace-root` names it; the `AGGREGA_WORKSPACE_ROOT` variable supplies it when the flag is absent; with neither, it is resolved from the directory the process was started in. That is the same on both transports. Serve several projects by running one process per project root.
+
+### How a call ends
+
+**Closing the connection cancels the call it carried.** That is this transport's cancellation signal: the server treats a caller's disconnect as cancellation of that request, ends the work it was doing, and writes nothing further for it. No cancellation message is needed or expected here — which is the opposite of standard input and output, where there is no per-request stream to close and a client ends one call by naming its id instead. A cancellation message that does arrive over HTTP is accepted and ends nothing.
+
+**Stopping the process drains the listener.** An interrupt, or a termination request from a supervisor or a container runtime, stops the listener accepting and lets a call already being answered finish, within a bounded budget, so a caller that asked for something before the stop still receives its answer. A call that has not finished inside that budget loses its connection. A second stop request ends the process at once.
+
+### Nothing is served without a token
+
+**The server requires a bearer token on every request and carries no validation that can accept one, so a listener answers every request `401` with a `WWW-Authenticate: Bearer` challenge and serves nothing.** That holds whatever a caller sends, a well-formed token included, and it holds for every method, every tool, and every resource. A listener you start accepts connections and serves nothing, so it is usable by nobody; it becomes usable when token validation is in place.
+
+Until then the transport to use is standard input and output, where the person calling owns the machine.
 
 ## What the server tells the model when it connects
 
@@ -274,19 +353,19 @@ A tool's advertised schema also declares the rules its arguments must satisfy �
 
 ## What stops the server
 
-**Closing the connection stops it.** The server reads one message per line and exits cleanly when its standard input reaches end of stream, so a client that closes the connection shuts the server down. That is the ordinary case here, because you never launch the command yourself: the client that started it is what ends it, so quitting your editor, or disabling this server for a project, is what stopping it usually looks like.
+**Over standard input and output, closing the connection stops it.** The server reads one message per line and exits cleanly when its standard input reaches end of stream, so a client that closes the connection shuts the server down. That is the ordinary case on that transport, because you never launch the command yourself: the client that started it is what ends it, so quitting your editor, or disabling this server for a project, is what stopping it usually looks like.
 
-**Asking the process itself to stop reaches the server on the same terms.** An interrupt from a terminal, or a termination request from a supervisor or a container runtime, shuts it down on the first request, whether or not a client is sending anything: it stops accepting messages, ends the work a call in progress is doing, and exits cleanly. A second request ends the process at once. A call still running when the process is asked to stop therefore does not finish.
+**Asking the process itself to stop reaches the server on either transport.** An interrupt from a terminal, or a termination request from a supervisor or a container runtime, shuts it down on the first request, whether or not a client is sending anything: it stops accepting messages, ends the work a call in progress is doing, and exits cleanly. A second request ends the process at once. Over standard input and output a call still running when the process is asked to stop therefore does not finish; a listener instead drains, letting a call already being answered finish within a bounded budget before the process exits.
 
-**A client can also stop one call without stopping the server.** Calls are answered concurrently, so a request to cancel one is read while that call is still running rather than waiting behind it. Cancelling a call ends the work it is doing and sends nothing further for it; every other call in progress carries on, and the server keeps serving. Cancelling a call that has already been answered, or one the server is not working on, does nothing — which is what makes a cancellation safe to send without first knowing whether the answer is already on its way back.
+**A client can also stop one call without stopping the server, and how it does so is the transport's.** Calls are answered concurrently, so ending one is acted on while that call is still running rather than waiting behind it. Over standard input and output a client names the call's id; cancelling a call that has already been answered, or one the server is not working on, does nothing — which is what makes such a message safe to send without first knowing whether the answer is already on its way back. Over HTTP there is no message to send: closing the connection that carried the call ends it. Either way the work stops, nothing further is sent for that call, every other call in progress carries on, and the server keeps serving.
 
 ## When to use it
 
 Use `aggrega mcp` when you want an AI assistant to help author Aggrega entities against the real schemas and reference — so its suggestions are grounded in the exact structure the compiler accepts rather than guessed. It fits the authoring loop directly: the assistant reads a kind's schema and reference, scaffolds a skeleton, fills the fields your role owns, and validates before handing the draft back. See [Getting Started with Authoring](../../authoring/getting-started.md) for that loop.
 
-You typically never type `aggrega mcp` yourself. Instead you name it once in your client's MCP configuration, and the client starts and stops it for you.
+Over standard input and output you typically never type `aggrega mcp` yourself. Instead you name it once in your client's MCP configuration, and the client starts and stops it for you. A listener is the other case: there you run the process, and it keeps running for callers who did not start it.
 
-## Example: client configuration
+## Example: client configuration over standard input and output
 
 Point an MCP client at the command with a stdio server entry:
 

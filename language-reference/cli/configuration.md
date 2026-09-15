@@ -144,7 +144,8 @@ It applies to `workspace.catalog_dirs`, and to the local filesystem paths on a `
 `plugins.linter` or `plugins.importer` attachment — a `uri` naming a `.wasm` file on disk, and each
 entry under that attachment's `with.sources`. It applies to the entries under their append
 companions too, and each of those anchors to its own declaring file rather than to the file the
-merge happens to end at.
+merge happens to end at. And it applies to `mcp.tls.cert_file` and `mcp.tls.key_file`, so a
+certificate written beside the file that names it is found from wherever the server is launched.
 
 So given this layout:
 
@@ -161,7 +162,7 @@ and `./catalog` written in the **root** file, the path names `myproject/catalog`
 path is left exactly as written, and so is a registry reference such as
 `oci://hub.aggrega.ai/plugins/helm:1.0.0`.
 
-Two settings deliberately do not follow this rule, because they have no declaring file to anchor
+These settings deliberately do not follow this rule, because they have no declaring file to anchor
 to or because every reader of them resolves them elsewhere:
 
 - `artifact_cache_dir` is interpreted relative to the **project root**, wherever the command runs
@@ -169,6 +170,10 @@ to or because every reader of them resolves them elsewhere:
   refused when the configuration loads.
 - `AGGREGA_CATALOG_DIRS` comes from the environment and has no declaring file at all, so supply
   absolute paths in it.
+- `mcp.listen` is taken exactly as written, and that includes the filesystem path in its
+  `unix:<path>` form. The same address also arrives from `aggrega mcp --listen`, which has no
+  declaring file, so anchoring the configured spelling alone would make one string name two
+  different places depending on where it came from. Give the socket an absolute path.
 
 ### One setting whose store is shared
 
@@ -211,13 +216,17 @@ mcp:
 `unix:<path>` socket and the command starts a listener; leave it out and the command speaks over
 standard input and output, which is what a subprocess client expects. `aggrega mcp --listen
 <address>` does the same for one invocation and wins over the key, the way every flag wins over
-every file.
+every file. A `unix:` path is taken as written rather than anchored — see
+[Where a relative path points](#where-a-relative-path-points).
 
 **`mcp.tls.cert_file` and `mcp.tls.key_file` put TLS in the process.** Set both and the listener
 serves HTTPS itself. Leave both out and it serves plaintext, which is accepted only on loopback or
 on a Unix socket — the shape you use when a proxy in front holds the certificate and forwards to
 the process. A plaintext listener on any other address is refused before anything binds, naming
-these two keys. Write both as absolute paths.
+these two keys, and so is one of the two set without the other. Both are filesystem paths and
+follow the rule above: a relative one resolves against the directory of the file that declared it,
+so a certificate committed beside that file is found wherever the server is launched from. Write
+them absolute where the certificate is managed outside the project.
 
 **`mcp.allowed_origins` is consulted only when a request carries an `Origin` header**, which in
 practice means a browser sent it. List the origins you serve there; a request naming one that is
