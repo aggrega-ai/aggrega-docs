@@ -16,17 +16,29 @@ Run Aggrega as a Model Context Protocol (MCP) server over stdio, so an
 AI assistant can discover and drive Aggrega operations through a
 structured protocol instead of scraping command output.
 
-The server speaks newline-delimited JSON-RPC 2.0 on stdin/stdout,
-targeting MCP protocol revision 2025-06-18. It is normally spawned as a
-subprocess by an MCP-capable client, not run by hand; the client opens
-the connection with an initialize handshake, and the server replies with
-its protocol revision and the capabilities it advertises — tools,
-resources, and prompts.
+The server speaks newline-delimited JSON-RPC 2.0 on stdin/stdout. It is
+normally spawned as a subprocess by an MCP-capable client, not run by
+hand.
 
-Once initialized, the client discovers the server's surface through the
-list methods (tools, resources, resource templates, and prompts) and
-invokes it through tools/call and resources/read. The server exposes
-Aggrega operations — compiling and inspecting a Release, reading catalog
+It speaks two MCP protocol revisions, 2026-07-28 and 2025-06-18, so a
+client of either connects. In 2026-07-28 nothing is settled for the
+connection as a whole: every request states the protocol version it
+speaks and the capabilities its sender offers, and the server reads both
+from the request it is answering rather than holding anything between
+messages. In 2025-06-18 a client settles those same facts once, by
+opening the connection with an initialize handshake.
+
+Both revisions reach the same server, and a client learns the same
+things about it either way. A client on 2026-07-28 calls server/discover
+for the revisions the server speaks, the capabilities it advertises —
+tools, resources, and prompts — and the guidance it offers a model
+before the first call. A client on 2025-06-18 receives those same
+capabilities, and that same guidance, in the reply to its handshake.
+
+From there the client discovers the server's surface through the list
+methods (tools, resources, resource templates, and prompts) and invokes
+it through tools/call and resources/read. The server exposes Aggrega
+operations — compiling and inspecting a Release, reading catalog
 entities — as tools and resources an assistant can call directly.
 
 Stream discipline is strict: stdout carries only protocol messages, one
@@ -48,6 +60,8 @@ is doing, and exits cleanly. A second request ends the process at once.
 
 `aggrega mcp` runs a Model Context Protocol server over the process's standard input and output. It is not a command you run interactively — an MCP-capable client (Claude Desktop, Cursor, Windsurf, Cline, or any other) launches it as a subprocess and speaks the protocol over stdio. Running it turns the CLI into an Aggrega-aware authoring assistant inside your editor or chat client.
 
+**It speaks two revisions of the protocol, `2026-07-28` and `2025-06-18`, so a client of either connects and reaches the same surfaces.** Which one a call speaks is stated on that call rather than agreed once for the connection. A client on `2026-07-28` sends the protocol version it speaks and its own capabilities with every request, and asks `server/discover` what the server supports; a client on `2025-06-18` settles those same things once, by opening the connection with an `initialize` handshake. Either way the server holds nothing between messages, so what you send first decides nothing about how a later call is answered. A request naming a revision the server does not speak is refused and told which two it can ask for, rather than being answered as if it had asked for one of them.
+
 The server exposes three surfaces to the connected assistant:
 
 - **Prompts** — two families, and the difference is what each one answers. *Authoring* prompts answer "what am I writing": one persona per role (developer, architect, operations), plus a focused per-entity template. Each frames the role and points the assistant at the right schema, reference page, and authoring guide, so its suggestions stay inside the pillars that role owns. *Workflow* prompts answer "which calls, in what order": each lays out the ordered sequence of tool calls that reaches a goal spanning several operations, with the decision points between them — starting a deployment, bringing an existing one into Aggrega, working out why one fails or renders the wrong artifacts. `prompts/list` enumerates both families and `prompts/get` renders one, so the set is read from the server rather than from this page.
@@ -66,7 +80,7 @@ The server exposes three surfaces to the connected assistant:
 
 ## What the server tells the model when it connects
 
-The handshake that opens a session carries a block of guidance for the model, which your client may surface to it before the first call. It is the same text for every client: nothing in it is negotiated, and nothing is derived from what the client sent, so what a model is told on connect does not vary between sessions or between clients.
+The server offers a block of guidance for the model, which your client may surface to it before the first call. A client on `2026-07-28` reads it from the `server/discover` answer; a client on `2025-06-18` reads it from the reply to its `initialize` handshake. **It is the same text on both paths, byte for byte**, and the same text for every client: nothing in it is negotiated, and nothing is derived from what the client sent, so what a model is told on connect does not vary with how the client connected, between sessions, or between clients.
 
 It teaches the mental model a tool's argument schema cannot convey on its own:
 
@@ -226,7 +240,7 @@ Pass `file` — the document, relative to the workspace root or absolute, and in
 
 The answer is a zero-width `position`, whose `line` and `character` both count from zero; `entryIndent` and `indentStep`, the columns to write at; and `missingContainerKeys`, the container keys this document does not carry yet, outermost first, which you write before the entry. `entryShape` reports whether the container holds a `mapping` or a `sequence`, and reports `unknown` where the container is not there yet or holds nothing, because the document has not said — the shape is then yours to choose. `indentStepMeasured` says whether the step was measured from this document's own nesting or is a fallback for a document that exhibits none. Where `precededByLineBreak` is set, begin your text with a line break: the position sits at the end of the line the entry follows, which is in range whether or not the file ends in a newline and disturbs no byte already written. Read `missingContainerKeys` even where you expect the container to be there — a position applied without the keys that have to precede it produces a document that no longer parses.
 
-`position_encoding` names the units the reported character offset is measured in: `utf-8`, `utf-16` or `utf-32`. It is an argument here because this protocol runs no handshake to negotiate one, and it defaults to `utf-16`, which is what an editor session takes when a client negotiates nothing — so a caller that names nothing is answered identically on both surfaces. A value that is none of the three is refused rather than quietly defaulted, because offsets measured one way and applied into a buffer measured another corrupt the document at the first character outside ASCII.
+`position_encoding` names the units the reported character offset is measured in: `utf-8`, `utf-16` or `utf-32`. It is an argument here because neither revision of this protocol negotiates one, and it defaults to `utf-16`, which is what an editor session takes when a client negotiates nothing — so a caller that names nothing is answered identically on both surfaces. A value that is none of the three is refused rather than quietly defaulted, because offsets measured one way and applied into a buffer measured another corrupt the document at the first character outside ASCII.
 
 **It answers and stops.** It writes nothing to any file, composes no entry text and applies no edit; composing the text and deciding whether to apply it are yours. A request that does not address a place an entry can go comes back as a failed result naming what to change — a document that is not in the workspace, cannot be read, or is not well-formed YAML; a container path carrying no segments or an empty one; a path running through a scalar, which nothing can be appended inside; a path reaching a collection written in flow style, where appending would rewrite bytes the author already wrote rather than add a line; or a path addressing a block sequence with something that is not one of its indices.
 
