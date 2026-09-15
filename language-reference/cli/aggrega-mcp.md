@@ -66,9 +66,19 @@ validation that can accept one, so a listener answers 401 to every caller
 whatever it sends, and serves nothing until token validation is in place.
 
 The workspace this process serves is fixed when it starts, on either
-transport: --workspace-root names it, AGGREGA_WORKSPACE_ROOT supplies it
-when the flag is absent, and with neither it is resolved from the working
-directory.
+transport: --workspace-root names it, and AGGREGA_WORKSPACE_ROOT supplies
+it when the flag is absent. With neither, a server on standard input and
+output resolves the workspace from the directory it was started in, while
+a listener is refused before it binds unless a workspace resolves there:
+one reached over HTTP serves a workspace an operator chose rather than
+whichever directory it happened to be started in.
+
+For the same reason a call arriving over HTTP cannot name a workspace of
+its own. Sending workspace_root or catalog_dirs is refused, naming the
+argument, and the directories searched for catalog entities beside the
+served workspace are its own workspace.catalog_dirs setting. Over
+standard input and output both arguments are honoured: the client that
+launched the server is running on this machine.
 
 Asking the process itself to stop — an interrupt from the terminal, or a
 termination request from a supervisor or container runtime — shuts the
@@ -149,7 +159,9 @@ A request is answered with one JSON object and a status code. A notification —
 
 ### One process, one workspace
 
-**The workspace a serving process answers for is fixed when it starts.** `--workspace-root` names it; the `AGGREGA_WORKSPACE_ROOT` variable supplies it when the flag is absent; with neither, it is resolved from the directory the process was started in. That is the same on both transports. Serve several projects by running one process per project root.
+**The workspace a serving process answers for is fixed when it starts.** `--workspace-root` names it; the `AGGREGA_WORKSPACE_ROOT` variable supplies it when the flag is absent. With neither, a server on standard input and output resolves the workspace from the directory it was started in, and a listener is refused before it binds unless a workspace resolves there — a process reached over HTTP answers callers who cannot see the machine, so it serves a workspace an operator chose rather than whichever directory it happened to be started in. Serve several projects by running one process per project root.
+
+**A call arriving over HTTP cannot name a workspace of its own.** `workspace_root` and `catalog_dirs` are refused, naming the argument that was sent, rather than being quietly dropped: an argument silently ignored reads to its sender exactly like one that was honoured. Catalog directories searched beside the served workspace are that workspace's own `workspace.catalog_dirs` setting, which the operator writes. Over standard input and output both arguments are honoured as before, because the client that launched the server is running on the caller's own machine.
 
 ### How a call ends
 
