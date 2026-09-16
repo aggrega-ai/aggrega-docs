@@ -2236,14 +2236,31 @@ and for a load failure, where the halt reads as the sentence alone, positioned a
 
 <!-- covers: internal/compiler/topology.ErrSubAggregateNameCollision -->
 
-Composing an application flattens every component into a single set, and a component a module contributed carries that module's name, a dot, and its own name. The set refuses to hold two entries under one identifier: the second would replace the first, and one of the two components would disappear from the output with nothing said about it.
+Composing an Aggregate flattens every component into a single set, and a component a module contributed carries that module's name, a dot, and its own name. The set refuses to hold two entries under one identifier: the second would replace the first, and one of the two components would disappear from the output with nothing said about it.
 
-The authoring surface does not offer the names that would produce this. An instance name is written from letters, digits, `-` and `_`, so it cannot carry the dot the compiler joins with, and two identifiers built from different module names cannot meet. The check therefore backstops a composition assembled by something other than the ordinary authoring path, and meeting one is worth reporting rather than working around.
+This halt is the one raised as a module's components are merged in, and the authoring surface does not offer the names that would produce it. Every component a module contributes carries that module's name ahead of its own; an instance name is written from letters, digits, `-` and `_`, so it cannot carry the dot the two are joined with, and two identifiers built from different module names cannot meet. Two modules imported under one name are one duplicate key, and the document is refused as it loads. So this backstops a composition assembled by something other than the ordinary authoring path, and meeting one is worth reporting rather than working around.
+
+Two components of one Aggregate reaching one identifier is a **different halt**, and it is one twelve lines of ordinary YAML produce — see [Two subsystems declare a component under one name](#two-subsystems-declare-a-component-under-one-name) below.
 
 Emitted message:
 > flattened node ID collision: rename one of the colliding instances so their flattened IDs differ (id `"<identifier>"`, path `"<path in the composition>"`, collides with existing entry from `"<the other contributor>"`)
 
 **How to fix:** rename one of the two instances the message names, in the document that declares it and in every Release entry that addresses it.
+
+### Two subsystems declare a component under one name
+
+<!-- covers: internal/compiler/topology.ErrSubsystemComponentIdentityCollision -->
+
+Subsystems group the components of an Aggregate for the reader and for what cascades to them; they do not qualify the name a component answers to. A component declared under `subsystems.frontend` is addressed as `api`, not as `frontend.api`, and one a module contributed carries that module's name rather than the subsystem's. So two subsystems of one Aggregate may each declare a component called `api`, and the two then answer to the same identifier.
+
+The document is well formed — the two are separate keys in separate blocks, which is exactly why nothing earlier refuses it — but only one component can carry an identifier. The build halts rather than keeping whichever was read last and rendering as though a single component had been declared.
+
+The same name twice inside **one** subsystem is a different fault: those are two entries under one key, and the document is refused as it is read.
+
+Emitted message:
+> components in different subsystems take the same identity: rename one of them, since a subsystem contributes nothing to a component's identity (`"<identifier>"`, declared under subsystems `"<first>, <second>"`)
+
+**How to fix:** rename one of the two components, in the document that declares it and in every Release entry that addresses it. Where the two are genuinely the same component wanted in two places, declare it once and depend on it from the other subsystem. Renaming the subsystem does not help: the subsystem is not part of the name.
 
 ### A re-published component alias points back at itself
 
@@ -4486,6 +4503,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0291` | `a plugin has no representation for a value it was given` | A published port declares a transport compose cannot spell; A resources quantity cannot be converted to a compose value; A cross-boundary reference was spliced into a longer string |
 | `E0292` | `a plugin reported a failure that none of the declared kinds names` | A plugin reported a failure it did not classify |
 | `E0293` | `wasm: guest plugin named a condition the socket does not declare` | A plugin named a condition the socket does not declare |
+| `E0294` | `components in different subsystems take the same identity: rename one of them, since a subsystem contributes nothing to a component's identity` | Two subsystems declare a component under one name |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

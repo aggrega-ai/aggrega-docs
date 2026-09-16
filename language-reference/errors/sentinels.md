@@ -707,6 +707,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0291` | `plugin-value-not-representable` | `a plugin has no representation for a value it was given` |
 | `E0292` | `plugin-failure-unclassified` | `a plugin reported a failure that none of the declared kinds names` |
 | `E0293` | `wasm-guest-condition-undeclared` | `wasm: guest plugin named a condition the socket does not declare` |
+| `E0294` | `subsystem-component-identity-collision` | `components in different subsystems take the same identity: rename one of them, since a subsystem contributes nothing to a component's identity` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0157` is retired: nothing reports it now, and the number is never handed to a different condition. It named an Aggregate key — a component, feature, subsystem or nested-module instance name — that did not match the authored-name pattern. Every one of those key surfaces is constrained to that same spelling by the Aggregate schema, which refuses the document while validating its envelope and reports the offending key with a line and column; that condition's code is `E0215`.
