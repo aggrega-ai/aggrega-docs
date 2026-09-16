@@ -1961,8 +1961,10 @@ Once every Component has a resolved Recipe, the compiler stitches Components tog
 
 A `uses:` edge names a target component that does not exist in the resolved topology. The halt is origin-agnostic — a developer-authored Aggregate edge and a Release-wired edge are caught alike. A dangling target is a fatal halt, not a silent drop: an edge to a non-existent target would otherwise vanish and leave the consumer's injected values silently empty at deploy time. It is the structural sibling of the uses-socket allowlist — the socket must be declared *and* the target must resolve to an existing component before an edge is type-checked.
 
-Emitted message:
-> uses edge target does not exist: uses edge `<consumer>`/`<socket>`/`<alias>` targets `"<target>"`, which is not a component in the topology
+Emitted message. The refusal comes first, then the target that answers to nothing and the socket the connection was wired into — then what to do about it:
+> uses edge target does not exist (`"<target>"`, wired into socket `"<socket>"`). Point the target at a component the application declares, or declare a component under that name.
+
+The finding is positioned at the authored entry it is about, in the document that entry was written in, so a connection a component's own `uses:` block drew, one an attachment projected, and one a Release wired each report at their own block. Every offending connection is reported as its own finding, so one build names them all rather than stopping at the first.
 
 **How to fix:** declare the missing target component, or correct the target name in the `uses:` entry to match an existing component.
 
@@ -2183,8 +2185,10 @@ Emitted message:
 
 The sibling of the dangling-target halt above, reported separately so the author is told *why* the target is missing. The target is not absent because it was never declared — it is declared, and it was deliberately removed from this build because its `active:` toggle resolved to false, taking its edges with it. A component that survived still depends on it, and letting the edge vanish would leave that consumer's injected values silently empty at deploy time.
 
-Emitted message:
-> uses edge target was pruned because its active toggle resolved to false: uses edge `<consumer>`/`<socket>`/`<alias>` targets `"<target>"`, which was pruned from the topology because its active toggle resolved to false
+Emitted message. The refusal comes first, then the target the toggle removed and the socket the connection was wired into — then what to do about it:
+> uses edge target was pruned because its active toggle resolved to false (`"<target>"`, wired into socket `"<socket>"`). Keep the target's `active` toggle true, or drop the dependency on it.
+
+The finding is positioned at the authored entry it is about, on the same paths the dangling-target halt above names, and every offending connection is reported rather than only the first.
 
 **How to fix:** decide which of the two belongs in this environment. Switch the target back on — where its toggle reads a parameter, that means supplying the parameter for this Release. Or gate the consumer behind the same toggle, so the two leave together and no edge is left pointing at nothing. Or, where the consumer genuinely no longer needs it, remove the edge from the consumer's `uses:` block.
 
