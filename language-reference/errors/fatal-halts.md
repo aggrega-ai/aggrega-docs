@@ -2266,14 +2266,16 @@ Emitted message:
 
 <!-- covers: internal/compiler/topology.ErrReexportCycle -->
 
-A module publishes part of itself by exporting components under aliases, and an application that imports it may re-publish one of those aliases under a name of its own. Resolving such an alias follows the chain of re-publications to the component it ultimately names, so that an edge pointing at the public name reaches a real component.
+A module publishes part of itself by exporting components under aliases, and an Aggregate that imports it may re-publish one of those aliases under a name of its own. Resolving such an alias follows the chain of re-publications to the component it ultimately names, so that an edge pointing at the public name reaches a real component.
 
-A chain that revisits an alias before reaching a component never lands. The walk stops rather than following it forever, and names the chain it walked so the link that closes the loop is visible. The import tree is acyclic, so this backstops an alias table assembled by something other than the ordinary authoring path rather than something an application can write.
+A chain that revisits an alias before reaching a component never lands. The walk stops rather than following it forever, and names the chain it walked so the link that closes the loop is visible.
+
+Nothing you can write produces such a chain. The import tree is acyclic, and each link names something nested more deeply than the link before it, so a chain assembled from imports descends and ends. This therefore backstops an alias table assembled by something other than the ordinary authoring path rather than a shape an Aggregate can declare.
 
 Emitted message:
 > re-exported component alias forms a cycle (alias chain `<first> -> <second> -> <first>`)
 
-**How to fix:** read the chain and point one of its links at a component rather than at another alias.
+**How to fix:** nothing in your files produces it, and there is no authoring change that clears it. Report it with the command you ran and the alias chain the message names, which is the detail that says where the loop closed.
 
 ### An application reached graph building without being normalised
 
