@@ -1366,7 +1366,7 @@ Declaring the same name with the *identical* rule is not a collision and builds.
 Order is part of the contract rather than incidental. Assertions evaluate in the merged order and the first failing one halts, so a base's invariant is checked before a descendant's, and along a chain the set accumulates from the root down.
 
 Emitted message:
-> assertion name declared twice across the extends chain (Component `<name>`, at `.spec.assertions.<key>`, assertion `"<key>"` is already present on the base Component `"<base>"`, declaring a different rule). Rename the extending entity's assertion; an extending entity's assertions add to the base's and never replace one
+> assertion name declared twice across the extends chain (Component `<name>`:`<version>`, rule assertions, at `.spec.assertions.<key>`). assertion `"<key>"` is already declared by the base Component `"<base>"`, carrying a different rule; rename the extending entity's assertion; an extending entity's assertions add to the base's and never replace one
 
 **How to fix:** rename the extending entity's assertion, which the message names along with the base that already declares it. Where you meant to *replace* the base's rule, that is not something extending supports — narrow the base's assertion so it holds for every entity extending it, or move the rule down onto the entities that actually need it. Where the two rules are meant to be the same, make them textually identical and the collision goes away.
 
