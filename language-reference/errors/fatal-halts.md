@@ -81,11 +81,11 @@ Each rule is named by what it constrains. There is no numbering, and none is res
 
 A Recipe-shape halt is composed the same way. It opens with the sentence that states the rule, then names what this particular Recipe supplied, then the detail specific to it:
 
-> `<the rule's sentence>` (Recipe `<name>:<version>`, rule `<rule-name>`, at `<file-path>`). `<rule-specific detail>`
+> `<the rule's sentence>` (Recipe `<name>:<version>`, rule `<rule-name>`, at `<position>`). `<rule-specific detail>`
 
-The leading sentence is fixed per rule — the same text every time that rule halts, whichever stage detected it — so it is the part of the output to match against, and it is the text [sentinels.md](./sentinels.md) lists for the rule's condition. Everything after it varies with the Recipe at fault: the parenthesised values say which document, which rule by name, and where, and the closing sentence is the advice for that occurrence.
+The leading sentence is fixed per rule — the same text every time that rule halts, whichever stage detected it — so it is the part of the output to match against, and it is the text [sentinels.md](./sentinels.md) lists for the rule's condition. Everything after it varies with the Recipe at fault: the parenthesised values say which document, which rule by name, and where, and the closing sentence is the advice for that occurrence. The position is the file the Recipe was loaded from where the rule is about the document as a whole, and a dotted path to the key you wrote — `.spec.outputComponentLabels.hosting` — where the rule is about one thing inside it; a key carrying dots of its own cannot be spelled as one more segment without reading equally as two, so the path stops at the block that holds it and the advice quotes the key instead.
 
-The build prints the whole line under a `CATALOG_ERROR` tag, which signals that the failure is attributable to the catalog entity (the Recipe, or the provider it binds to), not to the Aggregate or the Release.
+The build prints the whole line under a `CATALOG_ERROR` tag, which signals that the failure is attributable to the catalog entity (the Recipe, or the provider it binds to), not to the Aggregate or the Release. The file the Recipe was loaded from is printed beside the tag, so a rule positioned at a key still tells you which file to open.
 
 #### `valuesMapping` requires `source`
 
@@ -181,10 +181,10 @@ A Recipe names a label key under `aggrega.ai/` or `app.kubernetes.io/` — in `o
 The reservation is on the bare root only. A key that merely carries a reserved root deeper inside a namespace of its own — `component.aggrega.ai/hosting`, say — is a different keyspace the platform does not own, and stays authorable.
 
 Emitted message. One condition covers both blocks, so its sentence cannot say which of the two was authored; the advice after it names the block by quoting the key you typed and the block you typed it in:
-> recipe output-labels constraint: key uses a reserved namespace (Recipe `<name>:<version>`, rule output-labels, at `<path>`). key `"<key>"` in outputLabels uses a reserved namespace (`"aggrega.ai/"` and `"app.kubernetes.io/"` are reserved for platform provenance)
+> recipe output-labels constraint: key uses a reserved namespace (Recipe `<name>:<version>`, rule output-labels, at `.spec.outputLabels`). key `"<key>"` in outputLabels uses a reserved namespace (`"aggrega.ai/"` and `"app.kubernetes.io/"` are reserved for platform provenance)
 
 A key written in the promoted block reports under that block's rule name and names it in the advice:
-> recipe output-labels constraint: key uses a reserved namespace (Recipe `<name>:<version>`, rule output-component-labels, at `<path>`). key `"<key>"` in outputComponentLabels uses a reserved namespace (`"aggrega.ai/"` and `"app.kubernetes.io/"` are reserved for platform provenance)
+> recipe output-labels constraint: key uses a reserved namespace (Recipe `<name>:<version>`, rule output-component-labels, at `.spec.outputComponentLabels`). key `"<key>"` in outputComponentLabels uses a reserved namespace (`"aggrega.ai/"` and `"app.kubernetes.io/"` are reserved for platform provenance)
 
 The literal block's keys are checked in sorted order and the promoted block's in the order you wrote them, so a Recipe breaking the rule in several places always reports the same one first.
 
@@ -197,7 +197,7 @@ The literal block's keys are checked in sorted order and the promoted block's in
 A Recipe names one key in both `outputComponentLabels:` and `outputLabels:`. The two blocks stamp onto the same label surface from different sources — the first promotes the value the component carries, the second writes the value the Recipe author typed — so a key named in both would arrive with two candidate values and nothing to say which wins. This rule is checked when the Recipe is loaded, after the reserved-namespace rule above, so a Recipe breaking both reports the reserved namespace first: that fault's fix does not depend on what the other block contains.
 
 Emitted message:
-> recipe output-component-labels constraint: key is also declared in outputLabels (Recipe `<name>:<version>`, rule output-component-labels, at `<path>`). key `"<key>"` is promoted through outputComponentLabels and also declared literally in outputLabels; keep whichever source the label should come from and drop the other
+> recipe output-component-labels constraint: key is also declared in outputLabels (Recipe `<name>:<version>`, rule output-component-labels, at `.spec.outputComponentLabels.<key>`). key `"<key>"` is promoted through outputComponentLabels and also declared literally in outputLabels; keep whichever source the label should come from and drop the other
 
 **How to fix:** decide where the label's value comes from and delete the other declaration. Keep the `outputComponentLabels:` entry when the value should track whatever the component carries, so two components bound to one Recipe stamp their own values; keep the `outputLabels:` entry when the value is the Recipe's own and is the same wherever the Recipe is bound.
 
