@@ -1989,8 +1989,14 @@ The attachment arm names the feature type in place of the component type; an att
 
 A Release per-edge `uses:` entry names a target that differs from the target the developer already wired for the same socket and alias. A Release may *configure* an edge the developer declared (set per-edge `infra`, naming the same target or omitting it) and may *wire* an edge into a declared-but-unbound socket, but it may not *retarget* an edge the developer declared — the developer owns the architecture they authored.
 
-Emitted message:
-> release edge retargets a developer-declared edge: release edge `<consumer>`/`<socket>`/`<alias>` retargets developer-declared target `"<declared-target>"` to `"<release-target>"`
+Both targets are compared **as they were written**, not as they resolve. A `target:` may name a sub-aggregate's published alias rather than a component id, and that alias resolves to the component the module publishes it for — so a Release entry repeating the very alias the developer wrote is a configuration and is accepted, exactly as repeating a plain component id is.
+
+The edge keeps the target the developer gave it whether or not this halt fires, and the Release entry's `infra:` is not applied to it. A refused retarget is never half-applied.
+
+Emitted message. The refusal comes first, then the target the developer declared, the target the Release named, and the socket — then what to do about it:
+> release edge retargets a developer-declared edge (declared target `"<declared-target>"`, target the deployment names `"<release-target>"`, wired into socket `"<socket>"`). Drop the target from the deployment entry to configure the connection as it was declared, or change the target where the connection is declared.
+
+The finding is positioned at the authored entry the connection was declared in, in the document that declared it. Each offending entry is reported as its own finding, so one build names them all rather than one per run.
 
 **How to fix:** drop the differing `target` from the Release `uses:` entry to configure the existing edge (per-edge `infra` only), or, if the connection genuinely belongs to a different socket, wire it through a socket the developer left unbound. To change the target itself, change it in the Aggregate, where the topology is authored.
 
