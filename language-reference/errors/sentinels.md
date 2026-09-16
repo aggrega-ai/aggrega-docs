@@ -91,7 +91,6 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrAmbiguousProviderPlugin()` | `ambiguous-provider-plugin` | `capability is served by more than one provider plugin; add a plugins.providers entry to select one` |
 | `ErrAmbiguousTypeMapping()` | `ambiguous-type-mapping` | `manifest maps multiple version-distinct keys to the same base type; the type-to-recipe lookup is ambiguous` |
 | `ErrDuplicateEntityIdentity()` | `duplicate-entity-identity` | `duplicate entity identity within a single catalog directory` |
-| `ErrMalformedRecipeReference()` | `malformed-recipe-reference` | `malformed recipe reference in a Manifest mapping value` |
 | `ErrManifestImplementsMismatch()` | `manifest-implements-mismatch` | `manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key` |
 | `ErrNoImporterForFormat()` | `no-importer-for-format` | `no importer plugin advertises the requested format` |
 | `ErrNoParserForFormat()` | `no-parser-for-format` | `no parser plugin advertises the requested format` |
@@ -241,6 +240,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrInjectKeyCollision()` | `inject-key-collision` | `duplicate delivery key across inject sources` |
 | `ErrInvalidInjectKey()` | `invalid-inject-key` | `invalid inject key: the from-key must name a declared provides key of the target component type` |
 | `ErrInvalidParameterRef()` | `invalid-parameter-ref` | `invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template` |
+| `ErrMalformedRecipeReference()` | `malformed-recipe-reference` | `malformed recipe reference in a Manifest mapping value` |
 | `ErrManifestCrossBindingPillarCollision()` | `manifest-cross-binding-pillar-collision` | `manifest annotation bindings collide on same Feature path+pillar` |
 | `ErrManifestReservedPrefix()` | `manifest-reserved-prefix` | `manifest annotation binding uses reserved prefix` |
 | `ErrMissingRequiredFeature()` | `missing-required-feature` | `missing required feature: attach a Feature of the required type to the component` |

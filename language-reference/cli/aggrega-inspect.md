@@ -60,13 +60,15 @@ Most kinds have no pipeline — `inspect` reads the file and renders it. Three i
 
 - **Manifest** applies its `extends:` chain — file-import following — and renders the merged component and feature mappings. `--raw` shows the file as authored.
 - **Aggregate** builds its topology: the uses-graph is constructed and the dependency ordering is computed. The default view shows components with their values and edges, followed by the dependency graph. `--raw` shows the authored subsystem tree.
-- **Release** runs the entire compilation pipeline up to the IR — resolve, expand annotations, run guards, build topology, build IR — and renders the per-boundary node tree with each node's Feature attachments and their provenance. `--raw` emits the Release file verbatim with no pipeline. `--closure` asks a different question about the same Release and runs no pipeline at all; see [The dependency closure: `--closure`](#the-dependency-closure---closure).
+- **Release** runs the entire compilation pipeline up to the IR — resolve, expand annotations, run guards, build topology, build IR — and renders the per-boundary node tree with each node's Feature attachments and their provenance. The governance attachments that shape the graph run in that pipeline rather than being skipped for a view, so what you read reflects what they decided: a `label-transform` attachment's labels are in place before anything is matched against them, and an `annotation-transform` attachment's injected annotations expand into Feature attachments exactly as an annotation you authored does. An attachment whose plugin this command cannot resolve stops it, rather than leaving you a graph drawn without that plugin's decisions. `--raw` emits the Release file verbatim with no pipeline. `--closure` asks a different question about the same Release and runs no pipeline at all; see [The dependency closure: `--closure`](#the-dependency-closure---closure).
 
 There is no separate depth flag; the `--raw` / `--resolved` toggle is the only resolution control, layered on each kind's natural default.
 
 ## Error behavior
 
-`inspect` aborts on the first error. When a referenced sibling file fails to load — a Release pointing at a missing Aggregate, a broken catalog entity in the search stack — the command stops with a clear message rather than rendering partial output. There is no continue-on-error mode.
+A referenced sibling file that fails to load stops the command at once — a Release pointing at a missing Aggregate, a broken catalog entity in the search stack. It stops with a clear message rather than rendering partial output, and there is no continue-on-error mode for a load failure: once a document the resolution needs is unreadable, there is nothing further to resolve.
+
+**A Release whose composition the compiler's checks reject is refused rather than rendered.** Resolving a Release builds the graph, and the checks a build makes over the finished graph — a `uses:` edge whose target does not satisfy its socket's `selector:`, a Feature attached to a component its `appliesTo:` does not admit, and the rest — are made here too, with the diagnostic a build of the same documents prints. The refusal names every finding in one run rather than stopping at the first, so one pass shows you the whole list to correct rather than the first entry of it. That is what keeps this command honest about a deployment: a view that rendered a composition the build refuses would report a workspace as fine while it is not. The selections that resolve nothing are unaffected — `--raw`, `--output yaml` and `--closure` reproduce or resolve what you authored without building a graph.
 
 A file whose `kind:` is unrecognized reports the unknown kind and the file it came from. A `Workload` file reports that the kind is embedded-only and names the entity it embeds under. An `oci://` identifier reports that OCI inspection is not yet implemented and suggests resolving to a local path or a catalog name.
 
@@ -286,6 +288,8 @@ Two flags produce machine-readable output, and they answer different questions. 
 `aggrega inspect <release> --ir-graph` writes the graph the run resolved to standard output as JSON, ahead of the view the command renders anyway. One JSON document, one trailing newline, so a consumer that decodes the stream reads the graph and stops.
 
 It applies to a Release, which is the only kind that resolves to a graph. Asked of any other kind, or of a catalog entity by name, the command refuses and says so rather than rendering that entity's own view and quietly dropping the request.
+
+**A composition the compiler's checks reject produces no graph.** The refusal described under [Error behavior](#error-behavior) happens before anything is written to this stream, so a pipeline reading it never receives a graph a build of the same documents would refuse — it receives the same findings a build would report, and a non-zero exit.
 
 The same flag, with the same meaning, is on [`aggrega build`](aggrega-build.md) and [`aggrega validate`](aggrega-validate.md): each hands back the graph that run computed, in addition to whatever else that command produces. An editor integration reads the same graph over the daemon's protocol.
 

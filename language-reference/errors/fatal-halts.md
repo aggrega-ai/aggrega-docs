@@ -927,7 +927,7 @@ FeatureRecipe entries follow the same shape; the `features.type` mapping check e
 
 ### Manifest mapping value carries more segments than a recipe reference accepts
 
-<!-- covers: pkg/catalog.ErrMalformedRecipeReference -->
+<!-- covers: pkg/resolver.ErrMalformedRecipeReference -->
 
 A Manifest mapping value names a Recipe or FeatureRecipe in a shape the reference grammar cannot express. A recipe reference accepts a bare name, a name with a version, a capability-qualified name, or a capability-qualified name with a version — at most one `/`. A value carrying more than that (a component-type-style path such as `core/helm/eso-aws-fetcher:1.0.0`) can never name a catalog entity, whatever the catalog holds.
 
@@ -1319,7 +1319,7 @@ The comparison is what makes the recorded digest an authority rather than a rest
 This is distinct from a content-digest mismatch, which reports resolved *bytes* disagreeing with the digest claimed for them. Here nothing has been read, and the bytes may well agree with the manifest; what disagrees is which artifact is being resolved at all. Keeping the two apart matters because the remedies are opposites — one is a corrupted or tampered artifact, the other a legitimately changed plugin whose new identity has not been reviewed yet.
 
 Emitted message:
-> resolve verdict-socket plugin `"<plugin-identity>"`: the digest recorded as trusted for it is `<recorded-digest>`, but the plugin manifest in the content cache reports `<cached-digest>`; review what changed and re-record the trusted digest, or restore the recorded artifact: the digest recorded as trusted for this plugin does not match the digest its cached manifest reports
+> resolve cached plugin `"<plugin-identity>"`: the digest recorded as trusted for it is `<recorded-digest>`, but the plugin manifest in the content cache reports `<cached-digest>`; review what changed and re-record the trusted digest, or restore the recorded artifact: the digest recorded as trusted for this plugin does not match the digest its cached manifest reports
 
 **How to fix:** find out what changed before you re-record anything — this is a plugin that can reject your builds, and the recorded digest is the statement that someone looked at it. Where the change is expected, because you upgraded the plugin deliberately, review the new artifact and re-record the trusted digest for it. Where it is not expected, restore the artifact the record names; the disagreement is telling you the identity moved without anyone deciding it should.
 
