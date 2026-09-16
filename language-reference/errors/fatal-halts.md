@@ -748,9 +748,9 @@ A Component's or Feature's `spec.schema` block carries the entity's data pillars
 
 The set is closed rather than open, for the same reason each pillar's own content is validated closed: a block that enumerates a legal surface makes anything outside that surface an error. A key nothing recognises would carry a contract nothing ever compiles, validates against, or hands to a consumer — so what you wrote beneath it would look declared and be inert. That is harder to notice than a contract you never wrote at all, which is why the block is refused rather than the stray key ignored.
 
-The diagnostic opens with the fixed sentence, then names the entity and the key it did not recognise:
+The diagnostic opens with the fixed sentence, then names the entity, the rule, the site the key was written at, and what to write instead:
 
-> a schema block declares a key that names no data pillar. `<Kind>` `"<name>"`: spec.schema unknown pillar key `"<key>"`; allowed: values, infra, provides. See vocabulary/data-pillars.md for the canonical pillar set.
+> a schema block declares a key that names no data pillar (`<Kind>` `<name>`, rule schema-pillars, at `.spec.schema.<key>`). rename `"<key>"` to one of the pillar keys, or remove it and the contract beneath it; allowed: values, infra, provides. See vocabulary/data-pillars.md for the canonical pillar set.
 
 The head carries the category and this condition's short code, `E0267`, which is the identifier to record when you need this halt named durably — in a continuous-integration gate, an issue, or a runbook. A number is handed out once and then fixed, so it stays the same however the wording around it improves; [the table of every condition](./sentinels.md#every-condition-by-short-code) resolves it.
 
