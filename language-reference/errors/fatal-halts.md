@@ -3266,11 +3266,10 @@ A library `$import:` names its library by identity, never by the registry it hap
 
 **Where such a reference can still reach this halt is narrower than it looks.** A Recipe's and a FeatureRecipe's own `$import:` fields are refused earlier, by their schema, which admits no registry prefix at any of the three positions. What remains is the reference no schema describes: one read out of a library entry's own body, which the entity consuming it did not write and cannot see until the body is resolved.
 
-Emitted messages. From an artifacts entry, naming the Recipe, the key and the value:
-> library $import: carries a registry host; reference the library by bare-name identity (Recipe `"<recipe>"`, artifact `"<key>"`, $import `"<the value as written>"`)
-
-and from the `valuesMapping:` and `workload:` surfaces, where the resolver reports the value alone:
+Emitted message, from the `valuesMapping:` and `workload:` surfaces, where the resolver reports the value alone:
 > library $import: carries a registry host; reference the library by bare-name identity: `"<the value as written>"`
+
+An `artifacts:` entry does not reach this halt, and the reason is worth knowing if you are looking for it there. Its own reference is refused with the rest of the document, like every other position; and unlike the other two surfaces, a bundle file whose body is itself an import is rejected rather than followed — so there is no body a host-bearing reference could arrive from.
 
 **How to fix:** drop the host and everything before the library name, leaving `<Library>#<entry-path>`. Where the offending value is inside a library you consume rather than one you publish, the correction belongs to that library's author; until it lands, importing a different entry or writing the body in place clears the build.
 
