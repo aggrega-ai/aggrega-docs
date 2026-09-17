@@ -1982,7 +1982,7 @@ Once every Component has a resolved Recipe, the compiler stitches Components tog
 A `uses:` edge names a target component that does not exist in the resolved topology. The halt is origin-agnostic — a developer-authored Aggregate edge and a Release-wired edge are caught alike. A dangling target is a fatal halt, not a silent drop: an edge to a non-existent target would otherwise vanish and leave the consumer's injected values silently empty at deploy time. It is the structural sibling of the uses-socket allowlist — the socket must be declared *and* the target must resolve to an existing component before an edge is type-checked.
 
 Emitted message. The refusal comes first, then the target that answers to nothing and the socket the connection was wired into — then what to do about it:
-> uses edge target does not exist (`"<target>"`, wired into socket `"<socket>"`). Point the target at a component the application declares, or declare a component under that name.
+> uses edge target does not exist (`"<target>"`, wired into socket `"<socket>"`). Point the target at a component the Aggregate declares, or declare a component under that name.
 
 The finding is positioned at the authored entry it is about, in the document that entry was written in, so a connection a component's own `uses:` block drew, one an attachment projected, and one a Release wired each report at their own block. Every offending connection is reported as its own finding, so one build names them all rather than stopping at the first.
 
@@ -2014,7 +2014,7 @@ Both targets are compared **as they were written**, not as they resolve. A `targ
 The edge keeps the target the developer gave it whether or not this halt fires, and the Release entry's `infra:` is not applied to it. A refused retarget is never half-applied.
 
 Emitted message. The refusal comes first, then the target the developer declared, the target the Release named, and the socket — then what to do about it:
-> release edge retargets a developer-declared edge (declared target `"<declared-target>"`, target the deployment names `"<release-target>"`, wired into socket `"<socket>"`). Drop the target from the deployment entry to configure the connection as it was declared, or change the target where the connection is declared.
+> release edge retargets a developer-declared edge (declared target `"<declared-target>"`, target the Release names `"<release-target>"`, wired into socket `"<socket>"`). Drop the target from the Release entry to configure the connection as it was declared, or change the target where the connection is declared.
 
 The finding is positioned at the authored entry the connection was declared in, in the document that declared it. Each offending entry is reported as its own finding, so one build names them all rather than one per run.
 
