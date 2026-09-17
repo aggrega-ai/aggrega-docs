@@ -2030,10 +2030,14 @@ The alias is part of what an entry names, so an entry configuring an alias the d
 
 Two neighbouring conditions are reported by their own halts rather than this one, because each has more to tell you. A socket the consuming Component's `usesSchema` does not declare is reported as an undeclared socket, which can list the sockets that do exist. A `target:` naming no component is reported as a dangling target. A component switched off by an `active:` toggle takes its edges with it by design, so an entry left behind on one is accepted rather than halted.
 
-Emitted message, where the entry names a component that exists:
-> release per-edge configuration has no edge to apply to: release edge `<consumer>`/`<socket>`/`<alias>` sets infra but no edge is bound there: an entry without a target configures an edge that must already exist, so give the entry a target to wire the edge or remove the entry
+**Every offending entry is reported.** A Release with several entries that reach no edge halts with one of these per entry in a single build, in the order the document declares them, rather than reporting the first and leaving the rest to the next build.
 
-Where it names one that does not:
+Emitted message, where the entry names a component that exists. It carries the path to the entry itself, so the line to edit is named rather than the component holding it:
+> release per-edge configuration has no edge to apply to (Release `<release-name>`, at `.spec.boundaries.<boundary>.components.<consumer>.uses.<socket>.<alias>`, `"<consumer>"`, on socket `"<socket>"`, under alias `"<alias>"`). Give the entry a target to wire the edge, or remove it: an entry with no target configures an edge that must already exist.
+
+A Release that names its components at the top level rather than under boundaries carries the shape its author wrote — `.spec.components.<consumer>.uses.<socket>.<alias>` — and a component named inside an `aggregates:` routing entry is named through that entry, under the local name it carries there.
+
+Where the entry names a component the Aggregate does not declare, the halt comes from earlier in the build and reads:
 > release per-edge configuration has no edge to apply to: release edge `<consumer>`/`<socket>`/`<alias>` sets infra on `<consumer>`, which is not a component in the topology
 
 **How to fix:** add a `target:` to the entry, which wires the edge and applies the configuration to it; correct the alias to the one the Aggregate declared for that connection, so the entry configures the existing edge; correct the component name to one the Aggregate declares; or remove the entry if the configuration is no longer wanted.
