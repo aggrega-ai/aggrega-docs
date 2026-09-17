@@ -282,7 +282,10 @@ Interpolation happens **before** the Aggregate is parsed as YAML, which is why a
 
 A reference naming a key the Release did not supply is **not** this halt. An absent key resolves to an empty value here and is caught, with its type and its contract, by the parameter checks described under "Parameter type mismatch / contract violation" above. What this halt reports is text the template engine could not process at all — an unclosed `{{`, a mis-spelled function name, a pipeline whose stages do not fit together.
 
-Emitted messages, for a template that does not parse and for one that fails while running:
+Text that does not parse at all is refused with the Aggregate's own path named, because that file is in hand before anything reads it. A module the composition imports is evaluated the same way one level in, where its text is read from the catalog rather than handed to the build. The halt is this same condition and carries this code either way; for a module it also names the import it was following and the file the module's text was read from, and the message it carries names the kind alone — so the position that message gives is a position in the module's own text, not in the Aggregate you started from.
+
+Emitted messages, for a template that does not parse, for the same fault in a module the composition imports, and for a template that fails while running:
+> invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template (Aggregate `<path>`, "template parse error: `<underlying reason>`")
 > invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template (Aggregate, template parse error: `<underlying reason>`)
 > invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template (Aggregate, template execution error: `<underlying reason>`)
 
