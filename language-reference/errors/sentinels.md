@@ -103,6 +103,8 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrUnscopedRecipeReference()` | `recipe-reference-must-be-scoped` | `recipe reference must be provider-scoped (<provider>/<name>); an empty provider cannot bind to an OCI location` |
 | `ErrUnusableSchemaImport()` | `unusable-schema-import` | ``a schema `$import:` could not be applied`` |
 
+- `ErrManifestImplementsMismatch()` is the same value as `pkg/resolver.ErrManifestImplementsMismatch()`, so a match against either name succeeds.
+
 ### pkg/closure
 
 | Sentinel | Code | Message |
@@ -242,6 +244,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrInvalidParameterRef()` | `invalid-parameter-ref` | `invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template` |
 | `ErrMalformedRecipeReference()` | `malformed-recipe-reference` | `malformed recipe reference in a Manifest mapping value` |
 | `ErrManifestCrossBindingPillarCollision()` | `manifest-cross-binding-pillar-collision` | `manifest annotation bindings collide on same Feature path+pillar` |
+| `ErrManifestImplementsMismatch()` | `manifest-implements-mismatch` | `manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key` |
 | `ErrManifestReservedPrefix()` | `manifest-reserved-prefix` | `manifest annotation binding uses reserved prefix` |
 | `ErrMissingRequiredFeature()` | `missing-required-feature` | `missing required feature: attach a Feature of the required type to the component` |
 | `ErrMissingRequiredSocket()` | `missing-required-socket` | `required uses socket not populated` |
