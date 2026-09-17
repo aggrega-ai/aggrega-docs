@@ -543,6 +543,24 @@ Any of the three fields can report any of those endings; a value that is neither
 
 **How to fix:** open the entity at the line the message names. Write the body in place as a block scalar, or replace the whole value with a single `$import:` entry. A mapping carrying `$import:` and anything else is not one of the two shapes — move the extra keys inside the imported file, or write the body in place. A misspelled `$import` — a missing `$`, most often — reads as an ordinary key and is reported as the single key that is not `$import`.
 
+### A reference to a library entry carries whitespace
+
+<!-- covers: pkg/types.ErrLibraryReferenceWhitespace -->
+
+A reference that names an entry inside a library is written as one unbroken token: the library, an optional `:<version>` floor, then `#` and the entry's path — `BaseWorkloads:1.0.0#/workloads/StatelessService`. No part of it admits whitespace. Library names and entry names are both constrained to identifier spellings by the library schemas, and a version is a version, so a space, a tab or a line break anywhere in a reference belongs to none of the three.
+
+The refusal covers every surface that addresses a library entry by identity: a `valuesMapping:`, a `workload:` and an `artifacts.<name>:` entry written as `$import:`, and a schema `$ref:`. A local path written as `$import:` carries no `#` and is not a reference to a library entry, so a path with a space in it is untouched.
+
+What makes this worth refusing rather than tidying up is that the leading part of such a value is usually a reference in its own right. Trimming at the whitespace would resolve *that* reference and quietly discard the rest of what the author wrote — and the two halves of a build do not have to discard the same amount, so one could record a dependency the other never saw. Refusing keeps the value meaning one thing.
+
+The refusal is reported at the line of the document the reference was read from:
+> library reference: a reference to a library entry carries no whitespace or line break: $import target `"<reference>"` at line `<line>`
+
+A reference reaches a build from one further place: the body of a library entry a build has already resolved, where a field-root `$import:` on the first line points at another library's entry. That reference was never read from a document the build opened, so it is reported without a line:
+> library reference: a reference to a library entry carries no whitespace or line break: `"<reference>"`
+
+**How to fix:** open the entity at the line the message names and close up the reference so it is one token. A line break before the `#` is the usual cause — a reference wrapped across two lines to fit a column reads as one value to YAML and as a broken reference here, so write it on one line however long it runs. A trailing space before the closing quote is the other: it lands inside the version floor, where it names a version no published artifact carries. For the second form, the reference is inside the library named just before it in the message; correct it where that library declares the entry.
+
 ### A library entry's body is not the shape that library holds
 
 <!-- covers: pkg/types.ErrMappingEntryNotScalar, pkg/types.ErrWorkloadEntryNotScalar, pkg/types.ErrArtifactsLibraryEntryShape -->
@@ -4564,6 +4582,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0292` | `a plugin reported a failure that none of the declared kinds names` | A plugin reported a failure it did not classify |
 | `E0293` | `wasm: guest plugin named a condition the socket does not declare` | A plugin named a condition the socket does not declare |
 | `E0294` | `components in different subsystems take the same identity: rename one of them, since a subsystem contributes nothing to a component's identity` | Two subsystems declare a component under one name |
+| `E0295` | `library reference: a reference to a library entry carries no whitespace or line break` | A reference to a library entry carries whitespace |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
