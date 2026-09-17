@@ -3069,8 +3069,12 @@ A governance plugin may declare a schema for the settings its attachment passes 
 
 That ordering is the point of the check. It also makes this cleanly distinct from a rejection: the plugin has not run, no verdict was reached, and nothing about the build was judged. A plugin declaring no settings schema accepts any settings, so an attachment against one of those never meets this.
 
-Emitted message:
-> with.settings does not satisfy the plugin's declared settings schema: `<what the schema check found>`: policy attachment settings do not satisfy the plugin's declared settings schema
+**The check covers the two verdict roles, and stating that bound matters because the surface does not.** An attachment authored at `ir-verdict` or `render-verdict` has its settings checked against the schema before it is dispatched. An attachment at `label-transform` or `annotation-transform` is handed its settings unchecked, so a plugin serving one of those roles receives whatever was written and answers for it itself — `with.settings` is the same authored key on every role, and only these two read it against a schema first.
+
+Emitted message — the role the attachment was authored at and the plugin it names, then the fixed sentence, then what the schema check found:
+> ir-verdict: plugin `"<the attachment's uri>"`: with.settings does not satisfy the plugin's declared settings schema: `<what the schema check found>`: policy attachment settings do not satisfy the plugin's declared settings schema
+
+The leading clause reads `render-verdict` for an attachment authored at that role. What the schema check found is the schema validator's own report and runs to more than one line.
 
 **How to fix:** correct the settings under that attachment's `with.settings` in `plugins.governance`. The detail in the middle of the message names the key at fault and what the schema expected there; the plugin's own reference documents the settings it declares.
 
