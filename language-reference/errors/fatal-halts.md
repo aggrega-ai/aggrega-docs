@@ -295,7 +295,9 @@ Emitted messages, for a template that does not parse, for the same fault in a mo
 
 <!-- covers: pkg/resolver.ErrDuplicateTriadIdentity -->
 
-A Release resolves its `aggregate:` and `manifest:` references by scanning its own directory first, and that scan found two Aggregates — or two Manifests — carrying the same `metadata.name`. A bare-identity reference names an entity by that name, so two files claiming one name leave the reference with two answers and no rule for choosing between them.
+A Release whose `aggregate:` or `manifest:` reference is a bare identity is resolved by scanning the Release's own directory first, and that scan found two Aggregates — or two Manifests — carrying the same `metadata.name`. A bare-identity reference names an entity by that name, so a name claimed twice is one the directory cannot answer for.
+
+**The scan refuses the directory as a whole, not only the name a reference asked for.** It reads every Aggregate and every Manifest sitting beside the Release, so a colliding pair that neither reference names stops the build as well: the directory is ambiguous whether or not this Release was the one about to read that entity. A reference written as a path (`./aggregate.yaml`, `../shared/manifest.yaml`) addresses a file rather than an entity and is resolved without the scan, so a Release whose `aggregate:` and `manifest:` are both paths never runs it.
 
 This is the same-directory counterpart of the catalog's duplicate-identity refusal, and the two are reported separately so the message names the directory you are standing in rather than a catalog tier you may not have been thinking about.
 
