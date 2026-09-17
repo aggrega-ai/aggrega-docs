@@ -40,7 +40,7 @@ dotenv-walkthrough/
   guest/                  the Go module that compiles to the .wasm
     go.mod
     main.go
-  catalog/                the Component and Recipe this deployment authors
+  catalog/                the Component and Recipe you author
     component/example/compute/checkout/1.0.0/component.yaml
     recipe/dotenv/checkout/1.0.0/recipe.yaml
   dev-catalog/            the generated Plugin entity, with the .wasm beside it

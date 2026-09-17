@@ -223,7 +223,7 @@ Write a boolean directly, or a template over `.parameters` that resolves to one.
 
 **A toggle that is written must resolve to a boolean, and an empty value is not one.** The toggle is read strictly after its template is resolved, and a literal that does not parse as a boolean stops the build instead of defaulting to anything. The case worth watching for is a toggle reading a parameter that has no value: it resolves to nothing, and reading nothing as "present" would deploy the very entity you gated behind that parameter. So writing `active:` with nothing after it is **not** the same as leaving the key out — only a toggle nobody wrote defaults to present. Give the parameter a `default:` in `spec.parameters` so every environment has an answer, or fulfil it in the Release. To make an entity unconditionally present, remove the `active:` key rather than emptying it. The halt is described under "An `active:` toggle does not resolve to true or false" in [the halting-conditions reference](../errors/fatal-halts.md).
 
-**A component switched off stays nameable from a Release.** A Release may still name it in a boundary, and that is deliberate: switching a component off is an authoring act, and the deployment that configures it is not expected to be rewritten in the same edit.
+**A component switched off stays nameable from a Release.** A Release may still name it in a boundary, and that is deliberate: switching a component off is an authoring act, and the Release that configures it is not expected to be rewritten in the same edit.
 
 ## Annotations on subsystems and components
 

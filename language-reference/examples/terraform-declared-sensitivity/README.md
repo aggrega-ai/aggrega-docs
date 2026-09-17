@@ -124,7 +124,7 @@ answers is loud:
   `modules/store/` **fails** — `No value for required variable`, once per input,
   each naming its line and offering the `-var` / `-var-file` remedy.
 - A module whose inputs **all** carry defaults would instead plan **successfully**
-  there, from those defaults rather than from the values the deployment declared.
+  there, from those defaults rather than from the values the root configuration supplies.
   Nothing warns. That is the case to know about, because a plan that looks right
   is describing a configuration nobody asked for.
 
@@ -175,7 +175,7 @@ render time came from the Component's declaration, not from the module.
 Both credential halves are `parameters` rather than authored values because they
 are values an operator supplies and differ per environment. A Release cannot
 declare `values:`, so a typed parameter is the surface for exactly this: the
-developer declares the variation point, the deployment fulfils it.
+developer declares the variation point, the Release fulfils it.
 
 ## Build
 

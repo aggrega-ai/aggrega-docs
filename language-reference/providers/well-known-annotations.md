@@ -194,7 +194,7 @@ cross-stack placement context, author the `aws-` form — the unprefixed pair is
 held against collision, not wired to anything. Two further reserved names are
 covered today by other surfaces rather than by an annotation:
 `aggrega.ai/stack-name` is reserved, while the stack name a `cloudformation`
-boundary renders into is derived deterministically from the deployment and
+boundary renders into is derived deterministically from the release and
 boundary identity; and a workload's cloud identity role is supplied as an
 ordinary operator-set field on the Feature that emits the binding, not through
 `aggrega.ai/iam-role`.

@@ -1067,7 +1067,7 @@ The **values** pillar is the developer's authoring surface. It is validated **cl
 
 The **infra** pillar is the operator's sizing surface, and it is checked only when the Component declares a `schema.infra` pillar — that declaration is the contract the component opts into. It is validated **closed** against that declaration and against nothing else, exactly as the values pillar is validated against `schema.values`: a key the Component does not declare is rejected as a typo, and a key it does declare has its type and range enforced. A component that wants a provider-layered key such as `replicas` validated declares that key in its own `schema.infra`; a provider's accepted vocabulary is reached through its Recipe's `valuesMapping` rather than layered onto the authored infra surface.
 
-The check measures the sizing of every component the deployment **placed**, and an entry that writes no `infra:` block at all is measured too: an absent block is an empty one, so a `required:` key carrying no `default:` is reported as missing — which is the case such a key exists to catch. Both ways of placing a component count. Naming it under a boundary's `components` places it, and so does routing the sub-module that contributes it under `aggregates`; a routing entry places components without saying anything about any one of them, so a component placed that way starts from an empty sizing block and a defaultless `required:` key on its type is reported as missing. A component the deployment places by neither route is not measured against this contract at all. It has a different fault, and the build reports that one instead: a component placed in no boundary, with the two ways to place it named.
+The check measures the sizing of every component the Release **placed**, and an entry that writes no `infra:` block at all is measured too: an absent block is an empty one, so a `required:` key carrying no `default:` is reported as missing — which is the case such a key exists to catch. Both ways of placing a component count. Naming it under a boundary's `components` places it, and so does routing the sub-module that contributes it under `aggregates`; a routing entry places components without saying anything about any one of them, so a component placed that way starts from an empty sizing block and a defaultless `required:` key on its type is reported as missing. A component the Release places by neither route is not measured against this contract at all. It has a different fault, and the build reports that one instead: a component placed in no boundary, with the two ways to place it named.
 
 The contract binds a component wherever it was authored: a component a sub-module contributes is measured exactly as one the deployment's own Aggregate declares. How deeply a component is nested does not change which of its type's constraints apply.
 
@@ -1514,7 +1514,7 @@ Emitted message, listing each conflicting consumer against the version it requir
 
 <!-- covers: pkg/closure.ErrSubAggregateDepth -->
 
-Pinning walks every module an application imports, then every module those import, so the whole set reaches the lockfile rather than only the first level. A module already recorded is not walked a second time, which is what ends an ordinary loop — an application importing a module that imports it back terminates without complaint, having recorded each once.
+Pinning walks every module an Aggregate imports, then every module those import, so the whole set reaches the lockfile rather than only the first level. A module already recorded is not walked a second time, which is what ends an ordinary loop — an Aggregate importing a module that imports it back terminates without complaint, having recorded each once.
 
 A depth bound of ten backstops the chain that repeat-detection cannot see: one presenting a fresh identity at every level, as a module re-published under a new version at each step does. The bound is the same one the graph builder applies, so a composition that pins is a composition that also builds.
 
@@ -1529,7 +1529,7 @@ This is the pinning walk's bound. The graph builder applies its own, reported un
 
 <!-- covers: pkg/closure.ErrNoAggregateLoader, pkg/closure.ErrNoRecipeLoader -->
 
-Two of the axes pinning walks need more than a version answer from the catalog: they need the documents themselves. The modules an application imports have to be read to find what *they* import in turn. The Recipes, FeatureRecipes and Plugins a deployment binds have to be read to find the artifacts and libraries *they* name. A catalog view that can resolve a version but cannot hand back those bodies leaves both axes with nothing to read.
+Two of the axes pinning walks need more than a version answer from the catalog: they need the documents themselves. The modules an Aggregate imports have to be read to find what *they* import in turn. The Recipes, FeatureRecipes and Plugins a deployment binds have to be read to find the artifacts and libraries *they* name. A catalog view that can resolve a version but cannot hand back those bodies leaves both axes with nothing to read.
 
 Both are refused up front rather than skipped, and the reason is what a skip would produce: a lockfile short a whole class of entries, written without complaint, that a later build reconstructs faithfully and finds incomplete. Neither message carries values of its own, because neither is about a document you wrote — each states which axis cannot be computed:
 > resolve: catalog lookup cannot load resolved sub-aggregate bodies
@@ -2166,9 +2166,9 @@ Emitted message, with `Feature` in place of `Component` when a Feature chain is 
 
 A Release places a component in a boundary two ways, and either one counts. It names the component under a boundary's `components`, addressed by the id the component carries once the whole composition is flattened. Or it routes the module that contributes the component into a boundary under `aggregates`, which places every component that module contains at once.
 
-A component reaching neither is rendered outside every boundary the deployment declared. Its output directory, its sync wave, its annotations and its per-component `infra` then come from nowhere — and the build would otherwise succeed, emit the artifacts, and say nothing about the operator's configuration never having been applied to it. Two components separated by that line also render into different outputs and lose the ordering they have when placed together.
+A component reaching neither is rendered outside every boundary the Release declared. Its output directory, its sync wave, its annotations and its per-component `infra` then come from nowhere — and the build would otherwise succeed, emit the artifacts, and say nothing about the operator's configuration never having been applied to it. Two components separated by that line also render into different outputs and lose the ordering they have when placed together.
 
-Two shapes deliberately do not meet it. A Release that declares top-level `components` rather than named boundaries places everything it names: normalising such a Release gives it a boundary of its own holding exactly those components. And a component whose whole module the deployment placed nowhere is reported once against the module instead, under the entry below — one fault, one remedy, one key to edit — rather than once per component whose own declaration is correct.
+Two shapes deliberately do not meet it. A Release that declares top-level `components` rather than named boundaries places everything it names: normalising such a Release gives it a boundary of its own holding exactly those components. And a component whose whole module the Release placed nowhere is reported once against the module instead, under the entry below — one fault, one remedy, one key to edit — rather than once per component whose own declaration is correct.
 
 Emitted message. The value at the end is the id the component carries once the composition is flattened, which for a component a module contributed is that module's name, a dot, and the component's own:
 > component placed in no boundary: name it under a boundary's `components`, or place the sub-module that contributes it under `aggregates` (Release `<name>`, at `<authored key>`, `"<component-id>"`)
@@ -2202,7 +2202,7 @@ A boundary names a component two ways and both are checked. Under `components`, 
 
 A subsystem contributes nothing to a component's id, so a component declared inside a subsystem is addressed by its bare name. An entry written as though the subsystem were part of the id addresses nothing and meets this.
 
-A component switched off by a false `active:` toggle does not meet it. Switching a component off is an authoring act, and the deployment that configures it is not expected to be rewritten in the same edit — refusing the entry would make the toggle unusable for as long as any deployment named the component.
+A component switched off by a false `active:` toggle does not meet it. Switching a component off is an authoring act, and the Release that configures it is not expected to be rewritten in the same edit — refusing the entry would make the toggle unusable for as long as any deployment named the component.
 
 Emitted message:
 > boundary names a component the composition does not hold: correct the name, or remove the entry (Release `<name>`, at `<authored key>`, `"<addressed id>"`)
@@ -2242,7 +2242,7 @@ and, where it resolved to nothing at all, with the advice that names the usual c
 
 <!-- covers: internal/compiler/topology.ErrSubAggregateLoad -->
 
-An application composes other applications by naming them under `aggregates:`, and each is loaded and walked in turn so its components join the graph. Two things stop that walk here.
+An Aggregate composes other Aggregates by naming them under `aggregates:`, and each is loaded and walked in turn so its components join the graph. Two things stop that walk here.
 
 The module cannot be loaded at all — the reference resolves to nothing the catalog can hand back, or the document behind it cannot be read. The reason the loader gave is carried beneath the halt rather than folded into it, so what failed is reported in the loader's own words.
 

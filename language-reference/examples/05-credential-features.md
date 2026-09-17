@@ -12,9 +12,9 @@ The standard library splits credential Features by *result* — what the Feature
 - **`core/secret-provided`** also results in a delivered value, but exposes it as a `provides` key instead of injecting it directly, so the attachment dictates delivery with its own `inject:` block on a transparent slot.
 - **`core/referenced-secret`** materializes a referenceable secret *resource* — a Kubernetes Secret, an AWS Secrets Manager secret, a Vault entry — and publishes that resource's identity through a `schema.provides` output contract so a consumer can point at it.
 - **`core/referenced-secret-set`** materializes one such resource carrying a caller-supplied *set* of data keys, and publishes the resource's locator alone. It suits a consumer whose target already fixes the key names it reads — a chart expecting a Secret with several named keys — so there is no per-key locator to publish. See [`mariadb-bitnami-credential-set/`](mariadb-bitnami-credential-set/README.md) and [`multikey-secret-synth/`](multikey-secret-synth/README.md).
-- **`core/generated-secret`** produces nothing at all, because the target engine generates and manages the credential itself. The deployment uses it to say that a slot is delegated to the engine.
+- **`core/generated-secret`** produces nothing at all, because the target engine generates and manages the credential itself. An author uses it to say that a slot is delegated to the engine.
 
-Two things separate the members: who supplies the material — the deployment authors it or names where to fetch it, or the target engine owns it outright as with `core/generated-secret` — and what the attachment yields, which is the *result* the list above groups by. They are peers — same label, same attachment surface, same slot — so a credential slot is always bound, and what varies between deployments is *what* binds it.
+Two things separate the members: who supplies the material — an author writes it or names where to fetch it, or the target engine owns it outright as with `core/generated-secret` — and what the attachment yields, which is the *result* the list above groups by. They are peers — same label, same attachment surface, same slot — so a credential slot is always bound, and what varies between deployments is *what* binds it.
 
 **`core/secret-value` — injected value.**
 

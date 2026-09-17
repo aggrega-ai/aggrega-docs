@@ -37,7 +37,7 @@ A module argument is a position Terraform evaluates, which is why it is where th
 **A component's own directory is therefore not a configuration you can plan as deployed.** Its inputs are stated one level up, in the root, so standing in `modules/<component>` and running the engine there plans something else, and which of two things it does depends on the module's own `variable` blocks:
 
 - Where at least one input declares no `default`, the plan **fails loudly** — `No value for required variable`, naming each unset variable and its line, and offering Terraform's own `-var` / `-var-file` remedy.
-- Where **every** input carries a `default`, the plan **succeeds** and builds from the module's defaults rather than from the values the deployment declared. Nothing warns, so this is the case to know about: a plan that looks right is describing a configuration nobody asked for.
+- Where **every** input carries a `default`, the plan **succeeds** and builds from the module's defaults rather than from the values the root configuration supplies. Nothing warns, so this is the case to know about: a plan that looks right is describing a configuration nobody asked for.
 
 Plan the boundary's own output directory instead — the one holding `aggrega.modules.tf`, immediately above `modules/`. That is where the deployment's values are, and it is the one place a single plan sees the whole boundary.
 

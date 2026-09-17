@@ -264,7 +264,7 @@ A Feature can need a credential of its own — a guardrail proxy that authentica
 
 **Attachments do not nest.** An attachment declares `type`, `description`, `values`, `uses` and `inject`, and the schema closes it there. The credential is attached *beside* the Feature, on the same component, under the name the Feature's slot declares — the slot name is what ties the two together.
 
-The guard Feature below, and the Component the deployment names, are entities this example's own catalog carries. The credential Feature `core/referenced-secret` and the FeatureRecipe `k8s-secret-from-parameter` that implements it are standard-library entities, walked through in [Credential Features](05-credential-features.md).
+The guard Feature below, and the Component the Aggregate names, are entities this example's own catalog carries. The credential Feature `core/referenced-secret` and the FeatureRecipe `k8s-secret-from-parameter` that implements it are standard-library entities, walked through in [Credential Features](05-credential-features.md).
 
 **1. Platform Catalog: The Feature declares its own slot**
 

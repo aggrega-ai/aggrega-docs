@@ -50,7 +50,7 @@ things in it are worth reading closely:
   `infra.port` / `engine_version` / `compute` / `overrides`, and
   `provides.host` / `port` / `protocol`, each with the base's own descriptions.
 
-## What a consuming deployment writes
+## What a consuming Aggregate writes
 
 `aggregate-reviewed.yaml` declares two gateway tiers as the wrapper, fronting a
 database console:
@@ -76,8 +76,8 @@ components:
 ```
 
 `upstream_path` is the key to notice. It is declared in `core/gateway/nginx`'s
-`values` pillar and appears nowhere in the wrapper's file, yet a deployment
-authors it on a wrapper instance and it reaches the rendered gateway
+`values` pillar and appears nowhere in the wrapper's file, yet an author
+writes it on a wrapper instance and it reaches the rendered gateway
 configuration. That is what inheriting the pillars whole means in practice.
 
 The Manifest is the other half, and it is one line per type:

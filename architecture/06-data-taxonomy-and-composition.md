@@ -205,7 +205,7 @@ The compiler and the core schemas enforce the following structural rules.
 
 * **Constraint 5: Instance-Level Labels on the Aggregate**
   * **Unsupported pattern:** Developer writes `labels: {}` on a component instance inside the `Aggregate`.
-  * **Why:** Labels are immutable Catalog-level traits authored by the Platform Architect — the semantic identity that policy engines and selectors read. The Release routes components to boundaries via explicit map-based ID targeting (`components: { "my-agent": {} }`), which preserves the ability to nest `infra` and feature overrides per component without mixing label authorship into the developer's deployment surface.
+  * **Why:** Labels are immutable Catalog-level traits authored by the Platform Architect — the semantic identity that policy engines and selectors read. The Release routes components to boundaries via explicit map-based ID targeting (`components: { "my-agent": {} }`), which preserves the ability to nest `infra` and feature overrides per component without mixing label authorship into the developer's Aggregate.
 
 ### 9. The Security Perimeter & Explicit Egress Guardrails (Out-of-Perimeter Destinations)
 
