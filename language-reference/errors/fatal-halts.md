@@ -329,22 +329,35 @@ and where an unparseable file is the one the reference names outright:
 
 A Release's boundary tree places one component in two different boundaries. The two placements are neither merged nor ranked, and they cannot be: a component's boundary decides where its output is written, which sub-directory it lands in, which sync wave it joins, and which boundary annotations and boundary infra it inherits — while its per-edge `uses:` surface is read by a separate walk. A component named twice would take its output location from one placement and its per-edge configuration from the other.
 
-**A boundary places components two ways, and both count.** Naming a component directly under `components:` places it; routing a whole sub-module into a boundary under `aggregates:` places every component that module contains. So this halt also covers one sub-module routed into two boundaries, a module routed into one boundary with a module nested inside it routed into another, and a component named at one boundary while the module containing it is routed into a different one.
+**A boundary places components three ways, and all three count.** Naming one directly under `components:`, by the id it carries once composition is complete, places it. Naming one inside a routing entry's own `components:`, by the local name it carries inside that sub-module, places it too. And routing a whole sub-module in under `aggregates:` places every component that module contains. So this halt also covers one sub-module routed into two boundaries, a module routed into one boundary with a module nested inside it routed into another, and a component named at one boundary while the module containing it is routed into a different one.
 
-Routing a module into a boundary and also naming one of its components under that **same** boundary is not a conflict — both placements agree on where the component belongs — and builds.
+Routing a module into a boundary and also naming one of its components under that **same** boundary is not a conflict — both placements agree on where the component belongs — and builds. One id written twice under one boundary is a conflict even there: an entry in the boundary's `components:` and an entry for that same component inside the boundary's routing entry are two entries carrying configuration for one component, with nothing to choose between them.
 
-The conflicting placements are recorded in the order they were written, so the earlier site a message names is always the earlier one in your document rather than whichever was reached first.
+**Every offending placement is reported.** A Release that places several components twice halts with one of these per offending entry in a single build, each at the key of the entry it objects to — so several of them together are one build naming everything it found, rather than one fault written out more than once.
 
-Emitted messages. The sentence states the rule and what follows names both sites and how each of them placed the component. Where two direct declarations meet:
-> component declared in more than one boundary: declare each component in exactly one boundary (Release `<name>`, at `<field-path>`, component `"<component>"` is declared in boundary `"<boundary-a>"` and again in boundary `"<boundary-b>"` (source `<path>`); a component belongs to exactly one boundary — remove whichever declaration is not intended)
+The placement a message reports as already in effect is not always the one written first in the file. A boundary's own `components:` entries are read before the components its routing entries name and before the sub-modules it routes, and a boundary is read before the boundaries nested inside it; boundaries written side by side are read in the order they appear. Where more than one earlier placement conflicts, the first one read is the one named. Both sites are named whichever way round they fall, and neither is ranked above the other.
 
-Where a direct declaration meets a routed module, the message says which is which, because the remedies differ:
-> component declared in more than one boundary: declare each component in exactly one boundary (Release `<name>`, at `<field-path>`, component `"<component>"` is declared in boundary `"<boundary-a>"` while the sub-module `"<module>"` that contains it is routed into boundary `"<boundary-b>"` (source `<path>`); a component belongs to exactly one boundary — either route the sub-module into `"<boundary-a>"` or drop the component declaration)
+Emitted message. The sentence states the rule; what follows names the entry at fault, the boundary each of the two placements sits in, the block each of them was written in, and the file that holds them both. Where an entry under one boundary's `components:` meets an earlier entry under another boundary's:
+> component declared in more than one boundary: declare each component in exactly one boundary (Release `<name>`, at `<field-path>`, `"<component>"`, named in the components block of boundary `"<boundary-b>"`, while it is already named in the components block of boundary `"<boundary-a>"`, that earlier entry naming `"<component>"`, both declared in `"<path>"`)
 
-and where two routed modules claim the same components:
-> component declared in more than one boundary: declare each component in exactly one boundary (Release `<name>`, at `<field-path>`, sub-module `"<module-a>"` is routed into boundary `"<boundary-a>"` and sub-module `"<module-b>"` into boundary `"<boundary-b>"` (source `<path>`); routing one sub-module into a boundary places every component it contains there, so these two placements claim the same components — remove whichever routing is not intended)
+The two clauses naming the boundaries are worded for the block each entry was written in. The entry at fault takes one of:
 
-**How to fix:** delete whichever of the two placements you did not mean. The message names both, so the choice is yours rather than the compiler's. Where a direct declaration and a routed module disagree, decide whether the component belongs with its module or on its own: routing the module places it alongside everything else the module contains, and naming it directly separates it from them.
+- `named in the components block of boundary "<boundary>"` — the boundary's own `components:` map;
+- `named inside a routing entry in boundary "<boundary>"` — the `components:` map of a routing entry under that boundary's `aggregates:`;
+- `routed as a sub-module into boundary "<boundary>"` — the routing entry itself.
+
+The earlier placement, continuing the same sentence, takes one of:
+
+- `while it is already named in the components block of boundary "<boundary>"`;
+- `while it is already named inside a routing entry in boundary "<boundary>"`;
+- `while it is already placed by a sub-module routed into boundary "<boundary>"`.
+
+The two clauses are chosen independently, so any pairing of them can appear, and `that earlier entry naming` carries whatever that earlier placement addressed: the component's id, or the sub-module's prefix where a routed sub-module is what placed it.
+
+Where the entry at fault is a routing entry itself, what it addresses is a sub-module rather than a single component, and the message says so rather than presenting a module prefix as a component name — here meeting an earlier sub-module routed into another boundary:
+> component declared in more than one boundary: declare each component in exactly one boundary (Release `<name>`, at `<field-path>`, sub-module `"<module>"`, routed as a sub-module into boundary `"<boundary-b>"`, while it is already placed by a sub-module routed into boundary `"<boundary-a>"`, that earlier entry naming `"<module>"`, both declared in `"<path>"`)
+
+**How to fix:** delete whichever of the two placements you did not mean. The message names both, so the choice is yours rather than the compiler's. Where a direct declaration and a routed module disagree, decide whether the component belongs with its module or on its own: routing the module places it alongside everything else the module contains, and naming it directly separates it from them. Where two routing entries claim one module, drop the routing you did not intend — routing a module into a boundary places every component it contains there, so two such entries claim the same set of components.
 
 ### A Manifest annotation binding claims the reserved `aggrega.ai/` prefix
 
