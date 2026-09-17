@@ -3218,6 +3218,11 @@ An `artifacts:` entry a FeatureRecipe writes reports the same condition as the b
 
 A `valuesMapping:` a FeatureRecipe writes reports as the reference is resolved, in the form the list above carries.
 
+**A `workload:` a component's own Recipe writes is decided before anything renders**, so the report is positioned at the `workload:` key in that Recipe and carries the spelling to use:
+> workload $import: is not a bare-name workload-library reference (<Library>#/workloads/<entry>) (`"<the value as written>"`). name the library and the entry either side of the fragment — write <Library>#/workloads/<entry>
+
+A `workload:` a FeatureRecipe writes reports as the reference is resolved, in the form the list above carries.
+
 **How to fix:** rewrite the value as `<Library>#<entry-path>`, adding `:<version>` after the library name only where you need a floor on which version may be selected. Check the fragment matches the field — an entry path of `#/mappings/…` on a `workload:` names a surface that field does not read, and reports here rather than as a missing entry. The same identity form governs a schema's `$ref:`, whose refusals are documented under "A `$ref:` is not written in a form the compiler can resolve" above.
 
 ### A library `$import:` names a library or an entry the catalog does not hold
@@ -3244,7 +3249,10 @@ The set a reference resolves against is the workspace's own catalog plus the lib
 **A `valuesMapping:` a component's own Recipe writes reports a missing entry in a form of its own**, for the same reason: it too is decided before anything renders, so the report is positioned at the `valuesMapping:` key in that Recipe and names both halves of the reference:
 > mapping-library import references an entry not present in the MappingLibrary (`"<entry>"`, MappingLibrary `"<library>"`)
 
-An `artifacts:` entry a FeatureRecipe writes, a `valuesMapping:` a FeatureRecipe writes, and every reference on the two other library kinds, report as the reference is resolved, in the forms the two lists above carry.
+**A `workload:` a component's own Recipe writes reports a missing entry in a form of its own**, for the same reason: it too is decided before anything renders, so the report is positioned at the `workload:` key in that Recipe and names both halves of the reference:
+> workload-library import references an entry not present in the WorkloadLibrary (`"<entry>"`, WorkloadLibrary `"<library>"`)
+
+An `artifacts:` entry a FeatureRecipe writes, a `valuesMapping:` or a `workload:` a FeatureRecipe writes, and every reference to a library the build cannot see, report as the reference is resolved, in the forms the two lists above carry.
 
 Each names both the library and the entry whichever half failed, so one report is enough to tell a missing library from a missing entry without opening anything.
 
