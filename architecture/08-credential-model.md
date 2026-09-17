@@ -104,7 +104,7 @@ spec:
 
 The two levels are not a convenience duplicate of one another, and the referenceable-credential shape is the worked case that shows why. A referenceable credential publishes `provides.name` and `provides.key` — the produced resource's locator and the data key within it — and **neither is sensitive**: a Kubernetes Secret's name is public, and so is the key inside it. Both are rendered in the clear into the consumer's own manifest as a `secretKeyRef`. Yet the slot that credential fills unquestionably handles secret material. One level alone cannot express both facts: marking the published locators to make the slot read as sensitive would state something false about them and carry that error everywhere the declaration is read.
 
-From those two declarations the compiler derives, per attachment, whether the attachment handles declared-sensitive material — true when the attached Feature declares a sensitive leaf, or when the slot it binds declares one, either alone sufficing. It derives this from the attachment as it stands after every authoring scope has folded, so a broader-scope declaration a narrower fill displaced does not linger, and a slot's demand applies to whichever fill actually won. A credential Feature that declares no sensitive leaf at all — because the target engine owns the material and the deployment authors nothing — still yields a sensitive attachment when it binds a sensitive slot.
+From those two declarations the compiler derives, per attachment, whether the attachment handles declared-sensitive material — true when the attached Feature declares a sensitive leaf, or when the slot it binds declares one, either alone sufficing. It derives this from the attachment as it stands after every authoring scope has folded, so a broader-scope declaration a narrower fill displaced does not linger, and a slot's demand applies to whichever fill actually won. A credential Feature that declares no sensitive leaf at all — because the target engine owns the material and the author writes nothing — still yields a sensitive attachment when it binds a sensitive slot.
 
 ### The ceiling, stated plainly
 
@@ -156,7 +156,7 @@ A FeatureRecipe may do both: rewrite the delivery pipe *and* emit a resource. It
 
 That placement is what makes the two forms below deployment choices at all: with the slot on the consumer, one deployment can give each consumer its own key and another can give them all the same one, with no catalog entity changing between them.
 
-The same catalog entity serves both shapes, and the **deployment** chooses which:
+The same catalog entity serves both shapes, and the **author** chooses which:
 
 - **Per-consumer.** Each component instance fills its own slot with its own credential attachment. Each gets its own rendered resource.
 - **Shared.** One credential is attached once at a shared scope — a subsystem in the Aggregate, a boundary in the Release — and cascades to every component in that scope.

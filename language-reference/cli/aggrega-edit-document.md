@@ -140,7 +140,7 @@ was written: document envelope validation failed (Release, at prod.release.yaml)
 15:7: spec.components.web.values: … unexpected property: "values"
 ```
 
-**The file is left byte-for-byte as it was**, and the write itself is atomic, so a refused or interrupted edit is indistinguishable from one never attempted and you can retry a corrected request against the document you started with. It is also why no authoring rule is restated here: asking a deployment document to carry a developer value is refused by the same schema that would refuse the hand-typed document.
+**The file is left byte-for-byte as it was**, and the write itself is atomic, so a refused or interrupted edit is indistinguishable from one never attempted and you can retry a corrected request against the document you started with. It is also why no authoring rule is restated here: asking a Release document to carry a developer value is refused by the same schema that would refuse the hand-typed document.
 
 **What is *semantically* admissible is not decided here.** Whether a dependency socket is one the producer declares, or whether a Feature's applicability is satisfied, belongs to the resolution a build performs. So you may name a connection this command has never heard of, and an Aggregate may author a socket its catalog entity does not pre-declare; what may be *consumed* across a socket stays the producer's to declare. Run [`aggrega validate`](aggrega-validate.md) naming a Release when that is the question.
 

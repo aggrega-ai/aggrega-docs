@@ -10,7 +10,7 @@ The split is **guidance, not a rule the compiler enforces**. The core compiler i
 
 The developer authors the **Aggregate**: what the application is and what it needs, expressed as intent. The developer says "I need a database of this size and a service that uses it," not "provision an AWS RDS instance in this subnet." Physical infrastructure is deliberately left to the catalog and to operations, so the Aggregate stays capability-agnostic — the same intent compiles for a laptop, a cloud, or an enterprise cluster without the developer's file changing.
 
-What the developer owns: the components the application declares, the `values` it supplies, the `parameters` it exposes for per-environment variation, and the `uses` edges that wire components together.
+What the developer owns: the components the Aggregate declares, the `values` it supplies, the `parameters` it exposes for per-environment variation, and the `uses` edges that wire components together.
 
 ### Platform architect — the catalog contract
 

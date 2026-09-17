@@ -420,14 +420,14 @@ The worked example [`examples/adhoc-uses-socket/`](../examples/adhoc-uses-socket
 
 A Component may declare attachment slots through a `featuresSchema` block. Each slot names a binding point at which the Component expects a Feature to be attached — a root password, an API key, an auth token, an identity binding — and constrains which Feature may bind it and how the fill's material may be delivered.
 
-**Declaring a slot does not close the attachment surface.** A deployment may attach a Feature under a name no slot declares, and that attachment is a *free attachment*: perfectly legal, simply not bound to a declared slot. This openness is what lets one catalog entity serve two different deployment shapes without a catalog fork:
+**Declaring a slot does not close the attachment surface.** An author may attach a Feature under a name no slot declares, and that attachment is a *free attachment*: perfectly legal, simply not bound to a declared slot. This openness is what lets one catalog entity serve two different deployment shapes without a catalog fork:
 
 * **Per-consumer.** Each instance fills the slot with its own Feature, so each consumer gets its own rendered credential.
 * **Shared.** No instance fills the slot; instead one credential is attached once at a broader scope (a subsystem, or a Release boundary) and cascades to every component under it, so many consumers point at one rendered Secret.
 
-The deployment chooses between them by what it attaches. The catalog entity is the same in both cases.
+The author chooses between them by what they attach. The catalog entity is the same in both cases.
 
-**The two shapes compose, and the nearer one wins.** A deployment may do both at once: attach a Feature at a broader scope so it reaches every component under that scope, and fill the slot on the one component that needs something different. The component-scoped fill wins — field by field, so it need only restate the fields it changes and the rest still come from the broader attachment. The sibling components that did not fill the slot keep the broader attachment untouched. The full precedence rule, including how it interacts with annotation-driven attachments and with composed Aggregates, is at [`vocabulary/labels-and-annotations.md`](../vocabulary/labels-and-annotations.md) "Attachment precedence".
+**The two shapes compose, and the nearer one wins.** An author may do both at once: attach a Feature at a broader scope so it reaches every component under that scope, and fill the slot on the one component that needs something different. The component-scoped fill wins — field by field, so it need only restate the fields it changes and the rest still come from the broader attachment. The sibling components that did not fill the slot keep the broader attachment untouched. The full precedence rule, including how it interacts with annotation-driven attachments and with composed Aggregates, is at [`vocabulary/labels-and-annotations.md`](../vocabulary/labels-and-annotations.md) "Attachment precedence".
 
 **Schema definition on the Component:**
 
@@ -477,7 +477,7 @@ spec:
 
 This is genuinely different information from a schema leaf's `sensitive: true`, not a convenience duplicate of it, and the standard-library catalog needs both. A referenceable credential publishes `provides.name` and `provides.key` — the produced resource's locator and the data key within it — and **neither is sensitive**: a Kubernetes Secret's name is public, and so is the key inside it. Yet the slot that credential fills unquestionably handles secret material. A leaf says *this datum is secret material*; a slot says *this binding point handles secret material*; the two claims are about different things and can hold independently.
 
-The practical consequence is that the demand travels with the binding point rather than the fill. A Feature that declares no sensitive leaf at all — because the target engine owns the credential and the deployment authors nothing — still binds a sensitive slot as a sensitive attachment, because the slot said so. The reverse also holds: a fill declaring a sensitive leaf is a sensitive attachment even when it binds a slot that made no such declaration, or when it is a free attachment binding no slot.
+The practical consequence is that the demand travels with the binding point rather than the fill. A Feature that declares no sensitive leaf at all — because the target engine owns the credential and the author writes nothing — still binds a sensitive slot as a sensitive attachment, because the slot said so. The reverse also holds: a fill declaring a sensitive leaf is a sensitive attachment even when it binds a slot that made no such declaration, or when it is a free attachment binding no slot.
 
 The declaration follows the attachment cascade rather than any one authored block. A slot's demand applies to whichever fill ends up bound after every scope has folded, so a component-level fill that displaces a broader one inherits the demand unchanged.
 
