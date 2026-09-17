@@ -3205,7 +3205,12 @@ The three fields are deliberate mirrors of one another, so the fault reads the s
 **A version written with `@` is reported with the spelling to use instead**, rather than falling through to a complaint that the library was not found, because it is the mistake this form attracts most:
 > artifacts $import: is not a bare-name artifacts-library reference (<Library>#/artifacts/<entry>): version separator is ':', not '@' — use `"<the corrected value>"`
 
-**One further shape reports here, and it is not a spelling mistake.** An ArtifactsLibrary bundle's own file body may not itself be an `$import:` of another bundle: one file slot cannot expand into many files, so a nested import is refused rather than resolved into something the author did not write. Compose the bundles at the point they are consumed instead:
+**One further shape reports here, and it is not a spelling mistake.** An ArtifactsLibrary bundle's own file body may not itself be an `$import:` of another bundle: one file slot cannot expand into many files, so a nested import is refused rather than resolved into something the author did not write. Compose the bundles at the point they are consumed instead.
+
+An `artifacts:` entry a component's own Recipe writes is decided before anything renders, so the report is positioned at the `artifacts:` block in that Recipe and names the reference, the bundle, the file whose body carries the nested import, and the entry the import was written at. Every file of the bundle in that shape is reported in one build; where more than one is, the findings are grouped under `artifacts entries whose library import the compiler cannot resolve`:
+> artifacts $import: is not a bare-name artifacts-library reference (<Library>#/artifacts/<entry>) (`"<the value as written>"`, bundle `"<bundle>"`, bundle file `"<filename>"`, artifacts entry `"<key>"`). a bundle file body cannot import another bundle — compose the two at the artifacts entry that consumes them
+
+An `artifacts:` entry a FeatureRecipe writes reports the same condition as the bundle is resolved, naming the first file in that shape:
 > artifacts $import: is not a bare-name artifacts-library reference (<Library>#/artifacts/<entry>): bundle `"<bundle>"` file `"<filename>"` body is a field-root $import: (nested library import inside a bundle file is not supported; compose at the consumption site)
 
 **How to fix:** rewrite the value as `<Library>#<entry-path>`, adding `:<version>` after the library name only where you need a floor on which version may be selected. Check the fragment matches the field — an entry path of `#/mappings/…` on a `workload:` names a surface that field does not read, and reports here rather than as a missing entry. The same identity form governs a schema's `$ref:`, whose refusals are documented under "A `$ref:` is not written in a form the compiler can resolve" above.
@@ -3227,6 +3232,11 @@ The set a reference resolves against is the workspace's own catalog plus the lib
 > artifacts-library import references a bundle not present in the ArtifactsLibrary: bundle `"<entry>"` in ArtifactsLibrary `"<library>"`
 > mapping-library import references an entry not present in the MappingLibrary: entry `"<entry>"` in MappingLibrary `"<library>"`
 > workload-library import references an entry not present in the WorkloadLibrary: entry `"<entry>"` in WorkloadLibrary `"<library>"`
+
+**An `artifacts:` entry a component's own Recipe writes reports a missing bundle in a form of its own.** That entry is decided before anything renders, so the report is positioned at the `artifacts:` block in that Recipe and names the entry the import was written at alongside both halves of the reference:
+> artifacts-library import references a bundle not present in the ArtifactsLibrary (`"<entry>"`, ArtifactsLibrary `"<library>"`, artifacts entry `"<key>"`)
+
+An `artifacts:` entry a FeatureRecipe writes, and both other library kinds, report as the reference is resolved, in the forms the two lists above carry.
 
 Each names both the library and the entry whichever half failed, so one report is enough to tell a missing library from a missing entry without opening anything.
 
@@ -3273,7 +3283,12 @@ An `artifacts:` entry importing a bundle expands into one output per file in tha
 
 **A nested layout inside the key is untouched.** A bundle is free to carry its own subdirectories, and nesting them under the consumption key is what the key is for.
 
-The consuming Recipe and the published bundle are usually written by different authors, so the message names both halves together with the remedy:
+The consuming Recipe and the published bundle are usually written by different authors, so the message names both halves together with the remedy.
+
+An `artifacts:` entry a component's own Recipe writes is decided before anything renders, so the report is positioned at the `artifacts:` block in that Recipe and names the file first, then the library it came from and the entry it is consumed at. Every file of the bundle whose name leaves the key is reported in one build; where more than one is, the findings are grouped under `artifacts entries whose library import the compiler cannot resolve`:
+> artifacts-library bundle file name leaves the artifacts key its output is nested under (`"<filename>"`, ArtifactsLibrary `"<library>"`, artifacts entry `"<key>"`). rename the file inside the ArtifactsLibrary bundle so its name stays under the artifacts key it is consumed at
+
+An `artifacts:` entry a FeatureRecipe writes reports the same condition as the bundle is resolved, naming the recipe it was written in and the first such file:
 > artifacts-library bundle file name leaves the artifacts key its output is nested under (Recipe `"<recipe>"`, artifact `"<key>"`, bundle file `"<filename>"`). rename the file inside the ArtifactsLibrary bundle so its name stays under the artifacts key it is consumed at
 
 **How to fix:** rename the file inside the ArtifactsLibrary so its name stays under the key. Where the library is not yours, importing a different bundle or writing the entry in place clears the build while the correction is made upstream. A file meant to land somewhere else entirely is a second `artifacts:` entry at the key it belongs under, not a name that walks there.
