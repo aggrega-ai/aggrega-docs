@@ -213,6 +213,8 @@ mcp:
     - https://studio.example.com
   limits:
     max_concurrent_requests: 32
+  deny_reach:
+    - registry
   health:
     listen: 127.0.0.1:7778
 ```
@@ -272,6 +274,21 @@ all, and a request without the principal header is refused. Because the header i
 credential, it is trustworthy only where nothing else can set it: the process is refused before it
 binds unless `mcp.listen` is loopback or a Unix socket. Leave the block out and this server checks
 tokens itself, which is the default.
+
+**`mcp.deny_reach` withdraws a kind of reach from this deployment.** Every operation the server
+performs declares how far its own effects travel — `none` for one that reads or renders and leaves
+nothing behind, `workspace` for one that writes inside the workspace this process serves, `registry`
+for one that publishes, signs or withdraws, and `machine` for one that changes what every workspace on
+the host shares. Naming a kind here withdraws every tool that reaches it: the tool is absent from
+every caller's tool list whatever that caller's token carries, and a call to it is refused naming this
+setting. That makes it the deployment's bound rather than the caller's, and no credential lifts it — a
+server meant to serve reads and nothing else lists the three writing kinds here and then cannot
+publish even for a caller whose token carries every scope. Leave it out, which is the default, and
+this deployment carries whatever its callers' scopes admit. A value that is not one of the four is
+refused when this file loads, rather than passed over. Nothing of the `machine` kind is offered over
+HTTP whatever this says, so naming it is accepted and changes nothing;
+[aggrega-mcp.md](aggrega-mcp.md#what-a-caller-may-reach) sets out the kinds and the scopes that admit
+them.
 
 **`mcp.health.listen` puts the liveness and readiness checks on an address of their own.** Give it an
 address in either of `mcp.listen`'s two forms and a second listener answers `GET /healthz` there —
