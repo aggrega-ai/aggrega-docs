@@ -243,6 +243,16 @@ protected-resource metadata document the listener serves, which is where a clien
 where to obtain a token. Neither holds anything secret: a token arrives on the request that
 presents it and is never written in a configuration file.
 
+**`mcp.authorization.jwks_file` names a file holding the keys tokens are verified against**, instead
+of reading them from the authorization server. Leave it out and the server reads that server's
+metadata at its well-known address and follows the `jwks_uri` published there, which is what a
+workspace with network access does. Set it and the authorization server is never contacted — which
+is what a workspace declaring `offline: true` needs, and such a workspace is refused before its
+listener binds unless this names a file. It is a path and follows the rule above: a relative one
+resolves against the directory of the file that declared it, so a key set committed beside that file
+is found wherever the server is launched from. The file holds public verification keys, which are
+what an authorization server publishes — nothing that signs, and nothing secret.
+
 **`mcp.allowed_origins` is consulted only when a request carries an `Origin` header**, which in
 practice means a browser sent it. List the origins you serve there; a request naming one that is
 not listed is refused, and a request carrying no such header is served regardless. A client that

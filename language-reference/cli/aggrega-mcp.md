@@ -60,10 +60,15 @@ connection ends the call it carried. A request carrying an Origin header
 is checked against mcp.allowed_origins, and mcp.limits bounds how large
 one request body may be and how many requests are answered at once.
 
-Every request to /mcp is answered with a bearer-token challenge. The
-server requires a token on every such request and carries no validation
-that can accept one, so a listener answers 401 whatever a caller sends,
-and serves nothing there until token validation is in place.
+Every request to /mcp carries a bearer token, and one that does not is
+answered 401 with a challenge. The token is a JWT the server verifies
+itself, against the keys mcp.authorization.issuer publishes: it must come
+from that issuer, name mcp.authorization.resource among its audiences,
+be inside its validity window, and be signed with an asymmetric algorithm.
+A token that is not is answered 401 as well. A token is never accepted
+from the address, never forwarded anywhere, never exchanged, and never
+written to any log; the subject it names is recorded and compared to
+nothing.
 
 The challenge names where to obtain a token. A listener publishes an
 OAuth protected-resource metadata document, with no credential asked for,
@@ -74,6 +79,13 @@ a client looks. A client reads it before it can hold a token, which is
 why it is the one answer given without one. What that document publishes
 comes from mcp.authorization.issuer and mcp.authorization.resource, and a
 listener is refused before it binds unless both are set.
+
+The verification keys are read from the issuer itself, by asking it where
+it publishes them and fetching them from the address it names, and read
+again once when a token arrives signed by a key identifier the held set
+does not carry. A workspace that is offline makes no such request, so
+there mcp.authorization.jwks_file names a file holding those keys and a
+listener is refused before it binds without it.
 
 The workspace this process serves is fixed when it starts, on either
 transport: --workspace-root names it, and AGGREGA_WORKSPACE_ROOT supplies
@@ -183,7 +195,13 @@ A request is answered with one JSON object and a status code. A notification —
 
 ### Nothing is served without a token
 
-**The server requires a bearer token on every request and carries no validation that can accept one, so a listener answers every request `401` with a `WWW-Authenticate: Bearer` challenge and serves nothing.** That holds whatever a caller sends, a well-formed token included, and it holds for every method, every tool, and every resource. A listener you start accepts connections and serves nothing, so it is usable by nobody; it becomes usable when token validation is in place.
+**Every request to the endpoint carries a bearer token, and the server checks it itself.** It reads the token off the `Authorization` header and accepts it only where the signature verifies against a key the authorization server publishes, the token names `mcp.authorization.issuer` as its issuer, it names this deployment's own `mcp.authorization.resource` among its audiences, it is inside its validity window, and it says who presented it. A token failing any of those is answered `401`, with `error="invalid_token"` added to the same challenge a caller carrying nothing receives — and the answer is identical whichever check turned it away, so a caller learns that it needs a different token rather than which part of the one it sent was wrong. Only asymmetric signature algorithms are accepted: an unsigned token, and one naming a symmetric algorithm, are refused before anything is read from it.
+
+**A token belongs on the header and nowhere else.** One sent as an `access_token` query parameter is answered `400` and is never read, because an address is recorded by every proxy log, browser history and referrer header the request passes through, so a token that arrived that way has already been exposed. The server never writes a token to a log, never sends one anywhere, and never obtains or exchanges one on a caller's behalf: it reads what was presented, decides, and keeps none of it. The subject the token names is recorded and compared to nothing.
+
+**The verification keys come from the authorization server, or from a file you name.** With `mcp.authorization.jwks_file` unset, the server reads the authorization server's metadata at its well-known address, follows the `jwks_uri` published there, and holds the keys it finds; a token signed by a key identifier those keys do not carry prompts one re-read, and no more than one inside a short interval, so a caller sending invented key identifiers cannot drive an outbound request per request. With `jwks_file` set, the keys are read from that file and the authorization server is never contacted — which is what a workspace declaring `offline: true` needs, and such a workspace is refused before its listener binds unless the file is named. Where the keys cannot be read at all, requests are answered `503` with no challenge: nothing a caller presented was found wanting, so sending it after another token would not help.
+
+**The one answer given with no credential asked for is the protected-resource metadata document.** A client has to read it before it can hold a token, so requiring one there would close the only door in.
 
 Until then the transport to use is standard input and output, where the person calling owns the machine.
 
