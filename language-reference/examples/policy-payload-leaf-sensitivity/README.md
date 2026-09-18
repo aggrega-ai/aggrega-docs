@@ -38,7 +38,7 @@ lifecycles:
 
 | Feature | who owns the material | what an attachment authors |
 |---|---|---|
-| `core/secret-value` | the deployment supplies it | two `values` leaves — see below |
+| `core/secret-value` | an author supplies it | two `values` leaves — see below |
 | `core/generated-secret` | the target engine provisions and rotates it | nothing; it declares no `values` |
 
 `core/secret-value` declares its two leaves asymmetrically, and the asymmetry is
@@ -63,7 +63,7 @@ engine the component's own Recipe manages.
 
 ## The two releases
 
-`aggregate-authored.yaml` binds the slot the deployment-supplies way, and its
+`aggregate-authored.yaml` binds the slot the author-supplied way, and its
 attachment authors **both** leaves:
 
 ```yaml
@@ -276,9 +276,9 @@ rule permits and the whole-attachment rule has no way to permit.
 
 The third sensitivity fact, `sensitive_inject`, does not help either: it names
 delivery keys whose referenced `provides` key is declared sensitive. Here the
-slot is delivery-closed and the deployment-supplies Feature publishes no
+slot is delivery-closed and the author-supplied Feature publishes no
 `provides` pillar, so on this workspace it names nothing. Of the three facts,
-only the per-leaf list answers "where does *this deployment's payload* carry data",
+only the per-leaf list answers "where does *this attachment's payload* carry data",
 which is what the house rule is about.
 
 For all three facts side by side, with the payload shapes and the cases where
@@ -293,14 +293,14 @@ policy sits in the product,
 
 The managed-database Recipe sets the engine's own managed-password directive
 unconditionally and reads no injected credential, so on this target the material
-the authored release supplies has nowhere to land in the rendered artifact. The
+the authored Aggregate supplies has nowhere to land in the rendered artifact. The
 policy refuses it where it actually is: in a file the deployment keeps under
 version control. That is the governance concern, and it is a separate matter
 from what any Recipe would have rendered.
 
 Which is also why the two Features are peers rather than alternatives of equal
-standing on every target. Bind the deployment-supplies Feature where the
-deployment genuinely holds the credential, and the engine-managed one where the
+standing on every target. Bind the author-supplied Feature where you
+genuinely hold the credential, and the engine-managed one where the
 target owns it. This example's authored release is the mismatch a house rule can
 catch mechanically.
 

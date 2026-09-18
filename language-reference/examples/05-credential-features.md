@@ -55,7 +55,7 @@ spec:
 
 A credential Feature that declares a `provides` contract obliges every FeatureRecipe implementing it to publish those keys — the build halts if a FeatureRecipe omits one. This is the producer-side guarantee that makes the consumer's `.features.<slot>.provides.<key>` read safe.
 
-**`core/generated-secret` — engine-managed.** It declares neither `values` nor `provides`: the deployment supplies no material, and the attachment publishes nothing for a consumer to read. Attaching it states that the credential's whole lifecycle belongs to the target — a managed cloud database that generates and rotates its own master password, for example.
+**`core/generated-secret` — engine-managed.** It declares neither `values` nor `provides`: an author supplies no material, and the attachment publishes nothing for a consumer to read. Attaching it states that the credential's whole lifecycle belongs to the target — a managed cloud database that generates and rotates its own master password, for example.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -72,7 +72,7 @@ The directive that turns engine management on is the component's Recipe's, not t
 
 ## Provider-Specific FeatureRecipes
 
-**`k8s-secret-from-parameter`** (for dev and local workflows) implements `core/referenced-secret`. It generates a Kubernetes Secret from a literal value the deployment supplies, and publishes the generated Secret's identity as `provides`. The emitted Secret derives its name and data key from that same `provides`, so the name is authored exactly once. The Secret comes from a small co-located Helm chart named by `source:`, whose values the `valuesMapping` feeds from the published `provides`:
+**`k8s-secret-from-parameter`** (for dev and local workflows) implements `core/referenced-secret`. It generates a Kubernetes Secret from a literal value an author supplies, and publishes the generated Secret's identity as `provides`. The emitted Secret derives its name and data key from that same `provides`, so the name is authored exactly once. The Secret comes from a small co-located Helm chart named by `source:`, whose values the `valuesMapping` feeds from the published `provides`:
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1

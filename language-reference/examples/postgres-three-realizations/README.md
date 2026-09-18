@@ -148,7 +148,7 @@ has an address or it has nothing, so the Recipe refuses rather than emitting a
 Service that aliases an empty name:
 
 ```text
-assertion failed: this deployment selects the referenced realization of
+assertion failed: the Manifest selects the referenced realization of
 PostgreSQL, which addresses a server it does not provision, but no address was
 supplied: set infra.overrides.host on this component in the Release to the DNS
 name or IP literal the existing server answers on

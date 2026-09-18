@@ -113,7 +113,7 @@ Three kinds of entry name sit close enough to meet at a single output name, and 
 
 **Two entries still meet where they genuinely name one thing.** The output name is built from the publishing component and the entry, so anything sharing both reaches one name however it is encoded. The case you are most likely to meet is one Feature attached twice to a single component: an attachment publishes under its **host**, so two attachments of one Feature on one component both publish `alarm-id` from `payments-db`, and there is nothing in the pair to tell apart. **The build halts rather than emit one output where two were written**, naming the component and the attachment key each side was carrying, so both ends are searchable in your own files. Either attach the Feature once, or use a Feature whose published entry names read as that attachment's own.
 
-This holds whether or not the two entries carry the same value. Two entries with the same value still describe two outputs a deployment asked for, so merging them into one would leave one of the two written-down outputs absent from the stack.
+This holds whether or not the two entries carry the same value. Two entries with the same value still describe two outputs an author asked for, so merging them into one would leave one of the two written-down outputs absent from the stack.
 
 #### A name a Recipe composes in a template is not covered by this
 

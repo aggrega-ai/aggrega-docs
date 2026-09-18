@@ -183,7 +183,7 @@ $ echo $?
 ```
 
 That last refusal is a rule an estate chooses, not a defect in the deployment.
-Filling a credential slot by value is a supported shape: the deployment supplies
+Filling a credential slot by value is a supported shape: an author supplies
 the material and the target renders it where the workload can read it, and the
 compiler carries no opinion about that. Nearby, and separately, it does warn when
 a value an author declared sensitive travels to a delivery key as a literal —

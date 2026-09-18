@@ -411,7 +411,7 @@ auto_pull: true
 `auto_pull` lets `aggrega build` resolve the Release in-process, so a first
 build needs no separate resolve step.
 
-## 6. The deployment that targets the provider
+## 6. The documents that target the provider
 
 Four files. The Component declares what an author may set; the Recipe binds the
 capability and authors the artifact; the Aggregate states the intent; the

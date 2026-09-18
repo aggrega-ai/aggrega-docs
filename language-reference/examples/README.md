@@ -193,8 +193,8 @@ cross-boundary networking across providers.
 - **[policy-payload-leaf-sensitivity](policy-payload-leaf-sensitivity/)** — an
   operator-authored Rego policy attached over the build graph, refusing one
   release and permitting its control. The same managed database and the same
-  required credential slot, filled two ways: by the Feature whose material the
-  deployment supplies, and by the Feature the target engine provisions for
+  required credential slot, filled two ways: by the Feature whose material an
+  author supplies, and by the Feature the target engine provisions for
   itself. The policy reads the per-leaf sensitivity marking, so it names the one
   leaf the attachment's payload carries that its Feature declares sensitive and
   leaves the delivery key beside it alone. Attaching the control policy — the

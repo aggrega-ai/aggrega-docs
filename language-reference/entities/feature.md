@@ -169,7 +169,7 @@ The Feature's `schema:` validates the Feature attachment's own `values:` and `in
 Three properties of the fill are worth knowing when authoring:
 
 * **A default never displaces a value any scope supplied.** Where a Feature is attached at more than one scope — a Release boundary and one of its components, say — the narrower scope's value stands and the default fills only what no scope wrote at all.
-* **A default fills an attachment; it never creates one.** Declaring defaults on a Feature nothing attaches contributes nothing to the output, so a Feature's schema cannot add configuration a deployment did not ask for.
+* **A default fills an attachment; it never creates one.** Declaring defaults on a Feature nothing attaches contributes nothing to the output, so a Feature's schema cannot add configuration no author asked for.
 * **An attachment declared on a Release boundary rather than on a single component fills `infra` only**, because that surface carries no `values:` block to fill.
 
 Because materialization uses the same schema resolution as validation, a default declared on a parent Feature reaches an `extends:` child's attachments, and defaults reached through a cross-document `$ref:` into a SchemaLibrary materialize too. Defaults declared only inside a local in-document `#/$defs/` reference, or under an `allOf` / `oneOf` / `anyOf` branch, are not materialized.

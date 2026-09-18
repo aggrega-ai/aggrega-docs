@@ -246,8 +246,8 @@ each of the two templates that build writes:
       },
 ```
 
-It is attached in the Release because what it carries is the deployment's own
-arrangement rather than anything the application declares. A boundary attachment
+It is attached in the Release because what it carries is the operator's own
+arrangement rather than anything the Aggregate declares. A boundary attachment
 sets `infra:` and never `values:` — the Aggregate remains where developer values
 are authored.
 

@@ -269,7 +269,7 @@ The slot is optional, so a fourth shape is attaching nothing at all: drop the
 `features:` block from `aggregate-shared.yaml` and the rendered tree loses both
 Secrets and every `OPENAI_API_KEY` env entry, leaving the two Deployments and the
 gateway Service. Nothing is invented to fill the gap. The catalog entity is
-identical in every case; the deployment decides.
+identical in every case; the author decides.
 
 The slot is also family-agnostic (`feature.aggrega.ai/kind=secret` admits either
 credential family), which is what lets the same agent take a referenceable

@@ -154,7 +154,7 @@ A FeatureRecipe may do both: rewrite the delivery pipe *and* emit a resource. It
 
 **The consumer may hold the credential.** A slot belongs to whichever entity needs the credential, and that is often the *caller* rather than the thing being called: a component that presents a key when it reaches out declares the slot for that key on its own catalog entity, and nothing about a `uses` edge obliges the target to supply one. `core/ai-agent/crewai` is the shipped shape — it declares an optional `model_api_key` slot carrying the `feature.aggrega.ai/kind=secret` selector, `inject: [env]`, and `sensitive: true`. What the standard-library model components publish for a consumer to read is a serving location and a model name, not a credential, so the key the agent presents when it calls that endpoint is declared and held on the agent. The model component it connects to may hold a key of its own for its *own* callers — `core/ai-model/openai-compatible` declares an `api_key` slot for exactly that — and the two are separate binding points: an attachment binds a slot by name on the component that declares it, so filling one says nothing about the other.
 
-That placement is what makes the two forms below deployment choices at all: with the slot on the consumer, one deployment can give each consumer its own key and another can give them all the same one, with no catalog entity changing between them.
+That placement is what makes the two forms below deployment choices at all: with the slot on the consumer, one build can give each consumer its own key and another can give them all the same one, with no catalog entity changing between them.
 
 The same catalog entity serves both shapes, and the **author** chooses which:
 

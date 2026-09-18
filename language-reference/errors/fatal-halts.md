@@ -1549,7 +1549,7 @@ This is the pinning walk's bound. The graph builder applies its own, reported un
 
 <!-- covers: pkg/closure.ErrNoAggregateLoader, pkg/closure.ErrNoRecipeLoader -->
 
-Two of the axes pinning walks need more than a version answer from the catalog: they need the documents themselves. The modules an Aggregate imports have to be read to find what *they* import in turn. The Recipes, FeatureRecipes and Plugins a deployment binds have to be read to find the artifacts and libraries *they* name. A catalog view that can resolve a version but cannot hand back those bodies leaves both axes with nothing to read.
+Two of the axes pinning walks need more than a version answer from the catalog: they need the documents themselves. The modules an Aggregate imports have to be read to find what *they* import in turn. The Recipes, FeatureRecipes and Plugins a build binds have to be read to find the artifacts and libraries *they* name. A catalog view that can resolve a version but cannot hand back those bodies leaves both axes with nothing to read.
 
 Both are refused up front rather than skipped, and the reason is what a skip would produce: a lockfile short a whole class of entries, written without complaint, that a later build reconstructs faithfully and finds incomplete. Neither message carries values of its own, because neither is about a document you wrote — each states which axis cannot be computed:
 > resolve: catalog lookup cannot load resolved sub-aggregate bodies
@@ -1561,16 +1561,16 @@ Both are refused up front rather than skipped, and the reason is what a skip wou
 
 <!-- covers: internal/compiler/pipeline.ErrAnnotationInjectionRejected -->
 
-An operator may attach a governance plugin in a role that adds annotations, and that attachment is a declaration: the operator asked for the transformation, so what the plugin adds is explicit rather than injected behind anyone's back. The role is confined to match. The plugin is handed the component coordinates the deployment declares, and may add string-valued annotations onto those. The shape it returns admits nothing else — no other field, no other kind of value — so the one confinement left to check after its output is applied is whether every injection named a coordinate it was given.
+An operator may attach a governance plugin in a role that adds annotations, and that attachment is a declaration: the operator asked for the transformation, so what the plugin adds is explicit rather than injected behind anyone's back. The role is confined to match. The plugin is handed the component coordinates your documents declare, and may add string-valued annotations onto those. The shape it returns admits nothing else — no other field, no other kind of value — so the one confinement left to check after its output is applied is whether every injection named a coordinate it was given.
 
-An injection naming a boundary-and-component pair outside that set stops the build. A plugin reaching a component the deployment never exposed would be configuring infrastructure nobody declared, and the annotations it adds are expanded into Feature attachments exactly as authored ones are, so the effect would be resources appearing from a component the operator did not put in front of it.
+An injection naming a boundary-and-component pair outside that set stops the build. A plugin reaching a component your documents never exposed would be configuring infrastructure nobody declared, and the annotations it adds are expanded into Feature attachments exactly as authored ones are, so the effect would be resources appearing from a component the operator did not put in front of it.
 
 Each accepted injection also carries a companion annotation, `aggrega.ai/injected-by`, naming the plugin that made it. The host writes that annotation; a plugin cannot supply one, so what it says about where an injected annotation came from is not the plugin's to shape.
 
 Emitted message:
 > annotation-transform plugin output was rejected: an injection targets a component coordinate the host did not supply: injection targets boundary `"<boundary>"` component `"<component>"` (annotation `"<key>"`)
 
-**How to fix:** the fault is the plugin's rather than your documents' — correct it so it injects only onto the coordinates it is handed, each of which arrives in its input. Where the component in the message is one you expected the plugin to see, check that the deployment declares it inside a boundary: only declared component coordinates are handed over. Removing the attachment from `plugins.governance` is the immediate way to unblock a build while the plugin is corrected.
+**How to fix:** the fault is the plugin's rather than your documents' — correct it so it injects only onto the coordinates it is handed, each of which arrives in its input. Where the component in the message is one you expected the plugin to see, check that the Release declares it inside a boundary: only declared component coordinates are handed over. Removing the attachment from `plugins.governance` is the immediate way to unblock a build while the plugin is corrected.
 
 ### A plugin reference is not a Plugin entity
 
@@ -2214,7 +2214,7 @@ Emitted message, positioned at the `aggregates` entry that declared the module, 
 
 <!-- covers: internal/compiler/topology.ErrUnresolvedBoundaryComponent -->
 
-The over-naming counterpart of the two rules above, and a separate question rather than a branch of either: those ask of a component whether anything placed it, this asks of an entry the deployment wrote whether anything answers to it. Neither implies the other. A deployment can name a component that does not exist while every component that does exist is properly placed, and it can leave a real component unplaced while every entry it wrote resolves.
+The over-naming counterpart of the two rules above, and a separate question rather than a branch of either: those ask of a component whether anything placed it, this asks of an entry the Release wrote whether anything answers to it. Neither implies the other. A Release can name a component that does not exist while every component that does exist is properly placed, and it can leave a real component unplaced while every entry it wrote resolves.
 
 The entry that names nothing configures nothing: its `directory`, `subDirectory`, `syncWave`, annotations and per-component `infra` are written for a component that is not there, so nothing renders under them and the build would otherwise succeed with the operator's configuration silently inert.
 
@@ -2222,7 +2222,7 @@ A boundary names a component two ways and both are checked. Under `components`, 
 
 A subsystem contributes nothing to a component's id, so a component declared inside a subsystem is addressed by its bare name. An entry written as though the subsystem were part of the id addresses nothing and meets this.
 
-A component switched off by a false `active:` toggle does not meet it. Switching a component off is an authoring act, and the Release that configures it is not expected to be rewritten in the same edit — refusing the entry would make the toggle unusable for as long as any deployment named the component.
+A component switched off by a false `active:` toggle does not meet it. Switching a component off is an authoring act, and the Release that configures it is not expected to be rewritten in the same edit — refusing the entry would make the toggle unusable for as long as any Release named the component.
 
 Emitted message:
 > boundary names a component the composition does not hold: correct the name, or remove the entry (Release `<name>`, at `<authored key>`, `"<addressed id>"`)
@@ -2419,7 +2419,7 @@ The message leads with the annotation key — the declaration the halt is about 
 
 This halt is raised as soon as the composition is assembled, which is earlier than every check that reads the finished graph. A build carrying a broken mandate therefore reports it on its own: the checks that would run later are not reached, because they reason about what the declaration says and the declaration cannot be read. Correct it and rebuild to see the rest.
 
-**How to fix:** correct the Component catalog entity. The remediation is in the catalog, not in the Aggregate — which is why this halt is distinct from "Required feature not attached", where the deployment is what needs changing.
+**How to fix:** correct the Component catalog entity. The remediation is in the catalog, not in the Aggregate — which is why this halt is distinct from "Required feature not attached", where your own documents are what need changing.
 
 ### Required attachment slot not bound
 
@@ -2894,7 +2894,7 @@ The build halts rather than writing one of the two files and discarding the othe
 
 Each contributor is named for what it is, which is what says where its name is written: `component <name>` for a component instance, `feature <name>` for a feature attached to a boundary, and `the <provider> assembly` for the assembly's own merged output. The contributors are listed in name order, so the sentence is the same on every build of the same input.
 
-The boundaries the assembly was fed by are named too, and they are listed rather than singled out. Boundaries whose `directory:` declarations evaluate alike assemble as one, and nothing about a collision says which of them the contributors that met were declared in — so the finding gives you every boundary whose declaration could separate them and asserts about none of them that it is the one at fault. The finding is reported against the deployment document as a whole for the same reason: naming one boundary inside it would send you to a document that may have contributed nothing to the path.
+The boundaries the assembly was fed by are named too, and they are listed rather than singled out. Boundaries whose `directory:` declarations evaluate alike assemble as one, and nothing about a collision says which of them the contributors that met were declared in — so the finding gives you every boundary whose declaration could separate them and asserts about none of them that it is the one at fault. The finding is reported against the Release document as a whole for the same reason: naming one boundary inside it would send you to a document that may have contributed nothing to the path.
 
 Where more than one path collides, the findings arrive together under a report stating what they have in common:
 > assembled output paths written by more than one contributor
@@ -2980,7 +2980,7 @@ The comparison is scoped to one stack: the export names that stack declares, aga
 
 Emitted message. The condition names the kind of failure and the provider's own sentence says what happened; the surrounding report also names the `uses` edge being wired:
 > two things a plugin produced occupy one name in its output
-> cloudformation-provider: an export name a cross-boundary link derives is already declared by another Outputs entry in the same stack: the link derives the export name `<export-name>` for provides key `<provides-key>` of component `<component>` in boundary `<boundary>` of deployment `<deployment>`, and another Outputs entry of the same stack already declares that same export name — that declaration sits under the stack output `<stack-output>`, a name this provider assembles rather than one a Recipe wrote; each shadowing Outputs entry spells its export name exactly as the halt does, so searching your Recipes for that name reaches the entry — rename the export name the entry declares, or remove that entry's Export block and let the link publish the export
+> cloudformation-provider: an export name a cross-boundary link derives is already declared by another Outputs entry in the same stack: the link derives the export name `<export-name>` for provides key `<provides-key>` of component `<component>` in boundary `<boundary>` of Release `<release>`, and another Outputs entry of the same stack already declares that same export name — that declaration sits under the stack output `<stack-output>`, a name this provider assembles rather than one a Recipe wrote; each shadowing Outputs entry spells its export name exactly as the halt does, so searching your Recipes for that name reaches the entry — rename the export name the entry declares, or remove that entry's Export block and let the link publish the export
 
 **How to fix:** search your Recipes for the export name the halt names — the `Outputs` entry declaring it spells it identically — then either rename that export name so it no longer matches, or remove that entry's `Export:` block and let the cross-stack wiring publish the export itself. Removing it is usually the right move where the entry existed to export the same value the edge consumes: the provider publishes an `Export` for that value anyway, so the authored one adds nothing. Keep the authored `Export:` and rename it instead where the entry exports the value for a different consumer that imports it under a name you chose.
 
@@ -3499,7 +3499,7 @@ Where a dependency connection crosses between two assembled outputs, the value i
 
 This condition is what a placeholder that survived that replacement reports. Surviving means the resolution never reached it: the value landed somewhere the provider could not address — spliced into a larger string rather than standing as a whole value, most often — or a crossing was stamped with nothing on the other side to resolve it. A placeholder is never valid output, so the build stops rather than ship a file containing one.
 
-The message names the provider that wrote the file and the path the file stands at: a path is unique only within one assembly, so the two together are what identify one file. Every offending file is reported rather than the first, and each is reported once however many boundaries fed the assembly it stands in. It is reported against the deployment document as a whole rather than against a boundary inside it — the fault is in the translation rather than in anything you wrote, so no boundary declaration is the thing to change.
+The message names the provider that wrote the file and the path the file stands at: a path is unique only within one assembly, so the two together are what identify one file. Every offending file is reported rather than the first, and each is reported once however many boundaries fed the assembly it stands in. It is reported against the Release document as a whole rather than against a boundary inside it — the fault is in the translation rather than in anything you wrote, so no boundary declaration is the thing to change.
 
 Emitted message:
 > assembled output retains an unresolved cross-boundary link placeholder (`"<provider>"`, `"<output-path>"`)
@@ -4302,7 +4302,7 @@ A refusal on a document edit, not on a build. One structured edit — adding a c
 
 **The file is left byte-for-byte as it was**, and the write is atomic, so a refused edit is indistinguishable from one never attempted, and a corrected request can be retried against the document you started with.
 
-**Its subject is a request that was well-formed.** The request named an edit this capability applies, and the document it would have produced is one the authoring schema would have refused had you typed it by hand — which is why no authoring rule is restated for it: asking a deployment document to carry a developer value is refused by the same schema either way. A request that never addressed an edit — a node path that reaches nothing in the document, a value written as a mapping where a scalar is called for, an entry already there carrying something else — is refused on its own terms, and each surface reports that in its own channel.
+**Its subject is a request that was well-formed.** The request named an edit this capability applies, and the document it would have produced is one the authoring schema would have refused had you typed it by hand — which is why no authoring rule is restated for it: asking a Release to carry a developer value is refused by the same schema either way. A request that never addressed an edit — a node path that reaches nothing in the document, a value written as a mapping where a scalar is called for, an entry already there carrying something else — is refused on its own terms, and each surface reports that in its own channel.
 
 **A document that was already invalid reports it too.** The check runs even where the edit changed nothing, so an edit against a document the product would refuse to read says so rather than reporting success.
 

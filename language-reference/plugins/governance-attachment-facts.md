@@ -3,8 +3,8 @@
 A governance plugin attached at the `ir-verdict` role receives the whole build
 graph, and every Feature attachment in the deployment arrives with it. Each
 attachment carries a fixed set of facts about itself: which Feature it names,
-which slot it fills, what the catalog author declared about it, what the
-deployment authored into it, and whether it handles material someone declared
+which slot it fills, what the catalog author declared about it, what an
+author wrote into it, and whether it handles material someone declared
 sensitive.
 
 This page enumerates those facts and says what each one does and does not
@@ -24,8 +24,8 @@ node id and then by the instance name the author gave each attachment:
 input.graph.spec.feature_values_mapping[<node id>][<attachment name>]
 ```
 
-The attachment name is load-bearing rather than decorative. It is the key a
-deployment fills a slot by, so it is also what the compiler pairs against the
+The attachment name is load-bearing rather than decorative. It is the key an
+author fills a slot by, so it is also what the compiler pairs against the
 host Component's declared slots.
 
 ```rego
@@ -165,7 +165,7 @@ the same name declares that whatever binds it handles secret material. Unset
 when neither declaration is present.
 
 This answers *what the entity is*, so it deliberately does not vary with what a
-particular deployment authored. It reads the Feature's declarations rather than
+particular author wrote. It reads the Feature's declarations rather than
 the subset of sensitive leaves this attachment happened to fill, because a
 field that was sensitive in one deployment and not another would be unusable to
 a policy reasoning about the catalog entity.
@@ -215,14 +215,14 @@ Leaves arrive in the order the payload holds them, the `values` pillar's before
 the `infra` pillar's — the same order the payloads themselves carry, which is
 what keeps the wire byte-identical across runs of identical input.
 
-This unit answers *where this deployment put data*, which varies by deployment
+This unit answers *where this attachment put data*, which varies by deployment
 necessarily. That is why it intersects with what was authored while `sensitive`
 does not: the two are answers to different questions, and applying either
 rule to the other field would break it.
 
 ### Reading the three together
 
-A deployment attaching a credential Feature that declares its `literalPassword`
+An author attaching a credential Feature that declares its `literalPassword`
 values leaf and its `password` provides key sensitive, filling a declared
 `credentials` slot, and authoring a literal password inline:
 
@@ -277,7 +277,7 @@ would carry if the marking did not exist. That omission is what makes the
 misreading easy, and it is why the direction is worth stating plainly.
 
 The clearest case is an attachment that is sensitive and lists no leaf at all.
-Take the attachment above and change one thing — the deployment authors only
+Take the attachment above and change one thing — the author writes only
 the locator, leaving the declared-sensitive leaf unfilled:
 
 ```json
@@ -295,7 +295,7 @@ the locator, leaving the declared-sensitive leaf unfilled:
 
 `sensitive` is still true — the Feature's declarations did not change — while
 both narrower units are gone. The attachment still handles secret material; it
-simply does not do so through a leaf this deployment authored. A policy keyed
+simply does not do so through a leaf this attachment carries. A policy keyed
 on the roll-up denies this build, and a policy keyed on the per-leaf marking
 lets it through. Both are defensible rules, and which one a policy wants is a
 decision the policy author makes deliberately.

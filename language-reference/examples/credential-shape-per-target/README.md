@@ -263,7 +263,7 @@ differ.
 - `manifest-store.yaml` — binds the same Feature to `k8s-external-secret`, which
   renders an ExternalSecret naming the store entry. Identical to
   `manifest-local.yaml` apart from its own name and that one line.
-- `release-local.yaml`, `release-store.yaml` — the two deployments. Identical
+- `release-local.yaml`, `release-store.yaml` — the two Releases. Identical
   apart from their own names and which Manifest each points at.
 - `.aggrega-config.yaml` — points resolution at the sibling catalog; a standalone
   clone resolves from the hub registry instead.
