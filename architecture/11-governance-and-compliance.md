@@ -206,11 +206,11 @@ with one attached plugin and several attachments of it:
   files the build produced — as text, and as parsed documents where the format was
   parsed ahead of the policy — and reports on the concrete result.
 * **Supplying derived metadata.** Attached to shape labels, a policy decides which
-  labels the build's nodes carry, from the deployment's environment and from what the
+  labels the build's nodes carry, from the Release's environment and from what the
   nodes already declare. This is the mechanism pattern 2 above describes, with the
   rule expressed as policy content rather than as a purpose-built plugin.
 * **Adding a capability the developer did not type.** Attached to inject annotations,
-  a policy adds annotations to the deployment's components; an annotation under a key
+  a policy adds annotations to the build's components; an annotation under a key
   the Manifest registers a binding for expands into a Feature attachment, so a
   corporate rule can supply the wrap a component needs rather than merely rejecting
   its absence.

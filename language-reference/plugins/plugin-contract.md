@@ -108,7 +108,7 @@ The governance socket carries a typed contract surface at each of its four roles
 
 - `injections` — the annotations to add, in order. Each names an existing target coordinate (`boundary_path` and `component_name`) plus the `annotation_key` and its string `annotation_value`.
 
-The host applies annotation *additions* only, to coordinates it supplied, with string values. An injection naming a coordinate the deployment does not have halts the build with a message naming the coordinate and the annotation, rather than being silently dropped. That confinement is what bounds the role: an operator attaching a plugin here has declared annotation injection and nothing further.
+The host applies annotation *additions* only, to coordinates it supplied, with string values. An injection naming a coordinate the payload does not carry halts the build with a message naming the coordinate and the annotation, rather than being silently dropped. That confinement is what bounds the role: an operator attaching a plugin here has declared annotation injection and nothing further.
 
 **Type definitions.** The annotation-transform wire types — `AnnotationTransformInput`, `AnnotationTransformOutput`, `AnnotationTarget`, `AnnotationInjection`, `AnnotationSource` — are published in all three ABI packages, generated from one codec so the three stay in lockstep.
 
