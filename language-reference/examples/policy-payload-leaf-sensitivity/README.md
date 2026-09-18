@@ -117,7 +117,7 @@ deny contains msg if {
 carries** whose path the attached Feature declares sensitive, each as a
 pillar-prefixed dotted path. The payload read is the one the attachment ends up
 carrying, so a leaf standing at a value the Feature's schema declares as a
-`default` is named alongside one a deployment wrote at it. Two consequences, and
+`default` is named alongside one an author wrote at it. Two consequences, and
 the example turns on both:
 
 - A leaf appears only where a declaration **covers** it — the declaration names

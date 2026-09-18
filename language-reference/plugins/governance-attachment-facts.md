@@ -94,8 +94,8 @@ other two.
 | `free` | The attachment fills no declared slot. This is a positive finding: the slot set was resolved and no declared slot carries this name. |
 | absent | The host Component's declared slot set could not be resolved, so which slot is filled is unknown. |
 
-The pairing is by name — a deployment fills a slot by attaching a Feature under
-the slot's name — so the value is an exact key from the resolved Component's
+The pairing is by name — an attachment fills a slot when the Feature is attached
+under the slot's name — so the value is an exact key from the resolved Component's
 declared slot set. Nothing is read out of the name's own text. The slot name is
 carried rather than a bare flag because *which* slot was filled is the more
 useful half of the answer.
@@ -194,8 +194,8 @@ Feature declares sensitive, each as the pillar-prefixed dotted path the datum
 occupies: `values.<path>` or `infra.<path>`.
 
 The payload read here is the one the attachment ends up carrying, not the block
-a deployment wrote. A leaf standing at a value the Feature's schema declares as
-a `default` is named alongside one a deployment wrote at it: a filled default is
+an author wrote. A leaf standing at a value the Feature's schema declares as
+a `default` is named alongside one an author wrote at it: a filled default is
 a datum the payload carries, and a marking read off the written block alone
 would leave it unnamed.
 

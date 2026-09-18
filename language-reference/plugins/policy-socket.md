@@ -96,12 +96,12 @@ that should serve two roles is attached twice — once per role.
   the attachment may annotate, each with the annotations it already has, plus the
   annotation keys the Manifest registers a binding for. An injected annotation
   under a registered key goes on to expand into a Feature attachment, which is how
-  this role adds a capability to a deployment the developer did not type.
+  this role adds to a build a capability the developer did not type.
 - **`label-transform`** — the guest reports label changes to apply, during topology
   construction: after the graph is built, and before the graph is judged. The
   payload carries a labels-only projection of the build's nodes — each with the
   Component it instantiates, the version resolved for it, and the labels it
-  currently carries — plus the deployment's name and environment. Use it for
+  currently carries — plus the Release's name and environment. Use it for
   derived metadata a developer should never have to type: compliance scope,
   ownership, cost attribution.
 
@@ -443,7 +443,7 @@ fires rather than an error, because a path that is not there is simply undefined
 | --- | --- |
 | `ir-verdict` | `input.graph` — the whole build graph document: nodes at `input.graph.spec.nodes` keyed by node id, edges at `input.graph.spec.edges`. `input.precalculated_paths` — the enumerated routing paths, each carrying its ordered `nodes` list and the `attached_features` reached along it. |
 | `render-verdict` | `input.artifacts` — one entry per emitted file, each with `path`, `content`, `format`, and `documents`, the parsed documents of the file. An artifact that could not be read structurally carries `parse_error` and no documents, so a policy can reject on the failure itself rather than let an unreadable file pass unexamined. |
-| `label-transform` | `input.graph.nodes` — the build's nodes keyed by node id, each with `component`, `resolved_version` and `labels`. `input.compilation_context` — the deployment's `release_name` and `environment`, so a policy can decide differently per environment. |
+| `label-transform` | `input.graph.nodes` — the build's nodes keyed by node id, each with `component`, `resolved_version` and `labels`. `input.compilation_context` — the Release's `release_name` and `environment`, so a policy can decide differently per environment. |
 | `annotation-transform` | `input.targets` — every component the attachment may annotate, each with `boundary_path`, `component_name` and its current `annotations`. `input.binding_keys` — the annotation keys the Manifest registers a binding for. |
 
 Every role additionally carries `input.sources` — the attachment's own files, each
@@ -536,9 +536,9 @@ annotations contains {
 
 The field names a decision writes are the field names it read its targets under, so
 the convention is learnable from the payload alone. Reading `input.binding_keys`
-lets a policy inject only keys the deployment has registered a meaning for — those
+lets a policy inject only keys the Manifest has registered a meaning for — those
 are the ones that expand into a Feature attachment. An annotation value is a string.
-A decision naming a component the deployment does not have is refused by the build,
+A decision naming a component the payload does not carry is refused by the build,
 naming the coordinate and the annotation.
 
 ### Attaching a whole policy set as one archive
@@ -860,13 +860,13 @@ key and its value:
 
 The field names a decision writes are the field names it read its targets under, so
 the convention is learnable from the payload alone. Reading `input.binding_keys` lets a
-policy inject only keys the deployment has registered a meaning for — those are the
+policy inject only keys the Manifest has registered a meaning for — those are the
 ones that expand into a Feature attachment. Every field is required: an annotation with
 an empty key or an empty component name is not something a policy meant to ask for. The
 boundary a component sits under can legitimately be named by the empty string, so that
 field must be present but may be empty.
 
-A decision naming a component the deployment does not have is refused by the build,
+A decision naming a component the payload does not carry is refused by the build,
 naming the coordinate and the annotation. As with labels, **reach one decision per
 component and annotation key**, resolving the value inside the expression rather than
 emitting two decisions for one key.
