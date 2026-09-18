@@ -2612,7 +2612,7 @@ Emitted message:
 
 ## When rendering output
 
-After every contract is validated, the compiler evaluates Go templates on Component values, FeatureRecipe `injectMapping` blocks, and Recipe sources, then hands the result to the renderer.
+After every contract is validated, the compiler evaluates Go templates on Component values, FeatureRecipe `injectMapping` blocks, and Recipe and FeatureRecipe sources, then hands the result to the renderer.
 
 ### `provides:` template references a non-self-contained root
 
