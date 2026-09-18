@@ -231,6 +231,11 @@ The `source:` field accepts several shape variants in the schema. Each variant's
 | OCI URI (`oci://...`) | `source: "oci://hub.aggrega.ai/recipe/helm/postgres:1.0.0"` | `planned` — design target for catalog distribution. Today's three-tier resolver (local paths, workspace catalogs, remote OCI registry) is documented at [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md); the entity-level resolver consumes OCI URIs through that cascade, but the per-Recipe `source:` field's OCI form is not wired in the providers today. |
 | Other URL schemes (`https://`, `git+https://`, etc.) | (illustrative) | `planned` — documented as design intent in the architecture's pluggable-source roadmap; no provider support today. |
 
+**How a scalar `source:` is anchored.**
+Anchoring applies to filesystem paths and to nothing else. A relative path is anchored to the directory holding the `recipe.yaml` that declares it, and an absolute path is used as written. A reference carrying a transport scheme — `oci://`, `https://`, `http://`, `git://`, `ssh://`, `git+ssh://`, or any reference ending in `.git` — names something to be fetched rather than a path, so it is carried through exactly as you wrote it and is never joined to a directory.
+
+That reading is of the text you wrote, taken as the document is read and ahead of evaluating any template inside it. So a `source:` written as a template is anchored against the declaring `recipe.yaml`'s directory using the template's own text. A template that yields a relative path still resolves where you intended, because the anchored directory prefix leads to it; a template whose result is an absolute path or a transport reference does not, because the prefix is applied before that result exists. Write a value of either of those two kinds as a plain reference rather than as a template.
+
 The inventory is the canonical reference for what authors can put in `source:` today. Authors targeting future shipping milestones (OCI URI, structured forms validated by the provider's Wasm plugin when it ships) should expect the framings above to update from `planned` to `available` per the four-label taxonomy at [`10-status.md`](../10-status.md).
 
 **Authoring vs. Execution: `.tf.json` as a Compiled Artifact**
