@@ -213,6 +213,8 @@ mcp:
     - https://studio.example.com
   limits:
     max_concurrent_requests: 32
+  health:
+    listen: 127.0.0.1:7778
 ```
 
 **`mcp.listen` is what chooses the transport.** Give it a `host:port` address or a
@@ -260,6 +262,17 @@ is not a browser sends no such header and needs no entry.
 
 **`mcp.limits` bounds what one caller can ask for** — how large a single request body may be, and
 how many requests run at once. Both are always in force; neither has a value that lifts it.
+
+**`mcp.health.listen` puts the liveness and readiness checks on an address of their own.** Give it an
+address in either of `mcp.listen`'s two forms and a second listener answers `GET /healthz` there —
+`200` from the moment the process is running — and `GET /readyz` — `503` until the workspace has
+resolved and the endpoint has bound, `200` from then on, which is what lets a balancer hold traffic
+back until the process can actually answer a call. Leave it out and neither check is answered
+anywhere. They are never answered on the address `mcp.listen` names, which gives them the `404` it
+gives every path it does not serve: a probe there would be an unauthenticated reading of a listener
+that refuses everything else. Unlike `mcp.listen` this address is not confined and no address is
+refused for it — point it at loopback or a Unix socket, which is what a supervisor beside this
+process reaches, and note that whatever can reach the address you pick can read those two answers.
 
 Each of these keys has a default, and
 [schema/other/aggrega-config.md](../schema/other/aggrega-config.md) states it beside the key.

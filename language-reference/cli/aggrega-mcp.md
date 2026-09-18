@@ -87,6 +87,17 @@ does not carry. A workspace that is offline makes no such request, so
 there mcp.authorization.jwks_file names a file holding those keys and a
 listener is refused before it binds without it.
 
+Liveness and readiness are answered on a second address, and only there.
+Set mcp.health.listen and a GET of /healthz reports that the process is
+running while a GET of /readyz reports whether it can answer a call yet,
+each a status code with an empty body and no credential asked for. The
+address opens before the workspace is resolved, so a supervisor sees the
+process alive while it is still deciding whether it can serve at all.
+Leave the key unset and no second listener exists. The endpoint itself
+answers both paths the same not-found it gives every path it does not
+serve, with a token and without one, so reaching this process over the
+network is never a way to probe it.
+
 The workspace this process serves is fixed when it starts, on either
 transport: --workspace-root names it, and AGGREGA_WORKSPACE_ROOT supplies
 it when the flag is absent. With neither, a server on standard input and
@@ -192,6 +203,16 @@ A request is answered with one JSON object and a status code. A notification —
 **Closing the connection cancels the call it carried.** That is this transport's cancellation signal: the server treats a caller's disconnect as cancellation of that request, ends the work it was doing, and writes nothing further for it. No cancellation message is needed or expected here — which is the opposite of standard input and output, where there is no per-request stream to close and a client ends one call by naming its id instead. A cancellation message that does arrive over HTTP is accepted and ends nothing.
 
 **Stopping the process drains the listener.** An interrupt, or a termination request from a supervisor or a container runtime, stops the listener accepting and lets a call already being answered finish, within a bounded budget, so a caller that asked for something before the stop still receives its answer. A call that has not finished inside that budget loses its connection. A second stop request ends the process at once.
+
+### Liveness and readiness, on an address of their own
+
+**`mcp.health.listen` is where a supervisor asks whether this process is up and whether it can answer a call.** Give it an address in either of the forms above and a second listener answers `GET /healthz` and `GET /readyz` there. Leave it out — which is the default — and no second listener is started and neither check is answered anywhere.
+
+**The two answers say different things, and that difference is why there are two.** `/healthz` is answered `200` from the moment the process is running, which is the whole of what liveness claims: it is up, and a supervisor that gets no answer at all should restart it. `/readyz` is answered `503` until the workspace this process serves has resolved and the endpoint has bound, and `200` from then on — so a balancer holds traffic back until the process can actually answer a call, rather than sending the first request into one that is still starting. Every answer is a status code with an empty body; no credential is asked for, and nothing the caller sent is read.
+
+**The endpoint never answers those two paths.** `GET /healthz` and `GET /readyz` on the address `mcp.listen` names are answered `404`, exactly as every other path that endpoint does not serve, with a token and without one alike. Answering a probe there would hand anything that reaches the endpoint a free reading of whether the process is up, together with a free way to make it do work — on a listener that otherwise refuses every request carrying no credential.
+
+**Where the health address sits is yours to choose, and it is not confined the way `mcp.listen` is.** No address is refused for it. Point it at loopback or at a Unix socket, which is what it is for: a supervisor, a balancer or a container runtime running beside this process on the same host. Whatever can reach the address you choose can read those two answers, so an address the open network reaches publishes them to the open network.
 
 ### Nothing is served without a token
 
