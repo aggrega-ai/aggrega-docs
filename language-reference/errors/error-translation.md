@@ -140,7 +140,7 @@ One separator grammar applies throughout: `---` between sibling failures, `cause
 
 ## A refused catalog file and the failure it explains
 
-Loading a catalog for a build or a pull is tolerant on purpose: a file that cannot be read, parsed or indexed is refused and recorded rather than aborting the whole load. That is what keeps a broken entity your Release never touches from failing an unrelated build.
+Loading a catalog to resolve what a Release depends on is tolerant on purpose: a file that cannot be read, parsed or indexed is refused and recorded rather than aborting the whole load. That is what keeps a broken entity your Release never touches from failing an unrelated build.
 
 The consequence is that a refused file goes missing from the catalog silently — and if your Release *does* reach it, what fails is the attempt to resolve a reference to what that file declared. That failure is a *consequence* of the refusal rather than the refusal itself, so the report puts the two in causal order wherever it can name the refusal exactly:
 
@@ -177,6 +177,8 @@ A few things about that second shape are worth knowing, because each answers a q
 **A refused file whose header was too malformed to recover the identity it declares is listed by path alone.** That is the honest reading of a document nothing could peek at, and the path is still enough to open the file.
 
 **Whichever shape you get, the failure keeps its own identity.** The note is added to the failure rather than rendered over it, and leading with a refusal changes only what you read first — so the condition the failure raised stays intact either way: its short code still resolves, and a tool matching on the condition still matches.
+
+**Both shapes reach you wherever that resolution runs.** [`aggrega build`](../cli/aggrega-build.md), [`aggrega pull`](../cli/aggrega-pull.md), [`aggrega validate --release`](../cli/aggrega-validate.md) and [`aggrega inspect --closure`](../cli/aggrega-inspect.md) produce them at a terminal, and an AI assistant connected through [`aggrega mcp`](../cli/aggrega-mcp.md) receives the same account from the `build` and `validate` tools. Which surface you asked from changes nothing about which file you are sent to open, and where a refusal leads, the authoring contract the answer points at is the one for the kind that refused document declares — not the kind of the reference that failed.
 
 ## The document-envelope failure class
 
