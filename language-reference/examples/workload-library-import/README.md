@@ -19,6 +19,12 @@ spec:
     $import: BaseWorkloads#/workloads/StatelessService
 ```
 
+Write the reference as one unbroken token: no space and no line break anywhere in
+it, from the library name through the fragment. A reference carrying whitespace is
+refused rather than trimmed, and the build halts — see
+[`errors/fatal-halts.md`](../../errors/fatal-halts.md) "A reference to a library
+entry carries whitespace".
+
 `BaseWorkloads` is a `WorkloadLibrary` published in the hub catalog
 (`workloadlibrary/base-workloads`). Its `StatelessService` entry is a Go template
 evaluated in this Recipe's render context, so `.values.image` (from the
