@@ -462,7 +462,7 @@ One endpoint of a cross-boundary link: the node, the boundary path its rendered 
 | `node` | string | yes | The endpoint node's absolute id within the topology graph. |
 | `boundary` | string | yes | The endpoint's boundary path — the dispatch group its rendered output assembles into. |
 | `provider` | string | yes | The provider that rendered the endpoint (the bare provider name). Both endpoints of a wired link name the same provider; the host does not route a link whose endpoints name different providers. |
-| `deployment` | string | no | The deployment identity the endpoint's rendered output belongs to — the scope its assembled artifacts are named within. The host assembles it from the build's deployment identity and passes it verbatim; it infers no meaning from the value. A provider reads it to scope a cross-reference name to the deployment. An absent value is the empty string, which a provider treats as an unscoped name. |
+| `release` | string | no | The Release the endpoint's rendered output belongs to — the scope its assembled artifacts are named within. The host assembles it from the Release the build resolved and passes it verbatim; it infers no meaning from the value. A provider reads it to scope a cross-reference name to the Release. An absent value is the empty string, which a provider treats as an unscoped name. |
 
 _Additional properties are not permitted._
 
