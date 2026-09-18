@@ -260,8 +260,18 @@ practice means a browser sent it. List the origins you serve there; a request na
 not listed is refused, and a request carrying no such header is served regardless. A client that
 is not a browser sends no such header and needs no entry.
 
-**`mcp.limits` bounds what one caller can ask for** — how large a single request body may be, and
-how many requests run at once. Both are always in force; neither has a value that lifts it.
+**`mcp.limits` bounds what one caller can ask for** — how large a single request body may be, how
+many requests run at once, and how many one caller may send in a minute. All three are always in
+force; none has a value that lifts it. The third, `requests_per_minute`, is counted against each
+caller separately, so one caller sending hard costs another nothing.
+
+**`mcp.authorization.trusted_proxy` reads the caller from a proxy in front instead of checking a
+token here.** Set `principal_header` to the header that proxy uses to say who the caller is, and
+optionally `scopes_header` to one carrying that caller's scopes. In that mode no token is read at
+all, and a request without the principal header is refused. Because the header is then the whole
+credential, it is trustworthy only where nothing else can set it: the process is refused before it
+binds unless `mcp.listen` is loopback or a Unix socket. Leave the block out and this server checks
+tokens itself, which is the default.
 
 **`mcp.health.listen` puts the liveness and readiness checks on an address of their own.** Give it an
 address in either of `mcp.listen`'s two forms and a second listener answers `GET /healthz` there —

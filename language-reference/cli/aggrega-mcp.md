@@ -58,17 +58,29 @@ its own request and no session of any kind is kept, so nothing a client
 sends first decides how a later request is answered. Closing the
 connection ends the call it carried. A request carrying an Origin header
 is checked against mcp.allowed_origins, and mcp.limits bounds how large
-one request body may be and how many requests are answered at once.
+one request body may be, how many requests are answered at once, and how
+many one caller may send in a minute. A caller sending faster than
+mcp.limits.requests_per_minute is answered 429, counted against that
+caller alone.
 
-Every request to /mcp carries a bearer token, and one that does not is
-answered 401 with a challenge. The token is a JWT the server verifies
-itself, against the keys mcp.authorization.issuer publishes: it must come
-from that issuer, name mcp.authorization.resource among its audiences,
-be inside its validity window, and be signed with an asymmetric algorithm.
-A token that is not is answered 401 as well. A token is never accepted
-from the address, never forwarded anywhere, never exchanged, and never
-written to any log; the subject it names is recorded and compared to
-nothing.
+Every request to /mcp carries a credential, and which one depends on
+whether a proxy in front has already checked it. By default it is a
+bearer token the server verifies itself, against the keys
+mcp.authorization.issuer publishes: it must come from that issuer, name
+mcp.authorization.resource among its audiences, be inside its validity
+window, and be signed with an asymmetric algorithm. A request carrying no
+token is answered 401 with a challenge, and so is one whose token fails
+any of those. A token is never accepted from the address, never forwarded
+anywhere, never exchanged, and never written to any log; the subject it
+names is recorded and compared to nothing.
+
+Set mcp.authorization.trusted_proxy instead and the caller is read from a
+header the proxy sets rather than from a token, with its scopes from a
+second header; no token is read at all in that mode, and a request
+without the principal header is answered 401. Because that header is then
+the whole credential, it is trustworthy only where nothing else can set
+it: the process is refused before it binds unless mcp.listen is loopback
+or a Unix socket.
 
 The challenge names where to obtain a token. A listener publishes an
 OAuth protected-resource metadata document, with no credential asked for,
@@ -159,7 +171,7 @@ The server exposes three surfaces to the connected assistant:
 
 `aggrega mcp --listen <address>` serves the protocol over HTTP instead of over standard input and output. `mcp.listen` in the workspace configuration is the key that flag overrides; with neither, the command speaks over standard input and output exactly as a client that spawns it expects. It is the same server either way — the same workspace and the same protocol surfaces — and what changes is how a message reaches it, how a call ends, and what the deployment has to hold.
 
-**Read [Nothing is served without a token](#nothing-is-served-without-a-token) before you deploy one.** Every request to the endpoint carries a bearer token that this server checks itself, and no setting makes any part of that optional.
+**Read [Nothing is served without a credential](#nothing-is-served-without-a-credential) before you deploy one.** Every request to the endpoint carries a credential, and there is no setting that serves a request without one — what a setting chooses is whether this server checks a bearer token itself or reads a caller a proxy in front has already checked.
 
 ### The two deployment shapes
 
@@ -188,7 +200,7 @@ A request is answered with one JSON object and a status code. A notification —
 
 **`mcp.allowed_origins` is consulted only when a request carries an `Origin` header**, which in practice means a browser sent it: a request naming an origin the list does not carry is answered `403`, and one carrying no such header is served. A client that is not a browser sends no such header and needs no entry.
 
-**`mcp.limits` bounds the traffic that is accepted.** A body past `max_body_bytes` is answered `413` and is not read past the cap. A request arriving while `max_concurrent_requests` are already in flight is answered `503` rather than being queued behind work it cannot see. Each cap's default is stated beside its key in [the configuration reference](../schema/other/aggrega-config.md), and neither has a value that turns it off.
+**`mcp.limits` bounds the traffic that is accepted.** A body past `max_body_bytes` is answered `413` and is not read past the cap. A request arriving while `max_concurrent_requests` are already in flight is answered `503` rather than being queued behind work it cannot see. A caller sending more than `requests_per_minute` inside a minute is answered `429`, counted against that caller alone, so one caller sending hard does not cost another anything. Each cap's default is stated beside its key in [the configuration reference](../schema/other/aggrega-config.md), and none of them has a value that turns it off.
 
 ### One process, one workspace
 
@@ -214,9 +226,11 @@ A request is answered with one JSON object and a status code. A notification —
 
 **Where the health address sits is yours to choose, and it is not confined the way `mcp.listen` is.** No address is refused for it. Point it at loopback or at a Unix socket, which is what it is for: a supervisor, a balancer or a container runtime running beside this process on the same host. Whatever can reach the address you choose can read those two answers, so an address the open network reaches publishes them to the open network.
 
-### Nothing is served without a token
+### Nothing is served without a credential
 
-**Every request to the endpoint carries a bearer token, and the server checks it itself.** It reads the token off the `Authorization` header and accepts it only where the signature verifies against a key the authorization server publishes, the token names `mcp.authorization.issuer` as its issuer, it names this deployment's own `mcp.authorization.resource` among its audiences, it is inside its validity window, and it says who presented it. A token failing any of those is answered `401`, with `error="invalid_token"` added to the same challenge a caller carrying nothing receives — and the answer is identical whichever check turned it away, so a caller learns that it needs a different token rather than which part of the one it sent was wrong. Only asymmetric signature algorithms are accepted: an unsigned token, and one naming a symmetric algorithm, are refused before anything is read from it.
+**Every request to the endpoint carries a credential, and which one depends on whether a proxy in front has already checked it.** By default it is a bearer token this server verifies itself, described in the rest of this section. Set `mcp.authorization.trusted_proxy` and it is instead a header that proxy sets, described under [Reading the caller from a proxy in front](#reading-the-caller-from-a-proxy-in-front) — where no token is read at all. Neither shape serves a request that presents nothing.
+
+**By default the server checks a bearer token itself.** It reads the token off the `Authorization` header and accepts it only where the signature verifies against a key the authorization server publishes, the token names `mcp.authorization.issuer` as its issuer, it names this deployment's own `mcp.authorization.resource` among its audiences, it is inside its validity window, and it says who presented it. A token failing any of those is answered `401`, with `error="invalid_token"` added to the same challenge a caller carrying nothing receives — and the answer is identical whichever check turned it away, so a caller learns that it needs a different token rather than which part of the one it sent was wrong. Only asymmetric signature algorithms are accepted: an unsigned token, and one naming a symmetric algorithm, are refused before anything is read from it.
 
 **A token may say what kind of token it is, and four forms are accepted.** A JWT can carry a `typ` header naming its own type. This server accepts `at+jwt` and `application/at+jwt`, the two spellings registered for an access token; `JWT`, which says only that the token is a JWT; and a token that declares no type at all. Anything else is answered `401` exactly as every other refused token is. The set is fixed and no setting widens or narrows it, because which form appears there is decided by the authorization server that minted the token rather than by the deployment receiving it. Accepting `JWT` does mean the declared type alone no longer tells an access token from an identity token — the audience check is what tells them apart, and it is why that check is the load-bearing one: an identity token's audience is the client it was issued to, never this deployment's own `mcp.authorization.resource`, so a token issued for anything but this deployment is refused whatever it calls itself.
 
@@ -229,6 +243,16 @@ A request is answered with one JSON object and a status code. A notification —
 **The verification keys come from the authorization server, or from a file you name.** With `mcp.authorization.jwks_file` unset, the server reads the authorization server's metadata at its well-known address, follows the `jwks_uri` published there, and holds the keys it finds; a token signed by a key identifier those keys do not carry prompts one re-read, and no more than one inside a short interval, so a caller sending invented key identifiers cannot drive an outbound request per request. With `jwks_file` set, the keys are read from that file and the authorization server is never contacted — which is what a workspace declaring `offline: true` needs, and such a workspace is refused before its listener binds unless the file is named. Where the keys cannot be read at all, requests are answered `503` with no challenge: nothing a caller presented was found wanting, so sending it after another token would not help.
 
 **The one answer given with no credential asked for is the protected-resource metadata document.** A client has to read it before it can hold a token, so requiring one there would close the only door in.
+
+### Reading the caller from a proxy in front
+
+**Where a proxy in front already validates tokens, `mcp.authorization.trusted_proxy` tells this server to read the caller from it instead of checking a token a second time.** Give it `principal_header`, the header that proxy sets to say who the caller is, and optionally `scopes_header`, a second header carrying that caller's scopes separated by spaces. Those two headers are the only ones read: no forwarded-address header and no other header participates. A request arriving without the principal header is answered `401`, and **no token is read in this mode at all** — a request carrying a token this server would otherwise have refused is served when its principal header is present, and one carrying a token this server would have accepted is still refused when that header is absent.
+
+**That mode is accepted only on loopback or a Unix socket, and the process is refused before it binds anywhere else.** A header is trustworthy exactly when nothing but the proxy can set it. On an address the network reaches, anything can set it — so a listener in this mode on such an address would let every caller name itself whatever it liked. The refusal names both settings that conflict, so you can lift it by moving the address or by removing the block.
+
+**What the proxy asserts is what this server believes, and that is the bargain.** This server checks no signature in this mode and compares the asserted caller to nothing, exactly as it compares a token's subject to nothing. Whether the proxy validated what it forwarded, and whether anything can reach that listener without passing through the proxy, are the deployment's to get right; the confinement above is what makes them possible to get right, not a guarantee that they were.
+
+**Setting `mcp.authorization.trusted_proxy` does not remove the other requirements.** `issuer` and `resource` are still needed, because the metadata document is still published and the challenge still names it — a client behind the proxy still has to learn where to obtain the token the proxy will check.
 
 ## What the server tells the model when it connects
 
