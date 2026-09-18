@@ -71,7 +71,7 @@ A **FeatureRecipe** is schema- and shape-checked; its render is skipped, because
 
 One rule of a real deployment is out of reach for a deployment of one, and validate declines it rather than reporting a finding it cannot stand behind: whether the `implements` Component's `required: true` `uses` sockets are populated.
 
-A required socket is populated by wiring an edge to **another** component — from the Aggregate's own `uses` block, or from a Release wiring a socket the Component declares. The synthesized deployment holds a single instance, so it contains no second component for such an edge to target, and no authoring of the synthesized documents can produce one: inventing a peer would mean inventing compute the deployment never declared. Validate therefore names the sockets it did not check and continues through resolution and render:
+A required socket is populated by wiring an edge to **another** component — from the Aggregate's own `uses` block, or from a Release wiring a socket the Component declares. The synthesized harness holds a single instance, so it contains no second component for such an edge to target, and no authoring of the synthesized documents can produce one: inventing a peer would mean inventing compute the harness never declared. Validate therefore names the sockets it did not check and continues through resolution and render:
 
 ```
 Sockets: required uses sockets not checked (backend, cache, registry)
@@ -147,7 +147,7 @@ as a single-entity target are Component, Feature, Recipe, FeatureRecipe,
 Workload and Plugin. Each has its schema checked, then the checks its own
 kind carries: pillar structure for a Component or Feature; shape for a
 Workload, FeatureRecipe or Plugin; and for a Recipe, shape plus an end-to-end
-compile against a minimal generated deployment, so its resolution, its guards
+compile against a minimal generated harness, so its resolution, its guards
 and a render of its output are all exercised. Any other kind is refused here
 today and is checked in a wider scope instead: a whole-catalog run reaches an
 Aggregate and the library kinds, and --release reaches a Manifest and a
