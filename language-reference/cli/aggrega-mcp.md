@@ -60,10 +60,20 @@ connection ends the call it carried. A request carrying an Origin header
 is checked against mcp.allowed_origins, and mcp.limits bounds how large
 one request body may be and how many requests are answered at once.
 
-Every HTTP request is answered with a bearer-token challenge and nothing
-is served. The server requires a token on every request and carries no
-validation that can accept one, so a listener answers 401 to every caller
-whatever it sends, and serves nothing until token validation is in place.
+Every request to /mcp is answered with a bearer-token challenge. The
+server requires a token on every such request and carries no validation
+that can accept one, so a listener answers 401 whatever a caller sends,
+and serves nothing there until token validation is in place.
+
+The challenge names where to obtain a token. A listener publishes an
+OAuth protected-resource metadata document, with no credential asked for,
+naming the authorization server, this deployment's own address and the
+scopes that exist; it is served at /.well-known/oauth-protected-resource
+and at that path followed by the endpoint path, which are the two places
+a client looks. A client reads it before it can hold a token, which is
+why it is the one answer given without one. What that document publishes
+comes from mcp.authorization.issuer and mcp.authorization.resource, and a
+listener is refused before it binds unless both are set.
 
 The workspace this process serves is fixed when it starts, on either
 transport: --workspace-root names it, and AGGREGA_WORKSPACE_ROOT supplies

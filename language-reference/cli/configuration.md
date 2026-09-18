@@ -206,6 +206,9 @@ HTTP by callers who are not at its keyboard.
 # <project>/.aggrega-config.yaml
 mcp:
   listen: 127.0.0.1:7777
+  authorization:
+    issuer: https://login.example.com
+    resource: https://mcp.example.com/mcp
   allowed_origins:
     - https://studio.example.com
   limits:
@@ -227,6 +230,18 @@ these two keys, and so is one of the two set without the other. Both are filesys
 follow the rule above: a relative one resolves against the directory of the file that declared it,
 so a certificate committed beside that file is found wherever the server is launched from. Write
 them absolute where the certificate is managed outside the project.
+
+**`mcp.authorization.issuer` and `mcp.authorization.resource` say who issues the tokens callers
+present, and what this server is called as the resource they are issued for.** Both are required
+whenever `mcp.listen` is set, and a listener is refused before anything binds without them, because
+every request to the endpoint is answered with a bearer-token challenge and a challenge that names
+nowhere to go is one a client cannot act on. Write whole addresses, scheme and host included: the
+issuer exactly as that authorization server states its own identifier, and the resource as the
+address your callers actually reach — the host a proxy in front presents, where there is one, rather
+than the address this process binds. Both are published, with no credential asked for, in the OAuth
+protected-resource metadata document the listener serves, which is where a client looks to find out
+where to obtain a token. Neither holds anything secret: a token arrives on the request that
+presents it and is never written in a configuration file.
 
 **`mcp.allowed_origins` is consulted only when a request carries an `Origin` header**, which in
 practice means a browser sent it. List the origins you serve there; a request naming one that is
