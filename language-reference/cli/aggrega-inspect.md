@@ -293,7 +293,7 @@ It applies to a Release, which is the only kind that resolves to a graph. Asked 
 
 The same flag, with the same meaning, is on [`aggrega build`](aggrega-build.md) and [`aggrega validate`](aggrega-validate.md): each hands back the graph that run computed, in addition to whatever else that command produces. An editor integration reads the same graph over the daemon's protocol.
 
-**`--output yaml` no longer emits the graph.** It used to, for a Release inspected without `--raw`, and it does not any more: it reproduces the authored Release, exactly as it does for every other kind. A pipeline reading the graph from that flag reads it from `--ir-graph` instead, and receives JSON rather than YAML.
+**`--output yaml` does not emit the graph.** It reproduces the authored Release, exactly as it does for every other kind. A pipeline that wants the graph reads it from `--ir-graph` instead, and receives JSON rather than YAML.
 
 **The graph withholds.** It is not a file anyone wrote — it is what the compilation computed from the Aggregate, the Release and the catalog — so there is no as-authored contract to keep, and the same declarations that govern the readable layouts govern it. Wherever the graph carries a leaf an author declared sensitive, the value is replaced by a single-key object naming it as withheld:
 

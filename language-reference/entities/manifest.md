@@ -187,7 +187,7 @@ The Aggrega compiler utilizes **Context-Aware Inference** when resolving OCI URI
 # A private registry is named in workspace configuration, not in the reference.
 ```
 
-**Legacy `ops/` prefix.** Older catalog conventions placed an `ops/` prefix before Recipe names. This prefix is no longer used — the `recipe/` entity type directory in the OCI taxonomy already identifies the domain, and Recipes ship under `recipe/{capability}/{name}` without additional prefixing. Manifests reference Recipes by `{capability}/{name}`, or by the bare name for context-aware inference. See [architecture/13-catalog-and-registry.md](../../architecture/13-catalog-and-registry.md) §6 for the full OCI taxonomy.
+**No `ops/` prefix.** Recipe names carry no `ops/` prefix — the `recipe/` entity type directory in the OCI taxonomy already identifies the domain, and Recipes ship under `recipe/{capability}/{name}` without additional prefixing. Manifests reference Recipes by `{capability}/{name}`, or by the bare name for context-aware inference. See [architecture/13-catalog-and-registry.md](../../architecture/13-catalog-and-registry.md) §6 for the full OCI taxonomy.
 
 ## Annotation-Driven Feature Bindings
 
