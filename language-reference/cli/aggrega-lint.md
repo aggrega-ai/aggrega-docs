@@ -186,7 +186,7 @@ under either format.
 | `--allow-nonstandard-names` | `false` | Force allow_nonstandard_names=true |
 | `--allow-undeclared-recipe-provides` | `false` | Force allow_undeclared_recipe_provides=true |
 | `--baseline` | — | Diff the pre-publish evolution check against this specific already-published version instead of the auto-selected highest version below the one being published; must be a strict-SemVer tag present in the registry (requires --pre-publish) |
-| `--catalog` | `[]` | Catalog directory; repeatable. Each --catalog is prepended to the workspace catalog_dirs search stack (first match wins). Used by the whole-catalog and --release conventions passes. |
+| `--catalog` | `[]` | Catalog directory; repeatable. Each --catalog is prepended to the workspace catalog_dirs search stack (first match wins), which ends with the `catalog` directory at the workspace root when there is one. A workspace whose catalog_dirs is written as an empty list reads no local catalog at all. Used by the whole-catalog and --release conventions passes. |
 | `--entity` | — | Path to the entity YAML to lint (alternatively pass as the positional arg) |
 | `--no-allow-aggrega-ai-prefix` | `false` | Force allow_aggrega_ai_prefix=false |
 | `--no-allow-category-mismatches` | `false` | Force allow_category_mismatches=false |

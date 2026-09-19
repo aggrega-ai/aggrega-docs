@@ -121,7 +121,8 @@ whichever directory it happened to be started in.
 For the same reason a call arriving over HTTP cannot name a workspace of
 its own. Sending workspace_root or catalog_dirs is refused, naming the
 argument, and the directories searched for catalog entities beside the
-served workspace are its own workspace.catalog_dirs setting. Over
+served workspace are the ones that workspace itself resolves: its own
+workspace.catalog_dirs setting, then its catalog directory. Over
 standard input and output both arguments are honoured: the client that
 launched the server is running on this machine.
 

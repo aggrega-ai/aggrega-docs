@@ -497,7 +497,7 @@ they are from the readable layouts. Pass --unredacted to print them instead.
 
 | Flag | Default | Description |
 | --- | --- | --- |
-| `--catalog` | `[]` | Catalog directory; repeatable. Each --catalog is prepended to the workspace catalog_dirs search stack (first match wins). Defaults to the current directory. |
+| `--catalog` | `[]` | Catalog directory; repeatable. Each --catalog is prepended to the workspace catalog_dirs search stack (first match wins), which ends with the `catalog` directory at the workspace root when there is one. A workspace whose catalog_dirs is written as an empty list reads no local catalog at all. |
 | `--closure` | `false` | Report the Release's dependency closure — every catalog entity it reaches, at the version each resolved to — in place of the resolved-node view. Applies to a Release, which is the only kind that resolves a closure; any other kind refuses the request rather than silently dropping it. |
 | `--color` | `auto` | Colorize output: auto\|always\|never. |
 | `--detail` | `false` | Render full field bodies. |
