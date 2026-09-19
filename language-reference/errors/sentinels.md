@@ -239,6 +239,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrDuplicateTriadIdentity()` | `duplicate-triad-identity` | `duplicate Aggregate/Manifest identity (metadata.name) in the Release directory` |
 | `ErrFeatureMergeConflict()` | `feature-merge-conflict` | `feature merge conflict: reconcile the Aggregate and Release declarations for the feature` |
 | `ErrGuardEntityViewInconsistency()` | `internal-catalog-view-disagreement` | `the compiler's own views of the catalog disagree` |
+| `ErrInheritedBoundaryDirectoryIsLiteral()` | `inherited-boundary-directory-is-literal` | `inherited boundary directory carries no template variable, so it resolves to the path the extended Release writes to` |
 | `ErrInjectKeyCollision()` | `inject-key-collision` | `duplicate delivery key across inject sources` |
 | `ErrInvalidInjectKey()` | `invalid-inject-key` | `invalid inject key: the from-key must name a declared provides key of the target component type` |
 | `ErrInvalidParameterRef()` | `invalid-parameter-ref` | `invalid parameter reference: check the {{ .parameters.* }} expression names a declared parameter and parses as a Go template` |
@@ -251,6 +252,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrParameterContractViolation()` | `parameter-contract-violation` | `parameter contract violated` |
 | `ErrParameterMissing()` | `parameter-missing` | `required parameter not supplied` |
 | `ErrProvidesKeyNotDeclared()` | `provides-key-not-declared` | `Recipe publishes a provides key its Component does not declare` |
+| `ErrReleaseChainComposesBothRoutingKeys()` | `release-chain-composes-both-routing-keys` | `release extends chain composes both named boundaries and top-level components: declare one routing shape across the chain, never both` |
 | `ErrSchemaConformance()` | `schema-conformance` | `authored pillar does not conform to its declared schema` |
 | `ErrSchemaContractCompileFailure()` | `schema-contract-compile-failure` | `declared schema contract could not be compiled into a usable schema, so nothing was validated against it: correct the contract where it is declared, or remove it if the configuration it covers needs no validation` |
 | `ErrSelfInjectForbidden()` | `self-inject-forbidden` | `self-inject on component without spec.inject allowlist` |
@@ -713,6 +715,8 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0293` | `wasm-guest-condition-undeclared` | `wasm: guest plugin named a condition the socket does not declare` |
 | `E0294` | `subsystem-component-identity-collision` | `components in different subsystems take the same identity: rename one of them, since a subsystem contributes nothing to a component's identity` |
 | `E0295` | `library-reference-whitespace` | `library reference: a reference to a library entry carries no whitespace or line break` |
+| `E0296` | `release-chain-composes-both-routing-keys` | `release extends chain composes both named boundaries and top-level components: declare one routing shape across the chain, never both` |
+| `E0297` | `inherited-boundary-directory-is-literal` | `inherited boundary directory carries no template variable, so it resolves to the path the extended Release writes to` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0157` is retired: nothing reports it now, and the number is never handed to a different condition. It named an Aggregate key — a component, feature, subsystem or nested-module instance name — that did not match the authored-name pattern. Every one of those key surfaces is constrained to that same spelling by the Aggregate schema, which refuses the document while validating its envelope and reports the offending key with a line and column; that condition's code is `E0215`.

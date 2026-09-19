@@ -380,13 +380,26 @@ boundaries:
 
 ## Composite Release and `extends:` inheritance
 
-A Release may declare `spec.extends: <release-uri>` pointing to a base Release whose authoring surface it inherits. The compiler walks the inheritance chain at workspace load, validates that the chain is acyclic, and merges parent fields into the child to produce a single resolved Release. The Schema-Level Constraints above govern the merge:
+A Release may declare `spec.extends:` pointing at a base Release whose authoring surface it inherits.
 
-* The child cannot declare `aggregate:` — it inherits the parent's Aggregate pointer unchanged (the schema rejects child-side overrides of the Developer Intent).
-* The child may omit `manifest:` — inheriting the parent's manifest pointer — or surgically override it for Late Binding.
-* All other fields (`parameters:`, `boundaries:`, per-boundary `infra:`, annotations, Feature attachments) merge with child-wins-on-collision semantics.
+**The reference is a path to a file beside the declaring Release** — `./base-release.yaml`, or `../shared/base-release.yaml`. A Release is deployment-side and is not catalog-indexed, so an `extends:` reference never resolves through the catalog; it resolves the same way a Manifest's does. A reference written as a registry coordinate is refused, with the relative-path form named in the diagnostic.
 
-**The local-development bridge pattern.** The canonical use case is a developer running their team's production Aggregate against local Docker Compose without forking the Aggregate or duplicating the boundary topology. The team publishes a production Release; a local Release `extends:` the production Release and overrides only the Manifest pointer (swapping cloud-targeted Recipes for local equivalents):
+The compiler follows the chain when the Release is loaded — refusing a chain that returns to a file already in it, one that runs past the depth bound, and a reference that names nothing — and then folds the chain into a single resolved Release.
+
+**What you inherit, you may replace key by key.** Your value wins, all the way down, until you reach a value that is one indivisible thing — a scalar, a list, a template — which you take or replace whole. You remove something you inherited by writing it `null`. This is the same rule an extending Component, Feature and Manifest follow, so an author who has met one has met all of them.
+
+Applied to a Release: `boundaries` compose per boundary name and a boundary per key, `components` per component name, `infra` deep, `features` per instance name and then per pillar; `directory`, `subDirectory`, `syncWave` and the Aggregate and Manifest pointers are scalars that replace.
+
+Two things do not travel:
+
+* **Identity and provenance.** No `metadata` field is inherited. `metadata.environment` is the one to know about: it is required of every Release and is per-Release by nature, so a child renders with its own environment in its provenance labels rather than its parent's.
+* **The Aggregate pointer is inherited rather than overridable.** The child cannot declare `aggregate:` — the schema refuses `extends:` and `aggregate:` in one document — so a child deploys the same Developer Intent as its base.
+
+The child may omit `manifest:`, inheriting its base's, or override it for Late Binding.
+
+**One routing shape across the chain.** `boundaries:` and `components:` are mutually exclusive within a single Release, and that holds across a chain too: a base declaring named boundaries and a child declaring top-level components is refused, and the diagnostic names both files and both keys. Choose one routing shape and use it the whole way down.
+
+**The local-development bridge pattern.** The canonical use case is a developer running their team's production Aggregate locally without forking the Aggregate or duplicating the boundary topology. The team publishes a production Release; a local Release `extends:` it and overrides only the Manifest pointer, swapping cloud-targeted Recipes for local equivalents:
 
 ```yaml
 # production Release (committed; the source of truth for prod deployments)
@@ -394,15 +407,21 @@ apiVersion: aggrega.ai/v1alpha1
 kind: Release
 metadata:
   name: prod-release
+  environment: production
+  version: "1.0.0"
 spec:
   aggregate: my-app
   manifest: prod-manifest
   parameters:
     region: us-east-1
     db_size: 100Gi
+    out_dir: prod
   boundaries:
     prod:
-      directory: deploy/prod
+      # A directory is a TEMPLATE, not a fixed path. Writing it against a
+      # parameter is what lets a child render somewhere else without
+      # restating the boundary topology.
+      directory: deploy/{{ .parameters.out_dir }}
       components:
         api: { infra: { replicas: 5 } }
         db: {}
@@ -413,15 +432,20 @@ apiVersion: aggrega.ai/v1alpha1
 kind: Release
 metadata:
   name: local-release
+  environment: local
+  version: "1.0.0"
 spec:
-  extends: hub.aggrega.ai/release/prod-release:1.0.0
+  extends: ./prod-release.yaml
   manifest: local-manifest    # surgically overrides for local
   parameters:
     region: dev-local
     db_size: 1Gi
+    out_dir: local            # the inherited directory resolves here instead
 ```
 
-`local-release` inherits the parent's boundary topology, Feature attachments, and component overrides; the developer sees one `local-release.yaml` and runs `aggrega build --release local-release.yaml` with no production-config duplication.
+`local-release` inherits its base's boundary topology, Feature attachments and component overrides; the developer keeps one `local-release.yaml` and runs `aggrega build --release local-release.yaml` with no production configuration duplicated.
+
+**Write `directory:` against a parameter.** Because a directory is inherited like any other scalar, a child that inherits a directory carrying no template variable renders into the same path its base renders into, and no command-line option redirects it. That is legitimate when it is what you meant — swapping only the Recipes to compare their output, say — so the build reports it and continues rather than refusing. Writing the directory against a parameter, as above, keeps the topology in one place and still sends each Release's output somewhere of its own.
 
 **Multi-file parameter layering.** Release inheritance is the home for multi-file parameter layering. A base Release supplies the common parameter set; per-environment children `extends:` the base and override the slots that differ:
 
@@ -448,6 +472,24 @@ spec:
   manifest: staging-manifest
 ```
 
-Each child sees the parent's inherited parameters merged with its own. Map-valued parameters deep-merge with child-key wins; scalar-valued parameters child-replace.
+Each child sees its base's inherited parameters merged with its own. Map-valued parameters deep-merge with child-key wins; scalar-valued parameters child-replace; a key a child writes as `null` is removed rather than set to nothing.
+
+**A base may import its parameters and a child may still override individual keys.** The two authoring modes described under `parameters:` above — inline, or a single `$import:` — are a rule about one document, not about a chain: each Release along the chain declares one mode or the other, and each one's import is resolved against the directory holding that Release before the chain is folded. So a base importing a shared file and a child writing a few keys inline compose per key, exactly as two inline blocks would:
+
+```yaml
+# base-release.yaml — parameters arrive from a shared file beside it
+spec:
+  aggregate: my-app
+  parameters:
+    $import: ./shared-params.yaml      # tier: prod, region: eu
+
+---
+# local-release.yaml — overrides one key, inherits the rest
+spec:
+  extends: ./base-release.yaml
+  manifest: local-manifest
+  parameters:
+    tier: local                        # region stays eu, from the imported file
+```
 
 **Error modes.** Cyclic `extends:` chains, missing parent pointers, and child-side `aggregate:` declarations all halt workspace load with explicit diagnostics naming the offending Release and the schema-level violation. See [errors/fatal-halts.md](../errors/fatal-halts.md) for the per-error message shapes.

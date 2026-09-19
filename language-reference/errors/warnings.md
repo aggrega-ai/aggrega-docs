@@ -27,6 +27,7 @@ Two bounds on what the table covers, and both are worth knowing before you concl
 | `E0173` | `declared parameter is read by no reference in the Aggregate` |
 | `E0174` | `uses socket name is a near miss for a declared socket` |
 | `E0256` | `annotation binding declares one path in both pillar lists` |
+| `E0297` | `inherited boundary directory carries no template variable, so it resolves to the path the extended Release writes to` |
 <!-- END GENERATED: advisory-short-codes -->
 
 ## Schema-pillar-overlap lint

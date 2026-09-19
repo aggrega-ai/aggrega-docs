@@ -1378,7 +1378,7 @@ Emitted message, naming the entity carrying the unresolvable `extends:` and the 
 
 That trailing detail is the failure the lookup itself reported — the file that could not be read, or the scan that indexed no Manifest under that name — so it usually says which of the two forms was tried and why it came back empty.
 
-**A Release's `extends:` is answered against its own directory, and it accepts one form.** A Release names its parent as a relative path — `./base-release.yaml`, or `../shared/base-release.yaml` — resolved from the directory holding the Release that declares it, and every link along a chain is resolved from that same directory. A bare token is not a path and does not name a Release the compiler will look for, so it is reported here rather than searched for somewhere it cannot be found:
+**A Release's `extends:` is answered against a directory, and it accepts one form.** A Release names its parent as a relative path — `./base-release.yaml`, or `../shared/base-release.yaml`. The directory it is answered against is the one holding the Release the resolution started from, and **every link along a chain is answered against that same directory rather than against its own** — so a mid-chain Release moved into a sub-directory does not take its references with it. A bare token is not a path and does not name a Release the compiler will look for, so it is reported here rather than searched for somewhere it cannot be found:
 > inheritance merge failed (Release `<name>`, at `.spec.extends`, `<entity>` extends `<reference>`, which could not be resolved: `<what looking produced>`). Verify the extends reference is a relative path to a Release file, such as ./base-release.yaml, resolved from the directory holding this Release
 
 **How to fix:** for a Component or Feature, confirm the `extends:` value names an entity the catalog holds, spelled as that entity's own `metadata.name` — case included. For a Manifest, confirm the file is where the relative path points, or that a Manifest with that `metadata.name` sits in the Release's directory and parses. For a Release, confirm the value begins `./` or `../` and that the file it points at is there and parses as a Release.
@@ -4316,6 +4316,21 @@ Emitted message, carrying the schema's own objection after the sentence — the 
 
 **How to fix:** open the document at the position the message quotes and read the objection, which says what the schema wanted at that key. The change to make is usually to the request rather than to the document — ask for an entry the schema admits in that place, and the same request applies cleanly. Where the key is one that document's kind may not carry at all, it belongs on the authoring surface that may, and the entity page for the kind names the fields it declares. What is *semantically* admissible is not decided at this point — whether a dependency socket is one the producer declares, say — so this refusal is always about the shape of the document, never about what may be consumed across a connection.
 
+### A Release chain's links disagree about the routing shape
+
+<!-- covers: pkg/resolver.ErrReleaseChainComposesBothRoutingKeys -->
+
+A Release routes its Aggregate's components one of two ways: named boundaries under `boundaries:`, or top-level components under `components:`. The two are mutually exclusive, and a single document declaring both is refused as it is read. This condition is the same rule across an `extends:` chain: a base that declares named boundaries and a child that declares top-level components are each well-formed on their own, and it is only folding them together that brings the two choices into one resolved Release.
+
+**Neither document is wrong by itself**, which is why the message names both of them and both keys. A diagnostic naming only the Release the build was pointed at would send you to the file with nothing wrong in it.
+
+**A chain whose links agree is untouched.** Every link declaring named boundaries composes normally, and so does every link declaring top-level components. It is the mix that stops.
+
+Emitted message, naming the two files and the key each declares:
+> release extends chain composes both named boundaries and top-level components: declare one routing shape across the chain, never both
+
+**How to fix:** choose the routing shape the chain should use and write it the whole way down. Where the base declares named boundaries, a child that wants to configure components addresses them inside the boundary that holds them rather than at the Release root — which is also what lets it change one component's sizing without restating the topology. Where the base declares top-level components, a child that needs named boundaries is describing a different routing shape than its base, and is better authored as its own Release than as a child of that one.
+
 ## Finding a halt from the short code the build printed
 
 A halting diagnostic's bracketed head names the category the failure is attributable to and, where the failure names one of the conditions catalogued here, that condition's **short code** — the letter `E` and four digits, as in `[CATALOG_ERROR E0209]`. A number is handed out once and then fixed, so a short code you paste into a report or a search still names the condition it named when you recorded it. The other two identifiers a condition carries, and which of the three to reach for when, are taught in [sentinels.md](./sentinels.md).
@@ -4590,6 +4605,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0293` | `wasm: guest plugin named a condition the socket does not declare` | A plugin named a condition the socket does not declare |
 | `E0294` | `components in different subsystems take the same identity: rename one of them, since a subsystem contributes nothing to a component's identity` | Two subsystems declare a component under one name |
 | `E0295` | `library reference: a reference to a library entry carries no whitespace or line break` | A reference to a library entry carries whitespace |
+| `E0296` | `release extends chain composes both named boundaries and top-level components: declare one routing shape across the chain, never both` | A Release chain's links disagree about the routing shape |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
