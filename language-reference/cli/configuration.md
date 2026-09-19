@@ -49,6 +49,42 @@ setting.
 fields in either file; they are supplied by environment variable or flag at the moment they are
 needed. See [environment-variables.md](environment-variables.md#secrets).
 
+### Where local entities are read from
+
+A project that keeps catalog content of its own — a Component, a Feature, a Recipe, one of the
+library kinds — has two ways to say where that content lives, and the first needs no configuration
+at all.
+
+**A `catalog` directory at the project root is read whether or not anything names it.** Put an
+entity under `<project>/catalog/` and every command that loads a catalog reads it, including in a
+project whose `workspace:` block is empty. A catalog directory is read recursively, so how you
+arrange subdirectories inside one is yours.
+
+**Directories listed under `workspace.catalog_dirs` are read as well, and they are read first.**
+The list is an ordered search stack: the first directory to declare an identity owns it, and the
+same identity in a later directory is shadowed. `catalog` is read after everything listed — unless
+a listed directory already contains it, in which case it is read as part of that directory — so
+listing a directory adds to what you had rather than replacing it. A repeatable `--catalog <dir>`
+on the command line is read ahead of both, and a relative path given there resolves against the
+directory you ran the command from, since no configuration file declared it.
+
+**Writing the list as empty says this project has no local catalog at all**, and it is the one
+spelling that stops `catalog` being read too:
+
+```yaml
+# <project>/.aggrega-config.yaml
+workspace:
+  catalog_dirs: []
+```
+
+Leaving the key out is a different statement: an omitted list is the ordinary case, and `catalog`
+is still read.
+
+A build, a pull, a validation or an `aggrega inspect` that cannot resolve an entity you named says
+where this project reads local entities from and what to change so the one you named is read. It
+says nothing of the kind where you wrote the empty list — reading no local catalog is what you
+declared there, and a suggestion to change it would be arguing with you.
+
 ### Starting from nothing
 
 A freshly installed `aggrega` has neither file, and that is a working state rather than a broken

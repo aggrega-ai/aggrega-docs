@@ -74,7 +74,7 @@ A file whose `kind:` is unrecognized reports the unknown kind and the file it ca
 
 ## Catalog resolution
 
-The catalog search stack is assembled with a layered precedence: `--catalog` flags (prepended, in order) come first, then the workspace's `catalog_dirs` from `.aggrega-config.yaml`, then a default of the current directory when neither is set. The stack is first-win — the earliest directory to declare an entity identity owns it; a later directory's copy is shadowed. The catalog branch resolves the identifier against this stack across every entity kind, in a fixed precedence, and renders the first match through that kind's own view; the file and release branches load referenced catalog entities from it when a Manifest mapping or `extends:` parent must be resolved.
+The catalog search stack is assembled with a layered precedence: `--catalog` flags (prepended, in order) come first, then the workspace's `catalog_dirs` from `.aggrega-config.yaml`, then the `catalog` directory at the workspace root, which is read whether or not anything names it. A workspace whose `catalog_dirs` is written as an empty list reads no local catalog at all. The stack is first-win — the earliest directory to declare an entity identity owns it; a later directory's copy is shadowed. The catalog branch resolves the identifier against this stack across every entity kind, in a fixed precedence, and renders the first match through that kind's own view; the file and release branches load referenced catalog entities from it when a Manifest mapping or `extends:` parent must be resolved.
 
 ## Deprecation and withdrawal notices
 
