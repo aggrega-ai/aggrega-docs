@@ -12,15 +12,22 @@ The examples come in two modes — the two ends of one curriculum:
   ```bash
   aggrega build --release release.yaml
   ```
-  Where those referenced entities are read from depends on the workspace. One
-  that carries an `.aggrega-config.yaml` resolves through the `catalog_dirs` it
-  lists — the standard catalog checkout, and, where the workspace authors
-  teaching content of its own, a local `./catalog` ahead of it, since the search
-  stack is first-win and a local entity shadows a standard-library one of the same
-  identity. A workspace that authors nothing locally needs no local entry, and one
-  that carries no `.aggrega-config.yaml` at all resolves entirely through the
-  configured registry. The paths in `catalog_dirs` are relative to the workspace,
-  so a copy taken somewhere else needs them adjusted before they resolve again.
+  Where those referenced entities are read from depends on the workspace. A
+  `catalog/` directory at the workspace root is read whether or not anything names
+  it, so a workspace that authors teaching content of its own can simply keep it
+  there. A workspace that carries an `.aggrega-config.yaml` also reads every
+  directory listed under `catalog_dirs` — the standard catalog checkout, and any
+  other directory it keeps entities in. The listed directories are searched first
+  and `catalog/` last, and the stack is first-win, so an entity in an
+  earlier-searched directory shadows one of the same identity in a later one: a
+  workspace whose own entity has to win over a standard-library one of the same
+  identity lists the directory holding it ahead of the checkout. A workspace that
+  authors nothing locally needs no local entry, and one that carries neither a
+  `catalog/` directory nor an `.aggrega-config.yaml` resolves entirely through the
+  configured registry. Writing `catalog_dirs` as an empty list says the workspace
+  has no local catalog at all. The paths in `catalog_dirs` are relative to the
+  workspace, so a copy taken somewhere else needs them adjusted before they
+  resolve again.
 
   A multi-target workspace that keeps a separate catalog per target passes the
   directories as a repeatable `--catalog` instead
