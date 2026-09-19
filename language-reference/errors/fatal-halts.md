@@ -922,20 +922,22 @@ A document that is entirely empty reports separately, since there is no field to
 
 ## When resolving the catalog
 
-After loading, the compiler walks the Manifest's two tiers (type map, then name map) to pick the Recipe for every Component, and it walks any `extends` chains on Manifests, Components, or Features.
+After loading, the compiler walks the Manifest's two tiers (type map, then name map) to pick the Recipe for every Component, and it walks any `extends` chains on Manifests, Components, or Features. A Release's own `extends` chain is followed by the same walk, one step earlier: it is followed as the Release is resolved, before either the Manifest or the Aggregate it names is looked for, so the conditions below report against the Release rather than against a sibling pointer the chain was going to supply.
 
 ### Cyclic extends chain
 
 <!-- covers: pkg/validator.ErrCyclicExtension -->
 
-A chain of `extends` pointers loops back on itself. Every kind that declares `extends` — Component, Feature and Manifest — is walked by one chain walk, so a loop is reported in the same words wherever it is found.
+A chain of `extends` pointers loops back on itself. Every kind that declares `extends` — Component, Feature, Manifest and Release — is walked by one chain walk, so a loop is reported in the same words wherever it is found.
 
-Emitted message. The sentence naming the condition opens it, and what follows names the entity the resolution started from, the authored key, and then the edge that **closes** the loop — the entity carrying the offending `extends:` and the reference it declares:
-> cyclic extends chain (`<kind>` `<name>`, at `.spec.extends`, `<entity>` extends `<reference>`, which is already in the chain). Remove the extends on `<entity>`, or point it at an entity outside the chain
+Emitted message. The sentence naming the condition opens it, then the entity the resolution started from and the rule that refused it, and then the edge that **closes** the loop — the entity carrying the offending `extends:` and the reference it declares:
+> cyclic extends chain (`<kind>` `<name>`, rule extends). `<entity>` extends `<reference>`, which is already in the chain; remove the extends on `<entity>`, or point it at an entity outside the chain
 
 The entity named first and the entity named in the edge are usually **different**, and that is the point: a loop is reported against every entity on it, while the `extends:` line to edit is the one the edge names. Follow the edge, not the heading.
 
 For a Manifest, `<kind>` reads `Manifest`, each entity is named by its `metadata.name`, and `<reference>` is the `extends:` value exactly as written — a relative path such as `./base.yaml`, or the bare `metadata.name` of a Manifest beside the Release. Which of the two forms you wrote does not change what is reported: a Manifest link is the **file** it resolves to, so two Manifest files that happen to declare one `metadata.name` are two links and a chain through both is not a loop.
+
+A Release reads the same way, and the file-identity point matters more there because the shape it protects is ordinary: `<kind>` reads `Release`, `<reference>` is the relative path the `extends:` names, and a Release link is the file it resolves to. Two Release files naming the deployed system rather than the environment — both `metadata.name: shared-release`, one extending the other — are two links, and a chain through both is not a loop.
 
 **A loop is reported as a loop however long it is.** The chain walk applies its depth bound only to a chain that ends, so a cycle spanning more entities than the bound allows still reports here rather than as an over-deep chain — the remedy for a loop is never to shorten it.
 
@@ -1362,7 +1364,7 @@ Emitted message:
 
 <!-- covers: pkg/validator.ErrInheritanceMerge -->
 
-A Component's, Feature's or Manifest's `extends:` chain names a parent that cannot be resolved, so the chain cannot be turned into a single resolved entity.
+A Component's, Feature's, Manifest's or Release's `extends:` chain names a parent that cannot be resolved, so the chain cannot be turned into a single resolved entity.
 
 It is distinct from a cycle, which has its own condition and its own remedy — see "Cyclic extends chain" above; from a chain past the depth bound, which has its own condition below; and from an unsatisfiable version pin, where the parent exists and only the version does not.
 
@@ -1376,22 +1378,25 @@ Emitted message, naming the entity carrying the unresolvable `extends:` and the 
 
 That trailing detail is the failure the lookup itself reported — the file that could not be read, or the scan that indexed no Manifest under that name — so it usually says which of the two forms was tried and why it came back empty.
 
-**How to fix:** for a Component or Feature, confirm the `extends:` value names an entity the catalog holds, spelled as that entity's own `metadata.name` — case included. For a Manifest, confirm the file is where the relative path points, or that a Manifest with that `metadata.name` sits in the Release's directory and parses.
+**A Release's `extends:` is answered against its own directory, and it accepts one form.** A Release names its parent as a relative path — `./base-release.yaml`, or `../shared/base-release.yaml` — resolved from the directory holding the Release that declares it, and every link along a chain is resolved from that same directory. A bare token is not a path and does not name a Release the compiler will look for, so it is reported here rather than searched for somewhere it cannot be found:
+> inheritance merge failed (Release `<name>`, at `.spec.extends`, `<entity>` extends `<reference>`, which could not be resolved: `<what looking produced>`). Verify the extends reference is a relative path to a Release file, such as ./base-release.yaml, resolved from the directory holding this Release
+
+**How to fix:** for a Component or Feature, confirm the `extends:` value names an entity the catalog holds, spelled as that entity's own `metadata.name` — case included. For a Manifest, confirm the file is where the relative path points, or that a Manifest with that `metadata.name` sits in the Release's directory and parses. For a Release, confirm the value begins `./` or `../` and that the file it points at is there and parses as a Release.
 
 ### An `extends:` chain runs past the depth bound
 
 <!-- covers: pkg/validator.ErrExtendsChainTooDeep -->
 
-A Component's, Feature's or Manifest's `extends:` chain ends cleanly but runs through more entities than the bound of ten allows.
+A Component's, Feature's, Manifest's or Release's `extends:` chain ends cleanly but runs through more entities than the bound of ten allows.
 
 It carries a condition of its own rather than sharing the one above, because the two remedies have nothing in common: an absent parent is a reference to correct, and an over-deep chain is a shape to flatten. The bound is a guard against an authoring accident rather than a structural limit — architects typically extend a baseline by one or two tiers, and a chain ten deep is usually a base tree that grew rather than a deliberate design.
 
 **Only a chain that ENDS reaches it.** A chain that loops back on itself is reported as a loop whatever its length, so this condition never stands in for a cycle and its advice — shorten the chain — is never given for one.
 
 Emitted message, naming the bound and the length the chain reached:
-> extends chain exceeds maximum depth (Component `<name>`, at `.spec.extends`, the bound is 10 and this chain reaches `<length>`). Shorten the chain, or extend a base that sits closer to its root
+> extends chain exceeds maximum depth (Component `<name>`, rule extends). the bound is 10 and this chain reaches `<length>`; shorten the chain, or extend a base that sits closer to its root
 
-`Feature` or `Manifest` appears in place of `Component` where one of those chains is the one that failed. The bound is the same ten for all three, and it counts links: a chain of exactly ten builds, and the eleventh is what this reports.
+`Feature`, `Manifest` or `Release` appears in place of `Component` where one of those chains is the one that failed. The bound is the same ten for every kind that declares `extends`, and it counts links: a chain of exactly ten builds, and the eleventh is what this reports.
 
 **How to fix:** collapse the middle of the chain. A chain that deep usually means each tier adds a little, and folding several tiers into one base entity is both the fix and the clearer shape. Where the tiers are genuinely distinct, an entity further down the chain can extend a base nearer the root directly instead of inheriting through every tier between. A Manifest chain that deep is usually a per-environment overlay stack — fold the tiers nobody varies into the base it overlays.
 
