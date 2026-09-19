@@ -153,7 +153,7 @@ The Manifest also accepts a `features.annotations` block — a parallel authorin
 
 ## Composition via `extends`
 
-A Manifest may declare a single `extends:` URI pointing to a base Manifest whose `mappings` it inherits. Child mappings overwrite the base on key collision, supporting environment-overlay patterns (staging/prod parity with surgical per-environment diffs) and local-development patterns without full-copy authoring.
+A Manifest may declare a single `extends:` reference naming a base Manifest whose `mappings` it inherits. **The reference is not a URI and never resolves through the catalog:** a Manifest is deployment-side, authored beside the Release rather than published, so the value is either a relative path to a Manifest file — `./base-manifest.yaml` — or the bare `metadata.name` of a Manifest sitting in the Release's own directory. Child mappings overwrite the base on key collision, supporting environment-overlay patterns (staging/prod parity with surgical per-environment diffs) and local-development patterns without full-copy authoring.
 
 **Merge semantics.** When a local Manifest extends a base Manifest, the compiler performs a **shallow key replacement** per tier — the `type` and `name` dictionaries are merged independently, not deep-merged — which guarantees O(1) dictionary lookups and keeps inheritance behavior predictable. Within each tier, child keys overwrite parent keys.
 

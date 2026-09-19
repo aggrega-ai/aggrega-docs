@@ -4,6 +4,8 @@
 
 Catalog entities (`Component`, `Feature`) support Single Inheritance via the `extends` keyword, which lets Platform Architects build specialized entities on top of a shared base. The **YAML envelope deep-merge** is common to both kinds: metadata, labels, and the declarative structural tables on the extending entity overwrite matching keys in the base, and nested maps recurse. The two kinds part company on the **data pillars**.
 
+**This page covers the catalog kinds, and they are not the only kinds that declare `extends`.** A Release and a Manifest declare it too, and both are deployment-side documents authored beside each other rather than catalog-indexed entities — so their references name files, not catalog entities, and what folds is an authoring surface rather than a schema. For those, see [`entities/release.md`](../entities/release.md#composite-release-and-extends-inheritance) and [`entities/manifest.md`](../entities/manifest.md).
+
 ### A Component's `extends` composes structure and inherits the pillars whole
 
 For a Component, `extends` composes `metadata.labels`, `metadata.annotations`, `spec.featuresSchema` (attachment slots), `spec.usesSchema` (topology sockets) and `spec.inject` (the self-inject allowlist, whose entries concatenate base-first without duplicates). The three data pillars — `values`, `infra`, `provides` — are not composed. An extending Component authors no pillar content: it writes the literal marker `schema: inherited` and receives the base's `schema:` block exactly as the base authored it, at every depth of a chain.

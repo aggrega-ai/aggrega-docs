@@ -24,11 +24,13 @@ The same URI string carries different entity-kind meaning depending on where it 
 | `FeatureRecipe.spec.implements` | Feature (interface contract) | `/feature/{publisher}/{name}` |
 | `Recipe.spec.extends` / `FeatureRecipe.spec.extends` | Recipe / FeatureRecipe (parent in inheritance chain) | `/recipe/{provider}/{name}` or `/featurerecipe/{provider}/{name}` |
 | `Component.spec.extends` / `Feature.spec.extends` | Component / Feature (parent in inheritance chain) | `/component/{publisher}/{category}/{name}` or `/feature/{publisher}/{name}` |
-| `Manifest.spec.extends` | Manifest (parent in mapping inheritance chain) | `/manifest/{publisher}/{name}` |
-| `Release.spec.extends` | Release (parent in deployment inheritance chain) | `/release/{publisher}/{name}` |
+| `Manifest.spec.extends` | Manifest (parent in mapping inheritance chain) | not a URI position — a relative path, or the bare `metadata.name` of a Manifest beside the Release |
+| `Release.spec.extends` | Release (parent in the inheritance chain) | not a URI position — a relative path to a Release file, and no other form |
 | `Release.spec.aggregate` | Aggregate (the Release's deployment target) | `/aggregate/{publisher}/{name}` |
 | `Release.spec.manifest` | Manifest (the Release's mapping lockfile) | `/manifest/{publisher}/{name}` |
 | `FeatureRecipe.spec.pipeline.<step>.plugin` | Wasm plugin | `/plugin/{pluginType}/{name}` |
+
+**Two positions are listed because authors reach for them expecting a URI, and they are not one.** A Manifest and a Release are deployment-side documents authored beside each other rather than catalog-indexed entities, so neither one's `extends:` is resolved against the catalog or a registry: the value names a **file**, and a registry coordinate written at either position is refused with the accepted form named in the diagnostic. The two are not spelled alike either — a Manifest also accepts the bare `metadata.name` of a Manifest sitting beside the Release, while a Release accepts the relative path and nothing else. See [`entities/release.md`](../entities/release.md#composite-release-and-extends-inheritance) for the Release form and [`errors/fatal-halts.md`](../errors/fatal-halts.md) for what each refusal says.
 
 The inference rule: **the YAML schema position determines the entity kind**. There is no surface marker (sigil, prefix, schema-level annotation) telling the author which entity kind a particular `type:` field references. Authors hold the position-based rules in mind when reading YAML; tooling (IDE autocomplete, `aggrega inspect`, hub UI) reads the same rules to surface entity-kind-specific suggestions.
 

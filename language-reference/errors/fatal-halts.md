@@ -1396,7 +1396,7 @@ It carries a condition of its own rather than sharing the one above, because the
 Emitted message, naming the bound and the length the chain reached:
 > extends chain exceeds maximum depth (Component `<name>`, rule extends). the bound is 10 and this chain reaches `<length>`; shorten the chain, or extend a base that sits closer to its root
 
-`Feature`, `Manifest` or `Release` appears in place of `Component` where one of those chains is the one that failed. The bound is the same ten for every kind that declares `extends`, and it counts links: a chain of exactly ten builds, and the eleventh is what this reports.
+`Feature`, `Manifest` or `Release` appears in place of `Component` where one of those chains is the one that failed. The bound is the same ten for every kind that declares `extends`, and it counts the entities on the chain rather than the links between them: a chain of exactly ten entities builds, and the eleventh entity is what this reports. So an entity that extends a base which extends a base — three entities, two links — has reached three.
 
 **How to fix:** collapse the middle of the chain. A chain that deep usually means each tier adds a little, and folding several tiers into one base entity is both the fix and the clearer shape. Where the tiers are genuinely distinct, an entity further down the chain can extend a base nearer the root directly instead of inheriting through every tier between. A Manifest chain that deep is usually a per-environment overlay stack — fold the tiers nobody varies into the base it overlays.
 

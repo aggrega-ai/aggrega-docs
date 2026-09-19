@@ -4,7 +4,7 @@ This page documents the resolution semantics of cross-document `$ref:` reference
 
 `$ref:` is JSON Schema 2020-12-native. It appears inside `schema:` content (Component, Feature, SchemaLibrary entries), inside compact-form schemas, and inside the synthesized JSON Schema layer that `usesSchema:` and `featuresSchema:` emit. This page focuses on the cross-document case, where `$ref:` targets a SchemaLibrary entry in a separate file or OCI artifact.
 
-For entity-level inheritance (Component-extends-Component, Release-extends-Release), see [inheritance-and-interface.md](inheritance-and-interface.md).
+For catalog-entity inheritance (Component-extends-Component), see [inheritance-and-interface.md](inheritance-and-interface.md). A Release extending a Release is a different mechanism over a document that is not catalog-indexed; it is documented at [`entities/release.md`](../entities/release.md#composite-release-and-extends-inheritance).
 
 `$import:` is the other keyword that reaches content outside the document, and the two answer different questions. `$ref:` names an **entry in a SchemaLibrary** by identity — the catalog resolves it, the lockfile supplies the version — and it composes at any node. `$import:` names a **file** beside the entity and replaces whole content with what that file holds. `$import:` applies on the schema surface as well as at `valuesMapping:`, `workload:`, `artifacts:` and `parameters:`; for `$import:` on a schema, see [compact-form-authoring.md](compact-form-authoring.md) §"Importing a contract from a file".
 
@@ -126,6 +126,7 @@ This is the expected behaviour: consumers refining a library entry's property is
 
 ## Cross-pointers
 
-- For envelope-level inheritance (Component-extends-Component, Release-extends-Release, Manifest-extends-Manifest), see [inheritance-and-interface.md](inheritance-and-interface.md).
+- For catalog-entity inheritance (Component-extends-Component, Feature-extends-Feature), see [inheritance-and-interface.md](inheritance-and-interface.md).
+- For inheritance between the deployment-side documents, whose references name files rather than catalog entities: a Release extending a Release is documented at [`entities/release.md`](../entities/release.md#composite-release-and-extends-inheritance), and a Manifest extending a Manifest at [`entities/manifest.md`](../entities/manifest.md).
 - For provider-specific source pointers (`Recipe.spec.source.chart:`, `Recipe.spec.source.modulePath:`), see the per-entity Recipe documentation. Provider source pointers are not unified under `$ref:`; the provider plugin consumes them directly.
 - For OCI URI shorthand expansion rules (domain default, registry segment, version fallback, publisher expansion), see [uri-grammar.md](uri-grammar.md).

@@ -382,7 +382,7 @@ boundaries:
 
 A Release may declare `spec.extends:` pointing at a base Release whose authoring surface it inherits.
 
-**The reference is a path to a file beside the declaring Release** — `./base-release.yaml`, or `../shared/base-release.yaml`. A Release is deployment-side and is not catalog-indexed, so an `extends:` reference never resolves through the catalog; it resolves the same way a Manifest's does. A reference written as a registry coordinate is refused, with the relative-path form named in the diagnostic.
+**The reference is a path to a file beside the declaring Release** — `./base-release.yaml`, or `../shared/base-release.yaml`. A Release is deployment-side and is not catalog-indexed, so an `extends:` reference never resolves through the catalog. The relative path is the **only** form it accepts: a reference written as a registry coordinate is refused, and so is a bare name, each with the relative-path form named in the diagnostic. A Manifest's `extends:` is the near neighbour that reads differently — it takes a relative path *or* the bare `metadata.name` of a Manifest beside the Release — so the two forms are not interchangeable, and a bare name that would resolve on a Manifest does not resolve here.
 
 The compiler follows the chain when the Release is loaded — refusing a chain that returns to a file already in it, one that runs past the depth bound, and a reference that names nothing — and then folds the chain into a single resolved Release.
 

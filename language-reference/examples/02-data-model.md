@@ -136,7 +136,7 @@ spec:
 ```
 
 **2. Routing Domain: The Production Override**
-The `extends` keyword inherits all boundaries, routing, and parameters from the base. DevOps surgically overrides only the storage size. When a Release uses `extends`, declaring `aggregate` is rejected by the Release schema — the child must map to the exact same Developer Intent.
+The `extends` keyword inherits all boundaries, routing, and parameters from the base. DevOps surgically overrides only the storage size. When a Release uses `extends`, declaring `aggregate` is rejected by the Release schema — the child must map to the exact same Developer Intent. A boundary's `directory:` is inherited like any other scalar, so a child that inherits one written as a literal path renders into the same place its base does; writing the directory against a parameter is what sends each Release's output somewhere of its own. See [`entities/release.md`](../entities/release.md#composite-release-and-extends-inheritance) for that pattern.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -146,7 +146,7 @@ metadata:
   version: 1.0.0
   environment: production
 spec:
-  extends: global-base
+  extends: ./global-base.yaml    # a Release names its base as a relative path
   # aggregate: ← BANNED when using extends. Inherited from global-base.
   # manifest: ← Optional. If omitted, inherits from global-base. If provided, enables "Late Binding".
   boundaries:
