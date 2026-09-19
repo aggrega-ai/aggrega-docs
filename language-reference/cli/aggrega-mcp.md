@@ -315,7 +315,9 @@ The kind is a property of the operation rather than of the tool that offers it, 
 
 ## What the server tells the model when it connects
 
-The server offers a block of guidance for the model, which your client may surface to it before the first call. A client on `2026-07-28` reads it from the `server/discover` answer; a client on `2025-06-18` reads it from the reply to its `initialize` handshake. **It is the same text on both paths, byte for byte**, and the same text for every client: nothing in it is negotiated, and nothing is derived from what the client sent, so what a model is told on connect does not vary with how the client connected, between sessions, or between clients.
+The server offers a block of guidance for the model, which your client may surface to it before the first call. A client on `2026-07-28` reads it from the `server/discover` answer; a client on `2025-06-18` reads it from the reply to its `initialize` handshake. **It is the same text on both paths, byte for byte**, and the same text for every client reaching one process: nothing in it is negotiated, and nothing is derived from what the client sent or from the credential it presented, so what a model is told on connect does not vary between sessions or between clients.
+
+**One thing does vary, and it is the transport rather than the client.** The closing paragraph is composed for the transport a process serves, so a server speaking over standard input and output and a listener hand a model different closing text. Within either process the two revisions still serve that process's own text identically.
 
 It teaches the mental model a tool's argument schema cannot convey on its own:
 
@@ -324,10 +326,19 @@ It teaches the mental model a tool's argument schema cannot convey on its own:
 - **The order the authoring loop runs in** — read the contract, scaffold from it, inspect what you are wiring to, then check before rendering.
 - **When to reach for a prompt rather than a tool** — a tool to act, a prompt to frame a task.
 - **That the default tool list is not the whole surface**, and the call that loads the rest.
+- **What an empty workspace means, and what the model may do about it** — the paragraph that differs by transport, below.
 
 **It names the surfaces rather than restating them.** Each tool already carries its own description and argument schema in `tools/list`, and each kind's contract already lives in its schema and its reference page, so the guidance points at those and stops — one home per statement. A tool it names is a tool the server serves, and it points at every resource family the read surface resolves, so nothing it sends an assistant after is a dead end.
 
 It also states what it does not enumerate, and why: the render targets available and the library kinds installed are properties of your plugins and your schema set, so the resource surfaces report them directly rather than the guidance carrying a copy that could disagree.
+
+### What a model is told about an empty workspace
+
+The closing paragraph answers the question a model meets first on a workspace holding nothing: what an empty `list-entities` means, and what it may do about it. Its opening is the same on both transports — an empty listing means the workspace this process resolved holds no Aggrega documents it can read and the catalog directories configured beside it declare none either — and what follows it depends on which transport this process serves, because the honest answer is not the same on the two.
+
+**Over standard input and output the model is told the workspace is its to inspect and to repair.** It is pointed at `cli-config-show` for the configuration in force and where it came from, and at `cli-config-init` for seeding a working one; both are reachable on that transport, through `describe-capabilities`. The client running the server is on the caller's own machine, so what that process can reach is that caller's own to spend — and where you set the boundary is where it is set for every other tool, in your MCP client, as [What an assistant can do without asking you first](#what-an-assistant-can-do-without-asking-you-first) sets out.
+
+**Over HTTP the model is told to report rather than to configure.** The workspace is the one you started the process over and is fixed for its life; a call naming `workspace_root` or `catalog_dirs` is refused, naming the argument; and no tool that writes configuration is offered to any caller here, whatever scopes its credential carries. Those operations are carried only by the tools that run an `aggrega` command in a separate process, and a session reached over HTTP is composed without them — so the bound is the composition rather than a scope, and no token widens it. A model reaching your deployment over a listener therefore cannot seed a registry or rewrite a trust policy on your host, and the paragraph tells it so instead of letting it try and read the refusal.
 
 ## What an assistant can do without asking you first
 
