@@ -39,6 +39,13 @@ With no --registry, every configured registry's index is searched and the
 results are merged. With --registry (a host or a friendly alias), only that
 registry's index is searched.
 
+A search needs at least one configured registry. With none configured there is
+nowhere to look, so the command refuses: the reason goes to standard error,
+standard output carries nothing, and the exit status is non-zero. That is what
+lets a caller tell a search that ran and matched nothing from a search that
+could not be performed. Run 'aggrega config init' to register a registry with
+its signature trust policy, then 'aggrega registry update' to build the index.
+
 The version reported for an entity is the one a resolution would take: a
 version a publisher has retracted, where the retraction carries a signature
 this workspace's trust policy verifies, is not reported. Such an entity is
@@ -65,6 +72,28 @@ left out.
 | `--registry` | — | Search only this registry, addressed by host or friendly alias. Default searches every configured registry. |
 | `--selector`, `-l` | — | Label selector over the entity's catalog labels. Category is a label: -l component.aggrega.ai/category=compute. |
 <!-- END GENERATED: cli-search -->
+
+## When no registry is configured
+
+A search reads the local index of the registries this machine is configured to reach, so it
+needs at least one of them. With none configured there is nowhere to look, and `aggrega search`
+refuses rather than answering: it writes the reason to standard error, exits non-zero, and
+leaves standard output empty — in every output format, `--output json` included.
+
+The refusal is what keeps two different answers apart. A search that ran and matched nothing
+exits zero and reports `(no matches)` on standard output; a search that could not run at all
+exits non-zero and reports nothing there. A script branching on the exit status can therefore
+tell "this entity is not published" from "this machine has no registry to ask", which a notice
+on standard output and a zero status cannot express.
+
+Run `aggrega config init` to register a registry together with its signature trust policy, then
+`aggrega registry update` to build the local index the search reads.
+
+`aggrega registry list` and `aggrega registry update` answer the same situation differently, and
+deliberately so. Listing registries when there are none is a complete listing of an empty set,
+and an index build with nothing to walk has nothing left to do: both are finished operations, so
+both report on standard output and exit zero. Only the search is reporting that it could not do
+what it was asked.
 
 ## The version a search reports
 
