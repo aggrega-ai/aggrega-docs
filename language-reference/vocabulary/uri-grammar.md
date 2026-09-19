@@ -103,13 +103,15 @@ Manifest.spec.mappings.components.type."core/postgres:1.0.0": helm/postgres:1.0.
 
 Before applying the OCI inference, the compiler resolves the URI through the Three-Tier Entity Resolution Model documented at [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md):
 
-1. **Tier 1 — Local catalog paths.** The `.aggrega-config.yaml` workspace's `catalog_dirs:` directories are searched first. A URI matching a local path resolves to the local file; OCI inference does not run.
-2. **Tier 2 — Workspace catalog directory.** The workspace's default `aggrega-catalog/` (or configured equivalent) is searched second. Same handling — local match short-circuits OCI inference.
+1. **Tier 1 — Explicit local paths.** A reference carrying a local-path prefix resolves against that path directly. A URI matching a local file resolves to it; OCI inference does not run.
+2. **Tier 2 — The workspace catalog search stack, then the cache.** The `.aggrega-config.yaml` workspace's `catalog_dirs:` directories are searched in the order written, and the workspace root's `catalog/` directory is searched **last** — after every listed entry, and only when that directory exists. A match anywhere in the stack short-circuits OCI inference. A miss then consults `artifact_cache_dir`, which holds what earlier Tier 3 resolutions pulled.
 3. **Tier 3 — Remote OCI registry.** When Tier 1 and Tier 2 miss, the OCI inference rules apply and the URI resolves to a remote registry pull.
 
-The cascade lets authors mix locally-vendored content (Tier 1) with workspace-shared catalog content (Tier 2) with remote-fetched registry content (Tier 3) without authoring distinct URI shapes per tier.
+The cascade lets authors mix explicitly-pathed content (Tier 1) with vendored and workspace-local catalog content (Tier 2) with remote-fetched registry content (Tier 3) without authoring distinct URI shapes per tier.
 
 When `catalog_dirs:` lists more than one directory, the list is an ordered **first-win precedence stack**: an entity identity present in more than one listed directory resolves to the earliest-listed directory, and the later occurrence is shadowed (overridden, not an error) — so a project can layer its own catalog directory ahead of a shared one and override entities by identity while the rest fall through. The override is reported in the resolution detail. Two files claiming the same identity *within a single* directory remain an authoring mistake that halts the load.
+
+The workspace root's `catalog/` directory sits at the end of that stack rather than at its head, so anything a project lists wins over it on a collision, and listing one unrelated directory never stops it being read. It is skipped when a listed entry already reaches it — the walk of a listed directory is recursive, so a stack naming the workspace root has read it already. Omitting `catalog_dirs:` and writing it as an empty list are different statements: omitted, the workspace still reads `catalog/`; written as `[]`, it reads no local catalog at all, which is how a workspace says it has none.
 
 ### Rule 4 — Version handling
 
