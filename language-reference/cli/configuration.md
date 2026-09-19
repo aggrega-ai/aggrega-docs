@@ -49,6 +49,30 @@ setting.
 fields in either file; they are supplied by environment variable or flag at the moment they are
 needed. See [environment-variables.md](environment-variables.md#secrets).
 
+### Starting from nothing
+
+A freshly installed `aggrega` has neither file, and that is a working state rather than a broken
+one: every setting falls back to its built-in default and commands run. What is missing is a
+registry to pull catalog content from, together with the trust policy that says which signatures to
+accept — which is exactly what `aggrega config init` writes.
+
+You do not have to know that in advance. A command that reads its configuration and finds no file
+anywhere says so once, on standard error, and names `aggrega config init` as the way to create one.
+It is advice rather than a failure: standard output is untouched, nothing is asked of you, and the
+exit status is whatever the command would have reported anyway. It is written only when standard
+error is a terminal, so it reaches you at the keyboard and never accumulates in a pipeline's log.
+Once either file exists — your project's or the global one — it stops appearing.
+
+To seed the global file with the official hub and the trust policy that hub advertises:
+
+```bash
+aggrega config init
+```
+
+Pass `--registry <host>` to seed a different one, `--workspace` to write the entry into this
+project's file instead of the global one, and `--dry-run` to see the content it would write without
+creating anything. [aggrega-config.md](aggrega-config.md) covers the command in full.
+
 ### What overrides what
 
 ```
