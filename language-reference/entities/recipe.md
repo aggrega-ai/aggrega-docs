@@ -143,7 +143,7 @@ spec:
   valuesMapping: |
     primary:
       persistence:
-        size: "{{ .infra.storage_size }}"
+        size: "{{ .infra.storage.size }}"
       auth:
         # Reads the local rather than restating the expression, so the secret
         # name is authored once and every reader follows that one definition
