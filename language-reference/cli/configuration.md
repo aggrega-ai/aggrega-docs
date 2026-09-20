@@ -258,9 +258,9 @@ from.
 ### Settings for a server other people reach
 
 `aggrega mcp` speaks the Model Context Protocol. On your own machine a client launches it as a
-subprocess and talks to it over standard input and output, and no configuration is involved at
-all. The `mcp` block is for the other shape: one long-running process on a host, reached over
-HTTP by callers who are not at its keyboard.
+subprocess and talks to it over standard input and output, and the only setting that shape takes is
+`mcp.announce_tools`. The rest of the `mcp` block is for the other shape: one long-running process
+on a host, reached over HTTP by callers who are not at its keyboard.
 
 ```yaml
 # <project>/.aggrega-config.yaml
@@ -275,6 +275,11 @@ mcp:
     max_concurrent_requests: 32
   deny_reach:
     - registry
+  announce_tools:
+    - list-entities
+    - get-schema
+    - validate
+    - build
   health:
     listen: 127.0.0.1:7778
 ```
@@ -350,6 +355,24 @@ HTTP whatever this says, so naming it is accepted and changes nothing;
 [aggrega-mcp.md](aggrega-mcp.md#what-a-caller-may-reach) sets out the kinds and the scopes that admit
 them.
 
+**`mcp.announce_tools` narrows what the server announces, and it is a different bound from the key
+above.** Name the tools this server announces, spelled as the tool list reports them, and exactly
+those are announced: one left out is absent from every caller's tool list and refused if it is called
+by name anyway, naming this setting. Leave the key out — the default — and every tool the server
+carries is announced; write an empty list and none is, so those two spellings are different
+statements and no default is filled in for you. What separates it from `deny_reach` is what each one
+takes away. `deny_reach` takes away a capability: the operations of a withdrawn kind are not carried
+here at all and no credential brings one back. `announce_tools` takes away only an announcement — the
+tools it leaves out are capabilities the server still has — and what it answers is a client that caps
+how many tools it will register, sometimes across every server it is connected to at once. Where both
+are set the withdrawal wins, so a tool of a withdrawn kind stays absent however this key names it. A
+name no tool answers to stops the server before it serves anything, listing the tools it does have,
+rather than leaving you with a surface narrower than the one you asked for. Unlike the other keys
+here, which configure the listener `mcp.listen` selects, it is read whichever transport the server
+speaks, because the client a narrowing exists for is usually the one that launched the process over
+its own standard input and output;
+[aggrega-mcp.md](aggrega-mcp.md#narrowing-what-the-server-announces) sets out the rest.
+
 **`mcp.health.listen` puts the liveness and readiness checks on an address of their own.** Give it an
 address in either of `mcp.listen`'s two forms and a second listener answers `GET /healthz` there —
 `200` from the moment the process is running — and `GET /readyz` — `503` until the workspace has
@@ -361,8 +384,8 @@ that refuses everything else. Unlike `mcp.listen` this address is not confined a
 refused for it — point it at loopback or a Unix socket, which is what a supervisor beside this
 process reaches, and note that whatever can reach the address you pick can read those two answers.
 
-Each of these keys has a default, and
-[schema/other/aggrega-config.md](../schema/other/aggrega-config.md) states it beside the key.
+[schema/other/aggrega-config.md](../schema/other/aggrega-config.md) states each of these keys
+alongside its default, where it has one.
 
 ### The other ways a project root is recognised
 
