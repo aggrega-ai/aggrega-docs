@@ -18,6 +18,30 @@ These labels describe universal behaviors, allowing policy engines and generated
 | `datastore.aggrega.ai/engine` | `relational`, `document`, `kv`, `vector`, `graph`, `semantic-memory` (value set stabilizing against the populated catalog) | Allows policy engines to enforce cross-node type-safety (e.g., preventing an agent from attempting to send SQL payloads to a Vector DB). |
 | `execution.aggrega.ai/pattern` | `sync`, `async`, `autonomous-loop` | Allows policies to distinguish between a standard background worker and a runaway AI agent, mandating strict Time-To-Live (TTL) timeouts for autonomous loops. |
 | `gateway.aggrega.ai/intelligence` | `semantic`, `l4-mesh` | Dictates what features a router can physically support (e.g., preventing token-budget features on a standard TCP mesh). |
+| `dataplane.aggrega.ai/request-mirroring` | `full-rate`, `sampled` | Lets a Feature that copies live traffic to a second destination select a proxy that can copy at all, and tell one that copies every matching request from one whose share of copied requests is settable. |
+| `dataplane.aggrega.ai/caller-identity` | `client-certificate` | Lets a Feature that needs the original caller identified to the service behind the proxy select a carrier that can carry that identity, and read *which* mechanism carries it. |
+| `dataplane.aggrega.ai/upstream-tls` | `trust-anchor` | Lets a Feature that requires the proxy to check who it is talking to select a carrier able to verify an upstream's certificate against a trust anchor the deployment supplies. |
+
+The `dataplane.aggrega.ai/` keys name a position on the traffic path rather than a
+kind of component, so a proxy, an ingress gateway and a service mesh all describe
+themselves in one vocabulary instead of each needing its own. Two properties of the
+family are worth reading carefully, because both are easy to invert:
+
+- **The value carries the fidelity, not just the presence of the capability.** Two
+  carriers can both mirror requests and still differ in a way a Feature cares about,
+  so the distinction rides in the value and a Feature selects the fidelity it needs.
+  A carrier that offers a stronger fidelity carries the stronger value and no other.
+- **A value asserts what the product is able to do, never what a deployment has
+  switched on.** The two read alike and only the first is a property of the
+  component. A proxy that can verify an upstream certificate carries
+  `upstream-tls: trust-anchor` whether or not any given deployment enables the
+  check, because the label is what a Feature selects on before anything is
+  configured.
+
+A component with nothing to describe on one of these axes carries no value there
+rather than a weakest one, exactly as elsewhere in the taxonomy: absence means the
+axis has no subject on that component, so a Feature requiring any value on it
+correctly does not attach.
 
 **(B) The Specialized AI Layer (The Cognitive Identity)**
 These labels describe the *cognitive* identity of the workload, allowing the architecture to secure modern AI frameworks.

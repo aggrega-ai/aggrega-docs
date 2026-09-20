@@ -59,9 +59,36 @@ Annotation and label keys follow a uniform `<namespace>/<name>` shape. The prefi
 | `feature.aggrega.ai/` | Official standard library | **Convention.** Nothing refuses a key here; the vocabulary is the standard library's by agreement rather than by a check. | Feature-annotation shortcuts bound in Manifest `features.annotations` | `feature.aggrega.ai/tls-pinning`, `feature.aggrega.ai/data-masking` |
 | `component.aggrega.ai/` | Official standard library | **Convention.** Nothing refuses a key here. | Component-intrinsic trait labels (the `component.aggrega.ai/type` selector key lives here) | `component.aggrega.ai/type` |
 | `aggregate.aggrega.ai/` | Official standard library | **Convention.** Nothing refuses a key here. | Aggregate module-level identity labels | `aggregate.aggrega.ai/tier`, `aggregate.aggrega.ai/compliance` |
+| `<role>.aggrega.ai/` | Official standard library, and enterprises in their own catalogs | **Convention.** Nothing refuses a key here. | Capability labels — the behavioural dimensions a `usesSchema` selector or a Feature's `appliesTo` discriminates on. The `<role>` names the concern the dimension belongs to: either a component role, or a cross-cutting concern several roles share. | `model.aggrega.ai/capability`, `datastore.aggrega.ai/engine`, `gateway.aggrega.ai/intelligence`, `dataplane.aggrega.ai/request-mirroring` |
 | `<any-other-domain>/` | Enterprise / community | **Open.** Author under a domain you control. | Custom annotations and labels | `acme.com/billing-tier`, `corp/cost-center` |
 
 Authors writing custom annotations use a domain they control (typically reverse-DNS style). Authoring under `aggrega.ai/` directly (without a sub-prefix) is reserved for the platform; the Manifest's `features.annotations` bindings cannot bind keys directly under `aggrega.ai/` either — see [`entities/manifest.md`](../entities/manifest.md) "`aggrega.ai/` Prefix Reservation".
+
+### Naming a capability prefix
+
+A capability key is `<role>.aggrega.ai/<dimension>`, and the `<role>` is the part that
+takes judgement. Three rules govern it, and the first is the one most often got
+backwards.
+
+- **Name the concern, not the kind of component that happens to carry it first.**
+  Where a dimension describes something several component kinds share, the prefix
+  names the shared concern so the next kind to acquire it reuses the vocabulary
+  instead of inventing a parallel one. `component.aggrega.ai/hosting` is a concern —
+  who operates the underlying resource — and describes a database and a model API in
+  the same words; `dataplane.aggrega.ai/*` names a position on the traffic path, so a
+  proxy, an ingress gateway and a service mesh describe themselves alike. A dimension
+  genuinely specific to one role takes that role's name, as `model.aggrega.ai/capability`
+  does.
+- **One lowercase word, no hyphen, in the prefix.** The hyphen belongs in the
+  `<dimension>` half, where a compound reads naturally (`request-mirroring`,
+  `data-class`, `upstream-licensing`).
+- **A dimension is added when a selector needs it, and each value it declares has a
+  component that carries it.** Every word here is one a catalog author must learn and
+  a Feature author may meet, so a dimension earns its place by discriminating
+  something a `usesSchema` or an `appliesTo` actually asks about. A value with no
+  carrier is worse than an absent one: a selector naming it parses, matches nothing,
+  and reports nothing — so a value the catalog cannot demonstrate is left out of the
+  vocabulary until a component carries it.
 
 ### A reservation and a platform-defined key are not the same thing
 
