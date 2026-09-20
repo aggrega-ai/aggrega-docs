@@ -116,7 +116,7 @@ The first quoted value is the name the attachment was written under, which is wh
 **Emit shape:**
 
 ```text
-  lint: Aggregate aggregate at .spec.components.web: uses socket name is a near miss for a declared socket ("databses", on component type "core/devtool/adminer", near the declared socket "databases")
+  lint: uses socket name is a near miss for a declared socket (Aggregate aggregate, at .spec.components.web, "databses", on component type "core/devtool/adminer", near the declared socket "databases")
 ```
 
 The first quoted value is the socket name the author wrote, which is what the warning's opening sentence is about. The two that follow are introduced by the words that say what they are: the Component type the socket was named on, and the declared socket it sits within one edit of. The consequence the warning does not spell out is the one described above: the misspelled name is an ad-hoc connection, so it carries no selector and no per-edge contract, and the socket the author meant stays unwired.
