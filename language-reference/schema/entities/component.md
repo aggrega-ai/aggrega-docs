@@ -54,7 +54,7 @@ Duck-typing labels to declare characteristics. Must include the reserved 'compon
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `component.aggrega.ai/type` | string (enum) | yes | The foundational 7-Type Cloud-Native Ontology mapping. Allowed values: `"server"`, `"worker"`, `"task"`, `"function"`, `"stateful-server"`, `"resource"`, `"messaging"` |
+| `component.aggrega.ai/type` | string (enum) | yes | The reserved axis naming what kind of thing this component is. Aggrega defines this key and the values it accepts, so the set is closed; to classify components on an axis of your own, add your own label key alongside this one. Allowed values: `"server"`, `"worker"`, `"task"`, `"function"`, `"stateful-server"`, `"resource"` |
 
 #### `component.spec`
 
