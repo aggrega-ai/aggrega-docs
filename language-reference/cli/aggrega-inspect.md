@@ -481,10 +481,10 @@ the same way for every kind, a Release included.
 
 A Release answers two further questions, and each has its own flag because
 neither answer contains the other. --ir-graph asks for the IR graph a Release
-resolves to — what the deployment looks like, as JSON on stdout in addition to
+resolves to — what the Release looks like, as JSON on stdout in addition to
 whatever else this command produces. --closure asks for the Release's dependency
 closure — every catalog entity it reaches and the version each resolved to,
-which is what was pulled in to build the deployment. An entity can be reached
+which is what was pulled in to build the Release. An entity can be reached
 without appearing as a node, and a node does not carry the version its type
 resolved to, so holding one of the two is not holding the other.
 
