@@ -33,6 +33,12 @@ spec:
         # has, one level in.
         published:
           infra:
+            # The operator affirms that an ingress controller is already running
+            # in the target cluster. The compiler runs ahead of time and never
+            # contacts a cluster, so it cannot check this: the attachment asks
+            # instead, and the build halts while the answer is missing rather
+            # than emitting routing nothing would serve.
+            control_plane_present: true
             # The routing knobs. service_name is deliberately omitted: left
             # unset, the routing targets the Service the router's own Recipe
             # emits, which is what this deployment wants. ingress_class_name is
