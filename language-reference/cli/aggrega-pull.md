@@ -16,6 +16,8 @@ Two of the three are read out of the documents you authored. The third is not: e
 
 It writes the result to `<release-stem>.lock` next to the Release. A workspace that attaches a plugin returning an accept-or-reject verdict also gets a second file in that directory — the [plugin trust record](#the-plugin-trust-record).
 
+**Those two are not the only files a pull writes.** Every Recipe and FeatureRecipe in your own catalog directories that points at a remote `source:` or imports an artifact file carries its own record of what that content digested to, and the resolution fills it in — so the documents you authored are rewritten as part of the same pass, and a pull's effect reaches further than the directory the Release sits in. [Previewing what a pull would write](#previewing-what-a-pull-would-write) shows the whole set for your workspace before anything moves.
+
 ## The lockfile
 
 The lockfile pins each dependency to its URI, resolved version, and content digest. It has sections for catalog entities, schema and mapping libraries (each carrying back-pointers to the Components and Features that consume it), Wasm plugins, source artifacts, and external inputs (each keyed by URL and carrying the plugins that asked for it). The file is written in a canonical, deterministic form.
@@ -69,6 +71,26 @@ By default `aggrega pull` **honors** an existing lockfile: a dependency already 
 That bare form drops every recorded pin, so it asks for confirmation before doing anything. Answer it in advance with `--yes` for non-interactive use; with standard input not a terminal and no `--yes`, it refuses rather than waiting for an answer nobody can give. Naming targets (`aggrega pull --upgrade --release <release> <uri>`) holds every pin it did not name, so that form asks nothing. `aggrega build --upgrade` runs the bare form and is gated on the same terms.
 
 If a pinned version's bytes in the registry no longer match the digest the lockfile recorded (an immutability violation upstream), `pull` halts with an integrity error rather than silently adopting the changed bytes — run `--upgrade` to deliberately re-pin.
+
+## Previewing what a pull would write
+
+`aggrega pull --dry-run --release <release>` resolves the dependencies exactly as an ordinary pull does and then, instead of writing, prints what it would have written: one header naming each file's path, followed by the content that file would hold.
+
+```
+aggrega pull --dry-run --release release.yaml
+```
+
+**It names every file, not just the lockfile.** The lockfile, each Recipe and FeatureRecipe whose recorded digests would move, and the plugin trust record all appear in the same report, because a preview that showed only the lockfile would teach you that the lockfile is all that moves. The files a pull would leave byte-for-byte as they are do not appear at all — a name in the report means that file is about to change. The last line counts them, and a workspace a pull would not change reports a count of zero.
+
+**Nothing on disk moves.** No lockfile is written or created, no recipe is rewritten, and no trust record is created or amended. Where a capability is served by more than one provider plugin and nothing has chosen between them, the run halts naming what to supply rather than offering to write the choice into your configuration — a preview does not edit a config file on its way past.
+
+**The resolution itself still runs, so the cache still fills.** Which external inputs a Release consumes is a product of rendering it, and a run that declined to resolve would have nothing to report, so `--dry-run` fetches and stores exactly as a pull does. The content under `.aggrega/cache` is addressed by digest and read only through the pins a lockfile records, so filling it changes nothing a build resolves; what a dry run shows is what a pull would write.
+
+**A bare `--upgrade` asks nothing under this flag.** The confirmation exists because a full refresh drops every recorded pin, and a preview drops none — so `aggrega pull --dry-run --upgrade --release <release>` is the form to reach for when what you want to know is what a refresh would cost you, and it runs without an answer.
+
+**It is not accepted with `--verify`,** which already writes nothing. The pair would leave the flag doing nothing while reading as though it had done something, so it is refused rather than ignored.
+
+**One thing the preview cannot always show in full, and it says so when it happens.** A pull rewrites each Recipe's recorded digests and then renders the Release to discover its external inputs; a preview leaves those recipes alone, so where a recorded digest has gone stale — you edited an imported file, or a `source:` moved, since the last resolution — that render is held to a digest the unwritten file does not yet carry, and stops. Everything else in the report is exactly what a pull would write; only the reported lockfile's external-input pins are short. The run says so on both its output and its diagnostics rather than handing you a lockfile that looks complete. A first resolution of a workspace is unaffected, because there is no recorded digest yet for anything to be stale against.
 
 ## The composition these pins describe
 
@@ -232,11 +254,12 @@ A URI given without --upgrade is a usage error.
 | --- | --- | --- |
 | `--catalog` | `[]` | Catalog directory; repeatable. Each --catalog is prepended to the workspace catalog_dirs search stack (first match wins), which ends with the `catalog` directory at the workspace root when there is one. A workspace whose catalog_dirs is written as an empty list reads no local catalog at all. |
 | `--detail` | `false` | Print, per resolved entity, what this pull did — fetched fresh from a registry, reused a cache slot, found in a local catalog, served from inside the compiler binary, or external. Stdout only; not written to the lockfile |
+| `--dry-run` | `false` | Resolve the dependencies and print what this pull would write instead of writing it: each file's path and the content it would hold go to stdout, and the lockfile, every Recipe and FeatureRecipe whose recorded digests would move, and the plugin trust record are all left untouched. Only the files that would actually change are named. The resolution itself runs exactly as it would otherwise, so the content cache still fills and a bare --upgrade asks nothing because it drops no pin — what a dry run shows is what a pull would write. Not accepted with --verify, which already writes nothing |
 | `--include-prerelease` | `false` | Not yet implemented: accepted and ignored, so a script that passes it keeps working when it starts having an effect |
 | `--progress` | `false` | Force the pull-progress surface on even when stderr is not a terminal, printing plain static phase lines. The default is auto: the interactive phase checklist is shown only when stderr is a terminal |
 | `--quiet` | `false` | Silence the pull-progress surface on stderr. Does not affect stdout. Takes precedence over --progress |
 | `--release` | — | Path to Release YAML file (required) |
 | `--upgrade` | `false` | Re-resolve dependencies from current registry state, floating each to the highest available version. Bare (no positional URIs) discards the lockfile and re-resolves every entity, and asks for confirmation first because it drops every recorded pin; with one or more entity URIs, re-resolves only those, holding all other pins and the recorded external inputs unchanged, and asks nothing (mutually exclusive with --verify) |
-| `--verify` | `false` | Verify the existing lockfile against the current dependency resolution without writing; exits non-zero on drift or missing lockfile. Also re-asks each source ref the lockfile records where it points now, and reports a ref that has moved as drift; under the offline posture that one axis is not asked and the run says so. Also reports the compiler and core-plugin versions the lockfile records — reported for audit and never compared against this binary, so a toolchain difference is never drift (mutually exclusive with --upgrade) |
+| `--verify` | `false` | Verify the existing lockfile against the current dependency resolution without writing; exits non-zero on drift or missing lockfile. Also reports the compiler and core-plugin versions the lockfile records — reported for audit and never compared against this binary, so a toolchain difference is never drift (mutually exclusive with --upgrade) |
 | `--yes` | `false` | Answer the bare --upgrade confirmation in advance, for non-interactive use. It reaches that one prompt and nothing else: every other form of pull asks nothing, so passing it changes no behaviour there |
 <!-- END GENERATED: cli-pull -->
