@@ -130,6 +130,21 @@ The core Go compiler does not enforce this convention. Feature definitions with 
 
 Open-source standard-library Features follow the purity convention by authoring discipline; enterprise catalogs are free to deviate when a tightly-coupled composite genuinely fits the deployment model.
 
+## What earns a Feature, and where a product's own dial belongs
+
+A Feature is an **attachment**: it brings something an operator attaches deliberately — resources, a pipeline step, wiring — and the standard-library convention is that it be honourable by **at least two independent products**. That second half is the test to apply before authoring one, because portability is what the word *attachment* promises. An attachment says the capability travels: attach it to one component, attach it to another, and each product's realization honours it in its own terms.
+
+**A capability that only one product in the catalog carries is that product's own dial rather than a Feature.** It belongs as an authored value on that product's own surface, where an operator sets it and reads it beside everything else that configures the same product. Publishing it as a Feature instead offers portability the catalog cannot deliver: the attachment names one product by construction, so an author who attaches it to the second product they reach for meets a build that halts naming the type, and the Feature has taught a capability it never had.
+
+The test is about **this catalog**, not about the field. A capability that several products implement in the world is still a dial while only one of them is shipped here; what changes the answer is a second independent product in the catalog able to honour the same attachment, at which point a shared surface has two realizations to be honest about.
+
+**Upstream certificate pinning is the worked case.** A pin is a control over which key an upstream may present: accept only a certificate whose public key matches one the Release supplies. That is a different assertion from requiring an upstream's certificate to chain to a trust anchor the Release supplies, and different again from asserting what a certificate's subject says — both of those state what a certificate must *say*, while a pin states which key it must *be*. Several gateways here can verify against an anchor, which is why `dataplane.aggrega.ai/upstream-tls: trust-anchor` is a value a selector can match. Pinning is offered by one gateway in this catalog, so it is an authored value on that component's own surface rather than an attachment, and there is no pinning Feature while that remains true. A pin narrows what an upstream may present; it is a control, not an assurance that the connection is otherwise sound.
+
+Two bounds on the test, and the second is the half most easily dropped:
+
+* **It is authoring discipline, not a compiler check.** A Feature declaring options no product implements passes schema validation, the publishing linter and a render alike — the compiler is blind to what a Feature promises. The judgement stays with the catalog author.
+* **One product's inability to honour an option is not grounds to drop that option.** Where two or more products ship a capability under names that group, the capability is portable and the Feature keeps it; the product that cannot honour it declines it. A Feature shrunk to what every product supports has almost nothing left to say.
+
 ## Feature scope and authoring shape
 
 A Feature's `spec.schema` defines the **Feature's own** `values:` and `infra:` shapes — the cognitive intent the Developer configures per Feature attachment in the Aggregate (`values`), distinct from the capacity numbers the Operator decides per environment (`infra`). The Feature's pillars live in their own namespaces and are validated independently from the host Component's pillars. When the Developer attaches an `autoscaler` Feature to a `web-server` Component in the Aggregate, the Aggregate carries the Component's `values:` (host shape) plus the Feature's `values:` (the scaling-intent shape — which metric drives scaling); the operator-facing capacity numbers (`min_replicas` / `max_replicas`) flow through the Release's `infra:` block on the Feature attachment.
