@@ -1,0 +1,40 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: replicated
+  # Both Releases in this example carry the same environment. Everything that
+  # could differ between them is held equal on purpose, so the one line that
+  # does differ is the whole of the difference in the rendered output.
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: aggregate
+  manifest: manifest
+  boundaries:
+    stack:
+      directory: stack
+      components:
+        # Listed with no sizing of its own: naming a component in a boundary is
+        # what places it there, and the control plane keeps the operational
+        # defaults its Component declares — including the controller image,
+        # which is pinned in the catalog so a Release that names nothing still
+        # renders a Deployment with one version on it.
+        mysql-operator: {}
+        db:
+          infra:
+            # The compiler cannot look at a cluster, so it cannot check that the
+            # controller is installed. The affirmation is the operator's, and a
+            # build halts without it rather than emitting a custom resource that
+            # nothing is watching for.
+            control_plane_present: true
+            # The Secret holding the cluster's root account already exists in the
+            # target cluster; the custom resource is pointed at it by name and
+            # nothing is rendered for it, so no password reaches the output.
+            credentials_secret: mysql-root
+            # The one line that differs between this Release and the single one.
+            # Three is a request, not an outcome: the controller reads it and
+            # acts on it inside the target cluster.
+            server_instances: 3

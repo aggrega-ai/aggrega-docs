@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: manifest
+  version: "1.0.0"
+  description: >
+    Ops mapping for the Kubernetes target. The database type binds the Recipe
+    that emits an InnoDBCluster custom resource, and the control-plane type binds
+    the Recipe that emits the controller that reconciles it. One mapping serves
+    both Releases in this example: they select the same realization, and differ
+    only in the sizing each one carries.
+spec:
+  mappings:
+    components:
+      type:
+        # The Recipe references are provider-qualified. A bare name resolves
+        # only when exactly one provider carries it, so qualifying says which
+        # provider is meant rather than relying on there being just the one.
+        core/datastore/mysql-operator:1.0.0: helm/mysql-operator:1.0.0
+        core/datastore/mysql-innodb-cluster:1.0.0: helm/mysql-innodb-cluster:1.0.0

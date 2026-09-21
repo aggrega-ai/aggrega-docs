@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: aggregate
+  version: "1.0.0"
+  description: >
+    A MySQL InnoDB Cluster and the control plane that reconciles it. This is the
+    whole of the Developer-authored surface, and it is the same document for both
+    Releases in this example: one asking for a single server instance and one
+    asking for three. How many instances are asked for is decided below the
+    Aggregate, in the Release.
+spec:
+  components:
+    # ── Control plane ───────────────────────────────────────────────────
+    # The MySQL Operator for Kubernetes: a ServiceAccount, the cluster RBAC the
+    # controller needs, and the controller Deployment. It is declared here
+    # because the database below is a custom resource, and a custom resource
+    # only becomes a running server once a controller is watching for it.
+    # Nothing about the database is configured here — this component installs
+    # the controller and no more.
+    mysql-operator:
+      type: core/datastore/mysql-operator
+
+    # ── Database ────────────────────────────────────────────────────────
+    # The developer states intent — a MySQL server speaking a chosen character
+    # set — and nothing about how many servers stand behind it. Whether the
+    # Release asks for one instance or three is not a developer concern, and
+    # nothing here changes when it changes.
+    db:
+      type: core/datastore/mysql-innodb-cluster
+      values:
+        charset: utf8mb4
+        collation: utf8mb4_0900_ai_ci
