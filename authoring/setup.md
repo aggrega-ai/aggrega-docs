@@ -19,7 +19,7 @@ A version string means the binary is found and runnable. That is everything the 
 
 ## Connect an MCP client
 
-Every MCP-capable client launches the server the same way — it runs the `aggrega` command with a single `mcp` argument and speaks the protocol over the process's stdin and stdout. The configuration differs only in *where* each client keeps its server list. In every case the entry has the same shape:
+Most MCP-capable clients launch the server the same way — they run the `aggrega` command with a single `mcp` argument and speak the protocol over the process's standard input and output. What differs between them is *where* each keeps its server list and what it calls the entries in it. The common shape:
 
 ```json
 {
@@ -34,71 +34,52 @@ Every MCP-capable client launches the server the same way — it runs the `aggre
 
 Once the client restarts and connects, the Aggrega authoring prompts, resources, and tools become available. See [Getting Started](getting-started.md) for what to do with them and the [`aggrega mcp`](../language-reference/cli/aggrega-mcp.md) reference for the command itself.
 
+**Nothing in the entry selects a protocol revision.** Aggrega speaks both `2026-07-28` and `2025-06-18`, on standard input and output and over HTTPS alike, so a client of either connects and reaches the same prompts, resources, and tools. Which one a client asks for is settled on the wire rather than in your configuration.
+
+### Where each client keeps its server list
+
+| Client | Where the list lives | What the entry is called |
+|---|---|---|
+| Claude Code | `claude mcp add`, or an `.mcp.json` file in the project | `mcpServers` |
+| Claude Desktop | its extension settings for a local server; its connector settings for one reached over HTTPS | see [Claude Desktop](#claude-desktop) |
+| Cursor | `.cursor/mcp.json` for one workspace, or a user-scoped `mcp.json` for every workspace | `mcpServers` |
+| Visual Studio Code | `mcp.json` in your user profile, or `.vscode/mcp.json` for one workspace | `servers` — see [Visual Studio Code](#visual-studio-code) |
+| GitHub Copilot CLI | `copilot mcp add`, or the `mcp-config.json` file it keeps in your home directory | `mcpServers` |
+| Antigravity | the `mcp_config.json` file reachable from its settings | `mcpServers` |
+| Windsurf | the `mcp_config.json` file reachable from its settings | `mcpServers` |
+| Cline | its MCP settings, backed by a `cline_mcp_settings.json` file | `mcpServers` |
+
+Every client in that table except the two with a section of their own below takes the entry exactly as written above, at the path in its row. A client not listed connects the same way if it reads a server list of either shape.
+
 ### A note on `PATH`
 
-Desktop clients launched from a graphical environment do not always inherit the same `PATH` as your terminal. If a client reports that it cannot find the `aggrega` command, replace `"command": "aggrega"` with the absolute path to the binary (for example `"command": "/usr/local/bin/aggrega"`). Everything else stays the same.
+Clients launched from a graphical environment do not always inherit the same `PATH` as your terminal. If a client reports that it cannot find the `aggrega` command, replace `"command": "aggrega"` with the absolute path to the binary (for example `"command": "/usr/local/bin/aggrega"`). Everything else stays the same.
+
+### Visual Studio Code
+
+Visual Studio Code keeps its servers under `servers` rather than `mcpServers`, and each entry names the transport it uses:
+
+```json
+{
+  "servers": {
+    "aggrega": {
+      "type": "stdio",
+      "command": "aggrega",
+      "args": ["mcp"]
+    }
+  }
+}
+```
 
 ### Claude Desktop
 
-Claude Desktop reads its server list from `claude_desktop_config.json` (reachable from the app's developer settings). Add the `aggrega` entry under `mcpServers`:
+Claude Desktop installs a local server from an extension package — the server together with a manifest describing it, bundled into one installable file and added from its extension settings — rather than from an entry in a configuration file. Aggrega does not currently distribute such a package.
 
-```json
-{
-  "mcpServers": {
-    "aggrega": {
-      "command": "aggrega",
-      "args": ["mcp"]
-    }
-  }
-}
-```
+Its connector settings accept a server reached over HTTPS, and that is the route to Claude Desktop today: see [A server reached over HTTPS](#a-server-reached-over-https).
 
-Restart Claude Desktop; the Aggrega prompts appear in the prompt picker and the tools become available to the assistant.
+### When a client will not take the whole tool surface
 
-### Cursor
-
-Cursor reads MCP servers from an `mcp.json` file — a project-scoped `.cursor/mcp.json` for one workspace, or a user-scoped file for every workspace. Use the same shape:
-
-```json
-{
-  "mcpServers": {
-    "aggrega": {
-      "command": "aggrega",
-      "args": ["mcp"]
-    }
-  }
-}
-```
-
-### Windsurf
-
-Windsurf keeps its MCP configuration in an `mcp_config.json` file reachable from its settings. Add the `aggrega` server under `mcpServers`:
-
-```json
-{
-  "mcpServers": {
-    "aggrega": {
-      "command": "aggrega",
-      "args": ["mcp"]
-    }
-  }
-}
-```
-
-### Cline
-
-Cline manages its servers through its MCP settings, backed by a `cline_mcp_settings.json` file. Add the same entry:
-
-```json
-{
-  "mcpServers": {
-    "aggrega": {
-      "command": "aggrega",
-      "args": ["mcp"]
-    }
-  }
-}
-```
+Aggrega announces its whole tool surface and leaves the client to decide how much of it to put in front of the model. Some clients cap how many tools they will register at once and drop the rest. Where that happens, `mcp.announce_tools` shortens what the server announces to the tools you name — see [Narrowing what the server announces](../language-reference/cli/aggrega-mcp.md#narrowing-what-the-server-announces).
 
 ### A server reached over HTTPS
 
