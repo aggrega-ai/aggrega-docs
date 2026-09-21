@@ -119,10 +119,12 @@ That is deliberate rather than a gap, and there is no switch for it. A pull that
 
 So an offline pull is a refusal to touch the network rather than a reduced result for everything a document names, and for external inputs it is a completed resolution that tells you what it could not reach. A lockfile that exists is one whose dependency resolution completed; whether its external inputs are complete is what the pull's own output tells you, and what a build then holds it to.
 
+**`--verify` under the offline posture covers less, and reports that it does.** Asking where a recorded source ref points today means reaching its remote, which the offline posture refuses. So an offline `--verify` checks the pinned dependencies and skips that one axis, and it prints a line saying so rather than reporting a match it never established. An air-gapped verify stays available; what it does not tell you is whether a ref has moved since.
+
 ## Integration with `aggrega build`
 
 - **Verification.** `aggrega build` verifies every resolved dependency against the lockfile and halts on drift between the lockfile and the current catalog or registry state. Run `aggrega pull --upgrade --release <release>` to adopt the new state.
-- **Auto-pull.** If the lockfile is missing and `auto_pull` is true (the default), `aggrega build` runs the pull first automatically. If `auto_pull` is false, the build halts and asks you to pull.
+- **Auto-pull.** If the lockfile is missing and `auto_pull` is true (the default), `aggrega build` runs the pull first automatically. If `auto_pull` is false, the build halts and asks you to pull. The pull step a build runs is the same one this page describes, so a build that fills an existing lockfile halts on a moved source ref exactly as `aggrega pull` does — see [Determinism and integrity](#determinism-and-integrity).
 - **Offline.** Under the offline posture, `aggrega build` uses only what the machine already holds, and refuses network access before any connection is attempted. A reference whose content the cache does not hold halts the build rather than failing partway through a fetch, and a build with no lockfile at all halts naming the posture and the pull that would fill it. `--auto-pull` is not itself refused, since an incremental fill over references already cached or present in a local catalog needs nothing from a registry; `--upgrade` is, for the reason [Offline](#offline) gives.
 - **Catalog search.** Pull honors `catalog_dirs` from `.aggrega-config.yaml` even when no `--catalog` is given, and resolves the same first-win search stack `aggrega build` does, so the dependencies it pins match what build searches.
 
@@ -144,7 +146,13 @@ So the command does two things in one pass: it resolves and pins the closure the
 
 ## Determinism and integrity
 
-A Recipe's `source:` may template its version against the Release's resolved `values` and `infra` (and over `locals` defined on the same); these resolve at pull time and the result is pinned. A mutable Git tag or branch is pinned to the concrete commit it points at, with the original ref preserved for readability. At build time the cached archive's digest is re-verified against the lockfile, so a tampered cache is caught.
+A Recipe's `source:` may template its version against the Release's resolved `values` and `infra` (and over `locals` defined on the same); these resolve at pull time and the result is pinned. A mutable Git tag or branch is pinned to the concrete commit it points at, and the ref you authored is recorded beside it. At build time the cached archive's digest is re-verified against the lockfile, so a tampered cache is caught.
+
+**A recorded ref is held to the commit it pinned.** The ref is recorded because a later run asks it again, not for readability. A `pull` that is not an upgrade re-asks each recorded ref where it points, and a ref that has moved at its remote halts the run — naming the artifact, the ref, the commit the lockfile pins and the commit it resolves to now — rather than adopting the move. Run `aggrega pull --upgrade --release <release>` to adopt it. A targeted upgrade, which names entity URIs, does not: a source reference is not an entity you can name, so a targeted run holds it exactly as a plain pull does.
+
+That check is the one thing the build-time digest re-verify cannot do for you. A pull that adopted a moved ref would rewrite the fetched bytes and the recorded digest in the same act, so the two values a build compares would have moved together and agreed — and you would be building different source content than the lockfile was reviewed against, with nothing reporting it.
+
+**Only a ref the lockfile records is held this way.** A Recipe whose authored `version:` already equals the commit its `ref:` resolves to has nothing transformed, so no ref is recorded and there is nothing for a later run to re-ask. The [lockfile reference](../schema/other/lockfile.md) states exactly when a ref is recorded.
 
 The lockfile pins content fetched from registries and remote sources. Local files — sources beginning with `./` or `../`, and workspace catalog directories — are not pinned; their integrity between builds is the responsibility of the source-control system. See [byte-identical output](../../architecture/05-invariants.md) for the scope of the determinism guarantee.
 
@@ -229,6 +237,6 @@ A URI given without --upgrade is a usage error.
 | `--quiet` | `false` | Silence the pull-progress surface on stderr. Does not affect stdout. Takes precedence over --progress |
 | `--release` | — | Path to Release YAML file (required) |
 | `--upgrade` | `false` | Re-resolve dependencies from current registry state, floating each to the highest available version. Bare (no positional URIs) discards the lockfile and re-resolves every entity, and asks for confirmation first because it drops every recorded pin; with one or more entity URIs, re-resolves only those, holding all other pins and the recorded external inputs unchanged, and asks nothing (mutually exclusive with --verify) |
-| `--verify` | `false` | Verify the existing lockfile against the current dependency resolution without writing; exits non-zero on drift or missing lockfile. Also reports the compiler and core-plugin versions the lockfile records — reported for audit and never compared against this binary, so a toolchain difference is never drift (mutually exclusive with --upgrade) |
+| `--verify` | `false` | Verify the existing lockfile against the current dependency resolution without writing; exits non-zero on drift or missing lockfile. Also re-asks each source ref the lockfile records where it points now, and reports a ref that has moved as drift; under the offline posture that one axis is not asked and the run says so. Also reports the compiler and core-plugin versions the lockfile records — reported for audit and never compared against this binary, so a toolchain difference is never drift (mutually exclusive with --upgrade) |
 | `--yes` | `false` | Answer the bare --upgrade confirmation in advance, for non-interactive use. It reaches that one prompt and nothing else: every other form of pull asks nothing, so passing it changes no behaviour there |
 <!-- END GENERATED: cli-pull -->
