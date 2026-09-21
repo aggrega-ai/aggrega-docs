@@ -220,9 +220,11 @@ spec:
 
 ---
 
-## Example 6: The 7 Cloud-Native Types
+## Example 6: The Cloud-Native Types
 
-Every Component in Aggrega maps to one of 7 universal cloud primitives. This Aggregate demonstrates all seven in a single standard backend.
+Every Component in Aggrega carries one value from the closed set on the reserved `component.aggrega.ai/type` label. This Aggregate puts every one of those values to work in a single standard backend.
+
+The value lives on the Component catalog entity, never on the instance — an Aggregate wires instances and cannot label them — so each comment below names the type the referenced catalog entity carries.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -233,30 +235,32 @@ metadata:
 spec:
   components:
     api-gateway:
-      type: cloud/api-gateway:1.0.0        # 1. server — long-running HTTP endpoint
+      type: cloud/api-gateway:1.0.0        # server — long-running HTTP endpoint
       values: { routing_mode: "latency" }
 
-    event-bus:
-      type: cloud/kafka-topic:1.0.0         # 2. messaging — async pub/sub
-      values: { partitions: 3 }
-
     job-processor:
-      type: cloud/batch-worker:1.0.0        # 3. worker — background consumer
+      type: cloud/batch-worker:1.0.0        # worker — background consumer
       values: {}
 
     primary-db:
-      type: cloud/mariadb:1.0.0             # 4. stateful-server — persistent datastore
+      type: cloud/mariadb:1.0.0             # stateful-server — persistent datastore
       values: {}
 
+    event-bus:
+      type: cloud/kafka-broker:1.0.0        # stateful-server — a broker holds its own disk
+      values: { partitions: 3 }
+
     asset-storage:
-      type: aws/s3-bucket:1.0.0             # 5. resource — managed cloud resource (no compute)
+      type: aws/s3-bucket:1.0.0             # resource — managed cloud resource (no compute)
       values: {}
 
     db-migration:
-      type: cloud/db-migrator:1.0.0         # 6. task — run-to-completion job
+      type: cloud/db-migrator:1.0.0         # task — run-to-completion job
       values: {}
 
     webhook-handler:
-      type: aws/lambda:1.0.0                # 7. function — event-driven serverless
+      type: aws/lambda:1.0.0                # function — event-driven serverless
       values: {}
 ```
+
+**The broker is the entry worth reading twice.** `event-bus` is a message broker, and a reader reaching for a type called after its domain will not find one: the reserved axis says how infrastructure must treat a component, and a broker holding its own durable disk is a `stateful-server` exactly as the database above it is. Where the broker *does* differ is the axis a user browses on — its `component.aggrega.ai/category` is `messaging`, and the database's is `datastore`. Two axes, two questions: the category is where you look for a component, the type is what a Recipe emits for it. A selector written against one never matches on the other.

@@ -6,21 +6,26 @@ To support the unique demands, volatility, and security threats of modern AI sys
 
 The core Go compiler is a dumb universal router; all AI-specific intelligence lives in pluggable WebAssembly (Wasm) policies and the JSON Schema 2020-12 declarations Platform Architects author on Catalog entities.
 
-### 1. The 7-Type Cloud Ontology & AI Duck-Typing
+### 1. The Operational Cloud Ontology & AI Duck-Typing
 
-To bridge the generic Open Application Model (OAM) with the strict realities of modern infrastructure, the `component.aggrega.ai/type` label maps exclusively to **7 Universal Cloud-Native Primitives**. This semantic identity dictates precisely how the Wasm rendering plugins should treat state, network ingress, and lifecycles.
+To bridge the generic Open Application Model (OAM) with the strict realities of modern infrastructure, the `component.aggrega.ai/type` label maps exclusively to a closed set of **Universal Cloud-Native Primitives**. This semantic identity dictates precisely how the Wasm rendering plugins should treat state, network ingress, and lifecycles.
 
-**The 7 Cloud-Native Types (The Infrastructure Base):**
+**The Cloud-Native Types (The Infrastructure Base):**
 
 * `server`: Long-running, stateless compute that *expects inbound application traffic* (e.g., an AI Gateway or a Chat UI).
 * `worker`: Long-running, stateless compute that *pulls from queues or runs background loops* with zero inbound application ports (e.g., a LangGraph agent or Celery worker).
 * `task`: Ephemeral compute that runs to completion and dies (e.g., DB migration scripts).
 * `function`: Event-driven compute that scales to zero (e.g., AWS Lambda).
-* `stateful-server`: In-cluster compute requiring stable network identities and permanent disks (e.g., a Qdrant vector database).
-* `resource`: External, platform-managed infrastructure (e.g., AWS RDS PostgreSQL, S3 buckets).
-* `messaging`: Event routing and decoupling glue (e.g., a Kafka topic, SQS queue).
+* `stateful-server`: In-cluster compute requiring stable network identities and permanent disks (e.g., a Qdrant vector database, a Kafka broker).
+* `resource`: External, platform-managed infrastructure (e.g., AWS RDS PostgreSQL, S3 buckets, a hosted event bus).
 
-See [entities/component](../language-reference/entities/component.md) for the Semantic Label Taxonomy tables — the Generic Cloud Layer, Specialized AI Layer, Cross-Cutters, and Dynamic Business Context labels Architects use to layer cognitive identity on top of the 7 base types.
+**The set is Aggrega's own and it is closed.** The published Component schema enumerates these values, and a document carrying anything else is refused when it loads — `E0215` names the label and lists what it takes. That is what the axis buys: a Feature or a socket selector written against `stateful-server` means the same thing across every catalog it meets.
+
+**What a component *is* in your own vocabulary goes on your own key.** A tier, a data zone, a service class, a finer split of the primitives — each is a label key you author beside the reserved one, since the Component schema accepts any further label key with a string value and every selector surface reads it identically. That is the same mechanism the AI duck-typing labels below already use; the reserved key is the shared floor, and everything above it is yours.
+
+**The operational type is not the browse category, and they are separate axes on purpose.** A Kafka broker sits in the `messaging` *category* — where a user looks for it — and carries `stateful-server` as its *type*, because that is what infrastructure has to do for it. A selector written against one axis never matches on the other.
+
+See [entities/component](../language-reference/entities/component.md) for the Semantic Label Taxonomy tables — the Generic Cloud Layer, Specialized AI Layer, Cross-Cutters, and Dynamic Business Context labels Architects use to layer cognitive identity on top of the base types.
 
 ---
 
@@ -32,7 +37,7 @@ For the official open-source catalog to remain universally usable, it must stric
 
 To maintain an unopinionated core catalog, official components follow this standard: **Keep the Base Naked, and Flavor the Edges.**
 
-1. **The Naked Base:** The root-level open-source `Component` hardcodes only what is objectively true of the product and cannot be changed by anything an author configures — first and always the 7-Type Primitive (`component.aggrega.ai/type`). A Postgres database is objectively a `stateful-server`; that fact cannot change. The same test admits a capability label where the product's identity *is* that capability: `core/datastore/qdrant` and `core/datastore/weaviate` are vector search engines and nothing an author writes makes them anything else, so each carries `datastore.aggrega.ai/engine: vector` on the base, exactly as `core/datastore/redis` carries `kv`. What the naked base refuses is the opposite case — a trait that depends on how a component is configured or used, which the third mechanism below exists for.
+1. **The Naked Base:** The root-level open-source `Component` hardcodes only what is objectively true of the product and cannot be changed by anything an author configures — first and always the operational primitive (`component.aggrega.ai/type`). A Postgres database is objectively a `stateful-server`; that fact cannot change. The same test admits a capability label where the product's identity *is* that capability: `core/datastore/qdrant` and `core/datastore/weaviate` are vector search engines and nothing an author writes makes them anything else, so each carries `datastore.aggrega.ai/engine: vector` on the base, exactly as `core/datastore/redis` carries `kv`. What the naked base refuses is the opposite case — a trait that depends on how a component is configured or used, which the third mechanism below exists for.
 2. **The Flavored Interfaces (Schema Inheritance):** A Component may declare `extends`, naming another Component as its base, and what that composes is **structure**: labels, annotations, attachment slots, the self-inject allowlist, topology sockets and named `assertions`. The three data pillars do not compose — an extending Component writes the literal marker `schema: inherited` and authors no `values`, `infra` or `provides` content of its own, so its contract is its base's identically. That is why the mechanism **narrows rather than varies**: because the contract is unchanged, every Recipe written for the base already serves the specialization, and the specialization costs one catalog entity and one Manifest mapping line. What a specialization adds is therefore identity a selector or a policy reads — an audit tier, a data zone, a governance contact, or a socket whose selector admits less than the base's. It cannot add a different contract, because it has no surface on which to author one. One consequence is easy to miss: **the mapping line is still required.** Recipe selection is by exact mapping key, so a specialization needs its own `mappings.components.type` entry even though it needs no Recipe of its own. See [examples/extends-wrapper](../language-reference/examples/extends-wrapper/) for a published wrapper that adds a reviewed-tier label and narrows a socket on it, together with the build that halts when an edge wired into that socket leaves the tier. A trait that depends on how a component is configured is **not** this mechanism's subject: a specialization pins its base's artifact and inherits its contract, so a trait true of the specialization is already true of the base, where the Naked Base rule puts it. Such a trait belongs to the Dynamic Mutator below.
 3. **The Dynamic Mutator (Wasm Promotion):** If a trait is dictated by the developer's payload (e.g., `enable_vector: true`), the enterprise uses the governance socket's `label-transform` role at topology construction to dynamically read the opaque `values` and automatically inject the `engine: vector` label into the IR Graph before policies run. This is where a configuration-dependent trait becomes available to strict policy evaluation — the developer's declared `values` are what promote it, and the transform runs before any policy reads a label.
 
@@ -46,7 +51,7 @@ To enforce the Separation of Concerns, Developers are **strictly forbidden** fro
 
 * **Who writes it?** The Platform Architect (Domain 2). This is mandatory for every component in the catalog.
 * **Who consumes it?** The Static Analyzer and Wasm Rendering Plugins.
-* **Compiler Use Case:** This is the core 7-type cloud ontology. The Static Analyzer evaluates the `usesSchema` selector strings natively in Go to guarantee a Developer cannot attach an Agent to a standard Database if the socket requires a specific AI capability. Furthermore, DevOps uses this label to explicitly route stateful primitives (`stateful-server`, `resource`) into physical cluster boundaries that support persistent disks, while a governance verdict role can enforce that stateful components are never placed in ephemeral-only boundaries.
+* **Compiler Use Case:** This is the core operational cloud ontology. The Static Analyzer evaluates the `usesSchema` selector strings natively in Go to guarantee a Developer cannot attach an Agent to a standard Database if the socket requires a specific AI capability. Furthermore, DevOps uses this label to explicitly route stateful primitives (`stateful-server`, `resource`) into physical cluster boundaries that support persistent disks, while a governance verdict role can enforce that stateful components are never placed in ephemeral-only boundaries.
 
 **2. `model.aggrega.ai/capability`**
 

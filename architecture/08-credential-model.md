@@ -211,7 +211,7 @@ The golden local-development path keeps developer intent unchanged and swaps the
 
 Aggrega does not model data schemas — rows, columns, files are application concerns. It models the *governance identity* of data with labels, and the standard-library convention is:
 
-- Data lives in components whose ontology label marks them stateful or resource-like (`component.aggrega.ai/type: stateful-server`, `resource`, `messaging`).
+- Data lives in components whose ontology label marks them stateful or resource-like (`component.aggrega.ai/type: stateful-server`, `resource`). A message broker holding queued payloads is one of these too: it carries `stateful-server` when it owns its disk and `resource` when the Release wires a hosted one, and the `messaging` shelf it browses under is the separate `component.aggrega.ai/category` axis.
 - `compliance.aggrega.ai/data-class` (`public`, `internal`, `restricted`) gives that data a semantic identity. It is an ordinary label: label selectors evaluate it, and a governance plugin an operator attaches may read it and reject a build. The compiler itself does not interpret it.
 
 **`data-class` and `sensitive` are two axes, and collapsing them loses information.** They sit next to each other and are easy to mistake for one surface, so hold the distinction:

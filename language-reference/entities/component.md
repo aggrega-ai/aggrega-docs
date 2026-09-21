@@ -1,6 +1,6 @@
 # Component
 
-The conceptual role of the Component entity (the abstract compute-node interface in Domain 2) lives in [architecture/04-entity-taxonomy.md](../../architecture/04-entity-taxonomy.md). This page covers the Component authoring surface: the Semantic Label Taxonomy that Architects use to layer cognitive identity on top of the 7-type base ontology, the `schema:` declaration for the data pillars, the `usesSchema` and `featuresSchema` declarative tables for topology sockets and attachment slots, presence mandates, the `extends:` inheritance mechanism, and the `assertions:` cross-field rule block.
+The conceptual role of the Component entity (the abstract compute-node interface in Domain 2) lives in [architecture/04-entity-taxonomy.md](../../architecture/04-entity-taxonomy.md). This page covers the Component authoring surface: the Semantic Label Taxonomy that Architects use to layer cognitive identity on top of the operational base ontology, the `schema:` declaration for the data pillars, the `usesSchema` and `featuresSchema` declarative tables for topology sockets and attachment slots, presence mandates, the `extends:` inheritance mechanism, and the `assertions:` cross-field rule block.
 
 ## The Semantic Label Taxonomy (The Standard Library Convention)
 
@@ -335,7 +335,7 @@ spec:
       inject: [env, file]
     log_destination:
       required: false
-      selector: "component.aggrega.ai/type=messaging"
+      selector: "component.aggrega.ai/category=messaging"
       inject: []
 ```
 
@@ -707,7 +707,7 @@ Because inheritance adds rather than replaces, an extending Component may not re
 See [architecture/13-catalog-and-registry.md §3](../../architecture/13-catalog-and-registry.md) for the schema content formats.
 
 **Example A: The Base Component (The Corporate Baseline)**
-The Platform Architect defines a foundational enterprise server. This base sets the required 7-Type cloud primitive label and establishes the security constraints in the schema. Because the pillar block is inherited unchanged, every constraint here reaches each extending Component exactly as authored.
+The Platform Architect defines a foundational enterprise server. This base sets the required operational cloud primitive label and establishes the security constraints in the schema. Because the pillar block is inherited unchanged, every constraint here reaches each extending Component exactly as authored.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
