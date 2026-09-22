@@ -152,6 +152,15 @@ Features, Recipes, Manifests, and the provider matrix.
   move — and on the managed target those two are Terraform expressions the
   compiler pipes through without resolving, because what they name does not
   exist yet.
+- **[chart-from-git-repository](chart-from-git-repository/)** — a Helm chart that
+  lives in a git repository rather than a chart registry, wrapped by a Recipe
+  whose source names three coordinates: the repository, the reference to read it
+  at, and the directory inside it that is the chart. Because only a commit names
+  content that cannot be repointed, the lockfile records the authored reference
+  *and* the commit it resolved to — so a tag stays readable in the Recipe while
+  the build stays reproducible, and a reference that later points somewhere else
+  halts rather than being adopted. A second release is expected to fail: it names
+  a reference the repository does not carry.
 - **[extends-wrapper](extends-wrapper/)** — publishing a specialized variant of a
   standard-library Component with `extends`. The wrapper adds labels, annotations
   and one socket, authors no data pillars, and inherits its base's contract whole,

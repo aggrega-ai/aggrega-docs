@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: chart-from-git-repository
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: chart-from-git-repository
+  manifest: chart-from-git-repository-manifest
+  boundaries:
+    app:
+      directory: app
+      components:
+        web:
+          infra:
+            # The generic server primitive packages no software, so the Release
+            # names the image it runs.
+            image: nginx:1.27.3
+            port: 8080
+            replicas: 2

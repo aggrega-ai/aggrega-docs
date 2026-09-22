@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+#
+# Expected to FAIL. It deploys the same Aggregate through the Manifest that
+# binds the Recipe whose source names a reference the repository does not carry,
+# so resolution halts instead of pinning a commit.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: chart-from-git-repository-negative
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: chart-from-git-repository
+  manifest: chart-from-git-repository-negative-manifest
+  boundaries:
+    app:
+      directory: app
+      components:
+        web:
+          infra:
+            image: nginx:1.27.3
+            port: 8080
+            replicas: 2

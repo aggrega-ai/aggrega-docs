@@ -1,0 +1,40 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Recipe
+metadata:
+  name: hello-world-git-missing-ref
+  version: 1.0.0
+  description: >
+    The guardrail half of this example, and the only difference from
+    hello-world-git is the reference: it names a tag the repository does not
+    carry. Resolution reaches the repository, fails to resolve the reference to
+    a commit, and halts naming what it could not find. It is here so the example
+    demonstrates the refusal as well as the success — a source path that is only
+    ever exercised on its happy path says nothing about its guards.
+  maintainers:
+    - name: "Massimiliano Ferrero"
+      email: "m.ferrero@cognitio.it"
+spec:
+  capability: helm
+  implements: core/compute/server:1.0.0
+
+  source:
+    kind: git-repository
+    url: https://github.com/helm/examples.git
+    # No such tag. The repository is real and reachable; this reference is not
+    # in it, so there is no commit to pin and nothing to archive.
+    ref: hello-world-9.9.9
+    module_subdir: charts/hello-world
+
+  provides: {}
+
+  valuesMapping: |
+    replicaCount: {{ .infra.replicas }}
+    {{- $image := splitList ":" .infra.image }}
+    image:
+      repository: "{{ first $image }}"
+      tag: "{{ last $image }}"
+    service:
+      port: {{ .infra.port }}
