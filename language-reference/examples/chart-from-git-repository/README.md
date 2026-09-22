@@ -104,7 +104,7 @@ spec:
 Every build prints one warning:
 
 ```text
-warning: node "web": unused .infra key "compute" (not referenced by valuesMapping of recipe "hello-world-git")
+warning: node "web": .infra key "compute" is read by no template in recipe "hello-world-git" — correct the spelling, or remove the key
 ```
 
 That is accurate and worth reading rather than silencing. The `core/compute/server`

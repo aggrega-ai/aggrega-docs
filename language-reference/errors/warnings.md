@@ -157,7 +157,7 @@ The finding belongs to the instance that carries it, so ten instances of one Com
 
 ## Ghost Infrastructure Tracker warnings
 
-**Fires when** a key an author declared reaches a node and the bound Recipe's `valuesMapping:` template never references it. The unread keys become silent infrastructure: configuration the developer or the operator asked for that the Recipe never wires into the rendered output. The tracker surfaces them so the discrepancy between what was authored and what the output carries is visible instead of silent.
+**Fires when** a key an author declared reaches a node and no template the bound Recipe declares ever references it. The unread keys become silent infrastructure: configuration the developer or the operator asked for that the Recipe never wires into the rendered output. The tracker surfaces them so the discrepancy between what was authored and what the output carries is visible instead of silent.
 
 **Which authored keys are compared.** Three groups, per node:
 
@@ -165,26 +165,41 @@ The finding belongs to the instance that carries it, so ten instances of one Com
 - `.infra` — the node's own operator-side pillar.
 - `.context.uses.<alias>.values` — the per-connection values carried on each `uses:` edge the node consumes through. This group is consumer-scoped for free: a node's `uses` map holds only the edges it is the source of, so an unread per-connection value is always attributed to the node that authored it and never to the edge's target.
 
-**Which references are collected.** The bound Recipe's **inline** `valuesMapping:` template, and nothing else. Two bounds follow, and both are limits on what can honestly be claimed rather than choices:
+**Which references are collected.** Every template the bound Recipe declares. The warning says a key is read by *nothing*, which is a claim about the whole Recipe, so anything narrower than the whole Recipe would make it false rather than approximate — a key a `source:` coordinate consumes would be reported unread by the very run that fetched the version it named. The blocks read are:
 
-- A `valuesMapping:` the Recipe imports from a file or from a SchemaLibrary-style library reference is not in hand at this point, so its references cannot be collected. The node's keys are skipped entirely rather than reported.
-- A `valuesMapping:` that fails to parse yields no reference set at all. Reporting every key as unread would bury the parse diagnostic the evaluation raises over the same template, so nothing is reported instead.
+- `valuesMapping:`, the values overlay handed to the provider.
+- `source:` — the whole field where it is authored as a single string, and every string-valued field of it where it is authored as an object. A source coordinate is a template evaluated per consuming instance, so a version, a chart name, a git reference or a module subdirectory chosen from `.values` or `.infra` reads those keys.
+- `locals:` and `provides:`, each entry.
+- `assertions:`, each entry.
+- `workload:`, the synthesized Workload body.
+- `artifacts:`, each entry's content.
+- `pipeline:`, each step's `with:` input and its `when:` gate.
+
+Three bounds follow, and all three are limits on what can honestly be claimed rather than choices. Each of them silences the reading rather than widening it, which is the direction that costs least: an unreported key costs a reader one advisory they can still find by reading the Recipe, where a wrongly reported one tells them a working setting was ignored.
+
+- A Recipe with no inline `valuesMapping:` is not read at all. Its keys are skipped rather than reported, whatever its other templates do.
+- A block the Recipe imports from a file or from a library reference is not in hand at this point, so its references cannot be collected. The node's keys are skipped entirely rather than reported — that holds for an imported `valuesMapping:`, an imported `workload:` and an imported `artifacts:` entry alike.
+- A template that fails to parse yields no reference set at all. Reporting every key as unread would bury the parse diagnostic the evaluation raises over the same template, so nothing is reported instead. An `artifacts:` entry is read with the standard `{{ }}` delimiters, which is not the pair every provider declares for that field; read with the wrong pair such a body yields references its author never wrote, or does not parse, and both outcomes only ever silence a warning.
 
 **A socket's `valueSchema` is never flagged.** `usesSchema.<socket>.valueSchema` declares the *contract* a per-connection value must satisfy. It is a schema, not an authored instance, and it is not among the inputs compared — so it can never be reported. What a socket's declared default *produces* is an instance like any other, read or unread on its own merits.
 
 **A reference naming a whole pillar counts every key beneath it as read.** `{{ .infra.port }}` marks `port` read and leaves the pillar's other keys eligible for a warning. ``{{ optional .infra `port` 8080 }}`` hands the whole `.infra` map to a function, so the collected reference names the pillar rather than a key beneath it, every key in that pillar counts as read, and the pillar raises nothing. The same holds for `range`-ing a pillar and for reaching one `uses` entry through `index`. A Recipe author who wants per-key coverage writes per-key references.
 
-**Pipeline placement.** The tracker runs at base rendering, alongside template evaluation. The Recipe's `valuesMapping:` template is parsed and walked to collect the dot-qualified field paths it references (`.values.port`, `.infra.replicas`, `.context.uses.<alias>.values.retry_budget`); each group's resolved key set is compared against that reference set, and the difference is the unread set.
+That reaches every block above, which is worth knowing before a quiet pillar reads as a missed warning: a Recipe whose `source:` version is written as ``{{ optional .infra `source_version` "1.2.3" }}`` has handed the whole `.infra` map to a function, so that Recipe reports nothing about any `.infra` key on any node it renders. The `.values` pillar is unaffected — the two are counted separately.
 
-**Emit shape.** One line per unread key, naming the node, the group's path, the key, and the Recipe whose `valuesMapping:` does not reference it:
+**Pipeline placement.** The tracker runs at base rendering, alongside template evaluation. Each of the Recipe's templates is parsed and walked to collect the dot-qualified field paths it references (`.values.port`, `.infra.replicas`, `.context.uses.<alias>.values.retry_budget`); each group's resolved key set is compared against the union of those references, and the difference is the unread set. What is walked is the Recipe **as authored**: a `source:` coordinate is read as its template text, not as the value that template produced for this instance.
+
+**Emit shape.** One line per unread key, naming the node, the group's path, the key, and the Recipe no template of which reads it:
 
 <!-- unregistered-output: warning text, which is reported without halting and which no halting condition registers -->
 
 ```text
-  warning: node "data.main-db": unused .values key "database_name" (not referenced by valuesMapping of recipe "helm-postgres-sourced-with-artifacts")
-  warning: node "data.main-db": unused .infra key "storage_class" (not referenced by valuesMapping of recipe "helm-postgres-sourced-with-artifacts")
-  warning: node "frontend": unused .context.uses.my-api.values key "retry_budget" (not referenced by valuesMapping of recipe "helm-web-ui-sourced-with-artifacts")
+  warning: node "data.main-db": .values key "database_name" is read by no template in recipe "helm-postgres-sourced-with-artifacts" — correct the spelling, or remove the key
+  warning: node "data.main-db": .infra key "storage_class" is read by no template in recipe "helm-postgres-sourced-with-artifacts" — correct the spelling, or remove the key
+  warning: node "frontend": .context.uses.my-api.values key "retry_budget" is read by no template in recipe "helm-web-ui-sourced-with-artifacts" — correct the spelling, or remove the key
 ```
+
+The line names no field of the Recipe, and that is deliberate: whoever authored the key is the developer, the operator, or the author of the `uses:` edge it rides on, and none of them edits the Recipe. Naming the block the reference was looked for in would hand that reader a coordinate in a document they do not open. The two remedies the line offers are the two they can act on — a misspelled key is the common cause, and a key that was never going to be read is worth deleting.
 
 The order is fixed: the node's `.values`, then its `.infra`, then each `uses` alias in the order the edges were emitted, keys sorted within each group. The same input therefore produces the same warning sequence on every run.
 
