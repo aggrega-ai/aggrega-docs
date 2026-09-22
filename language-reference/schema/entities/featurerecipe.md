@@ -86,7 +86,7 @@ _Additional properties are not permitted._
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `kind` | string | yes | The resolved source kind (e.g. helm-oci-chart, helm-https-chart, compose-https-fragment, terraform-module-git). |
+| `kind` | string | yes | The resolved source kind (e.g. helm-oci-chart, helm-https-chart, compose-https-fragment, git-repository). |
 | `url` | string | yes | The authored source URL the digest pins — the identity URL as written in spec.source.url (a repo root or a direct .tgz for helm-https). Build reconstructs this same URL offline, so it is the stable identity the pin is keyed on, not a resolved artifact location. |
 | `chart` | string | no | The chart name for a repo-root helm source (spec.source.chart), part of the resolved-source identity so two charts served from one repo root at the same version pin distinctly. Absent for a direct .tgz, OCI, compose, or git source, none of which selects a chart within the URL. |
 | `moduleSubdir` | string | no | The directory within a git-sourced repository that is the artifact (spec.source.module_subdir), part of the resolved-source identity so two directories of one repository at the same commit pin distinctly. Absent when the whole repository is the artifact, and for every kind that reaches its artifact by URL rather than by descending into a clone. |
