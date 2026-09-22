@@ -63,6 +63,21 @@ jobs:
     # a self-hosted label to move the work off metered hosted minutes.
     runs-on: ${{ vars.AGGREGA_RUNNER || 'ubuntu-latest' }}
 
+    # 🔴 NAME THE SHELL RATHER THAN LETTING IT BE CHOSEN. Every `run:` below opens
+    # with `set -euo pipefail`, and `pipefail` is a bash option that dash rejects
+    # outright — `Illegal option -o pipefail`, exit 2, before the first real
+    # command. Inside a container job the default shell was resolving to `sh`,
+    # which on Debian is dash, so every step died on its own first line.
+    #
+    # The image was NOT the cause and replacing it did not help: bash is in the
+    # base and was verified present in the published image. Rather than keep
+    # diagnosing why the default resolved the way it did, the shell is now stated.
+    # An explicit `bash` also brings `-o pipefail` on by itself, so the opening
+    # line of each step is belt-and-braces rather than load-bearing.
+    defaults:
+      run:
+        shell: bash
+
     # Run inside the published tooling image so `aggrega` is already on PATH — no
     # toolchain build here. The image must also provide git (for checkout), bash,
     # tar and gzip, which the bundle build script uses to pack the docs, plus
