@@ -143,6 +143,20 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Trust the checked-out tree
+        # 🔴 git REFUSES a repository whose directory is owned by another user —
+        # "detected dubious ownership in repository at '/__w/…'" — and every step
+        # below shells out to git. The runner mounts and owns the workspace as its
+        # own user while this job runs inside the tooling image as root, so the two
+        # never agree and the refusal is structural rather than a misconfiguration.
+        #
+        # The checkout action registers its own exception, but only inside the
+        # temporary HOME it builds for itself; the `run:` steps that follow do not
+        # read that config. This registers the same exception where those steps
+        # will look for it.
+        run: |
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
       - name: Pin the documentation source to the release tag
         # Move the docs tree onto the release tag before packing so the bundle
         # carries that tag's documentation, not whatever ref the workflow was
