@@ -17,14 +17,14 @@ dashboards server reads them back over the query API.
 | File | Role |
 | --- | --- |
 | `aggregate.yaml` | Developer intent: a single `logging` component (`core/observability/loki`) keeping logs for seven days. |
-| `manifest.yaml` | Maps the component type to the Loki chart-wrap Recipe (`loki`). |
+| `manifest.yaml` | Maps the component type to the Loki sourced Recipe (`loki`). |
 | `release.yaml` | Operator record for the Kubernetes target: the server compute and chunk-store volume size. |
 
 ## What it demonstrates
 
 - **One authoring surface.** A single Aggregate is the source of truth for
   *what* Loki is; the Manifest says *how* to realize it.
-- **A single-binary log backend.** The chart-wrap Recipe renders Loki as one
+- **A single-binary log backend.** The sourced Recipe renders Loki as one
   `StatefulSet` with a data volume, its config in `ConfigMap`s, `Service`s
   exposing the HTTP push-and-query endpoint, and a `ServiceAccount` — a single
   self-contained workload, with the distributed scaling paths and bundled
@@ -63,6 +63,6 @@ objects:
 - a `ServiceAccount` for the workload, with its access bindings.
 
 No distributed read/write/backend workloads, object-store subchart, cache, or
-operator render — the wrap is a single Loki workload. The Loki server and
+operator render — the render is a single Loki workload. The Loki server and
 config-reload sidecar images are pinned to their release tags, so the workload
 references immutable images.

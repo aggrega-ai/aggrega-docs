@@ -99,7 +99,7 @@ The `{{- ... -}}` whitespace control matters: assertions templates don't produce
 
 ## Recipe / FeatureRecipe assertions — implementation invariants
 
-These express rules that hold for the *specific* chart or module the Recipe wraps. The rule is a property of the implementation, not the contract.
+These express rules that hold for the *specific* chart or module the Recipe sources. The rule is a property of the implementation, not the contract.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1

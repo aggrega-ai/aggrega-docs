@@ -1,6 +1,6 @@
 # A chart held in a git repository
 
-A Helm chart does not have to come from a chart registry. This example wraps one
+A Helm chart does not have to come from a chart registry. This example sources one
 that lives in a **git repository** — the Helm project's own `hello-world`
 example chart — and builds it into Kubernetes manifests.
 
@@ -109,8 +109,8 @@ warning: node "web": .infra key "compute" is read by no template in recipe "hell
 
 That is accurate and worth reading rather than silencing. The `core/compute/server`
 Component offers a CPU-and-memory sizing knob; this particular chart exposes no
-values for it, so the Recipe maps nothing there. A chart-wrap maps what the chart
-it wraps actually accepts, and the compiler reports the value that reached
+values for it, so the Recipe maps nothing there. A sourced Recipe maps what the
+chart it sources actually accepts, and the compiler reports the value that reached
 nothing instead of pretending it landed.
 
 ## When the reference moves

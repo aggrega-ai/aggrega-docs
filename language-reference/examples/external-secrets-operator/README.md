@@ -18,7 +18,7 @@ operator materializes the corresponding Kubernetes `Secret`s.
 | File | Role |
 | --- | --- |
 | `aggregate.yaml` | Developer intent: a single `external-secrets` component (`core/security/external-secrets`) installing the custom resource definitions with the release. |
-| `manifest.yaml` | Maps the component type to the official chart-wrap Recipe (`external-secrets`). |
+| `manifest.yaml` | Maps the component type to the official sourced Recipe (`external-secrets`). |
 | `release.yaml` | Operator record for the Kubernetes target: the operator's compute sizing. |
 
 ## What it demonstrates

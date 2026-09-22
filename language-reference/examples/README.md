@@ -153,7 +153,7 @@ Features, Recipes, Manifests, and the provider matrix.
   compiler pipes through without resolving, because what they name does not
   exist yet.
 - **[chart-from-git-repository](chart-from-git-repository/)** — a Helm chart that
-  lives in a git repository rather than a chart registry, wrapped by a Recipe
+  lives in a git repository rather than a chart registry, sourced by a Recipe
   whose source names three coordinates: the repository, the reference to read it
   at, and the directory inside it that is the chart. Because only a commit names
   content that cannot be repointed, the lockfile records the authored reference

@@ -37,7 +37,7 @@ published string.
 The producer's Recipe publishes the address; the consumer reads it back through the edge's alias.
 
 ```yaml
-# The PRODUCER's Recipe — a helm Recipe wrapping a chart the author supplied.
+# The PRODUCER's Recipe — a helm Recipe sourcing a chart the author supplied.
 # It publishes an in-cluster address built from the name that chart's own
 # templates render their resources against.
 spec:

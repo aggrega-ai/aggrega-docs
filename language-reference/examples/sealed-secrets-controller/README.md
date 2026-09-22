@@ -20,7 +20,7 @@ key material is produced at render time.
 | File | Role |
 | --- | --- |
 | `aggregate.yaml` | Developer intent: a single `sealed-secrets` component (`core/security/sealed-secrets`). |
-| `manifest.yaml` | Maps the component type to the official chart-wrap Recipe (`sealed-secrets`). |
+| `manifest.yaml` | Maps the component type to the official sourced Recipe (`sealed-secrets`). |
 | `release.yaml` | Operator record for the Kubernetes target: the operator's compute sizing. |
 
 ## What it demonstrates

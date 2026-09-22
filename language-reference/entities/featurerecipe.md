@@ -310,7 +310,7 @@ A reference to an entry the block defines **later** halts naming the ordering fa
 
 ## The `assertions:` block
 
-`FeatureRecipe.spec.assertions:` is an optional map of **named** rules expressing **implementation invariants of the FeatureRecipe** — cross-field rules that hold given the specific Wasm plugin pipeline, chart, or mechanism the FeatureRecipe wraps. Each key is a rule identifier that appears in the failure message; each value is a Go template body. Like Recipe assertions, FeatureRecipe assertions are properties of the specific implementation; the Feature-level contract rules apply independently at an earlier pipeline phase.
+`FeatureRecipe.spec.assertions:` is an optional map of **named** rules expressing **implementation invariants of the FeatureRecipe** — cross-field rules that hold given the specific Wasm plugin pipeline, chart, or mechanism the FeatureRecipe is built on. Each key is a rule identifier that appears in the failure message; each value is a Go template body. Like Recipe assertions, FeatureRecipe assertions are properties of the specific implementation; the Feature-level contract rules apply independently at an earlier pipeline phase.
 
 ```yaml
 spec:

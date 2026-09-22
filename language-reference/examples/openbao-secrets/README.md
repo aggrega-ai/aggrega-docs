@@ -19,7 +19,7 @@ materialized at build time.
 | File | Role |
 | --- | --- |
 | `aggregate.yaml` | Developer intent: a single `secrets` component (`core/security/openbao`) with the built-in web UI on. |
-| `manifest.yaml` | Maps the component type to the official chart-wrap Recipe (`openbao`). |
+| `manifest.yaml` | Maps the component type to the official sourced Recipe (`openbao`). |
 | `release.yaml` | Operator record for the Kubernetes target: the server's compute sizing and data-volume size. |
 
 ## What it demonstrates
@@ -29,7 +29,7 @@ materialized at build time.
 - **A developer value flows to the render.** The developer's `ui_enabled`
   value is written into the server configuration the chart mounts, gating the
   built-in web UI.
-- **A stateful server on a persistent volume.** The chart-wrap Recipe
+- **A stateful server on a persistent volume.** The sourced Recipe
   configures standalone mode with the file storage backend, so the server keeps
   its encrypted state on a `PersistentVolumeClaim` mounted at `/openbao/data`,
   sized by the operator's `storage.size`.

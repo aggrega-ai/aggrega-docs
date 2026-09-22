@@ -24,7 +24,7 @@ there is no re-derivation and no convention for the two sides to agree on.
 ```
 
 The `mariadb-bitnami` Recipe resolves from this example's own local `catalog/`
-copy — an enterprise-authored local chart-wrap — while the
+copy — an enterprise-authored local sourced Recipe — while the
 `core/datastore/mariadb` Component and the credential features resolve from the
 sibling hub catalog. Both directories are listed under `catalog_dirs` in
 `.aggrega-config.yaml`, where the local `catalog/` takes precedence. The Bitnami

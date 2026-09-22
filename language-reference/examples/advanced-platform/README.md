@@ -25,7 +25,7 @@ This example consumes the standard catalog: `core/datastore/mariadb`,
 `core/shared-config` (with their helm FeatureRecipes `env-secret`,
 `provided-secret`, and `shared-config`), the `adminer` recipe, and the `helm`
 provider all ship in the standard library. The `mariadb-bitnami` Recipe is
-carried locally by this example — an enterprise-authored chart-wrap under its
+carried locally by this example — an enterprise-authored sourced Recipe under its
 own `catalog/` directory.
 
 This example's own teaching scaffolding lives in the shared catalog under the
@@ -37,7 +37,7 @@ This example's own teaching scaffolding lives in the shared catalog under the
 
 It builds against the catalog directories listed under `catalog_dirs` in
 `.aggrega-config.yaml`: the example's own local `catalog/` — which carries the
-`mariadb-bitnami` chart-wrap Recipe and takes precedence — followed by the
+`mariadb-bitnami` sourced Recipe and takes precedence — followed by the
 sibling hub checkout that supplies the Component, features, and remaining
 recipes. The same file declares `hub.aggrega.ai` as the default registry, so a
 standalone consumer without that checkout resolves the shared entities from the

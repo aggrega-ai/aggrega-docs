@@ -491,7 +491,7 @@ The field's mechanics mirror the FeatureRecipe semantics: sequential evaluation 
 
 ## The `assertions:` block
 
-`Recipe.spec.assertions:` is an optional map of **named** rules expressing **implementation invariants of the Recipe** — cross-field rules that hold given the specific chart or module the Recipe wraps. Each key is a rule identifier that appears in the failure message; each value is a Go template body. Unlike Component assertions (which express contract-level invariants regardless of which Recipe binds), Recipe assertions are properties of the specific implementation chosen.
+`Recipe.spec.assertions:` is an optional map of **named** rules expressing **implementation invariants of the Recipe** — cross-field rules that hold given the specific chart or module the Recipe sources. Each key is a rule identifier that appears in the failure message; each value is a Go template body. Unlike Component assertions (which express contract-level invariants regardless of which Recipe binds), Recipe assertions are properties of the specific implementation chosen.
 
 ```yaml
 spec:

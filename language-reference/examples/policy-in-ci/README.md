@@ -148,8 +148,8 @@ $ echo $?
 0
 ```
 
-Over a deployment that wraps an upstream Helm chart and does not override the
-chart's own image reference:
+Over a Release whose Recipe sources an upstream Helm chart and does not
+override the chart's own image reference:
 
 ```console
 $ ./require-pinned-image.sh ../advanced-platform/dist
