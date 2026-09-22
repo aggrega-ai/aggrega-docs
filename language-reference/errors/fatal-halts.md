@@ -4175,7 +4175,9 @@ and publishing a data artifact:
 
 A refusal on publishing, not on a build. Every publishable entity except a Plugin sits in a directory named for its version, and that name has to equal the entity's own `metadata.version`. The two are checked against each other before the entity is packaged.
 
-The check exists because the two are read by different things. The directory name is what a catalog walk uses to find the versions of an entity; the declared version is what the published artifact is tagged with. Letting them differ would publish content under a version its own directory does not claim, so a later walk would offer a version the catalog does not hold.
+The check exists because for a Recipe or a FeatureRecipe the directory is more than a label: it is the boundary of what gets published. Those two kinds are packaged as their whole directory — the entity file together with the chart, mappings and artifact files sitting beside it — so that directory has to belong to one entity at one version and nothing else. For the kinds packaged as a single file the requirement carries the authoring convention instead, and it keeps every kind checked the same way.
+
+A catalog read from disk finds an entity by the name and version the entity itself declares, not by where its file sits. So the directory name is not what locates a version; it is what bounds a published Recipe, and what tells a reader which version they are looking at.
 
 Emitted message, naming the file and both values:
 > oci: `<path>`: path version `"<directory name>"` != metadata.version `"<declared version>"`: oci: entity per-version subdirectory mismatch
