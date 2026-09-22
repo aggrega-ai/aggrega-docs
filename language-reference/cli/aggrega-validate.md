@@ -65,17 +65,46 @@ A **Component or Feature** stops there: schema envelope, shape, and pillar struc
 
 A **Recipe** additionally **renders in isolation**. This is one facet of single-entity correctness, not its headline: after the schema and shape tiers pass, validate resolves the Recipe's `implements` Component from the catalog, synthesizes a minimal Aggregate, Manifest and Release around a single instance of that Component bound to the Recipe under test, and drives the real compilation pipeline over it — first resolution and guards (with render skipped), then a real render of the isolated output. Required values are filled with typed placeholders and schema defaults flow through the resolver; the Release routes the instance into a synthesized default boundary and declares no `values:` and no compute the Aggregate did not declare. The rendered artifacts are printed so an author sees the isolated output before wiring the entity into a full Aggregate. Because a single-entity harness fills only required values and supplies no attached credential or topology edge, a Recipe whose template reads a value delivered only by such an input cannot render in isolation; validate reports that the render did not complete and surfaces the underlying render diagnostic, which is a genuine finding tempered by the harness's deliberate minimalism.
 
+A Recipe whose `source:` has to be **fetched** is the one case where that render is not attempted at all — see [what single-entity correctness does not check](#what-single-entity-correctness-does-not-check) below.
+
 A **FeatureRecipe** is schema- and shape-checked; its render is skipped, because a FeatureRecipe renders only when attached to a host component, and synthesizing a guard-passing host for an arbitrary Feature is not attempted.
 
 ### What single-entity correctness does not check
 
-One rule of a real deployment is out of reach for a deployment of one, and validate declines it rather than reporting a finding it cannot stand behind: whether the `implements` Component's `required: true` `uses` sockets are populated.
+Two checks of a real build are out of reach for a build of one, and validate declines each rather than reporting a finding it cannot stand behind.
+
+#### A source that has to be fetched
+
+Validating one entity reads no lockfile, reads and writes no cache, and makes no network request. A Recipe whose `source:` names something retrieved over a transport — an OCI or HTTPS chart repository, a Git repository — therefore has no infrastructure code to render from: the chart or module exists nowhere the run can reach, and nothing in the file being checked is at fault. Validate says so, prints it as a distinct outcome from a render, and exits `0`:
+
+```
+Entity: catalog/recipe/helm/openbao/1.0.0/recipe.yaml
+Kind:   Recipe
+Schema: valid
+Shape:  valid
+Resolution: valid
+Render: not attempted (this Recipe's source is fetched)
+  Validating one entity on its own reads no lockfile, reads and writes no
+  cache, and makes no network request, so the chart or module this Recipe
+  names is never retrieved and there is nothing to render from. To render
+  it, build a Release that deploys a component this Recipe implements.
+```
+
+Everything above that line was checked and is reported as valid. What the exit code means for such a Recipe is therefore narrower than for one that rendered — schema, shape and resolution hold; the render is unproven — and the report states which of the two you are reading.
+
+**A source the workspace already holds is not declined.** A relative `source: ./module` needs no fetch, so its render is attempted like any other, and a failure in it is a real finding reported as `Render: not completed in isolation` with a non-zero exit. The line above appears only for a source that has to be retrieved.
+
+To render a fetched-source Recipe for real, run [`aggrega build`](./aggrega-build.md) over a Release that deploys a component the Recipe implements: a build resolves the source through the Release's lockfile and the local cache, which is what supplies the bytes validate has no way to obtain.
+
+#### A required `uses` socket
+
+The second is whether the `implements` Component's `required: true` `uses` sockets are populated.
 
 A required socket is populated by wiring an edge to **another** component — from the Aggregate's own `uses` block, or from a Release wiring a socket the Component declares. The synthesized harness holds a single instance, so it contains no second component for such an edge to target, and no authoring of the synthesized documents can produce one: inventing a peer would mean inventing compute the harness never declared. Validate therefore names the sockets it did not check and continues through resolution and render:
 
 ```
 Sockets: required uses sockets not checked (backend, cache, registry)
-  Validating a Recipe on its own places its Component in a deployment of one,
+  Validating a Recipe on its own places its Component in a build of one,
   so no other component exists for a required socket to be wired to. Whether
   each of these sockets is populated is checked when the Component is deployed
   in an Aggregate.
@@ -148,7 +177,11 @@ Workload and Plugin. Each has its schema checked, then the checks its own
 kind carries: pillar structure for a Component or Feature; shape for a
 Workload, FeatureRecipe or Plugin; and for a Recipe, shape plus an end-to-end
 compile against a minimal generated harness, so its resolution, its guards
-and a render of its output are all exercised. Any other kind is refused here
+and a render of its output are all exercised. Where that Recipe's source is
+one that has to be fetched, the render is reported as not attempted instead:
+validating one entity on its own reads no lockfile, reads and writes no cache
+and makes no network request, so the chart or module it names is never
+retrieved and there is nothing to render from. Any other kind is refused here
 today and is checked in a wider scope instead: a whole-catalog run reaches an
 Aggregate and the library kinds, and --release reaches a Manifest and a
 Release. The command writes nothing to disk.
