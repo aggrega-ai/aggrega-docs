@@ -21,7 +21,7 @@ These labels describe universal behaviors, allowing policy engines and generated
 | `dataplane.aggrega.ai/request-mirroring` | `full-rate`, `sampled` | Lets a Feature that copies live traffic to a second destination select a proxy that can copy at all, and tell one that copies every matching request from one whose share of copied requests is settable. |
 | `dataplane.aggrega.ai/caller-identity` | `client-certificate`, `injected-header` | Lets a Feature that needs the original caller identified to the service behind the proxy select a component that can convey that identity, and read *which* mechanism conveys it — the client's own TLS certificate details forwarded on, or a header the proxy composes itself after authenticating the caller. |
 | `dataplane.aggrega.ai/prompt-guard` | `pattern-list` | Lets a Feature that screens model prompts select a component that can inspect the chat and completion payload it routes and refuse a request on its content. `pattern-list` names the fidelity: the match is against patterns supplied in its configuration, over the model payload and not an arbitrary HTTP body. |
-| `dataplane.aggrega.ai/upstream-tls` | `trust-anchor` | Lets a Feature that requires the proxy to check who it is talking to select a carrier able to verify an upstream's certificate against a trust anchor the deployment supplies. |
+| `dataplane.aggrega.ai/upstream-tls` | `trust-anchor` | Lets a Feature that requires the proxy to check who it is talking to select a component able to verify an upstream's certificate against a trust anchor the Release supplies. |
 
 The `dataplane.aggrega.ai/` keys name a position on the traffic path rather than a
 kind of component, so a proxy, an ingress gateway and a service mesh all describe
@@ -29,9 +29,9 @@ themselves in one vocabulary instead of each needing its own. Two properties of 
 family are worth reading carefully, because both are easy to invert:
 
 - **The value carries the fidelity, not just the presence of the capability.** Two
-  carriers can both mirror requests and still differ in a way a Feature cares about,
+  components can both mirror requests and still differ in a way a Feature cares about,
   so the distinction rides in the value and a Feature selects the fidelity it needs.
-  A carrier that offers a stronger fidelity carries the stronger value and no other.
+  A component that offers a stronger fidelity carries the stronger value and no other.
 - **A value asserts what the product is able to do, never what a deployment has
   switched on.** The two read alike and only the first is a property of the
   component. A proxy that can verify an upstream certificate carries

@@ -85,10 +85,10 @@ backwards.
 - **A dimension is added when a selector needs it, and each value it declares has a
   component that carries it.** Every word here is one a catalog author must learn and
   a Feature author may meet, so a dimension earns its place by discriminating
-  something a `usesSchema` or an `appliesTo` actually asks about. A value with no
-  carrier is worse than an absent one: a selector naming it parses, matches nothing,
-  and reports nothing — so a value the catalog cannot demonstrate is left out of the
-  vocabulary until a component carries it.
+  something a `usesSchema` or an `appliesTo` actually asks about. A value no
+  component carries is worse than an absent one: a selector naming it parses,
+  matches nothing, and reports nothing — so a value the catalog cannot demonstrate
+  is left out of the vocabulary until a component carries it.
 
 ### A reservation and a platform-defined key are not the same thing
 
