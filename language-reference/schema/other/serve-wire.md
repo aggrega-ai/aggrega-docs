@@ -408,6 +408,7 @@ Compiles a Release and writes the rendered artifacts into the workspace.
 | `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `release` | string | no | The Release to build, as a path relative to the workspace root. An absolute path is refused. |
+| `outputDir` | string | no | Where in the workspace this build writes, as a path relative to the workspace root: the output directory resolves under it, the same way it resolves under the directory a build is run in. Absent, or empty, writes where a build run at the workspace root writes. An absolute path, or one that climbs out of the workspace, is refused. |
 | `autoPull` | boolean | no | Whether to resolve the Release's dependencies first. Asking for it reaches the configured registries and writes the lockfile; unasked, the build reaches no registry. |
 
 _Additional properties are not permitted._
