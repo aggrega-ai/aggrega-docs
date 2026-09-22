@@ -3963,7 +3963,7 @@ They fall into four kinds, and the difference is worth knowing before you go loo
 - **An advisory.** The build reports it and carries on, and the rendered output is the same whether or not you act on it. Each is taught in full on [warnings.md](./warnings.md) — what makes it fire, where in the compilation it is read, what it prints, and what to do about it — and the entries below say which section, rather than repeating it here.
 - **A condition the editor absorbs.** It is answered by the editor integration itself and reaches neither a build's output nor a diagnostic.
 - **A safeguard behind an earlier refusal.** The rule it protects is enforced ahead of it by a condition that does halt, so a build meets the earlier one first.
-- **A refusal on a command that is not a build.** It is a hard stop with a real remedy — it ends the command that met it, and nothing is published, written or changed — but no stage of compilation reaches it, so no build reports it. Publishing an artifact, adding a registry, editing a document and checking a whole catalog are where these are met, and each entry says which command it belongs to and who holds the fix.
+- **A refusal on a command that is not a build.** It is a hard stop with a real remedy — it ends the command that met it, and nothing is published, written or changed — but no stage of compilation reaches it, so no build reports it. Publishing an artifact, adding a registry, editing a document, turning a foreign source description into draft authoring files, and checking a catalog against the publishing conventions are where these are met, and each entry says which command it belongs to and who holds the fix.
 
 ### An annotation binding declares one path in both pillar lists
 
@@ -4331,6 +4331,165 @@ Emitted message, naming the two files and the key each declares:
 
 **How to fix:** choose the routing shape the chain should use and write it the whole way down. Where the base declares named boundaries, a child that wants to configure components addresses them inside the boundary that holds them rather than at the Release root — which is also what lets it change one component's sizing without restating the topology. Where the base declares top-level components, a child that needs named boundaries is describing a different routing shape than its base, and is better authored as its own Release than as a child of that one.
 
+### An annotation key uses a prefix the platform reserves
+
+<!-- covers: internal/lintops.ErrAnnotationPrefix -->
+
+A refusal on checking an entity against the publishing conventions, not on a build. The `aggrega.ai/` prefix, and `feature.aggrega.ai/` outside a Feature, are platform-owned: a key written under one carries meaning the platform assigns, so an entity of your own that writes there is claiming a namespace it does not hold.
+
+**It advises while you author and refuses at the publish gate**, and both readings name this one condition. What was found is the same either way; only the consequence differs. That split is how most of the publishing-conventions rules catalogued here behave, so it is stated once and taken as read in the entries below that do not say otherwise — the two that compare against an already-published version say so in their own entries, because those cannot run over local content at all.
+
+Its message opens:
+> an annotation key on the entity uses a prefix the platform reserves
+
+**How to fix:** move the key under a prefix your own organisation owns. Where a workspace has a reason to write under the reserved prefix anyway, the rule is one of the opt-outs described under "The discipline rules" in [aggrega-lint.md](../cli/aggrega-lint.md).
+
+### An entity's name does not follow the shape its kind expects
+
+<!-- covers: internal/lintops.ErrNameShape -->
+
+A refusal on checking an entity against the publishing conventions, not on a build. Each entity kind carries a name-shape convention — segment counts for the cloud-native kinds, PascalCase for the library kinds — and the name this entity declares does not match the one its kind expects.
+
+Its message opens:
+> the entity's name does not follow the documented name shape for its kind
+
+**How to fix:** rename the entity to the shape its kind expects; the conventions per kind are listed under "The discipline rules" in [aggrega-lint.md](../cli/aggrega-lint.md), along with the opt-out for a catalog that deliberately names entities its own way.
+
+### A schema uses a dynamic reference that cannot be resolved ahead of time
+
+<!-- covers: internal/lintops.ErrDynamicRefs -->
+
+A refusal on checking an entity against the publishing conventions, not on a build. A schema the entity carries uses a dynamic reference construct, whose target is chosen while a document is being validated rather than fixed when the schema is written. References are expanded ahead of time here, so there is no validation in progress for such a construct to resolve against.
+
+Its message opens:
+> a schema in the entity uses a dynamic reference construct that cross-document reference resolution cannot follow
+
+**How to fix:** replace the dynamic construct with a plain reference naming the target directly. Where the schema genuinely needs the construct and will not be referenced across documents, the rule carries an opt-out described under "The discipline rules" in [aggrega-lint.md](../cli/aggrega-lint.md).
+
+### A schema declares an identifier the platform owns
+
+<!-- covers: internal/lintops.ErrIDOverrides -->
+
+A refusal on checking an entity against the publishing conventions, not on a build. A schema the entity carries declares an identifier of its own, where the canonical identifier is derived from the entity's identity. The declared one displaces the derived one, so a reference written against the canonical identifier stops resolving.
+
+Its message opens:
+> a schema in the entity declares an identifier of its own, where the platform owns that schema's identity
+
+**How to fix:** remove the declared identifier and let it be derived. The opt-out, for a schema deliberately published under an identifier of its own, is described under "The discipline rules" in [aggrega-lint.md](../cli/aggrega-lint.md).
+
+### A Component's category label and its directory name different categories
+
+<!-- covers: internal/lintops.ErrCategoryMatchesDirectory -->
+
+A refusal on checking an entity against the publishing conventions, not on a build. A Component carries a category label, and it is filed under a category directory; the convention is that the two name the same category, so that the directory a reader browses and the label a selector matches cannot disagree.
+
+Its message opens:
+> the entity's category label does not match the category directory the entity is filed under
+
+**How to fix:** change whichever of the two is wrong so they agree — either move the file under the directory its label names, or correct the label to the category the directory names. The closed set of categories, and the opt-out, are under "The discipline rules" in [aggrega-lint.md](../cli/aggrega-lint.md).
+
+### A schema extension is written directly into schema content
+
+<!-- covers: internal/lintops.ErrXAggregaDiscouragement -->
+
+A refusal on checking an entity against the publishing conventions, not on a build. A Component or Feature writes an Aggrega schema extension directly into its schema content, where the entity carries a first-class surface for declaring the same thing. The directly-authored form works, and the convention prefers the declared surface because that is the one the entity pages teach and the one tooling reads.
+
+**This is the one rule in the group that a build also reports**, as an advisory that does not stop the build. Checking the entity against the publishing conventions at the publish gate raises the same finding to a refusal.
+
+Its message opens:
+> the entity writes an Aggrega schema extension directly into schema content instead of declaring it under `usesSchema` or `featuresSchema`
+
+**How to fix:** move the extension onto the entity's own socket or attachment surface, which is where the entity pages for [component.md](../entities/component.md) and [feature.md](../entities/feature.md) declare it. The opt-out is under "The discipline rules" in [aggrega-lint.md](../cli/aggrega-lint.md).
+
+### A Plugin pins neither runtime cap, so the platform's own apply
+
+<!-- covers: internal/lintops.ErrPluginDefaultLimits -->
+
+A refusal on checking an entity against the publishing conventions, not on a build. A Plugin declares the memory ceiling and the time limit the host applies when it loads and runs the plugin. One declaring neither runs under the platform's defaults, which is a supported outcome rather than a mistake — so what this reports is that the defaults are in effect and that pinning them explicitly is available.
+
+Its message opens:
+> the Plugin entity declares no runtime resource cap of its own, so the platform defaults apply
+
+**How to fix:** pin the caps the plugin actually needs, or leave the defaults in place deliberately. It carries no opt-out setting, and the reason is that it reports a fact about the entity rather than a judgement about it: there is nothing to relax. The fields are described on [plugin.md](../entities/plugin.md).
+
+### An attachment slot admits only secret material without saying it handles it
+
+<!-- covers: internal/lintops.ErrSecretSlotDeclaresSensitive -->
+
+A refusal on checking an entity against the publishing conventions, not on a build. An attachment slot can pin, through its selector, that only a secret-bearing Feature may fill it, and it can separately record that whatever fills it handles secret material. The selector states which fills are admissible; the record states the handling. A slot that pins the first and omits the second leaves the handling to be inferred from the selector rather than read off the slot.
+
+Its message opens:
+> an attachment slot admits only secret material and does not declare that it handles it
+
+**How to fix:** declare the handling on the slot beside the selector that pins it. It carries no opt-out setting, for the reason the Plugin-caps rule carries none: it reports a fact about the entity and leaves the decision with you.
+
+### A Recipe publishes a `provides` key its Component does not declare, checked at publication
+
+<!-- covers: internal/lintops.ErrProvidesDeclaredByComponent -->
+
+A refusal on checking an entity against the publishing conventions, not on a build. A Recipe publishes a key under `provides:`, and the Component the Recipe implements does not declare that key in the `provides` pillar of its schema. A consumer wiring across a connection reads the Component's declared contract rather than whatever the Recipe emits, so the key is produced and then refused where something tries to consume it.
+
+🔴 **Two conditions describe this, and they are not the same one.** The advisory a build reports is documented above under "A Recipe publishes a `provides` key its Component does not declare"; this one is raised when the entity is checked against the publishing conventions, and it carries its own code. The finding is the same fact met on two surfaces — read the code in the diagnostic to tell which you are holding.
+
+Its message opens:
+> the Recipe publishes a provides key the Component it implements does not declare, so a consumer wiring that key is refused
+
+**How to fix:** declare the key on the Component, so the contract a consumer reads includes what the Recipe emits — or stop publishing it from the Recipe where nothing is meant to consume it. The opt-out is under "The discipline rules" in [aggrega-lint.md](../cli/aggrega-lint.md).
+
+### The change being published breaks what the evolution rubric allows
+
+<!-- covers: internal/lintops.ErrSchemaEvolution -->
+
+A refusal on the check that precedes publication, not on a build. The version being published is compared against the version already published before it, and the difference between them is classified against a documented rubric. This condition reports that the difference is one the rubric objects to.
+
+**It needs a published predecessor to compare against**, so it is the one rule in this group that cannot run over local content alone: with no registry consulted there is nothing to compare, and the check is skipped rather than passed.
+
+Its message opens:
+> the version being published changes the published predecessor in a way the documented evolution rubric objects to
+
+**How to fix:** read the classification in the diagnostic, which names what about the change the rubric objected to, and either make the change compatible or publish it under a version that admits it. The rubric is set out under "The version-bump rubric" in [aggrega-lint.md](../cli/aggrega-lint.md).
+
+### The version offered is a smaller bump than the change requires
+
+<!-- covers: internal/lintops.ErrPublishBumpBelowClassification -->
+
+A refusal on the check that precedes publication, not on a build. The change being published is classified against the evolution rubric, and the version offered for it is a smaller step than that classification calls for — a removal or a narrowing offered as a patch, say. Over-bumping is always accepted; it is under-bumping that stops here.
+
+**Unlike the rules above it, this one is decided here rather than by the conventions plugin.** Which bump was offered is known only at the moment of publication, and no compilation is running then, so the comparison between the classification and the offered version is made at that point.
+
+Its message opens:
+> the version bump being published is smaller than the evolution check's classification of the change requires
+
+**How to fix:** publish under the version the classification calls for; the diagnostic names which that is. Where you believe the change is smaller than it was classified as, the rubric under "The version-bump rubric" in [aggrega-lint.md](../cli/aggrega-lint.md) says what puts a change in each class. The first publication of an entity has no predecessor, so the comparison is skipped and reported as not performed rather than passed.
+
+### An import stopped partway through translating a source
+
+<!-- covers: internal/importops.ErrImportHalted -->
+
+A refusal on turning a foreign source description into draft authoring files, not on a build. The importer reported a diagnostic serious enough to stop the translation, so what it produced is partial: some of the source became draft authoring files and some of it did not.
+
+**The partial result is deliberate rather than wreckage.** It names the outcome and not the cause — what could not be translated is reported in the diagnostics beside it, one per construct the importer could not carry across, in the importer's own words. This condition is what lets a caller tell "the import stopped and produced part of an answer" apart from "the import failed outright", which are different situations with different next steps.
+
+Its message opens:
+> the importer reported a diagnostic that stops the import, so the source was not fully turned into draft authoring files
+
+**How to fix:** read the diagnostics reported beside it — each names a construct in the source the importer could not translate. The fix is in the source you handed in, or in finishing the draft by hand: an import produces a starting point to edit, so a construct that did not survive translation is one to author directly on the Aggrega side. [aggrega-import.md](../cli/aggrega-import.md) describes what the command produces and where it writes.
+
+### A child Release inherits a boundary directory that resolves where its parent writes
+
+<!-- covers: pkg/resolver.ErrInheritedBoundaryDirectoryIsLiteral -->
+
+An advisory. A Release extends another and inherits a boundary's output directory from it, and that directory carries no template variable — so it resolves to the same path for both, and building the child writes where building the parent writes.
+
+**Inheriting the directory is the supported shape rather than a mistake.** A directory is a template, so a parent writes it once and a child that fulfils a parameter resolves it somewhere else with nothing duplicated; that is the whole reason a child need not restate its parent's boundary topology. What is narrow and real is the residual case this names: with no variable in it, there is nothing left to resolve differently.
+
+**It cannot halt, and that is a property of the rule rather than caution about it.** Writing to the same resolved path is something an author may legitimately mean — a child that swaps only the rendering Recipes to compare their output, or that changes only sizing — so a rule halting on the inference would refuse legal input on a guess.
+
+Its message opens:
+> inherited boundary directory carries no template variable, so it resolves to the path the extended Release writes to
+
+**How to fix:** where the two were meant to write to different places, put a parameter reference in the directory and let each Release fulfil it. Where writing to one path is what you meant, nothing needs changing — the advisory has told you what it will do, and the build produces its output either way.
+
 ## Finding a halt from the short code the build printed
 
 A halting diagnostic's bracketed head names the category the failure is attributable to and, where the failure names one of the conditions catalogued here, that condition's **short code** — the letter `E` and four digits, as in `[CATALOG_ERROR E0209]`. A number is handed out once and then fixed, so a short code you paste into a report or a search still names the condition it named when you recorded it. The other two identifiers a condition carries, and which of the three to reach for when, are taught in [sentinels.md](./sentinels.md).
@@ -4597,6 +4756,18 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0273` | `template reads the name the target renders author-supplied source under, and this node's provider reports no such name; a conforming template reads a value the node's own provider supplies` | A template reads a rendered name the node's provider does not report |
 | `E0274` | `the plugin identity recorded as trusted no longer matches what this resolution reports` | A gate recorded as trusted resolves to a different identity |
 | `E0275` | `the edit was refused because the resulting document would not be valid, and nothing was written` | An edit would produce a document its schema refuses |
+| `E0276` | `the version being published changes the published predecessor in a way the documented evolution rubric objects to` | The change being published breaks what the evolution rubric allows |
+| `E0277` | `an annotation key on the entity uses a prefix the platform reserves` | An annotation key uses a prefix the platform reserves |
+| `E0278` | `the entity's name does not follow the documented name shape for its kind` | An entity's name does not follow the shape its kind expects |
+| `E0279` | `a schema in the entity uses a dynamic reference construct that cross-document reference resolution cannot follow` | A schema uses a dynamic reference that cannot be resolved ahead of time |
+| `E0280` | `a schema in the entity declares an identifier of its own, where the platform owns that schema's identity` | A schema declares an identifier the platform owns |
+| `E0281` | `the entity's category label does not match the category directory the entity is filed under` | A Component's category label and its directory name different categories |
+| `E0282` | `the entity writes an Aggrega schema extension directly into schema content instead of declaring it under usesSchema or featuresSchema` | A schema extension is written directly into schema content |
+| `E0283` | `the Plugin entity declares no runtime resource cap of its own, so the platform defaults apply` | A Plugin pins neither runtime cap, so the platform's own apply |
+| `E0284` | `an attachment slot admits only secret material and does not declare that it handles it` | An attachment slot admits only secret material without saying it handles it |
+| `E0285` | `the Recipe publishes a provides key the Component it implements does not declare, so a consumer wiring that key is refused` | A Recipe publishes a `provides` key its Component does not declare, checked at publication |
+| `E0286` | `the version bump being published is smaller than the evolution check's classification of the change requires` | The version offered is a smaller bump than the change requires |
+| `E0287` | `the importer reported a diagnostic that stops the import, so the source was not fully turned into draft authoring files` | An import stopped partway through translating a source |
 | `E0288` | `a plugin has no expression for a construct this build declares` | A workload declares a form compose cannot express; A container declares a field compose has no primitive for |
 | `E0289` | `a plugin could not resolve something it requires to exactly one value` | A health probe cannot be turned into a compose healthcheck; A configmap volume has no file behind it; A cross-boundary reference has no consuming stack to be written into; A synthesized StatefulSet has no single service to govern it |
 | `E0290` | `two things a plugin produced occupy one name in its output` | An authored export name is one the build derives for a cross-stack reference; Two entries reach one stack output name; A CloudFormation fragment writes one key twice; Two rendered resources land at one output file |
@@ -4606,6 +4777,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0294` | `components in different subsystems take the same identity: rename one of them, since a subsystem contributes nothing to a component's identity` | Two subsystems declare a component under one name |
 | `E0295` | `library reference: a reference to a library entry carries no whitespace or line break` | A reference to a library entry carries whitespace |
 | `E0296` | `release extends chain composes both named boundaries and top-level components: declare one routing shape across the chain, never both` | A Release chain's links disagree about the routing shape |
+| `E0297` | `inherited boundary directory carries no template variable, so it resolves to the path the extended Release writes to` | A child Release inherits a boundary directory that resolves where its parent writes |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
