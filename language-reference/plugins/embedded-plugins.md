@@ -6,17 +6,17 @@ Aggrega ships a set of Wasm plugins compiled directly into the CLI binary. These
 
 | Type | Name | Capabilities | Version |
 | --- | --- | --- | --- |
-| governance | `governance/cel` | — | 0.7.2 (commit d068bb7d) |
-| governance | `governance/label-injector` | — | 0.7.2 (commit d068bb7d) |
-| governance | `governance/rego` | — | 0.7.2 (commit d068bb7d) |
-| governance | `governance/selector-tagger` | — | 0.7.2 (commit d068bb7d) |
-| linter | `linter/publishing` | — | 0.7.2 (commit d068bb7d) |
-| parser | `parser/hcl` | parse:hcl | 0.7.2 (commit d068bb7d) |
-| parser | `parser/json` | parse:json | 0.7.2 (commit d068bb7d) |
-| parser | `parser/toml` | parse:toml | 0.7.2 (commit d068bb7d) |
-| parser | `parser/yaml` | parse:yaml | 0.7.2 (commit d068bb7d) |
-| provider | `provider/cloudformation` | cloudformation | 0.7.2 (commit d068bb7d) |
-| provider | `provider/compose` | compose | 0.7.2 (commit d068bb7d) |
-| provider | `provider/helm` | helm | 0.7.2 (commit d068bb7d) |
-| provider | `provider/helm-chart` | helm-chart | 0.7.2 (commit d068bb7d) |
-| provider | `provider/terraform` | terraform | 0.7.2 (commit d068bb7d) |
+| governance | `governance/cel` | — | 0.7.3 (commit d0c33700) |
+| governance | `governance/label-injector` | — | 0.7.3 (commit d0c33700) |
+| governance | `governance/rego` | — | 0.7.3 (commit d0c33700) |
+| governance | `governance/selector-tagger` | — | 0.7.3 (commit d0c33700) |
+| linter | `linter/publishing` | — | 0.7.3 (commit d0c33700) |
+| parser | `parser/hcl` | parse:hcl | 0.7.3 (commit d0c33700) |
+| parser | `parser/json` | parse:json | 0.7.3 (commit d0c33700) |
+| parser | `parser/toml` | parse:toml | 0.7.3 (commit d0c33700) |
+| parser | `parser/yaml` | parse:yaml | 0.7.3 (commit d0c33700) |
+| provider | `provider/cloudformation` | cloudformation | 0.7.3 (commit d0c33700) |
+| provider | `provider/compose` | compose | 0.7.3 (commit d0c33700) |
+| provider | `provider/helm` | helm | 0.7.3 (commit d0c33700) |
+| provider | `provider/helm-chart` | helm-chart | 0.7.3 (commit d0c33700) |
+| provider | `provider/terraform` | terraform | 0.7.3 (commit d0c33700) |
