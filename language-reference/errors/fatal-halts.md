@@ -3359,23 +3359,23 @@ An `artifacts:` entry a FeatureRecipe writes reports the same condition as the b
 
 **How to fix:** rename the file inside the ArtifactsLibrary so its name stays under the key. Where the library is not yours, importing a different bundle or writing the entry in place clears the build while the correction is made upstream. A file meant to land somewhere else entirely is a second `artifacts:` entry at the key it belongs under, not a name that walks there.
 
-### An imported artifact no longer matches the digest its Recipe recorded
+### An imported artifact no longer matches the digest recorded beside its Recipe
 
 <!-- covers: internal/compiler/renderer.ErrArtifactContentMismatch -->
 
-An `artifacts:` entry that imports a local file has its content frozen when the Recipe is resolved: the digest of the file's bytes is recorded beside the entry. Every build re-reads the file, digests it again, and refuses the disagreement — so a file edited after resolution never renders as though it had been checked.
+An `artifacts:` entry that imports a local file has its content pinned when a pull resolves the Recipe: the digest of the file's bytes is recorded in the `entity.lock` beside the Recipe. Every build re-reads the file, digests it again, and refuses the disagreement — so a file edited after the pull never renders as though it had been checked. `aggrega pull --verify` makes the same comparison and reports a disagreement with the same message.
 
 **What is compared is the entry's content, not what rendering it produced.** An artifact body is a template, and evaluating it substitutes values that differ per component instance, so a digest over the output would disagree for every instance whose values differ. The recorded content is the same text for every instance that binds the Recipe, which is what makes one recorded digest the right thing to compare against.
 
-**A Recipe that was never frozen records nothing and is not compared.** Absence of a pin is not a mismatch; it means there is nothing to compare, and the entry renders as written.
+**A Recipe no pull has resolved has no pin beside it and is not compared.** Absence of a pin is not a mismatch; it means there is nothing to compare, and the entry renders as written.
 
-Three surfaces carry the same check over different documents — a component's own Recipe, a Feature attached to a component, and a Feature attached to a boundary — so the FeatureRecipe's content is measured against the FeatureRecipe's own recorded digest rather than the host component's. On the two attachment surfaces the message names the attachment as well, which is what says which document to open.
+Three surfaces carry the same check over different documents — a component's own Recipe, a Feature attached to a component, and a Feature attached to a boundary — so the FeatureRecipe's content is measured against the digest recorded beside the FeatureRecipe rather than beside the host component's Recipe. On the two attachment surfaces the message names the attachment as well, which is what says which document to open.
 
 Emitted messages:
-> imported artifact content does not match the digest recorded for it in entity.lock (`"<artifact>"`, imported file `"<path>"`, its content digests to `"<digest>"`, the recorded pin is `"<digest>"`)
-> imported artifact content does not match the digest recorded for it in entity.lock (`"<artifact>"`, imported file `"<path>"`, its content digests to `"<digest>"`, the recorded pin is `"<digest>"`, attachment `"<attachment>"`)
+> imported artifact content does not match the digest recorded for it in entity.lock (`"<artifact>"`, imported file `"<path>"`, its content digests to `"<digest>"`, the recorded pin is `"<digest>"`). If the file was changed on purpose, run `aggrega pull --release <release>` to record its new digest; otherwise restore the file
+> imported artifact content does not match the digest recorded for it in entity.lock (`"<artifact>"`, imported file `"<path>"`, its content digests to `"<digest>"`, the recorded pin is `"<digest>"`, attachment `"<attachment>"`). If the file was changed on purpose, run `aggrega pull --release <release>` to record its new digest; otherwise restore the file
 
-**How to fix:** two answers, and which is right depends on whether the edit was meant. Where it was, re-resolve so the pin is taken again from the file's current bytes. Where it was not, restore the file — the recorded digest is the record of what the Recipe was published against, and a build that rendered the changed file would be shipping content nothing verified.
+**How to fix:** two answers, and which is right depends on whether the edit was meant. Where it was, run `aggrega pull --release <release>` so the pin is taken again from the file's current bytes. Where it was not, restore the file — the recorded digest is the record of the bytes the last pull resolved, and a build that rendered the changed file would be shipping content nothing verified.
 
 ### A `provides:` template could not be evaluated
 
@@ -4555,7 +4555,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0023` | `form: reference requires an endpoint` | A `workload:` form and the fields beside it do not agree |
 | `E0024` | `schedule requires form: scheduled` | A `workload:` form and the fields beside it do not agree |
 | `E0025` | `form: scheduled requires a schedule` | A `workload:` form and the fields beside it do not agree |
-| `E0026` | `imported artifact content does not match the digest recorded for it in entity.lock` | An imported artifact no longer matches the digest its Recipe recorded |
+| `E0026` | `imported artifact content does not match the digest recorded for it in entity.lock` | An imported artifact no longer matches the digest recorded beside its Recipe |
 | `E0027` | `artifacts $import: is not a bare-name artifacts-library reference (<Library>#/artifacts/<entry>)` | A library `$import:` is not written in the bare-name form |
 | `E0028` | `artifacts output filename collision: two artifact outputs carry the same filename` | Two artifact outputs of one Recipe carry the same filename |
 | `E0029` | `artifact template references a pillar the Recipe does not declare` | An `artifacts:` template reads a pillar the Recipe does not declare |
