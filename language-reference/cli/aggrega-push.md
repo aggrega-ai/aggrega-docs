@@ -15,6 +15,12 @@ A remote `source:` URL on a Recipe (an OCI chart reference, an HTTPS chart or fr
 
 An Aggregate publishes as its own single document: a sub-aggregate it references in `aggregates:` is **not** bundled into the artifact. Each sub-aggregate is a separately published Aggregate that consumers resolve and pin independently at pull time, by identity — the same separation-of-distribution principle that applies to remote sources.
 
+### One entity per version directory
+
+The bundle is built from the **directory** the entity file sits in, so everything in that directory is published and the entity has to be found again on the way back out. A consumer finds it by the preamble it carries: the document at the top of the bundle whose `kind:` is a publishable entity kind is the entity. The file it is authored in may be called anything — `recipe.yaml` is the catalog's convention rather than a requirement — and a compose fragment, a chart template or a Kubernetes manifest sitting beside the entity is not mistaken for one, because those declare something else or no kind at all. Entity documents further down, inside a `source/` tree, are content the entity ships rather than the entity itself and are never considered.
+
+**What follows is a layout obligation on the publisher: a version directory holds one entity.** Two entities authored side by side in one version directory each publish an artifact built from that whole directory, so their two published coordinates carry *the same bytes*. Nothing about the publish reports it — each push succeeds and reports its own reference — and a consumer asking for either one would otherwise receive whichever entity was picked. Rather than answer with the wrong entity, a pull of such an artifact halts, naming both documents; the halt is catalogued at [errors/fatal-halts.md](../errors/fatal-halts.md). Give each entity its own `<name>/<version>/` directory, which is the layout the standard-library catalog already follows.
+
 ## Registry, tag, and content-addressing
 
 The target registry is `--registry <ref>` when supplied, otherwise the workspace's `default_registry` (`hub.aggrega.ai` by default). The tag is the entity's `metadata.version`. Libraries are enforced into a per-version subdirectory so a published version always lands at a predictable path.

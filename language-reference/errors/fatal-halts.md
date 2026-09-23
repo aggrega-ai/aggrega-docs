@@ -1852,6 +1852,30 @@ and more than one, which also names how many:
 
 **How to fix:** the fix is the publisher's rather than yours — the manifest is not something a catalog author writes. Check first that the reference points where you meant: a reference that resolves to a different artifact kind produces the first shape, because the manifest is a real manifest for something else. Where the reference is right, the artifact was published with a manifest that does not describe it as the kind it is claimed to be, so quote the media type from the message to whoever publishes it. Publishing through the ordinary publish path produces a manifest with exactly one content layer, so an artifact in either shape was assembled some other way.
 
+### A published bundle holds no entity, or holds two
+
+<!-- covers: pkg/oci.ErrBundleNoEntityDocument -->
+<!-- covers: pkg/oci.ErrBundleAmbiguousEntityDocument -->
+
+A Recipe and a FeatureRecipe publish as a `.tar.gz` bundling the entity together with the files sitting beside it in its version directory. Reading one back means finding the entity again among those files — and the file it was authored in may be called anything, so what identifies it is the entity preamble it carries rather than its name. The document at the top of the bundle whose `kind:` is a publishable entity kind is the entity; a compose fragment, a chart template or a Kubernetes manifest beside it is not, and neither is an entity document further down inside a `source/` tree, which is content the entity ships rather than the entity itself.
+
+Two shapes leave nothing to select, and both are properties of how the artifact was published.
+
+**No entity document at the top of the bundle.** Either the version directory held no entity when it was published, or the one it held sits in a subdirectory rather than beside its source files. The message lists what the top of the bundle does carry, which is usually enough to see which of the two happened.
+
+**Two entity documents at the top of the bundle.** Two entities were authored in one version directory. Because the bundle is built from the directory, each of their published coordinates carries the *same* bytes — so answering with either one would hand back the other entity under the name that was asked for, with nothing downstream able to notice. There is no safe choice to make, so none is made.
+
+**Emitted messages**, listing what was found. None, where the bundle carries other files:
+> bundle root carries no entity document among `<file>, <file>`: oci: published bundle carries no entity document
+
+none, where it carries nothing at all:
+> bundle root carries no files at all: oci: published bundle carries no entity document
+
+and more than one, which names both the count and the colliding documents:
+> bundle root carries `<count>` entity documents (`<file>, <file>`): oci: published bundle carries more than one entity document
+
+**How to fix:** both are the publisher's to clear rather than yours, and the fix is in the version directory the entity was published from. Give each entity a version directory of its own, so that directory holds one entity and the files that belong to it — the layout every published entity already follows, where the directory is named for the entity's `metadata.version` and sits under the entity's own name. Then publish again at a new version: published bytes are frozen, so re-publishing over the existing version is refused rather than corrected. If you are consuming rather than publishing, quote the message to whoever publishes the artifact; the file names in it identify the directory to split.
+
 ### The registry could not answer what is attached to an artifact
 
 <!-- covers: pkg/oci.ErrReferrerDiscoveryUnavailable -->
@@ -4780,6 +4804,8 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0295` | `library reference: a reference to a library entry carries no whitespace or line break` | A reference to a library entry carries whitespace |
 | `E0296` | `release extends chain composes both named boundaries and top-level components: declare one routing shape across the chain, never both` | A Release chain's links disagree about the routing shape |
 | `E0297` | `inherited boundary directory carries no template variable, so it resolves to the path the extended Release writes to` | A child Release inherits a boundary directory that resolves where its parent writes |
+| `E0298` | `oci: published bundle carries no entity document` | A published bundle holds no entity, or holds two |
+| `E0299` | `oci: published bundle carries more than one entity document` | A published bundle holds no entity, or holds two |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
