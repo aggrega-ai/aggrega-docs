@@ -308,7 +308,7 @@ services:
 
 ## Sourced mode
 
-The compose provider accepts `source:` as a **bare filesystem path string only**. A relative path is anchored to the directory holding the `recipe.yaml` that declares it, not to the directory the build is invoked from, and an absolute path is used as written. It must point at a docker-compose YAML file that the provider can read and parse.
+The compose provider's `source:` names a docker-compose YAML file that the provider can read and parse, and it accepts both of the shapes the `source:` field takes: a **bare filesystem path string**, and a **structured object** whose `url:` carries the location. Wherever that location is a filesystem path, a relative one is anchored to the directory holding the `recipe.yaml` that declares it, not to the directory the build is invoked from, and an absolute one is used as written.
 
 ```yaml
 spec:
@@ -320,7 +320,7 @@ spec:
         image: "{{ .values.image }}"
 ```
 
-Structured source objects (e.g. `source: { repo: ..., chart: ..., version: ... }`) are reserved for future registry integration and are rejected today. A Recipe targeting a remote compose fragment must vendor it locally and point `source:` at the vendored copy.
+In the structured shape, what `url:` carries decides whether anything is fetched. A fragment published over `https://` is fetched and pinned with `kind: compose-https-fragment`; `aggrega pull` acquires it and the build reads it from the cache. A `url:` naming a filesystem path is not fetched and not pinned — it is read from disk, anchored exactly as the bare-string form above. Vendoring a remote fragment locally and pointing `source:` at the vendored copy is supported as an alternative to fetching, and is not required. The schema accepts an open structured object, so a provider Wasm plugin can later validate provider-declared source keys — `planned`.
 
 A Recipe with `source: <path-to-compose-file>` and `valuesMapping:` runs the following pipeline:
 

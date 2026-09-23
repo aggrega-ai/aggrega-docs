@@ -18,7 +18,7 @@ A Recipe may declare exactly one of `source:` or `workload:`; combining them is 
 
 ## `source:` keyset
 
-The helm provider accepts `source:` as a **bare filesystem path string only**. A relative path is anchored to the directory holding the `recipe.yaml` that declares it, not to the directory the build is invoked from, and an absolute path is used as written.
+The helm provider's `source:` names a chart, and it accepts both of the shapes the `source:` field takes: a **bare filesystem path string**, and a **structured object** whose `url:` carries the location. Wherever that location is a filesystem path, a relative one is anchored to the directory holding the `recipe.yaml` that declares it, not to the directory the build is invoked from, and an absolute one is used as written. The shape you wrote it in does not change that: a structured `source:` whose `url:` is `./charts/api-server` is anchored exactly as the bare string `./charts/api-server` is.
 
 ```yaml
 spec:
@@ -29,7 +29,20 @@ spec:
     replicas: {{ optional .infra `replicas` 2 }}
 ```
 
-Structured source objects resolve through the source-resolver. The built-in form is `source: { kind, url, version, chart? }`: `url:` carries the chart location — `oci://…` for an OCI chart, an `https://….tgz` for a direct chart archive, or an `https://` repo root paired with `chart:` — and the kind comes from the URL scheme or an explicit `kind:`. `aggrega pull` fetches and pins the chart in the lockfile; the build extracts it from the cache. Vendoring a chart locally is supported as an alternative, and is not required. The schema accepts an open structured object, so a provider Wasm plugin can later validate provider-declared source keys (e.g. a `registry` + `chart` pair) — `planned`.
+A structured `source:` says the same thing with named fields, and what its `url:` carries decides whether anything is fetched. Where `url:` carries a transport scheme — `oci://…` for an OCI chart, an `https://….tgz` for a direct chart archive, or an `https://` repo root paired with `chart:` — the chart is fetched: the kind comes from the URL scheme or from an explicit `kind:`, `aggrega pull` fetches and pins the chart in the lockfile, and the build extracts it from the cache. Where `url:` names a filesystem path, nothing is fetched and nothing is pinned — the chart is read from disk, anchored exactly as the bare-string form above.
+
+```yaml
+spec:
+  capability: helm
+  source:
+    kind: helm-oci-chart
+    url: ./charts/api-server       # a path, so nothing is fetched and nothing is pinned
+    version: "1.0.0"
+```
+
+Only `url:` decides where a chart is read from. The other fields select what would be fetched, so for a path they select nothing — they still reach the Recipe's own templates as `.source.*`.
+
+Vendoring a chart locally is supported as an alternative to fetching, and is not required. The schema accepts an open structured object, so a provider Wasm plugin can later validate provider-declared source keys (e.g. a `registry` + `chart` pair) — `planned`.
 
 The chart at the source path must contain a valid `Chart.yaml`. Sourced renders that fail to load the chart surface the underlying Helm SDK error verbatim. An empty `source: ""` is not a helm matter: it names neither sourceless nor sourced mode, so the refusal it earns is the same whichever provider the Recipe targets, and it comes before any chart is loaded and before this provider is dispatched. Which command reports that refusal — and which reports something else first — is set out in [`entities/recipe.md`](../entities/recipe.md) "Source field scheme inventory" and [`errors/fatal-halts.md`](../errors/fatal-halts.md) "Recipe `source:` is an empty string".
 

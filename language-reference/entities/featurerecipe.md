@@ -28,7 +28,7 @@ A FeatureRecipe may also carry **none** of these blocks: a pure-wiring Feature w
 
 ## Source Field Templating
 
-A FeatureRecipe's `source:` is a templating surface on the same terms as a Recipe's: the template is evaluated at source resolution, and what it produced is what the build then resolves. Both shapes accept Go templates — the universal-string form, and the structured-object form whose string-valued sub-fields are template-evaluated while non-string sub-fields pass through. The shape inventory, the scheme handling and the anchoring reading are the ones set out in [`entities/recipe.md`](recipe.md) "Source field templating", "Source field scheme inventory" and "How a scalar `source:` is anchored"; this section states only what differs for an attachment.
+A FeatureRecipe's `source:` is a templating surface on the same terms as a Recipe's: the template is evaluated at source resolution, and what it produced is what the build then resolves. Both shapes accept Go templates — the universal-string form, and the structured-object form whose string-valued sub-fields are template-evaluated while non-string sub-fields pass through. The shape inventory, the scheme handling and the anchoring reading are the ones set out in [`entities/recipe.md`](recipe.md) "Source field templating", "Source field scheme inventory" and "How a `source:` path is anchored"; this section states only what differs for an attachment.
 
 ```yaml
 locals:
