@@ -38,7 +38,10 @@ the artifact at `docs/aggrega-docs`, and `--tag` selects the version, so the pul
 coordinate is `<registry>/docs/<name>:<tag>` — for example,
 `hub.aggrega.ai/docs/aggrega-docs:1.0.0`. Because the bundle is a plain data
 artifact and not a catalog entity, it is fetched with any OCI-compatible client
-using that reference and media type.
+using that reference and media type. The published file carries the name given
+with `--name`, so a client that writes files by name writes it under that one:
+`oras pull hub.aggrega.ai/docs/aggrega-docs:1.0.0` leaves `aggrega-docs` in the
+current directory, byte for byte as it was published.
 
 ## Offline
 

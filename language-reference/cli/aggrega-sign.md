@@ -6,7 +6,7 @@
 
 `aggrega sign` resolves the digest the registry already holds for each `<reference>`, signs that digest, and attaches the signature bundle as a referrer. It never re-pushes, re-tags, or otherwise mutates the published bytes — the artifact is immutable, and the signature is a sibling manifest pointing back at it. So an artifact can be signed after the fact with no version bump.
 
-The signature is a Sigstore (cosign-compatible) bundle, the same format `aggrega push --sign` attaches and `aggrega pull` verifies.
+The signature is a Sigstore (cosign-compatible) bundle, the same format `aggrega push --sign` attaches and `aggrega pull` verifies. The referrer names the bundle `signature.json`, so a generic OCI client pulling the referrer by its digest writes the bundle to that file.
 
 ## Batch signing
 

@@ -405,6 +405,19 @@ Reading the entity back out of that package is the reverse step, and it identifi
 
 **Searchable manifest annotations.** Every publish stamps a small set of searchable annotations onto the artifact's OCI manifest so a registry index or a catalog browser can filter artifacts by their catalog metadata without fetching and parsing each entity body. Every entity carries its human-readable description (the standard OCI description annotation) plus its catalog category and kind. A Plugin additionally carries its socket type and the capabilities it serves. These annotations are what `aggrega registry update` reads back into the local searchable index (§8).
 
+**Every published file is named.** Each file a publication carries is named on the manifest with the standard `org.opencontainers.image.title` annotation, which is the name a generic OCI client writes that file to when it pulls the artifact into a directory. The name says what the file is, and its extension follows the file's media type:
+
+| What is published | The file a generic OCI client writes |
+| --- | --- |
+| a Component, Feature, Aggregate or library | `entity.yaml` |
+| a Recipe or FeatureRecipe | `entity.tar.gz` |
+| a Plugin | `entity.yaml`, the entity, beside `entity.wasm`, its executable |
+| a signature attached to an artifact | `signature.json` |
+| a deprecation marker attached to an artifact | `deprecation.json` |
+| a data artifact published with `aggrega push-artifact` | the name given with `--name` |
+
+So `oras pull hub.aggrega.ai/component/core/compute/server:1.0.0 -o ./server` leaves the published entity at `./server/entity.yaml`, byte for byte as it was published. `oras` skips a descriptor that carries no name and still reports success, which is why every descriptor a publication packs carries one. The name is derived from the media type alone, never from the name of the file that was published, so the same bytes published from a differently named file produce the same manifest. A Recipe or FeatureRecipe arrives as its package: `entity.tar.gz` names the package, and the entity inside it is found by the rule above rather than by any file name. Aggrega's own resolution never reads these names — it selects each file by its media type and trusts it by its digest — so they are there for every other client.
+
 ### 7. The Recipe Architecture: Pointers and Mappers
 
 See [entities/recipe](../language-reference/entities/recipe.md) for the complete Recipe authoring surface — `source:` (pointer), `valuesMapping:` (mapper, with three authoring modes: inline block scalar, file `$import:`, library `$import:` to a MappingLibrary entry), Wasm-driven source schemas, native IaC support, and worked examples.
