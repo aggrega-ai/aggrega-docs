@@ -9,7 +9,7 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 ## Per-command reference
 
 - [`aggrega build`](cli/aggrega-build.md) — the primary compile command. Reads a Release pointer, resolves the Aggregate and Manifest it references, and emits per-boundary compiled artifacts.
-- [`aggrega inspect`](cli/aggrega-inspect.md) — catalog and IR inspection. Produces the compiled IR Graph as a machine-readable stream, and exposes catalog-entity inspection for authoring-time validation.
+- [`aggrega inspect`](cli/aggrega-inspect.md) — catalog and IR inspection. Produces the compiled IR Graph as a machine-readable stream, exposes catalog-entity inspection for authoring-time validation, and reads a published entity straight from its registry.
 - [`aggrega pull`](cli/aggrega-pull.md) — resolve a Release's dependencies and write a per-Release lockfile pinning every dependency; cache catalog entities and source artifacts.
 - [`aggrega push`](cli/aggrega-push.md) — publish a catalog entity to an OCI registry, optionally signing it at push time.
 - [`aggrega sign`](cli/aggrega-sign.md) — sign one or more already-published artifacts and attach each signature as an OCI referrer.
@@ -38,7 +38,7 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 | `aggrega explain` | Explain the halting condition a code names |
 | `aggrega get-schema` | Print the JSON Schema for an entity or contract kind |
 | `aggrega import` | Turn a foreign source description into draft Aggrega authoring files |
-| `aggrega inspect` | Inspect a catalog entity by name, or an entity file by path |
+| `aggrega inspect` | Inspect a catalog entity by name, an entity file by path, or a published entity by its registry reference |
 | `aggrega lint` | Check catalog publishing conventions across the catalog, a Release, or one entity |
 | `aggrega login` | Authenticate to an OCI registry and store the credential |
 | `aggrega logout` | Remove a stored registry credential |

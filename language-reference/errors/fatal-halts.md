@@ -1876,6 +1876,31 @@ and more than one, which names both the count and the colliding documents:
 
 **How to fix:** both are the publisher's to clear rather than yours, and the fix is in the version directory the entity was published from. Give each entity a version directory of its own, so that directory holds one entity and the files that belong to it — the layout every published entity already follows, where the directory is named for the entity's `metadata.version` and sits under the entity's own name. Then publish again at a new version: published bytes are frozen, so re-publishing over the existing version is refused rather than corrected. If you are consuming rather than publishing, quote the message to whoever publishes the artifact; the file names in it identify the directory to split.
 
+### A published artifact cannot be read as an entity
+
+<!-- covers: pkg/oci.ErrBundleUnreadable -->
+<!-- covers: pkg/oci.ErrPublishedArtifactNotAnEntity -->
+
+Reading an entity from the coordinate it is published at starts from the bytes the registry serves there — `aggrega inspect oci://…` reads them for you to look at, and a dependency pull reads an archive's the same way to find the version it pins. Two shapes of those bytes hold no entity to read.
+
+**An archive that does not unpack.** A Recipe or a FeatureRecipe publishes as a `.tar.gz`, and the bytes begin as one, but the compression stream or the archive inside it is not well formed — most often because it was cut short. The bytes still match the digest the artifact's own manifest records for them, so they are exactly what was published: the damage happened before or during publication rather than on the way to you.
+
+**A document that is not an entity.** The coordinate carries a single document, and it does not parse, declares no `kind:`, or declares a kind that is never published, such as a Release or a Manifest. The reference then names something published beside the catalog rather than an entity — a data artifact published with `aggrega push-artifact`, for example.
+
+**Emitted messages.** An archive whose compression stream is not well formed, with the error that stopped it:
+> oci: unbundle gzip: `<archive error>`: oci: published bundle cannot be unpacked
+
+one that stops partway through a file:
+> read `<file>` from the published bundle: `<archive error>`: oci: published bundle cannot be unpacked
+
+a document declaring a kind that is never published:
+> the published document declares kind `<kind>`, which a registry does not publish: oci: published artifact is not an entity document
+
+and bytes that are not a document at all:
+> the published bytes do not parse as a document (`<parse error>`): oci: published artifact is not an entity document
+
+**How to fix:** an archive that does not unpack is the publisher's to replace. Published bytes are frozen, so the remedy is to publish the entity again at a new version; if you are consuming it, quote the message to whoever publishes it. A document that is not an entity almost always means the reference is not the one you meant: check that it names the coordinate an entity is published at, which is the reference `aggrega push` prints when it publishes one.
+
 ### The registry could not answer what is attached to an artifact
 
 <!-- covers: pkg/oci.ErrReferrerDiscoveryUnavailable -->
@@ -4806,6 +4831,8 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0297` | `inherited boundary directory carries no template variable, so it resolves to the path the extended Release writes to` | A child Release inherits a boundary directory that resolves where its parent writes |
 | `E0298` | `oci: published bundle carries no entity document` | A published bundle holds no entity, or holds two |
 | `E0299` | `oci: published bundle carries more than one entity document` | A published bundle holds no entity, or holds two |
+| `E0300` | `oci: published bundle cannot be unpacked` | A published artifact cannot be read as an entity |
+| `E0301` | `oci: published artifact is not an entity document` | A published artifact cannot be read as an entity |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

@@ -1,6 +1,6 @@
 # aggrega inspect
 
-`aggrega inspect` renders a human-readable view of any Aggrega entity — a catalog Component, an authored entity file, or a fully-resolved Release. It is the canonical debug surface for understanding what the compiler will produce: which Components extend which bases, which Recipe maps to each type, which Features attach to each node, and exactly where each Feature's contributions came from.
+`aggrega inspect` renders a human-readable view of any Aggrega entity — a catalog Component, an authored entity file, an entity published in a registry, or a fully-resolved Release. It is the canonical debug surface for understanding what the compiler will produce: which Components extend which bases, which Recipe maps to each type, which Features attach to each node, and exactly where each Feature's contributions came from.
 
 Each entity kind has a natural "contract" view. `inspect` shows that contract — the schema a Component publishes, the mappings a Manifest declares, the topology an Aggregate builds, the per-node Feature attachments a Release resolves to. Tutorial and conceptual material lives elsewhere; `inspect` answers "what does this entity actually resolve to?"
 
@@ -9,7 +9,7 @@ A single positional argument routes by content shape; no subcommand is needed. T
 | Identifier shape | Dispatch | Output |
 | --- | --- | --- |
 | Starts with `./`, `../`, or `/`, or ends with `.yaml` / `.yml` | **File branch** | Per-file inspection keyed off the file's `kind:` header. |
-| Starts with `oci://` | **OCI branch** | Reserved for catalog distribution; not yet implemented. Resolve to a local path or use a catalog name. |
+| Starts with `oci://` | **Registry branch** | The entity published at that coordinate, read from its registry and rendered by the view a file of its kind gets. See [Reading a published entity](#reading-a-published-entity). |
 | Anything else | **Catalog branch** | Look up the identifier in the catalog search stack across every entity kind; resolve `extends:` chains; render the matched kind's own view. |
 
 ## Three detail levels
@@ -70,11 +70,35 @@ A referenced sibling file that fails to load stops the command at once — a Rel
 
 **A Release whose composition the compiler's checks reject is refused rather than rendered.** Resolving a Release builds the graph, and the checks a build makes over the finished graph — a `uses:` edge whose target does not satisfy its socket's `selector:`, a Feature attached to a component its `appliesTo:` does not admit, and the rest — are made here too, with the diagnostic a build of the same documents prints. The refusal names every finding in one run rather than stopping at the first, so one pass shows you the whole list to correct rather than the first entry of it. That is what keeps this command honest about a deployment: a view that rendered a composition the build refuses would report a workspace as fine while it is not. The selections that resolve nothing are unaffected — `--raw`, `--output yaml` and `--closure` reproduce or resolve what you authored without building a graph.
 
-A file whose `kind:` is unrecognized reports the unknown kind and the file it came from. A `Workload` file reports that the kind is embedded-only and names the entity it embeds under. An `oci://` identifier reports that OCI inspection is not yet implemented and suggests resolving to a local path or a catalog name.
+A file whose `kind:` is unrecognized reports the unknown kind and the file it came from. A `Workload` file reports that the kind is embedded-only and names the entity it embeds under. An `oci://` identifier that cannot be read is refused with the condition that names why; [Reading a published entity](#reading-a-published-entity) lists them.
 
 ## Catalog resolution
 
 The catalog search stack is assembled with a layered precedence: `--catalog` flags (prepended, in order) come first, then the workspace's `catalog_dirs` from `.aggrega-config.yaml`, then the `catalog` directory at the workspace root, which is read whether or not anything names it. A workspace whose `catalog_dirs` is written as an empty list reads no local catalog at all. The stack is first-win — the earliest directory to declare an entity identity owns it; a later directory's copy is shadowed. The catalog branch resolves the identifier against this stack across every entity kind, in a fixed precedence, and renders the first match through that kind's own view; the file and release branches load referenced catalog entities from it when a Manifest mapping or `extends:` parent must be resolved.
+
+## Reading a published entity
+
+`aggrega inspect oci://<host>/<repository>:<tag>` reads the entity published at that coordinate; `@<digest>` in place of `:<tag>` names one manifest exactly. It is how you look at an entity that exists only in a registry — the repository is the kind segment followed by the entity's identity, as [Catalog and Registry](../../architecture/13-catalog-and-registry.md) §6 lays out, and `aggrega push` prints the reference it published at, which reads here with `oci://` in front of it.
+
+**What you see is the entity as it was published.** A Recipe or a FeatureRecipe ships as an archive of its version directory, and the entity is unpacked from it: the document at the archive's root that declares a publishable kind, so a chart template or a compose fragment shipped beside it is not mistaken for it. Every other kind ships as its document unchanged, and a Plugin's entity is read from its manifest rather than from the executable published with it. The document is then rendered by the same view a file of that kind gets, with the same detail levels and the same `--raw` and `--output yaml`. No inheritance is applied: the view is of what the publisher put at that coordinate. The readable layouts end by naming the coordinate that was read and the digest of the manifest it was read through; `--output yaml` prints the document and nothing after it.
+
+**What it checks, and what it does not.** The fetched bytes are checked against the digest the artifact's own manifest records for them, which establishes that they are the bytes that manifest names. That is a check against what the registry served rather than against anything recorded beforehand: no signature attached to the artifact is verified, and no withdrawal recorded against it is reported. Nothing is written — no cache entry and no lockfile — so reading a coordinate changes nothing a later build resolves.
+
+**It reaches the network.** The registry is contacted with the credentials this machine holds for it, from the same store `aggrega push` and `aggrega pull` read, and a registry on this machine is contacted over plain HTTP. A workspace that is offline refuses the read before anything is dialled.
+
+**Every failure is named.** A read that cannot answer exits non-zero, prints nothing on standard output, and names the condition together with what to do about it:
+
+| What happened | Condition |
+| --- | --- |
+| Nothing is published under the reference | `E0137` |
+| The registry refused the credential, or none is stored for it | `E0138` |
+| The workspace is offline | `E0125` |
+| The artifact is an archive that cannot be unpacked | `E0300` |
+| The archive carries no entity document at its root | `E0298` |
+| The archive carries more than one entity document at its root | `E0299` |
+| The document is not an entity of a kind a registry publishes | `E0301` |
+
+Each code is listed in the [error reference](../errors/sentinels.md). A reference that names no repository, or neither a tag nor a digest, is refused with the form to write instead. `--ir-graph` and `--closure` are refused before anything is fetched, because no kind a registry publishes is a Release.
 
 ## Deprecation and withdrawal notices
 
@@ -458,7 +482,8 @@ aggrega inspect [identifier] [flags]
 
 ```
 Render a readable view of any Aggrega entity — a catalog entity by name, an
-authored entity file by path, or a fully-resolved Release.
+authored entity file by path, an entity published in a registry, or a
+fully-resolved Release.
 
 It answers "what does this entity actually resolve to?": which entities extend
 which bases, which Recipe maps to each type, which Features attach to each node,
@@ -466,7 +491,19 @@ and where each Feature's contributions came from.
 
 A single argument routes by its shape. A path — anything starting with ./, ../
 or /, or ending in .yaml or .yml — is read as a file and inspected by its own
-kind: header. Anything else is looked up by name in the catalog search stack.
+kind: header. A registry reference — oci://<host>/<repository>:<tag>, or
+@<digest> in place of :<tag> — is read from the registry that publishes it.
+Anything else is looked up by name in the catalog search stack.
+
+A registry reference shows the entity exactly as it was published: unpacked
+from the archive its kind is published as where it is one, and rendered by the
+same view a file of that kind gets. Reading it reaches the network, using the
+credentials this machine holds for that registry, and an offline workspace
+refuses it. The fetched bytes are checked against the digest the artifact's
+own manifest records for them, which establishes that they are the bytes that
+manifest names and nothing more: no signature attached to the artifact is
+verified, no withdrawal recorded against it is reported, and nothing is
+written — no cache entry and no lockfile.
 
 Three verbosity levels apply to every kind: --list for identifiers only, the
 default for a structured overview, and --detail for full field bodies. --list

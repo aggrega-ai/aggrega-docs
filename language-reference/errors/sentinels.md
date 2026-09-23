@@ -179,6 +179,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrAmbiguousContentLayer()` | `ambiguous-content-layer` | `oci: manifest has multiple layers of the expected content media type` |
 | `ErrBundleAmbiguousEntityDocument()` | `bundle-ambiguous-entity-document` | `oci: published bundle carries more than one entity document` |
 | `ErrBundleNoEntityDocument()` | `bundle-no-entity-document` | `oci: published bundle carries no entity document` |
+| `ErrBundleUnreadable()` | `bundle-unreadable` | `oci: published bundle cannot be unpacked` |
 | `ErrCachedManifestIntegrity()` | `cached-manifest-integrity` | `oci: cached manifest digest mismatch` |
 | `ErrEntityVersionPathMismatch()` | `entity-version-path-mismatch` | `oci: entity per-version subdirectory mismatch` |
 | `ErrFetchIntegrity()` | `fetch-integrity` | `oci: content digest mismatch` |
@@ -188,6 +189,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrImmutableTagConflict()` | `immutable-tag-conflict` | `oci: tag already published with different content` |
 | `ErrNoContentLayer()` | `no-content-layer` | `oci: manifest has no layer of the expected content media type` |
 | `ErrOCILocationCollision()` | `oci-location-collision` | `oci: distinct catalog identities map to the same OCI repository location` |
+| `ErrPublishedArtifactNotAnEntity()` | `published-artifact-not-an-entity` | `oci: published artifact is not an entity document` |
 | `ErrReferrerDiscoveryUnavailable()` | `referrer-discovery-unavailable` | `oci: referrer discovery could not be completed` |
 | `ErrUnknownEntityKind()` | `unknown-entity-kind` | `oci: unknown entity kind for mediatype dispatch` |
 
@@ -721,6 +723,8 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0297` | `inherited-boundary-directory-is-literal` | `inherited boundary directory carries no template variable, so it resolves to the path the extended Release writes to` |
 | `E0298` | `bundle-no-entity-document` | `oci: published bundle carries no entity document` |
 | `E0299` | `bundle-ambiguous-entity-document` | `oci: published bundle carries more than one entity document` |
+| `E0300` | `bundle-unreadable` | `oci: published bundle cannot be unpacked` |
+| `E0301` | `published-artifact-not-an-entity` | `oci: published artifact is not an entity document` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0157` is retired: nothing reports it now, and the number is never handed to a different condition. It named an Aggregate key — a component, feature, subsystem or nested-module instance name — that did not match the authored-name pattern. Every one of those key surfaces is constrained to that same spelling by the Aggregate schema, which refuses the document while validating its envelope and reports the offending key with a line and column; that condition's code is `E0215`.
