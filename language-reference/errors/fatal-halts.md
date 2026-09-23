@@ -3372,8 +3372,8 @@ An `artifacts:` entry that imports a local file has its content frozen when the 
 Three surfaces carry the same check over different documents — a component's own Recipe, a Feature attached to a component, and a Feature attached to a boundary — so the FeatureRecipe's content is measured against the FeatureRecipe's own recorded digest rather than the host component's. On the two attachment surfaces the message names the attachment as well, which is what says which document to open.
 
 Emitted messages:
-> imported artifact content does not match the recipe's recorded digest (`"<artifact>"`, imported file `"<path>"`, its content digests to `"<digest>"`, the recorded pin is `"<digest>"`)
-> imported artifact content does not match the recipe's recorded digest (`"<artifact>"`, imported file `"<path>"`, its content digests to `"<digest>"`, the recorded pin is `"<digest>"`, attachment `"<attachment>"`)
+> imported artifact content does not match the digest recorded for it in entity.lock (`"<artifact>"`, imported file `"<path>"`, its content digests to `"<digest>"`, the recorded pin is `"<digest>"`)
+> imported artifact content does not match the digest recorded for it in entity.lock (`"<artifact>"`, imported file `"<path>"`, its content digests to `"<digest>"`, the recorded pin is `"<digest>"`, attachment `"<attachment>"`)
 
 **How to fix:** two answers, and which is right depends on whether the edit was meant. Where it was, re-resolve so the pin is taken again from the file's current bytes. Where it was not, restore the file — the recorded digest is the record of what the Recipe was published against, and a build that rendered the changed file would be shipping content nothing verified.
 
@@ -4555,7 +4555,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0023` | `form: reference requires an endpoint` | A `workload:` form and the fields beside it do not agree |
 | `E0024` | `schedule requires form: scheduled` | A `workload:` form and the fields beside it do not agree |
 | `E0025` | `form: scheduled requires a schedule` | A `workload:` form and the fields beside it do not agree |
-| `E0026` | `imported artifact content does not match the recipe's recorded digest` | An imported artifact no longer matches the digest its Recipe recorded |
+| `E0026` | `imported artifact content does not match the digest recorded for it in entity.lock` | An imported artifact no longer matches the digest its Recipe recorded |
 | `E0027` | `artifacts $import: is not a bare-name artifacts-library reference (<Library>#/artifacts/<entry>)` | A library `$import:` is not written in the bare-name form |
 | `E0028` | `artifacts output filename collision: two artifact outputs carry the same filename` | Two artifact outputs of one Recipe carry the same filename |
 | `E0029` | `artifact template references a pillar the Recipe does not declare` | An `artifacts:` template reads a pillar the Recipe does not declare |

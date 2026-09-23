@@ -470,7 +470,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0023` | `reference-form-requires-endpoint` | `form: reference requires an endpoint` |
 | `E0024` | `schedule-requires-scheduled-form` | `schedule requires form: scheduled` |
 | `E0025` | `scheduled-form-requires-schedule` | `form: scheduled requires a schedule` |
-| `E0026` | `artifact-content-mismatch` | `imported artifact content does not match the recipe's recorded digest` |
+| `E0026` | `artifact-content-mismatch` | `imported artifact content does not match the digest recorded for it in entity.lock` |
 | `E0027` | `artifact-import-shape` | `artifacts $import: is not a bare-name artifacts-library reference (<Library>#/artifacts/<entry>)` |
 | `E0028` | `artifact-output-collision` | `artifacts output filename collision: two artifact outputs carry the same filename` |
 | `E0029` | `artifact-pillar-not-declared` | `artifact template references a pillar the Recipe does not declare` |
