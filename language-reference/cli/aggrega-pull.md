@@ -16,7 +16,7 @@ Two of the three are read out of the documents you authored. The third is not: e
 
 It writes the result to `<release-stem>.lock` next to the Release. A workspace that attaches a plugin returning an accept-or-reject verdict also gets a second file in that directory — the [plugin trust record](#the-plugin-trust-record).
 
-**Those two are not the only files a pull writes.** Every Recipe and FeatureRecipe in your own catalog directories that points at a remote `source:` or imports an artifact file carries its own record of what that content digested to, and the resolution fills it in — so the documents you authored are rewritten as part of the same pass, and a pull's effect reaches further than the directory the Release sits in. [Previewing what a pull would write](#previewing-what-a-pull-would-write) shows the whole set for your workspace before anything moves.
+**Those two are not the only files a pull writes.** Beside each Recipe and FeatureRecipe in your catalog directories that imports an artifact file, or points at a remote `source:` you wrote out in full, a pull writes an `entity.lock` recording what that content digested to. The entity files you authored are never written to, but a pull's effect still reaches further than the directory the Release sits in. [The entity lock](#the-entity-lock) describes that file, and [Previewing what a pull would write](#previewing-what-a-pull-would-write) shows the whole set for your workspace before anything moves.
 
 ## The lockfile
 
@@ -25,6 +25,36 @@ The lockfile pins each dependency to its URI, resolved version, and content dige
 Commit `<release-stem>.lock` alongside the Release, the way you commit any pinned-dependency manifest. A lockfile diff shows reviewers exactly which dependency versions and digests changed; a library digest change names the consumers it affects.
 
 What a given pull *did* — whether each entity was fetched fresh from a registry (`fetched-fresh`), reused a cache slot (`cache-reuse`), found in a local catalog (`local`), served from the copy inside the compiler binary (`in-binary`), or was external (`external`) — is a transient pull-event diagnostic printed to stdout by `--detail`, and it is never written to the lockfile. Which source served an entity depends on the pulling machine's local state, so persisting it would break the lockfile's byte-identity across machines. It reports what *this pull* did, which is unrecoverable afterward (a freshly-pulled entity is cached by the next run); for the post-pull resolution *state* of a Release's dependencies, use `aggrega inspect`.
+
+## The entity lock
+
+A Recipe or FeatureRecipe can depend on bytes it does not carry itself: a chart or fragment fetched from a remote `source:`, or a file an `artifacts` entry brings in with `$import`. A pull records what each of those digested to in a file named `entity.lock`, in the same directory as the entity file. The entity file you wrote is never written to; what the pull derived lives beside it. The [entity lock schema](../schema/other/entity-lock.md) describes the file field by field.
+
+**What it holds.** Two lists, each row naming one input:
+
+- `sourceDigests` — one row for each remote `source:` whose coordinates you wrote out in full, with no template in its `kind`, `url`, `chart`, `module_subdir`, `version` or `ref`. The row carries the source's `kind` and `url`, its `chart` or `module_subdir` where it has one, the version it resolved to — for a git source, the commit its `ref` named — and the content digest of the fetched archive, plus the manifest digest for a chart fetched over OCI.
+- `artifactDigests` — one row for each `artifacts` entry supplied by a file imported with `$import`, naming the entry's key and the digest of the file's bytes.
+
+**What it does not hold:**
+
+- **A source whose coordinates are filled in from a template** — a `version` read from `.infra`, for instance. Which artifact it names is decided by each Release that uses the entity, so each version it resolves to is pinned in that Release's lockfile, and nothing about it is written beside the entity.
+- **A source that names a path in your workspace.** Nothing is fetched for it, so there is nothing to pin.
+- **An inline `artifacts` entry**, which is part of the entity file, and **an entry taken from an ArtifactsLibrary**, whose content is pinned by the library version the lockfile records.
+
+An entity with nothing to pin gets no `entity.lock`, and a pull that reaches an entity which no longer needs one removes it.
+
+**Commit it beside the entity.** Every Recipe and FeatureRecipe uses the same file name, and the directory it sits in says which entity it belongs to, so the lock travels with that directory. It carries no timestamp and its rows are kept in a fixed order, so a pull over unchanged inputs leaves it byte-identical, and a diff over it names the source or the imported file that moved. Two entities declared in one directory share one lock, and the pull that writes it for one of them replaces what it held for the other — so give an entity that pins anything a directory of its own, which is the layout [One entity per version directory](aggrega-push.md#one-entity-per-version-directory) already asks for.
+
+**`aggrega build` holds your files to it.** A build reads the lock and makes two comparisons:
+
+- **Each imported file is digested again and compared with its row.** A file edited after the pull that recorded it halts the build with `[CATALOG_ERROR E0026]`, naming the artifact, the imported file and both digests.
+- **Each source row is compared with the digest the Release's lockfile records for the same source.** A disagreement halts the build with `[FETCH_ERROR E0135]`, naming the lock and both digests. One pull writes both files from one resolution, so they disagree only when the lock was last written by another resolution of the same source — a pull of another Release that uses this entity, or a pull in another workspace whose lock arrived with the directory — that got different bytes, or when one of the two files was edited. Different bytes under one version is what an upstream that re-published a version looks like.
+
+**Answering the halt.** If you changed the imported file on purpose, run `aggrega pull --release <release>`: the pull records the file's new digest, and the next build accepts it. If you did not, restore the file. For a source row that disagrees with the lockfile, restore `entity.lock` from version control, or run the same pull to rewrite it.
+
+**`aggrega pull --verify` checks it too.** A verifying pull makes the same two comparisons over the locks beside the Recipes and FeatureRecipes the Release reaches in your catalog directories, reports every pin a build would refuse under the same code and in the same words, exits non-zero if there is one, and writes nothing.
+
+**Where no lock is compared.** A Recipe or FeatureRecipe resolved from a registry rather than from one of your catalog directories has no lock a build reads; its sources are held to the Release's lockfile alone. And a source written at a git `ref:` is recorded in the lock at the commit that ref resolved to, while a build looks for the source's pin at the version the entity names, so that row is never compared — by a build or by a verifying pull. The lockfile still pins the commit, and every build verifies the cached archive against it.
 
 ## The plugin trust record
 
@@ -46,7 +76,7 @@ Commit `plugins-trust.yaml` alongside the lockfile, for the reason you commit th
 
 **A resolved identity that disagrees with the recorded one halts the pull.** A recorded entry names both a version and a digest, so either moving is the same event: the plugin that would run is not the plugin the record was reviewed for. The diagnostic names the plugin, what the record holds, and what this resolution reported, on both axes at once — and pull stops without touching the record, so the reviewed identity is still there to compare against. It halts on the version alone (a re-publish whose bytes did not change) exactly as it halts on the digest alone (a re-push at the same version).
 
-`aggrega pull --verify` makes the same comparison. It writes nothing, so it adopts nothing; it reports whether the two committed files still describe what resolves today, and the record is one of those files.
+`aggrega pull --verify` makes the same comparison. It writes nothing, so it adopts nothing; it reports whether the files a pull commits still describe what resolves today, and the record is one of those files.
 
 **To adopt a new identity, ask for it by name:** `aggrega pull --upgrade --release <release> <plugin>`, naming the plugin as your `.aggrega-config.yaml` attachment names it, without any version suffix. That re-resolves that one plugin and rewrites its entry, leaving every other pinned dependency and every other recorded identity untouched — and it works even though the plugin has no lockfile pin, because a named target may also name one of those attachments. A bare `aggrega pull --upgrade`, which re-resolves every dependency, re-resolves and rewrites every recorded identity too. So does `aggrega build --upgrade`, which runs a bare full-refresh pull and has no way to name a single target.
 
@@ -86,9 +116,9 @@ If a pinned version's bytes in the registry no longer match the digest the lockf
 aggrega pull --dry-run --release release.yaml
 ```
 
-**It names every file, not just the lockfile.** The lockfile, each Recipe and FeatureRecipe whose recorded digests would move, and the plugin trust record all appear in the same report, because a preview that showed only the lockfile would teach you that the lockfile is all that moves. The files a pull would leave byte-for-byte as they are do not appear at all — a name in the report means that file is about to change. The last line counts them, and a workspace a pull would not change reports a count of zero.
+**It names every file, not just the lockfile.** The lockfile, the `entity.lock` beside each Recipe and FeatureRecipe whose recorded pins would move, and the plugin trust record all appear in the same report, because a preview that showed only the lockfile would teach you that the lockfile is all that moves. The files a pull would leave byte-for-byte as they are do not appear at all — a name in the report means that file is about to change. The last line counts them, and a workspace a pull would not change reports a count of zero.
 
-**Nothing on disk moves.** No lockfile is written or created, no recipe is rewritten, and no trust record is created or amended. Where a capability is served by more than one provider plugin and nothing has chosen between them, the run halts naming what to supply rather than offering to write the choice into your configuration — a preview does not edit a config file on its way past.
+**Nothing on disk moves.** No lockfile is written or created, no entity lock is written or removed, and no trust record is created or amended. Where a capability is served by more than one provider plugin and nothing has chosen between them, the run halts naming what to supply rather than offering to write the choice into your configuration — a preview does not edit a config file on its way past.
 
 **The resolution itself still runs, so the cache still fills.** Which external inputs a Release consumes is a product of rendering it, and a run that declined to resolve would have nothing to report, so `--dry-run` fetches and stores exactly as a pull does. The content under `.aggrega/cache` is addressed by digest and read only through the pins a lockfile records, so filling it changes nothing a build resolves; what a dry run shows is what a pull would write.
 
@@ -96,7 +126,7 @@ aggrega pull --dry-run --release release.yaml
 
 **It is not accepted with `--verify`,** which already writes nothing. The pair would leave the flag doing nothing while reading as though it had done something, so it is refused rather than ignored.
 
-**One thing the preview cannot always show in full, and it says so when it happens.** A pull rewrites each Recipe's recorded digests and then renders the Release to discover its external inputs; a preview leaves those recipes alone, so where a recorded digest has gone stale — you edited an imported file, or a `source:` moved, since the last resolution — that render is held to a digest the unwritten file does not yet carry, and stops. Everything else in the report is exactly what a pull would write; only the reported lockfile's external-input pins are short. The run says so on both its output and its diagnostics rather than handing you a lockfile that looks complete. A first resolution of a workspace is unaffected, because there is no recorded digest yet for anything to be stale against.
+**One thing the preview cannot always show in full, and it says so when it happens.** A pull rewrites the `entity.lock` beside each Recipe and FeatureRecipe and then renders the Release to discover its external inputs; a preview leaves those locks alone, so where a pin recorded there has gone stale — you edited an imported file since the last resolution, for instance — that render is held to the stale digest the unwritten lock still records, and stops. Everything else in the report is exactly what a pull would write; only the reported lockfile's external-input pins are short. The run says so on both its output and its diagnostics rather than handing you a lockfile that looks complete. A first resolution of a workspace is unaffected, because there is no recorded digest yet for anything to be stale against.
 
 ## The composition these pins describe
 
@@ -184,7 +214,7 @@ That check is the one thing the build-time digest re-verify cannot do for you. A
 
 **Write the ref, not the commit.** A `build` finds a git-sourced artifact by the ref you authored, matched against the ref the lockfile recorded, so `ref: v1.2.3` builds against the commit that tag was pinned at and the commit never has to appear in your Recipe. Naming a mutable tag in `version:` instead does not work and is not meant to: `version:` is matched as written, and for a git source the lockfile pins a commit.
 
-The lockfile pins content fetched from registries and remote sources. Local files — sources beginning with `./` or `../`, and workspace catalog directories — are not pinned; their integrity between builds is the responsibility of the source-control system. See [byte-identical output](../../architecture/05-invariants.md) for the scope of the determinism guarantee.
+The lockfile pins content fetched from registries and remote sources, and records the digest of each entity file it resolves from your catalog directories. A source beginning with `./` or `../` is not pinned, and an artifact file an entity imports is pinned in the lock beside that entity rather than in the lockfile, as [The entity lock](#the-entity-lock) describes; the integrity of the rest of your workspace between builds is the responsibility of the source-control system. See [byte-identical output](../../architecture/05-invariants.md) for the scope of the determinism guarantee.
 
 ## Authentication
 
