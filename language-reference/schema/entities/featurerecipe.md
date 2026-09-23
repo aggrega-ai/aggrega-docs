@@ -64,8 +64,6 @@ The provider capability binding, mapping, pipeline, and inject mapping for a Fea
 | `pipeline` | object[] | no | Sequential list of Wasm plugins to execute for stateful AST mutation. |
 | `executionScope` | string (enum) | no | Whether this FeatureRecipe's Resource Generation runs per-component (default, today's behavior) or once per boundary attachment. Boundary-scope FeatureRecipes deduplicate by (boundary_path, FR-instance) and receive a different TemplateContext shape (.boundary.* pillars instead of per-component .context.* pillars). The injectMapping continues to fan per-consumer regardless of executionScope. Allowed values: `"component"`, `"boundary"` Default: `"component"` |
 | `assertions` | map of string | no | Build-time cross-field validation. Each entry is a named assertion: the key is a stable rule identifier surfaced in error messages; the value is a Go template string with `{{ fail "message" }}` halt semantics. Multiple named assertions per entity evaluate per-instance in author-declared order; the first failing assertion halts the build. FeatureRecipe assertions evaluate after recipe binding (post-binding, post-allProvides-evaluation, pre-render) and express implementation invariants of the specific chart or module the FeatureRecipe sources. Template context: .values / .infra / .uses / .features / .metadata plus .provides / .locals / .recipe. The evaluator uses missingkey=error: references to undefined keys halt with a no-such-key diagnostic. Because the bare reference halts before any fallback can run, a plain `default` does not supply an optional-field fallback on this surface — gate the reference with `hasKey`, or read it through `index` and then apply `default`, or use the `optional` helper, which performs the presence check directly. |
-| `sourceDigests` | object[] | no | Content pins for the remote sources this feature recipe references, frozen at resolution from the fetched bytes and read back at build to verify the cached source has not drifted. Each entry mirrors the resolved-source identity {kind, url, chart, moduleSubdir, version} plus the content digest (and, for an OCI-distributed source, the manifest digest). One entry per distinct resolved-source identity the recipe fetches. Local (filesystem-relative) sources are never pinned. Written by the resolution phase into a writable recipe file; a recipe fetched from a registry arrives pre-pinned. |
-| `artifactDigests` | object[] | no | Content pins for the external files this feature recipe's artifacts import via $import, frozen at resolution and read back at build to verify the imported file has not drifted. One entry per artifact whose value is a file import; an inline (literal) artifact is already part of the entity and carries no separate pin. Written by the resolution phase into a writable recipe file. |
 
 _Additional properties are not permitted._
 
@@ -79,28 +77,5 @@ _Additional properties are not permitted._
 | `with` | string | no | Inline Go template evaluating to a JSON/YAML map that strictly satisfies this plugin's explicit input schema. |
 | `optional` | boolean | no | When true, a failure of this step (a guest trap, a patch targeting a document not present in the set, a malformed patch, or a halt-severity diagnostic) is downgraded to a loud warning: the pre-step document set is restored, this step's output is discarded, and the pipeline continues. When false or absent, any step failure halts the build after restoring the pre-step document set. |
 | `when` | string | no | Inline Go template evaluated at pipeline-walk time. When it renders a falsy value the step is skipped — a pass-through: the document set flows to the next step unchanged, contributing no patches, side effects, or step record. An empty or absent `when` always runs the step. Truthiness follows the standard convention for boolean-like template output: the strings `true`/`True`/`TRUE`, any nonzero number, and any other non-empty string are true, while `false`/`False`/`FALSE`, the empty string, and zero are false. `when` and `optional` are independent: a step may declare both. |
-
-_Additional properties are not permitted._
-
-##### `featurerecipe.spec.sourceDigests[]`
-
-| Property | Type | Required | Description |
-| --- | --- | --- | --- |
-| `kind` | string | yes | The resolved source kind (e.g. helm-oci-chart, helm-https-chart, compose-https-fragment, git-repository). |
-| `url` | string | yes | The authored source URL the digest pins — the identity URL as written in spec.source.url (a repo root or a direct .tgz for helm-https). Build reconstructs this same URL offline, so it is the stable identity the pin is keyed on, not a resolved artifact location. |
-| `chart` | string | no | The chart name for a repo-root helm source (spec.source.chart), part of the resolved-source identity so two charts served from one repo root at the same version pin distinctly. Absent for a direct .tgz, OCI, compose, or git source, none of which selects a chart within the URL. |
-| `moduleSubdir` | string | no | The directory within a git-sourced repository that is the artifact (spec.source.module_subdir), part of the resolved-source identity so two directories of one repository at the same commit pin distinctly. Absent when the whole repository is the artifact, and for every kind that reaches its artifact by URL rather than by descending into a clone. |
-| `version` | string | yes | The concrete pinned version the source resolved to. |
-| `digest` | string | yes | The SHA-256 content digest (sha256:<hex>) of the fetched source archive, verified against the cached bytes at build. |
-| `manifestDigest` | string | no | The OCI manifest digest for an OCI-distributed source — the independent root of trust. Present only for an OCI source (a helm-oci-chart); absent for an https or git source, which carries no manifest by construction. |
-
-_Additional properties are not permitted._
-
-##### `featurerecipe.spec.artifactDigests[]`
-
-| Property | Type | Required | Description |
-| --- | --- | --- | --- |
-| `name` | string | yes | The artifact key (the artifacts: map key) whose $import file this entry pins. |
-| `digest` | string | yes | The SHA-256 content digest (sha256:<hex>) of the imported file's bytes, verified at build. |
 
 _Additional properties are not permitted._
