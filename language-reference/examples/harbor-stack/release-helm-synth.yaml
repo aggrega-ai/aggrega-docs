@@ -14,23 +14,19 @@ spec:
     app:
       directory: app
       components:
-        # The module's internal components are addressed by their dotted
-        # module-scoped IDs, and all are placed in this boundary so the stack
-        # renders into one directory. Compute sizing is owned by the operator;
-        # the core and the backend are sized here, and storage and everything
-        # else is left to the components' schema defaults, so the stack renders
+        # The module's component is addressed by its dotted module-scoped id.
+        # Compute sizing is owned by the operator: the control plane is sized
+        # here, and the port, the image tag and the blob store's volume are left
+        # to the component's schema defaults, so the stack renders
         # self-contained.
-        harbor.core:
+        #
+        # Both keys of the compute group are set together. The Recipe halts on a
+        # group that carries only one of them, because a control plane rendered
+        # with a CPU limit and no memory limit is materially different from the
+        # one the component's declared defaults describe, and nothing in the
+        # output would say so.
+        harbor.registry:
           infra:
             compute:
               cpu: 500m
               memory: 1Gi
-        harbor.db:
-          infra:
-            compute:
-              cpu: 500m
-              memory: 512Mi
-        harbor.registry: {}
-        harbor.portal: {}
-        harbor.jobservice: {}
-        harbor.cache: {}
