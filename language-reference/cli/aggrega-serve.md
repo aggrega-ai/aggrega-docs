@@ -224,7 +224,7 @@ Where a Feature is reachable both ways — the workspace root is itself one of t
 
 **It reports and never creates.** The method mutates nothing, writes nothing, and creates no attachment. Composing and applying any edit is the editor's, which is where the buffer and the undo history are.
 
-**What it resolves depends on the coordinate, and the three are not the same.** `{node}` resolves nothing and reaches no registry or network — the candidates come from the workspace and from the catalog directories, both already on disk. `{labels}` resolves less still: it looks nothing up, because there is nothing to look up. `{graphNode, release}` builds the Release's graph, so it resolves that Release's dependency closure the same way `aggrega/irGraph` does: from the local catalog directories and the content-addressed cache first, and from the configured registry for an entity neither of those carries. All three answer offline for a workspace whose entities are all local; only the graph-node coordinate can go looking further.
+**What it resolves depends on the coordinate, and the three are not the same.** `{node}` resolves nothing and reaches no registry or network — the candidates come from the workspace and from the catalog directories, both already on disk. `{labels}` resolves less still: it looks nothing up, because there is nothing to look up. `{graphNode, release}` builds the Release's graph, so it resolves that Release's dependency closure the same way `aggrega/irGraph` does: from the local catalog directories and the artifact cache first, and from the configured registry for an entity neither of those carries. All three answer offline for a workspace whose entities are all local; only the graph-node coordinate can go looking further.
 
 ## What a connection-candidate response tells you
 
@@ -651,7 +651,7 @@ fetches or writes runs because a request named it, and never as a side effect of
 document, inspecting a graph or listing a workspace's entities. So an editor that validates on every
 keystroke reaches no network and rewrites no lockfile, while a "resolve dependencies" action the user
 clicks does exactly what `aggrega pull` does — the same resolution, behind both surfaces, writing a
-byte-identical lockfile and filling the same content-addressed store.
+byte-identical lockfile and filling the same artifact cache.
 
 **Nothing is prompted for.** Nobody is watching this stream, so identity is resolved from a supplied
 or ambient credential source and never by asking. Where the terminal command would have put a question

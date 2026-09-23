@@ -38,7 +38,7 @@ locals:
 source: "{{ .locals.chart_dir }}"
 ```
 
-**What a relative result is resolved against.** The directory holding the FeatureRecipe document that declared it — the attachment's own file, never the component's. A result that is an absolute path is used as written, and one carrying a transport scheme is fetched rather than joined to a directory, exactly as for a Recipe. A FeatureRecipe resolved from a registry lives in a content-addressed slot rather than a file anybody authored, so there is no directory for a relative result to be relative to and it is carried through as the template produced it.
+**What a relative result is resolved against.** The directory holding the FeatureRecipe document that declared it — the attachment's own file, never the component's. A result that is an absolute path is used as written, and one carrying a transport scheme is fetched rather than joined to a directory, exactly as for a Recipe. A FeatureRecipe resolved from a registry lives in a cache slot rather than a file anybody authored, so there is no directory for a relative result to be relative to and it is carried through as the template produced it.
 
 **What the template may read.** The reference set is the one the FeatureRecipe's own `locals:` entries are checked against, which differs from a Recipe's in two ways that follow from an attachment being resolved rather than a component:
 

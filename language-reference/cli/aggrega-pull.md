@@ -122,7 +122,7 @@ aggrega pull --dry-run --release release.yaml
 
 **Nothing on disk moves.** No lockfile is written or created, no entity lock is written or removed, and no trust record is created or amended. Where a capability is served by more than one provider plugin and nothing has chosen between them, the run halts naming what to supply rather than offering to write the choice into your configuration — a preview does not edit a config file on its way past.
 
-**The resolution itself still runs, so the cache still fills.** Which external inputs a Release consumes is a product of rendering it, and a run that declined to resolve would have nothing to report, so `--dry-run` fetches and stores exactly as a pull does. The content under `.aggrega/cache` is addressed by digest and read only through the pins a lockfile records, so filling it changes nothing a build resolves; what a dry run shows is what a pull would write.
+**The resolution itself still runs, so the cache still fills.** Which external inputs a Release consumes is a product of rendering it, and a run that declined to resolve would have nothing to report, so `--dry-run` fetches and stores exactly as a pull does. The content under `.aggrega/cache` is read only through the pins a lockfile records, so filling it changes nothing a build resolves; what a dry run shows is what a pull would write.
 
 **A bare `--upgrade` asks nothing under this flag.** The confirmation exists because a full refresh drops every recorded pin, and a preview drops none — so `aggrega pull --dry-run --upgrade --release <release>` is the form to reach for when what you want to know is what a refresh would cost you, and it runs without an answer.
 
@@ -142,7 +142,7 @@ A lockfile pins what a build of this Release will consume, so the resolution dra
 
 ## The cache
 
-Pulled content is stored under `.aggrega/cache`, split into an `entities/` subtree for catalog entities, a `source-artifacts/` subtree for source artifacts, and an `inputs/` subtree for the external inputs a render consumes, each blob there named by its own content digest. The cache is content-addressed, so identical version pins share storage across Releases. Each source-artifact slot holds the authoritative archive, a regenerated extraction, and a small metadata file; the extraction is regenerated on every read, so build output depends on the archive and the lockfile, not on the state of the extracted files.
+Pulled content is stored under `.aggrega/cache`, split into an `entities/` subtree for catalog entities, a `source-artifacts/` subtree for source artifacts, and an `inputs/` subtree for the external inputs a render consumes. A catalog entity's slot is named by its coordinate and version, a source artifact's by where it was fetched from, its version and a prefix of its content digest, and an external input's by its content digest; what a build reads from any of them is checked against what the lockfile records. Identical version pins therefore share one slot across Releases. Each source-artifact slot holds the authoritative archive, a regenerated extraction, and a small metadata file; the extraction is regenerated on every read, so build output depends on the archive and the lockfile, not on the state of the extracted files.
 
 The cache is anchored to the workspace rather than to the directory you ran the command from, so one workspace has one cache and a pull run from a subdirectory fills the same store a build run from the root reads.
 

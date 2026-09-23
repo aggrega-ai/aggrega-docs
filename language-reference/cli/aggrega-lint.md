@@ -16,7 +16,7 @@ Whole-catalog conventions checking needs at least one catalog directory to scan:
 
 ## Conventions across a Release (`--release`)
 
-`aggrega lint --release <release-path>` runs the same structural rules over the catalog entity files a single Release's resolved closure reaches, rather than the whole catalog or one entity. It computes the closure through the same machinery a build uses, then lints each entity's author-owned catalog file. A registry-pinned entity living in a content-addressed cache slot carries no local file to lint and is skipped — the publishing rules apply to locally-authored files. As with the whole-catalog mode, findings are advisory and never halt on a convention finding alone.
+`aggrega lint --release <release-path>` runs the same structural rules over the catalog entity files a single Release's resolved closure reaches, rather than the whole catalog or one entity. It computes the closure through the same machinery a build uses, then lints each entity's author-owned catalog file. A registry-pinned entity living in a cache slot carries no local file to lint and is skipped — the publishing rules apply to locally-authored files. As with the whole-catalog mode, findings are advisory and never halt on a convention finding alone.
 
 This is the conventions counterpart to [`aggrega validate --release`](./aggrega-validate.md), which checks the same closure for correctness.
 
