@@ -179,7 +179,7 @@ The answer to a request that succeeded, carrying the identifier of the request i
 | --- | --- | --- | --- |
 | `jsonrpc` | ProtocolVersion | yes | The JSON-RPC version every message carries. Only 2.0 is spoken. |
 | `id` | RequestId | yes | The caller's identifier for a request, echoed on the response that answers it. A message carrying no identifier is a notification and is never answered. |
-| `result` | InitializeResult or ValidateResult or InvalidateResult or DiagnosticsResult or IrGraphResult or BuildResult or BuildPreviewResult or EntityDefinitionResult or ReleaseClosureResult or ResolveDependenciesResult or CacheStatusResult or CachePruneResult or CacheEvictResult or CacheClearResult or RegistryListResult or SearchResult or RegistryAddResult or RegistryRemoveResult or RegistryUpdateResult or LogoutResult or PublishEntityResult or PublishArtifactResult or SignArtifactsResult or DeprecateArtifactResult or ResolveResult or FindReferencesResult or FindImplementationsResult or HoverResult or CompletionResult or CatalogIndexResult or AttachCandidatesResult or ConnectionCandidatesResult or InsertionPointResult or AttachmentContainerResult or ReleaseCandidatesResult or ActiveReleaseResult or EditDocumentResult or EffectiveConfigurationResult or ConfigInitResult or ConfigCaptureResult or ImportResult or ScaffoldEntityResult or LintResult or PluginAddResult or PluginRemoveResult or PluginSyncResult or PluginGenCatalogResult or ExplainErrorResult or GetSchemaResult | yes | The answer, in the shape the method that was asked returns. |
+| `result` | InitializeResult or ValidateResult or InvalidateResult or DiagnosticsResult or IrGraphResult or BuildResult or BuildPreviewResult or EntityDefinitionResult or ReleaseClosureResult or ResolveDependenciesResult or PinResult or CacheStatusResult or CachePruneResult or CacheEvictResult or CacheClearResult or RegistryListResult or SearchResult or RegistryAddResult or RegistryRemoveResult or RegistryUpdateResult or LogoutResult or PublishEntityResult or PublishArtifactResult or SignArtifactsResult or DeprecateArtifactResult or ResolveResult or FindReferencesResult or FindImplementationsResult or HoverResult or CompletionResult or CatalogIndexResult or AttachCandidatesResult or ConnectionCandidatesResult or InsertionPointResult or AttachmentContainerResult or ReleaseCandidatesResult or ActiveReleaseResult or EditDocumentResult or EffectiveConfigurationResult or ConfigInitResult or ConfigCaptureResult or ImportResult or ScaffoldEntityResult or LintResult or PluginAddResult or PluginRemoveResult or PluginSyncResult or PluginGenCatalogResult or ExplainErrorResult or GetSchemaResult | yes | The answer, in the shape the method that was asked returns. |
 
 _Additional properties are not permitted._
 
@@ -462,6 +462,20 @@ Resolves a Release's dependencies, pinning them in the lockfile and acquiring th
 | `upgrade` | boolean | no | Whether to re-resolve within the declared ranges rather than honouring what the lockfile already pins. |
 | `targets` | string[] | no | The references to re-resolve, leaving the rest pinned as they are. Empty resolves everything. |
 | `verify` | boolean | no | Whether to check each acquired artifact against the digest the lockfile pins. |
+| `pinSources` | boolean | no | Whether to run the pin step `aggrega/pin` runs over the Recipes and FeatureRecipes the Release builds from the workspace's catalog directories, writing the `entity.lock` beside each, rather than refusing the request over one whose lock does not record a pin an input needs. Absent follows the workspace's `pin_sources_at_pull`; either value overrides that setting for this request. |
+
+_Additional properties are not permitted._
+
+### `PinParams`
+
+Records, in the `entity.lock` beside a Recipe or FeatureRecipe, the content pin for every input the entity reads from outside its own document. No Release is named: an input whose identity the entity writes out in full names one artifact for every Release that uses the entity, so nothing a Release supplies is needed to pin it. It reaches the hosts the entity's sources name and it writes beside the entity; the entity document itself is never written.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
+| `entity` | string | no | The entity document to pin, as a path relative to the workspace root. |
+| `dryRun` | boolean | no | Whether to answer with the lock the step would write rather than writing it. The inputs are still resolved, so the content cache still fills. |
 
 _Additional properties are not permitted._
 
@@ -573,6 +587,7 @@ Publishes an entity to a registry. What it lands is what every consumer of that 
 | `rekorUrl` | string | no | The transparency log to record the signature in. |
 | `timestampUrl` | string | no | The timestamp authority to countersign with. |
 | `identityToken` | string | no | The identity token to sign with, supplied by the caller rather than obtained at a terminal. |
+| `pinSources` | boolean | no | Whether to run the pin step `aggrega/pin` runs on the entity before it is bundled, so the `entity.lock` the step writes beside it is part of what is published. The step runs ahead of every refusal that judges the entity, and under `dryRun` it reports the lock it would write and writes nothing. Absent follows the workspace's `pin_sources_at_push`; either value overrides that setting for this request. |
 
 _Additional properties are not permitted._
 
@@ -1668,6 +1683,36 @@ What a dependency resolution pinned and acquired, plus anything it wants the cal
 
 _Additional properties are not permitted._
 
+### `PinResult`
+
+What the pin step did to the lock beside an entity, or would do on a dry run. It is the answer to `aggrega/pin`, and a publication that ran the step carries it as its `pin`.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `entity` | string | yes | The entity document the step read, as a path relative to the workspace root. |
+| `kind` | string | yes | The entity's kind, as its document declares it. |
+| `name` | string | yes | The entity's name, as its document declares it. |
+| `pinnable` | boolean | yes | Whether an entity of this kind reads anything a lock records a pin for, which a Recipe and a FeatureRecipe do. Where it is false nothing beside the entity was touched, `changed` is false, and `lock`, `removed`, `pins` and `content` are absent. |
+| `lock` | string | no | The lock the step wrote, or would write, as a path relative to the workspace root. |
+| `changed` | boolean | yes | Whether the lock moved, or would move on a dry run. False where the lock already recorded every pin the entity needs and was left byte-identical. |
+| `removed` | boolean | no | Whether the move is a removal: the entity reads nothing a lock records a pin for, so no lock is left beside it. |
+| `dryRun` | boolean | no | Whether this reports what the step would do rather than what it did. |
+| `pins` | PinClassCount[] | no | How many pins of each class the lock holds after the step, or would hold after a dry run. Every class the lock can hold is listed, a class with no pin included. |
+| `content` | string | no | The lock a dry run would write. Absent where the lock would be left as it is or removed, and on every answer that is not a dry run. |
+
+_Additional properties are not permitted._
+
+### `PinClassCount`
+
+How many pins of one class a lock holds.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `class` | string | yes | The class of pin, in the words a refusal naming a missing one uses — `remote source` or `imported file`, for instance. |
+| `pins` | integer | yes | How many pins of that class the lock holds. |
+
+_Additional properties are not permitted._
+
 ### `CacheStatusResult`
 
 What the caches serving this workspace hold.
@@ -1809,7 +1854,7 @@ _Additional properties are not permitted._
 
 ### `PublishEntityResult`
 
-What publishing an entity landed, and where.
+What publishing an entity landed, and where. A publication that ran the pin step first also carries what that step did, as `pin`, which is absent where the step did not run.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -1826,6 +1871,7 @@ What publishing an entity landed, and where.
 | `alreadyPublished` | boolean | yes | Whether the same bytes were already there, so nothing new was landed. |
 | `dryRun` | boolean | yes | Whether this reports what publishing would have landed rather than what it did. |
 | `reach` | PublicationReach | yes | How far a publication reached. These answers reach beyond this machine entirely — what they land is what every consumer of that registry resolves — so each names the host it addressed and whether the call landed anything. |
+| `pin` | PinResult | no | What the pin step did to the lock beside an entity, or would do on a dry run. It is the answer to `aggrega/pin`, and a publication that ran the step carries it as its `pin`. |
 
 _Additional properties are not permitted._
 

@@ -21,7 +21,17 @@ An Aggregate publishes as its own single document: a sub-aggregate it references
 
 The bundle is built from the **directory** the entity file sits in, so everything in that directory is published and the entity has to be found again on the way back out. A consumer finds it by the preamble it carries: the document at the top of the bundle whose `kind:` is a publishable entity kind is the entity. The file it is authored in may be called anything — `recipe.yaml` is the catalog's convention rather than a requirement — and a compose fragment, a chart template or a Kubernetes manifest sitting beside the entity is not mistaken for one, because those declare something else or no kind at all. Entity documents further down, inside a `source/` tree, are content the entity ships rather than the entity itself and are never considered.
 
-**What follows is a layout obligation on the publisher: a version directory holds one entity.** Two entities authored side by side in one version directory each publish an artifact built from that whole directory, so their two published coordinates carry *the same bytes*. Nothing about the publish reports it — each push succeeds and reports its own reference — and a consumer asking for either one would otherwise receive whichever entity was picked. Rather than answer with the wrong entity, a pull of such an artifact halts, naming both documents; the halt is catalogued at [errors/fatal-halts.md](../errors/fatal-halts.md). Give each entity its own `<name>/<version>/` directory, which is the layout the standard-library catalog already follows.
+**What follows is a layout obligation on the publisher: a version directory holds one entity.** Two entities authored side by side in one version directory each publish an artifact built from that whole directory, so their two published coordinates carry *the same bytes*. Nothing about the publish reports it — each push succeeds and reports its own reference — and a consumer asking for either one would otherwise receive whichever entity was picked. Rather than answer with the wrong entity, a pull of such an artifact halts, naming both documents; the halt is catalogued at [errors/fatal-halts.md](../errors/fatal-halts.md). Give each entity its own `<name>/<version>/` directory, which is the layout the standard-library catalog already follows. It is also what gives each entity an `entity.lock` of its own, since every entity in one directory shares that directory's lock.
+
+## Pinning before publishing
+
+A Recipe or FeatureRecipe carries the pins for the inputs it reads — a remote `source:` written out in full, a file an `artifacts` entry imports — in the `entity.lock` beside it, and that file is part of the directory a push bundles. Pinning is a step you run before publishing, [`aggrega pin`](aggrega-pin.md), and commit the lock it writes.
+
+**`aggrega push --pin-sources` runs that same step for you, first.** The step runs before the bundle is built, so the lock it writes is in the published artifact and the published digest covers it; and it runs ahead of every refusal that judges the entity, so what is judged is the entity as pinned. It writes the same bytes `aggrega pin` writes. The workspace key `pin_sources_at_push` makes this every push's default, and `--pin-sources=false` skips it for one run. The step writes beside the entity, which needs a writable home — and a push always has one, since it publishes the document you name.
+
+Under `--dry-run` the step pins as a dry run: it prints the lock it would write and writes nothing, and the bundle facts that follow describe the directory as it stands, without that lock.
+
+**Best practice: a change to a version you have already published goes into a new version, and then a pin.** Copy the entity into a new version directory, make the change there, pin it, and publish that. The half of this the product enforces is the next section: publishing different content at a version that is already published is refused. The other half — not re-pinning an already-published version after editing it in your own workspace — is yours to keep; nothing refuses it locally, because re-pinning is legitimate for an entity you have not published.
 
 ## Registry, tag, and content-addressing
 
@@ -119,6 +129,12 @@ signing refuses the push rather than leaving unsigned content published.
 
 Push refuses to replace content already published at the same version:
 publish changed content under a new version instead.
+
+A Recipe or FeatureRecipe carries the pins for its own inputs in the entity.lock
+beside it, and pinning them is a step you run before publishing: aggrega pin.
+Pass --pin-sources, or set pin_sources_at_push in the workspace configuration, to
+have push run that same step first, so the lock it writes is part of what is
+published; --pin-sources=false skips it for one run.
 ```
 
 **Flags**
@@ -131,6 +147,7 @@ publish changed content under a new version instead.
 | `--identity-token` | — | OIDC identity token for keyless signing. Optional at an interactive terminal (a browser flow acquires one) and on GitHub Actions (the workflow OIDC token is minted automatically); required for other non-interactive/CI use, where it may instead be exported as AGGREGA_IDENTITY_TOKEN or SIGSTORE_ID_TOKEN. |
 | `--key` | — | Path to a held ECDSA P-256 private key PEM for offline keyed signing. When omitted, keyless signing is used. |
 | `--list-kinds` | `false` | List every entity kind that can be published, then exit without publishing anything. The output is machine-readable and its shape is stable: one kind per line, in sorted order, with nothing else. |
+| `--pin-sources` | `false` | Run the entity author's pin step on the entity before bundling it, so the entity.lock the step writes beside it is part of what is published. The same step as aggrega pin, writing the same bytes. It writes beside the entity, so it runs only where the entity has a writable home: a document in a directory it was read from — which a push always has, since it publishes the entity document you name. Overrides the workspace's pin_sources_at_push in both directions: --pin-sources pins for this run and --pin-sources=false does not, whatever the setting says |
 | `--plugin` | — | Path to the local .wasm artifact for a Plugin entity. Required when publishing a Plugin: publish pushes the .wasm artifact, computes its content digest, and pushes the entity. |
 | `--registry` | — | Destination registry host (overrides the workspace's default_registry) |
 | `--rekor-url` | — | Rekor transparency-log URL for keyless signing. When omitted, the public-good Rekor instance is used. |

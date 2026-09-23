@@ -216,6 +216,12 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrRejected()` | `wasm-manifest-rejected` | `wasm: plugin rejected by the sandbox` |
 | `ErrTypeMismatch()` | `wasm-plugin-type-mismatch` | `wasm: declared plugin type does not match plugin describe()` |
 
+### pkg/recipepin
+
+| Sentinel | Code | Message |
+| --- | --- | --- |
+| `ErrEntityNotPinned()` | `entity-not-pinned` | `an input the entity reads has no pin recorded for it in the entity.lock beside it` |
+
 ### pkg/refcycle
 
 | Sentinel | Code | Message |
@@ -725,6 +731,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0299` | `bundle-ambiguous-entity-document` | `oci: published bundle carries more than one entity document` |
 | `E0300` | `bundle-unreadable` | `oci: published bundle cannot be unpacked` |
 | `E0301` | `published-artifact-not-an-entity` | `oci: published artifact is not an entity document` |
+| `E0302` | `entity-not-pinned` | `an input the entity reads has no pin recorded for it in the entity.lock beside it` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0157` is retired: nothing reports it now, and the number is never handed to a different condition. It named an Aggregate key — a component, feature, subsystem or nested-module instance name — that did not match the authored-name pattern. Every one of those key surfaces is constrained to that same spelling by the Aggregate schema, which refuses the document while validating its envelope and reports the offending key with a line and column; that condition's code is `E0215`.

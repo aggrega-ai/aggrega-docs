@@ -3388,19 +3388,34 @@ An `artifacts:` entry a FeatureRecipe writes reports the same condition as the b
 
 <!-- covers: internal/compiler/renderer.ErrArtifactContentMismatch -->
 
-An `artifacts:` entry that imports a local file has its content pinned when a pull resolves the Recipe: the digest of the file's bytes is recorded in the `entity.lock` beside the Recipe. Every build re-reads the file, digests it again, and refuses the disagreement — so a file edited after the pull never renders as though it had been checked. `aggrega pull --verify` makes the same comparison and reports a disagreement with the same message.
+An `artifacts:` entry that imports a local file has its content pinned when the Recipe is pinned — by `aggrega pin`, or by a pull or a push asked to run the same step: the digest of the file's bytes is recorded in the `entity.lock` beside the Recipe. Every build re-reads the file, digests it again, and refuses the disagreement — so a file edited after it was pinned never renders as though it had been checked. `aggrega pull --verify` makes the same comparison and reports a disagreement with the same message.
 
 **What is compared is the entry's content, not what rendering it produced.** An artifact body is a template, and evaluating it substitutes values that differ per component instance, so a digest over the output would disagree for every instance whose values differ. The recorded content is the same text for every instance that binds the Recipe, which is what makes one recorded digest the right thing to compare against.
 
-**A Recipe no pull has resolved has no pin beside it and is not compared.** Absence of a pin is not a mismatch; it means there is nothing to compare, and the entry renders as written.
+**A Recipe nobody has pinned has no pin beside it, and a build does not compare it.** Absence of a pin is not a mismatch to a build; it means there is nothing to compare. A pull over such a Recipe stops instead, as [An entity reads an input the lock beside it records no pin for](#an-entity-reads-an-input-the-lock-beside-it-records-no-pin-for) describes.
 
 Three surfaces carry the same check over different documents — a component's own Recipe, a Feature attached to a component, and a Feature attached to a boundary — so the FeatureRecipe's content is measured against the digest recorded beside the FeatureRecipe rather than beside the host component's Recipe. On the two attachment surfaces the message names the attachment as well, which is what says which document to open.
 
 Emitted messages:
-> imported artifact content does not match the digest recorded for it in entity.lock (`"<artifact>"`, imported file `"<path>"`, its content digests to `"<digest>"`, the recorded pin is `"<digest>"`). If the file was changed on purpose, run `aggrega pull --release <release>` to record its new digest; otherwise restore the file
-> imported artifact content does not match the digest recorded for it in entity.lock (`"<artifact>"`, imported file `"<path>"`, its content digests to `"<digest>"`, the recorded pin is `"<digest>"`, attachment `"<attachment>"`). If the file was changed on purpose, run `aggrega pull --release <release>` to record its new digest; otherwise restore the file
+> imported artifact content does not match the digest recorded for it in entity.lock (`"<artifact>"`, imported file `"<path>"`, its content digests to `"<digest>"`, the recorded pin is `"<digest>"`). If the file was changed on purpose, run `aggrega pin` on the entity that imports it to record its new digest; otherwise restore the file
+> imported artifact content does not match the digest recorded for it in entity.lock (`"<artifact>"`, imported file `"<path>"`, its content digests to `"<digest>"`, the recorded pin is `"<digest>"`, attachment `"<attachment>"`). If the file was changed on purpose, run `aggrega pin` on the entity that imports it to record its new digest; otherwise restore the file
 
-**How to fix:** two answers, and which is right depends on whether the edit was meant. Where it was, run `aggrega pull --release <release>` so the pin is taken again from the file's current bytes. Where it was not, restore the file — the recorded digest is the record of the bytes the last pull resolved, and a build that rendered the changed file would be shipping content nothing verified.
+**How to fix:** two answers, and which is right depends on whether the edit was meant. Where it was, run `aggrega pin` on the Recipe so the pin is taken again from the file's current bytes, and commit the `entity.lock` it rewrites. Where it was not, restore the file — the recorded digest is the record of the bytes that were pinned, and a build that rendered the changed file would be shipping content nothing verified.
+
+### An entity reads an input the lock beside it records no pin for
+
+<!-- covers: pkg/recipepin.ErrEntityNotPinned -->
+
+A Recipe or FeatureRecipe can depend on bytes it does not carry itself: a remote `source:` whose coordinates are written out in full, and a file an `artifacts` entry imports with `$import`. The pin for each is recorded in the `entity.lock` beside the entity, and recording it is the entity author's step, `aggrega pin`. So a pull does not record those pins on its own: over an entity in one of your catalog directories that the Release builds, it compares what the step would record with what the lock holds, and stops when the lock is missing a pin — or holds one the input no longer matches — rather than writing into the author's directory unasked. A build that fills its own lockfile is a pull and stops the same way.
+
+**The message names every input it is missing, by class.** Each is a `remote source`, named by its url and the version it resolved to, or an `imported file`, named by the `artifacts` key that consumes it — so you know whether it is a source or a file that needs pinning. Every such entity in the Release is reported in one run.
+
+**An entity resolved from a registry is never held to this.** It lives in the content cache rather than in a directory you author, so there is no lock beside it for anybody to write, and its sources are held to the Release's lockfile alone.
+
+Emitted message:
+> an input the entity reads has no pin recorded for it in the entity.lock beside it (Recipe `"<name>"`, remote source `<url>@<version>`: no pin recorded, imported file `<key>`: the recorded pin no longer matches it). remediation: run `aggrega pin <entity-path>` and commit the entity.lock it writes beside the entity; to have every pull in this workspace record the pins itself instead, set `pin_sources_at_pull: true` in the workspace configuration
+
+**How to fix:** where the entity is yours, run `aggrega pin` on it and commit the `entity.lock` it writes, then pull again. Where it is someone else's — a catalog you consume from a directory of its own — its publisher has not pinned it yet; set `pin_sources_at_pull: true` in your workspace configuration so every pull records the pins itself, or pass `--pin-sources` to one pull. [`aggrega pin`](../cli/aggrega-pin.md) describes the step in full.
 
 ### A `provides:` template could not be evaluated
 
@@ -4833,6 +4848,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0299` | `oci: published bundle carries more than one entity document` | A published bundle holds no entity, or holds two |
 | `E0300` | `oci: published bundle cannot be unpacked` | A published artifact cannot be read as an entity |
 | `E0301` | `oci: published artifact is not an entity document` | A published artifact cannot be read as an entity |
+| `E0302` | `an input the entity reads has no pin recorded for it in the entity.lock beside it` | An entity reads an input the lock beside it records no pin for |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

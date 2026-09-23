@@ -85,6 +85,29 @@ where this project reads local entities from and what to change so the one you n
 says nothing of the kind where you wrote the empty list — reading no local catalog is what you
 declared there, and a suggestion to change it would be arguing with you.
 
+### Whether a pull or a push pins an entity
+
+A Recipe or FeatureRecipe carries the pins for the inputs it reads — a remote `source:` written out
+in full, a file an `artifacts` entry imports — in the `entity.lock` beside it, and recording them is
+the entity author's step, [`aggrega pin`](aggrega-pin.md). By default neither `pull` nor `push`
+runs that step: a pull halts on an entity its lock does not pin, and a push publishes the entity's
+directory as it stands. Two keys, one per command, make running it that command's default:
+
+```yaml
+# <project>/.aggrega-config.yaml
+workspace: {}
+pin_sources_at_pull: true
+pin_sources_at_push: true
+```
+
+**Each key governs its own command and nothing else**, and each command's `--pin-sources` overrides
+its own key in both directions — `--pin-sources=false` turns the step off for one run in a project
+configured to pin. A build that fills its own lockfile is a pull and follows
+`pin_sources_at_pull`. They belong in the project file rather than the global one: whether a
+project's pulls record pins is that project's policy, and a teammate who clones it should get the
+same answer. `pin_sources_at_pull` is also how a project consuming someone else's unpinned catalog
+records those pins once rather than halting on every pull.
+
 ### Starting from nothing
 
 A freshly installed `aggrega` has neither file, and that is a working state rather than a broken
