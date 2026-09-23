@@ -39,6 +39,7 @@ This section documents the JSON Schemas that define every Aggrega entity, plugin
 
 - [aggrega-config](other/aggrega-config.md)
 - [cache-metadata](other/cache-metadata.md)
+- [entity-lock](other/entity-lock.md)
 - [ir](other/ir.md)
 - [lockfile](other/lockfile.md)
 - [path-template-context](other/path-template-context.md)
