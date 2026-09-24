@@ -3408,14 +3408,19 @@ Emitted messages:
 
 A Recipe or FeatureRecipe can depend on bytes it does not carry itself: a remote `source:` whose coordinates are written out in full, and a file an `artifacts` entry imports with `$import`. The pin for each is recorded in the `entity.lock` beside the entity, and recording it is the entity author's step, `aggrega pin`. So a pull does not record those pins on its own: over an entity in one of your catalog directories that the Release builds, it compares what the step would record with what the lock holds, and stops when the lock is missing a pin — or holds one the input no longer matches — rather than writing into the author's directory unasked. A build that fills its own lockfile is a pull and stops the same way.
 
+**A push stops on the same comparison, over the one entity it is about to publish.** Before the bundle is built, and before any registry is contacted, it compares what the step would record for the entity with the lock beside it, and refuses in the same way — a dry run included — unless the push was asked to run the step itself. What the message suggests at the end differs between the two, because each command has its own ways to have the pins recorded; what it reports does not.
+
 **The message names every input it is missing, by class.** Each is a `remote source`, named by its url and the version it resolved to, or an `imported file`, named by the `artifacts` key that consumes it — so you know whether it is a source or a file that needs pinning. Every such entity in the Release is reported in one run.
 
-**An entity resolved from a registry is never held to this.** It lives in the content cache rather than in a directory you author, so there is no lock beside it for anybody to write, and its sources are held to the Release's lockfile alone.
+**An entity resolved from a registry is never held to this by a pull, because its publication already was.** It lives in the content cache rather than in a directory you author, so there is no lock beside it for a pull to read or write, and its sources are held to the Release's lockfile. An entity published with `aggrega push` was refused at publication unless its lock recorded every pin the step would record for it then, and that lock travels inside the published bundle.
 
-Emitted message:
+Emitted messages, from a pull and from a push:
 > an input the entity reads has no pin recorded for it in the entity.lock beside it (Recipe `"<name>"`, remote source `<url>@<version>`: no pin recorded, imported file `<key>`: the recorded pin no longer matches it). remediation: run `aggrega pin <entity-path>` and commit the entity.lock it writes beside the entity; to have every pull in this workspace record the pins itself instead, set `pin_sources_at_pull: true` in the workspace configuration
+> an input the entity reads has no pin recorded for it in the entity.lock beside it (Recipe `"<name>"`, remote source `<url>@<version>`: no pin recorded). remediation: run `aggrega pin <entity-path>` and commit the entity.lock it writes beside the entity; to have this publication record the pins itself instead, re-run it with `--pin-sources`; to have every publication in this workspace record them, set `pin_sources_at_push: true` in the workspace configuration
 
-**How to fix:** where the entity is yours, run `aggrega pin` on it and commit the `entity.lock` it writes, then pull again. Where it is someone else's — a catalog you consume from a directory of its own — its publisher has not pinned it yet; set `pin_sources_at_pull: true` in your workspace configuration so every pull records the pins itself, or pass `--pin-sources` to one pull. [`aggrega pin`](../cli/aggrega-pin.md) describes the step in full.
+The publication's middle clause names what the surface you published from accepts: `--pin-sources` at a terminal, the `pinSources` field on the daemon, and the `pin_sources` argument to the assistant tool.
+
+**How to fix:** where the entity is yours, run `aggrega pin` on it and commit the `entity.lock` it writes, then pull or push again — or push with `--pin-sources`, which runs the step before the bundle is built. Where it is someone else's — a catalog you consume from a directory of its own — its publisher has not pinned it yet; set `pin_sources_at_pull: true` in your workspace configuration so every pull records the pins itself, or pass `--pin-sources` to one pull. [`aggrega pin`](../cli/aggrega-pin.md) describes the step in full.
 
 ### A `provides:` template could not be evaluated
 

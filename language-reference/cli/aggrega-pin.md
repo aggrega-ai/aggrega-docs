@@ -27,14 +27,14 @@ The lock is written beside the document you name, in the same directory, so the 
 
 ## Who pins, and when
 
-**Pinning is an authoring duty.** An entity whose inputs are not pinned is not yet ready to be consumed, so by default a pull records no pin: over a Recipe or FeatureRecipe in one of your catalog directories that the Release builds, it compares what this step would record with what the lock holds, and halts when a pin is missing or no longer matches its input. The halt names the entity, each input and whether it is a remote source or an imported file, and this command. It is [An entity reads an input the lock beside it records no pin for](../errors/fatal-halts.md#an-entity-reads-an-input-the-lock-beside-it-records-no-pin-for).
+**Pinning is an authoring duty.** An entity whose inputs are not pinned is not yet ready to be consumed, so by default a pull records no pin: over a Recipe or FeatureRecipe in one of your catalog directories that the Release builds, it compares what this step would record with what the lock holds, and halts when a pin is missing or no longer matches its input. The halt names the entity, each input and whether it is a remote source or an imported file, and this command. It is [An entity reads an input the lock beside it records no pin for](../errors/fatal-halts.md#an-entity-reads-an-input-the-lock-beside-it-records-no-pin-for). **A push holds the entity it publishes to the same comparison** and refuses with the same halt, so an entity cannot reach a registry through `aggrega push` with its pins unrecorded — [Pinning before publishing](aggrega-push.md#pinning-before-publishing) sets that out.
 
 **A halt on a first pull is the publisher's to fix, never the consumer's.** Where you consume a catalog someone else authors — a checkout of it in a directory of your own, say — and an entity there is unpinned, the author never ran this step. Your remedy is not to edit their directory by hand: set the workspace key below, so your pulls record the pins themselves.
 
 **Two commands run this same step on your behalf, and write the same bytes:**
 
 - `aggrega pull --pin-sources` runs it over the entities the Release builds, instead of halting.
-- `aggrega push --pin-sources` runs it on the entity before bundling it, so the lock it writes is part of what is published.
+- `aggrega push --pin-sources` runs it on the entity before bundling it, so the lock it writes is part of what is published, instead of refusing.
 
 **Each has a workspace key that makes pinning its default**, `pin_sources_at_pull` and `pin_sources_at_push`, both off by default and each governing only its own command. The flag overrides its key in both directions: `--pin-sources` pins for one run whatever the key says, and `--pin-sources=false` does not. So a workspace configured to pin can still get the halt back for one pull. A build that fills its own lockfile is a pull, so it follows `pin_sources_at_pull`. The keys are described in [the configuration reference](configuration.md).
 
@@ -71,7 +71,7 @@ in full, and a file an artifacts entry imports with $import.
 Pinning is the entity author's step. Run it on an entity before it is consumed — before you
 publish it, and after every change to one of its inputs — and commit the entity.lock it writes
 beside the entity. A pull over an entity whose lock does not record these pins halts and names
-this command.
+this command, and so does a push of it.
 
 No Release is needed. A source whose coordinates carry no template names one artifact for every
 Release that uses the entity, so it is resolved and pinned here, with nothing supplied. A source

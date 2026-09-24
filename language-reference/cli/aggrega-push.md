@@ -27,9 +27,15 @@ The bundle is built from the **directory** the entity file sits in, so everythin
 
 A Recipe or FeatureRecipe carries the pins for the inputs it reads — a remote `source:` written out in full, a file an `artifacts` entry imports — in the `entity.lock` beside it, and that file is part of the directory a push bundles. Pinning is a step you run before publishing, [`aggrega pin`](aggrega-pin.md), and commit the lock it writes.
 
-**`aggrega push --pin-sources` runs that same step for you, first.** The step runs before the bundle is built, so the lock it writes is in the published artifact and the published digest covers it; and it runs ahead of every refusal that judges the entity, so what is judged is the entity as pinned. It writes the same bytes `aggrega pin` writes. The workspace key `pin_sources_at_push` makes this every push's default, and `--pin-sources=false` skips it for one run. The step writes beside the entity, which needs a writable home — and a push always has one, since it publishes the document you name.
+**A push refuses an entity whose lock does not record those pins.** Before it builds the bundle, a push works out what the pin step would record for the entity and compares it with the `entity.lock` beside it. Where a pin is missing, or the lock holds one an input no longer matches, the push stops before any archive is built or any registry is contacted. The refusal names the entity and every such input — each a `remote source` or an `imported file` — and what to run: `aggrega pin` on the entity, `--pin-sources` on the push you just ran, or `pin_sources_at_push` for every push in the workspace. It is the same refusal a pull raises over the same lock, [An entity reads an input the lock beside it records no pin for](../errors/fatal-halts.md#an-entity-reads-an-input-the-lock-beside-it-records-no-pin-for), with a push's own remedies. So a Recipe or FeatureRecipe a push publishes carries, inside its bundle, a lock recording every pin the step would have recorded at the moment it was published.
 
-Under `--dry-run` the step pins as a dry run: it prints the lock it would write and writes nothing, and the bundle facts that follow describe the directory as it stands, without that lock.
+Two kinds of entity have nothing to pin and publish untouched: an entity that reads no remote source and imports no file, and a Recipe whose source coordinates are filled in from a template. That source names an artifact only once a Release fills the template in, so its pin belongs in each Release's lockfile, and a push does not ask for one beside the entity. A Component, a Feature, a library, an Aggregate or a Plugin reads nothing the lock records and is never refused here.
+
+Comparing a remote source's pin means fetching the source, as `aggrega pin` does, because a pin that no longer matches is only visible against what the source serves now. A push over an entity with such a source therefore reaches the source's host before it reaches the registry. The comparison reads a Recipe or FeatureRecipe the way the pin step does, through the catalog, so one the catalog refuses to read — a document that fails its kind's schema, say — is refused here with the catalog's own reason.
+
+**`aggrega push --pin-sources` runs that same step for you, first.** The step runs before the bundle is built, so the lock it writes is in the published artifact and the published digest covers it; and it runs ahead of every refusal that judges the entity, so what is judged is the entity as pinned. It writes the same bytes `aggrega pin` writes, so the refusal above never fires on that run: the lock the step has just written records exactly what the refusal would compare against. The workspace key `pin_sources_at_push` makes this every push's default, and `--pin-sources=false` skips the step for one run, which brings the refusal back. The step writes beside the entity, which needs a writable home — and a push always has one, since it publishes the document you name.
+
+**`--dry-run` answers the way the publication would.** Without `--pin-sources` it refuses an unpinned entity exactly as the publication does, so a dry run that reports a bundle is one this refusal would let through. With `--pin-sources` the step pins as a dry run: it prints the lock it would write and writes nothing, and the bundle facts that follow describe the directory as it stands, without that lock — the refusal does not fire, because the publication would have pinned first.
 
 **Best practice: a change to a version you have already published goes into a new version, and then a pin.** Copy the entity into a new version directory, make the change there, pin it, and publish that. The half of this the product enforces is the next section: publishing different content at a version that is already published is refused. The other half — not re-pinning an already-published version after editing it in your own workspace — is yours to keep; nothing refuses it locally, because re-pinning is legitimate for an entity you have not published.
 
@@ -68,7 +74,7 @@ The keyless service URLs and the keyed key path can also be set in `.aggrega-con
 
 Publishing is a network round trip and has no form that is not, so under the offline posture — the top-level `offline` key in a configuration file, `AGGREGA_OFFLINE`, or [`--offline`](global-flags.md#--offline) — `aggrega push` refuses before it reads your entity. The refusal names which of those three set the posture, which is what a reader needs when a project's committed configuration turned it on rather than anything they typed.
 
-`--dry-run` is the exception, and it is an exception because of what it does: it computes the bundle, prints the reference it would publish, and makes no call. That makes it the offline-safe form of publishing rather than a conflict with the posture, and it keeps working under it.
+`--dry-run` is the exception, and it is an exception because of what it does: it computes the bundle, prints the reference it would publish, and never contacts the registry. That makes it the offline-safe form of publishing rather than a conflict with the posture, and it keeps working under it — with one qualification. A Recipe or FeatureRecipe whose remote `source:` is written out in full has that source fetched to compare its pin, and under the offline posture that fetch is refused in its own words, so a dry run over such an entity stops there rather than reporting a bundle it cannot vouch for.
 
 To publish for one run from a workspace whose configuration is offline, pass `--offline=false`.
 
@@ -132,6 +138,8 @@ publish changed content under a new version instead.
 
 A Recipe or FeatureRecipe carries the pins for its own inputs in the entity.lock
 beside it, and pinning them is a step you run before publishing: aggrega pin.
+A push that does not run that step refuses an entity whose entity.lock is
+missing a pin, or holds one an input no longer matches, and names the step.
 Pass --pin-sources, or set pin_sources_at_push in the workspace configuration, to
 have push run that same step first, so the lock it writes is part of what is
 published; --pin-sources=false skips it for one run.
@@ -141,13 +149,13 @@ published; --pin-sources=false skips it for one run.
 
 | Flag | Default | Description |
 | --- | --- | --- |
-| `--dry-run` | `false` | Compute the bundle and print the proposed <reference>:<tag>; skip the network call |
+| `--dry-run` | `false` | Compute the bundle and print the proposed <reference>:<tag> without contacting the registry. An entity the publication would refuse for a missing pin is refused here too |
 | `--entity` | — | Path to the entity YAML to publish (alternatively pass as the positional arg) |
 | `--fulcio-url` | — | Fulcio certificate-authority URL for keyless signing. When omitted, the public-good Fulcio instance is used. |
 | `--identity-token` | — | OIDC identity token for keyless signing. Optional at an interactive terminal (a browser flow acquires one) and on GitHub Actions (the workflow OIDC token is minted automatically); required for other non-interactive/CI use, where it may instead be exported as AGGREGA_IDENTITY_TOKEN or SIGSTORE_ID_TOKEN. |
 | `--key` | — | Path to a held ECDSA P-256 private key PEM for offline keyed signing. When omitted, keyless signing is used. |
 | `--list-kinds` | `false` | List every entity kind that can be published, then exit without publishing anything. The output is machine-readable and its shape is stable: one kind per line, in sorted order, with nothing else. |
-| `--pin-sources` | `false` | Run the entity author's pin step on the entity before bundling it, so the entity.lock the step writes beside it is part of what is published. The same step as aggrega pin, writing the same bytes. It writes beside the entity, so it runs only where the entity has a writable home: a document in a directory it was read from — which a push always has, since it publishes the entity document you name. Overrides the workspace's pin_sources_at_push in both directions: --pin-sources pins for this run and --pin-sources=false does not, whatever the setting says |
+| `--pin-sources` | `false` | Run the entity author's pin step on the entity before bundling it, so the entity.lock the step writes beside it is part of what is published, instead of refusing an entity whose lock does not record its pins. The same step as aggrega pin, writing the same bytes. It writes beside the entity, so it runs only where the entity has a writable home: a document in a directory it was read from — which a push always has, since it publishes the entity document you name. Overrides the workspace's pin_sources_at_push in both directions: --pin-sources pins for this run and --pin-sources=false does not, whatever the setting says |
 | `--plugin` | — | Path to the local .wasm artifact for a Plugin entity. Required when publishing a Plugin: publish pushes the .wasm artifact, computes its content digest, and pushes the entity. |
 | `--registry` | — | Destination registry host (overrides the workspace's default_registry) |
 | `--rekor-url` | — | Rekor transparency-log URL for keyless signing. When omitted, the public-good Rekor instance is used. |
