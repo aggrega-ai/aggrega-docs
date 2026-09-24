@@ -86,7 +86,7 @@ The catalog search stack is assembled with a layered precedence: `--catalog` fla
 
 **It reaches the network.** The registry is contacted with the credentials this machine holds for it, from the same store `aggrega push` and `aggrega pull` read, and a registry on this machine is contacted over plain HTTP. A workspace that is offline refuses the read before anything is dialled.
 
-**Every failure is named.** A read that cannot answer exits non-zero, prints nothing on standard output, and names the condition together with what to do about it:
+**A read that cannot answer exits non-zero and prints nothing on standard output.** Each failure below names its condition together with what to do about it; a registry that cannot be reached at all is reported with the network error that stopped the read:
 
 | What happened | Condition |
 | --- | --- |
