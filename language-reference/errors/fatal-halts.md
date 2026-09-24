@@ -532,7 +532,7 @@ and where `$import:` shares the mapping with something else, or names something 
 
 <!-- covers: pkg/types.ErrArtifactEntryShape, pkg/types.ErrValuesMappingShape, pkg/types.ErrWorkloadTemplateShape -->
 
-Three fields a Recipe or FeatureRecipe writes — an `artifacts.<name>:` entry, a `valuesMapping:`, and a `workload:` — accept the same two shapes. Either the body is written in place, as a string scalar (a `|` block is the usual spelling for anything multi-line), or the value is a mapping of exactly one key, `$import:`, naming where the body lives instead. What an `$import:` may name differs by field: an artifacts entry imports a local path or a bundle out of an ArtifactsLibrary, while `valuesMapping:` and `workload:` import a local path or an entry out of a library by identity.
+Three fields a Recipe or FeatureRecipe writes — an `artifacts.<name>:` entry, a `valuesMapping:`, and a `workload:` — accept the same two shapes. Either the body is written in place, as a string scalar (a `|` block is the usual spelling for anything multi-line), or the value is a mapping of exactly one key, `$import:`, naming where the body lives instead. What an `$import:` may name differs by field: an artifacts entry imports a local path or a bundle out of an ArtifactLibrary, while `valuesMapping:` and `workload:` import a local path or an entry out of a library by identity.
 
 One reader checks all three, so the refusals are the same three whichever field is at fault: a mapping carrying more than one key, a mapping whose single key is not `$import`, and an `$import:` whose value is not a plain string. A value that is neither a scalar nor a mapping — a list, most often — is refused on its shape alone.
 
@@ -565,23 +565,23 @@ A reference reaches a build from one further place: the body of a library entry 
 
 ### A library entry's body is not the shape that library holds
 
-<!-- covers: pkg/types.ErrMappingEntryNotScalar, pkg/types.ErrWorkloadEntryNotScalar, pkg/types.ErrArtifactsLibraryEntryShape -->
+<!-- covers: pkg/types.ErrMappingEntryNotScalar, pkg/types.ErrWorkloadEntryNotScalar, pkg/types.ErrArtifactLibraryEntryShape -->
 
-A library publishes named bodies for other entities to import, and each library kind holds one shape. A MappingLibrary entry and a WorkloadLibrary entry each hold **one** template body, so the entry's value is a scalar — a `|` block, in practice. An ArtifactsLibrary entry holds a **bundle**: the files that belong together under one name, so the entry is a mapping of output filename to that file's body, and each body under it is a scalar.
+A library publishes named bodies for other entities to import, and each library kind holds one shape. A MappingLibrary entry and a WorkloadLibrary entry each hold **one** template body, so the entry's value is a scalar — a `|` block, in practice. An ArtifactLibrary entry holds a **bundle**: the files that belong together under one name, so the entry is a mapping of output filename to that file's body, and each body under it is a scalar.
 
 Bodies are captured exactly as written and are not parsed when the library loads. The template inside one is parsed where it is imported, which is why what is checked here is only the shape — a body that is not a template at all loads without complaint and fails at the point something renders it.
 
 Emitted messages, where the number after `kind` is the document shape the reader found:
 > mappinglibrary: entry body must be a string scalar: got kind `<shape>` at line `<line>`
 > workloadlibrary: entry body must be a string scalar: got kind `<shape>` at line `<line>`
-> artifactslibrary: entry must be a mapping of filename to a string body: got kind `<shape>` at line `<line>`
+> artifactlibrary: entry must be a mapping of filename to a string body: got kind `<shape>` at line `<line>`
 
 and, for a bundle whose entry is a mapping but one of whose files is not a scalar, naming the file:
-> artifactslibrary: entry must be a mapping of filename to a string body: file `"<filename>"` body must be a string scalar (got kind `<shape>` at line `<line>`)
+> artifactlibrary: entry must be a mapping of filename to a string body: file `"<filename>"` body must be a string scalar (got kind `<shape>` at line `<line>`)
 
 The build reports these under a `CATALOG_ERROR` tag naming the file it was reading, with the sentence above beneath it.
 
-**How to fix:** write the body as a block scalar under its key. A body whose first line looks like a YAML key — which a template producing YAML usually does — is read as a nested mapping unless the block scalar is there, and that is the common cause. For an ArtifactsLibrary, write one key per output filename with each body as its own block scalar; a bundle written as a single body is the other common shape mistake.
+**How to fix:** write the body as a block scalar under its key. A body whose first line looks like a YAML key — which a template producing YAML usually does — is read as a nested mapping unless the block scalar is there, and that is the common cause. For an ArtifactLibrary, write one key per output filename with each body as its own block scalar; a bundle written as a single body is the other common shape mistake.
 
 ### A `$instantiate:` reference cannot be resolved
 
@@ -1187,7 +1187,7 @@ Two entities of the same kind, loaded from the same catalog directory, carry the
 
 **Within a directory this halts; across directories it does not.** The same identity present in two different catalog directories is resolved as a first-win shadow — the directory listed earlier wins — which is what lets a local directory override a published entity deliberately. Only a collision *inside* one directory is an authoring mistake with no reading that makes it intentional.
 
-The rule is the same for every indexed kind: Component, Feature, Recipe, FeatureRecipe, Plugin, SchemaLibrary, MappingLibrary, WorkloadLibrary, ArtifactsLibrary and Aggregate. The halt is positioned at the second file, and names the kind and the identity that collided.
+The rule is the same for every indexed kind: Component, Feature, Recipe, FeatureRecipe, Plugin, SchemaLibrary, MappingLibrary, WorkloadLibrary, ArtifactLibrary and Aggregate. The halt is positioned at the second file, and names the kind and the identity that collided.
 
 Emitted message:
 > duplicate entity identity within a single catalog directory (Component identity `"<identity>"`)
@@ -3274,20 +3274,20 @@ The condition it is recorded under is `schedule is not a valid cron expression`,
 Three fields on a Recipe and a FeatureRecipe may take their body from a library instead of writing it in place: an `artifacts.<name>:` entry, a `valuesMapping:`, and a `workload:`. Each writes `$import:` with the library's bare name, then `#`, then the path of the entry on the surface that field reads — `#/artifacts/`, `#/mappings/` and `#/workloads/` respectively. A value that is not in that shape names nothing the build can resolve, and is refused as the field is resolved.
 
 The three fields are deliberate mirrors of one another, so the fault reads the same on all three and only the surface changes:
-> artifacts $import: is not a bare-name artifacts-library reference (<Library>#/artifacts/<entry>): `"<the value as written>"`
+> artifacts $import: is not a bare-name artifact-library reference (<Library>#/artifacts/<entry>): `"<the value as written>"`
 > valuesMapping $import: is not a bare-name mapping-library reference (<Library>#/mappings/<entry>): `"<the value as written>"`
 > workload $import: is not a bare-name workload-library reference (<Library>#/workloads/<entry>): `"<the value as written>"`
 
 **A version written with `@` is reported with the spelling to use instead**, rather than falling through to a complaint that the library was not found, because it is the mistake this form attracts most:
-> artifacts $import: is not a bare-name artifacts-library reference (<Library>#/artifacts/<entry>): version separator is ':', not '@' — use `"<the corrected value>"`
+> artifacts $import: is not a bare-name artifact-library reference (<Library>#/artifacts/<entry>): version separator is ':', not '@' — use `"<the corrected value>"`
 
-**One further shape reports here, and it is not a spelling mistake.** An ArtifactsLibrary bundle's own file body may not itself be an `$import:` of another bundle: one file slot cannot expand into many files, so a nested import is refused rather than resolved into something the author did not write. Compose the bundles at the point they are consumed instead.
+**One further shape reports here, and it is not a spelling mistake.** An ArtifactLibrary bundle's own file body may not itself be an `$import:` of another bundle: one file slot cannot expand into many files, so a nested import is refused rather than resolved into something the author did not write. Compose the bundles at the point they are consumed instead.
 
 An `artifacts:` entry a component's own Recipe writes is decided before anything renders, so the report is positioned at the `artifacts:` block in that Recipe and names the reference, the bundle, the file whose body carries the nested import, and the entry the import was written at. Every file of the bundle in that shape is reported in one build; where more than one is, the findings are grouped under `artifacts entries whose library import the compiler cannot resolve`:
-> artifacts $import: is not a bare-name artifacts-library reference (<Library>#/artifacts/<entry>) (`"<the value as written>"`, bundle `"<bundle>"`, bundle file `"<filename>"`, artifacts entry `"<key>"`). a bundle file body cannot import another bundle — compose the two at the artifacts entry that consumes them
+> artifacts $import: is not a bare-name artifact-library reference (<Library>#/artifacts/<entry>) (`"<the value as written>"`, bundle `"<bundle>"`, bundle file `"<filename>"`, artifacts entry `"<key>"`). a bundle file body cannot import another bundle — compose the two at the artifacts entry that consumes them
 
 An `artifacts:` entry a FeatureRecipe writes reports the same condition as the bundle is resolved, naming the first file in that shape:
-> artifacts $import: is not a bare-name artifacts-library reference (<Library>#/artifacts/<entry>): bundle `"<bundle>"` file `"<filename>"` body is a field-root $import: (nested library import inside a bundle file is not supported; compose at the consumption site)
+> artifacts $import: is not a bare-name artifact-library reference (<Library>#/artifacts/<entry>): bundle `"<bundle>"` file `"<filename>"` body is a field-root $import: (nested library import inside a bundle file is not supported; compose at the consumption site)
 
 **A `valuesMapping:` a component's own Recipe writes is decided before anything renders**, so the report is positioned at the `valuesMapping:` key in that Recipe and carries the spelling to use:
 > valuesMapping $import: is not a bare-name mapping-library reference (<Library>#/mappings/<entry>) (`"<the value as written>"`). name the library and the entry either side of the fragment — write <Library>#/mappings/<entry>
@@ -3303,24 +3303,24 @@ A `workload:` a FeatureRecipe writes reports as the reference is resolved, in th
 
 ### A library `$import:` names a library or an entry the catalog does not hold
 
-<!-- covers: internal/compiler/renderer.ErrArtifactsLibraryNotFound, internal/compiler/renderer.ErrArtifactsLibraryEntryNotFound, internal/compiler/renderer.ErrMappingLibraryNotFound, internal/compiler/renderer.ErrMappingEntryNotFound, internal/compiler/renderer.ErrWorkloadLibraryNotFound, internal/compiler/renderer.ErrWorkloadEntryNotFound -->
+<!-- covers: internal/compiler/renderer.ErrArtifactLibraryNotFound, internal/compiler/renderer.ErrArtifactLibraryEntryNotFound, internal/compiler/renderer.ErrMappingLibraryNotFound, internal/compiler/renderer.ErrMappingEntryNotFound, internal/compiler/renderer.ErrWorkloadLibraryNotFound, internal/compiler/renderer.ErrWorkloadEntryNotFound -->
 
 An `$import:` is written correctly and what it points at is not there. Six conditions cover the two halves of a reference across the three library kinds, and which one you get says which half to look at: the library itself is absent from what the build can see, or the library is there and does not publish the entry.
 
 The set a reference resolves against is the workspace's own catalog plus the libraries the lockfile pinned and brought in as the build loaded. So a library nothing in the Release's dependency closure declares a dependency on is not in that set, however correct the reference into it reads.
 
 **The library is not there:**
-> artifacts-library import references an ArtifactsLibrary not present in the catalog: ArtifactsLibrary `"<library>"` (bundle `"<entry>"`)
+> artifact-library import references an ArtifactLibrary not present in the catalog: ArtifactLibrary `"<library>"` (bundle `"<entry>"`)
 > mapping-library import references a MappingLibrary not present in the catalog: MappingLibrary `"<library>"` (entry `"<entry>"`)
 > workload-library import references a WorkloadLibrary not present in the catalog: WorkloadLibrary `"<library>"` (entry `"<entry>"`)
 
 **The entry is not there:**
-> artifacts-library import references a bundle not present in the ArtifactsLibrary: bundle `"<entry>"` in ArtifactsLibrary `"<library>"`
+> artifact-library import references a bundle not present in the ArtifactLibrary: bundle `"<entry>"` in ArtifactLibrary `"<library>"`
 > mapping-library import references an entry not present in the MappingLibrary: entry `"<entry>"` in MappingLibrary `"<library>"`
 > workload-library import references an entry not present in the WorkloadLibrary: entry `"<entry>"` in WorkloadLibrary `"<library>"`
 
 **An `artifacts:` entry a component's own Recipe writes reports a missing bundle in a form of its own.** That entry is decided before anything renders, so the report is positioned at the `artifacts:` block in that Recipe and names the entry the import was written at alongside both halves of the reference:
-> artifacts-library import references a bundle not present in the ArtifactsLibrary (`"<entry>"`, ArtifactsLibrary `"<library>"`, artifacts entry `"<key>"`)
+> artifact-library import references a bundle not present in the ArtifactLibrary (`"<entry>"`, ArtifactLibrary `"<library>"`, artifacts entry `"<key>"`)
 
 **A `valuesMapping:` a component's own Recipe writes reports a missing entry in a form of its own**, for the same reason: it too is decided before anything renders, so the report is positioned at the `valuesMapping:` key in that Recipe and names both halves of the reference:
 > mapping-library import references an entry not present in the MappingLibrary (`"<entry>"`, MappingLibrary `"<library>"`)
@@ -3364,9 +3364,9 @@ Emitted message:
 
 **How to fix:** open the Recipe the message names and check its `artifacts:` keys against the files any bundle it imports contributes. Where the keys are genuinely distinct and the collision still stands, nothing in the document is at fault and the report is worth raising with whoever maintains the build.
 
-### An ArtifactsLibrary bundle file leaves the key it was imported at
+### An ArtifactLibrary bundle file leaves the key it was imported at
 
-<!-- covers: internal/compiler/renderer.ErrArtifactsLibraryFileEscapesKey -->
+<!-- covers: internal/compiler/renderer.ErrArtifactLibraryFileEscapesKey -->
 
 An `artifacts:` entry importing a bundle expands into one output per file in that bundle, each nested under the key the import was written at. So the key names a directory and every file the bundle contributes belongs beneath it. A file name that climbs out of that directory, names an absolute location, or names nothing at all does not, and the build stops rather than place the file somewhere the consuming Recipe never chose.
 
@@ -3377,12 +3377,12 @@ An `artifacts:` entry importing a bundle expands into one output per file in tha
 The consuming Recipe and the published bundle are usually written by different authors, so the message names both halves together with the remedy.
 
 An `artifacts:` entry a component's own Recipe writes is decided before anything renders, so the report is positioned at the `artifacts:` block in that Recipe and names the file first, then the library it came from and the entry it is consumed at. Every file of the bundle whose name leaves the key is reported in one build; where more than one is, the findings are grouped under `artifacts entries whose library import the compiler cannot resolve`:
-> artifacts-library bundle file name leaves the artifacts key its output is nested under (`"<filename>"`, ArtifactsLibrary `"<library>"`, artifacts entry `"<key>"`). rename the file inside the ArtifactsLibrary bundle so its name stays under the artifacts key it is consumed at
+> artifact-library bundle file name leaves the artifacts key its output is nested under (`"<filename>"`, ArtifactLibrary `"<library>"`, artifacts entry `"<key>"`). rename the file inside the ArtifactLibrary bundle so its name stays under the artifacts key it is consumed at
 
 An `artifacts:` entry a FeatureRecipe writes reports the same condition as the bundle is resolved, naming the recipe it was written in and the first such file:
-> artifacts-library bundle file name leaves the artifacts key its output is nested under (Recipe `"<recipe>"`, artifact `"<key>"`, bundle file `"<filename>"`). rename the file inside the ArtifactsLibrary bundle so its name stays under the artifacts key it is consumed at
+> artifact-library bundle file name leaves the artifacts key its output is nested under (Recipe `"<recipe>"`, artifact `"<key>"`, bundle file `"<filename>"`). rename the file inside the ArtifactLibrary bundle so its name stays under the artifacts key it is consumed at
 
-**How to fix:** rename the file inside the ArtifactsLibrary so its name stays under the key. Where the library is not yours, importing a different bundle or writing the entry in place clears the build while the correction is made upstream. A file meant to land somewhere else entirely is a second `artifacts:` entry at the key it belongs under, not a name that walks there.
+**How to fix:** rename the file inside the ArtifactLibrary so its name stays under the key. Where the library is not yours, importing a different bundle or writing the entry in place clears the build while the correction is made upstream. A file meant to land somewhere else entirely is a second `artifacts:` entry at the key it belongs under, not a name that walks there.
 
 ### An imported artifact no longer matches the digest recorded beside its Recipe
 
@@ -4622,11 +4622,11 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0024` | `schedule requires form: scheduled` | A `workload:` form and the fields beside it do not agree |
 | `E0025` | `form: scheduled requires a schedule` | A `workload:` form and the fields beside it do not agree |
 | `E0026` | `imported artifact content does not match the digest recorded for it in entity.lock` | An imported artifact no longer matches the digest recorded beside its Recipe |
-| `E0027` | `artifacts $import: is not a bare-name artifacts-library reference (<Library>#/artifacts/<entry>)` | A library `$import:` is not written in the bare-name form |
+| `E0027` | `artifacts $import: is not a bare-name artifact-library reference (<Library>#/artifacts/<entry>)` | A library `$import:` is not written in the bare-name form |
 | `E0028` | `artifacts output filename collision: two artifact outputs carry the same filename` | Two artifact outputs of one Recipe carry the same filename |
 | `E0029` | `artifact template references a pillar the Recipe does not declare` | An `artifacts:` template reads a pillar the Recipe does not declare |
-| `E0030` | `artifacts-library import references a bundle not present in the ArtifactsLibrary` | A library `$import:` names a library or an entry the catalog does not hold |
-| `E0031` | `artifacts-library import references an ArtifactsLibrary not present in the catalog` | A library `$import:` names a library or an entry the catalog does not hold |
+| `E0030` | `artifact-library import references a bundle not present in the ArtifactLibrary` | A library `$import:` names a library or an entry the catalog does not hold |
+| `E0031` | `artifact-library import references an ArtifactLibrary not present in the catalog` | A library `$import:` names a library or an entry the catalog does not hold |
 | `E0032` | `assembled output collision: two contributors write the same output path` | Two contributors write the same output path |
 | `E0033` | `assertion failed` | An assertion stopped the build |
 | `E0034` | `duplicate delivery key across attachment-inject and another inject source` | An attachment delivers a key another inject source already claimed |
@@ -4780,7 +4780,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0186` | `sourceresolver: no adapter registered for source kind` | A Recipe's `source:` names a kind nothing knows how to acquire |
 | `E0187` | `cacheslot: empty workspaceRoot` | A source artifact is cached without a workspace root to anchor it |
 | `E0188` | `artifacts entry: shape must be a string scalar or {$import: <local-path>}` | An inline-or-import field is written in neither shape |
-| `E0189` | `artifactslibrary: entry must be a mapping of filename to a string body` | A library entry's body is not the shape that library holds |
+| `E0189` | `artifactlibrary: entry must be a mapping of filename to a string body` | A library entry's body is not the shape that library holds |
 | `E0190` | `schemalibrary: forbidden JSON Schema keyword` | A schema uses a JSON Schema keyword the library does not admit |
 | `E0191` | `mappinglibrary: entry body must be a string scalar` | A library entry's body is not the shape that library holds |
 | `E0192` | `OrderedMap: decode depth exceeded` | A document nests deeper than the reader will descend |
@@ -4824,7 +4824,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0248` | `wasm: guest plugin returned an output that is not the shape the socket reads` | A plugin returned something that is not the shape the socket reads |
 | `E0250` | `provider named a directory for each contributor's own sub-directory that is not a single directory name` | A provider named a directory for a contributor that is not one directory |
 | `E0251` | `recipe source is an empty string, which names neither sourceless mode nor sourced mode` | Recipe `source:` is an empty string |
-| `E0252` | `artifacts-library bundle file name leaves the artifacts key its output is nested under` | An ArtifactsLibrary bundle file leaves the key it was imported at |
+| `E0252` | `artifact-library bundle file name leaves the artifacts key its output is nested under` | An ArtifactLibrary bundle file leaves the key it was imported at |
 | `E0253` | `annotation binding does not resolve against its target Feature` | Annotation binding does not resolve against its target Feature |
 | `E0254` | `annotation subkey does not conform to the target Feature's schema at the routed pillar` | A bound annotation value does not conform to the target Feature's schema |
 | `E0255` | `annotation routes through a pillar its authoring side may not use` | An annotation routes through a pillar its authoring side may not use |

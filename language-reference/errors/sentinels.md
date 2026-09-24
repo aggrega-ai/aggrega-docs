@@ -324,7 +324,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | Sentinel | Code | Message |
 | --- | --- | --- |
 | `ErrArtifactEntryShape()` | `artifact-entry-shape` | `artifacts entry: shape must be a string scalar or {$import: <local-path>}` |
-| `ErrArtifactsLibraryEntryShape()` | `artifacts-library-entry-shape` | `artifactslibrary: entry must be a mapping of filename to a string body` |
+| `ErrArtifactLibraryEntryShape()` | `artifact-library-entry-shape` | `artifactlibrary: entry must be a mapping of filename to a string body` |
 | `ErrForbiddenKeyword()` | `forbidden-keyword` | `schemalibrary: forbidden JSON Schema keyword` |
 | `ErrLibraryReferenceWhitespace()` | `library-reference-whitespace` | `library reference: a reference to a library entry carries no whitespace or line break` |
 | `ErrMappingEntryNotScalar()` | `mapping-entry-not-scalar` | `mappinglibrary: entry body must be a string scalar` |
@@ -478,11 +478,11 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0024` | `schedule-requires-scheduled-form` | `schedule requires form: scheduled` |
 | `E0025` | `scheduled-form-requires-schedule` | `form: scheduled requires a schedule` |
 | `E0026` | `artifact-content-mismatch` | `imported artifact content does not match the digest recorded for it in entity.lock` |
-| `E0027` | `artifact-import-shape` | `artifacts $import: is not a bare-name artifacts-library reference (<Library>#/artifacts/<entry>)` |
+| `E0027` | `artifact-import-shape` | `artifacts $import: is not a bare-name artifact-library reference (<Library>#/artifacts/<entry>)` |
 | `E0028` | `artifact-output-collision` | `artifacts output filename collision: two artifact outputs carry the same filename` |
 | `E0029` | `artifact-pillar-not-declared` | `artifact template references a pillar the Recipe does not declare` |
-| `E0030` | `artifacts-library-entry-not-found` | `artifacts-library import references a bundle not present in the ArtifactsLibrary` |
-| `E0031` | `artifacts-library-not-found` | `artifacts-library import references an ArtifactsLibrary not present in the catalog` |
+| `E0030` | `artifact-library-entry-not-found` | `artifact-library import references a bundle not present in the ArtifactLibrary` |
+| `E0031` | `artifact-library-not-found` | `artifact-library import references an ArtifactLibrary not present in the catalog` |
 | `E0032` | `assembled-output-collision` | `assembled output collision: two contributors write the same output path` |
 | `E0033` | `authored-assertion-failed` | `assertion failed` |
 | `E0034` | `attachment-inject-key-collision` | `duplicate delivery key across attachment-inject and another inject source` |
@@ -636,7 +636,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0186` | `unknown-source-kind` | `sourceresolver: no adapter registered for source kind` |
 | `E0187` | `empty-workspace-root` | `cacheslot: empty workspaceRoot` |
 | `E0188` | `artifact-entry-shape` | `artifacts entry: shape must be a string scalar or {$import: <local-path>}` |
-| `E0189` | `artifacts-library-entry-shape` | `artifactslibrary: entry must be a mapping of filename to a string body` |
+| `E0189` | `artifact-library-entry-shape` | `artifactlibrary: entry must be a mapping of filename to a string body` |
 | `E0190` | `forbidden-keyword` | `schemalibrary: forbidden JSON Schema keyword` |
 | `E0191` | `mapping-entry-not-scalar` | `mappinglibrary: entry body must be a string scalar` |
 | `E0192` | `document-nesting-depth-exceeded` | `OrderedMap: decode depth exceeded` |
@@ -680,7 +680,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0248` | `wasm-output-shape` | `wasm: guest plugin returned an output that is not the shape the socket reads` |
 | `E0250` | `nest-segment-not-one-directory` | `provider named a directory for each contributor's own sub-directory that is not a single directory name` |
 | `E0251` | `recipe-source-is-empty` | `recipe source is an empty string, which names neither sourceless mode nor sourced mode` |
-| `E0252` | `artifacts-library-file-escapes-key` | `artifacts-library bundle file name leaves the artifacts key its output is nested under` |
+| `E0252` | `artifact-library-file-escapes-key` | `artifact-library bundle file name leaves the artifacts key its output is nested under` |
 | `E0253` | `annotation-binding-target-unresolved` | `annotation binding does not resolve against its target Feature` |
 | `E0254` | `annotation-subkey-not-conforming` | `annotation subkey does not conform to the target Feature's schema at the routed pillar` |
 | `E0255` | `annotation-side-pillar-mismatch` | `annotation routes through a pillar its authoring side may not use` |

@@ -57,7 +57,7 @@ graph LR
         SL["SchemaLibrary<br/>Reusable JSON Schema 2020-12 Definitions"]:::baseNode
         ML["MappingLibrary<br/>Reusable Go Template Fragments"]:::baseNode
         WL["WorkloadLibrary<br/>Reusable Workload Template Fragments"]:::baseNode
-        AL["ArtifactsLibrary<br/>Reusable Named Artifact Bundles"]:::baseNode
+        AL["ArtifactLibrary<br/>Reusable Named Artifact Bundles"]:::baseNode
         SL ~~~ ML
         ML ~~~ WL
         WL ~~~ AL
@@ -106,7 +106,7 @@ The corpus spans four domains plus the Tier 3 library layer:
 | 9 | SchemaLibrary | Tier 3 — Libraries | Reusable JSON Schema 2020-12 definitions |
 | 10 | MappingLibrary | Tier 3 — Libraries | Reusable Go template fragments |
 | 11 | WorkloadLibrary | Tier 3 — Libraries | Reusable Workload template fragments |
-| 12 | ArtifactsLibrary | Tier 3 — Libraries | Reusable named artifact bundles |
+| 12 | ArtifactLibrary | Tier 3 — Libraries | Reusable named artifact bundles |
 
 That table is the whole set of authoring entity kinds — the kinds an author declares in a `kind:` field. The Workload kind is platform-owned content embedded inside a Recipe's synthesized input rather than a standalone catalog entity (see chapter 16), so it is deliberately absent from the table above.
 
@@ -153,6 +153,6 @@ The Plugin is a first-class authoring entity — its own kind, JSON Schema, and 
 * **9. SchemaLibrary:** Reusable JSON Schema 2020-12 definitions. A library declares named schemas at `spec.schemas:` and optional parameterized helpers at `spec.templates:` (with `$params:` declarations and `$instantiate:` references for parametric reuse). Catalog entities consume library entries via the standard JSON Schema `$ref:` keyword pointing at the library entry by identity — the host-less `<library>#/schemas/<name>` form (the version comes from the lockfile, not the reference). PascalCase naming, OCI-distributed, lockfile-pinned. Opt-in for catalogs that need cross-Component schema reuse — common shapes like `PodResources`, `PersistenceSpec`, `NodePool`, `MetricsServiceMonitor` recur across every datastore Component and every workload Component, and SchemaLibrary entries factor that repetition out of per-Component authoring.
 * **10. MappingLibrary:** Reusable Go template fragments. A library declares named templates at `spec.mappings:`. Recipes and FeatureRecipes consume library entries by identity via `valuesMapping: { $import: <library>#/mappings/<name> }`. Single authoring mode (Go templates only); no parallel Jsonnet authoring path. Opt-in for catalogs that need cross-Recipe mapping reuse — common patterns like Bitnami chart helper logic or shared pod-template patterns recur across every datastore Recipe targeting the same provider, and MappingLibrary entries factor that repetition out of per-Recipe authoring.
 * **11. WorkloadLibrary:** Reusable Workload template fragments. A library declares named workload entries at `spec.workloads:`. A Recipe consumes an entry by identity via `workload: { $import: <library>#/workloads/<entry> }`, and the imported body validates against the platform-owned Workload schema exactly as an inline `workload:` block does — so a library-imported workload renders identically to the equivalent inline one. Single authoring mode (Go templates only). Opt-in for catalogs that need cross-Recipe workload reuse, where several Recipes share one deployment shape and only their values differ.
-* **12. ArtifactsLibrary:** Reusable named artifact bundles. A library declares named bundles at `spec.artifacts:`, each bundle grouping the output files that belong together — a CRD, its RBAC, and a ConfigMap, for instance — and imported as one unit. Recipes and FeatureRecipes consume a bundle by identity via `artifacts.<name>: { $import: <library>#/artifacts/<name> }`. Single authoring mode (Go templates only). Opt-in for catalogs that need cross-Recipe artifact reuse, where the same auxiliary resource set accompanies many Recipes.
+* **12. ArtifactLibrary:** Reusable named artifact bundles. A library declares named bundles at `spec.artifacts:`, each bundle grouping the output files that belong together — a CRD, its RBAC, and a ConfigMap, for instance — and imported as one unit. Recipes and FeatureRecipes consume a bundle by identity via `artifacts.<name>: { $import: <library>#/artifacts/<name> }`. Single authoring mode (Go templates only). Opt-in for catalogs that need cross-Recipe artifact reuse, where the same auxiliary resource set accompanies many Recipes.
 
-Every library publishes via OCI, pins in the lockfile (the `schema_libraries:`, `mapping_libraries:`, `workload_libraries:`, and `artifacts_libraries:` sections), and surfaces in the Hub UI with consumer awareness (which Components reference which library entries; which Recipes consume which library entries).
+Every library publishes via OCI, pins in the lockfile (the `schema_libraries:`, `mapping_libraries:`, `workload_libraries:`, and `artifact_libraries:` sections), and surfaces in the Hub UI with consumer awareness (which Components reference which library entries; which Recipes consume which library entries).

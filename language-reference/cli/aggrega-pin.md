@@ -13,7 +13,7 @@ An entity can depend on bytes it does not carry itself, and the lock holds one p
 - **A remote `source:` whose coordinates you wrote out in full** — no template in its `kind`, `url`, `chart`, `module_subdir`, `version` or `ref`. The step fetches it and records the version it resolved to — for a git source, the commit its `ref` named — and the content digest of what was fetched.
 - **A file an `artifacts` entry imports with `$import`.** The step digests the file as it stands in your workspace.
 
-What it does not record: a source whose coordinates are filled in from a template, which names an artifact only once a Release fills it in and is pinned in each Release's lockfile by [`aggrega pull`](aggrega-pull.md); a source naming a path in your workspace, which nothing fetches; and an inline `artifacts` entry or one taken from an ArtifactsLibrary. The file itself is described field by field in the [entity lock schema](../schema/other/entity-lock.md).
+What it does not record: a source whose coordinates are filled in from a template, which names an artifact only once a Release fills it in and is pinned in each Release's lockfile by [`aggrega pull`](aggrega-pull.md); a source naming a path in your workspace, which nothing fetches; and an inline `artifacts` entry or one taken from an ArtifactLibrary. The file itself is described field by field in the [entity lock schema](../schema/other/entity-lock.md).
 
 **No Release is needed.** A source written out in full names the same artifact for every Release that will ever use the entity, so resolving it needs nothing a Release supplies. That is what lets an author pin an entity in a workspace that has no Release at all.
 

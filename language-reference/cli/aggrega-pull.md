@@ -41,7 +41,7 @@ A Recipe or FeatureRecipe can depend on bytes it does not carry itself: a chart 
 
 - **A source whose coordinates are filled in from a template** — a `version` read from `.infra`, for instance. Which artifact it names is decided by each Release that uses the entity, so each version it resolves to is pinned in that Release's lockfile, and nothing about it is written beside the entity.
 - **A source that names a path in your workspace.** Nothing is fetched for it, so there is nothing to pin.
-- **An inline `artifacts` entry**, which is part of the entity file, and **an entry taken from an ArtifactsLibrary**, whose content is pinned by the library version the lockfile records.
+- **An inline `artifacts` entry**, which is part of the entity file, and **an entry taken from an ArtifactLibrary**, whose content is pinned by the library version the lockfile records.
 
 An entity with nothing to pin gets no `entity.lock`, and the step, run over an entity which no longer needs one, removes it.
 

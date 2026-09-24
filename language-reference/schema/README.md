@@ -7,7 +7,7 @@ This section documents the JSON Schemas that define every Aggrega entity, plugin
 ## Entities
 
 - [aggregate](entities/aggregate.md)
-- [artifactslibrary](entities/artifactslibrary.md)
+- [artifactlibrary](entities/artifactlibrary.md)
 - [component](entities/component.md)
 - [feature](entities/feature.md)
 - [featurerecipe](entities/featurerecipe.md)

@@ -190,7 +190,7 @@ Precedence governs field values. It does not reorder **evaluation**: the sequenc
 
 ## Per-entity expansion of `metadata.labels` and `metadata.annotations`
 
-The current pre-expansion state has `metadata.labels` on Component / Feature / Aggregate and on all four library kinds (SchemaLibrary / MappingLibrary / WorkloadLibrary / ArtifactsLibrary); `metadata.annotations` on the same set except Aggregate, which is labels-only. Manifest, Release, Recipe, FeatureRecipe, Plugin currently lack both. Expanding both fields uniformly across every entity kind (with use-case documentation per entity) is the documented design target; the schema change is small per entity and the per-entity examples are introduced as the design lands.
+The current pre-expansion state has `metadata.labels` on Component / Feature / Aggregate and on all four library kinds (SchemaLibrary / MappingLibrary / WorkloadLibrary / ArtifactLibrary); `metadata.annotations` on the same set except Aggregate, which is labels-only. Manifest, Release, Recipe, FeatureRecipe, Plugin currently lack both. Expanding both fields uniformly across every entity kind (with use-case documentation per entity) is the documented design target; the schema change is small per entity and the per-entity examples are introduced as the design lands.
 
 The expansion is gradual — schema additions are additive and per-entity, so authors can ignore the additions until a use case applies. Each entity's intended use cases for the new fields:
 

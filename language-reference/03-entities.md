@@ -1,6 +1,6 @@
 # Entity Reference Overview
 
-Aggrega's authoring vocabulary comprises `Aggregate`, `Component`, `Feature`, `Recipe`, `FeatureRecipe`, `Plugin`, `Manifest`, `Release`, `SchemaLibrary`, `MappingLibrary`, `WorkloadLibrary`, and `ArtifactsLibrary` — plus the platform-owned `Workload` kind embedded inside a Recipe's synthesized input. Every entity is a YAML document conforming to a JSON Schema; every field, keyword, and cross-entity reference this Reference describes is part of that authoring contract.
+Aggrega's authoring vocabulary comprises `Aggregate`, `Component`, `Feature`, `Recipe`, `FeatureRecipe`, `Plugin`, `Manifest`, `Release`, `SchemaLibrary`, `MappingLibrary`, `WorkloadLibrary`, and `ArtifactLibrary` — plus the platform-owned `Workload` kind embedded inside a Recipe's synthesized input. Every entity is a YAML document conforming to a JSON Schema; every field, keyword, and cross-entity reference this Reference describes is part of that authoring contract.
 
 This chapter set covers the authoring surface: which fields each entity accepts, what each field means to the author, how fields interact across entities (a Recipe's `implements:` binding to a Component, a Release's `manifest:` pointer to a Manifest, a Workload's `containers.<name>.attachments` referencing slots declared in the Component's `featuresSchema`). The conceptual role of each entity — why the taxonomy has the shape it does, which domain owns which entity, how the Four Domains separate authoring concerns — lives in [../architecture/04-entity-taxonomy.md](../architecture/04-entity-taxonomy.md). The Workload kind's architectural role as one of the three Recipe input kinds lives in [../architecture/16-recipe-input-composition.md](../architecture/16-recipe-input-composition.md).
 
@@ -30,7 +30,7 @@ The four library kinds are Tier 3 — opt-in reuse entities. A catalog declares 
 - [SchemaLibrary](entities/schemalibrary.md) — reusable JSON Schema 2020-12 definitions plus optional parameterized helpers, referenced from a Component's or Feature's schemas by `$ref: <Library>#/schemas/<name>`.
 - [MappingLibrary](entities/mappinglibrary.md) — reusable Go template fragments, imported into a Recipe's or FeatureRecipe's `valuesMapping:` by `$import: <Library>#/mappings/<name>`.
 - [WorkloadLibrary](entities/workloadlibrary.md) — reusable Workload content, imported into a Recipe's or FeatureRecipe's `workload:` by `$import: <Library>#/workloads/<name>`.
-- [ArtifactsLibrary](entities/artifactslibrary.md) — reusable bundles of auxiliary output files, imported into a Recipe's or FeatureRecipe's `artifacts:` by `$import: <Library>#/artifacts/<name>`. A bundle is the unit of reuse: one import expands into one output per file in the bundle.
+- [ArtifactLibrary](entities/artifactlibrary.md) — reusable bundles of auxiliary output files, imported into a Recipe's or FeatureRecipe's `artifacts:` by `$import: <Library>#/artifacts/<name>`. A bundle is the unit of reuse: one import expands into one output per file in the bundle.
 
 ### Platform-owned kinds
 

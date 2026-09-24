@@ -1,12 +1,12 @@
-# Aggrega Catalog (ArtifactsLibrary) schema
+# Aggrega Catalog (ArtifactLibrary) schema
 
 _Generated reference. Do not edit by hand — regenerate from the published JSON Schema._
 
-Schema id: `https://aggrega.ai/schemas/artifactslibrary-v1alpha1.schema.json`
+Schema id: `https://aggrega.ai/schemas/artifactlibrary-v1alpha1.schema.json`
 
 A reusable collection of named artifact bundles that Recipes and FeatureRecipes consume at render time via `artifacts.<name>: { $import: ... }`. Each bundle is a set of output files imported as one unit. Tier 3 — opt-in for catalogs that need cross-Recipe artifact reuse. Single authoring mode: Go templates only.
 
-See the [artifactslibrary authoring reference](../../entities/artifactslibrary.md) for prose guidance on authoring artifactslibrary entities; this page documents the structural schema that reference describes.
+See the [artifactlibrary authoring reference](../../entities/artifactlibrary.md) for prose guidance on authoring artifactlibrary entities; this page documents the structural schema that reference describes.
 
 **Top-level type:** `object`
 
@@ -15,13 +15,13 @@ See the [artifactslibrary authoring reference](../../entities/artifactslibrary.m
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `apiVersion` | const "aggrega.ai/v1alpha1" | yes | Constant: `"aggrega.ai/v1alpha1"` |
-| `kind` | const "ArtifactsLibrary" | yes | Constant: `"ArtifactsLibrary"` |
+| `kind` | const "ArtifactLibrary" | yes | Constant: `"ArtifactLibrary"` |
 | `metadata` | object | yes |  |
-| `spec` | object | yes | The ArtifactsLibrary's content. spec.artifacts is required and must declare at least one bundle. spec carries additionalProperties: false — no parallel authoring modes are accepted at the envelope level. The single-authoring-mode posture keeps rendering uniform (Go template throughout) and avoids forcing authors to switch evaluation models mid-render when consuming imported bundles. |
+| `spec` | object | yes | The ArtifactLibrary's content. spec.artifacts is required and must declare at least one bundle. spec carries additionalProperties: false — no parallel authoring modes are accepted at the envelope level. The single-authoring-mode posture keeps rendering uniform (Go template throughout) and avoids forcing authors to switch evaluation models mid-render when consuming imported bundles. |
 
 _Additional properties are not permitted._
 
-#### `artifactslibrary.metadata`
+#### `artifactlibrary.metadata`
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -33,9 +33,9 @@ _Additional properties are not permitted._
 
 _Additional properties are not permitted._
 
-#### `artifactslibrary.spec`
+#### `artifactlibrary.spec`
 
-The ArtifactsLibrary's content. spec.artifacts is required and must declare at least one bundle. spec carries additionalProperties: false — no parallel authoring modes are accepted at the envelope level. The single-authoring-mode posture keeps rendering uniform (Go template throughout) and avoids forcing authors to switch evaluation models mid-render when consuming imported bundles.
+The ArtifactLibrary's content. spec.artifacts is required and must declare at least one bundle. spec carries additionalProperties: false — no parallel authoring modes are accepted at the envelope level. The single-authoring-mode posture keeps rendering uniform (Go template throughout) and avoids forcing authors to switch evaluation models mid-render when consuming imported bundles.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |

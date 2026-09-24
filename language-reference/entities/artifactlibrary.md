@@ -1,22 +1,22 @@
-# ArtifactsLibrary
+# ArtifactLibrary
 
-An ArtifactsLibrary is a catalog entity that holds reusable **artifact bundles** — named sets of auxiliary output files that belong together. Recipes and FeatureRecipes that emit the same supporting resources — a CRD with its RBAC and a ConfigMap, a NetworkPolicy paired with an HPA — declare that set once in a library and reference it at consumption time via an `artifacts:` entry whose value is an `$import:` directive. The library entity is Tier 3: opt-in for catalogs that need cross-Recipe artifact reuse. Catalogs whose Recipes each carry their own auxiliary files ship without any ArtifactsLibrary.
+An ArtifactLibrary is a catalog entity that holds reusable **artifact bundles** — named sets of auxiliary output files that belong together. Recipes and FeatureRecipes that emit the same supporting resources — a CRD with its RBAC and a ConfigMap, a NetworkPolicy paired with an HPA — declare that set once in a library and reference it at consumption time via an `artifacts:` entry whose value is an `$import:` directive. The library entity is Tier 3: opt-in for catalogs that need cross-Recipe artifact reuse. Catalogs whose Recipes each carry their own auxiliary files ship without any ArtifactLibrary.
 
-## The ArtifactsLibrary's Role
+## The ArtifactLibrary's Role
 
-Platform architects author ArtifactsLibraries to centralise the auxiliary manifests that recur across the catalog's Recipes and FeatureRecipes. A library is not a deployable build instruction; it is a definitions namespace. Recipe and FeatureRecipe authors reference a bundle by an `$import:` directive, written once and consumed wherever the import resolves.
+Platform architects author ArtifactLibraries to centralise the auxiliary manifests that recur across the catalog's Recipes and FeatureRecipes. A library is not a deployable build instruction; it is a definitions namespace. Recipe and FeatureRecipe authors reference a bundle by an `$import:` directive, written once and consumed wherever the import resolves.
 
-What distinguishes this library kind from the other three is the **grain of an entry**. A SchemaLibrary entry is one schema, a MappingLibrary entry is one template fragment, and a WorkloadLibrary entry is one Workload document — each a single body consumed at a single site. An ArtifactsLibrary entry is a *set of files*, because the resources it groups are only useful together: importing a CRD without its RBAC produces a manifest set that does not work. That is why a bundle is the unit of reuse and a single consumption site expands into several outputs.
+What distinguishes this library kind from the other three is the **grain of an entry**. A SchemaLibrary entry is one schema, a MappingLibrary entry is one template fragment, and a WorkloadLibrary entry is one Workload document — each a single body consumed at a single site. An ArtifactLibrary entry is a *set of files*, because the resources it groups are only useful together: importing a CRD without its RBAC produces a manifest set that does not work. That is why a bundle is the unit of reuse and a single consumption site expands into several outputs.
 
 ## Entity Envelope
 
-An ArtifactsLibrary entity carries the standard catalog envelope. `apiVersion: aggrega.ai/v1alpha1` and `kind: ArtifactsLibrary` mark the entity kind; `metadata.name` is a PascalCase identifier; `metadata.version` follows strict semantic versioning. Both are required. `metadata.description`, `metadata.labels`, and `metadata.annotations` are optional — labels and annotations are opaque author-declared metadata for discovery and hub surfacing, and the compiler does not interpret their values. The library's content sits under `spec.artifacts`, a required map that must declare at least one bundle.
+An ArtifactLibrary entity carries the standard catalog envelope. `apiVersion: aggrega.ai/v1alpha1` and `kind: ArtifactLibrary` mark the entity kind; `metadata.name` is a PascalCase identifier; `metadata.version` follows strict semantic versioning. Both are required. `metadata.description`, `metadata.labels`, and `metadata.annotations` are optional — labels and annotations are opaque author-declared metadata for discovery and hub surfacing, and the compiler does not interpret their values. The library's content sits under `spec.artifacts`, a required map that must declare at least one bundle.
 
 The envelope is closed at all three levels — the document root, `metadata`, and `spec` each reject keys the schema does not declare.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
-kind: ArtifactsLibrary
+kind: ArtifactLibrary
 metadata:
   name: PlatformArtifacts
   version: 1.0.0
@@ -67,7 +67,7 @@ spec:
 
 A file body is a Go template fragment authored as a YAML string. Because a manifest is multi-line, file bodies use YAML's literal-style scalar (`|`) so newlines and indentation survive round-trip. A bundle entry's value must be a mapping of filename to a string body; writing a bare string where the bundle belongs, or a sequence, is rejected — the level a consumer imports is the bundle, not a single file.
 
-The body is opaque to the entity envelope. The compiler stores each string verbatim at ArtifactsLibrary load and does not parse the template there; the template parser runs at consumption time, when a Recipe or FeatureRecipe imports the bundle. Storing bodies verbatim preserves authoring fidelity for re-emission, and it means a template error surfaces where the bundle is consumed and its pillar context is known, rather than at the library.
+The body is opaque to the entity envelope. The compiler stores each string verbatim at ArtifactLibrary load and does not parse the template there; the template parser runs at consumption time, when a Recipe or FeatureRecipe imports the bundle. Storing bodies verbatim preserves authoring fidelity for re-emission, and it means a template error surfaces where the bundle is consumed and its pillar context is known, rather than at the library.
 
 File order within a bundle is the order the author wrote, preserved through load and consumption, so the emitted set is stable across builds.
 
@@ -75,7 +75,7 @@ Go template's full composition vocabulary is available inside a file body: `{{ d
 
 ## Single Authoring Mode
 
-ArtifactsLibrary ships with one authoring mode: Go templates. `spec` accepts no parallel authoring surface and no expressivity escape-hatch at the library level.
+ArtifactLibrary ships with one authoring mode: Go templates. `spec` accepts no parallel authoring surface and no expressivity escape-hatch at the library level.
 
 The reason is consumption-surface uniformity. Recipes and FeatureRecipes are Go-template throughout, and their own content evaluates through the same Go template engine that resolves an imported bundle. A parallel authoring surface would force authors to switch evaluation models within a single Recipe's rendering — one model for the Recipe's own content, another for any imported bundle. Keeping the surface uniform means authors learn one evaluation model and apply it everywhere.
 
@@ -88,7 +88,7 @@ Library names and bundle names follow PascalCase. The entity envelope's JSON Sch
 - `metadata.name` matches `^[A-Z][A-Za-z0-9]*$`.
 - `spec.artifacts` map keys match the same pattern via `propertyNames`.
 
-An ArtifactsLibrary with a non-PascalCase bundle name fails envelope validation at workspace load. The enforcement is load-bearing: bundle names appear in the `#/artifacts/<name>` reference fragment, so a non-PascalCase name would propagate through every consumer that imports the bundle, including the eventual hub UI surfacing.
+An ArtifactLibrary with a non-PascalCase bundle name fails envelope validation at workspace load. The enforcement is load-bearing: bundle names appear in the `#/artifacts/<name>` reference fragment, so a non-PascalCase name would propagate through every consumer that imports the bundle, including the eventual hub UI surfacing.
 
 The naming uniformity keeps the `#/artifacts/<name>` fragment legible: `#/artifacts/OperatorSupport` reads at a glance.
 
@@ -130,20 +130,20 @@ An unknown library name, and a bundle name absent from a library that does resol
 
 ## Tier Placement
 
-ArtifactsLibrary is Tier 3 in the entity-tier documentation model — opt-in for catalogs that need cross-Recipe artifact reuse. Catalogs whose Recipes carry their own auxiliary files ship without any ArtifactsLibrary entity; the tier marking signals "advanced; skip if not needed" for documentation navigation, not capability. The compiler treats ArtifactsLibrary uniformly with the other catalog entity kinds: same envelope validation at workspace load, same OCI publishing pipeline at release time, same lockfile pinning by name, version, and content digest.
+ArtifactLibrary is Tier 3 in the entity-tier documentation model — opt-in for catalogs that need cross-Recipe artifact reuse. Catalogs whose Recipes carry their own auxiliary files ship without any ArtifactLibrary entity; the tier marking signals "advanced; skip if not needed" for documentation navigation, not capability. The compiler treats ArtifactLibrary uniformly with the other catalog entity kinds: same envelope validation at workspace load, same OCI publishing pipeline at release time, same lockfile pinning by name, version, and content digest.
 
-The library kind completes a set at the catalog level — SchemaLibrary holds reusable schema definitions, MappingLibrary holds reusable mapping fragments, WorkloadLibrary holds reusable workload content, and ArtifactsLibrary holds reusable artifact bundles. Each is independently opt-in; catalogs ship the ones they need and none of the others.
+The library kind completes a set at the catalog level — SchemaLibrary holds reusable schema definitions, MappingLibrary holds reusable mapping fragments, WorkloadLibrary holds reusable workload content, and ArtifactLibrary holds reusable artifact bundles. Each is independently opt-in; catalogs ship the ones they need and none of the others.
 
-## What ArtifactsLibrary Is Not
+## What ArtifactLibrary Is Not
 
 A few common misconceptions worth heading off:
 
-- **Not a substitute for inline `artifacts:`.** Most Recipes carry auxiliary files specific enough to belong inline, where the author reads them alongside the rest of the Recipe. An ArtifactsLibrary helps when the SAME set of files accompanies many Recipes; for one-off content, inline authoring is the right choice.
+- **Not a substitute for inline `artifacts:`.** Most Recipes carry auxiliary files specific enough to belong inline, where the author reads them alongside the rest of the Recipe. An ArtifactLibrary helps when the SAME set of files accompanies many Recipes; for one-off content, inline authoring is the right choice.
 
 - **Not a way to rename the files inside a bundle.** The filenames belong to the bundle. A consumer chooses the directory they land in — that is what the consumption key does — but not what any one of them is called: a consumer that needs a different filename either uses a bundle that declares it or authors the file inline.
 
 - **Not a place for workload, mapping, or schema content.** A Workload document belongs in a WorkloadLibrary, a template fragment meant to be spliced into a surrounding mapping belongs in a MappingLibrary, and schema definitions belong in a SchemaLibrary. The library kinds split by content type, not by reuse pattern.
 
-- **Not the mechanism for cross-cutting resources.** Auxiliary resources that apply across many components regardless of which Recipe realizes them — a backup sidecar attached to every datastore — belong on FeatureRecipe resource generation, which attaches by Feature rather than by Recipe. See [entities/featurerecipe.md](featurerecipe.md). An ArtifactsLibrary factors out files that several Recipes each emit on their own behalf.
+- **Not the mechanism for cross-cutting resources.** Auxiliary resources that apply across many components regardless of which Recipe realizes them — a backup sidecar attached to every datastore — belong on FeatureRecipe resource generation, which attaches by Feature rather than by Recipe. See [entities/featurerecipe.md](featurerecipe.md). An ArtifactLibrary factors out files that several Recipes each emit on their own behalf.
 
-- **Not an independently deployable entity.** A bundle is artifact content, and artifact content is never addressable on its own — it exists as the input a Recipe or FeatureRecipe consumes. Publishing an ArtifactsLibrary makes its bundles importable; it does not make them deployable.
+- **Not an independently deployable entity.** A bundle is artifact content, and artifact content is never addressable on its own — it exists as the input a Recipe or FeatureRecipe consumes. Publishing an ArtifactLibrary makes its bundles importable; it does not make them deployable.
