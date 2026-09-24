@@ -589,11 +589,11 @@ The same form works at a `usesSchema:` socket's `valueSchema:` and `infraSchema:
 The rules that govern it:
 
 - **`$import:` is the only key at the position where it appears.** A sibling written beside it is refused, rather than one of the two being dropped.
-- **A relative path is read against the directory holding the entity file that declared it**, never against the directory a build runs from — the same base `valuesMapping:`, `workload:` and `artifacts:` use.
+- **A relative path is read against the directory holding the entity file that declared it**, never against the directory a build runs from — the same base `valuesMapping:`, `workload:` and `artifacts:` use. **It must stay inside that directory**, because the directory is what gets published: a path climbing out of it, or an absolute path, names a file that would not travel with the entity and is refused — see [A path names content outside the entity's own directory](../errors/fatal-halts.md#a-path-names-content-outside-the-entitys-own-directory). A schema several entities share belongs in a SchemaLibrary, referenced with `$ref:`.
 - **The imported file carries schema content, not an entity document.** A file whose content is not a YAML map is refused, naming the file.
 - **An imported file may itself be a single `$import:`**, which resolves recursively; a chain that returns to a file already being read is refused, naming the chain.
 
-The import is read when the entity is loaded, so every surface that reads that entity sees the same contract: `aggrega validate`, a build, `aggrega inspect`, and the editor. A file that cannot be read, or content that is not a schema, is refused at that point rather than leaving the contract unenforced.
+The import is read when the entity is loaded, so every surface that reads that entity sees the same contract: `aggrega validate`, a build, `aggrega push`, `aggrega inspect`, and the editor. A file that cannot be read, or content that is not a schema, is refused at that point rather than leaving the contract unenforced — and a push refuses it before anything is published.
 
 `$import:` and `$ref:` are not interchangeable. `$import:` names a file and replaces whole content; `$ref:` names a SchemaLibrary entry by identity and composes at any node. A `$import:` value carrying a library identity or a registry host is refused with a steer to `$ref:`. See [cross-document-ref.md](cross-document-ref.md).
 

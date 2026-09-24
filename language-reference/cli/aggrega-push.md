@@ -27,6 +27,12 @@ The rule is what keeps two published coordinates from carrying the same bytes: t
 
 **The directory's name is not judged.** An entity alone in its directory publishes at its `metadata.version` wherever that directory sits; `<name>/<version>/`, the layout the standard-library catalog follows, is a convention. An artifact another client published from a directory holding two entities is still read safely: a pull of it halts naming both documents rather than answering with either, catalogued at [errors/fatal-halts.md](../errors/fatal-halts.md).
 
+## Reading the entity before it is bundled
+
+**A push reads a Component, a Feature, a Recipe or a FeatureRecipe the way a build reads it, and refuses one that read refuses** — for the same reason, under the same short code, before the bundle is built and before the destination registry is contacted. So a document that fails its kind's schema, a path naming content outside the entity's own directory, and a schema a Component or Feature imports with `$import:` that is missing or cannot be used are refused at publication rather than published. Each of them is an entity its consumers' first build would refuse; a path that leaves the directory also names a file that would not travel with the entity, because the entity's directory is what gets published — see [A path names content outside the entity's own directory](../errors/fatal-halts.md#a-path-names-content-outside-the-entitys-own-directory).
+
+A Recipe or FeatureRecipe is read this way as its pins are compared, which the next section describes, so the reading happens whether or not the push is asked to pin and whether or not the entity has anything to pin. A Component or Feature is read this way immediately before its bundle is built. An Aggregate, a library and a Plugin are published as the sections above describe, and are not read this way.
+
 ## Pinning before publishing
 
 A Recipe or FeatureRecipe carries the pins for the inputs it reads — a remote `source:` written out in full, a file an `artifacts` entry imports — in the `entity.lock` beside it, and that file is part of the directory a push bundles. Pinning is a step you run before publishing, [`aggrega pin`](aggrega-pin.md), and commit the lock it writes.
@@ -133,6 +139,12 @@ Every kind has a directory of its own except Aggregate, Release and Manifest: an
 entity of any other kind is refused when another entity sits in its directory,
 before anything is pinned or bundled, and the refusal names the entity in the way.
 The directory's name is not judged.
+
+A Component, Feature, Recipe or FeatureRecipe is read the way a build reads it
+before it is bundled, and one that read refuses is refused here for the same
+reason: a document that fails its kind's schema, a path naming content outside
+the entity's own directory, which would not travel with the entity, or a schema
+a Component or Feature imports that cannot be read or used.
 
 A content digest is computed over the entity's authoring tree and embedded in
 the OCI manifest, so "aggrega pull" can detect tampering between publish and

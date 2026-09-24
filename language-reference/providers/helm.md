@@ -18,7 +18,7 @@ A Recipe may declare exactly one of `source:` or `workload:`; combining them is 
 
 ## `source:` keyset
 
-The helm provider's `source:` names a chart, and it accepts both of the shapes the `source:` field takes: a **bare filesystem path string**, and a **structured object** whose `url:` carries the location. Wherever that location is a filesystem path, a relative one is anchored to the directory holding the `recipe.yaml` that declares it, not to the directory the build is invoked from, and an absolute one is used as written. The shape you wrote it in does not change that: a structured `source:` whose `url:` is `./charts/api-server` is anchored exactly as the bare string `./charts/api-server` is.
+The helm provider's `source:` names a chart, and it accepts both of the shapes the `source:` field takes: a **bare filesystem path string**, and a **structured object** whose `url:` carries the location. Wherever that location is a filesystem path, it is anchored to the directory holding the `recipe.yaml` that declares it, not to the directory the build is invoked from, and it must stay inside that directory: one that climbs out of it, or an absolute one, is refused, because the Recipe's directory is what gets published — see [`entities/recipe.md`](../entities/recipe.md) "Content paths stay inside the Recipe's own directory". The shape you wrote it in does not change that: a structured `source:` whose `url:` is `./charts/api-server` is anchored exactly as the bare string `./charts/api-server` is.
 
 ```yaml
 spec:

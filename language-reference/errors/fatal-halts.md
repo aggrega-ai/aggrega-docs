@@ -4255,6 +4255,25 @@ Emitted message, naming the entity, every entity beside it, and the files to mov
 
 **How to fix:** move each entity the message names into a directory of its own, taking with it the files only it reads — a local chart, an imported file, and the `entity.lock` if it records that entity's pins — and run `aggrega pin` on each one that reads a remote source or imports a file, so each lock records its own entity. Laying each out as `<kind>/<provider-or-publisher>/…/<name>/<version>/` keeps it where the standard-library catalog keeps every entity. A catalog directory is found by walking it, so a build over the catalog renders the same output after the move.
 
+### A path names content outside the entity's own directory
+
+<!-- covers: internal/sourceref.ErrContentOutsideEntityDirectory -->
+
+An entity's content lives in the entity's own directory, because that directory is what gets published. A path that leaves it points at a file that would not travel with the entity, so the file is not there for anyone who receives the entity, and a pin recorded over it vouches for bytes they cannot obtain.
+
+So every path an entity writes for content it carries is read against the directory holding the entity's file and must stay inside it. That covers a Recipe's and a FeatureRecipe's `source:` — a bare path, or the `url:` of the structured form — the file each `valuesMapping:`, `workload:` and `artifacts:` entry imports with `$import:`, and every schema a Component or a Feature imports, whole, per pillar, or for a `usesSchema` socket's `valueSchema` and `infraSchema`. Two shapes leave the directory: a path that climbs above it, and an absolute path, which names a place on the machine it was written on. A path that climbs and comes back inside — `./charts/../values.tmpl` — is an ordinary path inside the directory. A climb that re-enters the directory by its own name — `../1.0.0/values.tmpl` written in a directory called `1.0.0` — is refused, because the directory's name is not part of what travels: a published entity is read from a directory the consumer's cache names, where that name finds nothing.
+
+**It is refused wherever the entity is read.** A whole-catalog `aggrega validate`, `aggrega validate` on the entity's own file, `aggrega pull` and `aggrega build` refuse it as the entity's file is read, and so do `aggrega pin` of a Recipe or a FeatureRecipe and `aggrega push` of any of the four kinds, before anything is fetched, written or published. A `source:` written as a template names nothing until the build evaluates it, so a template producing a path outside the directory is refused by the build, at the moment the value exists.
+
+**A Release is different, and so is an entity reference.** A Release points at other entities — its Aggregate, its Manifest, the Release it extends — and is never published, so nothing it reads travels anywhere: those paths, and the file a Release's `parameters:` imports, are read as written. An Aggregate's `type: ./local` reference names another entity rather than content the Aggregate carries, and is resolved on its own terms too.
+
+Emitted message, naming the path as written:
+> a path names content outside the entity's own directory (`"<path>"`). remediation: move the file into the directory holding the entity, or a directory beneath it, and name it with a path relative to that directory. An entity's content lives in the entity's own directory because that directory is what gets published; a path that leaves it points at a file that would not travel with the entity
+
+The field it was read from is named on the line above the message: `resolve Recipe source …`, `resolve Recipe artifact "<key>" $import target …`, `spec.schema.values: imported schema …`, or, for a templated source, `node "<name>" source`.
+
+**How to fix:** move the file into the entity's directory, or a directory beneath it, and write its path relative to that directory. A chart several Recipes share is copied into each Recipe's directory, since each is published on its own; a schema several Components share belongs in a SchemaLibrary, which each Component then references by identity, and a mapping, workload or artifact body several Recipes share belongs in the matching library kind.
+
 ### An entity kind has no artifact media type
 
 <!-- covers: pkg/oci.ErrUnknownEntityKind -->
@@ -4856,6 +4875,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0301` | `oci: published artifact is not an entity document` | A published artifact cannot be read as an entity |
 | `E0302` | `an input the entity reads has no pin recorded for it in the entity.lock beside it` | An entity reads an input the lock beside it records no pin for |
 | `E0303` | `the entity shares its directory with another entity, and an entity of its kind has a directory of its own` | An entity shares its directory with another entity |
+| `E0304` | `a path names content outside the entity's own directory` | A path names content outside the entity's own directory |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
