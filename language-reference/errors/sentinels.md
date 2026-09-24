@@ -181,7 +181,6 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrBundleNoEntityDocument()` | `bundle-no-entity-document` | `oci: published bundle carries no entity document` |
 | `ErrBundleUnreadable()` | `bundle-unreadable` | `oci: published bundle cannot be unpacked` |
 | `ErrCachedManifestIntegrity()` | `cached-manifest-integrity` | `oci: cached manifest digest mismatch` |
-| `ErrEntityVersionPathMismatch()` | `entity-version-path-mismatch` | `oci: entity per-version subdirectory mismatch` |
 | `ErrFetchIntegrity()` | `fetch-integrity` | `oci: content digest mismatch` |
 | `ErrFetchNetworkUnreachable()` | `fetch-network-unreachable` | `oci: network unreachable` |
 | `ErrFetchNotFound()` | `fetch-not-found` | `oci: artifact not found at remote source` |
@@ -586,7 +585,6 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0131` | `lockfile-invalid` | `lockfile: file failed schema validation` |
 | `E0132` | `ambiguous-content-layer` | `oci: manifest has multiple layers of the expected content media type` |
 | `E0133` | `cached-manifest-integrity` | `oci: cached manifest digest mismatch` |
-| `E0134` | `entity-version-path-mismatch` | `oci: entity per-version subdirectory mismatch` |
 | `E0135` | `fetch-integrity` | `oci: content digest mismatch` |
 | `E0136` | `fetch-network-unreachable` | `oci: network unreachable` |
 | `E0137` | `fetch-not-found` | `oci: artifact not found at remote source` |
@@ -732,8 +730,10 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0300` | `bundle-unreadable` | `oci: published bundle cannot be unpacked` |
 | `E0301` | `published-artifact-not-an-entity` | `oci: published artifact is not an entity document` |
 | `E0302` | `entity-not-pinned` | `an input the entity reads has no pin recorded for it in the entity.lock beside it` |
+| `E0303` | `entity-shares-its-directory` | `the entity shares its directory with another entity, and an entity of its kind has a directory of its own` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
+- `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication no longer judges a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.
 - `E0157` is retired: nothing reports it now, and the number is never handed to a different condition. It named an Aggregate key — a component, feature, subsystem or nested-module instance name — that did not match the authored-name pattern. Every one of those key surfaces is constrained to that same spelling by the Aggregate schema, which refuses the document while validating its envelope and reports the offending key with a line and column; that condition's code is `E0215`.
 - `E0159` is retired: nothing reports it now, and the number is never handed to a different condition. It named a target reference whose dot-separated segments did not all match the instance-name pattern, and no build reported it before the condition was withdrawn.
 - `E0166` is retired: nothing reports it now, and the number is never handed to a different condition. It named the file a Release's `parameters: { $import: … }` points at when that file could not be read or its bytes did not parse; a file that yields no document is one condition wherever the path was written, and its code is `E0175`.

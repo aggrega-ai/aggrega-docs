@@ -4238,20 +4238,22 @@ and publishing a data artifact:
 
 **How to fix:** raise the version and publish again. For a catalog entity that means `metadata.version` and the per-version directory the entity sits in, which move together. Before you do, check that the change is one you meant: the two digests differing on a version you believe you have not touched means the content on disk is not the content that was published, and finding out why is worth more than publishing over it. The pre-publish check named in the message compares a version against the one before it and is the way to confirm the bump is right.
 
-### An entity's version directory does not match its declared version
+### An entity shares its directory with another entity
 
-<!-- covers: pkg/oci.ErrEntityVersionPathMismatch -->
+<!-- covers: internal/entitypin.ErrEntitySharesItsDirectory -->
 
-A refusal on publishing, not on a build. Every publishable entity except a Plugin sits in a directory named for its version, and that name has to equal the entity's own `metadata.version`. The two are checked against each other before the entity is packaged.
+A refusal on pinning and on publishing, not on a build. Every entity kind has a directory of its own except the three a workspace root holds side by side: an Aggregate, a Release and a Manifest. A published entity is one artifact at one coordinate for each version, and the directory it is authored in mirrors that — the pin step writes the one `entity.lock` a directory has room for, and a publication packages the entity from its directory. So an entity of any other kind with another entity beside it is refused at both of those moments: by `aggrega pin`, by a pull or a push asked to pin on the author's behalf, and by `aggrega push` whether or not it pins. It is refused before anything is fetched, and nothing is written.
 
-The check exists because for a Recipe or a FeatureRecipe the directory is more than a label: it is the boundary of what gets published. Those two kinds are packaged as their whole directory — the entity file together with the chart, mappings and artifact files sitting beside it — so that directory has to belong to one entity at one version and nothing else. For the kinds packaged as a single file the requirement carries the authoring convention instead, and it keeps every kind checked the same way.
+**A directory holding several entities still loads, lints, validates and builds.** The layout is judged only when something is produced from the directory, which is also the moment the message can name the entity in the way. A pull that does not pin writes nothing beside the entity and is not refused.
 
-A catalog read from disk finds an entity by the name and version the entity itself declares, not by where its file sits. So the directory name is not what locates a version; it is what bounds a published Recipe, and what tells a reader which version they are looking at.
+**What counts as an entity beside it** is any other YAML document directly in the same directory whose `kind:` is an entity kind. A chart's own files, a compose fragment, a Kubernetes manifest or a README are not entities, and a subdirectory — a local chart, a `source/` tree — is not beside the entity, whatever it holds. Only the kind and the name of each neighbour are read, so nothing a neighbour declares can change the answer.
 
-Emitted message, naming the file and both values:
-> oci: `<path>`: path version `"<directory name>"` != metadata.version `"<declared version>"`: oci: entity per-version subdirectory mismatch
+**The directory's name is not judged.** An entity alone in its directory pins and publishes at the version it declares wherever that directory sits; the `<name>/<version>/` layout the standard-library catalog uses is a convention rather than a check.
 
-**How to fix:** this is yours as the entity's author, and the message names both values so which one is wrong is usually obvious from context. Bringing them into line means either renaming the directory to the declared version or editing `metadata.version` to the directory's name — pick whichever matches the version you intend to publish, and check that nothing else already occupies it. A version bump that edited the field and left the directory behind is the common shape of this.
+Emitted message, naming the entity, every entity beside it, and the files to move:
+> the entity shares its directory with another entity, and an entity of its kind has a directory of its own (Recipe `"<name>"`, beside it: Recipe `"<name>"` in `<file>`). remediation: give each entity a directory of its own — move `<file>` into a directory of its own, together with any file only that entity reads; only the Aggregate, Manifest and Release kinds may share a directory with other entities
+
+**How to fix:** move each entity the message names into a directory of its own, taking with it the files only it reads — a local chart, an imported file, and the `entity.lock` if it records that entity's pins — and run `aggrega pin` on each one that reads a remote source or imports a file, so each lock records its own entity. Laying each out as `<kind>/<provider-or-publisher>/…/<name>/<version>/` keeps it where the standard-library catalog keeps every entity. A catalog directory is found by walking it, so a build over the catalog renders the same output after the move.
 
 ### An entity kind has no artifact media type
 
@@ -4708,7 +4710,6 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0131` | `lockfile: file failed schema validation` | The lockfile does not satisfy its schema |
 | `E0132` | `oci: manifest has multiple layers of the expected content media type` | A manifest carries no layer of the expected kind, or more than one |
 | `E0133` | `oci: cached manifest digest mismatch` | Fetched or cached bytes do not match the digest committed for them |
-| `E0134` | `oci: entity per-version subdirectory mismatch` | An entity's version directory does not match its declared version |
 | `E0135` | `oci: content digest mismatch` | Fetched or cached bytes do not match the digest committed for them |
 | `E0136` | `oci: network unreachable` | The registry could not be reached |
 | `E0137` | `oci: artifact not found at remote source` | An artifact is not at the source the build was told to find it |
@@ -4854,6 +4855,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0300` | `oci: published bundle cannot be unpacked` | A published artifact cannot be read as an entity |
 | `E0301` | `oci: published artifact is not an entity document` | A published artifact cannot be read as an entity |
 | `E0302` | `an input the entity reads has no pin recorded for it in the entity.lock beside it` | An entity reads an input the lock beside it records no pin for |
+| `E0303` | `the entity shares its directory with another entity, and an entity of its kind has a directory of its own` | An entity shares its directory with another entity |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

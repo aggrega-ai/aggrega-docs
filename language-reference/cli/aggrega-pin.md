@@ -23,7 +23,7 @@ What it does not record: a source whose coordinates are filled in from a templat
 
 The lock is written beside the document you name, in the same directory, so the entity needs a writable home: a document in a directory of yours. An entity a pull resolved from the content cache has no such home and is never pinned by anything.
 
-**One directory, one lock.** Every entity in a directory shares that directory's `entity.lock`, and pinning one of them replaces what the lock held for the others. Give an entity that pins anything a directory of its own — the per-version layout [One entity per version directory](aggrega-push.md#one-entity-per-version-directory) describes already does.
+**One directory, one entity.** A directory holds one `entity.lock`, so the step refuses a Recipe or FeatureRecipe that shares its directory with any other entity, whether or not either of them has anything to pin, naming each entity in the way — the refusal is [An entity shares its directory with another entity](../errors/fatal-halts.md#an-entity-shares-its-directory-with-another-entity). Every kind has a directory of its own except Aggregate, Release and Manifest, which may sit side by side; a push holds the entity it publishes to the same rule, as [One entity per directory](aggrega-push.md#one-entity-per-directory) sets out. The step judges only what it writes a lock for, so a Component or any other kind it has nothing to pin for is reported as having nothing to pin, and the refusal reaches that entity when it is published. A file beside the entity that is not an entity document — a chart file, the imported file itself — is not in the way.
 
 ## Who pins, and when
 
@@ -85,8 +85,10 @@ written to. Re-running over unchanged inputs leaves the lock byte-identical; an 
 nothing a lock records has its lock removed. A Component, a Feature or any other kind that reads
 no such input is reported as having nothing to pin, and nothing beside it is touched.
 
-Every entity in one directory shares that directory's entity.lock, so give an entity that pins
-anything a directory of its own.
+A directory holds one entity.lock, so the step refuses a Recipe or FeatureRecipe that shares its
+directory with any other entity, naming the entity in the way, whether or not either has anything
+to pin. Every kind has a directory of its own except Aggregate, Release and Manifest, which may sit
+side by side; a push holds the entity it publishes to the same rule.
 
 aggrega pull --pin-sources and aggrega push --pin-sources run this same step on your behalf, and
 write the same bytes.

@@ -11,7 +11,7 @@ in the Recipe and bound by the Manifest.
 ## The source block
 
 ```yaml
-# catalog/recipe/hello-world-git.yaml
+# catalog/recipe/helm/hello-world-git/1.0.0/recipe.yaml
 source:
   kind: git-repository
   url: https://github.com/helm/examples.git

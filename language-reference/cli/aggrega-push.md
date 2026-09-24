@@ -17,11 +17,15 @@ A remote `source:` URL on a Recipe (an OCI chart reference, an HTTPS chart or fr
 
 An Aggregate publishes as its own single document: a sub-aggregate it references in `aggregates:` is **not** bundled into the artifact. Each sub-aggregate is a separately published Aggregate that consumers resolve and pin independently at pull time, by identity — the same separation-of-distribution principle that applies to remote sources.
 
-### One entity per version directory
+### One entity per directory
 
 The bundle is built from the **directory** the entity file sits in, so everything in that directory is published and the entity has to be found again on the way back out. A consumer finds it by the preamble it carries: the document at the top of the bundle whose `kind:` is a publishable entity kind is the entity. The file it is authored in may be called anything — `recipe.yaml` is the catalog's convention rather than a requirement — and a compose fragment, a chart template or a Kubernetes manifest sitting beside the entity is not mistaken for one, because those declare something else or no kind at all. Entity documents further down, inside a `source/` tree, are content the entity ships rather than the entity itself and are never considered.
 
-**What follows is a layout obligation on the publisher: a version directory holds one entity.** Two entities authored side by side in one version directory each publish an artifact built from that whole directory, so their two published coordinates carry *the same bytes*. Nothing about the publish reports it — each push succeeds and reports its own reference — and a consumer asking for either one would otherwise receive whichever entity was picked. Rather than answer with the wrong entity, a pull of such an artifact halts, naming both documents; the halt is catalogued at [errors/fatal-halts.md](../errors/fatal-halts.md). Give each entity its own `<name>/<version>/` directory, which is the layout the standard-library catalog already follows. It is also what gives each entity an `entity.lock` of its own, since every entity in one directory shares that directory's lock.
+**A push refuses an entity that shares its directory with another entity.** Every kind has a directory of its own except Aggregate, Release and Manifest, which a workspace root holds side by side. For any other kind, a push checks before it does anything else with the entity — before the pin step, the signing policy and the bundle — that no other entity document sits in the same directory, and refuses otherwise, naming each entity in the way, whether or not the push was asked to pin. [`aggrega pin`](aggrega-pin.md) refuses the same directory in the same words; the halt is [An entity shares its directory with another entity](../errors/fatal-halts.md#an-entity-shares-its-directory-with-another-entity). A document of no entity kind beside the entity — a chart file, a compose fragment, a README — is not in the way, and neither is anything in a subdirectory.
+
+The rule is what keeps two published coordinates from carrying the same bytes: two entities authored in one directory would each publish an archive of that whole directory, and share the one `entity.lock` it has room for. It is judged only when something is produced from the directory, so a directory holding several entities still loads, lints and builds.
+
+**The directory's name is not judged.** An entity alone in its directory publishes at its `metadata.version` wherever that directory sits; `<name>/<version>/`, the layout the standard-library catalog follows, is a convention. An artifact another client published from a directory holding two entities is still read safely: a pull of it halts naming both documents rather than answering with either, catalogued at [errors/fatal-halts.md](../errors/fatal-halts.md).
 
 ## Pinning before publishing
 
@@ -33,7 +37,7 @@ Two kinds of entity have nothing to pin and publish untouched: an entity that re
 
 Comparing a remote source's pin means fetching the source, as `aggrega pin` does, because a pin that no longer matches is only visible against what the source serves now. A push over an entity with such a source therefore reaches the source's host before it reaches the registry. The comparison reads a Recipe or FeatureRecipe the way the pin step does, through the catalog, so one the catalog refuses to read — a document that fails its kind's schema, say — is refused here with the catalog's own reason.
 
-**`aggrega push --pin-sources` runs that same step for you, first.** The step runs before the bundle is built, so the lock it writes is in the published artifact and the published digest covers it; and it runs ahead of every refusal that judges the entity, so what is judged is the entity as pinned. It writes the same bytes `aggrega pin` writes, so the refusal above never fires on that run: the lock the step has just written records exactly what the refusal would compare against. The workspace key `pin_sources_at_push` makes this every push's default, and `--pin-sources=false` skips the step for one run, which brings the refusal back. The step writes beside the entity, which needs a writable home — and a push always has one, since it publishes the document you name.
+**`aggrega push --pin-sources` runs that same step for you, first.** The step runs before the bundle is built, so the lock it writes is in the published artifact and the published digest covers it; and it runs ahead of every other refusal that judges the entity, so what is judged is the entity as pinned. Only the directory rule above comes first, because the step writes the one lock the directory holds. It writes the same bytes `aggrega pin` writes, so the refusal above never fires on that run: the lock the step has just written records exactly what the refusal would compare against. The workspace key `pin_sources_at_push` makes this every push's default, and `--pin-sources=false` skips the step for one run, which brings the refusal back. The step writes beside the entity, which needs a writable home — and a push always has one, since it publishes the document you name.
 
 **`--dry-run` answers the way the publication would.** Without `--pin-sources` it refuses an unpinned entity exactly as the publication does, so a dry run that reports a bundle is one this refusal would let through. With `--pin-sources` the step pins as a dry run: it prints the lock it would write and writes nothing, and the bundle facts that follow describe the directory as it stands, without that lock — the refusal does not fire, because the publication would have pinned first.
 
@@ -41,7 +45,7 @@ Comparing a remote source's pin means fetching the source, as `aggrega pin` does
 
 ## Registry, tag, and content-addressing
 
-The target registry is `--registry <ref>` when supplied, otherwise the workspace's `default_registry` (`hub.aggrega.ai` by default). The tag is the entity's `metadata.version`. Libraries are enforced into a per-version subdirectory so a published version always lands at a predictable path.
+The target registry is `--registry <ref>` when supplied, otherwise the workspace's `default_registry` (`hub.aggrega.ai` by default). The tag is the entity's `metadata.version`, and the repository path is derived from its kind and name, so where a published version lands does not depend on the directory it was published from.
 
 Publish computes a content digest over the entity's authoring tree and embeds it in the OCI manifest; `aggrega pull` verifies that digest when it fetches the entity, so tampering between publish and pull is caught.
 
@@ -124,6 +128,11 @@ own metadata.version. Run "aggrega push --list-kinds" for the kinds this binary
 publishes, one per line and nothing else, so a script can read it directly.
 Release and Manifest are deployment-side inputs rather than catalog artifacts
 and are refused.
+
+Every kind has a directory of its own except Aggregate, Release and Manifest: an
+entity of any other kind is refused when another entity sits in its directory,
+before anything is pinned or bundled, and the refusal names the entity in the way.
+The directory's name is not judged.
 
 A content digest is computed over the entity's authoring tree and embedded in
 the OCI manifest, so "aggrega pull" can detect tampering between publish and
