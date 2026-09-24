@@ -1747,6 +1747,8 @@ Emitted message. The condition's own sentence opens it, and every collected disa
 
 **How to fix:** re-resolve the release and commit the rewritten lockfile — `aggrega pull --upgrade --release <release>` is what produces one that agrees with what the release now reaches. Where the entries name a release document, the file you edited is the change, and a plain `aggrega pull --release <release>` is the whole fix: it resolves the release as it now stands while honouring every other pin, so nothing floats that you did not touch. Read the entries before you do, because the third shape is the one worth pausing on: a reference the release no longer reaches is usually a dependency you removed on purpose, but where you did not remove it, something else changed that made it unreachable. A pair that moved on a reference you did not touch means the content at that version is not the content that was reviewed, which is a question for whoever publishes it rather than something to adopt without looking.
 
+A pull runs this same comparison against the lockfile it is about to write and does not write one the comparison refuses, so a lockfile a pull has just written passes it for a build given the same inputs. **Where this condition comes back straight after a pull that completed, the two runs were given different inputs**: a catalog directory passed to one and not the other, or a workspace configuration edited between them. Run the pull and the build over the same ones.
+
 ### An artifact is not at the source the build was told to find it
 
 <!-- covers: pkg/oci.ErrFetchNotFound -->
