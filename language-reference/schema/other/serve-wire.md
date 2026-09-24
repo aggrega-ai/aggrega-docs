@@ -434,7 +434,7 @@ Answers with what one entity name resolves to and where the document defining it
 | --- | --- | --- | --- |
 | `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
-| `name` | string | no | The entity to resolve, by name. |
+| `name` | string | no | The entity to resolve, by name — or a registry reference, `oci://<host>/<repository>:<tag>` or `@<digest>` in place of `:<tag>`, to read the entity published at that coordinate. |
 
 _Additional properties are not permitted._
 
@@ -1630,7 +1630,7 @@ _Additional properties are not permitted._
 
 ### `EntityDefinitionResult`
 
-What an entity name resolves to, and the document defining it.
+What an entity name resolves to, and the document defining it. An answer read from a registry reference carries `published`, and an answer the catalog resolved by name never does.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -1642,6 +1642,20 @@ What an entity name resolves to, and the document defining it.
 | `file` | string | yes | The document defining it. |
 | `authoredLength` | integer | yes | How many bytes the authored document holds, so a client can tell an authored document from a resolved rendering of one. |
 | `definition` | string | yes | The definition's text. |
+| `published` | PublishedArtifact | no | What a registry reference read: the coordinate, how it held the entity, and the manifest it was read through. Every field is present wherever this is. |
+
+_Additional properties are not permitted._
+
+### `PublishedArtifact`
+
+What a registry reference read: the coordinate, how it held the entity, and the manifest it was read through. Every field is present wherever this is.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `reference` | string | yes | The registry reference that was read. |
+| `archive` | boolean | yes | Whether the coordinate's bytes were an archive the entity document was unpacked from. False where the coordinate held the entity document itself. |
+| `mediaType` | string | yes | The artifact type the manifest declares. |
+| `manifestDigest` | string | yes | The digest of the manifest the entity was read through — the value to name after `@` to read the same bytes again exactly. |
 
 _Additional properties are not permitted._
 
