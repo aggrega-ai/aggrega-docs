@@ -253,7 +253,7 @@ JSON is suited for machine-to-machine communication, not for manual human author
 
 ## Content paths stay inside the Recipe's own directory
 
-A Recipe's content lives in the Recipe's own directory, because that directory is what gets published. Every path a Recipe writes for content it carries — its `source:`, whether a bare path or the `url:` of the structured form, and each file its `valuesMapping:`, `workload:` and `artifacts:` entries import with `$import:` — is read against the directory holding the `recipe.yaml` and must stay inside it. A path that leaves it points at a file that would not travel with the Recipe: whoever consumes the published Recipe receives its directory and nothing beside it, so the file is not there for them, and a pin recorded over it would vouch for bytes they cannot obtain.
+A Recipe's content lives in the Recipe's own directory, because every file a publication of it carries is taken from there. Every path a Recipe writes for content it carries — its `source:`, whether a bare path or the `url:` of the structured form, and each file its `valuesMapping:`, `workload:` and `artifacts:` entries import with `$import:` — is read against the directory holding the `recipe.yaml` and must stay inside it. Those paths are also what a publication carries: the files they name travel with the Recipe, and nothing else in its directory does (see [`aggrega push`](../cli/aggrega-push.md#bundling)). A path that leaves the directory points at a file that would not travel with the Recipe, so the file is not there for whoever consumes it, and a pin recorded over it would vouch for bytes they cannot obtain.
 
 Two shapes leave the directory, and both are refused:
 

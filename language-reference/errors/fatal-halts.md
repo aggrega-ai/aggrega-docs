@@ -1859,13 +1859,13 @@ and more than one, which also names how many:
 <!-- covers: pkg/oci.ErrBundleNoEntityDocument -->
 <!-- covers: pkg/oci.ErrBundleAmbiguousEntityDocument -->
 
-A Recipe and a FeatureRecipe publish as a `.tar.gz` bundling the entity together with the files sitting beside it in its version directory. Reading one back means finding the entity again among those files — and the file it was authored in may be called anything, so what identifies it is the entity preamble it carries rather than its name. The document at the top of the bundle whose `kind:` is a publishable entity kind is the entity; a compose fragment, a chart template or a Kubernetes manifest beside it is not, and neither is an entity document further down inside a `source/` tree, which is content the entity ships rather than the entity itself.
+An entity that declares files beside its document — a Recipe's local chart or its lock, a Component's imported schema — publishes as a `.tar.gz` bundling the entity together with those files. Reading one back means finding the entity again among them — and the file it was authored in may be called anything, so what identifies it is the entity preamble it carries rather than its name. The document at the top of the bundle whose `kind:` is a publishable entity kind is the entity; a compose fragment, a chart template or a Kubernetes manifest beside it is not, and neither is an entity document further down inside a `source/` tree, which is content the entity ships rather than the entity itself.
 
 Two shapes leave nothing to select, and both are properties of how the artifact was published.
 
-**No entity document at the top of the bundle.** Either the version directory held no entity when it was published, or the one it held sits in a subdirectory rather than beside its source files. The message lists what the top of the bundle does carry, which is usually enough to see which of the two happened.
+**No entity document at the top of the bundle.** The bundle was packed without the entity at its top — its document left out, or placed in a subdirectory rather than beside the files it carries. The message lists what the top of the bundle does carry, which is usually enough to see which happened.
 
-**Two entity documents at the top of the bundle.** Two entities were authored in one version directory. Because the bundle is built from the directory, each of their published coordinates carries the *same* bytes — so answering with either one would hand back the other entity under the name that was asked for, with nothing downstream able to notice. There is no safe choice to make, so none is made.
+**Two entity documents at the top of the bundle.** The bundle was packed from a whole directory in which two entities were authored — which `aggrega push` never does, since each entity carries only the files it declares, but which another client can. Packed that way, each of their published coordinates carries the *same* bytes — so answering with either one would hand back the other entity under the name that was asked for, with nothing downstream able to notice. There is no safe choice to make, so none is made.
 
 **Emitted messages**, listing what was found. None, where the bundle carries other files:
 > bundle root carries no entity document among `<file>, <file>`: oci: published bundle carries no entity document
@@ -1885,7 +1885,7 @@ and more than one, which names both the count and the colliding documents:
 
 Reading an entity from the coordinate it is published at starts from the bytes the registry serves there — `aggrega inspect oci://…` reads them for you to look at, and a dependency pull reads an archive's the same way to find the version it pins. Two shapes of those bytes hold no entity to read.
 
-**An archive that does not unpack.** A Recipe or a FeatureRecipe publishes as a `.tar.gz`, and the bytes begin as one, but the compression stream or the archive inside it is not well formed — most often because it was cut short. The bytes still match the digest the artifact's own manifest records for them, so they are exactly what was published: the damage happened before or during publication rather than on the way to you.
+**An archive that does not unpack.** An entity published with the files it declares publishes as a `.tar.gz`, and the bytes begin as one, but the compression stream or the archive inside it is not well formed — most often because it was cut short. The bytes still match the digest the artifact's own manifest records for them, so they are exactly what was published: the damage happened before or during publication rather than on the way to you.
 
 **A document that is not an entity.** The coordinate carries a single document, and it does not parse, declares no `kind:`, or declares a kind that is never published, such as a Release or a Manifest. The reference then names something published beside the catalog rather than an entity — a data artifact published with `aggrega push-artifact`, for example.
 
@@ -4261,7 +4261,7 @@ Emitted message, naming the entity, every entity beside it, and the files to mov
 
 <!-- covers: internal/sourceref.ErrContentOutsideEntityDirectory -->
 
-An entity's content lives in the entity's own directory, because that directory is what gets published. A path that leaves it points at a file that would not travel with the entity, so the file is not there for anyone who receives the entity, and a pin recorded over it vouches for bytes they cannot obtain.
+An entity's content lives in the entity's own directory, because every file a publication of the entity carries is taken from there. A path that leaves it points at a file that would not travel with the entity, so the file is not there for anyone who receives the entity, and a pin recorded over it vouches for bytes they cannot obtain.
 
 So every path an entity writes for content it carries is read against the directory holding the entity's file and must stay inside it. That covers a Recipe's and a FeatureRecipe's `source:` — a bare path, or the `url:` of the structured form — the file each `valuesMapping:`, `workload:` and `artifacts:` entry imports with `$import:`, and every schema a Component or a Feature imports, whole, per pillar, or for a `usesSchema` socket's `valueSchema` and `infraSchema`. Two shapes leave the directory: a path that climbs above it, and an absolute path, which names a place on the machine it was written on. A path that climbs and comes back inside — `./charts/../values.tmpl` — is an ordinary path inside the directory. A climb that re-enters the directory by its own name — `../1.0.0/values.tmpl` written in a directory called `1.0.0` — is refused, because the directory's name is not part of what travels: a published entity is read from a directory the consumer's cache names, where that name finds nothing.
 
@@ -4270,7 +4270,7 @@ So every path an entity writes for content it carries is read against the direct
 **A Release is different, and so is an entity reference.** A Release points at other entities — its Aggregate, its Manifest, the Release it extends — and is never published, so nothing it reads travels anywhere: those paths, and the file a Release's `parameters:` imports, are read as written. An Aggregate's `type: ./local` reference names another entity rather than content the Aggregate carries, and is resolved on its own terms too.
 
 Emitted message, naming the path as written:
-> a path names content outside the entity's own directory (`"<path>"`). remediation: move the file into the directory holding the entity, or a directory beneath it, and name it with a path relative to that directory. An entity's content lives in the entity's own directory because that directory is what gets published; a path that leaves it points at a file that would not travel with the entity
+> a path names content outside the entity's own directory (`"<path>"`). remediation: move the file into the directory holding the entity, or a directory beneath it, and name it with a path relative to that directory. An entity's content lives in the entity's own directory because every file a publication of it carries is taken from there; a path that leaves it points at a file that would not travel with the entity
 
 The field it was read from is named on the line above the message: `resolve Recipe source …`, `resolve Recipe artifact "<key>" $import target …`, `spec.schema.values: imported schema …`, or, for a templated source, `node "<name>" source`.
 
@@ -4280,7 +4280,7 @@ The field it was read from is named on the line above the message: `resolve Reci
 
 <!-- covers: pkg/oci.ErrUnknownEntityKind -->
 
-A refusal on publishing, not on a build. Each publishable entity kind has a media type that says what its artifact is, and packaging an entity looks that up by kind. This condition reports a kind with no entry.
+A refusal on publishing, not on a build. Each publishable entity kind has a media type for each of the two shapes its artifact takes — its document alone, or an archive of the document and the files it declares — and packaging an entity looks that up by kind. This condition reports a kind with no entry.
 
 **No build reaches it.** The one other place the same lookup runs treats a missing entry as "this is not a library" and carries on, so the condition is never surfaced there.
 

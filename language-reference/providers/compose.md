@@ -308,7 +308,7 @@ services:
 
 ## Sourced mode
 
-The compose provider's `source:` names a docker-compose YAML file that the provider can read and parse, and it accepts both of the shapes the `source:` field takes: a **bare filesystem path string**, and a **structured object** whose `url:` carries the location. Wherever that location is a filesystem path, it is anchored to the directory holding the `recipe.yaml` that declares it, not to the directory the build is invoked from, and it must stay inside that directory: one that climbs out of it, or an absolute one, is refused, because the Recipe's directory is what gets published — see [`entities/recipe.md`](../entities/recipe.md) "Content paths stay inside the Recipe's own directory".
+The compose provider's `source:` names a docker-compose YAML file that the provider can read and parse, and it accepts both of the shapes the `source:` field takes: a **bare filesystem path string**, and a **structured object** whose `url:` carries the location. Wherever that location is a filesystem path, it is anchored to the directory holding the `recipe.yaml` that declares it, not to the directory the build is invoked from, and it must stay inside that directory: one that climbs out of it, or an absolute one, is refused, because every file a publication of the Recipe carries is taken from its directory — see [`entities/recipe.md`](../entities/recipe.md) "Content paths stay inside the Recipe's own directory". The file named this way is published with the Recipe, while a file beside the Recipe that nothing it declares names is not.
 
 ```yaml
 spec:

@@ -293,7 +293,7 @@ spec:
       $import: ./artifacts/crd-registration.yaml
 ```
 
-The `$import:` paths are relative to the Recipe directory and must stay inside it, because that directory is what gets published and a file outside it would not travel with the Recipe. A typical convention places them in an `./artifacts/` subdirectory, though the compiler does not enforce this. The map key names each emitted file — the next section covers what that means in each of the three forms.
+The `$import:` paths are relative to the Recipe directory and must stay inside it, because every file a publication of the Recipe carries is taken from that directory — each file an import names travels with it — and a file outside it would not. A typical convention places them in an `./artifacts/` subdirectory, though the compiler does not enforce this. The map key names each emitted file — the next section covers what that means in each of the three forms.
 
 Each entry (inline or `$import:`-loaded) is Go-templated against the full TemplateContext before being emitted to the output directory.
 

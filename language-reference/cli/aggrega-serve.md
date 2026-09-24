@@ -485,7 +485,7 @@ Both carry the entity-not-resolvable code, so branch on the presence of `file` r
 
 **You are holding a registry reference.** Send it as the `name` of `aggrega/entityDefinition`, and the answer is the entity published at that coordinate, in the same result shape a name gets plus `published`, filled from what was published rather than from what a catalog resolved:
 
-- `definition` is the entity document exactly as it was published. A Recipe or FeatureRecipe coordinate carries an archive of the entity's version directory, and the document is unpacked from it; every other kind carries its document unchanged, and a Plugin's entity is read from its manifest rather than from the executable published with it. No inheritance is applied.
+- `definition` is the entity document exactly as it was published. A coordinate whose entity was published with the files it declares carries an archive, and the document is unpacked from it; one whose entity declares no file carries its document unchanged, and a Plugin's entity is read from its manifest rather than from the executable published with it. No inheritance is applied.
 - `authoredLength` is that document's length, because the definition here is an authored document rather than a rendering of a resolved one.
 - `file` is empty, because an entity read from a registry has no document on this machine to name.
 - `publishScope` is omitted: you already hold the coordinate, which is where the entity is published.

@@ -8,10 +8,24 @@
 
 ## Bundling
 
-- Component, Feature, Aggregate, Plugin, and the library kinds publish as bare YAML.
-- Recipe and FeatureRecipe publish as a `.tar.gz` that bundles the entity YAML together with its co-located source files — a filesystem `source:` directory, `$import:`-referenced template files, and inline `artifacts:`.
+**A push publishes the entity document and the files the entity itself names beside it — and nothing else in its directory.** The files an entity names are:
 
-Each published file is named on the artifact's manifest, so a generic OCI client such as `oras` writes it to a file of that name: `entity.yaml` for a bare-YAML kind, `entity.tar.gz` for a Recipe or FeatureRecipe, and for a Plugin `entity.yaml` for the entity beside `entity.wasm` for its executable. The name follows from the kind, not from the file you publish from, so the same content published from a renamed file publishes the same artifact. [Catalog and Registry](../../architecture/13-catalog-and-registry.md) §6 lists every published shape and the file each lands as.
+- for a Recipe or FeatureRecipe, its local `source:` — a directory travels with every file under it except those whose name starts with a dot; each file its `valuesMapping:`, `workload:` and `artifacts:` entries import with `$import:`; and the `entity.lock` beside it;
+- for a Component or Feature, each schema file its `spec.schema`, a pillar or a `usesSchema` socket imports with `$import:`, including every file an imported file imports in turn.
+
+An Aggregate, a Plugin and the library kinds name no file beside their document. A note, a README, another entity's files or a build's output sitting in the directory is not published, whatever it is called.
+
+**The shape follows from that.** An entity that names nothing publishes as its document, unchanged, under its kind's `+yaml` media type. One that names a file publishes as a `.tar.gz` holding the document and those files at their places in the directory, under its kind's `+tar+gz` media type. So a Recipe whose content is all inline publishes as its document, and a Component whose schema is imported from a file publishes as an archive. [Catalog and Registry](../../architecture/13-catalog-and-registry.md) §6 lists both media types for every kind.
+
+**A local `source:` written as a template carries the whole directory.** A template such as `./charts/{{ .values.flavour }}` names a directory only once a Release fills it in, so no publication can tell which one it will be. Such an entity carries every file in its own directory, except those whose name starts with a dot, and the push says so beneath its other facts:
+
+```
+  carries: every file in the entity's directory, because its source "./charts/{{ .values.flavour }}" is a template and the directory it names is decided by each Release that uses it
+```
+
+**What is not named does not travel, and a consumer is the one who finds out.** A file the entity relies on without naming it through one of the fields above is not in the publication, and a consumer's build of it fails naming the path inside its cache slot that is missing — not your push. Name every file the entity needs through one of those fields.
+
+Each published file is named on the artifact's manifest, so a generic OCI client such as `oras` writes it to a file of that name: `entity.yaml` for an entity published as its document, `entity.tar.gz` for one published with its files, and for a Plugin `entity.yaml` for the entity beside `entity.wasm` for its executable. The name follows from the media type, not from the file you publish from, so the same content published from a renamed file publishes the same artifact. [Catalog and Registry](../../architecture/13-catalog-and-registry.md) §6 lists every published shape and the file each lands as.
 
 A remote `source:` URL on a Recipe (an OCI chart reference, an HTTPS chart or fragment URL, a Git module) is **preserved verbatim** in the published YAML; it is not pulled and vendored into the artifact. Consumers resolve and pin remote sources independently at their own pull time. This keeps catalog-entity distribution and source-artifact resolution as separate concerns.
 
@@ -19,23 +33,23 @@ An Aggregate publishes as its own single document: a sub-aggregate it references
 
 ### One entity per directory
 
-The bundle is built from the **directory** the entity file sits in, so everything in that directory is published and the entity has to be found again on the way back out. A consumer finds it by the preamble it carries: the document at the top of the bundle whose `kind:` is a publishable entity kind is the entity. The file it is authored in may be called anything — `recipe.yaml` is the catalog's convention rather than a requirement — and a compose fragment, a chart template or a Kubernetes manifest sitting beside the entity is not mistaken for one, because those declare something else or no kind at all. Entity documents further down, inside a `source/` tree, are content the entity ships rather than the entity itself and are never considered.
+An archive holds the entity file among the files it names, so the entity has to be found again on the way back out. A consumer finds it by the preamble it carries: the document at the top of the bundle whose `kind:` is a publishable entity kind is the entity. The file it is authored in may be called anything — `recipe.yaml` is the catalog's convention rather than a requirement — and a compose fragment, a chart template or a Kubernetes manifest sitting beside the entity is not mistaken for one, because those declare something else or no kind at all. Entity documents further down, inside a `source/` tree, are content the entity ships rather than the entity itself and are never considered.
 
 **A push refuses an entity that shares its directory with another entity.** Every kind has a directory of its own except Aggregate, Release and Manifest, which a workspace root holds side by side. For any other kind, a push checks before it does anything else with the entity — before the pin step, the signing policy and the bundle — that no other entity document sits in the same directory, and refuses otherwise, naming each entity in the way, whether or not the push was asked to pin. [`aggrega pin`](aggrega-pin.md) refuses the same directory in the same words; the halt is [An entity shares its directory with another entity](../errors/fatal-halts.md#an-entity-shares-its-directory-with-another-entity). A document of no entity kind beside the entity — a chart file, a compose fragment, a README — is not in the way, and neither is anything in a subdirectory.
 
-The rule is what keeps two published coordinates from carrying the same bytes: two entities authored in one directory would each publish an archive of that whole directory, and share the one `entity.lock` it has room for. It is judged only when something is produced from the directory, so a directory holding several entities still loads, lints and builds.
+The rule is what keeps one `entity.lock` belonging to one entity: the lock's file name is the same for every entity, so two entities authored in one directory would share the one lock it has room for. It is judged only when something is produced from the directory, so a directory holding several entities still loads, lints and builds.
 
 **The directory's name is not judged.** An entity alone in its directory publishes at its `metadata.version` wherever that directory sits; `<name>/<version>/`, the layout the standard-library catalog follows, is a convention. An artifact another client published from a directory holding two entities is still read safely: a pull of it halts naming both documents rather than answering with either, catalogued at [errors/fatal-halts.md](../errors/fatal-halts.md).
 
 ## Reading the entity before it is bundled
 
-**A push reads a Component, a Feature, a Recipe or a FeatureRecipe the way a build reads it, and refuses one that read refuses** — for the same reason, under the same short code, before the bundle is built and before the destination registry is contacted. So a document that fails its kind's schema, a path naming content outside the entity's own directory, and a schema a Component or Feature imports with `$import:` that is missing or cannot be used are refused at publication rather than published. Each of them is an entity its consumers' first build would refuse; a path that leaves the directory also names a file that would not travel with the entity, because the entity's directory is what gets published — see [A path names content outside the entity's own directory](../errors/fatal-halts.md#a-path-names-content-outside-the-entitys-own-directory).
+**A push reads a Component, a Feature, a Recipe or a FeatureRecipe the way a build reads it, and refuses one that read refuses** — for the same reason, under the same short code, before the bundle is built and before the destination registry is contacted. So a document that fails its kind's schema, a path naming content outside the entity's own directory, and a schema a Component or Feature imports with `$import:` that is missing or cannot be used are refused at publication rather than published. Each of them is an entity its consumers' first build would refuse; a path that leaves the directory also names a file that would not travel with the entity, because every file a publication carries is taken from the entity's own directory — see [A path names content outside the entity's own directory](../errors/fatal-halts.md#a-path-names-content-outside-the-entitys-own-directory).
 
-A Recipe or FeatureRecipe is read this way as its pins are compared, which the next section describes, so the reading happens whether or not the push is asked to pin and whether or not the entity has anything to pin. A Component or Feature is read this way immediately before its bundle is built. An Aggregate, a library and a Plugin are published as the sections above describe, and are not read this way.
+A Recipe or FeatureRecipe is read this way as its pins are compared, which the next section describes, so the reading happens whether or not the push is asked to pin and whether or not the entity has anything to pin. Every one of the four kinds is also read this way immediately before its bundle is built, because that reading is what says which files it names. An Aggregate, a library and a Plugin name no file and are not read this way.
 
 ## Pinning before publishing
 
-A Recipe or FeatureRecipe carries the pins for the inputs it reads — a remote `source:` written out in full, a file an `artifacts` entry imports — in the `entity.lock` beside it, and that file is part of the directory a push bundles. Pinning is a step you run before publishing, [`aggrega pin`](aggrega-pin.md), and commit the lock it writes.
+A Recipe or FeatureRecipe carries the pins for the inputs it reads — a remote `source:` written out in full, a file an `artifacts` entry imports — in the `entity.lock` beside it, and a push publishes that file with the entity. Pinning is a step you run before publishing, [`aggrega pin`](aggrega-pin.md), and commit the lock it writes.
 
 **A push refuses an entity whose lock does not record those pins.** Before it builds the bundle, a push works out what the pin step would record for the entity and compares it with the `entity.lock` beside it. Where a pin is missing, or the lock holds one an input no longer matches, the push stops before any archive is built or any registry is contacted. The refusal names the entity and every such input — each a `remote source` or an `imported file` — and what to run: `aggrega pin` on the entity, `--pin-sources` on the push you just ran, or `pin_sources_at_push` for every push in the workspace. It is the same refusal a pull raises over the same lock, [An entity reads an input the lock beside it records no pin for](../errors/fatal-halts.md#an-entity-reads-an-input-the-lock-beside-it-records-no-pin-for), with a push's own remedies. So a Recipe or FeatureRecipe a push publishes carries, inside its bundle, a lock recording every pin the step would have recorded at the moment it was published.
 
@@ -45,7 +59,7 @@ Comparing a remote source's pin means fetching the source, as `aggrega pin` does
 
 **`aggrega push --pin-sources` runs that same step for you, first.** The step runs before the bundle is built, so the lock it writes is in the published artifact and the published digest covers it; and it runs ahead of every other refusal that judges the entity, so what is judged is the entity as pinned. Only the directory rule above comes first, because the step writes the one lock the directory holds. It writes the same bytes `aggrega pin` writes, so the refusal above never fires on that run: the lock the step has just written records exactly what the refusal would compare against. The workspace key `pin_sources_at_push` makes this every push's default, and `--pin-sources=false` skips the step for one run, which brings the refusal back. The step writes beside the entity, which needs a writable home — and a push always has one, since it publishes the document you name.
 
-**`--dry-run` answers the way the publication would.** Without `--pin-sources` it refuses an unpinned entity exactly as the publication does, so a dry run that reports a bundle is one this refusal would let through. With `--pin-sources` the step pins as a dry run: it prints the lock it would write and writes nothing, and the bundle facts that follow describe the directory as it stands, without that lock — the refusal does not fire, because the publication would have pinned first.
+**`--dry-run` answers the way the publication would.** Without `--pin-sources` it refuses an unpinned entity exactly as the publication does, so a dry run that reports a bundle is one this refusal would let through. With `--pin-sources` the step pins as a dry run: it prints the lock it would write and writes nothing, and the bundle facts that follow describe the directory as it stands, without that lock — so where the lock would be new, the size, and for an entity naming nothing else the media type, are those of a publication without it. The refusal does not fire, because the publication would have pinned first.
 
 **Best practice: a change to a version you have already published goes into a new version, and then a pin.** Copy the entity into a new version directory, make the change there, pin it, and publish that. The half of this the product enforces is the next section: publishing different content at a version that is already published is refused. The other half — not re-pinning an already-published version after editing it in your own workspace — is yours to keep; nothing refuses it locally, because re-pinning is legitimate for an entity you have not published.
 
@@ -53,7 +67,7 @@ Comparing a remote source's pin means fetching the source, as `aggrega pin` does
 
 The target registry is `--registry <ref>` when supplied, otherwise the workspace's `default_registry` (`hub.aggrega.ai` by default). The tag is the entity's `metadata.version`, and the repository path is derived from its kind and name, so where a published version lands does not depend on the directory it was published from.
 
-Publish computes a content digest over the entity's authoring tree and embeds it in the OCI manifest; `aggrega pull` verifies that digest when it fetches the entity, so tampering between publish and pull is caught.
+Publish computes a content digest over what it publishes and embeds it in the OCI manifest; `aggrega pull` verifies that digest when it fetches the entity, so tampering between publish and pull is caught.
 
 ## Publishing over an existing version
 
@@ -146,9 +160,19 @@ reason: a document that fails its kind's schema, a path naming content outside
 the entity's own directory, which would not travel with the entity, or a schema
 a Component or Feature imports that cannot be read or used.
 
-A content digest is computed over the entity's authoring tree and embedded in
-the OCI manifest, so "aggrega pull" can detect tampering between publish and
-pull.
+What is published is the entity document and the files the entity itself names
+beside it — a Recipe's or FeatureRecipe's local source, each file an $import:
+names, the entity.lock beside it, and each schema file a Component or Feature
+imports — and nothing else in its directory. An entity that names nothing
+publishes as its document, unchanged; one that names a file publishes as a
+gzipped archive of the document and those files. A directory it names travels
+with every file under it except those whose name starts with a dot. A local
+source written as a template names no one directory until a Release fills it in,
+so an entity with one carries every such file in its own directory, and push
+says so.
+
+A content digest is computed over what is published and embedded in the OCI
+manifest, so "aggrega pull" can detect tampering between publish and pull.
 
 Push signs before it publishes: where signing applies, the signature is made
 over the manifest digest before any bytes reach the registry, so a failed
