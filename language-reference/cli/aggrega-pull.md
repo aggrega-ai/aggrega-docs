@@ -20,7 +20,9 @@ It writes the result to `<release-stem>.lock` next to the Release. A workspace t
 
 ## The lockfile
 
-The lockfile pins each dependency to its URI, resolved version, and content digest. It has sections for catalog entities, schema and mapping libraries (each carrying back-pointers to the Components and Features that consume it), Wasm plugins, source artifacts, and external inputs (each keyed by URL and carrying the plugins that asked for it). The file is written in a canonical, deterministic form.
+The lockfile pins each dependency to its URI, resolved version, and content digest. It has sections for catalog entities, schema and mapping libraries (each carrying back-pointers to the Components and Features that consume it), Wasm plugins, source artifacts, external inputs (each keyed by URL and carrying the plugins that asked for it), and the Release files themselves. The file is written in a canonical, deterministic form.
+
+**The Release is recorded by its content, not only by its name.** Everything the Release asks for — which chart version a source resolves to, which components land in which boundary — is resolved from what the file holds, so `release_documents` records the digest of the Release and of each Release it extends, alongside `release`, which names it. Edit the Release after pulling and the next build halts before anything renders, naming the file you edited and telling you to pull again; a plain `aggrega pull --release <release>` records the edit while honouring every other pin. The digest covers the file's bytes as they are, so a comment or whitespace change counts too, exactly as it does for the Aggregate and the Manifest. A file the Release imports through `parameters` is not recorded this way.
 
 Commit `<release-stem>.lock` alongside the Release, the way you commit any pinned-dependency manifest. A lockfile diff shows reviewers exactly which dependency versions and digests changed; a library digest change names the consumers it affects.
 
@@ -183,7 +185,7 @@ So an offline pull is a refusal to touch the network rather than a reduced resul
 
 ## Integration with `aggrega build`
 
-- **Verification.** `aggrega build` verifies every resolved dependency against the lockfile and halts on drift between the lockfile and the current catalog or registry state. Run `aggrega pull --upgrade --release <release>` to adopt the new state.
+- **Verification.** `aggrega build` verifies every resolved dependency against the lockfile and halts on drift between the lockfile and the current catalog or registry state. Run `aggrega pull --upgrade --release <release>` to adopt the new state. It halts the same way on a Release file edited since the pull, and there a plain `aggrega pull --release <release>` is enough, because nothing needs to float.
 - **Auto-pull.** If the lockfile is missing and `auto_pull` is true, `aggrega build` runs the pull first automatically. If `auto_pull` is false, which is its default, the build halts and asks you to pull. The pull a build runs follows `pin_sources_at_pull`, so over an unpinned entity it halts exactly as a pull does. The pull step a build runs is the same one this page describes, so a build that fills an existing lockfile halts on a moved source ref exactly as `aggrega pull` does — see [Determinism and integrity](#determinism-and-integrity).
 - **Offline.** Under the offline posture, `aggrega build` uses only what the machine already holds, and refuses network access before any connection is attempted. A reference whose content the cache does not hold halts the build rather than failing partway through a fetch, and a build with no lockfile at all halts naming the posture and the pull that would fill it. `--auto-pull` is not itself refused, since an incremental fill over references already cached or present in a local catalog needs nothing from a registry; `--upgrade` is, for the reason [Offline](#offline) gives.
 - **Catalog search.** Pull honors `catalog_dirs` from `.aggrega-config.yaml` even when no `--catalog` is given, and resolves the same first-win search stack `aggrega build` does, so the dependencies it pins match what build searches.
@@ -202,7 +204,7 @@ So the command does two things in one pass: it resolves and pins the closure the
 
 **`--auto-pull` folds this same resolution into a build, and the build renders once.** The fill's render is the one that finds and pins the external inputs, and the build presents that render rather than performing a second one, so a one-command build costs the same render an ordinary build over a filled lockfile costs. [`aggrega build`](aggrega-build.md#filling-the-lockfile-as-part-of-the-build) sets out which of a build's render flags reach it.
 
-**The set follows from the Release's parameters, which is how component pins already behave.** Editing a Release's parameters between the resolution and the build can change which URLs the render asks for and leave the build requesting one that is not pinned — the same event as editing a Release and rebuilding without resolving again, and it halts the same way, with the remedy naming this command.
+**The set follows from the Release's parameters, which is how component pins already behave.** Editing a Release's parameters between the resolution and the build is an edit to the Release, so the build halts at the drift comparison naming the file, before any render could request a URL that is not pinned; the remedy is this command. Parameters imported from a separate file are not recorded by content, so editing that file instead reaches the render, which halts naming the unpinned URL — with the remedy naming this command too.
 
 ## Determinism and integrity
 
@@ -216,7 +218,7 @@ That check is the one thing the build-time digest re-verify cannot do for you. A
 
 **Write the ref, not the commit.** A `build` finds a git-sourced artifact by the ref you authored, matched against the ref the lockfile recorded, so `ref: v1.2.3` builds against the commit that tag was pinned at and the commit never has to appear in your Recipe. Naming a mutable tag in `version:` instead does not work and is not meant to: `version:` is matched as written, and for a git source the lockfile pins a commit.
 
-The lockfile pins content fetched from registries and remote sources, and records the digest of each entity file it resolves from your catalog directories. A source beginning with `./` or `../` is not pinned, and an artifact file an entity imports is pinned in the lock beside that entity rather than in the lockfile, as [The entity lock](#the-entity-lock) describes; the integrity of the rest of your workspace between builds is the responsibility of the source-control system. See [byte-identical output](../../architecture/05-invariants.md) for the scope of the determinism guarantee.
+The lockfile pins content fetched from registries and remote sources, and records the digest of each entity file it resolves from your catalog directories and of each Release file the resolution read. A source beginning with `./` or `../` is not pinned, and an artifact file an entity imports is pinned in the lock beside that entity rather than in the lockfile, as [The entity lock](#the-entity-lock) describes; the integrity of the rest of your workspace between builds is the responsibility of the source-control system. See [byte-identical output](../../architecture/05-invariants.md) for the scope of the determinism guarantee.
 
 ## Authentication
 

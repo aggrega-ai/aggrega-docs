@@ -1726,24 +1726,26 @@ The same comparison run while a plugin is being validated reports the two sets w
 
 <!-- covers: pkg/lockfile.ErrLockfileDrift -->
 
-A release's lockfile pins every entity, library and plugin the release reaches, each with the version selected and the digest of the bytes at that version. Resolving the release again produces the same set, and the two are compared. This condition is what a disagreement reports.
+A release's lockfile pins every entity, library and plugin the release reaches, each with the version selected and the digest of the bytes at that version, and it records the release files themselves — the release and each release it extends — by the digest of their content. Resolving the release again produces the same set, and the two are compared. This condition is what a disagreement reports.
 
-**Every disagreement is collected before any of them is reported**, across all six of the axes the lockfile pins, so one run tells you the whole picture rather than one entry at a time.
+**Every disagreement is collected before any of them is reported**, across everything the lockfile pins, so one run tells you the whole picture rather than one entry at a time.
 
-Three shapes of disagreement are reported, and they are worth telling apart because the remedies differ:
+These shapes of disagreement are reported, and they are worth telling apart because the remedies differ:
 
 - **A reference the lockfile does not pin.** The release now reaches something the lockfile has no entry for — a dependency added since the pull that wrote it.
 - **A pinned reference whose pair moved.** The lockfile pins one version-and-digest pair and the resolution produced another. That is a re-published tag, an edited entity in the workspace catalog, or vendored content whose bytes changed.
 - **A pinned reference the release no longer reaches.** The lockfile still pins something nothing in the release depends on any more.
+- **A release file edited since the pull.** The release, or a release it extends, no longer holds the bytes the lockfile recorded for it. Everything the release asks for — which source version to fetch, which components to place where — is resolved from what the file holds, so the recorded pins may no longer describe what it now asks for. It is reported here, before anything renders, rather than as whatever the render would have failed on: an edited source version would otherwise surface later as a fetch that finds no pin. A lockfile that records no release file at all reports the release as not recorded, and a release file the release no longer extends is reported as no longer read.
 
-The comparison is on content, so identical content reached by a different route does not drift: what has to differ for this to fire is the bytes.
+The comparison is on content, so identical content reached by a different route does not drift: what has to differ for this to fire is the bytes. For a release file that includes a comment or a whitespace change, exactly as it does for the Aggregate and the Manifest the release names.
 
 Emitted message. The condition's own sentence opens it, and every collected disagreement follows, each naming its axis:
 > lockfile: out of date; it no longer matches the current catalog: entity `"<uri>"` not in lockfile
 > `<axis>` `"<uri>"` changed: lockfile=(`<version>`,`<digest>`) current=(`<version>`,`<digest>`)
 > `<axis>` `"<uri>"` no longer used by the release
+> release document `"<file>"` was edited after the lockfile was written: its content no longer matches the recorded digest (lockfile=`<digest>` current=`<digest>`), so the pins may no longer describe what it asks for; run `aggrega pull --release <release>` to resolve the Release as it now stands and record it
 
-**How to fix:** re-resolve the release and commit the rewritten lockfile — `aggrega pull --upgrade --release <release>` is what produces one that agrees with what the release now reaches. Read the entries before you do, because the third shape is the one worth pausing on: a reference the release no longer reaches is usually a dependency you removed on purpose, but where you did not remove it, something else changed that made it unreachable. A pair that moved on a reference you did not touch means the content at that version is not the content that was reviewed, which is a question for whoever publishes it rather than something to adopt without looking.
+**How to fix:** re-resolve the release and commit the rewritten lockfile — `aggrega pull --upgrade --release <release>` is what produces one that agrees with what the release now reaches. Where the entries name a release document, the file you edited is the change, and a plain `aggrega pull --release <release>` is the whole fix: it resolves the release as it now stands while honouring every other pin, so nothing floats that you did not touch. Read the entries before you do, because the third shape is the one worth pausing on: a reference the release no longer reaches is usually a dependency you removed on purpose, but where you did not remove it, something else changed that made it unreachable. A pair that moved on a reference you did not touch means the content at that version is not the content that was reviewed, which is a question for whoever publishes it rather than something to adopt without looking.
 
 ### An artifact is not at the source the build was told to find it
 

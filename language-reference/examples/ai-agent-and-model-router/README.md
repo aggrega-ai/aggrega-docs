@@ -69,17 +69,19 @@ aggrega build --release release.yaml
 ```
 
 **Several sections below ask you to change a line and rebuild.** The lockfile
-pins a digest for every entity the release resolved, including the Aggregate in
-this directory — so editing one of these three files puts the lockfile out of
-date, and the next build halts rather than rendering against a stale pin. The
-message reports which entity changed, prints the digest it pinned beside the one
-it found, and ends by naming the way forward:
+pins a digest for every entity the release resolved, including the Aggregate and
+the Manifest in this directory, and records the Release itself by the digest of
+its content — so editing any of these three files puts the lockfile out of date,
+and the next build halts rather than rendering against a stale pin. The message
+reports which file changed and prints the digest it recorded beside the one it
+found. A pull records the change while honouring every other pin:
 
 ```bash
-aggrega pull --upgrade --release release.yaml
+aggrega pull --release release.yaml
 ```
 
-Run that and build again, or delete `release.lock` and build with `--auto-pull`.
+Run that and build again, or build with `--auto-pull`, which runs the same pull
+first.
 Either way the halt is the point rather than an obstacle: a build does not render
 against a pin it can see is stale.
 
