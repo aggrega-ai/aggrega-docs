@@ -8,12 +8,13 @@ aggrega pin catalog/recipe/helm/server/1.0.0/recipe.yaml
 
 ## What it records
 
-An entity can depend on bytes it does not carry itself, and the lock holds one pin for each:
+An entity can depend on bytes outside its own document, and the lock holds one pin for each:
 
 - **A remote `source:` whose coordinates you wrote out in full** — no template in its `kind`, `url`, `chart`, `module_subdir`, `version` or `ref`. The step fetches it and records the version it resolved to — for a git source, the commit its `ref` named — and the content digest of what was fetched.
 - **A file an `artifacts` entry imports with `$import`.** The step digests the file as it stands in your workspace.
+- **Each file of a `source:` that names a directory or a file beside the entity.** Nothing is fetched: the step digests each file the source contributes to what a publication of the entity carries — every file under the directory it names, or the one file — and records it by its path beside the entity. A file next to the Recipe that the source does not contribute, such as a README, is not pinned. A source written as a template, such as `./charts/{{ .values.flavour }}`, names its directory only once a Release fills it in, so it contributes every file in the entity's directory, and each of those is pinned. A build compares the source with these pins before its provider reads it, so a file added, changed or removed since the pin halts the build — [A local source no longer matches the pins recorded beside its Recipe](../errors/fatal-halts.md#a-local-source-no-longer-matches-the-pins-recorded-beside-its-recipe).
 
-What it does not record: a source whose coordinates are filled in from a template, which names an artifact only once a Release fills it in and is pinned in each Release's lockfile by [`aggrega pull`](aggrega-pull.md); a source naming a path in your workspace, which nothing fetches; and an inline `artifacts` entry or one taken from an ArtifactLibrary. The file itself is described field by field in the [entity lock schema](../schema/other/entity-lock.md).
+What it does not record: a remote source whose coordinates are filled in from a template, which names an artifact only once a Release fills it in and is pinned in each Release's lockfile by [`aggrega pull`](aggrega-pull.md); and an inline `artifacts` entry or one taken from an ArtifactLibrary. The file itself is described field by field in the [entity lock schema](../schema/other/entity-lock.md).
 
 **No Release is needed.** A source written out in full names the same artifact for every Release that will ever use the entity, so resolving it needs nothing a Release supplies. That is what lets an author pin an entity in a workspace that has no Release at all.
 
@@ -27,7 +28,7 @@ The lock is written beside the document you name, in the same directory, so the 
 
 ## Who pins, and when
 
-**Pinning is an authoring duty.** An entity whose inputs are not pinned is not yet ready to be consumed, so by default a pull records no pin: over a Recipe or FeatureRecipe in one of your catalog directories that the Release builds, it compares what this step would record with what the lock holds, and halts when a pin is missing or no longer matches its input. The halt names the entity, each input and whether it is a remote source or an imported file, and this command. It is [An entity reads an input the lock beside it records no pin for](../errors/fatal-halts.md#an-entity-reads-an-input-the-lock-beside-it-records-no-pin-for). **A push holds the entity it publishes to the same comparison** and refuses with the same halt, so an entity cannot reach a registry through `aggrega push` with its pins unrecorded — [Pinning before publishing](aggrega-push.md#pinning-before-publishing) sets that out.
+**Pinning is an authoring duty.** An entity whose inputs are not pinned is not yet ready to be consumed, so by default a pull records no pin: over a Recipe or FeatureRecipe in one of your catalog directories that the Release builds, it compares what this step would record with what the lock holds, and halts when a pin is missing or no longer matches its input. The halt names the entity, each input and whether it is a remote source, an imported file or a file of a local source, and this command. It is [An entity reads an input the lock beside it records no pin for](../errors/fatal-halts.md#an-entity-reads-an-input-the-lock-beside-it-records-no-pin-for). **A push holds the entity it publishes to the same comparison** and refuses with the same halt, so an entity cannot reach a registry through `aggrega push` with a remote source's or an imported file's pin unrecorded — [Pinning before publishing](aggrega-push.md#pinning-before-publishing) sets that out. **A local source is held only once it is pinned:** where the lock records its files, a file that moved stops a pull or a push like any other stale pin, and where the lock records none, neither stops on the source.
 
 **A halt on a first pull is the publisher's to fix, never the consumer's.** Where you consume a catalog someone else authors — a checkout of it in a directory of your own, say — and an entity there is unpinned, the author never ran this step. Your remedy is not to edit their directory by hand: set the workspace key below, so your pulls record the pins themselves.
 
@@ -66,18 +67,22 @@ aggrega pin <entity-path> [flags]
 ```
 Record, in the entity.lock beside a Recipe or FeatureRecipe, the content pin for every input
 the entity reads from outside its own document: a remote source: whose coordinates you wrote out
-in full, and a file an artifacts entry imports with $import.
+in full, a file an artifacts entry imports with $import, and each file of a local source:.
 
 Pinning is the entity author's step. Run it on an entity before it is consumed — before you
 publish it, and after every change to one of its inputs — and commit the entity.lock it writes
 beside the entity. A pull over an entity whose lock does not record these pins halts and names
-this command, and so does a push of it.
+this command, and so does a push of it. A lock that records no pin for a local source is the one
+exception and is not refused; once it records them, the source is held to them.
 
 No Release is needed. A source whose coordinates carry no template names one artifact for every
-Release that uses the entity, so it is resolved and pinned here, with nothing supplied. A source
-whose coordinates are filled in from a template is not pinned here: which artifact it names is
+Release that uses the entity, so it is resolved and pinned here, with nothing supplied. A remote
+source whose coordinates are filled in from a template is not pinned here: which artifact it names is
 decided by each Release, and each identity it resolves to is pinned in that Release's lockfile.
-A source that names a path in your workspace is not fetched and not pinned.
+A source that names a directory beside the entity is not fetched: each file it contributes to what
+a publication of the entity carries is digested as it stands and pinned by its path, so a build
+refuses a file added, changed or removed after the pin. A local source written as a template
+contributes every file in the entity's directory, so each of those is pinned.
 
 The step writes beside the entity, so the entity needs a writable home: the document you name is
 read from its own directory and the lock lands next to it. The entity file itself is never

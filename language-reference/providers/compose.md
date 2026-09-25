@@ -320,7 +320,7 @@ spec:
         image: "{{ .values.image }}"
 ```
 
-In the structured shape, what `url:` carries decides whether anything is fetched. A fragment published over `https://` is fetched and pinned with `kind: compose-https-fragment`; `aggrega pull` acquires it and the build reads it from the cache. A `url:` naming a filesystem path is not fetched and not pinned — it is read from disk, anchored exactly as the bare-string form above. Vendoring a remote fragment locally and pointing `source:` at the vendored copy is supported as an alternative to fetching, and is not required. The schema accepts an open structured object, so a provider Wasm plugin can later validate provider-declared source keys — `planned`.
+In the structured shape, what `url:` carries decides whether anything is fetched. A fragment published over `https://` is fetched and pinned with `kind: compose-https-fragment`; `aggrega pull` acquires it and the build reads it from the cache. A `url:` naming a filesystem path is not fetched — it is read from disk, anchored exactly as the bare-string form above, and [`aggrega pin`](../cli/aggrega-pin.md) records the digest of the file it names in the `entity.lock` beside the Recipe, which a build then compares before the fragment is read. Vendoring a remote fragment locally and pointing `source:` at the vendored copy is supported as an alternative to fetching, and is not required. The schema accepts an open structured object, so a provider Wasm plugin can later validate provider-declared source keys — `planned`.
 
 A Recipe with `source: <path-to-compose-file>` and `valuesMapping:` runs the following pipeline:
 

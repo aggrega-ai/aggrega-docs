@@ -1886,6 +1886,7 @@ What publishing an entity landed, and where. A publication that ran the pin step
 | `dryRun` | boolean | yes | Whether this reports what publishing would have landed rather than what it did. |
 | `reach` | PublicationReach | yes | How far a publication reached. These answers reach beyond this machine entirely — what they land is what every consumer of that registry resolves — so each names the host it addressed and whether the call landed anything. |
 | `pin` | PinResult | no | What the pin step did to the lock beside an entity, or would do on a dry run. It is the answer to `aggrega/pin`, and a publication that ran the step carries it as its `pin`. |
+| `wholeDirectorySource` | string | no | The entity's local source as authored, present when it is written as a template. Such a source names its directory only once a Release fills the template in, so the publication carries every file in the entity's directory rather than only the files the entity names. Absent where it carries only those files. |
 
 _Additional properties are not permitted._
 

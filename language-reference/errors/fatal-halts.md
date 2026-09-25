@@ -3406,17 +3406,36 @@ Emitted messages:
 
 **How to fix:** two answers, and which is right depends on whether the edit was meant. Where it was, run `aggrega pin` on the Recipe so the pin is taken again from the file's current bytes, and commit the `entity.lock` it rewrites. Where it was not, restore the file — the recorded digest is the record of the bytes that were pinned, and a build that rendered the changed file would be shipping content nothing verified.
 
+### A local source no longer matches the pins recorded beside its Recipe
+
+<!-- covers: pkg/recipepin.ErrLocalSourceContentMismatch -->
+
+A Recipe or FeatureRecipe whose `source:` names a directory or a file beside it has that source pinned when the entity is pinned — by `aggrega pin`, or by a pull or a push asked to run the same step. The `entity.lock` beside the entity records one digest per file the source contributes to what a publication of the entity carries, keyed by the file's path. Once the lock records them, every build compares the source as it stands with those pins before the provider reads it, and refuses a disagreement — so a chart or a module edited after it was pinned never renders as though it had been checked. `aggrega pull --verify` makes the same comparison and reports a disagreement with the same message. A build names the component instance whose source it was resolving, and the Recipe document beneath it.
+
+**The source is compared as one set of files.** A file whose content moved, a file added to the source and a file removed from it each change what the entity renders from, so each is reported, with the digest the file has now and the digest recorded for it. A file beside the entity that the source does not contribute — a note or a README next to the Recipe — is not compared. A source written as a template, such as `./charts/{{ .values.flavour }}`, contributes every file in the entity's directory, because which directory it names is decided by each Release; for that shape an edit to any file in the directory is reported.
+
+**A Recipe whose lock records no pin for its source has nothing to compare.** Neither a build nor a pull refuses it, and its source is compared only once `aggrega pin` has recorded the source's files. A Recipe a pull resolved from a registry is covered instead by the digest the lockfile records for its published artifact.
+
+Emitted messages:
+> the files of the entity's local source do not match the pins recorded for them in entity.lock (file `<path>` digests to `<digest>` and its recorded pin is `<digest>`). If the source was changed on purpose, run `aggrega pin` on the entity to record its files again; otherwise restore the files
+> the files of the entity's local source do not match the pins recorded for them in entity.lock (file `<path>` digests to `<digest>` and no pin is recorded for it). If the source was changed on purpose, run `aggrega pin` on the entity to record its files again; otherwise restore the files
+> the files of the entity's local source do not match the pins recorded for them in entity.lock (file `<path>` is no longer in the source and its recorded pin is `<digest>`). If the source was changed on purpose, run `aggrega pin` on the entity to record its files again; otherwise restore the files
+
+**How to fix:** as for an imported file, two answers, and which is right depends on whether the change was meant. Where it was, run `aggrega pin` on the Recipe so its source's files are pinned again, and commit the `entity.lock` it rewrites. Where it was not, restore the files the message names.
+
 ### An entity reads an input the lock beside it records no pin for
 
 <!-- covers: pkg/recipepin.ErrEntityNotPinned -->
 
-A Recipe or FeatureRecipe can depend on bytes it does not carry itself: a remote `source:` whose coordinates are written out in full, and a file an `artifacts` entry imports with `$import`. The pin for each is recorded in the `entity.lock` beside the entity, and recording it is the entity author's step, `aggrega pin`. So a pull does not record those pins on its own: over an entity in one of your catalog directories that the Release builds, it compares what the step would record with what the lock holds, and stops when the lock is missing a pin — or holds one the input no longer matches — rather than writing into the author's directory unasked. A build that fills its own lockfile is a pull and stops the same way.
+A Recipe or FeatureRecipe can depend on bytes outside its own document: a remote `source:` whose coordinates are written out in full, a file an `artifacts` entry imports with `$import`, and the files of a `source:` that names a directory or a file beside it. The pin for each is recorded in the `entity.lock` beside the entity, and recording it is the entity author's step, `aggrega pin`. So a pull does not record those pins on its own: over an entity in one of your catalog directories that the Release builds, it compares what the step would record with what the lock holds, and stops when the lock is missing a pin — or holds one the input no longer matches — rather than writing into the author's directory unasked. A build that fills its own lockfile is a pull and stops the same way.
 
 **A push stops on the same comparison, over the one entity it is about to publish.** Before the bundle is built, and before any registry is contacted, it compares what the step would record for the entity with the lock beside it, and refuses in the same way — a dry run included — unless the push was asked to run the step itself. What the message suggests at the end differs between the two, because each command has its own ways to have the pins recorded; what it reports does not.
 
-**The message names every input it is missing, by class.** Each is a `remote source`, named by its url and the version it resolved to, or an `imported file`, named by the `artifacts` key that consumes it — so you know whether it is a source or a file that needs pinning. Every such entity in the Release is reported in one run.
+**A local source is held to its pins once the lock records them, and not before.** Where the lock records the files of a local source, a file added, changed or removed since the pin stops a pull or a push here as a pin the input no longer matches, and a build reports the same change as [A local source no longer matches the pins recorded beside its Recipe](#a-local-source-no-longer-matches-the-pins-recorded-beside-its-recipe). Where the lock records none of them, neither a pull nor a push stops on the source; `aggrega pin` records its files.
 
-**An entity resolved from a registry is never held to this by a pull, because its publication already was.** It lives in the content cache rather than in a directory you author, so a pull neither reads nor writes a lock beside it, and its sources are held to the Release's lockfile. An entity published with `aggrega push` was refused at publication unless its lock recorded every pin the step would record for it then, and that lock travels inside the published bundle.
+**The message names every input it is missing, by class.** Each is a `remote source`, named by its url and the version it resolved to, an `imported file`, named by the `artifacts` key that consumes it, or a `local source file`, named by its path beside the entity — so you know whether it is a source or a file that needs pinning. Every such entity in the Release is reported in one run.
+
+**An entity resolved from a registry is never held to this by a pull, because its publication already was.** It lives in the content cache rather than in a directory you author, so a pull neither reads nor writes a lock beside it, and its sources are held to the Release's lockfile. An entity published with `aggrega push` was refused at publication unless its lock recorded every pin the step would record for it then — a local source the lock recorded nothing for apart — and that lock travels inside the published bundle.
 
 Emitted messages, from a pull and from a push:
 > an input the entity reads has no pin recorded for it in the entity.lock beside it (Recipe `"<name>"`, remote source `<url>@<version>`: no pin recorded, imported file `<key>`: the recorded pin no longer matches it). remediation: run `aggrega pin <entity-path>` and commit the entity.lock it writes beside the entity; to have every pull in this workspace record the pins itself instead, set `pin_sources_at_pull: true` in the workspace configuration
@@ -4880,6 +4899,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0302` | `an input the entity reads has no pin recorded for it in the entity.lock beside it` | An entity reads an input the lock beside it records no pin for |
 | `E0303` | `the entity shares its directory with another entity, and an entity of its kind has a directory of its own` | An entity shares its directory with another entity |
 | `E0304` | `a path names content outside the entity's own directory` | A path names content outside the entity's own directory |
+| `E0305` | `the files of the entity's local source do not match the pins recorded for them in entity.lock` | A local source no longer matches the pins recorded beside its Recipe |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
