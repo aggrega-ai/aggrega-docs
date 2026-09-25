@@ -328,7 +328,7 @@ Reach for the flag when you have accepted the reduced fidelity deliberately — 
 
 `aggrega pull` writes the digest of every plugin it acquires into the Release's lockfile, and every later resolution compares the bytes it finds against that digest. A workspace that has not been pulled yet, or one whose lockfile predates a plugin the configuration has since attached, has no digest for that plugin — so the comparison has nothing to compare, and without this line it would pass silently.
 
-A pipeline step or a provider whose `Plugin` entity is authored in one of your catalog directories has no digest either, and a pull does not give it one: the pull never pins such an entity, and a build reads its `.wasm` afresh every time — from beside the entity, in the ordinary case — rather than against anything a pull recorded.
+A pipeline step, a provider, or a plugin attached at a verdict role whose `Plugin` entity is authored in one of your catalog directories has no digest either, and a pull does not give it one: the pull never pins such an entity, and a build reads its `.wasm` afresh every time — from beside the entity, in the ordinary case — rather than against anything a pull recorded. A plugin attached at a transform role and authored there is the exception: its bytes shape the rendered output, so a pull records the digest of the `.wasm` it finds for it, and once it has, a build checks that plugin against the digest and this line is not raised for it.
 
 <!-- unregistered-output: warning text, which is reported without halting and which no halting condition registers -->
 
@@ -339,10 +339,10 @@ warning: plugin "governance/label-injector:1.0.0" resolved from cache with no re
 <!-- unregistered-output: warning text, which is reported without halting and which no halting condition registers -->
 
 ```text
-warning: plugin "pipeline-step/patch" resolved from local with no recorded digest to check it against, so it runs unverified; it is read from beside its Plugin entity in a catalog directory on every build, which a pull does not record; publish the plugin and reference the published entity to have its digest recorded
+warning: plugin "pipeline-step/patch" resolved from local with no recorded digest to check it against, so it runs unverified; it is read from beside its Plugin entity in a catalog directory on every build, and a pull records its digest only for a plugin attached at a transform role; otherwise publish the plugin and reference the published entity to have its digest recorded
 ```
 
-The line names the source the bytes came from — the same word `aggrega pull` and `aggrega plugin list` use for it — and ends in what holds for that source. For bytes from the content cache the fix is to pull the Release, which records the digest and makes every later run of that plugin a checked one. For bytes read from beside a `Plugin` entity in a catalog directory there is nothing to pull, and the line says so: the way to bring such a plugin under a recorded digest is to publish it and reference the published entity.
+The line names the source the bytes came from — the same word `aggrega pull` and `aggrega plugin list` use for it — and ends in what holds for that source. For bytes from the content cache the fix is to pull the Release, which records the digest and makes every later run of that plugin a checked one. For bytes read from beside a `Plugin` entity in a catalog directory, a pull records the digest only for a plugin attached at a transform role, and the line says so: for any other plugin authored there, no pull changes it, and the way to bring it under a recorded digest is to publish it and reference the published entity.
 
 **It is raised once per plugin, however many times that plugin runs.** A render resolves its provider once per node, and the long-running editor service resolves an attachment on every request; repeating the line each time would bury it. One line per plugin reference is enough, because the condition is a property of the workspace rather than of any one node.
 
