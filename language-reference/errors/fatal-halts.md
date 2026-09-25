@@ -1664,7 +1664,7 @@ It is a different question from a recorded gate that nothing attaches any more, 
 
 **Asking for the new identity is what a pull already offers, and there are two ways to ask.** A full refresh re-resolves everything, and a targeted upgrade re-resolves the plugins it names; either is read as the new identity having been asked for, and the record is brought up to date. Any other pull holds the recorded identity and stops, which is the point of recording it — a record that took up whatever resolved next would follow the resolution instead of governing it. A first sighting is not a disagreement: an identity the record does not hold yet is simply filled in.
 
-**The comparison also runs on a pull that only verifies**, which writes nothing. A verify that skipped the record while checking the lockfile beside it would report an agreement it never looked for.
+**The comparison also runs on a pull that only verifies**, which writes neither the record nor the lockfile. A verify that skipped the record while checking the lockfile beside it would report an agreement it never looked for.
 
 Emitted message, naming the plugin, both identities, and both remedies:
 > plugin `"<plugin-identity>"`: `<record-path>` records version `<recorded-version>` with digest `<recorded-digest>` as trusted for it, but this resolution reports version `<resolved-version>` with digest `<resolved-digest>`; review what changed and adopt it with `aggrega pull --upgrade --release <release> <plugin>`, or restore the recorded identity: the plugin identity recorded as trusted no longer matches what this resolution reports
