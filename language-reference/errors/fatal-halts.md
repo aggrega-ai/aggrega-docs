@@ -1614,6 +1614,27 @@ and drifted:
 
 **How to fix:** nothing in your entity files causes this — the cache is the build's, not yours. Re-fetch the plugin so the bundle and its record are written together again, which is what an ordinary pull does. Where re-fetching restores it, the cached copy had been removed or altered since the fetch that recorded it; where the mismatch survives a re-fetch, the recorded digest and the material the publisher serves genuinely disagree, and that is a question for whoever publishes the plugin.
 
+### A plugin's `.wasm` is not on this machine
+
+<!-- covers: pkg/pluginpath.ErrPluginArtifactNotFound -->
+
+A plugin's `.wasm` is read from one of four places, in this order: the plugins built into the compiler binary, a file beside the plugin's `Plugin` entity in a catalog directory, an explicit filesystem path the reference names, and the workspace content cache that `aggrega pull` fills. Resolving a plugin only reads what is already on the machine and fetches nothing, so this condition reports that none of the four holds the bytes — not that a download failed.
+
+The file beside the entity is named from the entity's plugin type and name, and the message gives the name: for `pipeline-step/patch` it is `pipeline-step--patch.wasm`, in the directory the entity's document sits in.
+
+**A `Plugin` entity authored in one of your catalog directories is refused when the pull resolves it.** A pull never pins such an entity: a build reads the entity from the catalog directory every time and finds the `.wasm` in one of the four places above. So a pull that finds the artifact in none of the four places stops there, before it writes the lockfile or any `entity.lock`, rather than leaving a build to fail later, at the step that loads the plugin. A `.wasm` the binary carries, or one already in the content cache, satisfies the pull exactly as it satisfies the build, so an entity for a plugin that ships inside the compiler needs no file beside it.
+
+Emitted messages. The pull's refusal, pointing at the directory it expected the file in, with the resolution it asked about beneath it:
+> plugin artifact not found on this machine (Plugin entity `"<reference>"` is authored in a catalog directory, expected `<file>` in `<directory>`). Place the built .wasm beside the entity under that name, or publish the plugin and reference the published Plugin entity instead of the one in the catalog directory
+
+a plugin a build loads with no source holding its bytes:
+> plugin `"<reference>"` not resolvable through any tier (embed, colocated, local, cache): plugin artifact not found on this machine
+
+and the same for a reference written as a registry location:
+> plugin `"<reference>"` not resolvable: an OCI plugin URI requires a prior `aggrega pull --release <release>` (so its bytes are cached) or an explicit local path; plugin resolution does not fetch from a registry: plugin artifact not found on this machine
+
+**How to fix:** where the entity is one you author, build the plugin and place its `.wasm` beside the entity under the name the message gives — or publish the plugin with `aggrega push` and reference the published entity in place of the catalog copy, since a build never fetches the `.wasm` of an entity in your catalog. Where the plugin is one you consume from a registry, run `aggrega pull` for the release, which caches it. Where you expected the compiler to carry the plugin itself, check that the binary you run does: `aggrega plugin list` names the plugins built in.
+
 ### A plugin recorded as a trusted gate is no longer attached
 
 <!-- covers: pkg/pluginstrust.ErrVerdictAttachmentNotConfigured -->
@@ -4900,6 +4921,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0303` | `the entity shares its directory with another entity, and an entity of its kind has a directory of its own` | An entity shares its directory with another entity |
 | `E0304` | `a path names content outside the entity's own directory` | A path names content outside the entity's own directory |
 | `E0305` | `the files of the entity's local source do not match the pins recorded for them in entity.lock` | A local source no longer matches the pins recorded beside its Recipe |
+| `E0306` | `plugin artifact not found on this machine` | A plugin's `.wasm` is not on this machine |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

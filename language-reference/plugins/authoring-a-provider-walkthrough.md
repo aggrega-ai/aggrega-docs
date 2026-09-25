@@ -398,6 +398,14 @@ The filename carries the socket as well as the name because a bare plugin name
 is unique only within its own socket — two plugins called `dotenv` at different
 sockets have to reach two files.
 
+A plugin entity in a catalog directory is never pinned, and a build never
+fetches a `.wasm`, so the file has to be there when the Release is resolved. A pull checks
+before it writes the lockfile: where it finds the `.wasm` neither beside the entity
+nor anywhere else a build reads plugins from, it stops and names the file and
+the directory it expected, as
+[A plugin's `.wasm` is not on this machine](../errors/fatal-halts.md#a-plugins-wasm-is-not-on-this-machine)
+describes.
+
 Point the workspace at both catalog directories in `.aggrega-config.yaml`:
 
 ```yaml
@@ -544,7 +552,7 @@ aggrega build --release release.yaml --auto-pull
 
 ```text
 Pull complete: release.lock (entities=5, source_artifacts=0)
-warning: plugin "provider/dotenv" resolved from local with no recorded digest to check it against, so it runs unverified; run `aggrega pull --release <release>` to record it
+warning: plugin "provider/dotenv" resolved from local with no recorded digest to check it against, so it runs unverified; it is read from beside its Plugin entity in a catalog directory on every build, which a pull does not record; publish the plugin and reference the published entity to have its digest recorded
 [CATALOG_ERROR E0265] app
   provider does not support the node's input kind (node "app"). provider "dotenv" does not support artifacts-only recipes (this provider supports: none); declare one of the supported input kinds, or target a provider that supports artifacts-only
 ```
@@ -554,13 +562,12 @@ Read the two lines separately, because they say different things.
 **The warning is expected while you develop, and it will not go away.** It says
 the guest ran without a recorded content digest to check it against, which is
 the truth of a guest you built a minute ago: nothing published it, so there is
-no digest on record. The remedy the message offers — resolving the Release —
-records digests for the entities a Release reaches, and it is the right advice
-for a *published* plugin; it does not clear this warning for a guest you are
-resolving out of a local directory, because there is no published artifact for
-it to pin. Read the warning as the build correctly declining to claim a
-verification it did not perform, and expect it for as long as the guest is
-local.
+no digest on record. It also says why resolving the Release again would not
+change that — a guest read from beside its entity in a catalog directory is read
+afresh by every build and never recorded by a pull — and what would: publishing
+the plugin and referencing the published entity. Read the warning as the build
+correctly declining to claim a verification it did not perform, and expect it
+for as long as the guest is local.
 
 **The error is the real finding, and the parenthesis is the diagnosis.** The
 provider was found, loaded and asked what it renders, and it answered
@@ -646,7 +653,7 @@ aggrega build --release release.yaml --auto-pull
 
 ```text
 Pull complete: release.lock (entities=5, source_artifacts=0)
-warning: plugin "provider/dotenv" resolved from local with no recorded digest to check it against, so it runs unverified; run `aggrega pull --release <release>` to record it
+warning: plugin "provider/dotenv" resolved from local with no recorded digest to check it against, so it runs unverified; it is read from beside its Plugin entity in a catalog directory on every build, which a pull does not record; publish the plugin and reference the published entity to have its digest recorded
 [… omitted: a line reporting total build time, which differs on every run]
 Build completed: 1 files written to dist/
 ```
