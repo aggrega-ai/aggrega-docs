@@ -161,6 +161,8 @@ A lockfile pins what a build of this Release will consume, so the resolution dra
 
 Pulled content is stored under `.aggrega/cache`, split into an `entities/` subtree for catalog entities, a `source-artifacts/` subtree for source artifacts, and an `inputs/` subtree for the external inputs a render consumes. A catalog entity's slot is named by its coordinate and version, a source artifact's by where it was fetched from, its version and a prefix of its content digest, and an external input's by its content digest; what a build reads from any of them is checked against what the lockfile records. Identical version pins therefore share one slot across Releases. Each source-artifact slot holds the authoritative archive, a regenerated extraction, and a small metadata file; the extraction is regenerated on every read, so build output depends on the archive and the lockfile, not on the state of the extracted files.
 
+**A catalog entity's slot is an entry only with its manifest.** The slot holds the content a registry served and, beside it, the manifest that describes that content. A slot holding the content alone — a fetch that stopped between the two writes, or a file placed there by hand — is not an entry: a pull, and a verifying pull, ask the entity's registry for it again where one can be reached, while a build, which never fetches, treats the entity as missing, as a pull does when no registry can be reached.
+
 The cache is anchored to the workspace rather than to the directory you ran the command from, so one workspace has one cache and a pull run from a subdirectory fills the same store a build run from the root reads.
 
 ## Building where the network cannot be reached
