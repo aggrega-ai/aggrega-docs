@@ -461,7 +461,7 @@ Resolves a Release's dependencies, pinning them in the lockfile and acquiring th
 | `release` | string | no | The Release to resolve, as a path relative to the workspace root. |
 | `upgrade` | boolean | no | Whether to re-resolve within the declared ranges rather than honouring what the lockfile already pins. |
 | `targets` | string[] | no | The references to re-resolve, leaving the rest pinned as they are. Empty resolves everything. |
-| `verify` | boolean | no | Whether to check each acquired artifact against the digest the lockfile pins. |
+| `verify` | boolean | no | Whether to compare the recorded lockfile against the resolution this request would perform without it, honouring the pins that request would honour, instead of writing it. A verify writes no lockfile, plugin trust record or `entity.lock`; the content cache is read and filled as that resolution would read and fill it. Drift, and a missing lockfile, fail the request. |
 | `pinSources` | boolean | no | Whether to run the pin step `aggrega/pin` runs over the Recipes and FeatureRecipes the Release builds from the workspace's catalog directories, writing the `entity.lock` beside each, rather than refusing the request over one whose lock does not record a pin an input needs. Absent follows the workspace's `pin_sources_at_pull`; either value overrides that setting for this request. |
 
 _Additional properties are not permitted._
@@ -1002,11 +1002,11 @@ What a dependency resolution pinned and acquired.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `lockfile` | string | yes | The lockfile that was written. |
-| `verified` | boolean | no | Whether each acquired artifact was checked against the digest the lockfile pins. |
-| `entities` | array or null | yes | The entities that were pinned. |
-| `libraries` | array or null | yes | The libraries that were pinned. |
-| `plugins` | array or null | yes | The plugins that were pinned. |
+| `lockfile` | string | yes | The lockfile the resolution wrote, or the one a verify compared against. |
+| `verified` | boolean | no | Whether the request was a verify, which compared the recorded lockfile and wrote no lockfile, plugin trust record or `entity.lock`. |
+| `entities` | array or null | yes | The entities the resolution pinned, or a verify compared. |
+| `libraries` | array or null | yes | The libraries the resolution pinned, or a verify compared. |
+| `plugins` | array or null | yes | The plugins the resolution pinned, or a verify compared. |
 | `sourceArtifacts` | integer | yes | How many source artifacts were acquired. |
 | `trustedPlugins` | integer | yes | How many of the pinned plugins carried a verified signature. |
 | `toolchain` | ToolchainReport | no | The compiler that resolved, and the plugins it carries. |
@@ -1683,11 +1683,11 @@ What a dependency resolution pinned and acquired, plus anything it wants the cal
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `lockfile` | string | yes | The lockfile that was written. |
-| `verified` | boolean | no | Whether each acquired artifact was checked against the digest the lockfile pins. |
-| `entities` | array or null | yes | The entities that were pinned. |
-| `libraries` | array or null | yes | The libraries that were pinned. |
-| `plugins` | array or null | yes | The plugins that were pinned. |
+| `lockfile` | string | yes | The lockfile the resolution wrote, or the one a verify compared against. |
+| `verified` | boolean | no | Whether the request was a verify, which compared the recorded lockfile and wrote no lockfile, plugin trust record or `entity.lock`. |
+| `entities` | array or null | yes | The entities the resolution pinned, or a verify compared. |
+| `libraries` | array or null | yes | The libraries the resolution pinned, or a verify compared. |
+| `plugins` | array or null | yes | The plugins the resolution pinned, or a verify compared. |
 | `sourceArtifacts` | integer | yes | How many source artifacts were acquired. |
 | `trustedPlugins` | integer | yes | How many of the pinned plugins carried a verified signature. |
 | `toolchain` | ToolchainReport | no | The compiler that resolved, and the plugins it carries. |
