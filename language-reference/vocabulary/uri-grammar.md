@@ -57,7 +57,7 @@ The two variants coexist in the same position. Authors choose based on whether t
 
 For the per-entity version-consumption regime (which entities actually have their version field consumed by resolution dispatch vs descriptive provenance), see [`vocabulary/inheritance-and-interface.md`](inheritance-and-interface.md) "Cross-entity version consumption".
 
-For the readiness state of three-form `implements:` matching (exact / caret-range / unversioned with precedence iteration), see [`10-status.md`](../10-status.md) "Version matching" — exact form is `available` for verbatim string match; caret-range form is `planned`; precedence iteration with fallback ships alongside the caret implementation.
+A reference to a Component, Feature, Aggregate or Plugin also accepts a caret range (`core/postgres:^1.0.0`), and whichever form it takes it selects the highest satisfying version among those the catalog holds, by one rule every command applies — see [`version-resolution.md`](../version-resolution.md). For three-form `implements:` matching, which is the consistency check on a mapping rather than a selection, see [`10-status.md`](../10-status.md) "Version matching".
 
 ## Identity, not location
 

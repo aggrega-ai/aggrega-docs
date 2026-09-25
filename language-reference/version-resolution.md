@@ -24,14 +24,20 @@ reference is the way to opt out of automatic selection and pin one version.
 
 ## Determinism
 
-Selection runs once, when dependencies are locked. The resolved version and a
-content fingerprint are recorded in the lockfile, and every later build reproduces
-the exact same artifact from that record — so a catalog gaining a newer version
-never silently changes a build that has already been locked. Re-locking is an
-explicit action.
+Selection runs once, when dependencies are locked. The lockfile records the
+version the reference selected — a range reference is recorded at the version it
+resolved to, never as the range — together with a content fingerprint taken over
+that version's own document, and every later build reproduces the exact same
+artifact from that record — so a catalog gaining a newer version never silently
+changes a build that has already been locked. Re-locking is an explicit action.
 
 The same rule applies regardless of where the catalog lives: a local catalog
-checkout and a registry resolve a reference to the same version.
+checkout and a registry resolve a reference to the same version. It is also the
+same rule for every command that reads the catalog. The pull that writes the
+lockfile, the build that reads it, a validate, the editor and the assistant-facing
+tools all select the same version from one catalog, however many versions of a
+name its directories hold, and the build's check of the lockfile compares the
+version it selected with the one the pull recorded.
 
 ## Library dependencies
 
@@ -43,7 +49,9 @@ keeps library upgrades deliberate rather than automatic.
 ## When nothing satisfies a reference
 
 If a reference pins a version, or a range, that no available version satisfies —
-for example `:^2.0.0` when only `1.x` versions exist — the build stops with a clear
-error naming the artifact and the unsatisfiable constraint, rather than silently
-falling back to a different version. Referencing an artifact that does not exist at
-all is a separate, ordinary "not found" error.
+for example `:^2.0.0` when only `1.x` versions exist — resolution stops with an
+error naming the reference as written, artifact and constraint together, rather
+than silently falling back to a different version. A pull and a validate of the
+same Release refuse it in the same words. Resolving a Release's dependencies reports
+an artifact that does not exist at all in those same words too, since the reference
+matched nothing either way — so read both halves of the reference the error names.
