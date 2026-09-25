@@ -84,7 +84,7 @@ env:
     value: kong
   - name: KONG_PG_DATABASE
     value: kong
-  [… omitted: the gateway's own proxy and admin listen addresses]
+  [… omitted: the gateway's own proxy, admin and status listen addresses]
   - name: KONG_PG_PASSWORD
     value: apppass
 ```

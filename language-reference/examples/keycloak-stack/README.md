@@ -22,7 +22,7 @@ the module's internal components in the Release.
 | File | Role |
 | --- | --- |
 | `aggregate.yaml` | Developer intent: imports the identity-server module (`core/keycloak`). |
-| `manifest-helm-synth.yaml` | Maps the server and backend types to their synth helm Recipes. |
+| `manifest-helm-synth.yaml` | Maps the server and backend types to their synth helm Recipes, and the credential Feature the module attaches to the realization that emits a Secret from the module's credential parameters. |
 | `release-helm-synth.yaml` | Operator record for the Kubernetes target. Sizes the module's internal components by their module-scoped IDs; anything left to schema defaults renders self-contained. |
 
 ## What it demonstrates
@@ -46,10 +46,20 @@ the module's internal components in the Release.
 - **Self-migrating schema.** The server provisions and migrates its own schema
   on startup against the backend, so it starts against a ready schema with no
   separate migration step.
-- **A shared credential.** The server authenticates to its PostgreSQL backend,
-  so the two share one password. This example uses a shared inline development
-  default, so the stack runs self-contained with no external secret. The
-  bootstrap admin account is likewise seeded from an inline development default.
+- **A shared credential, taken by reference.** The server authenticates to its
+  PostgreSQL backend, so the two share one password. The module takes it as a
+  parameter, `db_password`, and attaches the `core/referenced-secret`
+  credential Feature to both components' credential slots with it, so each
+  workload reads the password from a Secret rather than carrying it inline; the
+  bootstrap admin account's password is a second parameter, `admin_password`.
+  Because the module attaches that Feature, the Manifest maps it. This example
+  leaves both parameters at the module's development defaults and maps the
+  Feature to `k8s-secret-from-parameter`, which emits a Secret carrying each
+  value, so the stack runs self-contained. For a Release carrying real
+  traffic, the Aggregate declares parameters of its own and passes them down
+  through `aggregates.server.parameters`, the Release fulfills them, and the
+  Manifest maps the Feature to `k8s-existing-secret`, which reads each
+  parameter as the name of a Secret that already exists in the namespace.
 - **Reproducible images.** Both the server and the backend pin explicit image
   tags, so the rendered manifests reference stable images.
 
@@ -70,14 +80,16 @@ manifests offline — no chart pull is required.
 The server renders as a stateless Deployment plus a ClusterIP Service on the
 HTTP port. Its container carries the connection composed from the backend edge —
 the backend's in-cluster Service name, user, and database — plus the
-self-contained HTTP settings and the bootstrap admin account:
+self-contained HTTP settings, the health endpoints switched on and served on the
+management port, and the bootstrap admin account, with both passwords read from
+Secrets:
 
 ```yaml
 env:
   - name: KC_DB
     value: postgres
   - name: KC_DB_URL_HOST
-    value: server.backend-default
+    value: server-zdbackend-default
   - name: KC_DB_URL_PORT
     value: "5432"
   - name: KC_DB_URL_DATABASE
@@ -88,13 +100,33 @@ env:
     value: "true"
   - name: KC_HOSTNAME_STRICT
     value: "false"
+  - name: KC_HEALTH_ENABLED
+    value: "true"
+  - name: KC_HTTP_MANAGEMENT_PORT
+    value: "9000"
   - name: KC_BOOTSTRAP_ADMIN_USERNAME
     value: admin
   - name: KC_DB_PASSWORD
-    value: apppass
+    valueFrom:
+      secretKeyRef:
+        name: server.server-password
+        key: db-password
   - name: KC_BOOTSTRAP_ADMIN_PASSWORD
-    value: admin
+    valueFrom:
+      secretKeyRef:
+        name: server.server-admin-password
+        key: admin-password
 ```
 
+The container declares the management port, 9000, beside the HTTP port, and the
+Deployment probes the server there: a startup probe on `/health/started` holds
+the others back while the server boots, a readiness probe on `/health/ready`
+keeps traffic away until it answers, and a liveness probe on `/health/live`
+restarts it if it stops. The Service still forwards only the HTTP port.
+
 The backend renders as a StatefulSet with a persistent volume mounted at
-`/var/lib/postgresql/data`, plus a ClusterIP Service and a headless Service.
+`/var/lib/postgresql/data`, plus a ClusterIP Service and a headless Service. Its
+`POSTGRES_PASSWORD` reads the same database password from a Secret of its own,
+`server.backend-password`. The three Secrets are emitted beside the workloads,
+one per credential slot the module fills, each carrying the module's
+development default.

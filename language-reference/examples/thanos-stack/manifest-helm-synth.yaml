@@ -10,8 +10,13 @@ metadata:
     Ops mapping for the Kubernetes target backed by synthesized manifests. The
     object store, Store Gateway, and Query types are realized by their synth helm
     Recipes — the object store as a Deployment with a persistent volume, the Store
-    Gateway and Query as stateless Deployments. Recipe selection at build time is
-    by component type against the loaded catalog.
+    Gateway and Query as stateless Deployments. The module attaches the
+    core/referenced-secret credential Feature to the object store's and the
+    Store Gateway's credential slots, so the Feature is mapped here too: bound to
+    k8s-secret-from-parameter, it reads the module's credential parameter as the
+    credential itself and emits a Secret carrying it, which suits an evaluation
+    stack running on the module's development default. Recipe selection at build
+    time is by component type against the loaded catalog.
 spec:
   mappings:
     components:
@@ -19,3 +24,6 @@ spec:
         core/storage/minio:1.0.0: helm/minio:1.0.0
         core/observability/thanos-store:1.0.0: helm/thanos-store:1.0.0
         core/observability/thanos-query:1.0.0: helm/thanos-query:1.0.0
+    features:
+      type:
+        core/referenced-secret:1.0.0: k8s-secret-from-parameter:1.0.0

@@ -102,7 +102,7 @@ spec:
       inject: [env]
 ```
 
-The two levels are not a convenience duplicate of one another, and the referenceable-credential shape is the worked case that shows why. A referenceable credential publishes `provides.name` and `provides.key` — the produced resource's locator and the data key within it — and **neither is sensitive**: a Kubernetes Secret's name is public, and so is the key inside it. Both are rendered in the clear into the consumer's own manifest as a `secretKeyRef`. Yet the slot that credential fills unquestionably handles secret material. One level alone cannot express both facts: marking the published locators to make the slot read as sensitive would state something false about them and carry that error everywhere the declaration is read.
+The two levels are not a convenience duplicate of one another, and the referenceable-credential shape is the worked case that shows why. A referenceable credential publishes `provides.name` and `provides.key` — the resource's locator and the data key within it — and **neither is sensitive**: a Kubernetes Secret's name is public, and so is the key inside it. Both are rendered in the clear into the consumer's own manifest as a `secretKeyRef`. Yet the slot that credential fills unquestionably handles secret material. One level alone cannot express both facts: marking the published locators to make the slot read as sensitive would state something false about them and carry that error everywhere the declaration is read.
 
 From those two declarations the compiler derives, per attachment, whether the attachment handles declared-sensitive material — true when the attached Feature declares a sensitive leaf, or when the slot it binds declares one, either alone sufficing. It derives this from the attachment as it stands after every authoring scope has folded, so a broader-scope declaration a narrower fill displaced does not linger, and a slot's demand applies to whichever fill actually won. A credential Feature that declares no sensitive leaf at all — because the target engine owns the material and the author writes nothing — still yields a sensitive attachment when it binds a sensitive slot.
 
@@ -165,6 +165,28 @@ State the shared form's rendering precisely, because it is easy to assume otherw
 
 If a deployment needs exactly one physical Secret that several consumers read, express that with a credential Feature whose FeatureRecipe runs at boundary scope (`executionScope: boundary`), which renders once for the boundary rather than once per component.
 
+## A credential the target generates
+
+Where a Release supplies no credential, a catalog entity often falls back on a development default — an inline value in a Recipe, a default on a module's parameter. That value is the same for every reader of the catalog, which is acceptable for evaluation and for nothing else. `core/random-password` removes the need for it: no one writes the credential, because the target generates it.
+
+The build cannot be where the password is made. Its output is a pure function of its input and never carries a secret's value, so a password drawn at build time would change on every build and sit in the rendered files. The FeatureRecipe renders a **request** instead — a generator resource naming the secret resource it fills — and the target draws the value at deploy time:
+
+- on `helm`, a controller in the cluster: the External Secrets Operator's password generator, reconciled through an `ExternalSecret`, or the kubernetes-secret-generator controller, reconciling a `StringSecret`;
+- on `terraform`, the random provider's `random_password`, drawn when the configuration is applied;
+- on `cloudformation`, a Secrets Manager secret that generates its own string when the stack creates it.
+
+In every case the rendered output names the generator and the secret resource and carries no value. That is a property of what the build has, not a protection it adds: the value never exists until the target makes it. Where the target keeps it afterwards is the target's — Terraform keeps it in the plan and state, a cluster in a Secret.
+
+**What the target needs running.** A request is only filled where something fills it. On `helm` that is the controller, and the compiler cannot inspect the cluster to know whether one runs, so the helm FeatureRecipes halt the build unless the Release affirms the prerequisite with `infra.control_plane_present: true` on the attachment. On `terraform` and `cloudformation` the apply or the stack generates the value itself and nothing needs to be running beforehand.
+
+**Where it cannot be used.** Compose runs no controller and has no resource that generates a value, so no FeatureRecipe realizes `core/random-password` there, and a build binding it on compose halts for want of one. A Release targeting compose supplies its credential through `core/secret-value`, typically as a variable reference Docker Compose substitutes when the stack starts.
+
+**How a consumer reads it.** `core/random-password` publishes the same `provides.name` and `provides.key` as `core/referenced-secret`, and carries the same `feature.aggrega.ai/kind: secret` label, so a slot selecting the credential family admits it and a consumer reads a generated credential exactly as it reads one that already exists.
+
+**How several consumers share one.** A generator draws a new value for every request, so the sharing rule of the previous section applies with a sharper edge: a generated credential attached at a shared scope — or on each consumer — renders one request per consumer, and each request draws a **different** password, which a database and its clients cannot use. One generated credential shared by several consumers is expressed as one request and many references: `core/random-password` on one component, with its `name` value pinning the Secret it fills, and `core/referenced-secret` on the others, bound to the existing-Secret realization and pointed at that same name. Written from one parameter, the two cannot disagree, and the render carries exactly one request that every consumer references.
+
+`core/random-password` is not `core/generated-secret`. That Feature hands a credential to an engine that already owns its whole lifecycle — a managed database, a database controller — and renders nothing. `core/random-password` renders the request itself, for a workload whose Recipe expects to be handed a credential.
+
 ## Attachment precedence
 
 An attachment may be declared at several scopes at once. Ownership of a contested field resolves by three rules, applied in this order:
@@ -205,7 +227,7 @@ A chart sometimes wants a single connection string with material embedded in it 
 
 ## Local development
 
-The golden local-development path keeps developer intent unchanged and swaps the binding. The Aggregate keeps attaching the same credential Feature type; the local Manifest maps that type to a local FeatureRecipe instead of the store-backed one. The compiler still fetches nothing — the local FeatureRecipe simply emits provider-native syntax the local runtime resolves (`env_file: [".env"]` or `${SECRET_NAME}` for Compose). Swapping environments is a Manifest edit.
+The golden local-development path keeps developer intent unchanged and swaps the binding. The Aggregate keeps attaching the same credential Feature type; the local Manifest maps that type to a local FeatureRecipe instead of the store-backed one. The compiler still fetches nothing — the local FeatureRecipe simply delivers provider-native syntax the local runtime resolves: for Compose, a variable reference such as `${SECRET_NAME}` written into the service's environment, which Docker Compose substitutes from the shell environment or a `.env` file when the stack starts. Swapping environments is a Manifest edit.
 
 ## Data governance around credentials
 

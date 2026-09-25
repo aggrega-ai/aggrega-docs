@@ -20,7 +20,7 @@ the module by name; the operator sizes the module's component in the Release.
 | File | Role |
 | --- | --- |
 | `aggregate.yaml` | Developer intent: imports the container-registry module (`core/harbor`). |
-| `manifest-helm-synth.yaml` | Maps the registry's component type to the Recipe that wraps its Helm chart. |
+| `manifest-helm-synth.yaml` | Maps the registry's component type to the Recipe that wraps its Helm chart, and the credential Feature the module attaches to the realization that emits a Secret from the module's credential parameters. |
 | `release-helm-synth.yaml` | Operator record for the Kubernetes target. Sizes the module's component by its module-scoped ID; anything left to schema defaults renders self-contained. |
 
 ## What it demonstrates
@@ -62,13 +62,23 @@ the module by name; the operator sizes the module's component in the Release.
   in the rendered output would say so — so the build stops and names the missing
   key instead.
 - **Two replacement paths for credentials.** Those the running software can be
-  pointed at a secret for — the administrator account, the cross-site
-  request-forgery key, the worker tier's shared secret, the blob store's
-  upload-state secret — are credential slots on the Component, filled from an
-  attached Feature so no material reaches the rendered output. The rest are
-  written into the configuration the Release renders, so they are replaced by
-  setting `infra` instead. Unattached and unset, each takes a development value
-  the Recipe states.
+  pointed at a secret for — the administrator account's password, the
+  cross-site request-forgery key, the worker tier's shared secret, the blob
+  store's upload-state secret — are credential slots on the Component, and the
+  module fills each from a parameter of its own (`admin_password`, `csrf_key`,
+  `jobservice_secret`, `registry_http_secret`) through the
+  `core/referenced-secret` credential Feature, so every workload reads them from
+  a Secret by name. Because the module attaches that Feature, the Manifest maps
+  it. This example leaves the four parameters at the module's development
+  defaults and maps the Feature to `k8s-secret-from-parameter`, which emits a
+  Secret carrying each value, so the stack runs self-contained. For a Release
+  carrying real traffic, the Aggregate declares parameters of its own and passes
+  them down through `aggregates.harbor.parameters`, the Release fulfills them,
+  and the Manifest maps the Feature to `k8s-existing-secret`, which reads each
+  parameter as the name of a Secret that already exists in the namespace. The
+  rest are written into the configuration the Release renders, so they are
+  replaced by setting `infra` instead; unset, each takes a development value the
+  Recipe states.
 - **Deterministic output over a chart that would otherwise generate material.**
   Left to itself this chart mints its own secrets when none are supplied — the
   control plane's shared and token-signing secrets, the worker tier's and blob
@@ -103,7 +113,12 @@ Deployments for the reverse proxy, the console, the control plane, the worker
 tier and the blob store; StatefulSets for the backend, the cache and the
 scanner; persistent volume claims for the blob store and for the worker tier's
 logs; the ConfigMaps and Secrets each service reads; and the Services fronting
-them.
+them. Beside them the credential Feature emits four Secrets, one per credential
+slot the module fills — `harbor.registry-admin-password`,
+`harbor.registry-csrf-key`, `harbor.registry-jobservice-secret` and
+`harbor.registry-registry-http-secret` — each carrying the module's development
+default, and the services read those four credentials from them rather than
+from the chart's own Secrets.
 
 Exactly one of those Services is the address consumers wire to —
 `dist/app/helm/harbor.registry-service-default-harbor-zdregistry.yaml`:

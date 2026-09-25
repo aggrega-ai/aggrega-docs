@@ -12,10 +12,14 @@ metadata:
     Recipe — the object store and the document-database backend as workloads with
     a persistent volume, the read tier and the wire-protocol proxy as stateless
     Deployments. The scrape Feature is mapped alongside them: its FeatureRecipe
-    emits one ServiceMonitor for each component the Release attaches it to.
-    Recipe selection at build time is by component type against the loaded
-    catalog, so the mapping is written once per type however many modules bring
-    that type in.
+    emits one ServiceMonitor for each component the Release attaches it to. So is
+    the core/referenced-secret credential Feature, which the metrics module
+    attaches to the object store's and the store gateway's credential slots:
+    bound to k8s-secret-from-parameter, it reads the module's credential
+    parameter as the credential itself and emits a Secret carrying it, which
+    suits a stack running on the module's development default. Recipe selection
+    at build time is by component type against the loaded catalog, so the mapping
+    is written once per type however many modules bring that type in.
 spec:
   mappings:
     components:
@@ -28,3 +32,4 @@ spec:
     features:
       type:
         core/prometheus-exporter:1.0.0: prometheus-exporter:1.0.0
+        core/referenced-secret:1.0.0: k8s-secret-from-parameter:1.0.0

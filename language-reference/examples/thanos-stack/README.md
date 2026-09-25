@@ -25,7 +25,7 @@ Release.
 | File | Role |
 | --- | --- |
 | `aggregate.yaml` | Developer intent: imports the Thanos read-tier module (`core/thanos`). |
-| `manifest-helm-synth.yaml` | Maps the object store, Store Gateway, and Query types to their synth helm Recipes. |
+| `manifest-helm-synth.yaml` | Maps the object store, Store Gateway, and Query types to their synth helm Recipes, and the credential Feature the module attaches to the realization that emits a Secret from the module's credential parameter. |
 | `release-helm-synth.yaml` | Operator record for the Kubernetes target. Sizes the module's internal components by their module-scoped IDs; anything left to schema defaults renders self-contained. |
 
 ## Runtime prerequisites
@@ -35,10 +35,11 @@ runtime, outside the rendered manifests, before the stack serves useful data:
 
 - **A pre-created bucket.** The Store Gateway reads from the `thanos` bucket in
   the object store, but MinIO does not auto-create it. Create it once against the
-  running MinIO endpoint, e.g. with the MinIO client:
+  running MinIO endpoint, e.g. with the MinIO client, authenticating as the root
+  account with the module's development default for its secret:
 
   ```sh
-  mc alias set local http://<minio-host>:9000 admin dev-minio-root-change-me
+  mc alias set local http://<minio-host>:9000 admin thanos-s3-secret-for-evaluation-only
   mc mb local/thanos
   ```
 
@@ -66,7 +67,8 @@ exposing its StoreAPI gRPC port and HTTP port. Its container is started with
 `thanos store` and a single inline `--objstore.config` flag whose value is the S3
 stanza composed from the object-store edge — the object store's in-cluster
 Service name and port. That configuration selects the AWS SDK credential chain,
-so it carries no secret; the credentials arrive as environment variables:
+so it carries no secret; the credentials arrive as environment variables, the
+secret key read from a Secret:
 
 ```yaml
 args:
@@ -81,7 +83,7 @@ args:
     --objstore.config=type: S3
     config:
       bucket: thanos
-      endpoint: metrics.objstore-default:9000
+      endpoint: metrics-zdobjstore-default:9000
       insecure: true
       aws_sdk_auth: true
 [… omitted: the container ports for the two addresses named in the args]
@@ -89,7 +91,10 @@ env:
   - name: AWS_ACCESS_KEY_ID
     value: admin
   - name: AWS_SECRET_ACCESS_KEY
-    value: dev-minio-root-change-me
+    valueFrom:
+      secretKeyRef:
+        name: metrics.store-s3-secret-key
+        key: s3-secret-key
 ```
 
 Query renders as a stateless Deployment plus a ClusterIP Service on its HTTP
@@ -104,11 +109,14 @@ args:
   - --grpc-address
   - 0.0.0.0:10901
   - --endpoint
-  - metrics.store-default:10901
+  - metrics-zdstore-default:10901
 ```
 
 The object store renders as a Deployment with a persistent volume mounted at
-`/data`, plus a ClusterIP Service on the S3 API port.
+`/data`, plus a ClusterIP Service on the S3 API port. Its `MINIO_ROOT_PASSWORD`
+reads the same secret from a Secret of its own, `metrics.objstore-root-password`.
+The two Secrets are emitted beside the workloads, one per credential slot the
+module fills, each carrying the module's development default.
 
 ## What it demonstrates
 
@@ -129,8 +137,19 @@ The object store renders as a Deployment with a persistent volume mounted at
   names.
 - **Secret-free configuration.** The object-store configuration selects the AWS
   SDK credential chain, so the rendered configuration carries no secret; the
-  credentials flow only as environment variables. This example uses a shared
-  inline development default matching the object store's own default, so the
-  stack runs self-contained with no external secret.
+  credentials flow only as environment variables.
+- **A shared credential, taken by reference.** The Store Gateway authenticates
+  to the object store as its root account, so the two share one secret. The
+  module takes it as a parameter, `s3_secret_key`, and attaches the
+  `core/referenced-secret` credential Feature to both components' credential
+  slots with it, so each workload reads the secret from a Secret rather than
+  carrying it inline. Because the module attaches that Feature, the Manifest
+  maps it. This example leaves the parameter at the module's development
+  default and maps the Feature to `k8s-secret-from-parameter`, which emits a
+  Secret carrying the value, so the stack runs self-contained. For a Release
+  carrying real traffic, the Aggregate declares a parameter of its own and
+  passes it down through `aggregates.metrics.parameters`, the Release fulfills
+  it, and the Manifest maps the Feature to `k8s-existing-secret`, which reads
+  the parameter as the name of a Secret that already exists in the namespace.
 - **Reproducible images.** Every component pins an explicit image tag, so the
   rendered manifests reference stable images.

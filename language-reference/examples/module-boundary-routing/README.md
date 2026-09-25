@@ -17,7 +17,7 @@ it.
 | File | Role |
 | --- | --- |
 | `aggregate.yaml` | Developer intent: imports the metrics module (`core/thanos`) and the document-database module (`core/ferretdb`). |
-| `manifest.yaml` | Maps every component type the two modules contribute to its synth helm Recipe, and the scrape Feature to its FeatureRecipe. |
+| `manifest.yaml` | Maps every component type the two modules contribute to its synth helm Recipe, the credential Feature the metrics module attaches to the realization that emits a Secret from the module's credential parameter, and the scrape Feature to its FeatureRecipe. |
 | `release.yaml` | Operator record: routes each module into its own boundary, sizes one component of one module, and attaches the scrape Feature to it. |
 
 ## What it demonstrates
@@ -86,6 +86,10 @@ metadata:
   annotations:
     aggrega.ai/boundary-path: observability
 ```
+
+The same holds for the two Secrets the metrics module's credential Feature emits
+for the object store and the store gateway: each lands under `observability`
+with that namespace, beside the workload that reads it.
 
 The scrape Feature attached to the routed `query` component renders its own
 artifact under that same boundary, carrying the operator's scrape settings:

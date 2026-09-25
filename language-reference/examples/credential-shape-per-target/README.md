@@ -71,10 +71,11 @@ features:
       origin: postgres-app-password
 ```
 
-`core/referenced-secret` materializes a secret **resource** and publishes that
-resource's locator — its `name` and the data `key` within it — through its
-`provides` contract. The consuming Recipe reads that locator. It never derives a
-resource name of its own, and it never asks which FeatureRecipe produced it.
+`core/referenced-secret` names a secret **resource**, one its FeatureRecipe's output
+creates or one that already exists, and publishes that resource's locator — its
+`name` and the data `key` within it — through its `provides` contract. The
+consuming Recipe reads that locator. It never derives a resource name of its own,
+and it never asks which FeatureRecipe produced it.
 
 ## What each target emits
 
