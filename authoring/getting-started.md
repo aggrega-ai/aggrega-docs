@@ -27,7 +27,7 @@ The schema tells you what is structurally valid; the reference tells you what is
 
 ## 3. Start from a skeleton
 
-Starting from a correct skeleton is faster and less error-prone than a blank file. An assistant connected to the MCP server calls the `scaffold` tool with a kind and a name to get a minimal, schema-correct starting point. Authoring by hand, copy the closest [worked example](../language-reference/examples/) and pare it down to what you need.
+Starting from a skeleton is faster and less error-prone than a blank file. An assistant connected to the MCP server calls the `scaffold` tool with a kind and a name to get a minimal starting point carrying every field the kind requires, with a placeholder wherever a value is still owed. Authoring by hand, copy the closest [worked example](../language-reference/examples/) and pare it down to what you need.
 
 Either way, the skeleton already carries the required top-level fields (`apiVersion`, `kind`, `metadata.name`) in the right shape, so you spend your attention on the fields your role owns rather than on boilerplate.
 
