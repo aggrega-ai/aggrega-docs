@@ -180,6 +180,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrBundleAmbiguousEntityDocument()` | `bundle-ambiguous-entity-document` | `oci: published bundle carries more than one entity document` |
 | `ErrBundleNoEntityDocument()` | `bundle-no-entity-document` | `oci: published bundle carries no entity document` |
 | `ErrBundleUnreadable()` | `bundle-unreadable` | `oci: published bundle cannot be unpacked` |
+| `ErrCacheLocationOutsideCache()` | `cache-location-outside-cache` | `a value a cache location is built from would place cached files outside the place it names in the cache` |
 | `ErrCachedManifestIntegrity()` | `cached-manifest-integrity` | `oci: cached manifest digest mismatch` |
 | `ErrFetchIntegrity()` | `fetch-integrity` | `oci: content digest mismatch` |
 | `ErrFetchNetworkUnreachable()` | `fetch-network-unreachable` | `oci: network unreachable` |
@@ -736,6 +737,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0304` | `content-outside-entity-directory` | `a path names content outside the entity's own directory` |
 | `E0305` | `local-source-content-mismatch` | `the files of the entity's local source do not match the pins recorded for them in entity.lock` |
 | `E0306` | `plugin-artifact-not-found` | `plugin artifact not found on this machine` |
+| `E0307` | `cache-location-outside-cache` | `a value a cache location is built from would place cached files outside the place it names in the cache` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication no longer judges a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.

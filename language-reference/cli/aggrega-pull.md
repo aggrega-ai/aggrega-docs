@@ -163,6 +163,8 @@ Pulled content is stored under `.aggrega/cache`, split into an `entities/` subtr
 
 **A catalog entity's slot is an entry only with its manifest.** The slot holds the content a registry served and, beside it, the manifest that describes that content. A slot holding the content alone — a fetch that stopped between the two writes, or a file placed there by hand — is not an entry: a pull, and a verifying pull, ask the entity's registry for it again where one can be reached, while a build, which never fetches, treats the entity as missing, as a pull does when no registry can be reached.
 
+**What reaches the cache is held to two things: the shape the entity's own schema describes, and the place the cache names for it.** A body fetched from a registry is put through the schema of its kind — the same check that reads it back — before it is cached, so a published entity or library the registry serves that its own schema refuses halts the pull, naming what was fetched, rather than being cached and met as a fault later. And a value a cache location is built from that would place a cached file somewhere other than the place the value names — a version that is a path rather than a version, a source `url` path or `module_subdir` that climbs above its place — is refused where the location is built, naming the offending value. A value written into a Recipe or a FeatureRecipe you author is held the same way at the moment the cache location is built from it.
+
 The cache is anchored to the workspace rather than to the directory you ran the command from, so one workspace has one cache and a pull run from a subdirectory fills the same store a build run from the root reads.
 
 ## Building where the network cannot be reached

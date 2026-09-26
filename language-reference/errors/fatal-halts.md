@@ -4075,6 +4075,19 @@ Emitted message. The condition's own sentence opens it, and what identifies the 
 
 **How to fix:** nothing in your entity files causes this and no authoring change clears it — the workspace root is supplied by whatever is driving the build, not written in a catalog. Run the build from inside the workspace, so the root is discovered rather than passed as nothing. Where you drive the compiler from software of your own, pass the workspace root explicitly; a caller that genuinely wants the cache relative to the current directory passes a single dot, which is accepted and says so deliberately.
 
+### A value would place a cached file outside the cache
+
+<!-- covers: pkg/oci.ErrCacheLocationOutsideCache -->
+
+A cached entity and a cached source artifact each live in a slot the cache names for it, and that slot is composed from values: the entity's reference and the version it resolved to, or a source's kind, `url`, `chart`, `module_subdir`, version and digest. Each value names one position in the layout. This condition reports a value that would move what is written for it somewhere other than the position it names — beside another slot, or out of the cache altogether — and refuses it before anything is written or read there.
+
+Most of those values arrive from somewhere the cache does not control: a body a registry served, a record read back from disk, a coordinate a Recipe or FeatureRecipe author wrote. A version that is a path rather than a version, a `url` path or a `module_subdir` that climbs above its place, and a reference that resolves to a dot directory are each refused here. A value that names one directory — and a `url` path or `module_subdir` that stays at or below its place — is untouched.
+
+Emitted message. The condition's own sentence opens it, then the value as it was written under the key it was written as, and the remedy:
+> a value a cache location is built from would place cached files outside the place it names in the cache (version `"../../../etc"` for entity `"demo/app/web"`). a version, a name, a kind or a host names one directory of the cache, so it carries no `/` or `\` and is neither `.` nor `..`; a URL path or a module subdirectory may name directories beneath its place but may not climb above it. Correct the value where it was written, or, where a registry served it, ask its publisher to publish a version that carries a well-formed one
+
+**How to fix:** where the value is one you wrote — a Recipe's or FeatureRecipe's `source.version`, `url` or `module_subdir` — correct it to name one directory, or a path that stays inside its place; the message quotes the value and the key it was read from. Where a registry served it, the published entity carries a version or a coordinate that is not one, which no change of yours can fix: the message names what was fetched, and the remedy is with whoever publishes it.
+
 ## Conditions that do not halt a build
 
 Every condition above stops a build. Some conditions carry a short code and a message of their own without ever stopping one, and they are catalogued here so that a code you have in hand always resolves to something, whichever page you arrived from.
@@ -4930,6 +4943,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0304` | `a path names content outside the entity's own directory` | A path names content outside the entity's own directory |
 | `E0305` | `the files of the entity's local source do not match the pins recorded for them in entity.lock` | A local source no longer matches the pins recorded beside its Recipe |
 | `E0306` | `plugin artifact not found on this machine` | A plugin's `.wasm` is not on this machine |
+| `E0307` | `a value a cache location is built from would place cached files outside the place it names in the cache` | A value would place a cached file outside the cache |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
