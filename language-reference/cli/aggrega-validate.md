@@ -57,6 +57,7 @@ Values an author declared sensitive are withheld from the graph, in the structur
 
 `aggrega validate <entity-path>` checks one catalog entity file. It applies a tiered set of checks, halting at the first blocking failure so a schema break surfaces loudly before any catalog work:
 
+- **Placeholders** (every kind) — a value the kind requires that the file leaves as an empty string. Every one is reported at once, ahead of the other checks, each with what it takes; see [placeholders still owed](#placeholders-still-owed).
 - **Schema envelope** (every kind) — the exact per-entity JSON-Schema check the catalog loader runs at each parse boundary.
 - **Shape** (every kind) — the kind-specific structural validation.
 - **Pillar structure** (Component and Feature) — the `spec.schema:` pillar check, using the catalog's SchemaLibraries for cross-document `$ref` expansion.
@@ -68,6 +69,45 @@ A **Recipe** additionally **renders in isolation**. This is one facet of single-
 A Recipe whose `source:` has to be **fetched** is the one case where that render is not attempted at all — see [what single-entity correctness does not check](#what-single-entity-correctness-does-not-check) below.
 
 A **FeatureRecipe** is schema- and shape-checked; its render is skipped, because a FeatureRecipe renders only when attached to a host component, and synthesizing a guard-passing host for an arbitrary Feature is not attempted.
+
+### Placeholders still owed
+
+A value the kind requires that the file leaves as an empty string is a placeholder, and validate reports it before anything else. A document drafted by [`aggrega scaffold`](./aggrega-scaffold.md) carries one wherever its kind needs a value only you can supply, so this is where you learn which remain. Here is a drafted FeatureRecipe with only its version filled in:
+
+```
+Entity: my-feature-recipe.yaml
+Kind:   FeatureRecipe
+2 placeholders still owed in my-feature-recipe.yaml. An empty required value is not a value, so each of these needs one before the document validates:
+    7:3: spec.capability takes what its schema describes: The explicit provider capability this recipe binds to (e.g., 'helm', 'terraform', 'compose') — the provider kind that renders it.
+    8:3: spec.implements takes what its schema describes: Declares which catalog Feature type this recipe is able to implement (including credential Features labeled feature.aggrega.ai/kind: secret; exact version, major-compatible range '^', or unversioned).
+```
+
+Every placeholder in the file is named at once, in document order, with its line and column and with what it takes. What it takes is read from the kind's own schema: the values it accepts where the schema lists them, a semantic version such as `1.0.0` where the schema asks for one, and otherwise the first sentence of the schema's own description of the field.
+
+Which values count is read from the schema as well. A value counts when the kind requires it at the top of the document, or inside an object the kind also requires, and the file sets it to the empty string. A key the file leaves out altogether is reported by the schema check as a missing property. An optional field left empty is not a placeholder, and neither is a field required only inside a list or a map you chose to write. Where the schema itself lists the empty string among the values a field accepts, an empty one is a value rather than a placeholder.
+
+**A value is owed even where the schema would take it empty.** The schema admits an empty string for a Recipe's or FeatureRecipe's `capability` and `implements`, but an empty one names no provider and no type, so validate reports both as placeholders like any other. Where the schema check refuses the same file as well — an empty version, a type label with no value — the report carries that check's code, `E0215`, as the example on [`aggrega scaffold`](./aggrega-scaffold.md) shows; where the schema check accepts it, as above, the report carries no code. A finding in the same file that is not about an empty value is still reported, in the schema check's own words, ahead of the list.
+
+This reading belongs to single-entity validation. A whole-catalog run meeting the same document reports what the schema check reports, so a FeatureRecipe with an empty `implements` inside a catalog directory passes it; `--release` and [`aggrega build`](./aggrega-build.md) do not apply the reading either.
+
+### A kind this scope does not take
+
+Single-entity validation accepts Component, Feature, Recipe, FeatureRecipe, Workload and Plugin. A file of any other kind is refused, and the refusal names the kinds it accepts and, for an entity kind, the scope that does check a document of that kind:
+
+```
+kind "Aggregate" in "aggregate.yaml" is not a single-entity validation target; the kinds this scope accepts are Component, Feature, Recipe, FeatureRecipe, Workload and Plugin. An Aggregate is checked by the whole-catalog scope when it sits in a catalog directory, and by the Release scope over a Release that deploys it
+```
+
+The whole-catalog scope is a run with no argument, and the Release scope is `--release`:
+
+| Kind | Checked by |
+| --- | --- |
+| Aggregate | a whole-catalog run, when it sits in a catalog directory; `--release` over a Release that deploys it |
+| Manifest | `--release` over a Release that names it |
+| Release | `--release <release-path>` |
+| SchemaLibrary, MappingLibrary, WorkloadLibrary, ArtifactLibrary | a whole-catalog run, when it sits in a catalog directory |
+
+A whole-catalog run reads only what sits inside the configured catalog directories, so an Aggregate kept at the workspace root beside its Release is checked through `--release` over that Release.
 
 ### What single-entity correctness does not check
 
@@ -173,18 +213,23 @@ conformance — the same correctness a build applies, scoped to that Release.
 
 With an entity path, validate checks one entity file. The kinds it accepts
 as a single-entity target are Component, Feature, Recipe, FeatureRecipe,
-Workload and Plugin. Each has its schema checked, then the checks its own
-kind carries: pillar structure for a Component or Feature; shape for a
-Workload, FeatureRecipe or Plugin; and for a Recipe, shape plus an end-to-end
-compile against a minimal generated harness, so its resolution, its guards
-and a render of its output are all exercised. Where that Recipe's source is
-one that has to be fetched, the render is reported as not attempted instead:
-validating one entity on its own reads no lockfile, reads and writes no cache
-and makes no network request, so the chart or module it names is never
-retrieved and there is nothing to render from. Any other kind is refused here
-today and is checked in a wider scope instead: a whole-catalog run reaches an
-Aggregate and the library kinds, and --release reaches a Manifest and a
-Release. The command writes nothing to disk.
+Workload and Plugin. A value the kind requires that the file leaves empty is
+reported first, as a placeholder still owed: every one is named at once, with
+what it takes, read from the kind's own schema. That reading is this scope's
+alone; a whole-catalog run, --release and a build do not apply it. Each kind
+then has its schema checked, then the checks its own kind carries: pillar
+structure for a Component or Feature; shape for a Workload, FeatureRecipe or
+Plugin; and for a Recipe, shape plus an end-to-end compile against a minimal
+generated harness, so its resolution, its guards and a render of its output
+are all exercised. Where that Recipe's source is one that has to be fetched,
+the render is reported as not attempted instead: validating one entity on its
+own reads no lockfile, reads and writes no cache and makes no network request,
+so the chart or module it names is never retrieved and there is nothing to
+render from. Any other kind is refused here today, and the refusal names the
+scope that checks it instead: a whole-catalog run reaches an Aggregate and the
+library kinds when they sit in a catalog directory, and --release reaches a
+Release, the Manifest it names and the Aggregate it deploys. The command
+writes nothing to disk.
 ```
 
 **Flags**

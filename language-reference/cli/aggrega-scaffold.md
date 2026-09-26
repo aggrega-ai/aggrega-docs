@@ -61,7 +61,20 @@ The kind is the lowercase-hyphenated schema token — `component`, `aggregate`, 
 aggrega scaffold component my-service > my-service.yaml
 ```
 
-**It is not a finished entity, and that is what a placeholder means.** An empty required value is not a value, so running [`aggrega validate`](aggrega-validate.md) over the document exactly as it came out refuses it and names each placeholder still owed — above, the version and the component type. Supply those values and the same command accepts the document. Nothing about its shape has to change, because the shape came from the schema.
+**It is not a finished entity, and that is what a placeholder means.** An empty required value is not a value, so running [`aggrega validate`](aggrega-validate.md) over the document exactly as it came out refuses it and names every placeholder still owed at once, each with what it takes — above, the version and the component type:
+
+```
+Entity: my-service.yaml
+Kind:   Component
+[E0215]
+  document envelope validation failed: 2 placeholders still owed in my-service.yaml. An empty required value is not a value, so each of these needs one before the document validates:
+    5:3: metadata.version takes a semantic version, such as 1.0.0
+    7:5: metadata.labels.component.aggrega.ai/type takes one of: server, worker, task, function, stateful-server, resource
+```
+
+What each value takes is read from the kind's own schema: the values it accepts where the schema lists them, a semantic version where it asks for one, and otherwise the schema's own description of the field. Supply those values and the same command accepts the document. Nothing about its shape has to change, because the shape came from the schema.
+
+**A value is owed even where the schema would take it empty.** A drafted Recipe or FeatureRecipe carries an empty `capability` and `implements`. Their schema admits an empty string, but an empty one names no provider and no type, so `aggrega validate` names both as still owed until you fill them in. That reading belongs to validating one entity file: a whole-catalog run, `aggrega validate --release` and [`aggrega build`](aggrega-build.md) do not apply it. See [placeholders still owed](aggrega-validate.md#placeholders-still-owed) for what it covers.
 
 ## The same document from an assistant or an editor
 

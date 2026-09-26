@@ -438,7 +438,7 @@ The four plugin requests all **write by default**, and they divide by what they 
 
 **The same request gives the same bytes wherever it is asked.** The document is produced by one computation shared with the other surfaces that offer this capability, so an editor and an assistant asked for the same kind and the same name show the author the same starting text.
 
-**The skeleton is a correct shape, not a finished document.** It carries the required fields and nothing else: an optional field you want is one you add, and a placeholder left as it arrived is a value that will not pass validation. Fill the placeholders in, then run `aggrega/validate` on the buffer.
+**The skeleton carries the fields its kind requires, and it is not a finished document.** It carries the required fields and nothing else: an optional field you want is one you add, and every placeholder is a value still owed. Fill the placeholders in, then run `aggrega/validate` on the buffer. That method holds the buffer to its kind's schema, so a placeholder the schema refuses empty — a version, a label whose values are a closed set — comes back as a finding on the buffer. A placeholder the schema admits empty draws no finding there: a drafted Recipe's or FeatureRecipe's `capability` and `implements` are the ones you will meet. [`aggrega validate`](aggrega-validate.md#placeholders-still-owed) over the saved file names every placeholder still owed, those two included, each with what it takes.
 
 ## What an import response tells you
 
