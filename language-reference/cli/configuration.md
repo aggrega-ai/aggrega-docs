@@ -333,12 +333,20 @@ address your callers actually reach — the host a proxy in front presents, wher
 than the address this process binds. Both are published, with no credential asked for, in the OAuth
 protected-resource metadata document the listener serves, which is where a client looks to find out
 where to obtain a token. Neither holds anything secret: a token arrives on the request that
-presents it and is never written in a configuration file.
+presents it and is never written in a configuration file. The issuer is an `https` address unless
+the authorization server runs on this machine — `localhost`, `127.0.0.1` or `::1` — and a listener
+naming a plain `http` issuer on any other host is refused before anything binds, whichever way it
+reads its keys and its callers: every client is sent to the issuer to obtain its token, so over plain
+`http` its authorization code and its token would cross the network unprotected, and where the keys
+are read from there too, whoever sits on that path could substitute them.
 
 **`mcp.authorization.jwks_file` names a file holding the keys tokens are verified against**, instead
 of reading them from the authorization server. Leave it out and the server reads that server's
 metadata at its well-known address and follows the `jwks_uri` published there, which is what a
-workspace with network access does. Set it and the authorization server is never contacted — which
+workspace with network access does. That key address is held to the same rule as the issuer, and so
+is any address either read is redirected to: one that is plain `http` on another host is never
+asked, and a token needing those keys is answered `503` until the authorization server publishes its
+metadata and keys over `https`. Set it and the authorization server is never contacted — which
 is what a workspace declaring `offline: true` needs, and such a workspace is refused before its
 listener binds unless this names a file. It is a path and follows the rule above: a relative one
 resolves against the directory of the file that declared it, so a key set committed beside that file

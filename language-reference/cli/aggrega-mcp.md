@@ -92,10 +92,22 @@ why it is the one answer given without one. What that document publishes
 comes from mcp.authorization.issuer and mcp.authorization.resource, and a
 listener is refused before it binds unless both are set.
 
+The issuer is an https address unless the authorization server runs on
+this machine (localhost, 127.0.0.1 or ::1), and that holds in every
+mode: with the keys read from the issuer, with a key file, and with a
+proxy in front. Every client is sent to the issuer to obtain its token,
+so a plain http issuer on another host would carry each client's
+authorization code and token across the network unprotected, and a
+listener naming one is refused before it binds.
+
 The verification keys are read from the issuer itself, by asking it where
 it publishes them and fetching them from the address it names, and read
 again once when a token arrives signed by a key identifier the held set
-does not carry. A workspace that is offline makes no such request, so
+does not carry. That address is held to the same rule as the issuer, and
+so is every redirect either read is answered with: a plain http address
+on another host is never asked, and a token needing those keys is
+answered 503 until the authorization server publishes its metadata and
+keys over https. A workspace that is offline makes no such request, so
 there mcp.authorization.jwks_file names a file holding those keys and a
 listener is refused before it binds without it.
 
@@ -255,9 +267,11 @@ A request is answered with one JSON object and a status code — or, where the c
 
 **A token belongs on the header and nowhere else.** One sent as an `access_token` query parameter is answered `400` and is never read, because an address is recorded by every proxy log, browser history and referrer header the request passes through, so a token that arrived that way has already been exposed. The server never writes a token to a log, never sends one anywhere, and never obtains or exchanges one on a caller's behalf: it reads what was presented, decides, and keeps none of it. The subject the token names is recorded and compared to nothing.
 
-**The verification keys come from the authorization server, or from a file you name.** With `mcp.authorization.jwks_file` unset, the server reads the authorization server's metadata at its well-known address, follows the `jwks_uri` published there, and holds the keys it finds; a token signed by a key identifier those keys do not carry prompts one re-read, and no more than one inside a short interval, so a caller sending invented key identifiers cannot drive an outbound request per request. With `jwks_file` set, the keys are read from that file and the authorization server is never contacted — which is what a workspace declaring `offline: true` needs, and such a workspace is refused before its listener binds unless the file is named. Where the keys cannot be read at all, requests are answered `503` with no challenge: nothing a caller presented was found wanting, so sending it after another token would not help.
+**The verification keys come from the authorization server, or from a file you name.** With `mcp.authorization.jwks_file` unset, the server reads the authorization server's metadata at its well-known address, follows the `jwks_uri` published there, and holds the keys it finds; a token signed by a key identifier those keys do not carry prompts one re-read, and no more than one inside a short interval, so a caller sending invented key identifiers cannot drive an outbound request per request. **Reading them from the authorization server needs an `https` key address**, or a plain `http` one on this machine: a `jwks_uri` that is plain `http` on another host is never asked, and a redirect that would send either read to plain `http` on another host is not followed, because whoever sits on an unprotected path to the keys could answer with keys of their own. A token needing those keys is then answered `503`, exactly as for keys that cannot be read, and the line the server writes for that request says the read was refused for plain `http` rather than that the authorization server could not be reached — the fix is on the authorization server's side, which has to publish its metadata and keys over `https`. With `jwks_file` set, the keys are read from that file and the authorization server is never contacted — which is what a workspace declaring `offline: true` needs, and such a workspace is refused before its listener binds unless the file is named. Where the keys cannot be read at all, requests are answered `503` with no challenge: nothing a caller presented was found wanting, so sending it after another token would not help.
 
 **The one answer given with no credential asked for is the protected-resource metadata document.** A client has to read it before it can hold a token, so requiring one there would close the only door in. It is answered at `/.well-known/oauth-protected-resource`, and — where the address `mcp.authorization.resource` names has a path of its own — at that well-known path with that path appended as well. Those are the two places a client looks, and the appended form is the address the challenge names. The document carries that address as the resource this deployment is called, `mcp.authorization.issuer` as the authorization server to obtain a token from, `header` as the only way to present a token, and the three scope names below.
+
+**The issuer is an `https` address, unless the authorization server runs on this machine.** Plain `http` is accepted for an issuer at `localhost`, `127.0.0.1` or `::1`, which is the shape a local test with a local authorization server takes; a plain `http` issuer on any other host is refused before the listener binds, and the refusal names `mcp.authorization.issuer` and asks for an `https` address. That holds in every mode — with the keys read from the issuer, with `mcp.authorization.jwks_file`, and with a proxy in front — because every mode publishes the issuer in this document: a client following it runs its authorization flow against that address, so over plain `http` the authorization code and the token it obtains would cross the network unprotected, whether or not this server ever reads a key from there. Where it does read its keys from there, whoever sits on that path could also answer with keys of their own, and every token signed with them would be admitted.
 
 **The scope names this deployment publishes are `aggrega:read`, `aggrega:workspace-write` and `aggrega:registry-write`.** Those are the names to register at the authorization server and the names a client asks it for, and the challenge a refused caller receives names `aggrega:read` as the one to obtain first. What each of them admits — and the second bound, the one this deployment sets on itself — is under [What a caller may reach](#what-a-caller-may-reach) below.
 
@@ -269,7 +283,7 @@ A request is answered with one JSON object and a status code — or, where the c
 
 **What the proxy asserts is what this server believes, and that is the bargain.** This server checks no signature in this mode and compares the asserted caller to nothing, exactly as it compares a token's subject to nothing. Whether the proxy validated what it forwarded, and whether anything can reach that listener without passing through the proxy, are the deployment's to get right; the confinement above is what makes them possible to get right, not a guarantee that they were.
 
-**Setting `mcp.authorization.trusted_proxy` does not remove the other requirements.** `issuer` and `resource` are still needed, because the metadata document is still published and the challenge still names it — a client behind the proxy still has to learn where to obtain the token the proxy will check.
+**Setting `mcp.authorization.trusted_proxy` does not remove the other requirements.** `issuer` and `resource` are still needed, because the metadata document is still published and the challenge still names it — a client behind the proxy still has to learn where to obtain the token the proxy will check. For the same reason the issuer is still an `https` address unless it runs on this machine: that client obtains its token from the issuer, so a plain `http` issuer on another host is refused before the listener binds in this mode exactly as in every other, even though this server reads nothing from it.
 
 ### What a caller may reach
 
