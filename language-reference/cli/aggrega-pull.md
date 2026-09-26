@@ -265,7 +265,7 @@ Other source kinds use their native authentication conventions:
 
 - Helm classic HTTPS chart repositories (non-OCI) read `~/.config/helm/repositories.yaml` per Helm's own convention.
 - Git module sources use the standard Git transport credentials — SSH agent, `~/.netrc`, gitconfig credential helpers.
-- Plain HTTPS fragment sources transport with no authentication today; richer per-host token configuration is a future iteration.
+- Plain HTTPS fragment sources are fetched without credentials, so a fragment must be readable anonymously; a server that answers the request with 401 or 403 stops the pull as an unauthorized fetch.
 
 The goal across kinds is to let each kind's native tooling continue to own its authentication story. Aggrega does not interpose its own credential store or auth layer.
 
