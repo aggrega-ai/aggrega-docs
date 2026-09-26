@@ -132,6 +132,53 @@ Pass `--registry <host>` to seed a different one, `--workspace` to write the ent
 project's file instead of the global one, and `--dry-run` to see the content it would write without
 creating anything. [aggrega-config.md](aggrega-config.md) covers the command in full.
 
+### How a registry host is written
+
+`default_registry` and each `registries[].host` name a registry host, and each is written as the host
+itself, in the one spelling the registry's trust policy is kept under:
+
+- a lowercase host name containing a dot, such as `registry.example.com`;
+- `localhost`, or a single name followed by a port, such as `registry:5000`;
+- an IPv4 address such as `127.0.0.1`, or an IPv6 address in brackets such as `[::1]`;
+
+each with an optional `:port`, and nothing else — no scheme, no path, no credentials, no whitespace
+and no capital letters. A single name with no port is not a registry host, because that is the shape
+of the first segment of a catalog entity's name — the `core` in `core/web-api` — and the two must
+never be read as each other.
+
+```yaml
+# <project>/.aggrega-config.yaml
+workspace: {}
+default_registry: registry.example.com
+registries:
+  - host: registry.example.com
+    signing:
+      required: true
+```
+
+**The spelling is part of the policy.** A `registries` entry applies to the host its `host:` names,
+and the official hub's built-in signature requirement applies to `hub.aggrega.ai`, so a host written
+any other way would reach the right registry and miss the policy written for it. It is refused when
+the configuration loads instead, and the refusal names the spelling to write: `HUB.AGGREGA.AI`,
+`https://registry.example.com` and `registry.example.com/charts` are refused naming `hub.aggrega.ai`
+and `registry.example.com`. Port 443 is the default port of a host reached over HTTPS, so
+`hub.aggrega.ai:443` is refused the same way, naming `hub.aggrega.ai`. `localhost` and the other
+loopback addresses are reached over plain HTTP instead, where 443 is an ordinary port, so
+`localhost:443` is accepted as written. Write the host itself rather than a friendly alias from
+`registries[].name`: an alias with no dot and no port is refused like any other single name, and
+content is pulled from `default_registry` as the host it spells. An empty `default_registry` names
+no default registry.
+
+**Every layer is held to the same spelling.** A value is refused in the same words whether it comes
+from a configuration file, from `AGGREGA_DEFAULT_REGISTRY`, or from the `--registry` flag that names
+the destination of one `aggrega push` or `aggrega push-artifact`. `aggrega registry add` and
+`aggrega config init --registry` hold the host they are given to it too; they also accept a
+reference in its place, and key the entry under the host the reference names. A refusal from a file
+names the file and the key; one from the environment names the variable.
+
+**A host is judged by its spelling alone.** Whether the name resolves, or whether a registry answers
+there, is not checked when the configuration loads.
+
 ### What overrides what
 
 ```

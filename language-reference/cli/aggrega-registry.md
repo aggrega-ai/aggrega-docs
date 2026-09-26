@@ -48,6 +48,15 @@ this workspace's own artifact cache and reaches no other project.
 ```
 Register a registry host and its signature trust policy.
 
+The entry is keyed under the host exactly as written, and every lookup of it is
+made in one spelling: a lowercase host name containing a dot, localhost, a single
+name followed by a port (registry:5000), an IPv4 address, or an IPv6 address in
+brackets, each with an optional :port. A reference may be given instead — its
+scheme, path and credentials are dropped and the entry is keyed under the host it
+names — but a host written in capitals, with the default HTTPS port, or as a
+single name with no port is refused, naming the spelling to write where there is
+one.
+
 The entry is written to the global config shared across every workspace, since a
 registry and the identities you trust on it are usually the same wherever you
 work. Pass --workspace to write it to this project's config file instead; the two

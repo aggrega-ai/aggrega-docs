@@ -817,11 +817,13 @@ Emitted message, as the plugin receives it:
 
 A workspace is described by an `.aggrega-config.yaml` at its root: which registry it publishes to and pulls from, where the artifact cache lives, which plugins are attached at which sockets, and what each registry's signing stance is. That file is read and checked against its schema before any entity file is opened, because everything that follows is read out of it.
 
-**A missing file is not a failure.** A workspace with no configuration file gets the documented defaults, so this halt always names a file that exists and disagrees with the schema, never one that is absent.
+**A missing file is not a failure.** A workspace with no configuration file gets the documented defaults, so this halt never names a file that is absent. It names the file that carried the value — or, for a setting an environment variable overrides and the schema never sees, the variable.
 
 The check runs before the document is turned into typed settings. That ordering is what lets the message name the field path the schema objected to, rather than reporting a type mismatch from somewhere further along with no field to point at.
 
-Four shapes report here beyond a plain schema objection, each because the schema alone can only say something too generic to act on: a `workspace:` key written with nothing under it, a key whose home is the top level written underneath `workspace:` instead, a `cache:` block written under a name the file does not use, and two settings whose values the schema admits but the workspace cannot use — an `artifact_cache_dir` that is absolute or that names the workspace root itself, and a `signing.kinds` entry naming something that is not a publishable artifact kind.
+These shapes report here beyond a plain schema objection, each because the schema alone can only say something too generic to act on: a `workspace:` key written with nothing under it, a key whose home is the top level written underneath `workspace:` instead, a `cache:` block written under a name the file does not use, a registry host not written the way a registry host is written, and two settings whose values the schema admits but the workspace cannot use — an `artifact_cache_dir` that is absolute or that names the workspace root itself, and a `signing.kinds` entry naming something that is not a publishable artifact kind.
+
+A registry host — `default_registry`, or the `host` of a `registries` entry — is written as the host itself: lowercase, containing a dot, or `localhost`, or a single name followed by a port, or an IP address (an IPv6 one in brackets), each with an optional `:port`, and no scheme, path or credentials. A value that names a host in another spelling is refused naming the spelling to write, so that the trust policy kept under that host applies to it; that includes port 443 on a host reached over HTTPS, since it is that host's default port. A value that names no host at all — a single name with no port, text with spaces or braces in it — is refused as not a host. `AGGREGA_DEFAULT_REGISTRY` is held to the same reading and refused the same way, naming the variable.
 
 **Emitted messages.** A schema objection names the file, the field path, and what the schema said:
 > workspaceconfig: `<path>`: `<field-path>`: `<the schema's own objection>`: file failed schema validation
@@ -831,6 +833,12 @@ The fix-it forms replace the middle with a sentence about the specific shape. An
 
 an unusable `signing.kinds` entry, which also names the wildcard that covers every kind:
 > workspaceconfig: `<path>`: signing.kinds entry `"<kind>"` is not a signable artifact kind; use a catalog entity or plugin kind, or `"all"` for every kind: file failed schema validation
+
+a registry host written in another spelling, here `HUB.AGGREGA.AI`:
+> workspaceconfig: `<path>`: default_registry `"HUB.AGGREGA.AI"` is not written as the registry host it names; write `"hub.aggrega.ai"` — lowercase, with no scheme, path, credentials or default port — which is the spelling that host's trust policy is kept under: file failed schema validation
+
+a value that names no host, whose sentence lists the forms a host takes:
+> workspaceconfig: `<path>`: registries[`<n>`].host `"<value>"` is not a registry host; write a lowercase host name containing a dot (registry.example.com), localhost, a single name followed by a port (registry:5000), or an IP address, an IPv6 one in brackets — each with an optional :port and nothing else: file failed schema validation
 
 and an empty `workspace:` marker:
 > workspaceconfig: `<path>`: `workspace` must be a mapping; write `workspace: {}` to mark a workspace root with no catalog directories: file failed schema validation
