@@ -134,9 +134,9 @@ creating anything. [aggrega-config.md](aggrega-config.md) covers the command in 
 
 ### How a registry host is written
 
-Each `registries[].host` names a registry host, and so does `default_registry` unless it names one of
-those entries instead (see below). A host is written as the host itself, in the one spelling the
-registry's trust policy is kept under:
+Each `registries[].host` names a registry host. So does `default_registry` — optionally followed by a
+repository path — unless it names one of those entries instead (see below). A host is written as the
+host itself, in the one spelling the registry's trust policy is kept under:
 
 - a lowercase host name containing a dot, such as `registry.example.com`;
 - `localhost`, or a single name followed by a port, such as `registry:5000`;
@@ -160,12 +160,42 @@ registries:
 **The spelling is part of the policy.** A `registries` entry applies to the host its `host:` names,
 and the official hub's built-in signature requirement applies to `hub.aggrega.ai`, so a host written
 any other way would reach the right registry and miss the policy written for it. It is refused when
-the configuration loads instead, and the refusal names the spelling to write: `HUB.AGGREGA.AI`,
-`https://registry.example.com` and `registry.example.com/charts` are refused naming `hub.aggrega.ai`
-and `registry.example.com`. Port 443 is the default port of a host reached over HTTPS, so
-`hub.aggrega.ai:443` is refused the same way, naming `hub.aggrega.ai`. `localhost` and the other
-loopback addresses are reached over plain HTTP instead, where 443 is an ordinary port, so
-`localhost:443` is accepted as written. An empty `default_registry` names no default registry.
+the configuration loads instead, and the refusal names the spelling to write: `HUB.AGGREGA.AI` and
+`https://registry.example.com` are refused naming `hub.aggrega.ai` and `registry.example.com`, and
+so is `registry.example.com/charts` as a `registries[].host`, which carries no path. Port 443 is the
+default port of a host reached over HTTPS, so `hub.aggrega.ai:443` is refused the same way, naming
+`hub.aggrega.ai`. `localhost` and the other loopback addresses are reached over plain HTTP instead,
+where 443 is an ordinary port, so `localhost:443` is accepted as written. An empty
+`default_registry` names no default registry.
+
+**`default_registry` may carry a repository path.** Many registries keep every repository under an
+owner or a project — `ghcr.io/<owner>`, `<host>/<project>` on Harbor — and a default registry on one
+of them is written as the host followed by that path:
+
+```yaml
+# <project>/.aggrega-config.yaml
+workspace: {}
+default_registry: ghcr.io/acme
+registries:
+  - host: ghcr.io
+    signing:
+      required: true
+```
+
+The path is where things are published and fetched. Through this default, `aggrega push` publishes
+`core/api-server` version `1.0.0` at `ghcr.io/acme/component/core/api-server:1.0.0`, and a pull
+resolving `core/api-server` fetches it from the same place, so a signature attached when it was
+published is found there too. The path is a repository path in the OCI distribution grammar: one or
+more segments of lowercase letters and digits joined by `/`, which may be separated inside a segment
+by `.`, `_`, `__` or dashes, with no tag, digest or trailing `/`.
+
+**The path is never part of how the registry is trusted.** The `registries` entry whose policy
+applies, the credential `aggrega login` stores, the signing requirement and the trusted identities are
+all found by the host alone, so the entry for `ghcr.io` above governs `ghcr.io/acme` and every other
+path on that host, and no spelling of a path can reach past it; an entry's `host:` itself carries no
+path. A host written in another spelling before a path is refused naming the location to write —
+`GHCR.io/acme` and `https://ghcr.io/acme` name `ghcr.io/acme` — and what follows the host when it is
+not a repository path is refused naming the host it follows.
 
 **`default_registry` may name an entry instead.** Written as the `name:` of an entry under
 `registries`, it stands for that entry's `host:`. Publishing, pulling, signature verification and
@@ -186,15 +216,19 @@ an entry's `name:` stands for that entry even where it is also spelled like a ho
 entries carry is refused as ambiguous, naming both hosts. The entry may sit in either file — a
 project's `default_registry` can name an entry the global file declares — because the name is read
 once, against the entries in force after every file and the environment have been read. A value
-that is neither an entry's name nor a registry host is refused, and the refusal says either one
-fixes it; a host with a repository path, such as `ghcr.io/acme/catalog`, is refused naming the host
-to write, `ghcr.io`. Removing an entry with `aggrega registry remove` leaves `default_registry` as it
+that is neither an entry's name nor a registry host — alone or followed by a repository path — is
+refused, and the refusal says either one fixes it. A name followed by a path, such as `local/acme`,
+is refused too: a name stands for its entry's host and not for a location under it, so the refusal
+names the two spellings to write instead — `local`, or the entry's host followed by the path,
+`127.0.0.1:5000/acme`. Removing an entry with `aggrega registry remove` leaves `default_registry` as it
 is written, so a default that named the removed entry names nothing afterwards and is refused until
 it is rewritten.
 
 **Every layer is held to the same spelling.** A value is refused in the same words whether it comes
 from a configuration file, from `AGGREGA_DEFAULT_REGISTRY`, or from the `--registry` flag that names
-the destination of one `aggrega push` or `aggrega push-artifact`. `aggrega registry add` and
+the destination of one `aggrega push` or `aggrega push-artifact`. That flag names a host, and the
+publication it directs lands at that host with no repository path: a path belongs to
+`default_registry`. `aggrega registry add` and
 `aggrega config init --registry` hold the host they are given to it too; they also accept a
 reference in its place, and key the entry under the host the reference names. A refusal from a file
 names the file and the key; one from the environment names the variable. The schema states the host
@@ -202,8 +236,9 @@ shape as a pattern on `registries[].host` and states none on `default_registry`,
 any entry's name — so an editor reading the schema alone does not flag a mistyped default, and the
 configuration load is what refuses it.
 
-**A host is judged by its spelling alone.** Whether the name resolves, or whether a registry answers
-there, is not checked when the configuration loads.
+**A host is judged by its spelling alone, and so is a path.** Whether the name resolves, whether a
+registry answers there, or whether the path exists on it, is not checked when the configuration
+loads.
 
 ### What overrides what
 

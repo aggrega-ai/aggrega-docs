@@ -67,6 +67,8 @@ Comparing a remote source's pin means fetching the source, as `aggrega pin` does
 
 The target registry is `--registry <ref>` when supplied, otherwise the workspace's `default_registry` (`hub.aggrega.ai` by default). The tag is the entity's `metadata.version`, and the repository path is derived from its kind and name, so where a published version lands does not depend on the directory it was published from.
 
+**A `default_registry` may carry a repository path, and a publication through it lands under that path.** With `default_registry: ghcr.io/acme`, the Component `core/api-server` at version `1.0.0` is published at `ghcr.io/acme/component/core/api-server:1.0.0` — the place a pull through the same default fetches it from, so the signature attached here is the one that pull finds. `--registry` names a host, and a publication it directs lands at that host with no path. Whichever way the destination is named, the signing requirement and the signing configuration that apply are the ones kept for its host: a path never selects a different policy. The spelling of a path is set out in [how a registry host is written](configuration.md#how-a-registry-host-is-written).
+
 Publish computes a content digest over what it publishes and embeds it in the OCI manifest; `aggrega pull` verifies that digest when it fetches the entity, so tampering between publish and pull is caught.
 
 ## Publishing over an existing version
