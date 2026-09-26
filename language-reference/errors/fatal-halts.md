@@ -1530,8 +1530,8 @@ Several entities may reference one library, each naming a version floor or none 
 
 The rule holds only while the floors agree on the leading version number. Two consumers naming different majors are asking for two libraries that happen to share a name, and no single selection satisfies both — so rather than pick one and let the other consumer read a shape it was not written against, the build stops and names the disagreement. A consumer naming no floor takes part in nothing here: the selection is decided by the consumers that pinned.
 
-Emitted message, listing each conflicting consumer against the version it required:
-> resolve: minimal version selection conflict — incompatible library version requirements: library `"<library>"` has consumers requiring incompatible majors: `<consumer>`=`<version>`, `<consumer>`=`<version>`
+Emitted message. The consumers are compared in sorted order: the first to name a floor sets the major, and the message lists each consumer compared, up to and including the first whose floor names a different major, against the version it required — so the same documents always name the same consumers:
+> resolve: minimal version selection conflict — incompatible library version requirements: library `"<library>"` has consumers requiring incompatible majors: `<consumer>` wants `<version>`; `<consumer>` wants `<version>`
 
 **How to fix:** raise the lower consumer's floor to the same major, which is the ordinary answer once the newer shape is what everyone wants. Where both majors are genuinely needed at once, they are two libraries: publish the older shape under a name of its own and point the consumer that needs it there, so each reference names the thing it was written against.
 
