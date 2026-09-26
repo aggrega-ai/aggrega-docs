@@ -189,9 +189,12 @@ says so rather than failing. The two are mutually exclusive.
 Pass --origin to annotate each effective setting with the layer it came from —
 a command-line flag, an environment variable, a config file, or the built-in
 defaults, highest precedence first. A flag is named as the reader typed it, so
-a setting a flag decided reports that flag as its source. Scalar settings are
-attributed per value; list and map settings are attributed as a whole to the
-layer that last changed them.
+a setting a flag decided reports that flag as its source. A setting is
+attributed to the highest-precedence layer that sets it, whatever value that
+layer writes: a file restating the default is the file named, not the built-in
+defaults. List and map settings are attributed as a whole. The signing
+requirement is the one exception: any layer may turn it on and none can turn it
+off, so it names the first layer that turns it on.
 ```
 
 **`aggrega config show` flags**
@@ -227,7 +230,14 @@ A seeded configuration is a document you own and go on editing, which is why it 
 Two focused views narrow the output:
 
 - `--global` or `--workspace` prints a single layer's own file bytes verbatim, comments and formatting preserved; when that layer's file does not exist it says so rather than failing. The two are mutually exclusive.
-- `--origin` annotates each effective setting with the layer it came from — a command-line flag, an environment variable, a config file, or the built-in defaults, highest precedence first. A flag is named as you typed it, so a setting `--offline` decided on this run reports `--offline` as its source; an environment variable is named behind an `env:` prefix and a config file by its absolute path. Scalar settings are attributed per value; list and map settings are attributed as a whole to the layer that last changed them.
+- `--origin` annotates each effective setting with the layer it came from — a command-line flag, an environment variable, a config file, or the built-in defaults, highest precedence first. A flag is named as you typed it, so a setting `--offline` decided on this run reports `--offline` as its source; an environment variable is named behind an `env:` prefix and a config file by its absolute path.
+
+Under `--origin`, a setting is attributed to the highest-precedence layer that sets it, whatever value that layer writes. So a project file that writes `default_registry: hub.aggrega.ai` is named for that setting even though the built-in default is the same registry, and a project file restating a value the global file already sets is named rather than the global file: in both cases it is the file holding the value in place, and the one whose removal changes the answer the day the default or the file beneath it moves. A setting no layer sets reports the built-in defaults.
+
+- **What counts as setting it.** A config file sets a setting when it carries that setting's key, and a list setting also when it carries the list's `_append` companion. An environment variable sets its setting when it is exported with a non-empty value, and a flag when you type it — `--offline=false` sets the posture as surely as `--offline` does.
+- **A configuration file your pipeline owns** is named only for the keys it is read for, which are its list additions and the signing policy. A key it ignores, and warns about, is never reported as where a value came from.
+- **List and map settings are attributed as a whole**, to the highest-precedence layer that sets them; which layer contributed which entry of a list is not reported.
+- **The signing requirement is the one exception.** Any layer may turn it on and none can turn it off, so it names the first layer that turns it on. A layer writing `required: false` turns nothing on, so where no layer turns it on the setting reports the built-in defaults.
 
 ### `config capture` — freeze build-critical settings
 
