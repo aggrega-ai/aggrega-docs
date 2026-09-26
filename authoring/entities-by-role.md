@@ -20,13 +20,13 @@ Every entity kind has a role that typically authors it. This page is the complet
 
 **[Component](../language-reference/entities/component.md)** — a reusable, versioned contract for one kind of building block. It declares, via a JSON Schema, the `values` a developer may supply; the `provides` outputs it pipes to consumers; and the `uses`/`usesSchema` sockets it exposes for wiring. Components carry the semantic labels that drive policy and rendering. The architect keeps the Component's contract stable so developers can depend on it.
 
-**[Feature](../language-reference/entities/feature.md)** — an attachable capability a developer or operator can add to a component: a metrics exporter, a data-masking proxy, a credential binding. A Feature declares what it needs and what it is incompatible with; the actual infrastructure it generates lives in its FeatureRecipe.
+**[Feature](../language-reference/entities/feature.md)** — an attachable capability a developer or operator can add to a component: a metrics exporter, masking of sensitive text on an AI gateway, a credential binding. A Feature declares what it needs and what it is incompatible with; how it is realized — the resources it generates, or the settings it writes into what its component already renders — lives in its FeatureRecipe.
 
 ## Platform operations
 
 **[Recipe](../language-reference/entities/recipe.md)** — the provider-specific realization of a Component. It maps the Component's declared values onto a concrete provider's output — a Helm release, a Compose service, a Terraform module — through templates, and pipes `provides` values to consumers. A Recipe never changes the developer-facing values a Component declares; it only decides *how* they are rendered.
 
-**[FeatureRecipe](../language-reference/entities/featurerecipe.md)** — the provider-specific realization of a Feature, applied at binding time. It generates the resources a Feature attachment implies for a given provider.
+**[FeatureRecipe](../language-reference/entities/featurerecipe.md)** — the provider-specific realization of a Feature, applied at binding time. It generates the resources a Feature attachment implies for a given provider, or writes the settings it implies into what the attached component already renders.
 
 **Provider-rendering [Plugin](../language-reference/entities/plugin.md)** — a *provider* is the Wasm guest that turns a Recipe's input into provider-native manifests. It is delivered as a Plugin with `pluginType: provider` that declares the provider name(s) it renders and its provider-socket contract. Operations (or a plugin author) supply providers so Recipes have a provider to render against. See the [Providers Overview](../language-reference/06-providers.md) for the shipped providers and their contracts.
 

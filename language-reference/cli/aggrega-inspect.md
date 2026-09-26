@@ -422,7 +422,7 @@ The compiler chooses between compact and per-leaf rendering by walking the attac
 When provenance **diverges** — a typical case is cross-side composition, where an Aggregate annotation supplies `values:` and a Release annotation supplies `infra:` on the same Feature — the compiler emits one bracket per populated leaf:
 
 ```text
-- core/data-masking
+- core/pii-redaction
     values.fields_to_mask: ["ssn", "card_number"]     [annotation: compliance.aggrega.ai/data-class from aggregate]
     values.classifier_endpoint: "redact-v2"            [explicit; overrides annotation: compliance.aggrega.ai/data-class from aggregate]
     infra.audit_bucket: "s3://..."                     [annotation: compliance.aggrega.ai/audit-bucket from release]

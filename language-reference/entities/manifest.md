@@ -48,7 +48,7 @@ spec:
     features:
       type:
         # Feature-type → FeatureRecipe URI. Credential Features (e.g., aws-secrets-manager) sit alongside operational ones.
-        core/data-masking: helm/lakera-guard-istio:1.2.0
+        core/data-masking: helm/data-masking-litellm:1.0.0
         core/aws-secrets-manager: helm/eso-aws-fetcher:1.0.0
 ```
 
@@ -144,9 +144,9 @@ spec:
 
 The capability handshake uses the same flat-URI mapping:
 
-1. The developer requests `features: [core/data-masking]` on a component in the Aggregate.
+1. The developer attaches `core/data-masking` to a component in the Aggregate, under a name of its own in that component's `features:` map.
 2. The compiler looks up `core/data-masking` in the Manifest's `features.type` map.
-3. If the lookup resolves to a FeatureRecipe URI (e.g., `helm/lakera-guard-istio:1.2.0`), the capability exists and the FeatureRecipe's pipeline executes in the defined order.
+3. If the lookup resolves to a FeatureRecipe URI (e.g., `helm/data-masking-litellm:1.0.0`), the capability exists and the FeatureRecipe's pipeline executes in the defined order.
 4. If `features.type` contains no matching entry, the compiler halts the build and lists the unmapped Feature.
 
 The Manifest also accepts a `features.annotations` block — a parallel authoring surface that lets a Release or Aggregate subsystem attach Features by annotation key rather than by per-component declaration. The binding shape, the side-vs-pillar partition that governs which authoring surface uses which routing paths, the explicit-attachment-wins discipline, and the schema-defaults rule live in the dedicated [Annotation-Driven Feature Bindings](#annotation-driven-feature-bindings) section further down.

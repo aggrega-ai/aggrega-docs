@@ -78,7 +78,7 @@ spec:
         "legacy-billing-agent": "custom/legacy-worker:3.0.0"
     features:
       type:
-        "core/data-masking": "lakera-guard-sidecar:1.0.0"
+        "core/data-masking": "data-masking-litellm:1.0.0"
         "core/aws-secrets-manager": "eso-aws-fetcher:1.0.0"
 ```
 

@@ -67,8 +67,8 @@ LINT: Feature "core/db-pool" at ./catalog/feature/core/db-pool.yaml declares pro
 **Emit shape:**
 
 ```text
-  lint: annotation binding declares one path in both pillar lists (Manifest, at .spec.mappings.features.annotations, "compliance.aggrega.ai/data-class", on Feature "core/data-masking", at path "classifier_endpoint", which the routing tie-break sends through the pillar "infra", declare a second binding under another annotation key to route it through "values")
-  lint: annotation binding declares one path in both pillar lists (Manifest, at .spec.mappings.features.annotations.audit-scope, "audit-scope", on Feature "core/data-masking", at path "retention_endpoint", which the routing tie-break sends through the pillar "infra", declare a second binding under another annotation key to route it through "values")
+  lint: annotation binding declares one path in both pillar lists (Manifest, at .spec.mappings.features.annotations, "compliance.aggrega.ai/data-class", on Feature "core/pii-redaction", at path "classifier_endpoint", which the routing tie-break sends through the pillar "infra", declare a second binding under another annotation key to route it through "values")
+  lint: annotation binding declares one path in both pillar lists (Manifest, at .spec.mappings.features.annotations.audit-scope, "audit-scope", on Feature "core/pii-redaction", at path "retention_endpoint", which the routing tie-break sends through the pillar "infra", declare a second binding under another annotation key to route it through "values")
 ```
 
 Those two lines come from one build over one Manifest, and what differs between their locators is the shape of the annotation key. A locator addresses a document by dotted path, so it stops at the first segment that carries a period of its own: `audit-scope` carries none and the locator reaches the binding, while `compliance.aggrega.ai/data-class` does, and the locator names the `annotations` block holding it instead. That is why the offending key is also the first quoted value of every finding — it is the one part the locator cannot always carry.

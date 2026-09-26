@@ -460,16 +460,23 @@ import rego.v1
 
 deny contains msg if {
     some path in input.precalculated_paths
-    target := path.nodes[count(path.nodes) - 1]
-    input.graph.spec.nodes[target].labels["compliance.aggrega.ai/data-class"] == "restricted"
+    some gateway in path.nodes
+    input.graph.spec.nodes[gateway].labels["dataplane.aggrega.ai/content-masking"]
     not "core/data-masking" in path.attached_features
-    msg := sprintf("%v reaches restricted node %v with no masking Feature attached.", [path.nodes[0], target])
+    msg := sprintf("path %v passes through %v with no masking Feature attached.", [concat(" -> ", path.nodes), gateway])
 }
 ```
 
+`attached_features` is the union of the Feature types attached to every node on
+the path, so the rule is satisfied by a `core/data-masking` attachment on the
+gateway itself, which is where that Feature attaches: it selects on the
+content-masking capability the gateway declares. What the attachment masks is
+the chat and completion text passing through that gateway; the rule checks that
+the attachment exists, not what it lists.
+
 A node object carries no id of its own: the id is the key it sits under in
-`input.graph.spec.nodes`, which is why the rule above carries `path.nodes[0]` into
-its message rather than reading an `id` field.
+`input.graph.spec.nodes`, which is why the rule above carries the ids it read from
+`path.nodes` into its message rather than reading an `id` field.
 
 ### Shaping labels: a policy names the label, and the engine addresses it
 
