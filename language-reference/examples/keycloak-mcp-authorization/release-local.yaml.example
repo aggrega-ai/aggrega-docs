@@ -1,0 +1,28 @@
+# Copy this file to release-local.yaml and adjust it to your cluster.
+# release-local.yaml is ignored by git: it is where this deployment's
+# cluster-specific settings live, and it is the Release you build.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: keycloak-mcp-authorization-local
+  environment: local
+  version: "1.0.0"
+spec:
+  # Everything not written here is inherited from the committed Release.
+  extends: ./release.yaml
+  # Uncomment to use a Secret of another name; it must carry the entries
+  # db-password and admin-password.
+  # parameters:
+  #   credentials_secret: keycloak-credentials
+  boundaries:
+    identity:
+      components:
+        backend:
+          infra:
+            storage:
+              # The storage class the database volume is provisioned from:
+              # local-path on k3s, standard on kind and minikube. Run
+              # `kubectl get storageclass` to see the ones your cluster offers.
+              # Remove this block to take the cluster's default class.
+              type: local-path

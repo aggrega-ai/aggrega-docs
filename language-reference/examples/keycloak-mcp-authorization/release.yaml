@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: keycloak-mcp-authorization
+  environment: test
+  version: "1.0.0"
+  description: >
+    What this Release sets is the same on every cluster: one boundary holding
+    the identity server and its database, sized for a single-user test.
+    What differs per cluster — the storage class the database volume is
+    provisioned from, and optionally the Secret name — is supplied by a Release
+    that extends this one; copy release-local.yaml.example to release-local.yaml
+    and build that.
+spec:
+  aggregate: keycloak-mcp-authorization
+  manifest: keycloak-mcp-authorization
+  boundaries:
+    identity:
+      directory: identity
+      components:
+        backend:
+          infra:
+            compute:
+              cpu: 500m
+              memory: 512Mi
+            storage:
+              size: 1Gi
+        server:
+          infra:
+            compute:
+              cpu: "1"
+              memory: 1Gi

@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: keycloak-mcp-authorization
+  version: "1.0.0"
+  description: >
+    Kubernetes mapping for the Keycloak authorization server. The backend and
+    the server are realized by their workload-synthesis helm Recipes, which
+    fetch nothing at build time. Every credential attachment binds to the
+    standard library's k8s-existing-secret, which points the consuming workload
+    at a Secret created before the workloads start instead of rendering one.
+spec:
+  mappings:
+    components:
+      type:
+        core/datastore/postgres:1.0.0: helm/postgres:1.0.0
+        core/security/keycloak:1.0.0: helm/keycloak:1.0.0
+    features:
+      type:
+        core/referenced-secret:1.0.0: k8s-existing-secret:1.0.0
