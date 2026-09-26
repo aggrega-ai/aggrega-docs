@@ -21,6 +21,22 @@ Build is read-only about dependencies by default: it needs a lockfile and writes
 
 **The flags that shape a render apply to it.** `--trace`, `--verify-determinism`, `--disable-plugin-cache` and `--no-unsupported-field-warnings` reach the render an auto-pulling build performs on the same terms they reach a plain build's, so asking for a trace or a determinism check on a one-command build gets you one. `--dry-run` is the exception and it is a refusal rather than a silence: a dry run writes nothing while the pull step writes, so the pairing halts before any work (see [Previewing a build without writing it](#previewing-a-build-without-writing-it)).
 
+## How a build reads what the lockfile pins
+
+A lockfile pin names bytes — a content digest — rather than a place. A build reads each pinned dependency from the sources already on the machine: the catalog directories first, as everywhere else, then the content cache under `.aggrega/cache`. Reading them asks no registry; only the pull step, where a build runs one, fetches.
+
+**A cache entry that no longer holds its pin is passed over.** An entity edited in place — a new body under the same `version` — leaves the content cache holding the earlier body under that name and version. Where a catalog directory holds a copy whose bytes hash to the pin, the build reads that copy and never reads the entry, and it says so on standard error, naming the entry and both digests:
+
+```
+  reuse: cache entry for <name>:<version> holds <digest the entry holds>, not the pinned <pinned digest>; passed over for <catalog file>, which holds the pinned bytes
+```
+
+**Where no catalog directory holds the entity, a complete cache entry holding exactly the pinned bytes is read as the dependency**, so an entity removed from its catalog directory after its published copy was fetched still builds from that copy.
+
+**Where no source holds the pinned bytes, the build halts before anything renders**, with `E0135`. The halt names the pin, the cache entry and the digest it holds, and each catalog-directory copy of the entity with its digest, or that no catalog directory holds it. The remedy is a pull with a registry reachable, which fetches the pinned version again and holds what it fetches to the pin; see [Honoring vs. updating](aggrega-pull.md#honoring-vs-updating) for what the pull does when the registry no longer serves those bytes.
+
+The render `aggrega pull` runs to discover external inputs, and a build or preview through `aggrega serve` or `aggrega mcp`, read their pins the same way.
+
 ## External inputs at build time
 
 A render can request content from a remote URL — a chart's values schema with a remote reference, for example — and a build never fetches one in order to add it to what the render may read. A request for a URL the lockfile already pins is served from the workspace's input store and verified against the recorded digest before any byte reaches the render. A request for an unpinned URL halts, naming the URL and the step that pins it; there is no setting that turns that halt into a fetch, because quietly widening the set of inputs a build reads is the one thing a reproducible build must not do.
