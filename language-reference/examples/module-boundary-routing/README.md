@@ -69,7 +69,7 @@ dist/data/helm/            documents-zdproxy, documents-zdbackend
 ```
 
 The filenames carry each component's identity with the module separator written
-out, because a dot is not a character a resource name can hold — `metrics.store`
+out, because a dot is not a character every resource name can hold — `metrics.store`
 in the Aggregate is `metrics-zdstore` in the cluster. Composing a module is the
 only thing that puts a separator in an identity, so a component you name directly
 is spelled the same in both places.
