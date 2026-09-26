@@ -16,13 +16,23 @@ Run Aggrega as a Model Context Protocol (MCP) server, so an AI
 assistant can discover and drive Aggrega operations through a structured
 protocol instead of scraping command output.
 
-Two transports reach the same server, and the invocation chooses between
-them. With no listen address the server speaks newline-delimited JSON-RPC
-2.0 over the process's standard input and output, which is how an
-MCP-capable client runs it: spawned as a subprocess, not typed by hand.
-Given --listen, or mcp.listen in the workspace configuration, it serves
+Two transports reach the same server, and --transport chooses between
+them, with mcp.transport in the workspace configuration as the key it
+overrides. The default, stdio, speaks newline-delimited JSON-RPC 2.0 over
+the process's standard input and output, which is how an MCP-capable
+client runs it: spawned as a subprocess, not typed by hand. http serves
 the protocol over HTTP instead — one long-running process on a host,
-reached by callers who are not at its keyboard.
+reached by callers who are not at its keyboard — on the address --listen
+names, or mcp.listen when the flag is absent.
+
+An address chooses no transport. --listen given with the stdio transport
+is refused, whether stdio was typed, configured or left as the default,
+because it names where to listen for a transport that does not listen.
+An address mcp.listen names is left unused by a server on standard input
+and output, which says so in one line on stderr, so a client can launch
+this command in a directory whose configuration is written for a
+listener. And the http transport with no address from either is refused
+before anything binds.
 
 It speaks two MCP protocol revisions on both transports, 2026-07-28 and
 2025-06-18, so a client of either connects. In 2026-07-28 nothing is
@@ -151,16 +161,17 @@ process exits. A second request ends the process at once.
 
 | Flag | Default | Description |
 | --- | --- | --- |
-| `--listen` | — | Serve the protocol over HTTP on this address instead of standard input and output, in one of two forms: host:port, or unix: followed by a filesystem path. Without it, and with no mcp.listen in the workspace configuration, the server speaks over standard input and output. A listener with no certificate serves plaintext and is permitted only on loopback (127.0.0.1, ::1, localhost) or on a Unix socket, which is the shape a deployment behind a terminating proxy takes; any other address needs mcp.tls.cert_file and mcp.tls.key_file, which this process then uses to terminate TLS itself. When set, overrides the mcp.listen config key. |
+| `--listen` | — | The address the HTTP transport listens on, in one of two forms: host:port, or unix: followed by a filesystem path. It names where to listen and chooses no transport: it is read with --transport http, or mcp.transport: http in the workspace configuration, and given with the stdio transport it is refused. A listener with no certificate serves plaintext and is permitted only on loopback (127.0.0.1, ::1, localhost) or on a Unix socket, which is the shape a server behind a terminating proxy takes; any other address needs mcp.tls.cert_file and mcp.tls.key_file, which this process then uses to terminate TLS itself. When set, overrides the mcp.listen config key. |
+| `--transport` | — | How the server is reached: stdio speaks the protocol over standard input and output, which is how a client that launches this command as a subprocess reaches it; http serves it over HTTP on the address --listen or mcp.listen names, and over HTTPS where mcp.tls names a certificate and key. When set, overrides the mcp.transport config key, whose default is stdio. |
 <!-- END GENERATED: cli-mcp -->
 
 ## What it does
 
-`aggrega mcp` runs a Model Context Protocol server. **Two transports reach it, and the invocation chooses between them.**
+`aggrega mcp` runs a Model Context Protocol server. **Two transports reach it, and `--transport` chooses between them**: `stdio` or `http`, with `mcp.transport` in the workspace configuration as the key the flag overrides, and `stdio` as the default.
 
-With no listen address it speaks over the process's standard input and output. In that shape it is not a command you run interactively — an MCP-capable client (Claude Desktop, Cursor, Windsurf, Cline, or any other) launches it as a subprocess and speaks the protocol over stdio. Running it turns the CLI into an Aggrega-aware authoring assistant inside your editor or chat client.
+Over `stdio`, the default, it speaks over the process's standard input and output. In that shape it is not a command you run interactively — an MCP-capable client (Claude Desktop, Cursor, Windsurf, Cline, or any other) launches it as a subprocess and speaks the protocol over stdio. Running it turns the CLI into an Aggrega-aware authoring assistant inside your editor or chat client.
 
-Given `--listen <address>`, or `mcp.listen` in the workspace configuration, it serves the protocol over HTTP instead: one long-running process on a host, reached by callers who are not at its keyboard. See [Reaching the server over HTTPS](#reaching-the-server-over-https) for how that listener is configured and what it accepts.
+Over `http` it serves the protocol over HTTP instead: one long-running process on a host, reached by callers who are not at its keyboard, listening on the address `--listen` names, or `mcp.listen` when the flag is absent. See [Reaching the server over HTTPS](#reaching-the-server-over-https) for how that listener is configured and what it accepts.
 
 **It speaks two revisions of the protocol, `2026-07-28` and `2025-06-18`, so a client of either connects and reaches the same surfaces.** Which one a call speaks is stated on that call rather than agreed once for the connection. A client on `2026-07-28` sends the protocol version it speaks and its own capabilities with every request, and asks `server/discover` what the server supports; a client on `2025-06-18` settles those same things once, by opening the connection with an `initialize` handshake. Either way the server holds nothing between messages, so what you send first decides nothing about how a later call is answered. A request naming a revision the server does not speak is refused and told which two it can ask for, rather than being answered as if it had asked for one of them.
 
@@ -184,7 +195,7 @@ The server exposes three surfaces to the connected assistant:
 
 **`mcp.announce_tools` names the tools this server announces, spelled exactly as the tool list reports them.** Leave the key out and every tool this server carries is announced, which is the default and the shape a client following the protocol expects. Write a list and exactly those tools are announced: one left out is absent from the tool list, absent from what `describe-capabilities` answers, and refused if it is called by name anyway, with the refusal naming this setting. Write an empty list and nothing is announced at all — so leaving the key out and writing `[]` are different statements, and the setting has no default filled in for you.
 
-**Set it where the client at the other end caps how many tools it will register**, sometimes across every server it is connected to at once, and name the tools that client needs. That cap is the case the setting exists for, and the client it applies to is usually the one that launched this server over its own standard input and output — so unlike the rest of the `mcp` block, which configures the listener `mcp.listen` selects, this key is read whichever transport the server speaks.
+**Set it where the client at the other end caps how many tools it will register**, sometimes across every server it is connected to at once, and name the tools that client needs. That cap is the case the setting exists for, and the client it applies to is usually the one that launched this server over its own standard input and output — so unlike the rest of the `mcp` block, which configures the listener the `http` transport starts, this key is read whichever transport the server speaks.
 
 **It narrows what is announced and nothing more.** Naming a tool here widens nothing: it does not lift `mcp.deny_reach`, which withdraws a capability outright, and it does not lift the scopes a caller's token carries, so a tool named here that either of those excludes stays excluded and the refusal a caller meets is that other bound's rather than this one's. A refusal from this setting carries no challenge and names no scope, because no credential changes what a server chose to offer — what it names instead is the setting, which is the only thing anyone reading the refusal can act on.
 
@@ -194,7 +205,9 @@ The server exposes three surfaces to the connected assistant:
 
 ## Reaching the server over HTTPS
 
-`aggrega mcp --listen <address>` serves the protocol over HTTP instead of over standard input and output. `mcp.listen` in the workspace configuration is the key that flag overrides; with neither, the command speaks over standard input and output exactly as a client that spawns it expects. It is the same server either way — the same workspace and the same protocol surfaces — and what changes is how a message reaches it, how a call ends, and what the deployment has to hold. This section is what an operator configures; the entry a client needs in order to reach a running one is in [Setup](../../authoring/setup.md#a-server-reached-over-https).
+`aggrega mcp --transport http` serves the protocol over HTTP instead of over standard input and output. `mcp.transport` in the workspace configuration is the key that flag overrides, and its default, `stdio`, is what a client that spawns the command expects — so a server other people reach carries `transport: http` in its configuration, and a client launched from a directory that configuration covers still reaches the server over its own streams. It is the same server either way — the same workspace and the same protocol surfaces — and what changes is how a message reaches it, how a call ends, and what whoever runs it has to hold. This section is what an operator configures; the entry a client needs in order to reach a running one is in [Setup](../../authoring/setup.md#a-server-reached-over-https).
+
+**An address chooses no transport.** `--listen <address>`, or `mcp.listen` when the flag is absent, names where the listener binds once `http` is chosen, and nothing more. So `http` with no address from either is refused before anything binds, and the refusal names both. `--listen` typed while the transport is `stdio` — typed as `--transport stdio`, configured as `mcp.transport: stdio`, or left as the default — is refused as well, naming `--transport http` as the flag that would serve on that address; a `--listen` given an empty value is refused as naming no address, whatever the transport. And an address only the configuration names is left unused by a server speaking over its own streams, which says so in one line on its error stream, naming the file that set it and `mcp.transport: http`. That last case is refused nowhere on purpose: it is the launch a client makes when it starts the command in a directory whose configuration carries a listener's settings, and a listener's configuration that forgets `transport: http` starts no listener at all, which is where it is seen.
 
 **A server reached over HTTP offers no tool that runs an `aggrega` command in a separate process.** Those tools exist only for a client that launched this server over its standard input and output, on that client's own machine, where naming a folder or a flag grants the caller nothing they did not already have. A caller reaching the server over HTTP does not own the host it runs on, so a command that would act on that host's filesystem with the server's own authority is run at a terminal on the host instead. The tools are absent from the list and from `describe-capabilities` rather than being offered and refused, and a call naming one is answered with an error saying so. That is a property of the transport, not a setting: there is no configuration that puts them back.
 

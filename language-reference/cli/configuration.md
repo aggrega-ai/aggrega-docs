@@ -281,13 +281,15 @@ from.
 ### Settings for a server other people reach
 
 `aggrega mcp` speaks the Model Context Protocol. On your own machine a client launches it as a
-subprocess and talks to it over standard input and output, and the only setting that shape takes is
-`mcp.announce_tools`. The rest of the `mcp` block is for the other shape: one long-running process
-on a host, reached over HTTP by callers who are not at its keyboard.
+subprocess and talks to it over standard input and output, which is the default, and the only
+settings that shape reads are `mcp.transport`, left at that default, and `mcp.announce_tools`. The
+rest of the `mcp` block is for the other shape, which `mcp.transport: http` chooses: one
+long-running process on a host, reached over HTTP by callers who are not at its keyboard.
 
 ```yaml
 # <project>/.aggrega-config.yaml
 mcp:
+  transport: http
   listen: 127.0.0.1:7777
   authorization:
     issuer: https://login.example.com
@@ -307,12 +309,19 @@ mcp:
     listen: 127.0.0.1:7778
 ```
 
-**`mcp.listen` is what chooses the transport.** Give it a `host:port` address or a
-`unix:<path>` socket and the command starts a listener; leave it out and the command speaks over
-standard input and output, which is what a subprocess client expects. `aggrega mcp --listen
-<address>` does the same for one invocation and wins over the key, the way every flag wins over
-every file. A `unix:` path is taken as written rather than anchored — see
-[Where a relative path points](#where-a-relative-path-points).
+**`mcp.transport` is what chooses the transport.** `http` starts a listener; `stdio`, the default,
+speaks over standard input and output, which is what a subprocess client expects. Any other value is
+refused when this file loads. `aggrega mcp --transport <stdio|http>` does the same for one
+invocation and wins over the key, the way every flag wins over every file.
+
+**`mcp.listen` names where that listener binds, and chooses nothing.** Give it a `host:port`
+address or a `unix:<path>` socket; `aggrega mcp --listen <address>` wins over it for one invocation.
+With `http` chosen and no address from either, the launch is refused before anything binds. With
+`stdio` chosen, a typed `--listen` is refused, and an address only this key names is left unused —
+the server says so in one line on its error stream, naming this file and `mcp.transport: http`. So a
+server other people reach sets both keys, as above, and a client launched from a directory that file
+covers still reaches the server over its own streams. A `unix:` path is taken as written rather than anchored —
+see [Where a relative path points](#where-a-relative-path-points).
 
 **`mcp.tls.cert_file` and `mcp.tls.key_file` put TLS in the process.** Set both and the listener
 serves HTTPS itself. Leave both out and it serves plaintext, which is accepted only on loopback or
@@ -325,7 +334,7 @@ them absolute where the certificate is managed outside the project.
 
 **`mcp.authorization.issuer` and `mcp.authorization.resource` say who issues the tokens callers
 present, and what this server is called as the resource they are issued for.** Both are required
-whenever `mcp.listen` is set, and a listener is refused before anything binds without them, because
+whenever the `http` transport is chosen, and a listener is refused before anything binds without them, because
 every request to the endpoint is answered with a bearer-token challenge and a challenge that names
 nowhere to go is one a client cannot act on. Write whole addresses, scheme and host included: the
 issuer exactly as that authorization server states its own identifier, and the resource as the
@@ -399,7 +408,7 @@ how many tools it will register, sometimes across every server it is connected t
 are set the withdrawal wins, so a tool of a withdrawn kind stays absent however this key names it. A
 name no tool answers to stops the server before it serves anything, listing the tools it does have,
 rather than leaving you with a surface narrower than the one you asked for. Unlike the other keys
-here, which configure the listener `mcp.listen` selects, it is read whichever transport the server
+here, which configure the listener the `http` transport starts, it is read whichever transport the server
 speaks, because the client a narrowing exists for is usually the one that launched the process over
 its own standard input and output;
 [aggrega-mcp.md](aggrega-mcp.md#narrowing-what-the-server-announces) sets out the rest.
