@@ -136,7 +136,9 @@ instead. Setting both --global and --workspace is a usage error.
 
 The default_registry pointer is left untouched — removing a registry's trust
 policy reverts that host to default trust; it does not change which registry is
-the default.
+the default. Where default_registry names the removed entry by its alias, that
+alias names nothing afterwards, and the configuration is refused until
+default_registry is written as a host or as another entry's name.
 ```
 
 **`aggrega registry remove` flags**

@@ -134,8 +134,9 @@ creating anything. [aggrega-config.md](aggrega-config.md) covers the command in 
 
 ### How a registry host is written
 
-`default_registry` and each `registries[].host` name a registry host, and each is written as the host
-itself, in the one spelling the registry's trust policy is kept under:
+Each `registries[].host` names a registry host, and so does `default_registry` unless it names one of
+those entries instead (see below). A host is written as the host itself, in the one spelling the
+registry's trust policy is kept under:
 
 - a lowercase host name containing a dot, such as `registry.example.com`;
 - `localhost`, or a single name followed by a port, such as `registry:5000`;
@@ -164,17 +165,42 @@ the configuration loads instead, and the refusal names the spelling to write: `H
 and `registry.example.com`. Port 443 is the default port of a host reached over HTTPS, so
 `hub.aggrega.ai:443` is refused the same way, naming `hub.aggrega.ai`. `localhost` and the other
 loopback addresses are reached over plain HTTP instead, where 443 is an ordinary port, so
-`localhost:443` is accepted as written. Write the host itself rather than a friendly alias from
-`registries[].name`: an alias with no dot and no port is refused like any other single name, and
-content is pulled from `default_registry` as the host it spells. An empty `default_registry` names
-no default registry.
+`localhost:443` is accepted as written. An empty `default_registry` names no default registry.
+
+**`default_registry` may name an entry instead.** Written as the `name:` of an entry under
+`registries`, it stands for that entry's `host:`. Publishing, pulling, signature verification and
+every per-registry trust setting then use that host, and no content is fetched from a host spelled
+like the name:
+
+```yaml
+# <project>/.aggrega-config.yaml
+workspace: {}
+default_registry: local
+registries:
+  - name: local
+    host: 127.0.0.1:5000
+```
+
+A name is matched before a host spelling, as the `--registry` flag matches one, so a value that is
+an entry's `name:` stands for that entry even where it is also spelled like a host. A name two
+entries carry is refused as ambiguous, naming both hosts. The entry may sit in either file — a
+project's `default_registry` can name an entry the global file declares — because the name is read
+once, against the entries in force after every file and the environment have been read. A value
+that is neither an entry's name nor a registry host is refused, and the refusal says either one
+fixes it; a host with a repository path, such as `ghcr.io/acme/catalog`, is refused naming the host
+to write, `ghcr.io`. Removing an entry with `aggrega registry remove` leaves `default_registry` as it
+is written, so a default that named the removed entry names nothing afterwards and is refused until
+it is rewritten.
 
 **Every layer is held to the same spelling.** A value is refused in the same words whether it comes
 from a configuration file, from `AGGREGA_DEFAULT_REGISTRY`, or from the `--registry` flag that names
 the destination of one `aggrega push` or `aggrega push-artifact`. `aggrega registry add` and
 `aggrega config init --registry` hold the host they are given to it too; they also accept a
 reference in its place, and key the entry under the host the reference names. A refusal from a file
-names the file and the key; one from the environment names the variable.
+names the file and the key; one from the environment names the variable. The schema states the host
+shape as a pattern on `registries[].host` and states none on `default_registry`, whose value may be
+any entry's name — so an editor reading the schema alone does not flag a mistyped default, and the
+configuration load is what refuses it.
 
 **A host is judged by its spelling alone.** Whether the name resolves, or whether a registry answers
 there, is not checked when the configuration loads.
