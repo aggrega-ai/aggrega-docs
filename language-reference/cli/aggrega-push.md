@@ -4,7 +4,7 @@
 
 ## What it does
 
-`aggrega push` reads a single entity YAML, bundles it for transport, and pushes it to `<registry>/<kind>/<metadata.name>:<metadata.version>`. Run `aggrega push --list-kinds` for the entity kinds the installed binary publishes — one kind per line, sorted, and nothing else, so a script can read it directly. The set spans the catalog authoring kinds together with the Aggregate, a reusable module, and the Plugin, a content-addressed reference to a WebAssembly artifact the compiler routes and the runtime executes. The Plugin is a structural publishable artifact rather than a catalog authoring kind. Publishability is a property of the entity, not of how it is used: an Aggregate is publishable whether it is later referenced as a Release's top-level `spec.aggregate` or nested in another Aggregate's `aggregates:` block. Release and Manifest are deployment-side inputs, not catalog artifacts, and are rejected.
+`aggrega push` reads a single entity YAML, bundles it for transport, and pushes it to `<registry>/<kind>/<metadata.name>:<metadata.version>`, with the repository path lowercased; a Recipe or FeatureRecipe carries its `spec.capability`, and a Plugin its `metadata.pluginType`, as a segment between the kind and the name. Run `aggrega push --list-kinds` for the entity kinds the installed binary publishes — one kind per line, sorted, and nothing else, so a script can read it directly. The set spans the catalog authoring kinds together with the Aggregate, a reusable module, and the Plugin, a content-addressed reference to a WebAssembly artifact the compiler routes and the runtime executes. The Plugin is a structural publishable artifact rather than a catalog authoring kind. Publishability is a property of the entity, not of how it is used: an Aggregate is publishable whether it is later referenced as a Release's top-level `spec.aggregate` or nested in another Aggregate's `aggregates:` block. Release and Manifest are deployment-side inputs, not catalog artifacts, and are rejected.
 
 ## Bundling
 
@@ -145,11 +145,13 @@ Publish a single catalog entity to an OCI registry, where other workspaces
 resolve it with "aggrega pull".
 
 The entity is read from the path given, bundled for transport, and pushed to
-<registry>/<kind>/<metadata.name>:<metadata.version>. The tag is the entity's
-own metadata.version. Run "aggrega push --list-kinds" for the kinds this binary
-publishes, one per line and nothing else, so a script can read it directly.
-Release and Manifest are deployment-side inputs rather than catalog artifacts
-and are refused.
+<registry>/<kind>/<metadata.name>:<metadata.version>, the repository path
+lowercased; a Recipe or FeatureRecipe carries its spec.capability, and a Plugin
+its metadata.pluginType, as a segment between <kind> and <metadata.name>. The
+tag is the entity's own metadata.version. Run "aggrega push --list-kinds" for
+the kinds this binary publishes, one per line and nothing else, so a script can
+read it directly. Release and Manifest are deployment-side inputs rather than
+catalog artifacts and are refused.
 
 Every kind has a directory of its own except Aggregate, Release and Manifest: an
 entity of any other kind is refused when another entity sits in its directory,
