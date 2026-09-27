@@ -122,10 +122,11 @@ spec:
         section: guardrails
         identifiedBy: guardrail_name
         entries:
-          # one entry for the listed patterns, one for the listed
-          # entity types in each direction they are masked, and one
-          # more on requests for the tool calls a conversation carries,
-          # each rendered from .values
+          # two entries for the listed patterns, one for message text
+          # and one for tool-call arguments; one for the listed entity
+          # types in each direction they are masked, and one more on
+          # requests for the tool calls and tool results a conversation
+          # carries, each rendered from .values
     - id: turn_off_message_logging
       plugin: pipeline-step/litellm-gateway-config:1.0.0
       function: step
@@ -135,7 +136,7 @@ spec:
           turn_off_message_logging: true
 ```
 
-Its assertions halt the build on what this gateway cannot honour — `restore` without entity types, an entity type the analyzer does not recognize, entity types with the recognizer sockets unwired, patterns masking replies while `mask_reasoning` is on — each naming the constraint and the capability the gateway declares. Listed entity types are also masked in tool-call arguments, both in the tool calls a request's earlier turns carry and in a reply's, by guardrails loaded from a module the gateway's own Recipe delivers beside its configuration. The arguments are masked value by value rather than as one text: they are read as JSON, every string value and every number the analyzer recognizes as a listed type is masked, the keys are not, and the JSON is written back, so the arguments stay valid JSON. A recognized number becomes the placeholder as a string, so a tool whose schema asks for a number there refuses the call rather than receiving the original. Arguments that are not JSON, other than empty ones, are never masked as one text: a request carrying them in its conversation is refused before it is forwarded, and a reply carrying them is refused before any of it is sent. Entity types masked in a reply are masked by a guardrail loaded from that module: a request asking for a streamed reply is then refused before it is forwarded, unless the Release sets `allow_streamed_replies` on the attachment, in which case the masked reply arrives in one piece at the end rather than as it is produced. The same guardrail masks the reasoning text a reasoning model returns beside its reply, in the fields the FeatureRecipe's own description lists, unless the Release sets `mask_reasoning` to `false` on the attachment: a provider that signs its reasoning refuses a signed block that a client sends back changed, so a client that must send those blocks back turns it off, and the reasoning text then reaches it unmasked. Listed patterns are matched against a reply's message text only, never its reasoning text, so an attachment listing patterns with `scope` `response` or `both` builds only with `mask_reasoning` set to `false` on it, and that attachment then masks none of a reply's reasoning text; to have reasoning text masked, list the entity types in an attachment of their own.
+Its assertions halt the build on what this gateway cannot honour — `restore`, an entity type the analyzer does not recognize, entity types with the recognizer sockets unwired, patterns masking replies while `mask_reasoning` is on — each naming the constraint and the capability the gateway declares. This gateway numbers the stand-ins of `restore` afresh in every text it masks, so two people's names in one request can share one stand-in and restoring could hand the caller one person's name where another's was written; the Feature keeps `restore` for a gateway that can map its stand-ins back reliably, and on this one an attachment uses `redact`. Listed entity types and listed patterns are also masked in tool-call arguments, both in the tool calls a request's earlier turns carry and in a reply's, by guardrails loaded from a module the gateway's own Recipe delivers beside its configuration; listed entity types are masked in the results of those earlier tool calls too, on the chat, messages and responses routes. The arguments, and a result that is JSON, are masked value by value rather than as one text: they are read as JSON, every string value and every number the analyzer recognizes or a pattern matches is masked, the keys are not, and the JSON is written back, so the JSON stays valid. A masked number becomes the placeholder as a string, so a tool whose schema asks for a number there refuses the call rather than receiving the original; a result that is not JSON is masked as one text. Arguments that are not JSON, other than empty ones, are never masked as one text: a request carrying them in its conversation is refused before it is forwarded, and a reply carrying them is refused before any of it is sent. A streamed chat reply masked by pattern keeps its text streaming and holds its tool calls until the reply finishes, then sends them whole and masked; a reply streamed on the gateway's messages or responses route is not masked by patterns at all, and only a reply sent there in one piece is. Entity types masked in a reply are masked by a guardrail loaded from that module: a request asking for a streamed reply is then refused before it is forwarded, unless the Release sets `allow_streamed_replies` on the attachment, in which case the masked reply arrives in one piece at the end rather than as it is produced. The same guardrail masks the reasoning text a reasoning model returns beside its reply, in the fields the FeatureRecipe's own description lists, unless the Release sets `mask_reasoning` to `false` on the attachment: a provider that signs its reasoning refuses a signed block that a client sends back changed, so a client that must send those blocks back turns it off, and the reasoning text then reaches it unmasked. Listed patterns are never matched against a reply's reasoning text, so an attachment listing patterns with `scope` `response` or `both` builds only with `mask_reasoning` set to `false` on it, and that attachment then masks none of a reply's reasoning text; to have reasoning text masked, list the entity types in an attachment of their own.
 
 **5. Routing Domain: Manifest & Release**
 
@@ -184,7 +185,7 @@ spec:
 ```
 
 **6. What the Build Writes**
-The gateway's rendered ConfigMap gains exactly these lines after its routing table, and a second file beside its configuration, `entity_masking.py`, the module the third entry's guardrail is loaded from; every other rendered file is byte-identical to a build without the attachment. No address appears in them: the gateway reads the analyzer's and anonymizer's addresses from the environment its Recipe fills from the two sockets.
+The gateway's rendered ConfigMap gains exactly these lines after its routing table, and a second file beside its configuration, `data_masking.py`, the module the second and third entries' guardrails are loaded from; every other rendered file is byte-identical to a build without the attachment. The third entry, which masks the conversation's tool calls and tool results value by value, comes before the gateway's built-in entity guardrail, which masks the text of the messages and is kept off the tool turns. No address appears in them: the gateway reads the analyzer's and anonymizer's addresses from the environment its Recipe fills from the two sockets.
 
 ```yaml
     guardrails:
@@ -201,6 +202,27 @@ The gateway's rendered ConfigMap gains exactly these lines after its routing tab
               pattern: "\\bPRJ-[0-9]{4}\\b"
               pattern_type: regex
       -
+        guardrail_name: router-pii-filter-tool-call-patterns
+        litellm_params:
+          default_on: true
+          guardrail: data_masking.ToolCallPatternMasking
+          mode: pre_call
+          patterns:
+            -
+              action: MASK
+              name: project_code
+              pattern: "\\bPRJ-[0-9]{4}\\b"
+              pattern_type: regex
+      -
+        guardrail_name: router-pii-filter-tool-call-entities
+        litellm_params:
+          default_on: true
+          guardrail: data_masking.RequestToolCallMasking
+          mode: pre_call
+          pii_entities_config:
+            EMAIL_ADDRESS: MASK
+            PERSON: MASK
+      -
         guardrail_name: router-pii-filter-entities
         litellm_params:
           default_on: true
@@ -210,23 +232,15 @@ The gateway's rendered ConfigMap gains exactly these lines after its routing tab
             EMAIL_ADDRESS: MASK
             PERSON: MASK
           presidio_filter_scope: input
-      -
-        guardrail_name: router-pii-filter-tool-call-entities
-        litellm_params:
-          default_on: true
-          guardrail: entity_masking.RequestToolCallMasking
-          mode: pre_call
-          pii_entities_config:
-            EMAIL_ADDRESS: MASK
-            PERSON: MASK
+          skip_tool_message_in_guardrail: true
     litellm_settings:
       turn_off_message_logging: true
 ```
 
-At runtime the gateway replaces `PRJ-1234` in a request's messages with `[PROJECT_CODE_REDACTED]`, a person's name with `<PERSON>` and an email address with `<EMAIL_ADDRESS>` before the request reaches the model provider, whatever the caller asks; the name and the address are replaced in the arguments of the tool calls the conversation carries as well, value by value. When the analyzer or the anonymizer cannot be reached it refuses the request rather than forwarding it, and its logging integrations receive a redacted copy of every request and reply.
+At runtime the gateway replaces `PRJ-1234` in a request's messages with `[PROJECT_CODE_REDACTED]`, a person's name with `<PERSON>` and an email address with `<EMAIL_ADDRESS>` before the request reaches the model provider, whatever the caller asks; the project code, the name and the address are replaced in the arguments of the tool calls the conversation carries as well, and the name and the address in the results of those calls, value by value. When the analyzer or the anonymizer cannot be reached it refuses the request rather than forwarding it, and its logging integrations receive a redacted copy of every request and reply.
 
 **7. What It Does Not Do**
-Masking is not prevention. The gateway refuses no request for the sensitive text it finds in it; text no pattern matches and the recognizer does not detect passes unchanged; the project-code pattern is not matched against tool-call arguments, so a project code in them passes as sent, and the names of the arguments' keys are not masked; the result of an earlier tool call is masked as one text on the chat route and not at all on the gateway's messages and responses routes; the gateway and the two recognizer services see the original text; and traffic that does not pass through the gateway is not touched. The FeatureRecipe's own description lists what this gateway leaves unmasked.
+Masking is not prevention. The gateway refuses no request for the sensitive text it finds in it; text no pattern matches and the recognizer does not detect passes unchanged; the names of the keys in tool-call arguments and tool results are not masked; the project-code pattern is not matched against the result of an earlier tool call on the gateway's messages and responses routes, so a project code there passes as sent; the gateway and the two recognizer services see the original text; and traffic that does not pass through the gateway is not touched. The FeatureRecipe's own description lists what this gateway leaves unmasked.
 
 ---
 
