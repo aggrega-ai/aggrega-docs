@@ -2527,6 +2527,21 @@ The two values are the slot's own name and the component type that declares it, 
 
 **How to fix:** attach a Feature under the slot's name — on the component, or at a broader scope every consumer of the slot shares. An attachment under a different name does not bind the slot: a slot is a named binding point, so the name is the binding. If the slot should no longer be required, update the catalog entity's `featuresSchema` to drop the `required` declaration.
 
+### Two Features declared to conflict reach one component
+
+<!-- covers: internal/compiler/analyzer.ErrConflictingFeaturesReachOneComponent -->
+
+A Feature's `interoperability.conflictsWith` names the Features it cannot be attached alongside, and one component ends up carrying the Feature and one it names. The check runs against the attachments the component ends up with after every scope has folded — the Aggregate's component-level and subsystem-level `features:` blocks, the Release's boundary-level blocks (every boundary the component sits inside, nested ones included) and component-level entries, and attachments produced by annotation-driven expansion. So a pair halts when both are written on the component, when one is on a boundary or subsystem holding it, or when one sits on an outer boundary and the other on a boundary nested inside it. Two Features attached to sibling boundaries that share no component never meet, and a boundary holding no component reaches nothing, so neither halts.
+
+One declaration is enough: the halt fires when either Feature's list names the other. Names are compared with any version removed, on both sides, so an entry matches every version of the Feature it names. The compiler compares the names the Feature's author declared against the Features the component carries and reads nothing more into either.
+
+Emitted message:
+> a Feature reaches a component alongside a Feature it declares a conflict with (`"<feature>"`, attached in the Release on boundary `"<boundary-path>"`, conflicts with `"<other-feature>"`, attached in the Aggregate on component `"<component>"`, on component `"<component>"`). Attach only one of the two where they meet: remove one attachment, or move it to a scope that does not hold this component.
+
+The first value is the Feature whose list names the other — the one the sentence above names — and every place it was attached follows it; then the Feature it conflicts with, and every place that one was attached; and last the component where they meet. Each place is spelled in the words of the document you would open to change it: `attached in the Aggregate on component`, `attached in the Aggregate on subsystem`, `attached in the Release on boundary` (a nested boundary's path joins its levels with `/`), `attached in the Release on the entry for component` followed by `in boundary`, or `attached by annotation-driven expansion of` the annotation, followed by `declared at` where it was written. A Feature attached at two places lists both. The report is positioned at the component's own key under `components:`, and a pair meeting on several components reports once for each of them, in the order the Aggregate declares the components.
+
+**How to fix:** attach only one of the two where they meet — remove one of the attachments, or move one to a scope that does not hold this component, such as a sibling boundary. Where the attachment came from annotation-driven expansion, the annotation is what to change, not the block it expanded onto. If the two Features may in fact be combined, the declaration is what is wrong: remove the other Feature from the `conflictsWith` list on the declaring Feature's catalog entity.
+
 ### Attachment does not conform to its declared slot shape
 
 <!-- covers: pkg/resolver.ErrAttachmentSlotShape -->
@@ -4950,6 +4965,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0305` | `the files of the entity's local source do not match the pins recorded for them in entity.lock` | A local source no longer matches the pins recorded beside its Recipe |
 | `E0306` | `plugin artifact not found on this machine` | A plugin's `.wasm` is not on this machine |
 | `E0307` | `a value a cache location is built from would place cached files outside the place it names in the cache` | A value would place a cached file outside the cache |
+| `E0308` | `a Feature reaches a component alongside a Feature it declares a conflict with` | Two Features declared to conflict reach one component |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

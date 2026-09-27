@@ -227,9 +227,9 @@ To satisfy stringent regulatory requirements (e.g., the EU AI Act), **Platform A
 
 ### 9. Feature Compatibility & Topological Safety
 
-Because the core compiler is blind to physical infrastructure mechanics, it relies entirely on explicit declarations from Platform Ops to prevent the generation of incompatible configurations.
+Because the core compiler is blind to physical infrastructure mechanics, it relies entirely on explicit declarations in the catalog to prevent the generation of incompatible configurations.
 
-* **`conflictsWith`:** An array defined within a Feature's Catalog schema that lists mutually exclusive capabilities. A dedicated linter Wasm plugin cross-references the list of features a developer attached to a given component in the `Aggregate`. If an intersection occurs (i.e., a developer attempts to attach two features that Ops has explicitly declared incompatible), the compilation halts before rendering any physical artifacts. Feature atomicity and purity are enforced as a social contract and validated via these custom Wasm linting rules.
+* **`conflictsWith`:** A list, declared on a Feature's catalog entity under `interoperability`, of the Features it cannot be attached alongside. The compiler compares it with the Features each component ends up carrying once every scope has contributed — the component's own attachments, those written on a subsystem or boundary that holds it, those on its Release component entry, and those annotation-driven expansion produced — and halts before rendering any physical artifacts when one component carries both (i.e., an author attaches, directly or through a scope, two Features that one Feature's author explicitly declared incompatible). One declaration is enough, and Features are matched by name whatever their versions. The compiler reads nothing into the names: the incompatibility is the author's declaration, and the check is a comparison of names. Feature atomicity and purity themselves remain a social contract — nothing checks that a Feature does one thing.
 
 ### 10. Dynamic Topology Mapping (Dependency Resolution)
 

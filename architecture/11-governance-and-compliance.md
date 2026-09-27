@@ -127,10 +127,9 @@ While the payload is unopinionated, the generic schema enforces strict structura
 
 **C. Advanced Operational Safety (`spec.interoperability`)**
 
-To protect fragile workloads from conflicting infrastructure mutations, the generic `Feature` schema defines strict interoperability boundaries:
+To protect fragile workloads from conflicting infrastructure mutations, the generic `Feature` schema defines an interoperability control:
 
-* **`spec.interoperability.conflictsWith`** — an array of Feature type URIs that cannot be attached to the same component simultaneously. Rather than hardcoding architectural purity checks into the core Go compiler, this array is evaluated by a custom `linter.wasm` plugin before rendering. If the linter detects incompatible features attached to a node, it halts the build.
-* **`spec.interoperability.componentRefPath`** — a JSONPath / YAMLPath string defining exactly where the Wasm rendering plugin should safely inject the resolved target ID of the component during late-binding configuration generation.
+* **`spec.interoperability.conflictsWith`** — a list of the Features that cannot reach the same component as this one. The compiler halts the build before rendering when the attachments one component ends up with — gathered from every scope that reaches it: the component itself, a subsystem or boundary holding it, its Release component entry, and annotation-driven expansion — hold this Feature and one it names. It is a comparison of the names the Feature's author declared against the Features the component carries, with no meaning read into either: the incompatibility is the author's judgement, and the compiler holds a build to it. One declaration is enough, names are matched whatever their versions, and two Features attached to sibling boundaries that share no component never meet.
 
 ### 4. Network Boundary Governance (Default Deny Convention)
 

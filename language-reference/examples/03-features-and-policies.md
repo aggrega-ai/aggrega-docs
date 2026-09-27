@@ -248,7 +248,7 @@ spec:
 ```
 
 **2. Platform Catalog: Features Using Advanced Selectors**
-This Feature targets components with the autonomy label present, regardless of its value. It declares `conflictsWith` to prevent attaching alongside another conflicting Feature.
+This Feature targets components with the autonomy label present, regardless of its value. It declares `conflictsWith`, so a build in which any component ends up carrying both it and `core/full-auto-mode` — attached on the component itself or on a subsystem or boundary that holds it — halts before rendering.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1

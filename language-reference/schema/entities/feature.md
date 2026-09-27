@@ -79,7 +79,6 @@ Advanced operational safety and interoperability controls.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `conflictsWith` | string[] | no | List of feature names that cannot be attached to the same component simultaneously. |
-| `componentRefPath` | string | no | String path defining where the compiler should inject the resolved target ID of the component. |
+| `conflictsWith` | string[] | no | Names of the Features this Feature cannot reach a component alongside, each written the way an attachment's type names a Feature. The build halts before rendering when one component ends up carrying this Feature and a Feature named here — whether each was attached on the component, on a subsystem or boundary holding it, on a Release component entry, or by annotation-driven expansion. One declaration is enough: the halt does not need the other Feature to list this one. Names are compared with any version removed, so an entry matches every version of the Feature it names. Two Features attached to sibling boundaries that share no component never meet and do not halt. |
 
 _Additional properties are not permitted._

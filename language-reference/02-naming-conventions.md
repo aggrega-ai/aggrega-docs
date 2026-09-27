@@ -80,7 +80,7 @@ Socket names in a developer's `uses` block must match a key in the catalog entit
 
 The DSL separates developer-facing YAML (authored by humans) from internal compiler contracts (consumed by templates and tooling):
 
-* **Developer-facing YAML (camelCase):** Multi-word field names in Aggregate, Release, Component, Feature, Recipe, FeatureRecipe, Manifest, and Plugin schemas use camelCase. Examples: `exportedComponents`, `syncWave`, `subDirectory`, `featuresSchema`, `usesSchema`, `valuesMapping`, `injectMapping`, `executionScope`, `appliesTo`, `appliesToAnyOf`, `conflictsWith`, `componentRefPath`. Follows Kubernetes API conventions.
+* **Developer-facing YAML (camelCase):** Multi-word field names in Aggregate, Release, Component, Feature, Recipe, FeatureRecipe, Manifest, and Plugin schemas use camelCase. Examples: `exportedComponents`, `syncWave`, `subDirectory`, `featuresSchema`, `usesSchema`, `valuesMapping`, `injectMapping`, `executionScope`, `appliesTo`, `appliesToAnyOf`, `conflictsWith`. Follows Kubernetes API conventions.
 * **Internal contracts (snake_case):** Multi-word field names in the IR Graph schema and the Template Context schema use snake_case. User-facing examples Recipe authors encounter: `instance_id` (in `.context.instance_id` — the Recipe's identity), `inject_raw` (in `.inject_raw`, a top-level pillar alongside `.inject` rather than a key under `.context` — the unmutated injection contract), `attachment_name` (in credential FeatureRecipe context — identifies which declared secret slot the FeatureRecipe is processing). Follows JSON API conventions and aligns with Go's JSON struct tag generation.
 * **Single-word fields:** Lowercase regardless of context. Examples: `values`, `infra`, `inject`, `provides`, `locals`, `features`, `labels`, `annotations`, `boundaries`, `components`, `subsystems`, `pipeline`, `source`.
 
@@ -149,8 +149,7 @@ A subset of fields across the language carry document-path values — strings th
 
 **The naming-suffix discipline** distinguishes the two authoring sides of these path values via a deliberate suffix split aligned with the broader Field Casing section above:
 
-* **Schema fields** carrying RFC 6901 JSON Pointers use **camelCase `*Path`** suffix. The fields are part of the developer-facing YAML schema, so they follow the camelCase convention. Examples:
-  * `componentRefPath` — a schema-defined field referencing a target component's path inside the IR Graph.
+* **Schema fields** carrying RFC 6901 JSON Pointers use **camelCase `*Path`** suffix. The fields are part of the developer-facing YAML schema, so they follow the camelCase convention. Example:
   * `targetPath` — a schema-defined field naming the path the Wasm Injector should patch.
 * **`.locals` export keys** carrying RFC 6901 JSON Pointers use **snake_case `*_path`** suffix. The keys are part of the Recipe's internal export surface — read by the Recipe's own subsequent templates, and by a Wasm plugin pipeline through the `pipeline[].with` payload that references `.locals` — so they follow the snake_case convention. Examples:
   * `volumes_path` — `.locals.volumes_path: "/spec/template/spec/volumes"` exposing the synthesized Workload's volumes-array position.

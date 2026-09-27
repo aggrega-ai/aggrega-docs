@@ -738,6 +738,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0305` | `local-source-content-mismatch` | `the files of the entity's local source do not match the pins recorded for them in entity.lock` |
 | `E0306` | `plugin-artifact-not-found` | `plugin artifact not found on this machine` |
 | `E0307` | `cache-location-outside-cache` | `a value a cache location is built from would place cached files outside the place it names in the cache` |
+| `E0308` | `conflicting-features-reach-one-component` | `a Feature reaches a component alongside a Feature it declares a conflict with` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication no longer judges a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.
