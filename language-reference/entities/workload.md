@@ -174,6 +174,27 @@ The controller shape is chosen by the workload's `form`, not by its volumes. A S
 
 A `form: stateful` workload on the helm provider requires a headless governing Service: declare **exactly one** service with `type: Headless` in the same Workload. The provider wires the StatefulSet's `serviceName` to that headless Service (it provides the stable per-pod network identities a StatefulSet needs). The build halts if no headless service is declared — a StatefulSet has no governing Service to name — or if more than one is, leaving the governing Service ambiguous. A StatefulSet workload may still declare additional non-headless services (for example a `ClusterIP` service for client access) beside the one headless governing service.
 
+### Resource quantities
+
+These Workload values are **quantities** — amounts written in the notation Kubernetes uses for resources: a container's (or init container's) `resources.requests` and `resources.limits` values for `cpu`, for `memory` and for every extended-resource key, and a volume's `ephemeral.sizeLimit`, `persistent.size` and `persistentTemplate.size`. The Workload schema types each as a string and does not constrain its form. The provider that synthesizes the Workload for a target checks every quantity it emits, and it checks the Workload as the Recipe's templates evaluated it, so a value that arrived through `infra`, a Release parameter or any other template input is judged on the string it rendered to.
+
+A quantity is, with nothing before or after it:
+
+- an optional sign, `+` or `-`;
+- a number with at least one digit — `2`, `0.5`, `.5` or `1.`;
+- at most one of an **exponent** — `e` or `E`, an optional sign, then digits, as in `1e3` or `5E-2` — or a **unit suffix**: a decimal suffix `n`, `u`, `m`, `k`, `M`, `G`, `T`, `P` or `E` (10⁻⁹ up to 10¹⁸, in steps of a thousand), or a binary suffix `Ki`, `Mi`, `Gi`, `Ti`, `Pi` or `Ei` (1024 up to 1024⁶).
+
+`500m`, `0.5`, `2`, `128Mi`, `1.5Gi`, `1e3`, `5n` and `4u` are quantities; `lots`, `1.5 cores`, `1 gigabyte`, `10 GB` and `1e1.5` are not — an exponent is a whole number. A lone `E` after the number is the decimal suffix for 10¹⁸ (`12E`); followed by digits it opens an exponent (`1E3`).
+
+This is the form Kubernetes' own quantity parser accepts, with one deliberate difference: a string whose number has no digit — `m`, `Ki`, `+`, `.`, `e5` — is refused, where Kubernetes reads it as zero. That string is exactly what a template leaves behind when the value it interpolates is empty: `"{{ .infra.cpu }}m"` with an empty `cpu` renders `m`. Refusing it turns an empty input into a halt that names the field, rather than into a zero-sized request nothing reports.
+
+What each target does with a quantity:
+
+- **helm** emits every quantity verbatim, after checking each one against the form above. A value outside it halts the build with an error naming the node, the field's path in the Workload — `containers.main.resources.requests.cpu`, `initContainers[0].resources.limits.memory`, `volumes.data.persistent.size` — and the value. See [Helm Provider → Workload (synthesized) mode](../providers/helm.md#workload-synthesized-mode).
+- **compose** converts `cpu` and `memory` into its own units from the parsed value: `cpus` becomes a decimal core count (`500m` → `0.5`) and `memory` an exact byte count (`1.5Gi` → `1610612736`). A value that is not a quantity halts the build, and so does a quantity compose cannot represent exactly — a negative amount, a memory amount that is not a whole number of bytes (`1500m`), or a cpu amount finer than nine decimal places of a core — and the error says which of the two it met. compose emits no extended resource and no volume size, so it checks neither: an extended-resource key and an `ephemeral.sizeLimit` are dropped with a warning, and a persistent size shapes nothing in its output. See [Compose Provider → Container resources](../providers/compose.md#container-resources).
+
+The check judges form only. Whether a cluster can schedule the amount, or whether the amount suits its device, is outside it.
+
 ### `services`
 
 An ordered map of service exposures. Each service declares its type (`ClusterIP`, `NodePort`, `LoadBalancer`, `Headless`) and a named-port map. Port names must match container port names declared elsewhere in the Workload:
@@ -366,7 +387,7 @@ Both fields describe compute — the pod and the container that runs on the devi
 
 ### Extended-resource keys
 
-A container's `resources.requests` and `resources.limits` carry the ordinary `cpu` and `memory` quantities and, alongside them, **extended-resource keys**: vendor- or domain-scoped device quantities keyed by a fully-qualified `<domain>/<name>` name such as `nvidia.com/gpu` or `amd.com/gpu`. The domain segment carries at least one dot, and that dot is what distinguishes an extended key (`nvidia.com/gpu`) from the bare `cpu` and `memory` quantities. Each value is a string quantity (`"1"`, `"2"`) the compiler pipes through verbatim; the cluster's device plugin resolves and allocates the device at schedule time.
+A container's `resources.requests` and `resources.limits` carry the ordinary `cpu` and `memory` quantities and, alongside them, **extended-resource keys**: vendor- or domain-scoped device quantities keyed by a fully-qualified `<domain>/<name>` name such as `nvidia.com/gpu` or `amd.com/gpu`. The domain segment carries at least one dot, and that dot is what distinguishes an extended key (`nvidia.com/gpu`) from the bare `cpu` and `memory` quantities. Each value is a string quantity (`"1"`, `"2"`) the compiler pipes through verbatim, and the helm provider checks its form before emitting it (see [Resource quantities](#resource-quantities)); the cluster's device plugin resolves and allocates the device at schedule time.
 
 ### Worked example — a GPU inference workload
 
@@ -511,6 +532,8 @@ Every Workload is validated at Recipe load time before any rendering runs. Valid
 Both stages produce the same `CATALOG_ERROR`-prefixed message shape; failures stop the build before any rendering output is produced. Recipe authors get pointed feedback identifying the exact field that failed and the constraint that rejected it.
 
 The K8s-shaped pass-through fields (`scheduling.affinity`, `scheduling.tolerations`, `scheduling.topologySpreadConstraints`, the `items` lists inside ConfigMap and Secret volumes, lifecycle `httpGet` hooks) are validated structurally only — Aggrega's schema constrains their presence and outer shape, but the inner shape of these K8s-API-defined values is the provider's responsibility (the helm provider hands them to the K8s pod spec verbatim; the compose provider rejects or degrades them as appropriate). A Workload using a misshapen `affinity` value passes Aggrega validation and surfaces the error during provider synthesis instead.
+
+Resource quantities are strings to the schema in the same way: neither stage checks their form. The synthesizing provider does, on the evaluated Workload, and halts on a value outside the quantity form — see [Resource quantities](#resource-quantities).
 
 ## Auxiliary resources belong outside the Workload
 

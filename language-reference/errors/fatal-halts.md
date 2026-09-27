@@ -3914,16 +3914,32 @@ Emitted message. The condition names the kind of failure — a value with no rep
 
 <!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
 
-A container's processor and memory quantities are written in a form compose does not use, so they are converted. This condition is what a quantity that cannot be converted without loss reports — a memory quantity that is not a whole number of bytes, or a suffix the conversion has no rule for. It stops rather than round the value or emit an approximation, because a limit that is quietly not the limit that was asked for is the kind of difference nobody looks for until something is stopped for exceeding it.
+A container's processor and memory quantities are written in the notation Kubernetes uses for resources, and compose carries them in units of its own, so each is read as a quantity and converted from its value. Two things stop that, and the message says which it met: a value that is not a quantity at all, and a quantity compose has no exact form for — a negative amount, a memory amount that is not a whole number of bytes, a processor amount finer than nine decimal places of a core, or an amount past the largest compose can hold. It stops rather than round the value or emit an approximation, because a limit that is quietly not the limit that was asked for is the kind of difference nobody looks for until something is stopped for exceeding it.
 
-**Emitted messages.** Each opens with the condition — a value with no representation in what the provider emits — then names the quantity and the forms that convert:
+**Emitted messages.** Each opens with the condition — a value with no representation in what the provider emits — then names the resource, whether the value is a request or a limit, its path in the Workload and the value. A value that is not a quantity is followed by what made it not one and the form a quantity takes:
 > a plugin has no representation for a value it was given
-> compose: cannot convert cpu quantity `"<value>"` to a deploy.resources cpus value; use a millicpu (e.g. 500m) or a plain core count (e.g. 0.5, 2): resources quantity cannot be converted to a compose deploy.resources value
+> compose: the `<cpu|memory>` `<request|limit>` at `<path>`: `"<value>"` is not a quantity: `<reason>`; a quantity is a number such as 2, 0.5 or 1.5, with an optional sign and at most one of an integer exponent (1e3, 5E-2) or a unit suffix (n, u, m, k, M, G, T, P, E, Ki, Mi, Gi, Ti, Pi, Ei): resources quantity cannot be converted to a compose deploy.resources value
+
+A quantity compose cannot represent is followed by the range compose holds for that resource:
+> a plugin has no representation for a value it was given
+> compose: the memory `<request|limit>` at `<path>` is `"<value>"`, a quantity compose cannot represent exactly; a compose memory value is a whole number of bytes from 0 to 9223372036854775807: resources quantity cannot be converted to a compose deploy.resources value
 
 > a plugin has no representation for a value it was given
-> compose: cannot convert memory quantity `"<value>"` to a deploy.resources byte count; use an integer quantity with a binary (Ki/Mi/Gi/Ti/Pi) or decimal (k/M/G/T/P) suffix, or a plain byte integer: resources quantity cannot be converted to a compose deploy.resources value
+> compose: the cpu `<request|limit>` at `<path>` is `"<value>"`, a quantity compose cannot represent exactly; a compose cpus value is a core count from 0 to 9223372036.854775807 with at most nine decimal places: resources quantity cannot be converted to a compose deploy.resources value
 
-**How to fix:** write the quantity in one of the forms the message lists. A fractional memory quantity is the common cause and the fix is to write the same amount as a whole number in a smaller unit. Processor quantities take either a thousandths-of-a-core value or a plain count.
+**How to fix:** where the value is not a quantity, write it in the form set out in [Workload → Resource quantities](../entities/workload.md#resource-quantities); a bare suffix such as `m` is what a template leaves when the value it interpolates is empty, so the input to fix is the one the template read. Where it is a quantity compose cannot represent, write an amount inside the range the message states — memory as a whole number of bytes in whichever unit (`1536Mi` rather than `1.5001Gi`), and processor time to at most nine decimal places of a core.
+
+### A resource quantity the helm provider emits is not a quantity
+
+<!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
+
+The helm provider copies every resource quantity into the manifests it emits verbatim — each container's and init container's `resources.requests` and `resources.limits` values, extended resources included, and each volume's `ephemeral.sizeLimit`, `persistent.size` and `persistentTemplate.size` — and checks each one against the quantity form first, on the Workload as the Recipe's templates evaluated it. A value outside the form halts the build here, where it would otherwise build cleanly and be refused by the cluster when the chart is installed.
+
+**Emitted message.** It opens with the condition, then names the node, the field's path in the Workload, the value and what made it not a quantity, and states the form a quantity takes:
+> a plugin has no representation for a value it was given
+> helm: node `"<node>"`: `<path>`: `"<value>"` is not a quantity: `<reason>`; a quantity is a number such as 2, 0.5 or 1.5, with an optional sign and at most one of an integer exponent (1e3, 5E-2) or a unit suffix (n, u, m, k, M, G, T, P, E, Ki, Mi, Gi, Ti, Pi, Ei)
+
+**How to fix:** write the value in the form set out in [Workload → Resource quantities](../entities/workload.md#resource-quantities). Where the field is templated, the value to fix is the one the template read: a bare suffix such as `m` or `Mi` is what a template leaves when the value it interpolates is empty, and a Release parameter reaches the field exactly as it was written.
 
 ### A health probe cannot be turned into a compose healthcheck
 
@@ -4948,7 +4964,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0288` | `a plugin has no expression for a construct this build declares` | A workload declares a form compose cannot express; A container declares a field compose has no primitive for |
 | `E0289` | `a plugin could not resolve something it requires to exactly one value` | A health probe cannot be turned into a compose healthcheck; A configmap volume has no file behind it; A cross-boundary reference has no consuming stack to be written into; A synthesized StatefulSet has no single service to govern it |
 | `E0290` | `two things a plugin produced occupy one name in its output` | An authored export name is one the build derives for a cross-stack reference; Two entries reach one stack output name; A CloudFormation fragment writes one key twice; Two rendered resources land at one output file |
-| `E0291` | `a plugin has no representation for a value it was given` | A published port declares a transport compose cannot spell; A resources quantity cannot be converted to a compose value; A cross-boundary reference was spliced into a longer string |
+| `E0291` | `a plugin has no representation for a value it was given` | A published port declares a transport compose cannot spell; A resources quantity cannot be converted to a compose value; A resource quantity the helm provider emits is not a quantity; A cross-boundary reference was spliced into a longer string |
 | `E0292` | `a plugin reported a failure that none of the declared kinds names` | A plugin reported a failure it did not classify |
 | `E0293` | `wasm: guest plugin named a condition the socket does not declare` | A plugin named a condition the socket does not declare |
 | `E0294` | `components in different subsystems take the same identity: rename one of them, since a subsystem contributes nothing to a component's identity` | Two subsystems declare a component under one name |

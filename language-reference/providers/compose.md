@@ -38,13 +38,18 @@ A container's `resources` reach compose's `deploy.resources` block, which docker
 
 | Workload field | Compose field | Translation |
 | --- | --- | --- |
-| `resources.requests.cpu` | `deploy.resources.reservations.cpus` | Fractional cores. A millicpu quantity is divided by 1000 (`500m` → `0.5`, `1500m` → `1.5`); a plain core count (`2`, `0.5`) passes through unchanged |
+| `resources.requests.cpu` | `deploy.resources.reservations.cpus` | A decimal core count. A core count written as a bare number (`2`, `0.5`) is emitted as written; any other form is converted from its value (`500m` → `0.5`, `1500m` → `1.5`, `5n` → `0.000000005`, `1e1` → `10`) |
 | `resources.limits.cpu` | `deploy.resources.limits.cpus` | Same conversion |
-| `resources.requests.memory` | `deploy.resources.reservations.memory` | An exact byte count. An integer mantissa with a binary (`Ki`/`Mi`/`Gi`/`Ti`/`Pi`/`Ei`) or decimal (`k`/`M`/`G`/`T`/`P`/`E`) suffix, or a plain byte integer, converts exactly — `8Gi` becomes `8589934592` |
+| `resources.requests.memory` | `deploy.resources.reservations.memory` | An exact byte count, converted from the value in whichever form it is written — `8Gi` becomes `8589934592`, `1.5Gi` becomes `1610612736`, `1e3` becomes `1000` |
 | `resources.limits.memory` | `deploy.resources.limits.memory` | Same conversion |
-| an extended resource key — `nvidia.com/gpu`, `amd.com/gpu`, any `<domain>/<name>` | — | No single-host compose analog. The key is dropped and the build raises an `unsupported-field` warning naming it, one per distinct key however many of `requests` and `limits` carried it |
+| an extended resource key — `nvidia.com/gpu`, `amd.com/gpu`, any `<domain>/<name>` | — | No single-host compose analog. The key is dropped and the build raises an `unsupported-field` warning naming it, one per distinct key however many of `requests` and `limits` carried it. Its value is not emitted, so it is not checked |
 
-A quantity compose cannot convert exactly — a fractional memory mantissa, an unknown suffix, a cpu shape that is neither millicpu nor a plain core count — halts the build with a `TRANSLATION_ERROR` naming the quantity, rather than rounding it or emitting a value that means something else.
+Each `cpu` and `memory` value is read as a quantity, in the form set out in [Workload → Resource quantities](../entities/workload.md#resource-quantities), on the Workload as the Recipe's templates evaluated it. Two things halt the build with a `TRANSLATION_ERROR`, and the error says which of the two it met, naming the container's path, whether the value is a request or a limit, the resource and the value:
+
+- **a value that is not a quantity** — `lots`, `1.5 cores`, or the `m` an empty template leaves in `"{{ .infra.cpu }}m"`;
+- **a quantity compose cannot represent exactly** — a negative amount; a memory amount that is not a whole number of bytes (`1500m`, `4u`) or is larger than 9223372036854775807 bytes (`8Ei`); a cpu amount finer than nine decimal places of a core, the finest precision a Kubernetes quantity itself keeps, or larger than 9223372036.854775807 cores.
+
+Nothing is rounded, and no value is emitted that means something else.
 
 **A GPU request is the common case of the dropped-key row.** A Workload asking for `nvidia.com/gpu` renders a service carrying no GPU reservation of any kind, and the build names the key it dropped. Pair that with the `runtimeClassName` row in [Pod-level fields](#pod-level-fields): a Workload authored to run on GPU reaches compose as a plain CPU service, and says so twice — once for the resource and once for the runtime.
 
