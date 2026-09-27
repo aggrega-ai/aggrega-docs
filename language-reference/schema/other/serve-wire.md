@@ -2081,6 +2081,7 @@ The Releases the workspace holds.
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `releases` | array or null | yes | Each Release document. |
+| `lockfiles` | map of string | yes | The lockfile of each Release listed, keyed by the Release exactly as it is listed. Each is the file a pull writes for that Release and a build reads, so a client reads where it lives rather than working it out. Empty when the workspace holds no Release. |
 
 _Additional properties are not permitted._
 
@@ -2091,6 +2092,7 @@ Which Release a client should act on by default. A workspace pointing at no Rele
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `release` | string | yes | The Release that was settled on, or empty where none was. |
+| `lockfile` | string | no | The lockfile of the Release that was settled on: the file a pull writes for it and a build reads. Absent where no Release was settled on. |
 | `reason` | string | no | Why no Release was settled on. |
 | `trace` | string | no | Each step of the choice and what it found, so a caller can see which one would have settled it. |
 
