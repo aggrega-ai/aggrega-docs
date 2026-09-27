@@ -80,10 +80,15 @@ workspace:
 Leaving the key out is a different statement: an omitted list is the ordinary case, and `catalog`
 is still read.
 
-A build, a pull, a validation or an `aggrega inspect` that cannot resolve an entity you named says
-where this project reads local entities from and what to change so the one you named is read. It
-says nothing of the kind where you wrote the empty list — reading no local catalog is what you
-declared there, and a suggestion to change it would be arguing with you.
+A build, a pull, a validation or an `aggrega inspect` that finds no entity under a name you used
+says where this project reads local entities from and what to change so the one you named is read.
+It says nothing of the kind where you wrote the empty list — reading no local catalog is what you
+declared there, and a suggestion to change it would be arguing with you. Nor does it say it where
+the document declaring that name was read and refused: that document already sits where the
+catalog reads, so the report names what the document violates instead, the line and the
+constraint, and moving it would fix nothing. A failure that found the entity and could not accept
+it — a registry now serving other bytes under a version your lockfile pins, a file the entity
+carries that cannot be read — is not a missing entity either, and it reports its own remedy alone.
 
 ### Whether a pull or a push pins an entity
 
