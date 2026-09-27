@@ -107,7 +107,7 @@ _Additional properties are not permitted._
 | --- | --- | --- | --- |
 | `name` | string | yes | The command verb the host registers — the `aggrega <name>` token an operator invokes, and the discriminator the host hands the plugin at invocation so a single plugin backing several commands routes on which command was called. |
 | `description` | string | no | The command's one-line short-help text, shown in the command listing and help output. Documentation only; the host does not act on it. |
-| `flags` | object[] | no | The command's flags, in declared order. Each entry contributes one flag the host registers on the command so aggrega help <command> renders it like a core command's flag. A command with no flags leaves it empty. |
+| `flags` | object[] | no | The command's flags, in declared order. Each entry contributes one flag the host registers on the command so aggrega help <command> renders it like a core command's flag. A command with no flags leaves it empty. Within a command each flag name and each shorthand appears once, and none reuses a flag every aggrega command already has — `--help`, `-h` and the global flags; the host checks this when it adds the plugin's commands, and a plugin whose declarations fail is not added, with a warning. |
 
 _Additional properties are not permitted._
 
@@ -116,10 +116,10 @@ _Additional properties are not permitted._
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `name` | string | yes | The flag's long name — the --name token an operator passes on the command line. Every declared flag must name it. |
-| `shorthand` | string | no | The flag's optional single-character short alias — the -x form an operator may pass instead of the long name. Absent means the flag has no short alias. |
+| `shorthand` | string | no | The flag's optional short alias — the -x form an operator may pass instead of the long name — as a single ASCII letter or digit. Absent means the flag has no short alias. |
 | `description` | string | no | The flag's one-line help text, shown in the command's help output. It is optional documentation; the host neither validates nor acts on it. |
-| `type` | string | no | The flag's value type — for example string, bool, or int. Absent carries no type claim. |
-| `default` | string | no | The flag's default value when the operator does not pass it, expressed as a string. Absent means the flag declares no default. |
+| `type` | string (enum) | no | The flag's value type — `string`, `bool` or `int` — and the kind of flag help renders it as. Absent renders it as a string flag. Allowed values: `"string"`, `"bool"`, `"int"` |
+| `default` | string | no | The flag's default value when the operator does not pass it, expressed as a string. For a `bool` or `int` flag it is a value of that type. Absent means the flag declares no default. |
 
 _Additional properties are not permitted._
 

@@ -246,12 +246,22 @@ Each `flags` entry declares one flag:
 | Field | Effect |
 | --- | --- |
 | `name` | The flag's long name — the `--name` token an operator passes on the command line. Required for each entry. |
-| `shorthand` | The flag's optional single-character short alias — the `-x` form an operator may pass instead of the long name. Absent means the flag has no short alias. |
+| `shorthand` | The flag's optional short alias — the `-x` form an operator may pass instead of the long name — as a single ASCII letter or digit. Absent means the flag has no short alias. |
 | `description` | The flag's one-line help text, shown in the command's help output. Optional documentation; the host neither validates nor acts on it. |
-| `type` | The flag's value type — for example `string`, `bool`, or `int`. Absent carries no type claim. |
-| `default` | The flag's default value when the operator does not pass it, expressed as a string. Absent means the flag declares no default. |
+| `type` | The flag's value type — `string`, `bool` or `int` — and the kind of flag help renders it as. Absent renders it as a string flag. |
+| `default` | The flag's default value when the operator does not pass it, expressed as a string. For a `bool` or `int` flag it is a value of that type. Absent means the flag declares no default. |
 
 A CLI plugin declares its commands and their flags in `describe()`; the host registers exactly that surface and renders each command's flags in `aggrega help <command>` the same way it renders a built-in command's flags.
+
+The host checks every flag a plugin declares when it adds the plugin's commands, and a plugin whose declarations fail is **skipped rather than added**: none of its commands is registered, a warning names the plugin, the command, the flag and what is wrong with it, and every other command — built-in or from another plugin — keeps working. A declaration fails when:
+
+- a flag has no name, or a command declares the same name twice;
+- a shorthand is anything other than a single ASCII letter or digit, or a command declares the same shorthand for two flags;
+- a name or shorthand reuses a flag every `aggrega` command already has — `--help`, its `-h`, and the global flags such as `--offline` and `--config`;
+- a type is anything other than `string`, `bool` or `int`;
+- a default does not parse as the flag's type — `maybe` for a `bool`, `three` for an `int`.
+
+The single-character shape of `shorthand` and the three values of `type` are also part of this entity's schema, so a `Plugin` entity recording any other value is refused when the catalog loads. That a name or shorthand appears once per command, that none reuses a flag every command has, and that a default parses as its type are checked by the host alone. The check covers whether the host can declare a flag for help as written; it does not see whether the plugin reads the flags it declares, because the plugin parses its own arguments.
 
 ```yaml
 metadata:

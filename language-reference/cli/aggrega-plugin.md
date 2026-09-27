@@ -287,6 +287,26 @@ whose records are out of sync with its binary.
 | `--plugin` | — | Path to the plugin's .wasm artifact whose imports and describe() determine the recorded host functions and commands |
 <!-- END GENERATED: cli-plugin -->
 
+## A CLI plugin's commands and their flags
+
+Each time `aggrega` starts, it adds one command for every command a configured `cli` plugin contributes, reading the commands and their flags from the plugin's `describe()` self-report — from the describe cache when it holds the plugin's pinned digest, and otherwise by describing the plugin. Each declared flag is declared on its command so `aggrega help <command>` lists it the way it lists a built-in command's flags; the plugin still receives its arguments unparsed and reads its own flags.
+
+Before it adds any of a plugin's commands, `aggrega` checks every flag each of them declares. A plugin whose declarations fail is skipped: none of its commands is added, one warning on standard error names the plugin, the command, the flag and what is wrong with it, and every other command — built-in or from another plugin — runs as usual:
+
+```
+warning: CLI plugin "oci://hub.aggrega.ai/plugin/cli/greet:1.2.0" was not added as a command: its command "greet" declares the flag "--verbose" with the shorthand "vv"; a shorthand is a single ASCII letter or digit
+```
+
+A flag declaration passes when:
+
+- the flag has a name, and no other flag of the same command has it;
+- its shorthand, if it has one, is a single ASCII letter or digit that no other flag of the same command uses;
+- neither its name nor its shorthand reuses a flag every `aggrega` command already has — `--help`, `-h`, and the global flags;
+- its type, if it declares one, is `string`, `bool` or `int` — a flag with no type is a string flag;
+- its default, if it declares one, is a value of its type.
+
+The skip is repeated, with its warning, on every invocation until the configuration pins a version of the plugin whose declarations pass. The fields a flag declaration carries are described under `spec.commands` on the [`Plugin` entity page](../entities/plugin.md).
+
 ## Generating entities, and syncing records: two different kinds of act
 
 Two of these subcommands produce a file, and what they produce is not the same kind of thing.
