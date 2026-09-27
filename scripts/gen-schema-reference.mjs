@@ -20,12 +20,10 @@
 // The generator is deterministic: the same binary produces byte-identical
 // output. Schema kinds are processed in sorted order, object keys are emitted
 // in the order the schema declares them, and the output directory is rebuilt
-// from scratch on every run so no stale page survives. That claim used to be
-// written as "given the same binary", which put the hard half of it on the
-// caller — the same run could describe two different sets of schemas depending
-// on what was on PATH, and say nothing either way. Determinism is still
-// relative to a binary; the difference is that the generator now decides which
-// one rather than accepting whichever it is handed.
+// from scratch on every run so no stale page survives. Determinism is relative
+// to a binary, so the generator decides which binary answers rather than
+// accepting whichever is on PATH: left to the caller, the same run could
+// describe two different sets of schemas and say nothing either way.
 //
 // The pages are generated — never hand-edit them. To change a page, change the
 // schema the binary emits and regenerate.
