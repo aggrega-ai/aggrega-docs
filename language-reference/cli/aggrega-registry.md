@@ -306,10 +306,10 @@ publication dates: each is picked up by the next full re-read.
 
 ## Offline
 
-`aggrega registry update` is the one command in this group that reaches the network, and
-under the offline posture — the top-level `offline` key in a configuration file,
-`AGGREGA_OFFLINE`, or [`--offline`](global-flags.md#--offline) — it refuses before it
-walks anything. The refusal names which of the three set the posture.
+`aggrega registry update` is the one command in this group whose whole work is a walk of
+the registries, and under the offline posture — the top-level `offline` key in a
+configuration file, `AGGREGA_OFFLINE`, or [`--offline`](global-flags.md#--offline) — it
+refuses before it walks anything. The refusal names which of the three set the posture.
 
 There is no partial form to fall back on, because the index records what each registry
 currently serves and that cannot be learned without asking one. What an offline workspace
@@ -318,5 +318,14 @@ currently serves and that cannot be learned without asking one. What an offline 
 the only thing the posture takes away. To refresh for one run from an offline workspace,
 pass `--offline=false`.
 
-The other commands in this group — `add`, `list`, `remove` — change or read local
-configuration and are unaffected.
+`aggrega registry add` reaches the network once, for the trust policy the registry
+advertises, unless `--fetch-trust=false`, `--identity` or `--key` says not to fetch. Under
+the offline posture that fetch is refused before anything is dialled, and the registration
+still completes exactly as it does for a registry that advertises nothing — the entry is
+written from the flags, or from the built-in baseline for the official hub — and the notice
+that the registry advertises no trust config carries the offline refusal as its reason. Pin the
+policy by hand with `--identity` or `--key`, or pass `--offline=false` to fetch it for this
+one run. The same registration made through [`aggrega serve`](aggrega-serve.md) or
+[`aggrega mcp`](aggrega-mcp.md) behaves the same way and writes the same entry.
+
+`list` and `remove` change or read local configuration and are unaffected.
