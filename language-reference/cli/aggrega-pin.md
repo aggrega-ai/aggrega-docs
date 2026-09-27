@@ -12,13 +12,36 @@ An entity can depend on bytes outside its own document, and the lock holds one p
 
 - **A remote `source:` whose coordinates you wrote out in full** — no template in its `kind`, `url`, `chart`, `module_subdir`, `version` or `ref`. The step fetches it and records the version it resolved to — for a git source, the commit its `ref` named — and the content digest of what was fetched.
 - **A file an `artifacts` entry imports with `$import`.** The step digests the file as it stands in your workspace.
-- **Each file of a `source:` that names a directory or a file beside the entity.** Nothing is fetched: the step digests each file the source contributes to what a publication of the entity carries — every file under the directory it names, or the one file — and records it by its path beside the entity. A file next to the Recipe that the source does not contribute, such as a README, is not pinned. A source written as a template, such as `./charts/{{ .values.flavour }}`, names its directory only once a Release fills it in, so it contributes every file in the entity's directory, and each of those is pinned. A build compares the source with these pins before its provider reads it, so a file added, changed or removed since the pin halts the build — [A local source no longer matches the pins recorded beside its Recipe](../errors/fatal-halts.md#a-local-source-no-longer-matches-the-pins-recorded-beside-its-recipe).
+- **Each file of a `source:` that names a directory or a file beside the entity.** Nothing is fetched: the step digests each file the source contributes to what a publication of the entity carries — every file under the directory it names that the entity's ignore rules keep, or the one file — and records it by its path beside the entity. A file next to the Recipe that the source does not contribute, such as a README, is not pinned. A source written as a template, such as `./charts/{{ .values.flavour }}`, names its directory only once a Release fills it in, so it contributes every file in the entity's directory the rules keep, and each of those is pinned. A build compares the source with these pins before its provider reads it, so a file added, changed or removed since the pin halts the build — [A local source no longer matches the pins recorded beside its Recipe](../errors/fatal-halts.md#a-local-source-no-longer-matches-the-pins-recorded-beside-its-recipe).
+- **The ignore rules themselves, for a `source:` that is a directory.** The step records which plugin served the entity's capability and the exact rules it composed, as the next section describes.
 
 What it does not record: a remote source whose coordinates are filled in from a template, which names an artifact only once a Release fills it in and is pinned in each Release's lockfile by [`aggrega pull`](aggrega-pull.md); and an inline `artifacts` entry or one taken from an ArtifactLibrary. The file itself is described field by field in the [entity lock schema](../schema/other/entity-lock.md).
 
 **No Release is needed.** A source written out in full names the same artifact for every Release that will ever use the entity, so resolving it needs nothing a Release supplies. That is what lets an author pin an entity in a workspace that has no Release at all.
 
 **The entity file is never written.** What the step derives goes beside the entity; what you typed is left exactly as you typed it. Re-running over unchanged inputs leaves the lock byte-identical, and an entity that stops reading anything a lock records has its lock removed. A Component, a Feature, or any other kind that reads no such input is reported as having nothing to pin, and nothing beside it is touched.
+
+## Which files ship with an entity
+
+A Recipe or FeatureRecipe whose `source:` names a directory beside it — a co-located chart, a module — carries that directory's files when it is published. Not every file in it belongs there: a version-control directory, a dependency cache, an editor's leftovers. **Which files belong is decided by ignore rules, in the syntax `.gitignore` uses, and you control them.** They come from two places:
+
+- **The plugin that renders the entity's capability** declares what its own ecosystem never ships. The chart plugins leave out the version-control directories (`.git/`, `.hg/`, `.svn/`, `.bzr/`) and the hidden files under a chart's `templates/`, and they honour the chart's own `.helmignore`: wherever the walk of the source meets one, its lines are read as further rules for the directory holding it. The Terraform plugin leaves out the version-control directories and the `.terraform/` working directory — not the dependency lock file, which is meant to travel with the module — and honours `.terraformignore` the same way. A plugin that declares nothing leaves everything in.
+- **Your own `.aggregaignore`**, one file beside the entity document, in the same syntax. Its lines apply after the plugin's and after every ignore file the plugin names, so you have the final say on any path you name: a line such as `.venv/` leaves out a directory the plugin knows nothing about, and a line such as `!.git/` brings back one the plugin left out. The file itself never travels; its rules do, inside the lock.
+
+```
+# catalog/recipe/helm/server/1.0.0/.aggregaignore
+.venv/
+*.bak
+!notes.bak
+```
+
+**Each rule is read relative to the directory it belongs to.** A rule the plugin declares is read from the root of the source directory; a line of a `.helmignore` from the directory holding that file; a line of your `.aggregaignore` from the entity's own directory. A rule with no slash, or only a trailing one, matches a name at any depth; a trailing slash matches only a directory; a leading `!` brings back what an earlier rule left out. **A directory a rule leaves out is not entered**, so a file inside it comes back only once the directory itself does — `!.git/HEAD` alone does not bring the file back while `.git/` is left out, and `!.git/` does.
+
+**The plugin whose rules are read is the one serving the capability in your workspace when you pin**: your workspace's provider binding for that capability, or else the plugin built into `aggrega`. The step records that plugin — its reference and the digest of its entity — and the exact rules it composed in the `entity.lock`. From then on, every reading of the directory applies the recorded rules and no others: a publication of the entity, the comparison a pull or a push holds the lock to, the entity's row in a lockfile, a build's comparison, the render that hands the directory to a provider, and `aggrega pull --verify`. So what you publish is exactly what your own build renders, and a changed binding, an edited `.aggregaignore` or a newer `aggrega` changes nothing until you pin again — at which point the lock's diff shows what moved. A file a plugin names as an ignore file, such as a `.helmignore`, is itself one of the source's files and is pinned like any other unless a rule leaves it out, so editing it without pinning again is caught by the next pull or build. A lock that records no rules keeps every file under the directory.
+
+**A consumer renders the files your rules kept.** A plugin can render a Recipe published for its capability when it speaks the same ABI version, its contract matches its entity's claim, and it needs no file outside the published set. A plugin that needs a file the set left out must fail its build loudly and name the file; the host's part is to refuse any pack or read of a file the set does not carry, naming it. Where the plugin a consumer's workspace binds for the capability declares different rules from the ones your lock records, the consumer's `aggrega pull` says so in a warning naming both plugins and the difference, and carries on.
+
+**A symbolic link among an entity's files is refused**, wherever it points and whether or not it resolves — see [A symbolic link sits among the files an entity carries](../errors/fatal-halts.md#a-symbolic-link-sits-among-the-files-an-entity-carries). A link your rules leave out is passed over like any other file they leave out.
 
 ## Where the lock goes
 
@@ -83,6 +106,15 @@ A source that names a directory beside the entity is not fetched: each file it c
 a publication of the entity carries is digested as it stands and pinned by its path, so a build
 refuses a file added, changed or removed after the pin. A local source written as a template
 contributes every file in the entity's directory, so each of those is pinned.
+
+Which files a source directory contributes is decided here, once, and recorded. The step reads the
+ignore rules the plugin serving the entity's capability declares — this workspace's provider binding
+for that capability, or else the plugin built into aggrega — together with the ignore files that
+plugin names inside the source, such as a chart's .helmignore, and the .aggregaignore beside the
+entity, in gitignore syntax, whose lines come last and so have the final say. It records the plugin
+and the composed rules in the entity.lock, and every publication, pull, build and render of the
+entity applies the recorded rules and no others, so a changed binding or a newer binary moves
+nothing until you pin again. A symbolic link among the files is refused rather than followed.
 
 The step writes beside the entity, so the entity needs a writable home: the document you name is
 read from its own directory and the lock lands next to it. The entity file itself is never

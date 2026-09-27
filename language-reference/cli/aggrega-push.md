@@ -10,16 +10,16 @@
 
 **A push publishes the entity document and the files the entity itself names beside it — and nothing else in its directory.** The files an entity names are:
 
-- for a Recipe or FeatureRecipe, its local `source:` — a directory travels with every file under it except those whose name starts with a dot; each file its `valuesMapping:`, `workload:` and `artifacts:` entries import with `$import:`; and the `entity.lock` beside it;
+- for a Recipe or FeatureRecipe, its local `source:` — a directory travels with every file under it that the ignore rules recorded in its `entity.lock` keep, as [Which files ship with an entity](aggrega-pin.md#which-files-ship-with-an-entity) describes; each file its `valuesMapping:`, `workload:` and `artifacts:` entries import with `$import:`; and the `entity.lock` beside it;
 - for a Component or Feature, each schema file its `spec.schema`, a pillar or a `usesSchema` socket imports with `$import:`, including every file an imported file imports in turn.
 
-An Aggregate, a Plugin and the library kinds name no file beside their document. A note, a README, another entity's files or a build's output sitting in the directory is not published, whatever it is called.
+An Aggregate, a Plugin and the library kinds name no file beside their document. A note, a README, another entity's files or a build's output sitting in the directory is not published, whatever it is called. A symbolic link among the files an entity names is refused rather than followed — [A symbolic link sits among the files an entity carries](../errors/fatal-halts.md#a-symbolic-link-sits-among-the-files-an-entity-carries).
 
 **The shape follows from that.** An entity that names nothing publishes as its document, unchanged, under its kind's `+yaml` media type. One that names a file publishes as a `.tar.gz` holding the document and those files at their places in the directory, under its kind's `+tar+gz` media type. So a Recipe whose content is all inline publishes as its document, and a Component whose schema is imported from a file publishes as an archive. [Catalog and Registry](../../architecture/13-catalog-and-registry.md) §6 lists both media types for every kind.
 
 **Each file in an archive carries mode `0644`, or `0755` where it has any execute bit set, and no timestamp.** A checkout writes files with its own permission bits, while version control records only whether a file is executable, so the archive keeps exactly that: two checkouts of one commit publish the same files whatever their umask, and flipping a script's execute bit changes what is published.
 
-**A local `source:` written as a template carries the whole directory.** A template such as `./charts/{{ .values.flavour }}` names a directory only once a Release fills it in, so no publication can tell which one it will be. Such an entity carries every file in its own directory, except those whose name starts with a dot, and the push says so beneath its other facts:
+**A local `source:` written as a template carries the whole directory.** A template such as `./charts/{{ .values.flavour }}` names a directory only once a Release fills it in, so no publication can tell which one it will be. Such an entity carries every file in its own directory that its recorded ignore rules keep — never its `.aggregaignore`, whose rules travel inside the lock — and the push says so beneath its other facts:
 
 ```
   carries: every file in the entity's directory, because its source "./charts/{{ .values.flavour }}" is a template and the directory it names is decided by each Release that uses it
@@ -172,10 +172,12 @@ names, the entity.lock beside it, and each schema file a Component or Feature
 imports — and nothing else in its directory. An entity that names nothing
 publishes as its document, unchanged; one that names a file publishes as a
 gzipped archive of the document and those files. A directory it names travels
-with every file under it except those whose name starts with a dot. A local
-source written as a template names no one directory until a Release fills it in,
-so an entity with one carries every such file in its own directory, and push
-says so.
+with every file under it that the ignore rules recorded in its entity.lock keep:
+the rules the plugin serving its capability declared, and the author's own
+.aggregaignore beside it, composed when the entity was pinned. A symbolic link
+among those files is refused rather than followed. A local source written as a
+template names no one directory until a Release fills it in, so an entity with
+one carries every such file in its own directory, and push says so.
 
 Each file travels with mode 0644, or 0755 where it has any execute bit set,
 whatever the checkout it is published from. The OCI manifest names the digest of

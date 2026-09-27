@@ -203,6 +203,7 @@ The host is a generic router. It reads the guest's `describe()` self-report — 
 - `boundary_assembly` (`none` | `merge` | `nest`) — how the guest combines a dispatch group's output: `merge` classifies per-node output as fragments the assembler merges into one artifact, `nest` nests per-node files under an assembled wrapper, `none` writes each node's output directly.
 - `artifact_delimiters` (optional) — the Go-template delimiter pair the guest applies to artifact bodies.
 - `reusable_instance` (optional) — whether one loaded instance may serve every crossing of the build (see [Determinism and instance reuse](#determinism-and-instance-reuse) below).
+- `source_ignore` (optional) — the files the guest's ecosystem never ships beside a source it renders (see [Declaring what a source's ecosystem never ships](#declaring-what-a-sources-ecosystem-never-ships) below).
 
 The socket is a fixed export set — one mandatory, the rest optional and advertised in `describe()`:
 
@@ -241,6 +242,30 @@ Three properties are worth knowing when you decide what to declare:
 - **The scope is one assembled output** — the set of contributors whose files merge together. A guest wanting uniqueness across a narrower or wider scope than that expresses the scope in the space name it declares, which keeps the choice yours rather than the host's.
 - **One contributor may repeat a name freely.** A node can render across several crossings — a source render, a workload synthesis, an artifacts placement — and the declarations merge. The same name declared twice by one contributor is that contributor describing one resource twice, not a clash.
 - **Declaring changes no bytes.** The field is an assertion about what the guest derived, never a change to what it emitted, so a guest's rendered output is identical whether it declares or not. Omitting `derived_keys` is valid and leaves the check inert for that guest.
+
+#### Declaring what a source's ecosystem never ships
+
+A Recipe's local source directory — a co-located chart, a module — is published with the Recipe, and not every file in it belongs to it. A provider guest says what its own ecosystem never ships through `source_ignore` on its contract, as ignore rules in the syntax `.gitignore` uses:
+
+```json
+"contract": {
+  "input_kinds": { "sourced": true, "synthesized": false, "artifacts_standalone": false },
+  "boundary_assembly": "none",
+  "source_ignore": {
+    "patterns": [".git/", ".hg/", ".svn/", ".bzr/", "templates/.?*"],
+    "files": [".helmignore"]
+  }
+}
+```
+
+- `patterns` are rules read from the root of the source directory, applied in order, a later match overriding an earlier one.
+- `files` names the ignore files your ecosystem honours inside a source. Wherever the walk of a source meets one, its lines are read as further rules for the directory holding it, after your patterns.
+
+**The declaration is read when an entity is pinned, not when it is rendered.** The author's pin step resolves the plugin serving the entity's capability in their workspace, composes your rules with their own `.aggregaignore` — whose lines come last and so win on any path they name — and records your plugin's reference and digest, together with the exact composed rules, in the entity's `entity.lock`. Every later publication, comparison and render of that entity applies the recorded rules; the host matches them and holds no opinion of its own about any ecosystem. So the files your guest is handed at render — the listing, and every file it asks the host to pack or read — are exactly the files a publication of the entity carries, and a file the rules leave out is answered as not there, naming it. A symbolic link under a source is refused before your guest is invoked.
+
+**Compatibility follows from what was recorded.** A guest can render a Recipe published for its capability when it speaks the same ABI version, its contract matches its entity's claim, and it needs no file outside the published set. A guest that needs a file the set left out must fail its build loudly and name the file — the host's refusal of a pack or a read names it, and a guest carries that into its own failure. Where the plugin a consumer's workspace binds for a capability declares rules other than the ones an entity's lock records, the consumer's pull prints a warning naming both plugins and the difference; it never halts on it.
+
+Omitting `source_ignore` declares no rules, and a source you render then keeps every file the author's own rules keep. The field is optional and needs no ABI version of its own: a guest that omits it loads as one declaring nothing. The `Plugin` entity records the same declaration as `spec.provider.contract.sourceIgnore`; where it does, the load refuses a guest whose `describe()` reports something different.
 
 #### Determinism and instance reuse
 

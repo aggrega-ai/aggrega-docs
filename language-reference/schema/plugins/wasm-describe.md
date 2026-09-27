@@ -91,7 +91,7 @@ _Additional properties are not permitted._
 
 ### `ProviderContract`
 
-A provider's self-declaration of the compile-time render behaviors it performs across the nodes it renders — the input kinds it accepts, whether and how it assembles a dispatch group's per-node output into a single artifact, and the Go-template delimiter pair it applies to imported artifact files. It describes the provider as a whole, not any one export. The load gate cross-checks it against the entity's authored claim.
+A provider's self-declaration of the compile-time render behaviors it performs across the nodes it renders — the input kinds it accepts, whether and how it assembles a dispatch group's per-node output into a single artifact, the Go-template delimiter pair it applies to imported artifact files, and the files its ecosystem never ships beside a source. It describes the provider as a whole, not any one export. The load gate cross-checks it against the entity's authored claim.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -102,6 +102,18 @@ A provider's self-declaration of the compile-time render behaviors it performs a
 | `reusable_instance` | boolean | no | Whether one loaded plugin instance may serve every render, assemble, and validate crossing of the build rather than a fresh instance per crossing. A plugin declares it true only when it holds no state across crossings. Absent (false) is the safe default: the host loads a fresh instance per crossing. |
 | `cross_boundary_linking` | boolean | no | Whether the plugin wires cross-boundary uses edges — edges whose consuming and consumed ends assemble into different dispatch groups — by producing provider-native cross-reference wiring through its link_publish and link_resolve exports. A plugin declares it true only when it exports both. Absent (false) is the safe default: the plugin wires no cross-boundary edges. |
 | `nest_segment` | string | no | The directory the plugin's target places each contributor's own sub-directory under, for a plugin that nests a dispatch group's per-node output. The host joins this segment, the contributor's authoring-level name, and each file's own path. Read only when boundary_assembly is nest. Absent, the host places each contributor's sub-directory directly at the dispatch position, with no enclosing directory. The value names one directory and never a path: a value carrying a path separator, or naming the current or the parent directory, is refused, because the host composes the contributor's name into it and a path fragment would place a contributor's files somewhere other than beneath the dispatch position. |
+| `source_ignore` | SourceIgnore | no | The files this plugin's ecosystem never ships beside a source it renders, declared as ignore rules. The host reads the declaration when an author pins a Recipe or FeatureRecipe whose capability this plugin serves for them: it composes these rules with the author's own ignore file, records the composed rules in the entity lock beside the entity, and from then on every publication of the entity, every comparison of its local source and every render of it applies the recorded rules rather than asking a plugin again. So a Recipe published for a capability carries the files its publisher's rules kept, and a plugin renders it when it speaks the same ABI version, its contract matches its entity's claim, and it needs no file outside that set. A plugin that needs a file the set left out must fail its build loudly and name the file; the host's part is to refuse a pack or a read of a file the set does not hold, naming it. Absent declares no ignore rules, and a source the plugin renders then keeps every file the author's own rules keep. |
+
+_Additional properties are not permitted._
+
+### `SourceIgnore`
+
+The ignore rules a plugin's ecosystem applies to a source directory, in gitignore syntax: a pattern holding no slash, or only a trailing one, matches a name at any depth, a pattern holding any other slash is read from the root of the directory it is scoped to, a trailing slash matches only a directory, and a leading ! brings back what an earlier rule excluded. Rules apply in order and a later match overrides an earlier one. A directory a rule excludes is not entered, so nothing under it comes back unless the directory itself is brought back first.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `patterns` | string[] | no | The ecosystem's own ignore patterns, each scoped to the root of the local source directory being walked, in the order they apply. Absent or empty declares none. |
+| `files` | string[] | no | The names of the ignore files the ecosystem honours inside a source — .helmignore for a chart, for instance. Wherever the walk of a source finds a file of one of these names, its lines are read as further patterns in the same syntax, each scoped to the directory holding the file, and they apply after the patterns above; a blank line and a line opening with # are skipped. A file of such a name is itself carried unless a rule excludes it. Absent or empty names none. |
 
 _Additional properties are not permitted._
 

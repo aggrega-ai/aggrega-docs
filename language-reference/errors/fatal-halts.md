@@ -3482,6 +3482,21 @@ Emitted messages:
 
 **How to fix:** as for an imported file, two answers, and which is right depends on whether the change was meant. Where it was, run `aggrega pin` on the Recipe so its source's files are pinned again, and commit the `entity.lock` it rewrites. Where it was not, restore the files the message names.
 
+### A symbolic link sits among the files an entity carries
+
+<!-- covers: internal/sourcewalk.ErrSymbolicLinkInEntityFiles -->
+
+Every file a publication of an entity carries is read from the entity's own directory, and a symbolic link there is refused rather than followed. Following it would publish the bytes it points to under the link's own name — from wherever it points, outside the entity's directory included — into an artifact that is then digested and, where signing applies, signed. Skipping it instead would publish an artifact whose content silently differs from your directory. So every shape of link is refused the same way: a link to a file, a link to a directory, a link pointing nowhere, a link pointing at itself, and two links pointing at each other.
+
+The refusal is made wherever the entity's files are read: by `aggrega pin`, by a publication before it packs anything (a dry run included), by a pull and a verifying pull holding the `entity.lock` to the entity's files, by a build comparing a local source with its pins, and by a render reading a local source directory before a provider is handed any of it. The message names the link by its path beside the entity document, and the diagnostic is positioned at the link itself.
+
+**A link your ignore rules leave out is not a file the entity carries**, so it is passed over like any other file those rules leave out, and never followed. Those rules are the ones recorded in the `entity.lock` when the entity was pinned, so a line you add to `.aggregaignore` takes effect when you pin the entity again.
+
+Emitted message:
+> a symbolic link sits among the files an entity carries (`<path>`). remediation: replace the link with a copy of what it points to, placed inside the entity's own directory. A link met inside a source directory can instead be left out with a line in the .aggregaignore beside the entity, which takes effect when the entity is pinned again. A link is refused rather than followed because the bytes it points to would travel under the link's name, from wherever it points
+
+**How to fix:** where the entity needs what the link points to, replace the link with a copy of it inside the entity's directory, and pin the entity again. Where the link is there for your own convenience and the entity does not read it, add its path to the `.aggregaignore` beside the entity document and pin again. [Which files ship with an entity](../cli/aggrega-pin.md#which-files-ship-with-an-entity) describes the rules that decide what an entity carries.
+
 ### An entity reads an input the lock beside it records no pin for
 
 <!-- covers: pkg/recipepin.ErrEntityNotPinned -->
@@ -4991,6 +5006,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0306` | `plugin artifact not found on this machine` | A plugin's `.wasm` is not on this machine |
 | `E0307` | `a value a cache location is built from would place cached files outside the place it names in the cache` | A value would place a cached file outside the cache |
 | `E0308` | `a Feature reaches a component alongside a Feature it declares a conflict with` | Two Features declared to conflict reach one component |
+| `E0309` | `a symbolic link sits among the files an entity carries` | A symbolic link sits among the files an entity carries |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
