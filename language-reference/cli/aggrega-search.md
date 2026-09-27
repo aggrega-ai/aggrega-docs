@@ -136,3 +136,11 @@ A consumer asking which version it would get reads `version`. Deriving that from
 `deprecations` array instead means reimplementing the severity and signature conditions, and
 a second implementation of those conditions is free to disagree with the one the compiler
 applies; `retracted` reports the outcome those conditions already produced.
+
+Each record also carries `published`: every version the index recorded, in ascending version
+order, each with the `manifestDigest` its tag resolved to when the index was built and, where
+this workspace's trust policy verified that version's own signature, its `signer`. A version
+with no `signer` carries no signature that policy verified, and nothing more is said about it.
+A consumer reading one version's content addresses it by that digest — for example
+`aggrega inspect oci://<host>/<repository>@<digest>` — so what it reads is the bytes the index
+recorded, whatever happens to the tag afterwards.

@@ -229,7 +229,7 @@ Verified-signature fact recorded when an artifact's signature was verified at pu
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `bundle_digest` | string | yes | SHA-256 digest of the cached signature bundle blob, in `sha256:` followed by 64 lowercase hex characters. It names the cache blob and is the integrity gate for an air-gapped re-verify, so it builds a path and carries no `/`, no `\` and no `..` — which the `sha256:` form already excludes. |
-| `identity` | string | no | Verified certificate subject for a keyless signature (which trusted identity matched). Empty for a keyed signature. |
+| `identity` | string | no | Verified signer of the signature: the signing certificate's subject for a keyless signature, or `keyed:sha256:` followed by the SHA-256 of the pinned public key's PEM text for a keyed signature. |
 | `issuer` | string | no | Verified OIDC issuer for a keyless signature. Empty for a keyed signature. |
 | `mode` | string (enum) | yes | Verification mode that admitted the signature. Allowed values: `"keyless"`, `"keyed"` |
 

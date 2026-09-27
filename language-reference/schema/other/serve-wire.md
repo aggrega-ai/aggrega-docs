@@ -1337,6 +1337,31 @@ What an index refresh did for one registry.
 
 _Additional properties are not permitted._
 
+### `PublishedVersion`
+
+One version the index holds for a reference: the manifest digest its tag resolved to when the index was built and, where the trust policy the index was built under verified the version's own signature, the signer it verified as. The signer is absent for a version with no signature, for one none of whose signatures verified, and where that policy pins neither a public key nor a trusted identity or switches signature verification off. None of those is a basis for naming a signer, and its absence says nothing more.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `version` | string | yes | The version, as its tag names it. |
+| `manifestDigest` | string | yes | The digest of the manifest the version's tag resolved to when the index was built, which addresses the version by the bytes it names rather than by its tag. |
+| `signer` | VerifiedSignature | no | A signature that verified against a registry's trust policy: how it verified, the signer it verified as, and the digest of the signature bundle that verified. |
+
+_Additional properties are not permitted._
+
+### `VerifiedSignature`
+
+A signature that verified against a registry's trust policy: how it verified, the signer it verified as, and the digest of the signature bundle that verified.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `bundleDigest` | string | yes | The digest of the signature bundle that verified, as `sha256:` followed by 64 lowercase hex characters. |
+| `identity` | string | no | The signer the signature verified as: for a keyless signature, the identity the signing certificate was issued for, which is its subject alternative name; for a keyed signature, `keyed:sha256:` followed by the lowercase hex SHA-256 of the pinned public key's PEM text. |
+| `issuer` | string | no | The OIDC issuer recorded in the signing certificate, for a keyless signature. It is absent for a keyed signature. |
+| `mode` | const "keyless" or const "keyed" | yes | How the signature verified. The set is closed. |
+
+_Additional properties are not permitted._
+
 ### `RegistrySearchRecord`
 
 One record a search matched, as the local index holds it, plus which of its versions a published marker has deprecated.
@@ -1356,6 +1381,7 @@ One record a search matched, as the local index holds it, plus which of its vers
 | `manifestDigest` | string | no | The digest of the published manifest. |
 | `listingDigest` | string | no | The digest of the listing the record was read from. |
 | `deprecations` | object[] | no | The deprecation markers the index carries for this reference, each with the version it covers and the verified marker itself. |
+| `published` | PublishedVersion[] | no | Every version the index holds for this reference, in the same order as `versions`, each with the manifest digest its tag resolved to when the index was built and, where the trust policy the index was built under verified that version's own signature, its verified signer. A version recorded with no signer carries no signature that policy verified, and nothing more is said about it. Only manifests and signature attachments are read from the registry to record this; no entity's content is fetched. |
 | `retracted` | string[] | no | The versions a published marker has deprecated. |
 
 _Additional properties are not permitted._
