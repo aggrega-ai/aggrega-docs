@@ -134,7 +134,7 @@ spec:
           turn_off_message_logging: true
 ```
 
-Its assertions halt the build on what this gateway cannot honour — `restore` without entity types, an entity type the analyzer does not recognize, entity types with the recognizer sockets unwired — each naming the constraint and the capability the gateway declares. Entity types masked in a reply are masked by a guardrail loaded from a module the gateway's own Recipe delivers beside its configuration: a request asking for a streamed reply is then refused before it is forwarded, unless the Release sets `allow_streamed_replies` on the attachment, in which case the masked reply arrives in one piece at the end rather than as it is produced.
+Its assertions halt the build on what this gateway cannot honour — `restore` without entity types, an entity type the analyzer does not recognize, entity types with the recognizer sockets unwired, patterns masking replies while `mask_reasoning` is on — each naming the constraint and the capability the gateway declares. Entity types masked in a reply are masked by a guardrail loaded from a module the gateway's own Recipe delivers beside its configuration: a request asking for a streamed reply is then refused before it is forwarded, unless the Release sets `allow_streamed_replies` on the attachment, in which case the masked reply arrives in one piece at the end rather than as it is produced. The same guardrail masks the reasoning text a reasoning model returns beside its reply, in the fields the FeatureRecipe's own description lists, unless the Release sets `mask_reasoning` to `false` on the attachment: a provider that signs its reasoning refuses a signed block that a client sends back changed, so a client that must send those blocks back turns it off, and the reasoning text then reaches it unmasked. Listed patterns are matched against a reply's message text only, never its reasoning text, so an attachment listing patterns with `scope` `response` or `both` builds only with `mask_reasoning` set to `false` on it, and that attachment then masks none of a reply's reasoning text; to have reasoning text masked, list the entity types in an attachment of their own.
 
 **5. Routing Domain: Manifest & Release**
 
@@ -171,8 +171,9 @@ spec:
         # The Feature's values come from the Aggregate — the Release MUST NOT
         # provide them — and this attachment sets no infra: the recognizers it
         # depends on are wired to the gateway's sockets, not configured on the
-        # attachment, and its one infra setting, allow_streamed_replies,
-        # matters only while entity types are masked in replies.
+        # attachment, and its two infra settings, allow_streamed_replies and
+        # mask_reasoning, matter only while replies are masked, which this
+        # attachment's scope: request does not do.
         router:
           infra: { port: 4000 }
         analyzer:
