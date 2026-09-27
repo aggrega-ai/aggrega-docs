@@ -1588,6 +1588,7 @@ What the session settled on for this client, and which configuration layer it re
 | `workspaceRoot` | string | yes | The workspace the session opened over. |
 | `configSource` | string | yes | Which configuration layer the session resolved its settings from. |
 | `workspaceMarker` | string | no | The file that identified the workspace root, where one did. |
+| `version` | string | yes | The version of the binary answering this session: the same value `aggrega version` reports for that binary. It describes the running process, so once the file the daemon was started from has been replaced, this still names the version that is running while asking the file names the version that replaced it. |
 
 _Additional properties are not permitted._
 
