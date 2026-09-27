@@ -37,8 +37,9 @@ spec:
 
 ## The string grammar
 
-The selector string is the grammar `kubectl get -l` accepts:
-comma-separated requirements, AND-composed, each in one of six forms:
+The selector string follows the label-selector syntax `kubectl get -l`
+accepts: comma-separated requirements, AND-composed, each in one of six
+forms:
 
 | Form | Meaning |
 | --- | --- |
@@ -57,6 +58,28 @@ regex, substring, or numeric comparison.
 appliesTo: "component.aggrega.ai/type in (server, worker), !legacy.aggrega.ai/exempt"
 ```
 
+A requirement outside the six forms is refused, never guessed at:
+
+* **An empty requirement** — a leading, trailing or doubled comma, or a
+  string of separators alone. `"tier=frontend,"` and `" , , "` are
+  refused rather than read as fewer requirements, or as none.
+* **A key carrying whitespace or one of the grammar's own characters** —
+  `=`, `!`, `(`, `)` and the comma, which are what tell one form from
+  another. `!` names a label key and nothing else, so `!tier=frontend` is
+  refused: written to exclude frontends, it would otherwise read as "the
+  label named `tier=frontend` is absent", which every component
+  satisfies. `tier!=frontend` is how a value is excluded. In the same way
+  `tier in frontend` is refused — a set is written `tier in (frontend)` —
+  and so is `tier: frontend`.
+* **A set that is not closed** — `in (` or `notin (` without its `)`.
+
+A value is not held to any character set: it is the text after the
+operator, with surrounding whitespace removed, compared with the label's
+value as written. So `tier==frontend` asks for a label whose value is
+`=frontend`; `==` is not a second spelling of equality. Beyond the key
+rule above, neither a key nor a value is judged — labels are opaque
+strings the engine compares.
+
 ## Where validation lives
 
 Two layers check a selector, with deliberately different strictness:
@@ -67,10 +90,14 @@ Two layers check a selector, with deliberately different strictness:
   obviously-malformed shapes. It is deliberately permissive — the schema
   never rejects a selector the engine would evaluate.
 * **The parser is the validator.** The compiler's selector parser owns
-  the grammar: a selector that fails to parse (an unclosed `in (...)`
-  set, a bare `!` with no key) halts the build with a selector
-  parse-error diagnostic naming the attachment site. Parse failures are
-  loud and specific, never silently skipped.
+  the grammar: a selector it refuses — any of the shapes above — halts
+  the build with a diagnostic naming the selector, the Feature, socket or
+  slot declaring it, and the requirement it could not read. Parse
+  failures are loud and specific, never silently skipped. The parser
+  runs where a selector is evaluated — for each attachment of a Feature,
+  each edge wired through a socket, each fill of a slot — so a malformed
+  selector on a Feature nothing attaches, or on a socket or slot nothing
+  uses, is not reported until something does.
 
 A selector that parses but does not match is not an error in itself —
 it is an unsatisfied constraint. At static analysis, every Feature

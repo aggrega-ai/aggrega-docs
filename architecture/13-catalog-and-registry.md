@@ -241,6 +241,8 @@ usesSchema:
     selector: "compliance.aggrega.ai/data-class!=public"
 ```
 
+A selector the engine cannot read as one of its six requirement forms — an empty requirement, a key carrying whitespace or one of `=`, `!`, `(`, `)` and the comma, an unclosed set — halts the build on each edge it guards rather than being read as some other selector. [The selector grammar](../language-reference/vocabulary/modifier-system.md) lists the forms and every refusal.
+
 ### 3. Schema Formats and Composition
 
 To provide both strict validation and standard catalog metadata (author, version, description), Domain 2 (Interfaces) and Domain 3 (Implementations) definitions are written as YAML envelopes. Domain 2 utilises embedded `schema:` declarations expressed in compact form (the default; ~15 keywords, mechanically transformed to JSON Schema 2020-12) or in full JSON Schema YAML.
