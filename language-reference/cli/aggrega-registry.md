@@ -170,6 +170,18 @@ published manifest. A repository with no conforming version is skipped; a
 repository that cannot be read is skipped with a note, so one unreadable
 repository does not abandon the whole index.
 
+A registry whose repository listing repeats itself — naming a repository it has
+already named, or answering two pages in a row with no repository while still
+pointing to a next page — is not followed round again. That registry is reported
+as not indexed, with a message naming it and saying its repository listing
+repeated itself; the other registries are still indexed, and the command exits
+non-zero.
+
+A registry that is not indexed keeps the index it had before the run, unchanged:
+nothing is written for a registry whose walk failed, whose listing repeated
+itself, or that was being walked when the command was interrupted. Registries
+indexed earlier in the same run keep what this run wrote for them.
+
 Every strict-SemVer version a recorded repository publishes is listed too, each
 with the manifest digest its tag resolves to — the address of the exact bytes
 published under that version. Where the registry's trust policy pins a public key
