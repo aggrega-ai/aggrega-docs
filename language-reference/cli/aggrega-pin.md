@@ -28,7 +28,7 @@ The lock is written beside the document you name, in the same directory, so the 
 
 ## Who pins, and when
 
-**Pinning is an authoring duty.** An entity whose inputs are not pinned is not yet ready to be consumed, so by default a pull records no pin: over a Recipe or FeatureRecipe in one of your catalog directories that the Release builds, it compares what this step would record with what the lock holds, and halts when a pin is missing or no longer matches its input. The halt names the entity, each input and whether it is a remote source, an imported file or a file of a local source, and this command. It is [An entity reads an input the lock beside it records no pin for](../errors/fatal-halts.md#an-entity-reads-an-input-the-lock-beside-it-records-no-pin-for). **A push holds the entity it publishes to the same comparison** and refuses with the same halt, so an entity cannot reach a registry through `aggrega push` with a remote source's or an imported file's pin unrecorded — [Pinning before publishing](aggrega-push.md#pinning-before-publishing) sets that out. **A local source is held only once it is pinned:** where the lock records its files, a file that moved stops a pull or a push like any other stale pin, and where the lock records none, neither stops on the source.
+**Pinning is an authoring duty.** An entity whose inputs are not pinned is not yet ready to be consumed, so by default a pull records no pin: over a Recipe or FeatureRecipe in one of your catalog directories that the Release builds, it compares what this step would record with what the lock holds, and halts when a pin is missing or no longer matches its input. The halt names the entity, each input and whether it is a remote source, an imported file or a file of a local source, and this command. It is [An entity reads an input the lock beside it records no pin for](../errors/fatal-halts.md#an-entity-reads-an-input-the-lock-beside-it-records-no-pin-for). **A push holds the entity it publishes to the same comparison** and refuses with the same halt, so an entity cannot reach a registry through `aggrega push` with a pin unrecorded — [Pinning before publishing](aggrega-push.md#pinning-before-publishing) sets that out. **A local source is held as one set of files:** a lock recording none of them stops a pull or a push, and so does a file added, changed or removed since the pin, like any other missing or stale pin.
 
 **A halt on a first pull is the publisher's to fix, never the consumer's.** Where you consume a catalog someone else authors — a checkout of it in a directory of your own, say — and an entity there is unpinned, the author never ran this step. Your remedy is not to edit their directory by hand: set the workspace key below, so your pulls record the pins themselves.
 
@@ -72,8 +72,8 @@ in full, a file an artifacts entry imports with $import, and each file of a loca
 Pinning is the entity author's step. Run it on an entity before it is consumed — before you
 publish it, and after every change to one of its inputs — and commit the entity.lock it writes
 beside the entity. A pull over an entity whose lock does not record these pins halts and names
-this command, and so does a push of it. A lock that records no pin for a local source is the one
-exception and is not refused; once it records them, the source is held to them.
+this command, and so does a push of it; so does one whose local source has had a file added,
+changed or removed since it was pinned.
 
 No Release is needed. A source whose coordinates carry no template names one artifact for every
 Release that uses the entity, so it is resolved and pinned here, with nothing supplied. A remote

@@ -90,7 +90,7 @@ declared there, and a suggestion to change it would be arguing with you.
 A Recipe or FeatureRecipe carries the pins for the inputs it reads — a remote `source:` written out
 in full, a file an `artifacts` entry imports, the files of a `source:` beside it — in the `entity.lock` beside it, and recording them is
 the entity author's step, [`aggrega pin`](aggrega-pin.md). By default neither `pull` nor `push`
-runs that step: a pull halts on an entity its lock does not pin, and a push refuses to publish it — bar a local source the lock records nothing for, which neither refuses.
+runs that step: a pull halts on an entity its lock does not pin, and a push refuses to publish it.
 Two keys, one per command, make running it that command's default:
 
 ```yaml
