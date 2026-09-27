@@ -835,16 +835,16 @@ an unusable `signing.kinds` entry, which also names the wildcard that covers eve
 > workspaceconfig: `<path>`: signing.kinds entry `"<kind>"` is not a signable artifact kind; use a catalog entity or plugin kind, or `"all"` for every kind: file failed schema validation
 
 a registry host written in another spelling, here `HUB.AGGREGA.AI`:
-> workspaceconfig: `<path>`: default_registry `"HUB.AGGREGA.AI"` is not written as the registry host it names; write `"hub.aggrega.ai"` — lowercase, with no scheme, path, credentials or default port — which is the spelling that host's trust policy is kept under: file failed schema validation
+> `<path>`: default_registry `"HUB.AGGREGA.AI"` is not written as the registry host it names; write `"hub.aggrega.ai"` — lowercase, with no scheme, path, credentials or default port — which is the spelling that host's trust policy is kept under: file failed schema validation
 
 a default registry whose host is written in another spelling ahead of its repository path, here `GHCR.io/acme`, which names the whole location to write:
-> workspaceconfig: `<path>`: default_registry `"GHCR.io/acme"` is not written as the registry location it names; write `"ghcr.io/acme"` — the registry host lowercase, with no scheme, credentials or default port, followed by the repository path — which keeps that host's trust policy applying to it: file failed schema validation
+> `<path>`: default_registry `"GHCR.io/acme"` is not written as the registry location it names; write `"ghcr.io/acme"` — the registry host lowercase, with no scheme, credentials or default port, followed by the repository path — which keeps that host's trust policy applying to it: file failed schema validation
 
 an entry's name followed by a path, here `local/acme` where the entry named `local` is for `127.0.0.1:5000`:
-> workspaceconfig: `<path>`: default_registry `"local/acme"` is the name of the registries entry `"local"` followed by a path, and an entry's name stands for that entry's host alone; write `"local"` to use the entry, or its host followed by the path, `"127.0.0.1:5000/acme"`: file failed schema validation
+> `<path>`: default_registry `"local/acme"` is the name of the registries entry `"local"` followed by a path, and an entry's name stands for that entry's host alone; write `"local"` to use the entry, or its host followed by the path, `"127.0.0.1:5000/acme"`: file failed schema validation
 
 a value that names no host, whose sentence lists the forms a host takes:
-> workspaceconfig: `<path>`: registries[`<n>`].host `"<value>"` is not a registry host; write a lowercase host name containing a dot (registry.example.com), localhost, a single name followed by a port (registry:5000), or an IP address, an IPv6 one in brackets — each with an optional :port and nothing else: file failed schema validation
+> `<path>`: registries[`<n>`].host `"<value>"` is not a registry host; write a lowercase host name containing a dot (registry.example.com), localhost, a single name followed by a port (registry:5000), or an IP address, an IPv6 one in brackets — each with an optional :port and nothing else: file failed schema validation
 
 and an empty `workspace:` marker:
 > workspaceconfig: `<path>`: `workspace` must be a mapping; write `workspace: {}` to mark a workspace root with no catalog directories: file failed schema validation
@@ -912,7 +912,7 @@ and an unrecognised one:
 A registry may be given a short alias in the workspace configuration so that commands and references can name it without spelling out its host. An alias selects exactly one host. This condition is what a token matching the alias of two registry entries reports: there is no answer to which host was meant, and choosing one would silently send artifacts to, or fetch them from, a registry the author did not name.
 
 Emitted message, naming the alias, how many entries claimed it, and which hosts they are:
-> workspaceconfig: registry alias `"<alias>"` matches `<count>` hosts (`<hosts>`); address the registry by host or remove the duplicate alias: registry alias matches more than one host
+> registry alias `"<alias>"` matches `<count>` hosts (`<hosts>`); address the registry by host or remove the duplicate alias: registry alias matches more than one host
 
 **How to fix:** open `.aggrega-config.yaml` and give the alias to one of the hosts the message lists, or address the registry by its host and drop the alias from the reference. The message names every host holding the alias, so which entries to look at is in the message. Where the entries come from different configuration layers, edit the layer you own.
 
