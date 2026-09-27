@@ -80,6 +80,13 @@ When the registry advertises no trust policy (a 404 or an unreachable endpoint),
 the add does not fail: it writes the policy from the flags (or an empty policy)
 and prints a notice suggesting manual --identity / --key pinning.
 
+When the workspace is offline the advertised policy cannot be fetched, so the
+registry is never asked. Adding a registry other than the official hub is then
+refused unless --identity or --key supplies the policy, rather than writing an
+entry that trusts nothing: register it once while online, or pin it by hand.
+Adding the official hub offline pins its built-in baseline, and a manual policy
+registers offline exactly as it does online.
+
 Existing settings in the target config file are preserved.
 ```
 
@@ -320,12 +327,19 @@ pass `--offline=false`.
 
 `aggrega registry add` reaches the network once, for the trust policy the registry
 advertises, unless `--fetch-trust=false`, `--identity` or `--key` says not to fetch. Under
-the offline posture that fetch is refused before anything is dialled, and the registration
-still completes exactly as it does for a registry that advertises nothing — the entry is
-written from the flags, or from the built-in baseline for the official hub — and the notice
-that the registry advertises no trust config carries the offline refusal as its reason. Pin the
-policy by hand with `--identity` or `--key`, or pass `--offline=false` to fetch it for this
-one run. The same registration made through [`aggrega serve`](aggrega-serve.md) or
-[`aggrega mcp`](aggrega-mcp.md) behaves the same way and writes the same entry.
+the offline posture that fetch is refused before anything is dialled, so the registry is
+never asked. Adding a registry other than the official hub is then **refused** — adding a
+registry is the one moment its trust is pinned, and an entry written without the policy
+would trust nothing while every later pull held the registry to it. The refusal carries the
+short code `E0310` and names both ways forward: pass `--offline=false` to register it once
+while online, or pin the policy by hand with `--identity` or `--key`, which registers exactly
+what you supply and makes no fetch at all. The official hub is added on its built-in
+baseline, with a notice that carries the offline refusal as the reason nothing was fetched,
+and `--fetch-trust=false` registers the entry from its flags exactly as it does online. The
+same registration made through [`aggrega serve`](aggrega-serve.md) or
+[`aggrega mcp`](aggrega-mcp.md) behaves the same way: the same refusal in the same words,
+and otherwise the same entry. [A registry is added offline with no trust policy to
+pin](../errors/fatal-halts.md#a-registry-is-added-offline-with-no-trust-policy-to-pin)
+quotes the refusal.
 
 `list` and `remove` change or read local configuration and are unaffected.

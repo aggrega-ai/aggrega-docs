@@ -4346,6 +4346,24 @@ Reported as a notice, which names the registry and what to do instead:
 
 **How to fix:** nothing is broken. If you want signatures from this registry checked, supply the identity or the key when adding it, exactly as the notice says — that is the normal path for a registry that publishes no policy. If you do not, the registry is added without a signing stance and artifacts from it are verified only when they carry a signature.
 
+### A registry is added offline with no trust policy to pin
+
+<!-- covers: pkg/registrytrust.ErrOfflineRegistrationWithoutTrustPolicy -->
+
+A refusal on adding a registry, not on a build. Adding a registry is the one moment its trust is pinned: the signing identities it advertises are fetched once and every later pull verifies against that pinned copy. When the workspace is offline that fetch cannot be made, so the registry is never asked. Rather than write an entry that trusts nothing — and that every later pull would hold the registry to — adding a registry other than the official hub is refused unless you supply the policy yourself.
+
+**Three cases are not refused.** Supplying identities or a key registers exactly those and makes no fetch at all, so it works the same offline as online. The official hub is added on its built-in baseline, which it carries whether or not the fetch is made. And asking for no fetch — `--fetch-trust=false` — registers the entry from the flags, exactly as it does online.
+
+It is met wherever a registry is added: `aggrega registry add`, `aggrega config init --registry <host>`, the `aggrega/registryAdd` and `aggrega/configInit` requests of [`aggrega serve`](../cli/aggrega-serve.md), whose error message carries the short code ahead of the sentence, and the registration tools of [`aggrega mcp`](../cli/aggrega-mcp.md), which run those commands. Seeding a configuration takes no identities or key, so offline it can seed only the hub; add any other registry with `aggrega registry add` instead.
+
+Emitted message, which is the condition's own sentence:
+> a registry other than the official hub is not registered offline without a trust policy supplied by hand, because the policy it advertises cannot be fetched; register it once while online, or pin its trust by hand with `aggrega registry add <host> --identity <identity>=<issuer>` or `--key <public-key-file>`
+
+framed by the command that met it and the registry it names:
+> aggrega registry add: `<host>`: `<the message above>`
+
+**How to fix:** register the registry once while the workspace is online — pass `--offline=false` for that one run, or clear the `offline` setting — so its advertised policy is fetched and pinned; nothing needs repeating afterwards, since later pulls verify against the pinned copy. Where you cannot go online, supply the policy by hand: one or more `--identity <identity>=<issuer>` entries for a keyless registry, or `--key` pointing at its public-key file for a keyed one, which is what you would have pinned from its advertisement.
+
 ### A tag is already published with different content
 
 <!-- covers: pkg/oci.ErrImmutableTagConflict -->
@@ -5007,6 +5025,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0307` | `a value a cache location is built from would place cached files outside the place it names in the cache` | A value would place a cached file outside the cache |
 | `E0308` | `a Feature reaches a component alongside a Feature it declares a conflict with` | Two Features declared to conflict reach one component |
 | `E0309` | `a symbolic link sits among the files an entity carries` | A symbolic link sits among the files an entity carries |
+| `E0310` | `` a registry other than the official hub is not registered offline without a trust policy supplied by hand, because the policy it advertises cannot be fetched; register it once while online, or pin its trust by hand with `aggrega registry add <host> --identity <identity>=<issuer>` or `--key <public-key-file>` `` | A registry is added offline with no trust policy to pin |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

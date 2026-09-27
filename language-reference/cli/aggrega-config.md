@@ -131,10 +131,13 @@ YAML by hand.
 By default it registers the official hub (hub.aggrega.ai) with signatures
 required and the official trusted identities. The registry's advertised trust
 policy is fetched once from its own origin and pinned locally — trust-on-first-
-use; when the registry is unreachable or advertises nothing, the built-in
-official baseline is written instead, so init still produces a usable config
-offline. Pass --registry to seed a different registry (for an air-gapped or
-private hub).
+use; when the hub is unreachable, advertises nothing, or the workspace is
+offline, its built-in official baseline is written instead, so init still
+produces a usable config offline. Pass --registry to seed a different registry
+(for an air-gapped or private hub). Such a registry has no built-in baseline,
+so seeding it while the workspace is offline is refused: init takes no
+identities or key to pin by hand, so register it once while online, or add it
+with "aggrega registry add --identity" or "--key".
 
 The entry is written to the global config shared across every workspace by
 default; pass --workspace to write it to this project's workspace config
@@ -212,9 +215,9 @@ The `config` subcommands seed, inspect, and freeze the configuration that govern
 
 ### `config init` — seed a working configuration
 
-`aggrega config init` seeds a config on a fresh machine by registering a registry and its signature trust policy, so signed artifacts pull and verify without hand-editing YAML. By default it registers the official hub (`hub.aggrega.ai`) with signatures required and its official trusted identities. The registry's advertised trust policy is fetched once from its own origin and pinned locally (trust-on-first-use); when the registry is unreachable or advertises nothing, the built-in official baseline is written instead, so `init` still produces a usable config offline.
+`aggrega config init` seeds a config on a fresh machine by registering a registry and its signature trust policy, so signed artifacts pull and verify without hand-editing YAML. By default it registers the official hub (`hub.aggrega.ai`) with signatures required and its official trusted identities. The registry's advertised trust policy is fetched once from its own origin and pinned locally (trust-on-first-use); when the hub is unreachable, advertises nothing, or the workspace is offline, its built-in official baseline is written instead, so `init` still produces a usable config offline.
 
-- `--registry <host>` seeds a different registry — an air-gapped or private hub — instead of the official one.
+- `--registry <host>` seeds a different registry — an air-gapped or private hub — instead of the official one. Such a registry carries no built-in baseline, so where it advertises nothing the entry is written with no policy, and **in an offline workspace seeding it is refused** (short code `E0310`): the policy cannot be fetched, and `init` takes no `--identity` or `--key` to pin one by hand. Seed it once while online, or add it with [`aggrega registry add`](aggrega-registry.md) and a policy you supply.
 - If the target file already exists, `init` refuses rather than overwrite it; `--force` writes anyway, merging the registry entry into the existing file and preserving other settings.
 - `--dry-run` does everything `init` does except write. It hands the seeded configuration back as content, creating and modifying nothing, and the answer names the file the content is for — which matters here, because the target is the global config unless `--workspace` selects this project's own. A caller that keeps its own document model, such as an editor, puts the content there, where it is visible before it is saved and can be amended or undone.
 - Because a dry run does everything else `init` does, its exit code predicts the write's. It refuses an existing config file exactly as a write refuses it, and for the same reason, so you can use it to ask whether `init` would succeed before committing to the change. To see the document an overwriting write would produce, pass `--force` alongside it: `--force --dry-run` reports the merge and still writes nothing.
