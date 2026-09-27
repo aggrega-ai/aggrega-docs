@@ -23,9 +23,9 @@ Build is read-only about dependencies by default: it needs a lockfile and writes
 
 ## How a build reads what the lockfile pins
 
-A lockfile pin names bytes — a content digest — rather than a place. A build reads each pinned dependency from the sources already on the machine: the catalog directories first, as everywhere else, then the content cache under `.aggrega/cache`. Reading them asks no registry; only the pull step, where a build runs one, fetches.
+A lockfile pin names content — a digest — rather than a place. For an entity it is the digest of what a publication of it carries, its document and the files it names, so a catalog-directory copy of an entity and a cache entry holding its publication carry the same pin, as [The lockfile](aggrega-pull.md#the-lockfile) describes. A build reads each pinned dependency from the sources already on the machine: the catalog directories first, as everywhere else, then the content cache under `.aggrega/cache`. Reading them asks no registry; only the pull step, where a build runs one, fetches.
 
-**A cache entry that no longer holds its pin is passed over.** An entity edited in place — a new body under the same `version` — leaves the content cache holding the earlier body under that name and version. Where a catalog directory holds a copy whose bytes hash to the pin, the build reads that copy and never reads the entry, and it says so on standard error, naming the entry and both digests:
+**A cache entry that no longer holds its pin is passed over.** An entity edited in place — a new body under the same `version` — leaves the content cache holding the earlier body under that name and version. Where a catalog directory holds a copy whose content digests to the pin, the build reads that copy and never reads the entry, and it says so on standard error, naming the entry and both digests:
 
 ```
   reuse: cache entry for <name>:<version> holds <digest the entry holds>, not the pinned <pinned digest>; passed over for <catalog file>, which holds the pinned bytes
@@ -33,7 +33,7 @@ A lockfile pin names bytes — a content digest — rather than a place. A build
 
 **Where no catalog directory holds the entity, a complete cache entry holding exactly the pinned bytes is read as the dependency**, so an entity removed from its catalog directory after its published copy was fetched still builds from that copy.
 
-**Where no source holds the pinned bytes, the build halts before anything renders**, with `E0135`. The halt names the pin, the cache entry and the digest it holds, and each catalog-directory copy of the entity with its digest, or that no catalog directory holds it. The remedy is a pull with a registry reachable, which fetches the pinned version again and holds what it fetches to the pin; see [Honoring vs. updating](aggrega-pull.md#honoring-vs-updating) for what the pull does when the registry no longer serves those bytes.
+**Where no source holds the pinned bytes, the build halts before anything renders**, with `E0135` — or `E0133` where the cache entry's manifest is not the one the lockfile pins. The halt names the pin, the cache entry and the digest it holds, and each catalog-directory copy of the entity with its digest, or that no catalog directory holds it. The remedy is a pull with a registry reachable, which fetches the pinned version again and holds what it fetches to the pin; see [Honoring vs. updating](aggrega-pull.md#honoring-vs-updating) for what the pull does when the registry no longer serves those bytes.
 
 The render `aggrega pull` runs to discover external inputs, and a build or preview through `aggrega serve` or `aggrega mcp`, read their pins the same way.
 

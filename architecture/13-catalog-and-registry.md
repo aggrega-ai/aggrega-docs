@@ -334,7 +334,7 @@ source_artifacts: []
 version: 1
 ```
 
-Each pinned entry carries the URI + resolved version + content-addressable digest. The digest is verified at every fetch; bytes that do not match the pinned digest halt the build with an integrity error.
+Each pinned entry carries the URI + resolved version + content-addressable digest. The digest is verified at every fetch; bytes that do not match the pinned digest halt the build with an integrity error. An entity's digest is taken over what a publication of it carries — its document and every file it declares beside it, each by its path, its bytes and whether it is executable — rather than over the bytes it travels as, so the same entity records the same digest read from a catalog directory or fetched from a registry, however its archive was compressed and whatever permission bits a checkout gave its files. The registry's own digest of the published bytes is what a fetch is checked against first, through the manifest, whose digest a registry-resolved entry records beside its own.
 
 ### 5. The Three-Tier Entity Resolution Model
 

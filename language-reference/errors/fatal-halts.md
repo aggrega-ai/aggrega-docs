@@ -1761,18 +1761,18 @@ The same comparison run while a plugin is being validated reports the two sets w
 
 <!-- covers: pkg/lockfile.ErrLockfileDrift -->
 
-A release's lockfile pins every entity, library and plugin the release reaches, each with the version selected and the digest of the bytes at that version, and it records the release files themselves — the release and each release it extends — by the digest of their content. Resolving the release again produces the same set, and the two are compared. This condition is what a disagreement reports.
+A release's lockfile pins every entity, library and plugin the release reaches, each with the version selected and a digest, and it records the release files themselves — the release and each release it extends — by the digest of their content. An entity's digest covers what a publication of it carries: its document and every file it names beside it, each by its path, its bytes and whether it is executable. A library's and a plugin's cover their bytes. Resolving the release again produces the same set, and the two are compared. This condition is what a disagreement reports.
 
 **Every disagreement is collected before any of them is reported**, across everything the lockfile pins, so one run tells you the whole picture rather than one entry at a time.
 
 These shapes of disagreement are reported, and they are worth telling apart because the remedies differ:
 
 - **A reference the lockfile does not pin.** The release now reaches something the lockfile has no entry for — a dependency added since the pull that wrote it.
-- **A pinned reference whose pair moved.** The lockfile pins one version-and-digest pair and the resolution produced another. That is a re-published tag, an edited entity in the workspace catalog, or vendored content whose bytes changed.
+- **A pinned reference whose pair moved.** The lockfile pins one version-and-digest pair and the resolution produced another. That is a re-published tag, vendored content whose bytes changed, or an entity in the workspace catalog that changed: its document edited, or a file it names — a chart under its source, a file it imports, the `entity.lock` beside it — edited, added, removed or made executable. The entry names the entity rather than the file; a plain `aggrega pull --release <release>` names a file that moved under a Recipe's or FeatureRecipe's lock, as [An entity reads an input the lock beside it records no pin for](#an-entity-reads-an-input-the-lock-beside-it-records-no-pin-for) describes.
 - **A pinned reference the release no longer reaches.** The lockfile still pins something nothing in the release depends on any more.
 - **A release file edited since the pull.** The release, or a release it extends, no longer holds the bytes the lockfile recorded for it. Everything the release asks for — which source version to fetch, which components to place where — is resolved from what the file holds, so the recorded pins may no longer describe what it now asks for. It is reported here, before anything renders, rather than as whatever the render would have failed on: an edited source version would otherwise surface later as a fetch that finds no pin. A lockfile that records no release file at all reports the release as not recorded, and a release file the release no longer extends is reported as no longer read.
 
-The comparison is on content, so identical content reached by a different route does not drift: what has to differ for this to fire is the bytes. For a release file that includes a comment or a whitespace change, exactly as it does for the Aggregate and the Manifest the release names.
+The comparison is on content, so identical content reached by a different route does not drift: what has to differ for this to fire is the bytes. For a release file that includes a comment or a whitespace change, exactly as it does for the Aggregate and the Manifest the release names. For an entity it is the content of what it carries, so the same entity read from a catalog directory and fetched from a registry does not drift, and neither does a checkout whose files differ only in permission bits other than the execute bit, nor a publication whose archive was compressed differently.
 
 Emitted message. The condition's own sentence opens it, and every collected disagreement follows, each naming its axis:
 > lockfile: out of date; it no longer matches the current catalog: entity `"<uri>"` not in lockfile
@@ -1852,7 +1852,9 @@ Every artifact carries a manifest that commits to the digest of its content, and
 
 **Two conditions, and which one fires says which layer disagreed.** One names content that does not match the digest its own manifest commits to. The other names a cached manifest that does not match the digest the lockfile pinned for it — the check that keeps a tampered manifest from becoming the authority a later content check trusts. The pin is what makes that second check meaningful: it comes from the lockfile rather than from re-deriving the manifest out of the cached bytes, so the two are genuinely independent.
 
-**Neither check needs the network.** Both are hash comparisons over bytes already in hand, which is what lets a fully offline build still establish that what it is reading is what was pinned.
+**An entity is then held to its own row, over what the bytes carry.** Once a cached entity's bytes agree with their manifest, they are compared with the digest the lockfile records for the entity, which covers the files its publication carries — each by its path, its bytes and whether it is executable — rather than the compressed bytes. So the same files published with a different compression still agree, while different files under the same version do not, and a disagreement reports under the content condition. A pull honouring a pin makes the same comparison over what a registry serves under the pinned version.
+
+**None of these checks needs the network.** Each is a hash comparison over bytes already in hand, which is what lets a fully offline build still establish that what it is reading is what was pinned.
 
 **Emitted messages.** Content against its manifest:
 > oci: content digest `<computed>` != manifest layer `<committed>`: oci: content digest mismatch
@@ -1863,8 +1865,13 @@ a plugin entity, which a manifest commits to in a different position:
 a cached manifest against the pinned digest:
 > oci: cached manifest digest `<computed>` != pinned `<pinned>`: oci: cached manifest digest mismatch
 
-Both are framed by whatever was being read. A pinned entity being re-verified:
-> pinned entity `<uri>`: `<the message above>`
+a cached entity against its row, and a registry serving other content under a pinned version:
+> catalog: cached `<uri>` content digest `<computed>` does not match lockfile pin `<pinned>`: oci: content digest mismatch
+
+> oci: content digest mismatch: pinned entity `"<uri>"`: registry now serves digest `<computed>` for the pinned version, not the pinned digest `<pinned>`; run `aggrega pull --upgrade --release <release>` to update the pin
+
+Both are framed by whatever was being read. A pinned entity that no source holds at its pin, the manifest's condition where the cache entry's manifest disagreed and the content's otherwise:
+> pinned entity `<uri>`: no source holds the pinned bytes `<pinned>` (`<what each source it read held>`); with a registry reachable, `aggrega pull --release <release>` fetches the pinned version again: `<the message above>`
 
 An archive entry naming a path that escapes the archive reports under the content condition too, since a bundle that tries it is not the bundle that was committed to:
 > path traversal entry `"<name>"`: oci: content digest mismatch
@@ -3446,7 +3453,7 @@ An `artifacts:` entry that imports a local file has its content pinned when the 
 
 **What is compared is the entry's content, not what rendering it produced.** An artifact body is a template, and evaluating it substitutes values that differ per component instance, so a digest over the output would disagree for every instance whose values differ. The recorded content is the same text for every instance that binds the Recipe, which is what makes one recorded digest the right thing to compare against.
 
-**A Recipe nobody has pinned has no pin beside it, and a build does not compare it.** Absence of a pin is not a mismatch to a build; it means there is nothing to compare. A pull over such a Recipe stops instead, as [An entity reads an input the lock beside it records no pin for](#an-entity-reads-an-input-the-lock-beside-it-records-no-pin-for) describes.
+**A Recipe nobody has pinned has no pin beside it, and a build does not compare it.** Absence of a pin is not a mismatch to a build; it means there is nothing to compare. A pull over such a Recipe stops instead, as [An entity reads an input the lock beside it records no pin for](#an-entity-reads-an-input-the-lock-beside-it-records-no-pin-for) describes. A lockfile written before the file was edited reports first, because the entity's row covers the imported file too, as [A local source no longer matches the pins recorded beside its Recipe](#a-local-source-no-longer-matches-the-pins-recorded-beside-its-recipe) sets out, where the same section says when this comparison is the one a build meets.
 
 Three surfaces carry the same check over different documents — a component's own Recipe, a Feature attached to a component, and a Feature attached to a boundary — so the FeatureRecipe's content is measured against the digest recorded beside the FeatureRecipe rather than beside the host component's Recipe. On the two attachment surfaces the message names the attachment as well, which is what says which document to open.
 
@@ -3464,7 +3471,9 @@ A Recipe or FeatureRecipe whose `source:` names a directory or a file beside it 
 
 **The source is compared as one set of files.** A file whose content moved, a file added to the source and a file removed from it each change what the entity renders from, so each is reported, with the digest the file has now and the digest recorded for it. A file beside the entity that the source does not contribute — a note or a README next to the Recipe — is not compared. A source written as a template, such as `./charts/{{ .values.flavour }}`, contributes every file in the entity's directory, because which directory it names is decided by each Release; for that shape an edit to any file in the directory is reported.
 
-**A Recipe whose lock records no pin for its source has nothing for a build to compare.** A build does not refuse it; a pull or a push that does not pin does, as [An entity reads an input the lock beside it records no pin for](#an-entity-reads-an-input-the-lock-beside-it-records-no-pin-for) describes. Pins a lock still records for a local source the Recipe no longer declares pin nothing it reads, so they are compared with nothing. A Recipe a pull resolved from a registry is covered instead by the digest the lockfile records for its published artifact.
+**A Recipe whose lock records no pin for its source has nothing for a build to compare.** A build does not refuse it; a pull or a push that does not pin does, as [An entity reads an input the lock beside it records no pin for](#an-entity-reads-an-input-the-lock-beside-it-records-no-pin-for) describes. Pins a lock still records for a local source the Recipe no longer declares pin nothing it reads, so they are compared with nothing. A Recipe a pull resolved from a registry is covered instead by the digest the lockfile records for what its publication carries.
+
+**A lockfile written before the change reports first.** The lockfile records the entity by what it carries, and the source's files are part of that, so a build or `aggrega pull --verify` holding a lockfile written before a file moved halts before this comparison runs, with [The lockfile no longer matches what the release resolves to](#the-lockfile-no-longer-matches-what-the-release-resolves-to) naming the entity and both digests. A plain `aggrega pull` names the file that moved, with [An entity reads an input the lock beside it records no pin for](#an-entity-reads-an-input-the-lock-beside-it-records-no-pin-for). The same holds for an imported file. **Where the lockfile has no entry of the entity's own, this comparison is what a build and a verifying pull meet:** a Recipe or FeatureRecipe the Manifest names by a reference that is also the name of a Component or Feature the Release reaches is recorded under that reference as the Component or Feature, so nothing in the lockfile moves when the Recipe's files do.
 
 Emitted messages:
 > the files of the entity's local source do not match the pins recorded for them in entity.lock (file `<path>` digests to `<digest>` and its recorded pin is `<digest>`). If the source was changed on purpose, run `aggrega pin` on the entity to record its files again; otherwise restore the files

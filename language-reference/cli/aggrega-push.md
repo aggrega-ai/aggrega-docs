@@ -17,6 +17,8 @@ An Aggregate, a Plugin and the library kinds name no file beside their document.
 
 **The shape follows from that.** An entity that names nothing publishes as its document, unchanged, under its kind's `+yaml` media type. One that names a file publishes as a `.tar.gz` holding the document and those files at their places in the directory, under its kind's `+tar+gz` media type. So a Recipe whose content is all inline publishes as its document, and a Component whose schema is imported from a file publishes as an archive. [Catalog and Registry](../../architecture/13-catalog-and-registry.md) §6 lists both media types for every kind.
 
+**Each file in an archive carries mode `0644`, or `0755` where it has any execute bit set, and no timestamp.** A checkout writes files with its own permission bits, while version control records only whether a file is executable, so the archive keeps exactly that: two checkouts of one commit publish the same files whatever their umask, and flipping a script's execute bit changes what is published.
+
 **A local `source:` written as a template carries the whole directory.** A template such as `./charts/{{ .values.flavour }}` names a directory only once a Release fills it in, so no publication can tell which one it will be. Such an entity carries every file in its own directory, except those whose name starts with a dot, and the push says so beneath its other facts:
 
 ```
@@ -69,7 +71,7 @@ The target registry is `--registry <ref>` when supplied, otherwise the workspace
 
 **A `default_registry` may carry a repository path, and a publication through it lands under that path.** With `default_registry: ghcr.io/acme`, the Component `core/api-server` at version `1.0.0` is published at `ghcr.io/acme/component/core/api-server:1.0.0` — the place a pull through the same default fetches it from, so the signature attached here is the one that pull finds. `--registry` names a host, and a publication it directs lands at that host with no path. Whichever way the destination is named, the signing requirement and the signing configuration that apply are the ones kept for its host: a path never selects a different policy. The spelling of a path is set out in [how a registry host is written](configuration.md#how-a-registry-host-is-written).
 
-Publish computes a content digest over what it publishes and embeds it in the OCI manifest; `aggrega pull` verifies that digest when it fetches the entity, so tampering between publish and pull is caught.
+**The manifest names the digest of the bytes published, and the lockfile records the digest of what they carry.** The OCI manifest a push writes names the digest of the published document or archive, and `aggrega pull` refuses a download that does not match it, so bytes altered between publish and pull are caught. The lockfile a pull writes records the entity by a different digest: the digest of its content — each file's path, its bytes and whether it is executable, and nothing about how the archive was compressed. That is the digest a pull in the author's own workspace records for the same entity in its catalog directory, so an author and every consumer of one publication record the same value, and a build on either side refuses content that no longer matches it. The two digests answer different questions: the manifest's checks the download, and the lockfile's is the entity's identity.
 
 ## Publishing over an existing version
 
@@ -175,8 +177,13 @@ source written as a template names no one directory until a Release fills it in,
 so an entity with one carries every such file in its own directory, and push
 says so.
 
-A content digest is computed over what is published and embedded in the OCI
-manifest, so "aggrega pull" can detect tampering between publish and pull.
+Each file travels with mode 0644, or 0755 where it has any execute bit set,
+whatever the checkout it is published from. The OCI manifest names the digest of
+the published bytes, so "aggrega pull" refuses a download that does not match
+it. The lockfile a pull writes records the entity by the digest of its content —
+each file's path, its bytes, and whether it is executable — which is the digest a
+pull in the author's own workspace records for the same entity in its catalog
+directory, so a build on either side refuses content that no longer matches.
 
 Push signs before it publishes: where signing applies, the signature is made
 over the manifest digest before any bytes reach the registry, so a failed
