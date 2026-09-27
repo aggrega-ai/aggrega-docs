@@ -188,9 +188,20 @@ published under that version. Where the registry's trust policy pins a public ke
 or trusted identities, and verification is not switched off, each version's own
 signature is verified against that policy and the signer is recorded when one
 verifies; a version with no signature, or none that verifies, is recorded with no
-signer. Only manifests and signature attachments are read: no entity's content is
-fetched. 'aggrega search -o json' reports these under each record's 'published'
-field.
+signer.
+
+Each version's publication date is recorded too, with its source. Where the
+version's keyless signature verified, the date is the time the transparency log
+recorded that signature, as the verified log entry attests it (source
+'transparency-log'). Otherwise it is the date the publication itself stated
+beside what it published (source 'publisher'): the publishing machine's own
+clock, which nothing attests, read from any registry whatever its trust policy.
+A version with neither — published without stating a date, and not signed
+keyless in a way this policy verifies — is recorded with no date.
+
+Only manifests, signature attachments and publication-date attachments are read:
+no entity's content is fetched. 'aggrega search -o json' reports these under each
+record's 'published' field.
 
 The per-repository records are byte-identical across two runs against the same
 registry state; the freshness timestamp is written to a sibling file so it never
@@ -201,10 +212,11 @@ version's manifest digest and reuses the cached record untouched when the tag se
 and digest are unchanged, so an unchanged registry costs a round of cheap digest
 resolves rather than a full re-read of every repository's manifest and referrers.
 Use --upgrade to ignore the cached validators and re-read every repository — this
-picks up a change a conditional refresh skips, such as a deprecation marker or a
-signature added to an existing version whose digest did not change, or an older
-version published again under its existing tag while the selected one stayed the
-same.
+picks up a change a conditional refresh skips, such as a deprecation marker, a
+signature or a publication date added to an existing version whose digest did not
+change, or an older version published again under its existing tag while the
+selected one stayed the same. A record written by an index build that read no
+publication dates keeps none until such a re-read.
 
 Each published version's deprecation markers are read as the walk goes, and the ones
 whose own signature verifies are recorded into the index. Every marker met is
@@ -245,6 +257,30 @@ marker at all. A registry whose markers were not examined contributes no withdra
 to version selection, so an author who attached a marker and sees that line knows why
 it has no effect.
 
+## The publication date each version records
+
+A published manifest's creation time is pinned, so its digest depends only on what is
+published and never on when. The date a version was published is therefore read from beside
+the manifest, and `aggrega registry update` records it for each version with the source it
+came from:
+
+- **`transparency-log`** — where the version's signature is keyless and verifies against the
+  registry's trust policy, the time the transparency log recorded that signature, which the
+  log's signed promise attests. For a version signed as it was published, that is its
+  publication; for one signed afterwards with [`aggrega sign`](aggrega-sign.md), it is when it
+  was signed. This source wins wherever it exists.
+- **`publisher`** — otherwise, the time the publication stated beside what it published: a
+  small published-at attachment that [`aggrega push`](aggrega-push.md) and
+  [`aggrega push-artifact`](aggrega-push-artifact.md) write carrying the publishing machine's
+  own clock, which nothing attests. It is read from any registry whatever its trust policy,
+  because it is the publisher's statement rather than a trust decision. Where several are
+  attached, the earliest is taken.
+
+A version with neither records no date. That is a publication that stated none, where its
+signature is not a keyless one this policy verifies — for example a keyless publication read
+under a policy that trusts no keyless identity, since a keyless publication states no date of
+its own. `aggrega search -o json` reports the date under each version in `published`.
+
 ## What a routine refresh does not pick up
 
 A refresh revalidates each repository before deciding to re-read it: where the tag
@@ -263,6 +299,10 @@ carried rather than a fresh one.
 Pass `--upgrade` to re-read every repository and pick it up. This matters beyond the
 report: the version exclusion and `aggrega inspect` both read this index, so a version
 retracted since your last full re-read is neither excluded from selection nor shown.
+
+The same holds for a signature attached to a version afterwards, and so for the
+publication date it carries, and for a record written by an index build that read no
+publication dates: each is picked up by the next full re-read.
 
 ## Offline
 

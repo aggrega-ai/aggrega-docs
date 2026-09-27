@@ -144,3 +144,14 @@ with no `signer` carries no signature that policy verified, and nothing more is 
 A consumer reading one version's content addresses it by that digest — for example
 `aggrega inspect oci://<host>/<repository>@<digest>` — so what it reads is the bytes the index
 recorded, whatever happens to the tag afterwards.
+
+Where anything records when a version was published, its entry also carries `publishedAt`, an
+RFC 3339 timestamp in UTC to the second, and `publishedAtSource`, which says where it came from.
+`transparency-log` is the time a transparency log recorded the version's keyless signature,
+which this workspace's trust policy verified together with the log's signed promise of that
+time. `publisher` is the time the publication stated beside what it published, from the
+publishing machine's own clock, which nothing attests. The two are kept apart so a consumer
+sorting by date can still tell an attested time from a stated one. A version with neither
+carries no date, and nothing more is said about it; see
+[`aggrega registry update`](aggrega-registry.md#the-publication-date-each-version-records) for
+when each is recorded.

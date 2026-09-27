@@ -12,7 +12,7 @@ aggrega push-artifact <file> [flags]
 **Description**
 
 ```
-Publish a standalone data artifact — a documentation bundle or any other non-entity blob — to an OCI registry under the reserved docs/ namespace. Unlike push, which bundles a catalog entity and dispatches on its kind, push-artifact carries opaque bytes: it reads the file, packs it under the given media type (defaulting to the documentation-bundle media type), and tags it at docs/<name>:<tag>. The published artifact is signed separately by reference with aggrega sign.
+Publish a standalone data artifact — a documentation bundle or any other non-entity blob — to an OCI registry under the reserved docs/ namespace. Unlike push, which bundles a catalog entity and dispatches on its kind, push-artifact carries opaque bytes: it reads the file, packs it under the given media type (defaulting to the documentation-bundle media type), and tags it at docs/<name>:<tag>. The published artifact is signed separately by reference with aggrega sign. Beside it, push-artifact states when it published, as a small published-at attachment carrying this machine's clock in UTC to the second; the attachment moves no digest and changes no tag.
 ```
 
 **Flags**

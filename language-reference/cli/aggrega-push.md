@@ -98,6 +98,15 @@ Two signing modes:
 
 The keyless service URLs and the keyed key path can also be set in `.aggrega-config.yaml` under a `signing:` block (global and per-registry); a flag overrides the config, and the config overrides the public-good default. The OIDC identity token is never a config field (it is a short-lived secret), and the private key is never inline in config — only a path to it.
 
+## The publication date
+
+The manifest's creation time is pinned, so a manifest digest depends only on what is published and never on when. The date a version was published travels beside it instead, and where it comes from depends on the signature:
+
+- **A keyless signature already carries it.** Its transparency-log entry records when the log integrated the signature, and the log's signed promise attests that time. `aggrega push` writes nothing more.
+- **A keyed signature, or no signature, carries no time.** So after the entity and any signature have landed, `aggrega push` attaches a small published-at referrer to the manifest — named `published-at.json` for a generic OCI client — holding one RFC 3339 timestamp in UTC to the second, read from the publishing machine's own clock. It is not signed: it is the publisher's statement, and a reader records it as that. The line `Publication date attached:` reports it.
+
+Like a signature, the published-at referrer is a sibling manifest pointing back at the published one, so it moves no digest and changes no tag, and the check on publishing over an existing version is unaffected by it. A repeated push of the same content attaches nothing, since nothing is published. A push that published its content but could not attach the date exits non-zero and names what was not attached. [`aggrega registry update`](aggrega-registry.md#the-publication-date-each-version-records) records each version's date together with which of the two sources it came from.
+
 ## Offline
 
 Publishing is a network round trip and has no form that is not, so under the offline posture — the top-level `offline` key in a configuration file, `AGGREGA_OFFLINE`, or [`--offline`](global-flags.md#--offline) — `aggrega push` refuses before it reads your entity. The refusal names which of those three set the posture, which is what a reader needs when a project's committed configuration turned it on rather than anything they typed.
@@ -190,6 +199,15 @@ directory, so a build on either side refuses content that no longer matches.
 Push signs before it publishes: where signing applies, the signature is made
 over the manifest digest before any bytes reach the registry, so a failed
 signing refuses the push rather than leaving unsigned content published.
+
+The manifest's creation time is pinned, so the digest depends only on what is
+published and never on when. Push states when it published beside the manifest
+instead, as a small published-at attachment carrying this machine's clock, in
+UTC to the second — unless the signature it attached already carries a time a
+transparency log attests, as a keyless signature does. So a keyed or unsigned
+publication writes one, and a keyless one does not. The attachment moves no
+digest and changes no tag. "aggrega registry update" records the date, with
+which of the two it came from.
 
 Push refuses to replace content already published at the same version:
 publish changed content under a new version instead.
