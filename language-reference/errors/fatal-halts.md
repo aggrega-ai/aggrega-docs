@@ -1778,7 +1778,7 @@ These shapes of disagreement are reported, and they are worth telling apart beca
 The comparison is on content, so identical content reached by a different route does not drift: what has to differ for this to fire is the bytes. For a release file that includes a comment or a whitespace change, exactly as it does for the Aggregate and the Manifest the release names. For an entity it is the content of what it carries, so the same entity read from a catalog directory and fetched from a registry does not drift, and neither does a checkout whose files differ only in permission bits other than the execute bit, nor a publication whose archive was compressed differently.
 
 Emitted message. The condition's own sentence opens it, and every collected disagreement follows, each naming its axis:
-> lockfile: out of date; it no longer matches the current catalog: entity `"<uri>"` not in lockfile
+> lockfile: out of date; it no longer matches what its Release resolves to: entity `"<uri>"` not in lockfile
 > `<axis>` `"<uri>"` changed: lockfile=(`<version>`,`<digest>`) current=(`<version>`,`<digest>`)
 > `<axis>` `"<uri>"` no longer used by the release
 > release document `"<file>"` was edited after the lockfile was written: its content no longer matches the recorded digest (lockfile=`<digest>` current=`<digest>`), so the pins may no longer describe what it asks for; run `aggrega pull --release <release>` to resolve the Release as it now stands and record it
@@ -4874,7 +4874,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0127` | `externalinputs: fetched bytes mismatch the pinned digest` | Fetched bytes do not match a pinned digest |
 | `E0128` | `externalinputs: URL scheme is not allowed` | An external input's URL uses a scheme that is not allowed |
 | `E0129` | `externalinputs: store blob mismatches its pinned record` | A stored external input no longer matches its record |
-| `E0130` | `lockfile: out of date; it no longer matches the current catalog` | The lockfile no longer matches what the release resolves to |
+| `E0130` | `lockfile: out of date; it no longer matches what its Release resolves to` | The lockfile no longer matches what the release resolves to |
 | `E0131` | `lockfile: file failed schema validation` | The lockfile does not satisfy its schema |
 | `E0132` | `oci: manifest has multiple layers of the expected content media type` | A manifest carries no layer of the expected kind, or more than one |
 | `E0133` | `oci: cached manifest digest mismatch` | Fetched or cached bytes do not match the digest committed for them |

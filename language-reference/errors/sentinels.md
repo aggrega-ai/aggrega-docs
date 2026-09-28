@@ -169,7 +169,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 
 | Sentinel | Code | Message |
 | --- | --- | --- |
-| `ErrLockfileDrift()` | `lockfile-drift` | `lockfile: out of date; it no longer matches the current catalog` |
+| `ErrLockfileDrift()` | `lockfile-drift` | `lockfile: out of date; it no longer matches what its Release resolves to` |
 | `ErrLockfileInvalid()` | `lockfile-invalid` | `lockfile: file failed schema validation` |
 
 ### pkg/oci
@@ -585,7 +585,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0127` | `digest-mismatch` | `externalinputs: fetched bytes mismatch the pinned digest` |
 | `E0128` | `scheme-not-allowed` | `externalinputs: URL scheme is not allowed` |
 | `E0129` | `store-corrupt` | `externalinputs: store blob mismatches its pinned record` |
-| `E0130` | `lockfile-drift` | `lockfile: out of date; it no longer matches the current catalog` |
+| `E0130` | `lockfile-drift` | `lockfile: out of date; it no longer matches what its Release resolves to` |
 | `E0131` | `lockfile-invalid` | `lockfile: file failed schema validation` |
 | `E0132` | `ambiguous-content-layer` | `oci: manifest has multiple layers of the expected content media type` |
 | `E0133` | `cached-manifest-integrity` | `oci: cached manifest digest mismatch` |

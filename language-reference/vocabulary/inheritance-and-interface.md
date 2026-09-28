@@ -76,7 +76,7 @@ spec:
         enterprise/labelled-server:1.0.0: core/helm/base-server:1.0.0
 ```
 
-When the mapped type's `extends` chain cannot be walked — it forms a loop, or a base it names is absent from the catalog — the build halts on that chain fault instead of on the mapping, because a mapping cannot be judged until the chain it depends on resolves.
+When the mapped type's `extends` chain cannot be walked — it forms a loop, or a base it names is absent from the catalog — the build halts on that chain fault instead of on the mapping, because a mapping cannot be judged until the chain it depends on resolves. The check walks the chain only through the Components already on this machine — those in a catalog directory, and those the local artifact cache holds under a lockfile pin — and never asks a registry, so a base held only by a registry counts as absent here.
 
 Recipe **suggestions** stay narrower than this matching rule. The candidate list a no-mapping diagnostic prints, and the ordering editor completion applies to a mapping value, name the recipes implementing the requested type itself; they do not widen to recipes implementing one of its bases.
 
