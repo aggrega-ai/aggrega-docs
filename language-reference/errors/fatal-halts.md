@@ -1788,14 +1788,17 @@ The same comparison at publish reports the sets without the re-record instructio
 
 <!-- covers: internal/wasm.ErrWasmPluginVersionMismatch -->
 
-A Plugin entity's version is taken from the version the plugin reports about its own build when the entity is generated, so the two agree by construction. This condition is what a hand-edit that has moved them apart reports, and it is checked before any bytes are published so a divergent pair does not reach a catalog.
+A plugin reports the version its build recorded in it, and its Plugin entity records a version too; the two have to be the same string. The build recipes Aggrega's plugins are built with take that version from the tag that releases the plugin — the compiler's own tag for a plugin that ships with the compiler, a tag of the plugin's own for one that ships outside it — so a build of the commit the tag names reports the release version, and a build of any other commit reports a development version such as `1.0.0-3-g1a2b3c4`. This condition is what a pair that has come apart reports, and it is checked before any bytes are published so a divergent pair does not reach a catalog.
 
 The comparison is an exact string match. A plugin built without a recorded build version reports an empty one, and that empty value is then what the entity's version has to equal — the check does not treat "no version reported" as "any version accepted", because the point of it is that a published entity's version always says what its binary actually reports.
 
 Emitted message:
 > plugin `"<plugin>"`: recorded metadata.version `"<recorded>"` does not match the plugin describe() version `"<reported>"`: wasm: entity metadata.version does not match plugin describe()
 
-**How to fix:** re-record the entity's version from the binary rather than choosing one. Where you meant to publish a new version, rebuild the plugin so it reports that version and re-generate the entity from it, so the two move together; setting the entity's version alone is exactly what this refuses. Where the plugin reports no version at all, the entity's version has to be empty to match, and the durable answer is to build the plugin with its version recorded.
+At publish the refusal also names the entity file, the `.wasm`, and the repair:
+> Plugin `<plugin>`: metadata.version in `<entity-path>` does not match the .wasm describe() version at `<path>` — set metadata.version to the release you are publishing and build the plugin from a clean checkout of the commit that release's tag names, so it reports that version itself; for a new release, commit the entity with the source it releases and tag that commit first: plugin `"<plugin>"`: recorded metadata.version `"<recorded>"` does not match the plugin describe() version `"<reported>"`: wasm: entity metadata.version does not match plugin describe()
+
+**How to fix:** make the entity's `metadata.version` the release you are publishing, and build the plugin from a clean checkout of the commit that release's tag names, so it reports that version itself. For a new release, commit the entity with the source it releases and tag that commit first — the tag has to name a commit that already carries the entity. Do not copy the version the plugin reports into the entity: a build of any other commit reports a development version, and copying it would publish that build under a version no release tag names. Where the plugin reports no version at all, it was built without its version recorded; build it with its version recorded.
 
 ### A plugin was built from a working tree with uncommitted changes
 
@@ -1808,9 +1811,9 @@ Only the mark is refused. A development version built from a commit, such as `1.
 The check reads the version the plugin reports about its own build, and it runs ahead of the comparison with the entity's `metadata.version` — so a plugin built with uncommitted changes under an entity recording the clean version is reported here, rather than as [a recorded version that does not match the plugin](#a-plugin-entitys-recorded-version-does-not-match-the-plugin).
 
 Emitted message, naming the plugin, the version it reports, and the remedy:
-> Plugin `<plugin>`: the .wasm at `<path>` was built from a working tree with uncommitted changes — commit the change, rebuild the plugin, and set metadata.version in `<entity-path>` to the version the rebuilt plugin reports before publishing: plugin was built from a working tree with uncommitted changes, so no commit reproduces the version it reports (plugin `"<plugin>"`, describe() version `"<version>"`, which ends with `"-dirty"`)
+> Plugin `<plugin>`: the .wasm at `<path>` was built from a working tree with uncommitted changes — set metadata.version in `<entity-path>` to the release you are publishing and build the plugin from a clean checkout of the commit that release's tag names, so it reports that version itself; for a new release, commit the entity with the source it releases and tag that commit first: plugin was built from a working tree with uncommitted changes, so no commit reproduces the version it reports (plugin `"<plugin>"`, describe() version `"<version>"`, which ends with `"-dirty"`)
 
-**How to fix:** commit the change the build was made over, rebuild the plugin from that commit, and set the entity's `metadata.version` to the version the rebuilt plugin reports. Where the plugin is released from a tag, tag the commit that carries the change and rebuild there, so it reports the release version itself.
+**How to fix:** build the plugin from a clean checkout of the commit the release's tag names, so it reports the release version the entity records. To release the change itself, set the entity's `metadata.version` to the new release, commit the entity with the change, tag that commit, and build there. Committing the change and rebuilding alone does not clear the way to a release: the rebuilt plugin reports a development version, and copying that into the entity would publish the build under a version no release tag names.
 
 ### A Plugin entity's recorded host functions do not match the binary
 

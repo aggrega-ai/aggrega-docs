@@ -57,7 +57,7 @@ A Plugin publishes together with its `.wasm`, named by `--plugin`, and a push ju
 
 **Then the `.wasm` is loaded and held to the entity.** What it reports offering must agree with what the entity claims, the command set and host functions the entity records must match it, and the version it reports about its own build must equal `metadata.version` — see [A Plugin entity's recorded version does not match the plugin](../errors/fatal-halts.md#a-plugin-entitys-recorded-version-does-not-match-the-plugin).
 
-**A `.wasm` built from a working tree with uncommitted changes is refused.** Such a build carries the `-dirty` mark at the end of the version it reports — `1.0.0-dirty`, `1.0.0-3-g1a2b3c4-dirty`. That is a valid semantic version, but it names a commit that does not hold what was built, so nobody could rebuild what was published from the version it was published under. The push refuses it, naming the version: commit the change, rebuild the plugin, and set `metadata.version` to the version the rebuilt plugin reports. A development version built from a commit, such as `1.0.0-3-g1a2b3c4`, and a prerelease such as `1.0.0-rc.1` both publish. The refusal is [A plugin was built from a working tree with uncommitted changes](../errors/fatal-halts.md#a-plugin-was-built-from-a-working-tree-with-uncommitted-changes).
+**A `.wasm` built from a working tree with uncommitted changes is refused.** Such a build carries the `-dirty` mark at the end of the version it reports — `1.0.0-dirty`, `1.0.0-3-g1a2b3c4-dirty`. That is a valid semantic version, but it names a commit that does not hold what was built, so nobody could rebuild what was published from the version it was published under. The push refuses it, naming the version and the repair: build the plugin from a clean checkout of the commit the release's tag names, so it reports the release version itself — and to release the change, commit it with the entity's `metadata.version` set to the new release and tag that commit first — rather than copying the version a rebuild reports into the entity. A development version built from a commit, such as `1.0.0-3-g1a2b3c4`, and a prerelease such as `1.0.0-rc.1` both publish. The refusal is [A plugin was built from a working tree with uncommitted changes](../errors/fatal-halts.md#a-plugin-was-built-from-a-working-tree-with-uncommitted-changes).
 
 ## Pinning before publishing
 
@@ -189,9 +189,11 @@ A Plugin is read against its kind's schema too, before its .wasm is read, so a
 metadata.version that is not a semantic version is refused. Its .wasm must then
 agree with the entity on what the plugin offers and on its version, and a .wasm
 whose version says it was built from a working tree with uncommitted changes —
-the -dirty mark a build adds — is refused: commit the change and rebuild. A
-development version such as 1.0.0-3-g1a2b3c4, built from a commit, and a
-prerelease such as 1.0.0-rc.1 publish.
+the -dirty mark a build adds — is refused. A version disagreement and a build
+from uncommitted changes are both cleared by building the plugin from a clean
+checkout of the commit its release tag names, never by copying the version it
+reports into the entity. A development version such as 1.0.0-3-g1a2b3c4, built
+from a commit, and a prerelease such as 1.0.0-rc.1 publish.
 
 What is published is the entity document and the files the entity itself names
 beside it — a Recipe's or FeatureRecipe's local source, each file an $import:
