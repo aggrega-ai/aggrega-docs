@@ -190,7 +190,7 @@ The gateway's rendered configuration ends with the lines below. The `litellm_set
 ```yaml
     litellm_settings:
       callbacks:
-        - request_field_filter.filter
+        - /etc/litellm-request-guard/request_field_filter.filter
       turn_off_message_logging: true
     guardrails:
       -

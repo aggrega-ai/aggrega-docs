@@ -92,7 +92,7 @@ The build prints:
 Pull complete: release.lock (entities=23, source_artifacts=0)
   lint: Recipe publishes a provides key its Component does not declare (Recipe openai-compatible, at .spec.provides.provider, "provider", on component type "core/ai-model/openai-compatible", bound to component instance "model")
 [… omitted: a total build time, which differs per run]
-Build completed: 12 files written to dist/
+Build completed: 13 files written to dist/
 ```
 
 **That advisory is expected here, and nothing in this workspace causes it.** It
@@ -126,8 +126,14 @@ dist/helm/
 ├── router-default-service.yaml
 ├── router-deployment.yaml
 └── router/
-    └── litellm-gateway-config.configmap.yaml
+    ├── litellm-gateway-config.configmap.yaml
+    └── request-guard/
+        └── request-guard.yaml
 ```
+
+Under `router/` are the files the router's Recipe emits itself. The second one
+comes from a bundle the Recipe imports rather than writes, so it sits under the
+key it was imported at, `request-guard`.
 
 Everything an attachment brought sits in the same directory as the component's
 own manifests, carrying two coordinates in its filename: the component it
@@ -150,10 +156,8 @@ convention and the mark it uses for lines left out.
 ## The routing table
 
 The router's reason to exist is its map, and the map reaches the rendered output
-rather than staying in the authored file. Here is the `data` block of
-`dist/helm/router/litellm-gateway-config.configmap.yaml`, with the text of the
-Python module and of the path allowlist's configuration it also carries left
-out:
+rather than staying in the authored file. Here is the whole `data` block of
+`dist/helm/router/litellm-gateway-config.configmap.yaml`:
 
 ```yaml
 data:
@@ -171,14 +175,22 @@ data:
       routing_strategy: latency-based-routing
     litellm_settings:
       callbacks:
-        - request_field_filter.filter
+        - /etc/litellm-request-guard/request_field_filter.filter
+```
+
+and the `data` block of the second ConfigMap,
+`dist/helm/router/request-guard/request-guard.yaml`, with the text of the files
+it carries left out:
+
+```yaml
+data:
   request_field_filter.py: |
     [… omitted: the text of the router's request guard, a Python module described below]
   path-allowlist.conf: |
     [… omitted: the configuration of the router's path allowlist, described below]
 ```
 
-Five things are worth reading off that.
+Five things are worth reading off those.
 
 **Both entries publish the same alias.** That is what gives
 `routing_strategy` something to do: with two entries under one name, the router
@@ -197,27 +209,32 @@ build still succeeds — the failure arrives at request time, from the provider.
 variable instead, through the proxy's own indirection. The value arrives in the
 container by another route entirely, shown below.
 
-**Every request meets a guard first.** The `callbacks` entry registers
-`request_field_filter.filter`, and the module it names is the ConfigMap's second
-key: the proxy loads a module its configuration names from the directory that
-configuration sits in, and the whole ConfigMap is mounted as that directory. The
-router's Recipe delivers this guard on every Release, because the router holds
-the provider credential. It forwards from a caller only the request fields the
-proxy declares for the route the request took, plus any the Release names in the
-router's `infra.admitted_request_fields`, and answers any other field with an
-error naming it, forwarding nothing — so a caller cannot point the router at an
-address of its own through a request-body model list, or send a provider key of
-its own in place of the router's. This Release admits nothing further.
+**Every request meets a guard first.** The `callbacks` entry registers the
+module `request_field_filter` by the full path of its file: the second ConfigMap
+is mounted in the router's container at `/etc/litellm-request-guard`, a
+directory of its own beside `/etc/litellm`, where the first is mounted and the
+proxy reads its configuration. That second ConfigMap comes from
+`LiteLLMGuard#/artifacts/RequestGuard`, a bundle every Recipe running this proxy
+imports, so the guard and the allowlist below have one text wherever the proxy
+runs. The router's Recipe delivers this guard on every Release, because the
+router holds the provider credential. It forwards from a caller only the request
+fields the proxy declares for the route the request took, plus any the Release
+names in the router's `infra.admitted_request_fields`, and answers any other
+field with an error naming it, forwarding nothing — so a caller cannot point the
+router at an address of its own through a request-body model list, or send a
+provider key of its own in place of the router's. This Release admits nothing
+further.
 
 **Only the router's own routes are reachable.** The guard sees only the routes
-that hand it the request, so the last key configures the pod's second
-container, which runs the official nginx image as a path allowlist. The router
-itself listens on the pod's loopback address, where nothing outside the pod
-reaches it, and the allowlist listens on port 4000, the port the Service below
-targets. It forwards a request only when its method and path are one of the
-routes the router serves — the model request routes the guard checks, in the
-spellings the router serves whatever the alias, `/v1/chat/completions` and
-`/v1/messages` among them; the model listing; the health checks; and, of its
+that hand it the request, so the second ConfigMap's other file configures the
+pod's second container, which mounts that ConfigMap alone and runs the official
+nginx image as a path allowlist. The router itself listens on the pod's
+loopback address, where nothing outside the pod reaches it, and the allowlist
+listens on port 4000, the port the Service below targets. It forwards a request
+only when its method and path are one of the routes the router serves — the
+model request routes the guard checks, in the spellings the router serves
+whatever the alias, `/v1/chat/completions` and `/v1/messages` among them; the
+model listing; the health checks; and, of its
 administrative routes, key management and the creating, reading, updating and
 deleting of organizations — and answers every other path 403, forwarding
 nothing. So the proxy's token-count routes, its pass-through routes to
@@ -355,14 +372,15 @@ and in the same container `env`:
                   key: provider-key
 ```
 
-**This attachment also changes the routing table.** Look back at the `data` block
-above: every map entry carries `api_key: os.environ/LITELLM_PROVIDER_API_KEY`,
-naming this same variable. Remove the `provider_key` attachment from the
-Aggregate and rebuild. The build reports eleven files rather than twelve — the
-Secret is gone — and the ConfigMap differs by exactly those two `api_key` lines
-and nothing else. The rest of the map keeps its authored order and formatting,
-the router still serves and routes, and a routed request now fails at the
-provider because there is no credential to present.
+**This attachment also changes the routing table.** Look back at the routing
+table's `data` block above: every map entry carries
+`api_key: os.environ/LITELLM_PROVIDER_API_KEY`, naming this same variable.
+Remove the `provider_key` attachment from the Aggregate and rebuild. The build
+reports twelve files rather than thirteen — the Secret is gone — and the routing
+table's ConfigMap differs by exactly those two `api_key` lines and nothing else;
+the guard's ConfigMap is unchanged. The rest of the map keeps its authored order
+and formatting, the router still serves and routes, and a routed request now
+fails at the provider because there is no credential to present.
 
 The variable name is authored once in the router's Recipe and read from there by
 both the routing table and the container's environment, so a table cannot come
