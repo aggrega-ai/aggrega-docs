@@ -93,6 +93,8 @@ spec:
         hosts: "{{ range $i, $h := .parameters.allowed_hosts }}{{ if $i }},{{ end }}{{ $h }}{{ end }}"
 ```
 
+Each element the Release supplies is checked against the `items` contract before interpolation, so a value that is not a host name — `*`, say — halts the build naming the parameter, the element and the format. The names `format` accepts, and what each checks, are listed in [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md#named-formats).
+
 The Sprig template library is available during interpolation, providing helpers like `join` for compact array-to-string conversions:
 
 ```yaml

@@ -18,6 +18,6 @@ The metadata.yaml file written into every source-artifact cache slot alongside b
 | `version` | string | yes | The concrete version the resolver pinned at pull time. For helm-* kinds, the chart version. For git-repository, the commit the authored reference resolved to. Recorded as a single path segment, because it builds the cache slot this metadata sits in, so it carries no `/`, no `\` and no `..`. |
 | `digest` | string | yes | Content digest of the cached .tar.gz archive in sha256:<hex> form. Build-time verification computes the SHA-256 of blob.tgz, compares against this field AND the lockfile entry's digest, and halts with ErrFetchIntegrity on mismatch. |
 | `mediatype` | string | yes | Canonical media type the registry advertised (or the kind's default for kinds without registry metadata). Recorded for diagnostic provenance and forward-compatibility with future kind-mediatype enrichments. |
-| `pulled_at` | string | yes | RFC 3339 timestamp recording the pull-time wall clock. Diagnostic provenance only — not part of any integrity contract. The pattern enforces the RFC 3339 shape at the validator boundary; format: date-time is documentation-bearing. |
+| `pulled_at` | string | yes | RFC 3339 timestamp recording the pull-time wall clock. Diagnostic provenance only — not part of any integrity contract. The pattern holds the value to the RFC 3339 shape when the metadata is read. |
 
 _Additional properties are not permitted._

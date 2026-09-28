@@ -28,9 +28,32 @@ The compact form has about 15 keywords. Authors learn them once and apply them a
 | `max` | Maximum value or length, parallel to `min` | `maximum:` / `maxLength:` / `maxItems:` |
 | `minLength` / `maxLength` | Explicit string-length constraints | Direct map to `minLength:` / `maxLength:` (use when `min`/`max` would be ambiguous) |
 | `pattern` | Regex pattern for strings | `pattern:` |
-| `format` | Named format (`email`, `ipv4`, `uri`, `password`, etc.) | `format:` |
+| `format` | Named format a string must have — one of `email`, `uri`, `hostname`, `ipv4`, `ipv6`, `uuid`, `date-time`, `date` (see [Named formats](#named-formats)) | `format:` |
 
-On an Aggregate's `parameters:` block, two of these are also checked on the declaration itself, before any Release value is read. A parameter's own `minLength` and `maxLength` are zero or more — a negative one is refused when the Aggregate loads — and every `pattern`, including one inside a nested `items`, `properties` or `valuesType` contract, must be a regular expression that compiles, since the pattern is compiled when the parameter contract is read. Either fault halts the build naming the parameter, whether or not a Release supplies it. A length bound inside a nested contract is not held to that floor; see [entities/aggregate.md](../entities/aggregate.md#parameter-slot-vocabulary) for where each check runs.
+On an Aggregate's `parameters:` block, some of these are also checked on the declaration itself, before any Release value is read. A parameter's own `minLength` and `maxLength` are zero or more — a negative one is refused when the Aggregate loads — and every `pattern`, including one inside a nested `items`, `properties` or `valuesType` contract, must be a regular expression that compiles, since the pattern is compiled when the parameter contract is read. Every `format`, at any depth, must be one of the named formats below. Each fault halts the build naming the parameter, whether or not a Release supplies it. A length bound inside a nested contract is not held to that floor; see [entities/aggregate.md](../entities/aggregate.md#parameter-slot-vocabulary) for where each check runs.
+
+### Named formats
+
+`format` names the shape a string value must have. The names are the ones the JSON Schema specification defines, spelled as it spells them, and each checks what the specification defines it to mean:
+
+| Name | A conforming value is | Defined by |
+| --- | --- | --- |
+| `email` | a mailbox: a local part (dot-separated atoms, or a quoted string), `@`, then a domain or a bracketed address literal — `ops@example.com`. A display name such as `Joe <joe@example.com>` is not a mailbox | RFC 5321, section 4.1.2 (`Mailbox`) |
+| `uri` | an absolute URI: a scheme, `:`, then the rest, with any character outside the URI alphabet percent-encoded — `https://example.com/a%20b`, `s3://bucket/key`. A relative reference such as `/path` is not one | RFC 3986 (`URI`) |
+| `hostname` | a host name: dot-separated labels of letters, digits and hyphens, each 1–63 characters that neither begins nor ends with a hyphen, 253 characters at most in all — `db-primary.data.svc.cluster.local`. A Punycode label (`xn--…`) is accepted as written; a wildcard `*`, an underscore or a trailing dot is not | RFC 1123, section 2.1 |
+| `ipv4` | four decimal numbers from 0 to 255, separated by dots — `192.0.2.1` | RFC 2673, section 3.2 (dotted-quad) |
+| `ipv6` | an IPv6 address in any of its text forms — full, `::`-compressed, or ending in an IPv4 address — `2001:db8::1`. A zone (`%eth0`) or a prefix length (`/64`) is not part of an address | RFC 4291, section 2.2 |
+| `uuid` | 32 hexadecimal digits in groups of 8-4-4-4-12 separated by hyphens, in either case — `2eb8aa08-aa98-11ea-b4aa-73b441d16380` | RFC 4122, section 3 |
+| `date-time` | a timestamp with an offset — `2026-09-28T12:34:56Z`, `2026-09-28T12:34:56.5+02:00`, a day that exists in its month, and a leap second only at 23:59 UTC | RFC 3339, section 5.6 (`date-time`) |
+| `date` | a calendar date — `2026-09-28` — whose day exists in its month and year | RFC 3339, section 5.6 (`full-date`) |
+
+A format judges a string and nothing else: a value of another type is its `type`'s to judge. And it judges the value's syntax only — a host name is never resolved, a URI never fetched, a mailbox never contacted — so the check gives the same answer on every build and needs no network.
+
+The check runs wherever a value is validated against its schema: an Aggregate's `parameters:`, the `values` and `infra` a Component's or Feature's `schema:` pillars constrain, the per-edge `values` and `infra` a `usesSchema:` socket's payload schemas constrain, and every SchemaLibrary entry those schemas reach. A `provides` pillar's format names are judged when the catalog loads like any other schema's; the values a Recipe publishes are not validated against the pillar, so no format is checked on them. Inside `allOf`, `anyOf`, `oneOf` and `not`, a value failing its format is a value failing that branch, exactly as a value failing any other constraint is. A value that does not conform is refused naming the field, the value and the format.
+
+**A name outside the table is refused when the schema loads**, whether or not any value reaches it, and the refusal lists the supported names — so a misspelling such as `emial` is a diagnostic rather than a constraint that checks nothing. `password` is not a format: a field carrying secret material declares [`sensitive: true`](#declaring-a-leaf-sensitive--sensitive) instead.
+
+One bound applies to shapes reached indirectly. Where a field's shape comes through a `$ref:` that carries other keywords beside it (a `when:`, say), through the `then:` or `else:` of a `when:`, or through a pointer into a declared property, its `format` is checked on the fields the shape declares directly and through `allOf` — but not inside an `anyOf`, `oneOf`, `not` or conditional branch within that shape.
 
 ### Composition and reference keywords
 
@@ -103,7 +126,7 @@ spec:
           memory: { type: string, pattern: "^[1-9][0-9]*(Mi|Gi)$", default: "1Gi" }
     auth:
       username: { type: string, default: app_user }
-      password: { type: string, format: password }
+      password: { type: string, sensitive: true }
 ```
 
 The compiler infers object structure from the YAML hierarchy. Intermediate nodes (here: `primary`, `resources`, `requests`, `limits`, `auth`) are object types containing the nested children. The compiler emits explicit `type: object` and `properties:` blocks in the resolved JSON Schema; the author does not write them.
@@ -117,7 +140,7 @@ A compact-form object scope can be authored two ways:
 ```yaml
 auth:
   username: { type: string, default: app_user }
-  password: { type: string, format: password, required: true }
+  password: { type: string, sensitive: true, required: true }
 ```
 
 The compiler recognises the scope as an object because its children are property declarations. It emits `type: object`, `properties: { ... }`, and **automatically injects `additionalProperties: false`** at compile time. The closure semantic is part of the inferred-form contract: typos in developer-authored fields fail loudly.
@@ -129,7 +152,7 @@ auth:
   type: object
   properties:
     username: { type: string, default: app_user }
-    password: { type: string, format: password, required: true }
+    password: { type: string, sensitive: true, required: true }
   additionalProperties: true   # genuinely-open map authored on purpose
 ```
 
@@ -168,7 +191,7 @@ Required fields use `required: true` per leaf:
 ```yaml
 auth:
   username: { type: string, default: app_user }
-  password: { type: string, format: password, required: true }
+  password: { type: string, sensitive: true, required: true }
   database: { type: string, pattern: "^[a-zA-Z][a-zA-Z0-9_]*$", required: true }
 ```
 
@@ -196,7 +219,7 @@ allowedHosts:
   type: array
   min: 1                # minItems
   max: 100              # maxItems
-  items: { type: string, format: uri }
+  items: { type: string, format: hostname }
 ```
 
 For the common case "array of typed scalars", the inline form is one line. For arrays of objects, `items:` introduces a nested compact-form schema.
@@ -311,7 +334,9 @@ secondary:
 
 A bad `cpu` under `secondary` is reported at `secondary.resources`.
 
-Both authorings accept and refuse exactly the same documents. What differs is how much the message
+Both authorings accept and refuse the same documents, but for one bound on `format` stated in
+[Named formats](#named-formats): through the pointer, a `format` inside an `anyOf`, `oneOf` or `not`
+branch of the shape is not checked. What differs otherwise is how much the message
 tells you, which matters most in an editor, where the marker is placed from that path. The same
 applies to a `$defs:` entry whose own pointer reaches back out into the properties: reaching a
 definition through it inherits the coarser report.
@@ -646,9 +671,9 @@ spec:
         oneOf:
           - existingSecret: { type: string, required: true }
           - properties:
-              rootPassword: { type: string, format: password, required: true }
+              rootPassword: { type: string, sensitive: true, required: true }
               username: { type: string, default: app_user }
-              password: { type: string, format: password, required: true }
+              password: { type: string, sensitive: true, required: true }
               database: { type: string, pattern: "^[a-zA-Z][a-zA-Z0-9_]*$", required: true }
 
       metrics:
