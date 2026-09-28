@@ -112,7 +112,7 @@ The node-scoped keys, per provider per input kind. Column headers drop the `aggr
 | `helm` | artifacts-only | — | — | — | — |
 | `compose` | sourced | applied | — | — | — |
 | `compose` | synthesized | applied | applied | — | — |
-| `compose` | artifacts-only | n/a | n/a | n/a | n/a |
+| `compose` | artifacts-only | — | — | — | — |
 | `helm-chart` | sourced | — | — | — | — |
 | `helm-chart` | synthesized | n/a | n/a | n/a | n/a |
 | `helm-chart` | artifacts-only | n/a | n/a | n/a | n/a |
