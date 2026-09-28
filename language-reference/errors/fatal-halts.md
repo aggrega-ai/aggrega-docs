@@ -1797,6 +1797,21 @@ Emitted message:
 
 **How to fix:** re-record the entity's version from the binary rather than choosing one. Where you meant to publish a new version, rebuild the plugin so it reports that version and re-generate the entity from it, so the two move together; setting the entity's version alone is exactly what this refuses. Where the plugin reports no version at all, the entity's version has to be empty to match, and the durable answer is to build the plugin with its version recorded.
 
+### A plugin was built from a working tree with uncommitted changes
+
+<!-- covers: internal/wasm.ErrPluginBuiltFromUncommittedChanges -->
+
+A plugin's build records its version from the commit it was built from, and a build made from a working tree with uncommitted changes carries the `-dirty` mark at the end of that version — `1.0.0-dirty` at a tag, `1.0.0-3-g1a2b3c4-dirty` past one. Such a version is a valid semantic version, but it names a commit that does not hold the bytes that were built, so nobody can rebuild what would be published from the version it would be published under. Publishing a Plugin refuses a plugin whose own version carries the mark, before any bytes are published and before the registry is contacted; a dry run refuses it too.
+
+Only the mark is refused. A development version built from a commit, such as `1.0.0-3-g1a2b3c4`, names a commit that does hold what was built, and publishes; so does a prerelease such as `1.0.0-rc.1`. Validating a plugin against its entity outside a publication does not raise this, since a build under development is routinely made from an edited tree.
+
+The check reads the version the plugin reports about its own build, and it runs ahead of the comparison with the entity's `metadata.version` — so a plugin built with uncommitted changes under an entity recording the clean version is reported here, rather than as [a recorded version that does not match the plugin](#a-plugin-entitys-recorded-version-does-not-match-the-plugin).
+
+Emitted message, naming the plugin, the version it reports, and the remedy:
+> Plugin `<plugin>`: the .wasm at `<path>` was built from a working tree with uncommitted changes — commit the change, rebuild the plugin, and set metadata.version in `<entity-path>` to the version the rebuilt plugin reports before publishing: plugin was built from a working tree with uncommitted changes, so no commit reproduces the version it reports (plugin `"<plugin>"`, describe() version `"<version>"`, which ends with `"-dirty"`)
+
+**How to fix:** commit the change the build was made over, rebuild the plugin from that commit, and set the entity's `metadata.version` to the version the rebuilt plugin reports. Where the plugin is released from a tag, tag the commit that carries the change and rebuild there, so it reports the release version itself.
+
 ### A Plugin entity's recorded host functions do not match the binary
 
 <!-- covers: internal/wasm.ErrWasmHostFunctionsStampMismatch -->
@@ -5112,6 +5127,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0311` | `reference carries a malformed version pin` | A version pin is none of the forms a pin takes |
 | `E0312` | `a provider socket binding names a capability containing a colon, which no Recipe can select` | A provider binding names a capability containing a colon |
 | `E0313` | `plugins.providers entry names a capability no provider-rendering plugin the build reads serves` | A provider binding names a capability no plugin the build reads serves |
+| `E0314` | `plugin was built from a working tree with uncommitted changes, so no commit reproduces the version it reports` | A plugin was built from a working tree with uncommitted changes |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

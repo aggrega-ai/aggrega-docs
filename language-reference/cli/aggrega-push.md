@@ -47,7 +47,17 @@ The rule is what keeps one `entity.lock` belonging to one entity: the lock's fil
 
 **A push reads a Component, a Feature, a Recipe or a FeatureRecipe the way a build reads it, and refuses one that read refuses** — for the same reason, under the same short code, before the bundle is built and before the destination registry is contacted. So a document that fails its kind's schema, a path naming content outside the entity's own directory, and a schema a Component or Feature imports with `$import:` that is missing or cannot be used are refused at publication rather than published. Each of them is an entity its consumers' first build would refuse; a path that leaves the directory also names a file that would not travel with the entity, because every file a publication carries is taken from the entity's own directory — see [A path names content outside the entity's own directory](../errors/fatal-halts.md#a-path-names-content-outside-the-entitys-own-directory).
 
-A Recipe or FeatureRecipe is read this way as its pins are compared, which the next section describes, so the reading happens whether or not the push is asked to pin and whether or not the entity has anything to pin. Every one of the four kinds is also read this way immediately before its bundle is built, because that reading is what says which files it names. An Aggregate, a library and a Plugin name no file and are not read this way.
+A Recipe or FeatureRecipe is read this way as its pins are compared, which the next section describes, so the reading happens whether or not the push is asked to pin and whether or not the entity has anything to pin. Every one of the four kinds is also read this way immediately before its bundle is built, because that reading is what says which files it names. An Aggregate and a library name no file and are not read this way. A Plugin names no file either, and is read against its kind's schema before its `.wasm` is, as [Publishing a Plugin](#publishing-a-plugin) describes.
+
+## Publishing a Plugin
+
+A Plugin publishes together with its `.wasm`, named by `--plugin`, and a push judges the two before any bytes are published or the registry is contacted. `--dry-run` judges them exactly as a publication does.
+
+**The entity is read against its kind's schema first**, the way a catalog load reads it, before the `.wasm` is read. So a `metadata.version` that is not a semantic version — a bare commit such as `415148e` — is refused under the schema's own condition, naming the field, and so is any other departure from the schema, such as a missing `spec.abiVersion`. What counts as a semantic version here is the schema's own pattern for `metadata.version`; the push adds no rule of its own.
+
+**Then the `.wasm` is loaded and held to the entity.** What it reports offering must agree with what the entity claims, the command set and host functions the entity records must match it, and the version it reports about its own build must equal `metadata.version` — see [A Plugin entity's recorded version does not match the plugin](../errors/fatal-halts.md#a-plugin-entitys-recorded-version-does-not-match-the-plugin).
+
+**A `.wasm` built from a working tree with uncommitted changes is refused.** Such a build carries the `-dirty` mark at the end of the version it reports — `1.0.0-dirty`, `1.0.0-3-g1a2b3c4-dirty`. That is a valid semantic version, but it names a commit that does not hold what was built, so nobody could rebuild what was published from the version it was published under. The push refuses it, naming the version: commit the change, rebuild the plugin, and set `metadata.version` to the version the rebuilt plugin reports. A development version built from a commit, such as `1.0.0-3-g1a2b3c4`, and a prerelease such as `1.0.0-rc.1` both publish. The refusal is [A plugin was built from a working tree with uncommitted changes](../errors/fatal-halts.md#a-plugin-was-built-from-a-working-tree-with-uncommitted-changes).
 
 ## Pinning before publishing
 
@@ -174,6 +184,14 @@ before it is bundled, and one that read refuses is refused here for the same
 reason: a document that fails its kind's schema, a path naming content outside
 the entity's own directory, which would not travel with the entity, or a schema
 a Component or Feature imports that cannot be read or used.
+
+A Plugin is read against its kind's schema too, before its .wasm is read, so a
+metadata.version that is not a semantic version is refused. Its .wasm must then
+agree with the entity on what the plugin offers and on its version, and a .wasm
+whose version says it was built from a working tree with uncommitted changes —
+the -dirty mark a build adds — is refused: commit the change and rebuild. A
+development version such as 1.0.0-3-g1a2b3c4, built from a commit, and a
+prerelease such as 1.0.0-rc.1 publish.
 
 What is published is the entity document and the files the entity itself names
 beside it — a Recipe's or FeatureRecipe's local source, each file an $import:
