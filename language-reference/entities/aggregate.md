@@ -151,6 +151,11 @@ The quoting on each reference is deliberate: it is what decides the type the hoi
 
 The typed `parameters:` block accepts the compact-form vocabulary: `type`, `description`, `default`, `enum`, `min`, `max`, `pattern`, `minLength`, `maxLength`, `format`, `items` (for arrays), `properties` (for objects), `valuesType` (for typed-value maps), and `required: true` (per-slot marker). Three of those keywords take a contract as their value rather than a plain setting — `items`, `valuesType`, and each entry under `properties` — and on a parameter slot that nested contract is written in the same typed form as the slot around it: `valuesType: { type: boolean }`, not `valuesType: boolean`. Before interpolation, the compiler checks the merged parameter map against these declarations directly: a parameter no slot declares is rejected, a slot marked `required: true` that neither the Release fills nor a `default` supplies halts the build, and every supplied value is checked against its slot's declared `type`, its `enum` membership, the `minLength` and `maxLength` bounds and the `pattern` regular expression on a string slot, and the `min` and `max` bounds on a numeric slot. Object and array slots recurse: each entry under `properties` and each element against `items` is checked the same way, a `valuesType` contract governs the keys `properties` does not name, and a nested key no declaration names is rejected. See [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md) for the full keyword vocabulary, including where a `schema:` pillar spells these keywords differently.
 
+Two of those keywords are also checked on the declaration itself, before any Release value is read, so a slot that could constrain nothing halts the build even when no Release supplies it:
+
+- **Length bounds are zero or more.** A negative `minLength` or `maxLength` on a parameter's own declaration is refused by the Aggregate's schema when the Aggregate loads, naming the parameter and the key. Inside a nested contract — under `items`, `properties` or `valuesType` — a length bound is read as written and is not held to that floor when the Aggregate loads, so write it as zero or more there too: a negative `minLength` imposes nothing, and a negative `maxLength` refuses every value.
+- **A pattern must compile.** Every `pattern` is compiled as a regular expression when the parameter contract is read — on the slot itself and inside any nested contract, at any depth — and one that does not compile is refused naming the parameter, the pattern and the reason. The contract is read for every build, pull and Release validation that reaches the Aggregate, whether it is the Release's own Aggregate or a module that Aggregate imports. The value check then matches each supplied value against that same compiled expression.
+
 ### Object-typed and array-typed parameters
 
 Parameter slots accept any type the compact form supports, including nested objects and arrays of typed elements:
@@ -166,7 +171,6 @@ spec:
         port: { type: integer, min: 1, max: 65535, default: 5432 }
         ssl_mode: { type: string, enum: [disable, require, verify-full], default: require }
         pool_size: { type: integer, min: 1, max: 100, default: 10 }
-      additionalProperties: false
 
     metric_labels:
       type: array
@@ -176,17 +180,16 @@ spec:
         properties:
           name: { type: string, required: true }
           value: { type: string, required: true }
-        additionalProperties: false
 ```
 
 The Release fulfills object-typed parameters with structured YAML; the compiler validates the structure against the declared schema before interpolation. Templates referencing the object's fields use the standard Go template syntax: `{{ .parameters.database_config.host }}`, `{{ .parameters.database_config.port }}`, etc.
 
 ### Parameter contract validation
 
-The compiler runs three sub-steps during parameter processing:
+The contract itself is checked first, when it is read — the length-bound and pattern checks under "Parameter slot vocabulary" above. The compiler then runs three sub-steps during parameter processing:
 
-1. **Contract validation** — each Release-supplied value validates against the declared `type` / `enum` / `min` / `max` / `pattern` / nested-structure constraints. Validation failures halt the build with a clear error naming the offending slot, the supplied value, and the violated constraint. Missing required parameters with no `default:` produce a similar halt with the slot name.
-2. **Default fill** — slots with `default:` defined and no Release-supplied value receive their default. Nested-object parameters carry a three-case authoring semantic for omitted, explicit-empty, and partially-authored parent slots: omitting the parent fills the children's defaults, authoring the parent as `{}` preserves the explicit empty (suppresses children's defaults), and authoring the parent as a non-empty map fills only the children the Release did not supply. See [`templates/parameters-context.md`](../templates/parameters-context.md#nested-object-parameters) for the YAML examples and the "when to use each form" decision guide.
+1. **Default fill** — slots with `default:` defined and no Release-supplied value receive their default. Nested-object parameters carry a three-case authoring semantic for omitted, explicit-empty, and partially-authored parent slots: omitting the parent fills the children's defaults, authoring the parent as `{}` preserves the explicit empty (suppresses children's defaults), and authoring the parent as a non-empty map fills only the children the Release did not supply. See [`templates/parameters-context.md`](../templates/parameters-context.md#nested-object-parameters) for the YAML examples and the "when to use each form" decision guide.
+2. **Contract validation** — each value in the merged map, whether the Release supplied it or a `default:` filled it, validates against the declared `type` / `enum` / `min` / `max` / `pattern` / nested-structure constraints. Validation failures halt the build with a clear error naming the offending slot, the supplied value, and the violated constraint. Missing required parameters with no `default:` produce a similar halt with the slot name.
 3. **Interpolation** — the compiler walks the Aggregate's YAML strings and replaces every `{{ .parameters.<slot> }}` reference inside value-template surfaces (component / feature / sub-aggregate `values:` strings) with the resolved value. After this pass, value-template surfaces consume already-interpolated literals and do not receive `.parameters` in their TemplateContext.
 
 The merged parameter map remains alive through rendering to support **path-template** evaluation. Operator-authored `directory:` and `subDirectory:` templates on Release boundaries read `.parameters.<slot>` directly at orchestrator time against a closed allowlist; path emission needs region / environment vocabulary for per-environment artifact layout, and the asymmetric grant keeps that operator concern inside the operator surface without round-tripping through the Aggregate's `values`. The map stays readable until every render phase has completed and is reachable only from the compilation it was resolved for; recipes consuming developer-authored `values:` see the post-interpolation strings, while path templates see live `.parameters` data through rendering. See [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) row 3 for the path-template availability matrix and [`path-template-variables.md`](../path-template-variables.md) for the path-template variable allowlist.

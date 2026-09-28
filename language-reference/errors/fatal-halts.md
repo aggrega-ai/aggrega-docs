@@ -67,11 +67,14 @@ For a parameter declared `required: true` with no `default:` and no Release-supp
 
 A parameter declaring a `validateMessage:` replaces that whole detail with its own text, so the report reads `parameter contract violated (Aggregate, at .spec.parameters.<parameter>, <the validateMessage you wrote>)` — the frame is unchanged and your sentence sits where the constraint detail would.
 
+The same condition covers a contract that cannot constrain anything as written. A `pattern:` that is not a valid regular expression is refused when the Aggregate's parameter contract is read, before any Release value is checked, so it halts the build whether or not a Release supplies the parameter. The report points at the key — `.spec.parameters.<parameter>.pattern`, or the path through a nested contract such as `.spec.parameters.<parameter>.items.pattern` — and its detail names the declaration, the pattern and the reason:
+> parameter `"<parameter>"` pattern `"<pattern>"` does not compile: `<reason>`
+
 The predicate-error detail covers both ways a `validate:` predicate can fail to produce a verdict: a function the surface does not register, and a reference to something other than `.value`. Each is reported against the predicate rather than against the value, and each names what it could not resolve.
 
 A `validate:` predicate reads the value under validation as `.value`, and that is the only name it defines. A predicate naming anything else is refused before it runs, so a mistyped reference is reported as the naming mistake it is instead of resolving to nothing and surfacing as a value that failed validation.
 
-**How to fix:** change the Release value to match the parameter's declared `type` / `enum` / `min` / `max` / `pattern` constraints, supply a missing required parameter, correct a `validate:` predicate that names something other than `.value` or renders something other than `true` or `false`, or widen the Aggregate's declaration to accept the shape you actually need.
+**How to fix:** change the Release value to match the parameter's declared `type` / `enum` / `min` / `max` / `pattern` constraints, supply a missing required parameter, correct a `pattern:` that does not compile, correct a `validate:` predicate that names something other than `.value` or renders something other than `true` or `false`, or widen the Aggregate's declaration to accept the shape you actually need.
 
 ### Recipe shape rules
 

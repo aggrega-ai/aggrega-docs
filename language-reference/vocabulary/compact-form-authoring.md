@@ -30,6 +30,8 @@ The compact form has about 15 keywords. Authors learn them once and apply them a
 | `pattern` | Regex pattern for strings | `pattern:` |
 | `format` | Named format (`email`, `ipv4`, `uri`, `password`, etc.) | `format:` |
 
+On an Aggregate's `parameters:` block, two of these are also checked on the declaration itself, before any Release value is read. A parameter's own `minLength` and `maxLength` are zero or more — a negative one is refused when the Aggregate loads — and every `pattern`, including one inside a nested `items`, `properties` or `valuesType` contract, must be a regular expression that compiles, since the pattern is compiled when the parameter contract is read. Either fault halts the build naming the parameter, whether or not a Release supplies it. A length bound inside a nested contract is not held to that floor; see [entities/aggregate.md](../entities/aggregate.md#parameter-slot-vocabulary) for where each check runs.
+
 ### Composition and reference keywords
 
 | Keyword | Meaning | Compiles to JSON Schema |
