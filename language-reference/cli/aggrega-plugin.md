@@ -291,6 +291,8 @@ whose records are out of sync with its binary.
 
 Each time `aggrega` starts, it adds one command for every command a configured `cli` plugin contributes, reading the commands and their flags from the plugin's `describe()` self-report — from the describe cache when it holds the plugin's pinned digest, and otherwise by describing the plugin. Each declared flag is declared on its command so `aggrega help <command>` lists it the way it lists a built-in command's flags; the plugin still receives its arguments unparsed and reads its own flags.
 
+The pinned digest sits beside the plugin's reference in the configuration's `plugins.cli` list, written `sha256:` followed by 64 lowercase hexadecimal digits — the spelling `aggrega plugin add cli` records. A digest spelled any other way, such as bare hexadecimal with no `sha256:` prefix, is refused when the configuration file loads, naming the file and the entry; until it is corrected no configured plugin's command is added, and a warning on standard error carries the refusal.
+
 Before it adds any of a plugin's commands, `aggrega` checks every flag each of them declares. A plugin whose declarations fail is skipped: none of its commands is added, one warning on standard error names the plugin, the command, the flag and what is wrong with it, and every other command — built-in or from another plugin — runs as usual:
 
 ```

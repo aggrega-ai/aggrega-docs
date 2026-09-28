@@ -322,7 +322,10 @@ one. The catalog-directory companion composes between your global file and the p
 
 The `plugins.cli` list composes across files on its own and has no companion: a command extension
 declared in the global file registers its command in every project, one declared in a project
-registers only there, and both register together.
+registers only there, and both register together. Each entry pins one plugin: the `uri` it resolves
+and the `digest` of the bytes `aggrega plugin add cli` verified, written `sha256:` followed by 64
+lowercase hexadecimal digits. A digest in any other spelling could never equal the digest the
+resolved bytes hash to, so it is refused when the file loads, naming the file and the entry.
 
 ### Giving a Release its own catalog directories
 
@@ -528,7 +531,12 @@ what an authorization server publishes — nothing that signs, and nothing secre
 **`mcp.allowed_origins` is consulted only when a request carries an `Origin` header**, which in
 practice means a browser sent it. List the origins you serve there; a request naming one that is
 not listed is refused, and a request carrying no such header is served regardless. A client that
-is not a browser sends no such header and needs no entry.
+is not a browser sends no such header and needs no entry. An entry is compared to the header
+exactly, so write it the way a browser sends it: a lowercase scheme, `://`, a lowercase host, and
+`:` with the port only where the port is not the scheme's default — `https://studio.example.com`,
+or `http://localhost:3000` for a page served on your own machine — with no path and no trailing
+`/`. An entry in any other shape could never match, and is refused when this file loads, naming the
+entry.
 
 **`mcp.limits` bounds what one caller can ask for** — how large a single request body may be, how
 many requests run at once, and how many one caller may send in a minute. All three are always in
@@ -537,11 +545,14 @@ caller separately, so one caller sending hard costs another nothing.
 
 **`mcp.authorization.trusted_proxy` reads the caller from a proxy in front instead of checking a
 token here.** Set `principal_header` to the header that proxy uses to say who the caller is, and
-optionally `scopes_header` to one carrying that caller's scopes. In that mode no token is read at
-all, and a request without the principal header is refused. Because the header is then the whole
-credential, it is trustworthy only where nothing else can set it: the process is refused before it
-binds unless `mcp.listen` is loopback or a Unix socket. Leave the block out and this server checks
-tokens itself, which is the default.
+optionally `scopes_header` to one carrying that caller's scopes. Both are HTTP header names, such as
+`X-Forwarded-User` — letters, digits, hyphens and the few other characters a header name may carry,
+with no space or colon — and a name in any other shape is refused when this file loads, naming the
+key, because no request could carry it. In that mode no token is read at all, and a request without
+the principal header is refused. Because the header is then the whole credential, it is trustworthy
+only where nothing else can set it: the process is refused before it binds unless `mcp.listen` is
+loopback or a Unix socket. Leave the block out and this server checks tokens itself, which is the
+default; a block whose `principal_header` is empty is refused rather than read as that default.
 
 **`mcp.deny_reach` withdraws a kind of reach from this deployment.** Every operation the server
 performs declares how far its own effects travel — `none` for one that reads or renders and leaves

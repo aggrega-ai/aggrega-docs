@@ -42,7 +42,7 @@ See [./aggrega-auth.md](./aggrega-auth.md) for `aggrega auth token`.
 - **Keyless** (default) — an ephemeral key bound to an OIDC identity by a short-lived Fulcio certificate, recorded in the Rekor transparency log. Fulcio and Rekor default to the public-good Sigstore instances (`https://fulcio.sigstore.dev`, `https://rekor.sigstore.dev`). The keyless trusted timestamp comes from Rekor's transparency-log inclusion; a separate RFC3161 timestamp authority is **optional** — supply `--timestamp-url` with a full endpoint to enable one. At an **interactive terminal** keyless signing needs no flags: the CLI opens a browser to acquire a short-lived OIDC identity token. On **GitHub Actions** it needs none either: the CLI mints the workflow OIDC token automatically from the runner's ambient endpoint. For **other non-interactive / CI** use, export `AGGREGA_IDENTITY_TOKEN` (or `SIGSTORE_ID_TOKEN`), or pass `--identity-token`; with no supplied token, no ambient endpoint, and no terminal the command is refused.
 - **Keyed** (`--key`) — an offline held ECDSA P-256 key (cosign-compatible PEM). No network is contacted.
 
-The keyless URLs and the keyed key path can also come from the `.aggrega-config.yaml` `signing:` block (global and per-registry); a flag overrides the config, and the config overrides the public-good default. The OIDC identity token is never a config field, and the private key is never inline — only a path to it.
+The keyless URLs and the keyed key path can also come from the `.aggrega-config.yaml` `signing:` block (global and per-registry); a flag overrides the config, and the config overrides the public-good default. In that file each URL is written as an absolute `https` URL — `https://`, a host, and optionally a port and a path, such as `https://fulcio.sigstore.dev` — and a value in any other shape, one with no scheme or one beginning `http://`, is refused when the file loads, naming the file and the key. The OIDC identity token is never a config field, and the private key is never inline — only a path to it.
 
 The construction and the sign-and-attach behaviour are shared with `aggrega push`, so both verbs sign identically.
 
@@ -55,6 +55,8 @@ The signing inputs can be supplied through the environment, overriding the `.agg
 - `AGGREGA_SIGNING_KEY_PATH` — a path pointer to a keyed-key PEM (never key material).
 
 `aggrega sign` resolves the signing config and these variables for the artifact's registry host, the same way `aggrega push` does. Precedence is flag > environment > config > default. See [environment-variables.md](environment-variables.md) for the full list.
+
+A URL supplied through one of these variables, or through `--fulcio-url`, `--rekor-url` or `--timestamp-url`, is taken as written. The configuration file is checked before either is applied on top of it, so the `https` shape its values are held to does not reach them, and a malformed one fails only when signing contacts that service.
 
 ## See also
 

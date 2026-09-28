@@ -313,6 +313,21 @@ The same holds for a signature attached to a version afterwards, and so for the
 publication date it carries, and for a record written by an index build that read no
 publication dates: each is picked up by the next full re-read.
 
+## The public key a keyed policy pins
+
+A keyed trust policy pins the registry's public key inline, as the entry's `public_key`:
+`aggrega registry add --key <file>` copies the file's contents there, and so does pinning a
+policy the registry advertises with a key in it. The value is a PEM public-key block — the
+text from a `-----BEGIN PUBLIC KEY-----` line, or `-----BEGIN RSA PUBLIC KEY-----`, to its
+matching `-----END` line — and any text above the block is ignored.
+
+A value carrying no `-----BEGIN … PUBLIC KEY-----` line is refused when the configuration
+file loads, naming the file and the entry. `registry add` makes the same check before it
+writes, so a `--key` file holding anything else — a private key, a certificate, or a key in
+another encoding — is refused and the configuration file is left as it was. Only that line
+is checked: whether the block decodes to a usable key is found when a signature from the
+registry is verified against it.
+
 ## Offline
 
 `aggrega registry update` is the one command in this group whose whole work is a walk of
