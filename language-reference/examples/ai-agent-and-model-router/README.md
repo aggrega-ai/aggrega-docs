@@ -152,7 +152,8 @@ convention and the mark it uses for lines left out.
 The router's reason to exist is its map, and the map reaches the rendered output
 rather than staying in the authored file. Here is the `data` block of
 `dist/helm/router/litellm-gateway-config.configmap.yaml`, with the text of the
-Python module it also carries left out:
+Python module and of the path allowlist's configuration it also carries left
+out:
 
 ```yaml
 data:
@@ -173,9 +174,11 @@ data:
         - request_field_filter.filter
   request_field_filter.py: |
     [… omitted: the text of the router's request guard, a Python module described below]
+  path-allowlist.conf: |
+    [… omitted: the configuration of the router's path allowlist, described below]
 ```
 
-Four things are worth reading off that.
+Five things are worth reading off that.
 
 **Both entries publish the same alias.** That is what gives
 `routing_strategy` something to do: with two entries under one name, the router
@@ -206,6 +209,25 @@ error naming it, forwarding nothing — so a caller cannot point the router at a
 address of its own through a request-body model list, or send a provider key of
 its own in place of the router's. This Release admits nothing further.
 
+**Only the router's own routes are reachable.** The guard sees only the routes
+that hand it the request, so the last key configures the pod's second
+container, which runs the official nginx image as a path allowlist. The router
+itself listens on the pod's loopback address, where nothing outside the pod
+reaches it, and the allowlist listens on port 4000, the port the Service below
+targets. It forwards a request only when its method and path are one of the
+routes the router serves — the model request routes the guard checks, in the
+spellings the router serves whatever the alias, `/v1/chat/completions` and
+`/v1/messages` among them; the model listing; the health checks; and, of its
+administrative routes, key management and the creating, reading, updating and
+deleting of organizations — and answers every other path 403, forwarding
+nothing. So the proxy's token-count routes, its pass-through routes to
+providers' own APIs, its other administrative routes and its administrative
+console cannot be reached through the router, and neither can a model route
+whose path carries the model name, as the paths Azure's client sends do:
+there the proxy reads words in the path, the alias included, to decide how it
+records a request, and the router would refuse a request for this map's own
+`assistant` on it.
+
 ## One address, two names
 
 The model component runs nothing. Its Recipe emits a reference — the whole `spec`
@@ -234,7 +256,8 @@ spec:
 So the chain is visible end to end in the output: a workload can reach the
 router under the model component's own name, and the two resources agree because
 the operator wrote the router's address into `model.infra.endpoint` in the
-Release.
+Release. The port the Service targets, `http`, is the one the router's path
+allowlist listens on.
 
 **That address is written by hand, and it has to be.** The model is a broker
 component: nothing runs behind it in-cluster, so there is no Recipe output to
