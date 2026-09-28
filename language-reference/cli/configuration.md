@@ -66,7 +66,9 @@ same identity in a later directory is shadowed. `catalog` is read after everythi
 a listed directory already contains it, in which case it is read as part of that directory — so
 listing a directory adds to what you had rather than replacing it. A repeatable `--catalog <dir>`
 on the command line is read ahead of both, and a relative path given there resolves against the
-directory you ran the command from, since no configuration file declared it.
+directory you ran the command from, since no configuration file declared it. A project that keeps a
+catalog variant per Release can give each Release a list of its own instead — see
+[Giving a Release its own catalog directories](#giving-a-release-its-own-catalog-directories).
 
 **Writing the list as empty says this project has no local catalog at all**, and it is the one
 spelling that stops `catalog` being read too:
@@ -301,21 +303,68 @@ the append companion beside it:
 | `plugins.providers` | `providers_append` |
 
 Entries under a companion are concatenated onto the resolved list at each layer instead of
-shadowing it, so a subproject adds a catalog directory to whatever the root already declared:
+shadowing it, so a subproject adds a linter to whatever the root already declared:
 
 ```yaml
 # <project>/services/api/.aggrega-config.yaml
-workspace:
-  catalog_dirs_append:
-    - ./catalog
+plugins:
+  linter_append:
+    - uri: ./lint/api-rules.wasm
 ```
 
 Where one file sets both the base list and its companion, that file's value is the base list
 followed by the appended entries.
 
+The `workspace:` block is the exception to where a companion can be written. A file carrying that
+block marks its own directory as the project root, so a subproject's file that wrote
+`workspace.catalog_dirs_append` would start a project of its own rather than add to the enclosing
+one. The catalog-directory companion composes between your global file and the project's root file.
+
 The `plugins.cli` list composes across files on its own and has no companion: a command extension
 declared in the global file registers its command in every project, one declared in a project
 registers only there, and both register together.
+
+### Giving a Release its own catalog directories
+
+A project can keep several catalog variants side by side — one per target, each holding the Recipes
+that render the same Components for a different provider — and build each Release against one of
+them. Name each Release under `workspace.releases` and give it its own `catalog_dirs`:
+
+```yaml
+# <project>/.aggrega-config.yaml
+workspace:
+  releases:
+    release-compose.yaml:
+      catalog_dirs:
+        - ./catalog-compose
+    release-helm.yaml:
+      catalog_dirs:
+        - ./catalog-helm
+```
+
+Each key is a Release file, written relative to the configuration file that names it. The two keys
+under it mean what they mean on the `workspace:` block, scoped to that one Release:
+
+- `catalog_dirs` **replaces** the workspace's list for that Release. The search order, the `catalog`
+  directory read after it, and what an empty list says are the same as for the workspace's own list.
+- `catalog_dirs_append` is read after the Release's list. An entry that writes only
+  `catalog_dirs_append` keeps the workspace's list and adds to it.
+
+A Release the map does not name reads `workspace.catalog_dirs` exactly as before. A Release the map
+does name reads its own directories however it is built — `aggrega build` or `aggrega pull` at a
+terminal, the editor through `aggrega serve`, an assistant through `aggrega mcp` — so none of them
+needs a flag to find its catalog. A `--catalog <dir>` on the command line is still searched ahead of
+the Release's directories, for that one invocation. And a lookup that finds no entity under a name
+you used names that Release's entry as the place to list the directory holding it.
+
+An entry naming a file that does not exist is refused when the configuration loads, naming the entry
+and the file. Renaming a Release therefore stops every command until the entry is renamed with it,
+rather than letting the Release build against the workspace's list with nothing to say so.
+
+What concerns no single Release still reads the workspace's list: a lint or a validation of the whole
+catalog, a lookup of an entity by name, an Aggregate inspected on its own, and an editor's listing of
+the workspace's entities. `AGGREGA_CATALOG_DIRS` sets the workspace's list and reaches no entry here,
+and a configuration file your pipeline owns does not read the map at all.
 
 ### A configuration file your pipeline owns
 
@@ -336,7 +385,8 @@ against the project root, and not against the directory you ran the command from
 rule worth reading twice, because a path that looks project-relative resolves elsewhere and the
 build still succeeds, against content you did not intend.
 
-It applies to `workspace.catalog_dirs`, and to the local filesystem paths on a `plugins.governance`,
+It applies to `workspace.catalog_dirs`, to the Release files keyed under `workspace.releases` and
+the directories each entry lists, and to the local filesystem paths on a `plugins.governance`,
 `plugins.linter` or `plugins.importer` attachment — a `uri` naming a `.wasm` file on disk, and each
 entry under that attachment's `with.sources`. It applies to the entries under their append
 companions too, and each of those anchors to its own declaring file rather than to the file the

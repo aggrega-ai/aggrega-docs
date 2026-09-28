@@ -74,7 +74,7 @@ A file whose `kind:` is unrecognized reports the unknown kind and the file it ca
 
 ## Catalog resolution
 
-The catalog search stack is assembled with a layered precedence: `--catalog` flags (prepended, in order) come first, then the workspace's `catalog_dirs` from `.aggrega-config.yaml`, then the `catalog` directory at the workspace root, which is read whether or not anything names it. A workspace whose `catalog_dirs` is written as an empty list reads no local catalog at all. The stack is first-win — the earliest directory to declare an entity identity owns it; a later directory's copy is shadowed. The catalog branch resolves the identifier against this stack across every entity kind, in a fixed precedence, and renders the first match through that kind's own view; the file and release branches load referenced catalog entities from it when a Manifest mapping or `extends:` parent must be resolved.
+The catalog search stack is assembled with a layered precedence: `--catalog` flags (prepended, in order) come first, then the workspace's `catalog_dirs` from `.aggrega-config.yaml` — for a Release the configuration gives directories of its own under `workspace.releases`, that Release's in their place — then the `catalog` directory at the workspace root, which is read whether or not anything names it. A workspace whose `catalog_dirs` is written as an empty list reads no local catalog at all. The stack is first-win — the earliest directory to declare an entity identity owns it; a later directory's copy is shadowed. The catalog branch resolves the identifier against this stack across every entity kind, in a fixed precedence, and renders the first match through that kind's own view; the file and release branches load referenced catalog entities from it when a Manifest mapping or `extends:` parent must be resolved.
 
 ## Reading a published entity
 
@@ -534,7 +534,7 @@ they are from the readable layouts. Pass --unredacted to print them instead.
 
 | Flag | Default | Description |
 | --- | --- | --- |
-| `--catalog` | `[]` | Catalog directory; repeatable. Each --catalog is prepended to the workspace catalog_dirs search stack (first match wins), which ends with the `catalog` directory at the workspace root when there is one. A workspace whose catalog_dirs is written as an empty list reads no local catalog at all. |
+| `--catalog` | `[]` | Catalog directory; repeatable. Each --catalog is prepended to the catalog search stack (first match wins): the workspace catalog_dirs, or, for a Release the workspace configuration gives directories of its own under workspace.releases, that Release's; the stack ends with the `catalog` directory at the workspace root when there is one. A catalog_dirs list written empty reads no local catalog at all. |
 | `--closure` | `false` | Report the Release's dependency closure — every catalog entity it reaches, at the version each resolved to — in place of the resolved-node view. Applies to a Release, which is the only kind that resolves a closure; any other kind refuses the request rather than silently dropping it. |
 | `--color` | `auto` | Colorize output: auto\|always\|never. |
 | `--detail` | `false` | Render full field bodies. |

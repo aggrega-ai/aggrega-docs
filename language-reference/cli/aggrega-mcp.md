@@ -144,7 +144,9 @@ For the same reason a call arriving over HTTP cannot name a workspace of
 its own. Sending workspace_root or catalog_dirs is refused, naming the
 argument, and the directories searched for catalog entities beside the
 served workspace are the ones that workspace itself resolves: its own
-workspace.catalog_dirs setting, then its catalog directory. Over
+workspace.catalog_dirs setting — or, for a Release it gives directories
+of its own under workspace.releases, that Release's — then its catalog
+directory. Over
 standard input and output both arguments are honoured: the client that
 launched the server is running on this machine.
 
@@ -246,7 +248,7 @@ A request is answered with one JSON object and a status code — or, where the c
 
 **The workspace a serving process answers for is fixed when it starts.** `--workspace-root` names it; the `AGGREGA_WORKSPACE_ROOT` variable supplies it when the flag is absent. With neither, a server on standard input and output resolves the workspace from the directory it was started in, and a listener is refused before it binds unless a workspace resolves there — a process reached over HTTP answers callers who cannot see the machine, so it serves a workspace an operator chose rather than whichever directory it happened to be started in. Serve several projects by running one process per project root.
 
-**A call arriving over HTTP cannot name a workspace of its own.** `workspace_root` and `catalog_dirs` are refused, naming the argument that was sent, rather than being quietly dropped: an argument silently ignored reads to its sender exactly like one that was honoured. Catalog directories searched beside the served workspace are that workspace's own `workspace.catalog_dirs` setting, which the operator writes. Over standard input and output both arguments are honoured as before, because the client that launched the server is running on the caller's own machine.
+**A call arriving over HTTP cannot name a workspace of its own.** `workspace_root` and `catalog_dirs` are refused, naming the argument that was sent, rather than being quietly dropped: an argument silently ignored reads to its sender exactly like one that was honoured. Catalog directories searched beside the served workspace are that workspace's own `workspace.catalog_dirs` setting — or, for a Release it gives directories of its own under `workspace.releases`, that Release's — which the operator writes. Over standard input and output both arguments are honoured as before, because the client that launched the server is running on the caller's own machine.
 
 **A path a call names stays inside that workspace too.** Over HTTP a path argument is resolved against the workspace root and refused if it reaches outside it — a relative path that climbs out of the workspace, and an absolute path naming somewhere else, each come back as a failure naming the workspace this process serves. Where the path you meant is inside that workspace but was spelled absolutely, the refusal gives you the root-relative spelling to send instead, so a caller that guessed the wrong form is told the right one rather than only that it was wrong. That holds for the paths a call names as its subject — the document to validate, the Release to build, the directory a generation writes its output into — and for the ones a tool writes to no less than the ones it reads: a caller reaching a server over the network is asking a machine it cannot see to read and write files, and the workspace the operator chose is where that reading and writing is kept. Over standard input and output each tool's path arguments keep the contract described under that tool below, where a path may be absolute and may point outside the workspace — the person calling owns the machine the server is running on, so confining them to a directory they chose themselves would buy nothing.
 
