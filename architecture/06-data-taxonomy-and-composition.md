@@ -113,9 +113,9 @@ subsystems:
         values: { log_level: "verbose" }
     components:
       ledger-api:
-        type: core/python-worker:1.0
+        type: core/python-worker:1.0.0
       ledger-db:
-        type: core/postgres:1.0
+        type: core/postgres:1.0.0
 ```
 
 * **Composite Aggregates are SUPPORTED (The Module Pattern):** Aggregates act as both the root application and reusable modules. A parent Aggregate can declare a child Aggregate exactly like a component, passing `parameters` down into it. To prevent tight coupling, child Aggregates expose an **`exportedComponents:`** contract, establishing a stable public interface name. The parent requests this interface, and the Go compiler dynamically rewires the topological edge to the correct internal node. A module may itself re-export a nested module's exported component under its own interface name — optionally renaming it — and the compiler resolves such a re-export chain transitively to the underlying internal node, so modules compose to any depth without a parent needing to know how deeply the target is nested. A target that resolves to no internal node still halts loudly, and a re-export chain that closes back on itself is rejected rather than followed forever.
@@ -304,7 +304,7 @@ spec:
   # The programmatic logic executed in-memory by the Wasm sandbox
   pipeline:
     - id: "dsn_builder"
-      plugin: eval/oracle-dsn-builder:1.0
+      plugin: eval/oracle-dsn-builder:1.0.0
       function: build_dsn
       with: |
         db_host: "{{ .values.host }}"

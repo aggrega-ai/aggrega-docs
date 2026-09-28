@@ -1247,6 +1247,27 @@ with `Feature` in place of `Component` where a Feature's chain carries the pin.
 
 **How to fix:** change the pin to a version the catalog holds, or add that version to the catalog. `aggrega inspect` lists the versions an entity is available at. A caret range that matches nothing usually means the available versions are all below the floor it names — widen the range, or publish the version the reference is waiting for.
 
+A pin that is none of the forms a pin takes is a different condition, described under "A version pin is none of the forms a pin takes" below.
+
+### A version pin is none of the forms a pin takes
+
+<!-- covers: pkg/types.ErrMalformedVersionPin -->
+
+A reference names another entity and may pin the version it wants after a colon, in one of two forms: an **exact** pin, which is a semantic version such as `1.0.0` — the form every entity's `metadata.version` takes — or a **caret** pin, `^` followed by a version such as `^1.0.0`, which selects the highest version compatible with it. A pin that is neither — a caret whose text does not read as a version range, like `^garbage`, or an exact pin that is not a semantic version, like `1.x`, `1.0` or `v1.0.0` — names no version at all, so no catalog could hold what it asks for.
+
+Such a pin is reported as malformed rather than as an entity or a version the catalog does not hold, so the diagnostic sends you to the text you typed instead of looking for something that does not exist. It is the same condition wherever the pin is written: a component or feature `type`, a Component's or Feature's `extends:`, a Manifest mapping key or value, a Release's `spec.aggregate`, a Recipe's or FeatureRecipe's `implements:`, the version a Recipe's `capability:` pins when the plugin serving it is selected, and a pipeline step's `plugin:`.
+
+It is reported where a reference that failed to resolve is reported, so a malformed pin never changes which references resolve — it changes what the failure says. A pin that is well formed but that no available version satisfies keeps the condition that surface reports for it: "No catalog version satisfies a version constraint" above, or the not-found condition of the surface it is written on.
+
+Only the text after the **last** colon is a pin, and only when it carries no `/`. A reference to a registry host with a port, such as `localhost:5000/core/api-server`, therefore carries no pin — the text after the port's colon continues the reference — and it is never reported as a malformed one.
+
+Emitted message, for a caret pin on a component type:
+> reference carries a malformed version pin (reference `"<reference>"`, pin `"<pin>"`, the text after ^ is not a version range, referenced from `<authored location>`). write the reference as <name>, as <name>:<version> with a semantic version such as 1.0.0, or as <name>:^<version> for the highest version compatible with it
+
+An exact pin reads `an exact pin must be a semantic version` in place of the caret clause. The value after it says where the reference was written, in the words of the surface reporting it — `referenced from` and the authored location, `in the Release's spec.aggregate`, `in the recipe's spec.implements`, or the component instance the Manifest maps to the reference. Where a Manifest mapping is judged against its Recipe's `implements:`, the mapping entry and which side of it carries the pin — `in the mapping key` or `in the recipe's spec.implements` — come ahead of the reference instead, and a Component's or Feature's `extends:` names the extending entity and the field ahead of it.
+
+**How to fix:** rewrite the pin in one of the two forms, or remove it to select the highest version available. A wildcard such as `1.x` is written as a caret pin, `^1.0.0`; a version with a leading `v` or fewer than three numbers is written in full, `1.0.0`.
+
 ### Every version a reference could select has been withdrawn
 
 <!-- covers: pkg/catalog.ErrAllVersionsRetracted -->
@@ -5055,6 +5076,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0308` | `a Feature reaches a component alongside a Feature it declares a conflict with` | Two Features declared to conflict reach one component |
 | `E0309` | `a symbolic link sits among the files an entity carries` | A symbolic link sits among the files an entity carries |
 | `E0310` | `` a registry other than the official hub is not registered offline without a trust policy supplied by hand, because the policy it advertises cannot be fetched; register it once while online, or pin its trust by hand with `aggrega registry add <host> --identity <identity>=<issuer>` or `--key <public-key-file>` `` | A registry is added offline with no trust policy to pin |
+| `E0311` | `reference carries a malformed version pin` | A version pin is none of the forms a pin takes |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

@@ -46,14 +46,19 @@ A catalog-entity URI carries no kind sigil (the previous section). Plugin URIs a
 
 ## URI shape — versioned vs unversioned
 
-Every URI position above accepts two shape variants:
+Every URI position above accepts a reference in one of three forms — unversioned, or pinned after a colon with an exact version or a caret range:
 
-| Variant | Example | Semantics |
+| Form | Example | Semantics |
 | --- | --- | --- |
-| Versioned | `core/postgres:1.0.0` | Pins to one specific version |
 | Unversioned | `core/postgres` | Resolves to "any version" or "latest registered", depending on the position's resolution semantics |
+| Exact pin | `core/postgres:1.0.0` | Pins to one specific version. The version is a semantic version, the form every entity's `metadata.version` takes |
+| Caret pin | `core/postgres:^1.0.0` | Selects the highest version compatible with the one named — for `^1.0.0`, at or above `1.0.0` and below `2.0.0` |
 
-The two variants coexist in the same position. Authors choose based on whether they need version pinning or version flexibility. The Manifest's `mappings.{components,features}.type` tier supports both variants as distinct dictionary keys with **versioned-wins-over-unversioned** precedence — a versioned key (`core/api-server:1.0.0`) takes precedence over the unversioned key (`core/api-server`) when both match the same lookup. The two variants are not exclusive; both can sit in the same `type:` map and the resolver picks the most specific. Provider dispatch flows from the resolved Recipe's `spec.capability` field at orchestrator time, so the Manifest maps a type to a Recipe and nothing more.
+The pin is the text after the reference's **last** colon, and only when that text carries no `/`. A reference to a registry host with a port — `localhost:5000/core/postgres` — therefore carries no pin: the text after the port's colon continues the reference.
+
+A pin that is none of these forms — a caret whose text does not read as a version range (`core/postgres:^garbage`), or an exact pin that is not a semantic version (`core/postgres:1.x`, `core/postgres:1.0`, `core/postgres:v1.0.0`) — names no version at all. When a command resolves such a reference and it does not resolve, the refusal names the reference, the pin, and the three forms above, rather than reporting an entity or a version the catalog does not hold; the diagnostic is described in [`errors/fatal-halts.md`](../errors/fatal-halts.md) under "A version pin is none of the forms a pin takes". The pin is judged only there, so a malformed pin never changes which references resolve, and a well-formed pin that no available version satisfies is reported as that. No schema states the pin grammar, so a malformed pin is reported when something resolves the reference — `aggrega validate`, `aggrega pull`, `aggrega build` — rather than when the file loads.
+
+The forms coexist in the same position. Authors choose based on whether they need version pinning or version flexibility. The Manifest's `mappings.{components,features}.type` tier supports both variants as distinct dictionary keys with **versioned-wins-over-unversioned** precedence — a versioned key (`core/api-server:1.0.0`) takes precedence over the unversioned key (`core/api-server`) when both match the same lookup. The two variants are not exclusive; both can sit in the same `type:` map and the resolver picks the most specific. Provider dispatch flows from the resolved Recipe's `spec.capability` field at orchestrator time, so the Manifest maps a type to a Recipe and nothing more.
 
 For the per-entity version-consumption regime (which entities actually have their version field consumed by resolution dispatch vs descriptive provenance), see [`vocabulary/inheritance-and-interface.md`](inheritance-and-interface.md) "Cross-entity version consumption".
 
@@ -127,7 +132,8 @@ Beyond URI strings, Aggrega's authoring surface carries several distinct format-
 | Sprig function reference (`{{ default 1 .v }}` etc.) | Same surfaces as Go templates | Sprig v3 FuncMap registered at template-engine init; full helper list at [`templates/sprig-functions.md`](../templates/sprig-functions.md) |
 | JSON Schema 2020-12 (compact or full form) | Component / Feature `schema:` content (or `schemaRef:` pointing at a SchemaLibrary entry) | JSON Schema validator at entity load during resolution |
 | JSON Pointer (RFC 6901) | Recipe `locals.<*_path>:` keys (`volumes_path`, `containers_path`, etc.); FeatureRecipe `pipeline:` step output references; Wasm plugin JSONPatch payloads | RFC 6901 baseline per the Wasm plugin contract; declared in `plugins/plugin-contract.md` |
-| SemVer regex | `metadata.version` fields on every entity; URI version segments | JSON Schema regex `^(0\|[1-9]\d*)\.(0\|[1-9]\d*)\.(0\|[1-9]\d*)(?:-...)?$` per entity schema |
+| SemVer regex | `metadata.version` fields on every entity | JSON Schema regex `^(0\|[1-9]\d*)\.(0\|[1-9]\d*)\.(0\|[1-9]\d*)(?:-...)?$` per entity schema |
+| Version pin (`:<version>`, `:^<version>`) | The version segment of an entity reference, at every URI position above | The compiler, when it resolves the reference: an exact pin is a semantic version and a caret pin's range parses, and a malformed pin is refused under its own condition — see [URI shape](#uri-shape--versioned-vs-unversioned) above |
 | Glob pattern (filesystem path) | Catalog-relative paths (e.g., `.aggrega-config.yaml` `catalog_dirs:` entries); Recipe `$import:` file paths in `workload:` / `artifacts:` / `valuesMapping:` | Filesystem-walk semantics at resolution |
 | Label selector expression | `Component.spec.usesSchema.<socket>.selector`; Feature `appliesTo:` / `appliesToAnyOf:` | Aggrega selector parser per [`pkg/selector/`](../../../aggrega-cli/pkg/selector/); selector grammar documented at [`vocabulary/topology-triad.md`](topology-triad.md) |
 | Annotation-key shape (`<namespace>/<name>`) | `metadata.annotations` keys; Manifest `features.annotations` keys; boundary annotation cascade | JSON Schema regex per entity; reserved-prefix discipline at [`vocabulary/labels-and-annotations.md`](labels-and-annotations.md) |

@@ -331,6 +331,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrArtifactLibraryEntryShape()` | `artifact-library-entry-shape` | `artifactlibrary: entry must be a mapping of filename to a string body` |
 | `ErrForbiddenKeyword()` | `forbidden-keyword` | `schemalibrary: forbidden JSON Schema keyword` |
 | `ErrLibraryReferenceWhitespace()` | `library-reference-whitespace` | `library reference: a reference to a library entry carries no whitespace or line break` |
+| `ErrMalformedVersionPin()` | `malformed-version-pin` | `reference carries a malformed version pin` |
 | `ErrMappingEntryNotScalar()` | `mapping-entry-not-scalar` | `mappinglibrary: entry body must be a string scalar` |
 | `ErrOrderedMapDecodeDepthExceeded()` | `document-nesting-depth-exceeded` | `OrderedMap: decode depth exceeded` |
 | `ErrParametersShape()` | `parameters-shape` | `parameters: shape must be an inline object or {$import: <local-path>}` |
@@ -742,6 +743,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0308` | `conflicting-features-reach-one-component` | `a Feature reaches a component alongside a Feature it declares a conflict with` |
 | `E0309` | `symbolic-link-in-entity-files` | `a symbolic link sits among the files an entity carries` |
 | `E0310` | `offline-registration-without-trust-policy` | `` a registry other than the official hub is not registered offline without a trust policy supplied by hand, because the policy it advertises cannot be fetched; register it once while online, or pin its trust by hand with `aggrega registry add <host> --identity <identity>=<issuer>` or `--key <public-key-file>` `` |
+| `E0311` | `malformed-version-pin` | `reference carries a malformed version pin` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication no longer judges a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.
