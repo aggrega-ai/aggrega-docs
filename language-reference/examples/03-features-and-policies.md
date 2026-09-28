@@ -185,9 +185,13 @@ spec:
 ```
 
 **6. What the Build Writes**
-The gateway's rendered ConfigMap gains exactly these lines after its routing table, and a second file beside its configuration, `data_masking.py`, the module the second and third entries' guardrails are loaded from; every other rendered file is byte-identical to a build without the attachment. The third entry, which masks the conversation's tool calls and tool results value by value, comes before the gateway's built-in entity guardrail, which masks the text of the messages and is kept off the tool turns. No address appears in them: the gateway reads the analyzer's and anonymizer's addresses from the environment its Recipe fills from the two sockets.
+The gateway's rendered configuration ends with the lines below. The `litellm_settings` block and its `callbacks` entry are in every build of this gateway: the entry registers the request guard the gateway's Recipe delivers on every Release, which refuses a request field the gateway was not configured to forward (the gateway Component's description says which). The attachment adds `turn_off_message_logging: true` to that block and everything from `guardrails:` on, and a further file beside the configuration, `data_masking.py`, the module the second and third entries' guardrails are loaded from; every other rendered file is byte-identical to a build without the attachment. The third entry, which masks the conversation's tool calls and tool results value by value, comes before the gateway's built-in entity guardrail, which masks the text of the messages and is kept off the tool turns. No address appears in them: the gateway reads the analyzer's and anonymizer's addresses from the environment its Recipe fills from the two sockets.
 
 ```yaml
+    litellm_settings:
+      callbacks:
+        - request_field_filter.filter
+      turn_off_message_logging: true
     guardrails:
       -
         guardrail_name: router-pii-filter
@@ -233,8 +237,6 @@ The gateway's rendered ConfigMap gains exactly these lines after its routing tab
             PERSON: MASK
           presidio_filter_scope: input
           skip_tool_message_in_guardrail: true
-    litellm_settings:
-      turn_off_message_logging: true
 ```
 
 At runtime the gateway replaces `PRJ-1234` in a request's messages with `[PROJECT_CODE_REDACTED]`, a person's name with `<PERSON>` and an email address with `<EMAIL_ADDRESS>` before the request reaches the model provider, whatever the caller asks; the project code, the name and the address are replaced in the arguments of the tool calls the conversation carries as well, and the name and the address in the results of those calls, value by value. When the analyzer or the anonymizer cannot be reached it refuses the request rather than forwarding it, and its logging integrations receive a redacted copy of every request and reply.
