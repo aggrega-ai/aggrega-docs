@@ -160,9 +160,11 @@ predicts the write's: if the dry run refuses, init would have refused. Pass
 --force alongside it to see the merge an overwriting write would produce.
 
 Under --dry-run standard output carries that content and nothing else, so it stays
-parseable. A registry that advertises no trust policy still produces its notice,
-on standard error: read that stream too, or a configuration seeded with no trust
-policy arrives without the advice to pin identities by hand.
+parseable. A registry seeded with no trust policy, because it advertises none,
+still produces its notice, on standard error: read that stream too, or that
+configuration arrives without the advice to pin identities by hand. A pinned
+policy, whether advertised or the hub's built-in baseline, is in the content
+itself and produces no notice.
 ```
 
 **`aggrega config init` flags**
@@ -222,7 +224,7 @@ The `config` subcommands seed, inspect, and freeze the configuration that govern
 - `--dry-run` does everything `init` does except write. It hands the seeded configuration back as content, creating and modifying nothing, and the answer names the file the content is for — which matters here, because the target is the global config unless `--workspace` selects this project's own. A caller that keeps its own document model, such as an editor, puts the content there, where it is visible before it is saved and can be amended or undone.
 - Because a dry run does everything else `init` does, its exit code predicts the write's. It refuses an existing config file exactly as a write refuses it, and for the same reason, so you can use it to ask whether `init` would succeed before committing to the change. To see the document an overwriting write would produce, pass `--force` alongside it: `--force --dry-run` reports the merge and still writes nothing.
 - The registry is still contacted for its advertised trust policy, because the policy in the reported content is the policy a write would have pinned. A dry run makes the same single unauthenticated request to that registry's own origin that a write makes.
-- Under `--dry-run`, standard output carries that content and nothing else, so it stays parseable. The one thing the content cannot express is an absence: when a registry advertises no trust policy, the notice saying so — and telling you to pin identities with `--identity` or `--key` — goes to standard error. A configuration document with no trusted identities looks the same whether a policy was pinned and happened to be empty or none was advertised at all, so read both streams; a program that discards standard error is told nothing about it. When the registry does advertise a policy, the pinned policy is in the reported content itself and no separate notice is produced.
+- Under `--dry-run`, standard output carries that content and nothing else, so it stays parseable. The one thing the content cannot express is an absence: when a registry advertises no trust policy and is seeded with none, the notice saying so — and telling you to pin identities with `--identity` or `--key` — goes to standard error. A configuration document with no trusted identities looks the same whether a policy was pinned and happened to be empty or none was advertised at all, so read both streams; a program that discards standard error is told nothing about it. When the registry does advertise a policy, or the official hub's built-in baseline is pinned in its place, the pinned policy is in the reported content itself and no separate notice is produced.
 
 A seeded configuration is a document you own and go on editing, which is why it can be handed back rather than written. Freezing the effective configuration, below, produces a record of what the configuration resolved to — state the compiler keeps about itself rather than content anyone composes — so it always writes and offers no `--dry-run`.
 

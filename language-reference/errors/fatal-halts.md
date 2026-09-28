@@ -4344,6 +4344,8 @@ It is deliberately distinct from a registry that could not be reached. This one 
 Reported as a notice, which names the registry and what to do instead:
 > Notice: registry `<host>` advertises no trust config (registrytrust: registry advertises no trust config); pin identities manually with --identity/--key
 
+The official hub is the exception: it carries a built-in baseline, so where it publishes no document that baseline is pinned instead, and the notice says the baseline was pinned rather than asking you to pin identities.
+
 **How to fix:** nothing is broken. If you want signatures from this registry checked, supply the identity or the key when adding it, exactly as the notice says — that is the normal path for a registry that publishes no policy. If you do not, the registry is added without a signing stance and artifacts from it are verified only when they carry a signature.
 
 ### A registry is added offline with no trust policy to pin

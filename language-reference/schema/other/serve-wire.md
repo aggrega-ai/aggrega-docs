@@ -796,7 +796,7 @@ _Additional properties are not permitted._
 
 ### `ConfigInitParams`
 
-Seeds a configuration document. It writes the machine-wide file by default, since a registry and the identities trusted on it are machine-wide tooling. It reaches the named registry to read the trust policy it advertises; a registry advertising nothing is reported as such and the seeding proceeds on the built-in baseline.
+Seeds a configuration document. It writes the machine-wide file by default, since a registry and the identities trusted on it are machine-wide tooling. It reaches the named registry to read the trust policy it advertises; a registry advertising nothing is reported as such and the seeding proceeds, on the built-in baseline for the official hub and on no policy for any other registry.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -1284,15 +1284,16 @@ _Additional properties are not permitted._
 
 ### `TrustFetchOutcome`
 
-What reading a registry's advertised trust policy did. The three outcomes are kept apart because they mean different things: the policy was taken, the registry advertised nothing — which is not a failure — or no read was attempted.
+What reading a registry's advertised trust policy did. The outcomes are kept apart because they mean different things: the advertised policy was taken, the registry advertised nothing — which is not a failure — the built-in baseline was pinned in its place, or no read was attempted.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `pinned` | boolean | yes | Whether the advertised policy was taken. |
-| `notAdvertised` | boolean | no | Whether the registry advertised no policy, in which case the operation proceeds on what the request stated. |
+| `notAdvertised` | boolean | no | Whether the registry was asked and advertised no policy, in which case the operation proceeds on what the request stated. A registry the offline posture kept from being asked is never reported this way. |
+| `baseline` | boolean | no | Whether the built-in baseline was pinned because no advertised policy was taken, which only the official hub carries. It stands beside notAdvertised where the hub was asked and advertised nothing, and alone where the offline posture kept the hub from being asked. |
 | `skipped` | boolean | no | Whether no read was attempted, because a stated policy overrode it or the request asked for none. |
 | `identities` | integer | no | How many signing identities the advertised policy carried. |
-| `reason` | string | no | What the registry's endpoint did, where the policy was not taken. |
+| `reason` | string | no | Why the advertised policy was not taken: what the registry's endpoint did, or the offline refusal that kept it from being asked. |
 
 _Additional properties are not permitted._
 
@@ -1855,7 +1856,7 @@ What registering a registry wrote, where, and what it read from the registry its
 | --- | --- | --- | --- |
 | `host` | string | yes | The host the entry is keyed under, which is not always the spelling the request used. |
 | `scope` | ConfigWriteScope | yes | Which configuration document was written and how far it reaches. A request names one workspace, so an answer that said nothing would be read as being about that workspace — and for a machine-wide write that reading is wrong. |
-| `trust` | TrustFetchOutcome | yes | What reading a registry's advertised trust policy did. The three outcomes are kept apart because they mean different things: the policy was taken, the registry advertised nothing — which is not a failure — or no read was attempted. |
+| `trust` | TrustFetchOutcome | yes | What reading a registry's advertised trust policy did. The outcomes are kept apart because they mean different things: the advertised policy was taken, the registry advertised nothing — which is not a failure — the built-in baseline was pinned in its place, or no read was attempted. |
 
 _Additional properties are not permitted._
 
@@ -2133,7 +2134,7 @@ What seeding a configuration wrote, where, and what it read from the registry.
 | --- | --- | --- | --- |
 | `host` | string | yes | The registry the configuration was seeded for. |
 | `scope` | ConfigWriteScope | yes | Which configuration document was written and how far it reaches. A request names one workspace, so an answer that said nothing would be read as being about that workspace — and for a machine-wide write that reading is wrong. |
-| `trust` | TrustFetchOutcome | yes | What reading a registry's advertised trust policy did. The three outcomes are kept apart because they mean different things: the policy was taken, the registry advertised nothing — which is not a failure — or no read was attempted. |
+| `trust` | TrustFetchOutcome | yes | What reading a registry's advertised trust policy did. The outcomes are kept apart because they mean different things: the advertised policy was taken, the registry advertised nothing — which is not a failure — the built-in baseline was pinned in its place, or no read was attempted. |
 | `written` | boolean | yes | Whether the document was written, as against handed back for the caller to place. |
 | `content` | string | no | The document's text, for a request that asked to be shown it rather than have it written. |
 
