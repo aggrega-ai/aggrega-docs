@@ -45,12 +45,10 @@ in to the live database.
   one, and otherwise from a developer-authored value (a value flowing into source
   resolution). The per-release lockfiles pin entity identities and digests:
   after catalog entities are renamed or their content changes, refresh a stale
-  local lockfile with
-  `aggrega pull --upgrade --release release-<variant>.yaml --catalog catalog-<variant>`.
-  Each release variant resolves against its own sibling catalogue directory, so
-  pairing the two is required: without `--catalog`, this example's recipes are
-  not found locally and resolution falls through to a registry lookup that
-  cannot succeed.
+  local lockfile with `aggrega pull --release release-<variant>.yaml`. Each
+  release variant resolves against its own sibling catalogue directory, which
+  `.aggrega-config.yaml` names for it under `workspace.releases`, so no
+  `--catalog` is needed at a terminal, in an editor or through an assistant.
 - **Provenance as annotations.** Every rendered Kubernetes object carries an
   `aggrega.ai/recipe-uri` annotation recording the Recipe that produced it —
   an annotation, not a label, because the URI value contains characters a
@@ -116,7 +114,8 @@ is not among them — it resolves from the standard library. A build loads one
 exactly one Recipe.
 
 The Release, its `aggregate:`, and its `manifest:` are siblings in this
-directory; the `--catalog` directory is separate.
+directory; the catalog directory each Release builds against is named for it in
+`.aggrega-config.yaml`.
 
 ## The shared Aggregate
 
@@ -189,7 +188,7 @@ not change.
 Build:
 
 ```bash
-aggrega build --release release-compose.yaml --catalog catalog-compose
+aggrega build --release release-compose.yaml
 ```
 
 Output: `dist/app/compose/docker-compose.yaml` — two services on one network.
@@ -234,7 +233,7 @@ and stays a `Deployment` — persistence is a property of the Workload, not a
 different component.
 
 ```bash
-aggrega build --release release-helm-synth.yaml --catalog catalog-helm-synth
+aggrega build --release release-helm-synth.yaml
 ```
 
 Output under `dist/app/helm/`:
@@ -340,7 +339,7 @@ spec:
 Build it:
 
 ```bash
-aggrega build --release release-helm-chart.yaml --catalog catalog-helm-chart
+aggrega build --release release-helm-chart.yaml
 ```
 
 Output under `dist/app/helm-chart/`:
@@ -407,5 +406,6 @@ Recipe selection is by **component type**. Each catalog layer contains exactly
 one Recipe per type, so loading `catalog-compose` binds `core/datastore/mariadb`
 to the compose Recipe, while loading `catalog-helm-synth` binds it to the
 Kubernetes one. The provider that renders a node is the `spec.capability`
-of whichever Recipe was bound. Swapping targets is swapping the `--catalog`
-directory — the Aggregate never changes.
+of whichever Recipe was bound. Swapping targets is swapping the catalog
+directory `.aggrega-config.yaml` names for a Release — the Aggregate never
+changes.

@@ -123,7 +123,7 @@ recorded, and **halts instead of adopting it**:
 # aggrega pull --release release-chart.yaml
 #
 # [E0130]
-#   lockfile: out of date; it no longer matches the current catalog
+#   lockfile: out of date; it no longer matches what its Release resolves to
 #   ---
 #   source-artifact kind=git-repository url=https://github.com/helm/examples.git
 #   module_subdir=charts/hello-world: reference "hello-world-0.1.0" moved — the
@@ -137,8 +137,20 @@ lockfile is left as it was — the halt lands before anything is written — and
 adopting the new commit is a deliberate act:
 
 ```bash
-aggrega pull --upgrade --release release-chart.yaml
+aggrega pull --upgrade --pin-sources --release release-chart.yaml
 ```
+
+A moved reference is the case `--upgrade` is for: an ordinary pull holds the
+commit the lockfile records, and only an upgrade adopts where the reference now
+points. A bare `--upgrade` drops every recorded pin, so it asks for confirmation
+first. `--pin-sources` is needed too, because this Recipe also records its
+source's commit in the `entity.lock` beside it: the upgrade rewrites that pin to
+the new commit, where without the flag the pull halts on the lock and names
+`aggrega pin`. Commit the rewritten `entity.lock` with the Recipe.
+
+An edit made in this workspace, to the Aggregate or the Release say, is drift of
+a different kind: the next build reports it, and an ordinary
+`aggrega pull --release release-chart.yaml` clears it.
 
 Pinning a commit in `ref:` instead of a tag is the other way to get the same
 guarantee, at the cost of a coordinate no human can read.

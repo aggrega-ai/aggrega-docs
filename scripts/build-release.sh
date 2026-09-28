@@ -13,12 +13,17 @@
 #
 #   multi-target — release-<P>.yaml paired with a sibling catalog-<P>/ (same
 #                  <P> token, e.g. release-helm.yaml + catalog-helm/). Built with
-#                  --catalog catalog-<P>/, which is prepended to the search stack.
+#                  --catalog catalog-<P>/, which is prepended to the search stack —
+#                  or with no flag, where the example's .aggrega-config.yaml
+#                  names that release under workspace.releases.
 #
 # Catalog discovery (evaluated per release file):
 #
 #   1. If a catalog-<P>/ dir sits beside release-<P>.yaml (matching <P> token) →
-#      pass --catalog catalog-<P>/.
+#      pass --catalog catalog-<P>/, unless .aggrega-config.yaml names that release
+#      file under workspace.releases. Then pass no --catalog: the configuration
+#      gives the release its own catalog directories, and the flag would put the
+#      same directory on the search stack a second time.
 #   2. Else if the example dir has a .aggrega-config.yaml declaring catalog_dirs →
 #      pass no --catalog; the config drives resolution.
 #   3. Else → pass no --catalog; resolution falls to the configured/hub catalog.
@@ -42,6 +47,9 @@
 #     that no longer resolve, and entity resolution then falls through to the
 #     registry. The script warns on stderr when it can see that has happened, and
 #     says so when it cannot read the list well enough to tell.
+#   * Rule 1 reads the workspace.releases map in block style only, matching an
+#     entry by its key (the release file, bare or ./-prefixed, quoted or not). A
+#     map written in flow style is not read, and rule 1 then passes the flag.
 #
 # One release per run. If the example has several release*.yaml files, name one
 # (positional arg — full filename or its <P> token) or pick from the prompt.
@@ -315,11 +323,42 @@ catalog_dirs_entries() {
   ' "$1"
 }
 
+# Succeeds when the config at $1 names the release file $2 as a key of the
+# workspace.releases map: a key one level below `releases:`, which sits in the
+# top-level `workspace:` block. Block style only; comments and blank lines are
+# skipped, and a key is compared with its quotes and a leading ./ removed.
+names_release() {
+  [ -f "$1" ] || return 1
+  awk -v rel="$2" -v q="'" '
+    /^[[:space:]]*#/ || /^[[:space:]]*$/ { next }
+    {
+      match($0, /^ */); ind = RLENGTH
+      line = substr($0, ind + 1); sub(/[[:space:]]+#.*$/, "", line)
+    }
+    ind == 0 { inws = (line ~ /^workspace:/); inrel = 0; next }
+    inrel && ind <= relind { inrel = 0 }
+    inws && !inrel && line ~ /^releases:[[:space:]]*$/ { inrel = 1; relind = ind; keyind = -1; next }
+    inrel {
+      if (keyind < 0) keyind = ind
+      if (ind == keyind) {
+        key = line; sub(/:.*$/, "", key)
+        gsub("^[\"" q "]|[\"" q "]$", "", key); sub(/^\.\//, "", key)
+        if (key == rel) found = 1
+      }
+    }
+    END { exit (found ? 0 : 1) }
+  ' "$1"
+}
+
 declare -a CATALOG_FLAGS=()
 rule=""
 if [ -n "$token" ] && [ -d "catalog-$token" ]; then
-  CATALOG_FLAGS=(--catalog "catalog-$token")
-  rule="1 (paired catalog-$token/)"
+  if names_release .aggrega-config.yaml "$RELEASE"; then
+    rule="1 (paired catalog-$token/; .aggrega-config.yaml names $RELEASE under workspace.releases, so no --catalog)"
+  else
+    CATALOG_FLAGS=(--catalog "catalog-$token")
+    rule="1 (paired catalog-$token/)"
+  fi
 elif declares_catalog_dirs .aggrega-config.yaml; then
   rule="2 (.aggrega-config.yaml catalog_dirs drives resolution)"
 

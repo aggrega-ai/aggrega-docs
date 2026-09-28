@@ -64,7 +64,8 @@ aggrega build --release release.yaml --catalog ../../../../aggrega-hub/aggrega-c
 
 The build resolves every referenced entity, pins it in `release.lock`
 (identity + content digest; regenerate a stale lockfile with
-`aggrega pull --upgrade --release release.yaml`), and renders
+`aggrega pull --release release.yaml --catalog ../../../../aggrega-hub/aggrega-catalog`,
+naming the catalog the build reads), and renders
 `dist/compose/docker-compose.yaml`. The Release authors its components
 directly (no `boundaries:` block), so the compiler folds them into the
 synthesized default scope and emits flat under `dist/` — one boundary, no
