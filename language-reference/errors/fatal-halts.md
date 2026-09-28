@@ -901,6 +901,19 @@ Emitted message, naming the capability and the rule:
 
 **How to fix:** keep one `plugins.providers` entry for the capability the message names and remove the other. Where the two come from different configuration layers, the layer you control is the one to edit — removing your own entry adopts the one the shared layer contributes, and keeping yours means the shared layer's entry has to go instead. Two plugins that genuinely both serve the workspace serve two different capabilities, so if both are wanted, give each its own capability rather than binding one twice.
 
+### A provider binding names a capability containing a colon
+
+<!-- covers: pkg/workspaceconfig.ErrColonInProviderBindingCapability -->
+
+A Recipe's `capability:` is read as the capability name up to its last colon and a version pin after it — `helm:1.0.0` asks for the capability `helm` at version `1.0.0`. A `plugins.providers` entry is looked up under that name, so the capability a binding names never carries a colon, and an entry whose capability does is one no Recipe can ever reach. Rather than let it sit in the configuration unread, the configuration is refused when it loads, whichever command read it.
+
+Only the provider list is judged. The importer list shares the entry shape, but its plugins are attached by `uri:` and name their formats `import:<format>`, where the colon is part of the name. A binding's `uri:` may still end in `:<version>`; it is not the part this rule reads.
+
+Emitted message, naming the capability:
+> the provider socket binding for capability `"<capability>"`: a Recipe's capability reference is read as the capability up to its last colon and a version pin after it, so the capability a binding names carries no colon; bind the capability name alone and let each Recipe pin the version it needs: a provider socket binding names a capability containing a colon, which no Recipe can select
+
+**How to fix:** write the capability name alone in the entry — `capability: helm` — and pin versions where they belong: a Recipe pins the provider version it needs in its own `capability:`, and a binding that should select a particular version of its plugin writes it on the plugin identity, `uri: provider/helm:1.0.0`.
+
 ### A governance attachment declares no role, or one that is not a known role
 
 <!-- covers: pkg/workspaceconfig.ErrGovernanceRoleInvalid -->
@@ -1291,10 +1304,14 @@ The workspace's `plugins.providers` block selects a plugin identity for a capabi
 
 A binding selects by the plugin's **coordinate identity** — the plugin type and the plugin's name, which is also what the lockfile pins — and it may carry a version after it.
 
-Emitted message:
-> plugins.providers entry names a plugin no provider-rendering plugin serving the capability matches: capability `"<capability>"` is bound to plugin `"<plugin-identity>"`, but no provider-rendering plugin serving `"<capability>"` matches that identity
+**It is judged whether or not a Recipe asks for the capability.** A binding is otherwise read only when a Recipe's `capability:` names it, so a binding whose capability is misspelt would be consulted by nothing and reported by nothing. Every build and every `aggrega validate --release` therefore checks each binding that names a plugin: a pull resolves such a binding whether or not a Recipe uses it, so the build holds the plugin and knows what it serves, and a capability that plugin does not serve is certainly wrong. The check reads the bindings in the workspace configuration, not the lockfile, and it changes nothing about which plugin renders a Recipe — that stays the lockfile's. A binding naming a plugin the build does not hold — a registry plugin no pull has fetched yet — is not judged until a pull has fetched it. A binding that names no plugin is judged differently, as an advisory: see "A provider binding names a capability no plugin the build reads serves" under "Conditions that do not halt a build" below.
 
-**How to fix:** check the binding's spelling against the plugin's own coordinate first — a binding naming the capability where it should name the plugin is the common slip. Then confirm the plugin is in the catalog the build reads and that it lists this capability under `spec.provider.capabilities`; a plugin that once served the capability and no longer declares it produces exactly this message. Removing the binding is the right fix where only one plugin serves the capability, since the binding then has nothing to disambiguate.
+Emitted message, which adds what the named plugin does serve, and a spelling one edit away when the binding's capability is one:
+> plugins.providers entry names a plugin no provider-rendering plugin serving the capability matches: capability `"<capability>"` is bound to plugin `"<plugin-identity>"`, but no provider-rendering plugin serving `"<capability>"` matches that identity; `"<plugin-identity>"` serves `"<served capability>"`, and `"<capability>"` is one edit from `"<served capability>"`
+
+Where the plugin the binding names is not in the catalog the build reads, the message ends after "matches that identity", because there is nothing to say about what it serves.
+
+**How to fix:** check the binding's spelling against the plugin's own coordinate first — a binding naming the capability where it should name the plugin is the common slip. Where the message names a capability one edit from the one you wrote, the binding's `capability:` is the typo. Then confirm the plugin is in the catalog the build reads and that it lists this capability under `spec.provider.capabilities`; a plugin that once served the capability and no longer declares it produces exactly this message. Removing the binding is the right fix where only one plugin serves the capability, since the binding then has nothing to disambiguate.
 
 ### No provider plugin version satisfies a Recipe's provider pin
 
@@ -3786,6 +3803,9 @@ a field closed to a fixed set, carrying something else — the same shape covers
 a paired capability declared without both its exports, or the exports without the claim:
 > plugin `"<plugin>"` declares the cross-boundary linking capability but does not export both `"link_publish"` and `"link_resolve"`: wasm: plugin rejected by the sandbox
 
+a capability name a Recipe could never select — a provider serving a name containing a colon, or a pipeline step compatible with one — because a Recipe's `capability:` is read as the name up to its last colon and a version pin after it. A parser's `parse:<format>` and an importer's `import:<format>` are not refused: the colon is part of those names, and they are looked up by format rather than through a Recipe. The same refusal stops such a plugin's entity from being generated for publication:
+> plugin `"<plugin>"` (plugin_type `"provider"`) serves the capability `"<name>"`, which contains a colon; a Recipe's capability reference is read as the capability up to its last colon and a version pin after it, so no Recipe can name `"<name>"`: report the capability name without a colon: wasm: plugin rejected by the sandbox
+
 and the host calls a plugin claims against the ones its binary actually uses, which is checked in both directions so a plugin can neither advertise a surface it does not use nor hide one it does:
 > plugin `"<plugin>"` declares host function `"<name>"` in describe() that its wasm does not import: wasm: plugin rejected by the sandbox
 > plugin `"<plugin>"` imports host function `"<name>"` that its describe() does not declare: wasm: plugin rejected by the sandbox
@@ -4262,6 +4282,19 @@ Its message opens:
 > declared parameter is read by no reference in the Aggregate
 
 Taught under "Unread declared-parameter warnings" in [warnings.md](./warnings.md), including why a default is not an exemption and which references the reading can and cannot see.
+
+### A provider binding names a capability no plugin the build reads serves
+
+<!-- covers: pkg/catalog.ErrProviderBindingCapabilityUnserved -->
+
+An advisory. A `plugins.providers` entry names a capability and no plugin, and none of the provider plugins the build reads — in the catalog directories, inside the compiler, or among those the lockfile records — serves that capability. That is the shape a misspelt capability takes, and such an entry is read by nothing: a binding is consulted only when a Recipe asks for its capability, and one naming no plugin selects nothing the capability's resolution would not select without it.
+
+It advises rather than halting because the build cannot be sure. Bindings are written once for the whole workspace while a build is of one Release, so the plugin serving the capability may be one only another Release reads. The entry that names a plugin is judged differently, and halts where it is certainly wrong — see "A `plugins.providers` binding names a plugin that does not serve the capability" above.
+
+Its message opens:
+> plugins.providers entry names a capability no provider-rendering plugin the build reads serves
+
+and continues with the capability, and a served capability one edit away where there is one. Taught under "Provider-binding unserved-capability warning" in [warnings.md](./warnings.md).
 
 ### An editor position falls outside the document
 
@@ -5077,6 +5110,8 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0309` | `a symbolic link sits among the files an entity carries` | A symbolic link sits among the files an entity carries |
 | `E0310` | `` a registry other than the official hub is not registered offline without a trust policy supplied by hand, because the policy it advertises cannot be fetched; register it once while online, or pin its trust by hand with `aggrega registry add <host> --identity <identity>=<issuer>` or `--key <public-key-file>` `` | A registry is added offline with no trust policy to pin |
 | `E0311` | `reference carries a malformed version pin` | A version pin is none of the forms a pin takes |
+| `E0312` | `a provider socket binding names a capability containing a colon, which no Recipe can select` | A provider binding names a capability containing a colon |
+| `E0313` | `plugins.providers entry names a capability no provider-rendering plugin the build reads serves` | A provider binding names a capability no plugin the build reads serves |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

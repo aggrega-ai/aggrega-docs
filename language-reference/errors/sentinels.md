@@ -95,6 +95,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrNoImporterForFormat()` | `no-importer-for-format` | `no importer plugin advertises the requested format` |
 | `ErrNoParserForFormat()` | `no-parser-for-format` | `no parser plugin advertises the requested format` |
 | `ErrNoRecipeResolved()` | `no-recipe-resolved` | `no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type` |
+| `ErrProviderBindingCapabilityUnserved()` | `provider-binding-capability-unserved` | `plugins.providers entry names a capability no provider-rendering plugin the build reads serves` |
 | `ErrProviderBindingUnsatisfied()` | `provider-binding-unsatisfied` | `plugins.providers entry names a plugin no provider-rendering plugin serving the capability matches` |
 | `ErrProviderVersionUnsatisfiable()` | `provider-version-unsatisfiable` | `no provider-rendering plugin version satisfies the recipe's provider version pin` |
 | `ErrQualifiedPluginReference()` | `plugin-reference-must-not-be-registry-qualified` | `wasm plugin reference must be the plugin coordinate identity (<pluginType>/<name>:<version>), not a registry-qualified or artifact path` |
@@ -396,6 +397,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | --- | --- | --- |
 | `ErrAmbiguousRegistryAlias()` | `ambiguous-registry-alias` | `registry alias matches more than one host` |
 | `ErrCapabilityOnCrossCuttingSocket()` | `capability-on-cross-cutting-socket` | `a cross-cutting socket is bound by capability but attaches by uri` |
+| `ErrColonInProviderBindingCapability()` | `colon-in-provider-binding-capability` | `a provider socket binding names a capability containing a colon, which no Recipe can select` |
 | `ErrConfigInvalid()` | `workspace-config-invalid` | `file failed schema validation` |
 | `ErrDuplicateProviderTarget()` | `duplicate-provider-target` | `capability is bound to more than one provider plugin` |
 | `ErrDuplicateRegistryAlias()` | `duplicate-registry-alias` | `registry alias is already used by another host` |
@@ -744,6 +746,8 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0309` | `symbolic-link-in-entity-files` | `a symbolic link sits among the files an entity carries` |
 | `E0310` | `offline-registration-without-trust-policy` | `` a registry other than the official hub is not registered offline without a trust policy supplied by hand, because the policy it advertises cannot be fetched; register it once while online, or pin its trust by hand with `aggrega registry add <host> --identity <identity>=<issuer>` or `--key <public-key-file>` `` |
 | `E0311` | `malformed-version-pin` | `reference carries a malformed version pin` |
+| `E0312` | `colon-in-provider-binding-capability` | `a provider socket binding names a capability containing a colon, which no Recipe can select` |
+| `E0313` | `provider-binding-capability-unserved` | `plugins.providers entry names a capability no provider-rendering plugin the build reads serves` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication no longer judges a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.

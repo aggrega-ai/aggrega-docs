@@ -237,6 +237,26 @@ Findings arrive in the order the Aggregate declares its parameters, so the same 
 
 **Why a warning and not a fatal halt.** A parameter may be declared ahead of the reference that will read it, and a static walk cannot tell that from a mistake — the same reason the authored-key reading only ever advises. The compiler does not police which knobs an author exposes.
 
+## Provider-binding unserved-capability warning
+
+**Fires when** an entry under `plugins.providers` in the workspace configuration names a `capability` and no `uri`, and none of the provider plugins the build reads serves that capability. The plugins a build reads are the ones in its catalog directories, the providers inside the compiler, and the plugins its lockfile records.
+
+**Why it exists.** A binding is read only when a Recipe's `capability:` asks for its capability, and an entry that names no plugin selects nothing the capability's resolution would not select without it. So an entry whose capability is misspelt — `hlem` for `helm` — is consulted by nothing and changes nothing, and without this warning nothing would say so.
+
+**Why a warning and not a fatal halt.** Bindings are written once for the whole workspace, while a build is of one Release. The plugin serving the capability may be one that only another Release in the workspace reads, and this build cannot see it, so a halt here would refuse a legal workspace on a guess. An entry that also names a plugin is a different case: a pull resolves every such entry whether or not a Recipe uses it, so the build holds the plugin and knows what it serves, and a capability that plugin does not serve halts — see [fatal-halts.md](./fatal-halts.md) "A `plugins.providers` binding names a plugin that does not serve the capability". An entry for a capability some plugin the build reads does serve is reported as nothing, whether or not a Recipe in this Release uses it.
+
+**Pipeline placement.** Every build and every validation of a Release reads each entry in the composed workspace configuration — the layers and their `providers_append` companions together — before the Release's graph is analysed, so the warning surfaces from `aggrega validate --release` as well as from `aggrega build`, and from `aggrega pull`, which renders the Release once, over the lockfile it is about to write, to discover the external inputs a build of it fetches. The judgement changes nothing about which plugin renders a Recipe; that is read from the lockfile.
+
+**Emit shape.** One line per entry, in the order the composed list carries them, naming the capability and a served capability one edit away where there is one:
+
+```text
+  warning: plugins.providers entry names a capability no provider-rendering plugin the build reads serves: capability "hlem", which is one edit from "helm"; the entry names no plugin, so it selects nothing a Recipe would not resolve without it, and none of the plugins this build reads — in the catalog directories, inside the compiler, or among those the lockfile records — serves the capability: correct its spelling, or keep it where the plugin serving it is one only another Release reads
+```
+
+**Threshold.** A spelling is offered only at one edit's distance and only when both names are at least four characters long, the same bound the near-miss lints above use and for the same reason.
+
+**Editor visibility.** The warning reaches editor diagnostics through the language server at warning severity. The entry sits in the configuration file rather than in the document being edited, so it is placed at the head of that document rather than on a key.
+
 ## Per-entity metadata coverage
 
 Which entity envelopes carry `metadata.labels` and `metadata.annotations` varies by kind. Component, Feature and the library kinds carry both; Aggregate carries labels only; Recipe, FeatureRecipe, Manifest, Release and Plugin do not accept either key at the envelope level. [Status of the Language](../10-status.md) holds the per-entity position and is the surface to consult.

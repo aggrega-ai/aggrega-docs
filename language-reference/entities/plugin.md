@@ -88,6 +88,8 @@ The capabilities this provider serves — capability names such as `helm` or `co
 
 A Recipe's requested provider target (`spec.capability: helm`) resolves to the provider plugin whose list contains that target. When more than one provider plugin lists the same target, the workspace chooses: the `plugins.providers` selection in the workspace configuration names which plugin to use, resolved at `aggrega pull` and recorded in the lockfile. With no selection and exactly one candidate, that candidate is used; with no selection and more than one candidate, the build halts and names every candidate. Ambiguity is settled per workspace at the point of use rather than by a catalog-wide uniqueness rule. An empty or absent list declares no capability claim, so the plugin serves no target.
 
+A capability name here carries no colon. A Recipe's `spec.capability` is read as the capability up to its last colon and a version pin after it, so a name containing one could never be asked for; a plugin whose `describe()` reports such a name is refused when it loads, and no entity is generated from it for publication. The same holds for the provider capabilities a `pipeline-step` plugin lists. The colon in a parser's `parse:<format>` and an importer's `import:<format>` is part of those names and stays.
+
 ### `spec.provider.workloadSchema`
 
 A JSON Schema 2020-12 declaration documenting how this provider translates the `aggrega.ai/v1alpha1` Workload kind into provider-native manifests. It is declared by convention on a provider that synthesizes: such a provider declares `workloadSchema` as the documented translation contract, describing what Workload fields the provider consumes, what closed sets each enum-shape field accepts, and what range constraints apply.

@@ -197,6 +197,8 @@ A plugin-pipeline step publishes named outputs that subsequent steps consume via
 
 A provider is a Wasm guest. Rendering is Wasm-only: a Recipe's `capability:` name resolves to the provider-rendering Plugin (`pluginType: provider`) that lists the name in its `spec.provider.capabilities` and advertises a `render_node` export, and that plugin's guest renders the node. There is no in-host renderer to fall back to; a provider name that resolves to no serving Plugin halts the build at routing time. Adding a standard provider is shipping a `.wasm` guest and a catalog `Plugin` entity — the host carries no per-provider code.
 
+**A capability a provider serves carries no colon, and neither does one a pipeline step declares itself compatible with.** A Recipe's `capability:` is read as the capability up to its last colon and a version pin after it — `helm:1.0.0` asks for `helm` at `1.0.0` — so a name containing a colon is one no Recipe can ask for. The host refuses such a name in `describe()`'s `capabilities` for a `provider` or `pipeline-step` guest when the guest loads and when its entity is generated for publication, naming the guest and the name. A parser's `parse:<format>` and an importer's `import:<format>` keep their colon: those are looked up by format, never through a Recipe's `capability:`.
+
 The host is a generic router. It reads the guest's `describe()` self-report — including its **render-behavior contract** — and dispatches the guest's exports without understanding any provider format. That contract drives dispatch as data:
 
 - `input_kinds` (`sourced`, `synthesized`, `artifacts_standalone`) — which Recipe input kinds the guest renders; the host gates a node's input kind against this set.

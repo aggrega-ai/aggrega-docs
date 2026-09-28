@@ -115,6 +115,46 @@ project's pulls record pins is that project's policy, and a teammate who clones 
 same answer. `pin_sources_at_pull` is also how a project consuming someone else's unpinned catalog
 records those pins once rather than halting on every pull.
 
+### Which plugin renders a capability
+
+A Recipe names the capability it renders through — `capability: helm` — and a plugin serving that
+capability renders it. Where exactly one plugin serves a capability nothing needs configuring. Where
+more than one does, a `plugins.providers` entry says which, by the plugin's identity:
+
+```yaml
+# <project>/.aggrega-config.yaml
+workspace: {}
+plugins:
+  providers:
+    - capability: helm
+      uri: provider/helm
+```
+
+A pull resolves the entry and records the plugin it chose in the Release's lockfile, and a build
+renders through what the lockfile records, so an edit here takes effect at the next pull.
+
+**The entries are written once for the whole project, while a build is of one Release**, so an entry
+for a capability this Release never asks for is legal — another Release in the project reads it —
+and is reported as nothing. What each build and each `aggrega validate --release` does check is
+every entry, whether or not a Recipe asks for its capability, by what the entry names:
+
+- **An entry naming a plugin whose plugin does not serve its capability stops the build and fails
+  validation.** A pull resolves every entry that names a plugin, and refuses one it cannot resolve,
+  so once an entry has been through a pull the build holds its plugin and knows what it serves; an
+  entry naming a plugin the build does not yet hold is judged once a pull has fetched it. The
+  message names the entry, the plugin,
+  what that plugin does serve, and a spelling one edit away when there is one — the shape a typo
+  such as `hlem` for `helm` takes.
+- **An entry naming only a capability that no plugin the build reads serves is a warning**, and
+  the build carries on. The plugin serving it may be one only another Release reads, which this
+  build cannot see, and an entry naming no plugin selects nothing the capability's resolution would
+  not select without it.
+
+**A capability here never contains a colon**, and one that does is refused when the file loads. A
+Recipe's `capability:` is read as the capability up to its last colon and a version pin after it, so
+an entry keyed `helm:1.0.0` could never be looked up. Pin the version on the plugin instead —
+`uri: provider/helm:1.0.0` — or in the Recipe.
+
 ### Starting from nothing
 
 A freshly installed `aggrega` has neither file, and that is a working state rather than a broken
