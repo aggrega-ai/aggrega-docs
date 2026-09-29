@@ -1187,8 +1187,8 @@ The build halts instead of choosing one of the two readings for you. The refusal
 
 **On the build command you always meet something else first.** Pinning a Release's sources cannot tell what kind of artifact an empty reference names, so `aggrega pull` reports that reference as ambiguous and writes no lockfile entry for it — and a build reads a lockfile rather than writing one, so it refuses the missing or no-longer-matching lockfile before any rendering happens. Either way the build command hands you one of those two refusals and not this halt. The halt itself is what you meet from [`aggrega validate`](../cli/aggrega-validate.md) over the Recipe file, which renders that Recipe in isolation, and from the build tool [`aggrega mcp`](../cli/aggrega-mcp.md) exposes, which renders a Release carrying no lockfile at all. The fix is the same at every one of them.
 
-Emitted message, captioned with the Recipe the empty `source:` was written in and the component instance being rendered:
-> recipe source is an empty string, which names neither sourceless mode nor sourced mode (Recipe `<recipe>`, node `<instance>`). omit the source field for sourceless mode, or name a non-empty path or URI for sourced mode
+Emitted message, positioned at the Recipe the empty `source:` was written in and at the key inside it — `.spec.source` — rather than at a component that binds the Recipe, because the entry is shared by every component that does. It is decided before anything renders, for every component in the build, so each component whose Recipe leaves the entry empty is reported in one build; where more than one is, the findings are grouped under `Recipe source entries that name neither authoring mode`:
+> recipe source is an empty string, which names neither sourceless mode nor sourced mode. omit the source field for sourceless mode, or name a non-empty path or URI for sourced mode
 
 **How to fix:** omit the `source:` field entirely (or set it to null) if the Recipe is sourceless, or provide a non-empty path / URI / structured source object if the Recipe is sourced.
 
