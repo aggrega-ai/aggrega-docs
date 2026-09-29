@@ -88,27 +88,22 @@ against a pin it can see is stale.
 The build prints:
 
 ```text
-  lint: Recipe publishes a provides key its Component does not declare (Recipe openai-compatible, at .spec.provides.provider, "provider", on component type "core/ai-model/openai-compatible", bound to component instance "model")
-Pull complete: release.lock (entities=23, source_artifacts=0)
-  lint: Recipe publishes a provides key its Component does not declare (Recipe openai-compatible, at .spec.provides.provider, "provider", on component type "core/ai-model/openai-compatible", bound to component instance "model")
+Pull complete: release.lock (entities=23, source_artifacts=0, external_inputs=0)
 [… omitted: a total build time, which differs per run]
 Build completed: 13 files written to dist/
 ```
 
-**That advisory is expected here, and nothing in this workspace causes it.** It
-reports that the Recipe bound to the model publishes one key — `provider` — that
-the model's Component does not declare in its `provides`. It is an advisory
-rather than a halt: the build completes, and the key is simply not part of the
-contract a consumer may read, so nothing here reads it. It prints twice because
-the entities are checked once while the lockfile is resolved and once while the
-release is built.
-
-For the full text of any advisory, with the entity file it came from and what
-would make it agree, ask for it directly:
+The entities are checked against the catalog's conventions once while the
+lockfile is resolved and once while the release is built, and each advisory
+those checks raise is printed as a `lint:` line; this release raises none. To
+run the same checks on their own, and read any advisory in full with the entity
+file it came from and what would make it agree:
 
 ```bash
 aggrega lint --release release.yaml
 ```
+
+which here reports `conventions checked: 17 entities, 0 advisory finding(s)`.
 
 ## The rendered tree
 
