@@ -971,6 +971,7 @@ One entity a Release depends on, at the version resolution settled.
 | `uri` | string | yes | The reference the entity resolves from. |
 | `version` | string | yes | The version that was settled on. |
 | `kind` | string | no | The entity kind. |
+| `source` | string | no | Where the run that produced this entry took the entity from, in the same word `aggrega pull --detail` prints for it: `fetched-fresh` (fetched from a registry during that run), `cache-reuse` (a copy already in the cache, reused without fetching), `local` (found on the local filesystem, such as a catalog directory), `in-binary` (the copy inside the compiler binary), or `external` (the Release's own Aggregate or Manifest, read from the file or entry the Release names rather than resolved as one of its dependencies; an Aggregate the run fetched from a registry is `fetched-fresh` instead). Present on the entries of a dependency resolution's report, where it describes what that run did on this machine, and absent from a listing of a Release's resolved dependencies, which describes what the Release depends on. The lockfile records no source. Omitted for an entity whose source the run did not record. |
 
 _Additional properties are not permitted._
 
