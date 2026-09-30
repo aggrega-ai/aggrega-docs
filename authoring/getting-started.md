@@ -37,6 +37,8 @@ Fill only the pillars your role is responsible for, and leave the others to thei
 
 Keeping each value in the pillar its owner controls is what lets the same developer intent target different infrastructure across environments without the developer's file changing. It is the reason the authoring surface is split at all.
 
+**Keep the description to a few short paragraphs.** An entity's `metadata.description` is the prose a reader meets before choosing it: it is published with the entity as its searchable description, and `aggrega search` matches a query against it. Write it for that moment, as short paragraphs — in a folded `description: >` block, a blank line starts a new one — saying what the entity is, how a reader uses it, and where it is realized and what it does not do. A limit a reader must know before choosing the entity belongs there too, stated briefly. Everything else — why a default is what it is, how a setting behaves on one target, what a value means under each realization — goes in YAML comments beside the field or block it explains, where the person working with that field will read it. Nothing in the compiler limits a description's length or acts on what it says, so keeping it short is for the reader's sake.
+
 ## 5. Validate, then compile
 
 Check the file before you rely on it:
