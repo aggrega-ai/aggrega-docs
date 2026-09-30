@@ -136,7 +136,7 @@ The Aggrega CLI registers the build pipeline plus introspection. Per-command sta
 - **`aggrega get-schema` — available.** Prints the JSON Schema for an entity or contract kind.
 - **`aggrega plugin` — available.** Inspects the Wasm plugins the CLI can resolve; subcommands list them, add and remove configured plugins, sync a plugin's machine-owned records, and generate a catalog view of them.
 - **`aggrega cache` — available.** Inspects and maintains the on-disk caches; subcommands report status, prune, evict, and clear.
-- **`aggrega mcp` — available.** Runs a Model Context Protocol server over stdio, exposing the compiler's introspection to AI-assistant integrations.
+- **`aggrega mcp` — available.** Runs a Model Context Protocol server over stdio, or over HTTPS for a client on another machine, exposing the compiler's introspection to AI-assistant integrations.
 - **`aggrega completion` — available.** Generates the shell autocompletion script for the CLI.
 - **CLI-extension subcommands — available.** A Wasm plugin published as a `pluginType: cli` guest is resolved and registered as an `aggrega` subcommand, so an installed extension runs as `aggrega <extension>` alongside the built-in commands.
 - **`aggrega import` — available.** Turns a foreign declarative agent-definition source (Langflow, Flowise) into draft Aggregate and Component authoring files, with a deterministic confidence-scored catalog-reuse decision recorded per node. The format-specific mapping is supplied by an importer plugin the workspace resolves for the source format; a catalog-published starter importer is still forthcoming, so running the command end to end needs an importer plugin that advertises the source format.
