@@ -433,8 +433,8 @@ the directories each entry lists, and to the local filesystem paths on a `plugin
 `plugins.linter` or `plugins.importer` attachment — a `uri` naming a `.wasm` file on disk, and each
 entry under that attachment's `with.sources`. It applies to the entries under their append
 companions too, and each of those anchors to its own declaring file rather than to the file the
-merge happens to end at. And it applies to `mcp.tls.cert_file` and `mcp.tls.key_file`, so a
-certificate written beside the file that names it is found from wherever the server is launched.
+merge happens to end at. And it applies to `mcp.tls.cert_file`, `mcp.tls.key_file` and
+`mcp.authorization.jwks_file`, so a file beside the one naming it is found wherever the server is launched.
 
 So given this layout:
 
