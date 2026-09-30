@@ -1245,12 +1245,25 @@ _Additional properties are not permitted._
 
 ### `EntityKindDescriptor`
 
-One kind an author writes a document of, pairing the token a request names with the kind the document itself declares.
+One kind an author writes a document of, pairing the token a request names with the kind the document itself declares, and saying which operations accept a document of that kind.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `kind` | string | yes | The lowercase-hyphenated token a request names. |
 | `documentKind` | string | yes | The kind the document's own header declares. |
+| `acceptedBy` | EntityKindAcceptance | yes | Which operations accept a document of this kind named on its own — by its path, or by its name for inspection — with nothing else sent beside it. A member is true when that operation does not refuse a document for being of this kind; a document it accepts may still be refused for what the document says. |
+
+_Additional properties are not permitted._
+
+### `EntityKindAcceptance`
+
+For one kind an author writes, whether each operation accepts a document of that kind named on its own. Every member is present on every entry, so false is a statement rather than an omission.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `singleEntityValidation` | boolean | yes | Whether the single-entity scope of `aggrega validate` — the command given one document's path — checks a document of this kind. A kind it refuses is checked by the whole-catalog scope or by the Release scope instead. |
+| `publication` | boolean | yes | Whether `aggrega/publishEntity` naming the document alone publishes a document of this kind. A kind whose publication also binds an executable named beside the document — a Plugin — is false, because a request naming the document alone is refused for it; a Manifest and a Release are false because neither kind is published. |
+| `inspectionByName` | boolean | yes | Whether `aggrega/entityDefinition` resolves a name to an entity of this kind, the name sent as it is written where one entity references another. |
 
 _Additional properties are not permitted._
 
