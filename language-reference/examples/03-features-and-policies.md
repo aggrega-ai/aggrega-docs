@@ -35,7 +35,7 @@ spec:
       required: [action]
 ```
 
-The Feature also carries an assertion that halts the build when an attachment lists neither `patterns` nor `entities`: no list is assumed on an author's behalf, so an attachment always names what it masks.
+The Feature also carries an assertion that halts the build when an attachment lists neither `patterns` nor `entities`: no list is assumed on an author's behalf, so an attachment always names what it masks. The abridged form shows `patterns` and `entities` inline; in the standard library they are declared once, in the `TextMaskingSchemas` schema library, which `core/data-masking` and `core/log-masking` both reference, so a pattern or an entity type means the same thing on both.
 
 **2. Platform Catalog: The Component That Declares the Capability**
 Abridged from `core/gateway/litellm`. The label is what the Feature's selector reads; the two sockets take the pair of services the gateway calls to find and replace entity types.
