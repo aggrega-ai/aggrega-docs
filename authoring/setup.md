@@ -6,7 +6,7 @@ To author with an AI assistant you need two things: the `aggrega` binary install
 
 Aggrega ships as a single self-contained executable. Install it by whichever route fits your platform, then put it on your `PATH`.
 
-- **Prebuilt binary.** Download the executable for your operating system and architecture, mark it executable, and move it onto your `PATH` (for example a directory like `/usr/local/bin` on macOS or Linux, or a directory listed in `PATH` on Windows).
+- **Prebuilt binary.** Each release carries prebuilt binaries for Linux and for Windows, both on 64-bit x86. Download the executable for your operating system, mark it executable, and move it onto your `PATH` (for example a directory like `/usr/local/bin` on Linux). On Windows, see [The Windows prebuilt binary](#the-windows-prebuilt-binary) below.
 - **From source.** With a Go toolchain installed, build the `aggrega` command from the source tree and place the resulting binary on your `PATH`.
 
 Confirm the install:
@@ -16,6 +16,27 @@ aggrega version
 ```
 
 A version string means the binary is found and runnable. That is everything the MCP integration needs.
+
+### The Windows prebuilt binary
+
+The Windows executable is `aggrega-<version>-windows-amd64.exe` (the light and stripped variants beside it in the release install the same way). Rename it to `aggrega.exe` and move it into a directory listed in your `PATH`: Windows runs a file ending in `.exe` without marking it executable, and finds it as the `aggrega` command under that name. From PowerShell, for example, keeping it in a directory of your own and adding that directory to your user `PATH`, with `<version>` replaced by the version you downloaded:
+
+```powershell
+$dir = "$env:LOCALAPPDATA\Programs\aggrega"
+New-Item -ItemType Directory -Force $dir | Out-Null
+Move-Item ".\aggrega-<version>-windows-amd64.exe" "$dir\aggrega.exe"
+Unblock-File "$dir\aggrega.exe"
+[Environment]::SetEnvironmentVariable("Path", [Environment]::GetEnvironmentVariable("Path", "User") + ";$dir", "User")
+```
+
+A terminal opened after that finds `aggrega`; one already open keeps the `PATH` it started with.
+
+**The executable is not code-signed**, so Windows treats it as a program from an unknown publisher, and a downloaded copy can meet a warning before it first runs. Which one you meet depends on how the file arrived and how you start it:
+
+- **While downloading,** a browser may warn that the file is not commonly downloaded and ask whether to keep it. Keeping it saves the file as downloaded.
+- **When you start it from File Explorer** or from the browser, Windows may show *Windows protected your PC*. Select **More info**, check that the file name is the one you downloaded, then select **Run anyway**. Started from PowerShell or a command prompt instead, the same file may run without that prompt; whether it does depends on the Windows version and its settings.
+- **`Unblock-File` answers that prompt in advance.** A downloaded file is marked as coming from the internet, and that mark is what the *Windows protected your PC* check answers to. `Unblock-File` in PowerShell, as in the example above, removes the mark; so does the **Unblock** checkbox on the **General** tab of the file's **Properties** in File Explorer.
+- **Where Smart App Control is turned on** (Windows 11), Windows may block an unsigned program outright, without offering **Run anyway**. Whether it is on is shown under **App & browser control** in Windows Security.
 
 ## Connect an MCP client
 
@@ -103,13 +124,13 @@ Every entry above launches the server itself. A server someone else runs — one
 }
 ```
 
-The path is always `/mcp`; the host is whatever the operator published for that deployment. Ask them for it.
+The path is always `/mcp`; the host is whatever the operator published for that server. Ask them for it.
 
 **Your client obtains the token, not you.** Nothing about signing in is configured in the entry: the server answers an unauthenticated request by naming the document that says which authorization server issues its tokens, and a client that speaks the protocol's authorization flow reads that document, sends you to sign in, and attaches the token it receives to every later request. The scope names it may ask for are published in that same document. A client that does not implement the flow cannot reach a server of this kind, and nothing you add to the entry substitutes for it.
 
 **A tool your sign-in's scopes do not reach is still in the tool list.** Calling it is refused, naming the scope that would admit it, and a client that implements the protocol's step-up answers that refusal by asking you to sign in again for that scope. A client that does not step up can still be given the write scopes: whoever runs the authorization server makes them default scopes for that client, so its first sign-in already carries them — at the cost that every sign-in through that client then carries write reach. [What a caller may reach](../language-reference/cli/aggrega-mcp.md#what-a-caller-may-reach) sets out what each scope admits, and how that setting behaves for a client that registers itself anew each time it connects.
 
-What the deployment requires, and what its operator configures, is in the [`aggrega mcp` reference](../language-reference/cli/aggrega-mcp.md#reaching-the-server-over-https).
+What such a server requires, and what its operator configures, is in the [`aggrega mcp` reference](../language-reference/cli/aggrega-mcp.md#reaching-the-server-over-https).
 
 ## Verify the connection
 
