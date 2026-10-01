@@ -16,9 +16,9 @@ what anyone writes.
 ## What it builds
 
 ```
-   agent ─────►  model ─────┐                       ┌────►  openai/gpt-4o
-     │        (a name, not  │                       │
-     ▼         a workload)  ├────►   router   ──────┤
+   agent ───────────────────┐                       ┌────►  openai/gpt-4o
+     │                      │                       │
+     ▼                      ├────►   router   ──────┤
    checkpointer             │     (the alias map)   └────►  anthropic/claude-sonnet-4
    (run state)              │
                             │
@@ -26,23 +26,23 @@ what anyone writes.
    assistant.example.internal
 ```
 
-The router has two ways in — the agent reaches it through the model handle, and
+The router has two ways in — the agent reaches it over its `model` edge, and
 anything outside reaches it through the Ingress — and one way out per map entry.
 
-Four components, and each one is doing a different job:
+Three components, and each one is doing a different job:
 
 | instance | catalog Component | what it is here |
 |---|---|---|
-| `router` | `core/gateway/litellm` | the routing component: one endpoint, a map of aliases, two upstream providers |
-| `model` | `core/ai-model/openai-compatible` | the name the agent asks for. No inference runs here — it is a handle |
+| `router` | `core/gateway/litellm` | the routing component: one endpoint, a map of aliases, two upstream providers. It publishes its address and the alias the agent asks for |
 | `agent` | `core/ai-agent/langgraph` | the application, running its own graph image |
 | `checkpointer` | `core/datastore/valkey` | where the agent keeps run state, selected by the datastore category |
 
 Two `uses` edges, both into sockets the agent's Component declares: `model`
-(required, selecting on the model category) and `checkpointer_db` (required,
-selecting on the datastore category). Five Feature attachments over three
-Feature kinds, each of which puts something in the rendered output — the section
-below shows what each one produces.
+(required, admitting a model component or a gateway serving a model API — the
+router is the second) and `checkpointer_db` (required, selecting on the
+datastore category). Five Feature attachments over three Feature kinds, each of
+which puts something in the rendered output — the section below shows what each
+one produces.
 
 ## Building
 
@@ -88,9 +88,9 @@ against a pin it can see is stale.
 The build prints:
 
 ```text
-Pull complete: release.lock (entities=23, source_artifacts=0, external_inputs=0)
+Pull complete: release.lock (entities=20, source_artifacts=0, external_inputs=0)
 [… omitted: a total build time, which differs per run]
-Build completed: 13 files written to dist/
+Build completed: 12 files written to dist/
 ```
 
 The entities are checked against the catalog's conventions once while the
@@ -103,7 +103,7 @@ file it came from and what would make it agree:
 aggrega lint --release release.yaml
 ```
 
-which here reports `conventions checked: 17 entities, 0 advisory finding(s)`.
+which here reports `conventions checked: 15 entities, 0 advisory finding(s)`.
 
 ## The rendered tree
 
@@ -113,7 +113,6 @@ dist/helm/
 ├── agent-deployment.yaml
 ├── checkpointer-default-service.yaml
 ├── checkpointer-deployment.yaml
-├── model-service.yaml
 ├── router--master-zukey--router-secret-router-master-key.yaml
 ├── router--metrics--router-servicemonitor-router-scrape.yaml
 ├── router--provider-zukey--router-secret-router-provider-key.yaml
@@ -239,19 +238,22 @@ there the proxy reads words in the path, the alias included, to decide how it
 records a request, and the router would refuse a request for this map's own
 `assistant` on it.
 
-## One address, two names
+## What the router publishes
 
-The model component runs nothing. Its Recipe emits a reference — the whole `spec`
-of `dist/helm/model-service.yaml`:
+The router's Recipe publishes the two keys every model component publishes: an
+`endpoint`, the base URL a client library is handed, and a `model`, the name a
+request asks for. That is what lets the agent's `model` socket take the router
+in place of a model. The socket's selector is
+`component.aggrega.ai/category in (ai-model, gateway), model.aggrega.ai/api`: it
+admits a component in the model or the gateway category that carries
+`model.aggrega.ai/api`, the label naming which model API answers at the address
+the component publishes. The router carries `model.aggrega.ai/api: openai`. A
+gateway that serves no model API carries no such label, and an edge from the
+agent to one halts the build, naming the socket and the selector the target does
+not satisfy.
 
-```yaml
-spec:
-  type: ExternalName
-  externalName: router-default
-```
-
-And `router-default` is exactly the Service the router's own Recipe emits — the
-whole `spec` of `dist/helm/router-default-service.yaml`:
+The address is the Service the router's own Recipe emits — the whole `spec` of
+`dist/helm/router-default-service.yaml`:
 
 ```yaml
 spec:
@@ -264,20 +266,26 @@ spec:
       targetPort: http
 ```
 
-So the chain is visible end to end in the output: a workload can reach the
-router under the model component's own name, and the two resources agree because
-the operator wrote the router's address into `model.infra.endpoint` in the
-Release. The port the Service targets, `http`, is the one the router's path
-allowlist listens on.
+The Recipe composes the endpoint it publishes, `http://router-default:4000/v1`,
+from the same two facts the Service is named and ported from: the component's
+own name and its `infra.port`. The port the Service targets, `http`, is the one
+the router's path allowlist listens on. Nothing in the three files spells
+`router-default` out. Rename the `router` component — its key in the Aggregate
+and in the Release, and the agent's edge that names it — and the address the
+agent receives follows: renamed `gateway`, the agent's `OPENAI_BASE_URL` is
+`http://gateway-default:4000/v1`.
 
-**That address is written by hand, and it has to be.** The model is a broker
-component: nothing runs behind it in-cluster, so there is no Recipe output to
-read an address from. What makes writing it down safe is that the name is
-deterministic — the router's Service is named from the component's own name and
-its service key, so `router-default` is knowable before anything is deployed.
-What makes it the author's responsibility is that the compiler does not check
-it: to the compiler that string is a string. Rename the `router` component and
-this line must be changed in the same edit.
+The name is the alias the router publishes as its model. This map publishes one
+alias, `assistant`, from both of its entries, so the router publishes that one
+and its `values.model` is left out. Give the second entry an alias of its own —
+`summarizer`, say — and the build halts before anything renders, because the
+router can publish only one. The halt is `E0033`, a failed assertion of the
+router's Component, and its message ends with the rule's own sentence:
+*values.model is not set, but values.models publishes 2 aliases (assistant,
+summarizer), so the gateway cannot tell which one a component wired to it asks
+for; set values.model to one of them*. Setting `model: assistant` beside
+`models` clears it, and the agent is handed `assistant` again. A caller wanting
+`summarizer` asks the same endpoint for it by name.
 
 ## What the agent receives
 
@@ -370,7 +378,7 @@ and in the same container `env`:
 table's `data` block above: every map entry carries
 `api_key: os.environ/LITELLM_PROVIDER_API_KEY`, naming this same variable.
 Remove the `provider_key` attachment from the Aggregate and rebuild. The build
-reports twelve files rather than thirteen — the Secret is gone — and the routing
+reports eleven files rather than twelve — the Secret is gone — and the routing
 table's ConfigMap differs by exactly those two `api_key` lines and nothing else;
 the guard's ConfigMap is unchanged. The rest of the map keeps its authored order
 and formatting, the router still serves and routes, and a routed request now
@@ -465,21 +473,25 @@ router's Recipe emits — the same name the Ingress above routes to.
 
 ## Where the compiler is blind
 
-Two pairs of names in this workspace have to agree, and nothing checks either.
+The agent's address and model name are read off what the router publishes, so
+no pair of names in the three files has to be kept in step by hand. What the
+build does check is the router's own rule that the alias it publishes is one its
+map publishes — a rule its Component declares and the build evaluates, like any
+other assertion an entity carries.
 
-- The alias the model asks for (`model.values.model: assistant`) and an alias the
-  router's map publishes (`model_name: assistant`).
-- The address the operator wrote (`model.infra.endpoint`) and the Service the
-  router renders (`router-default`).
-
-Both are strings being piped from one place to another. The compiler routes them
-without reading them: it does not know that one is a model alias and the other a
-hostname, and it has no access to a running cluster to check either. Break
-either pair and the build still succeeds; the failure appears at request time.
+The rest is strings piped from one place to another. The compiler routes the
+address and the alias without reading them: it does not know that one is a
+hostname and the other a model name, and it has no access to a running cluster
+to check that anything answers at `router-default:4000`. The
+`model.aggrega.ai/api` label that admitted the router is the same kind of
+string — the socket's selector matches it, and nothing checks what API actually
+answers there. And every `target` in the map is a pointer the running proxy
+resolves: change `openai/gpt-4o` to `openai/not-a-real-model` and the build
+still succeeds, with the failure arriving at request time.
 
 This is the same property that makes the rest of the example work. Because the
 compiler does not interpret what it pipes, the router can be repointed at a
-different provider, the model can be repointed at a different router, and the
+different provider, the agent can be wired to a different router, and the
 credential realization can be swapped for a store-backed one — all without the
 compiler needing to understand any of it, and without the agent changing.
 
@@ -488,8 +500,9 @@ compiler needing to understand any of it, and without the agent changing.
 - **Repoint a provider.** Edit a `target` in the router's map. Nothing else
   changes: not the model, not the agent, not a rendered Secret.
 - **Add a third provider.** Add a map entry. If it publishes the existing alias,
-  the strategy starts choosing between three; if it publishes a new one, add a
-  model component asking for that alias.
+  the strategy starts choosing between three. If it publishes a new one, the map
+  publishes two aliases, and the router's `values.model` names the one the agent
+  is handed; a caller wanting the other asks for it by name.
 - **Fetch the credentials from a store instead.** Change the one Manifest line
   binding `core/referenced-secret` to `helm/k8s-external-secret` and rebuild.
   Each rendered `Secret` becomes an `ExternalSecret` naming an entry in a
@@ -510,6 +523,11 @@ compiler needing to understand any of it, and without the agent changing.
 - **Drop the router.** Point the agent's `model` edge at a per-provider model
   component instead. The agent then holds a provider credential itself, which is
   the trade the router exists to remove.
+- **Reach a router the catalog does not model.** Point the agent's `model` edge
+  at a `core/ai-model/openai-compatible` component and write that router's
+  address into its `infra.endpoint` in the Release. Nothing runs behind that
+  component in-cluster, so the address is the operator's to write and to keep in
+  step with the service it names.
 
 For filling one credential slot across several consumers at once, see
 [model-api-key-sharing](../model-api-key-sharing/). For a socket no catalog

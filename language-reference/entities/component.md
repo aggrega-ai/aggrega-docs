@@ -54,6 +54,7 @@ These labels describe the *cognitive* identity of the workload, allowing the arc
 | Label Prefix | Allowed Values (Convention) | Why Platform Ops needs it (The Policy Hook) |
 | :--- | :--- | :--- |
 | `model.aggrega.ai/capability` | `generative`, `embedding`, `transcription` | Used by the `usesSchema` selector strings (evaluated natively by the Go compiler during static analysis) to guarantee a developer doesn't accidentally route a generative text payload to an embedding endpoint. |
+| `model.aggrega.ai/api` | `openai`, `native` | Names which model API answers at the address a component publishes: `openai` where it is the OpenAI API, the vendor's own or a server's implementation of it, `native` where it is the product's own API. Every model component carries it, and so does a gateway serving a model API, so a socket selecting `component.aggrega.ai/category in (ai-model, gateway), model.aggrega.ai/api` takes a model or such a gateway and refuses a gateway serving none. The label is a string the selector matches; nothing checks what actually answers at the address. |
 | `agent.aggrega.ai/autonomy` | `autonomous`, `copilot` | Identifies the execution risk of the cognitive loop, allowing policies to mandate human-approval features for fully autonomous agents. |
 
 **(C) The Cross-Cutters (Governance, State, & Hardware)**
