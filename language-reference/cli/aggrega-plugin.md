@@ -59,8 +59,8 @@ What add writes depends on the type:
 
   - A socket type (governance, linter, importer) pins the latest published
     version and adds the bare plugin identity (<type>/<name>:<version>) to the
-    plugins.<type> list. A governance entry also records its --role
-    (label-transform, ir-verdict, or render-verdict).
+    plugins.<type> list. A governance entry also records its --role, one of
+    annotation-transform, label-transform, ir-verdict, or render-verdict.
   - The provider type writes the plugin's oci:// identity as a plugins.providers
     entry; --capability names the capability the binding serves, preserving
     existing settings.
@@ -99,7 +99,7 @@ edit.
 | `--capability` | — | Capability the provider binding serves (required for, and only valid with, the provider type) |
 | `--dry-run` | `false` | Do everything except write: hand back the resulting configuration as content, naming the file it is for, and create or modify nothing. Without it the attachment is written to the resolved config file. Not accepted with the cli type. |
 | `--global` | `false` | Write the attachment to the global config shared across every workspace. |
-| `--role` | — | Governance attachment role: label-transform, ir-verdict, or render-verdict (required for, and only valid with, the governance type) |
+| `--role` | — | Governance attachment role: annotation-transform, label-transform, ir-verdict, or render-verdict (required for, and only valid with, the governance type) |
 | `--workspace` | `false` | Write the attachment to this project's workspace config. A provider or socket attachment defaults here; a cli plugin defaults to the global config. |
 | `--yes` | `false` | Skip the cli capability-confirmation prompt for non-interactive use (cli type only) |
 
