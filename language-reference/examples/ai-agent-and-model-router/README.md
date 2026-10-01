@@ -230,9 +230,8 @@ only when its method and path are one of the routes the router serves — the
 model request routes the guard checks, in the spellings the router serves
 whatever the alias, `/v1/chat/completions` and `/v1/messages` among them; the
 model listing; the health checks; and, of its
-administrative routes, key management and the creating, reading, updating and
-deleting of organizations — and answers every other path 403, forwarding
-nothing. So the proxy's token-count routes, its pass-through routes to
+administrative routes, key management — and answers every other path 403,
+forwarding nothing. So the proxy's token-count routes, its pass-through routes to
 providers' own APIs, its other administrative routes and its administrative
 console cannot be reached through the router, and neither can a model route
 whose path carries the model name, as the paths Azure's client sends do:
