@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: ai-gateway-semantic-cache-manifest
+  version: "1.0.0"
+  description: >
+    Ops mapping for the Kubernetes target. Every component type and every
+    attached Feature is routed to the standard-library Recipe that implements it
+    on this target.
+spec:
+  mappings:
+    components:
+      type:
+        # The gateway's routing table is a configuration body, and it is
+        # realized on this target alone, which is why this example is
+        # Kubernetes-only.
+        core/gateway/litellm:1.0.0: helm/litellm-gateway:1.0.0
+        core/datastore/redis:1.0.0: helm/redis:1.0.0
+    features:
+      type:
+        # The realization for this gateway writes the cache into the
+        # configuration the gateway's own Recipe renders.
+        core/semantic-caching:1.0.0: helm/semantic-caching-litellm:1.0.0
+        # Writes each credential straight into a rendered Secret, which suits a
+        # development target and not a shared one.
+        core/referenced-secret:1.0.0: helm/k8s-secret-from-parameter:1.0.0

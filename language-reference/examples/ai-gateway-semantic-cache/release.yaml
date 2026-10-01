@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: ai-gateway-semantic-cache-dev
+  environment: development
+  version: "1.0.0"
+spec:
+  aggregate: ai-gateway-semantic-cache
+  manifest: ai-gateway-semantic-cache-manifest
+
+  # Single scope: components are authored directly with no boundaries block, so
+  # they fold into one synthesized boundary and the artifacts land flat under
+  # dist/helm/.
+  components:
+    router:
+      infra:
+        # Operator sizing. Everything omitted takes the schema default.
+        port: 4000
+    # Declared with nothing to configure, so the store takes its schema
+    # defaults, the port the gateway is handed among them. A component still
+    # has to appear here: one left out is placed in no scope and the build
+    # halts.
+    cache: {}

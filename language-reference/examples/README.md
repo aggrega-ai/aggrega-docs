@@ -118,6 +118,14 @@ developer surface and the String Pipe with zero platform authoring.
   parameter so they cannot drift apart. Also shows where the compiler is blind:
   two pairs of names have to agree, nothing checks either, and the build
   succeeds when they do not.
+- **[ai-gateway-semantic-cache](ai-gateway-semantic-cache/)** — an AI gateway
+  that answers a question from the reply it gave an earlier, similarly worded
+  one, keeping the replies in a Redis wired to it, compiled to Kubernetes. The
+  store's address reaches the gateway through its environment, read off the
+  edge, and the cache's configuration names only the variables. The README is
+  mostly about who is served from one stored reply: one end user under the
+  default scope, every holder of the key under the other — and why the end user
+  a request names is not proof of who sent it.
 
 ## Authoring
 

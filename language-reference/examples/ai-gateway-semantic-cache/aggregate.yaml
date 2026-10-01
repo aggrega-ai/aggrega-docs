@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: ai-gateway-semantic-cache
+  version: "1.0.0"
+  description: >
+    A support assistant's AI gateway that answers a question from the reply it
+    gave an earlier, similarly worded one, keeping one cache per end user. This
+    file, the Manifest and the Release are the whole of what anyone authors
+    here: every Component, Feature and Recipe named below ships in the
+    standard-library catalog.
+spec:
+  components:
+    # ── The gateway ─────────────────────────────────────────────────────────
+    # Two aliases: the chat model callers ask for, and an embedding model the
+    # cache turns each prompt into a vector with. Both are targets the running
+    # gateway resolves when it serves a request; the compiler contacts neither.
+    # values.model names the alias the gateway publishes as its model, which a
+    # map with two aliases has to say.
+    router:
+      type: core/gateway/litellm
+      values:
+        models:
+          - name: assistant
+            target: openai/gpt-4o
+          - name: embedder
+            target: openai/text-embedding-3-small
+        model: assistant
+      features:
+        # The administrative key. The cache's realization halts the build without
+        # it: the gateway checks a caller's key only once it has one, and a cache
+        # bucket is made of that key.
+        master_key:
+          type: core/referenced-secret
+          values:
+            key: master-key
+            origin: dev-gateway-admin-key-change-me
+        # The credential the gateway presents to the providers behind both
+        # aliases, so callers never hold it.
+        provider_key:
+          type: core/referenced-secret
+          values:
+            key: provider-key
+            origin: upstream-provider-key-change-me
+        # The semantic cache. A stored reply is served for a prompt at least 0.9
+        # alike to the one it answered, as the embedder alias compares them, and
+        # the store removes it an hour after it was stored. scope is left out, so
+        # it takes the default, end_user: each end user a request names has a
+        # cache of their own.
+        answers:
+          type: core/semantic-caching
+          values:
+            embedding_model: embedder
+            similarity_threshold: 0.9
+            ttl_seconds: 3600
+      uses:
+        # Where the cache keeps its replies. The gateway's Recipe reads the
+        # store's published host and port off this edge and delivers them into
+        # the gateway's environment.
+        cache_store:
+          replies:
+            target: cache
+
+    # ── The store ───────────────────────────────────────────────────────────
+    # Redis, whose image loads the query engine and the JSON commands the
+    # cache searches its replies with. With nothing attached to its password
+    # slot it runs without authentication, and the gateway presents none.
+    cache:
+      type: core/datastore/redis
