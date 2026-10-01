@@ -73,9 +73,17 @@ Visual Studio Code keeps its servers under `servers` rather than `mcpServers`, a
 
 ### Claude Desktop
 
-Claude Desktop installs a local server from an extension package — the server together with a manifest describing it, bundled into one installable file and added from its extension settings — rather than from an entry in a configuration file. Aggrega does not currently distribute such a package.
+Claude Desktop installs a local server from an extension package — the server together with a manifest describing it, bundled into one installable file and added from its extension settings — rather than from an entry in a configuration file. Each Aggrega release carries such a package, `aggrega-<version>.mcpb`, beside its prebuilt binaries.
 
-Its connector settings accept a server reached over HTTPS, and that is the route to Claude Desktop today: see [A server reached over HTTPS](#a-server-reached-over-https).
+Aggrega's package carries no program of its own. It launches the `aggrega` executable you name, with the single `mcp` argument, and speaks the protocol over that process's standard input and output — the same server every entry above starts. To add it:
+
+1. Install the `aggrega` binary, as described in [Install the binary](#install-the-binary).
+2. Add `aggrega-<version>.mcpb` from Claude Desktop's extension settings.
+3. For the package's one required setting, the path to the `aggrega` executable, select the binary you installed.
+
+Because the package names no executable of any platform, the same file applies to every platform it declares: macOS, Windows and Linux.
+
+Claude Desktop's connector settings are the other route, for a server reached over HTTPS: see [A server reached over HTTPS](#a-server-reached-over-https).
 
 ### When a client will not take the whole tool surface
 
