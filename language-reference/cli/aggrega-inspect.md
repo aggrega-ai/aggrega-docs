@@ -493,7 +493,10 @@ A single argument routes by its shape. A path — anything starting with ./, ../
 or /, or ending in .yaml or .yml — is read as a file and inspected by its own
 kind: header. A registry reference — oci://<host>/<repository>:<tag>, or
 @<digest> in place of :<tag> — is read from the registry that publishes it.
-Anything else is looked up by name in the catalog search stack.
+Anything else is looked up by name in the catalog search stack: the
+workspace's own, or, with --release, the one the workspace configuration
+gives that Release, so a name several catalog variants declare, one per
+Release, resolves to the variant that Release builds with.
 
 A registry reference shows the entity exactly as it was published: unpacked
 from the archive its kind is published as where it is one, and rendered by the
@@ -545,6 +548,7 @@ they are from the readable layouts. Pass --unredacted to print them instead.
 | `--output`, `-o` | `text` | Output format: text\|yaml. |
 | `--plugin` | — | Filesystem path to a raw .wasm artifact; derives and prints the host functions it imports, before `aggrega plugin sync` records them in a Plugin entity. Takes no identifier argument. |
 | `--raw` | `false` | Render the entity as authored, without resolution. |
+| `--release` | — | Look a catalog name up in the terms of this Release file: through the catalog directories the workspace configuration gives that Release, with --catalog prepended. Applies to a name; a file or a registry reference is inspected as it stands and refuses it. |
 | `--resolved` | `false` | Render the entity fully resolved. |
 | `--show-implements` | `false` | For a Recipe or FeatureRecipe, resolve spec.implements against the catalog and render the bound Component or Feature. |
 | `--unredacted` | `false` | Print the values an author declared sensitive instead of withholding them. Anything the output reaches — a terminal, a pipe, a file, a screen recording — then carries those values in the clear. |

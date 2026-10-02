@@ -435,6 +435,19 @@ Answers with what one entity name resolves to and where the document defining it
 | `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `name` | string | no | The entity to resolve, by name — or a registry reference, `oci://<host>/<repository>:<tag>` or `@<digest>` in place of `:<tag>`, to read the entity published at that coordinate. |
+| `release` | string | no | The Release to resolve the name in the terms of, as a path relative to the workspace root. The name is then resolved through the catalog directories the workspace configuration gives that Release, so a name several variants in one workspace declare, one per Release, resolves to the variant that Release builds with, and a name it does not resolve is refused with an account naming that Release's entry under `workspace.releases`. Absent, the name is resolved over the workspace's own catalog directories. A registry reference takes no Release and is refused with one, as is a value that names no Release file. |
+
+_Additional properties are not permitted._
+
+### `CatalogIndexParams`
+
+Answers with the entities the workspace holds: every entity its documents declare, and the Features its catalog directories declare.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
+| `release` | string | no | The Release to list the entities in the terms of, as a path relative to the workspace root. The Features are then the ones the catalog directories the workspace configuration gives that Release declare, and a document under a catalog directory only other Releases read is left out, so a workspace keeping variants of one entity side by side, one per Release, is listed with the variant that Release builds with. Absent, the listing is the workspace's own. A value that names no Release file is refused. |
 
 _Additional properties are not permitted._
 
