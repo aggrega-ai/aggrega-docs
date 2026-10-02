@@ -28,6 +28,21 @@ The Manifest's `mappings:` block is a flat map from **component-type URI** to **
 
 Each block also accepts a **`name`** tier alongside `type`, mapping a specific **instance name** to a Recipe (or FeatureRecipe) URI. The name tier takes precedence over the type tier: an instance named in `components.name` resolves to that Recipe, while every other instance of the same type resolves through `components.type`. This expresses a per-instance override — two instances of one component type can deploy through two different Recipes (for example, most database instances use the bulk-mapped Recipe while one instance is pinned to a different physical implementation), without forking the component type or duplicating the Manifest. The override applies uniformly: the named instance both renders through and pins its source from the override Recipe. `features.name` is the symmetric tier for Feature attachments, keyed by the attachment's name. The [per-instance recipe override example](../examples/per-instance-recipe-override/) walks a minimal two-instance case end to end.
 
+An attachment a connection carries is keyed by the name it takes on the consuming component: `<alias>.<slot>`, the alias the connection is written under, a dot, and the slot the attachment fills (see [the Aggregate's connection entry](aggregate.md#a-connections-own-attachments-features-on-a-uses-entry)). So one connection's credential can be realized differently from every other attachment of its type:
+
+```yaml
+spec:
+  mappings:
+    features:
+      type:
+        core/referenced-secret:1.0.0: helm/k8s-secret-from-parameter:1.0.0
+      name:
+        # The credential the "gpt" connection carries in its "credential" slot.
+        gpt.credential: helm/k8s-external-secret:1.0.0
+```
+
+The entry is pinned and verified like any other name-tier entry, as the next paragraph describes.
+
 **A realization bound by name is pinned and verified like one bound by type.** `aggrega pull` acquires every Recipe and FeatureRecipe either tier binds — from a catalog directory, the cache or a registry — and records each in the Release's lockfile with its resolved version and content digest, under the mapping entry that binds it: `manifest.spec.mappings.components.name.<instance>` for a name-tier entry, beside `manifest.spec.mappings.components.type.<type>` for a type-tier one. `aggrega build` holds every one of them to its pin. A lockfile that records no row for a realization the Manifest binds halts the build as out of date, naming the realization and the entry that binds it; a realization whose content changed since the pull halts it the same way, naming both digests. In both cases `aggrega pull --release <release>` records the realization as it now stands. Like a `type` entry, a `name` entry is pinned whether or not the Release declares an instance of that name, so a `name` entry naming a Recipe no catalog or registry holds halts the pull.
 
 ```yaml

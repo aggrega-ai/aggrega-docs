@@ -189,6 +189,16 @@ resources the chart's author declared and may already have deployed. `.attachmen
 that tells two attachments on one host apart — see [`../providers/helm.md`](../providers/helm.md)
 "How the release name is derived".
 
+## Names derived from a connection's attachment
+
+An attachment a connection carries is an attachment of the consuming component, named `<alias>.<slot>` — `gpt.credential` for the `credential` slot of the connection written under the alias `gpt` (see [the Aggregate's connection entry](../entities/aggregate.md#a-connections-own-attachments-features-on-a-uses-entry)). That composed name is the `.attachment_name` its FeatureRecipe renders against, and it carries the dot.
+
+Two kinds of name follow from it, and they treat the dot differently.
+
+**A name the FeatureRecipe composes keeps whatever its template writes.** The standard-library credential realizations name their resource `{{ .context.instance_id }}-{{ .attachment_name | replace "_" "-" }}`, so the credential on the `gpt` connection of a component named `router` renders as a resource named `router-gpt.credential`, dot included, which is a valid Kubernetes object name. The dot survives in a name of this kind exactly when the template keeps it.
+
+**A name the build derives from the attachment's identity writes the dot out.** The identity labels and the emitted file are composed from the host component and the attachment name through the same encoding every name derived from an identity goes through, and it writes the dot as `zd`. The resource above is labelled `aggrega.ai/component-id: cfr--router--gpt-zdcredential` (and `app.kubernetes.io/name` alike), and under the `helm` provider it is emitted as `router--gpt-zdcredential--router-secret-router-gpt-credential.yaml`. See [Naming Conventions](../02-naming-conventions.md) "The separator does not reach a name" for why the dot is written out rather than replaced.
+
 ## Related
 
 - [Template context contract](template-context-contract.md) — the full shape of the context these keys

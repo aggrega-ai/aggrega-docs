@@ -157,6 +157,10 @@ The socket (`usesSchema[<socket>]`) is the Architect's contract for which connec
 
 Per-edge configuration is consumer-scoped: it surfaces only in the context of the node that authored the edge (the connection's source), never in the target's context. A target's rendered output is therefore invariant with respect to the consumers that connect to it.
 
+**Connection attachments (`features`).** A connection may also carry attachments of its own — a credential the consumer presents to the component this connection reaches, say — under `features:` on its entry, keyed by a slot the socket declares in its `featuresSchema`. The same two authors split them: the developer attaches on the Aggregate's connection entry with `type` and `values`, and the operator sizes that attachment with `infra`, or attaches one of its own with `type` and `infra`, on the Release's entry. An attachment on a connection carries no `inject` block of its own, which is why it is absent from the placement rule above: it is not one of the places a developer dictates delivery.
+
+Each becomes an attachment of the **consuming** component named `<alias>.<slot>`, so it is consumer-scoped exactly as per-edge configuration is: its FeatureRecipe renders on the consumer's side, and the target's output does not change with it. It is kept out of the consuming Recipe's `.features`, which holds only the attachments the component's own block declares; reading it under its connection, at `.context.uses.<alias>.features.<slot>`, is not yet available. A connection a Feature attachment draws carries no attachments. See [entities/aggregate.md](../entities/aggregate.md) §"A connection's own attachments" and [entities/component.md](../entities/component.md) §"Topology Sockets".
+
 **A. Environment Variables (`env`) & Dynamic Destination Resolution**
 The standard delivery mechanism for modern cloud-native applications. For explicit topological edges (e.g., an Agent talking to a Database), Aggrega uses `.context.uses` to inject the environment variable mapping.
 

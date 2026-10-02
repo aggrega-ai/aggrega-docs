@@ -386,6 +386,7 @@ Each entry — list element or map alias — becomes one edge, preserved in auth
 | `inject` | string[] | — | Allowlist of allowed inject delivery mechanisms (parallel to `featuresSchema[].inject`). Absent, or `[]` (empty), means blackbox — no `inject:` block allowed on the developer's `uses:` entry; the Recipe controls delivery. `[env, file, arg]` (non-empty) means transparent — the developer may dictate which mechanism delivers the dependency's `provides` values. Enforced: see "Where a socket's `inject` allowlist is enforced" below. |
 | `valueSchema` | object | — | Optional per-edge contract for developer-authored `values` on an edge wired through this socket (authored in the Aggregate). JSON Schema 2020-12 in the same authoring forms as `schema:`. Omission means the socket declares no `values` contract. |
 | `infraSchema` | object | — | Optional per-edge contract for operator-authored `infra` on an edge wired through this socket (authored in the Release). Same authoring forms as `valueSchema`. Omission means the socket declares no `infra` contract. |
+| `featuresSchema` | map | — | The attachment slots each connection wired through this socket may fill, keyed by slot name, each slot taking the keys a Component-level slot takes. Omission means a connection through this socket carries no attachment. See "Slots each connection fills" below. |
 | `description` | string | — | Human documentation, rendered by IDE and hub. |
 
 **Where a socket's `inject` allowlist is enforced.** The allowlist is the socket's statement of whether a consumer may choose the delivery form at all, and if so which forms — so it is checked against every `uses:` edge wired through the socket, once the edge and the socket's declaration are both in hand. Two refusals follow from one rule, and both halt the build:
@@ -424,6 +425,30 @@ With that socket declared, an edge whose Aggregate omits `pool_size` renders `10
 
 A Recipe for the consuming Component reads the resolved per-edge config from the enriched topology pipe at `.context.uses.<alias>.values.<key>` and `.context.uses.<alias>.infra.<key>` — see [`vocabulary/topology-triad.md`](../vocabulary/topology-triad.md).
 
+**Slots each connection fills — a socket's `featuresSchema`.** A socket may also declare attachment slots, and then every connection wired through it may carry its own attachment in each of them: a gateway reaching several models holds a different credential for each, because the credential is on the connection rather than on the gateway.
+
+```yaml
+spec:
+  usesSchema:
+    models:
+      selector: "component.aggrega.ai/category=ai-model"
+      featuresSchema:
+        credential:
+          selector: "feature.aggrega.ai/kind=secret"
+          sensitive: true
+          inject: [env]
+          description: The credential the consumer presents to the component this connection reaches.
+```
+
+A connection fills a slot by carrying an attachment under the slot's name in its own `features:` — on the Aggregate's connection entry ([Aggregate](aggregate.md#a-connections-own-attachments-features-on-a-uses-entry)) or on the Release's ([Release](release.md#per-edge-connection-configuration)) — and the attachment becomes one of the consuming component's attachments, named `<alias>.<slot>`.
+
+What the declaration does today, stated exactly:
+
+* **The slot names are a closed set.** Unlike the Component's own `featuresSchema`, which admits a free attachment under any name, a socket's slots are the only names a connection through it may carry: any other name halts when the build loads, and a socket declaring no `featuresSchema` admits no attachment on its connections. An ad-hoc socket — one this `usesSchema` does not declare — declares no slots, so its connections carry none either. Each connection fills its slots itself: an attachment at a broader scope never cascades onto a connection, and a Release key spelling a connection attachment's composed name halts.
+* **The other keys are carried as declarations.** A slot here takes the same keys as a Component-level slot — `required`, `selector`, `inject`, `sensitive`, `description` — but on a socket the build does not yet act on `required`, `selector`, `inject` or `sensitive`: a connection leaving a required slot empty, or filling one with a Feature the selector does not admit, is not refused because of them. On a connection, which of an attachment's values are withheld as sensitive is decided by the attached Feature's own schema alone.
+
+A Feature's `usesSchema` does not take `featuresSchema`: a connection a Feature draws carries no attachments, and a Feature declaring slots on a socket is refused when it loads. A credential such a connection needs is a slot in the Feature's own `featuresSchema`.
+
 **Schema generation from `usesSchema`.** The compiler generates a base JSON Schema 2020-12 fragment from the declared sockets and composes it with the user's `schema:` declaration — the same pattern `featuresSchema` uses. The generated schema never touches disk; it exists only in memory during the Component validation pass. The developer's `uses:` map in the Aggregate validates against the merged schema; the per-socket `selector:` evaluates against candidate Component labels during static analysis as the cross-node type-safety check.
 
 **Selector semantics — the Split Schema mechanism.** `usesSchema[].selector:` is what makes Aggrega's topology more than untyped string-passing. A socket declaring `selector: "datastore.aggrega.ai/engine=vector"` only accepts wiring to Components labeled with the matching key-value pair; an agent attempting to wire its `primary_datastore` socket to a `relational` Component fails the Static Analyzer with a clear selector-violation diagnostic. The selector is a Kubernetes-style label-selector string — comma-AND requirements over `=`, `!=`, `in (...)`, `notin (...)`, bare-key, and `!key` forms — the same grammar Feature `appliesTo` uses; see [vocabulary/modifier-system.md](../vocabulary/modifier-system.md) for the grammar and [architecture/13-catalog-and-registry.md §2 "Kubernetes-Style Selectors"](../../architecture/13-catalog-and-registry.md) for the engine semantics. A requirement outside those forms is refused rather than read as some other selector: an empty requirement (a leading, trailing or doubled comma), a key carrying whitespace or any of `=`, `!`, `(`, `)` and the comma, or a set without its closing parenthesis halts every build that wires an edge through the socket, naming the requirement. So a socket meant to exclude frontends is written `selector: "tier!=frontend"`; `"!tier=frontend"` is refused, because `!` names a label key and nothing else.
@@ -444,11 +469,13 @@ The worked example [`examples/adhoc-uses-socket/`](../examples/adhoc-uses-socket
 
 **Socket-name typos surface as an advisory, not a halt.** Because an undeclared socket name is legal, a misspelled socket name becomes an ad-hoc connection of its own rather than wiring the socket the author meant — and the build stays green while nothing flows over it. The compiler reports a socket name that is within one edit of a name this `usesSchema` declares as a warning naming both spellings — see [errors/warnings.md](../errors/warnings.md) "Uses-socket near-miss lint". The warning never changes the build's verdict; the compiler does not police what an author names a socket.
 
-**The `usesSchema` vs `featuresSchema` relationship.** Both are declarative tables and both carry an `inject:` allowlist with identical semantics, but a socket and a slot are different things and are not interchangeable. `usesSchema` governs cross-component edges — the topology graph — declaring which sockets carry a contract. `featuresSchema` governs attachment slots, and a slot is a *named binding point*, not an enumeration: an attachment under a name no slot declares is legal. The two surfaces have converged on that point — a component's own `uses:` entry under an undeclared socket name is legal too — but they remain distinct: an undeclared *slot* is a free attachment on a Component whose declared slots are unaffected, while an undeclared *socket* is an edge with no selector and no per-edge contract. Many Components declare both; the two tables compose independently.
+**The `usesSchema` vs `featuresSchema` relationship.** Both are declarative tables and both carry an `inject:` allowlist with identical semantics, but a socket and a slot are different things and are not interchangeable. `usesSchema` governs cross-component edges — the topology graph — declaring which sockets carry a contract. `featuresSchema` governs attachment slots, and a slot is a *named binding point*, not an enumeration: an attachment under a name no slot declares is legal on the component's own block. (The slots a socket declares for its connections are the one closed set, as "Slots each connection fills" above states.) The two surfaces have converged on that point — a component's own `uses:` entry under an undeclared socket name is legal too — but they remain distinct: an undeclared *slot* is a free attachment on a Component whose declared slots are unaffected, while an undeclared *socket* is an edge with no selector and no per-edge contract. Many Components declare both; the two tables compose independently.
 
 ## Attachment Slots: `featuresSchema`
 
 A Component may declare attachment slots through a `featuresSchema` block. Each slot names a binding point at which the Component expects a Feature to be attached — a root password, an API key, an auth token, an identity binding — and constrains which Feature may bind it and how the fill's material may be delivered.
+
+This section is about the Component's own slots. The slots a socket declares for each connection are a closed set instead — see "Slots each connection fills" under Topology Sockets.
 
 **Declaring a slot does not close the attachment surface.** An author may attach a Feature under a name no slot declares, and that attachment is a *free attachment*: perfectly legal, simply not bound to a declared slot. This openness is what lets one catalog entity serve two different deployment shapes without a catalog fork:
 

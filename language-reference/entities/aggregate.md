@@ -197,6 +197,54 @@ The merged parameter map remains alive through rendering to support **path-templ
 
 For the broader parameter-hoisting checklist (Aggregate declaration → values reference → Release fulfilment → Recipe consumption) and the cross-pillar mechanics, see [`vocabulary/data-pillars.md`](../vocabulary/data-pillars.md) §"Parameters" and §"The parameter-hoisting checklist". For the template-context fields exposed during interpolation and the path-template carve-out, see [`templates/parameters-context.md`](../templates/parameters-context.md).
 
+## A connection's own attachments: `features` on a `uses` entry
+
+A connection a component draws in its verbose `uses:` form is an entry of its own, and beside `target`, `inject` and `values` it may carry **attachments**, under `features:`. Each one is keyed by a **slot the socket declares**: the consuming Component lists, in the socket's `featuresSchema`, the slots every connection wired through that socket may fill (see [Topology Sockets](component.md#topology-sockets-usesschema)). This is how one component holds a different credential for each component it reaches — a gateway calling two models with two keys, or an agent presenting a key of its own to a model.
+
+```yaml
+spec:
+  parameters:
+    openai_key_secret: { type: string }
+  components:
+    router:
+      type: local/gateway/model-router   # its `models` socket declares a `credential` slot
+      uses:
+        models:
+          gpt:
+            target: gpt
+            features:
+              credential:
+                type: core/referenced-secret
+                values:
+                  origin: "{{ .parameters.openai_key_secret }}"
+                  key: api-key
+          plain:
+            target: plain                # this connection carries no attachment
+    gpt:
+      type: core/ai-model/openai
+      values: { model: gpt-4o-mini }
+    plain:
+      type: core/ai-model/ollama
+      values: { model: llama3.1 }
+```
+
+An attachment on a connection carries `type` (required), an optional `description`, and `values` for the Feature. It carries no `uses` and no `inject`: an attachment on a connection does not nest, and how its material reaches the consumer is the consuming component's Recipe's to decide rather than an `inject` block's. A document writing either is refused when it loads, naming the key.
+
+**Only the slots the socket declares.** An attachment under a name the socket's `featuresSchema` does not list halts the build when it loads, naming the connection, the socket, the component and the slots the socket does declare. A socket that declares no slots admits no attachment on its connections, and neither does an ad-hoc socket — one the Aggregate wires without the Component declaring it — since it declares no slots at all. A component a sub-module contributes is held to the same rule, and the finding points into the sub-module's own document. See [A connection carries an attachment under a name its socket declares no slot for](../errors/fatal-halts.md#a-connection-carries-an-attachment-under-a-name-its-socket-declares-no-slot-for).
+
+**A connection a Feature draws carries none.** An attached Feature's own `uses:` block — on a component or on a subsystem — is written in the same shape but refuses `features:` when the document loads. A credential such a connection needs fills a slot the Feature declares in its own `featuresSchema`, attached beside the Feature; see [A Feature's Own Credential](../examples/04-secrets.md#example-13-a-features-own-credential).
+
+**The name the attachment takes.** Each connection attachment becomes an attachment of the **consuming** component, named `<alias>.<slot>` — the alias the connection is written under, a dot, and the slot: `gpt.credential` above. The dot is the separator reserved for names the compiler composes, which no alias, slot or attachment name in an Aggregate may contain, so the composed name never equals one written on the component's own `features:` block; a Release spelling it on a component or a boundary is refused (see [Per-edge connection configuration](release.md#per-edge-connection-configuration)). It is the name the Manifest's per-instance tier keys the attachment by (see [Flat URI mapping](manifest.md#flat-uri-mapping)), the name diagnostics and the IR graph report it under, and the value the attachment's FeatureRecipe reads as `.attachment_name` (see [Names derived from a connection's attachment](../templates/rendered-resource-names.md#names-derived-from-a-connections-attachment)).
+
+From there it resolves like any attachment: the Manifest binds its Feature type to a FeatureRecipe, its `values` are validated against the Feature's schema — a failure is reported at the connection entry that wrote them — and its FeatureRecipe renders against the attachment's own `values` and `infra`. Two things set it apart from the component's own attachments:
+
+* **It is not in the consuming Recipe's `.features`.** That pillar carries only the attachments written on the component's own block, so a Recipe looking through `.features` for its own attachments by type is never handed a connection's credential. A Recipe reading a connection's attachment from the connection itself, at `.context.uses.<alias>.features.<slot>`, is not yet available.
+* **It lands on the consumer alone.** A target's rendered output is the same whatever the connections reaching it carry.
+
+**The graph's copy of the authored block.** The IR graph keeps each component's `uses:` block as authored, and there a connection attachment keeps its `type` and `description` and none of its `values`. The values appear once, on the attachment the consumer carries, where a value the Feature declares sensitive is withheld.
+
+A Release may size an attachment declared here with `infra`, or attach one of its own on a connection it reaches — see [Per-edge connection configuration](release.md#per-edge-connection-configuration).
+
 ## Switching a component or module off: `active:`
 
 A component instance and a sub-aggregate module each accept an `active:` toggle deciding whether that entity is part of the compiled topology at all. Omit it and the entity is present; that is the default and the ordinary case.

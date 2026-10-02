@@ -15,7 +15,7 @@ Implementing a credential pattern end-to-end touches six surfaces across the fou
 
 The split between White-Box and Black-Box determines how many touch-points a particular credential pattern requires. White-Box covers the first five surfaces above; Black-Box covers all six — the heavier of the two, and the one Recipe authors most often implement when sourcing packaged infrastructure (Bitnami charts, managed services, etc.).
 
-The three worked examples below demonstrate the pattern across the canonical scenarios: White-Box (Example 11), Black-Box (Example 12), and a Feature's own credential (Example 13).
+The four worked examples below demonstrate the pattern across the canonical scenarios: White-Box (Example 11), Black-Box (Example 12), a Feature's own credential (Example 13), and a credential carried on one connection (Example 14).
 
 ## Example 11: White-Box Secrets — Developer Controls Delivery
 
@@ -262,7 +262,7 @@ spec:
 
 A Feature can need a credential of its own — a guardrail proxy that authenticates to an upstream service, a log shipper with an ingest token. The Feature declares the binding point in its **own** `featuresSchema`, exactly as a Component does, and the FeatureRecipe bound to it reads what fills that slot when it renders the Feature's workload.
 
-**Attachments do not nest.** An attachment declares `type`, `description`, `values`, `uses` and `inject`, and the schema closes it there. The credential is attached *beside* the Feature, on the same component, under the name the Feature's slot declares — the slot name is what ties the two together.
+**Attachments do not nest.** An attachment declares `type`, `description`, `values`, `uses` and `inject`, and the schema closes it there. The credential is attached *beside* the Feature, on the same component, under the name the Feature's slot declares — the slot name is what ties the two together. That holds for the connections a Feature draws too: a connection in the Feature's own `uses:` block carries no attachments, and a `features:` key on it is refused when the document loads, so a credential such a connection needs is a slot the Feature declares, filled beside the Feature exactly as below.
 
 The guard Feature below, and the Component the Aggregate names, are entities this example's own catalog carries. The credential Feature `core/referenced-secret` and the FeatureRecipe `k8s-secret-from-parameter` that implements it are standard-library entities, walked through in [Credential Features](05-credential-features.md).
 
@@ -417,3 +417,121 @@ That is a statement about where the compiler routes bytes, and it is the whole o
 ```
 
 And on a Feature's slot, `required: true` is a declaration the workload cross-check reads; it does not halt on its own. A build whose guard Feature marks the slot required and attaches nothing to fill it completes. What makes the credential compulsory here is the workload reference above.
+
+---
+
+## Example 14: A Connection's Own Credential
+
+A gateway reaching two models presents a different key to each — or a key to one and none to the other. A slot on the gateway itself holds one credential for the whole component, so it cannot say which connection a key belongs to. The credential goes on the **connection** instead: the gateway's socket declares the slot every connection through it may fill, and each connection fills it, or does not, on its own.
+
+The gateway Component below, and its Recipe, are entities this example's own catalog carries. `core/referenced-secret`, `core/ai-model/openai`, `core/ai-model/ollama` and the two credential FeatureRecipes are standard-library entities.
+
+**1. Platform Catalog: the socket declares the slot**
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Component
+metadata:
+  name: local/gateway/model-router
+  version: 1.0.0
+  labels:
+    component.aggrega.ai/type: server
+spec:
+  usesSchema:
+    models:
+      selector: "component.aggrega.ai/category=ai-model"
+      featuresSchema:
+        credential:
+          selector: "feature.aggrega.ai/kind=secret"
+          sensitive: true
+          inject: [env]
+          description: The credential the gateway presents to the model this connection reaches.
+```
+
+**2. Dev Domain: the Aggregate attaches on the connection**
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: edgecred
+  version: "1.0.0"
+spec:
+  parameters:
+    openai_key_secret: { type: string }
+  components:
+    router:
+      type: local/gateway/model-router
+      uses:
+        models:
+          gpt:
+            target: gpt
+            features:
+              credential:            # a slot the `models` socket declares
+                type: core/referenced-secret
+                values:
+                  origin: "{{ .parameters.openai_key_secret }}"
+                  key: api-key
+          plain:
+            target: plain            # the local model checks no key, so this connection carries none
+    gpt:
+      type: core/ai-model/openai
+      values: { model: gpt-4o-mini }
+    plain:
+      type: core/ai-model/ollama
+      values: { model: llama3.1 }
+```
+
+**3. Routing Domain: the Manifest picks the realization, per type or for this one connection**
+
+The attachment on the `gpt` connection is an attachment of `router` named `gpt.credential`, and the Manifest's per-instance tier keys it by that name. Here every `core/referenced-secret` renders a plain Secret, except the `gpt` connection's, which is fetched from a cluster secret store.
+
+```yaml
+spec:
+  mappings:
+    components:
+      type:
+        local/gateway/model-router: helm/model-router:1.0.0
+        core/ai-model/openai:1.0.0: helm/openai:1.0.0
+        core/ai-model/ollama:1.0.0: helm/ollama:1.0.0
+    features:
+      type:
+        core/referenced-secret:1.0.0: helm/k8s-secret-from-parameter:1.0.0
+      name:
+        gpt.credential: helm/k8s-external-secret:1.0.0
+```
+
+The Release fulfils `openai_key_secret` — with this realization, the key of the entry to fetch — as `openai-team-a`.
+
+**What the build renders.** One resource more than a build of the same documents with no attachment on any connection: the `gpt` connection's credential, rendered on the gateway's side. The excerpt omits the provenance labels and annotations every rendered resource carries.
+
+```yaml
+# helm/router--gpt-zdcredential--router-externalsecret-router-gpt-credential.yaml
+apiVersion: external-secrets.io/v1
+kind: ExternalSecret
+metadata:
+  name: router-gpt.credential
+spec:
+  refreshInterval: "1h"
+  secretStoreRef:
+    name: platform-secret-store
+    kind: ClusterSecretStore
+  target:
+    name: router-gpt.credential
+    creationPolicy: Owner
+  data:
+    - secretKey: api-key
+      remoteRef:
+        key: "openai-team-a"
+```
+
+**What that gives you, stated exactly.** The credential belongs to the one connection that carries it: the `plain` connection renders nothing, and neither model's own output changes with what the gateway's connections carry. The attachment is not part of the gateway Recipe's `.features`, which holds only what the gateway's own block attaches. A Recipe reading the credential from its connection, at `.context.uses.gpt.features.credential`, is not yet available, so delivering it into the gateway's own container is not something this example shows. How the rendered names are composed — the dot kept in the resource name, written out as `zd` in the file name and the identity labels — is set out in [Naming a Rendered Resource](../templates/rendered-resource-names.md#names-derived-from-a-connections-attachment).
+
+**A name the socket does not declare halts.** The socket's slots are the only names a connection through it may carry. The same Aggregate with the `gpt` connection's attachment written under `token`:
+
+```text
+[DEVELOPER_ERROR E0315] .spec.components.router.uses.models.gpt
+  a connection carries an attachment under a name its socket declares no slot for (Aggregate edgecred, at .spec.components.router.uses.models.gpt, "token", on the connection "gpt", through socket "models", of component "router", the socket declaring the slots "credential"). Write the attachment under one of the slots the socket declares, or declare this slot in the socket's featuresSchema on the Component.
+```
+
+A Release sizes the attachment with `infra` on its own entry for the connection, or attaches a credential the Aggregate left out, naming its `type`; see [Per-edge connection configuration](../entities/release.md#per-edge-connection-configuration).

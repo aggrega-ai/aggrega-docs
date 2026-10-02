@@ -36,7 +36,7 @@ Five practical patterns drive `environment:` authoring:
 
 Two structural guarantees protect the Aggregate as the Single Source of Truth:
 
-* **`values:` is forbidden.** To protect the Aggregate as the Single Source of Truth, the Release schema mechanically bans a `values:` block — the Operator cannot declare `values` on any Component or Feature from a Release. The ban extends to `uses` edges: a Release per-edge `uses` entry carries `infra` only, never `values` (developer-facing per-edge values stay in the Aggregate). Per-environment variation of Developer-facing values flows through **Parameter Hoisting**: the Developer exposes a typed `parameters.*` field in the Aggregate, the Component's `values` template references it, and the Release fulfills the parameter for its environment. See [architecture/06-data-taxonomy-and-composition.md §8 Constraint 4](../../architecture/06-data-taxonomy-and-composition.md) for the schema-level ban stated explicitly. The Release's `uses` edge surface — what it may configure and wire — is documented in [Per-edge connection configuration](#per-edge-connection-configuration) below.
+* **`values:` is forbidden.** To protect the Aggregate as the Single Source of Truth, the Release schema mechanically bans a `values:` block — the Operator cannot declare `values` on any Component or Feature from a Release. The ban extends to `uses` edges: a Release per-edge `uses` entry carries `infra` and the attachments it writes on the connection, and those carry `infra` too — never `values` (developer-facing per-edge values, and the values of an attachment on a connection, stay in the Aggregate). Per-environment variation of Developer-facing values flows through **Parameter Hoisting**: the Developer exposes a typed `parameters.*` field in the Aggregate, the Component's `values` template references it, and the Release fulfills the parameter for its environment. See [architecture/06-data-taxonomy-and-composition.md §8 Constraint 4](../../architecture/06-data-taxonomy-and-composition.md) for the schema-level ban stated explicitly. The Release's `uses` edge surface — what it may configure and wire — is documented in [Per-edge connection configuration](#per-edge-connection-configuration) below.
 * **`extends` + `aggregate:` is rejected.** To prevent untraceable "aggregate-mutating" deployments, when a Release uses `extends`, declaring an `aggregate` pointer is rejected by the Release schema. The child release must map to the exact same Developer Intent as its parent. The `manifest`, however, becomes optional, unlocking "Late Binding" — allowing the Operator to inherit the entire physical topology but surgically swap the dependency lockfile.
 
 ## The `parameters:` block
@@ -183,8 +183,33 @@ A boundary component may carry a `uses:` block that configures or wires the topo
 
 * **Configure an existing edge.** Set per-edge `infra` on an edge the developer already declared. The entry names the developer's alias and supplies `infra`; it either names the same target the developer wired or omits the target. The `infra` is validated against the socket's `infraSchema`.
 * **Wire an unbound socket.** Create an edge into a socket the Component's `usesSchema` declares but the developer left unwired, pointing at an existing component. The created edge may also carry per-edge `infra`.
+* **Attach on a connection.** Carry attachments under the entry's `features:`, keyed by a slot the socket declares in its `featuresSchema` — the same slots the developer's connection entry fills. Each carries `type`, an optional `description`, and `infra`, and never `values`. Under a slot the developer already filled on the same connection, the entry sizes that attachment: write `infra` only, since the type and the values come from the Aggregate (a `type` written here must agree with the Aggregate's, or the build halts). Under a slot the developer left empty, the attachment is the Release's own and `type` is required.
 
-The surface is **create-not-retarget**: a Release may add an edge into an unbound socket, but it may not redirect an edge the developer already declared. A per-edge entry that names a *different* target than the developer's edge halts the build; an entry that names the *same* target (or omits it) configures that edge. The Release also may not declare `values` on an edge (developer-facing values stay in the Aggregate), bind a socket the `usesSchema` does not declare, or point an edge at a component that does not exist — each is a fatal halt. See [errors/fatal-halts.md](../errors/fatal-halts.md) §"When building the topology".
+The surface is **create-not-retarget**: a Release may add an edge into an unbound socket, but it may not redirect an edge the developer already declared. A per-edge entry that names a *different* target than the developer's edge halts the build; an entry that names the *same* target (or omits it) configures that edge. The Release also may not declare `values` on an edge or on an attachment it writes there (developer-facing values stay in the Aggregate), bind a socket the `usesSchema` does not declare, or point an edge at a component that does not exist — each is a fatal halt. So is an entry setting `infra` or `features` on a connection that does not exist once every edge is drawn, unless the consuming component is switched off with `active: false`. See [errors/fatal-halts.md](../errors/fatal-halts.md) §"When building the topology".
+
+Three more halts keep a connection's attachments on their connection:
+
+* **A name the socket declares no slot for** halts, exactly as it does on the Aggregate's connection entry, naming the slots the socket declares.
+* **An attachment only the Release makes, written with no `type`,** halts at the connection entry, naming the slot. An attachment the Release makes carries no `values`, so it suits a Feature whose `values` require nothing; one whose schema requires a value — `core/referenced-secret` requires `origin` — halts on the missing value at the same entry.
+* **The composed name written anywhere but the connection** halts. A connection attachment becomes an attachment of the consuming component named `<alias>.<slot>` (see [the Aggregate's connection entry](aggregate.md#a-connections-own-attachments-features-on-a-uses-entry)), and both a component entry's own `features:` keys and a boundary's admit a dot. A component entry writing that name, or a boundary writing it so that it reaches a component whose connection carries it — a component placed in that boundary or in one nested inside it, a routed sub-module's included — halts naming both spellings, once for each component it reaches. A socket's slot is filled on each connection and never by an attachment cascading from a broader scope.
+
+```yaml
+spec:
+  components:
+    router:
+      uses:
+        models:
+          # Size the attachment the Aggregate declared on the "gpt" connection: infra only.
+          gpt:
+            features:
+              credential:
+                infra: { rotation: hourly }
+          # Attach on a connection the developer left without one: the type is required.
+          plain:
+            features:
+              credential:
+                type: core/generated-secret
+```
 
 ```yaml
 spec:
@@ -207,7 +232,7 @@ spec:
                 infra: { storage_class: standard }
 ```
 
-The resolved per-edge `infra` flows into the *consuming* component's render context at `.context.uses.<alias>.infra.<key>`; it never appears in the target component's context, so a target's rendered output is invariant with respect to the consumers that configure edges into it.
+The resolved per-edge `infra` flows into the *consuming* component's render context at `.context.uses.<alias>.infra.<key>`; it never appears in the target component's context, so a target's rendered output is invariant with respect to the consumers that configure edges into it. An attachment on a connection lands on the consuming component too, as one of its attachments: its `infra` merges with the Aggregate's `values` for the same slot, and its FeatureRecipe renders against both. A Recipe reading it at `.context.uses.<alias>.features.<slot>` is not yet available.
 
 ## The `aggregates:` field — routing nested sub-modules into boundaries
 
@@ -354,7 +379,7 @@ The Release can attach Features both at boundary scope (broad policy) and at com
 
 A feature attached boundary-wide may carry a `uses:` block, and that block projects to every component routed into the boundary: each component gains a dependency edge to the feature's named targets and is injected those targets' `provides`. This expresses a shared dependency once at the boundary — "every component in this boundary talks to the shared cache / collector / message bus" — rather than repeating the same `uses:` edge on each component. A subsystem-level Feature attachment in the Aggregate projects its `uses:` the same way across the subsystem's components. `uses` is a topology wiring declaration, not a value, so it is permitted on the Release. The projection is independent of the attached Feature's execution scope: a Feature whose FeatureRecipe renders once per boundary still projects its `uses:` per component, while the shared resource itself renders once.
 
-A feature attached to a single component carries the same `uses:` block and wires the same edge from that one component: the component gains a dependency edge to each named target, is injected those targets' `provides`, and the edge records the attachment as its origin exactly as the boundary-wide form does. The two are one declaration at two breadths — attach at the boundary to wire every component in it, attach on a component to wire that one — and the choice between them is a matter of reach, never of what the wiring does. Neither creates compute: the target must already name a component the Aggregate declared, and one that does not halts the build.
+A feature attached to a single component carries the same `uses:` block and wires the same edge from that one component: the component gains a dependency edge to each named target, is injected those targets' `provides`, and the edge records the attachment as its origin exactly as the boundary-wide form does. The two are one declaration at two breadths — attach at the boundary to wire every component in it, attach on a component to wire that one — and the choice between them is a matter of reach, never of what the wiring does. Neither creates compute: the target must already name a component the Aggregate declared, and one that does not halts the build. A connection a Feature draws carries no attachments of its own: its entry takes `target` and `inject`, and a `features:` key there is refused when the Release loads.
 
 ```yaml
 boundaries:
@@ -388,7 +413,7 @@ The compiler follows the chain when the Release is loaded — refusing a chain t
 
 **What you inherit, you may replace key by key.** Your value wins, all the way down, until you reach a value that is one indivisible thing — a scalar, a list, a template — which you take or replace whole. You remove something you inherited by writing it `null`. This is the same rule an extending Component, Feature and Manifest follow, so an author who has met one has met all of them.
 
-Applied to a Release: `boundaries` compose per boundary name and a boundary per key, `components` per component name, `infra` deep, `features` per instance name and then per pillar; `directory`, `subDirectory`, `syncWave` and the Aggregate and Manifest pointers are scalars that replace.
+Applied to a Release: `boundaries` compose per boundary name and a boundary per key, `components` per component name, `infra` deep, `features` per instance name and then per pillar; a component's `uses` per socket and then per connection, where a `target` the child writes replaces the inherited one, the connection's `infra` composes key by key, and its `features` compose per slot and then per pillar by the same rule a component's own `features` follow; `directory`, `subDirectory`, `syncWave` and the Aggregate and Manifest pointers are scalars that replace.
 
 Two things do not travel:
 
