@@ -870,7 +870,7 @@ _Additional properties are not permitted._
 
 ### `LintParams`
 
-Checks catalog publishing conventions over one entity, over everything a Release's closure reaches, or over everything under the configured catalog directories. Nothing is written under any mode.
+Checks catalog publishing conventions over one entity, over everything a Release's closure reaches, or over everything under the configured catalog directories. Nothing is written under any mode. Naming neither an entity nor a Release checks the whole catalog: in a workspace whose configuration gives no Release catalog directories of its own, once over the workspace's directories; in a workspace that names Releases under workspace.releases, once for each Release over the directories that Release reads, never over all of them together.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -2214,19 +2214,37 @@ _Additional properties are not permitted._
 
 ### `LintResult`
 
-What the convention check found, counted by severity and listed per document.
+What the convention check found, counted by severity and listed per document. A whole-catalog check that ran once for each Release also carries passes; the counts and files then cover every pass together.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `entity` | string | no | The one entity that was checked, where the request named one. |
 | `release` | string | no | The Release whose closure was checked, where the request named one. |
-| `checked` | integer | yes | How many documents were checked. |
+| `checked` | integer | yes | How many documents were checked. Where the check ran once for each Release, the sum over the passes: a document two passes read is counted in each. |
 | `findings` | integer | yes | How many findings there are in total. |
 | `errors` | integer | yes | How many of them are errors. |
 | `warnings` | integer | yes | How many of them are warnings. |
 | `infos` | integer | yes | How many of them are informational. |
 | `files` | array or null | yes | The findings, per document. |
 | `halted` | boolean | yes | Whether the check stopped rather than finishing with findings. |
+| `passes` | array or null | no | The whole-catalog check one pass at a time, present only where it ran once for each Release because the workspace names Releases under workspace.releases. Each pass says which Releases its findings were found for. Absent for a workspace that names none, which is checked once over its own directories, and for a check of one entity or of a Release's closure. |
+
+_Additional properties are not permitted._
+
+### `LintPass`
+
+One pass of a whole-catalog convention check in a workspace that gives its Releases catalog directories of their own: the Releases it was run for, the directories it read, and what it found there.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `releases` | array or null | yes | The Releases the pass was run for, each as a path relative to the workspace root. Releases that read the same catalog directories share one pass. |
+| `catalogDirs` | array or null | yes | The catalog directories the pass read, in the order they are searched, each relative to the workspace root where it lies inside it. Empty where its Releases read no catalog directory, so the pass checked nothing and failed none of the others. |
+| `checked` | integer | yes | How many documents the pass checked. |
+| `findings` | integer | yes | How many findings the pass found. |
+| `errors` | integer | yes | How many of them are errors. |
+| `warnings` | integer | yes | How many of them are warnings. |
+| `infos` | integer | yes | How many of them are informational. |
+| `files` | array or null | yes | The pass's findings, per document. |
 
 _Additional properties are not permitted._
 

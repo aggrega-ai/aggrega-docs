@@ -12,7 +12,22 @@ The entity path may be given positionally or with `--entity <path>`. `--release`
 
 `aggrega lint` with no argument runs the structural publishing-discipline rules over every catalog entity found under the configured catalog directories. Findings are advisory — reported at `warn` severity, they never halt on a convention finding alone. Use it to sweep a catalog for naming, category-directory, and annotation-prefix drift.
 
-Whole-catalog conventions checking needs at least one catalog directory to scan: pass `--catalog` or set `workspace.catalog_dirs` in `.aggrega-config.yaml`. It refuses to enumerate the current working directory implicitly.
+Which directories it reads depends on the shape of the workspace:
+
+- **A workspace whose configuration gives no Release catalog directories of its own** is checked once, over its search stack: the `--catalog` directories, then `workspace.catalog_dirs`, then the `catalog` directory at the workspace root when there is one.
+- **A workspace that names Releases under `workspace.releases`** may keep a catalog in several variants side by side, each read by its own Release, and a single pass over all of them would read every variant at once — one variant's entity shadowing another's. So it is checked once for each Release the workspace holds, over the directories that Release reads, with the `--catalog` directories first in every pass; a Release the configuration does not name reads the workspace's list. Each pass is reported under a line naming its Release and the directories it read, with that pass's findings and its own summary after it:
+
+  ```
+  Release release-compose.yaml reads catalog-compose
+  conventions checked: 7 entities, 0 advisory finding(s)
+
+  Release release-helm-synth.yaml reads catalog-helm-synth
+  conventions checked: 8 entities, 0 advisory finding(s)
+  ```
+
+  Releases that read exactly the same directories share one pass, which names each of them, so a finding there is reported once. A Release that reads no directory — its entry writes `catalog_dirs: []` — is reported as having nothing to check, and the other passes run as usual. With `-o json`, the document also carries `passes`: each pass's `releases`, `catalogDirs`, `findings` and `summary`, while the top-level `findings` and `summary` cover every pass together. The Releases a workspace holds are its Release documents — YAML files whose `kind` is `Release`, anywhere under the workspace root outside hidden directories and `node_modules`, `vendor` and `dist`.
+
+A run with nothing to read in any pass is refused rather than reported as a clean catalog: put the entities under `catalog/`, pass `--catalog`, or set `workspace.catalog_dirs` — or, in a workspace that names Releases, a Release's own `catalog_dirs` under `workspace.releases`. It never enumerates the current working directory implicitly.
 
 ## Conventions across a Release (`--release`)
 
@@ -151,9 +166,14 @@ Three invocation shapes, mirroring validate:
   aggrega lint <entity>           publishing discipline for one entity
 
 Without an entity argument, lint runs the structural conventions rules
-over every catalog entity found under the catalog directories. With
---release it runs them over the entities that Release's closure reaches.
-In both, findings are advisory (warn severity) and never halt.
+over every catalog entity found under the catalog directories. Where the
+workspace configuration gives its Releases catalog directories of their own
+under workspace.releases, it runs them once for each Release, over the
+directories that Release reads, and reports each pass under a line naming
+its Releases and those directories; Releases reading the same directories
+share one pass. With --release it runs them over the entities that
+Release's closure reaches. In both, findings are advisory (warn severity)
+and never halt.
 
 With an entity path, lint runs the publishing-linter rule set against
 that one entity. In default mode the rules run at warn severity over

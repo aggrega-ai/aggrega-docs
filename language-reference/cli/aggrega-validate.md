@@ -20,7 +20,24 @@ An entity path may be given positionally. `--release` given beside an entity pat
 
 This is the catalog-wide counterpart to a build's per-Release validation — the place a broken catalog entity is meant to surface, before any Release reaches it. It halts loudly on any schema-pillar violation, unresolvable or invalid library, `extends`-resolution failure, location collision, or input-kind capability error. Schema-pillar-overlap and narrowing-on-extend findings are advisory `notice:` lines that never change the exit code.
 
-Whole-catalog validation needs at least one catalog directory to scan: pass `--catalog` or set `workspace.catalog_dirs` in `.aggrega-config.yaml`. It refuses to enumerate the current working directory implicitly, so it never pulls in unrelated trees.
+Which directories it reads depends on the shape of the workspace:
+
+- **A workspace whose configuration gives no Release catalog directories of its own** is validated once, over its search stack: the `--catalog` directories, then `workspace.catalog_dirs`, then the `catalog` directory at the workspace root when there is one.
+- **A workspace that names Releases under `workspace.releases`** may keep a catalog in several variants side by side, each read by its own Release, and loading them all at once would put every variant in one catalog, one variant's entity shadowing another's. So it is validated once for each Release the workspace holds, over the directories that Release reads, with the `--catalog` directories first in every pass; a Release the configuration does not name reads the workspace's list. Each pass is reported under a line naming its Release and the directories it read, followed by that pass's result:
+
+  ```
+  Release release-compose.yaml reads catalog-compose
+  catalog validation passed (schema-pillar + library + extends + oci-location)
+
+  Release release-helm-synth.yaml reads catalog-helm-synth
+  catalog validation passed (schema-pillar + library + extends + oci-location)
+  ```
+
+  Releases that read exactly the same directories share one pass, which names each of them. A Release that reads no directory — its entry writes `catalog_dirs: []` — is reported as having nothing to check, and the other passes run as usual. Every pass is reported whatever an earlier one found, since a broken entity in one variant says nothing about another, and the command fails when any pass fails, naming the Releases whose directories failed. The Releases a workspace holds are its Release documents — YAML files whose `kind` is `Release`, anywhere under the workspace root outside hidden directories and `node_modules`, `vendor` and `dist`.
+
+A run with nothing to read in any pass is refused rather than reported as a clean catalog: put the entities under `catalog/`, pass `--catalog`, or set `workspace.catalog_dirs` — or, in a workspace that names Releases, a Release's own `catalog_dirs` under `workspace.releases`. It never enumerates the current working directory implicitly, so it never pulls in unrelated trees.
+
+The `validate` tool of [`aggrega mcp`](./aggrega-mcp.md), asked for the whole catalog, validates the same passes; in a workspace that names Releases its answer carries each one under `passes` — the Releases, the directories read and that pass's own verdict — beside the verdict over all of them.
 
 ## Release-scoped correctness (`--release`)
 
@@ -264,7 +281,12 @@ Check CORRECTNESS across three symmetric scopes.
 
 With no argument, validate checks the WHOLE catalog: schema-pillar
 structure, cross-document library resolution, extends chains, and provider
-input-kind capabilities, over every catalog entity.
+input-kind capabilities, over every catalog entity. Where the workspace
+configuration gives its Releases catalog directories of their own under
+workspace.releases, it checks the catalog once for each Release, over the
+directories that Release reads, and reports each pass under a line naming
+its Releases and those directories; Releases reading the same directories
+share one pass.
 
 With --release, validate checks the entities a Release's dependency closure
 reaches: closure-scoped pillars, extends, and pre-render authored-value
