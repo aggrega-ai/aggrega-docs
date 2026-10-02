@@ -2208,6 +2208,23 @@ The attachment arm names the feature type in place of the component type; an att
 
 **How to fix:** on an attachment, correct the socket name to one the attached Feature declares, or declare that socket in the Feature's `usesSchema`. On a Release per-edge entry, correct the socket name to one the consuming Component declares — a Release cannot introduce a socket the Component does not declare, and moving the declaration into the catalog entity is the supported path. If the catalog entity declares no `usesSchema` at all, it accepts no `uses:` declarations on that surface — remove the block.
 
+### A connection carries an attachment under a name its socket declares no slot for
+
+<!-- covers: pkg/resolver.ErrConnectionAttachmentSlotUndeclared -->
+
+A connection entry's `features:` block names an attachment that no slot of the connection's socket declares. The attachments a connection carries are a closed set: the socket the connection is wired through declares, in a `featuresSchema` on the consuming Component's `usesSchema` entry, every slot a connection on it may fill, and an attachment under any other name is refused when the build loads. A socket that declares no `featuresSchema` admits no attachment on its connections, and neither does a socket the Aggregate names without the Component declaring it — such a socket declares no slots.
+
+The rule holds on both documents that write a connection's attachments: the Aggregate's connection entry under a component's `uses:`, and the Release's per-edge `uses:` entry. For a component a sub-aggregate contributes, the check runs once the sub-aggregate's own document has been read, and the finding names that document's file and the component's entry in it. A Release entry on a socket the Component does not declare is reported by the undeclared-socket halt above, which lists the sockets that do exist, rather than by this one.
+
+Emitted message. The refusal comes first, then the document and the entry, the attachment's name, the connection, the socket, the component and the slots the socket declares — then what to do about it:
+> a connection carries an attachment under a name its socket declares no slot for (Aggregate `<aggregate-name>`, at `.spec.components.<component>.uses.<socket>.<alias>`, `"<attachment>"`, on the connection `"<alias>"`, through socket `"<socket>"`, of component `"<component>"`, the socket declaring the slots `"<slots>"`). Write the attachment under one of the slots the socket declares, or declare this slot in the socket's featuresSchema on the Component.
+
+Where the socket declares no slots, the list is absent and the advice reads "The socket declares no slots, so no connection wired through it carries an attachment: remove the attachment, or declare the slot in the socket's featuresSchema on the Component." Where the Component does not declare the socket at all, it reads "The component's type does not declare this socket, so the socket declares no slots and no connection wired through it carries an attachment: remove the attachment, or declare the socket and its slot in the Component's usesSchema."
+
+Every offending attachment is reported as its own finding, so one build names them all.
+
+**How to fix:** write the attachment under a slot the socket declares; or, if the connection needs a slot the socket does not have, declare it in the socket's `featuresSchema` on the Component. On a socket the Component does not declare, declare the socket and its slot in the Component's `usesSchema`, or remove the attachment.
+
 ### Release retargets a developer-declared edge
 
 <!-- covers: internal/compiler/topology.ErrReleaseEdgeRetarget -->
@@ -5133,6 +5150,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0312` | `a provider socket binding names a capability containing a colon, which no Recipe can select` | A provider binding names a capability containing a colon |
 | `E0313` | `plugins.providers entry names a capability no provider-rendering plugin the build reads serves` | A provider binding names a capability no plugin the build reads serves |
 | `E0314` | `plugin was built from a working tree with uncommitted changes, so no commit reproduces the version it reports` | A plugin was built from a working tree with uncommitted changes |
+| `E0315` | `a connection carries an attachment under a name its socket declares no slot for` | A connection carries an attachment under a name its socket declares no slot for |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

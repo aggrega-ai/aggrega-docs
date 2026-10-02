@@ -249,6 +249,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrAnnotationSubkeyNotConforming()` | `annotation-subkey-not-conforming` | `annotation subkey does not conform to the target Feature's schema at the routed pillar` |
 | `ErrAttachmentSlotNearMiss()` | `attachment-slot-near-miss` | `attachment name is a near miss for a declared slot` |
 | `ErrAttachmentSlotShape()` | `attachment-slot-shape` | `attachment does not conform to its declared slot shape` |
+| `ErrConnectionAttachmentSlotUndeclared()` | `connection-attachment-slot-undeclared` | `a connection carries an attachment under a name its socket declares no slot for` |
 | `ErrDuplicateBoundaryComponent()` | `duplicate-boundary-component` | `component declared in more than one boundary: declare each component in exactly one boundary` |
 | `ErrDuplicateTriadIdentity()` | `duplicate-triad-identity` | `duplicate Aggregate/Manifest identity (metadata.name) in the Release directory` |
 | `ErrFeatureMergeConflict()` | `feature-merge-conflict` | `feature merge conflict: reconcile the Aggregate and Release declarations for the feature` |
@@ -749,6 +750,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0312` | `colon-in-provider-binding-capability` | `a provider socket binding names a capability containing a colon, which no Recipe can select` |
 | `E0313` | `provider-binding-capability-unserved` | `plugins.providers entry names a capability no provider-rendering plugin the build reads serves` |
 | `E0314` | `plugin-built-from-uncommitted-changes` | `plugin was built from a working tree with uncommitted changes, so no commit reproduces the version it reports` |
+| `E0315` | `connection-attachment-slot-undeclared` | `a connection carries an attachment under a name its socket declares no slot for` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication no longer judges a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.

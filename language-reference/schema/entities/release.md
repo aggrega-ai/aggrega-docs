@@ -79,13 +79,25 @@ _Additional properties are not permitted._
 
 ### `release_uses_block`
 
-Release-authored per-edge uses surface, socket-keyed then alias-keyed (mirroring the Aggregate uses topology shape). Each connection may set target (to create an edge into a declared-but-unbound socket, pointing at an existing component) and/or infra (per-edge operator config, validated against the socket infraSchema by the conformance gate at resolution). values is forbidden (the Release values: ban); retargeting a developer-declared edge is a loud guardrail at build.
+Release-authored per-edge uses surface, socket-keyed then alias-keyed (mirroring the Aggregate uses topology shape). Each connection may set target (to create an edge into a declared-but-unbound socket, pointing at an existing component), infra (per-edge operator config, validated against the socket infraSchema by the conformance gate at resolution) and features (attachments filling the slots the socket declares), in any combination. values is forbidden (the Release values: ban); retargeting a developer-declared edge is a loud guardrail at build.
 
 **Keys:** one or more letters, digits, underscores or hyphens. A dot is not permitted. Pattern: `^[a-zA-Z0-9_-]+$`.
 
 Values are `map of object`.
 
 _Any other key is not permitted._
+
+### `release_connection_attachment`
+
+One attachment a Release connection entry carries: the Feature filling a slot the connection's socket declares, with the operator's sizing for it.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `type` | string | no | The URI of the Feature. Required for an attachment only the Release makes. Must match the Aggregate's type if both declare it. |
+| `description` | string | no | Optional documentation explaining why the Operator attached this feature to the connection. |
+| `infra` | object | no | Operational sizing for this attachment, validated by the Feature's schema declaration. |
+
+_Additional properties are not permitted._
 
 ### `aggregate_routing`
 
