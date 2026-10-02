@@ -81,9 +81,9 @@ Values an author declared sensitive are withheld from the graph, in the structur
 
 A **Component or Feature** stops there: schema envelope, shape, and pillar structure. A lone Component has no authored `values` or `infra` to render in isolation, so there is nothing to render — its correctness is fully covered by the schema-and-pillar tiers.
 
-A **Recipe** additionally **renders in isolation**. This is one facet of single-entity correctness, not its headline: after the schema and shape tiers pass, validate resolves the Recipe's `implements` Component from the catalog, synthesizes a minimal Aggregate, Manifest and Release around a single instance of that Component bound to the Recipe under test, and drives the real compilation pipeline over it — first resolution and guards (with render skipped), then a real render of the isolated output. Each required value and each required infra field that carries no default is filled with a placeholder of its declared type — the values in the synthesized Aggregate, the infra in the synthesized Release — and every other value and infra field takes its schema default through the resolver; the Release routes the instance into a synthesized default boundary and declares no `values:` and no compute the Aggregate did not declare. The rendered artifacts are printed so an author sees the isolated output before wiring the entity into a full Aggregate. Because a single-entity harness fills only those required fields and supplies no attached credential or topology edge, a Recipe whose template reads a value delivered only by such an input cannot render in isolation; validate reports that the render did not complete and surfaces the underlying render diagnostic down to the sentence that names what stopped it, which is a genuine finding tempered by the harness's deliberate minimalism.
+A **Recipe** additionally **renders in isolation**. This is one facet of single-entity correctness, not its headline: after the schema and shape tiers pass, validate resolves the Recipe's `implements` Component from the catalog, synthesizes a minimal Aggregate, Manifest and Release around a single instance of that Component bound to the Recipe under test, and drives the real compilation pipeline over it — first resolution and guards (with render skipped), then a real render of the isolated output. Each required value and each required infra field that carries no default is filled with a placeholder of its declared type — the values in the synthesized Aggregate, the infra in the synthesized Release — and every other value and infra field takes its schema default through the resolver; the Release routes the instance into a synthesized default boundary and declares no `values:` and no compute the Aggregate did not declare. The rendered artifacts are printed so an author sees the isolated output before wiring the entity into a full Aggregate. Because a single-entity harness fills only those required fields, wires no connection and attaches no Feature, a Recipe whose templates read a value only a connection or an attached Feature delivers cannot render in isolation; validate reports such a render as not attempted rather than failed. A render that stops for any other reason did not complete, and validate reports it with the underlying render diagnostic down to the sentence that names what stopped it.
 
-A Recipe whose `source:` has to be **fetched** is the one case where that render is not attempted at all — see [what single-entity correctness does not check](#what-single-entity-correctness-does-not-check) below.
+A Recipe whose `source:` has to be **fetched** is not rendered at all, and a Recipe whose render stops while it reads a value only a connection or an attached Feature supplies has that render set aside — see [what single-entity correctness does not check](#what-single-entity-correctness-does-not-check) below.
 
 A **FeatureRecipe** is schema- and shape-checked; its render is skipped, because a FeatureRecipe renders only when attached to a host component, and synthesizing a guard-passing host for an arbitrary Feature is not attempted.
 
@@ -164,7 +164,7 @@ A whole-catalog run reads only what sits inside the configured catalog directori
 
 ### What single-entity correctness does not check
 
-Three checks of a real build are out of reach for a build of one, and validate declines each rather than reporting a finding it cannot stand behind.
+Four checks of a real build are out of reach for a build of one, and validate declines each rather than reporting a finding it cannot stand behind.
 
 #### A source that has to be fetched
 
@@ -220,9 +220,45 @@ Attachments: required attachment slots not checked (root_password)
   slots is filled is checked when a Release that deploys the Component is built.
 ```
 
-The line appears only when the Component declares at least one required slot, and it names only the required ones; a Recipe whose Component declares none produces no such line. Only the requirement is set aside: a slot's label constraint and its permitted delivery mechanisms are kept as declared, and a fault of the Recipe's own — a template that does not parse, a Workload the provider cannot synthesize — still fails the run.
+The line appears only when the Component declares at least one required slot, and it names only the required ones; a Recipe whose Component declares none produces no such line. Only the requirement is set aside: a slot's label constraint and its permitted delivery mechanisms are kept as declared. A template that does not parse still fails the run, and so does a fault of the Recipe's own such as a Workload the provider cannot synthesize — unless the Recipe also reads a value only a connection or an attached Feature supplies, as [the next section](#a-value-only-a-connection-or-an-attached-feature-supplies) describes.
 
 The rule is asked where it can be answered. [`aggrega pull`](./aggrega-pull.md), [`aggrega build`](./aggrega-build.md) and `aggrega validate --release` evaluate it over the Release's real attachments, and each halts on a required slot nothing fills.
+
+#### A value only a connection or an attached Feature supplies
+
+The fourth is whether a Recipe renders once its connections and its attached Features supply what its templates read.
+
+A Recipe's templates read what a connection delivers under `.context.inject` and `.context.uses`, and what an attached Feature delivers under `.features`. The synthesized harness wires no connection and attaches no Feature, so every such read finds nothing: a read under `.context.inject.env` meets an empty delivery pipe, and a `range` over `.context.uses` meets no connection. Validate renders the Recipe first, and a render that completes is reported as usual. When the render stops and the Recipe's templates — the files and library entries they import included — read anything under those three, validate reports the render as not attempted, names the values the Recipe reads there, prints the sentence the render stopped on, and exits `0`. The chart variant of the [MariaDB + Adminer example](../examples/mariadb-adminer/) reads its database credentials from the delivery pipe its two attached secrets fill:
+
+```
+$ aggrega validate catalog-helm-chart/recipe/helm-chart/mariadb-chart/1.0.0/recipe.yaml --release release-helm-chart.yaml
+Entity: catalog-helm-chart/recipe/helm-chart/mariadb-chart/1.0.0/recipe.yaml
+Kind:   Recipe
+Schema: valid
+Shape:  valid
+Attachments: required attachment slots not checked (root_password)
+  Validating a Recipe on its own places its Component in a build that attaches
+  no Feature, so nothing exists to fill a required slot. Whether each of these
+  slots is filled is checked when a Release that deploys the Component is built.
+Resolution: valid
+Render: not attempted (this Recipe reads values a build of one cannot supply)
+  Validating a Recipe on its own places its Component in a build that wires
+  no connection and attaches no Feature, so nothing supplies what its
+  templates read under .context.inject, .context.uses or .features. Its
+  render stopped, and whether on one of those values or on a fault of its
+  own is not judged here. To render it, build a Release that deploys a
+  component this Recipe implements.
+  Reads: .context.inject.env.MARIADB_PASSWORD, .context.inject.env.MARIADB_ROOT_PASSWORD
+  The render stopped: rendering: [CATALOG_ERROR] instance: rendering node "instance": [CATALOG_ERROR] catalog-helm-chart/recipe/helm-chart/mariadb-chart/1.0.0/recipe.yaml: recipe "mariadb-chart" valuesMapping: [CATALOG_ERROR] valuesMapping[mariadb-chart]: template "valuesMapping[mariadb-chart]" execute: template: valuesMapping[mariadb-chart]:7:30: executing "valuesMapping[mariadb-chart]" at <.context.inject.env.MARIADB_ROOT_PASSWORD>: nil pointer evaluating interface {}.MARIADB_ROOT_PASSWORD
+```
+
+A read that finds nothing and stops nothing is not set aside: a `range` over `.context.uses` that renders nothing, in a render that completes, is reported as the render it was.
+
+**What decides it is what the Recipe reads, not what the render stopped on**, and that has a consequence worth knowing before you meet it: a fault of the Recipe's own in a Recipe that also reads such a value — a misspelled key, say — is reported as not attempted along with the rest, not as a failure. The `The render stopped:` line carries the render's own sentence so you can see which it was, and a build of a Release that deploys the Component judges the render in full.
+
+Three faults still fail the run whatever the Recipe reads, because no connection or Feature changes them: a template that does not parse, a reference the render refuses — a root the render context does not define, or a mistyped key beneath one whose shape is fixed, such as `.context.instance_idd` — and an assertion the Recipe declares that calls `fail`. An assertion over a value a Release sets, such as an image or a prerequisite's presence, therefore fails every check of the Recipe on its own: that failure is the Recipe stating what a Release has to provide. A Recipe whose templates read none of the three has its render judged as before, and a render that stops fails with the sentence naming the cause.
+
+The [`validate` tool of `aggrega mcp`](./aggrega-mcp.md) gives the same verdict on the same Recipe: a render set aside this way answers as valid with nothing in its diagnostics, and the lines above are in the text it returns beside them.
 
 The single-entity mode's catalog load is tolerant: an unrelated broken entity elsewhere in the catalog is skipped rather than aborting the check, so it never blocks validating the target in isolation.
 
@@ -306,7 +342,14 @@ render of its output are all exercised. Where that Recipe's source is one
 that has to be fetched, the render is reported as not attempted instead:
 validating one entity on its own reads no lockfile, reads and writes no cache
 and makes no network request, so the chart or module it names is never
-retrieved and there is nothing to render from. Any other kind is refused here
+retrieved and there is nothing to render from. A render that stops while the
+Recipe's templates read what only a connection or an attached Feature
+supplies — anything under .context.inject, .context.uses or .features — is
+reported as not attempted too: the generated harness wires no connection and
+attaches no Feature, so that render cannot be judged there, and a fault of
+the Recipe's own beside such a read is set aside with it. A template that
+does not parse, a reference the render refuses and a Recipe assertion that
+calls fail still fail. Any other kind is refused here
 today, and the refusal names the scope that checks it instead: a whole-catalog
 run reaches an Aggregate and the library kinds when they sit in a catalog
 directory, and --release reaches a Release, the Manifest it names and the
