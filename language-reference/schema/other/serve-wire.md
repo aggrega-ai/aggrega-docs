@@ -668,6 +668,7 @@ Answers where the thing under the cursor is defined.
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `uri` | string | no | The document the cursor is in. |
 | `position` | Position | no | A place in a document: a line and a character offset within it, both counted from zero. The offset is measured in the units of the encoding the session settled on when it was opened, which is UTF-16 unless the client asked for another. |
+| `release` | string | no | The Release to answer in the terms of, as a path relative to the workspace root. The definition is then the document the reference resolves to through the catalog directories the workspace configuration gives that Release, in that order, so a name several variants in one workspace declare, one per Release, goes to that Release's variant; where those directories declare no such entity, the workspace's documents are searched, leaving out any under one of the workspace's catalog directories the Release does not read. Absent, the workspace's documents are searched first and the workspace's own catalog directories only where no document declares the name. A value that names no Release file is refused. |
 
 _Additional properties are not permitted._
 
@@ -681,6 +682,7 @@ Answers where the thing under the cursor is referred to.
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `uri` | string | no | The document the cursor is in. |
 | `position` | Position | no | A place in a document: a line and a character offset within it, both counted from zero. The offset is measured in the units of the encoding the session settled on when it was opened, which is UTF-16 unless the client asked for another. |
+| `release` | string | no | The Release to answer in the terms of, as a path relative to the workspace root. A reference made in a document under one of the workspace's catalog directories that the Release does not read is then not reported, so variants a workspace keeps side by side, one per Release, are never reported as one another's references. Absent, every workspace document is searched. A value that names no Release file is refused. |
 
 _Additional properties are not permitted._
 
@@ -694,6 +696,7 @@ Answers which documents implement the thing under the cursor.
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `uri` | string | no | The document the cursor is in. |
 | `position` | Position | no | A place in a document: a line and a character offset within it, both counted from zero. The offset is measured in the units of the encoding the session settled on when it was opened, which is UTF-16 unless the client asked for another. |
+| `release` | string | no | The Release to answer in the terms of, as a path relative to the workspace root. A document under one of the workspace's catalog directories that the Release does not read is then not reported, so a variant another Release builds with is never listed among this Release's. Absent, every workspace document is searched. A value that names no Release file is refused. |
 
 _Additional properties are not permitted._
 
@@ -707,6 +710,7 @@ Answers with what to show about the thing under the cursor.
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `uri` | string | no | The document the cursor is in. |
 | `position` | Position | no | A place in a document: a line and a character offset within it, both counted from zero. The offset is measured in the units of the encoding the session settled on when it was opened, which is UTF-16 unless the client asked for another. |
+| `release` | string | no | The Release to answer in the terms of, as a path relative to the workspace root. The entity shown is then the one the reference resolves to through the catalog directories the workspace configuration gives that Release, in that order; where those directories declare no such entity, the workspace's documents are searched, leaving out any under one of the workspace's catalog directories the Release does not read. Absent, the workspace's documents are searched first and the workspace's own catalog directories only where no document declares the name. A value that names no Release file is refused. |
 
 _Additional properties are not permitted._
 
@@ -721,6 +725,7 @@ Answers with what may be written at the cursor.
 | `uri` | string | no | The document the cursor is in. |
 | `position` | Position | no | A place in a document: a line and a character offset within it, both counted from zero. The offset is measured in the units of the encoding the session settled on when it was opened, which is UTF-16 unless the client asked for another. |
 | `context` | CompletionContext | no | What caused the request, where the client tracks it. |
+| `release` | string | no | The Release to answer in the terms of, as a path relative to the workspace root. The names offered are then those the workspace's documents declare, less the documents under one of the workspace's catalog directories that the Release does not read, together with the Components and Features the catalog directories the workspace configuration gives that Release declare. Absent, they are the workspace's documents and the Components and Features its own catalog directories declare. A value that names no Release file is refused. |
 
 _Additional properties are not permitted._
 
