@@ -1855,7 +1855,7 @@ Emitted message. The condition's own sentence opens it, and every collected disa
 > lockfile: out of date; it no longer matches what its Release resolves to: entity `"<uri>"` not in lockfile
 > `<axis>` `"<uri>"` changed: lockfile=(`<version>`,`<digest>`) current=(`<version>`,`<digest>`)
 > `<axis>` `"<uri>"` no longer used by the release
-> release document `"<file>"` was edited after the lockfile was written: its content no longer matches the recorded digest (lockfile=`<digest>` current=`<digest>`), so the pins may no longer describe what it asks for; run `aggrega pull --release <release>` to resolve the Release as it now stands and record it
+> release document `"<file>"` was edited after the lockfile was written: its content no longer matches the recorded digest (lockfile=`<digest>` current=`<digest>`), so the pins may no longer describe what it asks for; re-resolving the Release records the files it reads as they now stand
 
 A pull reporting a moved source reference names the artifact as its author wrote it, with `chart=` and `module_subdir=` where the source names them:
 > source-artifact kind=`<kind>` url=`<url>`: reference `"<ref>"` moved — the lockfile pins `<commit>`, and it now resolves to `<commit>`. Adopt where it now points with `aggrega pull --upgrade --release <release>`

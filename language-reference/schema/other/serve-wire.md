@@ -750,7 +750,7 @@ Answers which Features may be attached to an entity, judged against that entity'
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `node` | string | no | The entity to judge candidates against, by name, read from what the workspace documents declare. |
 | `graphNode` | string | no | The graph node to judge candidates against, whose labels are the finalised set the build itself evaluates applicability with. An answer computed over this says what the build will do. |
-| `release` | string | no | The Release whose graph the node belongs to, as a path relative to the workspace root. |
+| `release` | string | no | The Release whose graph the node belongs to, as a path relative to the workspace root. The candidates are then drawn in that Release's terms: the Features the catalog directories the workspace configuration gives that Release declare, and the workspace's documents less any under one of the workspace's catalog directories the Release does not read, so a Feature kept for another Release is never offered for a node of this one's graph. |
 | `labels` | map of string | no | Labels to judge against directly, in place of reading them from an entity or a graph node. |
 
 _Additional properties are not permitted._
