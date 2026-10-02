@@ -86,6 +86,24 @@ Pillars: valid
 
 and fails, naming the library it could not resolve, in the terms of a Release whose directories do not carry it — `--release release-compose.yaml`, or no `--release` at all in a workspace that lists no catalog directories of its own.
 
+A Recipe is checked the same way. The synth variant's Recipe implements `core/datastore/mariadb`, which the workspace's own catalog directories do not hold, so given alone it fails with `render: implements target "core/datastore/mariadb" not found in catalog`. Given the Release that builds with it, it resolves that Release's Component and renders in isolation:
+
+```
+$ aggrega validate catalog-helm-synth/recipe/helm/mariadb-synth/1.0.0/recipe.yaml --release release-helm-synth.yaml
+Entity: catalog-helm-synth/recipe/helm/mariadb-synth/1.0.0/recipe.yaml
+Kind:   Recipe
+Schema: valid
+Shape:  valid
+Attachments: required attachment slots not checked (root_password)
+  Validating a Recipe on its own places its Component in a build that attaches
+  no Feature, so nothing exists to fill a required slot. Whether each of these
+  slots is filled is checked when a Release that deploys the Component is built.
+Resolution: valid
+Render: 3 artifact(s)
+```
+
+followed by the three rendered artifacts. Every variant of that example declares `core/datastore/mariadb`, so the Recipe validates in the terms of each of its four Releases; in the terms of a Release whose catalog directories hold no such Component it fails naming the target, as it does with no `--release`. The `Attachments:` lines are explained under [a required attachment slot](#a-required-attachment-slot).
+
 This is still the single-entity scope. The checks, the report and the exit code are the ones this section describes, and no closure is validated: `--release` names the Release whose catalog directories the entity's references are read through, not a closure to check, which is why `--ir-graph` is refused beside an entity path. A `--release` naming a file that does not exist, or naming a directory, is refused before anything is checked.
 
 ### Placeholders still owed
@@ -129,7 +147,7 @@ A whole-catalog run reads only what sits inside the configured catalog directori
 
 ### What single-entity correctness does not check
 
-Two checks of a real build are out of reach for a build of one, and validate declines each rather than reporting a finding it cannot stand behind.
+Three checks of a real build are out of reach for a build of one, and validate declines each rather than reporting a finding it cannot stand behind.
 
 #### A source that has to be fetched
 
@@ -171,6 +189,23 @@ Sockets: required uses sockets not checked (backend, cache, registry)
 The line appears only when the Component declares at least one required socket, and it names only the required ones — an optional socket is never listed, because leaving it unwired is not a finding at any scope. A Recipe whose Component declares no required socket produces no such line, and its report is unchanged.
 
 The rule itself is neither relaxed nor duplicated; it is asked at the scope that can answer it. [`aggrega build`](./aggrega-build.md) applies it in full over the Aggregate's and the Release's edge surfaces together, and halts on a required socket nothing wires. So a Recipe that passes single-entity validation still has to satisfy the required-socket rule when its Component is deployed, and the report says so rather than leaving a silent difference between what validate checked and what a build will.
+
+#### A required attachment slot
+
+The third is whether the `implements` Component's `required: true` attachment slots — the named binding points its `featuresSchema` declares — are filled.
+
+A required slot is filled by attaching a Feature at that name, on the component or at a scope above it, and that attachment is written where the Component is deployed — in the Aggregate or the Release — not in the Recipe. The synthesized harness attaches no Feature, so nothing it builds can fill such a slot. Validate therefore names the slots it did not check and continues through resolution and render, exactly as it does for required sockets:
+
+```
+Attachments: required attachment slots not checked (root_password)
+  Validating a Recipe on its own places its Component in a build that attaches
+  no Feature, so nothing exists to fill a required slot. Whether each of these
+  slots is filled is checked when a Release that deploys the Component is built.
+```
+
+The line appears only when the Component declares at least one required slot, and it names only the required ones; a Recipe whose Component declares none produces no such line. Only the requirement is set aside: a slot's label constraint and its permitted delivery mechanisms are kept as declared, and a fault of the Recipe's own — a template that does not parse, a Workload the provider cannot synthesize — still fails the run.
+
+The rule is asked where it can be answered. [`aggrega pull`](./aggrega-pull.md), [`aggrega build`](./aggrega-build.md) and `aggrega validate --release` evaluate it over the Release's real attachments, and each halts on a required slot nothing fills.
 
 The single-entity mode's catalog load is tolerant: an unrelated broken entity elsewhere in the catalog is skipped rather than aborting the check, so it never blocks validating the target in isolation.
 
