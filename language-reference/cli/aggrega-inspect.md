@@ -76,6 +76,16 @@ A file whose `kind:` is unrecognized reports the unknown kind and the file it ca
 
 The catalog search stack is assembled with a layered precedence: `--catalog` flags (prepended, in order) come first, then the workspace's `catalog_dirs` from `.aggrega-config.yaml` — for a Release the configuration gives directories of its own under `workspace.releases`, that Release's in their place — then the `catalog` directory at the workspace root, which is read whether or not anything names it. A workspace whose `catalog_dirs` is written as an empty list reads no local catalog at all. The stack is first-win — the earliest directory to declare an entity identity owns it; a later directory's copy is shadowed. The catalog branch resolves the identifier against this stack across every entity kind, in a fixed precedence, and renders the first match through that kind's own view; the file and release branches load referenced catalog entities from it when a Manifest mapping or `extends:` parent must be resolved.
 
+### Looking a name up in a Release's terms
+
+A name given on its own is looked up in the workspace's own stack. Give `--release <release-path>` beside it and the name is looked up in that Release's stack instead — the directories the workspace configuration gives that Release, with any `--catalog` prepended — which is what a build of that Release reads. A workspace that keeps one catalog variant per Release, each declaring the same entity, therefore answers a name with the variant that Release builds with:
+
+```
+aggrega inspect core/datastore/mariadb --release release-helm-synth.yaml
+```
+
+A name that Release's stack does not resolve is refused, and the account of where local entities are read from names that Release's entry under `workspace.releases`, since that entry is what the lookup read. `--release` chooses the stack a name is looked up in, so it applies to a name alone: a file path and a registry reference are read as they stand and refuse it. A `--release` naming a file that does not exist, or naming a directory, is refused before anything is looked up.
+
 ## Reading a published entity
 
 `aggrega inspect oci://<host>/<repository>:<tag>` reads the entity published at that coordinate; `@<digest>` in place of `:<tag>` names one manifest exactly. It is how you look at an entity that exists only in a registry — the repository is the kind segment followed by the entity's identity, as [Catalog and Registry](../../architecture/13-catalog-and-registry.md) §6 lays out, and `aggrega push` prints the reference it published at, which reads here with `oci://` in front of it.

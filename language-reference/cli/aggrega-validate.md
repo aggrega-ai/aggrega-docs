@@ -6,7 +6,7 @@ Correctness is distinct from conventions. `aggrega validate` asks whether conten
 
 `aggrega validate` writes nothing to disk and reads no runtime state. It runs the same resolution and validation a build runs, stopping before (or, for a single entity, isolating) the render.
 
-An entity path may be given positionally. `--release` is mutually exclusive with an entity argument — they select different closures; passing both halts.
+An entity path may be given positionally. `--release` given beside an entity path does not select the Release scope: the entity is still checked on its own, in that Release's terms — see [Checking an entity in a Release's terms](#checking-an-entity-in-a-releases-terms).
 
 ## Whole-catalog correctness (no argument)
 
@@ -70,6 +70,24 @@ A Recipe whose `source:` has to be **fetched** is the one case where that render
 
 A **FeatureRecipe** is schema- and shape-checked; its render is skipped, because a FeatureRecipe renders only when attached to a host component, and synthesizing a guard-passing host for an arbitrary Feature is not attempted.
 
+### Checking an entity in a Release's terms
+
+A workspace may give each Release catalog directories of its own — see [Giving a Release its own catalog directories](configuration.md#giving-a-release-its-own-catalog-directories) — and so keep one catalog variant per Release side by side. An entity path given on its own is checked over the workspace's own catalog directories, where a reference into one of those variants — the Component a Recipe implements, a SchemaLibrary a pillar refers to — is not found. Give `--release` beside the entity path and the same checks run in that Release's terms: the entity's references resolve through the catalog directories the workspace configuration gives that Release, with any `--catalog` prepended, which are the directories a build of that Release reads.
+
+The [MariaDB + Adminer example](../examples/mariadb-adminer/) keeps four such variants. Its synth variant's Component draws its storage settings from a SchemaLibrary that only the synth and chart variants carry, so it validates in the terms of the Release that builds with it:
+
+```
+$ aggrega validate catalog-helm-synth/component/mariadb.yaml --release release-helm-synth.yaml
+Entity: catalog-helm-synth/component/mariadb.yaml
+Kind:   Component
+Schema: valid
+Pillars: valid
+```
+
+and fails, naming the library it could not resolve, in the terms of a Release whose directories do not carry it — `--release release-compose.yaml`, or no `--release` at all in a workspace that lists no catalog directories of its own.
+
+This is still the single-entity scope. The checks, the report and the exit code are the ones this section describes, and no closure is validated: `--release` names the Release whose catalog directories the entity's references are read through, not a closure to check, which is why `--ir-graph` is refused beside an entity path. A `--release` naming a file that does not exist, or naming a directory, is refused before anything is checked.
+
 ### Placeholders still owed
 
 A value the kind requires that the file leaves as an empty string is a placeholder, and validate reports it before anything else. A document drafted by [`aggrega scaffold`](./aggrega-scaffold.md) carries one wherever its kind needs a value only you can supply, so this is where you learn which remain. Here is a drafted FeatureRecipe with only its version filled in:
@@ -88,7 +106,7 @@ Which values count is read from the schema as well. A value counts when the kind
 
 **A value is owed even where the schema would take it empty.** The schema admits an empty string for a Recipe's or FeatureRecipe's `capability` and `implements`, but an empty one names no provider and no type, so validate reports both as placeholders like any other. Where the schema check refuses the same file as well — an empty version, a type label with no value — the report carries that check's code, `E0215`, as the example on [`aggrega scaffold`](./aggrega-scaffold.md) shows; where the schema check accepts it, as above, the report carries no code. A finding in the same file that is not about an empty value is still reported, in the schema check's own words, ahead of the list.
 
-This reading belongs to single-entity validation. A whole-catalog run meeting the same document reports what the schema check reports, so a FeatureRecipe with an empty `implements` inside a catalog directory passes it; `--release` and [`aggrega build`](./aggrega-build.md) do not apply the reading either.
+This reading belongs to single-entity validation, with or without `--release` beside the entity path. A whole-catalog run meeting the same document reports what the schema check reports, so a FeatureRecipe with an empty `implements` inside a catalog directory passes it; the Release scope and [`aggrega build`](./aggrega-build.md) do not apply the reading either.
 
 ### A kind this scope does not take
 
@@ -98,7 +116,7 @@ Single-entity validation accepts Component, Feature, Recipe, FeatureRecipe, Work
 kind "Aggregate" in "aggregate.yaml" is not a single-entity validation target; the kinds this scope accepts are Component, Feature, Recipe, FeatureRecipe, Workload and Plugin. An Aggregate is checked by the whole-catalog scope when it sits in a catalog directory, and by the Release scope over a Release that deploys it
 ```
 
-The whole-catalog scope is a run with no argument, and the Release scope is `--release`:
+The whole-catalog scope is a run with no argument, and the Release scope is `--release` with no entity path:
 
 | Kind | Checked by |
 | --- | --- |
@@ -184,6 +202,12 @@ Validate one entity, and — for a Recipe — see its isolated rendered output:
 aggrega validate core/datastore/postgres/recipes/helm.yaml
 ```
 
+Validate one entity in the terms of a Release the workspace configuration gives catalog directories of its own:
+
+```
+aggrega validate core/datastore/postgres/recipes/helm.yaml --release releases/production.yaml
+```
+
 ## See also
 
 - [./aggrega-lint.md](./aggrega-lint.md) — the conventions counterpart across the same three scopes.
@@ -216,20 +240,30 @@ as a single-entity target are Component, Feature, Recipe, FeatureRecipe,
 Workload and Plugin. A value the kind requires that the file leaves empty is
 reported first, as a placeholder still owed: every one is named at once, with
 what it takes, read from the kind's own schema. That reading is this scope's
-alone; a whole-catalog run, --release and a build do not apply it. Each kind
-then has its schema checked, then the checks its own kind carries: pillar
-structure for a Component or Feature; shape for a Workload, FeatureRecipe or
-Plugin; and for a Recipe, shape plus an end-to-end compile against a minimal
-generated harness, so its resolution, its guards and a render of its output
-are all exercised. Where that Recipe's source is one that has to be fetched,
-the render is reported as not attempted instead: validating one entity on its
-own reads no lockfile, reads and writes no cache and makes no network request,
-so the chart or module it names is never retrieved and there is nothing to
-render from. Any other kind is refused here today, and the refusal names the
-scope that checks it instead: a whole-catalog run reaches an Aggregate and the
-library kinds when they sit in a catalog directory, and --release reaches a
-Release, the Manifest it names and the Aggregate it deploys. The command
-writes nothing to disk.
+alone; a whole-catalog run, a Release's closure and a build do not apply it.
+Each kind then has its schema checked, then the checks its own kind carries:
+pillar structure for a Component or Feature; shape for a Workload,
+FeatureRecipe or Plugin; and for a Recipe, shape plus an end-to-end compile
+against a minimal generated harness, so its resolution, its guards and a
+render of its output are all exercised. Where that Recipe's source is one
+that has to be fetched, the render is reported as not attempted instead:
+validating one entity on its own reads no lockfile, reads and writes no cache
+and makes no network request, so the chart or module it names is never
+retrieved and there is nothing to render from. Any other kind is refused here
+today, and the refusal names the scope that checks it instead: a whole-catalog
+run reaches an Aggregate and the library kinds when they sit in a catalog
+directory, and --release reaches a Release, the Manifest it names and the
+Aggregate it deploys.
+
+With an entity path and --release together, the entity is checked in that
+Release's terms: its references — the Component a Recipe implements, a
+library a pillar refers to — resolve through the catalog directories the
+workspace configuration gives that Release rather than the workspace's own,
+so a workspace keeping one catalog variant per Release checks an entity
+against the variant that Release builds with. The checks are the entity
+path's; no closure is validated.
+
+The command writes nothing to disk.
 ```
 
 **Flags**
@@ -240,7 +274,7 @@ writes nothing to disk.
 | `--ir-graph` | `false` | Also write the IR graph this run computed to stdout, as JSON, in addition to everything this command already produces. Values an author declared sensitive are withheld from it. Applies to the --release scope, the one scope that resolves a Release to a graph. It selects a DOCUMENT, where --response-format sets how much of this command's own report is written; neither affects the verdict or the exit code |
 | `--no-unsupported-field-warnings` | `false` | Silence the unsupported-field warning class: the notices a target raises for something you authored that it cannot honor — a Workload field it cannot express (as a lower-fidelity target such as compose does), or an aggrega.ai/ annotation it does not act on for the node's input kind. Other render warnings still surface. Display-only; does not change the rendered output. Applies to the entity scope, the one scope that renders |
 | `--plugin` | — | Path to a raw .wasm to validate against its describe() self-report — the pre-publish authoring check. Alone it needs --type; with a Plugin entity argument it cross-checks the binary against the entity's declared type, capability claim, command mirror, and host-function record. |
-| `--release` | — | Path to a Release YAML to validate over its resolved dependency closure (mutually exclusive with an entity argument) |
-| `--response-format` | `detailed` | Output volume for the --release scope: detailed (default) reports every diagnostic plus advisory lines; concise reports the diagnostic count and the first diagnostic only. The verdict and exit code are identical for both. |
+| `--release` | — | Path to a Release YAML. Alone, validate over its resolved dependency closure; with an entity argument, check that entity in the Release's terms, its references resolved through the catalog directories the workspace configuration gives that Release |
+| `--response-format` | `detailed` | Output volume for the --release scope, a Release's closure with no entity argument: detailed (default) reports every diagnostic plus advisory lines; concise reports the diagnostic count and the first diagnostic only. The verdict and exit code are identical for both. |
 | `--type` | — | Plugin type for a binary-only --plugin check, verified against the binary's self-reported type. Only meaningful with --plugin; when a Plugin entity supplies the type, omit it (a disagreeing value halts). |
 <!-- END GENERATED: cli-validate -->
