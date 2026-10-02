@@ -81,7 +81,7 @@ Values an author declared sensitive are withheld from the graph, in the structur
 
 A **Component or Feature** stops there: schema envelope, shape, and pillar structure. A lone Component has no authored `values` or `infra` to render in isolation, so there is nothing to render — its correctness is fully covered by the schema-and-pillar tiers.
 
-A **Recipe** additionally **renders in isolation**. This is one facet of single-entity correctness, not its headline: after the schema and shape tiers pass, validate resolves the Recipe's `implements` Component from the catalog, synthesizes a minimal Aggregate, Manifest and Release around a single instance of that Component bound to the Recipe under test, and drives the real compilation pipeline over it — first resolution and guards (with render skipped), then a real render of the isolated output. Each required value and each required infra field that carries no default is filled with a placeholder of its declared type — the values in the synthesized Aggregate, the infra in the synthesized Release — and every other value and infra field takes its schema default through the resolver; the Release routes the instance into a synthesized default boundary and declares no `values:` and no compute the Aggregate did not declare. The rendered artifacts are printed so an author sees the isolated output before wiring the entity into a full Aggregate. Because a single-entity harness fills only those required fields, wires no connection and attaches no Feature, a Recipe whose templates read a value only a connection or an attached Feature delivers cannot render in isolation; validate reports such a render as not attempted rather than failed. A render that stops for any other reason did not complete, and validate reports it with the underlying render diagnostic down to the sentence that names what stopped it.
+A **Recipe** additionally **renders in isolation**. This is one facet of single-entity correctness, not its headline: after the schema and shape tiers pass, validate resolves the Recipe's `implements` Component from the catalog, synthesizes a minimal Aggregate, Manifest and Release around a single instance of that Component bound to the Recipe under test, and drives the real compilation pipeline over it — first resolution and guards (with render skipped), then a real render of the isolated output. Each required value and each required infra field that carries no default is filled with a placeholder of its declared type — the values in the synthesized Aggregate, the infra in the synthesized Release — and every other value and infra field takes its schema default through the resolver; the Release routes the instance into a synthesized default boundary and declares no `values:` and no compute the Aggregate did not declare. A placeholder is a value the field's own declared constraints accept: the constant or the first value an `enum` lists, a number within its bounds, a string of its length and in its `format`, a semantic version where its `pattern` asks for one, as many list items as it requires, and every property an object requires. Any other `pattern`, a `validate:` or `when:` condition, a composition of schemas and a constraint on which items a list holds are not consulted, so a field relying on one may still refuse its placeholder; validate then reports that refusal in the schema's own words. The rendered artifacts are printed so an author sees the isolated output before wiring the entity into a full Aggregate. Because a single-entity harness fills only those required fields, wires no connection and attaches no Feature, a Recipe whose templates read a value only a connection or an attached Feature delivers cannot render in isolation; validate reports such a render as not attempted rather than failed. A render that stops for any other reason did not complete, and validate reports it with the underlying render diagnostic down to the sentence that names what stopped it.
 
 A Recipe whose `source:` has to be **fetched** is not rendered at all, and a Recipe whose render stops while it reads a value only a connection or an attached Feature supplies has that render set aside — see [what single-entity correctness does not check](#what-single-entity-correctness-does-not-check) below.
 
@@ -119,7 +119,7 @@ Resolution: valid
 Render: 3 artifact(s)
 ```
 
-followed by the three rendered artifacts. Every variant of that example declares `core/datastore/mariadb`, so the Recipe validates in the terms of each of its four Releases; in the terms of a Release whose catalog directories hold no such Component it fails naming the target, as it does with no `--release`. The `Attachments:` lines are explained under [a required attachment slot](#a-required-attachment-slot).
+followed by the three rendered artifacts. Every variant of that example declares `core/datastore/mariadb`, so the Recipe validates in the terms of each of its four Releases; in the terms of a Release whose catalog directories hold no such Component it fails naming the target, as it does with no `--release`. The `Attachments:` lines are explained under [a required attachment slot or a presence mandate](#a-required-attachment-slot-or-a-presence-mandate).
 
 This is still the single-entity scope. The checks, the report and the exit code are the ones this section describes, and no closure is validated: `--release` names the Release whose catalog directories the entity's references are read through, not a closure to check, which is why `--ir-graph` is refused beside an entity path. A `--release` naming a file that does not exist, or naming a directory, is refused before anything is checked.
 
@@ -207,9 +207,9 @@ The line appears only when the Component declares at least one required socket, 
 
 The rule itself is neither relaxed nor duplicated; it is asked at the scope that can answer it. [`aggrega build`](./aggrega-build.md) applies it in full over the Aggregate's and the Release's edge surfaces together, and halts on a required socket nothing wires. So a Recipe that passes single-entity validation still has to satisfy the required-socket rule when its Component is deployed, and the report says so rather than leaving a silent difference between what validate checked and what a build will.
 
-#### A required attachment slot
+#### A required attachment slot or a presence mandate
 
-The third is whether the `implements` Component's `required: true` attachment slots — the named binding points its `featuresSchema` declares — are filled.
+The third is whether the `implements` Component's `required: true` attachment slots — the named binding points its `featuresSchema` declares — are filled, and whether an attachment of each Feature type its presence mandates demand is present.
 
 A required slot is filled by attaching a Feature at that name, on the component or at a scope above it, and that attachment is written where the Component is deployed — in the Aggregate or the Release — not in the Recipe. The synthesized harness attaches no Feature, so nothing it builds can fill such a slot. Validate therefore names the slots it did not check and continues through resolution and render, exactly as it does for required sockets:
 
@@ -222,7 +222,26 @@ Attachments: required attachment slots not checked (root_password)
 
 The line appears only when the Component declares at least one required slot, and it names only the required ones; a Recipe whose Component declares none produces no such line. Only the requirement is set aside: a slot's label constraint and its permitted delivery mechanisms are kept as declared. A template that does not parse still fails the run, and so does a fault of the Recipe's own such as a Workload the provider cannot synthesize — unless the Recipe also reads a value only a connection or an attached Feature supplies, as [the next section](#a-value-only-a-connection-or-an-attached-feature-supplies) describes.
 
-The rule is asked where it can be answered. [`aggrega pull`](./aggrega-pull.md), [`aggrega build`](./aggrega-build.md) and `aggrega validate --release` evaluate it over the Release's real attachments, and each halts on a required slot nothing fills.
+A presence mandate — a `features.aggrega.ai/requiredType.<label>` annotation on the Component, demanding that some attachment carry the Feature type it names — is set aside for the same reason: the harness attaches nothing, so nothing it builds can carry the type. Validate names each mandate it did not check by its label and the type it demands, and continues through resolution and render. The standard library's `example/compute/service` declares one, so its Recipe reports, ahead of its two rendered artifacts:
+
+```
+$ aggrega validate aggrega-catalog/recipe/helm/service/1.0.0/recipe.yaml --catalog aggrega-catalog
+Entity: aggrega-catalog/recipe/helm/service/1.0.0/recipe.yaml
+Kind:   Recipe
+Schema: valid
+Shape:  valid
+Attachments: presence mandates not checked (monitoring: core/prometheus-exporter)
+  Validating a Recipe on its own places its Component in a build that attaches
+  no Feature, so nothing exists to carry a type the Component requires. Whether
+  an attachment of each of these types is present is checked when a Release
+  that deploys the Component is built.
+Resolution: valid
+Render: 2 artifact(s)
+```
+
+A mandate whose declaration cannot be evaluated — the annotation's prefix with no label after it, or a value that is not a Feature type — is not set aside: it is a fault of the Component's own, which no attachment repairs, and validate fails the run on it as a build does.
+
+Each rule is asked where it can be answered. [`aggrega pull`](./aggrega-pull.md), [`aggrega build`](./aggrega-build.md) and `aggrega validate --release` evaluate both over the Release's real attachments, and each halts on a required slot nothing fills and on a mandated type no attachment carries.
 
 #### A value only a connection or an attached Feature supplies
 
