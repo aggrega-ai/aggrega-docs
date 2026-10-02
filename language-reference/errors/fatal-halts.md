@@ -2246,9 +2246,9 @@ The finding is positioned at the authored entry the connection was declared in, 
 
 <!-- covers: internal/compiler/topology.ErrUnboundReleaseEdgeConfig -->
 
-A Release per-edge `uses:` entry sets `infra:` but no edge exists at the consumer, socket and alias it names, once every edge in the build has been drawn.
+A Release per-edge `uses:` entry sets `infra:`, attachments under `features:`, or both, but no edge exists at the consumer, socket and alias it names, once every edge in the build has been drawn.
 
-The two things a Release entry can do are *wire* an edge and *configure* one, and which it does is decided by whether it names a `target:`. An entry with a target creates the edge it configures. An entry without one configures an edge that must already exist — declared by the developer in the Aggregate, or contributed by an attached Feature. So an entry that names no target and matches no existing edge applies to nothing: the `infra:` block below it never reaches any output. The build stops rather than accepting authoring that does nothing, because a successful build otherwise reads as confirmation that the infrastructure was applied.
+The two things a Release entry can do are *wire* an edge and *configure* one, and which it does is decided by whether it names a `target:`. An entry with a target creates the edge it configures. An entry without one configures an edge that must already exist — declared by the developer in the Aggregate, or contributed by an attached Feature. So an entry that names no target and matches no existing edge applies to nothing: the `infra:` block and the attachments below it never reach any output. The build stops rather than accepting authoring that does nothing, because a successful build otherwise reads as confirmation that the infrastructure was applied and the connection carries what the entry put on it.
 
 The alias is part of what an entry names, so an entry configuring an alias the developer never declared reaches no edge even when the socket is bound under a different alias. So does an entry naming a component the Aggregate does not declare.
 
@@ -2261,10 +2261,50 @@ Emitted message, where the entry names a component that exists. It carries the p
 
 A Release that names its components at the top level rather than under boundaries carries the shape its author wrote — `.spec.components.<consumer>.uses.<socket>.<alias>` — and a component named inside an `aggregates:` routing entry is named through that entry, under the local name it carries there.
 
-Where the entry names a component the Aggregate does not declare, the halt comes from earlier in the build and reads:
-> release per-edge configuration has no edge to apply to: release edge `<consumer>`/`<socket>`/`<alias>` sets infra on `<consumer>`, which is not a component in the topology
+Where the entry names a component the Aggregate does not declare, the halt comes from earlier in the build and reads, naming what the entry sets — `infra`, `features`, or `infra and features`:
+> release per-edge configuration has no edge to apply to: release edge `<consumer>`/`<socket>`/`<alias>` sets `<infra|features|infra and features>` on `<consumer>`, which is not a component in the topology
 
 **How to fix:** add a `target:` to the entry, which wires the edge and applies the configuration to it; correct the alias to the one the Aggregate declared for that connection, so the entry configures the existing edge; correct the component name to one the Aggregate declares; or remove the entry if the configuration is no longer wanted.
+
+### A Release attachment takes the name of a connection's attachment
+
+<!-- covers: internal/compiler/topology.ErrConnectionAttachmentWrittenOffItsConnection -->
+
+A Release writes an attachment under the name an attachment on one of a component's connections takes: the connection's alias, a dot, and the slot the attachment fills — `gpt.credential` for the attachment filling the `credential` slot on the connection `gpt`. A connection's attachment is written on its connection entry — the Aggregate's connection under the component's `uses:`, or the Release's per-edge `uses:` entry for the same connection — and becomes an attachment of the consuming component under that composed name. The Release writes attachments at two other scopes whose keys may carry a dot, so the composed name can be written there too:
+
+- **A component entry's own `features:` block**, which attaches to that component.
+- **A boundary's own `features:` block**, which attaches to every component placed in that boundary or in a boundary nested inside it — including the components of a sub-aggregate the boundary routes in without naming them. A key there halts when it equals the composed name on any component it reaches, whether or not it names a `type:`.
+
+The build stops rather than folding either into the connection's attachment, because neither document would then show the whole of what the build does with it. A socket's slot is filled per connection, by the connection's own entry, and never by an attachment cascading onto it from a wider scope. A dotted key that no connection attachment of the components it reaches takes is an ordinary attachment name, and is not refused.
+
+The check covers an attachment either document put on the connection, and a component a sub-aggregate contributes as well as one the Aggregate declares.
+
+Emitted message, for a key on a component entry. The refusal comes first, then the Release and the component entry, the key the Release wrote, the component, the connection, the socket and the slot — then the connection entry to write it on:
+> a Release attachment takes the name of an attachment one of a component's connections carries (Release `<release-name>`, at `.spec.components.<component>`, `"<alias>.<slot>"`, of component `"<component>"`, on the connection `"<alias>"`, through socket `"<socket>"`, in the slot `"<slot>"`). Write it on the connection entry, under `uses.<socket>.<alias>.features.<slot>`, and remove `"<alias>.<slot>"` from this entry's features: an attachment a connection carries is written on that connection and nowhere else.
+
+Emitted message, for a key on a boundary. It names the boundary's attachment block and the component whose connection carries the attachment:
+> a Release attachment takes the name of an attachment one of a component's connections carries (Release `<release-name>`, at `.spec.boundaries.<boundary>.features`, `"<alias>.<slot>"`, of component `"<component>"`, on the connection `"<alias>"`, through socket `"<socket>"`, in the slot `"<slot>"`). Write it on component `"<component>"`'s connection entry, under `uses.<socket>.<alias>.features.<slot>`, and remove `"<alias>.<slot>"` from this boundary's features: an attachment a connection carries is written on that connection and nowhere else.
+
+A key on a boundary reaching several components whose connections carry the composed name is reported once for each of them, because each connection is a separate edit.
+
+The finding is positioned at the block the key was written in — the component entry, or the boundary's `features:` — because the key itself carries a dot and a position cannot address such a key; the key is named in the message instead. In a Release that names boundaries a component entry reads `.spec.boundaries.<boundary>.components.<component>`, a component named inside an `aggregates:` routing entry is named through that entry, under the local name it carries there, and a nested boundary's block reads `.spec.boundaries.<outer>.boundaries.<inner>.features`.
+
+**How to fix:** move the attachment onto the Release's entry for that connection — `uses.<socket>.<alias>.features.<slot>` under the component — writing only `infra:` there to size an attachment the Aggregate declares, or `type:` and `infra:` for one only the Release makes; then remove the dotted key from the component's or the boundary's `features:`. A boundary-wide key meant for several components' connections is written once on each of those connections.
+
+### A Release connection attachment names no Feature type
+
+<!-- covers: internal/compiler/topology.ErrReleaseConnectionAttachmentUntyped -->
+
+A Release per-edge `uses:` entry puts an attachment on a connection, under a slot the Aggregate declares no attachment for on that connection, and names no `type:`. An attachment a Release writes on a connection is one of two things. It sizes an attachment the Aggregate already declares on the same connection, and names no type because the Aggregate's declaration names it; or it is an attachment only the Release makes, and then the Release entry is the only place its Feature type can come from. Without one, nothing can choose a FeatureRecipe for the attachment.
+
+The check covers a component a sub-aggregate contributes as well as one the Aggregate declares. A component an `active:` toggle switched off takes its connections with it, so an entry left behind on one is not checked.
+
+Emitted message. The refusal comes first, then the Release and the connection entry, the slot, the connection, the socket and the component — then what to do about it:
+> a Release connection attachment names no Feature type, and the type is required for an attachment only the Release makes (Release `<release-name>`, at `.spec.components.<component>.uses.<socket>.<alias>`, `"<slot>"`, on the connection `"<alias>"`, through socket `"<socket>"`, of component `"<component>"`). Name the Feature this attachment attaches under its type, or declare the attachment on the Aggregate's connection entry and size it here.
+
+Every offending attachment is reported as its own finding, so one build names them all.
+
+**How to fix:** add a `type:` naming the Feature the attachment attaches; or, where the attachment is the developer's to declare, declare it on the Aggregate's connection entry with its `values:` and keep only `infra:` on the Release entry.
 
 ### Component identity cannot be stamped on what it emits
 
@@ -5151,6 +5191,8 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0313` | `plugins.providers entry names a capability no provider-rendering plugin the build reads serves` | A provider binding names a capability no plugin the build reads serves |
 | `E0314` | `plugin was built from a working tree with uncommitted changes, so no commit reproduces the version it reports` | A plugin was built from a working tree with uncommitted changes |
 | `E0315` | `a connection carries an attachment under a name its socket declares no slot for` | A connection carries an attachment under a name its socket declares no slot for |
+| `E0316` | `a Release attachment takes the name of an attachment one of a component's connections carries` | A Release attachment takes the name of a connection's attachment |
+| `E0317` | `a Release connection attachment names no Feature type, and the type is required for an attachment only the Release makes` | A Release connection attachment names no Feature type |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
