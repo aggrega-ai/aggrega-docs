@@ -6,7 +6,7 @@ To author with an AI assistant you need two things: the `aggrega` binary install
 
 Aggrega ships as a single self-contained executable. Install it by whichever route fits your platform, then put it on your `PATH`.
 
-- **Prebuilt binary.** Each release carries prebuilt binaries for Linux and for Windows, both on 64-bit x86. Download the executable for your operating system, mark it executable, and move it onto your `PATH` (for example a directory like `/usr/local/bin` on Linux). On Windows, see [The Windows prebuilt binary](#the-windows-prebuilt-binary) below.
+- **Prebuilt binary.** Each release carries prebuilt binaries for Linux and for Windows, both on 64-bit x86, and for macOS on Apple silicon and on Intel. Download the executable for your operating system, mark it executable, and move it onto your `PATH` (for example a directory like `/usr/local/bin` on Linux). On Windows, see [The Windows prebuilt binary](#the-windows-prebuilt-binary) below; on macOS, see [The macOS prebuilt binary](#the-macos-prebuilt-binary).
 - **From source.** With a Go toolchain installed, build the `aggrega` command from the source tree and place the resulting binary on your `PATH`.
 
 Confirm the install:
@@ -37,6 +37,27 @@ A terminal opened after that finds `aggrega`; one already open keeps the `PATH` 
 - **When you start it from File Explorer** or from the browser, Windows may show *Windows protected your PC*. Select **More info**, check that the file name is the one you downloaded, then select **Run anyway**. Started from PowerShell or a command prompt instead, the same file may run without that prompt; whether it does depends on the Windows version and its settings.
 - **`Unblock-File` answers that prompt in advance.** A downloaded file is marked as coming from the internet, and that mark is what the *Windows protected your PC* check answers to. `Unblock-File` in PowerShell, as in the example above, removes the mark; so does the **Unblock** checkbox on the **General** tab of the file's **Properties** in File Explorer.
 - **Where Smart App Control is turned on** (Windows 11), Windows may block an unsigned program outright, without offering **Run anyway**. Whether it is on is shown under **App & browser control** in Windows Security.
+
+### The macOS prebuilt binary
+
+The macOS executables are `aggrega-<version>-darwin-arm64`, for a Mac with Apple silicon, and `aggrega-<version>-darwin-amd64`, for a Mac with an Intel processor; **About This Mac** in the Apple menu shows which one you have. The light variants beside them in the release install the same way. A Mac with Apple silicon also runs the Intel file, through Rosetta 2 where it is installed, but the Apple silicon file is the one built for it.
+
+Rename the file to `aggrega`, mark it executable, and move it into a directory listed in your `PATH`. From Terminal, in the directory the download is in, for example, with `<version>` replaced by the version you downloaded, and `arm64` by `amd64` on an Intel Mac:
+
+```bash
+chmod +x aggrega-<version>-darwin-arm64
+xattr -d com.apple.quarantine aggrega-<version>-darwin-arm64
+sudo mkdir -p /usr/local/bin
+sudo mv aggrega-<version>-darwin-arm64 /usr/local/bin/aggrega
+```
+
+`/usr/local/bin` is on the `PATH` macOS gives a new terminal, and the `mkdir` creates it on a Mac where it does not exist yet. The `xattr` line is explained below; on a file that carries no quarantine mark it reports *No such xattr*, which is harmless.
+
+**The executables are not signed with an Apple Developer ID and are not notarized by Apple.** Gatekeeper, the macOS check on software from the internet, assesses a program that carries the quarantine mark — the mark a web browser adds to a file it downloads — and refuses one that is not notarized: macOS reports that the developer cannot be verified, or that Apple could not verify the file is free of malware, and offers to move it to the Trash. The wording and the buttons depend on the macOS version. To proceed:
+
+- **Remove the mark.** `xattr -d com.apple.quarantine <file>`, as in the example above, removes it, and Gatekeeper then does not assess the file when it runs. Do it before the first run, or after a refusal and then run the command again.
+- **Or allow the file from the system settings.** After a refusal, open **System Settings** → **Privacy & Security** (before macOS 13, **System Preferences** → **Security & Privacy** → **General**). A line there names the blocked file and offers **Open Anyway** for about an hour after the refusal. Select it (macOS may ask for your password), run the command again, and confirm when macOS asks once more; the button reads **Open** or **Open Anyway**, depending on the version. macOS remembers the choice for that file.
+- **A file fetched with `curl` carries no quarantine mark**, so it runs without that assessment: `curl` does not add the mark a browser does.
 
 ## Connect an MCP client
 
