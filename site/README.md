@@ -17,10 +17,11 @@ served at `aggrega.ai/docs`.
   (`src/plugins/rewrite-relative-md-links.mjs`) rewrites those to the built
   route at render time, so they resolve as site links without editing any source
   file. Links are emitted route-relative, so they resolve under any base path.
-- **Theme.** Colours, fonts, and the logo come from the shared brand package
-  through Starlight's `customCss` and `logo` options. No brand value is retyped;
-  every colour and size is a token reference. Code surfaces (inline, fenced, and
-  callouts) all use the one shared dark surface.
+- **Theme.** Colours, fonts, the logo, and the per-size tab icons come from the
+  shared brand package, through Starlight's `customCss` and `logo` options and
+  the page head. No brand value is retyped; every colour and size is a token
+  reference. Code surfaces (inline, fenced, and callouts) all use the one shared
+  dark surface.
 - **Search.** Starlight's built-in Pagefind index provides client-side search
   over the built site. It is independent of any command-line search.
 - **SEO.** Each page emits a self-referential canonical link, Open Graph and
@@ -69,8 +70,6 @@ npm run dev       # local preview
 
 ## Follow-ups
 
-- The 16px favicon is busy at small sizes; a simplified single-mark favicon is a
-  later design pass.
 - Per-page meta descriptions fall back to a site tagline because the corpus has
   no frontmatter; a first-paragraph extraction (mirroring the title-from-heading
   approach) would improve them.

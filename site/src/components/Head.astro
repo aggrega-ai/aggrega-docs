@@ -1,6 +1,8 @@
 ---
 import { resolveVersioning } from "../versioning.mjs";
-import favicon from "@aggrega-ai/brand/logo/favicon-simple.svg?url";
+import faviconIco from "@aggrega-ai/brand/logo/favicon.ico?url";
+import favicon192 from "@aggrega-ai/brand/logo/favicon-192.png?url";
+import appleTouchIcon from "@aggrega-ai/brand/logo/favicon-180.png?url";
 
 // The default document head already emits a self-referential canonical link and
 // an og:url for the current page. For any version other than the latest, those
@@ -91,12 +93,20 @@ head.push({
   tag: "meta",
   attrs: { name: "twitter:image", content: ogImage },
 });
-// Single-source the tab icon from the brand package (the logo above is already
-// single-sourced the same way); Vite inlines the small SVG as a data URI, or
-// emits a hashed asset for one above its inline-size threshold.
+// Single-source the tab icons from the brand package (the logo above is already
+// single-sourced the same way); Vite emits each as a hashed asset, or inlines one
+// below its inline-size threshold as a data URI.
 head.push({
   tag: "link",
-  attrs: { rel: "icon", type: "image/svg+xml", href: favicon },
+  attrs: { rel: "icon", sizes: "16x16 32x32 48x48", href: faviconIco },
+});
+head.push({
+  tag: "link",
+  attrs: { rel: "icon", type: "image/png", sizes: "192x192", href: favicon192 },
+});
+head.push({
+  tag: "link",
+  attrs: { rel: "apple-touch-icon", sizes: "180x180", href: appleTouchIcon },
 });
 
 // Structured data: a site-level WebSite record, a documentation-article record
