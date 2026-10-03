@@ -1,0 +1,61 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: ai-gateway-log-masking
+  version: "1.0.0"
+  description: >
+    A support assistant's AI gateway whose model must see customers' names and
+    addresses, while the gateway's logs must not keep them. This file, the
+    Manifest and the Release are the whole of what anyone authors here: every
+    Component, Feature and Recipe named below ships in the standard-library
+    catalog.
+spec:
+  components:
+    # ── The gateway ─────────────────────────────────────────────────────────
+    # One published alias, pointing at one upstream model. The alias is what a
+    # caller asks for; the target is a deterministic pointer the running gateway
+    # resolves when it serves a request.
+    router:
+      type: core/gateway/litellm
+      values:
+        models:
+          - name: assistant
+            target: openai/gpt-4o
+      features:
+        # Log masking: the text a caller or the model wrote is masked in the copy
+        # of each call the gateway hands to its logs, and in nothing else. The
+        # model receives the request exactly as the caller sent it, and the
+        # caller receives the model's reply exactly as it came.
+        #
+        # What to mask is listed here, because what counts as sensitive depends
+        # on what this assistant handles: a pattern for the company's ticket
+        # numbers, and two entity types the recognizer finds. There is no default
+        # list, and an attachment listing neither halts the build.
+        logs:
+          type: core/log-masking
+          values:
+            patterns:
+              - name: ticket
+                regex: '\bTCK-[0-9]{6}\b'
+            entities: [PERSON, EMAIL_ADDRESS]
+      uses:
+        # The entity types are found and replaced by two catalog services the
+        # gateway calls. Listing entities without wiring both sockets halts the
+        # build, naming the sockets. A list of patterns alone needs neither.
+        pii_analyzer:
+          recognizer:
+            target: analyzer
+        pii_anonymizer:
+          replacer:
+            target: anonymizer
+
+    # ── The recognizer ──────────────────────────────────────────────────────
+    # The analyzer finds the sensitive spans in a text; the anonymizer replaces
+    # the spans it is handed. Both receive the unmasked text.
+    analyzer:
+      type: core/security/presidio-analyzer
+    anonymizer:
+      type: core/security/presidio-anonymizer

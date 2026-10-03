@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: ai-gateway-log-masking-manifest
+  version: "1.0.0"
+  description: >
+    Ops mapping for the Kubernetes target. Every component type and the one
+    attached Feature are routed to the standard-library Recipe that implements
+    it on this target.
+spec:
+  mappings:
+    components:
+      type:
+        # The gateway's routing table is a configuration body, and it is
+        # realized on this target alone, which is why this example is
+        # Kubernetes-only.
+        core/gateway/litellm:1.0.0: helm/litellm-gateway:1.0.0
+        core/security/presidio-analyzer:1.0.0: helm/presidio-analyzer:1.0.0
+        core/security/presidio-anonymizer:1.0.0: helm/presidio-anonymizer:1.0.0
+    features:
+      type:
+        # The realization for this gateway writes one guardrail entry into the
+        # configuration the gateway's own Recipe renders; that Recipe delivers
+        # the class the entry loads.
+        core/log-masking:1.0.0: helm/log-masking-litellm:1.0.0

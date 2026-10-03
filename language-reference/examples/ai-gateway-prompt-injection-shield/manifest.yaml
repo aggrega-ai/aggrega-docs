@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: ai-gateway-prompt-injection-shield-manifest
+  version: "1.0.0"
+  description: >
+    Ops mapping for the Kubernetes target. Every component type and every
+    attached Feature is routed to the standard-library Recipe that implements it
+    on this target.
+spec:
+  mappings:
+    components:
+      type:
+        # The gateway's routing table is a configuration body, realized on this
+        # target alone, which is why this example is Kubernetes-only.
+        core/gateway/litellm:1.0.0: helm/litellm-gateway:1.0.0
+        core/security/nemo-guardrails:1.0.0: helm/nemo-guardrails:1.0.0
+        core/security/trustyai-huggingface-detector:1.0.0: helm/trustyai-huggingface-detector:1.0.0
+    features:
+      type:
+        # The realization for this gateway: it checks the guard and the map, and
+        # writes the request policy that keeps every request but a chat
+        # completion away from the guard.
+        core/prompt-injection-shield:1.0.0: helm/prompt-injection-shield-litellm:1.0.0
+        # Writes the credential straight into a rendered Secret, which suits a
+        # development target and not a shared one.
+        core/referenced-secret:1.0.0: helm/k8s-secret-from-parameter:1.0.0

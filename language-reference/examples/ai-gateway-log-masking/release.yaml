@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: ai-gateway-log-masking-dev
+  environment: development
+  version: "1.0.0"
+spec:
+  aggregate: ai-gateway-log-masking
+  manifest: ai-gateway-log-masking-manifest
+
+  # Single scope: components are authored directly with no boundaries block, so
+  # they fold into one synthesized boundary and the artifacts land flat under
+  # dist/helm/.
+  components:
+    router:
+      infra:
+        # Operator sizing. Everything omitted takes the schema default.
+        port: 4000
+    # Declared with nothing to configure; each takes its schema defaults. A
+    # component still has to appear here: one left out is placed in no scope
+    # and the build halts.
+    analyzer: {}
+    anonymizer: {}

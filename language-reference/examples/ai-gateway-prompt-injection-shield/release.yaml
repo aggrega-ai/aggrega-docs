@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: ai-gateway-prompt-injection-shield-dev
+  environment: development
+  version: "1.0.0"
+spec:
+  aggregate: ai-gateway-prompt-injection-shield
+  manifest: ai-gateway-prompt-injection-shield-manifest
+
+  # Single scope: components are authored directly with no boundaries block, so
+  # they fold into one synthesized boundary and the artifacts land flat under
+  # dist/helm/.
+  components:
+    router:
+      infra:
+        port: 4000
+    guard:
+      infra:
+        # The model API the guard forwards what it admits to, with its API
+        # path. A pointer string the guard resolves when it forwards; the
+        # compiler never contacts it.
+        upstream_endpoint: https://api.openai.com/v1
+        # The catalog names no image of the guard, and neither does this
+        # example: set this to a copy of the build you run, mirrored into a
+        # registry you control. The guard Component's comment beside
+        # infra.image names the build its refusals were proved on, and why the
+        # catalog pins none.
+        image: registry.example.com/mirror/nemo-guardrails-server:change-me
+    detector:
+      infra:
+        # As for the guard: the Release supplies the detector's image, a copy
+        # of the build you run in a registry you control.
+        image: registry.example.com/mirror/guardrails-detector-huggingface-runtime:change-me

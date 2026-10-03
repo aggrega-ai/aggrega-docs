@@ -118,6 +118,20 @@ developer surface and the String Pipe with zero platform authoring.
   parameter so they cannot drift apart. Also shows where the compiler is blind:
   two pairs of names have to agree, nothing checks either, and the build
   succeeds when they do not.
+- **[ai-gateway-log-masking](ai-gateway-log-masking/)** — an AI gateway that
+  keeps personal data out of its logs, compiled to Kubernetes. The masking
+  applies only to the copy of each call the gateway hands to its logs: the model
+  receives the request as the caller sent it, and the caller receives the reply
+  as the model wrote it — the difference from data masking, which hides the text
+  from the model itself. The README shows the build refusing when both are
+  attached to one gateway.
+- **[ai-gateway-prompt-injection-shield](ai-gateway-prompt-injection-shield/)** —
+  an AI gateway that sends every request through a guard, which asks a trained
+  classifier whether the request tries to override the model's instructions and
+  refuses it if so, compiled to Kubernetes as the gateway, the guard and the
+  classifier's service. The catalog names an image for neither the guard nor the
+  classifier, so the Release supplies both. The README spends as long on what the
+  shield does not do as on what it does.
 - **[ai-gateway-semantic-cache](ai-gateway-semantic-cache/)** — an AI gateway
   that answers a question from the reply it gave an earlier, similarly worded
   one, keeping the replies in a Redis wired to it, compiled to Kubernetes. The

@@ -1,0 +1,71 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: ai-gateway-prompt-injection-shield
+  version: "1.0.0"
+  description: >
+    A support assistant's AI gateway that sends every model request through a
+    guard, which refuses a request a trained classifier judges an attempt to
+    override the model's instructions and forwards the rest to the model. This
+    file, the Manifest and the Release are the whole of what anyone authors
+    here: every Component, Feature and Recipe named below ships in the
+    standard-library catalog. The guard's and the detector's images are not in
+    the catalog, so the Release names them.
+spec:
+  components:
+    # ── The gateway ─────────────────────────────────────────────────────────
+    # One alias callers ask for. With the shield attached the gateway sends the
+    # alias to the guard over the OpenAI API, so its target is written
+    # openai/<model>, the model name the guard's upstream serves.
+    router:
+      type: core/gateway/litellm
+      values:
+        models:
+          - name: assistant
+            target: openai/gpt-4o-mini
+      features:
+        # The shield. sensitivity standard is the default, written out here: the
+        # realization runs it as the guard's threshold 0.5 and halts the build
+        # unless the guard below runs exactly that.
+        shield:
+          type: core/prompt-injection-shield
+          values:
+            sensitivity: standard
+      uses:
+        # The guard every model request is sent through while the shield is
+        # attached. The gateway's Recipe reads the guard's published endpoint off
+        # this edge and writes it into every entry of the model map.
+        guard:
+          screening:
+            target: guard
+
+    # ── The guard ───────────────────────────────────────────────────────────
+    # NeMo Guardrails' server in the model's path. It checks the latest user
+    # message of each chat request with the detector below and forwards what it
+    # admits to the model API the Release names, presenting its own credential.
+    # values.threshold is left at its default, 0.5, the one sensitivity standard
+    # names; strict names 0.001, and the two are set together.
+    guard:
+      type: core/security/nemo-guardrails
+      features:
+        # The credential the guard presents to the model API. The gateway holds
+        # none while the shield is attached: its requests reach the guard, not
+        # the provider.
+        upstream_key:
+          type: core/referenced-secret
+          values:
+            key: upstream-key
+            origin: upstream-provider-key-change-me
+      uses:
+        detector:
+          classifier:
+            target: detector
+
+    # ── The detector ────────────────────────────────────────────────────────
+    # TrustyAI's Hugging Face detector, running its default prompt-injection
+    # classifier, whose weights it fetches where it runs.
+    detector:
+      type: core/security/trustyai-huggingface-detector
