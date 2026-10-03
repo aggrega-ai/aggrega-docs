@@ -17,7 +17,7 @@ A single positional argument routes by content shape; no subcommand is needed. T
 `--list`, the default, and `--detail` form a uniform three-level verbosity discipline that every kind honors. `--list` and `--detail` are mutually exclusive — passing both is refused rather than silently resolved.
 
 - **`--list`** — identifiers only. A Component lists its name and its uses-socket names; a MappingLibrary lists its mapping names; an Aggregate lists its component names with their types.
-- **default** — a structured overview tuned for interactive use. It opens with the entity's identity and, where the entity authors one, its description; an entity with no description prints none rather than an empty line. The rest of the shape is per-kind: a Component shows its schema and sockets; an Aggregate shows components, their values and edges, and the dependency graph; a Release shows the per-boundary node tree with Feature attachments.
+- **default** — a structured overview tuned for interactive use. It opens with the entity's identity and, where the entity authors one, its description; an entity with no description prints none rather than an empty line. The rest of the shape is per-kind: a Component shows its schema and sockets; an Aggregate shows components, their values and edges with the attachments each connection carries, and the dependency graph; a Release shows the per-boundary node tree with Feature attachments, each one written on a connection listed beneath that connection.
 - **`--detail`** — full field bodies. Everything the kind carries: a Component adds its self-inject mechanisms, required Features, and labels; a MappingLibrary expands each mapping's full template body; a Recipe adds its workload body, provides, and assertions.
 
 A few kinds use the levels to surface progressively more of an authored body. A MappingLibrary at `--list` shows mapping names; at the default level it adds each mapping's synthesized usage example; at `--detail` it expands the full template body.
@@ -253,9 +253,23 @@ Dependency Graph:
 
 The default view builds the topology and shows each component with its values and uses-edges, followed by the computed dependency graph. The subsystem tree is rendered with nesting; `--flat` renders one section per node, each keyed by its full dotted path.
 
+A connection written in the long form is followed by the attachments it carries, each under the name it takes on the consuming component — the connection's alias and the slot joined by a dot — with the Feature type it names and a clause giving the slot it fills and whether it handles declared-sensitive material:
+
+```text
+  gateway  (type: conn/gateway)
+    Values:
+      region: eu
+    Uses:
+      models:
+        - gpt → model
+            - gpt.credential (feature.conn/token)    [slot: credential, sensitive]
+```
+
+The slot and the mark are the facts a build of a Release deploying this Aggregate records for the attachment, read the same way the Release view reads them (see [Attachment connection, slot and sensitivity clause](#attachment-connection-slot-and-sensitivity-clause)); they come from the socket's slot declaration and the Feature's own, so they do not depend on which Release deploys the Aggregate. An Aggregate names no Manifest, so the realization a Release's Manifest chooses for the attachment is not shown here. This view lists a component's connections and what they carry; the attachments of a component's own block appear in the Release view.
+
 ### Release (resolved by default)
 
-The Release view is the highest-stakes inspection. It runs the full pipeline and renders, per boundary, every Component node, its uses-edges, and every Feature attached to that node — each with the **attachment slot it fills** and whether it handles **declared-sensitive** material, plus a **provenance bracket** revealing where the attachment came from:
+The Release view is the highest-stakes inspection. It runs the full pipeline and renders, per boundary, every Component node, its uses-edges, and every Feature attached to that node — one written on a connection beneath that connection's edge — each with the **attachment slot it fills** and whether it handles **declared-sensitive** material, plus a **provenance bracket** revealing where the attachment came from:
 
 ```text
 $ aggrega inspect ./prod-release.yaml --catalog ./catalog
@@ -289,7 +303,7 @@ Boundary: data-ns
     Features: (none)
 ```
 
-Each boundary carries its output directory and its provider-consumed annotations; each component under a boundary carries its Aggregate component type, its uses-edges (cross-boundary edges marked), and its Feature attachments with their connection, slot, sensitivity and provenance clauses. `--flat` collapses the boundary tree to one section per boundary keyed by its full path. `--raw` emits the Release file verbatim with no pipeline.
+Each boundary carries its output directory and its provider-consumed annotations; each component under a boundary carries its Aggregate component type, its uses-edges (cross-boundary edges marked), each followed by the attachments that connection carries, and its own Feature attachments, every attachment with its facts clause and provenance bracket. `--flat` collapses the boundary tree to one section per boundary keyed by its full path. `--raw` emits the Release file verbatim with no pipeline.
 
 ### YAML output
 
@@ -388,12 +402,16 @@ Where a workspace has recorded which versions a Release resolves to, that record
 
 ## Attachment connection, slot and sensitivity clause
 
-Each Feature attachment in the Release view carries a clause naming the facts the compiler records about the attachment itself: which connection it was written on, when it was written on one; which attachment slot it fills; and whether it handles declared-sensitive material. The clause sits between the attachment's name and its provenance bracket, and it reads identically in both provenance forms below.
+Each Feature attachment in the Release view carries a clause naming the facts the compiler records about the attachment itself: which attachment slot it fills, and whether it handles declared-sensitive material — and, for an attachment written on one of the component's connections, the connection it was written on and the realization the Release binds for it. The clause sits between the attachment's name and its provenance bracket, and it reads identically in both provenance forms below.
 
-- **`[connection: <alias> through socket <socket>]`** — the attachment was written on one of the component's connections: the one written under `<alias>` in the socket `<socket>`. It leads the clause because it changes how the rest reads: the slot half that follows names a slot the connection's socket declares, not one the component declares for its own attachments. The attachment's name is the connection's alias and the slot joined by a dot, and the `Uses:` block above lists the same alias with the component it reaches; the socket appears only here.
+An attachment written on a connection is listed beneath that connection's line in `Uses:`, not under `Features:`, so `Features:` holds the component's own attachments alone. The line above it names the connection by its alias and the component it reaches, and its own clause says the rest:
+
+- **`[socket: <socket>]`** — the socket the connection is wired through, which the connection's line does not name. It leads the clause because it changes how the rest reads: the slot half that follows names a slot the connection's socket declares, not one the component declares for its own attachments.
+- **`[connection: <alias> through socket <socket>]`** — the same fact for an attachment whose connection the `Uses:` block shows no line for, which is then listed under `Features:` and names its connection here instead. Either way a connection is named once per attachment, never twice.
 - **`[slot: <name>]`** — the attachment fills the slot called `<name>`. A slot is filled by attaching a Feature under the slot's own name, so `<name>` is the name the attachment was written under, matched against the declared slots: the host Component's `featuresSchema` for one of its own attachments, and the `featuresSchema` the connection's socket declares for an attachment written on a connection.
 - **`[free]`** — the attachment fills no declared slot: the resolved Component declares no `featuresSchema` slot of that name. This is a finding, not a diagnostic. A free-form attachment is accepted, and an operator who wants to forbid one expresses that as a governance policy rather than relying on the tool to refuse it.
 - **`[sensitive]`** — the attachment handles material an author declared sensitive, because the attached Feature declares a sensitive leaf, because the slot it fills declares `sensitive: true`, or both.
+- **`[realization: <name>:<version>]`** — for an attachment listed beneath a connection, the FeatureRecipe the Release's Manifest binds for it: by the attachment's own name (the alias and the slot joined by a dot) where the Manifest maps that name, otherwise by its Feature type — the realization a build of the same documents renders it with.
 
 When several facts apply they share one clause. `core/storage/minio` declares a `root_password` slot marked `sensitive: true`, so a credential attached under that name reports both facts, while a Feature attached under a name the Component declares no slot for reports neither slot nor sensitivity:
 
@@ -403,23 +421,24 @@ When several facts apply they share one clause. `core/storage/minio` declares a 
     - cross-namespace-routing (core/k8s-dns-resolver:1.0.0)    [free]    [explicit]
 ```
 
-A component whose `models` socket declares a `credential` slot marked `sensitive: true`, wiring a connection under the alias `gpt` that fills it, reports the connection first — beside a credential of its own, which reports none:
+A component whose `models` socket declares a `credential` slot marked `sensitive: true`, wiring a connection under the alias `gpt` that fills it, lists that attachment beneath the connection — beside a credential of its own, which stays under `Features:`:
 
 ```text
     Uses:
       gpt → model
+        - gpt.credential (feature.conn/token:1.0.0)    [socket: models, slot: credential, sensitive, realization: conn-token-compose:1.0.0]    [explicit]
     Features:
     - db_password (feature.conn/token:1.0.0)    [slot: db_password, sensitive]    [explicit]
-    - gpt.credential (feature.conn/token:1.0.0)    [connection: gpt through socket models, slot: credential, sensitive]    [explicit]
 ```
 
 An attachment written on a connection never reports `[free]`: a socket admits only the slots it declares, and a connection carrying any other name is refused when the build loads.
 
 The clause is omitted entirely when none of the facts applies, and each half is omitted independently:
 
-- **No connection half** means the attachment was written on the component's own block, or reached it from a broader scope or by annotation-driven expansion.
+- **No socket or connection half** means the attachment was written on the component's own block, or reached it from a broader scope or by annotation-driven expansion.
 - **No slot half** means the host Component's declared slot set could not be resolved — for instance, its type matches no catalog entity. This is deliberately distinct from `[free]`: `[free]` answers "no slot of that name is declared", while an absent half means the question could not be answered at all.
 - **No `sensitive`** records that no declaration marked the attachment. That is narrower than a verdict that the attachment carries nothing secret; the axis reports declarations, and nothing is inferred from a field's name or its value.
+- **No realization half** under a connection means the Manifest binds the attachment to no FeatureRecipe the catalog holds.
 
 A slot whose declared name is literally `free` renders as `[free]` too, indistinguishable from a free-form attachment — nothing reserves that word against the slot namespace.
 
