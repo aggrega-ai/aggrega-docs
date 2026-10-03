@@ -41,7 +41,7 @@ spec:
         gpt.credential: helm/k8s-external-secret:1.0.0
 ```
 
-The entry is pinned and verified like any other name-tier entry, as the next paragraph describes.
+The entry is pinned and verified like any other name-tier entry, as the next paragraph describes. The Feature the attachment names is pinned and verified too, exactly as the Feature of an attachment written on the component itself is, under the connection entry its author wrote — see [The lockfile](../cli/aggrega-pull.md#the-lockfile).
 
 **A realization bound by name is pinned and verified like one bound by type.** `aggrega pull` acquires every Recipe and FeatureRecipe either tier binds — from a catalog directory, the cache or a registry — and records each in the Release's lockfile with its resolved version and content digest, under the mapping entry that binds it: `manifest.spec.mappings.components.name.<instance>` for a name-tier entry, beside `manifest.spec.mappings.components.type.<type>` for a type-tier one. `aggrega build` holds every one of them to its pin. A lockfile that records no row for a realization the Manifest binds halts the build as out of date, naming the realization and the entry that binds it; a realization whose content changed since the pull halts it the same way, naming both digests. In both cases `aggrega pull --release <release>` records the realization as it now stands. Like a `type` entry, a `name` entry is pinned whether or not the Release declares an instance of that name, so a `name` entry naming a Recipe no catalog or registry holds halts the pull.
 
