@@ -348,7 +348,7 @@ It resolves no dependency, reaches no registry and touches no network under eith
 
 `aggrega/effectiveConfiguration` answers two questions: what configuration applies in this session, and which layer decided each setting. It is the same answer [`aggrega config show --origin`](aggrega-config.md) prints, computed once and reported on both surfaces, so the two cannot disagree about where a setting came from.
 
-**A `source` is one of four shapes.** A config file's absolute path; an environment variable behind an `env:` prefix, such as `env:AGGREGA_SIGNING_REQUIRED`; a [global flag](global-flags.md) typed on the command line that started the daemon, named as the flag, such as `--offline` for a daemon started as `aggrega --offline serve`; or `(built-in defaults)` for a setting no layer sets. The first three appear verbatim in `layers`. The defaults do not, because the defaults are not a layer that contributed — they are what applies where no layer spoke.
+**A `source` is one of four shapes.** A config file's absolute path — the global file a daemon started as `aggrega --config <file> serve` reads included, named as the path it was given; an environment variable behind an `env:` prefix, such as `env:AGGREGA_SIGNING_REQUIRED`; a [global flag](global-flags.md) typed on the command line that started the daemon, named as the flag, such as `--offline` for a daemon started as `aggrega --offline serve`; or `(built-in defaults)` for a setting no layer sets. The first three appear verbatim in `layers`. The defaults do not, because the defaults are not a layer that contributed — they are what applies where no layer spoke.
 
 **A setting is attributed to the highest-precedence layer that sets it, whatever value that layer writes.** A config file writing the built-in default, or restating a value a file beneath it already sets, is the file named: it is the one holding the value in place. A file sets a setting by carrying its key, a list's `_append` companion included, and an environment variable by being exported with a non-empty value. The configuration file your pipeline owns is never named for a key it ignores. [`aggrega config show --origin`](aggrega-config.md) reports under the same rule.
 
@@ -624,7 +624,7 @@ The daemon resolves each workspace a request names the same way every `aggrega` 
 
 The process is also launched over a workspace, from `--workspace-root` or by walking up from its working directory, and that resolution does two things and no others: it sizes the worker pool, which is a property of the process rather than of any request, and it is the default declaration for pushed diagnostics. No request is answered against it.
 
-Configuration is likewise the same cascade every command reads, and [Configuration](configuration.md) is where it is described. What the daemon adds is only that each workspace's reading of it is taken once, when that workspace is first named, and reused for every later request about it. Beneath the project's files sits the global layer: the file `$AGGREGA_CONFIG` names when that variable is set, and otherwise `$XDG_CONFIG_HOME/aggrega/config.yaml`, falling back to `~/.config/aggrega/config.yaml`, loaded when present. Built-in defaults sit under that.
+Configuration is likewise the same cascade every command reads, and [Configuration](configuration.md) is where it is described. What the daemon adds is only that each workspace's reading of it is taken once, when that workspace is first named, and reused for every later request about it. Beneath the project's files sits the global layer: the file `--config` names on the command line that started the daemon, for every workspace it serves; otherwise the file `$AGGREGA_CONFIG` names when that variable is set; and otherwise `$XDG_CONFIG_HOME/aggrega/config.yaml`, falling back to `~/.config/aggrega/config.yaml`, loaded when present. Built-in defaults sit under that.
 
 **Operations that act on a Release take one as a parameter; the daemon selects none of its own.** A workspace still declares which Release it points at, and a four-step cascade reads that declaration: the `build.authoring_release` config field, then an `.aggrega/active-release` marker file, then a single-Release-in-the-workspace heuristic, then an Aggregate-only fallback. A marker you write therefore takes precedence over the heuristic, and a marker naming a Release that cannot be loaded falls through to the heuristic rather than to the fallback.
 
@@ -907,8 +907,9 @@ manifest*.yaml.
 
 Configuration is the cascade composition of the .aggrega-config.yaml
 files from the workspace root down to the working directory (nearer
-overrides farther), beneath which $AGGREGA_CONFIG (when set) and the
-built-in defaults apply.
+overrides farther), beneath which the global config file — the one
+--config names, else the one $AGGREGA_CONFIG names, else the default
+location when a file is there — and the built-in defaults apply.
 
 The daemon honors the aggrega/shutdown JSON-RPC notification for a
 cooperative cross-platform exit: the daemon completes the in-flight
