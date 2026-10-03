@@ -96,11 +96,11 @@ A Recipe's `provides:` block is a map of `<key>: <template>` pairs. Each templat
 
 The `uses:` pillar is the topological-edge declaration. A component instance's `uses:` block names the edges the component participates in — the sockets it consumes targets through. The full grammar is documented at [topology-triad.md](topology-triad.md); this section names `uses:` as a pillar for completeness.
 
-`uses:` lives on Aggregate component instances + feature attachments; the runtime template context exposes the JOIN projection over outbound edges as `.context.uses`. The projection carries each edge's resolved target metadata (target's `provides`, labels, annotations) so callers' Recipes can read cross-component pointer strings at base-rendering template evaluation.
+`uses:` lives on Aggregate component instances + feature attachments; the runtime template context exposes the JOIN projection over outbound edges as `.context.uses`. The projection carries each edge's resolved target metadata (target's `provides`, labels, annotations) so callers' Recipes can read cross-component pointer strings at base-rendering template evaluation, and the attachments written on that connection, at `.context.uses.<alias>.features.<slot>`.
 
 ## Features pillar
 
-`features:` is the attachment pillar: one keyword, one shape, every attachment. An operational Feature, a credential Feature and an identity Feature are all declared here under the instance name the author chooses. The runtime template context exposes the node's attachments as `.features.<name>`, each carrying `type`, `values`, `infra` and the attachment's resolved `provides`.
+`features:` is the attachment pillar: one keyword, one shape, every attachment. An operational Feature, a credential Feature and an identity Feature are all declared here under the instance name the author chooses. The runtime template context exposes the node's attachments as `.features.<name>`, each carrying `type`, `values`, `infra` and the attachment's resolved `provides`. An attachment written on one of the component's connections is exposed in that same shape under the connection instead, at `.context.uses.<alias>.features.<slot>`, and never under `.features` — so a Recipe ranging `.features` meets only the component's own attachments (see [the template context contract](../templates/template-context-contract.md#a-connections-attachments--contextusesaliasfeatures)).
 
 An attachment whose instance name matches a slot the entity declares in `featuresSchema` **fills** that slot; any other instance name is a **free** attachment. Filling a slot is what connects the four surfaces a slot-based credential travels:
 

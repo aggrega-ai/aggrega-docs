@@ -19,7 +19,7 @@ spec:
             origin: "{{ .parameters.db_root_pass }}"
 ```
 
-There is one attachment keyword (`features:`), one render-context pillar (`.features.<name>`), one execution order, and one set of output coordinates — for an attachment on a component, the component it is attached to and then the name it is attached under, whether the target's layout carries those two as a `<component>--<instance>/` directory beside the component's own or as a `<component>--<instance>--` filename prefix. What varies between attachments is **what they produce** — an injected value, a referenceable resource, a sidecar, a cloud identity — not the surface they are declared on.
+There is one attachment keyword (`features:`), one render-context shape (`.features.<name>`, and the same shape under a connection, `.context.uses.<alias>.features.<slot>`, for an attachment written on one), one execution order, and one set of output coordinates — for an attachment on a component, the component it is attached to and then the name it is attached under, whether the target's layout carries those two as a `<component>--<instance>/` directory beside the component's own or as a `<component>--<instance>--` filename prefix. What varies between attachments is **what they produce** — an injected value, a referenceable resource, a sidecar, a cloud identity — not the surface they are declared on.
 
 A credential Feature carries the label `feature.aggrega.ai/kind: secret` on its catalog entity. That label is **descriptive metadata**: it tells a reader, a catalog site, and a label selector what the Feature is for. No compiler branch reads it, and no behaviour turns on it. The behaviour comes from the FeatureRecipe an operator maps the Feature type to.
 

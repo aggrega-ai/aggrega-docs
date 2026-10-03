@@ -475,7 +475,7 @@ The walk order is values pillar first (in author order), then infra pillar (same
 
 ## Declared-sensitive values
 
-A leaf whose schema declares `sensitive: true` prints the fixed text `<redacted>` in place of its value. The key, the pillar prefix and the provenance bracket are all kept — only the value is replaced — so the layout still answers which leaves an entity carries and where each came from. Two readable surfaces are affected: an Aggregate's per-node `Values:` block, and a resolved Release's per-leaf attachment block. A Release's compiled graph under `--ir-graph` withholds the same leaves in the structured form described at [Machine-readable output](#machine-readable-output).
+A leaf whose schema declares `sensitive: true` prints the fixed text `<redacted>` in place of its value. The key, the pillar prefix and the provenance bracket are all kept — only the value is replaced — so the layout still answers which leaves an entity carries and where each came from. Two readable surfaces are affected: an Aggregate's per-node `Values:` block, and a resolved Release's per-leaf attachment block — including an attachment written on a connection, printed beneath that connection's line, which withholds exactly the leaves the same Feature withholds when the component holds it itself. A Release's compiled graph under `--ir-graph` withholds the same leaves in the structured form described at [Machine-readable output](#machine-readable-output).
 
 ```text
 Components:

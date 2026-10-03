@@ -493,6 +493,21 @@ workload: |
 
 Reading the published value rather than recomputing it from the same `values`/`infra` inputs is the difference between one statement of a name and two that can drift apart. The full field-by-field shape, including the availability rules, is at [templates/template-context-contract.md](../templates/template-context-contract.md#the-attachment-shape).
 
+An attachment written on one of the component's connections — a credential the component presents to one target — is read in the same shape under that connection, at `.context.uses.<alias>.features.<slot>`, and is never among `.features`. A Recipe reaching several targets reads each target's own credential under that target's alias, and a loop over `.features` that picks attachments out by type meets only the component's own:
+
+```yaml
+artifacts:
+  routes.yaml: |
+    {{- range $alias, $edge := .context.uses }}
+    - name: {{ $alias }}
+      {{- with $edge.features }}{{ with .credential }}
+      api_key_secret: {{ .provides.name }}
+      {{- end }}{{ end }}
+    {{- end }}
+```
+
+See [A connection's attachments](../templates/template-context-contract.md#a-connections-attachments--contextusesaliasfeatures) for the shape and for the order a template ranges the connections in.
+
 ## The `pipeline:` field
 
 `Recipe.spec.pipeline:` is a sequential array of Wasm plugin invocations for stateful AST mutation directly on the base infrastructure. Each entry declares an `id` (per-step identifier), a `plugin` URI (the Wasm artifact), a `function` (the plugin export to invoke), an optional `with:` Go template body supplying the plugin's payload, and an optional `when:` Go template that gates whether the step runs — a falsy result skips the step as a pass-through, leaving the document set unchanged. The `when:` gate, its independence from `optional:`, and its truthiness rule are covered in full under [entities/featurerecipe.md](featurerecipe.md) "Conditional steps — `when:`":

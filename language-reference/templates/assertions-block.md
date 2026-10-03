@@ -39,7 +39,7 @@ For Component and Feature `assertions:`, the template context exposes the resolv
 - `.values` — the developer's `values` content.
 - `.infra` — the Ops `infra` content (from Aggregate or Release).
 - `.uses` — the resolved `uses:` sockets (post-selector-resolution), keyed by **socket name**: the key is the socket the edge was authored under, not the alias written beneath it. Each entry describes the edge itself and carries nothing its target published — `target` is the resolved target's instance id, `alias` is the name the author gave that connection under the socket, and `origin_feature` is present when a Feature attachment synthesized the edge. So `.uses.<socket>.target` reads the resolved target, while a reference reaching through this map for a value the target published halts, because the entry carries no such field.
-- `.features` — the resolved attachments, keyed by the instance name the author gave each one. Each entry carries `type` (the attached Feature's catalog URI), `resolved_version` (the version bound for this build), and `values` (the attachment's own developer-intent content).
+- `.features` — the resolved attachments, keyed by the instance name the author gave each one. Each entry carries `type` (the attached Feature's catalog URI), `resolved_version` (the version bound for this build), and `values` (the attachment's own developer-intent content). An attachment written on one of the component's connections is not among them, exactly as it is not among a Recipe template's `.features`, and `.uses` carries no attachment either.
 - `.metadata` — the entity's metadata.
 
 For Recipe and FeatureRecipe `assertions:`, the context adds Recipe-specific fields:

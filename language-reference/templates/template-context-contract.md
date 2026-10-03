@@ -16,7 +16,7 @@ The top-level fields live at the root of the template context — accessed as `.
 - **`.infra` (map).** Ops-authored physical sizing from the Release. Validated by the Catalog's `schema:` (the Component's or Feature's JSON Schema 2020-12 declaration) at resolution. The same `optional`-vs-`default` guidance as for `.values` applies — prefer `optional` when an authored zero or false is a legitimate intent (scale-to-zero, no-retries, feature-flag-off).
 - **`.locals` (string-valued map).** Recipe-private state — names declared in the Recipe's `locals:` block, resolved in the locals preamble and published onto this pillar at source resolution. Entries resolve in author order and an entry may read a sibling defined above it, so order is load-bearing wherever one entry reads another. Accessible only within the Recipe's own templates; never exposed to callers.
 - **`.provides` (string-valued map).** The Recipe's public output strings — the contract callers' `inject:` blocks resolve `from:` references against. Populated at provides evaluation.
-- **`.features` (map of attachments).** Iterates the Features attached to this Component (Aggregate-level + subsystem-level + Release-level + Manifest-annotation-driven, per the 5-Tier Onion Model), keyed by the instance name the author gave the attachment. Every entry carries the same four fields — see [the attachment shape](#the-attachment-shape) below.
+- **`.features` (map of attachments).** Iterates the Features attached to this Component (Aggregate-level + subsystem-level + Release-level + Manifest-annotation-driven, per the 5-Tier Onion Model), keyed by the instance name the author gave the attachment. Every entry carries the same fields — see [the attachment shape](#the-attachment-shape) below. An attachment written on one of the Component's connections is not among them: it is read under that connection, at [`.context.uses.<alias>.features.<slot>`](#a-connections-attachments--contextusesaliasfeatures), so a template ranging `.features` meets only the Component's own attachments.
 - **`.metadata` (struct).** Release identity for deterministic naming: `release_name`, `release_version`, `environment`, `aggregate_name`. Populated for every render; values originate in the Release's `metadata:` block.
 - **`.source`.** The resolved `Recipe.Spec.Source` after the source-resolution template evaluation. `nil` for sourceless Recipes; `nil` before source resolution runs.
 - **`.workload`.** The parsed Workload object, populated once the rendered `workload:` document has been decoded and has passed the validation that gates it: the Workload schema, the Component's `featuresSchema` for every attachment its containers declare, and the resolvability of what each attachment references. `nil` for non-synthesized Recipes; `nil` before workload synthesis runs.
@@ -56,9 +56,10 @@ Because the labels arrive verbatim, a catalog author's own namespace reaches the
 
 ## The `.context` block
 
-`.context` is the compiler-assembled execution context for a single node — the identity, topology, and delivery-pipe data the renderer threads through every template site. Five fields:
+`.context` is the compiler-assembled execution context for a single node — the identity, topology, and delivery-pipe data the renderer threads through every template site. Its fields:
 
 - **`.context.instance_id` (string).** The node's identity **as a name** — the value the build itself uses to name and label what it emits, so a template composing a resource name or an in-cluster address from it predicts the name the build actually produces. It is the name you wrote for a node your own Aggregate declares. For a node an imported Aggregate contributes it is the flattened identity with the module separator written out (`data-layer.main-db` becomes `data-layer-zdmain-db`), because a dot is not a character a resource name can hold and, inside a cluster address, it separates a service from its namespace. The dotted form is what your documents and the build's diagnostics use to address that node; see [Naming conventions](../02-naming-conventions.md).
+- **`.context.rendered_name` (string).** The name the node's provider gives the resources it renders from source you supplied, such as the release name a chart reads. Present only where that provider derives one; see [Naming a Rendered Resource](rendered-resource-names.md).
 - **`.context.labels` (string-valued map).** Catalog-authored labels plus any `label-transform` additions made at topology construction.
 - **`.context.annotations` (three buckets, see below).** Cascaded annotations grouped by origin.
 - **`.context.inject` (InjectPipe, see below).** The pre-hydrated, intercepted delivery pipe — the standard surface Recipe templates read for cross-component values.
@@ -104,12 +105,35 @@ The InjectPipe is the post-interception state — FeatureRecipe `injectMapping` 
 - **`.origin_feature` (string)** — set when the edge was synthesized by a Feature attachment (e.g., a sidecar Feature contributing a `uses` edge to a credential Feature).
 - **`.values` (map)** — resolved per-edge developer configuration for this connection, authored on the Aggregate's `uses` entry. Present only when the edge carries per-edge values.
 - **`.infra` (map)** — resolved per-edge operator configuration for this connection, authored on the Release's `uses` entry. Present only when the edge carries per-edge infra.
+- **`.origin_release` (boolean)** — `true` when the Release wired this connection rather than the Aggregate declaring it; absent for a connection the Aggregate declares.
+- **`.features` (map of attachments)** — the attachments written on this connection, keyed by the slot name the socket declares; see [below](#a-connections-attachments--contextusesaliasfeatures). Present only when the connection carries one.
 
 Both per-edge config maps are consumer-scoped: they land in the consuming node's render context only, never the target's.
 
 A provided value is read at `.provides.<name>` — the provided names nest under `.provides` rather than sitting directly on the edge, so `.context.uses.<alias>.<name>` addresses no field and yields nothing.
 
 Recipe templates consume this projection to look up target-side state without walking the IR graph. FeatureRecipe `injectMapping` templates use it to reach into target annotations for cross-boundary routing decisions (the K8s DNS resolver pattern documented in [entities/featurerecipe.md](../entities/featurerecipe.md) is the canonical worked example).
+
+**A template that ranges `.context.uses` sees the connections in key order — sorted by alias — not in the order the Aggregate wrote them.** Every map a template ranges is visited that way, `.features` and a connection's `.features` included, so a template never recovers authored order by ranging a map; where order carries meaning, the authoring surface models it as a list. Either way the rendered output is byte-identical across builds of the same input.
+
+### A connection's attachments — `.context.uses.<alias>.features`
+
+An attachment written on a connection — under `features:` on a component's `uses` entry in the Aggregate, or on the Release's entry for that connection — fills a slot the socket declares. It is an attachment of the **consuming** component for everything the build does with it: the Manifest binds its realization, its FeatureRecipe renders on the consumer's side, its provides contract is enforced. A template reads it under the connection it was written on:
+
+```yaml
+{{- range $alias, $edge := .context.uses }}
+- name: {{ $alias }}
+  api_base: {{ $edge.provides.endpoint }}
+  {{- with $edge.features }}{{ with .credential }}
+  api_key_secret: {{ .provides.name }}
+  api_key_key: {{ .provides.key }}
+  {{- end }}{{ end }}
+{{- end }}
+```
+
+- **Keyed by slot.** `.context.uses.<alias>.features.<slot>` names the slot the connection's socket declares — `credential` above — so a consumer reaching several targets reads each target's own credential under that target's alias. A connection carrying no attachment has no `.features`, which is why the read is guarded.
+- **The attachment shape.** Each entry carries exactly what `.features.<name>` carries for one of the component's own attachments — `.type`, `.resolved_version`, `.labels`, `.values`, `.infra`, and the resolved `.provides` of the FeatureRecipe bound to it — see [the attachment shape](#the-attachment-shape). The provides read here are the ones the attachment's own FeatureRecipe renders against, so the name a consumer references and the name of the resource that FeatureRecipe emits are one evaluated value.
+- **Never in `.features`.** The component's own `.features` holds only the attachments written on its own block. A Recipe that ranges `.features` and picks attachments out by type — `{{ range $name, $f := (default dict .features) }}{{ if eq $f.type "core/referenced-secret" }}…` — therefore never meets a connection's credential, even one of the same Feature: a template reaches a connection's attachment through its connection, never through `.features`. The same holds on every surface that shows a component's attachments, the `assertions` context included.
 
 ## Three inject-related surfaces
 
