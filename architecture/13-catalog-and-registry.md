@@ -491,10 +491,10 @@ The check is opt-in: one command performs it, and it only runs when an author as
 * **`aggrega lint` reports name-shape violations.** The plugin compares each entity's `metadata.name` against the pattern for its kind. The check runs when an author invokes `aggrega lint` — over a single entity, over a Release's dependency closure with `--release`, or over every catalog entity when invoked with no argument — and the same rule set is reachable from the editor-facing tool surface the CLI exposes. Findings are advisory: they are reported at `warn` severity, and they do not halt.
 
 ```text
-[warning] name-shape: metadata.name "mariadbSynth" does not match the documented pattern for Recipe entities (^[a-z][a-z0-9-]*$)
+warn: E0278 name-shape: metadata.name "mariadbSynth" does not match the documented pattern for Recipe entities (^[a-z][a-z0-9-]*$)
 ```
 
-  The offending file's path prints above the finding, and a whole-catalog run closes with a count of the entities checked and the advisory findings raised.
+  The finding opens with its severity and the short code its rule is registered under, which `aggrega explain E0278` expands. The offending file's path prints above the finding, and a whole-catalog run closes with a count of the entities checked and the advisory findings raised.
 
 * **`aggrega build` does not check name shape.** Rendered output does not depend on Aggrega entity names, so a build over a catalog carrying non-conforming names emits no warning and no diagnostic, and succeeds exactly as it would otherwise.
 * **`aggrega push` does not check name shape either.** Publishing refuses on other grounds — most notably the immutability rule above, where republishing an existing `name:version` with different content halts. Where a refusal names `aggrega lint --pre-publish`, it is telling the author which command to run; the push does not run it.
