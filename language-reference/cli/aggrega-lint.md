@@ -186,12 +186,15 @@ can be overridden per invocation via the --allow-*/--no-allow-* flag pairs.
 
 All three shapes accept -o json, which replaces the human report on standard
 output with one structured document: every finding with its severity, the rule
-that produced it, its message, and the entity file it concerns, plus counts by
-severity. A finding carries a line and column only when the rule that produced
-it located the issue that precisely; otherwise the file alone locates it. The
-message is the rule's own text, carried through unchanged, so the structured and
-human renderings never word a finding differently. The exit status is the same
-under either format.
+that produced it, its short code (the code printed at the head of its row in
+the human report, which aggrega explain expands), its message, and the entity
+file it concerns, plus counts by severity. A finding from a rule Aggrega does
+not declare, one a linter of your own adds, carries no short code, as its row
+prints none. A finding carries a line and column only when the rule that
+produced it located the issue that precisely; otherwise the file alone locates
+it. The message is the rule's own text, carried through unchanged, so the
+structured and human renderings never word a finding differently. The exit
+status is the same under either format.
 ```
 
 **Flags**
