@@ -103,6 +103,8 @@ The first quoted value is the name the attachment was written under, which is wh
 
 **Authoring note.** The lint is advisory and never changes the build's verdict — the compiler does not police what an author names an attachment. An author who deliberately attaches a Feature under a name that resembles a slot (a second, differently-configured credential named alongside the slot it complements) can ignore the warning; the attachment behaves exactly as authored.
 
+**Not on a connection.** The lint reads a component's own `features:` block, which is open. The attachments a connection carries are keyed by the slots its socket declares and nothing else, so a name one edit from one of those slots is not legal there: the build halts instead, and the halt names the slot the name sits near in the same sentence. No warning is raised beside it. See "A connection carries an attachment under a name its socket declares no slot for" in [fatal-halts.md](fatal-halts.md).
+
 ## Uses-socket near-miss lint
 
 **Fires when** a component's own `uses:` block names a socket that is not one of its Component type's declared `usesSchema` sockets, but is within one edit of one — a single inserted, deleted, or substituted character, or two adjacent characters swapped. That is the shape a socket-name typo takes, and the lint names both spellings so the author can see the pair.
