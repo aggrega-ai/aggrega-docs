@@ -5,7 +5,9 @@ graph, and every Feature attachment in the deployment arrives with it. Each
 attachment carries a fixed set of facts about itself: which Feature it names,
 which slot it fills, which connection it was written on when it was written on
 one, what the catalog author declared about it, what an author wrote into it,
-and whether it handles material someone declared sensitive.
+and whether it handles material someone declared sensitive. One thing does not
+arrive as written: a value an author declared sensitive arrives withheld — see
+[Declared-sensitive values arrive withheld](#declared-sensitive-values-arrive-withheld).
 
 This page enumerates those facts and says what each one does and does not
 claim. For the socket itself — the four roles, the verdict severities, the
@@ -215,7 +217,75 @@ they fill from, keyed first by delivery mechanism.
 What a credential attachment's `values` carries is the author's choice, and the
 compiler carries whichever was written without resolving either: a by-reference
 credential carries a pointer into a secret store, and a by-value one carries
-the material itself.
+the material itself. Whichever it is, a leaf the attached Feature declares
+sensitive reaches a policy withheld, as the next section describes; a leaf it
+leaves undeclared, such as a published locator, arrives as written.
+
+## Declared-sensitive values arrive withheld
+
+Every leaf the graph marks as declared sensitive arrives at this socket as a
+withheld marker rather than as the value an author wrote. The marker is a
+single-key object carrying the reason the value is absent:
+
+```json
+{ "aggrega_withheld": "declared" }
+```
+
+`declared` means a declaration covers the leaf. A payload that could not be
+read at all is withheld whole, with the reason `unreadable`, because no leaf
+inside it could be judged.
+
+The withholding follows the graph's own markings, so it reaches exactly the
+leaves they name, wherever they sit:
+
+- **every attachment's `values` and `infra`**, whatever scope wrote it — the
+  component's own block, a subsystem, a boundary or the Release, an
+  annotation-driven expansion — and whether it was written on the node's own
+  block or on one of its connections, by the leaves its
+  `sensitive_payload_leaves` names;
+- **a boundary-level attachment's `infra`**, under `boundary_features`, by its
+  own marking;
+- **a node's own `values` and `infra`**, under `values_mapping` and
+  `infra_mapping`, by the node's own `sensitive_payload_leaves`.
+
+What a policy reasons on is unchanged. The type, the resolved version, the
+labels, the catalog annotations, `binding`, `connection`, `origin` and its
+provenance maps, all three sensitivity facts, and every leaf no declaration
+marks arrive as before. The key of a withheld leaf survives too, so a policy
+still sees which leaves a payload carries and which of them carry declared
+material — only the value is absent. A rule about where declared-sensitive
+material travels, and by which route, is therefore fully expressible; a rule
+about the material's content is not, by design.
+
+A node's authored `uses` block, carried on the node beside its edges, keeps
+each attachment written on a connection to its `type` and `description`. The
+attachment's values are carried once, on the attachment itself, where the
+withholding reaches them.
+
+A policy that wants to tell a withheld leaf from an authored one tests for the
+marker's key:
+
+```rego
+package security
+
+import rego.v1
+
+audit contains msg if {
+    some node_id, attachments in input.graph.spec.feature_values_mapping
+    some name, attachment in attachments
+    some key, value in attachment.values
+    is_object(value)
+    value.aggrega_withheld
+    msg := sprintf("%v/%v writes a declared-sensitive value at values.%v.", [node_id, name, key])
+}
+```
+
+This is the same withholding `--ir-graph` applies when a command prints the
+graph, so a policy and a person reading the printed graph see the same leaves
+withheld. It applies to the payload a policy receives and to nothing else: the
+graph the build renders from is untouched, so the withholding changes no
+rendered byte. Nothing is withheld from what a `render-verdict` policy
+receives, because the rendered artifacts are what that role judges.
 
 ## Where each leaf came from: `values_provenance` and `infra_provenance`
 
@@ -321,7 +391,7 @@ values leaf and its `password` provides key sensitive, filling a declared
   "binding": "credentials",
   "values": {
     "secretName": "db-creds",
-    "literalPassword": "by-value-plaintext"
+    "literalPassword": { "aggrega_withheld": "declared" }
   },
   "inject": {
     "env": { "DATABASE_PASSWORD": "password" }
@@ -340,7 +410,9 @@ environment key is one that carries it (`sensitive_inject`). And this
 attachment's payload carries a value at `values.literalPassword` specifically
 (`sensitive_payload_leaves`) — while `values.secretName`, a locator the
 Feature deliberately leaves unmarked, is absent from that list even though the
-payload carries it too.
+payload carries it too. The password the author wrote arrives withheld, while
+the locator beside it arrives as written: the marking tells a policy that a
+value is there, and the value itself never reaches it.
 
 A rule that denies a literal secret in a rendered artifact wants the third. A
 rule that requires every credential-handling attachment to carry an ownership
@@ -410,7 +482,9 @@ declaration to change.
 What the declarations do everywhere is make the fact **legible** — to the
 compiler's own debug output, and to a policy at this socket that decides what to
 do about it. Turning a marking into a build outcome is the policy's job, which
-is what this socket exists for.
+is what this socket exists for. And a policy is told about declared-sensitive
+material without being handed it: the marking arrives, the value arrives
+withheld.
 
 ## Cross-references
 

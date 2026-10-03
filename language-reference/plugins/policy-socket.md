@@ -75,6 +75,14 @@ that should serve two roles is attached twice — once per role.
   the absence of a path is not proof that none exists: a policy whose verdict
   turns on something being *unreachable* should establish that from the nodes and
   edges, which the payload carries in full, rather than from the path list alone.
+  One thing in the graph is not as written: every value an author declared
+  sensitive — in an attachment's `values` or `infra`, in a boundary
+  attachment's `infra`, or in a node's own `values` or `infra` — arrives as the
+  withheld marker `{"aggrega_withheld": "declared"}`, while its key, its
+  sensitivity marking and every undeclared value beside it arrive as written. A
+  policy judges where declared-sensitive material travels and never receives the
+  material; see
+  [the attachment facts a governance policy reads](governance-attachment-facts.md#declared-sensitive-values-arrive-withheld).
   An `ir-verdict` policy runs at the static-analysis
   gate, before any artifacts are produced. Use it for policies about
   architecture and wiring — topology invariants, cross-boundary auth,
@@ -85,7 +93,9 @@ that should serve two roles is attached twice — once per role.
   output path and its rendered text; it additionally carries the format it was
   rendered in, when the producing provider declared one, and a parsed structured
   view of its content, when the content is in a format that was parsed ahead of the
-  policy. A `render-verdict` policy sees exactly what the build produced. Use it
+  policy. A `render-verdict` policy sees exactly what the build produced, and
+  nothing in it is withheld: a value a Recipe rendered into an artifact arrives
+  as rendered, because the artifact is what the policy judges. Use it
   for policies about the concrete output — a rule that inspects rendered Docker
   Compose services or Kubernetes objects, for example.
 
@@ -441,7 +451,7 @@ fires rather than an error, because a path that is not there is simply undefined
 
 | Role | What a policy reads |
 | --- | --- |
-| `ir-verdict` | `input.graph` — the whole build graph document: nodes at `input.graph.spec.nodes` keyed by node id, edges at `input.graph.spec.edges`. `input.precalculated_paths` — the enumerated routing paths, each carrying its ordered `nodes` list and the `attached_features` reached along it. |
+| `ir-verdict` | `input.graph` — the whole build graph document: nodes at `input.graph.spec.nodes` keyed by node id, edges at `input.graph.spec.edges`. A value an author declared sensitive reads as `{"aggrega_withheld": "declared"}`. `input.precalculated_paths` — the enumerated routing paths, each carrying its ordered `nodes` list and the `attached_features` reached along it. |
 | `render-verdict` | `input.artifacts` — one entry per emitted file, each with `path`, `content`, `format`, and `documents`, the parsed documents of the file. An artifact that could not be read structurally carries `parse_error` and no documents, so a policy can reject on the failure itself rather than let an unreadable file pass unexamined. |
 | `label-transform` | `input.graph.nodes` — the build's nodes keyed by node id, each with `component`, `resolved_version` and `labels`. `input.compilation_context` — the Release's `release_name` and `environment`, so a policy can decide differently per environment. |
 | `annotation-transform` | `input.targets` — every component the attachment may annotate, each with `boundary_path`, `component_name` and its current `annotations`. `input.binding_keys` — the annotation keys the Manifest registers a binding for. |
