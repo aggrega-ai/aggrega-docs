@@ -289,7 +289,7 @@ Boundary: data-ns
     Features: (none)
 ```
 
-Each boundary carries its output directory and its provider-consumed annotations; each component under a boundary carries its Aggregate component type, its uses-edges (cross-boundary edges marked), and its Feature attachments with their slot, sensitivity and provenance clauses. `--flat` collapses the boundary tree to one section per boundary keyed by its full path. `--raw` emits the Release file verbatim with no pipeline.
+Each boundary carries its output directory and its provider-consumed annotations; each component under a boundary carries its Aggregate component type, its uses-edges (cross-boundary edges marked), and its Feature attachments with their connection, slot, sensitivity and provenance clauses. `--flat` collapses the boundary tree to one section per boundary keyed by its full path. `--raw` emits the Release file verbatim with no pipeline.
 
 ### YAML output
 
@@ -386,15 +386,16 @@ Entities (11):
 
 Where a workspace has recorded which versions a Release resolves to, that record seeds the resolution, so the versions reported are the ones this deployment is built from rather than whatever the catalog happens to hold today. A workspace with no such record resolves over the catalog as it stands.
 
-## Attachment slot and sensitivity clause
+## Attachment connection, slot and sensitivity clause
 
-Each Feature attachment in the Release view carries a clause naming two facts the compiler derives about the attachment itself: which attachment slot it fills, and whether it handles declared-sensitive material. The clause sits between the attachment's name and its provenance bracket, and it reads identically in both provenance forms below.
+Each Feature attachment in the Release view carries a clause naming the facts the compiler records about the attachment itself: which connection it was written on, when it was written on one; which attachment slot it fills; and whether it handles declared-sensitive material. The clause sits between the attachment's name and its provenance bracket, and it reads identically in both provenance forms below.
 
-- **`[slot: <name>]`** — the attachment fills the host Component's `featuresSchema` slot called `<name>`. A slot is filled by attaching a Feature under the slot's own name, so `<name>` is the attachment's name matched against the resolved Component's declared slots.
+- **`[connection: <alias> through socket <socket>]`** — the attachment was written on one of the component's connections: the one written under `<alias>` in the socket `<socket>`. It leads the clause because it changes how the rest reads: the slot half that follows names a slot the connection's socket declares, not one the component declares for its own attachments. The attachment's name is the connection's alias and the slot joined by a dot, and the `Uses:` block above lists the same alias with the component it reaches; the socket appears only here.
+- **`[slot: <name>]`** — the attachment fills the slot called `<name>`. A slot is filled by attaching a Feature under the slot's own name, so `<name>` is the name the attachment was written under, matched against the declared slots: the host Component's `featuresSchema` for one of its own attachments, and the `featuresSchema` the connection's socket declares for an attachment written on a connection.
 - **`[free]`** — the attachment fills no declared slot: the resolved Component declares no `featuresSchema` slot of that name. This is a finding, not a diagnostic. A free-form attachment is accepted, and an operator who wants to forbid one expresses that as a governance policy rather than relying on the tool to refuse it.
 - **`[sensitive]`** — the attachment handles material an author declared sensitive, because the attached Feature declares a sensitive leaf, because the slot it fills declares `sensitive: true`, or both.
 
-When both facts apply they share one clause. `core/storage/minio` declares a `root_password` slot marked `sensitive: true`, so a credential attached under that name reports both facts, while a Feature attached under a name the Component declares no slot for reports neither slot nor sensitivity:
+When several facts apply they share one clause. `core/storage/minio` declares a `root_password` slot marked `sensitive: true`, so a credential attached under that name reports both facts, while a Feature attached under a name the Component declares no slot for reports neither slot nor sensitivity:
 
 ```text
     Features:
@@ -402,8 +403,21 @@ When both facts apply they share one clause. `core/storage/minio` declares a `ro
     - cross-namespace-routing (core/k8s-dns-resolver:1.0.0)    [free]    [explicit]
 ```
 
-The clause is omitted entirely when neither fact applies, and each half is omitted independently:
+A component whose `models` socket declares a `credential` slot marked `sensitive: true`, wiring a connection under the alias `gpt` that fills it, reports the connection first — beside a credential of its own, which reports none:
 
+```text
+    Uses:
+      gpt → model
+    Features:
+    - db_password (feature.conn/token:1.0.0)    [slot: db_password, sensitive]    [explicit]
+    - gpt.credential (feature.conn/token:1.0.0)    [connection: gpt through socket models, slot: credential, sensitive]    [explicit]
+```
+
+An attachment written on a connection never reports `[free]`: a socket admits only the slots it declares, and a connection carrying any other name is refused when the build loads.
+
+The clause is omitted entirely when none of the facts applies, and each half is omitted independently:
+
+- **No connection half** means the attachment was written on the component's own block, or reached it from a broader scope or by annotation-driven expansion.
 - **No slot half** means the host Component's declared slot set could not be resolved — for instance, its type matches no catalog entity. This is deliberately distinct from `[free]`: `[free]` answers "no slot of that name is declared", while an absent half means the question could not be answered at all.
 - **No `sensitive`** records that no declaration marked the attachment. That is narrower than a verdict that the attachment carries nothing secret; the axis reports declarations, and nothing is inferred from a field's name or its value.
 

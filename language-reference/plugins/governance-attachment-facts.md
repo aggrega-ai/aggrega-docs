@@ -3,9 +3,9 @@
 A governance plugin attached at the `ir-verdict` role receives the whole build
 graph, and every Feature attachment in the deployment arrives with it. Each
 attachment carries a fixed set of facts about itself: which Feature it names,
-which slot it fills, what the catalog author declared about it, what an
-author wrote into it, and whether it handles material someone declared
-sensitive.
+which slot it fills, which connection it was written on when it was written on
+one, what the catalog author declared about it, what an author wrote into it,
+and whether it handles material someone declared sensitive.
 
 This page enumerates those facts and says what each one does and does not
 claim. For the socket itself — the four roles, the verdict severities, the
@@ -27,6 +27,16 @@ input.graph.spec.feature_values_mapping[<node id>][<attachment name>]
 The attachment name is load-bearing rather than decorative. It is the key an
 author fills a slot by, so it is also what the compiler pairs against the
 host Component's declared slots.
+
+An attachment written on one of a component's connections — under `features:`
+on a `uses` entry, in the Aggregate or in the Release — is one of the consuming
+component's attachments, so it sits in the same bucket, on the consuming
+component's node. Its key is the name the compiler gives it, the connection's
+alias and the slot joined by a dot: `gpt.credential` for the `credential` slot
+of the connection written under the alias `gpt`. The dot never appears in a
+name an author writes, so that key never equals the name of one of the node's
+own attachments. A policy does not read the connection out of the key, though:
+the entry carries it as data, in `connection` below.
 
 ```rego
 package security
@@ -90,18 +100,94 @@ other two.
 
 | Value | Meaning |
 | --- | --- |
-| a slot name | The attachment fills the host Component's declared attachment slot of that name. |
+| a slot name | The attachment fills the declared attachment slot of that name. |
 | `free` | The attachment fills no declared slot. This is a positive finding: the slot set was resolved and no declared slot carries this name. |
 | absent | The host Component's declared slot set could not be resolved, so which slot is filled is unknown. |
 
+Which declared slot set the name comes from depends on where the attachment was
+written. An attachment of the node's own block fills a slot the host Component
+declares in its own `featuresSchema`. An attachment written on a connection —
+one carrying `connection` below — fills a slot the connection's socket declares,
+in that socket's `featuresSchema` on the host Component. So the same value,
+`credential`, names a slot of the Component on one attachment and a slot of a
+socket on another, and `connection` is what tells the two apart.
+
 The pairing is by name — an attachment fills a slot when the Feature is attached
-under the slot's name — so the value is an exact key from the resolved Component's
-declared slot set. Nothing is read out of the name's own text. The slot name is
-carried rather than a bare flag because *which* slot was filled is the more
-useful half of the answer.
+under the slot's name, on the component's block or on the connection — so the
+value is an exact key from the declared slot set. Nothing is read out of the
+attachment's key: a connection's attachment is keyed `gpt.credential` and
+reports `credential`. The slot name is carried rather than a bare flag because
+*which* slot was filled is the more useful half of the answer.
+
+An attachment written on a connection never reports `free`. A socket's slots
+are the only names a connection through it may carry, and a connection carrying
+any other name is refused when the build loads, so every such attachment in a
+graph that reaches a policy fills a declared slot.
 
 A policy that treats an absent `binding` as `free` will report an unknown as a
 finding. Test for `free` explicitly.
+
+## Which connection the attachment was written on: `connection`
+
+`connection` is present on every attachment written on one of the node's
+connections, and absent on every attachment of the node's own block. It carries
+two fields, the coordinates of that connection on the node:
+
+| Field | Meaning |
+| --- | --- |
+| `socket` | The socket the connection is wired through. |
+| `alias` | The alias the connection is written under. |
+
+The pair names one of the graph's edges: the edge whose `source` is the node
+carrying the attachment and whose `socket` and `alias` are these. That edge's
+`target` is the component the attachment is presented to. So a policy joins an
+attachment to what it reaches — something no fact on the attachment alone can
+say, because the attachment sits on the consuming node:
+
+```rego
+package security
+
+import rego.v1
+
+deny contains msg if {
+    some node_id, attachments in input.graph.spec.feature_values_mapping
+    some name, attachment in attachments
+    attachment.labels["feature.aggrega.ai/kind"] == "secret"
+    some edge in input.graph.spec.edges
+    edge.source == node_id
+    edge.socket == attachment.connection.socket
+    edge.alias == attachment.connection.alias
+    input.graph.spec.nodes[edge.target].labels["example.com/trust-zone"] == "external"
+    msg := sprintf("%v presents the credential %v to %v, outside the trust zone.", [node_id, name, edge.target])
+}
+```
+
+What `connection` claims, and what it does not:
+
+- **It records where the author wrote the attachment.** It is filled from the
+  connection the attachment was written on, never parsed out of the attachment's
+  key, so it holds the socket — which the key does not carry — as well as the
+  alias.
+- **It does not carry the slot.** Which slot of the socket the attachment fills
+  is `binding`, read the same way as for any attachment; the slot is reported
+  once, there.
+- **It does not describe the target.** The target, its labels, and who wired the
+  edge — the developer, the Release, or a Feature — are facts of the edge and the
+  target node, read there after the join.
+- **A connection a Feature draws carries no attachments**, so no attachment
+  carries a `connection` naming such an edge. A credential a Feature's own
+  connection needs is an attachment filling a slot the Feature declares, and it
+  carries no `connection`.
+- **Absent means the node's own block.** An attachment without `connection` was
+  written on the component's own `features:` (or reached it from a broader scope
+  or by annotation-driven expansion). It is not a finding that the attachment is
+  presented to no other component: what a component's own credential reaches is
+  decided by how its delivery is wired, which this field does not describe.
+
+Beyond deciding which declared slot set `binding` and the slot half of
+`sensitive` are read from, `connection` changes nothing about the attachment:
+its FeatureRecipe, its provides contract, the rest of its facts and its place in
+the bucket are those of any attachment the node carries.
 
 ## How the attachment came to exist: `origin` and its two companions
 
@@ -153,16 +239,18 @@ direction that fails quietly, so the three are worth reading separately before
 writing a rule against any of them.
 
 Every one of them is derived from what an author **declared** — `sensitive:
-true` on a Feature's schema leaf, or `sensitive: true` on a Component's
-attachment slot. No value's content is inspected, and no meaning is read out of
-a field's name.
+true` on a Feature's schema leaf, or `sensitive: true` on an attachment slot a
+Component declares, for its own attachments or on one of its sockets. No value's
+content is inspected, and no meaning is read out of a field's name.
 
 ### `sensitive` — one answer for the whole attachment
 
 True when either the attached Feature declares a sensitive leaf in its
-`values`, `infra`, or `provides`, or the host Component's attachment slot of
-the same name declares that whatever binds it handles secret material. Unset
-when neither declaration is present.
+`values`, `infra`, or `provides`, or the slot the attachment fills declares that
+whatever binds it handles secret material — the host Component's attachment slot
+of the same name, or, for an attachment carrying `connection`, the slot of that
+name the connection's socket declares. Unset when neither declaration is
+present.
 
 This answers *what the entity is*, so it deliberately does not vary with what a
 particular author wrote. It reads the Feature's declarations rather than
@@ -334,7 +422,10 @@ is what this socket exists for.
 - [graph schema reference](../schema/other/ir.md) — the field-by-field contract
   for the build graph, including every field on an attachment.
 - [`entities/component.md`](../entities/component.md) "Attachment Slots" —
-  declaring a slot, and declaring a slot sensitive.
+  declaring a slot, and declaring a slot sensitive; and the `featuresSchema`
+  a socket declares for the connections wired through it.
+- [`entities/aggregate.md`](../entities/aggregate.md) "A connection's own
+  attachments" — writing an attachment on a connection, and the name it takes.
 - [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md)
   "Declaring a leaf sensitive" — the `sensitive:` keyword and the ceiling on
   what declaring it achieves.
