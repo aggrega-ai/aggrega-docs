@@ -2110,12 +2110,13 @@ _Additional properties are not permitted._
 
 ### `ReleaseCandidatesResult`
 
-The Releases the workspace holds.
+The Releases the workspace holds, and the linked directories outside it that were not searched for them.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `releases` | array or null | yes | Each Release document. |
 | `lockfiles` | map of string | yes | The lockfile of each Release listed, keyed by the Release exactly as it is listed. Each is the file a pull writes for that Release and a build reads, so a client reads where it lives rather than working it out. Empty when the workspace holds no Release. |
+| `unreadLinkedDirs` | string[] | yes | Each link under the workspace root that leads to a directory outside it, named relative to the root where the link itself sits, in the order the workspace is searched. No directory outside the root is searched, so a Release reached only through one of these links is not in releases, and a client offering Releases can say why. Not named: a link to a directory inside the root, which is searched, or left out, where it actually sits; a link wherever a directory would be left out, whether by where it sits or by its name; and a link that cannot be resolved, because it leads nowhere or round a loop. Empty when the workspace holds none. |
 
 _Additional properties are not permitted._
 
