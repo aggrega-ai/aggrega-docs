@@ -194,9 +194,13 @@ configuration:
 **Under `key`, every caller presenting the key is served from one cache.** Add
 `scope: key` to the attachment's values and rebuild: the configuration's
 `semantic_cache_scope` reads `key`, and nothing else in the rendered output
-changes. A reply stored for `alice` is then served for `bob`'s similarly worded
-question, tool calls in it included. That suits a cache of answers that are the
-same for everyone and nothing else.
+changes. The end user a header names is then no part of the bucket, so a reply
+stored for `alice`, named in an `x-litellm-end-user-id` header, is served for
+`bob`'s similarly worded question naming him the same way, tool calls in it
+included. The body's `user` field is one of the request's other parameters,
+though, so two requests naming different end users there still fall in
+different buckets, as two temperatures do. That suits a cache of answers that
+are the same for everyone and nothing else.
 
 ## What halts the build
 

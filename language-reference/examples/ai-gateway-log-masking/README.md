@@ -195,10 +195,11 @@ realization says so:
   The gateway's own log records that the call's text was withheld. The call itself
   is answered as usual.
 
-As the catalog renders this gateway, it hands its logs to no logging integration
-and its spend logs keep no request or reply text, so the copies the masking
-protects are the ones an integration or a text-keeping spend log configured on
-the gateway would receive.
+As the catalog renders this gateway, it hands its logs to no logging integration,
+and its spend logs keep no request or reply text, though a failed call's row
+keeps the error the call failed with, which carries the provider's own message
+and can quote the request. So the copies the masking protects are the ones an
+integration or a text-keeping spend log configured on the gateway would receive.
 
 ## Log masking or data masking
 
