@@ -1098,14 +1098,14 @@ _Additional properties are not permitted._
 
 ### `CacheRemoval`
 
-One thing a reclamation removed.
+One thing a reclamation removed — or, in a list of what it left in place, one thing it would have removed.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `class` | string | yes | Which cache it was removed from. |
-| `label` | string | yes | What was removed. |
-| `reach` | string | yes | Whether the cache it came from belongs to this workspace or is shared across the machine. |
-| `size` | integer | yes | How many bytes it occupied. |
+| `class` | string | yes | Which cache it belongs to. |
+| `label` | string | yes | What it is. |
+| `reach` | string | yes | Whether that cache belongs to this workspace or is shared across the machine. |
+| `size` | integer | yes | How many bytes it occupies, or occupied before it was removed. |
 | `sizeText` | string | yes | The same size written the way a person reads one. |
 
 _Additional properties are not permitted._
@@ -1135,6 +1135,9 @@ One cache a clearing emptied.
 | `reach` | string | yes | Whether it belongs to this workspace or is shared across the machine. |
 | `size` | integer | yes | How many bytes were reclaimed from it. |
 | `sizeText` | string | yes | The same size written the way a person reads one. |
+| `heldOpenFiles` | integer | yes | How many files the clearing left in this cache because another process had them open. Only Windows refuses to remove an open file, so everywhere else this is zero. A later clearing removes them once that process has finished with them. |
+| `heldOpenBytes` | integer | yes | How many bytes those files occupy. They are not counted in size, which is what the clearing reclaimed. |
+| `heldOpenBytesText` | string | yes | The same figure written the way a person reads one. |
 
 _Additional properties are not permitted._
 
@@ -1815,6 +1818,7 @@ What a reclamation removed, what it kept, and what it could not reclaim.
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `removed` | array or null | yes | What was removed. |
+| `heldOpen` | array or null | yes | What the prune would have removed but left in place because another process had it open. Only Windows refuses to remove an open file, so everywhere else this is empty. These entries are counted as neither removed nor kept, none of their bytes count as reclaimed, and a later prune reclaims them; an entry that is a directory may already have lost the files in it that were not open. |
 | `retainedCount` | integer | yes | How many entries were kept. |
 | `reclaimedBytes` | integer | yes | How many bytes were reclaimed. |
 | `reclaimedBytesText` | string | yes | The same figure written the way a person reads one. |
@@ -1834,6 +1838,7 @@ What reclaiming down to a size removed, and what remains.
 | --- | --- | --- | --- |
 | `withinCapBefore` | boolean | yes | Whether what was held already fitted under the size, so nothing needed removing. |
 | `removed` | array or null | yes | What was removed. |
+| `heldOpen` | array or null | yes | What the reclaiming would have removed but left in place because another process had it open; it went on to the next-oldest entry instead. Only Windows refuses to remove an open file, so everywhere else this is empty. These entries still count toward the bytes that remain, and a later reclaiming can remove them. |
 | `totalBefore` | integer | yes | How many bytes were held before. |
 | `totalBeforeText` | string | yes | The same figure written the way a person reads one. |
 | `reclaimedBytes` | integer | yes | How many bytes were reclaimed. |
