@@ -449,7 +449,7 @@ The name invites assumptions the keyword does not earn, so state the ceiling pla
 
 ### What it changes in what the tool prints
 
-The one thing a declaration does change is the CLI's own debug output. A declared-sensitive value is replaced by the fixed text `<redacted>` on the surfaces the tool prints for a human to read:
+The one thing a declaration does change is what the tool prints for a human to read: its debug output, and the text of a refusal, described below. On the debug surfaces a declared-sensitive value is replaced by the fixed text `<redacted>`:
 
 - the per-pass trace `aggrega build --trace` writes to `.trace/`;
 - the per-node `Values:` block `aggrega inspect` prints for an Aggregate;
@@ -461,7 +461,7 @@ The key is always kept and only its value is replaced, so a reader still sees th
 
 The trace's withholding can be turned off for one build, when the withheld value is the one being debugged: `aggrega build --trace --trace-unredacted` writes the values into the trace files and marks each of those files with a header saying so. It is an invocation-time choice with no configuration setting, it reaches the trace alone, and it is documented with [`cli/aggrega-build.md`](../cli/aggrega-build.md) "Showing the withheld values". The `aggrega inspect` layouts have their own, `--unredacted`, documented with [`cli/aggrega-inspect.md`](../cli/aggrega-inspect.md) "Showing the withheld values".
 
-Five boundaries on that behaviour matter more than the behaviour itself.
+The boundaries on that behaviour matter more than the behaviour itself.
 
 **Rendered artifacts are never redacted.** Everything under `dist/` is emitted exactly as the render produced it, because it is the deployable: a placeholder written into a manifest would be a broken deployment rather than a protected one. Redaction covers what the tool *prints*, never what it *writes*. Reading a declaration as a promise that `dist/` is safe to publish is the one misreading to avoid — the ceiling above is unchanged, and `dist/` remains as sensitive as its most material-carrying attachment.
 
@@ -478,6 +478,28 @@ One thing a declaration may add to a rendered artifact, and it is not redaction:
 **The machine-readable projections are verbatim by contract, and need the same handling as the files they came from.** `aggrega inspect --raw` emits an entity exactly as authored, and `aggrega inspect --output yaml` reproduces the authored entity for every kind, a Release included. Neither substitutes anything, and that is deliberate: these are the outputs a script parses and a diff compares, so an output that quietly withheld part of itself would misrepresent the input it claims to reproduce and break the round-trip its consumers depend on. Declaring a leaf sensitive is not sufficient to keep it out of those outputs: pipe them, store them and share them the way you would the Aggregate and the Release themselves.
 
 **The compiled graph is the one machine-readable projection that does withhold, wherever it is handed out.** `--ir-graph`, on `aggrega inspect`, `aggrega validate` and `aggrega build`, writes the graph the run resolved as JSON alongside whatever the command already produces, and the daemon's `aggrega/irGraph` answers an editor with the same graph; in each, a value an author declared sensitive is replaced exactly as it is in the readable layouts. `--unredacted` beside `--ir-graph` prints those values instead, and so does the `unredacted` field on the daemon's request. So the graph read from a command and the graph read over the daemon's protocol are the same document under the same handling rule, and a pipeline or a client that needs the authored values has to ask for them.
+
+### What a refusal says about a declared value
+
+A refusal raised by a template that reads a value an author declared sensitive does not carry that value. When a template stops the build — an assertion calling `fail`, an expression that cannot be evaluated, output that does not read as the document the template must produce — and one of its references reaches a declared-sensitive datum, what is reported comes from evaluating the same template a second time, against a context in which every declared-sensitive datum already reads `<redacted>`:
+
+```text
+assertion failed: the admin password <redacted> must be supplied as a reference
+```
+
+- **Where the second evaluation fails at the same expression for the same reason, its failure is the one reported.** The author's own sentence survives with `<redacted>` where the value stood, and a value the template encoded, quoted or otherwise transformed is withheld too, because the replacement happens before the transformation.
+- **Where it does not, the refusal names the failing expression and says its text is withheld.** That is a template whose behaviour depended on what the value holds — it took another branch, or failed elsewhere, against the replacement text — so nothing it composed can be shown. The refusal still stops the build, and it keeps its code.
+- **A rendered Workload the Workload schema rejects is worded from the schema.** The document's fields carry no link back to the data its template read, so where that template read a declared-sensitive datum, every finding that could quote a value states the constraint instead, with `<redacted>` in the value's place and a notice saying why. No advice derived from the value is given, and a finding that quotes no value — a missing key, a key the Workload does not admit — reads as it always does:
+
+```text
+.containers.main.imagePullPolicy: against /$defs/container: enum: <redacted> does not satisfy enum ["Always","Never","IfNotPresent"] (the value is withheld because the template that rendered this document reads a value declared sensitive)
+```
+
+- **A pipeline step's `with` input refused by the step's declared input contract is worded from the contract** where the `with` template reads a declared-sensitive datum: each failing position in the input and the schema keyword that refused it, followed by a notice saying why, and nothing the input carried.
+
+What counts as declared is what the declarations name, on every part of its context a template can read: the component's own `values` and `infra`, the Features attached to it and to each of its connections, a delivery key carrying declared material, a `provides` key its Component declares sensitive, and a `locals:` entry computed from any of them. **A template that reads none of them reports exactly as it would with no declaration anywhere, byte for byte**, so only a refusal raised by a template that read a declared value is reported differently. The reading is the one the trace uses, read from the references a template spells: reaching a whole object reaches every declared leaf under it, so it can withhold text that held no value. The whole context handed on at once — `.` or `$` with nothing after it, passed to a function — is not a reference the reading sees, so a template whose other references reach nothing declared reports its refusal as it failed. Nothing here depends on `--trace-unredacted`: that flag reaches the trace files alone, and a refusal reads the same with and without it.
+
+Some refusals sit outside this. **Text a plugin writes** — a provider's or a pipeline step's own refusal — is the plugin's sentence, carried as the plugin wrote it. **A refusal naming a `source:` coordinate a template computed** — the source is not in the lockfile or the cache — names the coordinate as the template rendered it. **A template evaluated outside the build's assertions and its render** — parameter interpolation and parameter checks in an Aggregate, a schema's `when:` and `validate:` templates, and the resolution of a `source:` coordinate that records its pin — reports its failure as it failed.
 
 ### The build advisory for a value travelling as a literal
 

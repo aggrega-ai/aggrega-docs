@@ -201,6 +201,8 @@ For long or value-bearing messages, use `printf`:
 
 The compiler surfaces the message in the Loud Guardrails error format with the entity name, the assertion source location, and the failing message. The diagnostic is specific enough for the developer to identify and fix the root cause.
 
+A value an author declared `sensitive: true` reads `<redacted>` in that message wherever the message quotes it, so naming a declared field's value in the message is safe: the diagnostic still names the rule and the field, and only the value is withheld. An assertion whose outcome depends on what such a value holds — a comparison against a literal, a prefix test — reports that its failure text is withheld instead of its message. [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md#what-a-refusal-says-about-a-declared-value) "What a refusal says about a declared value" has the whole rule.
+
 ## What `assertions:` does not replace
 
 `assertions:` is the cross-field rule home. It does not replace:

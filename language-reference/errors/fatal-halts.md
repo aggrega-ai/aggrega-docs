@@ -481,6 +481,11 @@ Emitted message:
 
 A failure with no per-field detail — the block could not be read at all, rather than read and found wanting — carries the whole reason as its single finding instead.
 
+**Where the `workload:` template reads a value declared sensitive, no finding quotes a value.** Which field of the rendered document came from that value cannot be told, so every finding whose text could carry a value states the schema's constraint with `<redacted>` in the value's place, closed by a notice naming the reason, and carries no fix derived from the value:
+>   `.containers.main.imagePullPolicy`: `against /$defs/container: enum: <redacted> does not satisfy enum ["Always","Never","IfNotPresent"] (the value is withheld because the template that rendered this document reads a value declared sensitive)`
+
+A finding that quotes no value — a missing key, a key the Workload does not admit — reads as it does for any other template. See [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md#what-a-refusal-says-about-a-declared-value) "What a refusal says about a declared value".
+
 The build reports the halt under a `CATALOG_ERROR` tag, because a `workload:` block is written by the Recipe's author rather than by the Aggregate or the Release.
 
 **How to fix:** open the Recipe at the field paths listed and correct each one. The paths are given from the Workload's own root, so `.containers.main.health.ready` is the `ready` block under the `main` container's `health` key. A named container is addressed by its key and an init container by its position, which is why the two read differently. What each field accepts is in the Workload authoring reference.
@@ -3447,6 +3452,8 @@ Emitted messages:
 and for a diagnostic severity the contract does not declare, which arrives inside the step-failure frame:
 > pipeline step failed: step `"<id>"` (index `<n>`): `<the severity the host could not route>`: pipeline step typed-I/O contract violation
 
+**Where the step's `with` template reads a value declared sensitive, an input violation names no value.** What the schema check found is replaced by each failing position and the keyword that refused it, closed by a notice naming the reason — `at '/origin': pattern (the value is withheld because the template that rendered this input reads a value declared sensitive)` — so the field to correct is still named. See [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md#what-a-refusal-says-about-a-declared-value) "What a refusal says about a declared value".
+
 **How to fix:** for an input violation, correct the step's `with:` block against the schema its export declares — the detail names the field and what was expected. An output violation and an undeclared severity are the plugin's to fix; the step's declaration is not what is wrong, so marking it optional will not clear either.
 
 ### A pipeline patch addresses a document the set does not hold, or one with no tree to address
@@ -3761,6 +3768,8 @@ Emitted message, naming the entity kind and type, the instance, and the assertio
 
 and where the evaluation failed rather than the predicate:
 > `<entity-kind>` `"<type>"` instance `"<instance>"` assertion `"<name>"`: assertion `"<kind>/<type>/<instance>/<name>"` parse: `<what the parse reported>`
+
+**A value declared sensitive does not appear in the message.** Where the assertion reads such a value and its message quotes it, the message reads `<redacted>` in the value's place. Where what the assertion did depended on what the value holds, the message after the failing expression is replaced by `failure text withheld: this template reads a value declared sensitive, and the failure depends on what that value holds`; the halt and its code are unchanged. What counts as declared, and what the reading cannot see, is at [`vocabulary/compact-form-authoring.md`](../vocabulary/compact-form-authoring.md#what-a-refusal-says-about-a-declared-value) "What a refusal says about a declared value".
 
 **How to fix:** the message after the last colon is the assertion author's, and it is the one that says what to change — an assertion is written so that meeting it tells you the answer. Where the report is a missing key rather than the author's sentence, the assertion itself is at fault: correct the reference, or guard it as described above. Where the rule should not apply to this deployment, that is a question about the entity carrying the assertion rather than about your own file.
 
