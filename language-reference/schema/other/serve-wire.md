@@ -396,6 +396,7 @@ Answers with the resolved graph a Release compiles to, without rendering it.
 | `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `release` | string | no | The Release to resolve, as a path relative to the workspace root. An absolute path is refused. |
+| `unredacted` | boolean | no | Whether to answer with the values an author declared sensitive in the clear. Absent or false, each of them is withheld from the graph and a marker naming why stands in its place, as the command line's graph output withholds them; true answers with the graph as the Release compiles to it, those values included. |
 
 _Additional properties are not permitted._
 
@@ -1662,7 +1663,7 @@ The resolved graph a Release compiles to.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `graph` | any | yes | The graph document, carried through as the compiler emitted it. Its own shape is the graph's published contract and is not restated here. |
+| `graph` | any | yes | The graph document. The values an author declared sensitive are withheld from it unless the request asked for them with unredacted; everything else is carried through as the compiler emitted it. Its own shape is the graph's published contract and is not restated here. |
 
 _Additional properties are not permitted._
 

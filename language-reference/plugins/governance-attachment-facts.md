@@ -281,8 +281,12 @@ audit contains msg if {
 ```
 
 This is the same withholding `--ir-graph` applies when a command prints the
-graph, so a policy and a person reading the printed graph see the same leaves
-withheld. It applies to the payload a policy receives and to nothing else: the
+graph and the daemon's `aggrega/irGraph` applies when it answers a client, so a
+policy and a person reading the graph see the same leaves withheld. Those
+surfaces return the values to a person who asks for them with `--unredacted`;
+the payload a policy receives has no such request, and a node's own declared
+values are withheld from it on the same terms as an attachment's. It applies to
+the payload a policy receives and to nothing else: the
 graph the build renders from is untouched, so the withholding changes no
 rendered byte. Nothing is withheld from what a `render-verdict` policy
 receives, because the rendered artifacts are what that role judges.

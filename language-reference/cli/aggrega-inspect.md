@@ -356,9 +356,9 @@ The same flag, with the same meaning, is on [`aggrega build`](aggrega-build.md) 
 
 The key survives, so the graph still answers which leaves a node and its attachments carry; only the value is gone. An undeclared sibling in the same payload is emitted as authored — `secretName` above is a public locator its author left undeclared, and it prints. The reason accompanying the marker says why the value is absent: `declared` for a leaf a declaration covers, and `unreadable` where the payload arrived in a shape this command could not read, in which case the whole payload is withheld rather than any part of it guessed at.
 
-Pass `--unredacted` where a pipeline genuinely needs the values, and treat what it produces the way you treat the entity files themselves. `aggrega build` and `aggrega validate` carry no such affordance on this stream, so the graph they hand back always withholds.
+Pass `--unredacted` where a pipeline genuinely needs the values, and treat what it produces the way you treat the entity files themselves. [`aggrega build`](aggrega-build.md) and [`aggrega validate`](aggrega-validate.md) take the same flag beside `--ir-graph`, on the same terms: the graph they hand back withholds unless it is passed.
 
-An editor integration reads the same graph over the daemon's protocol and withholds it on its own side, so what a panel draws follows the same declarations. The editor's setting for showing sensitive values continues to work, because the protocol still carries the whole graph and the withholding there happens in the editor.
+The daemon's protocol hands out the same graph under the same rule. [`aggrega/irGraph`](aggrega-serve.md) answers with these values withheld, and returns them in the clear only to a request that sets its `unredacted` field — the protocol's spelling of this flag. So what an editor panel draws follows the same declarations, and a client that shows the values does so because it asked for them.
 
 ## The dependency closure: `--closure`
 
@@ -501,7 +501,7 @@ Nothing is inferred from a field's name: a field called `password` that carries 
 
 `--unredacted` prints the declared-sensitive values instead of withholding them, on every `inspect` surface at once — the readable layouts above and a Release's compiled graph alike. It exists because the withheld value is sometimes the one being investigated: a credential arriving from the wrong attachment looks identical to the right one when both read as withheld.
 
-It is scoped to the one command. `aggrega build --trace-unredacted` is the same idea on the build's trace files, and neither flag reaches the other's output; a rendered artifact under `dist/` is unaffected by both, because it is emitted exactly as the render produced it whether either is passed or not.
+It is scoped to the command it is passed to. [`aggrega build`](aggrega-build.md) and [`aggrega validate`](aggrega-validate.md) take it too, where it reaches the graph `--ir-graph` hands back and nothing else, and refuse it when no graph was asked for. `aggrega build --trace-unredacted` is the same idea on the build's trace files, and neither of the build's two flags reaches the other's output; a rendered artifact under `dist/` is unaffected by all of them, because it is emitted exactly as the render produced it whatever is passed.
 
 Whatever the output reaches then carries those values in the clear — a terminal, a pipe, a file, a screen recording, a pasted bug report. Unlike the trace files, which each open with a header saying they were captured unredacted, output on a terminal carries no such marking: only the command line says it was passed.
 
@@ -585,7 +585,7 @@ they are from the readable layouts. Pass --unredacted to print them instead.
 | `--color` | `auto` | Colorize output: auto\|always\|never. |
 | `--detail` | `false` | Render full field bodies. |
 | `--flat` | `false` | Render a tree-shaped entity (Aggregate, Release) as a flat list, each node prefixed with its full dotted path. No effect on tabular kinds. |
-| `--ir-graph` | `false` | Also write the IR graph this run computed to stdout, as JSON, in addition to everything this command already produces. Values an author declared sensitive are withheld from it. Applies to a Release, the one kind that resolves to a graph; any other kind refuses the request rather than silently dropping it. Pass --unredacted to print the withheld values instead |
+| `--ir-graph` | `false` | Also write the IR graph this run computed to stdout, as JSON, in addition to everything this command already produces. Values an author declared sensitive are withheld from it; pass --unredacted to print them instead. Applies to a Release, the one kind that resolves to a graph; any other kind refuses the request rather than silently dropping it |
 | `--list` | `false` | Render identifiers only. |
 | `--no-color` | `false` | Disable colorized output (alias for --color=never). |
 | `--output`, `-o` | `text` | Output format: text\|yaml. |
