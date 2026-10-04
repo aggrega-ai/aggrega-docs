@@ -80,11 +80,16 @@ gateway's ConfigMap.
 ## The guardrail entry
 
 Here is the gateway's configuration body, the `config.yaml` key of
-`dist/helm/router/litellm-gateway-config.configmap.yaml`, from its guardrails
-section on:
+`dist/helm/router/litellm-gateway-config.configmap.yaml`, from its
+`litellm_settings` section on:
 
 ```yaml
-[… omitted: the routing table, the routing strategy and the request guard's registration]
+[… omitted: the routing table and the routing strategy]
+litellm_settings:
+  callbacks:
+    - /etc/litellm-request-guard/request_field_filter.filter
+    - log_masking.withhold_failed_calls
+  redact_messages_in_exceptions: true
 guardrails:
   -
     guardrail_name: router-logs-log-masking
@@ -101,9 +106,11 @@ guardrails:
       pii_entities_config:
         EMAIL_ADDRESS: MASK
         PERSON: MASK
+general_settings:
+  disable_error_logs: true
 ```
 
-Four things are worth reading off it.
+Five things are worth reading off it.
 
 **`mode: logging_only` is the gateway's own mode for a guardrail that runs
 where a finished call is handed to its logs, and nowhere else.** The class the
@@ -136,10 +143,21 @@ env:
 
 A person's name becomes `<PERSON>` and an address `<EMAIL_ADDRESS>`.
 
+**A failed call is withheld rather than masked.** The gateway runs no logging
+guardrail for a call that fails, so the module the entry loads also provides
+`log_masking.withhold_failed_calls`, registered right after the request guard,
+and the attachment's realization writes the two settings beside it. The callback
+is handed a failed call's record before any callback registered after it, and
+replaces every text a caller or the model wrote with `[TEXT_WITHHELD]`, matched
+or not, and the error's text with `[ERROR_TEXT_WITHHELD]`, leaving what a retried
+attempt sends as it was. `disable_error_logs` keeps failed calls out of the spend
+logs, and `redact_messages_in_exceptions` keeps the request's messages out of the
+details the gateway attaches to an error.
+
 The same ConfigMap carries a second key, `log_masking.py`: the module the entry's
-`guardrail` names. The gateway's Recipe adds it only while a `core/log-masking`
-attachment lists something, so a Release without the attachment renders the
-ConfigMap without it.
+`guardrail` and the second `callbacks` entry name. The gateway's Recipe adds the
+module and that entry only while a `core/log-masking` attachment lists something,
+so a Release without the attachment renders the ConfigMap without either.
 
 ## What a log reader sees, and what the model sees
 
@@ -181,10 +199,15 @@ realization says so:
 
 - **The model provider receives everything unmasked**, and so do the gateway
   and both recognizer services.
-- **A failed call's record keeps the text.** The gateway runs no logging
-  guardrail on a call that fails, so what it logs for one — the messages, the
-  request as sent, the error the provider returned — is logged as it came. A
-  provider error that quotes the request reaches the gateway's own log that way.
+- **A failed call keeps no request text in any log the gateway writes, and that
+  costs two things.** The gateway's own line for a failed call keeps only the
+  kind of error, such as `An error was logged with its text withheld, as log
+  masking is attached: BadRequestError`, so the provider's message and its
+  traceback leave that log; and failed calls leave the spend logs and the daily
+  spend totals, which count successful calls only. A logging integration
+  configured outside the catalog can still read a provider's own error message
+  on the exception a failed call carries, and one registered ahead of the
+  gateway's own callback is handed a failed call's text as it came.
 - **Only the logs the realization writes through are covered:** not the
   gateway's debug output, and not a provider's own logs. A request's metadata,
   its tool definitions and its headers are logged as sent.
@@ -196,10 +219,9 @@ realization says so:
   is answered as usual.
 
 As the catalog renders this gateway, it hands its logs to no logging integration,
-and its spend logs keep no request or reply text, though a failed call's row
-keeps the error the call failed with, which carries the provider's own message
-and can quote the request. So the copies the masking protects are the ones an
-integration or a text-keeping spend log configured on the gateway would receive.
+and its spend logs keep no request or reply text and no failed call. So the
+copies the masking protects are the ones an integration or a text-keeping spend
+log configured on the gateway would receive.
 
 ## Log masking or data masking
 
