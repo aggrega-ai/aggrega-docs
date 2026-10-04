@@ -226,6 +226,7 @@ The artifacts and source position the message refers to, carried structurally so
 | `end_column` | integer | no | The column one past the end of the token the condition refers to. |
 | `release` | string | no | The Release the condition refers to, spelled the way the request named it, so a client can compose the remedy without reassembling it. |
 | `lockfile` | string | no | The lockfile a lockfile-scoped condition is about: the path that was looked for and not found, or could not be read. |
+| `unreachable` | boolean | no | Whether the refusal is a registry the request named that could not be reached: its name did not resolve, a connection to it was refused or could not be opened, or a secure connection to it could not be established. It is read from the failure itself rather than from the message, and it is set only where the failure shows the registry was never reached. A refused index refresh naming one registry carries it; a registry that answered, whatever it answered, leaves it absent. |
 
 _Additional properties are not permitted._
 
@@ -1317,12 +1318,13 @@ _Additional properties are not permitted._
 
 ### `TrustFetchOutcome`
 
-What reading a registry's advertised trust policy did. The outcomes are kept apart because they mean different things: the advertised policy was taken, the registry advertised nothing — which is not a failure — the built-in baseline was pinned in its place, or no read was attempted.
+What reading a registry's advertised trust policy did. The outcomes are kept apart because they mean different things: the advertised policy was taken, the registry advertised nothing — which is not a failure — the built-in baseline was pinned in its place, or no read was attempted. Where nothing was advertised, whether the registry could be reached at all is stated beside it.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `pinned` | boolean | yes | Whether the advertised policy was taken. |
-| `notAdvertised` | boolean | no | Whether the registry was asked and advertised no policy, in which case the operation proceeds on what the request stated. A registry the offline posture kept from being asked is never reported this way. |
+| `notAdvertised` | boolean | no | Whether the registry was asked and advertised no policy, in which case the operation proceeds on what the request stated. A registry the offline posture kept from being asked is never reported this way. A registry that could not be reached is reported this way too, since no policy came back from it, and carries unreachable beside it; read unreachable to tell the two apart. |
+| `unreachable` | boolean | no | Whether the registry could not be reached when its advertised policy was asked for: its name did not resolve, a connection to it was refused or could not be opened, or a secure connection to it could not be established. It is read from the failure itself rather than from reason, it stands beside notAdvertised, and it is set only where the failure shows the registry was never reached; a registry that answered — with no policy, or with a failure — leaves it absent. |
 | `baseline` | boolean | no | Whether the built-in baseline was pinned because no advertised policy was taken, which only the official hub carries. It stands beside notAdvertised where the hub was asked and advertised nothing, and alone where the offline posture kept the hub from being asked. |
 | `skipped` | boolean | no | Whether no read was attempted, because a stated policy overrode it or the request asked for none. |
 | `identities` | integer | no | How many signing identities the advertised policy carried. |
@@ -1368,6 +1370,7 @@ What an index refresh did for one registry.
 | `skipped` | array or null | yes | The repositories the walk passed over. |
 | `deprecations` | array or null | yes | The markers the walk met. |
 | `error` | string | no | What failed for this host, so a walk over several reports which of them failed without the caller correlating anything. |
+| `unreachable` | boolean | no | Whether this registry could not be reached: its name did not resolve, a connection to it was refused or could not be opened, or a secure connection to it could not be established. It is read from the failure itself rather than from error, it is set only beside error, and only where the failure shows the registry was never reached; a registry that answered, whatever it answered, leaves it absent. |
 
 _Additional properties are not permitted._
 
@@ -1889,7 +1892,7 @@ What registering a registry wrote, where, and what it read from the registry its
 | --- | --- | --- | --- |
 | `host` | string | yes | The host the entry is keyed under, which is not always the spelling the request used. |
 | `scope` | ConfigWriteScope | yes | Which configuration document was written and how far it reaches. A request names one workspace, so an answer that said nothing would be read as being about that workspace — and for a machine-wide write that reading is wrong. |
-| `trust` | TrustFetchOutcome | yes | What reading a registry's advertised trust policy did. The outcomes are kept apart because they mean different things: the advertised policy was taken, the registry advertised nothing — which is not a failure — the built-in baseline was pinned in its place, or no read was attempted. |
+| `trust` | TrustFetchOutcome | yes | What reading a registry's advertised trust policy did. The outcomes are kept apart because they mean different things: the advertised policy was taken, the registry advertised nothing — which is not a failure — the built-in baseline was pinned in its place, or no read was attempted. Where nothing was advertised, whether the registry could be reached at all is stated beside it. |
 
 _Additional properties are not permitted._
 
@@ -1914,7 +1917,7 @@ What refreshing the local indexes did, per host.
 | `failed` | array or null | yes | The hosts the refresh could not complete. |
 | `indexRoot` | string | yes | The directory the indexes were written under. |
 | `registriesConfigured` | boolean | yes | Whether any registry is configured at all. |
-| `reachedRegistries` | boolean | yes | Whether any registry was actually contacted, which distinguishes 'nothing changed' from 'nothing was tried'. |
+| `reachedRegistries` | boolean | yes | Always true on this answer: refreshing the indexes goes out to the registries themselves, where listing them and searching answer from configuration and from a local index. Whether a given registry was in fact reached is stated on its own entry in hosts, by unreachable. |
 
 _Additional properties are not permitted._
 
@@ -2168,7 +2171,7 @@ What seeding a configuration wrote, where, and what it read from the registry.
 | --- | --- | --- | --- |
 | `host` | string | yes | The registry the configuration was seeded for. |
 | `scope` | ConfigWriteScope | yes | Which configuration document was written and how far it reaches. A request names one workspace, so an answer that said nothing would be read as being about that workspace — and for a machine-wide write that reading is wrong. |
-| `trust` | TrustFetchOutcome | yes | What reading a registry's advertised trust policy did. The outcomes are kept apart because they mean different things: the advertised policy was taken, the registry advertised nothing — which is not a failure — the built-in baseline was pinned in its place, or no read was attempted. |
+| `trust` | TrustFetchOutcome | yes | What reading a registry's advertised trust policy did. The outcomes are kept apart because they mean different things: the advertised policy was taken, the registry advertised nothing — which is not a failure — the built-in baseline was pinned in its place, or no read was attempted. Where nothing was advertised, whether the registry could be reached at all is stated beside it. |
 | `written` | boolean | yes | Whether the document was written, as against handed back for the caller to place. |
 | `content` | string | no | The document's text, for a request that asked to be shown it rather than have it written. |
 
