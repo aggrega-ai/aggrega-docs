@@ -64,6 +64,7 @@ Because the labels arrive verbatim, a catalog author's own namespace reaches the
 - **`.context.annotations` (three buckets, see below).** Cascaded annotations grouped by origin.
 - **`.context.inject` (InjectPipe, see below).** The pre-hydrated, intercepted delivery pipe — the standard surface Recipe templates read for cross-component values.
 - **`.context.uses` (map of EnrichedEdge, see below).** The JOIN projection over outbound topological edges.
+- **`.context.used_by` (list, see below).** The components whose `uses` entries point at this one. Read by a FeatureRecipe attached to the component, on the templates that produce the attachment's own resources; empty everywhere else.
 
 ### `.context.annotations` — three buckets
 
@@ -135,6 +136,40 @@ An attachment written on a connection — under `features:` on a component's `us
 - **The attachment shape.** Each entry carries exactly what `.features.<name>` carries for one of the component's own attachments — `.type`, `.resolved_version`, `.labels`, `.values`, `.infra`, and the resolved `.provides` of the FeatureRecipe bound to it — see [the attachment shape](#the-attachment-shape). The provides read here are the ones the attachment's own FeatureRecipe renders against, so the name a consumer references and the name of the resource that FeatureRecipe emits are one evaluated value.
 - **Never in `.features`.** The component's own `.features` holds only the attachments written on its own block. A Recipe that ranges `.features` and picks attachments out by type — `{{ range $name, $f := (default dict .features) }}{{ if eq $f.type "core/referenced-secret" }}…` — therefore never meets a connection's credential, even one of the same Feature: a template reaches a connection's attachment through its connection, never through `.features`. The same holds on every surface that shows a component's attachments, the `assertions` context included.
 
+### The components that use this one — `.context.used_by`
+
+`.context.uses` looks outward, at the connections a component makes. `.context.used_by` looks inward, at the components whose `uses` entries point at this one. A FeatureRecipe attached to the component reads it, which is where a resource describing or restricting those connections belongs — a network policy admitting only the components declared to call this one, for example:
+
+```yaml
+artifacts:
+  callers.yaml: |
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: {{ .context.instance_id }}-{{ .attachment_name }}
+    data:
+      callers: |
+        {{- range .context.used_by }}
+        - component: {{ .component_id }}
+          socket: {{ .socket }}
+          selector: {{ .provides.selector }}
+        {{- end }}
+```
+
+Each entry carries:
+
+- **`.component_id` (string)** — the connecting component's instance ID in its flattened form (`frontend`, `data-layer.etl`), the value a `subDirectory:` path template reads as `.component_id`.
+- **`.socket` (string)** — the socket the connection fills on the connecting component (its `usesSchema` key).
+- **`.provides` (string-valued map)** — what the connecting component publishes, narrowed to the keys its Component declares: the same values a consumer of that component reads at `.context.uses.<alias>.provides`. A key the component's Recipe publishes without its Component declaring it is not among them.
+
+How the list behaves:
+
+- **In the order written.** Entries follow the order the connecting components are written in, then the order of each one's own `uses` entries. A component connecting twice appears twice, once per connection. Because it is a list rather than a map, a `range` meets the callers in that order — nothing is sorted.
+- **Only where the attachment renders its own resources.** The FeatureRecipe's `valuesMapping:`, `workload:` and `artifacts:` read it. It is empty in the component's own Recipe templates, in an `injectMapping:`, and in a `pipeline:` step's `with:` and `when:`, because what each of those produces can land in the component's own rendered output: an `injectMapping:` writes the component's delivery pipe, and a pipeline step may rewrite the component's documents. That is what keeps a component's own output the same whoever uses it — wiring one more caller to a component changes the output of a Feature attached to it that reads its callers, and nothing the component itself renders.
+- **Nothing about the connection itself.** An entry carries no per-connection `values` or `infra` and none of the connection's attachments; those stay with the consuming component, under its `.context.uses.<alias>`.
+- **Empty when nothing uses the component.** A `range` over it then renders nothing.
+- **Piped, never interpreted.** The identity, the socket and the published values are strings the compiler passes through. It infers nothing from a name, fetches nothing, and decides nothing about which callers a resource should admit; the template decides.
+
 ### An assertion's `.uses` — keyed by socket, then by alias
 
 An `assertions:` template reads the same connections through a narrower view of its own: `.uses` at the root rather than under `.context`, and carrying each connection's identity but nothing its target published, because both assertion phases evaluate before rendering. It mirrors the authoring form `uses: <socket>: <alias>: { target: … }` — keyed by **socket**, and under each socket by the **alias** of every connection on it, a connection written as a list entry taking its target as its alias. Each connection's entry carries `target`, `alias` and, for a connection a Feature attachment drew, `origin_feature`.
@@ -174,6 +209,8 @@ When the renderer evaluates an attachment FeatureRecipe's templates, an addition
 - **`.attachment_name` (string)** — the attachment's instance name: the slot it fills in the owning entity's `featuresSchema`, or the free name the author gave it. A FeatureRecipe's `locals:`, `provides:`, `injectMapping:`, `valuesMapping:` and `artifacts:` read it to derive a deterministic resource identifier (`{{ .context.instance_id }}-{{ .attachment_name }}`) and to name the attachment being processed.
 
 A base Recipe's own templates are not resolving an attachment, so the field is not part of their context: a Recipe `provides:`, `locals:` or `source:` template that references it halts naming the reference rather than rendering an empty value. A FeatureRecipe with `executionScope: boundary` runs once for the boundary rather than once per component, so the field is not available there either.
+
+On the templates that produce the attachment's own resources — its `valuesMapping:`, `workload:` and `artifacts:` — the attachment's context also lists the components that use its host, at [`.context.used_by`](#the-components-that-use-this-one--contextused_by). A boundary-scope FeatureRecipe has no host component and no `.context`; it reads every connection into its boundary under `.boundary.internal_uses_edges` and `.boundary.incoming_cross_boundary_uses_edges` instead.
 
 The field is the **only** route to the attachment's instance name. `.context.instance_id` is the **host component** the attachment is resolving for — it denotes the host on every template surface the compiler evaluates, including a FeatureRecipe's own `locals:` — so the two names are not interchangeable, and neither stands in for the other.
 

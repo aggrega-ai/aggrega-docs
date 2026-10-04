@@ -4,7 +4,7 @@ _Generated reference. Do not edit by hand — regenerate from the published JSON
 
 Schema id: `https://aggrega.ai/schemas/template-context-v1alpha1.schema.json`
 
-The runtime view assembled by the Go compiler and injected into Recipe and FeatureRecipe Go templates during rendering. When rendering an attachment FeatureRecipe the compiler additionally populates .attachment_name and .inject with the attachment-scoped context. For boundary-scope FeatureRecipes (spec.executionScope: boundary), the .context, .workload, .attachment_name, .inject, and .inject_raw pillars are absent and a .boundary.* pillar is populated instead — see the boundary block at the bottom of properties. This is NOT persisted to disk; it exists only in compiler memory during rendering. This schema documents the contract between the compiler and Ops template authors.
+The runtime view assembled by the Go compiler and injected into Recipe and FeatureRecipe Go templates during rendering. When rendering an attachment FeatureRecipe the compiler additionally populates .attachment_name and .inject with the attachment-scoped context, and, on the templates that produce the attachment's own resources, .context.used_by with the components that use its host. For boundary-scope FeatureRecipes (spec.executionScope: boundary), the .context, .workload, .attachment_name, .inject, and .inject_raw pillars are absent and a .boundary.* pillar is populated instead — see the boundary block at the bottom of properties. This is NOT persisted to disk; it exists only in compiler memory during rendering. This schema documents the contract between the compiler and Ops template authors.
 
 Base-rendering stage availability, in the order the stages run: Provides evaluation (locals preamble, then provides): node-local pillars only. A locals entry reads the entries above it in its own block; a provides template reads the node's whole resolved .locals. Self-reference banned (no provides entry reads another). Source resolution (locals publication + source eval): all pillars; .source and .workload absent. Those locals are published onto .locals here, then source: is evaluated against them. Values mapping (valuesMapping): all pillars + .source; .workload absent. Workload synthesis (workload eval): all pillars + .source; .workload being evaluated (absent from self-reference). Artifact evaluation (artifacts): all pillars + .source + .workload (fullest context).
 
@@ -43,6 +43,7 @@ The compiler-assembled execution context providing identity, topology, and deliv
 | `annotations` | object | no | The three cascading annotation buckets for the current node, segregated by origin. |
 | `inject` | object | yes | The pre-hydrated and intercepted delivery pipe. Starts as a compiler-generated map resolving Developer inject keys to Target provides values. Mutated in-place by the injectMapping deep-merges. By the time the Base Recipe renders, this contains the fully resolved physical strings. |
 | `uses` | map of enriched_edge | yes | The enriched topological edge map. Keyed by the Developer's alias (e.g., 'my_db', 'my_api'). Each entry is a compiler-assembled view of the target node's identity, resolved provides, injection mapping, and cascaded annotations, and of the attachments written on that connection. This is NOT the raw IR edge — it is an enriched projection built by the compiler specifically for template consumption. A template that ranges this map sees the connections in key order — sorted by alias — not in the order they were written. |
+| `used_by` | inbound_edge[] | no | The components that use this one: one entry per uses connection another component makes to it, in the order the connecting components are written and then the order of each one's own uses entries. A component connecting twice appears twice. Read only by a FeatureRecipe attached to the component, and only in the templates that produce the attachment's own resources — its valuesMapping, workload and artifacts. It is absent from the component's own Recipe templates, from an injectMapping and from a pipeline step's with and when, because the output of each of those can land in the component's own rendered output, which stays the same whoever connects to it. Each entry is a list item rather than a key, so a template ranging it meets the callers in that order. |
 
 _Additional properties are not permitted._
 
@@ -113,6 +114,18 @@ Boundary-scope context — populated only when evaluating a FeatureRecipe whose 
 _Additional properties are not permitted._
 
 ## Definitions
+
+### `inbound_edge`
+
+One connection another component makes to the component an attached FeatureRecipe renders for: who connects, through which socket, and what the connecting component publishes. Every value is a string the compiler carries without interpreting it.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `component_id` | string | yes | The flattened instance ID of the connecting component (e.g., 'frontend' or 'data-layer.etl') — the value a subDirectory path template reads as .component_id, spelled as .context.uses.<alias>.target spells the other end of a connection. |
+| `socket` | string | yes | The usesSchema category the connecting component draws this connection through (e.g., 'databases', 'apis'). |
+| `provides` | map of string | yes | The connecting component's resolved provides, narrowed to the keys its Component declares — the same values a consumer of that component reads at .context.uses.<alias>.provides. Empty when it publishes none. |
+
+_Additional properties are not permitted._
 
 ### `template_attachment`
 
