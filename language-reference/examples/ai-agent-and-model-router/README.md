@@ -216,8 +216,14 @@ fields the proxy declares for the route the request took, plus any the Release
 names in the router's `infra.admitted_request_fields`, and answers any other
 field with an error naming it, forwarding nothing — so a caller cannot point the
 router at an address of its own through a request-body model list, or send a
-provider key of its own in place of the router's. This Release admits nothing
-further.
+provider key of its own in place of the router's. Nor can a caller set the
+identity the router writes into every request itself — the hash of the key it
+verified, that key's team and organization, and the end user: on a responses or
+messages request, where the router keeps the caller's `metadata` apart from its
+own, it removes any team, organization or end user field the caller wrote there
+and the guard refuses a request naming the key there, `metadata.user_api_key`,
+and on every other route the router's value replaces any the caller sent. This
+Release admits nothing further.
 
 **Only the router's own routes are reachable.** The guard sees only the routes
 that hand it the request, so the second ConfigMap's other file configures the

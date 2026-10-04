@@ -162,10 +162,20 @@ A stored reply is served to a later request only when everything that makes up
 its bucket matches, and the prompt is at least `0.9` alike to the one it
 answered:
 
-- the key the request presents;
+- the key the request presents, as the gateway verified it, with that key's
+  team and organization;
 - under `end_user`, the end user the request names;
 - the model the request asks for, and the request's other parameters — a
   different temperature is a different bucket.
+
+The gateway writes the key, its team and organization and the end user into the
+request itself. On a chat request it writes them into the request's `metadata`,
+over any value the caller sent there; on a responses or messages request it
+keeps them apart from the caller's `metadata`, removes from it any team,
+organization or end user field the caller wrote, and the request guard its
+Recipe delivers refuses a request naming the key there, `metadata.user_api_key`,
+with HTTP 400 naming the field. So no request can name its way into another
+key's bucket.
 
 **This gateway's key is its administrative key, and every caller holds it.**
 It has no bookkeeping database attached, so it issues no keys of its own: every
