@@ -71,6 +71,21 @@ Canonical means identical input produces identical bytes on every side, which is
 
 **The external-input fetch channel.** `aggrega_fetch_external_input` is the one sanctioned channel for remote content, and it is host-mediated, not guest network access: the guest names a URL, and the host serves bytes under the external-input pin discipline. A URL pinned in the Release's lockfile is served from the local content-addressed store and verified against its recorded digest; an unpinned URL is refused with a diagnostic naming the URL and the step that pins it, because a render consumes the closure its lockfile records and never widens it. The pins are written when the Release's dependencies are resolved, which is the one moment anything is pinned. The [developer guide](plugin-developer-guide.md) carries the authoring how-to and the pin discipline in full.
 
+## Values an input marks sensitive
+
+**A plugin never quotes, in a refusal or a warning it returns, a value whose key its input marks sensitive.** A refusal is the `error` an output carries; a warning is a `Diagnostic` the output carries, whatever its severity, or one raised through `aggrega_emit_warning`. The host carries that text unchanged wherever it reports it — the command line, the language server and the editor's problem list, the assistant tools — and reads no value out of it, so the plugin is the only party able to keep the value out. Name the key, the setting or the position instead: a reader finds the value from there.
+
+The rule covers text a library writes for the plugin as much as text the plugin writes itself. A template engine reports the data it was evaluating, a schema validator quotes a value that fails a `pattern`, a parser quotes the token it could not read. Where such a failure ran over a value the input marks, report it without the value — for instance, run the same step again with every marked value replaced by a placeholder, report that run's failure when it fails at the same place, and otherwise say that the failure text is withheld.
+
+Where an input marks a key sensitive, spelled as the wire names it:
+
+| Socket and export | Where the marking is read |
+| --- | --- |
+| provider `render_node` and `validate_node_input` (`RenderNodeInput`) | `node.sensitive_rendered_keys`: each key names an entry of `node.values` when those values are the Component's own, keyed by the leaves it declares — a Recipe's `valuesMapping` writes keys no declaration names, so none of them is marked — or an entry of a workload container's `attachments` map that reads a slot declared sensitive. Each entry of `node.features` carries its own attachment's marking: `sensitive_payload_leaves` (the `values.<path>` and `infra.<path>` leaves its Feature declares sensitive), `sensitive_inject` (the inject delivery keys that read a provides key its Feature declares sensitive) and `sensitive` (whether the attachment handles declared-sensitive material at all). |
+| governance `ir-verdict` (`PolicyInput`) | `graph`: each node's `sensitive_payload_leaves`, and each attachment's `sensitive_payload_leaves`, `sensitive_inject` and `sensitive`. Every value those markings name already arrives as the withheld marker `{"aggrega_withheld": "declared"}`, so the value itself never reaches the plugin. |
+
+No other socket input, and no other provider export's input, carries a marking. A marking names only what it joins exactly to a declaration, so an absent key never means a value is safe to quote: it means no declaration could be joined to that key.
+
 ## Pipeline placement of Wasm sockets
 
 The compilation pipeline reserves the following socket points. The shape labels follow the four-label taxonomy from the Status page.
