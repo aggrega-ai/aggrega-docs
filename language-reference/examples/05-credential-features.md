@@ -30,11 +30,15 @@ metadata:
 spec:
   schema:
     values:
-      origin: { type: string, required: true }
+      origin: { type: string, sensitive: true }   # the developer's form
       key:    { type: string, default: "value" }
+    infra:
+      origin: { type: string, sensitive: true }   # the operator's form
+  # Exactly one of values.origin and infra.origin — see "Who names the
+  # credential" below.
 ```
 
-**`core/referenced-secret` — referenceable resource.** It declares the same `values` inputs plus a `provides` output contract: `name` (the resource's provider-neutral locator — a Kubernetes Secret name, an AWS Secrets Manager ARN, a Vault path) and `key` (the data field within it). A consumer reads these as `.features.<slot>.provides.name` and `.features.<slot>.provides.key`.
+**`core/referenced-secret` — referenceable resource.** It declares the same inputs plus a `provides` output contract: `name` (the resource's provider-neutral locator — a Kubernetes Secret name, an AWS Secrets Manager ARN, a Vault path) and `key` (the data field within it). A consumer reads these as `.features.<slot>.provides.name` and `.features.<slot>.provides.key`.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -47,8 +51,10 @@ metadata:
 spec:
   schema:
     values:
-      origin: { type: string, required: true }
+      origin: { type: string, sensitive: true }
       key:    { type: string, default: "value" }
+    infra:
+      origin: { type: string, sensitive: true }
     provides:
       name: { type: string }
       key:  { type: string }
@@ -129,6 +135,36 @@ spec:
 
 With the Manifest binding `core/random-password` to a helm realization and `core/referenced-secret` to `k8s-existing-secret`, and the Release affirming `control_plane_present` on the backend's attachment, the render carries one generator request for `identity-db-credential`, and both workloads' `secretKeyRef` name that Secret and the `db-password` key. `core/referenced-secret`'s existing-Secret realization is a helm one, so this shape is a helm shape.
 
+## Who names the credential: `values` or `infra`, exactly one
+
+The four members that carry a caller's locator — `core/secret-value`, `core/secret-provided`, `core/referenced-secret` and `core/referenced-secret-set` — accept it from either author. The developer writes it in the attachment's `values` in the Aggregate; the operator writes it in the attachment's `infra` in the Release. The leaf is the same in both pillars — `origin`, or `entries` for the set — with the same shape and the same `sensitive: true` declaration, and every FeatureRecipe implementing these Features reads whichever pillar carries it. `core/random-password` and `core/generated-secret` take no locator, so the question does not arise for them.
+
+The operator's form is what makes a credential usable where the developer cannot write one: on a connection the Release wires, which has no Aggregate entry, and on an attachment the Release alone makes, since a Release writes `values` nowhere. It also serves an attachment the Aggregate declares — its slot, its data key, its `inject:` block — while leaving the secret's name to each environment.
+
+```yaml
+# Release: the operator wires the connection and names the secret.
+spec:
+  components:
+    router:
+      uses:
+        models:
+          gpt:
+            target: gpt
+            features:
+              credential:
+                type: core/referenced-secret
+                infra:
+                  origin: openai-team-a
+```
+
+**Exactly one of the two.** Neither pillar's schema can require the locator, because each pillar is validated on its own and neither sees the other. Each Feature's own `assertions` block holds the rule instead: an attachment whose locator is in both pillars, or in neither, halts the build (`E0033`), naming the Feature, the attachment and the component it sits on, and saying which of the two it was. Presence decides, not content: a locator written as an empty string is written. This is the catalog entities' contract — the compiler evaluates their assertion as it evaluates any Feature's, and holds no rule of its own about credentials.
+
+**Everything else keeps its pillar.** `key` stays a `values` leaf, so an attachment only the Release makes reads the default data key, `value`. On compose, a Compose variable reference written in `infra.origin` — `${DB_PASSWORD}` — reaches the emitted file exactly as written, as it does from `values`. And `infra.origin` is withheld as `values.origin` is: the graph `build`, `validate` and `inspect` write with `--ir-graph` carries the placeholder in place of either, and names the leaf it withheld — `infra.origin` or `values.origin`.
+
+**`core/secret-provided` and connections.** It publishes its value for the attachment's own `inject:` block to deliver, and only an attachment the Aggregate declares carries one: a connection's attachment carries none in either document, and neither does an attachment the Release alone makes. On those, no `inject:` block delivers the value; use `core/referenced-secret` or `core/secret-value` there. The operator's `infra.origin` serves `core/secret-provided` where the Aggregate wrote the attachment and its `inject:` block and left the value to the Release.
+
+**One advisory, by design.** Declaring the same leaf in both pillars is what the pillar-overlap advisory looks for, so every load of these four Features reports it — `LINT: Feature "core/referenced-secret" ... declares property "origin" in both values: and infra: pillars` — on a whole-catalog validation, and on a build or validation whose Manifest or Aggregate reaches one. Here the overlap is the contract rather than a slip; the advisory changes no verdict and no rendered byte. See [vocabulary/data-pillars.md](../vocabulary/data-pillars.md) "Anti-pattern: same property name in both pillars".
+
 ## Provider-Specific FeatureRecipes
 
 **`k8s-secret-from-parameter`** (for dev and local workflows) implements `core/referenced-secret`. It generates a Kubernetes Secret from a literal value an author supplies, and publishes the generated Secret's identity as `provides`. The emitted Secret derives its name and data key from that same `provides`, so the name is authored exactly once. The Secret comes from a small co-located Helm chart named by `source:`, whose values the `valuesMapping` feeds from the published `provides`:
@@ -151,10 +187,11 @@ spec:
   # provides, so the rendered Secret and the consumer's
   # .features.<slot>.provides are one authored source.
   source: ./chart
+  # origin from whichever pillar carries it: values, else infra.
   valuesMapping: |
     secretName: "{{ .provides.name }}"
     dataKey: "{{ .provides.key }}"
-    origin: {{ .values.origin | toJson }}
+    origin: {{ optional .values "origin" (optional .infra "origin" "") | toJson }}
 ```
 
 The chart is one template. Both of its names come from the values above, so nothing re-derives the Secret's identity inside the chart:
@@ -192,10 +229,12 @@ spec:
   implements: core/secret-value:1.0.0
   injectMapping: |
     env:
-      {{ .values.key }}: "{{ .values.origin }}"
+      {{ .values.key }}: "{{ optional .values "origin" (optional .infra "origin" "") }}"
 ```
 
 `env-secret` follows the same injected-value shape for the Helm provider, writing the value into the component's inject pipe rather than producing a resource.
+
+**Reading the locator from either pillar.** Every realization of the four locator-carrying Features reads the locator with the one expression shown in both excerpts: `optional .values "origin" (optional .infra "origin" "")` — `entries` in place of `origin` for the set. `optional` checks whether a key is present rather than whether its value is empty, so it reads the pillar that carries the locator and nothing else. A template that reads the locator this way reads it only this way: one that also wrote `.values.origin` as a path would find the key present and empty, because a value template supplies an empty value at a path it reads, and would never fall through to `infra`.
 
 **`provided-secret`** implements `core/secret-provided`, for `helm` and for `compose` under the one name. It publishes `origin` as the `value` provides key and delivers nothing itself, so the attachment's own `inject:` block on a transparent slot decides where the value goes; an attachment without one delivers it nowhere.
 

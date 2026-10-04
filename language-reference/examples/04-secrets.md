@@ -535,3 +535,22 @@ spec:
 ```
 
 A Release sizes the attachment with `infra` on its own entry for the connection, or attaches a credential the Aggregate left out, naming its `type`; see [Per-edge connection configuration](../entities/release.md#per-edge-connection-configuration).
+
+**When the operator names the secret.** The same gateway, with the `gpt` connection left out of the Aggregate and wired by the Release instead. A Release writes no `values`, so it names the secret in the attachment's `infra` — `core/referenced-secret` takes its `origin` from either pillar, exactly one per attachment:
+
+```yaml
+spec:
+  components:
+    router:
+      uses:
+        models:
+          gpt:
+            target: gpt
+            features:
+              credential:
+                type: core/referenced-secret
+                infra:
+                  origin: openai-team-a
+```
+
+Bound to the same external-secret realization, the connection's credential renders the `ExternalSecret` above with `remoteRef.key: "openai-team-a"`. Its `secretKey` is `value`, not `api-key`: the data key stays a `values` leaf, which only the Aggregate writes, so an attachment the Release alone makes reads the Feature's default. An attachment carrying `origin` in both pillars — the Aggregate's `values` and the Release's `infra` for the one connection — or in neither halts the build at the Feature's own assertion, naming the attachment and the component; see [Credential Features](05-credential-features.md#who-names-the-credential-values-or-infra-exactly-one).

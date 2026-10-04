@@ -297,6 +297,8 @@ spec:
 
 Authors with intentional overlap have a real reason to keep both — e.g., a `mode` that means "application operational mode" under values (`"debug"` / `"production"`) and "deployment topology mode" under infra (`"standalone"` / `"clustered"`) carry distinct semantics and the names happen to coincide. Authors with accidental overlap (the more common case) rename one entry.
 
+A second intentional shape is one datum either author may supply. The standard library's credential Features that carry a caller's locator — `core/referenced-secret`, `core/referenced-secret-set`, `core/secret-value` and `core/secret-provided` — declare it in both pillars under one name and one shape, so the developer writes it in `values` or the operator in `infra`, and each Feature's own assertion refuses an attachment that writes it in both or in neither. The advisory below names those four on every load that reaches them; for them it reports the contract, not a slip.
+
 Catalog load emits a `LINT: <kind> <name> at <path> declares property <name> in both values: and infra: pillars (path: <dotted-path>)` advisory for every same-name property whose overlap resolves to a terminal leaf on at least one side. Same-name properties that exist as shared organizing namespaces (both pillars carry an object named `ingress` with disjoint sub-properties) do not warn; only the leaf overlap is reported. The warning is advisory — the build proceeds.
 
 ## Pillar validation tiers

@@ -190,7 +190,7 @@ The surface is **create-not-retarget**: a Release may add an edge into an unboun
 Three more halts keep a connection's attachments on their connection:
 
 * **A name the socket declares no slot for** halts, exactly as it does on the Aggregate's connection entry, at this entry in the Release, naming the slots the socket declares and any of them the name is one edit from.
-* **An attachment only the Release makes, written with no `type`,** halts at the connection entry, naming the slot. An attachment the Release makes carries no `values`, so it suits a Feature whose `values` require nothing; one whose schema requires a value — `core/referenced-secret` requires `origin` — halts on the missing value at the same entry.
+* **An attachment only the Release makes, written with no `type`,** halts at the connection entry, naming the slot. An attachment the Release makes carries no `values`, so it suits a Feature whose `values` require nothing; one whose schema requires a value halts on the missing value at the same entry. The standard library's credential Features that carry a caller's locator require none in `values`: each takes it in `infra` as well (see below).
 * **The composed name written anywhere but the connection** halts. A connection attachment becomes an attachment of the consuming component named `<alias>.<slot>` (see [the Aggregate's connection entry](aggregate.md#a-connections-own-attachments-features-on-a-uses-entry)), and both a component entry's own `features:` keys and a boundary's admit a dot. A component entry writing that name, or a boundary writing it so that it reaches a component whose connection carries it — a component placed in that boundary or in one nested inside it, a routed sub-module's included — halts naming both spellings, once for each component it reaches. A socket's slot is filled on each connection and never by an attachment cascading from a broader scope.
 
 ```yaml
@@ -210,6 +210,27 @@ spec:
               credential:
                 type: core/generated-secret
 ```
+
+**A credential on a connection the Release wires names its secret in `infra`.** A connection the Release wires has no entry in the Aggregate, so nothing there writes the credential's `values`, and the Release writes `values` nowhere. Each standard-library credential Feature that carries a caller's locator — `core/referenced-secret`, `core/referenced-secret-set`, `core/secret-value` and `core/secret-provided` — therefore accepts it in `infra` as well as in `values`: `origin`, or `entries` for `core/referenced-secret-set`, with the same shape and the same `sensitive: true` declaration in both pillars. Every realization reads whichever pillar carries it.
+
+```yaml
+spec:
+  components:
+    router:
+      uses:
+        models:
+          gpt:
+            target: gpt                     # wire the socket the developer left unbound
+            features:
+              credential:
+                type: core/referenced-secret
+                infra:
+                  origin: openai-team-a     # the secret the operator names
+```
+
+The locator is written in exactly one pillar per attachment. An attachment that carries it in both — the Aggregate's `values` and the Release's `infra` for the same slot — or in neither halts at the Feature's own assertion (`E0033`), naming the Feature, the attachment and the component, and saying which of the two it was. The rule belongs to those Features' catalog entities, not to the compiler, which evaluates their assertion as it evaluates any Feature's. Fields other than the locator keep their pillar: `key` stays a `values` leaf, so an attachment only the Release makes reads the Feature's default data key, `value`. The `values:` ban is unchanged — the operator's locator is `infra`.
+
+`core/secret-provided` is the one that does not fit a connection: it publishes its value for the attachment's own `inject:` block to deliver, and a connection's attachment carries no `inject:` block in either document, so on a connection no `inject:` block delivers it. Use `core/referenced-secret` or `core/secret-value` there.
 
 ```yaml
 spec:
@@ -375,7 +396,7 @@ For the full architectural framing — the DAG execution model, the rationale fo
 
 The Release can attach Features both at boundary scope (broad policy) and at component-specific scope (precise targeting), with execution following the 5-Tier Onion Model defined in [architecture/10-compilation-pipeline.md](../../architecture/10-compilation-pipeline.md). Features declared in the Release contribute `type`, `infra`, and `uses`; they cannot declare `values` (see Schema-Level Constraints above).
 
-`features:` is the Release's only attachment surface, at both scopes — as it is the Aggregate's. A credential is a Feature carrying the `feature.aggrega.ai/kind: secret` label, so an Operator-attached credential is attached under `features:` like any other Feature. There is no second attachment keyword at any scope; a document that declares one is rejected at load with an envelope error naming the unexpected property.
+`features:` is the Release's only attachment surface, at both scopes — as it is the Aggregate's. A credential is a Feature carrying the `feature.aggrega.ai/kind: secret` label, so an Operator-attached credential is attached under `features:` like any other Feature, and names its secret in `infra` exactly as one on a connection does (see [Per-edge connection configuration](#per-edge-connection-configuration)) — on a component the Aggregate left without one, or as the sizing of an attachment the Aggregate declared without naming a secret. There is no second attachment keyword at any scope; a document that declares one is rejected at load with an envelope error naming the unexpected property.
 
 A feature attached boundary-wide may carry a `uses:` block, and that block projects to every component routed into the boundary: each component gains a dependency edge to the feature's named targets and is injected those targets' `provides`. This expresses a shared dependency once at the boundary — "every component in this boundary talks to the shared cache / collector / message bus" — rather than repeating the same `uses:` edge on each component. A subsystem-level Feature attachment in the Aggregate projects its `uses:` the same way across the subsystem's components. `uses` is a topology wiring declaration, not a value, so it is permitted on the Release. The projection is independent of the attached Feature's execution scope: a Feature whose FeatureRecipe renders once per boundary still projects its `uses:` per component, while the shared resource itself renders once.
 

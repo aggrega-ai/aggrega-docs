@@ -55,13 +55,13 @@ A second surface expresses a different demand. The repeatable Component annotati
 
 This section is the load-bearing one. Aggrega is an ahead-of-time compiler, and its guarantees are narrower than the word "secret" invites a reader to assume.
 
-**The compiler never resolves a credential.** It does not authenticate with a cloud API, does not read a vault, and does not fetch material during `aggrega build`. A credential attachment's `values` travel through the graph and into the render context as opaque scalars, and a FeatureRecipe renders them into whatever artifact the target platform expects. Resolution happens later, in the cluster or the IaC state manager, against whatever the rendered artifact points at.
+**The compiler never resolves a credential.** It does not authenticate with a cloud API, does not read a vault, and does not fetch material during `aggrega build`. A credential attachment's `values` and `infra` travel through the graph and into the render context as opaque scalars, and a FeatureRecipe renders them into whatever artifact the target platform expects. Resolution happens later, in the cluster or the IaC state manager, against whatever the rendered artifact points at.
 
-**The compiler cannot tell a pointer from a material value.** It is blind to what a scalar means (see [05-invariants.md](05-invariants.md)). A credential attachment whose `values` carry a store coordinate (`path`, `key`, an ARN) renders a *reference* to that coordinate; a credential attachment whose `values` carry the material itself renders the **material, verbatim, into the output file**. Both are legal, and the compiler treats them identically because it has no way to distinguish them.
+**The compiler cannot tell a pointer from a material value.** It is blind to what a scalar means (see [05-invariants.md](05-invariants.md)). A credential attachment whose locator carries a store coordinate (`path`, `key`, an ARN) renders a *reference* to that coordinate; a credential attachment whose locator carries the material itself renders the **material, verbatim, into the output file**. Both are legal, and the compiler treats them identically because it has no way to distinguish them.
 
 So the honest statement of the guarantee is:
 
-> Aggrega guarantees that the compiler performs no resolution. It does not guarantee that rendered output contains no material — that depends entirely on which credential Feature is attached and what the author put in its `values`.
+> Aggrega guarantees that the compiler performs no resolution. It does not guarantee that rendered output contains no material — that depends entirely on which credential Feature is attached and what its author put in it, the developer in `values` or the operator in `infra`.
 
 Two consequences worth internalising:
 
@@ -112,7 +112,7 @@ The word "sensitive" invites a reader to expect a confidentiality mechanism. It 
 
 - **It does not encrypt.** Nothing is wrapped, sealed, or transformed.
 - **It does not change the build's verdict.** No value is accepted or rejected because a declaration exists, and no build halts because one is missing. A catalog whose credential entities carry no declaration builds successfully, and adding declarations to an existing catalog leaves every build that succeeded still succeeding.
-- **It does not guarantee that rendered output is free of material.** The guarantee stated above is unchanged: whether an artifact carries material depends on which fill was attached and what the author put in its `values`. A declared-sensitive value supplied inline is rendered exactly as an undeclared one is, and `dist/` remains as sensitive as its most material-carrying attachment.
+- **It does not guarantee that rendered output is free of material.** The guarantee stated above is unchanged: whether an artifact carries material depends on which fill was attached and what its author put in it. A declared-sensitive value supplied inline is rendered exactly as an undeclared one is, and `dist/` remains as sensitive as its most material-carrying attachment.
 - **It does not force a delivery mechanism.** A declaration cannot convert an inline value into a store reference, and it does not narrow what a slot's `inject` allowlist permits. Forcing delivery would mean emitting a resource the author never declared, which is precisely what the no-ghost-infrastructure invariant forbids — see [05-invariants.md](05-invariants.md).
 - **It changes no rendered byte today, and on most targets it never will.** No shipped render path reads the declaration, so adding declarations across an existing catalog leaves every rendered artifact identical. The ceiling beyond that is structural rather than a matter of what has been built: a declaration can only ever reach a rendered artifact on a target platform whose own language carries a sensitivity notion — a declaration that platform understands, governing how it displays a value rather than how it stores one. On a target with no such notion there is nothing for a declaration to become, so identical input renders identically with or without it, permanently.
 
@@ -149,6 +149,16 @@ workload: |
 The synthesizer resolves the reference from the slot's published `provides` — a Kubernetes `secretKeyRef` for `as: env`, a secret-backed volume for `as: file`. The Recipe author writes only the slot name and the mechanism.
 
 A FeatureRecipe may do both: rewrite the delivery pipe *and* emit a resource. It may also declare a `pipeline` of Wasm steps, which run for every attachment family alike — a credential attachment can transform the host component's rendered documents on invitation exactly as an operational attachment can.
+
+## Who names the credential
+
+A credential's **locator** — the secret's name, the store entry to fetch, the value to deliver — is written by whoever knows it, and that is not always the developer. A connection the Release wires has no entry in the Aggregate, and the Release writes `values` nowhere, so a credential that took its locator from `values` alone could never be named on such a connection, nor on any attachment the Release makes.
+
+So each standard-library credential Feature that carries a caller's locator — `core/referenced-secret`, `core/referenced-secret-set`, `core/secret-value` and `core/secret-provided` — accepts it from either author: the developer in the attachment's `values`, in the Aggregate, or the operator in its `infra`, in the Release. The leaf has one name, one shape and one `sensitive: true` declaration in both pillars, and every realization reads whichever pillar carries it. The Release's `values:` ban is untouched: the operator's locator is `infra`. The Features that take no locator — `core/random-password`, `core/generated-secret` — are unaffected.
+
+**Exactly one, held by the Feature.** An attachment carries the locator in one pillar, never both and never neither. No pillar's schema can say that, because each pillar is validated on its own; each Feature's own `assertions` block does, and an attachment that breaks it halts the build naming the Feature, the attachment and the component. That is the catalog entity's contract, upheld the way every Feature assertion is: the compiler evaluates the template the Feature's author wrote and holds no rule of its own about credentials, pillars or locators.
+
+**What stays where it was.** Every other field keeps its pillar — a referenceable credential's data key is still written in `values`, so an attachment the Release alone makes reads its default — and `core/secret-provided` still delivers only through the attachment's own `inject:` block, which only the Aggregate writes and a connection's attachment never carries.
 
 ## Sharing one credential across consumers
 
@@ -195,7 +205,7 @@ An attachment may be declared at several scopes at once. Ownership of a conteste
 2. **Composition authority.** A declaration in the Aggregate you are deploying beats one inside an Aggregate it composes, even when the composed document declared at the narrower scope.
 3. **Specificity.** Within one authoring level, the narrower scope refines the broader one **field by field**: a component-level fill overrides a subsystem-wide or boundary-wide attachment of the same instance name only for the fields it mentions, and fields it omits keep the broader scope's values.
 
-The developer side supplies `values` and the operator side supplies `infra`, so the two never contest the same field. Precedence governs field values only; it does not reorder evaluation, which follows the cascade sequence in [10-compilation-pipeline.md](10-compilation-pipeline.md).
+The developer side supplies `values` and the operator side supplies `infra`, so the two never contest the same field. A credential Feature taking its locator from either side declares it as two fields, one per pillar, and its own assertion refuses an attachment carrying both, so precedence has no tie to break there either. Precedence governs field values only; it does not reorder evaluation, which follows the cascade sequence in [10-compilation-pipeline.md](10-compilation-pipeline.md).
 
 ## Legacy charts that demand a formatted string
 
