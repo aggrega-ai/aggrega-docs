@@ -38,7 +38,7 @@ For Component and Feature `assertions:`, the template context exposes the resolv
 
 - `.values` — the developer's `values` content.
 - `.infra` — the Ops `infra` content (from Aggregate or Release).
-- `.uses` — the resolved `uses:` sockets (post-selector-resolution), keyed by **socket name**: the key is the socket the edge was authored under, not the alias written beneath it. Each entry describes the edge itself and carries nothing its target published — `target` is the resolved target's instance id, `alias` is the name the author gave that connection under the socket, and `origin_feature` is present when a Feature attachment synthesized the edge. So `.uses.<socket>.target` reads the resolved target, while a reference reaching through this map for a value the target published halts, because the entry carries no such field.
+- `.uses` — the resolved `uses:` connections (post-selector-resolution), in the shape the author writes them: keyed by **socket name**, and under each socket by the **alias** of every connection on it — the name the author gave the connection under the socket, or, for a connection written as a list entry, its target. Each connection's entry describes the connection itself and carries nothing its target published — `target` is the resolved target's instance id, `alias` repeats the name it is keyed by, and `origin_feature` is present when a Feature attachment drew the connection. So `.uses.<socket>.<alias>.target` reads one connection's resolved target, a socket holding several connections holds an entry for each, and a reference reaching through this map for a value the target published halts, because the entry carries no such field.
 - `.features` — the resolved attachments, keyed by the instance name the author gave each one. Each entry carries `type` (the attached Feature's catalog URI), `resolved_version` (the version bound for this build), and `values` (the attachment's own developer-intent content). An attachment written on one of the component's connections is not among them, exactly as it is not among a Recipe template's `.features`, and `.uses` carries no attachment either.
 - `.metadata` — the entity's metadata.
 
@@ -49,11 +49,50 @@ For Recipe and FeatureRecipe `assertions:`, the context adds Recipe-specific fie
 - `.recipe.metadata` — the Recipe's metadata.
 - `.recipe.source` — the Recipe's source pointer.
 
-Field access uses standard Go template syntax (`.values.architecture`, `.uses.databases.target`); the halting construct is `{{ fail "message" }}` per the Loud Guardrails contract — a failed assertion produces a clear, specific build-time error naming the violated invariant.
+Field access uses standard Go template syntax (`.values.architecture`, `.uses.databases.primary.target`); the halting construct is `{{ fail "message" }}` per the Loud Guardrails contract — a failed assertion produces a clear, specific build-time error naming the violated invariant.
 
 **This surface evaluates with `missingkey=error`.** A reference to a key the context does not carry halts the build — naming the entity, the instance, the assertion and the absent key — rather than rendering as nothing. That strictness is what makes an assertion trustworthy: a predicate whose reference rendered empty would compare against nothing and pass, so a single typo would quietly retire the rule the assertion was written to enforce. It also means the bare reference resolves before any fallback can run, so an optional field needs a presence-aware form; [errors/fatal-halts.md](../errors/fatal-halts.md) carries the per-surface missing-key policy and the forms that work under it.
 
-**An assertion's `.uses` is not a Recipe template's `.context.uses`, and a reference written for one does not transfer to the other.** The render context carries a richer projection of the same edges: keyed by **alias**, with the socket name as a field on the entry, and with each target's published values nested under `provides` — so a Recipe template reads `.context.uses.<alias>.provides.<name>` where an assertion reads `.uses.<socket>.target`. Both assertion phases evaluate before rendering, which is why an assertion's view of an edge stops at the edge's own identity.
+**Reading the connections on a socket.** A socket's entry has one shape whatever it holds: one entry per connection, under its alias. An assertion reads one connection by its alias, counts or ranges the socket to see every connection on it, and tests the socket's own key to ask whether it is wired at all. Given a component whose Aggregate entry writes
+
+```yaml
+uses:
+  models:
+    local: { target: llama }
+    fast: { target: turbo }
+```
+
+these assertions read it each way:
+
+```yaml
+assertions:
+  # The socket's presence: the socket key alone, however many connections it holds.
+  models-wired: |
+    {{- if not (hasKey .uses "models") -}}
+      {{- fail "wire at least one model to the models socket" -}}
+    {{- end -}}
+  # Every connection on the socket: a range visits each one.
+  every-model-distinct: |
+    {{- $seen := list -}}
+    {{- range $alias, $connection := (optional .uses "models" dict) -}}
+      {{- if has $connection.target $seen -}}
+        {{- fail (printf "connection %s points at %s, which another models connection already points at" $alias $connection.target) -}}
+      {{- end -}}
+      {{- $seen = append $seen $connection.target -}}
+    {{- end -}}
+  # One connection, by the alias it was written under; guarded, because the
+  # connection is optional.
+  fast-is-not-local: |
+    {{- with (optional .uses "models" dict) -}}
+      {{- if and (hasKey . "fast") (hasKey . "local") (eq .fast.target .local.target) -}}
+        {{- fail (printf "the fast and local connections both point at %s" .local.target) -}}
+      {{- end -}}
+    {{- end -}}
+```
+
+A range visits a socket's connections in alphabetical order of their aliases — `fast` before `local` here — not in the order the Aggregate wrote them. A socket holding a single connection is read the same way: `.uses.models.local.target` reads `llama` whether or not `fast` is wired beside it, and `.uses.models.target` addresses no connection and halts.
+
+**An assertion's `.uses` is not a Recipe template's `.context.uses`, and a reference written for one does not transfer to the other.** The render context carries a richer projection of the same edges: keyed by **alias** alone, with the socket name as a field on the entry, and with each target's published values nested under `provides` — so a Recipe template reads `.context.uses.<alias>.provides.<name>` where an assertion reads `.uses.<socket>.<alias>.target`. Both assertion phases evaluate before rendering, which is why an assertion's view of an edge stops at the edge's own identity.
 
 For the broader template context shape and per-field availability semantics, see [template-context-contract.md](template-context-contract.md).
 

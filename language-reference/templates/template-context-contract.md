@@ -135,6 +135,26 @@ An attachment written on a connection — under `features:` on a component's `us
 - **The attachment shape.** Each entry carries exactly what `.features.<name>` carries for one of the component's own attachments — `.type`, `.resolved_version`, `.labels`, `.values`, `.infra`, and the resolved `.provides` of the FeatureRecipe bound to it — see [the attachment shape](#the-attachment-shape). The provides read here are the ones the attachment's own FeatureRecipe renders against, so the name a consumer references and the name of the resource that FeatureRecipe emits are one evaluated value.
 - **Never in `.features`.** The component's own `.features` holds only the attachments written on its own block. A Recipe that ranges `.features` and picks attachments out by type — `{{ range $name, $f := (default dict .features) }}{{ if eq $f.type "core/referenced-secret" }}…` — therefore never meets a connection's credential, even one of the same Feature: a template reaches a connection's attachment through its connection, never through `.features`. The same holds on every surface that shows a component's attachments, the `assertions` context included.
 
+### An assertion's `.uses` — keyed by socket, then by alias
+
+An `assertions:` template reads the same connections through a narrower view of its own: `.uses` at the root rather than under `.context`, and carrying each connection's identity but nothing its target published, because both assertion phases evaluate before rendering. It mirrors the authoring form `uses: <socket>: <alias>: { target: … }` — keyed by **socket**, and under each socket by the **alias** of every connection on it, a connection written as a list entry taking its target as its alias. Each connection's entry carries `target`, `alias` and, for a connection a Feature attachment drew, `origin_feature`.
+
+A socket holding one connection and a socket holding several have the same shape, so an assertion reads either the same way. For a component whose Aggregate entry writes `uses: { models: { local: { target: llama }, fast: { target: turbo } } }`:
+
+```yaml
+assertions:
+  two-models-wired: |
+    {{- if lt (len (optional .uses "models" dict)) 2 -}}
+      {{- fail "wire two models to the models socket" -}}
+    {{- end -}}
+  local-is-llama: |
+    {{- if and (hasKey .uses "models") (hasKey .uses.models "local") (ne .uses.models.local.target "llama") -}}
+      {{- fail (printf "the local connection must point at llama; it points at %s" .uses.models.local.target) -}}
+    {{- end -}}
+```
+
+`hasKey .uses "models"` asks whether the socket is wired, `len` counts its connections, a `range` over it visits each in alphabetical order of their aliases, and `.uses.models.local.target` reads one connection. `.uses.models.target` addresses no connection, and halts under the assertions surface's `missingkey=error`. The full assertion context is documented at [assertions-block.md](assertions-block.md#the-template-context).
+
 ## Three inject-related surfaces
 
 The template context carries three inject-shaped fields with distinct semantics. Recipe and FeatureRecipe authors should know which surface to read.
