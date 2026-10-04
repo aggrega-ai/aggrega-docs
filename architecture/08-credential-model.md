@@ -132,6 +132,8 @@ Two delivery shapes, chosen by the attachment's FeatureRecipe rather than by the
 
 **Injected value.** The FeatureRecipe declares an `injectMapping` and no resources. Its output is deep-merged into the consuming component's delivery pipe before the base Recipe renders, so a Recipe reading `.context.inject.env.<KEY>` receives the value. Nothing standalone is emitted.
 
+Two credentials delivered under one key halt the build, naming both attachments: a mapping writing a key another attached Feature already delivered — through that Feature's own mapping or its own `inject:` block — is refused rather than merged, so one credential is never presented in place of another. The rule is the same for every attachment, wherever it was attached and whether it fills a slot on the component or on a connection. A mapping replacing a key the component's own `inject:` block or one of its connections delivered is the interception the routing Features rely on, and stays legal.
+
 **Referenceable resource.** The FeatureRecipe declares a `source`, `workload`, `artifacts` and/or `valuesMapping`, so it emits a resource — typically a platform-native Secret. It publishes that resource's identity through its `provides`, and a consumer reads it back as `.features.<name>.provides.name` / `.provides.key`. The resource's own name is derived from the same published `provides`, so the name the consumer reads and the name the resource carries are one evaluated string rather than two derivations that could drift.
 
 A Recipe's Workload consumes a referenceable fill through a container's `attachments:` map:

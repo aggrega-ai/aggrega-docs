@@ -109,7 +109,11 @@ A developer requesting the same delivery key (e.g., the same env var name) from 
 | `uses[].inject` | `features[<name>].inject` | ❌ fatal halt — duplicate delivery key |
 | `features[A].inject` | `features[B].inject` | ❌ fatal halt — duplicate delivery key |
 | `component.inject` (same key twice) | — | ❌ fatal halt — duplicate delivery key |
-| Any developer-authored inject | FeatureRecipe `injectMapping` | ✅ Legal — interception by design (Onion Model "last wins") |
+| `features[A]`'s FeatureRecipe `injectMapping` | `features[B]`'s FeatureRecipe `injectMapping` | ❌ fatal halt — duplicate delivery key across two attachments |
+| `features[A].inject` | `features[B]`'s FeatureRecipe `injectMapping` | ❌ fatal halt — duplicate delivery key across two attachments |
+| `component.inject` or `uses[].inject` | FeatureRecipe `injectMapping` | ✅ Legal — interception by design: the mapping's value replaces that entry |
+
+The table reads every attached Feature the same way, wherever it was attached — on the component, at a subsystem or a Release boundary, by an annotation's expansion, or on a connection. A FeatureRecipe's `injectMapping` renders after every `inject:` block has delivered, so it is always the later of two claims: it may rewrite what the component or one of its connections delivered, and it may rewrite what its own attachment's `inject:` block delivered, but a key another attached Feature already delivered halts the build, naming both.
 
 To prevent Go template boilerplate in Recipes, the compiler provides **both**:
 

@@ -2768,9 +2768,9 @@ Neither connection is the offender and both are yours to change: rename one of t
 
 **Where the key is a path, the field path names the mechanism's block instead.** What a delivery key spells is the mechanism's own business, and a `file` mechanism delivers into a mount path — so such a key contains dots while a field path divides its own steps with them. A field path stops at the last step it can name without ambiguity rather than spelling one that would read as a walk through keys your document does not contain, so for a key like `/etc/app/config.yaml` it reads `.spec.components.<component>.inject.<mechanism>` and stops there. The message names the key either way, which is what keeps the report equally actionable — but where in the message to read it differs across the four forms above, so read the field path for the block and then take the key from whichever of the four you have: where the detail leads with the delivery mechanism, the key is the quoted value straight after it; where the detail leads with the key on its own, it is the first quoted value; and where the detail leads with the delivery entry's own path, the key is that path's last step.
 
-**How to fix:** rename one of the conflicting keys, or drop the duplicate declaration. Note that a FeatureRecipe's `injectMapping` overwriting a developer key is intentional Onion-Model interception and is not flagged.
+**How to fix:** rename one of the conflicting keys, or drop the duplicate declaration. Note that a FeatureRecipe's `injectMapping` rewriting a key the component's own `inject:` block or one of its connections' `inject:` blocks delivered is intentional interception and is not flagged here or anywhere else.
 
-A key claimed by a Feature attached to the component meets the same shared space from the third of its three authoring surfaces, and reports under "An attachment delivers a key another inject source already claimed" below.
+A key claimed by a Feature attached to the component meets the same shared space from the third of its three authoring surfaces, and reports under "An attachment delivers a key another inject source already claimed" below; a key two attached Features deliver, where the later of the two delivers it through its FeatureRecipe's `injectMapping`, reports under "Two attached Features deliver one key, the later through its FeatureRecipe's injectMapping".
 
 ### Self-inject on a component without an allowlist
 
@@ -2872,9 +2872,9 @@ It is positioned at the attachment's key under that connection's `features:`, in
 
 <!-- covers: internal/compiler/renderer.ErrAttachmentInjectKeyCollision -->
 
-Three authoring surfaces deliver into one component's injection pipe: the component's own `inject:` block, the `inject:` blocks on the entries of its dependency block, and the block on each Feature attached to it. They share one keyed space per delivery mechanism, so a key two of them claim is ambiguous about which value arrives, and the build stops rather than let one surface silently displace another.
+Three authoring surfaces deliver into one component's injection pipe through an `inject:` block: the component's own `inject:` block, the `inject:` blocks on the entries of its dependency block, and the block on each Feature attached to it. They share one keyed space per delivery mechanism, so a key two of them claim is ambiguous about which value arrives, and the build stops rather than let one surface silently displace another. An attached Feature can also deliver a second way, through its FeatureRecipe's `injectMapping`; that route meets the same space after every block has delivered, and it reports under "Two attached Features deliver one key, the later through its FeatureRecipe's injectMapping" below.
 
-This condition is the attachment's side of that space. It is reported when an attachment claims a key some earlier delivery already holds — the entry above under "Duplicate delivery key across inject sources" is the same rule read from the developer-authored side, and between them the whole pipe is covered.
+This condition is the attachment block's side of that space. It is reported when an attachment's own `inject:` block claims a key some earlier delivery already holds — the entry above under "Duplicate delivery key across inject sources" is the same rule read from the developer-authored side, and between them every block's claim is covered.
 
 **Order is what decides who collided.** The first claim under a key is the one that holds it, and later claims are the ones reported — so an attachment whose key is taken is told so, while an attachment that claimed first is not told about a later one that displaced nothing. A claim that delivered nothing at all leaves the key free and takes part in none of this.
 
@@ -2883,7 +2883,26 @@ The finding is positioned at the attachment's own entry inside the component's b
 Emitted message:
 > duplicate delivery key across attachment-inject and another inject source (`"<key>"`, mechanism `"<mechanism>"`)
 
-**How to fix:** neither side is the offender and both are yours to change. Rename the key on whichever side you control — most often the component's own `inject:` entry, since the Feature's mapping is written in a catalog document — or drop one of the two deliveries. Where the attachment is genuinely meant to supply the value, remove the developer-authored claim rather than the attachment's. Note that a Feature deliberately overriding a developer key through its own mapping is a different mechanism and is not reported here.
+**How to fix:** neither side is the offender and both are yours to change. Rename the key on whichever side you control — most often the component's own `inject:` entry, since the Feature's mapping is written in a catalog document — or drop one of the two deliveries. Where the attachment is genuinely meant to supply the value, remove the developer-authored claim rather than the attachment's. Note that a Feature's FeatureRecipe `injectMapping` writing a key is a different route and is not reported here: rewriting a key the component's own `inject:` block or one of its connections delivered is interception and is not reported at all, and writing a key another attached Feature delivered reports under the entry below.
+
+### Two attached Features deliver one key, the later through its FeatureRecipe's injectMapping
+
+<!-- covers: internal/compiler/renderer.ErrAttachmentInjectMappingKeyCollision -->
+
+An attached Feature delivers into its component's injection pipe by two routes: the `inject:` block written on the attachment, and its FeatureRecipe's `injectMapping`, whose output names the delivery key — often from a value the attachment carries, such as a credential's chosen environment variable. When two attached Features arrive at one key under one delivery mechanism, and the later of the two arrives there through its mapping, the build stops. Left to run, the component would read whichever value happened to be written last, so one credential could be presented in place of another with nothing in the output saying so.
+
+It covers every attached Feature, wherever it was attached: the component's own `features:` block, a subsystem, a Release boundary or component entry, an annotation's expansion, and a connection's `features:` entry. The earlier of the two deliveries may be the other Feature's mapping or its own `inject:` block — the build reports both pairings under this one condition.
+
+**Order is what decides who collided.** Every `inject:` block delivers before any mapping renders, and the mappings render in one fixed order — the order inject mapping walks a component's attached Features, described in [the compilation pipeline](../../architecture/10-compilation-pipeline.md) — so the first delivery under a key is the one that holds it, and the later Feature is the one reported. Presence alone decides: values are not compared, so two Features delivering the same value under one key are still reported. A key a mapping's output does not carry at all is no delivery; a key it carries with an empty value is one, because the empty value replaces whatever stood there. One key under two different delivery mechanisms is two keys, not a collision.
+
+**What is not reported.** A FeatureRecipe's `injectMapping` rewriting a key the component's own `inject:` block or one of its connections' `inject:` blocks delivered is interception — a routing Feature qualifying a host, a guard redirecting an upstream — and the mapping's value replaces that one entry. A Feature's mapping rewriting a key its own `inject:` block delivered is that Feature transforming its own delivery, and is not reported either.
+
+The finding is positioned at the later Feature's own entry — inside the component's `features:` block, or, for a Feature a connection carries, at its entry under that connection in the document that wrote it, such as `.spec.components.<component>.uses.<socket>.<alias>.features.<slot>` in the Aggregate. The message names the key, the delivery mechanism, and both Features by the names they carry on the component; a Feature a connection carries is named by the connection's alias and the slot it fills, joined by a dot. Each colliding key is reported on its own.
+
+Emitted message:
+> duplicate delivery key across two attachments: an attachment's FeatureRecipe injectMapping writes a key another attachment already delivered (`"<key>"`, mechanism `"<mechanism>"`, attachment `"<attachment>"`, delivered first by attachment `"<other-attachment>"`)
+
+**How to fix:** give one of the two Features a key of its own — for a credential Feature, that is usually the key its values name — or remove one of the two attachments. Where both are meant to supply one variable, decide which one the component should read and attach only that one.
 
 ### A component declares an inject mechanism the attached Feature maps nothing to
 
@@ -5226,6 +5245,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0315` | `a connection carries an attachment under a name its socket declares no slot for` | A connection carries an attachment under a name its socket declares no slot for |
 | `E0316` | `a Release attachment takes the name of an attachment one of a component's connections carries` | A Release attachment takes the name of a connection's attachment |
 | `E0317` | `a Release connection attachment names no Feature type, and the type is required for an attachment only the Release makes` | A Release connection attachment names no Feature type |
+| `E0318` | `duplicate delivery key across two attachments: an attachment's FeatureRecipe injectMapping writes a key another attachment already delivered` | Two attached Features deliver one key, the later through its FeatureRecipe's injectMapping |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

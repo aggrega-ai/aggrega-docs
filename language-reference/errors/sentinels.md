@@ -753,6 +753,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0315` | `connection-attachment-slot-undeclared` | `a connection carries an attachment under a name its socket declares no slot for` |
 | `E0316` | `connection-attachment-written-off-its-connection` | `a Release attachment takes the name of an attachment one of a component's connections carries` |
 | `E0317` | `release-connection-attachment-untyped` | `a Release connection attachment names no Feature type, and the type is required for an attachment only the Release makes` |
+| `E0318` | `attachment-inject-mapping-key-collision` | `duplicate delivery key across two attachments: an attachment's FeatureRecipe injectMapping writes a key another attachment already delivered` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication no longer judges a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.
