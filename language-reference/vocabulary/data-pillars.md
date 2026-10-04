@@ -108,7 +108,7 @@ An attachment whose instance name matches a slot the entity declares in `feature
 | --- | --- | --- |
 | Component / Feature `featuresSchema:` | catalog entity | Declares the slots the entity expects; per slot, gates the delivery allowlist (env / file / blackbox) and optionally a label selector the fill must satisfy |
 | Aggregate `components.<id>.features.<slot>:` | Aggregate component instance | Fills the slot with an attachment; supplies the attachment's own `values:` and, for a transparent slot, its `inject:` mapping |
-| Workload `containers.<name>.attachments.<KEY>.from`/`as:` | Recipe's Workload body | References a declared slot and dictates per-container delivery of what filled it |
+| Workload `containers.<name>.attachments.<KEY>.from`/`as:` | Recipe's Workload body | References a declared slot — or, beside `connection: <alias>`, a slot that connection's socket declares — and dictates per-container delivery of what filled it |
 | FeatureRecipe (`source` / `workload` / `artifacts` / `valuesMapping`, `injectMapping`, `pipeline:`) | the bound FeatureRecipe | Produces the attachment's output — an emitted resource, a delivery rewrite, or both |
 
 The slot name is the load-bearing identifier across all four: surface 1 declares it, surfaces 2–4 reference it, and the data flow is single-direction (declare → fill → reference → produce).

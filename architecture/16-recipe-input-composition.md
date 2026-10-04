@@ -130,7 +130,7 @@ The Workload's `containers.<name>.attachments` block *references* slots declared
 
 The validation contract:
 
-- Every `attachments.<KEY>.from` value must match a slot name declared in the Component's `featuresSchema`.
+- Every `attachments.<KEY>.from` value must match a slot name declared in the Component's `featuresSchema` — or, for an entry naming a connection with `connection: <alias>`, a slot that connection's socket declares in `usesSchema.<socket>.featuresSchema`. Such an entry is rewritten onto the name the connection's attachment takes on the component (`<alias>.<slot>`) before any of these rules runs, so every rule below reads it as it reads an entry naming the Component's own slot.
 - The `as:` delivery mechanism (`env` or `file`) must be allowlisted in that slot's `inject:` array.
 - Slots marked `inject: []` (blackbox) in the Component's `featuresSchema` cannot appear in Workload `attachments:` blocks — those slots are delivered by the Recipe's internal plumbing (e.g., via Helm `existingSecret`), not via Workload exposure.
 

@@ -232,7 +232,7 @@ spec:
                 infra: { storage_class: standard }
 ```
 
-The resolved per-edge `infra` flows into the *consuming* component's render context at `.context.uses.<alias>.infra.<key>`; it never appears in the target component's context, so a target's rendered output is invariant with respect to the consumers that configure edges into it. An attachment on a connection lands on the consuming component too, as one of its attachments: its `infra` merges with the Aggregate's `values` for the same slot, and its FeatureRecipe renders against both. A Recipe reading it at `.context.uses.<alias>.features.<slot>` is not yet available.
+The resolved per-edge `infra` flows into the *consuming* component's render context at `.context.uses.<alias>.infra.<key>`; it never appears in the target component's context, so a target's rendered output is invariant with respect to the consumers that configure edges into it. An attachment on a connection lands on the consuming component too, as one of its attachments: its `infra` merges with the Aggregate's `values` for the same slot, and its FeatureRecipe renders against both. The consuming component's Recipe reads it under its connection, at `.context.uses.<alias>.features.<slot>`, and its Workload delivers it by naming the connection beside the slot — see [Delivering a credential a connection carries](workload.md#delivering-a-credential-a-connection-carries).
 
 ## The `aggregates:` field — routing nested sub-modules into boundaries
 

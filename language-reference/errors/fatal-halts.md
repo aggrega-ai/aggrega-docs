@@ -491,11 +491,14 @@ The build reports the halt under a `CATALOG_ERROR` tag, because a `workload:` bl
 
 <!-- covers: pkg/validator.ErrWorkloadFeaturesSchema -->
 
-A container's `attachments:` entry inside a `workload:` block refers to an attachment slot, and the reference does not line up with the slots the Component or Feature declares in its `featuresSchema`. Three shapes reach this halt, and the finding says which one you have.
+A container's `attachments:` entry inside a `workload:` block refers to an attachment slot, and the reference does not line up with the slots the Component or Feature declares in its `featuresSchema` — or, for an entry naming a connection with `connection:`, with the slots that connection's socket declares. An `envFrom` entry naming a connection is held to the same connection rules. The finding says which of these shapes you have.
 
 - **The slot is not declared.** The entry's `from:` names a slot the entity's `featuresSchema` does not carry — a misspelling, or a slot that was renamed on one side only.
 - **The slot is blackbox.** The slot declares an empty `inject:` allowlist, which reserves delivery to the Recipe's own plumbing. Such a slot is filled and consumed internally, so a Workload cannot reach for it.
 - **The delivery is outside the slot's allowlist.** The entry's `as:` names a mechanism the slot's `inject:` list does not permit.
+- **The connection is not one the component draws.** The entry's `connection:` names an alias no connection of the component is written under.
+- **The connection's socket does not declare the slot.** The entry's `from:` (or, on `envFrom`, `secret:`) names a slot the socket that connection is wired through does not declare.
+- **The slot is written by its composed name.** The entry's `from:` (or `secret:`) is the name a connection's attachment takes on the component — the alias, a dot and the slot — written without `connection:`. A connection's slot is reached only by naming the connection.
 
 Every offending entry across every container is reported together, so one build names them all. Findings are grouped under one header naming the Workload, its Recipe, and the file.
 
@@ -504,8 +507,13 @@ Emitted message:
 >   `.containers.<name>.attachments.<KEY>.from`: references slot `"<slot>"` which is not declared in the Component's featuresSchema — either declare the slot in the Component (or Feature) featuresSchema, or rename the reference to an existing slot
 >   `.containers.<name>.attachments.<KEY>.from`: slot `"<slot>"` is blackbox (no `inject:` allowlist) and cannot be referenced from a Workload attachments entry — blackbox slots are delivered by Recipe-internal plumbing; remove the Workload-side reference, or widen the slot's inject allowlist if Workload-side delivery is intended
 >   `.containers.<name>.attachments.<KEY>.as`: delivery mechanism `"<as>"` is not permitted by slot `"<slot>"` (inject allowlist: `[<mechanisms>]`) — use one of the allowlisted delivery mechanisms (`[<mechanisms>]`), or widen the slot's inject allowlist in the Component/Feature featuresSchema
+>   `.containers.<name>.attachments.<KEY>.connection`: names connection `"<alias>"` for slot `"<slot>"`, but the component draws no connection under that alias — name a connection the component draws (`<aliases>`), or remove connection to read a slot the Component declares for its own attachments
+>   `.containers.<name>.attachments.<KEY>.from`: names slot `"<slot>"` of connection `"<alias>"`, which socket `"<socket>"` does not declare — name a slot socket `"<socket>"` declares (`<slots>`), or declare the slot in that socket's featuresSchema
+>   `.containers.<name>.attachments.<KEY>.from`: names `"<alias>.<slot>"`, the name the compiler composes for slot `"<slot>"` of connection `"<alias>"`; a slot a connection's socket declares is named by naming the connection — write connection: `<alias>` beside from: `<slot>`
 
-**How to fix:** each finding names both sides, so the choice is which side to change. For an undeclared slot, correct the `from:` spelling or declare the slot in the entity's `featuresSchema` — the field path's `.from` suffix points at the reference. For a blackbox slot, remove the Workload-side reference and let the Recipe deliver the material, unless Workload-side delivery is genuinely wanted, in which case give the slot an `inject:` allowlist. For a refused mechanism, switch `as:` to one the allowlist names, or add yours to it.
+On an `envFrom` entry the same findings sit at `.containers.<name>.envFrom[<i>].connection` and `.containers.<name>.envFrom[<i>].secret`.
+
+**How to fix:** each finding names both sides, so the choice is which side to change. For an undeclared slot, correct the `from:` spelling or declare the slot in the entity's `featuresSchema` — the field path's `.from` suffix points at the reference. For a blackbox slot, remove the Workload-side reference and let the Recipe deliver the material, unless Workload-side delivery is genuinely wanted, in which case give the slot an `inject:` allowlist. For a refused mechanism, switch `as:` to one the allowlist names, or add yours to it. For a connection the component does not draw, correct the alias to one the finding lists, or draw the connection in the Aggregate or the Release. For a slot the socket does not declare, name one of the slots the finding lists, or declare the slot in the socket's `featuresSchema` on the Component. For a composed name, write the connection and the slot separately, as the finding shows.
 
 ### A Workload references a slot whose fill publishes no locator
 
@@ -2722,7 +2730,7 @@ An attachment declared at a broader scope — subsystem-wide, cascading onto eve
 
 > attachment does not conform to its declared slot shape (Aggregate `<name>`, at `.spec.subsystems.<scope>.features["<attachment>"]`, this attachment is declared at a scope that reaches component `<component>`, whose attachment slot `<slot>` does not accept the delivery it carries: move the attachment down to the components that may receive it)
 
-An attachment a connection carries never reaches this halt. Its shape is closed where it is written: on the Aggregate's connection entry it takes `type`, `description` and `values`, and on the Release's `type`, `description` and `infra`, so it can dictate no delivery at all — an `inject:` written there is refused when the document loads, naming the key — and a socket slot's `inject` allowlist has nothing to permit or refuse. No scope reaches a socket's slot either, so the scope-wide form above has no counterpart on a connection.
+An attachment a connection carries never reaches this halt. Its shape is closed where it is written: on the Aggregate's connection entry it takes `type`, `description` and `values`, and on the Release's `type`, `description` and `infra`, so it can dictate no delivery at all — an `inject:` written there is refused when the document loads, naming the key — and the Workload entry that delivers it is held to the socket slot's `inject` allowlist instead. No scope reaches a socket's slot either, so the scope-wide form above has no counterpart on a connection.
 
 **How to fix:** the two forms call for different edits, and the field path tells you which one you have. Where it names a key inside an attachment on a component, that key is the fault: remove it, or declare it on the slot in the entity's `featuresSchema` — adding the delivery mechanism to the slot's `inject` allowlist where the material is genuinely meant to reach the workload. Where it names an attachment at a scope, the attachment is well formed and its placement is the fault: move it down onto the components whose slot accepts the delivery, leaving outside its reach the components that reserve delivery to their Recipe.
 

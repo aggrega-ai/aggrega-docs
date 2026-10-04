@@ -46,8 +46,8 @@ Pillar access inside Workload templates:
 - `.locals` — Recipe-private state resolved in the locals preamble and published at source resolution; available at every Workload template-evaluation site.
 - `.context.instance_id` — the node's flattened instance ID used for resource-name prefixing.
 - `.context.inject` — the post-interception injection pipe, already rewritten by any FeatureRecipe `injectMapping` during inject mapping.
-- `.context.uses` — the enriched topology edges outbound from this node, each carrying the target's resolved `provides`, `labels`, and cascading annotations.
-- `.features` — the node's attachments, each carrying its `type`, `values`, `infra`, and resolved `provides`. An attachment named for a slot the Component declares in `featuresSchema` fills that slot (see below).
+- `.context.uses` — the enriched topology edges outbound from this node, each carrying the target's resolved `provides`, `labels`, and cascading annotations, and, under `.context.uses.<alias>.features.<slot>`, the attachments that connection carries.
+- `.features` — the node's own attachments, each carrying its `type`, `values`, `infra`, and resolved `provides`. An attachment named for a slot the Component declares in `featuresSchema` fills that slot (see below). An attachment a connection carries is not among them; it is read under its connection, and a Workload delivers it by naming the connection (see [Delivering a credential a connection carries](#delivering-a-credential-a-connection-carries)).
 
 See [../vocabulary/data-pillars.md](../vocabulary/data-pillars.md) for the full pillar-access contract and [../templates/expansion-matrix.md](../templates/expansion-matrix.md) for where Workload evaluation sits in the template-evaluation sequence.
 
@@ -134,7 +134,7 @@ Container field authoring follows these conventions:
 
 - **`image`** is typically a template expression referencing `.values.image` (the Developer's selected image) with optional `.infra.*` overrides for environment-specific registry prefixing.
 - **`variables`** is a plain string → string map for environment variables. The map blends two distinct data sources via Go template expressions: **developer-pillar literals** (entries whose template expressions read `.values` / `.infra` / `.locals` — payload originating in the Component's pillars) and **cross-component-pipe data** (entries whose template expressions read `.context.inject.env.<KEY>` — payload originating in another component's `provides:` and routed through the topology pipe). The two sources flow into the same `variables` map; authors choose one per entry based on whether the value is component-local or cross-component-derived. Common patterns: `LOG_LEVEL: "{{ .values.log_level }}"` is developer-pillar (component-local); `DB_HOST: "{{ .context.inject.env.DB_HOST }}"` is cross-component-pipe (the value originates in a target component's `provides.host` routed through the caller's `uses[].inject.env.DB_HOST` declaration). Both forms compile to a single Kubernetes `env:` list on the rendered Deployment; the dual-source semantic is at authoring time only.
-- **`attachments`** references slots declared in the Component's `featuresSchema` (see the integration section below).
+- **`attachments`** references slots declared in the Component's `featuresSchema`, or, by naming a connection, a slot that connection's socket declares (see the integration section below).
 - **`ports`** is a named-port map (`web: 8080`, `admin: 9901`); port names match container-scoped port names and are referenced by `services.<service>.ports.<portname>`. A port that carries a transport other than the target's default is authored in the expanded form instead — see [Port transport protocols](#port-transport-protocols) below.
 - **`volumeMounts`** references volumes declared elsewhere in the Workload's `volumes:` section by name.
 - **`resources`** declares the container's `requests` and `limits` — the `cpu` and `memory` quantities, and optionally extended-resource keys for GPUs and other devices (see [GPU and device workloads](#gpu-and-device-workloads) below).
@@ -485,13 +485,13 @@ before the field existed: the key is absent from the output entirely rather than
 
 ## Attachment integration with the Component's `featuresSchema`
 
-The Workload's `containers.<name>.attachments` block references credential slots declared in the Component's `featuresSchema`; it does not declare new slots. See [../entities/component.md](../entities/component.md) for the `featuresSchema` authoring surface. `from` names the slot; it is not the generated Secret's name.
+The Workload's `containers.<name>.attachments` block references credential slots declared in the Component's `featuresSchema` — or, for an entry that names a connection, a slot that connection's socket declares (see [Delivering a credential a connection carries](#delivering-a-credential-a-connection-carries)); it does not declare new slots. See [../entities/component.md](../entities/component.md) for the `featuresSchema` authoring surface. `from` names the slot; it is not the generated Secret's name.
 
 A `containers.<name>.attachments` entry renders to a reference to a Secret resource — a Kubernetes `secretKeyRef` (for `as: env`) or a secret-backed volume (for `as: file`) — both of which point at the Secret **by name**. The synthesizer resolves that name and data key from the slot's exposed provides: the entry's rendered `secretKeyRef.name` is the slot's `.features.<slot>.provides.name` and the data key is `.features.<slot>.provides.key`. The Recipe author writes only `from: <slot>` and `as: env`; the synthesizer reads the resolved provides — it does not re-derive the name. This is the same `.features.<slot>.provides.<key>` read a source Recipe uses for an `existingSecret`: a single credential slot feeds both a source-Recipe consumer and a synthesized-Workload consumer identically (source/workload symmetry).
 
 Four validation rules govern the integration:
 
-- Every `attachments.<KEY>.from` value must match a slot name declared in the Component's `featuresSchema`. An unknown slot name is a load-time error.
+- Every `attachments.<KEY>.from` value must match a slot name declared in the Component's `featuresSchema` — or, on an entry naming a connection, in that connection's socket. An unknown slot name is a load-time error.
 - The `as:` delivery mechanism (`env` or `file`) must appear in the slot's `inject:` allowlist declared by the Component. A Workload declaring `as: file` against a slot whose `featuresSchema` entry specifies `inject: [env]` is a load-time error.
 - Slots marked `inject: []` (blackbox delivery) in the Component's `featuresSchema` cannot appear in Workload `attachments:` blocks at all. Those slots are delivered by the Recipe's internal plumbing (a Helm chart's `existingSecret` parameter, for example), not by Workload exposure.
 - The referenced slot must be **referenceable** — its fill must publish a `provides` locator (`name`, `key`) for a Secret resource, one its realization emits or one that already exists. A slot filled by an inject-delivered credential (one that writes a value into the inject pipe and publishes no locator) has nothing to point at; referencing it from a Workload `attachments:` entry is a load-time error. An inject-delivered credential reaches the container through the slot's inject pipe (a `variables` entry reading `.context.inject.env.<KEY>`), not through an `attachments:` entry.
@@ -522,12 +522,61 @@ workload: |
         # ROOT_PASSWORD: ...      # rejected at load time: blackbox slot
 ```
 
+### Delivering a credential a connection carries
+
+A Component's socket can declare, in `usesSchema.<socket>.featuresSchema`, the slots each connection wired through it fills — so a component reaching several targets holds one credential per connection rather than one for all of them. Such an attachment is not among the component's own `.features`; it sits under its connection, at `.context.uses.<alias>.features.<slot>`. A Workload entry delivers it by naming the connection beside the slot:
+
+- on a container's `attachments` entry, `connection: <alias>` beside `from: <slot>`;
+- on a container's `envFrom` entry, `connection: <alias>` beside `secret: <slot>` — `connection` is accepted only beside `secret`.
+
+Both forms are accepted on every container and every init container. `<alias>` is the name the connection is written under in the component's `uses` block, on the Aggregate or on the Release — the key a Recipe reads the connection by under `.context.uses` — and `<slot>` is a slot the socket that connection is wired through declares.
+
+Before any rule above reads the Workload, each entry naming a connection is rewritten onto the name the attachment that connection carries in that slot takes on the component: the alias, a dot, and the slot (`gpt.credential`). Every rule then runs on the rewritten entry exactly as it runs on an entry naming one of the Component's own slots: the socket slot's `inject:` allowlist governs `as:`, a socket slot declaring `inject: []` cannot be referenced, the attachment filling it must be referenceable, and the provider resolves the Secret's name and data key from that attachment's resolved `provides` — so each connection's entry references that connection's own credential. A socket slot declaring `sensitive: true` is read for the entry exactly as a Component slot's declaration is. The rewritten entry is what the provider receives; the `connection` key does not reach it.
+
+Three entries are refused, each naming what it named:
+
+- an entry naming a connection the component does not draw — the refusal names the connection, the slot, and the connections the component does draw;
+- an entry naming a slot the connection's socket does not declare — the refusal names the slot, the connection, the socket, and the slots it declares;
+- an entry writing the composed name (`from: gpt.credential`) itself. A connection's slot is named by naming the connection, so the composed name is never a second way to reach it.
+
+A connection that carries no attachment in the slot leaves the entry with nothing to reference, and the referenceability rule refuses it. A Workload a FeatureRecipe renders is held to the slots the Feature it implements declares, which reach none of the host component's connections, so an entry there naming a connection is refused as naming one the component does not draw.
+
+Example:
+
+```yaml
+# In the Component catalog entity
+spec:
+  usesSchema:
+    models:
+      featuresSchema:
+        credential:
+          sensitive: true
+          inject: [env]
+
+# In the Recipe's Workload — the component draws connections `gpt` and `nim`
+# through the `models` socket, each carrying its own `credential`
+workload: |
+  containers:
+    main:
+      attachments:
+        MODEL_KEY_GPT:
+          from: credential
+          connection: gpt
+          as: env
+        MODEL_KEY_NIM:
+          from: credential
+          connection: nim
+          as: env
+```
+
+On helm, `MODEL_KEY_GPT` renders as a `secretKeyRef` naming the Secret the `gpt` connection's credential published and `MODEL_KEY_NIM` the one the `nim` connection's did. On compose, an `as: env` entry naming a connection is emitted with an empty value and the same partial-support advisory an entry naming one of the Component's own slots takes.
+
 ## Validation surface
 
 Every Workload is validated at Recipe load time before any rendering runs. Validation has two stages:
 
 - **Schema validation.** The Workload value is unified against the embedded `aggrega.ai/v1alpha1` Workload schema. Errors carry the field path and the constraint violated (for example, `.containers.main.health.ready: more than one probe shape declared`). Schema validation enforces every type, enum, range, and disjunction declared in the schema — including the closed-set controller `form` (one of `stateless`, `stateful`, `daemon`, `scheduled`, `task`), the closed-set service `type` (one of `ClusterIP`, `NodePort`, `LoadBalancer`, `Headless`), the integer port range (1..65535), the probe-shape disjunction (exactly one of `http`, `tcp`, `exec`), and the volume-variant disjunction (exactly one of `ephemeral`, `configmap`, `secret`, `persistent`, `persistentTemplate`).
-- **Cross-reference validation.** Workload attachment references are checked against the Component's `featuresSchema` (slot membership, `as:` delivery allowlist, blackbox exclusion) and against each referenced slot's resolved provides (referenceability — the fill must publish `name`/`key`). These are cross-entity checks that schema-only validation cannot perform.
+- **Cross-reference validation.** Workload attachment references are checked against the Component's `featuresSchema` — and, for an entry naming a connection, against the slots that connection's socket declares — (slot membership, `as:` delivery allowlist, blackbox exclusion) and against each referenced slot's resolved provides (referenceability — the fill must publish `name`/`key`). These are cross-entity checks that schema-only validation cannot perform.
 
 Both stages produce the same `CATALOG_ERROR`-prefixed message shape; failures stop the build before any rendering output is produced. Recipe authors get pointed feedback identifying the exact field that failed and the constraint that rejected it.
 
