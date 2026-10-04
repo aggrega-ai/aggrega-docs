@@ -177,6 +177,14 @@ Recipe delivers refuses a request naming the key there, `metadata.user_api_key`,
 with HTTP 400 naming the field. So no request can name its way into another
 key's bucket.
 
+A request's own `metadata` can still move it among the buckets of the key it
+presents. On a responses request, `model_group` takes the place of the model the
+request asks for in its bucket. On a responses or messages request,
+`caching_groups` lets requests naming the same group of model aliases share
+replies across them. On a responses or chat request, `redis_namespace` keeps
+requests naming a namespace in buckets apart from those naming none. None of
+them reaches another key's bucket.
+
 **This gateway's key is its administrative key, and every caller holds it.**
 It has no bookkeeping database attached, so it issues no keys of its own: every
 caller presents `master_key`, and a request with no key, or with a key the
