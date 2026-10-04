@@ -20,9 +20,9 @@ internal components in the Release.
 
 | File | Role |
 | --- | --- |
-| `aggregate.yaml` | Developer intent: imports the API-gateway module (`core/apisix`). |
-| `manifest-helm-synth.yaml` | Maps the gateway and store types to their synth helm Recipes. |
-| `release-helm-synth.yaml` | Operator record for the Kubernetes target. Sizes the module's internal components by their module-scoped IDs; anything left to schema defaults renders self-contained. |
+| `aggregate.yaml` | Developer intent: imports the API-gateway module (`core/apisix`) and passes it the gateway's Admin API key from a parameter of its own. |
+| `manifest-helm-synth.yaml` | Maps the gateway and store types to their synth helm Recipes, and the credential Feature the module attaches to the realization that reads a Secret already in the namespace. |
+| `release-helm-synth.yaml` | Operator record for the Kubernetes target. Names the Secret holding the Admin API key, and sizes the module's internal components by their module-scoped IDs; anything else is left to schema defaults. |
 
 ## What it demonstrates
 
@@ -46,9 +46,16 @@ internal components in the Release.
   startup. The Recipe emits that configuration as a ConfigMap and mounts it as a
   single file, so it configures the gateway without masking the files the gateway
   writes there.
-- **A static Admin API key.** The gateway administers its routes through an Admin
-  API authenticated by a static key. This example pins a deterministic
-  development key, so the stack runs self-contained with no external secret.
+- **An Admin API key read from a Secret.** The gateway administers its routes
+  through an Admin API, and its key arrives through a required credential slot
+  on the gateway, so no default key exists. The module takes the key as a
+  parameter, `admin_key`, and attaches the `core/referenced-secret` credential
+  Feature to the slot with it; this Aggregate declares a parameter of its own
+  and passes it down, and the Release fulfills it. The Manifest maps the
+  Feature to `k8s-existing-secret`, so the value is the name of a Secret that
+  already exists in the namespace: the build reads no key and renders none, and
+  the gateway reads the key from that Secret when it starts. A Release that
+  supplies no value halts the build, naming the parameter.
 - **Reproducible images.** Both the gateway and the store pin explicit image
   tags, so the rendered manifests reference stable images.
 
@@ -64,12 +71,20 @@ aggrega build --release release-helm-synth.yaml
 Rendered artifacts land under `dist/`. The Kubernetes target renders plain
 manifests offline — no chart pull is required.
 
+Before applying them, create the Secret the Release names, `apisix-admin-key`,
+in the target namespace, holding a key of your own under the data key
+`admin-key`. The key must not be empty, which stops the gateway at start-up,
+and must not be a value APISIX reads as a number or as true or false, such as
+an all-digit key, because APISIX then never matches it against the key a
+request presents.
+
 ## What the composed stack looks like
 
 The gateway renders as a stateless Deployment plus a ClusterIP Service on the
 proxy port. Its configuration is delivered as a ConfigMap mounted as a single
 file into the container's conf directory; the config carries the store's
-in-cluster Service name and the static Admin API key:
+in-cluster Service name and, where the Admin API key goes, the name of the
+environment variable APISIX reads the key from when it loads the file:
 
 ```yaml
 apisix:
@@ -82,16 +97,28 @@ deployment:
     [… omitted: the client range the Admin API accepts]
     admin_key:
       - name: admin
-        key: edd1c9f034335f136f87ad84b625c8f1
+        key: ${{APISIX_ADMIN_KEY}}
         role: admin
     admin_listen:
       ip: 0.0.0.0
       port: 9180
   etcd:
     host:
-      - "http://gateway.store-default:2379"
+      - "http://gateway-zdstore-default:2379"
     prefix: "/apisix"
     timeout: 30
+```
+
+The Deployment delivers that variable from the Secret, so the key appears in
+no rendered file:
+
+```yaml
+env:
+  - name: APISIX_ADMIN_KEY
+    valueFrom:
+      secretKeyRef:
+        name: apisix-admin-key
+        key: admin-key
 ```
 
 The store renders as a StatefulSet with a persistent volume mounted at

@@ -12,8 +12,22 @@ metadata:
     gateway and an etcd store that holds its configuration — and wires its own
     internal edge from the gateway to the store. The module exports the gateway
     as its public endpoint `proxy`. This top-level Aggregate imports the module
-    by name; the operator sizes the module's internal components in the Release.
+    by name and passes the gateway's Admin API key down to it from a parameter
+    the Release fulfills; the operator sizes the module's internal components in
+    the Release.
 spec:
+  parameters:
+    # The module takes the gateway's Admin API key as a parameter of its own and
+    # has no default for it, so this Aggregate declares one and passes it down.
+    # With this example's Manifest, the value is the name of a Secret already in
+    # the target namespace that holds the key under the data key admin-key.
+    admin_key:
+      type: string
+      required: true
+      minLength: 1
+      description: Name of the Secret holding the gateway's Admin API key under the data key admin-key, created in the target namespace before the Release is applied.
   aggregates:
     gateway:
       type: core/apisix
+      parameters:
+        admin_key: "{{ .parameters.admin_key }}"

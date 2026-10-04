@@ -10,11 +10,19 @@ metadata:
     Ops mapping for the Kubernetes target backed by synthesized manifests. The
     store and gateway types are realized by their synth helm Recipes — the store
     as a StatefulSet with a persistent volume, the gateway as a stateless
-    Deployment with a mounted configuration file. Recipe selection at build time
-    is by component type against the loaded catalog.
+    Deployment with a mounted configuration file. The module attaches the
+    core/referenced-secret credential Feature to the gateway's Admin API key
+    slot, so the Feature is mapped here too: bound to k8s-existing-secret, it
+    reads the module's admin_key parameter as the name of a Secret that already
+    exists in the namespace and renders no Secret of its own, so the key passes
+    through no file the build reads or writes. Recipe selection at build time is
+    by component type against the loaded catalog.
 spec:
   mappings:
     components:
       type:
         core/datastore/etcd:1.0.0: helm/etcd:1.0.0
         core/gateway/apisix:1.0.0: helm/apisix:1.0.0
+    features:
+      type:
+        core/referenced-secret:1.0.0: k8s-existing-secret:1.0.0
