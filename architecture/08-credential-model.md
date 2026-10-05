@@ -177,6 +177,54 @@ State the shared form's rendering precisely, because it is easy to assume otherw
 
 If a deployment needs exactly one physical Secret that several consumers read, express that with a credential Feature whose FeatureRecipe runs at boundary scope (`executionScope: boundary`), which renders once for the boundary rather than once per component.
 
+### A key both ends of a connection hold
+
+A server that checks a key and the component calling it each hold that key, each on its own side. The server holds the key it verifies in a slot of its own Component — `core/ai-model/vllm`, `core/ai-model/tei` and `core/ai-model/tgi` each declare `api_key`, as do the LiteLLM model and gateway for the key LiteLLM calls its master key — and its Recipe delivers whatever fills the slot as the variable the server reads. The caller holds the key it presents on its own side: on the connection it presents it on, in a slot its socket declares, or — where its Component declares the key on itself, as `core/ai-agent/crewai` does — in that slot, for every connection it makes. Neither end sees the other's attachments: an attachment on a connection lands on the caller alone, and a server's rendered output is the same whatever the connections reaching it carry. The server never learns which key a caller holds, and the caller reads only what the server publishes — an address and a model name. The two ends agree because the Aggregate feeds both from one parameter:
+
+```yaml
+spec:
+  parameters:
+    model_key_secret: { type: string }
+  components:
+    model:
+      type: core/ai-model/vllm
+      values: { model: Qwen/Qwen2.5-0.5B-Instruct }
+      features:
+        api_key:                         # the key the server verifies
+          type: core/referenced-secret
+          values:
+            origin: "{{ .parameters.model_key_secret }}"
+            key: api-key
+    router:
+      type: local/gateway/model-router   # its `models` socket declares a `credential` slot
+      uses:
+        models:
+          local:
+            target: model
+            features:
+              credential:                # the key the caller presents
+                type: core/referenced-secret
+                values:
+                  origin: "{{ .parameters.model_key_secret }}"
+                  key: api-key
+```
+
+Whether that is one secret or two follows from where the two ends resolve secrets. A provider resolves a secret by reference within a **secret scope**: a Kubernetes namespace on `helm`, a Compose project on `compose`, a boundary's root configuration on `terraform`, and on `cloudformation` a stack, in the AWS account and region it deploys into. Where both ends sit in one scope, they reference one secret resource. Where they sit in different scopes, each end holds a secret resource of its own, realized from the same store entry. The Manifest chooses each end's realization — by Feature type, or for one attachment by its name, which for a connection's attachment is `<alias>.<slot>` (`local.credential` above). Since one parameter feeds both, the two realizations read `origin` as the same kind of locator: both a Secret's name, both the key of a store entry, or both the value itself.
+
+On `helm` with both ends in one namespace, binding `core/referenced-secret` to `helm/k8s-existing-secret` and fulfilling the parameter with the name of a Secret that namespace holds, `model-keys`, has both ends reference it by name and renders no Secret. The server's container carries:
+
+```yaml
+- name: VLLM_API_KEY
+  valueFrom:
+    secretKeyRef:
+      name: model-keys
+      key: api-key
+```
+
+and the router's Recipe reads the same name and key from its connection, at `.context.uses.local.features.credential.provides`. With the two ends in different namespaces, binding it to `helm/k8s-external-secret` and fulfilling the parameter with the key of a store entry gives each end an `ExternalSecret` of its own, in its own namespace, both fetching that one entry. On `compose`, both ends carry the same `${VAR}` reference, which Docker Compose substitutes from the environment the one project is started with. This placement is a convention the standard-library catalog follows; the compiler compares nothing between the two ends.
+
+**One key serves every caller.** vLLM, TEI and TGI each check a single key, so every caller presents the same key and the server cannot tell one caller from another, however many connections reach it. That is the server's own limit. TGI matches its key without regard to letter case, so two keys differing only in case are one key to it. The LiteLLM model and gateway also accept the keys they issue themselves, while their bookkeeping database is attached.
+
 ## A credential the target generates
 
 Where a Release supplies no credential, a catalog entity often falls back on a development default — an inline value in a Recipe, a default on a module's parameter. That value is the same for every reader of the catalog, which is acceptable for evaluation and for nothing else. `core/random-password` removes the need for it: no one writes the credential, because the target generates it.
