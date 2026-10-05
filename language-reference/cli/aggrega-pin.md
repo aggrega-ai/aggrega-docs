@@ -41,7 +41,7 @@ A Recipe or FeatureRecipe whose `source:` names a directory beside it — a co-l
 
 **A consumer renders the files your rules kept.** A plugin can render a Recipe published for its capability when it speaks the same ABI version, its contract matches its entity's claim, and it needs no file outside the published set. A plugin that needs a file the set left out must fail its build loudly and name the file; the host's part is to refuse any pack or read of a file the set does not carry, naming it. Where the plugin a consumer's workspace binds for the capability declares different rules from the ones your lock records, the consumer's `aggrega pull` says so in a warning naming both plugins and the difference, and carries on.
 
-**A symbolic link among an entity's files is refused**, wherever it points and whether or not it resolves — see [A symbolic link sits among the files an entity carries](../errors/fatal-halts.md#a-symbolic-link-sits-among-the-files-an-entity-carries). A link your rules leave out is passed over like any other file they leave out.
+**A symbolic link among an entity's files is refused**, wherever it points and whether or not it resolves — see [A symbolic link sits among the files an entity carries](../errors/fatal-halts.md#a-symbolic-link-sits-among-the-files-an-entity-carries). A link your rules leave out is passed over like any other file they leave out. A path the entity names that passes through a directory which is a link leading out of the entity's directory is refused as well, before anything is pinned — see [A path names content outside the entity's own directory](../errors/fatal-halts.md#a-path-names-content-outside-the-entitys-own-directory).
 
 ## Where the lock goes
 

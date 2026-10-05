@@ -218,6 +218,12 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrRejected()` | `wasm-manifest-rejected` | `wasm: plugin rejected by the sandbox` |
 | `ErrTypeMismatch()` | `wasm-plugin-type-mismatch` | `wasm: declared plugin type does not match plugin describe()` |
 
+### pkg/readscope
+
+| Sentinel | Code | Message |
+| --- | --- | --- |
+| `ErrReadLeadsOutOfWorkspace()` | `read-leads-out-of-workspace` | `a file this operation reads leads through a link out of the directory it must stay inside` |
+
 ### pkg/recipepin
 
 | Sentinel | Code | Message |
@@ -762,6 +768,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0318` | `attachment-inject-mapping-key-collision` | `duplicate delivery key across two attachments: an attachment's FeatureRecipe injectMapping writes a key another attachment already delivered` |
 | `E0319` | `duplicate-connection-alias` | `connection alias is already used by another connection of the same component` |
 | `E0320` | `write-leads-out-of-workspace` | `a path this operation writes or deletes leads through a link out of the directory it must stay inside` |
+| `E0321` | `read-leads-out-of-workspace` | `a file this operation reads leads through a link out of the directory it must stay inside` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication no longer judges a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.
