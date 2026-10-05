@@ -131,8 +131,8 @@ The gateway sits in its own `model` subsystem deliberately, so the attachment
 reaches the two agents and nothing else. Placing it in the `agents` subsystem
 instead would attach `model_api_key` to the gateway too, and since a slot is not
 required for an attachment to be legal, that renders a third Secret
-(`gateway-model-api-key`) that nothing references — the gateway's Recipe reads a
-slot named `api_key`, not `model_api_key`. The scope of the subsystem is the
+(`gateway-model-api-key`) that nothing references — the gateway's Component
+declares no credential slot, and its Recipe reads none. The scope of the subsystem is the
 scope of the cascade.
 
 **Read the output carefully, because the intuitive expectation is wrong.** One

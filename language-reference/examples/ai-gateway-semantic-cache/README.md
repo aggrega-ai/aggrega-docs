@@ -23,7 +23,7 @@ writes.
 | `cache` | `core/datastore/redis` | the store the gateway keeps its replies in |
 
 One `uses` edge, into the gateway's `cache_store` socket, and three Feature
-attachments on the gateway: `master_key` and `provider_key`, two credentials,
+attachments on the gateway: `api_key` and `provider_key`, two credentials,
 and `answers`, the cache. The attachment names the embedding alias that turns
 each prompt into a vector, how alike two prompts must be — `0.9`, as a cosine
 similarity — and how long a stored reply lasts, an hour. It leaves `scope` out,
@@ -62,7 +62,7 @@ Build completed: 8 files written to dist/
 dist/helm/
 ├── cache-default-service.yaml
 ├── cache-deployment.yaml
-├── router--master-zukey--router-secret-router-master-key.yaml
+├── router--api-zukey--router-secret-router-api-key.yaml
 ├── router--provider-zukey--router-secret-router-provider-key.yaml
 ├── router-default-service.yaml
 ├── router-deployment.yaml
@@ -122,7 +122,7 @@ those from the `cache_store` edge. From `dist/helm/router-deployment.yaml`, the
             - name: LITELLM_MASTER_KEY
               valueFrom:
                 secretKeyRef:
-                  name: router-master-key
+                  name: router-api-key
                   key: master-key
             - name: LITELLM_PROVIDER_API_KEY
               valueFrom:
@@ -187,10 +187,10 @@ them reaches another key's bucket.
 
 **This gateway's key is its administrative key, and every caller holds it.**
 It has no bookkeeping database attached, so it issues no keys of its own: every
-caller presents `master_key`, and a request with no key, or with a key the
-gateway did not issue, is refused before anything is looked up. So the key
-separates no caller from another here, and under the default scope what keeps
-two callers apart is the end user each request names.
+caller presents the key attached to `api_key`, and a request with no key, or
+with a key the gateway did not issue, is refused before anything is looked up.
+So the key separates no caller from another here, and under the default scope
+what keeps two callers apart is the end user each request names.
 
 **Under `end_user`, the default, an entry is served to requests naming the same
 end user.** The gateway reads the end user from the request: an
@@ -224,13 +224,13 @@ are the same for everyone and nothing else.
 
 Each of these is a sentence the build prints, naming what to change:
 
-- **No administrative key.** Remove the `master_key` attachment and the build
+- **No administrative key.** Remove the `api_key` attachment and the build
   halts before anything renders:
 
   ```text
   [CATALOG_ERROR E0033]
     Recipe/FeatureRecipe assertions
-    caused by: FeatureRecipe "semantic-caching-litellm" instance "router" assertion "gateway_checks_the_caller": [… omitted: the template position and the assertion's own source]: error calling fail: assertion failed: core/semantic-caching attachment "answers" on "router" needs core/gateway/litellm to check every caller's key before a cached reply is served, but its master_key credential slot is not attached, so the gateway checks no caller and a cache bucket would be made only of what each caller claims. Attach a credential to the master_key slot of "router"
+    caused by: FeatureRecipe "semantic-caching-litellm" instance "router" assertion "gateway_checks_the_caller": [… omitted: the template position and the assertion's own source]: error calling fail: assertion failed: core/semantic-caching attachment "answers" on "router" needs core/gateway/litellm to check every caller's key before a cached reply is served, but its api_key credential slot is not attached, so the gateway checks no caller and a cache bucket would be made only of what each caller claims. Attach a credential to the api_key slot of "router"
   ```
 
 - **No store.** Remove the `cache_store` edge and the build halts naming the

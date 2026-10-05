@@ -143,7 +143,7 @@ names every artifact it objects to, so the pipeline log is the finding list.
 
 ```console
 $ ./require-pinned-image.sh ../ai-agent-and-model-router/dist
-OK: every image pinned across 3 container(s) in 12 document(s)
+OK: every image pinned across 4 container(s) in 12 document(s)
 $ echo $?
 0
 ```
@@ -175,7 +175,7 @@ Over a deployment that fills three credential slots by value:
 ```console
 $ ./deny-inline-credential-material.sh ../ai-agent-and-model-router/dist
 REFUSED: helm/agent--model-zuapi-zukey--agent-secret-agent-model-api-key.yaml (document 1): Secret/agent-model-api-key carries inline material under api-key
-REFUSED: helm/router--master-zukey--router-secret-router-master-key.yaml (document 1): Secret/router-master-key carries inline material under master-key
+REFUSED: helm/router--api-zukey--router-secret-router-api-key.yaml (document 1): Secret/router-api-key carries inline material under master-key
 REFUSED: helm/router--provider-zukey--router-secret-router-provider-key.yaml (document 1): Secret/router-provider-key carries inline material under provider-key
 REFUSED: 3 finding(s) across 12 document(s), 3 of them credential-carrying
 $ echo $?

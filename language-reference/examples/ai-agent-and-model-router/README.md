@@ -113,7 +113,7 @@ dist/helm/
 ├── agent-deployment.yaml
 ├── checkpointer-default-service.yaml
 ├── checkpointer-deployment.yaml
-├── router--master-zukey--router-secret-router-master-key.yaml
+├── router--api-zukey--router-secret-router-api-key.yaml
 ├── router--metrics--router-servicemonitor-router-scrape.yaml
 ├── router--provider-zukey--router-secret-router-provider-key.yaml
 ├── router--published--router-ingress-router-ingress.yaml
@@ -138,7 +138,7 @@ which is what this target's consumers do unless you tell them otherwise.
 
 The two coordinates are encoded rather than written as you typed them, because
 they share one string with the file's own name. A character a filename cannot
-safely carry becomes `-z` and a letter: `master_key` is `master-zukey`, and
+safely carry becomes `-z` and a letter: `api_key` is `api-zukey`, and
 `feature.aggrega.ai/monitoring` — an attachment name a Feature's own annotation
 mints — would be `feature-zdaggrega-zdai-zsmonitoring`. The file's own name keeps
 whatever dots it carries, so the `.yaml` suffix still reads as a suffix.
@@ -335,11 +335,12 @@ router be inserted, moved or repointed without the application changing.
 An attachment that changes nothing in the output teaches nothing. Each of these
 five puts something there.
 
-### `master_key` on the router — the key it requires of callers
+### `api_key` on the router — the key it requires of callers
 
-`core/referenced-secret`, filling a slot the router's Component declares. It
-renders its own Secret, and the router's container references it. From
-`dist/helm/router--master-zukey--router-secret-router-master-key.yaml`:
+`core/referenced-secret`, filling a slot the router's Component declares; the
+key it holds is the one LiteLLM calls its master key. It renders its own Secret,
+and the router's container references it. From
+`dist/helm/router--api-zukey--router-secret-router-api-key.yaml`:
 
 ```yaml
 stringData:
@@ -352,7 +353,7 @@ and in the router's container `env`, from `dist/helm/router-deployment.yaml`:
             - name: LITELLM_MASTER_KEY
               valueFrom:
                 secretKeyRef:
-                  name: router-master-key
+                  name: router-api-key
                   key: master-key
 ```
 

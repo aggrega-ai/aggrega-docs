@@ -55,11 +55,12 @@ spec:
         # Two credentials, and the difference between them is the whole point of
         # putting a router in front of a model.
         #
-        # master_key guards the router's own API: with it attached, a caller must
-        # present the key. provider_key is the credential the router presents
-        # UPSTREAM on the caller's behalf — so the agent never holds it, and
-        # repointing the map at a different provider changes no application.
-        master_key:
+        # api_key guards the router's own API: with it attached, a caller must
+        # present the key, which LiteLLM calls its master key. provider_key is
+        # the credential the router presents UPSTREAM on the caller's behalf —
+        # so the agent never holds it, and repointing the map at a different
+        # provider changes no application.
+        api_key:
           type: core/referenced-secret
           values:
             key: master-key
@@ -116,7 +117,7 @@ spec:
             target: checkpointer
       features:
         # The key the agent presents to the router, read from the same parameter
-        # the router's own master_key reads. Delivered as OPENAI_API_KEY, which
+        # the router's own api_key reads. Delivered as OPENAI_API_KEY, which
         # is the variable the client library reads: the agent talks to the router
         # in exactly the dialect it would use to talk to a provider directly.
         model_api_key:
