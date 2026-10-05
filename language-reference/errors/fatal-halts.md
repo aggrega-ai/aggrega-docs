@@ -4374,6 +4374,23 @@ Emitted message. The condition's own sentence opens it, then the value as it was
 
 **How to fix:** where the value is one you wrote — a Recipe's or FeatureRecipe's `source.version`, `url` or `module_subdir` — correct it to name one directory, or a path that stays inside its place; the message quotes the value and the key it was read from. Where a registry served it, the published entity carries a version or a coordinate that is not one, which no change of yours can fix: the message names what was fetched, and the remedy is with whoever publishes it.
 
+### A path the operation writes leads out of the workspace through a link
+
+<!-- covers: pkg/writescope.ErrWriteLeadsOutOfWorkspace -->
+
+Several operations write or remove files of their own inside your workspace, at places they work out for themselves rather than places you named: a build's output directory and every file it writes there, and the `.trace` directory a traced build replaces; a Release's lockfile, and the plugin trust record beside it, which a pull writes; the `entity.lock` beside an entity, which `aggrega pin` writes; the workspace's `.aggrega-config.yaml`, when a command writes the workspace's configuration; the artifact cache and each subtree of it, which a pull fills and `aggrega cache clear` and `aggrega cache prune` empty; and the drafts `aggrega import` writes. The same holds whichever surface started the operation — the command line, the editor's language server, or an assistant's tools.
+
+Each of those places is checked before anything is written or removed there. The deepest part of the path that exists, with every symbolic link on the way followed, has to be the workspace root or lie beneath it. A link anywhere on the way that leads outside the workspace — a `dist` linked to a directory elsewhere, a lockfile linked to a file in another project, a `.aggrega/cache` linked to a directory shared with other work — would make the write or the removal land outside, so the operation stops instead, and that path is left exactly as it was. It matters most for a build: clearing and rewriting an output directory that is a link would otherwise delete and rewrite a directory somewhere else on the machine.
+
+A link that leads nowhere is treated as what it is — not something that exists — so the directory holding it is what is checked. Where such a link stands at the very end of a path the operation is about to create, the file would be created where the link points, so the place it points to is checked as well. A link that points somewhere inside the workspace is followed as usual.
+
+Emitted message. The condition's own sentence opens it, then the path the operation was about to write or remove — `writing` or `removing` says which — the link it meets on the way and the place that link leads to, then the remedy. A build whose `dist` is a link leading out is stopped at the first thing it would touch, the clearing of the previous output:
+> a path this operation writes or deletes inside the workspace leads out of it through a link (removing `<workspace>/dist/boundaries`, the link `<workspace>/dist` leads to `<elsewhere>/dist-target`). nothing was written to or removed from that path. Remove the link, or make it lead to a place inside the workspace, and run the operation again
+
+The diagnostic carries no category: what is at fault is the workspace's layout on disk rather than any document you wrote.
+
+**How to fix:** remove the link the message names and run the operation again, so it creates a real directory or file in that place; or make the link lead somewhere inside the workspace, where it is followed. Nothing in your entity files causes this and no authoring change clears it.
+
 ## Conditions that do not halt a build
 
 Every condition above stops a build. Some conditions carry a short code and a message of their own without ever stopping one, and they are catalogued here so that a code you have in hand always resolves to something, whichever page you arrived from.
@@ -5275,6 +5292,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0317` | `a Release connection attachment names no Feature type, and the type is required for an attachment only the Release makes` | A Release connection attachment names no Feature type |
 | `E0318` | `duplicate delivery key across two attachments: an attachment's FeatureRecipe injectMapping writes a key another attachment already delivered` | Two attached Features deliver one key, the later through its FeatureRecipe's injectMapping |
 | `E0319` | `connection alias is already used by another connection of the same component` | Two connections of one component under one alias |
+| `E0320` | `a path this operation writes or deletes inside the workspace leads out of it through a link` | A path the operation writes leads out of the workspace through a link |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

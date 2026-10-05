@@ -405,6 +405,12 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrGovernanceRoleInvalid()` | `governance-role-invalid` | `a governance attachment declares no role or an unknown role` |
 | `ErrInertFieldOnProviderSocket()` | `inert-field-on-provider-socket` | `a provider socket binding sets a field with no referent on that socket` |
 
+### pkg/writescope
+
+| Sentinel | Code | Message |
+| --- | --- | --- |
+| `ErrWriteLeadsOutOfWorkspace()` | `write-leads-out-of-workspace` | `a path this operation writes or deletes inside the workspace leads out of it through a link` |
+
 ### pkg/yamlpos
 
 | Sentinel | Code | Message |
@@ -755,6 +761,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0317` | `release-connection-attachment-untyped` | `a Release connection attachment names no Feature type, and the type is required for an attachment only the Release makes` |
 | `E0318` | `attachment-inject-mapping-key-collision` | `duplicate delivery key across two attachments: an attachment's FeatureRecipe injectMapping writes a key another attachment already delivered` |
 | `E0319` | `duplicate-connection-alias` | `connection alias is already used by another connection of the same component` |
+| `E0320` | `write-leads-out-of-workspace` | `a path this operation writes or deletes inside the workspace leads out of it through a link` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication no longer judges a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.
