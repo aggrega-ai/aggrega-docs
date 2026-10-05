@@ -221,9 +221,10 @@ spec:
     # Recipe dictates the physical secret name for the Wasm pipeline
     secret_target_admin_password: "{{ .context.instance_id }}-redis-auth"
   provides:
-    host: "{{ .context.instance_id }}"
+    host: "{{ .context.rendered_name }}"
     port: "6379"
   valuesMapping: |
+    fullnameOverride: "{{ .context.rendered_name }}"
     auth:
       existingSecret: "{{ .context.instance_id }}-redis-auth"
       existingSecretPasswordKey: "redis-password"

@@ -176,7 +176,7 @@ The artifact templates reference `.workload.containers.main.ports.web` rather th
 
 ## Example 24: Mixed sourced Recipe with artifacts
 
-Pattern: **sourced with artifacts** — the Bitnami MariaDB chart renders the StatefulSet/Service; one inline artifact adds a Prometheus ServiceMonitor alongside. Pillars exercised: `.values`, `.infra`, `.locals`, `.context.instance_id`. Expected output: chart-rendered Kubernetes manifests + one ServiceMonitor YAML.
+Pattern: **sourced with artifacts** — the Bitnami MariaDB chart renders the StatefulSet/Service; one inline artifact adds a Prometheus ServiceMonitor alongside. Pillars exercised: `.values`, `.infra`, `.context.instance_id`, `.context.rendered_name`. Expected output: chart-rendered Kubernetes manifests + one ServiceMonitor YAML.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -188,11 +188,8 @@ spec:
   capability: helm
   implements: core/datastore/mariadb:1.0.0
 
-  locals:
-    monitor_name: "{{ .context.instance_id }}-monitor"
-
   provides:
-    host: "{{ .context.instance_id }}"
+    host: "{{ .context.rendered_name }}"
     port: "{{ .infra.port }}"
     protocol: mariadb
 
@@ -204,6 +201,7 @@ spec:
     version: "{{ optional .infra `source_version` `25.0.8` }}"
 
   valuesMapping: |
+    fullnameOverride: "{{ .context.rendered_name }}"
     auth:
       database: "{{ .values.database }}"
       existingSecret: "{{ .context.instance_id }}-mariadb-auth"
@@ -218,17 +216,17 @@ spec:
       apiVersion: monitoring.coreos.com/v1
       kind: ServiceMonitor
       metadata:
-        name: {{ .locals.monitor_name }}
+        name: {{ .context.rendered_name }}-monitor
       spec:
         selector:
           matchLabels:
-            app.kubernetes.io/instance: {{ .context.instance_id }}
+            app.kubernetes.io/instance: {{ .context.rendered_name }}
         endpoints:
           - port: mysql
             interval: 30s
 ```
 
-The Recipe mixes chart output with an additional ServiceMonitor artifact; both land in the output directory. The artifact key is the output filename, used as written, so the build halts if a chart template also produced a file named `servicemonitor.yaml`.
+The Recipe mixes chart output with an additional ServiceMonitor artifact; both land in the output directory. The ServiceMonitor's own name and its selector read `.context.rendered_name`, the release name the chart renders its resources under: the chart stamps that name on its resources' `app.kubernetes.io/instance` label, so a selector built from `.context.instance_id` would match nothing for a Component whose name carries an underscore or a capital. The artifact key is the output filename, used as written, so the build halts if a chart template also produced a file named `servicemonitor.yaml`.
 
 ## Example 25: External workload file (`workload: { $import: ... }`)
 

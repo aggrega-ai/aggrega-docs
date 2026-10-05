@@ -188,7 +188,7 @@ spec:
 > ```
 
 **4. Ops Domain: The Postgres Recipe**
-Ops hardcodes the physical port and exports it via `provides`. The `provides` block is the Public API — it can only reference self-contained data (`.context.instance_id`, `.values`, `.infra`, and static strings). This invariant enables cyclic dependency safety.
+Ops hardcodes the physical port and exports it via `provides`. The `provides` block is the Public API — it can only reference self-contained data (`.context.instance_id`, `.values`, `.infra`, and static strings — and, in a Recipe naming a chart in `source:`, `.context.rendered_name`). This invariant enables cyclic dependency safety. The host is built from `.context.rendered_name`, the name the helm provider gives the chart, and the chart's `fullnameOverride` is pinned to the same key, so the address `provides` publishes is the Service the chart emits — see [Naming a Rendered Resource](../templates/rendered-resource-names.md).
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -208,9 +208,10 @@ spec:
   locals:
     primary_compute: "postgresql"
   provides:
-    host: "{{ .context.instance_id }}"
+    host: "{{ .context.rendered_name }}"
     port: "5432"
   valuesMapping: |
+    fullnameOverride: "{{ .context.rendered_name }}"
     primary:
       initdb:
         scripts:

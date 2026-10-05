@@ -91,9 +91,10 @@ spec:
   locals:
     primary_compute: "postgresql"
   provides:
-    host: "{{ .context.instance_id }}"
+    host: "{{ .context.rendered_name }}"
     port: "5432"
   valuesMapping: |
+    fullnameOverride: "{{ .context.rendered_name }}"
     primary:
       initdb:
         scripts:
