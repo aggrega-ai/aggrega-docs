@@ -165,9 +165,19 @@ The refusal covers `provides:` and every other template a Recipe writes inline �
 
 🔴 **Both import forms are outside it.** A `valuesMapping:`, `workload:` or `artifacts:` entry supplied
 through `$import:` — whether the import names a local file or a library entry — carries no text in your
-Recipe until the render resolves it, so a reference to this key **inside such a body** renders as an
-empty value rather than halting. Where an imported body names a rendered resource, pass the name in
-through a value the importing Recipe sets rather than reading the key inside the imported body.
+Recipe until the render resolves it, so a reference to this key **inside such a body** is not checked.
+It renders the name the importing node's provider reports where that provider reports one, and an empty
+value rather than a halt where it reports none. An imported body therefore reads the key only when every Recipe that
+imports it binds a provider reporting a name — a library entry written for `helm` Recipes that source a
+chart, and saying so in its description. A body meant for importers whose provider may report none takes
+the name through a value the importing Recipe sets instead.
+
+A Recipe's `locals:` entries do not read the key at all. A local shares its context with the Recipe's
+`source:` template, and that template is what decides whether the node supplies source, so the name
+cannot exist there yet. A reference to `{{ .context.rendered_name }}` in a local therefore halts whatever
+the provider reports, with the diagnostic for a reference the render context does not define (`E0060`),
+which lists `.context.instance_id` as the one key `.context` offers there. Read the key in the `provides:`
+entry or the inline template that needs it.
 
 ## On a Feature attachment's own templates
 

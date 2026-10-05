@@ -28,7 +28,7 @@ The assertion evaluation phases sit between schema validation and rendering in t
 7. **Recipe / FeatureRecipe assertions** evaluated against the bound instance.
 8. Rendering: mapping templates evaluated, output produced.
 
-The two assertion phases run before any rendering — no provider plugins invoked, no charts rendered, no Compose files generated. A failing assertion halts the build immediately with the assertion's specific error message; subsequent steps do not execute.
+The two assertion phases run before any rendering — no charts rendered, no Compose files generated. The one thing a provider is asked before the Recipe assertions run is the name it gives each bound node's resources, which a Recipe's `provides` may read. A failing assertion halts the build immediately with the assertion's specific error message; subsequent steps do not execute.
 
 The split between the two phases reflects the responsibility split: Component-level rules apply regardless of which Recipe binds, so they fire before binding; Recipe-level rules apply given a specific Recipe choice, so they fire after binding.
 

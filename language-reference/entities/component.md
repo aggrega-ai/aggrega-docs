@@ -596,57 +596,47 @@ Against the **Aggregate's own attachment**, when its attachments are resolved an
 
 The end-to-end flow through the compilation pipeline — how an Aggregate attachment connects to a credential Feature (such as `core/secret-value`) and then to a provider-specific FeatureRecipe that delivers the credential to the running workload — is worked through in [examples/05-credential-features](../examples/05-credential-features.md).
 
-### Credential delegation through typed reference fields
+### A key the caller presents and a key the server verifies
 
-Components whose role is to orchestrate other catalog entities — agents that compose Model and Tool entities, pipelines that chain transformer stages, gateways that fan out to downstream services — frequently carry **zero** entries in their own `featuresSchema:`. Their credential delegation flows transitively through typed reference fields in `values:`, which point to other Components or Features that carry their own `featuresSchema:` at their own scope.
+Where one component calls another that checks a key, **each end holds the key on its own side**, in a slot it declares itself. This is a convention the standard-library catalog follows; the compiler enforces none of it — it checks each component's slots against that component's own attachments, pipes their strings through, and never compares what one component holds with what another holds.
 
-A canonical example: a `core/ai-agent` Component declares `values:` fields like `models: [...#ModelRef]` and `tools_allowed: [...#ToolRef]`. The Model and Tool entities each carry their own `featuresSchema:` (API key for the model endpoint; per-Tool credentials for the targeted services). The agent itself does not own those credentials; the referenced entities own them at their own catalog scope.
-
-```yaml
-# core/ai-agent Component carries no featuresSchema — its credentials are delegated
-apiVersion: aggrega.ai/v1alpha1
-kind: Component
-metadata:
-  name: core/ai-agent
-  version: 1.0.0
-spec:
-  schema:
-    values:
-      models:
-        type: array
-        items:
-          $ref: "AiTypes#/schemas/ModelRef"
-      tools_allowed:
-        type: array
-        items:
-          $ref: "AiTypes#/schemas/ToolRef"
-  # featuresSchema absent: agents own no secrets directly
-```
+* **The key a caller presents is the caller's.** It sits in a slot the caller's socket declares for each connection — see "Slots each connection fills" above — so a caller reaching several targets holds one key for each; or, where the caller's Component declares the key in a slot of its own, in that slot, for every connection it makes. `core/ai-agent/crewai` declares `model_api_key` that way, and its Recipes deliver whatever fills it as `OPENAI_API_KEY`.
+* **The key a server verifies is the server's own slot.** `core/ai-model/vllm`, `core/ai-model/tei` and `core/ai-model/tgi` each declare an optional `api_key`, and each of their Recipes delivers whatever fills it as the variable the server reads its key from. The LiteLLM model and gateway declare `api_key` for the key LiteLLM calls its master key.
+* **Neither end sees the other's attachments.** An attachment on a connection is one of the caller's attachments and reaches the caller's render alone, and a server's rendered output is the same whatever the connections reaching it carry. A slot marked `required` is owed by the component that declares it, never by the components connected to it, and filling one end's slot fills nothing on the other — so declaring the key on both ends is the minimum rather than a duplicate.
+* **Both ends read one parameter**, so the key the caller presents and the key the server verifies cannot be written apart.
 
 ```yaml
-# core/ai-model Component carries its own featuresSchema for the model endpoint's API key
-apiVersion: aggrega.ai/v1alpha1
-kind: Component
-metadata:
-  name: core/ai-model
-  version: 1.0.0
+# Aggregate fragment — one parameter feeds both ends
 spec:
-  schema:
-    values:
-      endpoint: { type: string, format: uri, required: true }
-      capability: { type: string, enum: [generative, embedding, transcription], required: true }
-  featuresSchema:
-    api_key:
-      required: true
-      inject: [env]
-      description: API key for the model endpoint
+  parameters:
+    model_key_secret: { type: string }
+  components:
+    model:
+      type: core/ai-model/vllm
+      values: { model: Qwen/Qwen2.5-0.5B-Instruct }
+      features:
+        api_key:                         # the key the server verifies
+          type: core/referenced-secret
+          values:
+            origin: "{{ .parameters.model_key_secret }}"
+            key: api-key
+    agent:
+      type: core/ai-agent/crewai
+      # values (role, goal, backstory, …) elided
+      uses:
+        model:
+          local: { target: model }
+      features:
+        model_api_key:                   # the key the caller presents
+          type: core/referenced-secret
+          values:
+            origin: "{{ .parameters.model_key_secret }}"
+            key: api-key
 ```
 
-The convention is: **secrets co-locate with the entity that uses them, not with the entity that orchestrates them.** When the agent's Aggregate declares the agent's `values.models[0]` pointing at a specific Model instance, that Model instance's `featuresSchema:` is what enumerates the agent's transitive credential requirements. The compiler walks the topology graph and validates that every Model / Tool / downstream reference's credential slots are satisfied through their own attachments; the agent does not need to repeat them.
+A server that checks one key cannot tell its callers apart: vLLM, TEI and TGI each check a single key, so every caller presents the same one however many connections reach the server. Whether the two ends reference one secret or each hold their own follows from where each provider resolves a secret by reference, and the Manifest chooses each end's realization — [Credential Model](../../architecture/08-credential-model.md#a-key-both-ends-of-a-connection-hold) works both cases through.
 
-The pattern preserves cohesion: a Model entity that gains a new credential requirement (e.g., a region-specific authentication token) updates its own `featuresSchema:` and every consumer of that Model immediately requires the new credential. The agents that compose the Model do not need to track the change; the validation flows through the typed reference.
-
-Aggregate-level secrets declared at the agent — credentials the agent itself owns rather than delegates — go through the standard `featuresSchema:` mechanism. The two patterns compose: an agent may carry a small `featuresSchema:` for its own operational credentials (e.g., a database connection for the agent's state store) while delegating model and tool credentials to the referenced entities.
+A component's own operational credentials — a password for the database an agent keeps its state in, say — are slots of its own `featuresSchema:` like any other.
 
 ## Self-inject: `spec.inject`
 
