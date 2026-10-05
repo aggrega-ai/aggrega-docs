@@ -239,5 +239,5 @@ cross-boundary networking across providers.
   same walk keyed on the whole-attachment answer — refuses both releases
   instead, which is what shows why the narrower fact exists.
 
-*Planned — `pipeline:` execution and the `eval` provider join this tier as
-those capabilities ship.*
+*Pipeline steps run today — see [When to reach for a pipeline step](../plugins/when-to-use-a-pipeline-step.md).
+Planned — the `eval` provider joins this tier when it ships.*
