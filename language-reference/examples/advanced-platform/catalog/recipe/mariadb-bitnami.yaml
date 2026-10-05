@@ -38,8 +38,14 @@ spec:
     # supplied: the chart mints a random password for each one it is not
     # given, and a minted value differs on every build.
 
+  # host is the chart's primary Service. The valuesMapping pins the chart's
+  # fullnameOverride to the rendered name — the release name the helm provider
+  # gives the chart, which spells the Component's name in the alphabet a
+  # Kubernetes name allows — followed by the chart's own "-mariadb" suffix, so
+  # the primary Service is "<rendered_name>-mariadb" and host is built from the
+  # same key and suffix.
   provides:
-    host: "{{ .context.instance_id }}"
+    host: "{{ .context.rendered_name }}-mariadb"
     port: "{{ .infra.port }}"
     # user and database are part of core/datastore/mariadb's declared
     # schema.provides contract, so this realizer publishes them from the
@@ -50,6 +56,12 @@ spec:
     protocol: "mariadb"
 
   valuesMapping: |
+    ## ── Pin the chart's resource names to the rendered name ────
+    ## Names the primary Service "<rendered_name>-mariadb", matching
+    ## provides.host. Every object the chart emits derives its name from this
+    ## key, read from a render rather than assumed.
+    fullnameOverride: "{{ .context.rendered_name }}-mariadb"
+
     ## ── Image overrides ────────────────────────────────────────
     {{- if .infra.overrides }}
     {{- if .infra.overrides.image }}

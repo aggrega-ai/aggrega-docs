@@ -32,17 +32,26 @@ spec:
     primary_compute: "mariadb"
 
   provides:
-    # The Bitnami chart names its primary Service <release>-mariadb, where the
-    # release name is the component instance — so a consumer dials
-    # "<instance_id>-mariadb" (e.g. "db-mariadb"), NOT the bare instance id. The
-    # compose and self-contained Kubernetes targets name their services
-    # differently; each target's provides.host reflects its own service naming,
-    # and the same Aggregate edge routes whichever string this Recipe emits.
-    host: "{{ .context.instance_id }}-mariadb"
+    # The valuesMapping pins the chart's fullnameOverride to the rendered name —
+    # the release name the helm provider gives the chart, which spells the
+    # Component's name in the alphabet a Kubernetes name allows — followed by the
+    # chart's own "-mariadb" suffix, so the primary Service is
+    # "<rendered_name>-mariadb" (e.g. "db-mariadb") and a consumer dials that,
+    # NOT the bare name. The compose and self-contained Kubernetes targets name
+    # their services differently; each target's provides.host reflects its own
+    # service naming, and the same Aggregate edge routes whichever string this
+    # Recipe emits.
+    host: "{{ .context.rendered_name }}-mariadb"
     port: "3306"
     protocol: "mariadb"
 
   valuesMapping: |
+    ## ── Pin the chart's resource names to the rendered name ────
+    ## Names the primary Service "<rendered_name>-mariadb", matching
+    ## provides.host. Every object the chart emits derives its name from this
+    ## key, read from a render rather than assumed.
+    fullnameOverride: "{{ .context.rendered_name }}-mariadb"
+
     ## ── Image overrides ────────────────────────────────────────
     {{- if .infra.overrides }}
     {{- if .infra.overrides.image }}
