@@ -113,6 +113,8 @@ Both per-edge config maps are consumer-scoped: they land in the consuming node's
 
 A provided value is read at `.provides.<name>` — the provided names nest under `.provides` rather than sitting directly on the edge, so `.context.uses.<alias>.<name>` addresses no field and yields nothing.
 
+**One alias names one connection, so the map holds an entry for every connection the component makes.** The map is keyed by alias alone, whatever socket a connection is wired into, and no two connections of one component share an alias — not on one socket and not on two, whichever document or attachment drew each. The build refuses such a pair, naming both connections and where each was written, before anything renders. A list naming one target twice is such a pair, since a list entry's alias is its target; so is a `local` connection on a `models` socket beside a `local` connection on a `databases` socket.
+
 Recipe templates consume this projection to look up target-side state without walking the IR graph. FeatureRecipe `injectMapping` templates use it to reach into target annotations for cross-boundary routing decisions (the K8s DNS resolver pattern documented in [entities/featurerecipe.md](../entities/featurerecipe.md) is the canonical worked example).
 
 **A template that ranges `.context.uses` sees the connections in key order — sorted by alias — not in the order the Aggregate wrote them.** Every map a template ranges is visited that way, `.features` and a connection's `.features` included, so a template never recovers authored order by ranging a map; where order carries meaning, the authoring surface models it as a list. Either way the rendered output is byte-identical across builds of the same input.
@@ -188,7 +190,7 @@ assertions:
     {{- end -}}
 ```
 
-`hasKey .uses "models"` asks whether the socket is wired, `len` counts its connections, a `range` over it visits each in alphabetical order of their aliases, and `.uses.models.local.target` reads one connection. `.uses.models.target` addresses no connection, and halts under the assertions surface's `missingkey=error`. The full assertion context is documented at [assertions-block.md](assertions-block.md#the-template-context).
+`hasKey .uses "models"` asks whether the socket is wired, `len` counts its connections, a `range` over it visits each in alphabetical order of their aliases, and `.uses.models.local.target` reads one connection. `.uses.models.target` addresses no connection, and halts under the assertions surface's `missingkey=error`. Each connection has an entry of its own, for the reason the render context's map does: two connections of one component never share an alias, because the build refuses that before any assertion runs. The full assertion context is documented at [assertions-block.md](assertions-block.md#the-template-context).
 
 ## Three inject-related surfaces
 

@@ -92,6 +92,8 @@ assertions:
 
 A range visits a socket's connections in alphabetical order of their aliases — `fast` before `local` here — not in the order the Aggregate wrote them. A socket holding a single connection is read the same way: `.uses.models.local.target` reads `llama` whether or not `fast` is wired beside it, and `.uses.models.target` addresses no connection and halts.
 
+Every connection a component holds has an entry of its own here, because no two connections of one component share an alias — on one socket or on two, whichever document or attachment drew each. The build refuses such a pair, naming both connections and where each was written, before any assertion runs. A list naming one target twice is such a pair, since a list entry's alias is its target; so is a component's own `local` connection beside an attachment's `local` connection on the same component.
+
 **An assertion's `.uses` is not a Recipe template's `.context.uses`, and a reference written for one does not transfer to the other.** The render context carries a richer projection of the same edges: keyed by **alias** alone, with the socket name as a field on the entry, and with each target's published values nested under `provides` — so a Recipe template reads `.context.uses.<alias>.provides.<name>` where an assertion reads `.uses.<socket>.<alias>.target`. Both assertion phases evaluate before rendering, which is why an assertion's view of an edge stops at the edge's own identity.
 
 For the broader template context shape and per-field availability semantics, see [template-context-contract.md](template-context-contract.md).

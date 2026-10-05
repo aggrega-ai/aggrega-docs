@@ -2214,6 +2214,25 @@ The finding is positioned at the authored entry it is about, in the document tha
 
 **How to fix:** declare the missing target component, or correct the target name in the `uses:` entry to match an existing component.
 
+### Two connections of one component under one alias
+
+<!-- covers: internal/compiler/topology.ErrDuplicateConnectionAlias -->
+
+A component reads each of its connections by its alias — the key the connection was written under, or, for a connection written as a list entry, its target's own name. A Recipe template reads a component's connections keyed by alias alone, and an assertion reads them keyed by socket and then by alias, so two connections of one component under one alias would share one slot in at least one of those views: the later would take it, and the other would be absent from what the template or the assertion sees. So one alias names one connection of a component — whatever socket each is wired into, whatever drew it (the component's own `uses:` block, an attachment's `uses:` block at any scope, or a Release per-edge entry), and whatever its target. A pair halts the build once the graph is final, before any assertion runs and before anything renders.
+
+The pair arises from authoring that is legal on each surface alone: a component's own entry and an attachment's on one socket and alias; a list naming one target twice (`models: [llama, llama]`); one alias written on two sockets (`models: { local: … }` beside `databases: { local: … }`); two attachments wiring one alias; or a Release entry drawing a connection on a socket the Aggregate left unbound, under an alias the Aggregate already used on another socket. Two neighbouring shapes never reach this halt: one key written twice in one block of keyed entries makes the document fail to load, and a Release entry at a socket and alias another block already drew configures that connection — or, naming a different target, halts as a retarget — rather than drawing a second one.
+
+Emitted message. The refusal comes first, then the alias and the component, then this connection's socket, its target and where its entry was written, then the same for the connection already holding the alias — then what to do about it:
+> connection alias is already used by another connection of the same component (`"<alias>"`, on component `"<component>"`, this connection wired into socket `"<socket>"`, with target `"<target>"`, written in `"<file>"`, at `"<key path>"`, the connection already holding the alias wired into socket `"<socket>"`, with target `"<target>"`, written in `"<file>"`, at `"<key path>"`). Give one of the two connections an alias of its own: a component reads each connection by its alias, whatever socket it is wired into. A list entry takes its target's name as its alias, so a target listed twice is listed once, or written as two keyed entries under two aliases.
+
+Where both connections were written at one key path — a list naming one target twice — each is also named by its place in that list, `list entry "2"` beside `list entry "1"`, which is the only thing telling the two entries apart.
+
+The finding is positioned at the later connection's own entry — the one drawn second, which is the one that would otherwise have taken the alias's slot — in the document that entry was written in. So a Release entry, or an attachment the Release writes, is filed as an operations fault, and an entry in the Aggregate as a developer fault. Every offending connection is reported as its own finding, so one build names them all.
+
+Some shapes are named less exactly. An attachment name declared at more than one scope — on a component and on the subsystem holding it, say — draws a connection from each declaring block, and the build records both under the attachment's name alone. Both connections are then named at one of the declaring blocks — the component's own attachment block, wherever the name is declared there — and neither carries a list position. Inside an imported Aggregate the build records no place for a connection drawn by an attachment one of that Aggregate's own subsystems declares: the finding names such a connection by its socket and target only, and when it is the later of the two the finding is positioned at no entry. Where that attachment's name is also declared on the component, the two connections are named at the component's attachment block as two entries of one list. In every one of these shapes the pair is still refused.
+
+**How to fix:** give one of the two connections an alias of its own. For a list naming one target twice, list the target once, or write the two connections as keyed entries under two aliases. For one alias on two sockets, rename one of the two keys. An attachment wiring a socket under an alias the component already uses takes a different key in its own `uses:` block.
+
 ### `uses:` socket not declared in the target's `usesSchema`
 
 <!-- covers: pkg/resolver.ErrUnknownUsesSocket -->
@@ -2641,7 +2660,7 @@ An `inject:` entry references a `from:` key that the target Component's `provide
 
 **The check applies wherever the connection was written.** A `uses:` connection reaches the built topology from more than one authoring surface — a Component's own `uses:` block, and the `uses:` block of a Feature attached to it, whether that attachment is written on the component, on a subsystem, on a Release boundary, or on a Release boundary's component entry — and the same misspelled key is refused on every one of them. The diagnostic points at the block whose author wrote it: an attachment's own `uses:` entry, at the site the attachment itself was declared, rather than at the consuming component's `uses:` block, which for a contributed connection holds nothing at all.
 
-Where the reference resolves depends on where it lives. A Component-level self-inject `from:` resolves against that same Component's own `provides:`. A `from:` on a `uses:` connection resolves against the `provides:` of the component that connection points at — and where two surfaces write one socket and one alias, each connection resolves against the target it itself names. A Component that declares no `provides:` rejects every `from:` reference aimed at it.
+Where the reference resolves depends on where it lives. A Component-level self-inject `from:` resolves against that same Component's own `provides:`. A `from:` on a `uses:` connection resolves against the `provides:` of the component that connection points at — and where two surfaces write one socket and one alias, each connection resolves against the target it itself names, in the same build that refuses the pair for sharing an alias. A Component that declares no `provides:` rejects every `from:` reference aimed at it.
 
 A `value:` entry carries a literal and is resolved against nothing, so a literal that happens to read like a provides key is not refused. Only `from:` names a key.
 
@@ -5255,6 +5274,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0316` | `a Release attachment takes the name of an attachment one of a component's connections carries` | A Release attachment takes the name of a connection's attachment |
 | `E0317` | `a Release connection attachment names no Feature type, and the type is required for an attachment only the Release makes` | A Release connection attachment names no Feature type |
 | `E0318` | `duplicate delivery key across two attachments: an attachment's FeatureRecipe injectMapping writes a key another attachment already delivered` | Two attached Features deliver one key, the later through its FeatureRecipe's injectMapping |
+| `E0319` | `connection alias is already used by another connection of the same component` | Two connections of one component under one alias |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
