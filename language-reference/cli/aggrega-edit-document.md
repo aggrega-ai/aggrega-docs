@@ -70,6 +70,14 @@ aggrega edit-document add-component storefront.aggregate.yaml \
 
 It exists for the case where you would rather the file be edited than be told where to edit it. If you hold your own buffer and your own undo history, [`aggrega serve`](aggrega-serve.md) reports a position and lets you place the text yourself; this composes the entry and writes it.
 
+**The document is one your workspace carries.** Name it relative to the workspace root or by its absolute path; one outside the workspace is refused with nothing read or written, whether it is written that way or reached through a link leading out of the workspace — a link to the file, or a directory on the way that is a link. An edit reads the document before it writes it back, so a document behind such a link is a file the workspace does not hold, and the refusal says so:
+
+```
+the document named leads outside the workspace through a link, and an edit is only applied to a document the workspace carries: "shared/storefront.aggregate.yaml"
+```
+
+To edit a document kept elsewhere, run the command in the workspace that holds it. The language server's and the assistant tools' edits apply the same rule, because all three apply one edit.
+
 ## One call, one entry, and the set is closed
 
 There are four edits and no others:
