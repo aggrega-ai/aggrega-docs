@@ -66,6 +66,9 @@ parent (boundary-scope), derives an `aggrega-gw` gateway from the cross-network
   `$$` so Compose's interpolation leaves it intact for nginx);
 - the gateway joins both bridged networks;
 - the consumer's `ADMINER_DEFAULT_SERVER` is rewritten to `aggrega-gw:5432`.
+  The rewrite replaces what adminer's own `databases` connection delivered; had
+  another Feature attached to adminer delivered that variable, the build would
+  halt naming both rather than replace it.
 
 So traffic flows `adminer → aggrega-gw:5432 → proxy_pass db:5432`, crossing the
 network seam through the gateway.
