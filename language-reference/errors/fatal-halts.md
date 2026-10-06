@@ -3129,6 +3129,25 @@ Where the reference sits in a template other than a `provides:` entry, the repor
 
 **How to fix:** read the key the report names. Where your node's output is something the compiler built — a synthesized workload, a placed artifact set — `{{ .context.instance_id }}` is the name those resources actually carry, and it is the right value rather than a fallback. Where your node supplies a chart or module of its own and the report offers no substitute, the name you were reaching for is not one that provider derives: publish something that does not depend on it, or name the resource in the source you supplied and read that name back from a value you set. [`../templates/rendered-resource-names.md`](../templates/rendered-resource-names.md) sets out which providers report a name and, for each of the others, why none exists to report.
 
+### A template reads its callers' render facts without declaring it
+
+<!-- covers: internal/compiler/renderer.ErrCallerRenderFactsNotDeclared -->
+
+A template in a FeatureRecipe attached to a component reads `render_facts` beneath `.context.used_by` — what the components connecting to the attachment's host reported about their own renders — and the FeatureRecipe does not set `readsCallerRenderFacts: true`.
+
+The key is what decides when the attachment renders. Without it, the attachment renders right after the component it is attached to, and a connecting component that comes later in the build's order has not rendered at that point, so what it emitted cannot be there to read. Refusing the template before anything renders reports the missing declaration against the field you wrote, instead of a build whose template reads what some of its callers emitted and not the others.
+
+Emitted message:
+> template reads its callers' render facts, but the FeatureRecipe does not set readsCallerRenderFacts (`<reference>`, written in `<field>`)
+
+The reference is quoted relative to the connection it was read off — `.render_facts`, or `.render_facts.<name>` — because a template reads the callers one connection at a time, inside `{{ range .context.used_by }}` or off one connection it picks. The field names the block the template was written in: `valuesMapping`, `workload`, `artifacts[<output-name>]`, `pipeline[<step>].with` or `pipeline[<step>].when`. Where several fields read the facts, each gets a report of its own beneath a line naming what they share:
+
+> attachment templates reading their callers' render facts without declaring it
+
+**How to fix:** set `readsCallerRenderFacts: true` in the FeatureRecipe's `spec`. That renders its attachments after every component has rendered and changes nothing else about what they render — see [the FeatureRecipe entity page](../entities/featurerecipe.md#rendering-after-the-callers--specreadscallerrenderfacts). The key is the contract, and this halt only helps you find a template that visibly needs it: the check reads the template as written, so a reference built while the template runs, or one written in content imported from a file or a library, does not halt — set the key on such a FeatureRecipe all the same. A template reading a field named `render_facts` off some other list next to `.context.used_by` halts as well; setting the key clears it at no cost but the later render.
+
+A FeatureRecipe that renders once for a boundary (`executionScope: boundary`) is not checked here: its templates have no `.context` to read, and a reference to one is refused as a field outside its scope's allowlist instead.
+
 ### Cross-node type safety violation via `selector:`
 
 <!-- covers: internal/compiler/analyzer.ErrSelectorViolation -->
@@ -5344,6 +5363,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0320` | `a path this operation writes or deletes leads through a link out of the directory it must stay inside` | A path the operation writes leads through a link out of the directory it must stay inside |
 | `E0321` | `a file this operation reads leads through a link out of the directory it must stay inside` | A file the operation reads leads through a link out of the directory it must stay inside |
 | `E0322` | `duplicate delivery key across two attachments: the environment override a boundary-scope attachment computes for a component writes a key another attachment already delivered` | A Feature attached to a boundary overrides a key another attached Feature delivered |
+| `E0323` | `template reads its callers' render facts, but the FeatureRecipe does not set readsCallerRenderFacts` | A template reads its callers' render facts without declaring it |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

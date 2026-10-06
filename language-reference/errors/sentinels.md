@@ -770,6 +770,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0320` | `write-leads-out-of-workspace` | `a path this operation writes or deletes leads through a link out of the directory it must stay inside` |
 | `E0321` | `read-leads-out-of-workspace` | `a file this operation reads leads through a link out of the directory it must stay inside` |
 | `E0322` | `boundary-env-override-key-collision` | `duplicate delivery key across two attachments: the environment override a boundary-scope attachment computes for a component writes a key another attachment already delivered` |
+| `E0323` | `caller-render-facts-not-declared` | `template reads its callers' render facts, but the FeatureRecipe does not set readsCallerRenderFacts` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication no longer judges a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.
