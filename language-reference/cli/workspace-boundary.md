@@ -91,6 +91,15 @@ leads, and leaves the place the link points to exactly as it was:
   is held where it is read exactly as where it is written, so a lockfile that is a link leading out
   stops each of them rather than lending them pins kept elsewhere on the machine:
   [`E0321`](../errors/fatal-halts.md#a-file-the-operation-reads-leads-through-a-link-out-of-the-directory-it-must-stay-inside).
+- **A file read beside an entity** — the other documents in the directory of an entity you pin or publish,
+  read to tell whether another entity shares that directory, and the built `.wasm` a Plugin entity in a
+  catalog directory is loaded from. Each is read only from inside the directory the entity's own document
+  was read under: the workspace, a catalog directory you named outside it, or the directory of a document
+  you named outside it. So one that is a link leading out stops `aggrega pin`, `aggrega push` (a dry run
+  included), a pull that pins and the editor's and an assistant's pin and publication — a document left
+  unread could be the entity in the way — and stops a build or a pull that loads the plugin rather than
+  running bytes kept elsewhere on the machine:
+  [`E0321`](../errors/fatal-halts.md#a-file-the-operation-reads-leads-through-a-link-out-of-the-directory-it-must-stay-inside).
 - **The workspace's own configuration** — every `.aggrega-config.yaml` from the root down to the
   directory a command runs in, and a pipeline's `.aggrega-config-append-ci.yaml` beside any of them.
   Every command, the language server and an assistant's tools read the configuration before anything
@@ -252,6 +261,7 @@ caller does.
 | A listing names a link among those it did not read | Replace the link with a copy of what it leads to; or, for entities kept elsewhere, list the directory the link leads to under `catalog_dirs`; for a Release kept elsewhere, name it under `workspace.releases` or as `build.authoring_release`. |
 | `E0321`, a read through a link out of a catalog directory or a Release's directory | List the directory the link leads to as a catalog directory, or pass it with `--catalog`, rather than reaching it through a link beneath one; or replace the link with a copy. Where the link is the conventional `catalog` itself, list `catalog` or the directory it leads to, or pass either with `--catalog`. |
 | `E0321` on a Release's lockfile | Remove the link and pull the Release again, which writes a fresh lockfile beside it. A lockfile has no other place. |
+| `E0321` on a file beside an entity | Replace the link with the file itself: move a document that is an entity into a directory of its own, and lay the built `.wasm` beside its Plugin entity rather than a link to it. |
 | `E0321` on a configuration file | Replace the link with a copy kept in the workspace. A configuration shared between workspaces is read by naming it as the global configuration file, with `--config` or `AGGREGA_CONFIG`, beneath each workspace's own files. |
 | `E0320`, a write or removal through a link | Remove the link the message names, or make it lead somewhere inside the directory the message names, and run the operation again. Nothing in your entity files causes it. |
 | `E0324`, a reference leading out | Name an Aggregate kept elsewhere by its `metadata.name` and list its catalog directory; keep a Manifest, a Release an `extends:` names and a parameters file inside the workspace — or, for a document you named from outside, in its own directory; or open the workspace at a directory holding both documents. |

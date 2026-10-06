@@ -398,6 +398,12 @@ The filename carries the socket as well as the name because a bare plugin name
 is unique only within its own socket — two plugins called `dotenv` at different
 sockets have to reach two files.
 
+Copy the built file there rather than linking to it. A link in that place is
+followed only to somewhere inside the workspace — or, for a catalog directory
+listed outside the workspace, somewhere inside that directory; one leading
+further stops the build and the pull naming the link, as
+[the workspace boundary](../cli/workspace-boundary.md#halted) sets out.
+
 A provider's plugin entity in a catalog directory is never pinned, and neither a
 pull nor a build fetches its `.wasm`, so the file has to be there when the Release is resolved. A pull checks
 before it writes the lockfile: where it finds the `.wasm` neither beside the entity
