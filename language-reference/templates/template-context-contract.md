@@ -155,6 +155,9 @@ artifacts:
         - component: {{ .component_id }}
           socket: {{ .socket }}
           selector: {{ .provides.selector }}
+          {{- with .source_namespace }}
+          namespace: {{ . }}
+          {{- end }}
         {{- end }}
 ```
 
@@ -163,6 +166,10 @@ Each entry carries:
 - **`.component_id` (string)** — the connecting component's instance ID in its flattened form (`frontend`, `data-layer.etl`), the value a `subDirectory:` path template reads as `.component_id`.
 - **`.socket` (string)** — the socket the connection fills on the connecting component (its `usesSchema` key).
 - **`.provides` (string-valued map)** — what the connecting component publishes, narrowed to the keys its Component declares: the same values a consumer of that component reads at `.context.uses.<alias>.provides`. A key the component's Recipe publishes without its Component declaring it is not among them.
+- **`.source_namespace` (string)** — the namespace the connecting component is placed in: the `aggrega.ai/namespace` annotation that applies to it, cascaded down its boundaries, with its own entry in the Release taking precedence. A component whose Release entry sets the namespace, or clears it with `null`, carries its own setting rather than its boundary's, so the value names the namespace the component's own resources render into. Absent when no namespace applies to the component; read it through `with` or `if`, as the example does, rather than printing it bare.
+- **`.source_boundary_path` (string)** — the path of the Release boundary that holds the connecting component, with nested boundaries joined by `/` (`edge`, `edge/inner`).
+
+The two placement values are the ones a boundary-scope FeatureRecipe reads as `source_namespace` and `source_boundary_path` on the same connection's entry in its `.boundary` edge lists: both views read where a component is placed the same way, so they never disagree about it.
 
 How the list behaves:
 
@@ -170,7 +177,7 @@ How the list behaves:
 - **Only where the attachment renders its own resources.** The FeatureRecipe's `valuesMapping:`, `workload:` and `artifacts:` read it. It is empty in the component's own Recipe templates, in an `injectMapping:`, and in a `pipeline:` step's `with:` and `when:`, because what each of those produces can land in the component's own rendered output: an `injectMapping:` writes the component's delivery pipe, and a pipeline step may rewrite the component's documents. That is what keeps a component's own output the same whoever uses it — wiring one more caller to a component changes the output of a Feature attached to it that reads its callers, and nothing the component itself renders.
 - **Nothing about the connection itself.** An entry carries no per-connection `values` or `infra` and none of the connection's attachments; those stay with the consuming component, under its `.context.uses.<alias>`.
 - **Empty when nothing uses the component.** A `range` over it then renders nothing.
-- **Piped, never interpreted.** The identity, the socket and the published values are strings the compiler passes through. It infers nothing from a name, fetches nothing, and decides nothing about which callers a resource should admit; the template decides.
+- **Piped, never interpreted.** The identity, the socket, the published values and the placement are strings the compiler passes through. It infers nothing from a name, fetches nothing, and decides nothing about which callers a resource should admit; the template decides.
 
 ### An assertion's `.uses` — keyed by socket, then by alias
 

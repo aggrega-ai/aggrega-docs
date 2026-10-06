@@ -117,13 +117,15 @@ _Additional properties are not permitted._
 
 ### `inbound_edge`
 
-One connection another component makes to the component an attached FeatureRecipe renders for: who connects, through which socket, and what the connecting component publishes. Every value is a string the compiler carries without interpreting it.
+One connection another component makes to the component an attached FeatureRecipe renders for: who connects, through which socket, what the connecting component publishes, and the namespace and boundary it is placed in. Every value is a string the compiler carries without interpreting it.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `component_id` | string | yes | The flattened instance ID of the connecting component (e.g., 'frontend' or 'data-layer.etl') — the value a subDirectory path template reads as .component_id, spelled as .context.uses.<alias>.target spells the other end of a connection. |
 | `socket` | string | yes | The usesSchema category the connecting component draws this connection through (e.g., 'databases', 'apis'). |
 | `provides` | map of string | yes | The connecting component's resolved provides, narrowed to the keys its Component declares — the same values a consumer of that component reads at .context.uses.<alias>.provides. Empty when it publishes none. |
+| `source_namespace` | string | no | The namespace the connecting component is placed in: the aggrega.ai/namespace annotation its own render receives — its boundaries' annotations, with its own Release entry's annotations applied last, so a component whose entry sets or clears the namespace carries its own setting rather than its boundary's. It is the value a boundary-scope FeatureRecipe reads as source_namespace on the same connection's entry in the .boundary uses-edge lists. Absent when no namespace applies to the connecting component; guard with `if` or `with` before printing it. |
+| `source_boundary_path` | string | no | The slash-separated path of the Release boundary that holds the connecting component (e.g. 'edge' or 'aws-prod/payments') — the value a boundary-scope FeatureRecipe reads as source_boundary_path on the same connection's entry in the .boundary uses-edge lists. |
 
 _Additional properties are not permitted._
 
