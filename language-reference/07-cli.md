@@ -25,6 +25,7 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 - [`aggrega mcp`](cli/aggrega-mcp.md) — run a Model Context Protocol server, over standard input and output or over HTTP, so an MCP-capable client becomes an Aggrega-aware authoring assistant. See the [Authoring Guide](../authoring/getting-started.md).
 - [Configuration](cli/configuration.md) — which file a setting belongs in, and how the layers combine. Start here: it opens with the two files most projects need and keeps the mechanisms a larger project reaches for behind that.
 - [Global flags](cli/global-flags.md) — flags shared across subcommands (workspace location, registry configuration, output verbosity, and the offline posture). Offline is reachable as a configuration setting and an environment variable too — see [Configuration](cli/configuration.md), the [configuration schema](schema/other/aggrega-config.md) and [environment variables](cli/environment-variables.md).
+- [The workspace boundary](cli/workspace-boundary.md) — what lies inside a workspace, what a symbolic link leading out of it does to each kind of path, the paths that reach outside on purpose, and what to do when one is refused.
 
 <!-- BEGIN GENERATED: command-list -->
 | Command | Description |
@@ -62,6 +63,10 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 Every command refuses a positional argument it has no use for, and reports that refusal through a non-zero exit status rather than completing as though the invocation were valid. The rule covers the commands that exist only to group subcommands, where a mistyped subcommand name arrives as an unrecognised positional: the command's help is printed and the exit status is non-zero, so a typo on a scripted surface fails loudly instead of reading as a successful run. `aggrega` invoked with an unrecognised command behaves the same way and additionally names the closest matching command.
 
 Where positionals are meaningful, each command's own reference page documents what it accepts. An installed CLI plugin is the deliberate exception: its command keeps argument parsing to itself, so the whole argument vector is forwarded to the plugin, which is the sole parser of its own arguments — and the plugin's own exit status is what the invocation returns.
+
+## Paths you type, and the workspace boundary
+
+A path you type on the command line — a `--release`, a `--catalog`, an `--output-dir`, a file to validate, lint, pin or publish, a `--workspace-root` — is used where it leads, inside the workspace or outside it, through any link on the way. What the command then reads and writes on its own account is held to the workspace whoever runs it: it does not read a catalog document or a document beside a Release through a link leading out of the workspace, follow a path a Release or a Manifest writes out of it, or write its output, its lockfile or its cache through such a link. A directory you name outside the workspace is held the same way for what lies beneath it, and a Release you name outside the workspace reaches only files in its own directory. `aggrega edit-document` is the one command whose typed path is held as well: it edits only a document the workspace carries. [The workspace boundary](cli/workspace-boundary.md) states the rule, the paths that reach outside on purpose, and the remedy for each refusal.
 
 ## Searching the catalog index
 

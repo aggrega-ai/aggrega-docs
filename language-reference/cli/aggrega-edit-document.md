@@ -76,7 +76,7 @@ It exists for the case where you would rather the file be edited than be told wh
 the document named leads outside the workspace through a link, and an edit is only applied to a document the workspace carries: "shared/storefront.aggregate.yaml"
 ```
 
-To edit a document kept elsewhere, run the command in the workspace that holds it. The language server's and the assistant tools' edits apply the same rule, because all three apply one edit.
+To edit a document kept elsewhere, run the command in the workspace that holds it. The language server's and the assistant tools' edits apply the same rule, because all three apply one edit. Its document is the one path you type that is held to the workspace, as [The workspace boundary](workspace-boundary.md#the-document-edit-stays-inside) sets out.
 
 ## One call, one entry, and the set is closed
 

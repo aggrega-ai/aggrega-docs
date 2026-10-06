@@ -70,6 +70,14 @@ directory you ran the command from, since no configuration file declared it. A p
 catalog variant per Release can give each Release a list of its own instead — see
 [Giving a Release its own catalog directories](#giving-a-release-its-own-catalog-directories).
 
+**Listing a directory is how a project reads entities kept outside it.** A listed directory may lie
+anywhere — a sibling checkout, a directory shared with other projects — and is read where it is, even
+when it is itself a symbolic link. Nothing else reaches that far: a link inside the project leading
+elsewhere is not read through, and a document naming a file outside the project by a path is refused,
+so an entity kept elsewhere is reached by listing the directory that holds it and naming the entity by
+its name. A listed directory outside the project is a root of its own, so a link beneath it leading out
+of it is not read either. [The workspace boundary](workspace-boundary.md) states the whole rule.
+
 **Writing the list as empty says this project has no local catalog at all**, and it is the one
 spelling that stops `catalog` being read too:
 
@@ -385,8 +393,11 @@ workspace:
         - ./catalog-helm
 ```
 
-Each key is a Release file, written relative to the configuration file that names it. The two keys
-under it mean what they mean on the `workspace:` block, scoped to that one Release:
+Each key is a Release file, written relative to the configuration file that names it. A key — like
+`build.authoring_release` — may name a Release kept outside the project, and naming it here is how a
+project reaches one: a link inside the project leading to it is read rather than passed over, as
+[The workspace boundary](workspace-boundary.md#the-exceptions-and-why-each-is-one) describes. The two
+keys under it mean what they mean on the `workspace:` block, scoped to that one Release:
 
 - `catalog_dirs` **replaces** the workspace's list for that Release. The search order, the `catalog`
   directory read after it, and what an empty list says are the same as for the workspace's own list.
@@ -693,4 +704,6 @@ the file it wrote.
 - [schema/other/aggrega-config.md](../schema/other/aggrega-config.md) — every configuration key,
   its type, and its default.
 - [aggrega-cache.md](aggrega-cache.md) — what `artifact_cache_dir` actually holds.
+- [workspace-boundary.md](workspace-boundary.md) — which paths stay inside the workspace, and how the
+  directories and files this configuration names reach outside it.
 - [aggrega-mcp.md](aggrega-mcp.md) — the server the `mcp` block configures.
