@@ -54,7 +54,10 @@ configuration lists under `catalog_dirs`, or to a directory beneath one, or to a
 not named: the configuration has reached that place — a listed directory is read with everything
 beneath it — as [the exceptions](#the-exceptions-and-why-each-is-one) below describe. A
 `.gitignore` that is a link leading out is not read either, so a file elsewhere on the machine never
-decides which of the workspace's documents are searched.
+decides which of the workspace's documents are searched. A workspace configuration file that is a link
+leading out is named among the files not read too: these listings still answer for that workspace,
+read with nothing configured, while every request the configuration decides halts, as
+[the workspace's own configuration](#halted) below describes.
 
 ### Refused
 
@@ -91,10 +94,16 @@ leads, and leaves the place the link points to exactly as it was:
 - **The workspace's own configuration** — every `.aggrega-config.yaml` from the root down to the
   directory a command runs in, and a pipeline's `.aggrega-config-append-ci.yaml` beside any of them.
   Every command, the language server and an assistant's tools read the configuration before anything
-  else, so one of these files that is a link leading out stops each of them there — the language server
-  launched over the workspace stops at launch — rather than running on a configuration made from
-  whatever remained:
+  else, so one of these files that is a link leading out stops each of them there rather than letting
+  them run on a configuration made from whatever remained:
   [`E0321`](../errors/fatal-halts.md#a-file-the-operation-reads-leads-through-a-link-out-of-the-directory-it-must-stay-inside).
+  The language server, and an assistant's server speaking over its own streams, still start over such
+  a workspace, so that what it holds can be listed: the Release and entity listings answer, read with
+  no catalog directory and nothing else configured, and name the file among the links not read. Every
+  other request the configuration decides — a build, a preview, a graph, a validation, a lint, a
+  description, the effective configuration, the default Release — halts with `E0321` naming the link,
+  and so does an assistant's server asked to listen over HTTP, whose address and authorization the
+  configuration would have set.
 - **What an operation writes or removes** — a build's output directory, its boundary directories and
   every file written there, the trace; a Release's lockfile and the plugin trust record beside it; an
   `entity.lock`; the workspace configuration file a command writes; the artifact cache and each part of

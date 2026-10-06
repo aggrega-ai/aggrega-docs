@@ -339,8 +339,11 @@ That keeps a pinned root's configuration the same wherever the command is run fr
 Every file collected this way is read from inside the project. One that is a symbolic link leading
 out of the project — or that sits in a directory reached through such a link — is not read, and the
 command stops on it, naming the link, rather than configuring the project from the files that remain;
-the same holds for a pipeline's file, below, and for the editor's language server and an assistant's
-tools, which read the configuration the same way. A configuration kept outside the project is read by
+the same holds for a pipeline's file, below. The editor's language server and an assistant's tools
+read the configuration the same way, and still start over such a project so that it can be listed:
+their Release and entity listings answer, read with nothing configured, and name the file among the
+links not read, while every other request the configuration decides halts on it, naming the link. A
+configuration kept outside the project is read by
 naming it as the global file, as [Naming the global file explicitly](#naming-the-global-file-explicitly)
 describes. See [The workspace boundary](workspace-boundary.md).
 
