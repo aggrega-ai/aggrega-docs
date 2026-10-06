@@ -893,7 +893,7 @@ Responses use the standard JSON-RPC error codes plus an application-level range 
 
 - `1001` file-not-validated — the daemon holds no parse of the file and is producing none. Send `aggrega/validate` for it and ask again.
 - `1003` lockfile-absent — the Release the request named has no lockfile, and the operation asked for needs one.
-- `1004` entity-not-resolvable — the name matched no entity in any catalog tier, nor in the Release the request named; or the registry reference sent as the name could not be read as an entity, and the message names the condition that says why.
+- `1004` entity-not-resolvable — the name matched no entity in any catalog tier, nor in the Release the request named; or the registry reference sent as the name could not be read as an entity, and the message names the condition that says why; or the Release's lockfile is a link leading out of the workspace, which is refused before anything reads it, with `data` naming the lockfile and the Release and the message opening with the condition's short code, [`E0321`](../errors/fatal-halts.md#a-file-the-operation-reads-leads-through-a-link-out-of-the-directory-it-must-stay-inside) — see [the workspace boundary](workspace-boundary.md#halted).
 - `1005` shutting-down — the daemon is draining after a shutdown notification and refuses new requests. Do not retry against the same subprocess.
 - `1006` validation-in-flight — a validation of the file is running and did not finish within the budget the waiting request allowed it. Ask again shortly and send nothing.
 

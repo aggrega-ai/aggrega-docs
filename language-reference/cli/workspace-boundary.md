@@ -50,8 +50,9 @@ an entity your editor shows under such a link is not listed as the workspace's o
 listings and the entity listings name every such link by its own place in the workspace, never by
 where it leads: `unreadLinkedDirs` and `unreadLinkedFiles` on the language server,
 `unread_linked_dirs` and `unread_linked_files` on the assistant tools. A link to a directory your
-configuration lists under `catalog_dirs`, or to a Release it names, is not named: the configuration
-has reached that place, as [the exceptions](#the-exceptions-and-why-each-is-one) below describe. A
+configuration lists under `catalog_dirs`, or to a directory beneath one, or to a Release it names, is
+not named: the configuration has reached that place — a listed directory is read with everything
+beneath it — as [the exceptions](#the-exceptions-and-why-each-is-one) below describe. A
 `.gitignore` that is a link leading out is not read either, so a file elsewhere on the machine never
 decides which of the workspace's documents are searched.
 
@@ -73,10 +74,19 @@ in silence could change what a build means, so each stops the operation, names t
 leads, and leaves the place the link points to exactly as it was:
 
 - **What a lookup reads** — a document beneath a catalog directory, or beside a Release that names its
-  Aggregate or its Manifest by identity. A lookup that skipped such a link could resolve another entity
+  Aggregate or its Manifest by identity, or beside a Manifest that names the Manifest it extends that
+  way. The Release or the Manifest the operation was named is not one of those documents: it was read
+  where it was named — see [A Release or a Manifest named through a link](#a-release-or-a-manifest-named-through-a-link).
+  A lookup that skipped such a link could resolve another entity
   of the same name from a later directory in its place, so a build, a pull, a validation, an inspection
-  that reads the catalog, a lint of one Release, and the editor's and an assistant's requests that
-  build, preview, graph, validate or describe a Release all stop before anything is resolved:
+  that reads the catalog, a lint of one Release or of the whole catalog, and the editor's and an
+  assistant's requests that build, preview, graph, validate, lint or describe a Release all stop before
+  anything is resolved or checked:
+  [`E0321`](../errors/fatal-halts.md#a-file-the-operation-reads-leads-through-a-link-out-of-the-directory-it-must-stay-inside).
+- **A Release's lockfile** — read beside the Release for the pins a build, a pull, a validation, a lint,
+  an inspection, `aggrega cache prune` and the editor's and an assistant's requests resolve against. It
+  is held where it is read exactly as where it is written, so a lockfile that is a link leading out
+  stops each of them rather than lending them pins kept elsewhere on the machine:
   [`E0321`](../errors/fatal-halts.md#a-file-the-operation-reads-leads-through-a-link-out-of-the-directory-it-must-stay-inside).
 - **The workspace's own configuration** — every `.aggrega-config.yaml` from the root down to the
   directory a command runs in, and a pipeline's `.aggrega-config-append-ci.yaml` beside any of them.
@@ -133,9 +143,10 @@ class of path rather than a list of places, and each is an exception for a reaso
   climbs out of the workspace root. **Naming a path in the configuration is the deliberate way a
   workspace reaches outside itself**: it is written down once, kept with the project, and read by
   anyone reviewing it. The workspace's conventional `catalog` directory counts as named when the
-  configuration lists it or you pass it with `--catalog`; read only because it is there, it is the
-  workspace's own content, so a `catalog` that is a link leading out of the workspace is not read until
-  you name it.
+  configuration lists it or you pass it with `--catalog` — or lists, or you pass, the place it leads
+  to, in any spelling, or a directory above that place, which then reads what lies there once, through
+  the directory you named. Read only because it is there, it is the workspace's own content, so a
+  `catalog` that is a link leading out of the workspace is not read until you name it or where it leads.
 - **A path you type on the command line.** `aggrega build --release ../other/release.yaml`,
   `--catalog /srv/shared-catalog`, `--output-dir`, a file to validate, lint, pin or publish: each is
   used where it leads — the document edit apart, below. You own the machine the command runs on and
@@ -177,6 +188,19 @@ to names — must stay inside that directory. A Release kept beside its Aggregat
 from anywhere; one in the usual `releases/` layout, naming `../aggregates/app.yaml`, is built from its
 own workspace instead.
 
+### A Release or a Manifest named through a link
+
+**A Release you name through a link is read where the link leads, and resolved where you named it.**
+Typed as `--release release.yaml` where `release.yaml` is a link to a file kept elsewhere — or named
+that way under `workspace.releases`, or as `build.authoring_release` — the Release is read from the
+place the link leads to. The Aggregate and the Manifest it names, by identity or by a path, are looked
+for beside the link, in the directory you named it in, and held to that directory's root: the
+workspace, or the directory itself where it lies outside the workspace. Its lockfile is read and
+written beside the link too, never where the link leads. The Release is not one of the documents its
+own lookup meets beside it, so it never stops that lookup; another Release kept beside it that is a
+link leading out still does. A Manifest you inspect on its own through a link is read and resolved
+the same way.
+
 **The artifact cache is held by how its value is spelled.** Written inside the workspace root — the
 default `.aggrega/cache` included — it is the workspace's own directory, so a cache directory that is a
 link leading out is refused rather than followed. Written climbing out (`../shared-cache`), it is a
@@ -217,7 +241,8 @@ caller does.
 | What you see | What to do |
 | --- | --- |
 | A listing names a link among those it did not read | Replace the link with a copy of what it leads to; or, for entities kept elsewhere, list the directory the link leads to under `catalog_dirs`; for a Release kept elsewhere, name it under `workspace.releases` or as `build.authoring_release`. |
-| `E0321`, a read through a link out of a catalog directory or a Release's directory | List the directory the link leads to as a catalog directory, or pass it with `--catalog`, rather than reaching it through a link beneath one; or replace the link with a copy. Where the link is the conventional `catalog` itself, list `catalog` or pass it with `--catalog`. |
+| `E0321`, a read through a link out of a catalog directory or a Release's directory | List the directory the link leads to as a catalog directory, or pass it with `--catalog`, rather than reaching it through a link beneath one; or replace the link with a copy. Where the link is the conventional `catalog` itself, list `catalog` or the directory it leads to, or pass either with `--catalog`. |
+| `E0321` on a Release's lockfile | Remove the link and pull the Release again, which writes a fresh lockfile beside it. A lockfile has no other place. |
 | `E0321` on a configuration file | Replace the link with a copy kept in the workspace. A configuration shared between workspaces is read by naming it as the global configuration file, with `--config` or `AGGREGA_CONFIG`, beneath each workspace's own files. |
 | `E0320`, a write or removal through a link | Remove the link the message names, or make it lead somewhere inside the directory the message names, and run the operation again. Nothing in your entity files causes it. |
 | `E0324`, a reference leading out | Name an Aggregate kept elsewhere by its `metadata.name` and list its catalog directory; keep a Manifest, a Release an `extends:` names and a parameters file inside the workspace — or, for a document you named from outside, in its own directory; or open the workspace at a directory holding both documents. |

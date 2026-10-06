@@ -29,6 +29,8 @@ Which directories it reads depends on the shape of the workspace:
 
 A run with nothing to read in any pass is refused rather than reported as a clean catalog: put the entities under `catalog/`, pass `--catalog`, or set `workspace.catalog_dirs` — or, in a workspace that names Releases, a Release's own `catalog_dirs` under `workspace.releases`. It never enumerates the current working directory implicitly.
 
+A link beneath a catalog directory that leads out of the workspace — or out of a directory you named outside it — is not read, and the run stops there, naming the link, rather than reporting a clean catalog one of whose documents it could not read; a build over the same directories stops on the same link. [The workspace boundary](workspace-boundary.md#halted) sets out the rule and its remedies.
+
 ## Conventions across a Release (`--release`)
 
 `aggrega lint --release <release-path>` runs the same structural rules over the catalog entity files a single Release's resolved closure reaches, rather than the whole catalog or one entity. It computes the closure through the same machinery a build uses, then lints each entity's author-owned catalog file. A registry-pinned entity living in a cache slot carries no local file to lint and is skipped — the publishing rules apply to locally-authored files. As with the whole-catalog mode, findings are advisory and never halt on a convention finding alone.
