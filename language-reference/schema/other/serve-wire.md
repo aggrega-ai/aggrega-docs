@@ -800,7 +800,7 @@ _Additional properties are not permitted._
 
 ### `SetActiveReleaseParams`
 
-Records a Release as the workspace's default by writing its active-Release marker, `.aggrega/active-release`: the choice `aggrega/activeRelease` reports reads the marker after the configuration's authoring Release. The marker is written inside the workspace and nowhere else: where the `.aggrega` directory or the marker is a link leading out of the workspace, whether or not the place it leads to exists yet, the write is refused naming the link and nothing is written. The answer is the one `aggrega/activeRelease` gives once the marker is written, so it names a different Release where the configuration's authoring Release outranks the marker.
+Records a Release as the workspace's default by writing a marker in the `.aggrega` directory: the choice `aggrega/activeRelease` reports reads that marker after the configuration's authoring Release. The marker is written inside the workspace and nowhere else: where the `.aggrega` directory or the marker is a link leading out of the workspace, whether or not the place it leads to exists yet, the write is refused naming the link and nothing is written. The answer is the one `aggrega/activeRelease` gives once the marker is written, so it names a different Release where the configuration's authoring Release outranks the marker.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
