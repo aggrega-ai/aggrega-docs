@@ -41,7 +41,9 @@ A component's name becomes the identity every resource it emits is stamped with,
 
 There is a second effect, and it is the sharper one: an escape begins with a hyphen. A target that requires a name to *begin* with a lowercase letter or a digit will therefore refuse a name whose **first** character is one it does not admit, however short the rest is — no shortening reaches that.
 
-**The guidance follows from the two effects.** Prefer lowercase letters and digits, with hyphens or underscores between words, and begin a name with a letter or a digit. `payments-api` and `payments_api` are carried through unchanged by every target Aggrega ships a provider for; `PaymentsAPI` is not.
+**The guidance follows from the two effects.** Prefer lowercase letters and digits, with hyphens or underscores between words, and begin a name with a lowercase letter. `payments-api` and `payments_api` are carried through unchanged by every target Aggrega ships a provider for; `PaymentsAPI` is not.
+
+A leading digit is legal to write and costs nothing under a compose file, but the helm target refuses it. A Kubernetes Service name has to begin with a letter, and the Services a chart or a synthesized workload emits are named after the component, so a component named `1cache` halts a helm build — the refusal names the component and says a Service name must begin with a letter — rather than rendering Services the cluster would refuse.
 
 None of this is a rule the compiler applies on its own account — it holds no target's naming rules and invents no limit. Each target's provider answers for its own names, so a name is refused only when the target a component is actually deployed to says it cannot use it, and the refusal carries that target's own reason and points at the `spec.components` key you wrote. A name that is fine under one target and refused under another is the expected behaviour rather than an inconsistency.
 
