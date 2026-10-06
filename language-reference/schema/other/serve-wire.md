@@ -796,6 +796,18 @@ Answers which document, and where in it, an attachment on a graph node belongs.
 
 _Additional properties are not permitted._
 
+### `SetActiveReleaseParams`
+
+Records a Release as the workspace's default by writing its active-Release marker, `.aggrega/active-release`: the choice `aggrega/activeRelease` reports reads the marker after the configuration's authoring Release. The marker is written inside the workspace and nowhere else: where the `.aggrega` directory or the marker is a link leading out of the workspace, whether or not the place it leads to exists yet, the write is refused naming the link and nothing is written. The answer is the one `aggrega/activeRelease` gives once the marker is written, so it names a different Release where the configuration's authoring Release outranks the marker.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
+| `release` | string | no | The Release to record, as a path relative to the workspace root. An absolute path, and one climbing out of the workspace, are refused; so is one leading out of it through a link, unless the workspace configuration names that Release. |
+
+_Additional properties are not permitted._
+
 ### `EditDocumentParams`
 
 Applies one bounded edit to a document the workspace carries: one entry added under one container, or one scalar set. The composed document is checked against its kind's schema and reaches disk only if that passes, so this cannot write what the authoring schema refuses. A refused edit leaves the file byte-for-byte as it was.

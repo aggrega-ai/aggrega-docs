@@ -78,12 +78,20 @@ leads, and leaves the place the link points to exactly as it was:
   that reads the catalog, a lint of one Release, and the editor's and an assistant's requests that
   build, preview, graph, validate or describe a Release all stop before anything is resolved:
   [`E0321`](../errors/fatal-halts.md#a-file-the-operation-reads-leads-through-a-link-out-of-the-directory-it-must-stay-inside).
+- **The workspace's own configuration** — every `.aggrega-config.yaml` from the root down to the
+  directory a command runs in, and a pipeline's `.aggrega-config-append-ci.yaml` beside any of them.
+  Every command, the language server and an assistant's tools read the configuration before anything
+  else, so one of these files that is a link leading out stops each of them there — the language server
+  launched over the workspace stops at launch — rather than running on a configuration made from
+  whatever remained:
+  [`E0321`](../errors/fatal-halts.md#a-file-the-operation-reads-leads-through-a-link-out-of-the-directory-it-must-stay-inside).
 - **What an operation writes or removes** — a build's output directory, its boundary directories and
   every file written there, the trace; a Release's lockfile and the plugin trust record beside it; an
   `entity.lock`; the workspace configuration file a command writes; the artifact cache and each part of
   it a pull fills or `aggrega cache clear` and `aggrega cache prune` empty; the drafts an import writes
-  and the Plugin entities `aggrega plugin gen-catalog` writes. A `dist` that is a link would otherwise
-  turn "rebuild the output" into deleting a directory somewhere else on the machine:
+  and the Plugin entities `aggrega plugin gen-catalog` writes; and the `.aggrega/active-release` marker
+  an editor records a default Release in, which the language server writes for it. A `dist` that is a
+  link would otherwise turn "rebuild the output" into deleting a directory somewhere else on the machine:
   [`E0320`](../errors/fatal-halts.md#a-path-the-operation-writes-leads-through-a-link-out-of-the-directory-it-must-stay-inside).
 - **What a document names by a path** — see [A reference a document writes](#a-reference-a-document-writes):
   [`E0324`](../errors/fatal-halts.md#a-reference-to-another-file-leads-out-of-the-directory-it-must-stay-inside).
@@ -210,6 +218,7 @@ caller does.
 | --- | --- |
 | A listing names a link among those it did not read | Replace the link with a copy of what it leads to; or, for entities kept elsewhere, list the directory the link leads to under `catalog_dirs`; for a Release kept elsewhere, name it under `workspace.releases` or as `build.authoring_release`. |
 | `E0321`, a read through a link out of a catalog directory or a Release's directory | List the directory the link leads to as a catalog directory, or pass it with `--catalog`, rather than reaching it through a link beneath one; or replace the link with a copy. Where the link is the conventional `catalog` itself, list `catalog` or pass it with `--catalog`. |
+| `E0321` on a configuration file | Replace the link with a copy kept in the workspace. A configuration shared between workspaces is read by naming it as the global configuration file, with `--config` or `AGGREGA_CONFIG`, beneath each workspace's own files. |
 | `E0320`, a write or removal through a link | Remove the link the message names, or make it lead somewhere inside the directory the message names, and run the operation again. Nothing in your entity files causes it. |
 | `E0324`, a reference leading out | Name an Aggregate kept elsewhere by its `metadata.name` and list its catalog directory; keep a Manifest, a Release an `extends:` names and a parameters file inside the workspace — or, for a document you named from outside, in its own directory; or open the workspace at a directory holding both documents. |
 | `E0304`, content through a link | Replace the link with a copy of what it leads to, inside the entity's own directory. |

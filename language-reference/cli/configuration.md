@@ -336,6 +336,14 @@ Passing `--workspace-root` changes this as well as skipping discovery: the named
 configuration file is the only one collected, so files in directories below it do not contribute.
 That keeps a pinned root's configuration the same wherever the command is run from.
 
+Every file collected this way is read from inside the project. One that is a symbolic link leading
+out of the project — or that sits in a directory reached through such a link — is not read, and the
+command stops on it, naming the link, rather than configuring the project from the files that remain;
+the same holds for a pipeline's file, below, and for the editor's language server and an assistant's
+tools, which read the configuration the same way. A configuration kept outside the project is read by
+naming it as the global file, as [Naming the global file explicitly](#naming-the-global-file-explicitly)
+describes. See [The workspace boundary](workspace-boundary.md).
+
 ### Extending a list instead of replacing it
 
 A list-valued setting behaves like every other setting: the nearer file's value replaces the
