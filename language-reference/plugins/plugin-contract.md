@@ -260,6 +260,50 @@ Three properties are worth knowing when you decide what to declare:
 - **One contributor may repeat a name freely.** A node can render across several crossings — a source render, a workload synthesis, an artifacts placement — and the declarations merge. The same name declared twice by one contributor is that contributor describing one resource twice, not a clash.
 - **Declaring changes no bytes.** The field is an assertion about what the guest derived, never a change to what it emitted, so a guest's rendered output is identical whether it declares or not. Omitting `derived_keys` is valid and leaves the check inert for that guest.
 
+#### Reporting facts about what a guest emitted
+
+Some things about a node's render are visible only to the provider that produced it — what the documents it wrote contain, which names they define, how many of something it emitted — because reading them out of the file bytes means understanding the provider's format. `render_node` can report such things itself, on an optional `render_facts` list beside its files:
+
+```json
+{
+  "files": [ { "path": "stack.yaml", "content": "..." } ],
+  "render_facts": [
+    { "name": "exported_outputs", "value": ["QueueUrl", "TopicArn"] },
+    { "name": "stack", "value": { "name": "payments-api", "resources": 2 } }
+  ]
+}
+```
+
+Each fact is a `name` and a `value`, and both belong to your provider: which facts it reports, what each name means and the shape each value takes are part of your provider's own documented contract, so document them for the authors who will read them. A value is any JSON value — an object, an array, a string, a number, a boolean.
+
+The compiler carries the list with the node's render exactly as your guest returned it. It reads no name, parses no value and never derives a fact itself, so a new provider can report new facts without any change on the compiler's side. The facts a Feature attached to the node reports from its own render are kept apart from the ones the node's own render reported.
+
+Four properties are worth knowing when you decide what to report:
+
+- **The order is yours.** The facts keep the order your guest lists them in, and each value keeps its own bytes — the order of an object's keys and of an array's items is the order your guest wrote. List the facts in a fixed order, and write each value with a fixed key order, so identical input produces identical bytes; a list rather than a map exists precisely so that order survives, since a map type in some languages would put the facts in key order on the way out.
+- **Reporting changes no bytes.** The files the compiler writes are the files your guest returned, whether or not facts accompany them.
+- **A node may report across several crossings.** A node can render as a source render, a workload synthesis and an artifacts placement; the facts each one reports are kept in the order the crossings ran.
+- **Reporting nothing is complete.** Omitting `render_facts` is valid, and a provider that reports nothing renders exactly as it would without the field.
+
+The `RenderFact` type is published in the three ABI packages and re-exported by each language's plugin development kit, and the kits' render examples report two facts beside their files. In Go, a value is the JSON your guest writes; marshalling a struct rather than a map is what keeps its keys in the order you declared them:
+
+```go
+type stackFact struct {
+	Name      string `json:"name"`
+	Resources int    `json:"resources"`
+}
+
+stack, err := json.Marshal(stackFact{Name: "payments-api", Resources: 2})
+if err != nil {
+	pdk.SetError(err)
+	return 1
+}
+out := aggrega.RenderNodeOutput{
+	Files:       files,
+	RenderFacts: []aggrega.RenderFact{{Name: "stack", Value: stack}},
+}
+```
+
 #### Declaring what a source's ecosystem never ships
 
 A Recipe's local source directory — a co-located chart, a module — is published with the Recipe, and not every file in it belongs to it. A provider guest says what its own ecosystem never ships through `source_ignore` on its contract, as ignore rules in the syntax `.gitignore` uses:

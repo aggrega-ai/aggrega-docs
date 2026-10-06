@@ -740,6 +740,28 @@ each is wanted:
 - **`validate_node_input`**, to check a node's input structurally before any
   render runs, so a malformed input is reported at the authoring boundary
   rather than mid-render.
+- **Render facts**, to report something about what the guest wrote that only
+  this provider's knowledge of the environment-file format can see — here, the
+  variable names each file defines. A fact is a name and a JSON value, both
+  this provider's own vocabulary, returned beside the files:
+
+  ```go
+  // names lists the variables the files define, in the order they were written.
+  value, err := json.Marshal(names)
+  if err != nil {
+  	pdk.SetError(fmt.Errorf("dotenv: marshal render fact: %w", err))
+  	return 1
+  }
+  out := aggrega.RenderNodeOutput{
+  	Files:       files,
+  	RenderFacts: []aggrega.RenderFact{{Name: "variable_names", Value: value}},
+  }
+  ```
+
+  The compiler carries the facts verbatim and in the order the guest lists
+  them, never reads them, and writes the same files whether or not they are
+  reported. Document each fact's name and value shape as part of the provider's
+  contract.
 - **Publishing**, which turns the local `dev-catalog` arrangement into a
   digest-pinned artifact a Release resolves and verifies. The
   [plugin developer guide](plugin-developer-guide.md) covers that lifecycle,
