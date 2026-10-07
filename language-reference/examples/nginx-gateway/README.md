@@ -64,10 +64,11 @@ server { listen 8080; location / { proxy_pass http://web:8080; } }
 ```
 
 On Kubernetes, the same routing arrives in the container command that writes
-the server config before starting nginx:
+the server config before starting nginx, pointing at the backend's Service —
+the helm provider names it after the backend and its `default` service key:
 
 ```conf
-server { listen 8080; location / { proxy_pass http://web:8080; } }
+server { listen 8080; location / { proxy_pass http://web-default:8080; } }
 ```
 
 Both resolve from the same Aggregate edge — the backend host and port travel

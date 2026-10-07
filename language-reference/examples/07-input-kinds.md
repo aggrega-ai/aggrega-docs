@@ -23,7 +23,7 @@ spec:
     port: "{{ optional .values `port` 8080 }}"
 
   provides:
-    host: "{{ .context.instance_id }}"
+    host: "{{ .context.rendered_name }}-http"
     port: "{{ .locals.port }}"
     protocol: http
 
@@ -70,7 +70,7 @@ Synthesized output for `instance_id: api`, `values.port: 8080`, `infra.replicas:
 
 ## Example 23: Multi-container synthesized Recipe with ConfigMap volumes
 
-Pattern: **synthesized with artifacts** (mixed) — the Workload drives the pod spec; two inline `artifacts:` entries produce the ConfigMaps that the Workload's `volumes:` references. Pillars exercised: `.values`, `.infra`, `.locals`, `.context.instance_id`, `.workload` (from artifacts). Expected output: one Deployment with two containers, two Services, and two ConfigMap YAML files.
+Pattern: **synthesized with artifacts** (mixed) — the Workload drives the pod spec; two inline `artifacts:` entries produce the ConfigMaps that the Workload's `volumes:` references. Pillars exercised: `.values`, `.infra`, `.locals`, `.context.instance_id`, `.context.rendered_name`, `.workload` (from artifacts). Expected output: one Deployment with two containers, two Services, and two ConfigMap YAML files.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -87,7 +87,7 @@ spec:
     envoy_cm: "{{ .context.instance_id }}-envoy-config"
 
   provides:
-    host: "{{ .context.instance_id }}"
+    host: "{{ .context.rendered_name }}-http"
     port: "8080"
 
   workload: |

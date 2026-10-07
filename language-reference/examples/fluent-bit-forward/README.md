@@ -87,13 +87,14 @@ targets the sink's compose service name and port:
     Port   8080
 ```
 
-On Kubernetes, the same output targets the sink's in-cluster Service name:
+On Kubernetes, the same output targets the sink's in-cluster Service name,
+which the helm provider gives the Service of the sink's `default` service key:
 
 ```ini
 [OUTPUT]
     Name   forward
     Match  *
-    Host   sink
+    Host   sink-default
     Port   8080
 ```
 

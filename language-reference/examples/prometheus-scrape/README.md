@@ -123,7 +123,8 @@ scrape_configs:
 ```
 
 On Kubernetes, the same two jobs are written by the synthesized StatefulSet's
-start-up command:
+start-up command, each addressing that backend's Service, which the helm
+provider names after the backend and its `default` service key:
 
 ```yaml
 scrape_configs:
@@ -132,20 +133,22 @@ scrape_configs:
     metrics_path: /api/metrics
     static_configs:
       - targets:
-          - api:8081
+          - api-default:8081
   - job_name: web
     scrape_interval: 15s
     metrics_path: /metrics
     static_configs:
       - targets:
-          - web:8080
+          - web-default:8080
 ```
 
 Both targets compile the same two jobs from the same two Aggregate edges: each
 backend's host and port travel through its own `scrape_target` connection, and
 the compiler pipes those strings into the job without interpreting them. What
-differs between the targets is the workload the configuration is written into —
-a Compose service on one, a StatefulSet on the other.
+differs between the targets is what each backend publishes as its host — a
+compose service name on one, a Service name on the other — and the workload the
+configuration is written into — a Compose service on one, a StatefulSet on the
+other.
 
 Read the `web` job against the `api` job to see where every value comes from.
 The `api` job carries `api-backend`, `30s` and `/api/metrics` because its

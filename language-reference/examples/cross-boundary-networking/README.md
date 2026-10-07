@@ -113,7 +113,7 @@ dist/backend/helm/db-headless-service.yaml      # metadata.namespace: backend
 
 There is **no `aggrega-gw`**. The helm `db` recipe publishes a **bare** service
 name in `provides.host` — the helm provider names the synthesized Service
-`<instance_id>-<service-key>` (`db-default`), with no namespace. The consumer
+`<rendered_name>-<service-key>` (`db-default`), with no namespace. The consumer
 attaches the **`core/k8s-dns-resolver`** routing feature (the Release points it at
 `ADMINER_DEFAULT_SERVER`), and the feature qualifies that bare host with the
 target's namespace on the consumer's own side — producing the cross-namespace DNS
