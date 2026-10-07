@@ -40,9 +40,9 @@ Three components, and each one is doing a different job:
 Two `uses` edges, both into sockets the agent's Component declares: `model`
 (required, admitting a model component or a gateway serving a model API — the
 router is the second) and `checkpointer_db` (required, selecting on the
-datastore category). Five Feature attachments over three Feature kinds, each of
-which puts something in the rendered output — the section below shows what each
-one produces.
+datastore category). Five Feature attachments over three Feature kinds — four on
+the router, one on the agent's `model` connection — each of which puts something
+in the rendered output; the section below shows what each one produces.
 
 ## Building
 
@@ -109,7 +109,7 @@ which here reports `conventions checked: 15 entities, 0 advisory finding(s)`.
 
 ```
 dist/helm/
-├── agent--model-zuapi-zukey--agent-secret-agent-model-api-key.yaml
+├── agent--router-zumodel-zdcredential--agent-secret-agent-router-model-credential.yaml
 ├── agent-deployment.yaml
 ├── checkpointer-default-service.yaml
 ├── checkpointer-deployment.yaml
@@ -138,9 +138,12 @@ which is what this target's consumers do unless you tell them otherwise.
 
 The two coordinates are encoded rather than written as you typed them, because
 they share one string with the file's own name. A character a filename cannot
-safely carry becomes `-z` and a letter: `api_key` is `api-zukey`, and
-`feature.aggrega.ai/monitoring` — an attachment name a Feature's own annotation
-mints — would be `feature-zdaggrega-zdai-zsmonitoring`. The file's own name keeps
+safely carry becomes `-z` and a letter: `api_key` is `api-zukey`;
+`router_model.credential` — the name the attachment on the agent's
+`router_model` connection takes, the connection's alias, a dot and the slot — is
+`router-zumodel-zdcredential`; and `feature.aggrega.ai/monitoring` — an
+attachment name a Feature's own annotation mints — would be
+`feature-zdaggrega-zdai-zsmonitoring`. The file's own name keeps
 whatever dots it carries, so the `.yaml` suffix still reads as a suffix.
 
 Where a page here prints what a build produced, the block is copied from a real
@@ -311,12 +314,13 @@ environment. Here is the whole `env` block of `dist/helm/agent-deployment.yaml`:
             - name: OPENAI_API_KEY
               valueFrom:
                 secretKeyRef:
-                  name: agent-model-api-key
+                  name: agent-router-model.credential
                   key: api-key
 ```
 
 The first two came off the `model` edge, the next two off the `checkpointer_db`
-edge, and the last from an attachment. Note what the Aggregate did **not** have
+edge, and the last from the attachment the `model` edge carries. Note what the
+Aggregate did **not** have
 to say: neither edge carries an `inject` block, because the delivery is the
 consuming Recipe's own decision. The developer declares that the agent uses a
 model; which variable the model's endpoint arrives under is the Recipe's answer,
@@ -399,10 +403,27 @@ The two credentials stay apart, and that separation is what the router buys: the
 upstream key stays inside the router, and the calling application holds nothing
 but the key to the router.
 
-### `model_api_key` on the agent — the key it presents to the router
+### `credential` on the agent's `model` connection — the key it presents to the router
 
-`core/referenced-secret` again, on the other side of the same conversation. From
-`dist/helm/agent--model-zuapi-zukey--agent-secret-agent-model-api-key.yaml`:
+`core/referenced-secret` again, on the other side of the same conversation. The
+agent's `model` socket declares a `credential` slot, so the key is attached on
+the connection it is presented on, under the edge in the Aggregate:
+
+```yaml
+uses:
+  model:
+    router_model:
+      target: router
+      features:
+        credential:
+          type: core/referenced-secret
+          values:
+            key: api-key
+            origin: "{{ .parameters.router_admin_key }}"
+```
+
+From
+`dist/helm/agent--router-zumodel-zdcredential--agent-secret-agent-router-model-credential.yaml`:
 
 ```yaml
 stringData:
@@ -421,7 +442,9 @@ one authored home and the two Secrets cannot be edited apart. Change it once in
 the Release and both rendered Secrets move together.
 
 Each attachment still renders its **own** Secret, named from the component that
-consumes it. What the shared parameter shares is the value, not the resource.
+consumes it — and, for the agent's, the connection it is attached on:
+`agent-router-model.credential`. What the shared parameter shares is the value,
+not the resource.
 
 ### `published` on the router — an address outside the cluster
 
@@ -536,6 +559,6 @@ compiler needing to understand any of it, and without the agent changing.
   component in-cluster, so the address is the operator's to write and to keep in
   step with the service it names.
 
-For filling one credential slot across several consumers at once, see
+For sharing one credential across several consumers' connections, see
 [model-api-key-sharing](../model-api-key-sharing/). For a socket no catalog
 entity declares, see [adhoc-uses-socket](../adhoc-uses-socket/).

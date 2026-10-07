@@ -7,59 +7,67 @@ metadata:
   name: model-api-key-sharing-shared
   version: "1.0.0"
   description: >
-    The same two CrewAI agents and the same gateway, with neither agent filling
-    its model_api_key slot. One credential is attached once at subsystem scope
-    and cascades to both agents. The shared form: one declaration, many
-    consumers.
+    The same two CrewAI agents and the same gateway, with both agents' model
+    connections pointing at one Secret that already exists, named once by a
+    parameter. The shared form: one value, authored once, read on every
+    connection.
 spec:
-  # Subsystems exist here to scope the cascade. The credential is attached to
-  # the `agents` subsystem, so it reaches the two agents and nothing else; the
-  # gateway sits in its own subsystem and is untouched by the attachment.
-  subsystems:
-    model:
-      description: The model gateway the agents route through.
-      components:
-        gateway:
-          type: core/ai-model/openai-compatible
-          values:
-            model: gpt-4o-mini
-            provider_name: openai
+  # The one place the shared credential is named. Each connection's credential
+  # reads it, so the two connections cannot be written apart. Under the
+  # existing-secret realization this release's Manifest binds, a credential's
+  # origin is read as the name of a Secret already in the namespace, so the
+  # parameter carries that name, never the key itself.
+  parameters:
+    team_model_key:
+      type: string
+      default: team-model-key
+      description: >
+        Name of the Kubernetes Secret, already present in the namespace the
+        agents run in, holding the model key every agent presents. A Release
+        fulfils it where an environment keeps the key under another name.
+  components:
+    gateway:
+      type: core/ai-model/openai-compatible
+      values:
+        model: gpt-4o-mini
+        provider_name: openai
 
-    agents:
-      description: The agent tier, sharing one model credential.
-      # Subsystem-scoped attachment. The instance name matches the slot the
-      # agent component type declares, so it binds that slot on every component
-      # in this subsystem. Neither agent below declares a `features:` block.
-      features:
-        model_api_key:
-          type: core/referenced-secret
-          description: One model credential for every agent in this subsystem.
-          values:
-            key: OPENAI_API_KEY
-            origin: team-key-change-me
-      components:
-        researcher:
-          type: core/ai-agent/crewai
-          uses:
-            model:
-              gateway:
-                target: gateway
-          values:
-            role: Researcher
-            goal: Gather and summarize source material for a topic.
-            backstory: A methodical analyst who prefers primary sources.
-            allow_delegation: false
-            log_level: DEBUG
+    researcher:
+      type: core/ai-agent/crewai
+      uses:
+        model:
+          gateway:
+            target: gateway
+            features:
+              credential:
+                type: core/referenced-secret
+                values:
+                  key: OPENAI_API_KEY
+                  origin: "{{ .parameters.team_model_key }}"
+      values:
+        role: Researcher
+        goal: Gather and summarize source material for a topic.
+        backstory: A methodical analyst who prefers primary sources.
+        allow_delegation: false
+        log_level: DEBUG
 
-        writer:
-          type: core/ai-agent/crewai
-          uses:
-            model:
-              gateway:
-                target: gateway
-          values:
-            role: Writer
-            goal: Turn research notes into publishable prose.
-            backstory: An editor who values plain sentences over ornament.
-            allow_delegation: false
-            log_level: DEBUG
+    writer:
+      type: core/ai-agent/crewai
+      uses:
+        model:
+          gateway:
+            target: gateway
+            # The same parameter read on the second connection: one Secret,
+            # referenced from each connection that presents it.
+            features:
+              credential:
+                type: core/referenced-secret
+                values:
+                  key: OPENAI_API_KEY
+                  origin: "{{ .parameters.team_model_key }}"
+      values:
+        role: Writer
+        goal: Turn research notes into publishable prose.
+        backstory: An editor who values plain sentences over ornament.
+        allow_delegation: false
+        log_level: DEBUG

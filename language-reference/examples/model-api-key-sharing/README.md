@@ -1,13 +1,14 @@
 # Sharing a credential — per-consumer, shared, and both at once
 
-Two CrewAI agents behind one OpenAI-compatible gateway. Each agent's component
-type declares a `model_api_key` attachment slot, and this workspace fills that
-slot three ways without changing a single catalog entity: once per agent, once
-for both, and both at once with one agent overriding the shared default.
+Two CrewAI agents behind one OpenAI-compatible gateway. Each agent's `model`
+socket declares a `credential` slot, so the key an agent presents to the model
+it reaches is attached on that connection. This workspace fills the slot three
+ways without changing a single catalog entity: a key per connection, one Secret
+every connection points at, and a shared default one connection overrides.
 
 **Two consumers is the point.** The three forms are indistinguishable with a
-single consumer — the difference is *which* rendered resource each consumer ends
-up pointing at, and that question has no content until there is more than one
+single consumer — the difference is *which* Secret each consumer ends up
+pointing at, and that question has no content until there is more than one
 consumer.
 
 ## Building
@@ -40,43 +41,52 @@ aggrega build --release release-shared.yaml
 ```
 
 All three build on the helm target, deliberately. The observable that separates
-the three forms is the **identity of the emitted credential resource**, and helm
-is where a credential materializes as a named Kubernetes Secret that a container
-references by name. `core/referenced-secret` has no compose realization in the
-standard-library catalog — compose credential delivery goes through the
-inject-value family, which publishes a value on the inject pipe and no resource
-at all — so a compose variant would have no resource identity to compare.
+the three forms is the **name of the Secret each agent's container references**,
+and helm is where a credential is a named Kubernetes Secret that a container
+references by name. Two Manifests bind the credential: `manifest.yaml` to
+`k8s-secret-from-parameter`, which renders a Secret from the value the
+attachment carries, for the per-consumer release; and
+`manifest-existing-secret.yaml` to `k8s-existing-secret`, which renders nothing
+and points each consumer at a Secret already in the namespace, for the shared
+and composed releases.
 
-## Per-consumer — each agent holds its own key
+## Per-consumer — each connection holds its own key
 
-`aggregate-per-consumer.yaml` fills the slot on each agent separately, with a
+`aggregate-per-consumer.yaml` fills the slot on each agent's connection, with a
 different `origin` per agent:
 
 ```yaml
 researcher:
-  features:
-    model_api_key:
-      type: core/referenced-secret
-      values:
-        key: OPENAI_API_KEY
-        origin: researcher-key-change-me
+  type: core/ai-agent/crewai
+  uses:
+    model:
+      gateway:
+        target: gateway
+        features:
+          credential:
+            type: core/referenced-secret
+            values:
+              key: OPENAI_API_KEY
+              origin: researcher-key-change-me
 ```
 
-Two Secrets are emitted, one per agent, each carrying that agent's own material:
+An attachment on a connection becomes one of the agent's own attachments, named
+for the connection and the slot — here `gateway.credential` — so two Secrets are
+emitted, one per agent, each carrying that agent's own material:
 
 ```yaml
-# dist/per-consumer/helm/researcher--model-zuapi-zukey--researcher-secret-researcher-model-api-key.yaml
+# dist/per-consumer/helm/researcher--gateway-zdcredential--researcher-secret-researcher-gateway-credential.yaml
 [… omitted: the apiVersion and the Secret kind]
 metadata:
-  name: researcher-model-api-key
+  name: researcher-gateway.credential
   [… omitted: the labels and annotations every rendered document carries]
 stringData:
   OPENAI_API_KEY: "researcher-key-change-me"
 
-# dist/per-consumer/helm/writer--model-zuapi-zukey--writer-secret-writer-model-api-key.yaml
+# dist/per-consumer/helm/writer--gateway-zdcredential--writer-secret-writer-gateway-credential.yaml
 [… omitted: the apiVersion and the Secret kind]
 metadata:
-  name: writer-model-api-key
+  name: writer-gateway.credential
   [… omitted: the labels and annotations every rendered document carries]
 stringData:
   OPENAI_API_KEY: "writer-key-change-me"
@@ -89,187 +99,160 @@ and each Deployment references its own:
 - name: OPENAI_API_KEY
   valueFrom:
     secretKeyRef:
-      name: researcher-model-api-key
+      name: researcher-gateway.credential
       key: OPENAI_API_KEY
 
 # dist/per-consumer/helm/writer-deployment.yaml
 - name: OPENAI_API_KEY
   valueFrom:
     secretKeyRef:
-      name: writer-model-api-key
+      name: writer-gateway.credential
       key: OPENAI_API_KEY
 ```
 
 Revoking one agent's key leaves the other running.
 
-## Shared — one declaration, both agents
+## Shared — one Secret, referenced from each connection
 
-`aggregate-shared.yaml` fills the slot on *neither* agent. Instead it attaches
-one credential at subsystem scope, and the attachment cascades to every
-component in that subsystem:
+A credential on a connection is written on that connection: nothing attached
+elsewhere fills it. So several consumers share one credential **by authoring**:
+each connection's credential reads the same value, and that value names one
+Secret.
+
+`aggregate-shared.yaml` declares one parameter and reads it on both
+connections:
 
 ```yaml
-subsystems:
-  agents:
-    features:
-      model_api_key:
-        type: core/referenced-secret
-        values:
-          key: OPENAI_API_KEY
-          origin: team-key-change-me
-    components:
-      researcher: { ... }   # no features: block
-      writer:     { ... }   # no features: block
+parameters:
+  team_model_key:
+    type: string
+    default: team-model-key
+components:
+  researcher:
+    uses:
+      model:
+        gateway:
+          target: gateway
+          features:
+            credential:
+              type: core/referenced-secret
+              values:
+                key: OPENAI_API_KEY
+                origin: "{{ .parameters.team_model_key }}"
+  writer: { ... }   # the same credential, reading the same parameter
 ```
 
-The subsystems here are what make the shared form expressible. An Aggregate has
-no root-level `features:` block — a subsystem's `features:` block is the
-Aggregate's only shared-attachment surface — so declaring subsystems is how a
-developer attaches one credential to several components at once.
-
-The gateway sits in its own `model` subsystem deliberately, so the attachment
-reaches the two agents and nothing else. Placing it in the `agents` subsystem
-instead would attach `model_api_key` to the gateway too, and since a slot is not
-required for an attachment to be legal, that renders a third Secret
-(`gateway-model-api-key`) that nothing references — the gateway's Component
-declares no credential slot, and its Recipe reads none. The scope of the subsystem is the
-scope of the cascade.
-
-**Read the output carefully, because the intuitive expectation is wrong.** One
-declaration does **not** produce one Secret. Two Secrets are emitted, with the
-same names as in the per-consumer form, both carrying the same material:
+The release binds the credential to `k8s-existing-secret`, which reads `origin`
+as the name of a Secret that already exists in the namespace. It renders no
+Secret at all — only the gateway's Service and the two Deployments are written —
+and both Deployments reference the one Secret the parameter names:
 
 ```yaml
-# dist/shared/helm/researcher--model-zuapi-zukey--researcher-secret-researcher-model-api-key.yaml
-[… omitted: the apiVersion and the Secret kind]
-metadata:
-  name: researcher-model-api-key
-  [… omitted: the labels and annotations every rendered document carries]
-stringData:
-  OPENAI_API_KEY: "team-key-change-me"
+# dist/shared/helm/researcher-deployment.yaml
+- name: OPENAI_API_KEY
+  valueFrom:
+    secretKeyRef:
+      name: team-model-key
+      key: OPENAI_API_KEY
 
-# dist/shared/helm/writer--model-zuapi-zukey--writer-secret-writer-model-api-key.yaml
-[… omitted: the apiVersion and the Secret kind]
-metadata:
-  name: writer-model-api-key
-  [… omitted: the labels and annotations every rendered document carries]
-stringData:
-  OPENAI_API_KEY: "team-key-change-me"
+# dist/shared/helm/writer-deployment.yaml
+- name: OPENAI_API_KEY
+  valueFrom:
+    secretKeyRef:
+      name: team-model-key
+      key: OPENAI_API_KEY
 ```
 
-Each Deployment still references its own Secret, and its `secretKeyRef` block is
-identical to the per-consumer form's. Rendering runs per component, and the
-standard-library credential FeatureRecipe derives its resource name from the
-consuming component, so the name differs per consumer. What is shared is the
-*declaration*; the emitted resources are not deduplicated into one.
+That is exactly one physical Secret, created outside the Release by whoever
+deploys it, and read by every consumer. The key's material never passes through
+an authored file or a rendered artifact.
 
-That makes the rendered difference between the two forms narrow and precise:
-identical resource count, identical resource names, identical references — only
-the material differs. Diff `dist/per-consumer/` against `dist/shared/` and the
-only changes are the two Secrets' values and the `aggrega.ai/aggregate-name`
-label, which differs because the two forms are authored as two Aggregates. The
-choice between per-consumer and shared is a choice about **where the value comes
-from and who edits it**, not about how many resources land in the cluster.
+**What the parameter carries follows the realization the Manifest binds.** Under
+`k8s-existing-secret` it is a Secret's name. Bound instead to
+`k8s-secret-from-parameter`, the same two connections reading one parameter
+would carry the key itself, and the build would render one Secret per consumer,
+each holding the same material: rendering runs per component, and that
+realization names the Secret it renders after the consuming component and the
+connection. The one parameter is what keeps the consumers from drifting apart;
+which realization reads it decides whether they share a resource. A credential
+generated in the cluster is shared the same way — one request and many
+references; see [Credential Model](../../../architecture/08-credential-model.md).
 
-If a deployment needs exactly one physical Secret that several consumers read,
-that is a different mechanism: a credential Feature whose FeatureRecipe runs at
-boundary scope, which renders once for the boundary instead of once per
-component. Every credential FeatureRecipe in the standard-library catalog renders
-per component, so that shape needs a purpose-authored FeatureRecipe. See
-[Credential Model](../../../architecture/08-credential-model.md).
+## Composed — shared default, one connection overriding
 
-### Why the shared attachment is on the Aggregate, not the Release
-
-A Release boundary is the other shared scope, and for many Features it is the
-natural one — but it cannot carry this credential. A boundary-wide attachment
-declares `type`, `infra` and `uses`; it cannot declare `values`. And
-`core/referenced-secret` requires `origin`, which has no default. So attaching it
-boundary-wide leaves a required value unfulfillable, and the build halts naming
-the missing `origin` rather than rendering a Secret with no material.
-
-The Operator surface fulfils `infra` and wires topology; the material a
-credential carries is developer-declared. So for this Feature the Aggregate
-subsystem is the shared scope, and a Release boundary suits a credential whose
-FeatureRecipe reads its material from `infra` or from an external store instead.
-
-## Composed — shared default, one agent overriding
-
-The two forms compose. `aggregate-composed.yaml` keeps the subsystem-wide
-attachment and *also* fills the slot on `researcher` alone:
+`aggregate-composed.yaml` keeps the shared parameter as the default and lets one
+connection name a Secret of its own:
 
 ```yaml
-subsystems:
-  agents:
-    features:
-      model_api_key:
-        type: core/referenced-secret
-        values:
-          key: OPENAI_API_KEY
-          origin: team-key-change-me
-    components:
-      researcher:
+researcher:
+  uses:
+    model:
+      gateway:
+        target: gateway
         features:
-          model_api_key:
+          credential:
             type: core/referenced-secret
             values:
-              origin: researcher-own-key-change-me   # only origin restated
-      writer: { ... }                                # no features: block
+              key: OPENAI_API_KEY
+              origin: researcher-model-key       # this connection's own Secret
+writer:
+  uses:
+    model:
+      gateway:
+        target: gateway
+        features:
+          credential:
+            type: core/referenced-secret
+            values:
+              key: OPENAI_API_KEY
+              origin: "{{ .parameters.team_model_key }}"   # the shared default
 ```
 
-The nearer scope wins for `researcher`; `writer` keeps the subsystem-wide
-attachment untouched:
-
-```yaml
-# dist/composed/helm/researcher--model-zuapi-zukey--researcher-secret-researcher-model-api-key.yaml
-metadata:
-  name: researcher-model-api-key
-stringData:
-  OPENAI_API_KEY: "researcher-own-key-change-me"
-
-# dist/composed/helm/writer--model-zuapi-zukey--writer-secret-writer-model-api-key.yaml
-metadata:
-  name: writer-model-api-key
-stringData:
-  OPENAI_API_KEY: "team-key-change-me"
-```
-
-**The Secret's data key is the proof that the override is field-by-field.** The
-component-scoped fill restated only `origin` — it never mentions `key`. The
-`key` field on `core/referenced-secret` carries a schema default of `value`, so a
-fill that replaced the subsystem attachment wholesale would have produced a
-Secret keyed `value`. It is keyed `OPENAI_API_KEY`, inherited from the subsystem
-scope, and the Deployment's `secretKeyRef.key` agrees:
+The override is what that one connection authors; nothing cascades onto it, and
+`writer` keeps the shared Secret untouched:
 
 ```yaml
 # dist/composed/helm/researcher-deployment.yaml
 - name: OPENAI_API_KEY
   valueFrom:
     secretKeyRef:
-      name: researcher-model-api-key
+      name: researcher-model-key
+      key: OPENAI_API_KEY
+
+# dist/composed/helm/writer-deployment.yaml
+- name: OPENAI_API_KEY
+  valueFrom:
+    secretKeyRef:
+      name: team-model-key
       key: OPENAI_API_KEY
 ```
 
-A component override therefore restates only what it changes. Restating the
-Feature `type` is required — the types across scopes must agree, and a mismatch
-halts the build.
+A connection's credential is a whole attachment of its own, so an override
+restates every field it needs — here the Feature type, `key` and `origin` — and
+inherits none from the default.
 
 ## What the slot buys
 
-`core/ai-agent/crewai` declares the slot once, and the three forms are all
-deployment choices made in the Aggregate:
+`core/ai-agent/crewai` declares the slot once, on its `model` socket, and the
+three forms are all choices made in the Aggregate:
 
 ```yaml
-featuresSchema:
-  model_api_key:
-    selector: "feature.aggrega.ai/kind=secret"
-    inject: [env]
+usesSchema:
+  model:
+    selector: "component.aggrega.ai/category in (ai-model, gateway), model.aggrega.ai/api"
+    required: true
+    featuresSchema:
+      credential:
+        selector: "feature.aggrega.ai/kind=secret"
+        sensitive: true
+        inject: [env]
 ```
 
 The slot is optional, so a fourth shape is attaching nothing at all: drop the
-`features:` block from `aggregate-shared.yaml` and the rendered tree loses both
-Secrets and every `OPENAI_API_KEY` env entry, leaving the two Deployments and the
-gateway Service. Nothing is invented to fill the gap. The catalog entity is
-identical in every case; the author decides.
+`features:` block from both connections and the rendered tree loses every
+`OPENAI_API_KEY` env entry, leaving the two Deployments and the gateway Service.
+Nothing is invented to fill the gap. The catalog entity is identical in every
+case; the author decides.
 
 The slot is also family-agnostic (`feature.aggrega.ai/kind=secret` admits either
 credential family), which is what lets the same agent take a referenceable

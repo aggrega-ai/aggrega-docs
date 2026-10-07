@@ -7,64 +7,66 @@ metadata:
   name: model-api-key-sharing-composed
   version: "1.0.0"
   description: >
-    The two forms at once: a subsystem-wide credential every agent inherits,
-    plus a component-scoped fill on the one agent that needs a different key.
-    The nearer scope wins for that agent, field by field; its sibling keeps the
-    subsystem-wide attachment untouched.
+    The two forms at once: a shared Secret named by a parameter, which every
+    agent's connection points at by default, and one agent whose connection
+    names a Secret of its own instead. The override is what that one connection
+    authors; nothing cascades onto it.
 spec:
-  subsystems:
-    model:
-      description: The model gateway the agents route through.
-      components:
-        gateway:
-          type: core/ai-model/openai-compatible
-          values:
-            model: gpt-4o-mini
-            provider_name: openai
+  # The shared default, as in the shared form: the name of one Secret already in
+  # the namespace, read by every connection that does not name its own.
+  parameters:
+    team_model_key:
+      type: string
+      default: team-model-key
+      description: >
+        Name of the Kubernetes Secret, already present in the namespace the
+        agents run in, holding the model key an agent presents unless its own
+        connection names another.
+  components:
+    gateway:
+      type: core/ai-model/openai-compatible
+      values:
+        model: gpt-4o-mini
+        provider_name: openai
 
-    agents:
-      description: The agent tier, with one agent overriding the shared credential.
-      features:
-        model_api_key:
-          type: core/referenced-secret
-          description: The subsystem-wide default every agent inherits.
-          values:
-            key: OPENAI_API_KEY
-            origin: team-key-change-me
-      components:
-        researcher:
-          type: core/ai-agent/crewai
-          uses:
-            model:
-              gateway:
-                target: gateway
-          values:
-            role: Researcher
-            goal: Gather and summarize source material for a topic.
-            backstory: A methodical analyst who prefers primary sources.
-            allow_delegation: false
-            log_level: DEBUG
-          # The component-scoped fill refines the subsystem-wide attachment
-          # field by field: only `origin` is restated, so `key` still comes from
-          # the subsystem scope. Restating the Feature type is required — the
-          # types must agree, and a mismatch halts the build.
-          features:
-            model_api_key:
-              type: core/referenced-secret
-              values:
-                origin: researcher-own-key-change-me
+    researcher:
+      type: core/ai-agent/crewai
+      uses:
+        model:
+          gateway:
+            target: gateway
+            # This connection names a Secret of its own rather than the shared
+            # one. A connection's credential is authored on that connection, so
+            # overriding the default is writing a different origin here.
+            features:
+              credential:
+                type: core/referenced-secret
+                values:
+                  key: OPENAI_API_KEY
+                  origin: researcher-model-key
+      values:
+        role: Researcher
+        goal: Gather and summarize source material for a topic.
+        backstory: A methodical analyst who prefers primary sources.
+        allow_delegation: false
+        log_level: DEBUG
 
-        # No `features:` block: this agent keeps the subsystem-wide attachment
-        # exactly as declared, unaffected by its sibling's override.
-        writer:
-          type: core/ai-agent/crewai
-          uses:
-            model:
-              gateway:
-                target: gateway
-          values:
-            role: Writer
-            goal: Turn research notes into publishable prose.
-            backstory: An editor who values plain sentences over ornament.
-            allow_delegation: false
-            log_level: DEBUG
+    writer:
+      type: core/ai-agent/crewai
+      uses:
+        model:
+          gateway:
+            target: gateway
+            # The shared default, read through the parameter.
+            features:
+              credential:
+                type: core/referenced-secret
+                values:
+                  key: OPENAI_API_KEY
+                  origin: "{{ .parameters.team_model_key }}"
+      values:
+        role: Writer
+        goal: Turn research notes into publishable prose.
+        backstory: An editor who values plain sentences over ornament.
+        allow_delegation: false
+        log_level: DEBUG

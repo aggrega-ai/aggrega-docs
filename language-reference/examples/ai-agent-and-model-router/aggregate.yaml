@@ -112,16 +112,18 @@ spec:
         model:
           router_model:
             target: router
+            features:
+              # The key the agent presents to the router, on the connection it
+              # presents it on: the `credential` slot the agent's `model` socket
+              # declares. It reads the same parameter the router's own api_key
+              # reads. Delivered as OPENAI_API_KEY, which is the variable the
+              # client library reads: the agent talks to the router in exactly
+              # the dialect it would use to talk to a provider directly.
+              credential:
+                type: core/referenced-secret
+                values:
+                  key: api-key
+                  origin: "{{ .parameters.router_admin_key }}"
         checkpointer_db:
           run_state:
             target: checkpointer
-      features:
-        # The key the agent presents to the router, read from the same parameter
-        # the router's own api_key reads. Delivered as OPENAI_API_KEY, which
-        # is the variable the client library reads: the agent talks to the router
-        # in exactly the dialect it would use to talk to a provider directly.
-        model_api_key:
-          type: core/referenced-secret
-          values:
-            key: api-key
-            origin: "{{ .parameters.router_admin_key }}"

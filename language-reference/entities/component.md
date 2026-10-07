@@ -600,7 +600,7 @@ The end-to-end flow through the compilation pipeline — how an Aggregate attach
 
 Where one component calls another that checks a key, **each end holds the key on its own side**, in a slot it declares itself. This is a convention the standard-library catalog follows; the compiler enforces none of it — it checks each component's slots against that component's own attachments, pipes their strings through, and never compares what one component holds with what another holds.
 
-* **The key a caller presents is the caller's.** It sits in a slot the caller's socket declares for each connection — see "Slots each connection fills" above — so a caller reaching several targets holds one key for each; or, where the caller's Component declares the key in a slot of its own, in that slot, for every connection it makes. `core/ai-agent/crewai` declares `model_api_key` that way, and its Recipes deliver whatever fills it as `OPENAI_API_KEY`.
+* **The key a caller presents is the caller's.** It sits in a slot the caller's socket declares for each connection — see "Slots each connection fills" above — so a caller reaching several targets holds one key for each. `core/ai-agent/crewai`'s `model` socket declares that slot as `credential`, and its Recipes deliver whatever fills it as `OPENAI_API_KEY`. A key a Component declares in a slot of its own instead is one key for every connection it makes.
 * **The key a server verifies is the server's own slot.** `core/ai-model/vllm`, `core/ai-model/tei` and `core/ai-model/tgi` each declare an optional `api_key`, and each of their Recipes delivers whatever fills it as the variable the server reads its key from. The LiteLLM model and gateway declare `api_key` for the key LiteLLM calls its master key.
 * **Neither end sees the other's attachments.** An attachment on a connection is one of the caller's attachments and reaches the caller's render alone, and a server's rendered output is the same whatever the connections reaching it carry. A slot marked `required` is owed by the component that declares it, never by the components connected to it, and filling one end's slot fills nothing on the other — so declaring the key on both ends is the minimum rather than a duplicate.
 * **Both ends read one parameter**, so the key the caller presents and the key the server verifies cannot be written apart.
@@ -625,13 +625,14 @@ spec:
       # values (role, goal, backstory, …) elided
       uses:
         model:
-          local: { target: model }
-      features:
-        model_api_key:                   # the key the caller presents
-          type: core/referenced-secret
-          values:
-            origin: "{{ .parameters.model_key_secret }}"
-            key: api-key
+          local:
+            target: model
+            features:
+              credential:                # the key the caller presents
+                type: core/referenced-secret
+                values:
+                  origin: "{{ .parameters.model_key_secret }}"
+                  key: api-key
 ```
 
 A server that checks one key cannot tell its callers apart: vLLM, TEI and TGI each check a single key, so every caller presents the same one however many connections reach the server. Whether the two ends reference one secret or each hold their own follows from where each provider resolves a secret by reference, and the Manifest chooses each end's realization — [Credential Model](../../architecture/08-credential-model.md#a-key-both-ends-of-a-connection-hold) works both cases through.
