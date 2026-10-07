@@ -3170,13 +3170,32 @@ The key is what decides when the attachment renders. Without it, the attachment 
 Emitted message:
 > template reads its callers' render facts, but the FeatureRecipe does not set readsCallerRenderFacts (`<reference>`, written in `<field>`)
 
-The reference is quoted relative to the connection it was read off — `.render_facts`, or `.render_facts.<name>` — because a template reads the callers one connection at a time, inside `{{ range .context.used_by }}` or off one connection it picks. The field names the block the template was written in: `valuesMapping`, `workload`, `artifacts[<output-name>]`, `pipeline[<step>].with` or `pipeline[<step>].when`. Where several fields read the facts, each gets a report of its own beneath a line naming what they share:
+The reference is quoted relative to the connection it was read off — `.render_facts`, or `.render_facts.<name>` — because a template reads the callers one connection at a time, inside `{{ range .context.used_by }}` or off one connection it picks. The field names the block the template was written in: `valuesMapping`, `workload` or `artifacts[<output-name>]`. A pipeline step's `with:` or `when:` reading the same facts is reported by the next entry instead, whatever the FeatureRecipe sets, because setting the key would not let a step read them. Where several fields read the facts, each gets a report of its own beneath a line naming what they share:
 
 > attachment templates reading their callers' render facts without declaring it
 
-**How to fix:** set `readsCallerRenderFacts: true` in the FeatureRecipe's `spec`. That renders its attachments after every component has rendered and changes nothing else about what they render — see [the FeatureRecipe entity page](../entities/featurerecipe.md#rendering-after-the-callers--specreadscallerrenderfacts). The key is the contract, and this halt only helps you find a template that visibly needs it: the check reads the template as written, so a reference built while the template runs, or one written in content imported from a file or a library, does not halt — set the key on such a FeatureRecipe all the same. A template reading a field named `render_facts` off some other list next to `.context.used_by` halts as well; setting the key clears it at no cost but the later render.
+**How to fix:** set `readsCallerRenderFacts: true` in the FeatureRecipe's `spec`. That renders its attachments after every component has rendered and changes nothing else about what they render — see [the FeatureRecipe entity page](../entities/featurerecipe.md#rendering-after-the-callers--specreadscallerrenderfacts). The key is the contract, and this halt only helps you find a template that visibly needs it: the check reads the template as written, so a reference built while the template runs, or one written in content imported from a file or a library, does not halt — set the key on such a FeatureRecipe all the same. A template reading a field named `render_facts` off some other list next to `.context.used_by` halts as well, and so does one reading its host's own facts as `.render_facts` inside `{{ with .context }}` next to it — write the host's own as `.context.render_facts` in full, which is never taken for the callers'; setting the key clears either at no cost but the later render.
 
 A FeatureRecipe that renders once for a boundary (`executionScope: boundary`) is not checked here: its templates have no `.context` to read, and a reference to one is refused as a field outside its scope's allowlist instead.
+
+### A pipeline step reads its callers' render facts
+
+<!-- covers: internal/compiler/renderer.ErrPipelineStepReadsCallerRenderFacts -->
+
+A pipeline step's `with:` or `when:`, in a FeatureRecipe attached to a component, reads `render_facts` beneath `.context.used_by` — what the components connecting to the attachment's host reported about their own renders.
+
+A pipeline step never sees those connections. A step may rewrite the host component's own documents, and a component's own output stays the same whoever connects to it, so a step's templates are evaluated without `.context.used_by` — for every FeatureRecipe, whether or not it sets `readsCallerRenderFacts: true`. That key decides when the attachment renders, never what a step sees. A step reading its callers' facts would therefore read nothing, and the build halts before anything renders rather than render that read as an empty value.
+
+Emitted message:
+> pipeline step reads its callers' render facts, but a pipeline step does not read the components connecting to its host; it reads only the host's own render facts (`<reference>`, written in `<field>`)
+
+The reference is quoted relative to the connection it was read off — `.render_facts`, or `.render_facts.<name>` — as in the entry above, and the field names the step by its id: `pipeline[<step>].with` or `pipeline[<step>].when`. Where several steps read the facts, each gets a report of its own beneath a line naming what they share:
+
+> pipeline steps reading their callers' render facts
+
+**How to fix:** in a step, read the host's own render facts at `.context.render_facts`, written in full — they come from the host's own render, so reading them makes nothing depend on who connects to it. Read the callers' facts in the templates that produce the attachment's own resources instead — its `valuesMapping:`, `workload:` or `artifacts:` — with `readsCallerRenderFacts: true` set, as [the FeatureRecipe entity page](../entities/featurerecipe.md#rendering-after-the-callers--specreadscallerrenderfacts) describes. Setting the key alone does not clear this halt. The check reads the template as written, with the limits the entry above describes: a reference built while the template runs, or one written in content imported from a file or a library, does not halt, and a step reading a field named `render_facts` off some other list next to `.context.used_by`, or its host's own facts as `.render_facts` inside `{{ with .context }}` next to it, halts as well.
+
+A FeatureRecipe that renders once for a boundary (`executionScope: boundary`) is not checked here, for the reason the entry above gives.
 
 ### Cross-node type safety violation via `selector:`
 
@@ -4141,6 +4160,17 @@ Emitted message, naming the path returned twice and the node or dispatch path it
 > provider guest returned two output files under one path; a conforming guest returns each output path at most once (path `"<path>"`, node `"<node>"`)
 
 **How to fix:** nothing in your entity files causes this — the paths came from the provider. Report it to whoever publishes it, quoting the path the message names. Where the provider is yours, return each output path at most once: build the path list against a set so a second file at one path is caught where it is produced, and give the second file a distinct path if both are wanted.
+
+### A provider reported a render fact whose value is not a list
+
+<!-- covers: internal/compiler/renderer.ErrProviderRenderFactNotList -->
+
+A provider may report facts about the output it rendered beside its files — a name and a value each, in that provider's own documented vocabulary — and the Features attached to a component read them from their templates. Every fact's value is a list, even when it holds one entry: one name can be reported by more than one render of a component, its own provider calls and the renders of the Features attached to it, and the lists are joined into one under that name for the templates that read it. A provider cannot know when it renders whether its report will be the only one under a name, so a value that is an object, a string, a number, a boolean or `null` is refused where the provider hands it over, for every render, whether or not any template reads the fact.
+
+Emitted message, naming the fact, the node it was reported for, the provider that reported it, and what the value was:
+> provider guest reported a render fact whose value is not a list; a conforming guest reports every render fact's value as a JSON array, even with one entry (fact `"<fact>"`, node `"<node>"`, provider `"<provider>"`, its value is `<kind>`)
+
+**How to fix:** nothing in your entity files causes this — the value came from the provider. Report it to whoever publishes it, quoting the fact the message names. Where the provider is yours, report that fact's value as a JSON array — a single object becomes a list holding that object — and document it as a list in the facts your provider reports; see [Reporting facts about what a guest emitted](../plugins/plugin-contract.md#reporting-facts-about-what-a-guest-emitted).
 
 ### A provider's link wiring names an output file that was never emitted
 
@@ -5395,6 +5425,8 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0322` | `duplicate delivery key across two attachments: the environment override a boundary-scope attachment computes for a component writes a key another attachment already delivered` | A Feature attached to a boundary overrides a key another attached Feature delivered |
 | `E0323` | `template reads its callers' render facts, but the FeatureRecipe does not set readsCallerRenderFacts` | A template reads its callers' render facts without declaring it |
 | `E0324` | `a reference a document makes to another file leads out of the directory it must stay inside` | A reference to another file leads out of the directory it must stay inside |
+| `E0325` | `provider guest reported a render fact whose value is not a list; a conforming guest reports every render fact's value as a JSON array, even with one entry` | A provider reported a render fact whose value is not a list |
+| `E0326` | `pipeline step reads its callers' render facts, but a pipeline step does not read the components connecting to its host; it reads only the host's own render facts` | A pipeline step reads its callers' render facts |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

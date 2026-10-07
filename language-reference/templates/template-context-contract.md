@@ -65,6 +65,7 @@ Because the labels arrive verbatim, a catalog author's own namespace reaches the
 - **`.context.inject` (InjectPipe, see below).** The pre-hydrated, intercepted delivery pipe — the standard surface Recipe templates read for cross-component values.
 - **`.context.uses` (map of EnrichedEdge, see below).** The JOIN projection over outbound topological edges.
 - **`.context.used_by` (list, see below).** The components whose `uses` entries point at this one. Read by a FeatureRecipe attached to the component, on the templates that produce the attachment's own resources; empty everywhere else.
+- **`.context.render_facts` (map of lists, see below).** What the component's provider reported about the output it rendered, keyed by fact name. Read by a FeatureRecipe attached to the component, on every one of its templates that runs after the component has rendered; absent everywhere else.
 
 ### `.context.annotations` — three buckets
 
@@ -168,8 +169,26 @@ Each entry carries:
 - **`.provides` (string-valued map)** — what the connecting component publishes, narrowed to the keys its Component declares: the same values a consumer of that component reads at `.context.uses.<alias>.provides`. A key the component's Recipe publishes without its Component declaring it is not among them.
 - **`.source_namespace` (string)** — the namespace the connecting component is placed in: the `aggrega.ai/namespace` annotation that applies to it, cascaded down its boundaries, with its own entry in the Release taking precedence. A component whose Release entry sets the namespace, or clears it with `null`, carries its own setting rather than its boundary's, so the value names the namespace the component's own resources render into. Absent when no namespace applies to the component; read it through `with` or `if`, as the example does, rather than printing it bare.
 - **`.source_boundary_path` (string)** — the path of the Release boundary that holds the connecting component, with nested boundaries joined by `/` (`edge`, `edge/inner`).
+- **`.render_facts` (map of lists)** — what the connecting component's renders reported about the output they emitted, keyed by fact name, in the same shape as [`.context.render_facts`](#what-a-provider-reported-about-a-render--contextrender_facts). Every fact is a list, so a template always ranges over it, even when it holds one entry. Its entries can come from the connecting component's own render and from the renders of the Features attached to it: the lists one name gets from each are joined into one, the component's own provider calls first, then each of its Features in the order they rendered. Present only for a FeatureRecipe that sets [`readsCallerRenderFacts: true`](../entities/featurerecipe.md#rendering-after-the-callers--specreadscallerrenderfacts) — its attachments render once every component has rendered, so every caller's render is complete — and then on every entry, empty for a caller whose providers report nothing. A FeatureRecipe that does not set the key sees no `.render_facts` on any entry, and a template of it that reads them halts the build before anything renders.
 
 The two placement values are the ones a boundary-scope FeatureRecipe reads as `source_namespace` and `source_boundary_path` on the same connection's entry in its `.boundary` edge lists: both views read where a component is placed the same way, so they never disagree about it.
+
+A FeatureRecipe that sets `readsCallerRenderFacts: true` reads each caller's facts the same way it reads the host's. For a provider documenting a fact named `ports` whose entries each carry a `port`:
+
+```yaml
+artifacts:
+  callers.yaml: |
+    callers:
+    {{- range .context.used_by }}
+      - component: {{ .component_id }}
+        ports:
+        {{- range .render_facts.ports }}
+          - {{ .port }}
+        {{- end }}
+    {{- end }}
+```
+
+A caller whose provider reports no `ports` renders an empty `ports:` rather than failing, because a name nobody reported reads as nothing.
 
 How the list behaves:
 
@@ -177,7 +196,28 @@ How the list behaves:
 - **Only where the attachment renders its own resources.** The FeatureRecipe's `valuesMapping:`, `workload:` and `artifacts:` read it. It is empty in the component's own Recipe templates, in an `injectMapping:`, and in a `pipeline:` step's `with:` and `when:`, because what each of those produces can land in the component's own rendered output: an `injectMapping:` writes the component's delivery pipe, and a pipeline step may rewrite the component's documents. That is what keeps a component's own output the same whoever uses it — wiring one more caller to a component changes the output of a Feature attached to it that reads its callers, and nothing the component itself renders.
 - **Nothing about the connection itself.** An entry carries no per-connection `values` or `infra` and none of the connection's attachments; those stay with the consuming component, under its `.context.uses.<alias>`.
 - **Empty when nothing uses the component.** A `range` over it then renders nothing.
-- **Piped, never interpreted.** The identity, the socket, the published values and the placement are strings the compiler passes through. It infers nothing from a name, fetches nothing, and decides nothing about which callers a resource should admit; the template decides.
+- **Piped, never interpreted.** The identity, the socket, the published values and the placement are strings the compiler passes through, and the render facts are what each caller's providers reported, keyed by name. It infers nothing from a name, fetches nothing, and decides nothing about which callers a resource should admit; the template decides.
+
+### What a provider reported about a render — `.context.render_facts`
+
+A component's provider can report facts about the output it rendered — properties of the documents it wrote that only its own knowledge of its format can see. Which facts a provider reports, under which names and with what in each entry, is that provider's own documented contract; see [Reporting facts about what a guest emitted](../plugins/plugin-contract.md#reporting-facts-about-what-a-guest-emitted) for the provider's side. The helm provider, for one, reports the labels of the pod templates it emitted, the selectors of its controllers and Services, and the ports of its containers — see its [render facts](../providers/helm.md#render-facts). A FeatureRecipe attached to the component reads what the component's provider reported at `.context.render_facts`, keyed by fact name. For a provider documenting a fact named `ports` whose entries each carry a `name` and a `port`:
+
+```yaml
+artifacts:
+  ports.yaml: |
+    ports:
+    {{- range .context.render_facts.ports }}
+      - name: {{ .name }}
+        port: {{ .port }}
+    {{- end }}
+```
+
+- **Every fact is a list.** A provider reports every fact as a list, even when it holds one entry, so a template always ranges over it — there is no single value to read on its own.
+- **One list per name, joined across the component's render.** Rendering a component can take more than one call of its provider — a chart render and an artifacts placement, for instance — and each call reports for itself. The lists one name gets from those calls are joined into one, in the order the calls ran. What the component's attached Features rendered is not among them here: a Feature reads only the component's own render at `.context.render_facts`, whatever the component's other Features emitted.
+- **On every template of an attached FeatureRecipe.** Its `valuesMapping:`, `workload:` and `artifacts:` read it, and so do its `pipeline:` steps' `with:` and `when:` — the facts come from the component's own render, so reading them makes nothing depend on who connects to the component. It is absent from the component's own Recipe templates and from an `injectMapping:`, which run before the component has rendered.
+- **Empty rather than missing.** Where the component's provider reports nothing, `.context.render_facts` is an empty map, and a name nobody reported reads as nothing, so a `range` over it renders nothing rather than failing.
+- **Order.** A list keeps its entries in the order the provider reported them. An object entry is a keyed map like every other on the context, so a template that ranges one meets its keys in key order.
+- **Piped, never interpreted.** The compiler checks only that each fact's value is a list. It reads nothing of what a name or an entry means; the template decides what to do with it.
 
 ### An assertion's `.uses` — keyed by socket, then by alias
 
@@ -219,7 +259,7 @@ When the renderer evaluates an attachment FeatureRecipe's templates, an addition
 
 A base Recipe's own templates are not resolving an attachment, so the field is not part of their context: a Recipe `provides:`, `locals:` or `source:` template that references it halts naming the reference rather than rendering an empty value. A FeatureRecipe with `executionScope: boundary` runs once for the boundary rather than once per component, so the field is not available there either.
 
-On the templates that produce the attachment's own resources — its `valuesMapping:`, `workload:` and `artifacts:` — the attachment's context also lists the components that use its host, at [`.context.used_by`](#the-components-that-use-this-one--contextused_by). A boundary-scope FeatureRecipe has no host component and no `.context`; it reads every connection into its boundary under `.boundary.internal_uses_edges` and `.boundary.incoming_cross_boundary_uses_edges` instead.
+On the templates that produce the attachment's own resources — its `valuesMapping:`, `workload:` and `artifacts:` — the attachment's context also lists the components that use its host, at [`.context.used_by`](#the-components-that-use-this-one--contextused_by). Those templates and its `pipeline:` steps also read what its host's provider reported about the host's render, at [`.context.render_facts`](#what-a-provider-reported-about-a-render--contextrender_facts). A boundary-scope FeatureRecipe has no host component and no `.context`; it reads every connection into its boundary under `.boundary.internal_uses_edges` and `.boundary.incoming_cross_boundary_uses_edges` instead.
 
 The field is the **only** route to the attachment's instance name. `.context.instance_id` is the **host component** the attachment is resolving for — it denotes the host on every template surface the compiler evaluates, including a FeatureRecipe's own `locals:` — so the two names are not interchangeable, and neither stands in for the other.
 

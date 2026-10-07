@@ -269,23 +269,25 @@ Some things about a node's render are visible only to the provider that produced
   "files": [ { "path": "stack.yaml", "content": "..." } ],
   "render_facts": [
     { "name": "exported_outputs", "value": ["QueueUrl", "TopicArn"] },
-    { "name": "stack", "value": { "name": "payments-api", "resources": 2 } }
+    { "name": "stacks", "value": [ { "name": "payments-api", "resources": 2 } ] }
   ]
 }
 ```
 
-Each fact is a `name` and a `value`, and both belong to your provider: which facts it reports, what each name means and the shape each value takes are part of your provider's own documented contract, so document them for the authors who will read them. A value is any JSON value — an object, an array, a string, a number, a boolean.
+Each fact is a `name` and a `value`, and both belong to your provider: which facts it reports, what each name means and what each entry holds are part of your provider's own documented contract, so document them for the authors who will read them.
 
-The compiler carries the list with the node's render exactly as your guest returned it. It reads no name, parses no value and never derives a fact itself, so a new provider can report new facts without any change on the compiler's side. The facts a Feature attached to the node reports from its own render are kept apart from the ones the node's own render reported.
+**Report every fact's value as a list — a JSON array — even when it holds one entry.** One name can be reported by more than one render of a component: its own render can take several calls — a chart render and an artifacts placement, say — and each Feature attached to the component renders through a provider call of its own. No provider can know when it renders whether its report will be the only one under a name, so every report is a list, and the compiler joins the lists one name gets into one list. A fact whose value is anything else — an object, a string, a number, a boolean, `null` — is refused when your guest returns it: the build halts with the short code `E0325`, naming the fact, the node and your guest, and saying what the value was. The entries inside a list are any JSON values in the shape you document.
+
+That a value is a list is the one thing the compiler learns about it. It keys the facts by name and hands each list to the templates that read it — the host component's facts to every Feature attached to it, and each caller's facts to a Feature that declares it reads its callers' render facts, as [the template context](../templates/template-context-contract.md) describes — decoding each list into a value a template can range over. It never learns what a name or an entry means and never derives a fact itself, so a new provider can report new facts without any change on the compiler's side. The facts a Feature attached to the node reports from its own render are kept apart from the ones the node's own render reported.
 
 Four properties are worth knowing when you decide what to report:
 
-- **The order is yours.** The facts keep the order your guest lists them in, and each value keeps its own bytes — the order of an object's keys and of an array's items is the order your guest wrote. List the facts in a fixed order, and write each value with a fixed key order, so identical input produces identical bytes; a list rather than a map exists precisely so that order survives, since a map type in some languages would put the facts in key order on the way out.
+- **The order is yours.** The facts keep the order your guest lists them in, and each value keeps its own bytes — the order of a list's entries and of each object's keys is the order your guest wrote. List the facts in a fixed order, and write each entry with a fixed key order, so identical input produces identical bytes; a list of facts rather than a map exists precisely so that order survives, since a map type in some languages would put the facts in key order on the way out.
 - **Reporting changes no bytes.** The files the compiler writes are the files your guest returned, whether or not facts accompany them.
-- **A node may report across several crossings.** A node can render as a source render, a workload synthesis and an artifacts placement; the facts each one reports are kept in the order the crossings ran.
+- **A node may report across several crossings.** A node can render as a source render, a workload synthesis and an artifacts placement; the facts each one reports are kept in the order the crossings ran, and a name reported by more than one of them reads as one list joining them in that order.
 - **Reporting nothing is complete.** Omitting `render_facts` is valid, and a provider that reports nothing renders exactly as it would without the field.
 
-The `RenderFact` type is published in the three ABI packages and re-exported by each language's plugin development kit, and the kits' render examples report two facts beside their files. In Go, a value is the JSON your guest writes; marshalling a struct rather than a map is what keeps its keys in the order you declared them:
+The `RenderFact` type is published in the three ABI packages and re-exported by each language's plugin development kit, and the kits' render examples report two facts beside their files. In Go, a value is the JSON your guest writes; marshalling a slice of structs rather than of maps is what keeps each entry's keys in the order you declared them:
 
 ```go
 type stackFact struct {
@@ -293,14 +295,14 @@ type stackFact struct {
 	Resources int    `json:"resources"`
 }
 
-stack, err := json.Marshal(stackFact{Name: "payments-api", Resources: 2})
+stacks, err := json.Marshal([]stackFact{{Name: "payments-api", Resources: 2}})
 if err != nil {
 	pdk.SetError(err)
 	return 1
 }
 out := aggrega.RenderNodeOutput{
 	Files:       files,
-	RenderFacts: []aggrega.RenderFact{{Name: "stack", Value: stack}},
+	RenderFacts: []aggrega.RenderFact{{Name: "stacks", Value: stacks}},
 }
 ```
 

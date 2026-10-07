@@ -12,9 +12,9 @@ The helm provider accepts all three of the Recipe input kinds in different roles
 
 - **Sourced mode.** A Recipe with `source: <chart-path>` points at an on-disk Helm chart directory. The Helm Go SDK loads the chart, the base-rendering values dictionary is coalesced with the chart's defaults, and the chart's templates render to flat Kubernetes YAML.
 - **Workload (synthesized) mode.** A Recipe with `workload:` (inline or `$import:`-loaded) declares a Workload document. The provider synthesizes one or more Kubernetes resources per node — a Deployment (or StatefulSet) plus per-service Services and per-persistent-volume PVCs — directly from the Workload spec.
-- **Sourceless (generative) mode.** A Recipe with neither `source:` nor `workload:` falls back to the provider's built-in flat generator. The values dictionary feeds a Deployment plus an optional Service shaped from a small fixed key vocabulary (see [Sourceless mode](#sourceless-mode-keyset) below).
+- **Artifacts-only mode.** A Recipe with `artifacts:` and neither `source:` nor `workload:` emits the manifests its author wrote, with the build's provenance labels and annotations spliced into each resource's own metadata.
 
-A Recipe may declare exactly one of `source:` or `workload:`; combining them is a base-rendering validation error.
+The three combine: a Recipe may declare a chart, a Workload and `artifacts:` together, and each renders and emits on its own, side by side in the node's output — see [What each provider accepts, in full](../../architecture/16-recipe-input-composition.md#what-each-provider-accepts-in-full).
 
 ## `source:` keyset
 
@@ -102,25 +102,75 @@ Each emitted resource carries the full Aggrega provenance labels and annotations
 
 Output file naming has two shapes. The controller object is named for the node and its kind — `<nodeID>-deployment.yaml`, `<nodeID>-statefulset.yaml`, `<nodeID>-daemonset.yaml`, `<nodeID>-job.yaml`, `<nodeID>-cronjob.yaml`. A per-resource file is named for the resource it carries, with the kind last: `<nodeID>-<svcName>-service.yaml` and `<nodeID>-<volName>-pvc.yaml`, each taken from that resource's own `metadata.name` per the synthesized-name convention at [entities/workload.md](../entities/workload.md). A Workload exposed only by external name emits `<nodeID>-service.yaml`, there being no service key to carry.
 
-## Sourceless mode keyset
+## Render facts
 
-A Recipe with neither `source:` nor `workload:` invokes the provider's flat generator. The generator reads a small fixed vocabulary of keys from the base-rendering values dictionary:
+Beside the files it renders, this provider reports four **render facts** about every node: what the Kubernetes documents it emitted say about their pods, their selectors and their ports. A FeatureRecipe attached to the component reads the component's own facts at [`.context.render_facts`](../templates/template-context-contract.md#what-a-provider-reported-about-a-render--contextrender_facts); one that sets [`readsCallerRenderFacts: true`](../entities/featurerecipe.md#rendering-after-the-callers--specreadscallerrenderfacts) also reads, on each entry of `.context.used_by`, the facts of a component connecting to its host. That is how a Feature can name the pods of the components that call its host — a network policy admitting exactly those, for instance — from what their renders actually emitted, without anyone restating a label by hand. The names and the entries below are this provider's contract.
 
-| Key | Type | Default | Effect |
-| --- | --- | --- | --- |
-| `image` | string | `aggrega/placeholder:latest` | Container image reference. |
-| `replicas` | int | `1` | Deployment replica count. |
-| `environment` | map | (empty) | Environment variables; iterated in author order if backed by an OrderedMap, alphabetically otherwise. |
-| `ports` | list of strings | (empty) | Port mappings in `host:container` form (or bare `port` for matching values). One ContainerPort per entry; each also produces a ServicePort named `port-<index>`. |
+| Fact | One entry per | Each entry carries |
+| --- | --- | --- |
+| `pod_template_labels` | pod template emitted: a Deployment's, StatefulSet's, DaemonSet's, ReplicaSet's or Job's `spec.template`, a CronJob's job template, and a bare Pod, which is its own | `kind` and `name` of the resource carrying the template; `labels`, the template's labels |
+| `controller_selectors` | Deployment, StatefulSet, DaemonSet, ReplicaSet, Job and CronJob emitted | `kind`, `name`; `match_labels`, its selector's `matchLabels` |
+| `service_selectors` | Service emitted | `name`; `selector`, the labels it sends traffic to |
+| `container_ports` | container of a pod template that declares a `ports` list, init containers included | `kind` and `name` of the resource carrying the template; `container`, the container's name; `ports`, one entry per port with its `name`, `container_port` and `protocol` |
 
-If the values dict contains `ports`, the generator emits both a Deployment and a Service; with no ports declared, only a Deployment is emitted. Output filenames are `<nodeID>-deployment.yaml` and `<nodeID>-service.yaml`.
+How the facts read:
 
-Sourceless mode is the lowest-ceremony path for components whose only physical realities are an image, a replica count, and a port. Any non-trivial Kubernetes shape (volumes, init containers, probes, secrets) requires either workload mode or sourced mode.
+- **Every fact is a list.** A template always ranges over a fact, even when it holds one entry; there is no single value to read on its own.
+- **All four, on every render.** Each is reported whenever this provider renders a node, as an empty list when the render emitted nothing it describes — a component whose chart emits only a ConfigMap reports four empty lists. Another provider's render reports none of these names, and a name nobody reported reads as nothing.
+- **Read from what was emitted, on every path.** The facts come from the documents the render emitted, whichever mode produced them: a chart's rendered manifests, a synthesized Workload's, and the manifests an author placed through `artifacts:`, which report exactly what those manifests carry. They are read in the same pass, over the same documents, as the resource names this provider reports for the build's duplicate-name check. A resource's own provenance labels are part of what it carries, so a bare Pod's `labels` include them; a chart's or an artifact's pod template keeps the labels its author wrote.
+- **Entries can come from the component's own render and from its Features' renders.** One component can be rendered by more than one call — a chart and an `artifacts:` placement, say — and the lists one name gets from those calls are joined into one, in the order the calls ran. On `.context.used_by`, a connecting component's facts also join what the Features attached to it rendered, after its own; `.context.render_facts` carries the component's own render only.
+- **In the order emitted.** Entries follow the order the render emitted the resources. A label map is a keyed map like every other on the context, so a template ranging one meets its keys in key order.
+- **What a document leaves out, its entry leaves out.** A resource named by `generateName` has no `name`; a controller written without `matchLabels` — a Job relying on the selector the cluster generates — has no `match_labels`; a Service without a selector has no `selector`; a port without a name or a protocol has neither. A part written empty is reported empty. `protocol` is reported only where the document writes one, so a template that needs it writes the cluster's own default, `TCP`, itself. `container_port` is a number wherever the document writes one.
+- **Recognised by kind and API group.** `Pod` and `Service` are read in the core group, the four controllers in `apps`, `Job` and `CronJob` in `batch`, at any version of the group. A custom resource of another group that happens to carry one of these kind names is not read as one. A selector's `matchExpressions` are not reported, and neither is a resource wrapped inside a `kind: List` document or a value written through a YAML merge key.
+
+**What the facts cannot see.** They describe the documents the build emits, and nothing the cluster creates later. The pods a controller creates at runtime from a custom resource — an operator's database cluster, say — appear in no emitted document, so they are absent by construction; so is any label a mutating admission controller adds when the manifests are applied. A Feature that must admit such pods takes their labels from the custom resource's own documentation, as an author would without these facts.
+
+A FeatureRecipe admitting into its host's pods exactly the pods of the components that call it, selecting its host's own pods by the host's controller selector:
+
+```yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: FeatureRecipe
+metadata:
+  name: admit-callers
+  version: 1.0.0
+spec:
+  capability: helm
+  implements: example/admit-callers:1.0.0
+  readsCallerRenderFacts: true
+  artifacts:
+    allow-callers.yaml: |
+      apiVersion: networking.k8s.io/v1
+      kind: NetworkPolicy
+      metadata:
+        name: {{ .context.instance_id }}-allow-callers
+      spec:
+        podSelector:
+          matchLabels:
+          {{- range .context.render_facts.controller_selectors }}
+          {{- range $k, $v := .match_labels }}
+            {{ $k }}: {{ toJson $v }}
+          {{- end }}
+          {{- end }}
+        policyTypes:
+          - Ingress
+        ingress:
+          - from:
+          {{- range .context.used_by }}
+          {{- range .render_facts.pod_template_labels }}
+              - podSelector:
+                  matchLabels:
+                  {{- range $k, $v := .labels }}
+                    {{ $k }}: {{ toJson $v }}
+                  {{- end }}
+          {{- end }}
+          {{- end }}
+```
+
+For a host `api` called by a component `web` whose Workload this provider synthesized, the policy selects `app: "api"` and admits a `podSelector` carrying every label of `web`'s pod template — the same labels its emitted Deployment's `spec.template.metadata.labels` holds. Because the FeatureRecipe sets the key, its attachment renders once every component has rendered, so the facts are there whichever of `api` and `web` the build reaches first; without the key, a template reading `render_facts` on `.context.used_by` halts the build before anything renders.
 
 ## Provider-specific quirks
 
-- **Provenance injection.** The sourced and sourceless paths converge on the same label-and-annotation set; sourced renders inject them via post-render YAML rewriting (after the Helm SDK has already rendered), so chart authors do not need to thread Aggrega labels through their own templates.
-- **Deterministic value coercion.** When the base-rendering values dict contains a hash-randomised Go map (rather than an OrderedMap), the sourceless extractor sorts keys alphabetically before emission — the deterministic choice when no author order is available upstream. OrderedMap-backed values preserve author order through the entire pipeline.
+- **Provenance injection.** The sourced and synthesized paths converge on the same label-and-annotation set; sourced renders inject them via post-render YAML rewriting (after the Helm SDK has already rendered), so chart authors do not need to thread Aggrega labels through their own templates.
 - **Ordered env emission.** Kubernetes environment variables are an ordered list (later entries can `$(VAR)`-reference earlier ones); the provider emits them in author order from the OrderedMap-backed `environment` map. Authoring environment-variable order matters for correctness.
 - **Namespace cascade — the two modes reach the resource differently.** Both read `aggrega.ai/namespace` from the boundary annotation cascade, and neither invents a namespace when no boundary declares one. In synthesized mode the provider writes `metadata.namespace` directly, and omits the field entirely when the cascade yields no value. In sourced mode the provider supplies the value as the chart's release namespace — `default` when the cascade yields none — and the chart's own template decides whether to project it. A sourced resource therefore carries the namespace only where its chart writes the field, which is why a chart shipping in the standard-library catalog reads the cascade value directly through its `valuesMapping`: doing so lets it omit the field when no boundary declares a namespace, matching synthesized output, which the release namespace alone cannot express because it is never empty.
 
