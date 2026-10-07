@@ -77,7 +77,7 @@ env:
   - name: KONG_DATABASE
     value: postgres
   - name: KONG_PG_HOST
-    value: gateway.backend-default
+    value: gateway-zdbackend-default
   - name: KONG_PG_PORT
     value: "5432"
   - name: KONG_PG_USER

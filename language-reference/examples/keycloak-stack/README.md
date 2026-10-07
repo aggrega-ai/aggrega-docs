@@ -49,9 +49,11 @@ the module's internal components in the Release.
 - **A shared credential, taken by reference.** The server authenticates to its
   PostgreSQL backend, so the two share one password. The module takes it as a
   parameter, `db_password`, and attaches the `core/referenced-secret`
-  credential Feature to both components' credential slots with it, so each
-  workload reads the password from a Secret rather than carrying it inline; the
-  bootstrap admin account's password is a second parameter, `admin_password`.
+  credential Feature with it twice: to the backend's own credential slot, and
+  as the `credential` of the server's connection to the backend, the
+  connection the server presents it on. Each workload reads the password from
+  a Secret rather than carrying it inline; the bootstrap admin account's
+  password is a second parameter, `admin_password`.
   Because the module attaches that Feature, the Manifest maps it. This example
   leaves both parameters at the module's development defaults and maps the
   Feature to `k8s-secret-from-parameter`, which emits a Secret carrying each
@@ -109,7 +111,7 @@ env:
   - name: KC_DB_PASSWORD
     valueFrom:
       secretKeyRef:
-        name: server.server-password
+        name: server.server-db.credential
         key: db-password
   - name: KC_BOOTSTRAP_ADMIN_PASSWORD
     valueFrom:
@@ -128,5 +130,5 @@ The backend renders as a StatefulSet with a persistent volume mounted at
 `/var/lib/postgresql/data`, plus a ClusterIP Service and a headless Service. Its
 `POSTGRES_PASSWORD` reads the same database password from a Secret of its own,
 `server.backend-password`. The three Secrets are emitted beside the workloads,
-one per credential slot the module fills, each carrying the module's
-development default.
+one per credential the module attaches, each carrying the module's development
+default.

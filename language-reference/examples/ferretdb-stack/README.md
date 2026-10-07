@@ -76,7 +76,7 @@ env:
   - name: FERRETDB_LISTEN_ADDR
     value: :27017
   - name: FERRETDB_POSTGRESQL_URL
-    value: postgres://postgres@database.backend-default:5432/postgres
+    value: postgres://postgres@database-zdbackend-default:5432/postgres
   - name: PGPASSWORD
     value: apppass
 ```

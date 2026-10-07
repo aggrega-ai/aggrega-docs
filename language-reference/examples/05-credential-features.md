@@ -108,7 +108,7 @@ What the target needs running, and where it cannot be used:
 - **`cloudformation`** — `cloudformation/random-password` renders an `AWS::SecretsManager::Secret` that generates its own string under `key`, and publishes a `Ref` to it and the key; a consumer resolves the password through a Secrets Manager dynamic reference built from the two. Nothing needs to run beforehand.
 - **`compose`** — no generator runs there, so no FeatureRecipe ships, and a build binding `core/random-password` on compose halts naming the missing realization. Supply the credential with `core/secret-value` instead.
 
-**Sharing one generated password takes one request.** Every request draws its own value, so the Feature attached on two components — or once at a scope that reaches both — gives them two different passwords. For a database and the server that connects to it, attach `core/random-password` on one with `name` pinned, and `core/referenced-secret` on the other, bound to `k8s-existing-secret` with `origin` set to the same name, both from one parameter:
+**Sharing one generated password takes one request.** Every request draws its own value, so the Feature attached on two components — or once at a scope that reaches both — gives them two different passwords. For a database and the server that connects to it, attach `core/random-password` on the database with `name` pinned, and `core/referenced-secret` on the server's connection to it, bound to `k8s-existing-secret` with `origin` set to the same name, both from one parameter:
 
 ```yaml
 spec:
@@ -125,12 +125,16 @@ spec:
             key: db-password
     server:
       type: core/security/keycloak
-      features:
-        password:
-          type: core/referenced-secret
-          values:
-            origin: "{{ .parameters.db_secret }}"
-            key: db-password
+      uses:
+        backend:
+          db:
+            target: backend
+            features:
+              credential:                # the password the server presents to it
+                type: core/referenced-secret
+                values:
+                  origin: "{{ .parameters.db_secret }}"
+                  key: db-password
 ```
 
 With the Manifest binding `core/random-password` to a helm realization and `core/referenced-secret` to `k8s-existing-secret`, and the Release affirming `control_plane_present` on the backend's attachment, the render carries one generator request for `identity-db-credential`, and both workloads' `secretKeyRef` name that Secret and the `db-password` key. `core/referenced-secret`'s existing-Secret realization is a helm one, so this shape is a helm shape.

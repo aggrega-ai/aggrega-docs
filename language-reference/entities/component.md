@@ -637,7 +637,7 @@ spec:
 
 A server that checks one key cannot tell its callers apart: vLLM, TEI and TGI each check a single key, so every caller presents the same one however many connections reach the server. Whether the two ends reference one secret or each hold their own follows from where each provider resolves a secret by reference, and the Manifest chooses each end's realization — [Credential Model](../../architecture/08-credential-model.md#a-key-both-ends-of-a-connection-hold) works both cases through.
 
-A component's own operational credentials — a password for the database an agent keeps its state in, say — are slots of its own `featuresSchema:` like any other.
+A credential a component holds for itself — a key it signs its own sessions with, say — is a slot of its own `featuresSchema:` like any other. A password it presents to a datastore it reaches over one of its sockets is the caller's key above, so it sits on that connection as `credential`: `core/gateway/kong`'s `backend` socket declares it, and its workload-synthesis Recipes deliver it as `KONG_PG_PASSWORD`. Where one connection presents a pair — an access-key identifier and its secret — the secret half is `credential` and the identifier half `credential_id`, as on the `store` socket of `core/ai-agent/agenta-api`.
 
 ## Self-inject: `spec.inject`
 
@@ -761,7 +761,7 @@ spec:
 ```
 
 **Example B: The Extending Component (Specializing the Baseline)**
-A gateway is specialized from that baseline. It takes the base's pillars whole, adds structure of its own — a label, a self-inject mechanism, a topology socket, an attachment slot — and tightens the inherited timeout through an assertion. It does not restate the baseline's `audit-window-is-observable` rule: that rule is inherited and is evaluated first, so an instance of this gateway must satisfy both bounds — at least 100 and at most 2000.
+A gateway is specialized from that baseline. It takes the base's pillars whole, adds structure of its own — a label, a self-inject mechanism, a topology socket with an attachment slot on it — and tightens the inherited timeout through an assertion. It does not restate the baseline's `audit-window-is-observable` rule: that rule is inherited and is evaluated first, so an instance of this gateway must satisfy both bounds — at least 100 and at most 2000.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -783,11 +783,11 @@ spec:
       required: true
       selector: "component.aggrega.ai/type=stateful-server"
       inject: [env]
-  featuresSchema:          # a slot of its own
-    password:
-      sensitive: true
-      inject: [env]
-      description: Password credential shared with the configuration backend.
+      featuresSchema:      # a slot each connection through it fills
+        credential:
+          sensitive: true
+          inject: [env]
+          description: Password the gateway presents to the configuration backend this connection reaches.
   assertions:
     # The tightening. The inherited schema admits any integer for timeout_ms;
     # this gateway admits only 2000 or less, so the rule rejects a value the

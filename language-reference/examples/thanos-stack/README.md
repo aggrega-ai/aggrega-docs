@@ -93,7 +93,7 @@ env:
   - name: AWS_SECRET_ACCESS_KEY
     valueFrom:
       secretKeyRef:
-        name: metrics.store-s3-secret-key
+        name: metrics.store-s3.credential
         key: s3-secret-key
 ```
 
@@ -115,8 +115,9 @@ args:
 The object store renders as a Deployment with a persistent volume mounted at
 `/data`, plus a ClusterIP Service on the S3 API port. Its `MINIO_ROOT_PASSWORD`
 reads the same secret from a Secret of its own, `metrics.objstore-root-password`.
-The two Secrets are emitted beside the workloads, one per credential slot the
-module fills, each carrying the module's development default.
+The two Secrets are emitted beside the workloads, one for the object store's
+credential slot and one for the credential the Store Gateway's `s3` connection
+carries, each carrying the module's development default.
 
 ## What it demonstrates
 
@@ -141,9 +142,11 @@ module fills, each carrying the module's development default.
 - **A shared credential, taken by reference.** The Store Gateway authenticates
   to the object store as its root account, so the two share one secret. The
   module takes it as a parameter, `s3_secret_key`, and attaches the
-  `core/referenced-secret` credential Feature to both components' credential
-  slots with it, so each workload reads the secret from a Secret rather than
-  carrying it inline. Because the module attaches that Feature, the Manifest
+  `core/referenced-secret` credential Feature with it twice: to the object
+  store's own credential slot, and as the `credential` of the Store Gateway's
+  connection to the object store, the connection the gateway presents it on.
+  Each workload reads the secret from a Secret rather than carrying it inline.
+  Because the module attaches that Feature, the Manifest
   maps it. This example leaves the parameter at the module's development
   default and maps the Feature to `k8s-secret-from-parameter`, which emits a
   Secret carrying the value, so the stack runs self-contained. For a Release
