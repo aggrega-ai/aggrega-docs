@@ -111,14 +111,22 @@ leads, and leaves the place the link points to exactly as it was:
   entity, plugin or library and the manifest beside it, a source archive and its metadata, a pinned
   external input, a signature bundle, a documentation bundle and a registry's local search index, and
   every entry `aggrega cache status`, `aggrega cache prune` and `aggrega cache clear` list. The cache is
-  read only from inside the directory it is written to, so a cache directory, or anything in it, that is
-  a link leading out stops a build, a pull, a validation, a search, each of the three cache commands, and
-  the editor's and an assistant's requests that read the cache, rather than handing them bytes kept
-  elsewhere on the machine — content checked against a recorded digest included, since a digest says
-  what the bytes are, not where they may be read from. `aggrega explain` still answers with the
-  condition and says why its walk-through could not be read, and the deprecation notice `aggrega inspect`
-  prints, which decides nothing, is left out. A prune or a clear meets a cache directory that is itself such a
-  link as the removal it would be, with `E0320`, before it lists anything:
+  read only from inside the cache directory, the place it is written to, so anything in it that is a
+  link leading out of that directory — to elsewhere in the workspace as much as anywhere else — stops a
+  build, a pull, a validation, a search, each of the three cache commands, and the editor's and an
+  assistant's requests that read the cache, rather than handing them bytes kept somewhere the cache does
+  not own — content checked against a recorded digest included, since a digest says what the bytes are,
+  not where they may be read from. `aggrega explain` still answers with the condition and says why its
+  walk-through could not be read, and the deprecation notice `aggrega inspect` prints, which decides
+  nothing, is left out. A prune or a clear meets one of the cache's own directories that is such a
+  link, or a cache directory that is itself a link leading out of the workspace, as the removal it would
+  be, with `E0320`, before it lists anything:
+  [`E0321`](../errors/fatal-halts.md#a-file-the-operation-reads-leads-through-a-link-out-of-the-directory-it-must-stay-inside).
+- **A repository a source fetches** — the checkout a pull archives for a `git-repository` source. The
+  checkout is a directory of its own, so a link the repository carries is archived as what it points to
+  only where that lies inside the repository; one leading out of it, which could reach any file on the
+  machine running the pull, stops the pull naming the link and where it leads, with nothing cached —
+  `module_subdir` itself included, where it is such a link:
   [`E0321`](../errors/fatal-halts.md#a-file-the-operation-reads-leads-through-a-link-out-of-the-directory-it-must-stay-inside).
 - **The workspace's own configuration** — every `.aggrega-config.yaml` from the root down to the
   directory a command runs in, and a pipeline's `.aggrega-config-append-ci.yaml` beside any of them.
@@ -239,11 +247,15 @@ own lookup meets beside it, so it never stops that lookup; another Release kept 
 link leading out still does. A Manifest you inspect on its own through a link is read and resolved
 the same way.
 
-**The artifact cache is held by how its value is spelled.** Written inside the workspace root — the
-default `.aggrega/cache` included — it is the workspace's own directory, so a cache directory that is a
-link leading out is refused rather than followed, for reading as for writing. Written climbing out
-(`../shared-cache`), it is a directory the configuration names, and a root of its own: read and written
-where it leads, with a link beneath it leading out of it held.
+**The artifact cache directory is a root of its own, wherever it is.** Everything the cache holds is
+written, read and removed only inside the cache directory, so one of the cache's own directories, or a
+file in one, that is a link leading out of the cache directory is held — even where it leads elsewhere
+inside the workspace — while one leading elsewhere inside the cache directory is followed. Where the
+cache directory itself lies is read from how its value is spelled. Written inside the workspace root —
+the default `.aggrega/cache` included — it is the workspace's own directory: a cache directory that is a
+link to elsewhere inside the workspace is followed, and one leading out of the workspace is refused, for
+reading as for writing. Written climbing out (`../shared-cache`), it is a directory the configuration
+names, read and written where it leads.
 
 ### The document edit stays inside
 
@@ -284,7 +296,8 @@ caller does.
 | `E0321` on a Release's lockfile | Remove the link and pull the Release again, which writes a fresh lockfile beside it. A lockfile has no other place. |
 | `E0321` on a file beside an entity | Replace the link with the file itself: move a document that is an entity into a directory of its own, and lay the built `.wasm` beside its Plugin entity rather than a link to it. |
 | `E0321` on a configuration file | Replace the link with a copy kept in the workspace. A configuration shared between workspaces is read by naming it as the global configuration file, with `--config` or `AGGREGA_CONFIG`, beneath each workspace's own files. |
-| `E0321` on the artifact cache | Remove the link; a pull fills the cache again. To keep the cache outside the workspace, set `artifact_cache_dir` to that directory, written relative to the workspace root (`../shared-cache`), rather than linking it. |
+| `E0321` on the artifact cache | Remove the link; a pull fills the cache again. To keep the cache somewhere else, set `artifact_cache_dir` to that directory, written relative to the workspace root (`../shared-cache`), rather than linking it. |
+| `E0321` on a link in a fetched repository | The link is committed in the repository the source names: change it there — point it inside the repository, or commit the file itself — and name the revision that carries the change. |
 | `E0320`, a write or removal through a link | Remove the link the message names, or make it lead somewhere inside the directory the message names, and run the operation again. Nothing in your entity files causes it. |
 | `E0324`, a reference leading out | Name an Aggregate kept elsewhere by its `metadata.name` and list its catalog directory; keep a Manifest, a Release an `extends:` names and a parameters file inside the workspace — or, for a document you named from outside, in its own directory; or open the workspace at a directory holding both documents. |
 | `E0304`, content through a link | Replace the link with a copy of what it leads to, inside the entity's own directory. |
