@@ -128,6 +128,11 @@ leads, and leaves the place the link points to exactly as it was:
   machine running the pull, stops the pull naming the link and where it leads, with nothing cached —
   `module_subdir` itself included, where it is such a link:
   [`E0321`](../errors/fatal-halts.md#a-file-the-operation-reads-leads-through-a-link-out-of-the-directory-it-must-stay-inside).
+  The checkout is gone once the pull stops, so the message names the link by its place in the
+  repository, and the repository and the revision the source names. A `module_subdir` that climbs above
+  the repository as written is refused before the repository is fetched, so nothing beside the checkout
+  is read:
+  [`E0307`](../errors/fatal-halts.md#a-value-would-place-a-cached-file-outside-the-cache).
 - **The workspace's own configuration** — every `.aggrega-config.yaml` from the root down to the
   directory a command runs in, and a pipeline's `.aggrega-config-append-ci.yaml` beside any of them.
   Every command, the language server and an assistant's tools read the configuration before anything
@@ -297,7 +302,8 @@ caller does.
 | `E0321` on a file beside an entity | Replace the link with the file itself: move a document that is an entity into a directory of its own, and lay the built `.wasm` beside its Plugin entity rather than a link to it. |
 | `E0321` on a configuration file | Replace the link with a copy kept in the workspace. A configuration shared between workspaces is read by naming it as the global configuration file, with `--config` or `AGGREGA_CONFIG`, beneath each workspace's own files. |
 | `E0321` on the artifact cache | Remove the link; a pull fills the cache again. To keep the cache somewhere else, set `artifact_cache_dir` to that directory, written relative to the workspace root (`../shared-cache`), rather than linking it. |
-| `E0321` on a link in a fetched repository | The link is committed in the repository the source names: change it there — point it inside the repository, or commit the file itself — and name the revision that carries the change. |
+| `E0321` on a link in a fetched repository | The link is committed in the repository the source names — the message names it by its place there: change it there — point it inside the repository, or commit the file itself — and name the revision that carries the change. |
+| `E0307` on a `module_subdir` | Name a directory inside the repository: the value may descend beneath the repository's top but may not climb above it. |
 | `E0320`, a write or removal through a link | Remove the link the message names, or make it lead somewhere inside the directory the message names, and run the operation again. Nothing in your entity files causes it. |
 | `E0324`, a reference leading out | Name an Aggregate kept elsewhere by its `metadata.name` and list its catalog directory; keep a Manifest, a Release an `extends:` names and a parameters file inside the workspace — or, for a document you named from outside, in its own directory; or open the workspace at a directory holding both documents. |
 | `E0304`, content through a link | Replace the link with a copy of what it leads to, inside the entity's own directory. |
