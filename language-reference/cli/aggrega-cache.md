@@ -133,6 +133,15 @@ Not every cache these commands act on is scoped to the project you are standing 
 
 **This applies wherever the operation is invoked from, not only at a terminal.** The same operations are reachable from an editor session and from an assistant's tool call, and their answers carry the same reach for the same reason. Where an assistant may invoke them on your behalf, see [`aggrega mcp`](aggrega-mcp.md).
 
+## A link in the artifact cache
+
+The artifact cache is read and written only inside the directory it is kept in: the workspace, for an `artifact_cache_dir` written inside the workspace root (the default `.aggrega/cache` included), or the directory itself, for one written climbing out of the workspace root (`../shared-cache`). A cache directory, or anything in it, that is a symbolic link leading out of that directory is neither read nor written through.
+
+- **`status`, `prune` and `clear`** list nothing through such a link: each stops with [`E0321`](../errors/fatal-halts.md#a-file-the-operation-reads-leads-through-a-link-out-of-the-directory-it-must-stay-inside), naming the link and where it leads, before it reports or removes anything. A `prune` or a `clear` meets a cache directory that is itself such a link as the removal it would be, and stops with [`E0320`](../errors/fatal-halts.md#a-path-the-operation-writes-leads-through-a-link-out-of-the-directory-it-must-stay-inside) instead, so nothing the link points to is removed.
+- **A build, a pull and every other operation that reads the cache** stop the same way rather than reading bytes kept elsewhere on the machine, even where those bytes would match the digest the lockfile records.
+
+Remove the link and pull again to fill the cache in place. To keep the cache outside the workspace, set `artifact_cache_dir` to that directory, written relative to the workspace root, rather than linking it: a directory named there is read and written where it leads. The machine-wide stores are not held to any workspace; one you keep elsewhere through a link is listed and pruned where the link leads. [The workspace boundary](workspace-boundary.md) states the rule whole.
+
 ## See also
 
 - [`aggrega-pull`](aggrega-pull.md) — resolve a Release's dependencies into the lockfile and the cache.
