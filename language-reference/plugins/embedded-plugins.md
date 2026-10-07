@@ -6,17 +6,17 @@ Aggrega ships a set of Wasm plugins compiled directly into the CLI binary. These
 
 | Type | Name | Capabilities | Version |
 | --- | --- | --- | --- |
-| governance | `governance/cel` | — | 0.8.0 (commit ad5e9523) |
-| governance | `governance/label-injector` | — | 0.8.0 (commit ad5e9523) |
-| governance | `governance/rego` | — | 0.8.0 (commit ad5e9523) |
-| governance | `governance/selector-tagger` | — | 0.8.0 (commit ad5e9523) |
-| linter | `linter/publishing` | — | 0.8.0 (commit ad5e9523) |
-| parser | `parser/hcl` | parse:hcl | 0.8.0 (commit ad5e9523) |
-| parser | `parser/json` | parse:json | 0.8.0 (commit ad5e9523) |
-| parser | `parser/toml` | parse:toml | 0.8.0 (commit ad5e9523) |
-| parser | `parser/yaml` | parse:yaml | 0.8.0 (commit ad5e9523) |
-| provider | `provider/cloudformation` | cloudformation | 0.8.0 (commit ad5e9523) |
-| provider | `provider/compose` | compose | 0.8.0 (commit ad5e9523) |
-| provider | `provider/helm` | helm | 0.8.0 (commit ad5e9523) |
-| provider | `provider/helm-chart` | helm-chart | 0.8.0 (commit ad5e9523) |
-| provider | `provider/terraform` | terraform | 0.8.0 (commit ad5e9523) |
+| governance | `governance/cel` | — | 0.8.0 (commit 97a4a2a4) |
+| governance | `governance/label-injector` | — | 0.8.0 (commit 97a4a2a4) |
+| governance | `governance/rego` | — | 0.8.0 (commit 97a4a2a4) |
+| governance | `governance/selector-tagger` | — | 0.8.0 (commit 97a4a2a4) |
+| linter | `linter/publishing` | — | 0.8.0 (commit 97a4a2a4) |
+| parser | `parser/hcl` | parse:hcl | 0.8.0 (commit 97a4a2a4) |
+| parser | `parser/json` | parse:json | 0.8.0 (commit 97a4a2a4) |
+| parser | `parser/toml` | parse:toml | 0.8.0 (commit 97a4a2a4) |
+| parser | `parser/yaml` | parse:yaml | 0.8.0 (commit 97a4a2a4) |
+| provider | `provider/cloudformation` | cloudformation | 0.8.0 (commit 97a4a2a4) |
+| provider | `provider/compose` | compose | 0.8.0 (commit 97a4a2a4) |
+| provider | `provider/helm` | helm | 0.8.0 (commit 97a4a2a4) |
+| provider | `provider/helm-chart` | helm-chart | 0.8.0 (commit 97a4a2a4) |
+| provider | `provider/terraform` | terraform | 0.8.0 (commit 97a4a2a4) |
