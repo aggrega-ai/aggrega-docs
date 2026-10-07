@@ -721,7 +721,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0270` | `link-patch-file-not-emitted` | `link patch names an output file the dispatch group did not emit; a conforming link patch names a file the group's own render returned` |
 | `E0271` | `pipeline-emit-file-absent` | `emit_file side effect carries no file; a conforming emit_file side effect carries a file with its path and content` |
 | `E0272` | `pipeline-side-effect-kind-undefined` | `side effect declares a kind the plugin contract does not define; a conforming side effect declares emit_file or emit_crd` |
-| `E0273` | `rendered-name-unavailable` | `template reads the name the target renders author-supplied source under, and this node's provider reports no such name; a conforming template reads a value the node's own provider supplies` |
+| `E0273` | `rendered-name-unavailable` | `template reads the name the target gives the resources it renders for the node, and this node's provider reports no such name; a conforming template reads a value the node's own provider supplies` |
 | `E0274` | `verdict-plugin-identity-changed` | `the plugin identity recorded as trusted no longer matches what this resolution reports` |
 | `E0275` | `edit-refused-invalid-result` | `the edit was refused because the resulting document would not be valid, and nothing was written` |
 | `E0276` | `schema-evolution` | `the version being published changes the published predecessor in a way the documented evolution rubric objects to` |

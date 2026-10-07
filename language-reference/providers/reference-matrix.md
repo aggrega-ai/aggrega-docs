@@ -35,6 +35,6 @@ Authoring a per-boundary `syncWave:` is covered on the [Release entity page](../
 | Per-provider authoring shape (chart structure, compose top-level keys, Terraform bodies, CloudFormation fragments) | The matching per-provider page ([helm.md](helm.md), [helm-chart.md](helm-chart.md), [compose.md](compose.md), [terraform.md](terraform.md), [cloudformation.md](cloudformation.md)) |
 | Which boundary annotations each provider consumes and their defaults | [well-known-annotations.md](well-known-annotations.md) |
 | What a boundary's `syncWave` does on each provider | The table above |
-| Whether a provider reports the name it gives output rendered from supplied source, and what to read where it does not | [../templates/rendered-resource-names.md](../templates/rendered-resource-names.md) |
+| Whether a provider reports the name it gives the resources it renders, and what to read where it does not | [../templates/rendered-resource-names.md](../templates/rendered-resource-names.md) |
 | The Workload kind's authoring surface | [../entities/workload.md](../entities/workload.md) |
 | The three-input-kinds composition model conceptually | [../../architecture/16-recipe-input-composition.md](../../architecture/16-recipe-input-composition.md) |

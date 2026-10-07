@@ -95,19 +95,23 @@ Neither key is legible on its own, because each is defined by what the other is 
 
 | Key | What it names |
 | --- | --- |
-| `{{ .context.instance_id }}` | The name **the compiler** gave the resources it built for this node — a workload it synthesized from your `workload:` block, an artifact set it placed from your `artifacts:` block. Always present. |
-| `{{ .context.rendered_name }}` | The name **the bound provider** gave output it rendered from source **you supplied** — the name your own supplied templates render their resources against, such as the release name a chart reads. Present only where that provider derives one. |
+| `{{ .context.instance_id }}` | The node's identity, and the name of the resources built for this node that no provider derives a name for — an artifact set placed from your `artifacts:` block, and a workload synthesized from your `workload:` block by a provider that names it after the identity, as `compose` does. Always present. |
+| `{{ .context.rendered_name }}` | The name **the bound provider** derives for the resources it renders for this node — for source **you supplied**, the name your own supplied templates render their resources against, such as the release name a chart reads; for a `workload:` it synthesizes, the name it gives those resources where it names them after a name of its own rather than the identity, as `helm` does. Present only where that provider derives one. |
 
-The split follows from where the name has to be usable. A resource the compiler built has no templates
-of its own, so nothing renders against its name and it is named after the node's identity. A chart or
-module **you** supplied does have templates, and those templates name their resources after whatever
-identity the platform hands them — so the name has to be the one that platform will use, spelled in
-that platform's own alphabet.
+The split follows from where the name has to be usable. A chart or module **you** supplied has
+templates, and those templates name their resources after whatever identity the platform hands them —
+so the name has to be the one that platform will use, spelled in that platform's own alphabet. A
+synthesized workload has no templates of yours, but its resources still have to carry names the
+platform accepts: a provider whose names admit everything an authored name may carry names them after
+the identity, and one whose names do not names them after the name it derives — and then reports that
+name here, so you never have to predict it.
 
 **A node declaring both a supplied source and a `workload:` emits both kinds of output at once, and
-needs no third key.** Name the supplied chart's own resource with `rendered_name`; name the
-synthesized one with `instance_id`. The two are different resources with different names, and that is
-correct rather than a conflict.
+needs no third key.** Under `helm` both are named after the one release name, so `rendered_name`
+serves either: the chart's own resources carry it however its templates compose it, and each
+synthesized Service is `<rendered_name>-<service key>`. Under a provider that names a synthesized
+workload after the identity, name that workload's resources with `instance_id` and the supplied
+output's with whatever the provider reports for it.
 
 The alphabets are why the two can differ at all. An authored component name may carry an underscore or
 a capital letter; a chart's release name may not, and rather than fold such a character onto a similar
@@ -117,18 +121,49 @@ derived" for that provider's own alphabet and length limit.
 
 ## Which providers report a name, and why the others do not
 
-`helm` reports one: the release name a sourced chart reads as `.Release.Name`, which is what such a
-chart's templates routinely name their resources after.
+`helm` reports one: the release name. A sourced chart reads it as `.Release.Name` and routinely names
+its resources after it, and the provider names every resource it synthesizes for a component after it
+too — the controller under the release name itself, and each Service as `<release name>-<service
+key>`. So an address published for either kind of output is built from `rendered_name`. For a node
+that places an artifact set alone it reports none: the names in that set are the ones its author
+wrote.
+
+```yaml
+# A synthesized helm Recipe publishing the address of the Service its workload
+# declares under the key `default`.
+spec:
+  capability: helm
+  workload: |
+    apiVersion: aggrega.ai/v1alpha1
+    kind: Workload
+    containers:
+      main:
+        image: "valkey/valkey:8"
+        ports:
+          redis: 6379
+    services:
+      default:
+        type: ClusterIP
+        ports:
+          redis: 6379
+  provides:
+    host: "{{ .context.rendered_name }}-default"
+    port: "6379"
+```
+
+A component named `cache` publishes `cache-default`, and one named `my_cache` publishes
+`my-zucache-default` — in each case the name of the Service the build emits.
 
 The other four report none, and the reasons are **not** the same. None of them is a provider awaiting
 support — in each case either there is no derived name to report, or the name you want is already
 reachable another way.
 
-- **`cloudformation` and `compose` — you wrote the names, so you already know them.** A
+- **`cloudformation` and `compose` — you wrote the names, or the identity is the name.** A
   cloudformation Recipe authors its resources' logical ids and the provider reads them exactly as
   written; a compose file you supplied names its own services and the provider merges and labels that
-  file without renaming anything in it. There is no derivation to report, and the names are the ones
-  standing in your own document.
+  file without renaming anything in it. A workload `compose` synthesizes is named after the node's
+  identity, which a compose file admits as written, so `{{ .context.instance_id }}` is that name.
+  There is no derivation to report, and the names are the ones standing in your own documents.
 
 - **`terraform` — the name is a function of where the files were placed.** A contributor's `module`
   block is named from the output directory its configuration was written into, which is settled when
@@ -153,8 +188,9 @@ address one segment short is a wrong artifact that deploys, which is worse than 
 
 Which remedy the halt offers depends on the node rather than on where you wrote the reference:
 
-- A node supplying **no** source of its own has its resources named after its identity, so the halt
-  names `{{ .context.instance_id }}` — there is a correct value and it says so.
+- A node supplying **no** source of its own, under a provider reporting no name for it, has its
+  resources named after its identity, so the halt names `{{ .context.instance_id }}` — there is a
+  correct value and it says so.
 - A node that does supply source, under a provider deriving no name for it, has no substitute. The
   halt says so instead of offering one, because sending you to the identity there would name resources
   your node does not carry.
@@ -173,8 +209,8 @@ chart, and saying so in its description. A body meant for importers whose provid
 the name through a value the importing Recipe sets instead.
 
 A Recipe's `locals:` entries do not read the key at all. A local shares its context with the Recipe's
-`source:` template, and that template is what decides whether the node supplies source, so the name
-cannot exist there yet. A reference to `{{ .context.rendered_name }}` in a local therefore halts whatever
+`source:` template, and whether the node supplies source is one of the things the name depends on, so
+the name is not offered there. A reference to `{{ .context.rendered_name }}` in a local therefore halts whatever
 the provider reports, with the diagnostic for a reference the render context does not define (`E0060`),
 which lists `.context.instance_id` as the one key `.context` offers there. Read the key in the `provides:`
 entry or the inline template that needs it.
@@ -182,11 +218,11 @@ entry or the inline template that needs it.
 ## On a Feature attachment's own templates
 
 A Feature attachment's templates do **not** read this key. The value available where an attachment
-renders is the **host component's** answer — the name the host's own provider reports for output
-rendered from the host Recipe's source — and an attachment binds its own recipe and therefore its own
+renders is the **host component's** answer — the name the host's own provider reports for the
+resources it renders for the host — and an attachment binds its own recipe and therefore its own
 provider. So that value is not an answer about the attachment's own output: it is absent whenever the
-host supplies no source even where the attachment's author did, and it comes from a different platform
-entirely whenever the two capabilities differ.
+host's provider reports no name for the host, whatever the attachment itself declares, and it comes
+from a different platform entirely whenever the two capabilities differ.
 
 Reading it on any of an attachment's own templates is therefore refused, and the diagnostic lists the
 keys that surface does define. `{{ .context.instance_id }}` is among them, and on an attachment's
