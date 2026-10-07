@@ -746,7 +746,7 @@ _Additional properties are permitted._
 
 ### `AttachCandidatesParams`
 
-Answers which Features may be attached to an entity, judged against that entity's labels.
+Answers which Features may be attached to an entity, judged against that entity's labels, and, for one connection a graph node's component draws, which may fill each slot the connection's socket declares.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -756,6 +756,7 @@ Answers which Features may be attached to an entity, judged against that entity'
 | `graphNode` | string | no | The graph node to judge candidates against, whose labels are the finalised set the build itself evaluates applicability with. An answer computed over this says what the build will do. |
 | `release` | string | no | The Release whose graph the node belongs to, as a path relative to the workspace root. The candidates are then drawn in that Release's terms: the Features the catalog directories the workspace configuration gives that Release declare, and the workspace's documents less any under one of the workspace's catalog directories the Release does not read, so a Feature kept for another Release is never offered for a node of this one's graph. |
 | `labels` | map of string | no | Labels to judge against directly, in place of reading them from an entity or a graph node. |
+| `connection` | ConnectionCoordinate | no | One connection the graph node's component draws, to answer for as well as for the node: the answer then also carries slots, each slot the connection's socket declares with the Features that may fill it, or noSlotReason where no slot may be filled. It is sent only with graphNode and release, because a connection exists only on a compiled graph; sent with node or labels it is refused. The candidates beside it keep their meaning, the Features that may attach to the node itself. Its document is accepted and does not change this answer: the slots are the socket's and the candidates the Features', the same whichever document an attachment is written in. |
 
 _Additional properties are not permitted._
 
@@ -787,7 +788,7 @@ _Additional properties are not permitted._
 
 ### `AttachmentContainerParams`
 
-Answers which document, and where in it, an attachment on a graph node belongs.
+Answers which document, and where in it, an attachment on a graph node, or on one connection its component draws, belongs.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -795,8 +796,21 @@ Answers which document, and where in it, an attachment on a graph node belongs.
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
 | `graphNode` | string | no | The graph node the attachment is for. |
 | `release` | string | no | The Release whose graph the node belongs to, as a path relative to the workspace root. |
+| `connection` | ConnectionCoordinate | no | One connection the graph node's component draws, when the attachment is for that connection rather than for the node: the answer then names the connection's own features container in the document its document field names, a field required here. In the Aggregate, that is the connection's entry in the document the node was authored in, refused for a connection the Release drew, which the Aggregate holds no entry for. In the Release, it is the per-edge entry under the Release's own entry for the node, whether or not the Release writes one for that connection yet, refused where the Release writes no entry for the node. A connection a Feature drew is refused in either document, because an attachment is written only on a connection a component or the Release draws. |
 
 _Additional properties are not permitted._
+
+### `ConnectionCoordinate`
+
+One connection a graph node's component draws, addressed by the socket it is wired through and the alias it carries in that socket, and the document an attachment on it is written in. A connection carries attachments filling the slots its socket declares, and either the Aggregate or the Release may write them.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `socket` | string | yes | The dependency socket the connection is wired through. |
+| `alias` | string | yes | The name the connection carries within its socket. |
+| `document` | const "aggregate" or const "release" | no | The document an attachment on the connection is written in. The set is closed, and a value outside it is refused. |
+
+_Additional properties are permitted._
 
 ### `SetActiveReleaseParams`
 
@@ -1237,6 +1251,22 @@ One socket on an entity, and what may be wired into it.
 | `selector` | string | yes | The label selector a target must satisfy. |
 | `required` | boolean | yes | Whether the socket must be wired for the build to proceed. |
 | `targets` | array or null | yes | The entities that may be wired into it. |
+
+_Additional properties are not permitted._
+
+### `SlotCandidacy`
+
+One slot a connection's socket declares, as the consuming Component declares it on the socket, and the Features that may fill it on that connection.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `slot` | string | yes | The slot's name, which is the key an attachment filling it is written under in the connection's features. |
+| `selector` | string | yes | The label selector a Feature filling the slot must satisfy with its own labels. Empty where the slot declares none, which admits any Feature. |
+| `required` | boolean | yes | Whether every connection wired through the socket must fill the slot for the build to proceed. |
+| `inject` | string[] | yes | The delivery mechanisms the slot permits for what fills it, in the order the Component declares them. Empty where it declares none. |
+| `sensitive` | boolean | yes | Whether the slot declares that what fills it handles secret material. It marks the attachment filling it and refuses nothing. |
+| `description` | string | yes | What the Component says the slot is for. Empty where it says nothing. |
+| `candidates` | SourcedEntityRef[] | yes | Each Feature that may fill the slot on this connection: one whose declared applicability the graph node's labels satisfy, which every attachment the node carries is held to, and whose own labels satisfy the slot's selector. A Feature whose applicability or whose labels cannot be read against the selector is not offered, because a build refuses rather than admits it. |
 
 _Additional properties are not permitted._
 
@@ -2079,7 +2109,7 @@ _Additional properties are not permitted._
 
 ### `AttachCandidatesResult`
 
-Which Features may be attached to the entity, and the labels they were judged against.
+Which Features may be attached to the entity, and the labels they were judged against; and, for a connection the request named, the slots its socket declares with the Features that may fill each.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -2087,6 +2117,8 @@ Which Features may be attached to the entity, and the labels they were judged ag
 | `nodeLabels` | object or null | yes | The labels the judgement was made against. |
 | `labelSource` | string | yes | Which label set was used, which is not cosmetic: a document's declared labels are what a reading of the source can see, while a graph node's are the finalised set the build itself judges against. An answer computed over the second is a statement about what the build will do. |
 | `candidates` | array or null | yes | Each Feature that may be attached. |
+| `slots` | SlotCandidacy[] | no | Present only when the request named a connection: each slot the connection's socket declares, in the order the Component declares them, with the Features that may fill it. Empty when no slot may be filled on the connection, and noSlotReason then says why — which a client reads rather than taking an empty list for slots no Feature matched. |
+| `noSlotReason` | const "feature-created-connection" or const "ad-hoc-socket" or const "no-slot-declared" | no | Present only when the request named a connection and no slot may be filled on it: why nothing may attach there. Absent wherever the socket declares a slot. The set is closed. |
 
 _Additional properties are not permitted._
 
@@ -2123,7 +2155,7 @@ _Additional properties are not permitted._
 
 ### `AttachmentContainerResult`
 
-Which document, and where in it, an attachment on the graph node belongs.
+Which document, and where in it, an attachment on the graph node, or on the connection the request named, belongs.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
