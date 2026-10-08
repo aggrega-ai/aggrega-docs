@@ -5112,6 +5112,19 @@ Its message opens:
 
 **How to fix:** declare the key on the Component, so the contract a consumer reads includes what the Recipe emits — or stop publishing it from the Recipe where nothing is meant to consume it. The opt-out is under "The discipline rules" in [aggrega-lint.md](../cli/aggrega-lint.md).
 
+### A connection and the target it reaches do not name one key
+
+<!-- covers: internal/lintops.ErrConnectionCredentialMatchesTargetKey -->
+
+An advisory raised when a Release is checked against the publishing conventions; it never stops anything, and a build does not raise it. A server that checks a key holds the key it verifies in a slot of its own, and a caller presents a key on the connection it reaches that server through. Neither end sees the other's, so the two are one key only because their authors write the same locator at both ends. This condition reports a connection whose target declares the slot for the key it requires of its callers, where they are not: the connection carries a credential and the target's key slot is unfilled, the target's key slot is filled and the connection carries no credential, or both are filled and the two write their locators differently.
+
+**Unlike the rules above it, this one reads a whole Release rather than one entity**, so it is met only when a Release is checked and never at the publish gate, which checks one entity on its own; wherever it is reported it is advice. The finding names the component, the connection, the target and the two slots, and never quotes either locator.
+
+Its message opens:
+> a connection and the target it reaches do not name one key: they write different locators for it, or only one of them names one
+
+**How to fix:** have both ends read one parameter — the connection's `credential` and the target's `api_key` — so the key the caller presents and the key the server verifies cannot be written apart; or, where a connection is meant to present no key, take the credential off it. Which slots are read, what is compared and the opt-out are under "The discipline rules" in [aggrega-lint.md](../cli/aggrega-lint.md).
+
 ### The change being published breaks what the evolution rubric allows
 
 <!-- covers: internal/lintops.ErrSchemaEvolution -->
@@ -5484,6 +5497,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0326` | `pipeline step reads its callers' render facts, but a pipeline step does not read the components connecting to its host; it reads only the host's own render facts` | A pipeline step reads its callers' render facts |
 | `E0327` | `template indexes a map with a key the map does not hold` | A template indexes a map with a key the map does not hold |
 | `E0328` | `attachment written under a name no slot declares fits a slot its component leaves empty` | An attachment written under another name fits a slot its component leaves empty |
+| `E0329` | `a connection and the target it reaches do not name one key: they write different locators for it, or only one of them names one` | A connection and the target it reaches do not name one key |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
