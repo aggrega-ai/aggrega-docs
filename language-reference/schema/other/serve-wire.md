@@ -179,7 +179,7 @@ The answer to a request that succeeded, carrying the identifier of the request i
 | --- | --- | --- | --- |
 | `jsonrpc` | ProtocolVersion | yes | The JSON-RPC version every message carries. Only 2.0 is spoken. |
 | `id` | RequestId | yes | The caller's identifier for a request, echoed on the response that answers it. A message carrying no identifier is a notification and is never answered. |
-| `result` | InitializeResult or ValidateResult or InvalidateResult or DiagnosticsResult or IrGraphResult or BuildResult or BuildPreviewResult or EntityDefinitionResult or ReleaseClosureResult or ResolveDependenciesResult or PinResult or CacheStatusResult or CachePruneResult or CacheEvictResult or CacheClearResult or RegistryListResult or SearchResult or RegistryAddResult or RegistryRemoveResult or RegistryUpdateResult or LogoutResult or PublishEntityResult or PublishArtifactResult or SignArtifactsResult or DeprecateArtifactResult or ResolveResult or FindReferencesResult or FindImplementationsResult or HoverResult or CompletionResult or CatalogIndexResult or AttachCandidatesResult or ConnectionCandidatesResult or InsertionPointResult or AttachmentContainerResult or ReleaseCandidatesResult or ActiveReleaseResult or EditDocumentResult or EffectiveConfigurationResult or ConfigInitResult or ConfigCaptureResult or ImportResult or ScaffoldEntityResult or LintResult or PluginAddResult or PluginRemoveResult or PluginSyncResult or PluginGenCatalogResult or ExplainErrorResult or GetSchemaResult | yes | The answer, in the shape the method that was asked returns. |
+| `result` | InitializeResult or ValidateResult or InvalidateResult or DiagnosticsResult or IrGraphResult or BuildResult or BuildPreviewResult or EntityDefinitionResult or ReleaseClosureResult or ResolveDependenciesResult or PinResult or CacheStatusResult or CachePruneResult or CacheEvictResult or CacheClearResult or RegistryListResult or SearchResult or RegistryAddResult or RegistryRemoveResult or RegistryUpdateResult or LogoutResult or PublishEntityResult or PublishArtifactResult or SignArtifactsResult or DeprecateArtifactResult or ResolveResult or FindReferencesResult or FindImplementationsResult or HoverResult or CompletionResult or CatalogIndexResult or AttachCandidatesResult or ConnectionCandidatesResult or InsertionPointResult or AttachmentContainerResult or ConnectionAtPositionResult or ReleaseCandidatesResult or ActiveReleaseResult or EditDocumentResult or EffectiveConfigurationResult or ConfigInitResult or ConfigCaptureResult or ImportResult or ScaffoldEntityResult or LintResult or PluginAddResult or PluginRemoveResult or PluginSyncResult or PluginGenCatalogResult or ExplainErrorResult or GetSchemaResult | yes | The answer, in the shape the method that was asked returns. |
 
 _Additional properties are not permitted._
 
@@ -797,6 +797,20 @@ Answers which document, and where in it, an attachment on a graph node, or on on
 | `graphNode` | string | no | The graph node the attachment is for. |
 | `release` | string | no | The Release whose graph the node belongs to, as a path relative to the workspace root. |
 | `connection` | ConnectionCoordinate | no | One connection the graph node's component draws, when the attachment is for that connection rather than for the node: the answer then names the connection's own features container in the document its document field names, a field required here. In the Aggregate, that is the connection's entry in the document the node was authored in, refused for a connection the Release drew, which the Aggregate holds no entry for. In the Release, it is the per-edge entry under the Release's own entry for the node, whether or not the Release writes one for that connection yet, refused where the Release writes no entry for the node. A connection a Feature drew is refused in either document, because an attachment is written only on a connection a component or the Release draws. |
+
+_Additional properties are not permitted._
+
+### `ConnectionAtPositionParams`
+
+Answers which connection's entry a position in an Aggregate or a Release falls inside: the graph node and the connection, in the terms the candidacy and container requests take them, or why no connection is written there. The entries are the ones an attachment is written in — the entry a component draws a connection with, under the connection's alias, in the document the component was authored in, and every per-edge entry the Release writes — each where the compiled graph records it, so whether a key is a connection is never read from what it is called.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
+| `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
+| `file` | string | no | The document the position is in: the Release, or a document the Release's graph records components as authored in — its Aggregate, or the document of a module that Aggregate imports. It is read from what the session holds for it first, and from disk otherwise. |
+| `position` | Position | no | A place in a document: a line and a character offset within it, both counted from zero. The offset is measured in the units of the encoding the session settled on when it was opened, which is UTF-16 unless the client asked for another. |
+| `release` | string | no | The Release whose compiled graph records the connections, as a path relative to the workspace root. It is required for a position in the Aggregate too, because a graph node and a connection exist only on a compiled graph. |
 
 _Additional properties are not permitted._
 
@@ -2162,6 +2176,18 @@ Which document, and where in it, an attachment on the graph node, or on the conn
 | `node` | string | yes | The graph node the attachment is for. |
 | `file` | string | yes | The document the attachment belongs in. |
 | `container` | array or null | yes | The path through that document to where it belongs. |
+
+_Additional properties are not permitted._
+
+### `ConnectionAtPositionResult`
+
+The connection whose entry the position falls inside, or why none is reported. Exactly one half is present: graphNode and connection together, or noConnectionReason alone. A position anywhere inside an entry — on its alias, its target or its attachments — is inside that entry, the innermost one where entries nest; a position on a socket's own key, above the entries written under it, is inside none.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `graphNode` | string | no | The graph node whose component draws the connection, by the id the compiled graph keys it under — the value the candidacy and container requests take as graphNode. |
+| `connection` | ConnectionCoordinate | no | The connection, by its socket and its alias, with document naming the document the position was read in — the value the candidacy and container requests take as connection. |
+| `noConnectionReason` | const "no-connection-entry" or const "feature-created-connection" or const "unknown-connection" | no | Present only where no connection is reported: why. The set is closed. |
 
 _Additional properties are not permitted._
 
