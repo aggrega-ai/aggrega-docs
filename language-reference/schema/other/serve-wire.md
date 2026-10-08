@@ -2227,6 +2227,7 @@ What seeding a configuration wrote, where, and what it read from the registry.
 | `scope` | ConfigWriteScope | yes | Which configuration document was written and how far it reaches. A request names one workspace, so an answer that said nothing would be read as being about that workspace — and for a machine-wide write that reading is wrong. |
 | `trust` | TrustFetchOutcome | yes | What reading a registry's advertised trust policy did. The outcomes are kept apart because they mean different things: the advertised policy was taken, the registry advertised nothing — which is not a failure — the built-in baseline was pinned in its place, or no read was attempted. Where nothing was advertised, whether the registry could be reached at all is stated beside it. |
 | `written` | boolean | yes | Whether the document was written, as against handed back for the caller to place. |
+| `existed` | boolean | no | Present and true when the document was already there, so the registry entry was merged into it rather than a new document created. Only a request sending force proceeds over an existing document, so it is absent from every answer to one that did not. |
 | `content` | string | no | The document's text, for a request that asked to be shown it rather than have it written. |
 
 _Additional properties are not permitted._
