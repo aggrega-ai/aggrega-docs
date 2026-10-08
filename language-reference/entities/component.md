@@ -487,7 +487,7 @@ This section is about the Component's own slots. The slots a socket declares for
 **Declaring a slot does not close the attachment surface.** An author may attach a Feature under a name no slot declares, and that attachment is a *free attachment*: perfectly legal, simply not bound to a declared slot. This openness is what lets one catalog entity serve two different deployment shapes without a catalog fork:
 
 * **Per-consumer.** Each instance fills the slot with its own Feature, so each consumer gets its own rendered credential.
-* **Shared.** No instance fills the slot; instead one credential is attached once at a broader scope (a subsystem, or a Release boundary) and cascades to every component under it, so many consumers point at one rendered Secret.
+* **Shared.** No instance fills the slot; instead one credential is attached once at a broader scope (a subsystem, or a Release boundary) and cascades to every component under it, so every consumer is filled from that one declaration. What it renders follows the realization: one Secret per consumer, each carrying the same material, under one that renders a Secret; none under one that points every consumer at a Secret that already exists.
 
 The author chooses between them by what they attach. The catalog entity is the same in both cases.
 

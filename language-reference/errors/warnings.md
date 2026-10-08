@@ -150,10 +150,10 @@ The Recipe compared is the one the instance is actually bound to, matched by the
 <!-- unregistered-output: lint text, which is reported without halting and which no halting condition registers -->
 
 ```text
-  lint: Aggregate model-api-key-sharing-shared at .spec.subsystems.model.components["gateway"].type: Recipe "openai-compatible" publishes provides key "provider", which Component "core/ai-model/openai-compatible" does not declare in its schema.provides contract — a consumer across a uses edge reads the declared contract, so this key is not delivered and a template reading it renders empty; declare the key on the Component if consumers are meant to read it, or move it to the Recipe's locals if it is the Recipe's own working state
+  lint: Recipe publishes a provides key its Component does not declare (Recipe broker-with-region, at .spec.provides.region, "region", on component type "core/ai-model/openai-compatible", bound to component instance "gateway")
 ```
 
-The finding belongs to the instance that carries it, so ten instances of one Component type publishing the same undeclared key raise ten lines rather than one, each positioned at its own instance. Every line is attributed to the Recipe that published the key, because that is the document you edit to resolve it. The walk is deterministic, so the same input produces the same advisory sequence on every run.
+The finding belongs to the instance that carries it, so ten instances of one Component type publishing the same undeclared key raise ten lines rather than one, each naming its own instance. Every line is attributed to the Recipe that published the key, because that is the document you edit to resolve it. The walk is deterministic, so the same input produces the same advisory sequence on every run.
 
 **Editor visibility.** The advisory also reaches editor diagnostics through the language server, at warning severity, positioned on the component instance whose `type:` binds the Recipe. An author who never reads terminal output still sees it. It is raised before the artifact-rendering stage, so it needs no dial: an editor session surfaces it whether or not `serve.build_on_inspect` is on.
 

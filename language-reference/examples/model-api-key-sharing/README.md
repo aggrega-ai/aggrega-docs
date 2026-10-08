@@ -254,6 +254,12 @@ The slot is optional, so a fourth shape is attaching nothing at all: drop the
 Nothing is invented to fill the gap. The catalog entity is identical in every
 case; the author decides.
 
+That builds because the gateway here, `core/ai-model/openai-compatible`, carries
+no `component.aggrega.ai/hosting` label. A connection reaching a target the
+catalog labels `managed` — `core/ai-model/openai`, say — with no credential halts
+the build on the agent's own assertion, unless the connection says in its
+`values` that the target takes none, `unauthenticated: true`.
+
 The slot is also family-agnostic (`feature.aggrega.ai/kind=secret` admits either
 credential family), which is what lets the same agent take a referenceable
 Secret on helm and an inject-value credential on compose.
