@@ -68,7 +68,12 @@ same identity in a later directory is shadowed. `catalog` is read after everythi
 a listed directory already contains it, in which case it is read as part of that directory — so
 listing a directory adds to what you had rather than replacing it. A repeatable `--catalog <dir>`
 on the command line is read ahead of both, and a relative path given there resolves against the
-directory you ran the command from, since no configuration file declared it. A project that keeps a
+directory you ran the command from, since no configuration file declared it. A directory named more
+than once — on the command line and in the list, or twice in the list — is read once, at the place it
+was first named, so nothing in it is reported as shadowed by itself: a shadow is always two different
+files declaring one identity. Two spellings of one directory, a path to it through a link, and — on a
+file system that ignores case — a spelling in another case all name that one directory. A directory
+inside another listed directory is still read as its own entry. A project that keeps a
 catalog variant per Release can give each Release a list of its own instead — see
 [Giving a Release its own catalog directories](#giving-a-release-its-own-catalog-directories).
 
@@ -688,9 +693,10 @@ and directory markers let a project that has not declared one still be built.
 The global layer resolves in this order:
 
 1. `--config <path>`, the per-invocation form.
-2. `$AGGREGA_CONFIG`.
+2. The `AGGREGA_CONFIG` environment variable.
 3. The default location: `%APPDATA%\aggrega\config.yaml` on Windows, and elsewhere
-   `$XDG_CONFIG_HOME/aggrega/config.yaml`, falling back to `~/.config/aggrega/config.yaml`.
+   `aggrega/config.yaml` inside the directory `XDG_CONFIG_HOME` names, falling back to
+   `~/.config/aggrega/config.yaml`.
 
 The first two name an explicit file, so a path that does not exist is a loud error rather than a
 silent fallback — you asked for a particular file. A command that reads its configuration stops

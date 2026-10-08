@@ -41,16 +41,18 @@ Two bounds on what the table covers, and both are worth knowing before you concl
 <!-- unregistered-output: lint text, which is reported without halting and which no halting condition registers -->
 
 ```text
-LINT: Component "core/web-server" at ./catalog/component/core/web-server.yaml declares property "storage_size" in both values: and infra: pillars (path: spec.schema)
+LINT: Component "core/web-server" at ./catalog/component/core/web-server.yaml declares property "storage_size" in both values: and infra: pillars (path: storage_size)
 ```
 
-For nested properties, the warning includes the dotted path:
+For nested properties, the path is the dotted path to the property from the pillar's root:
 
 <!-- unregistered-output: lint text, which is reported without halting and which no halting condition registers -->
 
 ```text
-LINT: Feature "core/db-pool" at ./catalog/feature/core/db-pool.yaml declares property "connection.timeout" in both values: and infra: pillars (path: spec.schema.connection)
+LINT: Feature "core/db-pool" at ./catalog/feature/core/db-pool.yaml declares property "timeout" in both values: and infra: pillars (path: connection.timeout)
 ```
+
+A whole-catalog load names each entity by the file it was read from, as above. A build, or a validation of one Release, reads only the entities that Release reaches and names each by its name and version — `at core/db-pool:1.0.0` — once per entity, however many references in the Release reach it: an Aggregate naming a Feature by its bare name and a Manifest mapping it by name and version reach one Feature, which is reported once.
 
 **Editor visibility.** The finding reaches editor diagnostics through the language server, at warning severity, at the head of the file rather than on a key — it names a catalog entity rather than a position inside the document you are editing, so there is no authoring key for a marker to sit on. It is raised before the artifact-rendering stage, so it needs no dial: an editor session surfaces it whether or not `serve.build_on_inspect` is on.
 

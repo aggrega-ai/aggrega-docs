@@ -10,9 +10,9 @@ Use `<path>` as the workspace root, skipping discovery entirely. When the flag i
 
 ## Global config file
 
-`--config <path>` names the global config file explicitly for one invocation. It wins over `$AGGREGA_CONFIG`, which in turn wins over the default location — and because both name a file deliberately, a path that does not exist is a loud error rather than a silent fallback. Unlike the `AGGREGA_*` setting variables, neither overrides a single setting; they select which file applies. Whichever file resolves, the project's own config files still layer on top of it. [Configuration](configuration.md#naming-the-global-file-explicitly) carries the resolution order and what belongs in that file.
+`--config <path>` names the global config file explicitly for one invocation. It wins over the `AGGREGA_CONFIG` environment variable, which in turn wins over the default location — and because both name a file deliberately, a path that does not exist is a loud error rather than a silent fallback. Unlike the `AGGREGA_*` setting variables, neither overrides a single setting; they select which file applies. Whichever file resolves, the project's own config files still layer on top of it. [Configuration](configuration.md#naming-the-global-file-explicitly) carries the resolution order and what belongs in that file.
 
-`--config` and `$AGGREGA_CONFIG` select the write target as well as the read source: a command run with `--config <path>` reads its configuration from that file and applies its change to that same file, so what a command writes is what the next command in the same invocation shape reads back.
+`--config` and the `AGGREGA_CONFIG` environment variable select the write target as well as the read source: a command run with `--config <path>` reads its configuration from that file and applies its change to that same file, so what a command writes is what the next command in the same invocation shape reads back.
 
 Config-mutating commands choose which file they write from the nature of the setting: machine-wide tool config (a registry) defaults to the global file, while build-participating config (a provider binding or a governance/linter/importer socket attachment) defaults to the committed project file. Pass `--global` or `--workspace` to override, and the command prints where it wrote.
 
@@ -58,7 +58,7 @@ A flag wins over everything: over an environment variable, over the configuratio
 <!-- BEGIN GENERATED: global-flags -->
 | Flag | Default | Description |
 | --- | --- | --- |
-| `--config` | — | path to the global config file, overriding $AGGREGA_CONFIG and the default location. Workspace-tree config files still layer on top |
+| `--config` | — | path to the global config file, overriding the AGGREGA_CONFIG environment variable and the default location. Workspace-tree config files still layer on top |
 | `--no-color` | `false` | Disable ANSI color in all output. Also honored via the NO_COLOR environment variable |
 | `--offline` | `false` | Refuse every network reach for this one run: the offline posture, turned on without editing configuration. Pass --offline=false to turn it off for one run where the configuration file or AGGREGA_OFFLINE already turns it on. What refuses is what cannot be true without a registry: --upgrade, whose whole job is to float each dependency to the highest version a registry currently offers, and the commands whose own work is a network round trip — push, push-artifact, and registry update. What still runs is whatever the machine can already satisfy: a build against a filled lockfile, --auto-pull over references already cached or present in a local catalog, and a dry run, which reports what it would publish and calls nothing |
 | `--plain` | `false` | Accessible mode: disable color and draw plain, static progress lines with no spinner animation or cursor repaint, even on a terminal. Intended for screen readers |

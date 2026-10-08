@@ -130,7 +130,7 @@ A value the kind requires that the file leaves as an empty string is a placehold
 ```
 Entity: my-feature-recipe.yaml
 Kind:   FeatureRecipe
-2 placeholders still owed in my-feature-recipe.yaml. An empty required value is not a value, so each of these needs one before the document validates:
+2 placeholders still owed in my-feature-recipe.yaml; an empty required value is not a value, so each of these needs one before the document validates:
     7:3: spec.capability takes what its schema describes: The explicit provider capability this recipe binds to (e.g., 'helm', 'terraform', 'compose') — the provider kind that renders it.
     8:3: spec.implements takes what its schema describes: Declares which catalog Feature type this recipe is able to implement (including credential Features labeled feature.aggrega.ai/kind: secret; exact version, major-compatible range '^', or unversioned).
 ```

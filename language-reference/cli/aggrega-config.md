@@ -76,11 +76,11 @@ piece exists for the shape it solves:
   directory; failing everything, your working directory is used.
   --workspace-root skips discovery entirely.
 
-  Naming the global file. --config <path> wins over $AGGREGA_CONFIG, which
-  wins over the default location. Both name a file deliberately, so a path
-  either gives that does not exist is a loud error rather than a silent
-  fallback. Whichever file resolves is also the one a config-writing command
-  writes when it writes globally.
+  Naming the global file. --config <path> wins over the AGGREGA_CONFIG
+  environment variable, which wins over the default location. Both name a file
+  deliberately, so a path either gives that does not exist is a loud error
+  rather than a silent fallback. Whichever file resolves is also the one a
+  config-writing command writes when it writes globally.
 ```
 
 **Subcommands**

@@ -70,7 +70,7 @@ left out.
 | `--output`, `-o` | `table` | Output format: table\|json\|names. |
 | `--plugin-type` | — | Plugin socket type to match (for example provider, governance, linter). |
 | `--registry` | — | Search only this registry, addressed by host or friendly alias. Default searches every configured registry. |
-| `--selector`, `-l` | — | Label selector over the entity's catalog labels. Category is a label: -l component.aggrega.ai/category=compute. |
+| `--selector`, `-l` | — | Label selector over the entity's catalog labels, which include its category (-l component.aggrega.ai/category=compute). |
 <!-- END GENERATED: cli-search -->
 
 ## When no registry is configured

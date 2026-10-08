@@ -67,7 +67,7 @@ aggrega scaffold component my-service > my-service.yaml
 Entity: my-service.yaml
 Kind:   Component
 [E0215]
-  document envelope validation failed: 2 placeholders still owed in my-service.yaml. An empty required value is not a value, so each of these needs one before the document validates:
+  document envelope validation failed: 2 placeholders still owed in my-service.yaml; an empty required value is not a value, so each of these needs one before the document validates:
     5:3: metadata.version takes a semantic version, such as 1.0.0
     7:5: metadata.labels.component.aggrega.ai/type takes one of: server, worker, task, function, stateful-server, resource
 ```

@@ -270,7 +270,7 @@ The lockfile pins content fetched from registries and remote sources, and record
 Aggrega does not implement its own authentication for remote registries. Authentication uses the standard tooling configs in priority order:
 
 - `~/.docker/config.json` (Docker login)
-- `$XDG_RUNTIME_DIR/containers/auth.json` (Podman / Skopeo)
+- `containers/auth.json` inside the directory `XDG_RUNTIME_DIR` names (Podman / Skopeo)
 - `~/.config/helm/registry/config.json` (Helm OCI)
 
 Credential-helper delegation via `credsStore` and `credHelpers` is honored across all three locations, so OS-keychain integration via delegated helper binaries works without further configuration. For a private OCI catalog or chart repository, run `docker login <registry>` (or `helm registry login <registry>` for Helm-specific OCI) before `aggrega pull`. The credentials persist in the standard config file; Aggrega reads them automatically.
@@ -346,10 +346,10 @@ Pass --pin-sources, or set pin_sources_at_pull in the workspace configuration, t
 that same step instead; --pin-sources=false restores the halt for one run.
 
 Which files of a local source directory belong to its entity was decided when the entity was
-pinned, by the ignore rules of the plugin that served its capability for the author, and is
-recorded in its entity.lock. Where the plugin this workspace binds for that capability declares
-different rules, pull prints a warning naming both plugins and the difference, and carries on:
-the entity's files are the ones its recorded rules kept.
+pinned, by the ignore rules of the plugin that served its capability for the author, and its
+entity.lock records that decision. Where the plugin this workspace binds for that capability
+declares different rules, pull prints a warning naming both plugins and the difference, and
+carries on: the entity's files are the ones its recorded rules kept.
 ```
 
 **Flags**

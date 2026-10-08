@@ -1941,7 +1941,7 @@ Emitted message. The condition's own sentence opens it, and every collected disa
 `<site>` is where the release asks for the reference, written as the path to the entry that names it — `manifest.spec.mappings.components.name.db-primary`, say — with up to three such places listed in sorted order and `...` after them where there are more. A reference whose resolution records no such place is reported without the parenthesis.
 
 A pull reporting a moved source reference names the artifact as its author wrote it, with `chart=` and `module_subdir=` where the source names them:
-> source-artifact kind=`<kind>` url=`<url>`: reference `"<ref>"` moved — the lockfile pins `<commit>`, and it now resolves to `<commit>`. Adopt where it now points with `aggrega pull --upgrade --release <release>`
+> source-artifact kind=`<kind>` url=`<url>`: reference `"<ref>"` moved — the lockfile pins `<commit>`, and it now resolves to `<commit>`; adopt where it now points with `aggrega pull --upgrade --release <release>`
 
 A build prints the remedy after the entries:
 > run `aggrega pull --release <release>` to re-resolve the Release and rewrite its lockfile
@@ -2249,11 +2249,10 @@ It reaches several kinds of work, all of them the same refusal: acquiring an art
 Emitted message, which carries its own remediation and is the condition's own sentence:
 > egress: network access refused because the workspace is offline; remediation: pass `--offline=false` to allow the network for this one run, or clear the top-level `offline` key in the configuration file (or AGGREGA_OFFLINE) to allow it from now on; where the work is a build that needs content the machine does not have, run `aggrega pull --release <release>` from a connected environment first to populate the cache
 
-Framed by whatever needed the network. Fetching a registry's advertised trust policy:
-> registrytrust: fetch `<host>`: `<the message above>`
-
-and acquiring a Recipe's source:
+Framed by whatever needed the network — acquiring a Recipe's source, for one:
 > sourceresolver: kind=`<kind>` url=`<url>` version=`<version>`: `<the message above>`
+
+Adding the official hub in an offline workspace is not refused: the hub is added on its built-in baseline, and the notice says the hub was not asked for its trust policy because the workspace is offline.
 
 **How to fix:** the message names three ways and which one applies is yours to decide. Where the posture is set and you want past it for this one command, pass `--offline=false`; that is what the flag is for, and it is the only answer available to somebody who did not write the configuration file themselves. Where the workspace is meant to be offline, the missing content is what to fix: run the pull from somewhere with network access so the cache holds everything the release reaches, then the offline build needs nothing further. Where it is not meant to be offline at all, clear the setting at its source — the top-level `offline` key in `.aggrega-config.yaml`, or the environment variable the message names, and the variable is the one that catches people out because it is not in any file. Note that an offline workspace cannot sign with the keyless path at all, since issuing a certificate and recording it are network operations with no offline form.
 
@@ -4730,10 +4729,12 @@ An ordinary, expected outcome rather than a fault, and it stops nothing. A regis
 
 It is deliberately distinct from a registry that could not be reached. This one answered; the answer was that it publishes no policy. Keeping the two apart is what lets a deliberate absence be tolerated while a reachability problem is still visible as one.
 
-Reported as a notice, which names the registry and what to do instead:
-> Notice: registry `<host>` advertises no trust config (registrytrust: registry advertises no trust config); pin identities manually with --identity/--key
+Reported as a notice, which names the registry, what it answered, and what to do instead:
+> Notice: `<host>` publishes no trust policy (HTTP 404); pin its trust by hand with --identity or --key
 
-The official hub is the exception: it carries a built-in baseline, so where it publishes no document that baseline is pinned instead, and the notice says the baseline was pinned rather than asking you to pin identities.
+The condition it is recorded under is `registrytrust: registry advertises no trust config`.
+
+The official hub is the exception: it carries a built-in baseline, so where it publishes no document that baseline is pinned instead, and the notice says what the hub answered and that the baseline is used in its place rather than asking you to pin identities.
 
 **How to fix:** nothing is broken. If you want signatures from this registry checked, supply the identity or the key when adding it, exactly as the notice says — that is the normal path for a registry that publishes no policy. If you do not, the registry is added without a signing stance and artifacts from it are verified only when they carry a signature.
 

@@ -99,7 +99,7 @@ Existing settings in the target config file are preserved.
 | `--advisory` | `false` | Downgrade verification failures for this registry to warnings instead of halting |
 | `--fetch-trust` | `true` | Fetch and pin the registry's advertised trust policy on first use. Use --fetch-trust=false to skip; manual --identity/--key also skip the fetch. |
 | `--global` | `false` | Write the entry to the global config shared across every workspace. A registry defaults here. |
-| `--identity` | `[]` | Trusted keyless identity as `identity=issuer` (repeatable; OR-set). E.g. dev@example.com=https://accounts.google.com. Overrides the fetched trust policy. |
+| `--identity` | `[]` | Trusted keyless identity as `identity=issuer`, for example dev@example.com=https://accounts.google.com (repeatable; OR-set). Overrides the fetched trust policy. |
 | `--key` | — | Path to a pinned cosign-compatible public-key PEM for keyed verification. Overrides the fetched trust policy. |
 | `--name` | — | Optional friendly alias for this registry. The host stays the identity; the alias resolves to it wherever a registry is named (e.g. --registry). Must be unique across registries. |
 | `--require-signatures` | `false` | Require a signature on every artifact pulled from (and pushed to) this registry |
@@ -351,9 +351,9 @@ would trust nothing while every later pull held the registry to it. The refusal 
 short code `E0310` and names both ways forward: pass `--offline=false` to register it once
 while online, or pin the policy by hand with `--identity` or `--key`, which registers exactly
 what you supply and makes no fetch at all. The official hub is added on its built-in
-baseline, with a notice saying that baseline was pinned and carrying the offline refusal as
-the reason no advertised policy was taken, and `--fetch-trust=false` registers the entry
-from its flags exactly as it does online. The
+baseline, with a notice saying the hub was not asked for its trust policy because the
+workspace is offline and the baseline is used instead, and `--fetch-trust=false` registers
+the entry from its flags exactly as it does online. The
 same registration made through [`aggrega serve`](aggrega-serve.md) or
 [`aggrega mcp`](aggrega-mcp.md) behaves the same way: the same refusal in the same words,
 and otherwise the same entry. [A registry is added offline with no trust policy to

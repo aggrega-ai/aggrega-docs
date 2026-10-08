@@ -128,7 +128,7 @@ recorded, and **halts instead of adopting it**:
 #   source-artifact kind=git-repository url=https://github.com/helm/examples.git
 #   module_subdir=charts/hello-world: reference "hello-world-0.1.0" moved — the
 #   lockfile pins 03f4a18d3c2b77b7ecd91d0324a95910d4f04152, and it now resolves to
-#   f3dc419e558e6ccebce2ed447384e5d2e11de2f9. Adopt where it now points with
+#   f3dc419e558e6ccebce2ed447384e5d2e11de2f9; adopt where it now points with
 #   `aggrega pull --upgrade --release <release>`
 ```
 
