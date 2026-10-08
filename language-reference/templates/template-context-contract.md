@@ -99,7 +99,7 @@ The InjectPipe is the post-interception state — FeatureRecipe `injectMapping` 
 - **`.socket` (string)** — caller-side socket name (the `usesSchema` key).
 - **`.provides` (string-valued map)** — target's resolved `provides:` keys (the public output strings the target Recipe exported at provides evaluation).
 - **`.inject` (map of mechanism → map of key → value)** — caller-side inject directives for this edge (the `inject:` block on the `uses[].inject` declaration). Mechanism keys are `env`/`file`/`arg`/custom; per-mechanism map entries are local-key → target-provides-key references.
-- **`.labels` (string-valued map)** — target's Catalog labels (immutable per Architect authoring).
+- **`.labels` (string-valued map)** — the **target's** labels, never the consuming component's: the set the target's own `.context.labels` carries, its catalog-authored labels plus any `label-transform` additions made at topology construction.
 - **`.annotations` (three buckets)** — target's `release`/`catalog`/`aggregate` annotation buckets.
 - **`.component` (string)** — target's Component type URI.
 - **`.resolved_version` (string)** — target's Component version after Manifest resolution.
@@ -221,7 +221,7 @@ artifacts:
 
 ### An assertion's `.uses` — keyed by socket, then by alias
 
-An `assertions:` template reads the same connections through a narrower view of its own: `.uses` at the root rather than under `.context`, and carrying each connection's identity but nothing its target published, because both assertion phases evaluate before rendering. It mirrors the authoring form `uses: <socket>: <alias>: { target: … }` — keyed by **socket**, and under each socket by the **alias** of every connection on it, a connection written as a list entry taking its target as its alias. Each connection's entry carries `target`, `alias` and, for a connection a Feature attachment drew, `origin_feature`.
+An `assertions:` template reads the same connections through a narrower view of its own: `.uses` at the root rather than under `.context`, and carrying nothing a connection's target published, because both assertion phases evaluate before rendering. It mirrors the authoring form `uses: <socket>: <alias>: { target: … }` — keyed by **socket**, and under each socket by the **alias** of every connection on it, a connection written as a list entry taking its target as its alias. Each connection's entry carries `target`, `alias` and, for a connection a Feature attachment drew, `origin_feature`, and three of the facts [`.context.uses`](#contextuses--join-projection-enrichededge) carries, under the same names and holding the same values: `.labels`, the **target's** labels; `.values`, the values written on the connection; and `.features`, the attachments written on it, keyed by slot. Each of the three is present on every entry, empty where the connection carries none. An attachment under `.features` carries its `type`, `resolved_version` and `values` only — the shape an assertion reads every attachment in, a component's own included, since an attachment's FeatureRecipe has not resolved its `provides` when an assertion runs.
 
 A socket holding one connection and a socket holding several have the same shape, so an assertion reads either the same way. For a component whose Aggregate entry writes `uses: { models: { local: { target: llama }, fast: { target: turbo } } }`:
 
