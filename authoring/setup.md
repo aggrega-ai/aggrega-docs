@@ -31,12 +31,25 @@ Unblock-File "$dir\aggrega.exe"
 
 A terminal opened after that finds `aggrega`; one already open keeps the `PATH` it started with.
 
-**The executable is not code-signed**, so Windows treats it as a program from an unknown publisher, and a downloaded copy can meet a warning before it first runs. Which one you meet depends on how the file arrived and how you start it:
+**The executables are signed.** Each carries an Authenticode signature, the code signature Windows checks, and the publisher Windows shows for it is **Cognitio S.r.l.** Each signature also carries a timestamp: the certificate behind a signature is valid for a few days only, and the timestamp is what keeps the signature valid after that certificate expires. To check a downloaded file before you run it:
+
+- **In File Explorer,** open the file's **Properties** and its **Digital Signatures** tab. The signature list names **Cognitio S.r.l.**; select it and then **Details**, which reports *This digital signature is OK.*
+- **In PowerShell,** with `$dir` as in the example above:
+
+  ```powershell
+  $signature = Get-AuthenticodeSignature "$dir\aggrega.exe"
+  $signature.Status
+  $signature.SignerCertificate.Subject
+  ```
+
+  `Status` reports `Valid`, and the subject begins `CN=Cognitio S.r.l.`. `NotSigned` or `HashMismatch` means the file is not the one the release published, or was changed after it was signed.
+
+A signature names the publisher; it does not make every warning go away. Which one you meet depends on how the file arrived and how you start it:
 
 - **While downloading,** a browser may warn that the file is not commonly downloaded and ask whether to keep it. Keeping it saves the file as downloaded.
-- **When you start it from File Explorer** or from the browser, Windows may show *Windows protected your PC*. Select **More info**, check that the file name is the one you downloaded, then select **Run anyway**. Started from PowerShell or a command prompt instead, the same file may run without that prompt; whether it does depends on the Windows version and its settings.
+- **When you start it from File Explorer** or from the browser, Windows may show *Windows protected your PC*. That prompt comes from Microsoft Defender SmartScreen, which weighs the reputation a file and its publisher have built, so a newly released version can still meet it, signed as it is, until its own reputation builds. For a signed file the prompt names the publisher: select **More info**, check that it names **Cognitio S.r.l.** and the file name you downloaded, then select **Run anyway**. Started from PowerShell or a command prompt instead, the same file may run without that prompt; whether it does depends on the Windows version and its settings.
 - **`Unblock-File` answers that prompt in advance.** A downloaded file is marked as coming from the internet, and that mark is what the *Windows protected your PC* check answers to. `Unblock-File` in PowerShell, as in the example above, removes the mark; so does the **Unblock** checkbox on the **General** tab of the file's **Properties** in File Explorer.
-- **Where Smart App Control is turned on** (Windows 11), Windows may block an unsigned program outright, without offering **Run anyway**. Whether it is on is shown under **App & browser control** in Windows Security.
+- **Where Smart App Control is turned on** (Windows 11), it checks a program when you start it. As Microsoft describes it, Smart App Control first asks Microsoft's cloud security service whether the program is safe; when that service cannot make a confident prediction, it checks the signature, letting a program with a valid signature run and blocking one that is unsigned or whose signature is invalid. Whether it is on is shown under **App & browser control** in Windows Security.
 
 ### The macOS prebuilt binary
 
