@@ -269,6 +269,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrManifestCrossBindingPillarCollision()` | `manifest-cross-binding-pillar-collision` | `manifest annotation bindings collide on same Feature path+pillar` |
 | `ErrManifestImplementsMismatch()` | `manifest-implements-mismatch` | `manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key` |
 | `ErrManifestReservedPrefix()` | `manifest-reserved-prefix` | `manifest annotation binding uses reserved prefix` |
+| `ErrMisnamedSlotFill()` | `misnamed-slot-fill` | `attachment written under a name no slot declares fits a slot its component leaves empty` |
 | `ErrMissingRequiredFeature()` | `missing-required-feature` | `missing required feature: attach a Feature of the required type to the component` |
 | `ErrMissingRequiredSocket()` | `missing-required-socket` | `required uses socket not populated` |
 | `ErrParameterContractViolation()` | `parameter-contract-violation` | `parameter contract violated` |
@@ -776,6 +777,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0325` | `provider-render-fact-not-list` | `provider guest reported a render fact whose value is not a list; a conforming guest reports every render fact's value as a JSON array, even with one entry` |
 | `E0326` | `pipeline-step-reads-caller-render-facts` | `pipeline step reads its callers' render facts, but a pipeline step does not read the components connecting to its host; it reads only the host's own render facts` |
 | `E0327` | `index-of-absent-map-key` | `template indexes a map with a key the map does not hold` |
+| `E0328` | `misnamed-slot-fill` | `attachment written under a name no slot declares fits a slot its component leaves empty` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication no longer judges a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.

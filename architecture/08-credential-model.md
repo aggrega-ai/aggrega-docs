@@ -40,7 +40,7 @@ spec:
       inject: [env, file]                     # transparent — the developer may dictate delivery
 ```
 
-An attachment whose instance name matches a declared slot **fills** that slot. An attachment under any other name is a **free** attachment: the entity did not ask for it, and it renders alongside anything the entity did ask for. The generated schema for a declared slot stays open, so declaring one slot never closes the block against free attachments.
+An attachment whose instance name matches a declared slot **fills** that slot. An attachment under any other name is a **free** attachment: the entity did not ask for it, and it renders alongside anything the entity did ask for. The generated schema for a declared slot stays open, so declaring one slot never closes the block against free attachments. One shape halts instead of rendering: an attachment written on the component itself whose Feature satisfies the `selector` of a slot nothing binds there, which is a fill written under the wrong name rather than a free attachment.
 
 Two things a slot may constrain:
 

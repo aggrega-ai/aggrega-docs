@@ -2951,6 +2951,33 @@ It is positioned at the attachment's key under that connection's `features:`, in
 
 **How to fix:** for a fill that did not satisfy the constraint, attach a Feature whose labels do — the selector in the message says which labels are being asked for — or widen the slot's `selector:` in the Component that declares it. Where the message says the constraint could not be evaluated, the selector expression is the fault: correct it in the Component's slot declaration, or in the socket's.
 
+### An attachment written under another name fits a slot its component leaves empty
+
+<!-- covers: pkg/resolver.ErrMisnamedSlotFill -->
+
+A Component's own attachment surface is open: an attachment under a name no slot declares is a free attachment, and legal. One shape on that surface halts, because it is the shape a fill meant for a slot takes when it is written under the wrong name. The build stops when all of these hold for one attachment:
+
+- it is written on the component itself — on the component's own `features:` block in the Aggregate, or on the Release's entry for that one component;
+- its name is not a slot the component's type declares;
+- its Feature's labels satisfy the `selector:` of a slot the type declares;
+- nothing binds that slot on the component once every scope has folded.
+
+Left alone, such an attachment is a free attachment while the slot it was meant for stays empty — and an optional slot left empty builds green and delivers nothing. The rule holds for every Feature, not only for credentials.
+
+Everything else on the surface stays free. An attachment whose Feature fits no declared slot builds; so does an extra attachment beside a slot something already binds, as long as no other slot it fits is left empty. An attachment the component inherits from a subsystem or a Release boundary is never judged, so the shared shape — one credential attached once at a scope several components sit in, with no component filling the slot — builds as it always has. A slot declaring no `selector:` says nothing about which Feature it is for, so no attachment is held to it this way. An attachment a connection carries is not judged here either: a socket's slots are a closed set, and any other name on a connection halts under "A connection carries an attachment under a name its socket declares no slot for".
+
+Emitted message. The condition's sentence comes first, then the name the attachment was written under, the component, the Feature it attaches and the empty slot it fits — then what to do about it:
+> attachment written under a name no slot declares fits a slot its component leaves empty (`"<attachment>"`, on component `"<component>"`, attaching the Feature `"<feature-type>"`, which fits the empty slot `"<slot>"`). Attach it as `"<slot>"` to fill the slot.
+
+Where the Feature fits more than one empty slot, the message names each, in the order the component's type declares them, and leaves the choice to you:
+> attachment written under a name no slot declares fits a slot its component leaves empty (`"<attachment>"`, on component `"<component>"`, attaching the Feature `"<feature-type>"`, which fits the empty slot `"<slot>"`, and the empty slot `"<another-slot>"`). Attach it under the name of the slot it is meant to fill.
+
+It is positioned at the attachment's key under the component in the Aggregate, `.spec.components.<component>.features.<attachment>`, and filed as a developer fault. Where only the Release wrote the attachment, on its entry for the component, the Aggregate holds no such key and an editor places the finding on the nearest key that does exist; the attachment itself is on the Release's entry for that component.
+
+**How this differs from the near-miss advisory.** The advisory under "An attachment name is one edit from a declared slot" is about how a name is spelled: a name one edit from a slot whose `selector:` the attachment's Feature does not satisfy, which builds and reports a warning. This halt is about what the Feature fits, whatever the name: the name may be anything, and the slot it fits must be left empty. Where a name is one edit from a slot and its Feature does fit that slot, no advisory is raised, and if the slot is left empty this halt is the one finding reported.
+
+**How to fix:** attach it under the slot's name, so it fills the slot — the message names the slot, or every candidate when there are several. If it really is a separate attachment, fill the slot as well, since an extra attachment is free once every slot it fits is bound; or, where it is meant to reach several components, attach it at the subsystem or Release boundary they sit in. If the Feature should never fill that slot, narrow the slot's `selector:` in the Component that declares it.
+
 ### An attachment delivers a key another inject source already claimed
 
 <!-- covers: internal/compiler/renderer.ErrAttachmentInjectKeyCollision -->
@@ -4568,7 +4595,7 @@ It is what warns you before a build meets the halt described under "An annotatio
 
 <!-- covers: pkg/resolver.ErrAttachmentSlotNearMiss -->
 
-An advisory. A component attaches a Feature under a name that is not one of its type's declared slots but sits within a single edit of one — the shape a slot-name typo takes. An attachment under a name no slot declares is legal, so nothing halts; what the advisory names is the consequence, which is that the attachment is a free attachment rather than a fill of the slot you meant, and the slot stays empty. On a connection the same typo is not legal and halts instead, naming the near slot; see "A connection carries an attachment under a name its socket declares no slot for".
+An advisory. A component attaches a Feature under a name that is not one of its type's declared slots but sits within a single edit of one — the shape a slot-name typo takes. An attachment under a name no slot declares is legal, so nothing halts; what the advisory names is the consequence, which is that the attachment is a free attachment rather than a fill of the slot you meant, and the slot stays empty. On a connection the same typo is not legal and halts instead, naming the near slot; see "A connection carries an attachment under a name its socket declares no slot for". Where the attachment's Feature satisfies the near slot's `selector:`, the advisory is not raised: that pairing is judged by the halt under "An attachment written under another name fits a slot its component leaves empty", which reports it when the slot is left empty.
 
 Its message opens:
 > attachment name is a near miss for a declared slot
@@ -5456,6 +5483,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0325` | `provider guest reported a render fact whose value is not a list; a conforming guest reports every render fact's value as a JSON array, even with one entry` | A provider reported a render fact whose value is not a list |
 | `E0326` | `pipeline step reads its callers' render facts, but a pipeline step does not read the components connecting to its host; it reads only the host's own render facts` | A pipeline step reads its callers' render facts |
 | `E0327` | `template indexes a map with a key the map does not hold` | A template indexes a map with a key the map does not hold |
+| `E0328` | `attachment written under a name no slot declares fits a slot its component leaves empty` | An attachment written under another name fits a slot its component leaves empty |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
