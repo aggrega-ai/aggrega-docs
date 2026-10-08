@@ -34,9 +34,11 @@ spec:
   valuesMapping: |
     ingress:
       hostname: "{{ .infra.hostname }}"
-      targetService: "{{ .context.instance_id }}"
+      targetService: "{{ .context.rendered_name }}"
       targetPort: "8080"
 ```
+
+`targetService` names a resource of the host, so it is built from `.context.rendered_name` — the host component's name as its provider reports it, spelled in the characters a Kubernetes name allows — and not from `.context.instance_id`, which keeps any underscore or capital the component's name carries.
 
 **3. Routing Domain: The Release**
 Ops attaches the Ingress feature and provides the physical hostname via `infra`.

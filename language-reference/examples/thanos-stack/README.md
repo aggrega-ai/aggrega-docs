@@ -93,7 +93,7 @@ env:
   - name: AWS_SECRET_ACCESS_KEY
     valueFrom:
       secretKeyRef:
-        name: metrics.store-s3.credential
+        name: metrics-zdstore-s3.credential
         key: s3-secret-key
 ```
 
@@ -114,7 +114,7 @@ args:
 
 The object store renders as a Deployment with a persistent volume mounted at
 `/data`, plus a ClusterIP Service on the S3 API port. Its `MINIO_ROOT_PASSWORD`
-reads the same secret from a Secret of its own, `metrics.objstore-root-password`.
+reads the same secret from a Secret of its own, `metrics-zdobjstore-root-password`.
 The two Secrets are emitted beside the workloads, one for the object store's
 credential slot and one for the credential the Store Gateway's `s3` connection
 carries, each carrying the module's development default.

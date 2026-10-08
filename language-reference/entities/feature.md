@@ -81,7 +81,7 @@ spec:
       - core/fixed-replica-controller
 ```
 
-This Feature attaches only to `server`-typed Components and declares incompatibility with another replica-controlling Feature: a build in which any component ends up carrying both halts before rendering. A FeatureRecipe that needs the name of the component it is attached to — to point an autoscaler at its target, for instance — reads it from `.context.instance_id` and writes it wherever its output needs it.
+This Feature attaches only to `server`-typed Components and declares incompatibility with another replica-controlling Feature: a build in which any component ends up carrying both halts before rendering. A FeatureRecipe that needs the name of the component it is attached to — to point an autoscaler at its target, for instance — reads it from its template context and writes it wherever its output needs it: `.context.instance_id` is the component's identity, and `.context.rendered_name` is the name the component's own provider gives the resources it renders for it, which is the one to target a resource by — under `helm`, the name of the Deployment a synthesized workload emits, and the release name a chart builds its own names from.
 
 ## Inheritance via `extends`
 

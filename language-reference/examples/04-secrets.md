@@ -11,7 +11,7 @@ Implementing a credential pattern end-to-end touches six surfaces across the fou
 | 3 | Aggregate component instance `features:` block | **Request** the credential at the developer's authoring surface — the one attachment keyword, the same one an operational Feature uses. The attachment specifies the credential Feature `type`, the store-query `values`, and (for White-Box slots only) the `inject:` mapping that wires the resolved credential to the application's expected delivery shape. |
 | 4 | FeatureRecipe `pipeline:` (Two-Part Plugin Principle) | **Implement** the credential's runtime resolution. The Fetcher plugin generates the cloud-specific CRD (`ExternalSecret`, `VaultSecret`, etc.) referencing the developer's vault path; the Injector plugin mounts the resolved Kubernetes Secret to the target container at the developer's requested key. Swapping vaults (AWS → HashiCorp) only replaces the Fetcher; the Injector is reusable. |
 | 5 | Manifest `mappings.features.type` | **Bind** the credential Feature type to its FeatureRecipe, in the same `features.type` tier as operational Features. Provider dispatch flows from each resolved FeatureRecipe's capability at orchestrator time. |
-| 6 | Recipe `valuesMapping:` template (Black-Box only) | **Reference** the dictated physical secret name when the slot is Black-Box. The Recipe's `valuesMapping:` consumes `{{ .locals.secret_target_<slot> }}` (or the equivalent Recipe-published pointer) and feeds the chart's native secret-mount mechanism (`existingSecret`, etc.). White-Box slots skip this step — the Workload's `attachments:` block carries the delivery directly. |
+| 6 | Recipe `valuesMapping:` template (Black-Box only) | **Reference** the dictated physical secret name when the slot is Black-Box. The Recipe's `valuesMapping:` consumes it — on the `helm` target `{{ .context.rendered_name }}-{{ .locals.secret_target_<slot> }}`, the local carrying the suffix the Recipe chooses (or the equivalent Recipe-published pointer) — and feeds the chart's native secret-mount mechanism (`existingSecret`, etc.). White-Box slots skip this step — the Workload's `attachments:` block carries the delivery directly. |
 
 The split between White-Box and Black-Box determines how many touch-points a particular credential pattern requires. White-Box covers the first five surfaces above; Black-Box covers all six — the heavier of the two, and the one Recipe authors most often implement when sourcing packaged infrastructure (Bitnami charts, managed services, etc.).
 
@@ -114,7 +114,9 @@ spec:
       function: generate_external_secret
       with: |
         secret_path: "{{ .values.path }}"
-        k8s_secret_name: "{{ .context.instance_id }}-{{ .attachment_name }}"
+        # The host's rendered name, spelled in the characters a Kubernetes name
+        # allows, and the slot name with its underscores folded to hyphens.
+        k8s_secret_name: '{{ .context.rendered_name }}-{{ .attachment_name | replace "_" "-" }}'
         remote_key: "{{ .values.key }}"
 
     - id: "workload_injector"
@@ -199,7 +201,7 @@ spec:
 ```
 
 **3. Ops Domain: The Base Recipe**
-Ops dictates the exact physical secret name. The chart's native `existingSecret` mechanism handles injection internally.
+Ops dictates the exact physical secret name. The chart's native `existingSecret` mechanism handles injection internally. The name is the component's rendered name — the name the helm provider gives the component's resources, spelled in the characters a Kubernetes name allows — followed by a suffix the Recipe chooses. A `locals:` entry cannot read `.context.rendered_name`, so the local carries the suffix alone, and each template that writes the full name joins the two.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -218,22 +220,23 @@ spec:
     version: 18.0.0
   locals:
     primary_compute: "redis-primary"
-    # Recipe dictates the physical secret name for the Wasm pipeline
-    secret_target_admin_password: "{{ .context.instance_id }}-redis-auth"
+    # Recipe dictates the physical secret name for the Wasm pipeline: the
+    # suffix it follows the component's rendered name with
+    secret_target_admin_password: "redis-auth"
   provides:
     host: "{{ .context.rendered_name }}"
     port: "6379"
   valuesMapping: |
     fullnameOverride: "{{ .context.rendered_name }}"
     auth:
-      existingSecret: "{{ .context.instance_id }}-redis-auth"
+      existingSecret: "{{ .context.rendered_name }}-{{ .locals.secret_target_admin_password }}"
       existingSecretPasswordKey: "redis-password"
 ```
 
 For a runnable end-to-end walkthrough of the `.features.<slot>.provides.name` → chart `existingSecret` flow — a sourced Recipe consuming a multi-key credential Secret by its published name — see the [`mariadb-bitnami-credential-set`](mariadb-bitnami-credential-set/) example.
 
 **4. Ops Domain: The FeatureRecipe**
-The Fetcher plugin dynamically indexes the Base Recipe's exported key using the `.attachment_name` context variable (`"admin_password"`) to extract the dictated physical name.
+The Fetcher plugin dynamically indexes the Base Recipe's exported key using the `.attachment_name` context variable (`"admin_password"`) to extract the dictated suffix, and prefixes the host's rendered name, which an attachment's templates read as `.context.rendered_name` — the same two parts the Recipe's `existingSecret` joins, so the Secret the Fetcher generates is the one the chart mounts.
 
 > **The `pipeline:` field executes during `aggrega build`: the compiler runs each declared step in order against the rendered document set. See [Status of the Language](../10-status.md#compilation-pipeline-phases) for the per-phase readiness.**
 
@@ -252,8 +255,8 @@ spec:
       function: generate_external_secret
       with: |
         secret_path: "{{ .values.path }}"
-        # Dynamically reads the target name dictated by the Base Recipe
-        k8s_secret_name: '{{ index .locals (printf "secret_target_%s" .attachment_name) }}'
+        # The host's rendered name, then the suffix the Base Recipe dictates
+        k8s_secret_name: '{{ .context.rendered_name }}-{{ index .locals (printf "secret_target_%s" .attachment_name) }}'
         remote_key: "{{ .values.key }}"
 ```
 

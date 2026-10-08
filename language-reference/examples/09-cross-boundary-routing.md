@@ -182,7 +182,7 @@ During the plugin pipeline, the compiler feeds the Injector plugin its step inpu
     "instance_id": "data-worker",
     "function": "inject_secret",
     "with": {
-      "k8s_secret_name": "data-worker-db_credentials",
+      "k8s_secret_name": "data-worker-db-credentials",
       "target_container": "worker-container",
       "containers_path": "/spec/template/spec/containers",
       "volumes_path": "/spec/template/spec/volumes",
@@ -222,7 +222,7 @@ The plugin returns its patch appending the Volume and VolumeMount. The JSON belo
           "volumes": [
             {
               "name": "vault-vol-db",
-              "secret": { "secretName": "data-worker-db_credentials" }
+              "secret": { "secretName": "data-worker-db-credentials" }
             }
           ],
           "containers": [

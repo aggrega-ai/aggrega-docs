@@ -88,7 +88,7 @@ Common shapes:
 
 The six mechanisms run in a defined order so downstream mechanisms can read upstream outputs. The order:
 
-1. **Provides evaluation** — per node, the Recipe's `locals:` block resolves first, in author order, each entry reading the entries above it; the node's `provides:` templates then evaluate, in any order among themselves (self-contained: `.context.instance_id`, `.values`, `.infra`, the resolved `.locals`, static text). The locals-before-provides order is what lets a `provides:` entry read a local and receive a resolved value.
+1. **Provides evaluation** — per node, the Recipe's `locals:` block resolves first, in author order, each entry reading the entries above it; the node's `provides:` templates then evaluate, in any order among themselves (self-contained: `.context.instance_id`, `.context.rendered_name` where the node's provider reports one, `.values`, `.infra`, the resolved `.locals`, static text). The locals-before-provides order is what lets a `provides:` entry read a local and receive a resolved value.
 2. **Locals publication and source resolution** — those locals are published onto `.locals`, and the Recipe's `source:` URI template evaluates against them (resolving the source pointer if templated). The source surface shares the locals context, so it reads `.locals` and not `.provides`.
 3. **Inject mapping** — FeatureRecipe `injectMapping:` blocks evaluate (the inject pipe is intercepted before Recipe rendering).
 4. **Values mapping** — Recipe `valuesMapping:` evaluates (sourced mode + sourceless mode produce values dictionaries).

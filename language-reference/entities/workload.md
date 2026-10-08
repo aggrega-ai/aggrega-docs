@@ -342,12 +342,12 @@ containers:
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
 kind: Workload
-serviceAccount: "{{ .context.instance_id }}-runner"
+serviceAccount: "{{ .context.rendered_name }}-runner"
 containers:
   app: { image: "..." }
 ```
 
-The field references an existing ServiceAccount; it does not create one. The accompanying RBAC resources (the ServiceAccount object itself, plus Role / RoleBinding / ClusterRole / ClusterRoleBinding) should ship through one of two channels:
+The name is built from `{{ .context.rendered_name }}`, the release name the helm provider names the workload's own resources after, so it is one the cluster accepts whatever the component is called. The field references an existing ServiceAccount; it does not create one. The accompanying RBAC resources (the ServiceAccount object itself, plus Role / RoleBinding / ClusterRole / ClusterRoleBinding) should ship through one of two channels:
 
 - **Recipe `artifacts:`** — when the RBAC is intrinsic to this Recipe (the Recipe knows it needs a specific Role for a specific job).
 - **Features with Resource Generation** — when the RBAC is cross-cutting (a Workload-Identity FeatureRecipe attaching IAM-bound ServiceAccounts to every component with a particular label).
@@ -661,10 +661,10 @@ containers:
 volumes:
   config:
     configmap:
-      name: "{{ .context.instance_id }}-config"
+      source: "{{ .context.instance_id }}-config"
 ```
 
-The config volume references a ConfigMap the Recipe is expected to emit alongside the Workload via `artifacts:` (see "Auxiliary resources belong outside the Workload" above) — the Workload itself only declares the consumption side.
+The config volume references a ConfigMap the Recipe is expected to emit alongside the Workload via `artifacts:` (see "Auxiliary resources belong outside the Workload" above) — the Workload itself only declares the consumption side. The identity names it on a provider that names the workload after the identity, as `compose` does; under `helm`, which names the workload's resources after the release name, build the ConfigMap's name — here and in the artifact — from `{{ .context.rendered_name }}` instead, so it is one the cluster accepts whatever the component is called.
 
 ### Pattern 3 — Sidecar pair
 

@@ -86,7 +86,7 @@ The phrase "strictly localized" overstates the localization — it implies a wal
 
 The `provides:` pillar is **derived** — a Recipe declares it, but unlike `values` / `infra`, the developer does not author it directly. Recipes compute the public output strings the topology pipe will consume.
 
-A Recipe's `provides:` block is a map of `<key>: <template>` pairs. Each template evaluates against the Recipe's own self-contained surface (`.values`, `.infra`, `.context.instance_id`, and the node's resolved `.locals`) during provides evaluation. The resulting strings are exposed via `.provides` and consumed by callers' `uses[].inject` blocks via `from: "<key>"` references. `.locals` is available because the node's locals resolve in that stage's preamble, ahead of its provides (see [Locals](#locals) below); naming a key the locals block does not declare halts.
+A Recipe's `provides:` block is a map of `<key>: <template>` pairs. Each template evaluates against the Recipe's own self-contained surface (`.values`, `.infra`, `.context.instance_id`, `.context.rendered_name` where the node's provider reports one, and the node's resolved `.locals`) during provides evaluation. The resulting strings are exposed via `.provides` and consumed by callers' `uses[].inject` blocks via `from: "<key>"` references. `.locals` is available because the node's locals resolve in that stage's preamble, ahead of its provides (see [Locals](#locals) below); naming a key the locals block does not declare halts.
 
 **Self-containment invariant.** Recipe `provides:` templates must not reference `.context.inject` or `.context.uses`. Provides evaluation runs those templates in any order — they close over the node's own data only, so the order does not matter. Cross-node references would couple that evaluation to topological iteration order, which the design deliberately avoids. See [`templates/expansion-matrix.md`](../templates/expansion-matrix.md) row 6 for the rule and its rationale.
 
@@ -127,7 +127,7 @@ The `locals:` pillar is Recipe-private state. The whole block resolves in the lo
 
 **Use cases:**
 
-- Computing Recipe-internal pointer strings (e.g., `secret_target_admin_password: "{{ .context.instance_id }}-redis-auth"`) that the Recipe's `valuesMapping:` and `provides:` both consume, and that a credential FeatureRecipe attached to the same component reads as `.locals.secret_target_admin_password` — an attachment's templates see the host Recipe's resolved locals merged with the attachment's own.
+- Computing Recipe-internal pointer strings (e.g., `secret_target_admin_password: "redis-auth"`, the suffix of a Secret's name) that the Recipe's `valuesMapping:` and `provides:` both consume, and that a credential FeatureRecipe attached to the same component reads as `.locals.secret_target_admin_password` — an attachment's templates see the host Recipe's resolved locals merged with the attachment's own. On the `helm` target each of them writes the full name as `{{ .context.rendered_name }}-{{ .locals.secret_target_admin_password }}`: the rendered name is the component's name spelled in the characters a Kubernetes name allows, and a local cannot read it, so the local carries the suffix and every reader joins the two.
 - DRY-ing repeated computed values inside one Recipe (a hostname computed once, referenced from multiple `valuesMapping:` fields).
 - Intermediate values for complex template logic that would be unreadable inline.
 

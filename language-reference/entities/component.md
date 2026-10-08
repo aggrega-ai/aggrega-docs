@@ -260,13 +260,20 @@ metadata:
 spec:
   capability: helm
   implements: core/datastore/mariadb:1.0.0
+  source:
+    kind: helm-oci-chart
+    url: oci://registry-1.docker.io/bitnamicharts/mariadb
+    version: "25.0.8"
   provides:
-    host: "{{ .context.instance_id }}-mariadb.{{ .context.annotations.release.\"aggrega.ai/namespace\" }}.svc.cluster.local"
+    # The chart's primary Service, named by the fullnameOverride pinned below
+    host: "{{ .context.rendered_name }}"
     port: "3306"
     database: "{{ .values.database_name }}"
+  valuesMapping: |
+    fullnameOverride: "{{ .context.rendered_name }}"
 ```
 
-**The provides-then-inject evaluation split.** The compiler evaluates `provides:` templates at provides evaluation against the self-contained template context (`.context.instance_id`, `.values`, `.infra`, and the Recipe's resolved `locals:` on the same node) — no caller state is visible. The node's locals resolve in that stage's preamble, ahead of its provides, which is what lets a `provides:` template read `.locals`. At inject hydration, which runs next, the compiler walks `uses:` edges and resolves each caller's `.context.uses.<alias>.provides.<provided-name>` against the resolved provides values. Splitting the two guarantees acyclic resolution: `provides:` cannot reference a caller, and a caller's `inject:` cannot reference a not-yet-resolved provider's output until inject hydration runs.
+**The provides-then-inject evaluation split.** The compiler evaluates `provides:` templates at provides evaluation against the self-contained template context (`.context.instance_id`, `.context.rendered_name` where the node's provider reports one, `.values`, `.infra`, and the Recipe's resolved `locals:` on the same node) — no caller state is visible. The node's locals resolve in that stage's preamble, ahead of its provides, which is what lets a `provides:` template read `.locals`. At inject hydration, which runs next, the compiler walks `uses:` edges and resolves each caller's `.context.uses.<alias>.provides.<provided-name>` against the resolved provides values. Splitting the two guarantees acyclic resolution: `provides:` cannot reference a caller, and a caller's `inject:` cannot reference a not-yet-resolved provider's output until inject hydration runs.
 
 **Contract evolution.** Renaming or removing a `provides` field is a breaking change for every caller relying on the old name. The Component's `implements:` interface version (and the Recipe's `implements:` declaration) carries the contract evolution signal; downstream callers pinned to a specific major version see a stable `provides` shape.
 

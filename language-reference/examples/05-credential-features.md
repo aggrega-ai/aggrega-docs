@@ -183,9 +183,12 @@ spec:
   capability: helm
   implements: core/referenced-secret:1.0.0
   provides:
-    # Underscores in the slot name are normalized to hyphens, so a slot named
-    # app_user_password publishes a valid Kubernetes object name.
-    name: '{{ .context.instance_id }}-{{ .attachment_name | replace "_" "-" }}'
+    # The host part is the host's rendered name, which the helm provider spells
+    # in the characters a Kubernetes name allows, and underscores in the slot
+    # name are normalized to hyphens, so a host named my_db with a slot named
+    # app_user_password publishes my-zudb-app-user-password, a valid Kubernetes
+    # object name.
+    name: '{{ .context.rendered_name }}-{{ .attachment_name | replace "_" "-" }}'
     key: "{{ .values.key }}"
   # A co-located chart renders the Secret. Its values come from the published
   # provides, so the rendered Secret and the consumer's

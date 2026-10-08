@@ -135,21 +135,25 @@ spec:
     listen_port: "3306"
     volumes_path: "/spec/template/spec/volumes"
     root_path: "/-"
-    # The Base Recipe EXPLICITLY dictates the physical secret name to the Wasm pipeline
-    secret_target_db_password: "{{ .context.instance_id }}-mariadb-auth"
+    # The Base Recipe EXPLICITLY dictates the physical secret name to the Wasm
+    # pipeline: the suffix it follows the rendered name with. A local cannot read
+    # .context.rendered_name, so each template writing the full name joins the two.
+    secret_target_db_password: "mariadb-auth"
 
   provides:
-    host: "{{ .context.instance_id }}"
+    # The chart's primary Service, named by the fullnameOverride pinned below
+    host: "{{ .context.rendered_name }}"
     port: "3306"
 
   valuesMapping: |
+    fullnameOverride: "{{ .context.rendered_name }}"
+    auth:
+      # Reads the suffix from the local rather than restating it, so the secret
+      # name is authored once and every reader follows that one definition
+      existingSecret: "{{ .context.rendered_name }}-{{ .locals.secret_target_db_password }}"
     primary:
       persistence:
         size: "{{ .infra.storage.size }}"
-      auth:
-        # Reads the local rather than restating the expression, so the secret
-        # name is authored once and every reader follows that one definition
-        existingSecret: "{{ .locals.secret_target_db_password }}"
 ```
 
 **Example B: The Local Terraform Module (File Mapping)**
@@ -197,9 +201,13 @@ spec:
     chart: kong
 
   provides:
-    host: "{{ .context.instance_id }}-default"
+    # The chart's proxy Service: it suffixes the name pinned below with "-proxy"
+    host: "{{ .context.rendered_name }}-proxy"
     port: "{{ .infra.proxy_port }}"
     protocol: "http"
+
+  valuesMapping: |
+    fullnameOverride: "{{ .context.rendered_name }}"
 ```
 
 **Cloud-resource naming discipline.**
@@ -417,20 +425,21 @@ A promoted key lands on exactly the same surface as a literal one — the per-pr
 spec:
   capability: helm
   implements: core/postgres-db:1.0.0
+  source: ./charts/postgresql
   locals:
     primary_compute: postgresql
     listen_port: "5432"
-    secret_target_db_password: "{{ .context.instance_id }}-postgres-auth"
+    secret_target_db_password: "postgres-auth"
     volumes_path: "/spec/template/spec/volumes"
   valuesMapping: |
     primary:
       auth:
-        existingSecret: "{{ .locals.secret_target_db_password }}"
+        existingSecret: "{{ .context.rendered_name }}-{{ .locals.secret_target_db_password }}"
 ```
 
 `locals:` is never exposed to callers — downstream components consuming this Recipe via `uses:` see only `provides:`. The Recipe's own `provides:`, `source:`, `valuesMapping:`, `workload:`, `artifacts:`, `assertions:`, and `pipeline[].with` templates all see the resolved `.locals.*` map. Per-key values may be plain strings or Go templates; the compiler resolves the whole block in the locals preamble, ahead of that node's `provides:`, so every later template observes stable resolved values.
 
-Each entry evaluates against a self-contained node-local context: `.context.instance_id`, `.values`, `.infra`, and the entries of this same block already resolved. A local cannot read `.provides` — that pillar is not on this surface, and an entry reaching for it halts.
+Each entry evaluates against a self-contained node-local context: `.context.instance_id`, `.values`, `.infra`, and the entries of this same block already resolved. A local cannot read `.provides` — that pillar is not on this surface, and an entry reaching for it halts. Nor can it read `.context.rendered_name`, the name a provider such as `helm` gives the resources it renders for the node, so a local naming one of those resources carries only the part after that name, as `secret_target_db_password` does above, and the template writing the full name joins the two.
 
 ### Author order is load-bearing
 
@@ -464,13 +473,15 @@ For the public-API counterpart, see [The `provides:` block](#the-provides-block)
 spec:
   capability: helm
   implements: core/postgres-db:1.0.0
+  source: ./charts/postgresql
   provides:
-    host: "{{ .context.instance_id }}-postgresql.{{ .context.annotations.release.\"aggrega.ai/namespace\" }}.svc.cluster.local"
+    # The Service this chart names after its release name, suffixed "-postgresql"
+    host: "{{ .context.rendered_name }}-postgresql"
     port: "5432"
     database: "{{ .values.db_name }}"
 ```
 
-Each entry's template evaluates against the self-contained provides-evaluation surface — `.context.instance_id`, `.values`, `.infra`, the node's resolved `.locals`, and static text. `.locals` is on it because the node's locals resolve in the preamble of the same stage, ahead of its provides; a `provides` template naming a key the locals block does not declare halts. Separating provides evaluation from inject hydration is load-bearing: a Recipe's `provides:` cannot reference any caller's state because callers have not been resolved when provides evaluation runs — `provides:` is self-contained per the architectural invariant. Callers then read these values via `.context.uses.<alias>.provides.<provided-name>` in their own templates — the provided names nest under `provides` on the edge, alongside the edge's other fields. A caller that declares an `inject:` allowlist on the edge reaches the same values through its `.context.inject` pipe instead.
+Each entry's template evaluates against the self-contained provides-evaluation surface — `.context.instance_id`, `.context.rendered_name` where the node's provider reports one, `.values`, `.infra`, the node's resolved `.locals`, and static text. The namespace the node is placed in is not on it, so a published host carries none: a consumer in another namespace qualifies it on its own side. `.locals` is on it because the node's locals resolve in the preamble of the same stage, ahead of its provides; a `provides` template naming a key the locals block does not declare halts. Separating provides evaluation from inject hydration is load-bearing: a Recipe's `provides:` cannot reference any caller's state because callers have not been resolved when provides evaluation runs — `provides:` is self-contained per the architectural invariant. Callers then read these values via `.context.uses.<alias>.provides.<provided-name>` in their own templates — the provided names nest under `provides` on the edge, alongside the edge's other fields. A caller that declares an `inject:` allowlist on the edge reaches the same values through its `.context.inject` pipe instead.
 
 `provides:` keys are part of the Recipe's contract surface. Renaming or removing a key is a breaking change for every caller relying on the old name; the `implements:` interface version should reflect the contract evolution. For the cascade resolution semantics, the inject-pipe contract, and worked examples covering cross-namespace and cross-region routing, see [architecture/06-data-taxonomy-and-composition.md §3](../../architecture/06-data-taxonomy-and-composition.md) and [templates/expansion-matrix.md](../templates/expansion-matrix.md).
 

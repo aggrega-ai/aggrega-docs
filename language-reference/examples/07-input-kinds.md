@@ -70,7 +70,7 @@ Synthesized output for `instance_id: api`, `values.port: 8080`, `infra.replicas:
 
 ## Example 23: Multi-container synthesized Recipe with ConfigMap volumes
 
-Pattern: **synthesized with artifacts** (mixed) — the Workload drives the pod spec; two inline `artifacts:` entries produce the ConfigMaps that the Workload's `volumes:` references. Pillars exercised: `.values`, `.infra`, `.locals`, `.context.instance_id`, `.context.rendered_name`, `.workload` (from artifacts). Expected output: one Deployment with two containers, two Services, and two ConfigMap YAML files.
+Pattern: **synthesized with artifacts** (mixed) — the Workload drives the pod spec; two inline `artifacts:` entries produce the ConfigMaps that the Workload's `volumes:` references. Pillars exercised: `.values`, `.infra`, `.locals`, `.context.rendered_name`, `.workload` (from artifacts). Expected output: one Deployment with two containers, two Services, and two ConfigMap YAML files.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -83,8 +83,9 @@ spec:
   implements: core/compute/server:1.0.0
 
   locals:
-    app_cm: "{{ .context.instance_id }}-app-config"
-    envoy_cm: "{{ .context.instance_id }}-envoy-config"
+    # The suffix each ConfigMap's name carries after the rendered name
+    app_cm: "app-config"
+    envoy_cm: "envoy-config"
 
   provides:
     host: "{{ .context.rendered_name }}-http"
@@ -127,10 +128,10 @@ spec:
     volumes:
       app-config:
         configmap:
-          source: "{{ .locals.app_cm }}"
+          source: "{{ .context.rendered_name }}-{{ .locals.app_cm }}"
       envoy-config:
         configmap:
-          source: "{{ .locals.envoy_cm }}"
+          source: "{{ .context.rendered_name }}-{{ .locals.envoy_cm }}"
       cache:
         persistent:
           size: "5Gi"
@@ -152,7 +153,7 @@ spec:
       apiVersion: v1
       kind: ConfigMap
       metadata:
-        name: {{ .locals.app_cm }}
+        name: {{ .context.rendered_name }}-{{ .locals.app_cm }}
       data:
         config.yaml: |
           listen: 0.0.0.0:{{ .workload.containers.main.ports.web }}
@@ -162,7 +163,7 @@ spec:
       apiVersion: v1
       kind: ConfigMap
       metadata:
-        name: {{ .locals.envoy_cm }}
+        name: {{ .context.rendered_name }}-{{ .locals.envoy_cm }}
       data:
         envoy.yaml: |
           static_resources:
@@ -174,9 +175,11 @@ spec:
 
 The artifact templates reference `.workload.containers.main.ports.web` rather than duplicating the port literal. This is self-containment in action: the Recipe emits both the ConfigMaps and the Workload that consumes them, all templated from the Recipe's own context.
 
+Each ConfigMap is named after `.context.rendered_name` — the release name the helm provider names the workload's resources after, spelled in the characters a Kubernetes name allows — followed by the suffix a local carries. A local cannot read the rendered name, so the volume and the artifact each join the two, and the name a volume mounts is the name the artifact emits.
+
 ## Example 24: Mixed sourced Recipe with artifacts
 
-Pattern: **sourced with artifacts** — the Bitnami MariaDB chart renders the StatefulSet/Service; one inline artifact adds a Prometheus ServiceMonitor alongside. Pillars exercised: `.values`, `.infra`, `.context.instance_id`, `.context.rendered_name`. Expected output: chart-rendered Kubernetes manifests + one ServiceMonitor YAML.
+Pattern: **sourced with artifacts** — the Bitnami MariaDB chart renders the StatefulSet/Service; one inline artifact adds a Prometheus ServiceMonitor alongside. Pillars exercised: `.values`, `.infra`, `.context.rendered_name`. Expected output: chart-rendered Kubernetes manifests + one ServiceMonitor YAML.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -204,7 +207,7 @@ spec:
     fullnameOverride: "{{ .context.rendered_name }}"
     auth:
       database: "{{ .values.database }}"
-      existingSecret: "{{ .context.instance_id }}-mariadb-auth"
+      existingSecret: "{{ .context.rendered_name }}-mariadb-auth"
     primary:
       resources:
         requests:

@@ -111,12 +111,12 @@ env:
   - name: KC_DB_PASSWORD
     valueFrom:
       secretKeyRef:
-        name: server.server-db.credential
+        name: server-zdserver-db.credential
         key: db-password
   - name: KC_BOOTSTRAP_ADMIN_PASSWORD
     valueFrom:
       secretKeyRef:
-        name: server.server-admin-password
+        name: server-zdserver-admin-password
         key: admin-password
 ```
 
@@ -129,6 +129,6 @@ restarts it if it stops. The Service still forwards only the HTTP port.
 The backend renders as a StatefulSet with a persistent volume mounted at
 `/var/lib/postgresql/data`, plus a ClusterIP Service and a headless Service. Its
 `POSTGRES_PASSWORD` reads the same database password from a Secret of its own,
-`server.backend-password`. The three Secrets are emitted beside the workloads,
+`server-zdbackend-password`. The three Secrets are emitted beside the workloads,
 one per credential the module attaches, each carrying the module's development
 default.
