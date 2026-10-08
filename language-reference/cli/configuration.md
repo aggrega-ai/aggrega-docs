@@ -25,8 +25,9 @@ The block carries only the root-defining catalog directories; every other settin
 level beside it. A project that vendors no catalog content still writes the block, empty —
 `workspace: {}` — because the block's presence is the marker.
 
-**One global file on your machine**, at `~/.config/aggrega/config.yaml`. Every workspace on that
-machine resolves through it, and it holds settings that belong to the machine rather than to any one
+**One global file on your machine**, at `~/.config/aggrega/config.yaml` — on Windows, at
+`%APPDATA%\aggrega\config.yaml`. Every workspace on that machine resolves through it, and it holds
+settings that belong to the machine rather than to any one
 project — the registries you pull from and the signature trust policy for each, how large the
 compiled-module store may grow, and any command-extension plugin you have installed. Those are the
 same wherever you are working, so declaring them once is the point. It loads automatically when it
@@ -41,7 +42,8 @@ registries:
 ```
 
 `aggrega config init` writes that global file for you, registering a registry together with
-the signature trust policy it advertises. `aggrega config show` prints what applies right now, and
+the signature trust policy it advertises, and says where the file is on your machine and where the
+machine-wide caches are kept. `aggrega config show` prints what applies right now, and
 `aggrega config show --origin` says which file — or which environment variable — decided each
 setting.
 
@@ -687,12 +689,21 @@ The global layer resolves in this order:
 
 1. `--config <path>`, the per-invocation form.
 2. `$AGGREGA_CONFIG`.
-3. `$XDG_CONFIG_HOME/aggrega/config.yaml`, falling back to `~/.config/aggrega/config.yaml`.
+3. The default location: `%APPDATA%\aggrega\config.yaml` on Windows, and elsewhere
+   `$XDG_CONFIG_HOME/aggrega/config.yaml`, falling back to `~/.config/aggrega/config.yaml`.
 
 The first two name an explicit file, so a path that does not exist is a loud error rather than a
-silent fallback — you asked for a particular file. The default location is loaded when the file is
-there and passes over quietly when it is not. Whichever file resolves, your project's files still
-layer on top of it.
+silent fallback — you asked for a particular file. A command that reads its configuration stops
+with one sentence that ends with the path, so you can copy it. `aggrega config init` is the
+exception, because creating that
+file is what it is for: it creates the named file and says so. The default location is loaded when
+the file is there and passes over quietly when it is not. Whichever file resolves, your project's
+files still layer on top of it.
+
+When none of these resolves — no file is named, and the variables the default location is read
+from are not set — a command that writes the global file stops and names what to set.
+[Environment variables](environment-variables.md#where-the-machines-own-files-are) lists, per
+platform, the variables each location is read from.
 
 That choice also selects where a configuration-writing command writes. A command run with
 `--config <path>` reads its configuration from that file and applies its change to that same file,

@@ -30,7 +30,21 @@ Per-registry settings (`registries[].*`) have **no** environment variable: a lis
 | `AGGREGA_SKIP_SIGNATURE_VERIFICATION` | `skip_signature_verification` | Boolean. Globally disables signature verification — loud: every pull logs a warning. |
 | `AGGREGA_WORKSPACE_ROOT` | (pairs with `--workspace-root`) | Absolute workspace root, skipping discovery. Not a config field; the flag wins when set. |
 
-`AGGREGA_CONFIG` points at an explicit global config file to load beneath the project's own files; it selects which file applies rather than overriding a single setting. When it is unset, that layer loads automatically from `$XDG_CONFIG_HOME/aggrega/config.yaml`, falling back to `~/.config/aggrega/config.yaml`. See [Configuration](configuration.md#naming-the-global-file-explicitly).
+`AGGREGA_CONFIG` points at an explicit global config file to load beneath the project's own files; it selects which file applies rather than overriding a single setting. When it is unset, that layer loads automatically from the platform's default location — `%APPDATA%\aggrega\config.yaml` on Windows, and elsewhere `$XDG_CONFIG_HOME/aggrega/config.yaml`, falling back to `~/.config/aggrega/config.yaml`. See [Configuration](configuration.md#naming-the-global-file-explicitly).
+
+### Where the machine's own files are
+
+The global configuration file and the machine-wide caches sit where each platform keeps a user's own files, so `aggrega` also reads the variables that name those places. None of them is an `AGGREGA_` variable and none overrides a setting: each says where a file is looked for when nothing names it.
+
+| Variable | Read on | What it places |
+| --- | --- | --- |
+| `APPDATA` | Windows | The global configuration file, at `%APPDATA%\aggrega\config.yaml`. |
+| `LOCALAPPDATA` | Windows | The machine-wide caches, under `%LOCALAPPDATA%\aggrega\cache`. |
+| `XDG_CONFIG_HOME`, then `HOME` | Linux, macOS and the other Unix systems | The global configuration file, at `$XDG_CONFIG_HOME/aggrega/config.yaml`, or at `~/.config/aggrega/config.yaml` when `XDG_CONFIG_HOME` is unset. |
+| `XDG_CACHE_HOME`, then `HOME` | Linux and the other Unix systems | The machine-wide caches, under `$XDG_CACHE_HOME/aggrega`, or under `~/.cache/aggrega` when `XDG_CACHE_HOME` is unset. An `XDG_CACHE_HOME` that is not an absolute path places no cache, and compiled plugins are then kept only for the run. |
+| `HOME` | macOS | The machine-wide caches, under `~/Library/Caches/aggrega`. |
+
+`AGGREGA_CONFIG`, or `--config`, names the global file outright on every platform and wins over these. A project's own caches are placed by none of them: they sit inside the project, under `artifact_cache_dir`. [`aggrega config init`](aggrega-config.md#config-init--seed-a-working-configuration) says where both the global file and the machine-wide caches are on the machine it runs on.
 
 ### Booleans
 

@@ -21,12 +21,12 @@ that block is what marks the root — holds how this project builds: its catalog
 directories, its provider bindings, which lint rules it relaxes. It is
 committed, so a teammate who clones the project builds it the same way.
 
-One global file at ~/.config/aggrega/config.yaml is shared across every
-workspace on this machine. It holds what belongs to the machine rather than to
-any one project: the registries you pull from and the signature trust policy
-for each, how large the compiled-module store may grow, any command extension
-you have installed. It loads automatically when it is there, and nothing
-breaks when it is not.
+One global file is shared across every workspace on this machine:
+~/.config/aggrega/config.yaml, or %APPDATA%\aggrega\config.yaml on Windows. It
+holds what belongs to the machine rather than to any one project: the
+registries you pull from and the signature trust policy for each, how large the
+compiled-module store may grow, any command extension you have installed. It
+loads automatically when it is there, and nothing breaks when it is not.
 
 Your project's file wins over the global one, an environment variable wins
 over both, and a flag wins over everything.
@@ -145,6 +145,13 @@ instead. If the target config file already exists, init refuses rather than
 overwrite it — pass --force to write anyway (the registry entry is merged into
 the existing file, other settings preserved).
 
+Before anything else, init says where things are: the configuration file it
+created — or, under --force, the one already there that it wrote into — and
+the directory the machine-wide caches are kept in. That directory is
+%LOCALAPPDATA%\aggrega\cache on Windows, and a directory named aggrega under
+the per-user cache directory elsewhere: ~/.cache/aggrega on Linux unless
+XDG_CACHE_HOME names another, and ~/Library/Caches/aggrega on macOS.
+
 A seeded configuration is a document you own and go on editing, so --dry-run does
 everything init does except write: it hands the content back, creating and
 modifying nothing. The answer names the file the content is for — which matters
@@ -218,6 +225,22 @@ The `config` subcommands seed, inspect, and freeze the configuration that govern
 ### `config init` — seed a working configuration
 
 `aggrega config init` seeds a config on a fresh machine by registering a registry and its signature trust policy, so signed artifacts pull and verify without hand-editing YAML. By default it registers the official hub (`hub.aggrega.ai`) with signatures required and its official trusted identities. The registry's advertised trust policy is fetched once from its own origin and pinned locally (trust-on-first-use); when the hub is unreachable, advertises nothing, or the workspace is offline, its built-in official baseline is written instead, so `init` still produces a usable config offline.
+
+Before anything else, `init` says where things are. Seeding a fresh Linux machine opens with:
+
+```
+Created the global configuration file at /home/you/.config/aggrega/config.yaml
+Machine-wide caches are kept in /home/you/.cache/aggrega
+```
+
+and a fresh Windows machine with:
+
+```
+Created the global configuration file at C:\Users\you\AppData\Roaming\aggrega\config.yaml
+Machine-wide caches are kept in C:\Users\you\AppData\Local\aggrega\cache
+```
+
+The first line names the configuration file `init` wrote: `Created` when the file was not there, and `Using` when it was and `--force` let `init` write into it; under `--workspace` it names the workspace configuration file instead of the global one. The second names the directory the machine-wide caches — compiled plugins and their descriptions — are kept in, which is where each platform keeps a user's caches; [Which caches belong to this project, and which to the machine](aggrega-cache.md#which-caches-belong-to-this-project-and-which-to-the-machine) gives the rule per platform. Each line ends with its path and nothing after it, so the path can be copied as it stands. The lines that follow are the registration's own: what the trust-policy fetch found, and which file the registry was registered in. A seeding that is refused prints neither line, since it created nothing, and neither does `--dry-run`, whose standard output holds only the content it hands back.
 
 - `--registry <host>` seeds a different registry — an air-gapped or private hub — instead of the official one. Such a registry carries no built-in baseline, so where it advertises nothing the entry is written with no policy, and **in an offline workspace seeding it is refused** (short code `E0310`): the policy cannot be fetched, and `init` takes no `--identity` or `--key` to pin one by hand. Seed it once while online, or add it with [`aggrega registry add`](aggrega-registry.md) and a policy you supply.
 - If the target file already exists, `init` refuses rather than overwrite it; `--force` writes anyway, merging the registry entry into the existing file and preserving other settings.

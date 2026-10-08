@@ -129,6 +129,8 @@ Not every cache these commands act on is scoped to the project you are standing 
 
 **Shared by every Aggrega project on this machine.** The compiled-module store and the plugin-describe store. A provider guest is compiled once and reused by every project, which is what makes the second build of anything fast, so removing an entry means the next build of *any* project on the machine recompiles it. Nothing is lost permanently — a removed module is rebuilt on demand — but the cost lands on whoever builds next, which may not be you.
 
+The machine-wide stores are kept where each platform keeps a user's caches: under `%LOCALAPPDATA%\aggrega\cache` on Windows, under `~/Library/Caches/aggrega` on macOS, and under `$XDG_CACHE_HOME/aggrega` — `~/.cache/aggrega` when `XDG_CACHE_HOME` is unset — on Linux and the other Unix systems. `aggrega config init` prints the directory on the machine it runs on. Where none of those variables is set, compiled plugins are kept only for the run.
+
 `aggrega cache status` states this per class rather than leaving it to be inferred from the name: each class is reported as covering the workspace or the machine, and the same reach is reported for each element `prune`, `evict` and `clear` remove. `evict` acts only on the shared compiled-module store; `clear` acts on everything, which is why it asks before it starts.
 
 **This applies wherever the operation is invoked from, not only at a terminal.** The same operations are reachable from an editor session and from an assistant's tool call, and their answers carry the same reach for the same reason. Where an assistant may invoke them on your behalf, see [`aggrega mcp`](aggrega-mcp.md).
