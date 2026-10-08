@@ -96,7 +96,7 @@ Neither key is legible on its own, because each is defined by what the other is 
 | Key | What it names |
 | --- | --- |
 | `{{ .context.instance_id }}` | The node's identity, and the name of the resources built for this node that no provider derives a name for — an artifact set placed from your `artifacts:` block, and a workload synthesized from your `workload:` block by a provider that names it after the identity, as `compose` does. Always present. |
-| `{{ .context.rendered_name }}` | The name **the bound provider** derives for the resources it renders for this node — for source **you supplied**, the name your own supplied templates render their resources against, such as the release name a chart reads; for a `workload:` it synthesizes, the name it gives those resources where it names them after a name of its own rather than the identity, as `helm` does. Present only where that provider derives one. |
+| `{{ .context.rendered_name }}` | The name **the bound provider** derives for the resources it renders for this node — for source **you supplied**, the name your own supplied templates render their resources against, such as the release name a chart reads; for a `workload:` it synthesizes, the name it gives those resources where it names them after a name of its own rather than the identity, as `helm` does. Present only where that provider derives one. On a Feature attachment's own templates it is the host component's name — see [below](#on-a-feature-attachments-own-templates). |
 
 The split follows from where the name has to be usable. A chart or module **you** supplied has
 templates, and those templates name their resources after whatever identity the platform hands them —
@@ -217,17 +217,34 @@ entry or the inline template that needs it.
 
 ## On a Feature attachment's own templates
 
-A Feature attachment's templates do **not** read this key. The value available where an attachment
-renders is the **host component's** answer — the name the host's own provider reports for the
-resources it renders for the host — and an attachment binds its own recipe and therefore its own
-provider. So that value is not an answer about the attachment's own output: it is absent whenever the
-host's provider reports no name for the host, whatever the attachment itself declares, and it comes
-from a different platform entirely whenever the two capabilities differ.
+On the templates a Feature attachment's FeatureRecipe writes — its `locals:`, `source:`, `provides:`,
+`injectMapping:`, `valuesMapping:`, `workload:`, each `artifacts:` entry, and each pipeline step's
+`with:` and `when:` — `{{ .context.rendered_name }}` is the **host component's** name: the one the
+host's own provider reports for the resources it renders for the host, which is the value the host's
+own Recipe reads. It pairs with `{{ .context.instance_id }}`, which on those templates is the host
+component's identity; the attachment itself is `.attachment_name`. An attachment written on one of a
+component's connections reads the consuming component's name, because that component is its host.
 
-Reading it on any of an attachment's own templates is therefore refused, and the diagnostic lists the
-keys that surface does define. `{{ .context.instance_id }}` is among them, and on an attachment's
-surface it names the **host component** the attachment is resolving for — which is what it names
-everywhere else too.
+That is the key to build an attachment's own resource names from. A FeatureRecipe that names a Secret,
+a route or a policy after the component it is attached to needs a name the platform accepts, and the
+host's identity as written is not one wherever it carries an underscore or a capital letter. Under
+`helm`, a component named `my_db` reports `my-zudb`, so a Secret named
+`{{ .context.rendered_name }}-{{ .attachment_name }}` for an attachment `root` renders as
+`my-zudb-root`, where `{{ .context.instance_id }}` would give `my_db-root`, which a cluster refuses.
+The value stays the host's whichever provider the attachment renders through.
+
+It is present wherever the host's provider reports a name — under `helm`, a host whose Recipe supplies
+a chart or declares a `workload:` — and absent where it reports none: a host placing an artifact set
+alone, and a host on any other provider. Reading it on an attachment of such a host **halts the build**
+with the diagnostic for a reference the render context does not define (`E0060`), which lists the keys
+`.context` defines there. `{{ .context.instance_id }}` is among them, and it is what the host's own
+resources are named after on such a host, so a FeatureRecipe written for hosts that may report no name
+reads the identity instead.
+
+The refusal covers the templates a FeatureRecipe writes inline, other than its `injectMapping:`. An
+`injectMapping:`, and a `valuesMapping:`, `workload:` or `artifacts:` entry the FeatureRecipe supplies
+through `$import:`, is not checked: on a host reporting no name a reference there renders an empty
+value rather than halting.
 
 Where an attachment delivers a chart its author supplied, that chart's templates render against the
 host component's release name, deliberately: deriving it from the attachment instead would rename

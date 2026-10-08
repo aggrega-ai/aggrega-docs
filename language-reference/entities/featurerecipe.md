@@ -43,7 +43,7 @@ source: "{{ .locals.chart_dir }}"
 **What the template may read.** The reference set is the one the FeatureRecipe's own `locals:` entries are checked against, which differs from a Recipe's in two ways that follow from an attachment being resolved rather than a component:
 
 - `.attachment_name` **is available**, naming the instance the Feature is attached under. A Recipe's source template refuses it, because a Recipe's source resolves for a node and no attachment is in play.
-- `.context.instance_id` names the **host component** the attachment is resolving for, not the attachment.
+- `.context.instance_id` names the **host component** the attachment is resolving for, not the attachment, and `.context.rendered_name` carries the name the host's own provider reports for the host — present only where that provider reports one, and halting the build where it does not. See [Naming a Rendered Resource](../templates/rendered-resource-names.md#on-a-feature-attachments-own-templates).
 
 `.locals` carries the set this FeatureRecipe's other templates read: its own resolved block, with the host Recipe's beneath it, so a key the attachment declares wins over a host key of the same name. A reference to a key that set does not carry halts and names it, rather than rendering the key away. `.provides`, `.context.inject` and `.context.uses` are refused on the same self-containment grounds a Recipe's source surface refuses them.
 
@@ -176,7 +176,7 @@ A credential FeatureRecipe renders through the same Resource Generation pass as 
 
 ## The `provides:` block — publishing to the consumer
 
-A FeatureRecipe's `provides:` block is its published output: a string-valued map of Go templates evaluated against the attachment's own scope (`.values`, `.infra`, the FeatureRecipe's fully resolved `.locals`, and the host node's `.context.instance_id`). The locals resolve first, so a `provides:` entry reads them and receives resolved values; naming a key the `locals:` block does not declare halts. It is how an attachment tells its consumer what it produced — an emitted resource's name, a generated data key, a cloud identity — without the consumer re-deriving that identity from the same inputs.
+A FeatureRecipe's `provides:` block is its published output: a string-valued map of Go templates evaluated against the attachment's own scope (`.values`, `.infra`, the FeatureRecipe's fully resolved `.locals`, and the host node's `.context.instance_id` and `.context.rendered_name`). The locals resolve first, so a `provides:` entry reads them and receives resolved values; naming a key the `locals:` block does not declare halts. It is how an attachment tells its consumer what it produced — an emitted resource's name, a generated data key, a cloud identity — without the consumer re-deriving that identity from the same inputs.
 
 The consumer reads it at `.features.<instance-name>.provides.<key>` (or `.features.<slot>.provides.<key>` for a credential attachment), mirroring `.context.uses.<alias>.provides` for a `uses` edge. Where the attachment is written on one of the consumer's connections, the consumer reads the same map under that connection, at `.context.uses.<alias>.features.<slot>.provides.<key>`, and the attachment is not among its `.features` (see [A connection's attachments](../templates/template-context-contract.md#a-connections-attachments--contextusesaliasfeatures)). The attachment's own `inject:` block resolves its `from:` references against the same map, so an author may choose either channel: `provides` for a template read, `inject` for delivery into an env var, file, or arg.
 
@@ -305,20 +305,23 @@ spec:
 
 `.locals.*` is per-invocation: each FR invocation resolves its own `locals:` block, and the result is visible only to that invocation's downstream templates. The block resolves before the FR's other authoring-surface templates evaluate, so every one of them sees resolved values.
 
-Each entry evaluates against a self-contained context: `.context.instance_id`, `.attachment_name`, `.values`, `.infra`, and the entries of this same block already resolved. That is deliberately narrower than the context the FR's *other* templates read — a `locals:` entry cannot reach `.context.annotations`, `.context.inject`, `.context.uses`, or `.provides`, and a reference to any of them halts naming the reference. Derived values that need those pillars belong in the template that reads them, not in `locals:`.
+Each entry evaluates against a self-contained context: `.context.instance_id`, `.context.rendered_name`, `.attachment_name`, `.values`, `.infra`, and the entries of this same block already resolved. That is deliberately narrower than the context the FR's *other* templates read — a `locals:` entry cannot reach `.context.annotations`, `.context.inject`, `.context.uses`, or `.provides`, and a reference to any of them halts naming the reference. Derived values that need those pillars belong in the template that reads them, not in `locals:`.
 
-The two identities in that context answer different questions, and a `locals:` entry reads them exactly as the FeatureRecipe's other templates do:
+The names in that context answer different questions, and a `locals:` entry reads them exactly as the FeatureRecipe's other templates do:
 
 * **`.context.instance_id`** is the **host component** the attachment is resolving for. It means the host component on every template surface the compiler evaluates, so the same reference reads the same way whichever entity's block you are writing.
+* **`.context.rendered_name`** is the **host component's name as its own provider reports it** — under `helm`, the release name, which is the host's identity written in the alphabet a Kubernetes name admits. It is present only where the host's provider reports a name, and reading it on a host whose provider reports none halts the build.
 * **`.attachment_name`** is the **attachment instance** being resolved — the slot it fills in the owning entity's `featuresSchema`, or the free name you gave it.
 
-So a `locals:` entry that derives a name for an emitted resource composes both, exactly as an `artifacts:` template would:
+So a `locals:` entry that derives a name for an emitted resource composes the host and the attachment, exactly as an `artifacts:` template would:
 
 ```yaml
 spec:
   locals:
     scrape_name: "{{ .context.instance_id }}-{{ .attachment_name }}"    # api-scrape_target
 ```
+
+Where the name has to be one the platform accepts and the host's provider reports one, compose it from `.context.rendered_name` instead: for a host named `my_api` under `helm` and an attachment `scrape`, `{{ .context.rendered_name }}-{{ .attachment_name }}` gives `my-zuapi-scrape`, where the identity would give `my_api-scrape`, which a Kubernetes name refuses. See [Naming a Rendered Resource](../templates/rendered-resource-names.md#on-a-feature-attachments-own-templates).
 
 `.values` and `.infra` in a `locals:` entry are the **attachment's own** pillars, authored on the attachment declaration — not the host component's.
 
