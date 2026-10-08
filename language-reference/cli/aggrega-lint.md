@@ -205,6 +205,7 @@ status is the same under either format.
 | --- | --- | --- |
 | `--allow-aggrega-ai-prefix` | `false` | Force allow_aggrega_ai_prefix=true |
 | `--allow-category-mismatches` | `false` | Force allow_category_mismatches=true |
+| `--allow-connection-credential-mismatches` | `false` | Force allow_connection_credential_mismatches=true |
 | `--allow-direct-x-aggrega-extensions` | `false` | Force allow_direct_x_aggrega_extensions=true |
 | `--allow-dynamic-refs` | `false` | Force allow_dynamic_refs=true for this invocation |
 | `--allow-id-overrides` | `false` | Force allow_id_overrides=true for this invocation |
@@ -215,6 +216,7 @@ status is the same under either format.
 | `--entity` | — | Path to the entity YAML to lint (alternatively pass as the positional arg) |
 | `--no-allow-aggrega-ai-prefix` | `false` | Force allow_aggrega_ai_prefix=false |
 | `--no-allow-category-mismatches` | `false` | Force allow_category_mismatches=false |
+| `--no-allow-connection-credential-mismatches` | `false` | Force allow_connection_credential_mismatches=false |
 | `--no-allow-direct-x-aggrega-extensions` | `false` | Force allow_direct_x_aggrega_extensions=false |
 | `--no-allow-dynamic-refs` | `false` | Force allow_dynamic_refs=false for this invocation |
 | `--no-allow-id-overrides` | `false` | Force allow_id_overrides=false for this invocation |
