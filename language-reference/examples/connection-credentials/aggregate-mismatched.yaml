@@ -1,0 +1,67 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: connection-credentials-mismatched
+  version: "1.0.0"
+  description: >
+    The matched workspace with one deliberate fault: the embedding server's key
+    and the key the memory store presents to it are read from two different
+    parameters, so nothing keeps them one key. The build succeeds; the
+    publishing conventions check of the Release advises.
+spec:
+  parameters:
+    provider_key_entry:
+      type: string
+      description: >
+        The store entry holding the key the memory store presents to the hosted
+        model provider.
+    embedding_key_secret:
+      type: string
+      description: The Secret holding the key the embedding server verifies.
+    # The fault: a second parameter for what is meant to be the same key.
+    memory_embedding_key_secret:
+      type: string
+      description: The Secret holding the key the memory store presents to the embedding server.
+  components:
+    llm:
+      type: core/ai-model/openai
+      values:
+        model: gpt-4o-mini
+
+    embeddings:
+      type: core/ai-model/tei
+      values:
+        model: BAAI/bge-small-en-v1.5
+      features:
+        api_key:                       # the key the server verifies
+          type: core/referenced-secret
+          values:
+            key: api-key
+            origin: "{{ .parameters.embedding_key_secret }}"
+
+    memory:
+      type: core/datastore/cognee
+      values:
+        embedding_dimensions: 384
+      uses:
+        extraction_model:
+          llm:
+            target: llm
+            features:
+              credential:
+                type: core/referenced-secret
+                values:
+                  key: api-key
+                  origin: "{{ .parameters.provider_key_entry }}"
+        embedding_model:
+          embeddings:
+            target: embeddings
+            features:
+              credential:              # read from a parameter the server does not read
+                type: core/referenced-secret
+                values:
+                  key: api-key
+                  origin: "{{ .parameters.memory_embedding_key_secret }}"

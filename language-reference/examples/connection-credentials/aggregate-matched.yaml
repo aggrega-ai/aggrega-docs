@@ -1,0 +1,85 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: connection-credentials-matched
+  version: "1.0.0"
+  description: >
+    A semantic-memory store reaching two models over two connections, presenting
+    a different key on each: a hosted model it reads ingested material with, and
+    an embedding server running beside it that checks a key of its own. Both
+    ends of the second connection read one parameter, so the key the store
+    presents and the key the server verifies cannot be written apart.
+spec:
+  # ── Parameter hoisting ──────────────────────────────────────────────────
+  # Two keys, two parameters, each fulfilled per environment in the Release.
+  # What a parameter carries is the locator the bound realization reads, so
+  # the Manifest decides whether it is a Secret's name or a store entry.
+  parameters:
+    provider_key_entry:
+      type: string
+      description: >
+        The store entry holding the key the memory store presents to the hosted
+        model provider.
+    embedding_key_secret:
+      type: string
+      description: >
+        The Secret holding the one key the embedding server verifies and the
+        memory store presents to it. Both ends read this parameter.
+  components:
+    # ── The hosted model ────────────────────────────────────────────────────
+    # A provider's own API, reached as a reference: nothing runs for it in the
+    # cluster. Its catalog entity is labelled component.aggrega.ai/hosting:
+    # managed, so a connection reaching it must carry a credential or say in its
+    # values that the model takes none.
+    llm:
+      type: core/ai-model/openai
+      values:
+        model: gpt-4o-mini
+
+    # ── The embedding server ────────────────────────────────────────────────
+    # Text Embeddings Inference, running in the cluster. The key it requires of
+    # every caller fills a slot of its own Component, api_key, and its Recipe
+    # delivers whatever fills that slot as the variable the server reads.
+    embeddings:
+      type: core/ai-model/tei
+      values:
+        model: BAAI/bge-small-en-v1.5
+      features:
+        api_key:                       # the key the server verifies
+          type: core/referenced-secret
+          values:
+            key: api-key
+            origin: "{{ .parameters.embedding_key_secret }}"
+
+    # ── The memory store ────────────────────────────────────────────────────
+    # Two sockets its catalog entity declares, each reaching a model, and each
+    # declaring a credential slot for the key the store presents on that
+    # connection. The keys sit on the connections, not on the store, so each
+    # connection presents its own.
+    memory:
+      type: core/datastore/cognee
+      values:
+        # The width of the vectors the embedding model above returns.
+        embedding_dimensions: 384
+      uses:
+        extraction_model:
+          llm:
+            target: llm
+            features:
+              credential:              # the key presented to the hosted model
+                type: core/referenced-secret
+                values:
+                  key: api-key
+                  origin: "{{ .parameters.provider_key_entry }}"
+        embedding_model:
+          embeddings:
+            target: embeddings
+            features:
+              credential:              # the key presented to the embedding server
+                type: core/referenced-secret
+                values:
+                  key: api-key
+                  origin: "{{ .parameters.embedding_key_secret }}"

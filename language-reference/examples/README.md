@@ -118,6 +118,17 @@ developer surface and the String Pipe with zero platform authoring.
   parameter so they cannot drift apart. Also shows where the compiler is blind:
   two pairs of names have to agree, nothing checks either, and the build
   succeeds when they do not.
+- **[connection-credentials](connection-credentials/)** — a semantic-memory
+  store reaching two models and presenting a different key to each, compiled to
+  Kubernetes: a hosted model whose key is fetched from a cluster secret store,
+  and an embedding server that checks a key of its own. Each key sits on the
+  connection it is presented on, so the server's key and the key its caller
+  presents are two attachments, kept one key by reading one parameter. The
+  README shows the server's rendered output unchanged by what its callers carry,
+  a Release wiring a connection and naming its key in `infra`, one connection's
+  key bound by name in the Manifest to a realization of its own, and the
+  conventions check of a Release advising where the two ends read different
+  parameters.
 - **[ai-gateway-log-masking](ai-gateway-log-masking/)** — an AI gateway that
   keeps personal data out of its logs, compiled to Kubernetes. The masking
   applies only to the copy of each call the gateway hands to its logs: the model

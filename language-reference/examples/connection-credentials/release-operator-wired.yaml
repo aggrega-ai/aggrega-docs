@@ -1,0 +1,38 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: connection-credentials-operator-wired
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: connection-credentials-operator-wired
+  manifest: connection-credentials-manifest
+
+  parameters:
+    embedding_key_secret: embedding-server-key
+
+  boundaries:
+    main:
+      directory: operator-wired
+      annotations:
+        aggrega.ai/namespace: memory
+      components:
+        llm: {}
+        embeddings: {}
+        memory:
+          uses:
+            # A connection the Aggregate does not write, into a socket the
+            # store's catalog entity declares, to a component the Aggregate
+            # declares. A Release writes no values, so the credential on it
+            # names its secret in infra.
+            extraction_model:
+              llm:
+                target: llm
+                features:
+                  credential:
+                    type: core/referenced-secret
+                    infra:
+                      origin: ai/openai-api-key

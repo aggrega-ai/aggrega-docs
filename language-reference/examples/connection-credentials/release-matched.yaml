@@ -1,0 +1,34 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: connection-credentials-matched
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: connection-credentials-matched
+  manifest: connection-credentials-manifest
+
+  # The parameters the Aggregate declared, fulfilled for this environment. The
+  # Manifest binds the hosted model's key to the store realization, so the first
+  # is a store entry; every other credential points at a Secret already in the
+  # namespace, so the second is that Secret's name.
+  parameters:
+    provider_key_entry: ai/openai-api-key
+    embedding_key_secret: embedding-server-key
+
+  boundaries:
+    main:
+      # Each release writes to its own directory, so the three rendered trees
+      # coexist and can be compared side by side.
+      directory: matched
+      # One namespace for the whole boundary: every workload here, and both
+      # ends of each connection, resolve a Secret in it.
+      annotations:
+        aggrega.ai/namespace: memory
+      components:
+        llm: {}
+        embeddings: {}
+        memory: {}

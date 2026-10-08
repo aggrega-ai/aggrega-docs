@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: connection-credentials-mismatched
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: connection-credentials-mismatched
+  manifest: connection-credentials-manifest
+
+  # Two Secrets for what the server and its caller need to be one key. The
+  # build renders both references as written; the server accepts the memory
+  # store's requests only if the two Secrets happen to hold the same key.
+  parameters:
+    provider_key_entry: ai/openai-api-key
+    embedding_key_secret: embedding-server-key
+    memory_embedding_key_secret: embedding-client-key
+
+  boundaries:
+    main:
+      directory: mismatched
+      annotations:
+        aggrega.ai/namespace: memory
+      components:
+        llm: {}
+        embeddings: {}
+        memory: {}

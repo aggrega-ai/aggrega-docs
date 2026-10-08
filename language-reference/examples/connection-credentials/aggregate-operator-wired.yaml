@@ -1,0 +1,56 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: connection-credentials-operator-wired
+  version: "1.0.0"
+  description: >
+    The matched workspace with the memory store's extraction connection left to
+    the operator: the developer wires the embedding server and leaves the
+    extraction_model socket unbound, and the Release wires it to the hosted
+    model and names the key presented on it.
+spec:
+  parameters:
+    embedding_key_secret:
+      type: string
+      description: >
+        The Secret holding the one key the embedding server verifies and the
+        memory store presents to it. Both ends read this parameter.
+  components:
+    # Declared here and reached by no connection the developer writes: the
+    # Release wires the memory store to it. A Release adds no component, so the
+    # model it wires to is one this Aggregate declares.
+    llm:
+      type: core/ai-model/openai
+      values:
+        model: gpt-4o-mini
+
+    embeddings:
+      type: core/ai-model/tei
+      values:
+        model: BAAI/bge-small-en-v1.5
+      features:
+        api_key:
+          type: core/referenced-secret
+          values:
+            key: api-key
+            origin: "{{ .parameters.embedding_key_secret }}"
+
+    memory:
+      type: core/datastore/cognee
+      values:
+        embedding_dimensions: 384
+      uses:
+        # extraction_model is declared by the store's catalog entity and left
+        # unbound here; the Release binds it.
+        embedding_model:
+          embeddings:
+            target: embeddings
+            features:
+              credential:
+                type: core/referenced-secret
+                values:
+                  key: api-key
+                  origin: "{{ .parameters.embedding_key_secret }}"

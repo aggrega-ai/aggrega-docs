@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: connection-credentials-manifest
+  version: "1.0.0"
+  description: >
+    Ops mapping for the Kubernetes target, shared by every release of this
+    workspace. Every credential points at a Secret the namespace already holds,
+    except the one on the connection to the hosted model, which is fetched from
+    a cluster secret store.
+spec:
+  mappings:
+    components:
+      type:
+        core/datastore/cognee:1.0.0: helm/cognee:1.0.0
+        core/ai-model/openai:1.0.0: helm/openai:1.0.0
+        core/ai-model/tei:1.0.0: helm/tei:1.0.0
+    features:
+      # One realization for every core/referenced-secret attachment: the Secret
+      # already exists in the namespace, and origin is its name.
+      type:
+        core/referenced-secret:1.0.0: helm/k8s-existing-secret:1.0.0
+      # One attachment bound differently, by its name. An attachment written on
+      # a connection is named for the connection's alias, a dot and the slot,
+      # so the memory store's credential on its llm connection is
+      # llm.credential. That key is fetched from the store, and origin is the
+      # store entry to fetch.
+      name:
+        llm.credential: helm/k8s-external-secret:1.0.0
