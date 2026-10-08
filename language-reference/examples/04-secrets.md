@@ -367,7 +367,7 @@ spec:
     features:
       type:
         local/guard: guard-proxy:1.0.0
-        core/referenced-secret: k8s-secret-from-parameter:1.0.0
+        core/referenced-secret: helm/k8s-secret-from-parameter:1.0.0
 ```
 
 **What the build renders.** The credential FeatureRecipe emits the Secret; the guard FeatureRecipe emits its own Deployment, carrying the reference to it. Both excerpts below omit the provenance labels every rendered resource carries.

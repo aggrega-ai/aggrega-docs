@@ -24,9 +24,9 @@ the type in bulk and overrides one instance by name:
 mappings:
   components:
     type:
-      example/compute/greeter:1.0.0: greeter-blue:1.0.0   # every greeter instance...
+      example/compute/greeter:1.0.0: compose/greeter-blue:1.0.0   # every greeter instance...
     name:
-      greeter-special: greeter-green:1.0.0      # ...except this one
+      greeter-special: compose/greeter-green:1.0.0      # ...except this one
 ```
 
 Name wins over type, so `greeter-special` deploys through `greeter-green` and

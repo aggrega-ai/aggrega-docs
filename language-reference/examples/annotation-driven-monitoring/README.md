@@ -20,7 +20,7 @@ annotation that cascades down the boundary tree.
   ```yaml
   features:
     type:
-      core/prometheus-exporter: prometheus-exporter:1.0.0   # the FeatureRecipe version binding
+      core/prometheus-exporter: helm/prometheus-exporter:1.0.0   # the FeatureRecipe version binding
     annotations:
       feature.aggrega.ai/monitoring:
         feature: core/prometheus-exporter

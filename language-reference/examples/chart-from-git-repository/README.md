@@ -55,7 +55,7 @@ source_artifacts:
       mediatype: application/gzip
       referenced_by:
         - entity: recipe
-          uri: hello-world-git:1.0.0
+          uri: helm/hello-world-git:1.0.0
           field: spec.source
           requested_ref: hello-world-0.1.0
 ```
@@ -171,7 +171,7 @@ repository does not carry:
 ```text
 # [E0137]
 #   auto-pull: source descent: resolve: resolve source for recipe
-#   "hello-world-git-missing-ref:1.0.0": sourceresolver: kind=git-repository
+#   "helm/hello-world-git-missing-ref:1.0.0": sourceresolver: kind=git-repository
 #   url=https://github.com/helm/examples.git version=: oci: artifact not found at
 #   remote source (cause: reference not found)
 ```

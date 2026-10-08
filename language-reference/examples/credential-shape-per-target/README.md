@@ -27,9 +27,9 @@ $ diff manifest-local.yaml manifest-store.yaml
 ---
 >   name: credential-shape-store-manifest
 16c16
-<         core/referenced-secret:1.0.0: k8s-secret-from-parameter:1.0.0
+<         core/referenced-secret:1.0.0: helm/k8s-secret-from-parameter:1.0.0
 ---
->         core/referenced-secret:1.0.0: k8s-external-secret:1.0.0
+>         core/referenced-secret:1.0.0: helm/k8s-external-secret:1.0.0
 ```
 
 The two Releases differ in their own name and in which Manifest they point at:
