@@ -4,8 +4,9 @@ A governance plugin attached at the `ir-verdict` role receives the whole build
 graph, and every Feature attachment in the deployment arrives with it. Each
 attachment carries a fixed set of facts about itself: which Feature it names,
 which slot it fills, which connection it was written on when it was written on
-one, what the catalog author declared about it, what an author wrote into it,
-and whether it handles material someone declared sensitive. One thing does not
+one, which FeatureRecipe realizes it, what the catalog author declared about it,
+what an author wrote into it, and whether it handles material someone declared
+sensitive. One thing does not
 arrive as written: a value an author declared sensitive arrives withheld — see
 [Declared-sensitive values arrive withheld](#declared-sensitive-values-arrive-withheld).
 
@@ -191,6 +192,58 @@ Beyond deciding which declared slot set `binding` and the slot half of
 its FeatureRecipe, its provides contract, the rest of its facts and its place in
 the bucket are those of any attachment the node carries.
 
+## Which FeatureRecipe realizes the attachment: `realization`
+
+`realization` names the FeatureRecipe the Release's Manifest binds to the
+attachment, as `<name>:<version>`. The Manifest binds by the attachment's own
+name where its `name` tier maps that name — for an attachment written on a
+connection, its qualified name, `gpt.credential` above — and otherwise by the
+Feature type the attachment names. The FeatureRecipe named is the one a build of
+the same documents renders the attachment with: the graph records the binding
+before anything renders, and the render binds the attachment the same way.
+
+```rego
+package security
+
+import rego.v1
+
+approved_realizations := {"approved-credential:1.0.0"}
+
+deny contains msg if {
+    some node_id, attachments in input.graph.spec.feature_values_mapping
+    some name, attachment in attachments
+    attachment.labels["feature.aggrega.ai/kind"] == "secret"
+    realization := attachment.realization
+    not realization in approved_realizations
+    msg := sprintf("%v realizes the credential %v with %v, which is not an approved FeatureRecipe.",
+        [node_id, name, realization])
+}
+```
+
+What `realization` claims, and what it does not:
+
+- **It is the same pair everywhere it appears.** `aggrega inspect` prints it as
+  the attachment's realization, and where a target stamps provenance on what it
+  renders, the documents that FeatureRecipe renders carry it as their
+  `aggrega.ai/recipe-uri` value, so a policy joins an attachment to what it
+  renders without translating between forms.
+- **It names the FeatureRecipe by name and version, not by capability.** Two
+  capabilities may each publish a FeatureRecipe under one name and version.
+  Which of them is bound is settled by the Manifest's mapping, which names the
+  capability wherever the name alone would be ambiguous; this field does not
+  restate it.
+- **A Release boundary's own attachments carry it too**, under
+  `boundary_features`, read the same way. A boundary-level attachment also
+  reaches each component the boundary holds, and carries the same realization
+  there.
+- **Absent means bound to nothing.** An attachment the Manifest binds to no
+  FeatureRecipe the catalog holds carries no `realization`. A build of such a
+  composition halts before it renders, naming the unmapped attachment — but a
+  policy at this role is asked before that halt, so it can meet an attachment
+  carrying none. The rule above passes such an attachment by, because its body
+  binds `realization` first; a rule that wants to report it tests for the
+  missing key explicitly.
+
 ## How the attachment came to exist: `origin` and its two companions
 
 `origin` distinguishes an attachment a developer typed from one the
@@ -249,9 +302,9 @@ leaves they name, wherever they sit:
   `infra_mapping`, by the node's own `sensitive_payload_leaves`.
 
 What a policy reasons on is unchanged. The type, the resolved version, the
-labels, the catalog annotations, `binding`, `connection`, `origin` and its
-provenance maps, all three sensitivity facts, and every leaf no declaration
-marks arrive as before. The key of a withheld leaf survives too, so a policy
+labels, the catalog annotations, `binding`, `connection`, `realization`,
+`origin` and its provenance maps, all three sensitivity facts, and every leaf no
+declaration marks arrive as before. The key of a withheld leaf survives too, so a policy
 still sees which leaves a payload carries and which of them carry declared
 material — only the value is absent. A rule about where declared-sensitive
 material travels, and by which route, is therefore fully expressible; a rule

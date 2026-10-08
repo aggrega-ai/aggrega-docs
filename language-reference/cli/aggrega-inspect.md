@@ -269,7 +269,7 @@ The slot and the mark are the facts a build of a Release deploying this Aggregat
 
 ### Release (resolved by default)
 
-The Release view is the highest-stakes inspection. It runs the full pipeline and renders, per boundary, every Component node, its uses-edges, and every Feature attached to that node — one written on a connection beneath that connection's edge — each with the **attachment slot it fills** and whether it handles **declared-sensitive** material, plus a **provenance bracket** revealing where the attachment came from:
+The Release view is the highest-stakes inspection. It runs the full pipeline and renders, per boundary, every Component node, its uses-edges, and every Feature attached to that node — one written on a connection beneath that connection's edge — each with the **attachment slot it fills**, whether it handles **declared-sensitive** material and the **FeatureRecipe that realizes it**, plus a **provenance bracket** revealing where the attachment came from:
 
 ```text
 $ aggrega inspect ./prod-release.yaml --catalog ./catalog
@@ -293,7 +293,7 @@ Boundary: frontend-ns
     Uses:
       my-api → backend  [cross-boundary]
     Features:
-    - cross-namespace-routing (core/k8s-dns-resolver:1.0.0)    [free]    [explicit]
+    - cross-namespace-routing (core/k8s-dns-resolver:1.0.0)    [free, realization: k8s-dns-patcher:1.0.0]    [explicit]
 
 Boundary: data-ns
   Directory: ./dist/data
@@ -402,7 +402,7 @@ Where a workspace has recorded which versions a Release resolves to, that record
 
 ## Attachment connection, slot and sensitivity clause
 
-Each Feature attachment in the Release view carries a clause naming the facts the compiler records about the attachment itself: which attachment slot it fills, and whether it handles declared-sensitive material — and, for an attachment written on one of the component's connections, the connection it was written on and the realization the Release binds for it. The clause sits between the attachment's name and its provenance bracket, and it reads identically in both provenance forms below.
+Each Feature attachment in the Release view carries a clause naming the facts the compiler records about the attachment itself: which attachment slot it fills, whether it handles declared-sensitive material, and the FeatureRecipe that realizes it — and, for an attachment written on one of the component's connections, the connection it was written on. The clause sits between the attachment's name and its provenance bracket, and it reads identically in both provenance forms below.
 
 An attachment written on a connection is listed beneath that connection's line in `Uses:`, not under `Features:`, so `Features:` holds the component's own attachments alone. The line above it names the connection by its alias and the component it reaches, and its own clause says the rest:
 
@@ -411,14 +411,14 @@ An attachment written on a connection is listed beneath that connection's line i
 - **`[slot: <name>]`** — the attachment fills the slot called `<name>`. A slot is filled by attaching a Feature under the slot's own name, so `<name>` is the name the attachment was written under, matched against the declared slots: the host Component's `featuresSchema` for one of its own attachments, and the `featuresSchema` the connection's socket declares for an attachment written on a connection.
 - **`[free]`** — the attachment fills no declared slot: the resolved Component declares no `featuresSchema` slot of that name. This is a finding, not a diagnostic. A free-form attachment is accepted, and an operator who wants to forbid one expresses that as a governance policy rather than relying on the tool to refuse it.
 - **`[sensitive]`** — the attachment handles material an author declared sensitive, because the attached Feature declares a sensitive leaf, because the slot it fills declares `sensitive: true`, or both.
-- **`[realization: <name>:<version>]`** — for an attachment listed beneath a connection, the FeatureRecipe the Release's Manifest binds for it: by the attachment's own name (the alias and the slot joined by a dot) where the Manifest maps that name, otherwise by its Feature type — the realization a build of the same documents renders it with.
+- **`[realization: <name>:<version>]`** — the FeatureRecipe the Release's Manifest binds for the attachment: by the attachment's own name where the Manifest maps that name — for an attachment written on a connection, the alias and the slot joined by a dot — otherwise by its Feature type. It is the realization a build of the same documents renders the attachment with, and the same value the compiled graph carries on the attachment as `realization` (see [`--ir-graph`](#the-compiled-graph---ir-graph)), so this view and the graph cannot name different ones. It comes last in the clause.
 
-When several facts apply they share one clause. `core/storage/minio` declares a `root_password` slot marked `sensitive: true`, so a credential attached under that name reports both facts, while a Feature attached under a name the Component declares no slot for reports neither slot nor sensitivity:
+When several facts apply they share one clause. `core/storage/minio` declares a `root_password` slot marked `sensitive: true`, so a credential attached under that name reports both facts, while a Feature attached under a name the Component declares no slot for reports neither slot nor sensitivity. With a Manifest that maps each Feature type to a FeatureRecipe, each line also names its realization:
 
 ```text
     Features:
-    - root_password (core/generated-secret:1.0.0)    [slot: root_password, sensitive]    [explicit]
-    - cross-namespace-routing (core/k8s-dns-resolver:1.0.0)    [free]    [explicit]
+    - root_password (core/generated-secret:1.0.0)    [slot: root_password, sensitive, realization: generated-secret:1.0.0]    [explicit]
+    - cross-namespace-routing (core/k8s-dns-resolver:1.0.0)    [free, realization: k8s-dns-patcher:1.0.0]    [explicit]
 ```
 
 A component whose `models` socket declares a `credential` slot marked `sensitive: true`, wiring a connection under the alias `gpt` that fills it, lists that attachment beneath the connection — beside a credential of its own, which stays under `Features:`:
@@ -428,7 +428,7 @@ A component whose `models` socket declares a `credential` slot marked `sensitive
       gpt → model
         - gpt.credential (feature.conn/token:1.0.0)    [socket: models, slot: credential, sensitive, realization: conn-token-compose:1.0.0]    [explicit]
     Features:
-    - db_password (feature.conn/token:1.0.0)    [slot: db_password, sensitive]    [explicit]
+    - db_password (feature.conn/token:1.0.0)    [slot: db_password, sensitive, realization: conn-token-compose:1.0.0]    [explicit]
 ```
 
 An attachment written on a connection never reports `[free]`: a socket admits only the slots it declares, and a connection carrying any other name is refused when the build loads.
@@ -438,7 +438,7 @@ The clause is omitted entirely when none of the facts applies, and each half is 
 - **No socket or connection half** means the attachment was written on the component's own block, or reached it from a broader scope or by annotation-driven expansion.
 - **No slot half** means the host Component's declared slot set could not be resolved — for instance, its type matches no catalog entity. This is deliberately distinct from `[free]`: `[free]` answers "no slot of that name is declared", while an absent half means the question could not be answered at all.
 - **No `sensitive`** records that no declaration marked the attachment. That is narrower than a verdict that the attachment carries nothing secret; the axis reports declarations, and nothing is inferred from a field's name or its value.
-- **No realization half** under a connection means the Manifest binds the attachment to no FeatureRecipe the catalog holds.
+- **No realization half** means the Manifest binds the attachment to no FeatureRecipe the catalog holds.
 
 A slot whose declared name is literally `free` renders as `[free]` too, indistinguishable from a free-form attachment — nothing reserves that word against the slot namespace.
 
