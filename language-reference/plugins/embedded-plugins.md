@@ -6,17 +6,17 @@ Aggrega ships a set of Wasm plugins compiled directly into the CLI binary. These
 
 | Type | Name | Capabilities | Version |
 | --- | --- | --- | --- |
-| governance | `governance/cel` | — | 0.8.1 (commit a7497e0f) |
-| governance | `governance/label-injector` | — | 0.8.1 (commit a7497e0f) |
-| governance | `governance/rego` | — | 0.8.1 (commit a7497e0f) |
-| governance | `governance/selector-tagger` | — | 0.8.1 (commit a7497e0f) |
-| linter | `linter/publishing` | — | 0.8.1 (commit a7497e0f) |
-| parser | `parser/hcl` | parse:hcl | 0.8.1 (commit a7497e0f) |
-| parser | `parser/json` | parse:json | 0.8.1 (commit a7497e0f) |
-| parser | `parser/toml` | parse:toml | 0.8.1 (commit a7497e0f) |
-| parser | `parser/yaml` | parse:yaml | 0.8.1 (commit a7497e0f) |
-| provider | `provider/cloudformation` | cloudformation | 0.8.1 (commit a7497e0f) |
-| provider | `provider/compose` | compose | 0.8.1 (commit a7497e0f) |
-| provider | `provider/helm` | helm | 0.8.1 (commit a7497e0f) |
-| provider | `provider/helm-chart` | helm-chart | 0.8.1 (commit a7497e0f) |
-| provider | `provider/terraform` | terraform | 0.8.1 (commit a7497e0f) |
+| governance | `governance/cel` | — | 0.8.2 (commit 9e332f9e) |
+| governance | `governance/label-injector` | — | 0.8.2 (commit 9e332f9e) |
+| governance | `governance/rego` | — | 0.8.2 (commit 9e332f9e) |
+| governance | `governance/selector-tagger` | — | 0.8.2 (commit 9e332f9e) |
+| linter | `linter/publishing` | — | 0.8.2 (commit 9e332f9e) |
+| parser | `parser/hcl` | parse:hcl | 0.8.2 (commit 9e332f9e) |
+| parser | `parser/json` | parse:json | 0.8.2 (commit 9e332f9e) |
+| parser | `parser/toml` | parse:toml | 0.8.2 (commit 9e332f9e) |
+| parser | `parser/yaml` | parse:yaml | 0.8.2 (commit 9e332f9e) |
+| provider | `provider/cloudformation` | cloudformation | 0.8.2 (commit 9e332f9e) |
+| provider | `provider/compose` | compose | 0.8.2 (commit 9e332f9e) |
+| provider | `provider/helm` | helm | 0.8.2 (commit 9e332f9e) |
+| provider | `provider/helm-chart` | helm-chart | 0.8.2 (commit 9e332f9e) |
+| provider | `provider/terraform` | terraform | 0.8.2 (commit 9e332f9e) |
