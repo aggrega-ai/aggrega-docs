@@ -2185,7 +2185,7 @@ The connection whose entry the position falls inside, or why none is reported. E
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `graphNode` | string | no | The graph node whose component draws the connection, by the id the compiled graph keys it under — the value the candidacy and container requests take as graphNode. |
+| `graphNode` | string | no | The id of the node whose component draws the connection, as the compiled graph keys it — the value the candidacy and container requests take as graphNode. |
 | `connection` | ConnectionCoordinate | no | The connection, by its socket and its alias, with document naming the document the position was read in — the value the candidacy and container requests take as connection. |
 | `noConnectionReason` | const "no-connection-entry" or const "feature-created-connection" or const "unknown-connection" | no | Present only where no connection is reported: why. The set is closed. |
 
