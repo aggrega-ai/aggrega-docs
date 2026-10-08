@@ -44,11 +44,11 @@ The emitted name is stated once, by the producer, and consumed — never restate
 
 `.labels` is what lets a template adapt to *what* an attachment is without matching on its name or parsing its URI. The compiler reads none of them — it carries the strings, and the template author decides what they mean.
 
-A Feature that declares no labels carries no `.labels` at all rather than an empty map, so guard before addressing an individual label — reaching through a key that is not there halts the build:
+A Feature that declares no labels carries no `.labels` at all rather than an empty map, so guard before addressing an individual label — reaching through a key that is not there halts the build. Read a label the Feature may not declare through `optional`, because `index` halts naming the key when the map does not hold it:
 
 ```yaml
 {{ if .features.db.labels }}
-{{ if eq (index .features.db.labels "feature.aggrega.ai/kind") "secret" }}...{{ end }}
+{{ if eq (optional .features.db.labels "feature.aggrega.ai/kind" "") "secret" }}...{{ end }}
 {{ end }}
 ```
 

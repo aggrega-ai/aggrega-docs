@@ -775,6 +775,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0324` | `reference-leads-out-of-workspace` | `a reference a document makes to another file leads out of the directory it must stay inside` |
 | `E0325` | `provider-render-fact-not-list` | `provider guest reported a render fact whose value is not a list; a conforming guest reports every render fact's value as a JSON array, even with one entry` |
 | `E0326` | `pipeline-step-reads-caller-render-facts` | `pipeline step reads its callers' render facts, but a pipeline step does not read the components connecting to its host; it reads only the host's own render facts` |
+| `E0327` | `index-of-absent-map-key` | `template indexes a map with a key the map does not hold` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication no longer judges a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.

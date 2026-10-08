@@ -1,6 +1,6 @@
 # Sprig Functions and Helpers
 
-The Aggrega template engine wires the [Sprig v3](https://github.com/Masterminds/sprig) function library plus Aggrega's own helpers (`optional` and `capitalizedWords`) into every Go template the renderer evaluates. Authors writing Recipe `valuesMapping:`, FeatureRecipe `injectMapping:`, or any other template surface the renderer evaluates have the full Sprig helper set available alongside Go `text/template` built-ins and the runtime context fields documented in [template-context-contract.md](template-context-contract.md).
+The Aggrega template engine wires the [Sprig v3](https://github.com/Masterminds/sprig) function library plus Aggrega's own helpers (`optional` and `capitalizedWords`) into every Go template the renderer evaluates, and replaces Go's `index` with one that halts on a map key the map does not hold. Authors writing Recipe `valuesMapping:`, FeatureRecipe `injectMapping:`, or any other template surface the renderer evaluates have the full Sprig helper set available alongside Go `text/template` built-ins and the runtime context fields documented in [template-context-contract.md](template-context-contract.md).
 
 🔴 **Read "the renderer evaluates" as the scope it is, because one authoring surface sits outside it.** A structured `source:` coordinate is resolved so the artifact it names can be pinned, and that resolution is not a rendering pass: it registers **Aggrega's own helpers and nothing else**, so a Sprig call there halts the build. The reach is the entity's whole `locals:` block, not only the entries the coordinate reads. Resolving a coordinate fixes what gets pinned rather than producing an artifact, which is why its function set is deliberately narrower — see [`errors/fatal-halts.md`](../errors/fatal-halts.md) "Resolving a `source:` coordinate registers a narrower function set" for the halt and the portable form to use instead.
 
@@ -103,6 +103,25 @@ It exists because some targets accept only letters and digits in the names they 
 
 **Per-surface availability.** `capitalizedWords` is registered wherever `optional` is: every surface the renderer evaluates, and the resolution of a structured `source:` coordinate. It is not available in Aggregate parameter interpolation, which offers the Sprig set alone.
 
+### `index` — a key the map must hold
+
+`index <collection> <key>...` reads a collection by position or by key, as Go's own `index` does — with one difference. When the collection is a map and the map does not hold the key, `index` halts the build and names the key, where Go's answers with an empty value that prints as the literal text `<no value>`.
+
+```yaml
+# Present: returns the value
+{{ index .values `replicas` }}                # .values.replicas = 3 → 3
+
+# A position in a list, or in a string, reads as Go's does
+{{ index .values.zones 0 }}                   # .values.zones = [a, b] → a
+
+# Absent: halts, naming the key
+{{ index .values `replicas` }}                # .values.replicas unset → halts: (key "replicas")
+```
+
+It is the read to use where the key **must** be there — a credential read under the variable name the Recipe computed, a key another template publishes — so that a missing key stops the build instead of reaching an artifact as `<no value>`. Where the key may legitimately be absent, test for it first: ``{{ optional .values `replicas` 1 }}`` supplies a fallback, Sprig's `get` returns an empty string, and `hasKey` tests without reading. Reading through `index` and then applying `default` does not supply a fallback, because the halt comes before `default` runs. A key that is present and holds null is not absent: `index` returns it, and it prints as `<no value>`.
+
+The halt is a property of `index` alone, and it is the same on every surface — the value templates, the assertion evaluator, path templates, a structured `source:` coordinate, Aggregate parameter interpolation, a parameter's `validate:` predicate and a schema's `x-aggrega-when:` / `x-aggrega-validate:` predicates. A dot read of an unset key follows its surface's own missing-key policy and is unaffected. The halt is documented at [`errors/fatal-halts.md`](../errors/fatal-halts.md) "A template indexes a map with a key the map does not hold".
+
 ## Common helpers NOT available
 
 Helm extends Go's `text/template` with chart-template helpers that are commonly mistaken for general Sprig helpers. **None of these are registered in Aggrega's renderer.** Templates that the Aggrega renderer evaluates (Recipe `valuesMapping:`, FeatureRecipe `injectMapping:`, `provides`, Workload body, the assertion evaluator) cannot call them:
@@ -116,12 +135,12 @@ Helm extends Go's `text/template` with chart-template helpers that are commonly 
 
 MappingLibrary fragments can target either of two consumption sites:
 
-- **Aggrega-side consumption** (Recipe `valuesMapping:`, FeatureRecipe `injectMapping:`, etc., evaluated by Aggrega's renderer). The available helpers are: full Sprig v3 (`default`, `coalesce`, `quote`, `nindent`, `indent`, `b64enc`, etc.) **plus** Aggrega's own (`optional`, `capitalizedWords`). The chart-template helpers (`include`, `tpl`, `required`, `warn`) are NOT available.
-- **Helm chart-internal consumption** (chart `values.yaml` content or chart `templates/*.yaml` rendered downstream by Helm's own template engine). The available helpers are: full Sprig v3 **plus** Helm's chart-template helpers (`include`, `tpl`, `required`, `warn`). Aggrega's own helpers are NOT available.
+- **Aggrega-side consumption** (Recipe `valuesMapping:`, FeatureRecipe `injectMapping:`, etc., evaluated by Aggrega's renderer). The available helpers are: full Sprig v3 (`default`, `coalesce`, `quote`, `nindent`, `indent`, `b64enc`, etc.) **plus** Aggrega's own (`optional`, `capitalizedWords`), and `index` halts on a map key the map does not hold. The chart-template helpers (`include`, `tpl`, `required`, `warn`) are NOT available.
+- **Helm chart-internal consumption** (chart `values.yaml` content or chart `templates/*.yaml` rendered downstream by Helm's own template engine). The available helpers are: full Sprig v3 **plus** Helm's chart-template helpers (`include`, `tpl`, `required`, `warn`). Aggrega's own helpers are NOT available, and `index` there is Go's own, which answers an absent key with an empty value rather than halting.
 
 The two helper sets share the Sprig surface but diverge on the engine-specific extensions. MappingLibrary entries that target Helm chart-internal consumption use Helm conventions (`.Values.<key>` capital-V root, `| default`, `include`-based composition); entries that target Aggrega-side consumption use Aggrega conventions (lowercase `.values.<key>`, `optional` for presence-aware fallback). The library entity stores fragments verbatim; the authoring shape follows where the fragment is meant to render.
 
-Aggrega's custom helpers on top of Sprig are `optional` and `capitalizedWords`, both documented above. The remainder of the helper surface is exactly what `sprig.FuncMap()` exposes.
+Aggrega's custom helpers on top of Sprig are `optional` and `capitalizedWords`, both documented above, and its `index` replaces Go's, as documented above. The remainder of the helper surface is exactly what `sprig.FuncMap()` exposes.
 
 ## Cross-references
 

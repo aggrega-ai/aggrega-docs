@@ -92,8 +92,9 @@ infra: {
 
 ```gotemplate
 injectMapping: |
-  # 1. Grab the atomic base host directly from the flattened pipe
-  {{ $base_host := index .context.inject.env .infra.target_var }}
+  # 1. Grab the atomic base host directly from the flattened pipe, or an
+  #    empty value when nothing was injected under target_var
+  {{ $base_host := optional .context.inject.env .infra.target_var "" }}
   
   # 2. Dynamically locate the specific edge that injected this variable
   {{ $target_edge := dict }}
@@ -107,7 +108,7 @@ injectMapping: |
   #    coalescing an absent namespace to "default"
   {{ $ns := "default" }}
   {{ if $target_edge.annotations }}{{ if $target_edge.annotations.release }}
-    {{ $raw := index $target_edge.annotations.release "aggrega.ai/namespace" }}
+    {{ $raw := optional $target_edge.annotations.release "aggrega.ai/namespace" "" }}
     {{ if $raw }}{{ $ns = $raw }}{{ end }}
   {{ end }}{{ end }}
 
@@ -338,7 +339,7 @@ spec:
 
 Chaining runs **downward only**. Where one entry reads another, the order of the entries decides whether the build succeeds: move `region_prefix` below `bucket` and the build halts. The compiler never reorders the block to make a reference resolve, so reordering a `locals:` block is a behavioural change, not a cosmetic one.
 
-A reference to an entry the block defines **later** halts naming the ordering fault (move the definition above its reader); a reference to a key the block **does not declare at all** halts naming the key (correct the spelling). **The check follows an alias for the block:** a key reached through the dot a `with .locals` body rebinds, or through a variable bound to `.locals`, halts on exactly the terms the direct spelling gets. Two spellings escape it: a key reached through a call whose result the template text cannot name — `{{ index .locals "nope" }}` — and a key read off a parenthesised block — `{{ (.locals).nope }}` or `{{ ($.locals).nope }}`, where the key hangs off the value the parentheses yield rather than off the block itself. Neither halts, and both render the literal text `<no value>`. `provides:` reads the fully resolved block, because this FeatureRecipe's locals resolve before its provides; a `provides:` template naming an undeclared key halts. These are the same rules a Recipe's `locals:` block follows — see [entities/recipe.md](recipe.md) "The `locals:` block".
+A reference to an entry the block defines **later** halts naming the ordering fault (move the definition above its reader); a reference to a key the block **does not declare at all** halts naming the key (correct the spelling). **The check follows an alias for the block:** a key reached through the dot a `with .locals` body rebinds, or through a variable bound to `.locals`, halts on exactly the terms the direct spelling gets. Two spellings escape it: a key reached through a call whose result the template text cannot name — `{{ index .locals "nope" }}` — and a key read off a parenthesised block — `{{ (.locals).nope }}` or `{{ ($.locals).nope }}`, where the key hangs off the value the parentheses yield rather than off the block itself. The parenthesised read does not halt and renders the literal text `<no value>`; the `index` read halts naming the key, because `index` halts on every template surface when the map it reads does not hold the key — see [errors/fatal-halts.md](../errors/fatal-halts.md) "A template indexes a map with a key the map does not hold". `provides:` reads the fully resolved block, because this FeatureRecipe's locals resolve before its provides; a `provides:` template naming an undeclared key halts. These are the same rules a Recipe's `locals:` block follows — see [entities/recipe.md](recipe.md) "The `locals:` block".
 
 **Scope behavior.** For `executionScope: component` (default), `locals:` evaluates per attached component instance against the self-contained context above. For `executionScope: boundary`, `locals:` evaluates per boundary attachment against the boundary-scope view rooted at `.boundary.*`; the per-component fields (`.context.instance_id`, `.context.inject`, `.context.uses`) and `.attachment_name` are not available, because the FeatureRecipe runs once for the boundary rather than once per component. The boundary-scope template field allowlist applies to `locals:` the same way it applies to the other FR authoring-surface templates. The evaluation contract — author order, downward-only sibling reads, the two halts — is identical at both scopes; only the surrounding context shape differs.
 

@@ -60,7 +60,7 @@ spec:
     # 3. Resolve the Namespace from the target's Release annotations
     {{ $ns := "" }}
     {{ if and .infra.namespace_annotation $target_edge }}
-      {{ $ns = index $target_edge.annotations.release .infra.namespace_annotation }}
+      {{ $ns = optional $target_edge.annotations.release .infra.namespace_annotation "" }}
     {{ end }}
 
     # 4. Formulate the FQDN
