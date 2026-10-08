@@ -853,11 +853,11 @@ A registry host — the `host` of a `registries` entry, or the host `default_reg
 **Emitted messages.** A schema objection names the file, the field path, and what the schema said:
 > workspaceconfig: `<path>`: `<field-path>`: `<the schema's own objection>`: file failed schema validation
 
-The fix-it forms replace the middle with a sentence about the specific shape. An `artifact_cache_dir` naming the workspace root:
-> workspaceconfig: `<path>`: artifact_cache_dir `"<value>"` names the workspace root itself; a catalog directory at the workspace root would then be stepped over as cache, leaving nothing to load — give the cache its own subdirectory (for example `.aggrega/cache`): file failed schema validation
+The fix-it forms open with the file and say a sentence about the specific shape in place of the field path and the schema's objection. An `artifact_cache_dir` naming the workspace root:
+> `<path>`: artifact_cache_dir `"<value>"` names the workspace root itself; a catalog directory at the workspace root would then be stepped over as cache, leaving nothing to load — give the cache its own subdirectory (for example `.aggrega/cache`): file failed schema validation
 
 an unusable `signing.kinds` entry, which also names the wildcard that covers every kind:
-> workspaceconfig: `<path>`: signing.kinds entry `"<kind>"` is not a signable artifact kind; use a catalog entity or plugin kind, or `"all"` for every kind: file failed schema validation
+> `<path>`: signing.kinds entry `"<kind>"` is not a signable artifact kind; use a catalog entity or plugin kind, or `"all"` for every kind: file failed schema validation
 
 a registry host written in another spelling, here `HUB.AGGREGA.AI`:
 > `<path>`: default_registry `"HUB.AGGREGA.AI"` is not written as the registry host it names; write `"hub.aggrega.ai"` — lowercase, with no scheme, path, credentials or default port — which is the spelling that host's trust policy is kept under: file failed schema validation

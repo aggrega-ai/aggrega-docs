@@ -22,11 +22,12 @@ directories, its provider bindings, which lint rules it relaxes. It is
 committed, so a teammate who clones the project builds it the same way.
 
 One global file is shared across every workspace on this machine:
-~/.config/aggrega/config.yaml, or %APPDATA%\aggrega\config.yaml on Windows. It
-holds what belongs to the machine rather than to any one project: the
-registries you pull from and the signature trust policy for each, how large the
-compiled-module store may grow, any command extension you have installed. It
-loads automatically when it is there, and nothing breaks when it is not.
+~/.config/aggrega/config.yaml, or on Windows aggrega\config.yaml inside the
+directory the APPDATA environment variable names. It holds what belongs to the
+machine rather than to any one project: the registries you pull from and the
+signature trust policy for each, how large the compiled-module store may grow,
+any command extension you have installed. It loads automatically when it is
+there, and nothing breaks when it is not.
 
 Your project's file wins over the global one, an environment variable wins
 over both, and a flag wins over everything.
@@ -147,10 +148,11 @@ the existing file, other settings preserved).
 
 Before anything else, init says where things are: the configuration file it
 created — or, under --force, the one already there that it wrote into — and
-the directory the machine-wide caches are kept in. That directory is
-%LOCALAPPDATA%\aggrega\cache on Windows, and a directory named aggrega under
-the per-user cache directory elsewhere: ~/.cache/aggrega on Linux unless
-XDG_CACHE_HOME names another, and ~/Library/Caches/aggrega on macOS.
+the directory the machine-wide caches are kept in. On Windows that directory is
+aggrega\cache inside the directory the LOCALAPPDATA environment variable names;
+elsewhere it is a directory named aggrega under the per-user cache directory:
+~/.cache/aggrega on Linux unless XDG_CACHE_HOME names another, and
+~/Library/Caches/aggrega on macOS.
 
 A seeded configuration is a document you own and go on editing, so --dry-run does
 everything init does except write: it hands the content back, creating and

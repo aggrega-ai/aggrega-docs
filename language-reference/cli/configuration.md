@@ -26,7 +26,8 @@ level beside it. A project that vendors no catalog content still writes the bloc
 `workspace: {}` — because the block's presence is the marker.
 
 **One global file on your machine**, at `~/.config/aggrega/config.yaml` — on Windows, at
-`%APPDATA%\aggrega\config.yaml`. Every workspace on that machine resolves through it, and it holds
+`aggrega\config.yaml` inside the directory the `APPDATA` environment variable names. Every workspace
+on that machine resolves through it, and it holds
 settings that belong to the machine rather than to any one
 project — the registries you pull from and the signature trust policy for each, how large the
 compiled-module store may grow, and any command-extension plugin you have installed. Those are the
@@ -694,9 +695,9 @@ The global layer resolves in this order:
 
 1. `--config <path>`, the per-invocation form.
 2. The `AGGREGA_CONFIG` environment variable.
-3. The default location: `%APPDATA%\aggrega\config.yaml` on Windows, and elsewhere
-   `aggrega/config.yaml` inside the directory `XDG_CONFIG_HOME` names, falling back to
-   `~/.config/aggrega/config.yaml`.
+3. The default location: on Windows `aggrega\config.yaml` inside the directory the `APPDATA`
+   environment variable names, and elsewhere `aggrega/config.yaml` inside the directory
+   `XDG_CONFIG_HOME` names, falling back to `~/.config/aggrega/config.yaml`.
 
 The first two name an explicit file, so a path that does not exist is a loud error rather than a
 silent fallback — you asked for a particular file. A command that reads its configuration stops

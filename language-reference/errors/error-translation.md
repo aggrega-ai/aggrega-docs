@@ -149,7 +149,7 @@ The consequence is that a refused file goes missing from the catalog silently â€
   document envelope validation failed (Recipe, at catalog/recipes/helm/server.yaml); 6:1: spec.implements: missing required property: implements. correct the document to match its kind's schema
   note: this file was skipped at load, so the catalog holds nothing under the identity it declares.
   This Release reaches that identity, so what failed is the attempt to resolve the reference to it:
-    resolve: resolve entity "server-recipe:1.0.0": catalog: tier-3 pull server-recipe:1.0.0: recipe reference must be provider-scoped (<provider>/<name>); an empty provider cannot bind to an OCI location: "server-recipe"
+    resolve entity "server-recipe:1.0.0": catalog: tier-3 pull server-recipe:1.0.0: recipe reference must be provider-scoped (<provider>/<name>); an empty provider cannot bind to an OCI location: "server-recipe"
 ```
 
 The refusal leads, with its own category and its own short code, because it names the thing you can act on: the fix is a missing `implements:` in a Recipe, not anything about how a reference is looked up in a registry. The resolution failure is still reported, beneath it, because it is what says why that document was needed at all.
@@ -160,7 +160,7 @@ Where no refused file declares that identity, or more than one does, the report 
 
 ```text
 [E0105]
-  resolve: resolve entity "server-recipe:1.0.0": catalog: tier-3 pull server-recipe:1.0.0: recipe reference must be provider-scoped (<provider>/<name>); an empty provider cannot bind to an OCI location: "server-recipe"
+  resolve entity "server-recipe:1.0.0": catalog: tier-3 pull server-recipe:1.0.0: recipe reference must be provider-scoped (<provider>/<name>); an empty provider cannot bind to an OCI location: "server-recipe"
   note: catalog files skipped at load. A refusal outside this Release's closure is tolerated and never fails a build,
   so this failure is explained only by a refusal naming something this Release reaches:
     - Recipe "server-recipe" (catalog/recipes/helm/server.yaml): [CATALOG_ERROR E0215] catalog/recipes/helm/server.yaml: document envelope validation failed (Recipe, at catalog/recipes/helm/server.yaml); 6:1: spec.implements: missing required property: implements. correct the document to match its kind's schema
