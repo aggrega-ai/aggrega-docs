@@ -147,8 +147,6 @@ The Recipe compared is the one the instance is actually bound to, matched by the
 
 **Emit shape.** One line per component instance and key, naming the Recipe that published the key and the Component that does not declare it:
 
-<!-- unregistered-output: lint text, which is reported without halting and which no halting condition registers -->
-
 ```text
   lint: Recipe publishes a provides key its Component does not declare (Recipe broker-with-region, at .spec.provides.region, "region", on component type "core/ai-model/openai-compatible", bound to component instance "gateway")
 ```
