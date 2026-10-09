@@ -4932,6 +4932,28 @@ One shape of signing failure is named specifically, because a generic rejection 
 
 **How to fix:** the fix is the operator's. Sign the artifact and publish again — either with a held key or with the keyless path, whichever the workspace is set up for. Where you did not expect a signature to be required, the message says which source required it: a registry's own stance is in that registry's entry in `.aggrega-config.yaml`, and the kind-scoped requirement is in the workspace-wide signing policy. Relaxing either is a decision about what you are willing to publish unsigned, so narrowing the policy's scope is usually better than switching it off.
 
+### References signed together need different signing credentials
+
+<!-- covers: pkg/signing.ErrMixedSigningCredentials -->
+
+A refusal on signing, not on a build. `aggrega sign` given several references, and `aggrega deprecate --from` given a batch file, sign everything they are given with one credential: a single held key, or a single keyless identity. Which credential a reference needs is decided by the configuration for its registry — a `signing.key_path` that applies to that registry selects the key it names, and where none applies the reference is signed keyless. When the references named together would need different credentials — a key for one registry and none for another, or two different keys — nothing is signed, and the message names the registries on each side.
+
+The check runs before an identity is asked for and before any registry is read, so nothing is signed or attached and nobody is prompted for a run that is not going ahead. A signature cannot be recalled from anyone who has fetched it, which is why the run is refused rather than signed with whichever credential one of the references needs.
+
+**A key passed with `--key` decides for every reference.** It applies to every reference named, whatever the configuration says for each registry, so such a run is never refused here.
+
+It is met wherever a batch is signed: `aggrega sign`, `aggrega deprecate --from`, the `aggrega/signArtifacts` and `aggrega/deprecateArtifact` requests of [`aggrega serve`](../cli/aggrega-serve.md), whose error message carries the short code ahead of the sentence, and the `sign-artifacts` and `deprecate-artifact` tools of [`aggrega mcp`](../cli/aggrega-mcp.md). A tool call reaching a server over a listener never spends a key the configuration names, so there every reference is signed with the identity the call sends and the call is not refused here.
+
+Emitted message. The condition's own sentence opens it, each credential follows with the registries it would sign for, and the remedy comes last:
+> aggrega sign: signing: the references named together need different signing credentials, so nothing was signed (`<registry>` signs with the held key signing.key_path names, `<registry>` signs keyless: no signing.key_path applies). remediation: sign them in separate runs, one per credential: the references on `<registry>`, then the references on `<registry>`; each run signs as it would on its own
+
+and, where a registry in the batch requires signatures, naming it at the end of the remedy:
+> aggrega sign: signing: the references named together need different signing credentials, so nothing was signed (`<registry>` signs with the held key signing.key_path names, `<registry>` signs keyless: no signing.key_path applies). remediation: sign them in separate runs, one per credential: the references on `<registry>`, then the references on `<registry>`; each run signs as it would on its own, and `<registry>` requires signatures, so this refusal holds back signing that would otherwise have gone ahead rather than signing that cannot be done
+
+A second registry with a key of its own is named as signing "with a different held key". The path of a key is never printed: the message names the setting, which is what you can change.
+
+**How to fix:** split the references by the credential their registries need and run once per credential — one `aggrega sign` naming the references on the registries signed with a key, another naming the rest; for `aggrega deprecate --from`, one batch file per credential. Each run then signs as it would have on its own. To sign every reference with one key in a single run instead, pass that key with `--key`.
+
 ### A detached signature does not verify against the key supplied
 
 <!-- covers: pkg/signing.ErrSignatureInvalid -->
@@ -5500,6 +5522,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0327` | `template indexes a map with a key the map does not hold` | A template indexes a map with a key the map does not hold |
 | `E0328` | `attachment written under a name no slot declares fits a slot its component leaves empty` | An attachment written under another name fits a slot its component leaves empty |
 | `E0329` | `a connection and the target it reaches do not name one key: they write different locators for it, or only one of them names one` | A connection and the target it reaches do not name one key |
+| `E0330` | `signing: the references named together need different signing credentials, so nothing was signed` | References signed together need different signing credentials |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

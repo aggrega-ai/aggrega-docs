@@ -12,7 +12,7 @@ aggrega deprecate <reference> [flags]
 **Description**
 
 ```
-Deprecate amends an already-published artifact by attaching a deprecation marker to it as an OCI referrer, then signing that marker. It does not re-push, re-tag, or otherwise mutate the published bytes — the artifact is immutable; the marker is a sibling manifest pointing back at it, so a marker can be attached retroactively. The marker records a severity (warning, error, or retracted), a reason, an optional replacement reference, and the timestamp it was issued. Run it three ways: pass the content as flags; omit the content flags at an interactive terminal to be prompted for severity, reason, and replacement; or pass --from <file> to attach one marker per entry from a batch file. The marker itself is signed the same way artifacts are: its manifest digest is signed and the signature is attached as a referrer of the marker, so the marker is verifiable the same way artifact signatures are. With --key the signature is produced offline from a held ECDSA P-256 key; without --key the keyless flow is used, which requires a live identity provider, Fulcio, and Rekor.
+Deprecate amends an already-published artifact by attaching a deprecation marker to it as an OCI referrer, then signing that marker. It does not re-push, re-tag, or otherwise mutate the published bytes — the artifact is immutable; the marker is a sibling manifest pointing back at it, so a marker can be attached retroactively. The marker records a severity (warning, error, or retracted), a reason, an optional replacement reference, and the timestamp it was issued. Run it three ways: pass the content as flags; omit the content flags at an interactive terminal to be prompted for severity, reason, and replacement; or pass --from <file> to attach one marker per entry from a batch file. The marker itself is signed the same way artifacts are: its manifest digest is signed and the signature is attached as a referrer of the marker, so the marker is verifiable the same way artifact signatures are. With --key the signature is produced offline from a held ECDSA P-256 key; without --key the keyless flow is used, which requires a live identity provider, Fulcio, and Rekor. Every marker of one --from batch is signed with one credential: where the configuration names a held key (signing.key_path) for one entry's registry and none for another's, or two different keys, no marker is attached and the command says to run one batch per credential.
 ```
 
 **Flags**
@@ -47,6 +47,27 @@ Signing the marker, between the two writes, is not retried. A write still failin
 after its last attempt, or a signing that fails, stops the command and names the
 step; a marker already attached by then stays attached without its signature.
 With `--from`, the entries attached before the one that failed stay attached.
+
+## A batch is signed with one credential
+
+With `--from`, every marker in the batch file is signed with the same credential:
+a single held key, or a single keyless identity asked for once for the whole file.
+Which one an entry needs is decided by the configuration for its reference's
+registry — a `signing.key_path` that applies to that registry selects the key it
+names, and where none applies the marker is signed keyless. When the entries would
+need different credentials — the configuration names a key for one registry and
+none for another, or two different keys — no marker is attached and the command
+names the registries on each side. It does so before any identity is asked for and
+before any registry is read.
+
+Split the file into one batch per credential, or pass one key with `--key`, which
+applies to every entry whatever the configuration says for each registry. The
+message is described in
+[References signed together need different signing credentials](../errors/fatal-halts.md#references-signed-together-need-different-signing-credentials).
+
+Every entry's signer is also prepared before the first marker is attached, so a key
+that cannot be read, or a supplied identity token that carries no usable subject,
+stops the batch with nothing attached.
 
 ## What each severity does
 
