@@ -23,7 +23,7 @@ writes.
 
 | instance | catalog Component | what it is here |
 |---|---|---|
-| `router` | `core/gateway/litellm` | the AI gateway: one alias, `assistant`, pointing at a model behind the guard |
+| `router` | `core/gateway/litellm` | the AI gateway: one alias, `assistant`, typed into its model map and pointing at a model behind the guard |
 | `guard` | `core/security/nemo-guardrails` | NVIDIA NeMo Guardrails' server in the model's path, which checks each chat request and forwards what it admits to the model |
 | `detector` | `core/security/trustyai-huggingface-detector` | the classifier service the guard asks, running its default prompt-injection classifier |
 
@@ -120,7 +120,12 @@ Three things are worth reading off it.
 publishes, read off the `guard` edge, so a request for `assistant` goes to the
 guard over the OpenAI API, asking for `gpt-4o-mini`; the guard forwards what it
 admits to the model API `release.yaml` names in its `upstream_endpoint`. Remove
-the shield and the entry is written without `api_base`, exactly as before.
+the shield and the entry is written without `api_base`, exactly as before. That
+is why the alias is typed into the gateway's `values.models` rather than served
+from a model wired to its `models` socket: a wired model's entry is written with
+that model's own endpoint and its connection's own key, so its requests would
+go to the model past the guard, and the shield refuses such a connection, as
+below.
 
 **The gateway holds no credential for the model.** The entry names a fixed word
 in place of a key, because the gateway reaches the guard rather than the
@@ -224,6 +229,19 @@ Each of these is a sentence the build prints, naming what to change:
   [CATALOG_ERROR E0033]
     Recipe/FeatureRecipe assertions
     caused by: FeatureRecipe "prompt-injection-shield-litellm" instance "router" assertion "guard_is_wired": [… omitted: the template position and the assertion's own source]: error calling fail: assertion failed: core/prompt-injection-shield attachment "shield" on "router" needs a guard to send the gateway's model requests through, but nothing is wired to its guard socket; wire a core/security/nemo-guardrails to the guard socket of "router"
+  ```
+
+- **A model wired to the gateway's `models` socket.** Its entry would be sent to
+  that model's own endpoint with its connection's own key, past the guard. Wire
+  a `core/ai-model/openai` to the socket as `fast`, with a credential on the
+  connection, beside the typed alias — setting `values.model: assistant`, since
+  the gateway then serves two aliases and publishes one — and the build halts
+  before anything renders, naming the connection:
+
+  ```text
+  [CATALOG_ERROR E0033]
+    Recipe/FeatureRecipe assertions
+    caused by: FeatureRecipe "prompt-injection-shield-litellm" instance "router" assertion "no_wired_models": [… omitted: the template position and the assertion's own source]: error calling fail: assertion failed: core/prompt-injection-shield attachment "shield" on "router" sends every model request through the guard, which forwards it to its own upstream with its own credential, but the models socket of "router" holds fast, each sent to its own model's endpoint with its own connection's credential, past the guard; remove those connections and reach that model through the guard's upstream, or remove the shield attachment
   ```
 
 - **A credential on the gateway's `provider_key` slot.** It would be presented to

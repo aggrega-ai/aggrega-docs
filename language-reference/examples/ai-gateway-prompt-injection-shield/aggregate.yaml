@@ -19,7 +19,11 @@ spec:
     # ── The gateway ─────────────────────────────────────────────────────────
     # One alias callers ask for. With the shield attached the gateway sends the
     # alias to the guard over the OpenAI API, so its target is written
-    # openai/<model>, the model name the guard's upstream serves.
+    # openai/<model>, the model name the guard's upstream serves. It is typed
+    # into values.models rather than wired to the gateway's models socket: a
+    # wired model's entry is sent to that model's own endpoint with its own
+    # connection's credential, past the guard, so the shield halts the build
+    # while that socket holds a connection.
     router:
       type: core/gateway/litellm
       values:

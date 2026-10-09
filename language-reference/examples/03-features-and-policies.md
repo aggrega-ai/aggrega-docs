@@ -38,7 +38,7 @@ spec:
 The Feature also carries an assertion that halts the build when an attachment lists neither `patterns` nor `entities`: no list is assumed on an author's behalf, so an attachment always names what it masks. The abridged form shows `patterns` and `entities` inline; in the standard library they are declared once, in the `TextMaskingSchemas` schema library, which `core/data-masking` and `core/log-masking` both reference, so a pattern or an entity type means the same thing on both.
 
 **2. Platform Catalog: The Component That Declares the Capability**
-Abridged from `core/gateway/litellm`. The label is what the Feature's selector reads; the two sockets take the pair of services the gateway calls to find and replace entity types.
+Abridged from `core/gateway/litellm`. The label is what the Feature's selector reads; the `models` socket takes the models the gateway serves, and the other two sockets the pair of services it calls to find and replace entity types.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -52,6 +52,8 @@ metadata:
     dataplane.aggrega.ai/content-masking: entity-recognition
 spec:
   usesSchema:
+    models:
+      selector: "component.aggrega.ai/category=ai-model"
     pii_analyzer:
       selector: "security.aggrega.ai/text-anonymization=analyzer"
     pii_anonymizer:
@@ -59,7 +61,7 @@ spec:
 ```
 
 **3. Dev Domain: The Aggregate**
-The developer attaches the Feature to the gateway and says what to mask: a pattern for the company's project codes, and two entity types a recognizer finds. The recognizer is two catalog services wired to the gateway's sockets. The developer names no address, no guardrail and no provider setting.
+The developer attaches the Feature to the gateway and says what to mask: a pattern for the company's project codes, and two entity types a recognizer finds. The recognizer is two catalog services wired to the gateway's sockets, and the model the gateway serves is a catalog component wired to its `models` socket, the key the gateway presents to it held on that connection. The developer names no address, no guardrail and no provider setting.
 
 ```yaml
 apiVersion: aggrega.ai/v1alpha1
@@ -72,9 +74,7 @@ spec:
     router:
       type: core/gateway/litellm
       values:
-        models:
-          - name: assistant
-            target: openai/gpt-4o
+        model: assistant
       features:
         pii-filter:
           type: core/data-masking
@@ -86,12 +86,25 @@ spec:
                 regex: '\bPRJ-[0-9]{4}\b'
             entities: [PERSON, EMAIL_ADDRESS]
       uses:
+        models:
+          assistant:
+            target: gpt
+            features:
+              credential:
+                type: core/referenced-secret
+                values:
+                  key: api-key
+                  origin: openai-api-key
         pii_analyzer:
           recognizer:
             target: analyzer
         pii_anonymizer:
           replacer:
             target: anonymizer
+    gpt:
+      type: core/ai-model/openai
+      values:
+        model: gpt-4o
     analyzer:
       type: core/security/presidio-analyzer
     anonymizer:
@@ -164,11 +177,14 @@ spec:
     components:
       type:
         core/gateway/litellm:1.0.0: helm/litellm-gateway:1.0.0
+        core/ai-model/openai:1.0.0: helm/openai:1.0.0
         core/security/presidio-analyzer:1.0.0: helm/presidio-analyzer:1.0.0
         core/security/presidio-anonymizer:1.0.0: helm/presidio-anonymizer:1.0.0
     features:
       type:
         core/data-masking:1.0.0: helm/data-masking-litellm:1.0.0
+        # origin names a Secret the namespace already holds.
+        core/referenced-secret:1.0.0: helm/k8s-existing-secret:1.0.0
 ---
 apiVersion: aggrega.ai/v1alpha1
 kind: Release
@@ -193,6 +209,7 @@ spec:
         # unmasked.
         router:
           infra: { port: 4000 }
+        gpt: {}
         analyzer:
           infra: { port: 3000 }
         anonymizer:

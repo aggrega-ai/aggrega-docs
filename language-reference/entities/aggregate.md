@@ -207,7 +207,8 @@ spec:
     openai_key_secret: { type: string }
   components:
     router:
-      type: local/gateway/model-router   # its `models` socket declares a `credential` slot
+      type: core/gateway/litellm         # its `models` socket declares a `credential` slot
+      values: { model: gpt }             # the alias it publishes as its model
       uses:
         models:
           gpt:

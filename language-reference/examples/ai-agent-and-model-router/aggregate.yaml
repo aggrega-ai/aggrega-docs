@@ -32,6 +32,13 @@ spec:
     # makes routing_strategy do anything — with distinct aliases the gateway
     # routes by name alone and the strategy changes no answer.
     #
+    # Both are typed by hand into values.models rather than wired to the
+    # router's models socket, for two reasons, each enough on its own. A wired
+    # model is served under the alias of its own connection, which no other
+    # entry may publish, so two wired models never share one. And the router
+    # writes a wired model's entry through the OpenAI API alone, while
+    # Anthropic's model answers its own API, so wiring it halts the build.
+    #
     # Each target is a deterministic pointer string. The compiler does not
     # contact a provider, does not check that a target exists, and cannot tell a
     # provider-qualified model name from any other string; the running proxy
@@ -57,9 +64,9 @@ spec:
         #
         # api_key guards the router's own API: with it attached, a caller must
         # present the key, which LiteLLM calls its master key. provider_key is
-        # the credential the router presents UPSTREAM on the caller's behalf —
-        # so the agent never holds it, and repointing the map at a different
-        # provider changes no application.
+        # the credential the router presents UPSTREAM on the caller's behalf, on
+        # every entry typed into values.models — so the agent never holds it,
+        # and repointing the map at a different provider changes no application.
         api_key:
           type: core/referenced-secret
           values:

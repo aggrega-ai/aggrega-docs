@@ -183,7 +183,7 @@ the store's container `env`, from `dist/matched/helm/memory-statefulset.yaml`:
 - name: EMBEDDING_MODEL
   value: BAAI/bge-small-en-v1.5
 - name: LLM_ENDPOINT
-  value: https://api.openai.com
+  value: https://api.openai.com/v1
 - name: LLM_MODEL
   value: gpt-4o-mini
 - name: LLM_API_KEY

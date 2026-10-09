@@ -19,15 +19,19 @@ writes.
 
 | instance | catalog Component | what it is here |
 |---|---|---|
-| `router` | `core/gateway/litellm` | the AI gateway: a chat alias, `assistant`, and an embedding alias, `embedder`, each pointing at one upstream model |
+| `router` | `core/gateway/litellm` | the AI gateway: a chat alias, `assistant`, and an embedding alias, `embedder`, each served from a model wired to its `models` socket |
+| `chat` | `core/ai-model/openai` | the chat model behind `assistant`, OpenAI's own API, reached as a reference: nothing runs for it in the cluster |
+| `embeddings` | `core/ai-model/openai-embedding` | the embedding model behind `embedder`, reached the same way |
 | `cache` | `core/datastore/redis` | the store the gateway keeps its replies in |
 
-One `uses` edge, into the gateway's `cache_store` socket, carrying as its
-`credential` the password the cache presents to the store; three Feature
-attachments on the gateway: `api_key` and `provider_key`, two credentials,
-and `answers`, the cache; and one on the store, `password`, the password it
-requires. Both password attachments read one parameter, `cache_password`,
-which the Release fulfils. The `answers` attachment names the embedding alias
+Three `uses` edges: two into the gateway's `models` socket, one to each model,
+each carrying as its `credential` the key the gateway presents to that model,
+and one into its `cache_store` socket, carrying as its `credential` the password
+the cache presents to the store. Two Feature attachments on the gateway:
+`api_key`, its administrative key, and `answers`, the cache; and one on the
+store, `password`, the password it requires. Both password attachments read one
+parameter, `cache_password`, and both model credentials another, `openai_key`;
+the Release fulfils both. The `answers` attachment names the embedding alias
 that turns each prompt into a vector, how alike two prompts must be — `0.9`,
 as a cosine similarity — and how long a stored reply lasts, an hour. It leaves
 `scope` out, so it takes the default, `end_user`.
@@ -56,7 +60,7 @@ The build prints:
 
 ```text
 [… omitted: the resolution's summary and a total build time, which differ per run]
-Build completed: 10 files written to dist/
+Build completed: 13 files written to dist/
 ```
 
 ## The rendered tree
@@ -66,8 +70,11 @@ dist/helm/
 ├── cache--password--cache-secret-cache-password.yaml
 ├── cache-default-service.yaml
 ├── cache-deployment.yaml
+├── chat-service.yaml
+├── embeddings-service.yaml
 ├── router--api-zukey--router-secret-router-api-key.yaml
-├── router--provider-zukey--router-secret-router-provider-key.yaml
+├── router--assistant-zdcredential--router-secret-router-assistant-credential.yaml
+├── router--embedder-zdcredential--router-secret-router-embedder-credential.yaml
 ├── router--replies-zdcredential--router-secret-router-replies-credential.yaml
 ├── router-default-service.yaml
 ├── router-deployment.yaml
@@ -78,7 +85,31 @@ dist/helm/
 ```
 
 The cache attachment brings no file of its own. What it does is written into the
-gateway's configuration.
+gateway's configuration. Each model renders one file, a Service mapping an
+in-cluster name onto OpenAI's API host, and each credential on a model
+connection renders a Secret of its own, named for the gateway and the
+connection's alias.
+
+## The models it serves
+
+The routing table, the start of the gateway's configuration body, has one entry
+per connection on the `models` socket, written from what each model publishes —
+its endpoint, OpenAI's API base URL, and its model name — and naming the
+variable the gateway's Recipe delivers that connection's key under:
+
+```yaml
+model_list:
+  - model_name: "assistant"
+    litellm_params:
+      model: "openai/gpt-4o"
+      api_base: "https://api.openai.com/v1"
+      api_key: os.environ/LITELLM_MODEL_ASSISTANT_API_KEY
+  - model_name: "embedder"
+    litellm_params:
+      model: "openai/text-embedding-3-small"
+      api_base: "https://api.openai.com/v1"
+      api_key: os.environ/LITELLM_MODEL_EMBEDDER_API_KEY
+```
 
 ## The cache, as the gateway reads it
 
@@ -128,16 +159,21 @@ those from the `cache_store` edge. From `dist/helm/router-deployment.yaml`, the
                 secretKeyRef:
                   name: router-api-key
                   key: master-key
-            - name: LITELLM_PROVIDER_API_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: router-provider-key
-                  key: provider-key
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: router-replies.credential
                   key: password
+            - name: LITELLM_MODEL_ASSISTANT_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: router-assistant.credential
+                  key: api-key
+            - name: LITELLM_MODEL_EMBEDDER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: router-embedder.credential
+                  key: api-key
 ```
 
 `cache-default` is the Service the store's own Recipe emits, read off what that
@@ -147,9 +183,11 @@ the `cache_store` edge renders, `router-replies.credential`, and never the
 password itself. The store renders a Secret of its own from the same
 parameter, `cache-password`, and starts with `--requirepass` read from it, so
 the password the cache presents and the one the store requires are one value,
-written once. With no `cache_store` edge none of the three variables is
-rendered, and the cache, with nowhere to keep its replies, halts the build, as
-below.
+written once. With no `cache_store` edge none of the three variables the store's
+address and password arrive under is rendered, and the cache, with nowhere to
+keep its replies, halts the build, as below. The last two entries are the
+models' keys, each referenced from the Secret its own connection's credential
+renders, under the variable its entry in the routing table names.
 
 **The embedding model is an alias of the gateway's own map.** The gateway sends
 each prompt to `embedder` through the same map a caller's request goes through,

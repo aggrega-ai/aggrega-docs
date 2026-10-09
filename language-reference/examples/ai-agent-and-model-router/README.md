@@ -193,7 +193,14 @@ Five things are worth reading off those.
 `routing_strategy` something to do: with two entries under one name, the router
 has a choice to make on each request, and `latency-based-routing` is the rule it
 applies. A map whose aliases are all distinct routes by name alone, and the
-strategy changes nothing about it.
+strategy changes nothing about it. Sharing one alias is also why both are typed
+by hand into `values.models` rather than served from model components wired to
+the router's `models` socket: a wired model is served under the alias of its own
+connection, which no other entry may publish, so two wired models never share
+one. The second reason is Anthropic's: the router writes a wired model's entry
+through the OpenAI API alone, while Anthropic's model answers its own API, so
+wiring `core/ai-model/anthropic` halts the build, saying to type that upstream
+into the map instead.
 
 **The targets are strings the compiler does not interpret.**
 `openai/gpt-4o` is a deterministic pointer: the running proxy resolves it when it
@@ -367,7 +374,9 @@ by the attachment and read by the consumer, so neither side re-derives it.
 ### `provider_key` on the router — the key it presents upstream
 
 The same Feature in a different slot, and the difference between the two slots is
-the point of the router. From
+the point of the router. It is the one credential of the entries typed into
+`values.models`, both of them here; a model wired to the router's `models`
+socket presents the key its own connection carries instead, never this one. From
 `dist/helm/router--provider-zukey--router-secret-router-provider-key.yaml`:
 
 ```yaml
@@ -548,7 +557,10 @@ compiler needing to understand any of it, and without the agent changing.
 - **Add a third provider.** Add a map entry. If it publishes the existing alias,
   the strategy starts choosing between three. If it publishes a new one, the map
   publishes two aliases, and the router's `values.model` names the one the agent
-  is handed; a caller wanting the other asks for it by name.
+  is handed; a caller wanting the other asks for it by name. A model the catalog
+  models whose API is the OpenAI API can instead be wired to the router's
+  `models` socket, under an alias of its own and presenting the key its
+  connection carries; `values.model` then names the alias the agent is handed.
 - **Fetch the credentials from a store instead.** Change the one Manifest line
   binding `core/referenced-secret` to `helm/k8s-external-secret` and rebuild.
   Each rendered `Secret` becomes an `ExternalSecret` naming an entry in a

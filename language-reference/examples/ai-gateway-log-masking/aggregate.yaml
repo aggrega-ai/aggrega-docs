@@ -15,15 +15,13 @@ metadata:
 spec:
   components:
     # ── The gateway ─────────────────────────────────────────────────────────
-    # One published alias, pointing at one upstream model. The alias is what a
-    # caller asks for; the target is a deterministic pointer the running gateway
-    # resolves when it serves a request.
+    # One published alias, served from the model wired to the gateway's models
+    # socket below. values.model names the alias the gateway publishes as its
+    # model, which a gateway serving only wired models has to say.
     router:
       type: core/gateway/litellm
       values:
-        models:
-          - name: assistant
-            target: openai/gpt-4o
+        model: assistant
       features:
         # Log masking: the text a caller or the model wrote is masked in the copy
         # of each call the gateway hands to its logs, and in nothing else. The
@@ -42,6 +40,21 @@ spec:
                 regex: '\bTCK-[0-9]{6}\b'
             entities: [PERSON, EMAIL_ADDRESS]
       uses:
+        # The model the gateway serves. A caller asks for the alias this
+        # connection is written under, and the gateway's entry for it is written
+        # from the endpoint and the model name the model publishes: pointers the
+        # compiler pipes through and the running gateway resolves when it serves
+        # a request.
+        models:
+          assistant:
+            target: gpt
+            features:
+              # The key the gateway presents to the model, held on the connection
+              # it is presented on. The Release names the Secret holding it.
+              credential:
+                type: core/referenced-secret
+                values:
+                  key: api-key
         # The entity types are found and replaced by two catalog services the
         # gateway calls. Listing entities without wiring both sockets halts the
         # build, naming the sockets. A list of patterns alone needs neither.
@@ -51,6 +64,14 @@ spec:
         pii_anonymizer:
           replacer:
             target: anonymizer
+
+    # ── The model ───────────────────────────────────────────────────────────
+    # OpenAI's managed API, reached as an external reference: nothing runs for
+    # it in the cluster.
+    gpt:
+      type: core/ai-model/openai
+      values:
+        model: gpt-4o
 
     # ── The recognizer ──────────────────────────────────────────────────────
     # The analyzer finds the sensitive spans in a text; the anonymizer replaces

@@ -20,15 +20,20 @@ writes.
 
 | instance | catalog Component | what it is here |
 |---|---|---|
-| `router` | `core/gateway/litellm` | the AI gateway: one published alias, `assistant`, pointing at one upstream model |
+| `router` | `core/gateway/litellm` | the AI gateway: one published alias, `assistant`, served from the model wired to its `models` socket |
+| `gpt` | `core/ai-model/openai` | the model behind that alias, OpenAI's own API, reached as a reference: nothing runs for it in the cluster |
 | `analyzer` | `core/security/presidio-analyzer` | finds the sensitive spans in a text |
 | `anonymizer` | `core/security/presidio-anonymizer` | replaces the spans it is handed |
 
-Two `uses` edges, into the gateway's `pii_analyzer` and `pii_anonymizer`
-sockets, and one Feature attachment, `logs`, on the gateway. The attachment
-lists what to mask: a regular expression for the company's ticket numbers, and
-the entity types `PERSON` and `EMAIL_ADDRESS`. There is no default list; an
-attachment listing neither halts the build.
+Three `uses` edges: the gateway's `models` socket to the model, carrying as its
+`credential` the key the gateway presents to it, and its `pii_analyzer` and
+`pii_anonymizer` sockets to the two recognizer services. The Aggregate attaches
+that credential without naming a secret, and the Release names it in the
+attachment's `infra`: a Secret the namespace already holds, which the Manifest's
+realization references and does not render. One Feature attachment, `logs`, on
+the gateway, lists what to mask: a regular expression for the company's ticket
+numbers, and the entity types `PERSON` and `EMAIL_ADDRESS`. There is no default
+list; an attachment listing neither halts the build.
 
 ## Building
 
@@ -54,7 +59,7 @@ The build prints:
 
 ```text
 [… omitted: the resolution's summary and a total build time, which differ per run]
-Build completed: 8 files written to dist/
+Build completed: 9 files written to dist/
 ```
 
 ## The rendered tree
@@ -65,6 +70,7 @@ dist/helm/
 ├── analyzer-deployment.yaml
 ├── anonymizer-default-service.yaml
 ├── anonymizer-deployment.yaml
+├── gpt-service.yaml
 ├── router-default-service.yaml
 ├── router-deployment.yaml
 └── router/
@@ -75,7 +81,23 @@ dist/helm/
 
 The attachment brings no file of its own. What it does is written into the
 gateway's configuration, and a module that configuration loads is added to the
-gateway's ConfigMap.
+gateway's ConfigMap. The model renders one file, `gpt-service.yaml`, a Service
+mapping an in-cluster name onto OpenAI's API host, `api.openai.com`; its key
+renders none, because the Secret holding it already exists.
+
+The routing table, the start of the gateway's configuration body, has one
+entry, written from what the model publishes — its endpoint, OpenAI's API base
+URL, and its model name — and naming the variable the gateway's Recipe delivers
+the connection's key under:
+
+```yaml
+model_list:
+  - model_name: "assistant"
+    litellm_params:
+      model: "openai/gpt-4o"
+      api_base: "https://api.openai.com/v1"
+      api_key: os.environ/LITELLM_MODEL_ASSISTANT_API_KEY
+```
 
 ## The guardrail entry
 
@@ -139,9 +161,16 @@ env:
     value: http://analyzer-default:3000
   - name: PRESIDIO_ANONYMIZER_API_BASE
     value: http://anonymizer-default:3000
+  - name: LITELLM_MODEL_ASSISTANT_API_KEY
+    valueFrom:
+      secretKeyRef:
+        name: openai-api-key
+        key: api-key
 ```
 
-A person's name becomes `<PERSON>` and an address `<EMAIL_ADDRESS>`.
+The first two are the recognizers' addresses; the third is the model's key,
+referenced from the Secret the Release names and never written out. A person's
+name becomes `<PERSON>` and an address `<EMAIL_ADDRESS>`.
 
 **A failed call is withheld rather than masked.** The gateway runs no logging
 guardrail for a call that fails, so the module the entry loads also provides
@@ -249,8 +278,9 @@ configuration as strings. It does not compile the expression, does not know what
 a ticket number or a person is, and does not see the traffic the gateway will
 carry. Each halt this workspace can meet — an attachment listing nothing,
 entity types with a recognizer socket unwired, an entity type the analyzer does
-not recognize in English, both masking Features on one component — is declared
-by the catalog's own entities, as an assertion in the Feature or its
+not recognize in English, both masking Features on one component, the
+connection to the managed model carrying no credential — is declared by the
+catalog's own entities, as an assertion in the gateway, the Feature or its
 realization or as the conflict the two Features declare, and none of them rests
 on any understanding of the text.
 
@@ -265,3 +295,7 @@ on any understanding of the text.
 - **Hide the text from the model as well.** Replace the `core/log-masking`
   attachment with a `core/data-masking` one listing the same `patterns` and
   `entities`, and bind its realization in the Manifest.
+- **Serve a second model.** Wire another model component to the `models`
+  socket under an alias of its own, with the key the gateway presents to it on
+  that connection; `values.model` keeps naming the alias the gateway publishes.
+  The masking applies to the calls of every alias the gateway serves.

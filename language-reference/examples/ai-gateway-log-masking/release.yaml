@@ -19,8 +19,20 @@ spec:
       infra:
         # Operator sizing. Everything omitted takes the schema default.
         port: 4000
-    # Declared with nothing to configure; each takes its schema defaults. A
-    # component still has to appear here: one left out is placed in no scope
-    # and the build halts.
+      uses:
+        models:
+          # The credential the Aggregate attached on the gateway's connection to
+          # the model, without naming a secret: the Release names it, sizing that
+          # attachment with infra only. Under the Manifest's realization it is
+          # the name of a Secret this environment's namespace already holds.
+          assistant:
+            features:
+              credential:
+                infra:
+                  origin: openai-api-key
+    # Declared with nothing to configure; each takes its schema defaults, the
+    # model's endpoint, OpenAI's own API, among them. A component still has to
+    # appear here: one left out is placed in no scope and the build halts.
+    gpt: {}
     analyzer: {}
     anonymizer: {}

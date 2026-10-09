@@ -11,11 +11,12 @@ spec:
   aggregate: ai-gateway-semantic-cache
   manifest: ai-gateway-semantic-cache-manifest
 
-  # The parameter the Aggregate declared, fulfilled for this environment. The
-  # Manifest writes each credential straight into a rendered Secret, so this is
-  # the password itself.
+  # The parameters the Aggregate declared, fulfilled for this environment. The
+  # Manifest writes each credential straight into a rendered Secret, so these
+  # are the password and the key themselves.
   parameters:
     cache_password: dev-cache-password-change-me
+    openai_key: upstream-provider-key-change-me
 
   # Single scope: components are authored directly with no boundaries block, so
   # they fold into one synthesized boundary and the artifacts land flat under
@@ -25,8 +26,10 @@ spec:
       infra:
         # Operator sizing. Everything omitted takes the schema default.
         port: 4000
-    # Declared with nothing to configure, so the store takes its schema
-    # defaults, the port the gateway is handed among them. A component still
-    # has to appear here: one left out is placed in no scope and the build
-    # halts.
+    # Declared with nothing to configure, so each takes its schema defaults:
+    # the models their endpoint, OpenAI's own API, and the store the port the
+    # gateway is handed. A component still has to appear here: one left out is
+    # placed in no scope and the build halts.
+    chat: {}
+    embeddings: {}
     cache: {}
