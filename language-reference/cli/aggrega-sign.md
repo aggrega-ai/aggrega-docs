@@ -1,10 +1,14 @@
 # aggrega sign
 
-`aggrega sign` signs one or more already-published catalog artifacts and attaches each signature as an OCI referrer. It is the post-publish counterpart of `aggrega push --sign`: use it to sign an artifact that was published unsigned, to add a signature from a different identity, or to sign a whole batch of artifacts in one invocation.
+`aggrega sign` signs one or more already-published catalog artifacts and attaches each signature as an OCI referrer. It is the post-publish counterpart of `aggrega push --sign`: use it to sign an artifact that was published unsigned, or to sign a whole batch of artifacts in one invocation. It does not add a second signature to an artifact that already carries one its registry's trust policy verifies.
 
 ## What it does
 
 `aggrega sign` resolves the digest the registry already holds for each `<reference>`, signs that digest, and attaches the signature bundle as a referrer. It never re-pushes, re-tags, or otherwise mutates the published bytes — the artifact is immutable, and the signature is a sibling manifest pointing back at it. So an artifact can be signed after the fact with no version bump.
+
+Before signing, it reads the signatures the reference already carries and judges them against the trust policy this workspace holds for the reference's registry — the policy `aggrega pull` verifies against. Where one verifies, whoever signed it, the reference is already signed: the command prints `Already signed:` with the reference, its digest, the signing identity and, where the transparency log recorded the signature, when — the earliest such signature where there are several — attaches nothing, and counts the reference as signed. A reader that verifies keyless signatures dates a version by the earliest of them that verifies and names that signature's signer, as [`aggrega registry update`](aggrega-registry.md#the-publication-date-each-version-records) describes, so another signature would add a referrer and a transparency-log entry and change nothing such a reader takes from the version.
+
+A registry whose policy pins no public key and no trusted identity gives nothing to judge a signature against, so a reference there is signed whatever it already carries. A reference carrying only signatures the policy does not admit is signed, since none of them counts for a reader verifying under that policy.
 
 The signature is a Sigstore (cosign-compatible) bundle, the same format `aggrega push --sign` attaches and `aggrega pull` verifies. The referrer names the bundle `signature.json`, so a generic OCI client pulling the referrer by its digest writes the bundle to that file.
 
@@ -21,7 +25,7 @@ aggrega sign \
 
 Keyless signing resolves the identity **once** for the whole batch — one interactive authentication, or on GitHub Actions the runner's ambient OIDC endpoint — and reuses it across every artifact, issuing a fresh short-lived Fulcio certificate per artifact. An interactively-acquired or supplied token is reused for every signature; the ambient endpoint mints a fresh token per signature. References may target different registries; the per-registry signing endpoints are resolved independently, but the identity is resolved a single time. The keyed path (`--key`) signs the batch with no authentication at all.
 
-Signing is **continue-and-report**: every signable reference is signed, a reference that fails to resolve, sign, or attach is recorded, and the batch proceeds to the next reference rather than halting on the first failure. After the batch, if any reference failed, a summary listing the failed references is printed to stderr and the command exits non-zero. References that succeeded are signed regardless of others' failures.
+Signing is **continue-and-report**: every signable reference is signed, a reference that fails to resolve, sign, or attach is recorded, and the batch proceeds to the next reference rather than halting on the first failure. A reference already carrying a signature that verifies is reported as already signed and counts as signed. A reference whose existing signatures cannot be read — the registry does not complete the listing, or a signature cannot be fetched or judged while none verifies — is recorded as failed and is not signed: an unanswered question is never read as an unsigned artifact. After the batch, if any reference failed, a summary listing the failed references is printed to stderr and the command exits non-zero. References that succeeded are signed regardless of others' failures.
 
 ### Identity-token expiry mid-batch
 
@@ -90,7 +94,7 @@ aggrega sign <reference>... [flags]
 **Description**
 
 ```
-Sign amends already-published artifacts by attaching a signature to each as an OCI referrer. It does not re-push, re-tag, or otherwise mutate the published bytes — the artifacts are immutable; each signature is a sibling manifest pointing back at its artifact. With --key signatures are produced offline from a held ECDSA P-256 key; without --key the keyless flow is used, which requires a live identity provider, Fulcio, and Rekor. Multiple references are signed in one invocation: the keyless identity is acquired once and reused across every artifact, and a fresh short-lived certificate is issued per artifact. Every signable reference is signed; failures are collected and reported at the end, and the command exits non-zero if any reference failed.
+Sign amends already-published artifacts by attaching a signature to each as an OCI referrer. It does not re-push, re-tag, or otherwise mutate the published bytes — the artifacts are immutable; each signature is a sibling manifest pointing back at its artifact. With --key signatures are produced offline from a held ECDSA P-256 key; without --key the keyless flow is used, which requires a live identity provider, Fulcio, and Rekor. Multiple references are signed in one invocation: the keyless identity is acquired once and reused across every artifact, and a fresh short-lived certificate is issued per artifact. A reference that already carries a signature its registry's trust policy verifies is reported as already signed, naming who signed it and when, and nothing is attached to it; a registry whose policy pins no public key or trusted identity gives nothing to judge a signature against, so a reference there is signed. Every other signable reference is signed; failures are collected and reported at the end, and the command exits non-zero if any reference failed — including one whose existing signatures could not be read, which is not signed.
 ```
 
 **Flags**

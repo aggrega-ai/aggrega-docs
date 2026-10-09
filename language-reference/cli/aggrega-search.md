@@ -139,8 +139,9 @@ applies; `retracted` reports the outcome those conditions already produced.
 
 Each record also carries `published`: every version the index recorded, in ascending version
 order, each with the `manifestDigest` its tag resolved to when the index was built and, where
-this workspace's trust policy verified that version's own signature, its `signer`. A version
-with no `signer` carries no signature that policy verified, and nothing more is said about it.
+this workspace's trust policy verified that version's own signature, its `signer` — of several
+that verify, the one the transparency log recorded earliest. A version with no `signer` carries
+no signature that policy verified, and nothing more is said about it.
 A consumer reading one version's content addresses it by that digest — for example
 `aggrega inspect oci://<host>/<repository>@<digest>` — so what it reads is the bytes the index
 recorded, whatever happens to the tag afterwards.
@@ -149,7 +150,8 @@ Where anything records when a version was published, its entry also carries `pub
 RFC 3339 timestamp in UTC to the second, and `publishedAtSource`, which says where it came from.
 `transparency-log` is the time a transparency log recorded the version's keyless signature,
 which this workspace's trust policy verified together with the log's signed promise of that
-time. `publisher` is the time the publication stated beside what it published, from the
+time — the `signer`'s signature, the earliest of those that verify, so signing a version again
+moves neither. `publisher` is the time the publication stated beside what it published, from the
 publishing machine's own clock, which nothing attests. The two are kept apart so a consumer
 sorting by date can still tell an attested time from a stated one. A version with neither
 carries no date, and nothing more is said about it; see
