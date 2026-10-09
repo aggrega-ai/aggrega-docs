@@ -2,21 +2,36 @@
 
 ## One attachment family
 
-A credential in Aggrega is a **Feature**. It is attached on the same surface, under the same keyword, in the same shape as any other Feature:
+A credential in Aggrega is a **Feature**. It is attached on the same surface, under the same keyword, in the same shape as any other Feature. Here the developer attaches the database's credential in the Aggregate, writing its locator in `values`:
 
 ```yaml
+# the Aggregate — its parameters and the components' own values left out
 spec:
   components:
+    api:
+      type: core/compute/server
     db:
       type: core/datastore/mariadb
       features:
-        metrics:                              # an operational Feature
-          type: core/observability/prometheus-scrape:1.0.0
         root_password:                        # a credential Feature
           type: core/secret-value:1.0.0
           values:
             key: MARIADB_ROOT_PASSWORD
             origin: "{{ .parameters.db_root_pass }}"
+```
+
+and the operator attaches a metrics scrape target to the server in the Release, because every input `core/prometheus-exporter` takes — the port, the path and the interval of the scrape — is operational, so it is written in `infra`:
+
+```yaml
+# the Release — the api's own infra and the db's entry left out
+spec:
+  components:
+    api:
+      features:
+        metrics:                              # an operational Feature
+          type: core/prometheus-exporter:1.0.0
+          infra:
+            port: http                        # the named port of the api's Service
 ```
 
 There is one attachment keyword (`features:`), one render-context shape (`.features.<name>`, and the same shape under a connection, `.context.uses.<alias>.features.<slot>`, for an attachment written on one), one execution order, and one set of output coordinates — for an attachment on a component, the component it is attached to and then the name it is attached under, whether the target's layout carries those two as a `<component>--<instance>/` directory beside the component's own or as a `<component>--<instance>--` filename prefix. What varies between attachments is **what they produce** — an injected value, a referenceable resource, a sidecar, a cloud identity — not the surface they are declared on.

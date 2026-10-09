@@ -10,7 +10,7 @@ The split is **guidance, not a rule the compiler enforces**. The core compiler i
 
 The developer authors the **Aggregate**: what the application is and what it needs, expressed as intent. The developer says "I need a database of this size and a service that uses it," not "provision an AWS RDS instance in this subnet." Physical infrastructure is deliberately left to the catalog and to operations, so the Aggregate stays capability-agnostic — the same intent compiles for a laptop, a cloud, or an enterprise cluster without the developer's file changing.
 
-What the developer owns: the components the Aggregate declares, the `values` it supplies, the `parameters` it exposes for per-environment variation, and the `uses` edges that wire components together.
+What the developer owns: the components the Aggregate declares, the `values` it supplies, the Features whose behaviour is application intent (with their `values`), the `parameters` it exposes for per-environment variation, and the `uses` edges that wire components together.
 
 ### Platform architect — the catalog contract
 
@@ -26,9 +26,9 @@ What operations owns: the `infra` sizing, the templates that render provider-nat
 
 ### Platform operator — deployment wiring
 
-The operator authors **Manifests** and **Releases**: the routing and deployment layer. A Manifest tells the compiler which Recipe realizes each Component for a given target, so the same Aggregate can hit different implementations across environments. A Release is the single compilation input — it points at the Aggregate and Manifest, fulfills the parameters the developer exposed, attaches Features, and wires deployment-time edges within the sockets the architect declared.
+The operator authors **Manifests** and **Releases**: the routing layer and the per-environment compilation input. A Manifest tells the compiler which Recipe realizes each Component for a given target, so the same Aggregate can hit different implementations across environments. A Release is the single compilation input — it points at the Aggregate and Manifest, fulfills the parameters the developer exposed, attaches the Features whose inputs are operational, sizes with `infra` the ones the developer attached, and wires edges of its own within the sockets the architect declared.
 
-What the operator owns: the Manifest's routing map, the Release's parameter fulfillment, Feature attachments, and per-edge deployment configuration. The operator fulfills the developer's exposed variation points; the Release cannot introduce new application values or new compute — those come only from the Aggregate.
+What the operator owns: the Manifest's routing map, the Release's parameter fulfillment, the attachments of the Features whose inputs are operational, and the per-edge `infra` a Release writes on a connection. The operator fulfills the developer's exposed variation points; the Release cannot introduce new application values or new compute — those come only from the Aggregate.
 
 ## Roles are hats, not headcount
 

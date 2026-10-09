@@ -238,6 +238,8 @@ spec:
         # Cross-cutting: all components in this subsystem get audit logging
         audit-logger:
           type: core/enterprise-audit-logger:1.0.0
+          values:
+            events: [create, update, delete]   # what is logged
       components:
         invoice-api:
           type: core/web-server:1.0.0
@@ -258,6 +260,8 @@ spec:
           values:
             image: "corp/metrics:v3"
 ```
+
+The developer attaches the logger once, on the subsystem, and decides what it records: the events listed in its `values` are part of what the billing domain is, the same in every environment.
 
 **2. Routing Domain: The Release**
 How long the audit records are kept is a retention period the operator sets for each environment, so it is `infra`, not a developer value. The Release writes it on the attachment under each component's entry, using the attachment name the subsystem gave it.
@@ -281,7 +285,7 @@ spec:
         metrics-collector: {}
 ```
 
-**Compilation:** The compiler flattens the subsystem tree. `invoice-api` and `payment-worker` both receive the `audit-logger` Feature, each carrying the `infra` the Release wrote on that component's entry, and the cascading annotation `team.aggrega.ai/owner: "billing-squad"` in their `.context.annotations.aggregate` bucket. The Recipe template can access these via `{{ index .context.annotations.aggregate "cost.aggrega.ai/center" }}`.
+**Compilation:** The compiler flattens the subsystem tree. `invoice-api` and `payment-worker` both receive the `audit-logger` Feature, each carrying the `values` the subsystem wrote and the `infra` the Release wrote on that component's entry, and the cascading annotation `team.aggrega.ai/owner: "billing-squad"` in their `.context.annotations.aggregate` bucket. The Recipe template can access these via `{{ index .context.annotations.aggregate "cost.aggrega.ai/center" }}`.
 
 ---
 
@@ -336,6 +340,8 @@ spec:
 
         audit-logger:
           type: core/enterprise-logger:1.0.0
+          values:
+            events: [tool-call, decision]      # what is logged
           uses:
             # The Feature autonomously requests its storage target
             storage:
@@ -346,7 +352,7 @@ spec:
 Both attachments sit in one `features:` block, because one component declares its attachments once — a credential Feature is not a second kind needing a keyword of its own.
 
 **2. Routing Domain: The Release**
-The logger's retention is a period the operator sets for each environment, so the Release writes it as `infra` on the same attachment:
+What the logger records — each tool call the agent makes and each decision it returns, listed in its `values` — is the developer's to decide, once and the same in every environment, so the developer attaches it in the Aggregate. Its retention is a period the operator sets for each environment, so the Release writes it as `infra` on the same attachment:
 
 ```yaml
 # the Release — its other entries left out

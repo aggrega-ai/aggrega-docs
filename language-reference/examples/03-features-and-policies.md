@@ -2,7 +2,7 @@
 
 ## Example 7: Your First Feature — Masking Sensitive Text on the AI Gateway
 
-Features are modular operational behaviors attached to Components. The developer requests *what* they want (sensitive text masked before it reaches a model provider). Ops decides *how* it is realized (the FeatureRecipe the Manifest binds — here one that writes guardrails into the AI gateway's own configuration through a Wasm pipeline step).
+Features are modular operational behaviors attached to Components. Who attaches one follows from who decides its inputs: the developer attaches, in the Aggregate, a Feature whose behaviour is application intent, and operations attach, in the Release, one whose inputs are all operational. Masking is the developer's: the developer requests *what* they want (sensitive text masked before it reaches a model provider). Ops decides *how* it is realized (the FeatureRecipe the Manifest binds — here one that writes guardrails into the AI gateway's own configuration through a Wasm pipeline step).
 
 **1. Platform Catalog: The Feature Interface**
 The Feature uses an `appliesTo` label selector to restrict which Components can receive it — here the data-path capability a gateway declares when it can mask the chat and completion payload it routes. The `schema:` block defines the developer-facing configuration surface. Abridged from the standard library's `core/data-masking`, which also carries a description of every value:

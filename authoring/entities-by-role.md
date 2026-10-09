@@ -14,7 +14,7 @@ Every entity kind has a role that typically authors it. This page is the complet
 
 ## Developer
 
-**[Aggregate](../language-reference/entities/aggregate.md)** — the developer's single authoring surface and the single source of truth for application topology. It declares the components the application is built from, the `values` each one takes, the `parameters` exposed for per-environment variation, and the `uses` edges wiring components together. It stays deliberately blind to physical infrastructure: nothing in the Aggregate names a cloud, a cluster, or a provider. That capability-agnosticism is what lets one Aggregate deploy anywhere.
+**[Aggregate](../language-reference/entities/aggregate.md)** — the developer's single authoring surface and the single source of truth for application topology. It declares the components the application is built from, the `values` each one takes, the Features whose behaviour is application intent (with their `values`), the `parameters` exposed for per-environment variation, and the `uses` edges wiring components together. It stays deliberately blind to physical infrastructure: nothing in the Aggregate names a cloud, a cluster, or a provider. That capability-agnosticism is what lets one Aggregate deploy anywhere.
 
 ## Platform architect
 
@@ -34,7 +34,7 @@ Every entity kind has a role that typically authors it. This page is the complet
 
 **[Manifest](../language-reference/entities/manifest.md)** — the routing layer. It instructs the compiler which Recipe realizes each Component for a given target, so the same Aggregate can be pointed at different implementations across environments — a cloud Recipe for production, a Compose Recipe for local testing — with no change to the developer's file.
 
-**[Release](../language-reference/entities/release.md)** — the single compilation input and the deployment record. It points at the Aggregate and Manifest, fulfills the `parameters` the developer exposed, attaches Features, and wires deployment-time edges within the sockets the architect declared. A Release fulfills exposed variation points; it cannot introduce new application `values` or new compute — those come only from the Aggregate.
+**[Release](../language-reference/entities/release.md)** — the single compilation input, recording what one environment builds. It points at the Aggregate and Manifest, fulfills the `parameters` the developer exposed, attaches the Features whose inputs are operational, sizes with `infra` the ones the developer attached, and wires edges of its own within the sockets the architect declared. A Release fulfills exposed variation points; it cannot introduce new application `values` or new compute — those come only from the Aggregate.
 
 ## Cross-cutting support kinds
 

@@ -86,7 +86,7 @@ At runtime, Terraform provisions the DB and saves the URL to the vault. The cont
 **The Solution: Dormant Tasks & Script Generation**
 Aggrega solves this by preserving strict AOT purity. It generates configurations for dormant infrastructure and outputs the exact commands the developer needs to invoke.
 
-1. **The Dev Intent:** The developer declares the script as a `task` in the `Aggregate` and attaches an operational feature (e.g., `core/manual-trigger`).
+1. **The Dev Intent:** The developer declares the script as a `task` in the `Aggregate` and attaches a Feature asking for it to be run on demand (e.g., `core/manual-trigger`). Being run on demand is part of what the task is, so the developer attaches it; a Feature whose inputs are all operational is attached by operations, in the Release, instead.
 2. **The Wasm Execution:** The Wasm rendering plugin evaluates the baseline Kubernetes `Job` payload. It logically transforms it into a `CronJob` configuration with `suspend: true`, generating a dormant Day-2 task for the cluster.
 3. **The UX (Script Generation):** The AOT compiler does not connect to the cluster. Instead, the Wasm formatting plugin outputs a generated shell script to the `dist/scripts/` folder (e.g., `run-db-backup.sh`). This script contains the exact native orchestrator command (e.g., `kubectl create job --from=cronjob/db-backup`). On Day 2, the developer simply executes the generated script, maintaining perfect separation between configuration generation and runtime execution.
 
