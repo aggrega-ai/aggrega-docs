@@ -1736,7 +1736,9 @@ Emitted message:
 
 A plugin is referenced by its Plugin entity, always scoped by the plugin's own socket type: `<pluginType>/<name>`, optionally with a version, as in `parser/yaml` or `parser/yaml:1.0.0`. The scope is mandatory rather than one form among several — an unscoped `name:version` is refused, because two sockets may hold a plugin of the same name and the scope is what makes the entity resolvable. The binary the entity points at is reached through the entity, never named directly, so the entity is what carries the capability claim, the runtime limits and the recorded command set the load checks the binary against. A reference that names no Plugin entity therefore has nothing to check the binary against, and the build stops rather than load bytes on an unchecked reference.
 
-Two shapes report here, and they are checked at different moments. A reference whose **form** cannot be an entity — a filesystem path, or an artifact reference such as an `oci://` URL, a bare `.wasm`, or an `@sha256:` digest — is refused up front on the surfaces that take only entity references. A reference that is well-formed but names no entity the catalog holds is refused after the lookup. Both report the same condition, so a build's response to either is the same.
+Two shapes report here, and they are checked at different moments. A reference whose **form** cannot be an entity — a filesystem path, or an artifact reference such as an `oci://` URL, a bare `.wasm`, or an `@sha256:` digest — is refused up front on the surfaces that take only entity references. A reference that names no entity anything holds is refused after the lookup, and what the message says depends on how it is written: a Plugin entity URI — `<pluginType>/<name>`, optionally versioned — is reported as an entity that no catalog directory holds, the binary does not carry and no pull has fetched, and any other reference is told to take that form. Both shapes report the same condition, so a build's response to either is the same.
+
+**A pull refuses the second shape before a build meets it.** Every Plugin a Recipe's or FeatureRecipe's `pipeline` names is resolved with the rest of the Release's dependencies — from a catalog directory, the copy inside the compiler binary, the content cache, or a registry — and one that none of them holds stops `aggrega pull` before it writes the lockfile, with this condition and the same message, naming the Recipe or FeatureRecipe whose pipeline names it.
 
 **Not every surface refuses a non-entity form.** The pipeline-plugin surface takes entity references only; the surfaces an operator attaches a plugin to directly accept any form and pass a non-entity reference on to be resolved as an artifact. So the same reference can be accepted at one attachment point and refused at another, and that difference is the surface's, not the reference's.
 
@@ -1746,10 +1748,13 @@ Emitted messages. A filesystem path:
 an artifact reference:
 > plugin reference is not a Plugin entity: `"<reference>"` is an artifact reference (an `oci://` scheme, a bare `.wasm`, or an `@sha256:` digest), but a pipeline plugin must be a plugin-type-scoped Plugin entity URI (`<pluginType>/<name>`, optionally versioned, as in `parser/yaml` or `parser/yaml:1.0.0`)
 
-and a well-formed reference naming no entity:
+a Plugin entity URI that nothing holds:
+> plugin reference is not a Plugin entity: `"<reference>"` is a Plugin entity URI, but no catalog directory holds the entity it names, the binary does not carry it, and no pull has fetched it into the content cache; place the Plugin entity in a catalog directory, or publish it to a registry and run `aggrega pull`
+
+and any other reference naming no entity — one without a plugin-type scope, with more than one `/` before its version, or carrying a registry host:
 > plugin reference is not a Plugin entity: `"<reference>"` must be a plugin-type-scoped Plugin entity URI (`<pluginType>/<name>`, optionally versioned, as in `parser/yaml` or `parser/yaml:1.0.0`); a bare `.wasm` reference or an artifact reference names no Plugin entity
 
-**How to fix:** write the reference as the Plugin entity's socket-type-scoped identity, optionally with its version — `<pluginType>/<name>` or `<pluginType>/<name>:<version>`. Where you were pointing at a file or an artifact directly, publish or author a Plugin entity for it and reference that instead — the entity is where the claims the load checks live, so there is no equivalent form that skips it. Where the reference already looks like an entity identity, the entity is missing from the catalog the build resolves against rather than misspelled in form: check the version exists and that the catalog holding it is in the workspace.
+**How to fix:** write the reference as the Plugin entity's socket-type-scoped identity, optionally with its version — `<pluginType>/<name>` or `<pluginType>/<name>:<version>`. Where you were pointing at a file or an artifact directly, publish or author a Plugin entity for it and reference that instead — the entity is where the claims the load checks live, so there is no equivalent form that skips it. Where the message says the reference is a Plugin entity URI, its form is right and the entity is what is missing: place the Plugin entity in a catalog directory the workspace lists, with its built `.wasm` beside it, or publish the plugin to a registry the workspace reads and run `aggrega pull`, which fetches it into the content cache — and check that the version you name is one that exists.
 
 ### A cached signature bundle does not match the digest recorded for it
 
@@ -1969,9 +1974,6 @@ a cache read that found no entry, which is the shape a build meets:
 and the same for a cached artifact whose manifest is missing beside it:
 > oci: manifest cache miss for `<reference>@<version>`: oci: artifact not found at remote source
 
-An offline workspace with no lockfile reports under this condition too, since there is no route to what the build needs:
-> aggrega build: lockfile `<path>` missing and workspace is offline; run `aggrega pull --release <release>` from a connected environment first: oci: artifact not found at remote source
-
 **How to fix:** check the reference and the version first — a version that no longer exists and a name with a typo in it produce the same answer, and the message quotes both so they can be compared against the catalog. Where the reference is right, the artifact has not been acquired: run the pull for the release, which fetches what the release reaches and populates the cache. Where the workspace is offline, that pull has to run from somewhere with network access; an offline build reads only what is already cached, and this is what it says when the cache does not hold it.
 
 ### The registry will not serve an artifact without credentials it accepts
@@ -2153,7 +2155,7 @@ A signature is required for an artifact when either the workspace's own signing 
 An artifact whose kind could not be determined while a workspace-wide policy is active is treated as requiring a signature rather than as exempt, so an unclassifiable artifact cannot slip past a policy that is switched on.
 
 Emitted message, framed by the reference it was checking:
-> pullverify: `<uri>`: signing: no signature found for an artifact that requires one
+> verifying the signature of `<uri>`: signing: no signature found for an artifact that requires one
 
 **How to fix:** the fix is the operator's or the publisher's, not the entity author's. Where you expected the artifact to be signed, it was published without a signature — quote the reference to whoever publishes it, since only they can attach one. Where the artifact is not meant to be signed, the requirement is the thing to change: it comes either from the registry's entry in `.aggrega-config.yaml` or from the workspace-wide signing policy, and the message's reference tells you which host to look at. Turning a requirement off means artifacts from that host are no longer checked, so prefer narrowing the policy's scope to a kind over switching it off outright.
 
@@ -2171,7 +2173,7 @@ Where a registry's entry marks verification as advisory, the same text is report
 > signing: signing: signature bundle does not verify: `<what the verifier reported>`
 
 framed by the reference being verified:
-> pullverify: `<uri>`: `<the message above>`
+> verifying the signature of `<uri>`: `<the message above>`
 
 and, where the registry's entry makes verification advisory, as a notice instead of a halt:
 > signature verification failed for `<uri>` (advisory; continuing): `<the message above>`
