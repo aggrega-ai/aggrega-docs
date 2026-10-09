@@ -1747,7 +1747,7 @@ an artifact reference:
 > plugin reference is not a Plugin entity: `"<reference>"` is an artifact reference (an `oci://` scheme, a bare `.wasm`, or an `@sha256:` digest), but a pipeline plugin must be a plugin-type-scoped Plugin entity URI (`<pluginType>/<name>`, optionally versioned, as in `parser/yaml` or `parser/yaml:1.0.0`)
 
 and a well-formed reference naming no entity:
-> plugin reference is not a Plugin entity: `"<reference>"` must be a plugin-type-scoped Plugin entity URI (`<pluginType>/<name>`, optionally versioned, as in `parser/yaml` or `parser/yaml:1.0.0`); bare-`.wasm` and artifact references are no longer accepted
+> plugin reference is not a Plugin entity: `"<reference>"` must be a plugin-type-scoped Plugin entity URI (`<pluginType>/<name>`, optionally versioned, as in `parser/yaml` or `parser/yaml:1.0.0`); a bare `.wasm` reference or an artifact reference names no Plugin entity
 
 **How to fix:** write the reference as the Plugin entity's socket-type-scoped identity, optionally with its version — `<pluginType>/<name>` or `<pluginType>/<name>:<version>`. Where you were pointing at a file or an artifact directly, publish or author a Plugin entity for it and reference that instead — the entity is where the claims the load checks live, so there is no equivalent form that skips it. Where the reference already looks like an entity identity, the entity is missing from the catalog the build resolves against rather than misspelled in form: check the version exists and that the catalog holding it is in the workspace.
 
