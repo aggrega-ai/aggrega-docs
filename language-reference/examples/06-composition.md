@@ -238,8 +238,6 @@ spec:
         # Cross-cutting: all components in this subsystem get audit logging
         audit-logger:
           type: core/enterprise-audit-logger:1.0.0
-          values:
-            retention: "365d"
       components:
         invoice-api:
           type: core/web-server:1.0.0
@@ -261,7 +259,29 @@ spec:
             image: "corp/metrics:v3"
 ```
 
-**Compilation:** The compiler flattens the subsystem tree. `invoice-api` and `payment-worker` both receive the `audit-logger` Feature and the cascading annotation `team.aggrega.ai/owner: "billing-squad"` in their `.context.annotations.aggregate` bucket. The Recipe template can access these via `{{ index .context.annotations.aggregate "cost.aggrega.ai/center" }}`.
+**2. Routing Domain: The Release**
+How long the audit records are kept is a retention period the operator sets for each environment, so it is `infra`, not a developer value. The Release writes it on the attachment under each component's entry, using the attachment name the subsystem gave it.
+
+```yaml
+# the Release — its metadata and the boundary's directory left out
+spec:
+  boundaries:
+    prod-cluster:
+      components:
+        invoice-api:
+          features:
+            audit-logger:
+              infra:
+                retention: "365d"
+        payment-worker:
+          features:
+            audit-logger:
+              infra:
+                retention: "365d"
+        metrics-collector: {}
+```
+
+**Compilation:** The compiler flattens the subsystem tree. `invoice-api` and `payment-worker` both receive the `audit-logger` Feature, each carrying the `infra` the Release wrote on that component's entry, and the cascading annotation `team.aggrega.ai/owner: "billing-squad"` in their `.context.annotations.aggregate` bucket. The Recipe template can access these via `{{ index .context.annotations.aggregate "cost.aggrega.ai/center" }}`.
 
 ---
 
@@ -316,8 +336,6 @@ spec:
 
         audit-logger:
           type: core/enterprise-logger:1.0.0
-          values:
-            retention: "30d"
           uses:
             # The Feature autonomously requests its storage target
             storage:
@@ -326,6 +344,20 @@ spec:
 ```
 
 Both attachments sit in one `features:` block, because one component declares its attachments once — a credential Feature is not a second kind needing a keyword of its own.
+
+**2. Routing Domain: The Release**
+The logger's retention is a period the operator sets for each environment, so the Release writes it as `infra` on the same attachment:
+
+```yaml
+# the Release — its other entries left out
+spec:
+  components:
+    finance-agent:
+      features:
+        audit-logger:
+          infra:
+            retention: "30d"
+```
 
 **Compilation:** The compiler draws three independent edge sets:
 
