@@ -86,6 +86,22 @@ so an entity kept elsewhere is reached by listing the directory that holds it an
 its name. A listed directory outside the project is a root of its own, so a link beneath it leading out
 of it is not read either. [The workspace boundary](workspace-boundary.md) states the whole rule.
 
+**A listed directory where nothing exists is read as holding nothing.** Every command reads it the
+way it would read an empty directory there — a pull, a build, a validation, an inspection, the editor
+through `aggrega serve` and an assistant through `aggrega mcp` alike — so a project can list a sibling
+checkout that a copy taken without it does not carry, and resolve from a registry what that checkout
+would have supplied. The same holds for a directory a Release's own entry lists. A pull and a build
+print a line naming the directory and the setting that lists it:
+
+```text
+  catalog: <directory> is listed under `workspace.catalog_dirs` in .aggrega-config.yaml and does not exist, so nothing is read from it
+```
+
+A mistyped entry is read the same way, so that line is what tells you a directory you meant to read
+was not read. Two cases are not read as holding nothing. A `--catalog` directory that does not exist
+was typed for one command, and `aggrega build` refuses it, naming the directory. A listed directory
+that is there and cannot be read is refused by the commands that load the whole catalog, naming it.
+
 **Writing the list as empty says this project has no local catalog at all**, and it is the one
 spelling that stops `catalog` being read too:
 
