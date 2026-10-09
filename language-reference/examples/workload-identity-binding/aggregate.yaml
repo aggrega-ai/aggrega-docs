@@ -9,20 +9,17 @@ metadata:
   description: >
     A single stateless app rendered on Kubernetes by the helm provider's
     Workload synthesis (no external chart). The app runs under a cloud identity:
-    an attached identity Feature emits one Kubernetes ServiceAccount and
-    publishes its name, and the app's Recipe binds the pod to that published
-    name. The Developer states only that the app needs an identity; the
-    ServiceAccount's name and the Google service account it impersonates are
-    operational sizing the Release fulfils.
+    its Component declares the need as a required identity slot, the Release
+    fills that slot with an identity Feature that emits one Kubernetes
+    ServiceAccount and publishes its name, and the app's Recipe binds the pod to
+    that published name. The Aggregate writes nothing for the identity; which
+    identity the app runs under, the ServiceAccount's name and the Google service
+    account it impersonates are the Release's.
 spec:
   components:
     app:
+      # The identity this app runs under is a slot its Component declares; the
+      # Release fills it, so nothing about it is written here.
       type: local/compute/identity-app
       values:
         greeting: hi
-      features:
-        # The identity attachment. The Developer declares that this component
-        # runs under a cloud identity; every field the identity needs is
-        # operational sizing, fulfilled by the Operator in the Release.
-        identity:
-          type: core/gcp-workload-identity

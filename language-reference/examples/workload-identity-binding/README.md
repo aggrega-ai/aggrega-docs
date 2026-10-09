@@ -1,9 +1,10 @@
 # Binding a workload to what an attachment publishes
 
 A single stateless app rendered on Kubernetes by the helm provider's Workload
-synthesis — no external chart. The app runs under a **cloud identity supplied by
-an attached Feature**: the attachment emits one Kubernetes ServiceAccount and
-publishes its name, and the app's Recipe binds the pod to that published name.
+synthesis — no external chart. The app runs under a **cloud identity its
+Component declares a slot for and the Release fills**: the attachment filling
+the slot emits one Kubernetes ServiceAccount and publishes its name, and the
+app's Recipe binds the pod to that published name.
 
 The teaching point is the direction of the flow. The producer states the name
 once; the consumer reads it. Nothing on the consuming side restates a value the
@@ -19,40 +20,55 @@ producer already owns, so the two cannot drift apart.
 The catalog resolves from two sources named in `.aggrega-config.yaml`: the
 example's own `./catalog` (the `local/compute/identity-app` Component and its
 `helm/identity-app` synth Recipe) and the sibling hub catalog (the
-`core/gcp-workload-identity` Feature, its FeatureRecipe, and the helm Provider).
+`core/gcp-workload-identity` Feature and its FeatureRecipe).
 Three manifests land under `dist/helm/helm/`.
 
-## The attachment publishes
+## The Component declares the need; the Release fills it
 
-The Developer attaches the identity and states nothing about it beyond the need:
+The app needs an identity to run under, so its Component declares one, as a
+required `identity` slot:
 
 ```yaml
-# aggregate.yaml
-features:
+# catalog/component/local/compute/identity-app/1.0.0/component.yaml
+featuresSchema:
   identity:
-    type: core/gcp-workload-identity
+    required: true
+    selector: "feature.aggrega.ai/kind!=secret"
+    inject: []
 ```
 
-Cloud identity is operational configuration, so every field it needs is fulfilled
-by the Operator per environment:
+The Aggregate writes nothing for it. Which identity the app runs under, on which
+cloud, is the Operator's choice for each target, so the Release fills the slot
+with the identity Feature and every field that Feature needs:
 
 ```yaml
 # release.yaml
 features:
   identity:
+    type: core/gcp-workload-identity
     infra:
       service_account_name: app-workload-identity
       gcp_service_account: app-dev@example-project.iam.gserviceaccount.com
 ```
 
+A Release that leaves the slot unfilled halts, naming the slot. A Release for an
+EKS cluster fills the same slot with `core/aws-irsa` and its `role_arn` instead,
+and its Manifest maps that Feature to its FeatureRecipe. The selector keeps a
+credential out of the slot: a secret-kind Feature filling it halts.
+
+## The attachment publishes
+
 The Feature declares in its `schema.provides` that it publishes a `name`, and its
-FeatureRecipe publishes it — from the same operator-set field the emitted chart
-names the ServiceAccount with:
+FeatureRecipe publishes it — from the same local the emitted chart names the
+ServiceAccount with, which is the operator-set `service_account_name` when the
+Release writes one:
 
 ```yaml
 # FeatureRecipe gcp-workload-identity
+locals:
+  sa_name: '{{ default (printf "%s-%s" .context.rendered_name (.attachment_name | replace "_" "-")) .infra.service_account_name }}'
 provides:
-  name: "{{ .infra.service_account_name }}"
+  name: "{{ .locals.sa_name }}"
 ```
 
 ## The Recipe consumes
@@ -109,5 +125,6 @@ publishes its name. The full field-by-field attachment shape is at
 ## Operator sizing
 
 `release.yaml` fulfills the operator-sizing pillar per environment: the container
-image tag comes from `infra.image_tag` (`myapp:1.2`), and the identity fields come
-from the attachment's own `infra`. The Developer's Aggregate carries neither.
+image tag comes from `infra.image_tag` (`myapp:1.2`), and the identity — its
+Feature and that Feature's fields — comes from the slot's fill. The Developer's
+Aggregate carries neither.

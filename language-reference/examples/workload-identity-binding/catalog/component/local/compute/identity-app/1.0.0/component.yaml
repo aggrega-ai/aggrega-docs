@@ -7,10 +7,11 @@ metadata:
   name: local/compute/identity-app
   version: 1.0.0
   description: >
-    A minimal stateless application component that runs under a cloud identity
-    supplied by an attached Feature. The component declares no identity fields
-    of its own: the attachment emits the ServiceAccount and publishes its name,
-    and the component's Recipe binds the pod to that published name.
+    A minimal stateless application component that runs under a cloud identity.
+    It declares that need as a required identity slot, which the Release fills
+    with an identity Feature; it declares no identity fields of its own. The
+    fill emits the ServiceAccount and publishes its name, and the component's
+    Recipe binds the pod to that published name.
   labels:
     component.aggrega.ai/type: server
     component.aggrega.ai/category: compute
@@ -18,6 +19,17 @@ metadata:
     - name: Massimiliano Ferrero
       email: m.ferrero@cognitio.it
 spec:
+  featuresSchema:
+    # The cloud identity the workload runs under. The Component declares the
+    # need; the Release fills the slot for each target with an identity Feature
+    # and that Feature's infra, and the Aggregate writes nothing for it. The
+    # selector keeps a credential out of the slot.
+    identity:
+      required: true
+      selector: "feature.aggrega.ai/kind!=secret"
+      # The Recipe reads the fill's published name itself.
+      inject: []
+      description: The cloud identity the workload runs under, filled by the Release.
   schema:
     values:
       # Developer Intent — filled by the Developer in the Aggregate.

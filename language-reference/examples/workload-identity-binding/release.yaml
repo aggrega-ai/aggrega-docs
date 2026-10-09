@@ -20,10 +20,13 @@ spec:
           infra:
             image_tag: "1.2"
           features:
-            # Per-attachment operational sizing. Cloud identity is operational
-            # configuration: the Operator names the ServiceAccount to emit and
-            # the Google service account it impersonates.
+            # The identity slot the app's Component declares. Which identity
+            # the app runs under is the Operator's choice for this target: the
+            # Operator fills the slot with the identity Feature, names the
+            # ServiceAccount to emit and the Google service account it
+            # impersonates. A Release that leaves the slot unfilled halts.
             identity:
+              type: core/gcp-workload-identity
               infra:
                 service_account_name: app-workload-identity
                 gcp_service_account: app-dev@example-project.iam.gserviceaccount.com
