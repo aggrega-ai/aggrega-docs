@@ -43,6 +43,22 @@ with `--name`, so a client that writes files by name writes it under that one:
 `oras pull hub.aggrega.ai/docs/aggrega-docs:1.0.0` leaves `aggrega-docs` in the
 current directory, byte for byte as it was published.
 
+## When the registry fails a write
+
+The publication writes to the registry in steps — the file, the manifest that
+names it, the tag, and then the publication date beside it — and each of those
+writes is retried when the registry or the network fails it in a way a later
+attempt can succeed, such as a server error, a timeout or a reset connection;
+[`aggrega push`](aggrega-push.md#when-the-registry-fails-a-write) lists those
+failures. A write is tried at most three times, half a second and then a second
+apart, and each attempt is a new upload of the same bytes rather than a resend of
+the request that failed, so a retried write lands what one attempt would have.
+
+A write still failing after its last attempt fails the command, and the error
+names the step. A failure to attach the date comes after the artifact has landed:
+the artifact stays published, and the command exits non-zero saying its
+publication date could not be attached.
+
 ## Offline
 
 Publishing an artifact is a network round trip, so under the offline posture — the top-level `offline` key in a configuration file, `AGGREGA_OFFLINE`, or [`--offline`](global-flags.md#--offline) — this command refuses before it reads the file, and the refusal names which of those three set the posture. `--dry-run` keeps working, because it computes the reference and makes no call. To publish for one run from an offline workspace, pass `--offline=false`.

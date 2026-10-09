@@ -37,6 +37,15 @@ aggrega sign hub.example.com/component/core/worker:1.0.0
 
 See [./aggrega-auth.md](./aggrega-auth.md) for `aggrega auth token`.
 
+## When a step fails transiently
+
+Each reference is signed in three steps: its published digest is resolved, the digest is signed, and the signature is attached. Two of them are retried when they fail in a way a later attempt can succeed:
+
+- **The signing call** — on any failure a registry write is retried for, and on the keyless certificate authority reporting that it could not process the identity token.
+- **The attach**, which writes the signature bundle and the referrer manifest to the registry — on a server error, a timeout or a reset connection; [`aggrega push`](aggrega-push.md#when-the-registry-fails-a-write) lists those failures. Each attempt is a new upload of the same bytes rather than a resend of the request that failed, and a repeated attach leaves one signature, not two.
+
+Each is tried at most three times, half a second and then a second apart. Resolving the digest is a read and is not retried. A step still failing after its last attempt is recorded against that reference under continue-and-report, with its error, and the batch moves on — a failed attach is reported as the signature that could not be attached; any other failure is recorded at once.
+
 ## Signing modes
 
 - **Keyless** (default) — an ephemeral key bound to an OIDC identity by a short-lived Fulcio certificate, recorded in the Rekor transparency log. Fulcio and Rekor default to the public-good Sigstore instances (`https://fulcio.sigstore.dev`, `https://rekor.sigstore.dev`). The keyless trusted timestamp comes from Rekor's transparency-log inclusion; a separate RFC3161 timestamp authority is **optional** — supply `--timestamp-url` with a full endpoint to enable one. At an **interactive terminal** keyless signing needs no flags: the CLI opens a browser to acquire a short-lived OIDC identity token. On **GitHub Actions** it needs none either: the CLI mints the workflow OIDC token automatically from the runner's ambient endpoint. For **other non-interactive / CI** use, export `AGGREGA_IDENTITY_TOKEN` (or `SIGSTORE_ID_TOKEN`), or pass `--identity-token`; with no supplied token, no ambient endpoint, and no terminal the command is refused.

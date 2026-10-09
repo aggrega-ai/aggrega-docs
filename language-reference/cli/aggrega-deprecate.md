@@ -31,6 +31,23 @@ Deprecate amends an already-published artifact by attaching a deprecation marker
 | `--timestamp-url` | — | Optional RFC3161 timestamp-authority URL for keyless signing. |
 <!-- END GENERATED: cli-deprecate -->
 
+## When the registry fails a write
+
+Deprecating an artifact writes to the registry twice: the marker, attached as a
+referrer of the artifact, and then the marker's signature, attached as a referrer
+of the marker. Each write is retried when the registry or the network fails it in
+a way a later attempt can succeed, such as a server error, a timeout or a reset
+connection; [`aggrega push`](aggrega-push.md#when-the-registry-fails-a-write)
+lists those failures. A write is tried at most three times, half a second and then
+a second apart, and each attempt is a new upload of the same bytes rather than a
+resend of the request that failed. The marker's timestamp is stamped once, before
+the first attempt, so a retried write leaves one marker and one signature, not two.
+
+Signing the marker, between the two writes, is not retried. A write still failing
+after its last attempt, or a signing that fails, stops the command and names the
+step; a marker already attached by then stays attached without its signature.
+With `--from`, the entries attached before the one that failed stay attached.
+
 ## What each severity does
 
 The three severities form an ordered set — `warning`, then `error`, then

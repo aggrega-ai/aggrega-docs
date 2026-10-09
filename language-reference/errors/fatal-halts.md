@@ -4916,7 +4916,7 @@ A refusal on publishing, not on a build. Where a signature is required, unsigned
 
 **There is no flag that publishes unsigned content here.** Turning signing off explicitly does not relax the refusal — it only changes the default for artifacts where signing is optional.
 
-The signature is produced before the upload rather than after, so a signing failure also lands here: nothing is published, and an unsigned artifact cannot reach a registry that requires one even transiently.
+The signature is produced before the upload rather than after, so a signing failure also lands here and nothing is published.
 
 **Emitted messages.** The registry's own requirement:
 > aggrega push: registry `"<host>"` requires signatures; re-run signing the artifact (there is no flag to push unsigned content here): signing: registry requires signatures; refusing to push unsigned content
