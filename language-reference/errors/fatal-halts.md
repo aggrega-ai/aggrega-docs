@@ -4809,7 +4809,7 @@ framed by the command that met it and the registry it names:
 
 A refusal on publishing, not on a build. Published bytes are frozen: before anything is uploaded, the target version is looked up and the digest it points at is compared with the digest the content in hand would produce. A version already pointing at different content is refused.
 
-**Re-publishing byte-identical content is not a conflict.** The digests match, nothing is uploaded, and the command reports that the version is already published — so re-running a publish that partly succeeded is safe.
+**Re-publishing byte-identical content is not a conflict.** The digests match, nothing is uploaded, and the command reports that the version is already published — so re-running a publish that partly succeeded is safe, and it completes the publication: the publication date the version still lacks, and its signature where the push signs, are attached, and a version lacking neither gets nothing, as [Completing a publication an earlier push left partial](../cli/aggrega-push.md#completing-a-publication-an-earlier-push-left-partial) describes.
 
 **There is no flag that overrides this.** Changed content is published under a new version, which is what leaves consumers a version to move to deliberately rather than a version that changed underneath them.
 

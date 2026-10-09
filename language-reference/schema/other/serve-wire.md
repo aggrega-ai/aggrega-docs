@@ -2010,8 +2010,8 @@ What publishing an entity landed, and where. A publication that ran the pin step
 | `pluginSize` | integer | no | How many bytes the plugin module published alongside a Plugin entity occupies. |
 | `pluginSizeText` | string | no | The same size written the way a person reads one. |
 | `digest` | string | yes | The digest of what was published. |
-| `signed` | boolean | yes | Whether what was published carries a signature. |
-| `alreadyPublished` | boolean | yes | Whether the same bytes were already there, so nothing new was landed. |
+| `signed` | boolean | yes | Whether this publication attached a signature: the one it made before publishing, or, on a version already published, one the version lacked. |
+| `alreadyPublished` | boolean | yes | Whether the same bytes were already there, so no content was uploaded. Only what that publication still lacked was attached beside it: its publication date and, where this publication signs, its signature; signed says whether a signature was. |
 | `dryRun` | boolean | yes | Whether this reports what publishing would have landed rather than what it did. |
 | `reach` | PublicationReach | yes | How far a publication reached. These answers reach beyond this machine entirely — what they land is what every consumer of that registry resolves — so each names the host it addressed and whether the call landed anything. |
 | `pin` | PinResult | no | What the pin step did to the lock beside an entity, or would do on a dry run. It is the answer to `aggrega/pin`, and a publication that ran the step carries it as its `pin`. |
@@ -2031,7 +2031,7 @@ What publishing a file landed, and where.
 | `size` | integer | yes | How many bytes were published. |
 | `sizeText` | string | yes | The same size written the way a person reads one. |
 | `digest` | string | yes | The digest of what was published. |
-| `alreadyPublished` | boolean | yes | Whether the same bytes were already there, so nothing new was landed. |
+| `alreadyPublished` | boolean | yes | Whether the same bytes were already there, so no content was uploaded. A publication date was attached beside it only where the artifact lacked one. |
 | `dryRun` | boolean | yes | Whether this reports what publishing would have landed rather than what it did. |
 | `reach` | PublicationReach | yes | How far a publication reached. These answers reach beyond this machine entirely — what they land is what every consumer of that registry resolves — so each names the host it addressed and whether the call landed anything. |
 

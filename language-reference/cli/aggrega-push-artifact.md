@@ -57,7 +57,12 @@ the request that failed, so a retried write lands what one attempt would have.
 A write still failing after its last attempt fails the command, and the error
 names the step. A failure to attach the date comes after the artifact has landed:
 the artifact stays published, and the command exits non-zero saying its
-publication date could not be attached.
+publication date could not be attached. Running the same publication again
+completes it: the artifact is reported as already published, nothing is uploaded,
+and the date is attached where the artifact carries none, stating the clock of
+that run — the time the publication was completed. An artifact that already
+states a date gets nothing attached, and a listing that cannot be read exits
+non-zero with nothing attached.
 
 ## Offline
 
