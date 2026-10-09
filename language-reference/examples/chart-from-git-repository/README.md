@@ -170,7 +170,8 @@ repository does not carry:
 
 ```text
 # [E0137]
-#   auto-pull: source descent: resolve: resolve source for recipe
+#   auto-pull: resolving the source of each Recipe and FeatureRecipe the Release
+#   uses: resolve: resolve source for recipe
 #   "helm/hello-world-git-missing-ref:1.0.0": sourceresolver: kind=git-repository
 #   url=https://github.com/helm/examples.git version=: oci: artifact not found at
 #   remote source (cause: reference not found)
