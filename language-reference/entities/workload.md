@@ -497,7 +497,7 @@ Four validation rules govern the integration:
 - Slots marked `inject: []` (blackbox delivery) in the Component's `featuresSchema` cannot appear in Workload `attachments:` blocks at all. Those slots are delivered by the Recipe's internal plumbing (a Helm chart's `existingSecret` parameter, for example), not by Workload exposure.
 - The referenced slot must be **referenceable** — its fill must publish a `provides` locator (`name`, `key`) for a Secret resource, one its realization emits or one that already exists. A slot filled by an inject-delivered credential (one that writes a value into the inject pipe and publishes no locator) has nothing to point at; referencing it from a Workload `attachments:` entry is a load-time error. An inject-delivered credential reaches the container through the slot's inject pipe (a `variables` entry reading `.context.inject.env.<KEY>`), not through an `attachments:` entry.
 
-**Provider note.** Helm renders the `secretKeyRef`/secret-volume reference described above. The compose provider has no native env-from-secret primitive; an `as: env` attachment entry on a compose-targeted Workload is a placeholder pending the compose secret-delivery path, while the referenceability rule (capability-agnostic) still applies.
+**Provider note.** Helm renders the `secretKeyRef`/secret-volume reference described above. The compose provider has no native env-from-secret primitive; an `as: env` attachment entry on a compose-targeted Workload renders as an environment entry with an empty value and a warning naming the entry (see the [compose provider page](../providers/compose.md#what-the-compose-provider-does-not-deliver)), while the referenceability rule (capability-agnostic) still applies.
 
 Example:
 

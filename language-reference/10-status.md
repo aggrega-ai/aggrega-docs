@@ -117,7 +117,7 @@ See [`02-naming-conventions.md`](02-naming-conventions.md) for the field-casing 
 
 The Aggrega CLI registers the build pipeline plus introspection. Per-command status:
 
-- **`aggrega build` — available.** Reads a Release file, resolves the Aggregate + Manifest, runs the compilation pipeline, writes rendered artifacts to the boundary output directories. When a lockfile is present it verifies dependencies against it; when one is absent it auto-pulls (unless configured otherwise).
+- **`aggrega build` — available.** Reads a Release file, resolves the Aggregate + Manifest, runs the compilation pipeline, writes rendered artifacts to the boundary output directories. When a lockfile is present it verifies dependencies against it; when one is absent it halts asking for a pull, or fills it first where `--auto-pull` or `auto_pull` asks.
 - **`aggrega inspect` — available.** Inspects a catalog entity, an entity file, an entity published in a registry, or a Release, and reports its resolved shape. See [`cli/aggrega-inspect.md`](cli/aggrega-inspect.md).
 - **`aggrega pull` — available.** Resolves all of a Release's dependencies and writes a per-Release lockfile pinning every catalog entity and source artifact to a version and content digest, and every external input the Release's render requests to a content digest; caches the fetched content under `.aggrega/cache`. `--verify` checks an existing lockfile against current state. See [`cli/aggrega-pull.md`](cli/aggrega-pull.md).
 - **`aggrega push` — available.** Publishes a catalog entity to an OCI registry; `aggrega push --list-kinds` reports which kinds it accepts. See [`cli/aggrega-push.md`](cli/aggrega-push.md).
