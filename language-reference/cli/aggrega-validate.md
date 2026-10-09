@@ -123,6 +123,8 @@ followed by the three rendered artifacts. Every variant of that example declares
 
 This is still the single-entity scope. The checks, the report and the exit code are the ones this section describes, and no closure is validated: `--release` names the Release whose catalog directories the entity's references are read through, not a closure to check, which is why `--ir-graph` is refused beside an entity path. A `--release` naming a file that does not exist, or naming a directory, is refused before anything is checked.
 
+A directory the workspace configuration lists where nothing exists — for that Release, or for the workspace when no `--release` is given — is read as holding nothing, as every command reads it ([Where local entities are read from](configuration.md#where-local-entities-are-read-from)), so the verdict and the exit code are the ones the check gives with that directory not listed. The check names each such directory on standard error, ahead of its other advisory notes, in the line `aggrega pull` and `aggrega build` print for it, naming the directory and the setting that lists it. The editor's entity check through [`aggrega serve`](./aggrega-serve.md) gives the same line as a warning ahead of its other entries, and the `validate` tool of [`aggrega mcp`](./aggrega-mcp.md) gives it first among its `notices`.
+
 ### Placeholders still owed
 
 A value the kind requires that the file leaves as an empty string is a placeholder, and validate reports it before anything else. A document drafted by [`aggrega scaffold`](./aggrega-scaffold.md) carries one wherever its kind needs a value only you can supply, so this is where you learn which remain. Here is a drafted FeatureRecipe with only its version filled in:
