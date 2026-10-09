@@ -17,9 +17,8 @@ Output blocks on this page are copied from a real run, per
 - `aggregate.yaml` — developer intent: a `payments-db` database of type
   `core/datastore/mariadb` and a `reporting-app` of type
   `example/compute/db-reader` that declares it uses the database. Nothing about
-  AWS lives here. The database's `features:` block carries two attachments: the
-  `root_password` slot bound with `core/generated-secret`, and
-  `storage-headroom` attaching `example/storage-alarm`.
+  AWS lives here. The database's `features:` block carries `storage-headroom`,
+  attaching `example/storage-alarm`.
 - `release-one-stack.yaml` — both components in one boundary, so both assemble
   into a single stack. Attaches `core/shared-config` across the boundary.
 - `release-two-stacks.yaml` — the same intent split across two boundaries, so
@@ -30,6 +29,12 @@ Output blocks on this page are copied from a real run, per
   Recipe that implements it on this target.
 - `.aggrega-config.yaml` — points resolution at the sibling catalog; a
   standalone clone resolves from the hub registry instead.
+
+Every release binds the database's `root_password` slot on its entry for
+`payments-db`, with `core/generated-secret`. RDS owns the master password on
+this target, and the database Recipe the Manifest picks carries the directive
+that says so; that makes the binding an operator decision, written in the
+Release, and the Aggregate says nothing about it.
 
 The entities this example uses all live in the published catalog. Nothing is
 copied in beside the release files, so the example resolves against the catalog

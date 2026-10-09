@@ -14,6 +14,9 @@ metadata:
 spec:
   components:
     # ── Database ────────────────────────────────────────────────────────
+    # The Component's root_password slot is not bound here: who owns the
+    # credential follows from the target the Manifest picks, so the Release
+    # binds it.
     db:
       type: core/datastore/mariadb
       values:
@@ -21,13 +24,3 @@ spec:
         user: appuser
         charset: utf8mb4
         collation: utf8mb4_general_ci
-      # The Component declares root_password as a slot every deployment binds.
-      # On a managed RDS instance the engine generates and rotates the master
-      # password itself, so the slot is delegated to the engine rather than
-      # filled with an authored value: nothing is written here and nothing is
-      # rendered for it. The directive that turns engine management on lives in
-      # the vendored module the Recipe copies, which is also why this attachment
-      # carries no values.
-      features:
-        root_password:
-          type: core/generated-secret

@@ -47,13 +47,17 @@ spec:
             # delivered by the bound FeatureRecipe.
             service_port_name: http
             path: /
+        # The scrape target is attached here, type and all, rather than in the
+        # Aggregate: every input it takes is operator sizing — how often a
+        # platform scrapes, and where — so the operator attaches it.
         metrics:
+          type: core/prometheus-exporter
           infra:
-            # All three scrape knobs, supplied here rather than left out: a
-            # rendered ServiceMonitor needs each of them, and this attachment's
-            # realization does not supply a fallback of its own. `port` names a
-            # Service port, and the router's Recipe emits one named port — http
-            # — which is also the port the proxy serves its metrics path on.
+            # All three scrape knobs, written out. Left out, each takes the
+            # Feature's default — port `metrics`, every 60s, at /metrics — and
+            # the router's Recipe emits no port by that name: its one named port
+            # is http, which is also the port the proxy serves its metrics path
+            # on, so `port` names it here.
             interval: 30s
             port: http
             path: /metrics

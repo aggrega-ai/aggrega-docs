@@ -7,21 +7,19 @@ metadata:
   name: delegated
   version: "1.0.0"
   description: >
-    The same database with the same slot filled by the engine-managed peer. The
+    The same database with no credential attached: the developer authors nothing
+    for the slot, and the Release fills it with the engine-managed peer. That
     attachment's payload carries no value at a declared leaf, so there is no leaf
     to mark — while the attachment is still sensitive at the whole-attachment
-    answer, because
-    the slot it fills is declared sensitive. That is what makes this release the
-    control: a rule keyed on the whole-attachment answer refuses it too.
+    answer, because the slot it fills is declared sensitive. That is what makes
+    this release the control: a rule keyed on the whole-attachment answer
+    refuses it too.
 spec:
   components:
+    # No features block: the root_password slot is bound in the Release, by the
+    # operator, because who owns the credential follows from the target.
     db:
       type: core/datastore/mariadb
       values:
         database: appdb
         user: appuser
-      features:
-        # core/generated-secret is the engine-manages half of the pair. It
-        # declares no values, so the attachment authors nothing.
-        root_password:
-          type: core/generated-secret

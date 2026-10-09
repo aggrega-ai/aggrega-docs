@@ -60,9 +60,10 @@ for what the engine does if you try.
 ## Files
 
 - `aggregate.yaml` — developer intent: one `db` component of type
-  `core/datastore/mariadb`. Its `features:` block binds the Component's required
-  `root_password` slot with `core/generated-secret` (see below).
-- `release.yaml` — operator sizing for the `infra` boundary.
+  `core/datastore/mariadb`.
+- `release.yaml` — operator sizing for the `infra` boundary. Its entry for `db`
+  binds the Component's required `root_password` slot with
+  `core/generated-secret` (see below).
 - `manifest.yaml` — binds the MariaDB component type to the Terraform Recipe
   `terraform/mariadb-rds-module`, which sources its module locally, and the
   credential Feature type to `terraform/generated-secret`.
@@ -71,14 +72,16 @@ for what the engine does if you try.
 
 ## The credential slot on a managed target
 
-`core/datastore/mariadb` declares `root_password` as a slot every deployment
-binds. RDS generates and rotates the master password itself, and the vendored
-module this Recipe copies sets `manage_master_user_password` to turn that on —
-so the slot is delegated to the engine rather than filled with an authored
-value.
+`core/datastore/mariadb` declares `root_password` as a required slot: a build
+halts while nothing binds it. RDS generates and rotates the master password
+itself, and the vendored module this Recipe copies sets
+`manage_master_user_password` to turn that on — so the slot is delegated to the
+engine rather than filled with an authored value.
 
-The Aggregate binds it with `core/generated-secret`, which carries no `values`
-because there is nothing to author, and whose FeatureRecipe
+Whether the engine owns the credential follows from the Recipe the Manifest
+picks, so the operator binds the slot, in the Release, on its entry for `db`.
+It binds it with `core/generated-secret`, which configures nothing because
+there is nothing to author, and whose FeatureRecipe
 (`terraform/generated-secret`) is pure wiring that renders nothing. The vendored
 module and the root configuration come out byte-for-byte what they would be with
 no attachment at all. The Manifest's reference is provider-qualified because a

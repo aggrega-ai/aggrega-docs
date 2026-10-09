@@ -26,12 +26,19 @@ spec:
             tier: production-data
       components:
         payments-db:
-          # Operator sizing for the attachment the Aggregate declared. The
-          # developer said how much headroom the application needs; where the
-          # alarm notifies, and how long a dip must persist before it fires, are
-          # decided here. The Release supplies infra for an attachment and never
-          # values — those stay in the Aggregate.
           features:
+            # The Component declares root_password as a required slot: a build
+            # halts while nothing binds it. On a managed RDS instance the engine
+            # generates and rotates the master password itself, so the operator
+            # delegates the slot to the engine rather than filling it with a
+            # credential: nothing is written here and nothing is rendered for it.
+            root_password:
+              type: core/generated-secret
+            # Operator sizing for the attachment the Aggregate declared. The
+            # developer said how much headroom the application needs; where the
+            # alarm notifies, and how long a dip must persist before it fires,
+            # are decided here. The Release supplies infra for an attachment and
+            # never values — those stay in the Aggregate.
             storage-headroom:
               infra:
                 evaluation_periods: 3

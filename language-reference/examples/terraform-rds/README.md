@@ -12,11 +12,11 @@ never runs `terraform`; it produces the HCL a downstream `terraform apply` runs.
 
 - `aggregate.yaml` — developer intent: one `db` component of type
   `core/datastore/mariadb`, with a logical database name. Nothing about the
-  cloud target lives here. Its `features:` block binds the Component's required
+  cloud target lives here.
+- `release.yaml` — operator sizing: engine version, storage, HA, and backup for
+  the `infra` boundary. Its entry for `db` binds the Component's required
   `root_password` slot with `core/generated-secret` — the credential Feature
   that says the engine owns the credential (see below).
-- `release.yaml` — operator sizing: engine version, storage, HA, and backup for
-  the `infra` boundary.
 - `manifest.yaml` — binds the MariaDB component type to the Terraform Recipe
   `terraform/mariadb-rds`, and the credential Feature type to
   `terraform/generated-secret`.
@@ -53,17 +53,31 @@ undeclared in the body, so the compiler supplies them as this block's arguments.
 
 ## The credential slot on a managed target
 
-`core/datastore/mariadb` declares `root_password` as a slot every deployment
-binds. A self-hosted MariaDB needs a password bound at authoring time; a managed
-RDS instance does not — RDS generates and rotates the master password itself,
-and `manage_master_user_password` in this Recipe is what turns that on.
+`core/datastore/mariadb` declares `root_password` as a required slot: a build
+halts while nothing binds it. A self-hosted MariaDB needs a password bound at
+authoring time; a managed RDS instance does not — RDS generates and rotates the
+master password itself, and `manage_master_user_password` in this Recipe is
+what turns that on.
 
-The Aggregate therefore binds the slot with `core/generated-secret`, the
-credential Feature whose material the engine owns. It carries no `values`
-because there is nothing to author, and the FeatureRecipe the Manifest selects
-(`terraform/generated-secret`) is pure wiring that renders nothing. So the
-rendered `main.tf` is byte-for-byte what it would be with no attachment at all:
-the slot is bound, and no artifact is emitted for it.
+The operator therefore binds the slot in the Release, on its entry for `db`,
+with `core/generated-secret`, the credential Feature whose material the engine
+owns. Whether the engine owns the credential follows from the Recipe the
+Manifest picks, so the binding is the operator's, and the Aggregate says
+nothing about it:
+
+```yaml
+      components:
+        db:
+          features:
+            root_password:
+              type: core/generated-secret
+```
+
+The attachment configures nothing because there is nothing to author, and the
+FeatureRecipe the Manifest selects (`terraform/generated-secret`) is pure wiring
+that renders nothing. So the rendered `main.tf` is byte-for-byte what it would
+be with no attachment at all: the slot is bound, and no artifact is emitted for
+it.
 
 Note that the Manifest's FeatureRecipe reference is provider-qualified
 (`terraform/generated-secret:1.0.0`). A bare recipe name resolves only when

@@ -480,7 +480,25 @@ claim the resource.
 ### `metrics` on the router — a scrape target
 
 `core/prometheus-exporter`, admitted by the same selector, bringing another
-resource of its own. The whole `spec` of
+resource of its own. Every input it takes is operator sizing rather than
+application intent — how often a platform scrapes, and which port and path it
+reads, are properties of the platform — so the operator attaches it, in the
+Release, on the router's entry, with its type beside its `infra`. The Aggregate
+does not mention it:
+
+```yaml
+  components:
+    router:
+      features:
+        metrics:
+          type: core/prometheus-exporter
+          infra:
+            interval: 30s
+            port: http
+            path: /metrics
+```
+
+The whole `spec` of
 `dist/helm/router--metrics--router-servicemonitor-router-scrape.yaml`:
 
 ```yaml
@@ -493,10 +511,6 @@ spec:
       interval: 30s
       path: /metrics
 ```
-
-All three scrape settings are authored in the Release, under this attachment's
-own `infra`. They are operator sizing rather than application intent: how often
-a platform scrapes is a property of the platform.
 
 The `port` names a Service port rather than a number, and `http` is the one the
 router's Recipe emits — the same name the Ingress above routes to.

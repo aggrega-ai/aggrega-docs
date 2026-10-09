@@ -71,18 +71,18 @@ spec:
             key: provider-key
             origin: upstream-provider-key-change-me
 
-        # Two attachments that bring resources of their own rather than filling a
-        # slot the Component declared. Each is admitted by its own selector: both
-        # of these require component.aggrega.ai/type=server, which the router
-        # carries. The `host` is developer intent — which name an application
-        # answers on is part of what the application is — while the scrape and
-        # routing knobs are operator sizing and live in the Release.
+        # An attachment that brings a resource of its own rather than filling a
+        # slot the Component declared. It is admitted by its own selector, which
+        # requires component.aggrega.ai/type=server, and the router carries it.
+        # The `host` is developer intent — which name an application answers on
+        # is part of what the application is — while the routing knobs are
+        # operator sizing and live in the Release. The router's scrape target is
+        # not attached here: every input it takes is operator sizing, so the
+        # Release attaches it.
         published:
           type: core/public-ingress
           values:
             host: assistant.example.internal
-        metrics:
-          type: core/prometheus-exporter
 
     # ── Where the agent keeps its run state ─────────────────────────────────
     # The agent's checkpointer socket is required and selects on the datastore

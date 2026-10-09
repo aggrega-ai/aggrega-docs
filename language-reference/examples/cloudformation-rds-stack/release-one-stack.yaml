@@ -26,6 +26,14 @@ spec:
             tier: production
       components:
         payments-db:
+          # The Component declares root_password as a required slot: a build
+          # halts while nothing binds it. On a managed RDS instance the engine
+          # generates and rotates the master password itself, so the operator
+          # delegates the slot to the engine rather than filling it with a
+          # credential: nothing is written here and nothing is rendered for it.
+          features:
+            root_password:
+              type: core/generated-secret
           infra:
             engine_version: "11.4"
             storage:

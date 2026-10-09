@@ -6,11 +6,12 @@ This example teaches one house rule and the fact that makes it expressible:
 > into the deployment's own source.
 
 Two releases, one variable apart: the same managed database, the same required
-credential slot, filled by two different Features. An operator-authored policy
-refuses one and permits the other. What makes the pair worth running is that
-**both attachments handle secret material** — so the rule cannot be written
-against the question "is this attachment sensitive?", and the control policy
-below shows what happens when you try.
+credential slot, filled by two different Features — one the developer attaches
+in the Aggregate, the other the operator attaches in the Release. An
+operator-authored policy refuses one and permits the other. What makes the pair
+worth running is that **both attachments handle secret material** — so the rule
+cannot be written against the question "is this attachment sensitive?", and the
+control policy below shows what happens when you try.
 
 Everything comes from the standard-library catalog except the governance Plugin
 entity this workspace declares for itself, and two policy files.
@@ -63,8 +64,9 @@ engine the component's own Recipe manages.
 
 ## The two releases
 
-`aggregate-authored.yaml` binds the slot the author-supplied way, and its
-attachment authors **both** leaves:
+`aggregate-authored.yaml` binds the slot the author-supplied way: the developer
+attaches the credential in the Aggregate, and the attachment authors **both**
+leaves:
 
 ```yaml
       features:
@@ -75,12 +77,18 @@ attachment authors **both** leaves:
             origin: root-password-in-the-clear
 ```
 
-`aggregate-delegated.yaml` changes exactly that block and nothing else:
+The delegated arm binds it the engine-managed way, and that binding is the
+operator's: whether the engine owns the credential follows from the Recipe the
+Manifest picks, so `release-delegated.yaml` attaches `core/generated-secret` on
+its entry for `db`, and `aggregate-delegated.yaml` is the authored Aggregate
+without its `features:` block:
 
 ```yaml
-      features:
-        root_password:
-          type: core/generated-secret
+      components:
+        db:
+          features:
+            root_password:
+              type: core/generated-secret
 ```
 
 Both releases share `manifest.yaml`, which binds all three types for the
@@ -325,14 +333,18 @@ plugin's published version in the same position.
 ## Files
 
 - `aggregate-authored.yaml` — the `root_password` slot bound by
-  `core/secret-value`, authoring the delivery key and the material.
-- `aggregate-delegated.yaml` — the same slot bound by `core/generated-secret`,
-  authoring nothing. The only difference between the two releases.
+  `core/secret-value` in the Aggregate, authoring the delivery key and the
+  material.
+- `aggregate-delegated.yaml` — the same database with no attachment: the
+  developer binds nothing.
 - `manifest.yaml` — binds the component type and both Feature types to their
   Terraform Recipes. Shared by both releases.
 - `release-authored.yaml`, `release-delegated.yaml` — one per arm, each with its
   own boundary `directory:`. There is no flag for the output location, so two
   releases sharing one directory would have the second overwrite the first.
+  `release-delegated.yaml` also binds the slot, on its entry for `db`, with
+  `core/generated-secret`, authoring nothing. Which Feature fills the slot, and
+  in which document, is the only difference between the two arms.
 - `policy.rego` — the house rule, keyed on the per-leaf marking.
 - `policy-attachment-wide.rego` — the control, keyed on the whole-attachment
   answer. Not attached by default.

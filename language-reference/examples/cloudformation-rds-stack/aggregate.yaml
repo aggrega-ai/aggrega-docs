@@ -17,7 +17,8 @@ spec:
     # ── Database ────────────────────────────────────────────────────────
     # The developer states intent — a database named appdb — and nothing about
     # the physical target. Which engine version, which instance class, and how
-    # much storage are operator concerns, set Release-side.
+    # much storage are operator concerns, set Release-side. So is who owns the
+    # root password: each Release binds the Component's root_password slot.
     payments-db:
       type: core/datastore/mariadb
       values:
@@ -25,26 +26,19 @@ spec:
         user: appuser
         charset: utf8mb4
         collation: utf8mb4_general_ci
-      # The Component declares root_password as a slot every deployment binds.
-      # On a managed RDS instance the engine generates and rotates the master
-      # password itself, so the slot is delegated to the engine rather than
-      # filled with an authored value: nothing is written here and nothing is
-      # rendered for it.
       features:
-        root_password:
-          type: core/generated-secret
-        # A second attachment, and this one brings resources. The developer
-        # states the headroom the application needs; the alarm watching for it
-        # is emitted by the attachment rather than by the database's own Recipe,
-        # and lands in the same stack.
+        # An attachment that brings resources. The developer states the
+        # headroom the application needs; the alarm watching for it is emitted
+        # by the attachment rather than by the database's own Recipe, and lands
+        # in the same stack.
         storage-headroom:
           type: example/storage-alarm
           values:
             free_storage_bytes: 21474836480
 
     # ── Application ─────────────────────────────────────────────────────
-    # The application declares that it uses a database and which of the
-    # database's published entries it wants delivered, under the name its own
+    # The application component declares that it uses a database and which of
+    # the database's published entries it wants delivered, under the name its own
     # configuration reads. It never names an address: the endpoint does not
     # exist until the stack deploys.
     reporting-app:
