@@ -224,11 +224,11 @@ _Additional properties are not permitted._
 
 ### `VerifiedSignature`
 
-Verified-signature fact recorded when an artifact's signature was verified at pull time, against the resolving registry's trust policy. Every signable artifact records it the same way — a catalog entity, a library, a Wasm plugin — because all of them verify through one path rather than one per kind. Records the verification mode, the keyless identity/issuer that matched (when keyless), and the content-addressed digest of the signature bundle cached in the closure for air-gapped re-verification. Build does not re-run verification; it re-verifies the cached bundle's digest only.
+Verified-signature fact recorded when an artifact's signature was verified at pull time, against the resolving registry's trust policy. Every signable artifact records it the same way — a catalog entity, a library, a Wasm plugin — because all of them verify through one path rather than one per kind. Records the verification mode, the keyless identity/issuer that matched (when keyless), and the content-addressed digest of the signature bundle cached in the closure. Build does not re-run verification, and checks this fact only on an entry of `plugins`: before the plugin loads, it re-hashes the cached bundle and compares the result with `bundle_digest`, halting where the blob is missing or differs. On an entry of `entities` or of a library section the fact records what the pull verified, and no build check reads it.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `bundle_digest` | string | yes | SHA-256 digest of the cached signature bundle blob, in `sha256:` followed by 64 lowercase hex characters. It names the cache blob and is the integrity gate for an air-gapped re-verify, so it builds a path and carries no `/`, no `\` and no `..` — which the `sha256:` form already excludes. |
+| `bundle_digest` | string | yes | SHA-256 digest of the cached signature bundle blob, in `sha256:` followed by 64 lowercase hex characters. It names the cache blob, so it builds a path and carries no `/`, no `\` and no `..` — which the `sha256:` form already excludes — and on an entry of `plugins` it is what a build re-hashes that blob against. |
 | `identity` | string | no | Verified signer of the signature: the signing certificate's subject for a keyless signature, or `keyed:sha256:` followed by the SHA-256 of the pinned public key's PEM text for a keyed signature. |
 | `issuer` | string | no | Verified OIDC issuer for a keyless signature. Empty for a keyed signature. |
 | `mode` | string (enum) | yes | Verification mode that admitted the signature. Allowed values: `"keyless"`, `"keyed"` |
