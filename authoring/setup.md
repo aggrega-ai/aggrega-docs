@@ -53,7 +53,7 @@ A signature names the publisher; it does not make every warning go away. Which o
 
 ### The macOS prebuilt binary
 
-The macOS executables are `aggrega-<version>-darwin-arm64`, for a Mac with Apple silicon, and `aggrega-<version>-darwin-amd64`, for a Mac with an Intel processor; **About This Mac** in the Apple menu shows which one you have. The light variants beside them in the release install the same way. A Mac with Apple silicon also runs the Intel file, through Rosetta 2 where it is installed, but the Apple silicon file is the one built for it.
+The macOS executables are `aggrega-<version>-darwin-arm64`, for a Mac with Apple silicon, and `aggrega-<version>-darwin-amd64`, for a Mac with an Intel processor; **About This Mac** in the Apple menu shows which one you have. The light and stripped variants beside them in the release install the same way. A Mac with Apple silicon also runs the Intel file, through Rosetta 2 where it is installed, but the Apple silicon file is the one built for it.
 
 Rename the file to `aggrega`, mark it executable, and move it into a directory listed in your `PATH`. From Terminal, in the directory the download is in, for example, with `<version>` replaced by the version you downloaded, and `arm64` by `amd64` on an Intel Mac:
 
