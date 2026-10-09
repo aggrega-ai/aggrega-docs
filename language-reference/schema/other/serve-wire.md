@@ -2009,7 +2009,7 @@ What publishing an entity landed, and where. A publication that ran the pin step
 | `sizeText` | string | yes | The same size written the way a person reads one. |
 | `pluginSize` | integer | no | How many bytes the plugin module published alongside a Plugin entity occupies. |
 | `pluginSizeText` | string | no | The same size written the way a person reads one. |
-| `digest` | string | yes | The digest of what was published. |
+| `digest` | string | yes | The digest of what was published. On a dry run, the digest a publication of the same content would land, computed from the content alone: the one `aggrega push --dry-run` prints. |
 | `signed` | boolean | yes | Whether this publication attached a signature: the one it made before publishing, or, on a version already published, one the version lacked. |
 | `alreadyPublished` | boolean | yes | Whether the same bytes were already there, so no content was uploaded. Only what that publication still lacked was attached beside it: its publication date and, where this publication signs, its signature; signed says whether a signature was. |
 | `dryRun` | boolean | yes | Whether this reports what publishing would have landed rather than what it did. |
