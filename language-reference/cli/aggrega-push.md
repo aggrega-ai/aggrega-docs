@@ -71,7 +71,7 @@ Comparing a remote source's pin means fetching the source, as `aggrega pin` does
 
 **`aggrega push --pin-sources` runs that same step for you, first.** The step runs before the bundle is built, so the lock it writes is in the published artifact and the published digest covers it; and it runs ahead of every other refusal that judges the entity, so what is judged is the entity as pinned. Only the directory rule above comes first, because the step writes the one lock the directory holds. It writes the same bytes `aggrega pin` writes, so the refusal above never fires on that run: the lock the step has just written records exactly what the refusal would compare against. The workspace key `pin_sources_at_push` makes this every push's default, and `--pin-sources=false` skips the step for one run, which brings the refusal back. The step writes beside the entity, which needs a writable home — and a push always has one, since it publishes the document you name.
 
-**`--dry-run` answers the way the publication would.** Without `--pin-sources` it refuses an unpinned entity exactly as the publication does, so a dry run that reports a bundle is one this refusal would let through. With `--pin-sources` the step pins as a dry run: it prints the lock it would write and writes nothing, and the bundle facts that follow describe the directory as it stands, without that lock — so where the lock would be new, the size, and for an entity naming nothing else the media type, are those of a publication without it. The refusal does not fire, because the publication would have pinned first.
+**`--dry-run` answers the way the publication would.** Without `--pin-sources` it refuses an unpinned entity exactly as the publication does, so a dry run that reports a bundle is one this refusal would let through. With `--pin-sources` the step pins as a dry run: it prints the lock it would write and writes nothing, and the bundle facts that follow describe the directory as it stands, without that lock — so the digest is that of a publication without it, and where the lock would be new, so are the size and, for an entity naming nothing else, the media type. The refusal does not fire, because the publication would have pinned first.
 
 **Best practice: a change to a version you have already published goes into a new version, and then a pin.** Copy the entity into a new version directory, make the change there, pin it, and publish that. The half of this the product enforces is the next section: publishing different content at a version that is already published is refused. The other half — not re-pinning an already-published version after editing it in your own workspace — is yours to keep; nothing refuses it locally, because re-pinning is legitimate for an entity you have not published.
 
@@ -92,6 +92,14 @@ Before any bytes are uploaded, `aggrega push` resolves what the target registry 
 - **Different content** — the push halts, naming the digest already published and the one it would have written. No flag forces it through.
 
 A version that is already published therefore keeps denoting the bytes published under it. Content that has changed is published under a new `metadata.version`; [`aggrega lint --pre-publish`](aggrega-lint.md) answers the next question — how far that version must move — by classifying the change against the previously published version.
+
+**`--dry-run` prints the digest a push would write**, beside the reference it would write it at:
+
+```
+aggrega push (dry-run): <reference>:<tag> (<digest>)
+```
+
+It is the digest the push itself compares with what is already published, computed the same way from the content alone, and printing it contacts no registry. So the content in front of you can be held against the digest a version was published as before anything is pushed: where they differ at a published version, the push would be refused. With `--pin-sources`, it is the digest of the directory as it stands, as [Pinning before publishing](#pinning-before-publishing) describes.
 
 ### Completing a publication an earlier push left partial
 
@@ -142,7 +150,7 @@ Like a signature, the published-at referrer is a sibling manifest pointing back 
 
 Publishing is a network round trip and has no form that is not, so under the offline posture — the top-level `offline` key in a configuration file, `AGGREGA_OFFLINE`, or [`--offline`](global-flags.md#--offline) — `aggrega push` refuses before it reads your entity. The refusal names which of those three set the posture, which is what a reader needs when a project's committed configuration turned it on rather than anything they typed.
 
-`--dry-run` is the exception, and it is an exception because of what it does: it computes the bundle, prints the reference it would publish, and never contacts the registry. That makes it the offline-safe form of publishing rather than a conflict with the posture, and it keeps working under it — with one qualification. A Recipe or FeatureRecipe whose remote `source:` is written out in full has that source fetched to compare its pin, and under the offline posture that fetch is refused in its own words, so a dry run over such an entity stops there rather than reporting a bundle it cannot vouch for.
+`--dry-run` is the exception, and it is an exception because of what it does: it computes the bundle, prints the reference it would publish and the digest that publication would land, and never contacts the registry. That makes it the offline-safe form of publishing rather than a conflict with the posture, and it keeps working under it — with one qualification. A Recipe or FeatureRecipe whose remote `source:` is written out in full has that source fetched to compare its pin, and under the offline posture that fetch is refused in its own words, so a dry run over such an entity stops there rather than reporting a bundle it cannot vouch for.
 
 To publish for one run from a workspace whose configuration is offline, pass `--offline=false`.
 
@@ -266,7 +274,7 @@ published; --pin-sources=false skips it for one run.
 
 | Flag | Default | Description |
 | --- | --- | --- |
-| `--dry-run` | `false` | Compute the bundle and print the proposed <reference>:<tag> without contacting the registry. An entity the publication would refuse for a missing pin is refused here too |
+| `--dry-run` | `false` | Compute the bundle and print the proposed <reference>:<tag> with the digest a publication would land, without contacting the registry. An entity the publication would refuse for a missing pin is refused here too |
 | `--entity` | — | Path to the entity YAML to publish (alternatively pass as the positional arg) |
 | `--fulcio-url` | — | Fulcio certificate-authority URL for keyless signing. When omitted, the public-good Fulcio instance is used. |
 | `--identity-token` | — | OIDC identity token for keyless signing. Optional at an interactive terminal (a browser flow acquires one) and on GitHub Actions (the workflow OIDC token is minted automatically); required for other non-interactive/CI use, where it may instead be exported as AGGREGA_IDENTITY_TOKEN or SIGSTORE_ID_TOKEN. |

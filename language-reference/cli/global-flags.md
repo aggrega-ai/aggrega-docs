@@ -39,7 +39,7 @@ The line is what the work needs rather than which command was typed.
 
 - An ordinary [`aggrega pull`](aggrega-pull.md), and `aggrega build --auto-pull`. Both honour the pins already recorded and resolve only what has none, so a workspace whose references are all cached or present in a `catalog_dirs` catalog completes without reaching out at all. Where such a run genuinely does need to fetch something, it is refused at that point and told which reference it could not satisfy.
 - `aggrega build` against a filled lockfile, which reads its whole closure from the cache. The one reach it has is a repair: where the store's copy of a pinned external input has gone missing, that input is refetched by the digest the lockfile already records. Under the posture there is no transport for even that, so the missing copy halts the build instead, naming the posture.
-- A `--dry-run` publication. Its whole behaviour is to report the reference it would publish and call nothing, which makes it the offline-safe form of publishing rather than a contradiction of the posture.
+- A `--dry-run` publication. Its whole behaviour is to report what it would publish and call nothing, which makes it the offline-safe form of publishing rather than a contradiction of the posture.
 
 An airgapped machine holding a local copy of its catalog and artifacts is the case this split exists to keep working: such a workspace is offline, and almost everything it does is still satisfiable.
 
