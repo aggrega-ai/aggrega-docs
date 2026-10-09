@@ -93,7 +93,7 @@ The full Injection Contract specification — dual-state context semantics, key-
 
 Platform Ops engineers author the translation templates and require the full power of standard infrastructure templating without proprietary roadblocks. Aggrega delivers a frictionless Go `text/template` experience:
 
-* **No "Magic" Strings:** The compiler preserves the Developer's exact map keys. Ops accesses features safely via standard Go map indexing: `{{ (index .features "public-route").values.hostname }}`.
+* **No "Magic" Strings:** The compiler preserves the Developer's exact map keys. Ops accesses features safely via standard Go map indexing: `{{ (index .features "public-route").infra.hostname }}`.
 * **The Sprig Library:** The compiler natively registers the Helm-standard Sprig library, providing immediate access to pipelines like `| default`, `| quote`, and `| toYaml`.
 * **Native `.tpl` Helpers:** Ops writes standard `.tpl` files (e.g., `helpers/labels.tpl`). The Aggrega Go compiler natively parses the `helpers/` directory via `template.ParseGlob` before rendering, providing full IDE syntax highlighting and standard Helm-like `{{ include "macro" . }}` capabilities.
 

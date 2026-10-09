@@ -468,9 +468,11 @@ spec:
                   name: http
 ```
 
-The `host` is developer intent, authored in the Aggregate, because which name an
-application answers on is part of what the application is. The path and the port
-name are operator sizing, authored in the Release. The backend Service was
+The developer attaches it in the Aggregate with the `path`, because which
+requests an application serves is part of what the application is. The operator
+writes the `host` and the port name on the Release's entry for the same
+attachment: the host is the environment's name for the router, so the operator
+names it per environment, in each environment's Release. The backend Service was
 supplied by neither: `service_name` is left unset, and the attachment's
 realization falls back to the Service the router's own Recipe emits. There is no
 `ingressClassName` field in the output, because nothing set one and the

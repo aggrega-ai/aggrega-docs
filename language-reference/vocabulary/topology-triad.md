@@ -205,12 +205,10 @@ Pre-compiled binaries (like Rust or Go worker nodes) often bypass environment va
     features:
       public-ingress:
         type: core/external-ingress
-        values:
-          hostname: api.enterprise.com
         inject:
           arg:
             - in: "--callback-url="  # Local flag
               from: "hostname"       # Target provides key
     ```
 
-* **Ops Reality:** The Feature's Wasm plugin receives the resolved public URL via the Injection Contract and emits a JSONPatch to dynamically append the Kubernetes `args` array: `["/app/binary", "--callback-url=https://api.enterprise.com"]`, completely bypassing the Component's Base Recipe.
+* **Ops Reality:** The hostname is the environment's name for the component, so the operator writes it, `api.enterprise.com`, in this attachment's `infra` on the Release's entry for the component. The Feature's Wasm plugin receives the resolved public URL via the Injection Contract and emits a JSONPatch to dynamically append the Kubernetes `args` array: `["/app/binary", "--callback-url=https://api.enterprise.com"]`, completely bypassing the Component's Base Recipe.
