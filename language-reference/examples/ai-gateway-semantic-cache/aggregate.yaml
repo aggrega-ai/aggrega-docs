@@ -13,6 +13,16 @@ metadata:
     here: every Component, Feature and Recipe named below ships in the
     standard-library catalog.
 spec:
+  # ── Parameter hoisting ──────────────────────────────────────────────────
+  # The store's password, which both ends of the cache_store connection read:
+  # the store requires it and the gateway's cache presents it. One parameter,
+  # so the two cannot be written apart; the Release fulfils it.
+  parameters:
+    cache_password:
+      type: string
+      description: >
+        The password the store requires and the gateway's semantic cache
+        presents to it. Both ends read this parameter.
   components:
     # ── The gateway ─────────────────────────────────────────────────────────
     # Two aliases: the chat model callers ask for, and an embedding model the
@@ -64,10 +74,25 @@ spec:
         cache_store:
           replies:
             target: cache
+            features:
+              # The password the cache presents to the store, held on the
+              # connection it is presented on.
+              credential:
+                type: core/referenced-secret
+                values:
+                  key: password
+                  origin: "{{ .parameters.cache_password }}"
 
     # ── The store ───────────────────────────────────────────────────────────
     # Redis, whose image loads the query engine and the JSON commands the
-    # cache searches its replies with. With nothing attached to its password
-    # slot it runs without authentication, and the gateway presents none.
+    # cache searches its replies with. The credential on its password slot
+    # turns on password authentication, with the same password the gateway's
+    # connection presents.
     cache:
       type: core/datastore/redis
+      features:
+        password:
+          type: core/referenced-secret
+          values:
+            key: password
+            origin: "{{ .parameters.cache_password }}"

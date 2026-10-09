@@ -22,12 +22,15 @@ writes.
 | `router` | `core/gateway/litellm` | the AI gateway: a chat alias, `assistant`, and an embedding alias, `embedder`, each pointing at one upstream model |
 | `cache` | `core/datastore/redis` | the store the gateway keeps its replies in |
 
-One `uses` edge, into the gateway's `cache_store` socket, and three Feature
+One `uses` edge, into the gateway's `cache_store` socket, carrying as its
+`credential` the password the cache presents to the store; three Feature
 attachments on the gateway: `api_key` and `provider_key`, two credentials,
-and `answers`, the cache. The attachment names the embedding alias that turns
-each prompt into a vector, how alike two prompts must be — `0.9`, as a cosine
-similarity — and how long a stored reply lasts, an hour. It leaves `scope` out,
-so it takes the default, `end_user`.
+and `answers`, the cache; and one on the store, `password`, the password it
+requires. Both password attachments read one parameter, `cache_password`,
+which the Release fulfils. The `answers` attachment names the embedding alias
+that turns each prompt into a vector, how alike two prompts must be — `0.9`,
+as a cosine similarity — and how long a stored reply lasts, an hour. It leaves
+`scope` out, so it takes the default, `end_user`.
 
 ## Building
 
@@ -53,17 +56,19 @@ The build prints:
 
 ```text
 [… omitted: the resolution's summary and a total build time, which differ per run]
-Build completed: 8 files written to dist/
+Build completed: 10 files written to dist/
 ```
 
 ## The rendered tree
 
 ```
 dist/helm/
+├── cache--password--cache-secret-cache-password.yaml
 ├── cache-default-service.yaml
 ├── cache-deployment.yaml
 ├── router--api-zukey--router-secret-router-api-key.yaml
 ├── router--provider-zukey--router-secret-router-provider-key.yaml
+├── router--replies-zdcredential--router-secret-router-replies-credential.yaml
 ├── router-default-service.yaml
 ├── router-deployment.yaml
 └── router/
@@ -118,7 +123,6 @@ those from the `cache_store` edge. From `dist/helm/router-deployment.yaml`, the
               value: cache-default
             - name: SEMANTIC_CACHE_STORE_PORT
               value: "6379"
-            - name: REDIS_PASSWORD
             - name: LITELLM_MASTER_KEY
               valueFrom:
                 secretKeyRef:
@@ -129,13 +133,23 @@ those from the `cache_store` edge. From `dist/helm/router-deployment.yaml`, the
                 secretKeyRef:
                   name: router-provider-key
                   key: provider-key
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: router-replies.credential
+                  key: password
 ```
 
 `cache-default` is the Service the store's own Recipe emits, read off what that
 Recipe publishes, and `6379` the port it publishes. The cache reads the store's
-password from `REDIS_PASSWORD`; nothing is attached to the store's password
-slot here, so the store runs without one and the variable is empty. Remove the
-`cache_store` edge and none of the three variables is rendered.
+password from `REDIS_PASSWORD`, a reference to the Secret the `credential` on
+the `cache_store` edge renders, `router-replies.credential`, and never the
+password itself. The store renders a Secret of its own from the same
+parameter, `cache-password`, and starts with `--requirepass` read from it, so
+the password the cache presents and the one the store requires are one value,
+written once. With no `cache_store` edge none of the three variables is
+rendered, and the cache, with nowhere to keep its replies, halts the build, as
+below.
 
 **The embedding model is an alias of the gateway's own map.** The gateway sends
 each prompt to `embedder` through the same map a caller's request goes through,
@@ -252,10 +266,8 @@ The gateway connects to the store when it first serves a request, not when it
 starts. If it cannot use the store — the store wants a password the gateway was
 not given, or refuses one it was — every lookup misses and nothing is stored,
 while every request is still answered by the model. Only the gateway's own log
-says so. A store needing a password takes a credential on its own `password`
-slot, and the gateway takes one holding the same password on its
-`cache_store_password` slot, which renders `REDIS_PASSWORD` as a reference to
-the Secret holding it rather than empty.
+says so. That is why the two ends of the password read one parameter: the
+store's `password` slot and the `credential` on the `cache_store` edge.
 
 ## Where the compiler is blind
 
@@ -271,9 +283,11 @@ Features declare, and none of them rests on any understanding of the traffic.
 
 - **Share one cache per key.** Add `scope: key` to the `answers` attachment,
   where every caller should be served the same replies.
-- **Give the store a password.** Attach a credential to the store's `password`
-  slot and one holding the same password to the gateway's
-  `cache_store_password` slot.
+- **Run the store without a password.** Remove the store's `password`
+  attachment and the `credential` on the `cache_store` edge together, with the
+  `cache_password` parameter in the Aggregate and the Release; the gateway's
+  `REDIS_PASSWORD` is then rendered empty, which connects without one. Removing
+  only one of the two attachments leaves the cache unable to use the store.
 - **Match more or fewer prompts.** Raise `similarity_threshold` to serve only
   closer matches, or lower it to serve more; which value suits depends on the
   embedding model.
