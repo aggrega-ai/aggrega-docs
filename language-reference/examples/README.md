@@ -151,6 +151,12 @@ developer surface and the String Pipe with zero platform authoring.
   mostly about who is served from one stored reply: one end user under the
   default scope, every holder of the key under the other — and why the end user
   a request names is not proof of who sent it.
+- **[apisix-token-budget](apisix-token-budget/)** — Apache APISIX in front of two
+  OpenAI models, wired to its `models` socket, with a token budget on everything
+  the gateway serves, compiled to Kubernetes through the project's own chart. The
+  gateway reads its routes from a file rendered with it, so it takes no etcd and
+  no Admin API key. The README shows the budget written into the routes file and
+  the build refusing a semantic cache this gateway cannot keep apart by caller.
 
 ## Authoring
 

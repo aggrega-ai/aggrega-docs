@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: apisix-token-budget-dev
+  environment: development
+  version: "1.0.0"
+spec:
+  aggregate: apisix-token-budget
+  manifest: apisix-token-budget-manifest
+
+  # The parameter the Aggregate declared, fulfilled for this environment. The
+  # Manifest writes each credential straight into a rendered Secret, so this is
+  # the key itself.
+  parameters:
+    openai_key: upstream-provider-key-change-me
+
+  # Single scope: components are authored directly with no boundaries block, so
+  # they fold into one synthesized boundary and the artifacts land flat under
+  # dist/helm/.
+  components:
+    gateway:
+      features:
+        # The budget's size, decided per environment: two million tokens a day
+        # across everything the gateway serves.
+        budget:
+          infra:
+            limit: 2000000
+            period: 1d
+    # Declared with nothing to configure, so each takes its schema defaults:
+    # its endpoint, OpenAI's own API. A component still has to appear here: one
+    # left out is placed in no scope and the build halts.
+    chat: {}
+    mini: {}

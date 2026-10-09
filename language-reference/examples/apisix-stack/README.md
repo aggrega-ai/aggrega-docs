@@ -47,8 +47,9 @@ internal components in the Release.
   single file, so it configures the gateway without masking the files the gateway
   writes there.
 - **An Admin API key read from a Secret.** The gateway administers its routes
-  through an Admin API, and its key arrives through a required credential slot
-  on the gateway, so no default key exists. The module takes the key as a
+  through an Admin API, and its key arrives through a credential slot on the
+  gateway, which the gateway requires while nothing is wired to its models
+  socket, as here, so no default key exists. The module takes the key as a
   parameter, `admin_key`, and attaches the `core/referenced-secret` credential
   Feature to the slot with it; this Aggregate declares a parameter of its own
   and passes it down, and the Release fulfills it. The Manifest maps the

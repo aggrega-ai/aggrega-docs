@@ -1,0 +1,77 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: apisix-token-budget
+  version: "1.0.0"
+  description: >
+    An APISIX gateway in front of two OpenAI models, holding everything they
+    serve to a budget of tokens per day. This file, the Manifest and the Release
+    are the whole of what anyone authors here: every Component, Feature and
+    Recipe named below ships in the standard-library catalog.
+spec:
+  # ── Parameter hoisting ──────────────────────────────────────────────────
+  # The key the gateway presents to OpenAI, on both of its model connections.
+  # One parameter, so the two connections present one key; the Release fulfils
+  # it.
+  parameters:
+    openai_key:
+      type: string
+      description: >
+        The key the gateway presents to OpenAI's API, on the connection to each
+        of the two models it serves.
+  components:
+    # ── The gateway ─────────────────────────────────────────────────────────
+    # Two aliases, each served from a model wired to the gateway's models
+    # socket. values.model names the alias the gateway publishes as its model.
+    # With a model wired the gateway reads its routes from a file rendered with
+    # it, so it takes no etcd connection and no admin_key attachment.
+    gateway:
+      type: core/gateway/apisix
+      values:
+        model: assistant
+      features:
+        # The period budget. What is counted and whose traffic one limit covers
+        # are part of what the application is, so they are written here; how
+        # much may be spent over how long is the Release's.
+        budget:
+          type: core/period-budget
+          values:
+            scope: gateway
+            unit: total_tokens
+      uses:
+        # The two models the gateway serves. A request's path chooses the
+        # model: /assistant/v1 for one, /summarizer/v1 for the other. Each
+        # connection holds the key the gateway presents to its model, so
+        # callers never hold it.
+        models:
+          assistant:
+            target: chat
+            features:
+              credential:
+                type: core/referenced-secret
+                values:
+                  key: api-key
+                  origin: "{{ .parameters.openai_key }}"
+          summarizer:
+            target: mini
+            features:
+              credential:
+                type: core/referenced-secret
+                values:
+                  key: api-key
+                  origin: "{{ .parameters.openai_key }}"
+
+    # ── The models ──────────────────────────────────────────────────────────
+    # OpenAI's managed chat API, reached as an external reference: nothing runs
+    # for either in the cluster.
+    chat:
+      type: core/ai-model/openai
+      values:
+        model: gpt-4o
+    mini:
+      type: core/ai-model/openai
+      values:
+        model: gpt-4o-mini

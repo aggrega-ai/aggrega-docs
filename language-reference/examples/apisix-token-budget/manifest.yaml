@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: apisix-token-budget-manifest
+  version: "1.0.0"
+  description: >
+    Ops mapping for the Kubernetes target. Every component type and every
+    attached Feature is routed to the standard-library Recipe that implements it
+    on this target.
+spec:
+  mappings:
+    components:
+      type:
+        # The realization that renders the project's own APISIX chart and serves
+        # the models wired to the gateway; the other realization serves none.
+        core/gateway/apisix:1.0.0: helm/apisix-chart:1.0.0
+        core/ai-model/openai:1.0.0: helm/openai:1.0.0
+    features:
+      type:
+        # The gateway's chart Recipe writes the budget onto the model routes;
+        # this realization checks what the gateway can keep of it.
+        core/period-budget:1.0.0: helm/period-budget-apisix:1.0.0
+        # Routed so an attachment of the semantic cache reaches the realization
+        # that explains why this gateway cannot keep one, as the README shows.
+        core/semantic-caching:1.0.0: helm/semantic-caching-apisix:1.0.0
+        # Writes each credential straight into a rendered Secret, which suits a
+        # development target and not a shared one.
+        core/referenced-secret:1.0.0: helm/k8s-secret-from-parameter:1.0.0
