@@ -233,7 +233,10 @@ same per-role payload under the same field names, both map their decisions onto 
 same three verdict severities through the same `translation` setting, and both fail
 loudly rather than allowing a build they could not evaluate. Each carries the
 compiler release that ships it as its version, and neither needs an external
-toolchain or fetches anything at build time.
+toolchain or fetches anything at build time. What each language can *say* is not
+shared: a rule that is a few helper rules in Rego can need settings and repetition
+in CEL — see [What an expression can say](#what-an-expression-can-say) before writing
+one that walks a route.
 
 What differs is the language the rules are written in, and that is the whole basis
 for choosing. An estate that already keeps a Rego corpus — or a team that writes
@@ -294,7 +297,9 @@ policy needs a host-provided builtin the adapter does not implement, the adapter
 **fails loudly** — refusing the module rather than returning an allow — so an
 unevaluable policy stops the build instead of passing silently. Regenerating the
 baked module from its Rego source is an authoring step run with the OPA CLI, not
-a build-time dependency.
+a build-time dependency. [`../examples/policy-data-class-route/`](../examples/policy-data-class-route/)
+builds that adapter around a module of its own, and gives the commands that
+regenerate both.
 
 The two roads share the same host contract, so moving a policy from the engine in
 the compiler to the full engine is an attachment change.
@@ -451,7 +456,7 @@ fires rather than an error, because a path that is not there is simply undefined
 
 | Role | What a policy reads |
 | --- | --- |
-| `ir-verdict` | `input.graph` — the whole build graph document: nodes at `input.graph.spec.nodes` keyed by node id, edges at `input.graph.spec.edges`. A value an author declared sensitive reads as `{"aggrega_withheld": "declared"}`. `input.precalculated_paths` — the enumerated routing paths, each carrying its ordered `nodes` list and the `attached_features` reached along it. |
+| `ir-verdict` | `input.graph` — the whole build graph document: nodes at `input.graph.spec.nodes` keyed by node id, edges at `input.graph.spec.edges`. A value an author declared sensitive reads as `{"aggrega_withheld": "declared"}`. `input.precalculated_paths` — the enumerated routing paths, each carrying its ordered `nodes` list and `attached_features`, the Feature types attached anywhere on it (see below). |
 | `render-verdict` | `input.artifacts` — one entry per emitted file, each with `path`, `content`, `format`, and `documents`, the parsed documents of the file. An artifact that could not be read structurally carries `parse_error` and no documents, so a policy can reject on the failure itself rather than let an unreadable file pass unexamined. |
 | `label-transform` | `input.graph.nodes` — the build's nodes keyed by node id, each with `component`, `resolved_version` and `labels`. `input.compilation_context` — the Release's `release_name` and `environment`, so a policy can decide differently per environment. |
 | `annotation-transform` | `input.targets` — every component the attachment may annotate, each with `boundary_path`, `component_name` and its current `annotations`. `input.binding_keys` — the annotation keys the Manifest registers a binding for. |
@@ -477,12 +482,23 @@ deny contains msg if {
 }
 ```
 
-`attached_features` is the union of the Feature types attached to every node on
-the path, so the rule is satisfied by a `core/data-masking` attachment on the
-gateway itself, which is where that Feature attaches: it selects on the
-content-masking capability the gateway declares. What the attachment masks is
-the chat and completion text passing through that gateway; the rule checks that
-the attachment exists, not what it lists.
+`attached_features` is the union of the Feature types of every attachment held by
+any node on the path — an attachment written on one of that node's connections
+included, whichever connection it was written on — so the rule is satisfied by a
+`core/data-masking` attachment on the gateway itself, which is where that Feature
+attaches: it selects on the content-masking capability the gateway declares. What
+the attachment masks is the chat and completion text passing through that gateway;
+the rule checks that the attachment exists, not what it lists.
+
+Because it is a union over the whole path, the list says that a Feature is attached
+somewhere on a route and never where. A rule that has to know whether a Feature sits
+*between* two particular components of a route — the one holding restricted data
+and the one it reaches — reads the route's `nodes` in order and each node's own
+attachments, at `input.graph.spec.feature_values_mapping[<node>]`; asked of
+`attached_features`, the same question passes a route on which the Feature sits
+beyond the second component.
+[`../examples/policy-data-class-route/`](../examples/policy-data-class-route/) is
+written that way, for the Rego engine, the CEL engine and OPA.
 
 A node object carries no id of its own: the id is the key it sits under in
 `input.graph.spec.nodes`, which is why the rule above carries the ids it read from
@@ -754,6 +770,40 @@ report, written in advance, so it has nothing to say about which component tripp
 Reaching for the document form and then wanting the offender's name in the message is
 the path that ends in rewriting the rule as an expression, so it is worth choosing on
 that question up front.
+
+### What an expression can say
+
+The expressions this engine evaluates use the `filter`, `map` and `exists`
+comprehensions, `+` on strings and on lists, `size`, `in`, `startsWith`, `string()`,
+the conditional operator, and a list indexed by a computed integer. They do not
+offer the extension functions some CEL environments add: `join`, `split`,
+`substring`, `indexOf`, `flatten`, `cel.bind` and `lists.range` are each refused as an
+undeclared reference, and a comprehension takes one variable, so a two-variable form
+such as `exists(i, v, …)` is refused the same way. A refusal is a build fault naming
+the file and the reference:
+
+```
+policy source "routes.cel" could not be evaluated: Undeclared reference to 'join'
+```
+
+Three consequences shape a rule that walks a route:
+
+- **There is no way to name an intermediate value.** A sub-expression used twice is
+  written twice, or bound by mapping a one-item list: `[value].map(name, …)[0]`
+  evaluates its body once with `name` bound to `value`.
+- **There is no way to walk a list's positions.** A rule comparing a route's
+  components by position takes the positions from its settings — a `positions` list
+  such as `[0, 1, 2, …]` — and indexes the route at each, so it has to guard a route
+  longer than the list itself, by halting on one, rather than read it in part.
+- **A decision key collects messages, not lists of them.** An expression producing one
+  list of messages per route is refused under a decision key — the fault says it
+  collected a value of type list rather than a message — so a rule produces one
+  record per route and builds the message from it. And a message the expression
+  produces twice is reported twice: the sort described below orders what a key
+  collected, and does not remove a repeat.
+
+[`../examples/policy-data-class-route/`](../examples/policy-data-class-route/) carries
+a CEL rule written under all three, beside the same rule for the Rego engine.
 
 ### Decision keys and severities
 
@@ -1192,3 +1242,8 @@ rules over what that build wrote.
   surface.
 - [`../examples/policy-in-ci/`](../examples/policy-in-ci/) — two runnable rule
   scripts over a build's output, with the pipeline step for each.
+- [`../examples/policy-data-class-route/`](../examples/policy-data-class-route/) — one
+  `ir-verdict` rule over routes, written for the Rego engine, the CEL engine and OPA
+  behind the reference adapter guest, attached per build by one `--config` file per
+  engine, with a script checking that all three reach the same outcome on every
+  Release.

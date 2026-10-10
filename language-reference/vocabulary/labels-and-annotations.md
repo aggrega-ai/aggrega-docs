@@ -88,7 +88,16 @@ backwards.
   something a `usesSchema` or an `appliesTo` actually asks about. A value no
   component carries is worse than an absent one: a selector naming it parses,
   matches nothing, and reports nothing — so a value the catalog cannot demonstrate
-  is left out of the vocabulary until a component carries it.
+  is left out of the vocabulary until a component carries it. A key whose value is an
+  estate's statement about how it uses its own components, rather than a property of
+  the product, is the exception, and `compliance.aggrega.ai/data-class` is that case: which class a
+  component's data has depends on how an estate uses the component, so no
+  standard-library Component carries any of its values and no standard-library socket
+  or Feature selects on them. The key and its values are declared so that an estate's
+  own Components and the policies it attaches share one spelling; a selector or a
+  policy naming a value matches only in a catalog whose Components carry it.
+  [policy-data-class-route](../examples/policy-data-class-route/) shows one such
+  Component and the policy that reads it.
 
 ### A reservation and a platform-defined key are not the same thing
 
