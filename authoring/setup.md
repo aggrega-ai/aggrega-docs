@@ -130,13 +130,16 @@ Visual Studio Code keeps its servers under `servers` rather than `mcpServers`, a
 
 Claude Desktop installs a local server from an extension package — the server together with a manifest describing it, bundled into one installable file and added from its extension settings — rather than from an entry in a configuration file. Each Aggrega release carries such a package, `aggrega-<version>.mcpb`, beside its prebuilt binaries.
 
-Aggrega's package carries no program of its own. It launches the `aggrega` executable you name, with the single `mcp` argument, and speaks the protocol over that process's standard input and output — the same server every entry above starts. To add it:
+Aggrega's package carries no program of its own. It launches the `aggrega` executable you name, with the single `mcp` argument, and speaks the protocol over that process's standard input and output — the same server every entry above starts. It starts the file at the path you give it rather than looking `aggrega` up on your `PATH`. To add it:
 
-1. Install the `aggrega` binary, as described in [Install the binary](#install-the-binary).
-2. Add `aggrega-<version>.mcpb` from Claude Desktop's extension settings.
-3. For the package's one required setting, the path to the `aggrega` executable, select the binary you installed.
+1. Install the `aggrega` binary, as described in [Install the binary](#install-the-binary). On Windows, keep `aggrega.exe` in a directory of your own, such as the one the PowerShell example there creates, rather than in a system folder such as `C:\Windows\System32`, so that you can replace it without administrator rights.
+2. Install `aggrega-<version>.mcpb` from Claude Desktop's extension settings.
+3. Set the package's one required setting, **Path to the aggrega executable**, to the executable you installed — on Windows, the full path ending in `aggrega.exe`. The server does not start until it is set.
+4. Quit Claude Desktop fully, then start it again. A server the application has already started keeps running, and renaming the executable does not stop it, so a changed setting takes effect only once the application has quit and started again. On Windows, Task Manager shows whether an `aggrega` process is still running.
 
 Because the package names no executable of any platform, the same file applies to every platform it declares: macOS, Windows and Linux.
+
+**Claude Desktop's own logs show what it launched.** On Windows they can sit under a package folder in the local application-data directory rather than under `%APPDATA%\Claude\logs`, even where Claude Desktop was installed from its own download: under `%LOCALAPPDATA%\Packages\`, in the folder whose name begins with `Claude_`, at `LocalCache\Local\Claude\logs`. The files there include `mcp.log` and `mcp-server-Aggrega.log`, the second carrying what the Aggrega server writes to its standard error. A line carrying `Using MCP server command:` names the executable the application started, which is the path in the package's setting. When nothing is at that path, the log carries the Windows command interpreter's message that the path is not recognized as a command, then reports that the server could not start.
 
 Claude Desktop's connector settings are the other route, for a server reached over HTTPS: see [A server reached over HTTPS](#a-server-reached-over-https).
 
