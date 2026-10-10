@@ -1805,7 +1805,7 @@ A signature says which artifact it was made for. When a pull verifies an artifac
 
 **A plugin is held the same way wherever it is loaded.** A plugin the lockfile pins, and a plugin attached at a verdict role, has its recorded signature held to the artifact its bytes were read as when those bytes are loaded from the content cache, which reaches the commands that load a plugin outside a build — `aggrega lint --release` and `aggrega validate --release` among them, and the same operations reached through `aggrega serve` and `aggrega mcp`.
 
-**What the check reads, and what it cannot tell.** It reads the cached signature and the manifest beside the artifact, and compares hashes: it verifies no signature, contacts no network and consults no trust material, so it holds in a build with no network access at all. An entry read from a catalog directory, from the copy inside the compiler binary or from beside the Release comes with no manifest, so its recorded signature is held only to its recorded digest; so is a signature in a form the toolchain's own signers do not write. And because no signature is verified, a signature written into the cache by hand, made out for the entry's own artifact, is not told apart from one a pull verified.
+**What the check reads, and what it cannot tell.** It reads the cached signature and the manifest beside the artifact, and compares hashes: it verifies no signature, contacts no network and consults no trust material, so it holds in a build with no network access at all. It reads which artifact a signature was made for in both forms a pull accepts — a signature made over the artifact itself, which is what the toolchain's own signers make, and a signed statement that names the artifact — so a signature copied from one entry onto another is refused in either form. It is the same reading a pull applies to every signature it accepts: a pull refuses a signature that verifies but that the reading does not find made for the artifact, or cannot read the artifact from at all, so no signature a pull records is one the check cannot read. An entry read from a catalog directory, from the copy inside the compiler binary or from beside the Release comes with no manifest, so its recorded signature is held only to its recorded digest; so is a signature placed in the cache by hand in a form that is neither of those two. And because no signature is verified, a signature written into the cache by hand, made out for the entry's own artifact, is not told apart from one a pull verified.
 
 **The next pull repairs it.** A pull holds every entry the content cache served to the same check, and where the check refuses an entry it asks the artifact's registry about the signature again — whatever the signing requirement says — and records what that verifies on the entry in place of the copied signature. A plugin attached at a verdict role is verified again on every pull whatever its entry records. Only an entry the content cache served is held to which artifact its signature was made for, so every refusal of this condition by a build or a plugin load names that pull.
 
@@ -2241,12 +2241,19 @@ A signature was found and checked, and the check failed. It is the general negat
 
 **It is deliberately distinct from a signature whose signer is not trusted.** That one is structurally sound and made by the wrong signer; this one did not check out at all. Keeping them apart is what lets you tell "the artifact is not what was signed" from "the artifact was signed by somebody you have not accepted".
 
+**Which artifact a signature was made for is checked twice.** Once the signature's cryptographic check holds, the toolchain reads from the signature itself which artifact it was made for — the same reading every later build holds the recorded signature to, which is what lets a build refuse a signature copied from one artifact onto another without verifying anything — and refuses the signature where that reading does not name the artifact in hand, or where the signature is in a form the reading cannot tell the artifact from. Both forms a pull accepts are read: a signature made over the artifact itself, and a signed statement that names it. The reading follows the cryptographic check's own rules, so over a signature that check accepts the two agree; a refusal of this kind means they did not, and is worth reporting with the reference and the message rather than configuring around.
+
 Where a registry's entry marks verification as advisory, the same text is reported as a notice and the run continues.
 
 **Emitted messages.** From the check itself, quoting what the verifier reported:
 > signing: signing: signature bundle does not verify: `<what the verifier reported>`
 
-framed by the reference being verified:
+and, where the cryptographic check holds and the reading of which artifact the signature was made for does not agree:
+> signing: signing: signature bundle does not verify: its cryptographic check holds, but it does not name `<manifest-digest>` as the artifact it was made for
+
+> signing: signing: signature bundle does not verify: its cryptographic check holds, but it is in a form from which the artifact it was made for cannot be read
+
+each framed by the reference being verified:
 > verifying the signature of `<uri>`: `<the message above>`
 
 and, where the registry's entry makes verification advisory, as a notice instead of a halt:

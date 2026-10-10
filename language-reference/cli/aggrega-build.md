@@ -82,7 +82,7 @@ The workspace settings build reads can be overridden through the environment, ab
 
 ## Output
 
-Rendered artifacts land under `dist/`. The default output structure is per-boundary, per-provider: `dist/<boundary-path>/<provider>/<files>`. Operator-authored `directory:` and `subDirectory:` overrides on Release boundaries change the target path; per-`(path, provider)` collapse merges contributors that resolve to the same evaluated path.
+Rendered artifacts land under `dist/`. A Release that declares no boundaries writes per provider: `dist/<provider>/<files>`. A declared boundary with no `directory:` writes per boundary, per provider: `dist/boundaries/<boundary-path>/<provider>/<files>`. Operator-authored `directory:` and `subDirectory:` overrides on Release boundaries change the target path; per-`(path, provider)` collapse merges contributors that resolve to the same evaluated path.
 
 ### YAML indentation
 

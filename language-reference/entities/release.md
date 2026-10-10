@@ -113,7 +113,7 @@ spec:
 
 **Mutual exclusivity.** `spec.components:` and `spec.boundaries:` are mutually exclusive at the Release root — a Release authors one or the other, never both. A document declaring both halts at load with an envelope error. The top-level `components` surface carries the same per-component operator shape a boundary's `components` carry (`infra:`, `annotations:`, `uses:`).
 
-**A declared boundary named `default`.** The flat output is a property of the *synthesized* default, not of the name. A Release that explicitly declares a boundary named `default` under `boundaries:` is an ordinary named boundary: its output follows its `directory:` (defaulting to `dist/default/`), exactly like any other declared boundary.
+**A declared boundary named `default`.** The flat output is a property of the *synthesized* default, not of the name. A Release that explicitly declares a boundary named `default` under `boundaries:` is an ordinary named boundary: its output follows its `directory:` (defaulting to `dist/boundaries/default/`), exactly like any other declared boundary.
 
 See [architecture/06-data-taxonomy-and-composition.md §7](../../architecture/06-data-taxonomy-and-composition.md) for the default-scope pattern.
 
