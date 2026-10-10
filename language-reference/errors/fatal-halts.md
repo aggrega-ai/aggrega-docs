@@ -1777,7 +1777,7 @@ and, where a plugin's bytes are loaded, naming where they came from as well:
 
 **How to fix:** nothing in your entity files causes this — the cache is the build's, not yours. Re-fetch the artifact so the bundle and its record are written together again. Where re-fetching restores it, the cached copy had been removed or altered since the fetch that recorded it; where the mismatch survives a re-fetch, the recorded digest and the material the publisher serves genuinely disagree, and that is a question for whoever publishes the artifact.
 
-### The lockfile records no verified signature for an artifact that requires one
+### No verified signature is recorded for an artifact that requires one
 
 <!-- covers: pkg/lockfile.ErrSignatureNotRecorded -->
 
@@ -1789,11 +1789,13 @@ A pull that fetches an artifact from a registry verifies its signature against t
 
 **A plugin attached at a verdict role is held by the same check, through `plugins-trust.yaml`.** A `plugins.governance` attachment in an `ir-verdict` or `render-verdict` role, and every `plugins.linter` attachment, shapes no rendered byte, so it has no lockfile entry; the record beside the lockfile carries its verified signature instead. Each such plugin the build reads from the content cache is held to the same requirement, through the same settings: an entry in that record recording no signature stops the build, and so does no entry for the plugin at all — deleting the record does not exempt it. A plugin served from a catalog directory or from the copy inside the compiler binary is not held. The requirement holds such a plugin wherever it is loaded for a Release, not only in a build: `aggrega lint --release` and `aggrega validate --release`, and the same operations reached through `aggrega serve` and `aggrega mcp`, fail on this condition when they load it.
 
-Emitted messages, naming the entry, the settings that require its signature and the command that records it. For a lockfile entry:
-> signing: the lockfile records no verified signature for an artifact that requires one (`"<reference>"`, required by `<the settings that require it>`). remediation: run `aggrega pull --release <release>` to verify the artifact's signature at its registry and record it in the lockfile
+Emitted messages, naming the entry, the file that records no signature for it, the settings that require its signature and the command that records it in that file. For a lockfile entry, naming the lockfile:
+> signing: no verified signature is recorded for an artifact that requires one (`"<reference>"`, `<lockfile-path>` records no signature for it, required by `<the settings that require it>`). remediation: run `aggrega pull --release <release>` to verify the artifact's signature at its registry and record it in `<lockfile-path>`
 
 and for a plugin attached at a verdict role, naming its record:
-> signing: the lockfile records no verified signature for an artifact that requires one (`"<plugin>"`, `<record-path>` records no signature for it, required by `<the settings that require it>`). remediation: run `aggrega pull --release <release>` to verify the plugin's signature at its registry and record it in `<record-path>`
+> signing: no verified signature is recorded for an artifact that requires one (`"<plugin>"`, `<record-path>` records no signature for it, required by `<the settings that require it>`). remediation: run `aggrega pull --release <release>` to verify the plugin's signature at its registry and record it in `<record-path>`
+
+Both files are named by their path beside the Release the command was given: `<lockfile-path>` is the Release's lockfile, and `<record-path>` is `plugins-trust.yaml` in the Release's directory.
 
 The settings are named in the configuration file's own words: `` `signing.required` at the top level of the workspace configuration``, `` `signing.required` on the `registries` entry for "<host>"``, or `the official hub's built-in signature requirement for "hub.aggrega.ai"`, joined where more than one applies.
 
@@ -5550,7 +5552,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0328` | `attachment written under a name no slot declares fits a slot its component leaves empty` | An attachment written under another name fits a slot its component leaves empty |
 | `E0329` | `a connection and the target it reaches do not name one key: they write different locators for it, or only one of them names one` | A connection and the target it reaches do not name one key |
 | `E0330` | `signing: the references named together need different signing credentials, so nothing was signed` | References signed together need different signing credentials |
-| `E0331` | `signing: the lockfile records no verified signature for an artifact that requires one` | The lockfile records no verified signature for an artifact that requires one |
+| `E0331` | `signing: no verified signature is recorded for an artifact that requires one` | No verified signature is recorded for an artifact that requires one |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
