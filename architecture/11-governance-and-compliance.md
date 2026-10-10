@@ -234,6 +234,18 @@ deny contains msg if {
 }
 ```
 
+A rule that follows data along the graph reads the routes the payload enumerates.
+[`language-reference/examples/policy-data-class-route/`](../language-reference/examples/policy-data-class-route/)
+is one, end to end: it halts a build where a component holding data of one class
+reaches a component of another class along a route with no declassifying Feature
+attached on it, and the same Aggregate completes when a Release routes that traffic
+through a gateway carrying `core/data-masking`. The compiler carries the class label
+as a string and ranks nothing — the classes, their order and the Features that count
+as declassifying are the attachment's settings. The rule is written once for each of
+three engines — the two compiled into the CLI, and OPA behind the reference adapter
+guest — each copy on its own, so a build on which two engines disagree shows the
+disagreement.
+
 **A policy's own vocabulary is preserved.** The severities the socket acts on are a
 closed set, but the names a policy collects its decisions under belong to the policy.
 The default names are the conventional ones a Rego corpus already uses, and an
