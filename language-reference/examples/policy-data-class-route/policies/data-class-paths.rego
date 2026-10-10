@@ -6,13 +6,14 @@
 # that route, at either end or anywhere between them.
 #
 # This rule is written once per engine this workspace attaches — this file for
-# the Rego engine, data-class-paths.cel for the CEL engine — and the copies are a
-# deliberate near-duplicate. Each is written on its own from the rule above, so a
-# build on which the engines disagree shows the disagreement: the same build
-# halting under one engine and completing under the other is the signal. Neither
-# is generated from the other, and they are not to be merged into one shared
-# implementation, which would make the engines agree by construction and hide the
-# difference this exists to catch.
+# the Rego engine in the compiler, data-class-paths.cel for the CEL engine, and
+# data-class-paths-opa.rego for OPA — and the three copies are a deliberate
+# near-duplicate. Each is written on its own from the rule above, so a build on
+# which the engines disagree shows the disagreement: the same build halting under
+# one engine and completing under another is the signal. None is generated from
+# another, and they are not to be merged into one shared implementation, which
+# would make the engines agree by construction and hide the difference this
+# exists to catch.
 #
 # What the rule reads, all of it from the build graph the compiler hands an
 # ir-verdict attachment, and all of its meaning from this attachment's settings:

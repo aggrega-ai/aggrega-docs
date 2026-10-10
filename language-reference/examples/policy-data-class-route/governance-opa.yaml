@@ -1,0 +1,52 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+# The policy, attached through OPA. A build names this file with --config:
+#
+#   aggrega build --release release-masked.yaml --config governance-opa.yaml
+#
+# --config names the global configuration file for that run, in place of the
+# one this machine would otherwise read, and the workspace's own
+# .aggrega-config.yaml still layers on top of it. That file declares the catalog
+# directories and no governance attachment, so the attachment below is the one
+# that applies.
+#
+# OPA's copy of the rule is not named here. It is compiled into the guest of the
+# governance/opa Plugin entity in this workspace's catalog, so this attachment
+# supplies settings only, and they reach the rule as OPA's data document.
+#
+# governance-rego.yaml and governance-cel.yaml attach the same rule through the
+# Rego and CEL engines, with the same settings. Keep the three files' settings
+# alike: a difference between them is a difference between the engines'
+# verdicts.
+plugins:
+  governance:
+    - uri: governance/opa:1.0.0
+      # The verdict role that reads the build graph. It returns an
+      # accept-or-reject and never a change, so the policy can stop a build and
+      # cannot rewrite one into compliance.
+      role: ir-verdict
+      with:
+        settings:
+          # The label a component's class is read from.
+          class_label: compliance.aggrega.ai/data-class
+          # The classes this estate uses and how they rank. Two components whose
+          # classes rank differently do not meet on a route unless a
+          # declassifying Feature is attached on it; classes ranked alike are one
+          # class to this policy.
+          rank:
+            public: 0
+            internal: 1
+            restricted: 2
+          # A class for a component carrying no class label, read from a label
+          # its catalog Component already carries. A model API a third party
+          # operates outside the estate's own systems holds what is sent to it,
+          # which this estate treats as public. The first entry a component
+          # matches is the one that applies.
+          classes_by_label:
+            - label: component.aggrega.ai/hosting
+              value: managed
+              class: public
+          # The Features that make a route between two classes acceptable.
+          declassifying_features:
+            - core/data-masking

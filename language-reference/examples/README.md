@@ -2,7 +2,7 @@
 
 Complete, forkable workspaces you can compile with the `aggrega` CLI. Each is a
 self-contained directory — a Developer-authored `Aggregate` and one or more
-`Release`/`Manifest` pairs — that builds offline with no external setup.
+`Release`/`Manifest` pairs — that builds with no setup beyond what its page names.
 
 The examples come in two modes — the two ends of one curriculum:
 
@@ -183,7 +183,7 @@ Features, Recipes, Manifests, and the provider matrix.
   rather than agreed between both, so the developer's side never changes.
 - **[postgres-three-realizations](postgres-three-realizations/)** — one
   PostgreSQL Component with one `provides` contract, realized three ways: a
-  StatefulSet the deployment runs itself, a managed RDS instance emitted as
+  StatefulSet run in the cluster itself, a managed RDS instance emitted as
   Terraform, and a server that already existed, referenced by a Recipe that
   provisions nothing. One Aggregate, three Manifests differing in a single line.
   The consuming application's rendered environment carries the same variables in
@@ -255,6 +255,19 @@ cross-boundary networking across providers.
   leaves the delivery key beside it alone. Attaching the control policy — the
   same walk keyed on the whole-attachment answer — refuses both releases
   instead, which is what shows why the narrower fact exists.
+- **[policy-data-class-route](policy-data-class-route/)** — a policy over the
+  build graph that halts a build when data of one class reaches a component of
+  another along a route with no declassifying Feature on it. A claims assistant
+  holding restricted data reaches OpenAI's managed API through one of two AI
+  gateways, one with data masking attached; three Releases differ only in that
+  routing, and the two that keep the masking off the assistant's route are
+  refused before anything is rendered, the refusal naming both ends of the
+  route. The classes and their ranking are the policy's settings, and the
+  compiler reads no meaning into them. The rule is written once each for the
+  Rego and CEL engines in the CLI and for OPA, a deliberate near-duplicate, and a
+  script beside it builds all nine combinations and checks every outcome. Needs
+  the standard-library catalog checked out beside it and a hub registry
+  credential.
 
 *Pipeline steps run today — see [When to reach for a pipeline step](../plugins/when-to-use-a-pipeline-step.md).
 Planned — the `eval` provider joins this tier when it ships.*

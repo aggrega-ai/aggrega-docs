@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Plugin
+metadata:
+  name: opa
+  version: "1.0.0"
+  pluginType: governance
+  description: >
+    The OPA policy engine running this workspace's house rule over its build
+    graph, attached by governance-opa.yaml. The guest beside this entity,
+    governance--opa.wasm, is the reference OPA adapter with the rule baked in:
+    OPA compiles policies/data-class-paths-opa.rego to a WebAssembly module,
+    and the adapter is built around that module, so an attachment supplies
+    settings and no policy file. Nothing records the guest's digest, so a build
+    reads it from this directory and runs it unverified; the workspace README
+    gives its sha256 and the commands that rebuild it. Version 1.0.0 is this
+    workspace's own declaration, not a coordinate published anywhere.
+spec:
+  abiVersion: v1alpha1
+  exports:
+    - name: verdict_ir
