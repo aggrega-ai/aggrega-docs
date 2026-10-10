@@ -4,7 +4,7 @@ Flags available on every `aggrega` subcommand.
 
 ## `--workspace-root <path>`
 
-Use `<path>` as the workspace root, skipping discovery entirely. When the flag is omitted, `aggrega` discovers the root by walking upward from the current directory; see [Configuration](configuration.md#the-other-ways-a-project-root-is-recognised) for what anchors a root and in what order.
+Use `<path>` as the workspace root, skipping discovery entirely. When the flag is omitted, `aggrega` discovers the root by walking upward from the current directory — or, where that walk finds nothing and the command names its Release or document by an absolute path, by walking upward from that file's folder instead; see [Configuration](configuration.md#the-other-ways-a-project-root-is-recognised) for what anchors a root, in what order, and which commands name such a file.
 
 `AGGREGA_WORKSPACE_ROOT` is the environment counterpart: when `--workspace-root` is not given, the variable supplies the root. The flag wins when set.
 

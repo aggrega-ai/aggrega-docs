@@ -74,7 +74,12 @@ root is pinned this way, a build is **invocation-location-independent**: running
 byte-identical IR and rendered artifacts, because the catalog searched and the
 source paths recorded in the output do not shift with the working directory. (With
 no `workspace:` marker and no `--workspace-root`, the working directory is the
-root, so output is anchored there instead.)
+root, so output is anchored there instead — unless the working directory anchors
+nothing and `--release` names the Release by an absolute path: the root is then
+discovered again from the Release's own folder, so the catalog searched and the
+paths recorded in the output are those of the project the Release belongs to,
+wherever you run the command from. See
+[configuration.md](configuration.md#the-other-ways-a-project-root-is-recognised).)
 
 ## Environment variables
 
@@ -320,7 +325,7 @@ the rendered tree reviewable as a diff.
 | `--no-unsupported-field-warnings` | `false` | Silence the unsupported-field warning class: the notices a target raises for something you authored that it cannot honor — a Workload field it cannot express (as a lower-fidelity target such as compose does), or an aggrega.ai/ annotation it does not act on for the node's input kind. Other render warnings still surface. Display-only; does not change the rendered output |
 | `--progress` | `false` | Force the build-progress surface on even when stderr is not a terminal, printing one plain line per step as it completes, with its time. The default is auto: the interactive phase checklist is shown only when stderr is a terminal that interprets escape sequences, a terminal that does not gets the same plain lines, and redirected or piped output gets none. --quiet and --debug both override --progress |
 | `--quiet` | `false` | Silence the build-progress surface on stderr. Does not affect stdout. Takes precedence over --progress |
-| `--release` | — | Path to Release YAML file (required). A relative path resolves against the directory you run the command in, not against the workspace root |
+| `--release` | — | Path to Release YAML file (required). A relative path resolves against the directory you run the command in, not against the workspace root. Where that directory is in no workspace and no root is named, an absolute path finds the workspace from the Release's own folder |
 | `--trace` | `false` | write per-node intermediate files to .trace/ (sibling to dist/) for post-mortem inspection |
 | `--trace-unredacted` | `false` | Write the declared-sensitive values into the .trace/ files instead of the <redacted> text that stands in for them, and stamp every file the trace writes with a header saying so. Requires --trace. It reaches .trace/ and nothing else: rendered artifacts, aggrega inspect output and diagnostic text are identical with and without it. Invocation-only — there is no workspace-config setting for it, so it can never be left on for a later build |
 | `--unredacted` | `false` | Print the values an author declared sensitive instead of withholding them. Anything the output reaches — a terminal, a pipe, a file, a screen recording — then carries those values in the clear. Reaches the graph --ir-graph writes and nothing else, so it requires --ir-graph; the .trace/ files take --trace-unredacted instead |

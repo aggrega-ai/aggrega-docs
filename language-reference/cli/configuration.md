@@ -702,6 +702,20 @@ anchor rank against each other rather than by nearness:
 - **Failing everything, the working directory is used** — commands run and simply resolve nothing,
   rather than refusing to start.
 
+That last fallback has one exception. When nothing named the root and the working directory anchors
+nothing, a command about one Release or one entity document that names that file by an absolute path
+discovers the root again, walking upward from the folder the file sits in, and uses whatever it
+finds: the workspace the file belongs to, or, failing everything, that folder. The file is the one
+`--release` names on `aggrega build` and `aggrega pull`; the Release `aggrega validate`,
+`aggrega lint` and `aggrega inspect` are given, or else the file they are given; and the document
+`aggrega pin`, `aggrega push` and `aggrega edit-document` are given. So a project's Release built from
+outside the project reads the project's own configuration, as it does when the command runs inside
+it, and the configuration warnings the command prints are that workspace's. A relative path is read
+against the directory you run the command in and changes nothing, and a named root, or a working
+directory that is itself inside a workspace, is used as it is. The
+[assistant server](aggrega-mcp.md#which-workspace-a-call-is-answered-in) applies the same rule to a
+call that names its Release or document by an absolute path.
+
 Marking the root with a `workspace:` block is the explicit choice and the one to prefer; the file
 and directory markers let a project that has not declared one still be built.
 
