@@ -1,0 +1,21 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+workspace:
+  catalog_dirs:
+    # The workspace's own catalog first: it declares the claims assistant this
+    # workspace deploys, and the Plugin entities of the two policy engines. Then
+    # the standard-library catalog, which supplies every other Component, the
+    # two Features and their Recipes.
+    - ./catalog
+    - ../../../../aggrega-hub/aggrega-catalog
+# Online default: a standalone consumer without the sibling catalog above
+# resolves catalog entities from the hub registry, and the gateway
+# configuration step the data-masking realization runs is resolved from there.
+default_registry: hub.aggrega.ai
+
+# No governance attachment here. The policy is attached by the file a build
+# names with --config: governance-rego.yaml or governance-cel.yaml, one per
+# engine. That file is read as the global configuration and this one layers on
+# top of it, and a list this file declared would replace the one the named file
+# carries — so this file declares no plugins.governance of its own.

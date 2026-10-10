@@ -1,0 +1,66 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: policy-data-class-route-masked
+  environment: development
+  version: "1.0.0"
+spec:
+  aggregate: policy-data-class-route
+  manifest: policy-data-class-route-manifest
+
+  # Single scope: components are authored directly with no boundaries block, so
+  # they fold into one synthesized boundary and the artifacts land flat under
+  # dist/helm/.
+  components:
+    # The claims assistant's model traffic goes through the masking gateway,
+    # and the helpdesk assistant's through the plain one. The Release binds the
+    # model socket each assistant's Component declares and the Aggregate left
+    # unbound; it can bind it only to a component the Aggregate declared.
+    assistant:
+      infra:
+        # The application image. The catalog packages the agent runtime; the
+        # graph the agent runs is the estate's own code.
+        image: ghcr.io/example/claims-assistant:1.0.0
+      uses:
+        model:
+          llm:
+            target: masking-gateway
+    helpdesk:
+      infra:
+        image: ghcr.io/example/helpdesk-assistant:1.0.0
+      uses:
+        model:
+          llm:
+            target: plain-gateway
+
+    # The credential each gateway presents to the model, attached in the
+    # Aggregate without naming a secret: the Release names it. Under the
+    # Manifest's realization it is the name of a Secret this environment's
+    # namespace already holds.
+    masking-gateway:
+      uses:
+        models:
+          chat:
+            features:
+              credential:
+                infra:
+                  origin: openai-api-key
+    plain-gateway:
+      uses:
+        models:
+          chat:
+            features:
+              credential:
+                infra:
+                  origin: openai-api-key
+
+    # Declared with nothing to configure; each takes its schema defaults. A
+    # component still has to appear here: one left out is placed in no scope and
+    # the build halts.
+    checkpointer: {}
+    gpt: {}
+    analyzer: {}
+    anonymizer: {}

@@ -1,0 +1,57 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: policy-data-class-route-masking-off-route
+  environment: development
+  version: "1.0.0"
+spec:
+  aggregate: policy-data-class-route
+  manifest: policy-data-class-route-manifest
+
+  # Single scope: components are authored directly with no boundaries block, so
+  # they fold into one synthesized boundary and the artifacts land flat under
+  # dist/helm/.
+  components:
+    # The routing of release-masked, swapped: the helpdesk assistant's traffic
+    # goes through the masking gateway and the claims assistant's through the
+    # plain one. The build still carries data masking, on a route the claims
+    # assistant's data does not take, so the policy refuses this Release too.
+    assistant:
+      infra:
+        image: ghcr.io/example/claims-assistant:1.0.0
+      uses:
+        model:
+          llm:
+            target: plain-gateway
+    helpdesk:
+      infra:
+        image: ghcr.io/example/helpdesk-assistant:1.0.0
+      uses:
+        model:
+          llm:
+            target: masking-gateway
+
+    masking-gateway:
+      uses:
+        models:
+          chat:
+            features:
+              credential:
+                infra:
+                  origin: openai-api-key
+    plain-gateway:
+      uses:
+        models:
+          chat:
+            features:
+              credential:
+                infra:
+                  origin: openai-api-key
+
+    checkpointer: {}
+    gpt: {}
+    analyzer: {}
+    anonymizer: {}

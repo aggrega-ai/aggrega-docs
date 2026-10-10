@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: policy-data-class-route-manifest
+  version: "1.0.0"
+  description: >
+    Ops mapping for the Kubernetes target, shared by all three Releases. Every
+    component type and every attached Feature is routed to the
+    standard-library Recipe that implements it on this target.
+spec:
+  mappings:
+    components:
+      type:
+        # The claims assistant extends core/ai-agent/langgraph and inherits its
+        # contract, so the base's Recipe renders it. Recipe selection is by
+        # exact mapping key, so it still needs a line of its own.
+        local/ai-agent/claims-assistant:1.0.0: helm/langgraph:1.0.0
+        core/ai-agent/langgraph:1.0.0: helm/langgraph:1.0.0
+        core/datastore/valkey:1.0.0: helm/valkey:1.0.0
+        # The gateway's routing table is a configuration body, realized on this
+        # target alone, which is why this example is Kubernetes-only.
+        core/gateway/litellm:1.0.0: helm/litellm-gateway:1.0.0
+        core/ai-model/openai:1.0.0: helm/openai:1.0.0
+        core/security/presidio-analyzer:1.0.0: helm/presidio-analyzer:1.0.0
+        core/security/presidio-anonymizer:1.0.0: helm/presidio-anonymizer:1.0.0
+    features:
+      type:
+        # The realization for this gateway writes guardrail entries, one request
+        # policy and one logging setting into the configuration the gateway's
+        # own Recipe renders.
+        core/data-masking:1.0.0: helm/data-masking-litellm:1.0.0
+        # The model's key is a Secret the namespace already holds, which origin
+        # names, so no file carries the key itself.
+        core/referenced-secret:1.0.0: helm/k8s-existing-secret:1.0.0

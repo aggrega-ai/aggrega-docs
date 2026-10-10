@@ -1,0 +1,131 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: policy-data-class-route
+  version: "1.0.0"
+  description: >
+    Two assistants reaching OpenAI's managed API through two in-cluster AI
+    gateways: one with data masking attached, one without. The claims
+    assistant handles restricted data and the helpdesk assistant handles none.
+    Which gateway each assistant's model traffic goes through is left to the
+    Release, so the three Releases of this workspace differ only in that
+    routing, and the policy the workspace attaches refuses the two that let the
+    claims assistant's traffic reach the provider unmasked. The claims
+    assistant is declared in this workspace's own catalog; every other
+    Component, Feature and Recipe ships in the standard-library catalog.
+spec:
+  components:
+    # ── The assistants ──────────────────────────────────────────────────────
+    # Both declare the model socket core/ai-agent/langgraph declares, which
+    # admits a model component or a gateway serving a model API. Neither binds
+    # it here: which gateway an assistant's traffic leaves through is decided
+    # per environment, so each Release wires it, within the socket the
+    # Component declares.
+    #
+    # The claims assistant carries compliance.aggrega.ai/data-class: restricted
+    # from its own Component, local/ai-agent/claims-assistant. An Aggregate
+    # cannot put a label on a component instance, so a class is a property of
+    # the Component an instance is declared as.
+    assistant:
+      type: local/ai-agent/claims-assistant
+      values:
+        graph_entrypoint: claims.graph:graph
+        recursion_limit: 25
+      uses:
+        checkpointer_db:
+          run_state:
+            target: checkpointer
+    # The helpdesk assistant answers questions about the estate's own tools and
+    # handles no customer data, so it is declared as the standard-library agent
+    # and carries no class.
+    helpdesk:
+      type: core/ai-agent/langgraph
+      values:
+        graph_entrypoint: helpdesk.graph:graph
+        recursion_limit: 25
+      uses:
+        checkpointer_db:
+          run_state:
+            target: checkpointer
+
+    # ── Where both assistants keep their run state ──────────────────────────
+    checkpointer:
+      type: core/datastore/valkey
+
+    # ── The masking gateway ─────────────────────────────────────────────────
+    # A gateway serving one alias, chat, from the model wired to its models
+    # socket, with data masking attached: what the attachment lists is replaced
+    # in every request before the request travels on to the model provider.
+    masking-gateway:
+      type: core/gateway/litellm
+      values:
+        model: chat
+      features:
+        # What to mask is listed here, because what counts as sensitive depends
+        # on what the assistants behind this gateway handle: a pattern for the
+        # estate's claim numbers, and two entity types the recognizer finds.
+        # There is no default list, and an attachment listing neither halts the
+        # build.
+        masking:
+          type: core/data-masking
+          values:
+            patterns:
+              - name: claim_number
+                regex: '\bCLM-[0-9]{8}\b'
+            entities: [PERSON, EMAIL_ADDRESS]
+      uses:
+        models:
+          chat:
+            target: gpt
+            features:
+              # The key the gateway presents to the model, held on the
+              # connection it is presented on. The Release names the Secret
+              # holding it.
+              credential:
+                type: core/referenced-secret
+                values:
+                  key: api-key
+        # The entity types are found and replaced by two catalog services the
+        # gateway calls. Both receive the unmasked text.
+        pii_analyzer:
+          recognizer:
+            target: analyzer
+        pii_anonymizer:
+          replacer:
+            target: anonymizer
+
+    # ── The plain gateway ───────────────────────────────────────────────────
+    # The same gateway with nothing attached: requests reach the model provider
+    # exactly as the caller sent them.
+    plain-gateway:
+      type: core/gateway/litellm
+      values:
+        model: chat
+      uses:
+        models:
+          chat:
+            target: gpt
+            features:
+              credential:
+                type: core/referenced-secret
+                values:
+                  key: api-key
+
+    # ── The model ───────────────────────────────────────────────────────────
+    # OpenAI's managed API, reached as an external reference: nothing runs for
+    # it in the cluster. Its Component carries
+    # component.aggrega.ai/hosting: managed, which the policy's settings map to
+    # a data class.
+    gpt:
+      type: core/ai-model/openai
+      values:
+        model: gpt-4o
+
+    # ── The recognizer ──────────────────────────────────────────────────────
+    analyzer:
+      type: core/security/presidio-analyzer
+    anonymizer:
+      type: core/security/presidio-anonymizer

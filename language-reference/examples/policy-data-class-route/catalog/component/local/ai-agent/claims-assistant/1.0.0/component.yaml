@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Component
+metadata:
+  name: local/ai-agent/claims-assistant
+  version: 1.0.0
+  description: >
+    The LangGraph agent this workspace deploys as its claims assistant. It
+    extends core/ai-agent/langgraph and adds one label: the data class of what
+    the assistant handles, which is the estate's statement about how it uses
+    this assistant rather than about LangGraph, and so is carried here and not
+    on the standard-library Component. Its contract — values, infra and provides
+    — is the base's, inherited exactly as the base authored it, so the base's
+    Recipe renders it and it needs no Recipe of its own; consuming it takes one
+    Manifest mapping line.
+  labels:
+    # The operational type and the cognitive category are the base's values,
+    # restated here: every Component document declares
+    # component.aggrega.ai/type, and the category mirrors this entity's
+    # directory segment.
+    component.aggrega.ai/type: worker
+    component.aggrega.ai/category: ai-agent
+    # Added here: the class of the data this assistant holds. The compiler
+    # reads no meaning into the value; it carries the label to the build graph,
+    # where the policy this workspace attaches reads it and decides what the
+    # class means and how it ranks against others.
+    compliance.aggrega.ai/data-class: restricted
+  maintainers:
+    - name: Massimiliano Ferrero
+      email: m.ferrero@cognitio.it
+spec:
+  extends: core/ai-agent/langgraph:1.0.0
+
+  # The three data pillars are the base's, inherited exactly as
+  # core/ai-agent/langgraph authored them. A Component that extends another
+  # writes this marker and authors no pillar content of its own.
+  schema: inherited

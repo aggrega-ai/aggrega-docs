@@ -1,0 +1,56 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: policy-data-class-route-unmasked
+  environment: development
+  version: "1.0.0"
+spec:
+  aggregate: policy-data-class-route
+  manifest: policy-data-class-route-manifest
+
+  # Single scope: components are authored directly with no boundaries block, so
+  # they fold into one synthesized boundary and the artifacts land flat under
+  # dist/helm/.
+  components:
+    # Both assistants' model traffic goes through the plain gateway, so the
+    # claims assistant's requests reach the model provider unmasked and the
+    # masking gateway serves no one. The policy refuses this Release.
+    assistant:
+      infra:
+        image: ghcr.io/example/claims-assistant:1.0.0
+      uses:
+        model:
+          llm:
+            target: plain-gateway
+    helpdesk:
+      infra:
+        image: ghcr.io/example/helpdesk-assistant:1.0.0
+      uses:
+        model:
+          llm:
+            target: plain-gateway
+
+    masking-gateway:
+      uses:
+        models:
+          chat:
+            features:
+              credential:
+                infra:
+                  origin: openai-api-key
+    plain-gateway:
+      uses:
+        models:
+          chat:
+            features:
+              credential:
+                infra:
+                  origin: openai-api-key
+
+    checkpointer: {}
+    gpt: {}
+    analyzer: {}
+    anonymizer: {}

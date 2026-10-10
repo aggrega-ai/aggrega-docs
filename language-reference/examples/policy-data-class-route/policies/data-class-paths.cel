@@ -1,0 +1,123 @@
+// SPDX-License-Identifier: Apache-2.0
+// Copyright 2026 Cognitio S.r.l.
+//
+// A house rule: data of one class does not reach a component of another class
+// along a route of the build graph unless a declassifying Feature is attached on
+// that route, at either end or anywhere between them.
+//
+// This rule is written once per engine this workspace attaches — this file for
+// the CEL engine, data-class-paths.rego for the Rego engine — and the copies are a
+// deliberate near-duplicate. Each is written on its own from the rule above, so a
+// build on which the engines disagree shows the disagreement: the same build
+// halting under one engine and completing under the other is the signal. Neither
+// is generated from the other, and they are not to be merged into one shared
+// implementation, which would make the engines agree by construction and hide the
+// difference this exists to catch.
+//
+// What the rule reads, all of it from the build graph the compiler hands an
+// ir-verdict attachment, and all of its meaning from this attachment's settings:
+//
+//   - The routes the compiler enumerates, input.precalculated_paths, each an
+//     ordered list of components. The rule reads each route from its first
+//     component; the compiler enumerates the routes leaving every component, so a
+//     pair met partway along one route is also met at the start of another.
+//   - Each component's class: the value of the label the class_label setting
+//     names, or, for a component without that label, the class of the first
+//     classes_by_label entry whose label and value the component carries. A
+//     component with neither carries no class and the rule passes over it.
+//   - Each component's attachments, input.graph.spec.feature_values_mapping. A
+//     route's own attached_features list is not read: it names every Feature
+//     attached anywhere on the route, so it cannot say whether one sits between
+//     the two components in question.
+//
+// The compiler ranks nothing and reads no meaning into a class: the classes and
+// their ranking are the rank setting's, so an estate states its own. The
+// direction a route is drawn in is not read either, because a connection carries
+// a request one way and its reply the other.
+//
+// The compiler bounds how many routes it lists from one component, and lists
+// nothing past the bound, so on a graph with more routes than that a route can
+// go unread.
+//
+// How this engine is made to say it. The CEL this engine evaluates offers no way
+// to bind a name to a value and no way to walk a list's positions, so:
+//
+//   - [value].map(name, ...)[0] binds a name: a one-item list, mapped once.
+//   - The positions setting lists the positions 0, 1, 2 … in ascending order, and a
+//     route's components are read at those positions. A route longer than the list
+//     halts the build, naming where it starts, rather than being read in part.
+//   - A route's messages cannot be joined into one list per route, so each route
+//     contributes one record, and a record repeating an earlier route's start and
+//     first offender is dropped by comparing route identifiers.
+[
+  // Every component, read once: its class and whether it carries a declassifying
+  // Feature, an attachment of a type the declassifying_features setting lists,
+  // with or without a version.
+  input.graph.spec.nodes
+    .map(id, {
+      "id": id,
+      "classed": input.settings.class_label in input.graph.spec.nodes[id].labels
+        || input.settings.classes_by_label.exists(e,
+             e.label in input.graph.spec.nodes[id].labels
+             && input.graph.spec.nodes[id].labels[e.label] == e.value),
+      "class": input.settings.class_label in input.graph.spec.nodes[id].labels
+        ? input.graph.spec.nodes[id].labels[input.settings.class_label]
+        : input.settings.classes_by_label.exists(e,
+              e.label in input.graph.spec.nodes[id].labels
+              && input.graph.spec.nodes[id].labels[e.label] == e.value)
+          ? input.settings.classes_by_label.filter(e,
+                e.label in input.graph.spec.nodes[id].labels
+                && input.graph.spec.nodes[id].labels[e.label] == e.value)[0].class
+          : "",
+      "declassifies": id in input.graph.spec.feature_values_mapping
+        && input.graph.spec.feature_values_mapping[id].exists(a,
+             input.settings.declassifying_features.exists(f,
+               input.graph.spec.feature_values_mapping[id][a].type == f
+               || input.graph.spec.feature_values_mapping[id][a].type.startsWith(f + ":"))),
+    })
+    .map(n, {
+      "id": n.id,
+      "classed": n.classed,
+      "class": n.class,
+      "ranked": n.classed && n.class in input.settings.rank,
+      "declassifies": n.declassifies,
+    })
+].map(nodes, {
+  "deny":
+    // A class the rank setting does not list halts the build rather than reading
+    // as no class at all, so a misspelled class is reported instead of passing.
+    nodes
+      .filter(n, n.classed && !n.ranked)
+      .map(n, n.id + " carries the data class \"" + n.class
+              + "\", which the policy's rank setting does not list; correct the class or rank it")
+    // A route longer than the positions setting lists.
+    + input.precalculated_paths
+      .filter(p, size(p.nodes) > size(input.settings.positions))
+      .map(p, "a route from " + p.nodes[0] + " passes " + string(size(p.nodes))
+              + " components, more than the positions setting lists; extend positions so the policy reads every route whole")
+    // The routes. Position j of a route is an offender when the component there
+    // carries a class ranked differently from the class of the route's first
+    // component, and no component from the first to it, both included, carries a
+    // declassifying Feature. The first offender along a route is the one reported.
+    + [
+        input.precalculated_paths
+          .map(p, {
+            "id": p.path_id,
+            "nodes": p.nodes,
+            "offenders": input.settings.positions.filter(j,
+              j > 0 && j < size(p.nodes)
+              && nodes.filter(n, n.id == p.nodes[0])[0].ranked
+              && nodes.filter(n, n.id == p.nodes[j])[0].ranked
+              && input.settings.rank[nodes.filter(n, n.id == p.nodes[0])[0].class]
+                 != input.settings.rank[nodes.filter(n, n.id == p.nodes[j])[0].class]
+              && !input.settings.positions.exists(k,
+                   k <= j && nodes.filter(n, n.id == p.nodes[k])[0].declassifies)),
+          })
+          .filter(r, size(r.offenders) > 0)
+          .map(r, {"id": r.id, "start": r.nodes[0], "reached": r.nodes[r.offenders[0]]})
+      ].map(found, found
+          .filter(r, !found.exists(s, s.id < r.id && s.start == r.start && s.reached == r.reached))
+          .map(r, r.start + " (" + nodes.filter(n, n.id == r.start)[0].class + ") reaches "
+                  + r.reached + " (" + nodes.filter(n, n.id == r.reached)[0].class
+                  + ") with no declassifying Feature attached between them"))[0],
+})[0]
