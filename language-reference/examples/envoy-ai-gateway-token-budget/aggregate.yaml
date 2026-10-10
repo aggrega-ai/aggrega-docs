@@ -1,0 +1,124 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: envoy-ai-gateway-token-budget
+  version: "1.0.0"
+  description: >
+    Envoy Gateway serving OpenAI's managed model through Envoy AI Gateway, with
+    everything it serves held to a budget of tokens per calendar month, and an
+    agent reaching the model through the gateway. This file, the Manifest and
+    the Release are the whole of what anyone authors here: every Component,
+    Feature and Recipe named below ships in the standard-library catalog.
+spec:
+  # ── Parameter hoisting ──────────────────────────────────────────────────
+  # The names of the two Secrets this workspace references and never renders.
+  # Each is read by every attachment presenting that credential, so the ends
+  # cannot name two different Secrets; the Release fulfils both.
+  parameters:
+    openai_key_secret:
+      type: string
+      description: >
+        Name of the Secret holding the key the gateway presents to OpenAI's
+        API, under the data key apiKey, in the gateway's namespace.
+    counter_store_password_secret:
+      type: string
+      description: >
+        Name of the Secret holding the password of the store the gateway keeps
+        its budget's count in, under the data key password, in the namespace
+        the store and the gateway share.
+  components:
+    # ── The certificate controller ──────────────────────────────────────────
+    # The AI gateway controller's webhook serves a certificate cert-manager
+    # issues, so cert-manager is declared here beside it.
+    certs:
+      type: core/security/cert-manager
+
+    # ── The AI gateway controller ───────────────────────────────────────────
+    # Envoy AI Gateway's control plane: the controller Envoy Gateway calls as
+    # its extension server, the webhook adding the AI external processor to
+    # the gateway's data plane, and the six AI Gateway resource definitions.
+    ai-controller:
+      type: core/gateway/envoy-ai-gateway-operator
+
+    # ── The gateway ─────────────────────────────────────────────────────────
+    # Envoy Gateway, calling the controller on its extension socket and serving
+    # the model wired to its models socket under the alias `assistant`, which
+    # values.model publishes as its model.
+    edge:
+      type: core/gateway/envoy-gateway
+      values:
+        model: assistant
+      features:
+        # The period budget. What is counted and whose traffic one limit covers
+        # are part of what the application is, so they are written here; how
+        # much may be spent over how long is the Release's.
+        budget:
+          type: core/period-budget
+          values:
+            scope: gateway
+            unit: total_tokens
+      uses:
+        extension:
+          controller:
+            target: ai-controller
+        # The model the gateway serves. The connection holds the key the
+        # gateway presents to OpenAI, so no caller holds it.
+        models:
+          assistant:
+            target: chat
+            features:
+              credential:
+                type: core/referenced-secret
+                values:
+                  key: apiKey
+                  origin: "{{ .parameters.openai_key_secret }}"
+        # The store the gateway's rate-limit service keeps the budget's count
+        # in, with the password it presents to that store.
+        cache:
+          counters:
+            target: counters
+            features:
+              credential:
+                type: core/referenced-secret
+                values:
+                  key: password
+                  origin: "{{ .parameters.counter_store_password_secret }}"
+
+    # ── The model ───────────────────────────────────────────────────────────
+    # OpenAI's managed chat API, reached as an external reference: nothing runs
+    # for it in the cluster.
+    chat:
+      type: core/ai-model/openai
+      values:
+        model: gpt-4o-mini
+
+    # ── The budget's store ──────────────────────────────────────────────────
+    # A Redis holding the count. Its own password slot and the gateway's cache
+    # connection read one parameter, so the store and its client hold one
+    # password.
+    counters:
+      type: core/datastore/redis
+      features:
+        password:
+          type: core/referenced-secret
+          values:
+            key: password
+            origin: "{{ .parameters.counter_store_password_secret }}"
+
+    # ── The agent ───────────────────────────────────────────────────────────
+    # A CrewAI agent wired to the gateway over its model socket: it reads the
+    # gateway's endpoint and the alias it publishes, the same keys a model
+    # publishes, and every request it sends counts against the budget.
+    assistant:
+      type: core/ai-agent/crewai
+      values:
+        role: support assistant
+        goal: answer questions about the product
+        backstory: a help-desk agent answering customers
+      uses:
+        model:
+          llm:
+            target: edge

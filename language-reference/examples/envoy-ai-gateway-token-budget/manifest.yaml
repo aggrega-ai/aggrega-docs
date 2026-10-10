@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: envoy-ai-gateway-token-budget-manifest
+  version: "1.0.0"
+  description: >
+    Ops mapping for the Kubernetes target. Every component type and every
+    attached Feature is routed to the standard-library Recipe that implements it
+    on this target.
+spec:
+  mappings:
+    components:
+      type:
+        core/security/cert-manager:1.0.0: helm/cert-manager:1.0.0
+        core/gateway/envoy-ai-gateway-operator:1.0.0: helm/envoy-ai-gateway-operator:1.0.0
+        # The gateway's Recipe renders the AI route, the model's backend and,
+        # with a budget attached, the budget itself.
+        core/gateway/envoy-gateway:1.0.0: helm/envoy-gateway:1.0.0
+        core/ai-model/openai:1.0.0: helm/openai:1.0.0
+        core/datastore/redis:1.0.0: helm/redis:1.0.0
+        core/ai-agent/crewai:1.0.0: helm/crewai:1.0.0
+    features:
+      type:
+        # The gateway's Recipe writes the budget onto the model route; this
+        # realization checks what the gateway can keep of it.
+        core/period-budget:1.0.0: helm/period-budget-envoy-gateway:1.0.0
+        # Points each credential at a Secret that already exists in the
+        # namespace of the workload reading it, and renders none.
+        core/referenced-secret:1.0.0: helm/k8s-existing-secret:1.0.0

@@ -157,6 +157,15 @@ developer surface and the String Pipe with zero platform authoring.
   gateway reads its routes from a file rendered with it, so it takes no etcd and
   no Admin API key. The README shows the budget written into the routes file and
   the build refusing a semantic cache this gateway cannot keep apart by caller.
+- **[envoy-ai-gateway-token-budget](envoy-ai-gateway-token-budget/)** — Envoy
+  Gateway in front of OpenAI's managed model through Envoy AI Gateway, with a
+  token budget per calendar month on everything it serves and an agent reaching
+  the model through the gateway, compiled to Kubernetes with the AI gateway's
+  controller and the cert-manager its webhook certificate needs. The budget is
+  Envoy Gateway's own rate limit on the model route, counted in a Redis wired to
+  the gateway. The README shows the token cost and the traffic policy as
+  rendered, the calendar-month setting the budget turns on for the whole
+  install, and the build refusing a budget in US dollars.
 
 ## Authoring
 

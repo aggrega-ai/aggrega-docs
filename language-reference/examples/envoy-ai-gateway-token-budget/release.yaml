@@ -1,0 +1,59 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: envoy-ai-gateway-token-budget-dev
+  environment: development
+  version: "1.0.0"
+spec:
+  aggregate: envoy-ai-gateway-token-budget
+  manifest: envoy-ai-gateway-token-budget-manifest
+
+  # The parameters the Aggregate declared, fulfilled for this environment: the
+  # names of two Secrets whoever deploys creates, since the Manifest renders
+  # none.
+  parameters:
+    openai_key_secret: openai-api-key
+    counter_store_password_secret: counter-store-password
+
+  # Single scope: components are authored directly with no boundaries block, so
+  # they fold into one synthesized boundary and the artifacts land flat under
+  # dist/helm/. Each component's namespace is declared on its entry.
+  components:
+    certs:
+      annotations:
+        aggrega.ai/namespace: cert-manager
+    ai-controller:
+      annotations:
+        aggrega.ai/namespace: envoy-ai-gateway-system
+    # The AI gateway controller looks for the gateway's control plane in
+    # envoy-gateway-system, and the build halts with the gateway placed
+    # anywhere else.
+    edge:
+      annotations:
+        aggrega.ai/namespace: envoy-gateway-system
+      features:
+        # The budget's size, decided per environment: twenty million tokens a
+        # calendar month across everything the gateway serves.
+        budget:
+          infra:
+            limit: 20000000
+            period: 1mo
+    # Beside the gateway, so the store and the rate-limit service read their
+    # one password from one Secret.
+    counters:
+      annotations:
+        aggrega.ai/namespace: envoy-gateway-system
+    # Declared with nothing to configure, so it takes its schema defaults: its
+    # endpoint, OpenAI's own API. A component still has to appear here: one
+    # left out is placed in no scope and the build halts.
+    chat: {}
+    assistant:
+      annotations:
+        aggrega.ai/namespace: assistant
+      infra:
+        # The application image. The catalog packages the agent runtime; the
+        # crew the agent runs is your own code.
+        image: registry.example/crew-assistant:1.0.0
