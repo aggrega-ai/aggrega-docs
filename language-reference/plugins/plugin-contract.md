@@ -340,6 +340,8 @@ The `linter.wasm` socket ships as the standard **publishing-linter**, an out-of-
 
 The linter is opt-in catalog discipline: the compiler does not run it during `aggrega build` (with the single exception of the `x-aggrega-*` discouragement advisory, which surfaces at `warn` severity during build and at `halt` severity under `aggrega lint --pre-publish`). Because the rules live in a plugin, an enterprise can point `aggrega lint` at a different linter plugin to enforce its own discipline.
 
+No parameter value reaches a linter plugin, at any scope `aggrega lint` runs. Before any document is handed over, the host withholds an Aggregate's parameter defaults, the values it passes to each module it imports, and a Release's parameters, keeping each parameter declaration's contract — only the keys a declaration is written with, at every level it nests — and any template text that reads a parameter: a parameter's value can be a credential itself, and the plugin attached here may be code the workspace did not write. What each document carries is set out under [What a linter plugin is handed](../cli/aggrega-lint.md#what-a-linter-plugin-is-handed).
+
 **Status today:** **available**. The publishing-linter ships and runs through the host via `aggrega lint`.
 
 ## Placement criterion: the linter socket vs the governance verdict roles

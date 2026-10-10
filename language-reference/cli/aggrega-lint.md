@@ -35,7 +35,7 @@ A link beneath a catalog directory that leads out of the workspace — or out of
 
 `aggrega lint --release <release-path>` runs the same structural rules over the catalog entity files a single Release's resolved closure reaches, rather than the whole catalog or one entity. It computes the closure through the same machinery a build uses, then lints each entity's author-owned catalog file. A registry-pinned entity living in a cache slot carries no local file to lint and is skipped — the publishing rules apply to locally-authored files. As with the whole-catalog mode, findings are advisory and never halt on a convention finding alone.
 
-This is also the one scope with a whole Release in hand, so it is where the rules that read one run — the connection-credential rule described under [The discipline rules](#the-discipline-rules). Such a rule runs once per check, after the per-entity rules, over three documents: the Aggregate the Release deploys, as its author wrote it; the Release, with its `extends` chain folded in, so a child Release carries what it inherits; and, for each component the Aggregate declares, the Component that component is an instance of, as the catalog resolves it. **No parameter value is among them.** The Release's `parameters` block, the Aggregate's own parameter declarations with their defaults, and the values the Aggregate passes to each module it imports are removed before the documents are handed to the plugin, because a parameter's value can be a credential itself; a template that reads a parameter keeps its text, so a rule still sees which parameter a value reads. Its findings are reported under the Release file.
+This is also the one scope with a whole Release in hand, so it is where the rules that read one run — the connection-credential rule described under [The discipline rules](#the-discipline-rules). Such a rule runs once per check, after the per-entity rules, over three documents: the Aggregate the Release deploys, as its author wrote it; the Release, with its `extends` chain folded in, so a child Release carries what it inherits; and, for each component the Aggregate declares, the Component that component is an instance of, as the catalog resolves it. **No parameter value is among them**, as at every scope: the Release arrives without its `parameters` block, including the values it inherits from a base, and the Aggregate without its defaults or the values it passes to each module it imports — see [What a linter plugin is handed](#what-a-linter-plugin-is-handed). Its findings are reported under the Release file.
 
 This is the conventions counterpart to [`aggrega validate --release`](./aggrega-validate.md), which checks the same closure for correctness.
 
@@ -56,7 +56,7 @@ In `--pre-publish` mode the change is compared against the previous published ve
 - **`MINOR`** — strictly additive changes (a new optional field, a new entry).
 - **`MAJOR`** — removals, type narrowing, or a previously-optional field becoming required.
 
-The comparison is per entity kind: Component, Feature, and SchemaLibrary are compared with awareness of their schema-bearing fields; MappingLibrary is compared at the entry-key level (entry bodies are opaque, so a changed body is treated conservatively as `MAJOR`); Recipe and FeatureRecipe are compared on their load-bearing fields. Under-bumping halts with a diagnostic naming the required bump.
+The comparison is per entity kind: Component, Feature, and SchemaLibrary are compared with awareness of their schema-bearing fields; MappingLibrary is compared at the entry-key level (entry bodies are opaque, so a changed body is treated conservatively as `MAJOR`); Recipe and FeatureRecipe are compared on their load-bearing fields. An Aggregate is compared on its parameter declarations, its components and its subsystems; a parameter's default reaches the comparison no more than any other parameter value does (see [What a linter plugin is handed](#what-a-linter-plugin-is-handed)), so a change confined to a default — adding, changing or removing one — is not part of it, and neither is a change to a key outside the parameter slot vocabulary. Under-bumping halts with a diagnostic naming the required bump.
 
 ## The discipline rules
 
@@ -85,7 +85,7 @@ The `x-aggrega-*` discouragement rule also runs during `aggrega build`, where it
 
 ## While you are authoring, in your editor
 
-Your editor asks two different questions about a catalog entity, and they are the two this page opens with. Is the deployment **correct** — does it parse, do the pillars resolve, does it render? That is [`aggrega validate`](./aggrega-validate.md), and an editor session always answers it. Is the entity **publishable** — does the name follow the convention, does the file sit in the directory its category expects, are the annotation prefixes right? That is these rules, and an editor session answers it only when you ask.
+Your editor asks two different questions about a catalog entity, and they are the two this page opens with. Is the entity **correct** — does it parse, do the pillars resolve, does it render? That is [`aggrega validate`](./aggrega-validate.md), and an editor session always answers it. Is the entity **publishable** — does the name follow the convention, does the file sit in the directory its category expects, are the annotation prefixes right? That is these rules, and an editor session answers it only when you ask.
 
 **It is off unless you turn it on.** Turn it on with `serve.lint_on_validate` in the `.aggrega-config.yaml` of the workspace whose entities you want the advice about:
 
@@ -113,6 +113,17 @@ The protocol details sit across two pages: what the request means and when to se
 The rules ship as a standard publishing-linter Wasm plugin. Because the rules live in a plugin rather than in the compiler, an enterprise can point `aggrega lint` at a different plugin to enforce its own catalog discipline without changing the compiler.
 
 A workspace may attach more than one linter under `plugins.linter`, and every attachment runs: in the order the attachments are written, each at its own entry function, with all of their findings reported together. That is what lets a catalog keep the standard rules and add its own alongside them instead of choosing between the two. `--plugin` is the exception — it runs exactly one artifact from a filesystem path in place of the configured attachments, which is what makes it useful while developing a rule.
+
+## What a linter plugin is handed
+
+No parameter value reaches a linter plugin, at any scope. A parameter's value can be a credential itself — a secret attachment's `origin` may be a template reading a parameter the Release fulfils, and the secret is then that parameter's value — and the plugin a workspace attaches may be one it did not write, so every document is handed over with its parameter values withheld:
+
+- **An Aggregate** keeps each parameter declaration, holding only the keys a declaration is written with — the [parameter slot vocabulary](../entities/aggregate.md#parameter-slot-vocabulary): its type, description and constraints — and every declaration nested under its `properties`, `items` and `valuesType` is held to the same. The declaration's `default` is withheld at every level, by removing the key rather than emptying it, so a plugin cannot tell whether a declaration gives one. A key outside that vocabulary is withheld with whatever it holds, at every level: the build gives such a key no meaning, and a draft that misspells a key can carry a secret under it. An entry under `parameters` that is not a declaration is withheld whole.
+- **Each module** listed under an Aggregate's `aggregates` loses its `parameters` block, which holds the values passed to that module.
+- **A Release** loses its `parameters` block, whether it writes the values inline or imports them with `$import`.
+- **Any other document** that carries a `parameters` block under `spec` loses it whole; no other kind declares one.
+
+This holds for the entity named on the command line, for the published version `--pre-publish` compares it against, for every entity the whole-catalog and `--release` passes walk, and for the documents a rule reading a whole Release receives. A template that reads a parameter is not a value and keeps its text, so a rule still sees which parameter an authored value reads.
 
 ## Examples
 
