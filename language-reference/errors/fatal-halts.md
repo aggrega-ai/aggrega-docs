@@ -1775,18 +1775,52 @@ An artifact whose signature was verified when it was fetched carries that fact f
 
 **The re-check is a hash comparison and nothing more.** It re-verifies no signature, contacts no network and consults no trust material, so it holds in a build with no network access at all — which is what lets a verified-once artifact stay verified across later offline builds.
 
-Emitted messages, naming the artifact and the cached file. From the build's check, unreadable or absent:
-> artifact `"<reference>"`: cached signature bundle `<path>` is unreadable: cached signature bundle does not match its recorded digest
+**The next pull repairs it.** A pull holds every entry the content cache served to the same check, and where the check refuses an entry it asks the artifact's registry about the signature again — whatever the signing requirement says, through the same verification an artifact it fetches gets — records what that verifies on the entry, and caches the bundle it names, rewriting a cached copy that no longer matches its digest. A plugin attached at a verdict role is verified again on every pull whatever its entry records, and its bundle is cached the same way. So the message for an entry the content cache served names that pull. An entry read from a catalog directory, from the copy inside the compiler binary or from beside the Release is never asked about at a registry, so a pull leaves a signature recorded on it as it is, and its message names no pull.
+
+Emitted messages, naming the artifact, the cached file and — for an entry the content cache served — the pull that repairs it, the file it records the signature in and the Release it pulls. From the build's check, unreadable or absent:
+> artifact `"<reference>"`: cached signature bundle `<path>` is unreadable: cached signature bundle does not match its recorded digest. remediation: run `aggrega pull --release <release>` to verify the artifact's signature at its registry again, record it in `<file>` and cache the bundle it names
 
 and drifted:
-> artifact `"<reference>"`: cached signature bundle `<path>` has digest `<actual>`, recorded digest is `<recorded>`: cached signature bundle does not match its recorded digest
+> artifact `"<reference>"`: cached signature bundle `<path>` has digest `<actual>`, recorded digest is `<recorded>`: cached signature bundle does not match its recorded digest. remediation: run `aggrega pull --release <release>` to verify the artifact's signature at its registry again, record it in `<file>` and cache the bundle it names
+
+and, where a plugin's bytes are loaded from the content cache, naming where they came from as well:
+> plugin `"<reference>"` resolved from `<source>`: cached signature bundle `<path>` is unreadable: cached signature bundle does not match its recorded digest. remediation: run `aggrega pull --release <release>` to verify the artifact's signature at its registry again, record it in `<file>` and cache the bundle it names
+
+> plugin `"<reference>"` resolved from `<source>`: cached signature bundle `<path>` has digest `<actual>`, recorded digest is `<recorded>`: cached signature bundle does not match its recorded digest. remediation: run `aggrega pull --release <release>` to verify the artifact's signature at its registry again, record it in `<file>` and cache the bundle it names
+
+`<file>` is the Release's lockfile, or `plugins-trust.yaml` in the Release's directory. For an entry no pull asks about, the message ends before `remediation:`.
+
+**A pull that has no registry to ask stops instead.** A catalog entity or a library is named without a registry and is bound to one through the workspace's `default_registry`. Where the workspace names none — it did when the signature was recorded, and no longer does — no registry is configured to ask about the entry again, so the pull stops with this condition rather than write a lockfile the next build refuses, and leaves the lockfile as it was. Its message carries, after the step the pull was taking:
+> verify: `"<reference>"` records a signature a build does not accept, and no registry is configured to ask about it again: cached signature bundle `<path>` is unreadable: cached signature bundle does not match its recorded digest
+
+**How to fix:** nothing in your entity files causes this — the cache is the build's, not yours. Run `aggrega pull --release <release>`, the command the message names: it verifies the artifact's signature again and writes the signature and its bundle together, which repairs a bundle removed or altered since the pull that cached it. Under the offline posture that pull stops with the offline refusal, because repairing means asking the registry; allowing the network for that one run repairs it. Where the pull stops saying no registry is configured to ask about the entry, set `default_registry` to the registry the artifact was pulled from, and pull again. Where the workspace skips signature verification for the artifact, the pull records no signature on the entry instead, which the build admits under that same setting. Where the signature the registry serves does not verify, the pull stops with that verification's own refusal: the recorded signature and the material the publisher serves genuinely disagree, and that is a question for whoever publishes the artifact. For an entry whose message names no pull — one read from a catalog directory, from the copy inside the compiler binary or from beside the Release — remove the `signature` from its entry: such an entry is never held to a signing requirement, so the build then goes ahead.
+
+### A recorded signature was made for a different artifact
+
+<!-- covers: pkg/oci.ErrSignatureForAnotherArtifact -->
+
+A signature says which artifact it was made for. When a pull verifies an artifact's signature it records the fact on the artifact's lockfile entry — or, for a plugin attached at a verdict role, on its entry in `plugins-trust.yaml` — and caches the signature it verified. Before anything renders, the build reads, from the cached signature of every entry the content cache served, which artifact it was made for, and that has to be the artifact the build itself read for the entry: the one whose manifest is held beside its bytes in the content cache, never anything the entry records. A signature made for a different artifact stops the build. It is what a `signature` copied from one entry onto another looks like: the cached signature it names is intact — it still matches the digest recorded for it — and it was made for the other entry's artifact.
+
+**It does not depend on a signing requirement.** A recorded signature is held to what it claims whether or not one is required, as the check that the cached signature matches its recorded digest is.
+
+**A plugin is held the same way wherever it is loaded.** A plugin the lockfile pins, and a plugin attached at a verdict role, has its recorded signature held to the artifact its bytes were read as when those bytes are loaded from the content cache, which reaches the commands that load a plugin outside a build — `aggrega lint --release` and `aggrega validate --release` among them, and the same operations reached through `aggrega serve` and `aggrega mcp`.
+
+**What the check reads, and what it cannot tell.** It reads the cached signature and the manifest beside the artifact, and compares hashes: it verifies no signature, contacts no network and consults no trust material, so it holds in a build with no network access at all. An entry read from a catalog directory, from the copy inside the compiler binary or from beside the Release comes with no manifest, so its recorded signature is held only to its recorded digest; so is a signature in a form the toolchain's own signers do not write. And because no signature is verified, a signature written into the cache by hand, made out for the entry's own artifact, is not told apart from one a pull verified.
+
+**The next pull repairs it.** A pull holds every entry the content cache served to the same check, and where the check refuses an entry it asks the artifact's registry about the signature again — whatever the signing requirement says — and records what that verifies on the entry in place of the copied signature. A plugin attached at a verdict role is verified again on every pull whatever its entry records. Only an entry the content cache served is held to which artifact its signature was made for, so every refusal of this condition by a build or a plugin load names that pull.
+
+Emitted messages, naming the entry, the file that records the signature, the cached signature, the manifest the build read for the entry, and the pull that repairs it. From the build's check:
+> artifact `"<reference>"`: signing: the recorded signature was made for a different artifact (`<file>` records it, cached signature bundle `<path>`, the artifact read has manifest `<manifest-digest>`). remediation: run `aggrega pull --release <release>` to verify the artifact's signature at its registry again, record it in `<file>` and cache the bundle it names
 
 and, where a plugin's bytes are loaded, naming where they came from as well:
-> plugin `"<reference>"` resolved from `<source>`: cached signature bundle `<path>` is unreadable: cached signature bundle does not match its recorded digest
+> plugin `"<reference>"` resolved from `<source>`: signing: the recorded signature was made for a different artifact (`<file>` records it, cached signature bundle `<path>`, the artifact read has manifest `<manifest-digest>`). remediation: run `aggrega pull --release <release>` to verify the artifact's signature at its registry again, record it in `<file>` and cache the bundle it names
 
-> plugin `"<reference>"` resolved from `<source>`: cached signature bundle `<path>` has digest `<actual>`, recorded digest is `<recorded>`: cached signature bundle does not match its recorded digest
+`<file>` is the Release's lockfile, or `plugins-trust.yaml` in the Release's directory.
 
-**How to fix:** nothing in your entity files causes this — the cache is the build's, not yours. Re-fetch the artifact so the bundle and its record are written together again. Where re-fetching restores it, the cached copy had been removed or altered since the fetch that recorded it; where the mismatch survives a re-fetch, the recorded digest and the material the publisher serves genuinely disagree, and that is a question for whoever publishes the artifact.
+**A pull that has no registry to ask stops instead**, as it does for a cached signature bundle that no longer matches its digest: where a catalog entity or a library carries a copied signature and the workspace no longer names a `default_registry` to bind it to, the pull stops with this condition and leaves the lockfile as it was. Its message carries, after the step the pull was taking:
+> verify: `"<reference>"` records a signature a build does not accept, and no registry is configured to ask about it again: signing: the recorded signature was made for a different artifact (cached signature bundle `<path>`, the artifact read has manifest `<manifest-digest>`)
+
+**How to fix:** nothing in your entity files causes this — the signature the entry records belongs to another artifact. Run `aggrega pull --release <release>`, the command the message names: it verifies the entry's own signature at its registry and records it in place of the copied one, for a lockfile entry and for a plugin attached at a verdict role alike. Restoring the entry's own recorded signature from version control, where the file is committed, works too. Under the offline posture the pull stops with the offline refusal, because repairing means asking the registry; allowing the network for that one run repairs it. Where the pull stops saying no registry is configured to ask about the entry, set `default_registry` to the registry the artifact was pulled from, and pull again. Where the workspace skips signature verification for the artifact, the pull records no signature on the entry instead, which the build admits under that same setting.
 
 ### No verified signature is recorded for an artifact that requires one
 
@@ -5587,6 +5621,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0329` | `a connection and the target it reaches do not name one key: they write different locators for it, or only one of them names one` | A connection and the target it reaches do not name one key |
 | `E0330` | `signing: the references named together need different signing credentials, so nothing was signed` | References signed together need different signing credentials |
 | `E0331` | `signing: no verified signature is recorded for an artifact that requires one` | No verified signature is recorded for an artifact that requires one |
+| `E0332` | `signing: the recorded signature was made for a different artifact` | A recorded signature was made for a different artifact |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

@@ -194,6 +194,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrPublishedArtifactNotAnEntity()` | `published-artifact-not-an-entity` | `oci: published artifact is not an entity document` |
 | `ErrReferrerDiscoveryUnavailable()` | `referrer-discovery-unavailable` | `oci: referrer discovery could not be completed` |
 | `ErrSignatureBundleDigestMismatch()` | `signature-bundle-digest-mismatch` | `cached signature bundle does not match its recorded digest` |
+| `ErrSignatureForAnotherArtifact()` | `signature-for-another-artifact` | `signing: the recorded signature was made for a different artifact` |
 | `ErrUnknownEntityKind()` | `unknown-entity-kind` | `oci: unknown entity kind for mediatype dispatch` |
 
 ### pkg/pluginpath
@@ -783,6 +784,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0329` | `connection-credential-matches-target-key` | `a connection and the target it reaches do not name one key: they write different locators for it, or only one of them names one` |
 | `E0330` | `mixed-signing-credentials` | `signing: the references named together need different signing credentials, so nothing was signed` |
 | `E0331` | `signature-not-recorded` | `signing: no verified signature is recorded for an artifact that requires one` |
+| `E0332` | `signature-for-another-artifact` | `signing: the recorded signature was made for a different artifact` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication no longer judges a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.
