@@ -172,6 +172,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | --- | --- | --- |
 | `ErrLockfileDrift()` | `lockfile-drift` | `lockfile: out of date; it no longer matches what its Release resolves to` |
 | `ErrLockfileInvalid()` | `lockfile-invalid` | `lockfile: file failed schema validation` |
+| `ErrSignatureNotRecorded()` | `signature-not-recorded` | `signing: the lockfile records no verified signature for an artifact that requires one` |
 
 ### pkg/oci
 
@@ -192,6 +193,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrOCILocationCollision()` | `oci-location-collision` | `oci: distinct catalog identities map to the same OCI repository location` |
 | `ErrPublishedArtifactNotAnEntity()` | `published-artifact-not-an-entity` | `oci: published artifact is not an entity document` |
 | `ErrReferrerDiscoveryUnavailable()` | `referrer-discovery-unavailable` | `oci: referrer discovery could not be completed` |
+| `ErrSignatureBundleDigestMismatch()` | `signature-bundle-digest-mismatch` | `cached signature bundle does not match its recorded digest` |
 | `ErrUnknownEntityKind()` | `unknown-entity-kind` | `oci: unknown entity kind for mediatype dispatch` |
 
 ### pkg/pluginpath
@@ -199,7 +201,6 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | Sentinel | Code | Message |
 | --- | --- | --- |
 | `ErrPluginArtifactNotFound()` | `plugin-artifact-not-found` | `plugin artifact not found on this machine` |
-| `ErrPluginBundleDigestMismatch()` | `plugin-bundle-digest-mismatch` | `cached signature bundle does not match its recorded digest` |
 | `ErrPluginEntityNotFound()` | `plugin-entity-not-found` | `plugin reference is not a Plugin entity` |
 
 ### pkg/pluginstrust
@@ -617,7 +618,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0141` | `oci-location-collision` | `oci: distinct catalog identities map to the same OCI repository location` |
 | `E0142` | `referrer-discovery-unavailable` | `oci: referrer discovery could not be completed` |
 | `E0143` | `unknown-entity-kind` | `oci: unknown entity kind for mediatype dispatch` |
-| `E0144` | `plugin-bundle-digest-mismatch` | `cached signature bundle does not match its recorded digest` |
+| `E0144` | `signature-bundle-digest-mismatch` | `cached signature bundle does not match its recorded digest` |
 | `E0145` | `plugin-entity-not-found` | `plugin reference is not a Plugin entity` |
 | `E0146` | `reference-cycle` | `circular reference expansion` |
 | `E0147` | `malformed-trust-policy` | `registrytrust: advertised trust config is malformed` |
@@ -781,6 +782,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0328` | `misnamed-slot-fill` | `attachment written under a name no slot declares fits a slot its component leaves empty` |
 | `E0329` | `connection-credential-matches-target-key` | `a connection and the target it reaches do not name one key: they write different locators for it, or only one of them names one` |
 | `E0330` | `mixed-signing-credentials` | `signing: the references named together need different signing credentials, so nothing was signed` |
+| `E0331` | `signature-not-recorded` | `signing: the lockfile records no verified signature for an artifact that requires one` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication no longer judges a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.

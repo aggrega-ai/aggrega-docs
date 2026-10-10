@@ -1758,19 +1758,41 @@ and any other reference naming no entity — one without a plugin-type scope, wi
 
 ### A cached signature bundle does not match the digest recorded for it
 
-<!-- covers: pkg/pluginpath.ErrPluginBundleDigestMismatch -->
+<!-- covers: pkg/oci.ErrSignatureBundleDigestMismatch -->
 
-A plugin whose signature was verified when it was fetched carries that fact forward as a recorded digest of the signature material, cached alongside the plugin. Before such a plugin loads, the build re-reads that cached material and re-hashes it, and the hash has to be the recorded one. A bundle that is missing, unreadable, or hashes to something else means the reviewed material is not what is on disk now, and the build stops rather than run a plugin whose signature evidence has changed underneath the record.
+An artifact whose signature was verified when it was fetched carries that fact forward on its lockfile entry as a recorded digest of the signature material, cached alongside the artifact. Before anything renders, the build re-reads that cached material for every entry it reads that records one — a catalog entity of any kind, a library, a plugin — and re-hashes it, and the hash has to be the recorded one. A plugin's material is checked again when its bytes are loaded, which is what reaches the commands that load a plugin outside a build. A bundle that is missing, unreadable, or hashes to something else means the reviewed material is not what is on disk now, and the run stops rather than use an artifact whose signature evidence has changed underneath the record.
 
-**The re-check is a hash comparison and nothing more.** It re-verifies no signature, contacts no network and consults no trust material, so it holds in a build with no network access at all — which is what lets a verified-once plugin stay verified across later offline builds.
+**The re-check is a hash comparison and nothing more.** It re-verifies no signature, contacts no network and consults no trust material, so it holds in a build with no network access at all — which is what lets a verified-once artifact stay verified across later offline builds.
 
-Emitted messages, naming the plugin, where its bytes came from, and the cached file. Unreadable or absent:
-> plugin `"<reference>"` resolved from `<source>`: cached signature bundle `<path>` is unreadable: cached signature bundle does not match its recorded digest
+Emitted messages, naming the artifact and the cached file. From the build's check, unreadable or absent:
+> artifact `"<reference>"`: cached signature bundle `<path>` is unreadable: cached signature bundle does not match its recorded digest
 
 and drifted:
+> artifact `"<reference>"`: cached signature bundle `<path>` has digest `<actual>`, recorded digest is `<recorded>`: cached signature bundle does not match its recorded digest
+
+and, where a plugin's bytes are loaded, naming where they came from as well:
+> plugin `"<reference>"` resolved from `<source>`: cached signature bundle `<path>` is unreadable: cached signature bundle does not match its recorded digest
+
 > plugin `"<reference>"` resolved from `<source>`: cached signature bundle `<path>` has digest `<actual>`, recorded digest is `<recorded>`: cached signature bundle does not match its recorded digest
 
-**How to fix:** nothing in your entity files causes this — the cache is the build's, not yours. Re-fetch the plugin so the bundle and its record are written together again, which is what an ordinary pull does. Where re-fetching restores it, the cached copy had been removed or altered since the fetch that recorded it; where the mismatch survives a re-fetch, the recorded digest and the material the publisher serves genuinely disagree, and that is a question for whoever publishes the plugin.
+**How to fix:** nothing in your entity files causes this — the cache is the build's, not yours. Re-fetch the artifact so the bundle and its record are written together again. Where re-fetching restores it, the cached copy had been removed or altered since the fetch that recorded it; where the mismatch survives a re-fetch, the recorded digest and the material the publisher serves genuinely disagree, and that is a question for whoever publishes the artifact.
+
+### The lockfile records no verified signature for an artifact that requires one
+
+<!-- covers: pkg/lockfile.ErrSignatureNotRecorded -->
+
+A pull that fetches an artifact from a registry verifies its signature against that registry's trust policy and records the verified fact on the artifact's lockfile entry. A build reaches no registry, so it reads the recorded fact rather than verifying again — and before anything renders, it holds every entry it reads to the requirement the pull applied when it fetched the artifact. An entry the content cache served, for an artifact a signature is required for, that records no verified signature stops the build: nothing the build holds says the artifact it is about to render from was ever verified.
+
+**The requirement is the pull's, setting for setting.** A signature is required where the workspace-wide signing policy covers the artifact's kind, or where the registry's own entry in `.aggrega-config.yaml` — or, for `hub.aggrega.ai` with no entry of its own, the official hub's built-in policy — requires one; an artifact whose kind could not be determined counts as required under an active policy. What lets a pull admit an artifact with no signature lets the build admit its entry too: `skip_signature_verification` at the top level, the same switch on the registry's own entry except for a kind the workspace-wide policy requires, and a registry marked `advisory`.
+
+**Where an entry came from is read from the build, never from the lockfile.** Every entry the content cache served is held, whatever else the entry records, so removing an entry's manifest digest along with its signature does not exempt it. An entry read from a catalog directory, from the copy inside the compiler binary, or from beside the Release is never held, because no registry signature exists for bytes that did not come from one. Entries of every section are checked alike — catalog entities, libraries and plugin artifacts — and every entry the check refuses is named in the same run.
+
+Emitted message, naming the entry, the settings that require its signature and the command that records it:
+> signing: the lockfile records no verified signature for an artifact that requires one (`"<reference>"`, required by `<the settings that require it>`). remediation: run `aggrega pull --release <release>` to verify the artifact's signature at its registry and record it in the lockfile
+
+The settings are named in the configuration file's own words: `` `signing.required` at the top level of the workspace configuration``, `` `signing.required` on the `registries` entry for "<host>"``, or `the official hub's built-in signature requirement for "hub.aggrega.ai"`, joined where more than one applies.
+
+**How to fix:** run the pull the message names. For an entry the content cache serves that records no signature where one is required, the pull asks the artifact's registry for its signature, by the manifest digest the entry records, exactly as it does for an artifact it fetches, and records the verified signature on the entry — so the next build reads it. A registry that attaches no signature, or a signature the trust configuration does not accept, halts that pull instead, naming the artifact, and that is a question for whoever publishes it. Under the offline posture the pull cannot ask, so it refuses naming how to allow the network for one run; restoring the entry's recorded signature from version control clears it without the network, where the cache still holds the signature material that record names. Where the artifact is not meant to be signed, the requirement is the thing to change, and the message names which setting it is — but relaxing it means that registry's artifacts are no longer checked at a pull either, so prefer narrowing the workspace-wide policy's kinds over switching a requirement off.
 
 ### A plugin's `.wasm` is not on this machine
 
@@ -5523,6 +5545,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0328` | `attachment written under a name no slot declares fits a slot its component leaves empty` | An attachment written under another name fits a slot its component leaves empty |
 | `E0329` | `a connection and the target it reaches do not name one key: they write different locators for it, or only one of them names one` | A connection and the target it reaches do not name one key |
 | `E0330` | `signing: the references named together need different signing credentials, so nothing was signed` | References signed together need different signing credentials |
+| `E0331` | `signing: the lockfile records no verified signature for an artifact that requires one` | The lockfile records no verified signature for an artifact that requires one |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
