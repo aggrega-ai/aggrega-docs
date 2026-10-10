@@ -161,14 +161,15 @@ spec:
           modelNameOverride: "gpt-4o-mini"
 ```
 
-and, from the same file, the traffic policy that limits it:
+and, from the same file, the traffic policy that limits it, named like the route
+it targets:
 
 ```yaml
 apiVersion: gateway.envoyproxy.io/v1alpha1
 kind: BackendTrafficPolicy
 metadata:
   [… omitted: the labels and annotations every rendered resource carries]
-  name: edge-period-budget
+  name: edge-models
   namespace: "envoy-gateway-system"
 spec:
   targetRefs:
@@ -436,6 +437,11 @@ any understanding of the traffic.
   `scope: model`: each gets a rule, and a count, of its own.
 - **Count one side.** Set `unit: prompt_tokens` to count what the model reads,
   or `completion_tokens` for what it writes.
+- **Send a failed request again.** Attach `core/retry-policy` to the gateway
+  with `max_attempts` and map it in the Manifest to
+  `helm/retry-policy-envoy-gateway`: the same traffic policy, `edge-models`,
+  gains a `retry` beside the rate limit, because Envoy Gateway attaches one
+  traffic policy to a route.
 - **A shorter or a fixed-length window.** Set `period` in the Release to one of
   the lengths above: `1d` is a day from 00:00 UTC, and `30d` is 30 days counted
   from 1 January 1970 rather than a calendar month. With any period but `1mo`
