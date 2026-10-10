@@ -215,7 +215,7 @@ The rule itself is neither relaxed nor duplicated; it is asked at the scope that
 
 The third is whether the `implements` Component's `required: true` attachment slots — the named binding points its `featuresSchema` declares — are filled, and whether an attachment of each Feature type its presence mandates demand is present.
 
-A required slot is filled by attaching a Feature at that name, on the component or at a scope above it, and that attachment is written where the Component is deployed — in the Aggregate or the Release — not in the Recipe. The synthesized harness attaches no Feature, so nothing it builds can fill such a slot. Validate therefore names the slots it did not check and continues through resolution and render, exactly as it does for required sockets:
+A required slot is filled by attaching a Feature at that name, in the Aggregate or in the Release, on the component or at a scope above it — where the Component is deployed, not in the Recipe. The synthesized harness attaches no Feature, so nothing it builds can fill such a slot. Validate therefore names the slots it did not check and continues through resolution and render, exactly as it does for required sockets:
 
 ```
 Attachments: required attachment slots not checked (root_password)

@@ -1150,6 +1150,15 @@ The contract binds a component wherever it was authored: a component a sub-modul
 
 **Feature attachments** are validated the same way, against the attached Feature's declared `schema.values` / `schema.infra`. Attachments share one surface, so a credential Feature — one labeled `feature.aggrega.ai/kind: secret` — is measured against its own declared schema exactly as any other attachment is. The value checked is the **effective merged result** after attachment values cascade across scopes (component, subsystem, boundary, and component-specific) — so a value introduced legally at one scope but overridden to an illegal value at a more specific scope is caught on the merged result, not the fragment. An attachment whose type declares no schema is not validated; attachment infra is validated against the attachment's own `schema.infra` (an attachment is an overlay and carries no provider union).
 
+**An attachment's finding is reported in the document that wrote the failing pillar**, under that document's name, and filed under its author. Its `values` are reported at the Aggregate block that wrote them — the component's own `features:` entry, `.spec.components.<component>.features.<attachment>.values.<field>`, ahead of a subsystem's block that reaches the component — as a developer fault. Its `infra` is reported at the Release block that wrote it — the Release's entry for the component, under the boundary that names it, ahead of the boundary's own `features:` block — as an operator fault. A pillar the document owning it did not write is reported where the attachment itself was written, which is where its `type` is named. So an attachment only the Release makes, which carries no `values`, reports a field its Feature's `values` require at the Release's entry and as an operator fault, at a path the Release holds — the component's entry, or the boundary's `features:` block for an attachment the boundary makes for every component under it:
+
+```text
+[OPS_ERROR E0168] .spec.boundaries.main.components.app.features.check.values.schema
+  authored pillar does not conform to its declared schema (Release probe, at .spec.boundaries.main.components.app.features.check.values.schema, values pillar does not conform to the Feature schema: missing required property: schema (required))
+```
+
+The same attachment written on the component in the Aggregate reports `[DEVELOPER_ERROR E0168]` at `.spec.components.app.features.check.values.schema`, under the Aggregate's name. An editor shows each on the document that wrote it, on the deepest key of that path the document holds.
+
 **An attachment a connection carries** is measured the same way, and reported at the connection entry of the document that wrote the failing pillar rather than at the component's own `features:` block, which does not hold it. Its `values` are reported at the Aggregate's connection entry, `.spec.components.<component>.uses.<socket>.<alias>.features.<slot>.values.<field>` — in the sub-module's own document, for a component a sub-module contributes — and its `infra` at the Release's entry for that connection, under the boundary that names the component where the Release names boundaries. An attachment only the Release makes is reported at the Release's entry for both pillars: such an attachment carries no `values`, so a Feature whose `values` require a field reports it missing there, at the entry the operator wrote.
 
 **Per-edge connection config** is validated the same way against the socket's per-edge contract: an edge's developer-authored `values` against the socket's `valueSchema`, and an edge's operator-authored `infra` (from a Release) against the socket's `infraSchema`. A socket that declares no per-edge schema for a pillar accepts no validated config for it (omission = no contract, nothing to check). The diagnostic names the edge by consumer, socket, and alias. On a component the Release's own Aggregate declares, the operator's `infra` is measured for every entry the Release writes for one of its connections — an entry carrying no `infra` included, which is how a defaultless `required:` key is reported missing — and reported at that entry in the Release, under the boundary that names the component where the Release names boundaries, which is where the operator edits it; the developer's `values` are reported at the connection entry in the Aggregate.
@@ -1160,6 +1169,8 @@ Emitted message:
 > authored pillar does not conform to its declared schema (Aggregate `<name>`, at `.spec.components.<component>.values.<field>`, values pillar does not conform to the Component schema: `<constraint failure>`)
 > authored pillar does not conform to its declared schema (Aggregate `<name>`, at `.spec.components.<component>.infra.<field>`, infra pillar does not conform to the declared infra schema: `<constraint failure>`)
 > authored pillar does not conform to its declared schema (Aggregate `<name>`, at `.spec.components.<component>.features.<attachment>.values.<field>`, values pillar does not conform to the Feature schema: `<constraint failure>`)
+> authored pillar does not conform to its declared schema (Release `<release-name>`, at `.spec.boundaries.<boundary>.components.<component>.features.<attachment>.infra.<field>`, infra pillar does not conform to the Feature schema: `<constraint failure>`)
+> authored pillar does not conform to its declared schema (Release `<release-name>`, at `.spec.boundaries.<boundary>.features.<attachment>.values.<field>`, values pillar does not conform to the Feature schema: `<constraint failure>`)
 > authored pillar does not conform to its declared schema (Aggregate `<name>`, at `.spec.components.<component>.uses.<socket>.<alias>.values.<field>`, values pillar does not conform to the socket valueSchema: `<constraint failure>`)
 > authored pillar does not conform to its declared schema (Aggregate `<name>`, at `.spec.components.<component>.uses.<socket>.<alias>.features.<slot>.values.<field>`, values pillar does not conform to the Feature schema: `<constraint failure>`)
 > authored pillar does not conform to its declared schema (Release `<release-name>`, at `.spec.components.<component>.uses.<socket>.<alias>.features.<slot>.values.<field>`, values pillar does not conform to the Feature schema: `<constraint failure>`)
@@ -2805,16 +2816,16 @@ This halt is raised as soon as the composition is assembled, which is earlier th
 A catalog entity declares an attachment slot with `required: true` in its `featuresSchema`, and nothing binds that slot's name on an instance of the entity. The check runs against the attachments the instance ends up with after every scope has folded — the Aggregate's component-level and subsystem-level `features:` blocks, the Release's boundary-level and component-level blocks, and attachments produced by annotation-driven expansion — so a credential attached once at a scope the instance inherits from binds the slot exactly as a fill authored on the instance does.
 
 Emitted message:
-> required attachment slot unfilled (`<slot>`, declared required by component type `<component-type>`). Attach a Feature at that name, on the component or at a scope above it.
+> required attachment slot unfilled (`<slot>`, declared required by component type `<component-type>`). Attach a Feature at that name, in the Aggregate or in the Release, on the component or at a scope above it.
 
-The two values are the slot's own name and the component type that declares it, so one instance leaving two slots unbound reports two messages that differ. The report is positioned at the slot's key under the component's `features:` block; because that key is exactly what is missing, an editor places it on the nearest key that does exist — the `features:` block where the component writes one, and the component itself where it does not.
+The two values are the slot's own name and the component type that declares it, so one instance leaving two slots unbound reports two messages that differ. The report is positioned at the slot's key under the component's `features:` block in the Aggregate; because that key is exactly what is missing, an editor places it on the nearest key that does exist — the `features:` block where the component writes one, and the component itself where it does not. Nothing wrote the missing attachment, so no document's author is singled out by it: the report stays at the component and is filed as a developer fault, and the remedy names both documents, because either one may fill the slot — the Aggregate on the component or a subsystem holding it, the Release on its entry for the component or on a boundary holding it.
 
 **A slot a socket declares** — in the `featuresSchema` of a `usesSchema` entry — is required of each connection wired through the socket rather than of the component: every connection fills it for itself, on its own entry in the Aggregate or in the Release, and no scope above reaches it. So a socket with two connections, one of which fills the slot, reports the other alone, naming it:
 > required attachment slot unfilled (`"<slot>"`, declared required by socket `"<socket>"`, of component type `"<component-type>"`, left unfilled by the connection `"<alias>"`). Attach a Feature under that slot in this connection's features, on its entry in the Aggregate or in the Release.
 
 That report is positioned at the connection's entry in the document that drew the connection — the Aggregate's `uses:` entry, or the Release's per-edge entry for a connection the Release wired. A connection an attached Feature draws is wired into a socket the Feature declares, not one of the component's, so the component's socket slots are not its to fill.
 
-**How to fix:** attach a Feature under the slot's name — on the component, or at a broader scope every consumer of the slot shares; for a socket's slot, on the connection the report names. An attachment under a different name does not bind the slot: a slot is a named binding point, so the name is the binding. If the slot should no longer be required, update the catalog entity's `featuresSchema` — the component's own, or the socket's — to drop the `required` declaration.
+**How to fix:** attach a Feature under the slot's name, in the Aggregate or in the Release — on the component, or at a broader scope every consumer of the slot shares; for a socket's slot, on the connection the report names. An attachment under a different name does not bind the slot: a slot is a named binding point, so the name is the binding. If the slot should no longer be required, update the catalog entity's `featuresSchema` — the component's own, or the socket's — to drop the `required` declaration.
 
 ### Two Features declared to conflict reach one component
 
@@ -2975,6 +2986,15 @@ Emitted message, where the fill's labels did not satisfy the constraint:
 and where the constraint itself could not be evaluated:
 > attachment slot selector unsatisfied (`"<selector>"`, declared on slot `"<slot>"`, which could not be evaluated: `"<why it could not be evaluated>"`). Correct the selector on the slot's declaration in the component's catalog entity.
 
+It is positioned at the fill's key in the document that wrote the fill, and filed under that document's author: the component's `features:` block in the Aggregate is a developer fault, and a fill only the Release makes — on its entry for the component, or on a boundary holding it — is an operator fault, reported at the Release's own path:
+
+```text
+[OPS_ERROR E0008] release.yaml at .spec.boundaries.main.components.app.features.identity
+  attachment slot selector unsatisfied ("feature.aggrega.ai/kind!=secret", declared on slot "identity", not satisfied by the labels of the Feature filling it, "core/secret-value"). Add the labels the slot's selector requires to the Feature's labels, or fill the slot with a Feature that already carries them.
+```
+
+The same fill written on the component in the Aggregate reports `[DEVELOPER_ERROR E0008] aggregate.yaml at .spec.components.app.features.identity`.
+
 **A slot a socket declares** — in the `featuresSchema` of a `usesSchema` entry — holds each connection's fill to its `selector:` the same way. The attachment a connection carries in the slot is matched against the constraint, and a fill it does not admit stops the build, naming the socket and the connection as well as the slot:
 > attachment slot selector unsatisfied (`"<selector>"`, declared on slot `"<slot>"`, of socket `"<socket>"`, filled on the connection `"<alias>"`, not satisfied by the labels of the Feature filling it, `"<feature-type>"`). Add the labels the slot's selector requires to the Feature's labels, or fill the slot with a Feature that already carries them.
 
@@ -3003,7 +3023,14 @@ Emitted message. The condition's sentence comes first, then the name the attachm
 Where the Feature fits more than one empty slot, the message names each, in the order the component's type declares them, and leaves the choice to you:
 > attachment written under a name no slot declares fits a slot its component leaves empty (`"<attachment>"`, on component `"<component>"`, attaching the Feature `"<feature-type>"`, which fits the empty slot `"<slot>"`, and the empty slot `"<another-slot>"`). Attach it under the name of the slot it is meant to fill.
 
-It is positioned at the attachment's key under the component in the Aggregate, `.spec.components.<component>.features.<attachment>`, and filed as a developer fault. Where only the Release wrote the attachment, on its entry for the component, the Aggregate holds no such key and an editor places the finding on the nearest key that does exist; the attachment itself is on the Release's entry for that component.
+It is positioned at the attachment's key in the document that wrote it, and filed under that document's author. An attachment on the component's own `features:` block in the Aggregate is reported at `.spec.components.<component>.features.<attachment>` as a developer fault; one only the Release wrote, on its entry for the component, is reported there — under the boundary that names the component, `.spec.boundaries.<boundary>.components.<component>.features.<attachment>` — as an operator fault:
+
+```text
+[OPS_ERROR E0328] release.yaml at .spec.boundaries.main.components.app.features.metrics
+  attachment written under a name no slot declares fits a slot its component leaves empty ("metrics", on component "app", attaching the Feature "core/prometheus-exporter", which fits the empty slot "identity"). Attach it as "identity" to fill the slot.
+```
+
+The empty slot itself is a separate finding where it is required, reported at the component in the Aggregate under "Required attachment slot not bound".
 
 **How this differs from the near-miss advisory.** The advisory under "An attachment name is one edit from a declared slot" is about how a name is spelled: a name one edit from a slot whose `selector:` the attachment's Feature does not satisfy, which builds and reports a warning. This halt is about what the Feature fits, whatever the name: the name may be anything, and the slot it fits must be left empty. Where a name is one edit from a slot and its Feature does fit that slot, no advisory is raised, and if the slot is left empty this halt is the one finding reported.
 
@@ -3280,7 +3307,14 @@ Either expression may also be written in a form the label grammar cannot read at
 
 > selector violation ("<appliesTo-expression>", declared by Feature "<feature-type>", which could not be evaluated: "<why-it-could-not-be-read>"). Correct the appliesTo selector on the Feature's catalog entity.
 
-The halt carries the authoring key it is about — the `uses:` socket entry, or the `features:` entry naming the attachment — alongside the file that declares it, so the position it reports is the entry you edit rather than the head of the document. A Component authored inside a subsystem is positioned at the subsystem it was authored under, level by level. An attachment written on a connection is positioned at its key under that connection's `features:`, in the document that wrote it — the Aggregate's connection entry, or the Release's per-edge entry for an attachment only the Release makes.
+The halt carries the authoring key it is about — the `uses:` socket entry, or the `features:` entry naming the attachment — alongside the file that declares it, so the position it reports is the entry you edit rather than the head of the document. A Component authored inside a subsystem is positioned at the subsystem it was authored under, level by level. An attachment is positioned at the `features:` entry that wrote it, in the document that wrote it, and filed under that document's author: the component's own block or a subsystem's block in the Aggregate, a developer fault; and, for an attachment only the Release makes, its entry for the component or the `features:` block of a boundary holding the component, an operator fault. Where both documents write the attachment, it is positioned where its `type` is named, which the Aggregate always does. An attachment written on a connection is positioned at its key under that connection's `features:`, in the document that wrote it — the Aggregate's connection entry, or the Release's per-edge entry for an attachment only the Release makes. A Feature the Release alone attaches to a component its declaration does not admit reads:
+
+```text
+[OPS_ERROR E0007] release.yaml at .spec.boundaries.main.components.app.features.metrics
+  selector violation ("component.aggrega.ai/type=server", declared by Feature "core/prometheus-exporter", not satisfied by the labels of "app"). Add the labels the Feature's appliesTo requires to this component's type, or attach a Feature whose applicability the component already satisfies.
+```
+
+and the same attachment written on the component in the Aggregate reads `[DEVELOPER_ERROR E0007] aggregate.yaml at .spec.components.app.features.metrics`. An attachment annotation-driven expansion produced was written by no `features:` entry, so it is positioned at the component's own `features:` key in the document that declares the component, as a developer fault.
 
 **How to fix an edge violation:** either route the `uses:` edge to a Component whose labels satisfy the selector, or adjust the selector expression in the catalog entity to accept the intended target class. Review the target Component's `metadata.labels` with `aggrega inspect` to confirm which labels it carries.
 
