@@ -43,7 +43,7 @@ The topology triad — `provides` on the producing Recipe, `uses` on the consumi
 
 ## 4. No Ghost Infrastructure: the compiler never invents compute or features
 
-The compiler never silently injects compute, Features, annotations, routing proxies, or any other resource the author did not explicitly declare. Policy violations produce **Loud Guardrails** — the build halts with a specific error telling the author what to fix in the Aggregate — not silent mutations that produce infrastructure mysteries at debug time.
+The compiler never silently injects compute, Features, annotations, routing proxies, or any other resource the author did not explicitly declare. Policy violations produce **Loud Guardrails** — the build halts with a specific error telling the author what to fix, in the document they wrote — not silent mutations that produce infrastructure mysteries at debug time.
 
 Resources enter the graph through explicit authoring-time declarations:
 
