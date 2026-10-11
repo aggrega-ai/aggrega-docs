@@ -1,6 +1,6 @@
 # aggrega build
 
-`aggrega build` compiles an Aggregate + Release pair into provider-native artifacts (Helm manifests, redistributable Helm charts, docker-compose YAML) under the configured output directory. The Release is the single entry point: it names the Aggregate and Manifest, declares boundaries, and routes components to providers.
+`aggrega build` compiles an Aggregate + Release pair into provider-native artifacts (Helm manifests, redistributable Helm charts, docker-compose YAML) under `dist/` at the workspace root, as [Output](#output) sets out. The Release is the single entry point: it names the Aggregate and Manifest, declares boundaries, and routes components to providers.
 
 ## Common flags
 

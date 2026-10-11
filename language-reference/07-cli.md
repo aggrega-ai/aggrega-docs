@@ -31,7 +31,7 @@ The `aggrega` CLI is the compiler's entry point. Every interaction with Aggrega 
 | Command | Description |
 | --- | --- |
 | `aggrega auth` | Manage the signing identity |
-| `aggrega build` | Compile an Aggregate and Release into provider-native artifacts |
+| `aggrega build` | Compile an Aggregate and Release into provider-native artifacts under dist/ at the workspace root |
 | `aggrega cache` | Inspect and maintain the on-disk caches |
 | `aggrega config` | Inspect and manage the workspace configuration |
 | `aggrega deprecate` | Attach a signed deprecation marker to an already-published artifact |
