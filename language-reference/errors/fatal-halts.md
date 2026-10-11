@@ -134,6 +134,26 @@ The head carries the category and this condition's short code, `E0265`, which is
 
 > **Honest-pending — per-provider Workload-content validation.** Today the provider's `workloadSchema` is documentation-only and does not validate the Workload body; bodies are validated against the platform-owned embedded Workload schema. When the Wasm-based Workload synthesizer ships, `workloadSchema` becomes the per-provider contract the synthesizer validates the Workload body against (a distinct, content-level halt). See the roadmap's Wasm-based Workload synthesizers item.
 
+#### The provider does not support omits
+
+<!-- covers: internal/compiler/renderer.ErrUnsupportedOmits -->
+
+A Recipe or a FeatureRecipe declares `omits:` and the provider rendering it does not declare that it leaves rendered documents out. Leaving a document out of what a source renders is something only the provider can do — only the provider knows which documents the source renders and what each is called — so a provider that does not do it would render every document the entries name and report success. The build refuses before anything renders instead, so the key never quietly does nothing.
+
+Whether a provider leaves documents out is read from the provider's own declaration of what it supports, not from a list of providers the compiler keeps. Every entry counts, whatever its `when:` renders, because whether the provider can honour the key does not depend on which entries a build keeps. The `helm` provider honours the key. `helm-chart` and `terraform` hand their source on to be rendered when it is deployed, so no rendered document exists at build time to leave out, and both are refused; `compose` and `cloudformation` are refused too, until they honour it.
+
+The refusal is decided once every component's Recipe and every attachment's FeatureRecipe is bound and each provider has described itself — before the first component renders and before any entry is evaluated, so a build refused here renders nothing. It is asked of every document that renders a source: a component's Recipe; the FeatureRecipe an attachment binds on a component, once for each component carrying the attachment; and a FeatureRecipe that generates once for a boundary, once, at the boundary that declares it. Every document at fault is reported in one build; where more than one is, the findings are grouped under `documents declaring omits whose provider does not honour them`. A document bound to a provider the build cannot resolve is not reported here: that build halts where the provider is selected, naming the binding.
+
+Emitted message, positioned at the component's own key under `components:` for a Recipe's entries (a component written inside a subsystem is positioned under that subsystem's key first), at the attachment's key in the `features:` block that wrote it for a FeatureRecipe's on a component, and at `.spec.boundaries.<boundary>.features.<attachment>` in the Release for a FeatureRecipe that generates once for its boundary. The category reaches you in the bracketed head; the message names the provider first, then the component the document renders for:
+
+> provider does not support omits (`"<provider-name>"`, node `"<node-id>"`). this provider's contract does not declare that it leaves rendered documents out; remove the omits key, or render the source through a provider whose contract declares it
+
+A FeatureRecipe's finding names the attachment after the component — `node "<node-id>", attachment "<attachment>"` — and one that generates once for its boundary names the boundary and the attachment in place of a component: `boundary "<boundary>", attachment "<attachment>"`.
+
+The head carries this condition's short code, `E0335`.
+
+**How to fix:** remove the `omits:` key, or render the source through a provider that honours it. Where a `helm-chart` or `terraform` Recipe sources a local chart or module, a line in the `.aggregaignore` beside the Recipe leaves a file of that source out instead, from the next time the Recipe is pinned — see [`aggrega pin`](../cli/aggrega-pin.md).
+
 #### At least one input kind must be present
 
 <!-- covers: pkg/validator.ErrRecipeNoInputKind -->
@@ -4183,7 +4203,39 @@ What is compared is the provider's raw emitted output — the same bytes the ren
 Emitted message:
 > rendering node `"<instance>"`: node `"<instance>"` (provider `"<provider>"`): two renders of identical input produced different output: provider render is not deterministic
 
-**How to fix:** the fault is the provider's rather than your documents', and nothing you can write clears it. Report it to whoever publishes the plugin serving that provider, naming the component the message identifies — the usual causes are a timestamp, a random value, or an ordering that follows a map's iteration rather than the order the author wrote. Until it is fixed, the ordinary build mode is unaffected, and pinning the plugin to a version that passed is the practical answer.
+**How to fix:** first find what differs between two builds of the component the message names — build it twice and compare the outputs. Where the difference is a value a chart you source generates afresh on every render — a random password, a generated key, a timestamp in a Secret or a ConfigMap — the fault is in that chart's output rather than in the provider, and you can clear it yourself in one of two ways. Supply the value, through whatever setting the chart offers for it, from the Recipe's `valuesMapping:`, so the chart stops generating it. Or, where the generated document is one the Release must not ship — a Secret the operator supplies separately, say — leave it out of the build with an `omits:` entry on the Recipe; see [Recipe → The `omits:` field](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source). Otherwise the fault is the provider's rather than your documents', and nothing you can write clears it. Report it to whoever publishes the plugin serving that provider, naming the component the message identifies — the usual causes are a timestamp, a random value, or an ordering that follows a map's iteration rather than the order the author wrote. Until it is fixed, the ordinary build mode is unaffected, and pinning the plugin to a version that passed is the practical answer.
+
+### An omits entry left out nothing the source rendered
+
+<!-- covers: internal/compiler/renderer.ErrOmitMatchedNothing -->
+
+Every entry of a Recipe's or a FeatureRecipe's `omits:` list that applies to a build — its `when:` absent, empty or true — must leave at least one document the source rendered out of the output. The provider rendering the source matches each entry against the documents it rendered and reports how many each matched; an entry that matched none stops the build.
+
+An entry that matches nothing is a statement about the source that is no longer true. The usual cause is a source upgrade that renamed or removed the document — and a renamed document is then in the output under its new name, which is exactly what the entry was written to keep out — and the other is a mistake in the entry itself. Passing over it would ship what the entry was meant to leave out, so the build stops and names the entry.
+
+The message names the node, the provider, the document declaring the entry and the entry's position in that document's `omits:` list, counting from `0`, and the kind, name and namespace the entry resolved to, the namespace only where the entry names one. For a FeatureRecipe attached to a component the node is that component; for one attached to a boundary, the line above the message names the attachment and its boundary. Where several entries matched nothing, the first in the order you wrote them is the one named, so the same entry is named on every run. A field whose template read a value declared sensitive is shown as `<redacted>` rather than as what it resolved to. An entry its `when:` dropped is never handed to the provider and never checked.
+
+Emitted message. The category reaches you in the bracketed head:
+
+> an omits entry left out nothing the source rendered (node `"<node-id>"`, provider `"<provider>"`, `"<document>"` omits[`<position>`], kind `"<kind>"`, name `"<name>"`, namespace `"<namespace>"`). correct the entry so it names a document the source renders, or remove it; a source upgrade that renamed or removed the document is the usual cause
+
+The head carries this condition's short code, `E0334`.
+
+**How to fix:** compare the entry with what the source renders now — build with the entry removed and read the documents the component renders — then correct the entry's kind, name or namespace, or remove the entry where the document is gone. An entry names a document by the document's own `kind`, `metadata.name` and, where the entry names a namespace, the namespace the document is in; see [Recipe → The `omits:` field](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source).
+
+### A provider's omitted counts do not match the omits entries it was handed
+
+<!-- covers: internal/compiler/renderer.ErrOmitReportMismatch -->
+
+A provider that declares it leaves rendered documents out reports, for every `omits:` entry it was handed, how many documents that entry matched — one count per entry, in the order the entries were handed over. A report that is missing, holds too few or too many counts, or holds a count below zero leaves no way to tell whether an entry left anything out at all, so the build stops. Nothing you wrote causes this: it reports a provider whose returned output does not keep the contract it declares.
+
+Emitted message. The message names the node and the provider, then how many entries were handed over and what came back — either how many counts, or the count below zero and the entry it was given for:
+
+> a provider's omitted counts do not match the omits entries it was handed (node `"<node-id>"`, provider `"<provider>"`, handed `<n>` omits entries, returned `<m>` omitted counts)
+
+The head carries this condition's short code, `E0336`.
+
+**How to fix:** report it to whoever publishes the plugin serving that provider, naming the component the message identifies. What a provider owes is set out in the plugin contract under [Leaving rendered units out](../plugins/plugin-contract.md#leaving-rendered-units-out).
 
 ### Assembled output still carries a cross-boundary placeholder
 
@@ -5666,6 +5718,9 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0331` | `signing: no verified signature is recorded for an artifact that requires one` | No verified signature is recorded for an artifact that requires one |
 | `E0332` | `signing: the recorded signature was made for a different artifact` | A recorded signature was made for a different artifact |
 | `E0333` | `signing: a recorded signature is not the one a pull would record` | A recorded signature is not the one a pull would record |
+| `E0334` | `an omits entry left out nothing the source rendered` | An omits entry left out nothing the source rendered |
+| `E0335` | `provider does not support omits` | The provider does not support omits |
+| `E0336` | `a provider's omitted counts do not match the omits entries it was handed` | A provider's omitted counts do not match the omits entries it was handed |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

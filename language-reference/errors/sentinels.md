@@ -786,6 +786,9 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0331` | `signature-not-recorded` | `signing: no verified signature is recorded for an artifact that requires one` |
 | `E0332` | `signature-for-another-artifact` | `signing: the recorded signature was made for a different artifact` |
 | `E0333` | `recorded-signature-out-of-date` | `signing: a recorded signature is not the one a pull would record` |
+| `E0334` | `omit-matched-nothing` | `an omits entry left out nothing the source rendered` |
+| `E0335` | `unsupported-omits` | `provider does not support omits` |
+| `E0336` | `omit-report-mismatch` | `a provider's omitted counts do not match the omits entries it was handed` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication no longer judges a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.

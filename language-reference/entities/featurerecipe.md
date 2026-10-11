@@ -369,3 +369,31 @@ spec:
 The rule above is specific to the `aws-secrets-manager` plugin 1.x; it does not apply if a different `core/referenced-secret` FeatureRecipe binds. The Feature-level contract rules from the Feature definition still apply alongside.
 
 FeatureRecipe assertions evaluate after FeatureRecipe binding and before Resource Generation. The template context for component-scope FRs mirrors the Recipe assertions context (entity-instance fields plus `.provides`, `.locals`, `.recipe.metadata`, `.recipe.source`); for boundary-scope FRs (`executionScope: boundary`), assertions evaluate against the boundary-scope view (`.boundary.*` fields available; per-component fields not). For the full authoring grammar and worked examples, see [templates/assertions-block.md](../templates/assertions-block.md).
+
+## The `omits:` field — leaving rendered documents out of a source
+
+Most FeatureRecipes never need this. It is for a FeatureRecipe whose `source:` is a chart you take as it is — one fetched from a registry, most often — that renders a document the attachment must not emit: a Secret the chart generates afresh on every render, or an object the host component or the operator already provides. `omits:` leaves such a document out of what the FeatureRecipe generates.
+
+```yaml
+spec:
+  capability: helm
+  implements: core/observability/collector:1.0.0
+  source:
+    kind: helm-oci-chart
+    url: oci://registry.example.com/charts/collector
+    version: "0.9.1"
+  omits:
+    # The collector chart ships its own ServiceAccount; the host supplies one.
+    - kind: ServiceAccount
+      name: collector
+    - when: "{{ .infra.without_dashboards }}"
+      kind: ConfigMap
+      name: collector-dashboards
+```
+
+The key is authored identically on a Recipe, and [Recipe → The `omits:` field](recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source) is its full reference: what each entry field selects, that `when:` is evaluated first and a false one drops the entry, that every entry which applies must leave something out or the build halts naming it, that the source still renders in full and only its output is filtered, and which providers honour the key. What differs on a FeatureRecipe is only where the templates are evaluated:
+
+- **Each entry's templates evaluate against the context this FeatureRecipe's `valuesMapping:` is evaluated against**, at the scope its `executionScope` selects. A component-scope FeatureRecipe's entries are evaluated once per attachment, against that attachment's `.values` and `.infra`; a boundary-scope one's once per boundary, against the boundary-scope view and the boundary attachment's `.infra`. The rules on what an attachment's templates may read apply to the entries as they apply to its `valuesMapping:`.
+- **Only what this FeatureRecipe's own `source:` renders is filtered.** Its `workload:` and `artifacts:` are not, and neither is the host component's output: an attachment's entries reach its own chart and nothing else. To change a document the host renders, the host's Recipe declares the entry, or a `pipeline:` step patches it.
+
+A halt on an entry names the node, the provider, this FeatureRecipe and the entry's position in its `omits:` list; for a boundary-scope FeatureRecipe, the line above the message names the attachment and its boundary.

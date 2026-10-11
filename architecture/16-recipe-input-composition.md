@@ -437,7 +437,7 @@ Each provider declares which input kinds it renders; a central input-kind gate a
 <!-- BEGIN GENERATED: provider-capability-matrix -->
 | Provider | `source:` + `valuesMapping:` | `workload:` | `artifacts:` (alongside) | artifacts-only (standalone) | `omits:` |
 | --- | --- | --- | --- | --- | --- |
-| helm | ✅ | ✅ | ✅ | ✅ | ❌ |
+| helm | ✅ | ✅ | ✅ | ✅ | ✅ |
 | compose | ✅ | ✅ | ✅ | ✅ | ❌ |
 | helm-chart | ✅ | ❌ | ✅ templated with `[[` `]]` delimiters | ❌ | ❌ |
 | terraform | ✅ | ❌ | ✅ | ✅ | ❌ |

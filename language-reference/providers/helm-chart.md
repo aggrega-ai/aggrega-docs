@@ -40,7 +40,7 @@ Filename collisions across the source-chart's templates and the `$import:`-loade
 
 ## `source:` keyset
 
-The helm-chart provider accepts `source:` as a **bare filesystem path string only**. Structured source objects (e.g. `source: { repo: ..., chart: ..., version: ... }`) are reserved for future registry integration and are rejected today.
+The helm-chart provider's `source:` names a chart, and it accepts both of the shapes the `source:` field takes, read exactly as the [helm provider's `source:` keyset](helm.md#source-keyset) describes: a **bare filesystem path string**, and a **structured object** whose `url:` carries the location. Where `url:` names a filesystem path, nothing is fetched and the chart is read from disk; where it carries a transport scheme — `oci://…`, for instance, with `kind: helm-oci-chart` — `aggrega pull` fetches and pins the chart, and the build copies it out of the cache into the umbrella as a sub-chart, on the same terms as a chart read from disk.
 
 ```yaml
 spec:
@@ -65,6 +65,18 @@ refuses the combination with the same message it gives for any capability asked
 for an input kind it does not declare. What is helm-chart's own is the declaration, not
 a refusal of its own: for Kubernetes resources generated from a `workload:` block,
 use the `helm` capability instead.
+
+**A Recipe declaring `omits:` is refused.** The [`omits:`](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source)
+key leaves documents a source renders out of the build, and this provider renders no
+document at build time: it copies the chart into the umbrella, and the chart's
+templates render when the umbrella is installed. With nothing rendered there is
+nothing to leave out, so this provider does not declare that it honours the key, and
+a Recipe or FeatureRecipe declaring it is refused before anything is copied — see
+[The provider does not support omits](../errors/fatal-halts.md#the-provider-does-not-support-omits).
+For a chart you keep beside the Recipe, a line in the `.aggregaignore` there leaves a
+file of the chart out instead, from the next time the Recipe is pinned; for a fetched
+chart whose output must lose a document, render it through the `helm` provider, which
+honours the key.
 
 ## Path-keyed composition — the umbrella shape
 
