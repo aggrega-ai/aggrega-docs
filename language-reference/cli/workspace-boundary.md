@@ -109,15 +109,14 @@ leads, and leaves the place the link points to exactly as it was:
   [`E0321`](../errors/fatal-halts.md#a-file-the-operation-reads-leads-through-a-link-out-of-the-directory-it-must-stay-inside).
 - **The artifact cache** — everything Aggrega reads from the cache under `artifact_cache_dir`: a cached
   entity, plugin or library and the manifest beside it, a source archive and its metadata, a pinned
-  external input, a signature bundle, a documentation bundle and a registry's local search index, and
-  every entry `aggrega cache status`, `aggrega cache prune` and `aggrega cache clear` list. The cache is
+  external input, a signature bundle and a registry's local search index, and every workspace entry
+  `aggrega cache status`, `aggrega cache prune` and `aggrega cache clear` list. The cache is
   read only from inside the cache directory, the place it is written to, so anything in it that is a
   link leading out of that directory — to elsewhere in the workspace as much as anywhere else — stops a
   build, a pull, a validation, a search, each of the three cache commands, and the editor's and an
   assistant's requests that read the cache, rather than handing them bytes kept somewhere the cache does
   not own — content checked against a recorded digest included, since a digest says what the bytes are,
-  not where they may be read from. `aggrega explain` still answers with the condition and says why its
-  walk-through could not be read, and the deprecation notice `aggrega inspect` prints, which decides
+  not where they may be read from. The deprecation notice `aggrega inspect` prints, which decides
   nothing, is left out. A prune or a clear meets one of the cache's own directories that is such a
   link, or a cache directory that is itself a link leading out of the workspace, as the removal it would
   be, with `E0320`, before it lists anything:
@@ -205,9 +204,9 @@ class of path rather than a list of places, and each is an exception for a reaso
 - **A path an assistant names over the process's own streams.** A client that launched `aggrega mcp`
   on your machine runs as you, and its host usually gives it file and shell tools of its own, so a
   path it names is honoured as if you had typed it — see [The two assistant transports](#the-two-assistant-transports).
-- **The product's machine-wide stores** — the global configuration file, the compiled-module store and
-  the plugin descriptor cache, and the registry credential store. They belong to the machine rather
-  than to any workspace, so no workspace holds them.
+- **The product's machine-wide stores** — the global configuration file, the compiled-module store,
+  the plugin descriptor cache, the documentation bundle and the registry credential store. They belong
+  to the machine rather than to any workspace, so no workspace holds them.
 - **A file picked in a dialog, read where it is.** An editor sends the key file or trust root of a
   registry registration as an absolute path, the description `aggrega/import` converts, and the module
   `aggrega/pluginGenCatalog` generates an entity for with the overlay beside it. A person chose each

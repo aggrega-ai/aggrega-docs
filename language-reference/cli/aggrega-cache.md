@@ -33,9 +33,11 @@ clear   wipes every cache, including the compiled-module store.
 
 ```
 Wipe every cache: the workspace artifact cache (entities, source artifacts,
-external inputs) and the two global caches (compiled modules and plugin
-descriptors). This is the total-wipe verb; unlike prune it reclaims the
-compiled-module cache as well. Cleared caches repopulate on the next build.
+external inputs) and the caches every project on the machine shares (compiled
+modules, plugin descriptors and documentation bundles). This is the total-wipe
+verb; unlike prune it reclaims the compiled-module cache and the documentation
+bundles as well. Cleared caches repopulate on the next build, and the
+documentation bundle on the next read of the documentation.
 
 Because the wipe is irreversible, clear asks for confirmation before removing
 anything. Pass --yes to skip the prompt for non-interactive use; without --yes
@@ -125,13 +127,13 @@ For the cache layout, the `artifact_cache_dir` contract, and why a resolution ar
 
 Not every cache these commands act on is scoped to the project you are standing in, and the difference decides how far a reclamation reaches.
 
-**Yours alone.** The artifact cache under `artifact_cache_dir` — the entities, source artifacts, pinned external inputs and documentation bundles this project has resolved. Reclaiming from it affects this project and nothing else.
+**Yours alone.** The artifact cache under `artifact_cache_dir` — the entities, source artifacts and pinned external inputs this project has resolved. Reclaiming from it affects this project and nothing else.
 
-**Shared by every Aggrega project on this machine.** The compiled-module store and the plugin-describe store. A provider guest is compiled once and reused by every project, which is what makes the second build of anything fast, so removing an entry means the next build of *any* project on the machine recompiles it. Nothing is lost permanently — a removed module is rebuilt on demand — but the cost lands on whoever builds next, which may not be you.
+**Shared by every Aggrega project on this machine.** The compiled-module store, the plugin-describe store and the documentation-bundle store. A provider guest is compiled once and reused by every project, which is what makes the second build of anything fast, so removing an entry means the next build of *any* project on the machine recompiles it. The documentation bundle — the published pages [`aggrega explain`](aggrega-explain.md), an editor's explanations and an assistant's documentation resources are read from — is kept once per registry and version, because its contents depend on nothing else: whichever of them fetches it first fetches it for every project, and each project is still served it only once its own signature check admits the copy. Nothing is lost permanently — a removed module is rebuilt on demand, and a removed bundle is fetched again by the next explanation, or by an assistant server when it next starts — but the cost lands on whoever builds next, which may not be you.
 
-The machine-wide stores are kept where each platform keeps a user's caches: on Windows under `aggrega\cache` inside the directory the `LOCALAPPDATA` environment variable names, under `~/Library/Caches/aggrega` on macOS, and under an `aggrega` directory inside the one `XDG_CACHE_HOME` names — `~/.cache/aggrega` when `XDG_CACHE_HOME` is unset — on Linux and the other Unix systems. `aggrega config init` prints the directory on the machine it runs on. Where none of those variables is set, compiled plugins are kept only for the run.
+The machine-wide stores are kept where each platform keeps a user's caches: on Windows under `aggrega\cache` inside the directory the `LOCALAPPDATA` environment variable names, under `~/Library/Caches/aggrega` on macOS, and under an `aggrega` directory inside the one `XDG_CACHE_HOME` names — `~/.cache/aggrega` when `XDG_CACHE_HOME` is unset — on Linux and the other Unix systems. `aggrega config init` prints the directory on the machine it runs on. Where none of those variables is set, compiled plugins are kept only for the run, and no documentation bundle is kept at all: an explanation then says why its walk-through is missing, and an assistant's documentation resources answer not-found.
 
-`aggrega cache status` states this per class rather than leaving it to be inferred from the name: each class is reported as covering the workspace or the machine, and the same reach is reported for each element `prune`, `evict` and `clear` remove. `evict` acts only on the shared compiled-module store; `clear` acts on everything, which is why it asks before it starts.
+`aggrega cache status` states this per class rather than leaving it to be inferred from the name: each class is reported as covering the workspace or the machine, and the same reach is reported for each element `prune`, `evict` and `clear` remove. `evict` acts only on the shared compiled-module store; `prune` never removes a documentation bundle, since no lockfile references one, and reports the store as not prune-eligible; `clear` acts on everything, which is why it asks before it starts.
 
 **This applies wherever the operation is invoked from, not only at a terminal.** The same operations are reachable from an editor session and from an assistant's tool call, and their answers carry the same reach for the same reason. Where an assistant may invoke them on your behalf, see [`aggrega mcp`](aggrega-mcp.md).
 
