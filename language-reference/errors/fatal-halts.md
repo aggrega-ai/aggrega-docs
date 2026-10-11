@@ -4071,7 +4071,7 @@ The Feature-and-FeatureRecipe pairing reports the same condition through the att
 
 There it reports the first missing key in sorted order and stops, so that pairing names one key per build while the Component pairing names all of them. Keys are walked in sorted order either way, which is what makes both the same across runs.
 
-**How to fix:** add the missing key to the realizer's `provides:` block, or remove it from the abstract entity's `schema.provides` where nothing is expected to publish it. A key whose template renders to nothing counts as unpublished, so an entry that is present and empty reports here too — supply a value, or drop the declaration.
+**How to fix:** add the missing key to the realizer's `provides:` block, or remove it from the abstract entity's `schema.provides` where nothing is expected to publish it. A key whose template renders to nothing is still published, with the empty string as its value, so an entry that is present and empty fulfils the contract and does not report here. Where an empty value must stop the build, refuse it in an assertion: a Recipe's assertions read its resolved `provides:` values.
 
 ### An assertion stopped the build
 

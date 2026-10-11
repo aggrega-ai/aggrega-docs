@@ -591,7 +591,7 @@ they are from the readable layouts. Pass --unredacted to print them instead.
 | `--output`, `-o` | `text` | Output format: text\|yaml. |
 | `--plugin` | — | Filesystem path to a raw .wasm artifact; derives and prints the host functions it imports, before `aggrega plugin sync` records them in a Plugin entity. Takes no identifier argument. |
 | `--raw` | `false` | Render the entity as authored, without resolution. |
-| `--release` | — | Look a catalog name up in the terms of this Release file: through the catalog directories the workspace configuration gives that Release, with --catalog prepended. Applies to a name; a file or a registry reference is inspected as it stands and refuses it. |
+| `--release` | — | Look a catalog name up in the terms of this Release file: through the catalog directories the workspace configuration gives that Release, with --catalog prepended. Applies to a name; a file or a registry reference is inspected as it stands and refuses it. A relative path resolves against the directory you run the command in, not against the workspace root. Where that directory is in no workspace and no root is named, an absolute path finds the workspace from the Release's own folder |
 | `--resolved` | `false` | Render the entity fully resolved. |
 | `--show-implements` | `false` | For a Recipe or FeatureRecipe, resolve spec.implements against the catalog and render the bound Component or Feature. |
 | `--unredacted` | `false` | Print the values an author declared sensitive instead of withholding them. Anything the output reaches — a terminal, a pipe, a file, a screen recording — then carries those values in the clear. |
