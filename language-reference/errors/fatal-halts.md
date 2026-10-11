@@ -5185,7 +5185,7 @@ A condition the documentation resource surface absorbs. A documentation bundle w
 **Which of the two not-found answers you get is worth knowing apart**, even though the surface renders them the same. This one means the bundle is cached and sound and the page is not in it. The other — no bundle the workspace may read, because none is cached or the only copy is one the workspace's signature check refuses — means the acquisition did not complete, and the server's log stream says why.
 
 Emitted message, naming the page and the bundle it was looked for in:
-> docscache: page `"<page>"` in `<reference>`@`<version>`: docscache: page not found in documentation bundle
+> page `"<page>"` in `<reference>`@`<version>`: docscache: page not found in documentation bundle
 
 **How to fix:** nothing is broken in your files. A page that is missing from the bundle is missing because the bundle predates it or the path asked for is not the path it is published under — the bundle is acquired at the version the server reports as its own, so a page added after that version is not in it. Where the page has never existed, the request named a path the documentation does not use, and the published documentation is where to find the one it does.
 
