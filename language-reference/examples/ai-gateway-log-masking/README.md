@@ -254,11 +254,11 @@ log configured on the gateway would receive.
 
 ## Log masking or data masking
 
-`core/data-masking` hides the listed text from the model, and turns the
-gateway's logging of message contents off while it is attached. Beside it, log
-masking would have nothing left to act on, and a reader could take the two for
-one protection. So each declares a conflict with the other, and attaching both
-to the gateway halts the build. Adding a `core/data-masking` attachment named
+`core/data-masking` hides the listed text from the model, and on this gateway
+its realization turns the gateway's logging of message contents off while it is
+attached. Beside it, log masking would have nothing left to act on, and a reader
+could take the two for one protection. So each declares a conflict with the
+other, and attaching both to the gateway halts the build. Adding a `core/data-masking` attachment named
 `masked` above `logs` prints:
 
 ```text
