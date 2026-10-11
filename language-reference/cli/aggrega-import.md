@@ -15,9 +15,18 @@ aggrega import <file> [flags]
 Turn a foreign source description into draft Aggrega authoring files.
 
 The importer reads the source file, drafts Aggrega entities from it, and writes
-the drafted files into the current directory (creating parent directories as
-needed). The importer attached at the workspace's import socket does the
-translation; import selects it, runs it, and writes what it produces.
+the drafted files beneath the root of the workspace the run resolved, from
+whichever folder the command is run in (creating parent directories as needed).
+The importer attached at the workspace's import socket does the translation;
+import selects it, runs it, and writes what it produces.
+
+Pass --output-dir to write the drafts beneath another directory instead. A
+relative path resolves against the directory you run the command in, as every
+path you type does. A directory you name outside the workspace is used where you
+named it, and what is written beneath it is held to it. Wherever the drafts go,
+a link on the way to one that leads out of the workspace — or, beneath a
+directory you named outside it, out of that directory — is refused, and nothing
+is written.
 
 The source format selects how the importer reads the file. Pass --format to
 name it explicitly. When --format is omitted, import inspects the file's
@@ -45,4 +54,5 @@ source the write would refuse is refused here too.
 | --- | --- | --- |
 | `--dry-run` | `false` | Do everything except write: hand back the drafted files as content, naming the file each is for, and create or modify nothing. Every other behaviour is the write's, the importer run included. Without it the drafts are written to disk. |
 | `--format` | — | Name the source format explicitly, overriding shape detection (for example langflow or flowise) |
+| `--output-dir` | — | Directory the drafted files are written under. A relative path resolves against the directory you run the command in. Without it the drafts are written beneath the root of the workspace the run resolved. |
 <!-- END GENERATED: cli-import -->

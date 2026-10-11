@@ -227,9 +227,8 @@ let through by their class, never by the request that happens to carry them.
 beneath it. The directory itself is used as you named it — one that is a link is followed to where it
 points — and a link beneath it leading out of it is held exactly as a link inside the workspace is: not
 read in a listing, and halting a lookup or a write. So a catalog directory you list outside the
-workspace, an output directory you pass to `aggrega plugin gen-catalog`, the directory you run an import
-in when the workspace root you named lies elsewhere, and an `artifact_cache_dir` that climbs out of the
-workspace each hold what is beneath them to themselves. Where a directory you named lies inside the
+workspace, an output directory you pass to `aggrega plugin gen-catalog` or `aggrega import`, and an
+`artifact_cache_dir` that climbs out of the workspace each hold what is beneath them to themselves. Where a directory you named lies inside the
 workspace, the workspace is the root.
 
 **A Release or a Manifest you named outside the workspace is the same rule read for a file**: its own
