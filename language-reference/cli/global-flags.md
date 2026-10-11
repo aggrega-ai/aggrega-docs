@@ -8,6 +8,8 @@ Use `<path>` as the workspace root, skipping discovery entirely. When the flag i
 
 `AGGREGA_WORKSPACE_ROOT` is the environment counterpart: when `--workspace-root` is not given, the variable supplies the root. The flag wins when set.
 
+The root is the root wherever it is given, the servers included: a request to [`aggrega mcp`](aggrega-mcp.md) that names no workspace of its own is answered in it, with nothing above it searched. `aggrega mcp` and `aggrega serve` refuse to start when the root they are given is not an existing folder, and the refusal names whichever of the two supplied it, `--workspace-root` or `AGGREGA_WORKSPACE_ROOT`, with the value exactly as it was given.
+
 ## Global config file
 
 `--config <path>` names the global config file explicitly for one invocation. It wins over the `AGGREGA_CONFIG` environment variable, which in turn wins over the default location — and because both name a file deliberately, a path that does not exist is a loud error rather than a silent fallback. Unlike the `AGGREGA_*` setting variables, neither overrides a single setting; they select which file applies. Whichever file resolves, the project's own config files still layer on top of it. [Configuration](configuration.md#naming-the-global-file-explicitly) carries the resolution order and what belongs in that file.
