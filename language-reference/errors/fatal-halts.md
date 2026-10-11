@@ -2324,7 +2324,7 @@ Emitted message, which is the condition's own sentence:
 
 <!-- covers: pkg/signing.ErrTrustRootLoad -->
 
-Verification without network access rests on a trust root pinned in the workspace: a file whose contents are the material every signature is checked against. This condition reports that the file at the configured path could not be turned into usable trust material — it is absent, it is not readable, or its contents are not a trust root.
+A trust root pinned in the workspace is what lets a keyless check verify without network access wherever it runs: a file whose contents are the material every signature is checked against. This condition reports that the file at the configured path could not be turned into usable trust material — it is absent, it is not readable, or its contents are not a trust root.
 
 **It halts rather than falling back.** A pinned root is a deliberate choice to check signatures against material you control, so quietly fetching one instead would replace that choice with a different one and produce a verification result nobody asked for.
 
