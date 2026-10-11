@@ -166,6 +166,16 @@ developer surface and the String Pipe with zero platform authoring.
   the gateway. The README shows the token cost and the traffic policy as
   rendered, the calendar-month setting the budget turns on for the whole
   install, and the build refusing a budget in US dollars.
+- **[model-server-caller-allowlist](model-server-caller-allowlist/)** — a model
+  server that only the gateway in front of it may call, compiled to Kubernetes.
+  The Aggregate declares only the gateway's connection to the model server; the
+  operator attaches `core/caller-allowlist` to the model server in the Release,
+  and the network policy it writes admits the components whose `uses` edges
+  point there, the model server's own pods and one monitoring agent the Release
+  names, each matched by its namespace and its pods together. The README shows
+  what can and cannot reach the model server, why the policy keeps matching
+  pods across an upgrade, and the halts that stop a policy which could not
+  admit exactly what was declared.
 
 ## Authoring
 

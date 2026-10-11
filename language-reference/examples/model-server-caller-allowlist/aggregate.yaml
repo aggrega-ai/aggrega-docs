@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: model-server-caller-allowlist
+  version: "1.0.0"
+  description: >
+    A model server that only the gateway in front of it may call. The gateway
+    forwards client traffic to the model server through its upstream socket.
+    That declared connection is all this file says about who calls whom: the
+    Release attaches a Feature to the model server that turns it into the
+    cluster network's rule, so the gateway's pods, the model server's own pods
+    and one monitoring agent the Release names may connect, and nothing else.
+    This file, the Manifest and the Release are the whole of what anyone
+    authors here: every Component, Feature and Recipe named below ships in the
+    standard-library catalog.
+spec:
+  components:
+    # ── The gateway ─────────────────────────────────────────────────────────
+    # NGINX in front of the model server. Its upstream socket is the declared
+    # connection: the model server's published host and port arrive on the
+    # injection context and become the proxy_pass target.
+    gateway:
+      type: core/gateway/nginx
+      uses:
+        upstream:
+          model:
+            target: model
+            inject:
+              env:
+                - in: NGINX_UPSTREAM_HOST
+                  from: host
+                - in: NGINX_UPSTREAM_PORT
+                  from: port
+
+    # ── The model server ────────────────────────────────────────────────────
+    # Ollama serving one model. Nothing here restricts who may call it: the
+    # Release does, and admits the components whose uses edges point at it,
+    # which here is the gateway alone. A call this file does not declare as an
+    # edge is refused wherever a Release fences the model server that way.
+    model:
+      type: core/ai-model/ollama
+      values:
+        model: llama3.1

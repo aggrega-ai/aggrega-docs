@@ -1,0 +1,24 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: model-server-caller-allowlist-manifest
+  version: "1.0.0"
+  description: >
+    Ops mapping for the Kubernetes target. Every component type and the
+    attached Feature are routed to the standard-library Recipe that implements
+    them on this target.
+spec:
+  mappings:
+    components:
+      type:
+        core/gateway/nginx:1.0.0: helm/nginx:1.0.0
+        core/ai-model/ollama:1.0.0: helm/ollama:1.0.0
+    features:
+      type:
+        # The allowlist is realized on this target alone: a Compose stack puts
+        # every service of a group on one network, so the rule has nothing to
+        # be written into there.
+        core/caller-allowlist:1.0.0: helm/caller-allowlist:1.0.0

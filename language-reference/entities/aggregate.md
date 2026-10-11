@@ -197,6 +197,12 @@ The merged parameter map remains alive through rendering to support **path-templ
 
 For the broader parameter-hoisting checklist (Aggregate declaration → values reference → Release fulfilment → Recipe consumption) and the cross-pillar mechanics, see [`vocabulary/data-pillars.md`](../vocabulary/data-pillars.md) §"Parameters" and §"The parameter-hoisting checklist". For the template-context fields exposed during interpolation and the path-template carve-out, see [`templates/parameters-context.md`](../templates/parameters-context.md).
 
+## A `uses` edge is a call the Aggregate declares
+
+A `uses` edge is the Aggregate's statement that one component calls another. The compiler pipes the values the target publishes into the caller and restricts nothing: on its own, an edge neither admits the caller nor refuses anyone else, and a workload that reaches the target's address without an edge reaches it all the same.
+
+Restricting who may call a component is the operator's decision, made per environment in the Release. Where a Release attaches the standard-library catalog's `core/caller-allowlist` Feature to a component, the build writes a network policy admitting exactly the components whose `uses` edges point at it, that component's own pods and the sources the attachment names. A call the Aggregate does not declare as an edge can then be refused by the cluster, wherever its network plugin enforces network policy. So write an edge for every call your components make, including one that injects no value: an edge that is missing is a call a fenced component may refuse. [model-server-caller-allowlist](../examples/model-server-caller-allowlist/) shows a model server reachable only through the gateway in front of it.
+
 ## A connection's own attachments: `features` on a `uses` entry
 
 A connection a component draws in its verbose `uses:` form is an entry of its own, and beside `target`, `inject` and `values` it may carry **attachments**, under `features:`. Each one is keyed by a **slot the socket declares**: the consuming Component lists, in the socket's `featuresSchema`, the slots every connection wired through that socket may fill (see [Topology Sockets](component.md#topology-sockets-usesschema)). This is how one component holds a different credential for each component it reaches — a gateway calling two models with two keys, or an agent presenting a key of its own to a model.

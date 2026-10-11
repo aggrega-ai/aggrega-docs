@@ -1,0 +1,49 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: model-server-caller-allowlist-dev
+  environment: development
+  version: "1.0.0"
+spec:
+  aggregate: model-server-caller-allowlist
+  manifest: model-server-caller-allowlist-manifest
+
+  # Two namespaces. The policy names each caller by its pods' selector AND the
+  # namespace those pods are emitted into, and is itself placed in the
+  # namespace of the pods it protects, so every workload it names has to be
+  # emitted into a namespace; one that is not halts the build.
+  boundaries:
+    edge:
+      directory: edge
+      annotations:
+        aggrega.ai/namespace: edge
+      components:
+        gateway: {}
+    models:
+      directory: models
+      annotations:
+        aggrega.ai/namespace: models
+      components:
+        model:
+          features:
+            # The caller allowlist, attached here by the operator: who may
+            # reach the model server over the cluster network is decided for
+            # this environment, not by the Aggregate. Its callers are the uses
+            # edges the Aggregate already declares.
+            allowlist:
+              type: core/caller-allowlist
+              infra:
+                # The cluster's network plugin enforces network policy. The
+                # build cannot check this, so it halts until it is affirmed.
+                control_plane_present: true
+                # A source outside the Aggregate: the monitoring agent that
+                # scrapes the model server, named by its namespace and its pod
+                # labels together. Nothing else outside the Aggregate is
+                # admitted.
+                admitted_sources:
+                  - namespace: monitoring
+                    pod_labels:
+                      app.kubernetes.io/name: prometheus
