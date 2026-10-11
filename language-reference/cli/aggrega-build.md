@@ -80,6 +80,12 @@ discovered again from the Release's own folder, so the catalog searched and the
 paths recorded in the output are those of the project the Release belongs to,
 wherever you run the command from. See
 [configuration.md](configuration.md#the-other-ways-a-project-root-is-recognised).)
+Where no workspace is found that way either and nothing names one, the build says on
+standard error which folder it used as the root, and a build asked to resolve its
+dependencies first is refused before anything is fetched, because the cache that
+resolution fills would be written in that folder and make it a workspace. A
+`--workspace-root` or `AGGREGA_WORKSPACE_ROOT` naming a folder that does not exist is
+refused before the build does anything else, naming whichever of the two supplied it.
 
 ## Environment variables
 

@@ -690,8 +690,10 @@ alongside its default, where it has one.
 ### The other ways a project root is recognised
 
 `--workspace-root <path>`, or its `AGGREGA_WORKSPACE_ROOT` counterpart, names the root outright and
-skips discovery. Otherwise discovery walks upward from the working directory, and the kinds of
-anchor rank against each other rather than by nearness:
+skips discovery. The folder it names must exist: a path that names nothing, or names a file, is
+refused before the command does anything else, and the refusal names whichever of the two supplied
+the value and quotes it as it was given. Otherwise discovery walks upward from the working directory,
+and the kinds of anchor rank against each other rather than by nearness:
 
 - **A `.aggrega-config.yaml` carrying a `workspace:` block wins outright**, at whatever depth it
   sits. The walk keeps climbing to look for one even after it has passed a marker of the kind
@@ -699,8 +701,20 @@ anchor rank against each other rather than by nearness:
 - **Failing that, the nearest of these markers anchors the root**, and within one directory they
   rank in this order: an `.aggrega/` directory, then an `aggregate*.yaml`, then a `release*.yaml`,
   then a `manifest*.yaml`.
-- **Failing everything, the working directory is used** — commands run and simply resolve nothing,
-  rather than refusing to start.
+- **Failing everything, the working directory is used** — commands run rather than refusing to
+  start, and a command that reads its workspace says so in one line on standard error, naming the
+  folder it used and how to name your workspace instead. Commands that need no workspace, such as
+  `aggrega version`, `aggrega login` and `aggrega logout`, say nothing.
+
+Nothing is written into an artifact cache in such a folder. An `.aggrega/` directory is itself one of
+the markers above, so a cache written there would make the folder a workspace because something was
+once fetched in it. A command whose work fills the cache — `aggrega pull`, a build that resolves its
+dependencies first, `aggrega registry update`, `aggrega pin`, adding a command-extension plugin from a
+registry — is refused before it fetches anything, naming the folder and the two ways out: name the
+workspace with `--workspace-root` or `AGGREGA_WORKSPACE_ROOT`, or give the folder a
+`.aggrega-config.yaml` carrying a `workspace:` block. Where `artifact_cache_dir` puts the cache
+changes nothing here, because the directory is joined to whichever root was found. Commands that only
+read still answer.
 
 That last fallback has one exception. When nothing named the root and the working directory anchors
 nothing, a command about one Release or one entity document that names that file by an absolute path
@@ -710,9 +724,11 @@ finds: the workspace the file belongs to, or, failing everything, that folder. T
 `aggrega lint` and `aggrega inspect` are given, or else the file they are given; and the document
 `aggrega pin`, `aggrega push` and `aggrega edit-document` are given. So a project's Release built from
 outside the project reads the project's own configuration, as it does when the command runs inside
-it, and the configuration warnings the command prints are that workspace's. A relative path is read
-against the directory you run the command in and changes nothing, and a named root, or a working
-directory that is itself inside a workspace, is used as it is. The
+it, and the configuration warnings the command prints are that workspace's. Where the file's own
+folder anchors nothing either, that folder is the one the command's notice names and the one no cache
+is written in. A relative path is read against the directory you run the command in and changes
+nothing, and a named root, or a working directory that is itself inside a workspace, is used as it
+is. The
 [assistant server](aggrega-mcp.md#which-workspace-a-call-is-answered-in) applies the same rule to a
 call that names its Release or document by an absolute path.
 
