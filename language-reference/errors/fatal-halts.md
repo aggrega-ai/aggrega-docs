@@ -1943,7 +1943,7 @@ A Plugin entity states what the plugin it points at offers: which exports it has
 
 The comparison is per export, keyed by name, and it runs in one direction: **everything the entity claims must match, and the plugin may offer more.** An entity that describes part of the plugin's surface is not required to enumerate the rest, so an export the plugin declares and the entity omits is not a disagreement. What is a disagreement is a claimed export the plugin does not declare, or a claimed export whose operates or scope differs from what the plugin reports. The free-form selector is not compared.
 
-Where the entity also authors a render-behaviour block, its fields are compared one by one — the input kinds, the assembly mode, the artifact-template delimiter pair, the assembly-name annotation, the reusable-instance claim, the cross-boundary-linking claim and the nesting directory — and the first to disagree is the one named. An entity that authors no such block skips that comparison entirely.
+Where the entity also authors a render-behaviour block, its fields are compared one by one — the input kinds, the assembly mode, the artifact-template delimiter pair, the assembly-name annotation, the reusable-instance claim, the cross-boundary-linking claim, the omit-entries claim and the nesting directory — and the first to disagree is the one named. An entity that authors no such block skips that comparison entirely.
 
 **The same check runs at publish**, so a mismatch normally surfaces before the entity is published rather than when a build loads it.
 

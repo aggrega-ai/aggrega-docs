@@ -435,15 +435,15 @@ Each provider declares which input kinds it renders; a central input-kind gate a
 **Read each column on its own.** A row says which kinds a provider renders taken one at a time. It does not say that two ticked kinds may be declared together. Because the kinds compose by addition, each declared kind is dispatched and emitted separately, so a pair can be refused for a reason neither column carries — most often because both kinds produce a file under the same output name. Which combinations each provider actually accepts is stated in prose under [What each provider accepts, in full](#what-each-provider-accepts-in-full).
 
 <!-- BEGIN GENERATED: provider-capability-matrix -->
-| Provider | `source:` + `valuesMapping:` | `workload:` | `artifacts:` (alongside) | artifacts-only (standalone) |
-| --- | --- | --- | --- | --- |
-| helm | ✅ | ✅ | ✅ | ✅ |
-| compose | ✅ | ✅ | ✅ | ✅ |
-| helm-chart | ✅ | ❌ | ✅ templated with `[[` `]]` delimiters | ❌ |
-| terraform | ✅ | ❌ | ✅ | ✅ |
-| cloudformation | ✅ | ❌ | ✅ | ✅ |
+| Provider | `source:` + `valuesMapping:` | `workload:` | `artifacts:` (alongside) | artifacts-only (standalone) | `omits:` |
+| --- | --- | --- | --- | --- | --- |
+| helm | ✅ | ✅ | ✅ | ✅ | ❌ |
+| compose | ✅ | ✅ | ✅ | ✅ | ❌ |
+| helm-chart | ✅ | ❌ | ✅ templated with `[[` `]]` delimiters | ❌ | ❌ |
+| terraform | ✅ | ❌ | ✅ | ✅ | ❌ |
+| cloudformation | ✅ | ❌ | ✅ | ✅ | ❌ |
 
-*This grid covers the providers distributed with the compiler. A provider supplied separately declares the input kinds it accepts in the same way, and the compiler reads that declaration by the same route — it is not listed here, because a published page cannot enumerate providers it has never seen.*
+*This grid covers the providers distributed with the compiler. A provider supplied separately declares the input kinds it accepts, and whether it honours `omits:`, in the same way, and the compiler reads that declaration by the same route — it is not listed here, because a published page cannot enumerate providers it has never seen.*
 <!-- END GENERATED: provider-capability-matrix -->
 
 *Cells marked `✅` ship; `❌` is a provider-capability decline surfaced by the gate. The per-node compose fragments are merged per boundary today; a further Release-level cross-boundary merge is a future refinement.*

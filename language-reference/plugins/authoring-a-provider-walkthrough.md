@@ -769,6 +769,14 @@ each is wanted:
   that each value is a list, hands the lists to the Feature templates that read
   them, and writes the same files whether or not they are reported. Document each fact's name and what its entries hold as part of the
   provider's contract.
+- **Omit entries**, once the provider renders a source. A source render's
+  input can carry `Omits`, entries naming rendered units to leave out, beside
+  its `SourceListing`; a provider that honours them leaves every matched unit
+  out of what it returns, reports one count per entry in `Omitted`, and
+  declares `Omits: true` on its contract. They never accompany an
+  artifacts-only render like this provider's, so it meets them only after it
+  renders a sourced input. [Leaving rendered units out](plugin-contract.md#leaving-rendered-units-out)
+  in the plugin contract has the whole shape.
 - **Publishing**, which turns the local `dev-catalog` arrangement into a
   digest-pinned artifact a Release resolves and verifies. The
   [plugin developer guide](plugin-developer-guide.md) covers that lifecycle,

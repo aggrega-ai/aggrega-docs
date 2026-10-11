@@ -220,6 +220,7 @@ The host is a generic router. It reads the guest's `describe()` self-report — 
 - `boundary_assembly` (`none` | `merge` | `nest`) — how the guest combines a dispatch group's output: `merge` classifies per-node output as fragments the assembler merges into one artifact, `nest` nests per-node files under an assembled wrapper, `none` writes each node's output directly.
 - `artifact_delimiters` (optional) — the Go-template delimiter pair the guest applies to artifact bodies.
 - `reusable_instance` (optional) — whether one loaded instance may serve every crossing of the build (see [Determinism and instance reuse](#determinism-and-instance-reuse) below).
+- `omits` (optional) — whether the guest honours the omit entries a source render carries (see [Leaving rendered units out](#leaving-rendered-units-out) below).
 - `source_ignore` (optional) — the files the guest's ecosystem never ships beside a source it renders (see [Declaring what a source's ecosystem never ships](#declaring-what-a-sources-ecosystem-never-ships) below).
 
 The socket is a fixed export set — one mandatory, the rest optional and advertised in `describe()`:
@@ -305,6 +306,45 @@ out := aggrega.RenderNodeOutput{
 	RenderFacts: []aggrega.RenderFact{{Name: "stacks", Value: stacks}},
 }
 ```
+
+#### Leaving rendered units out
+
+A source render can name units the provider must leave out of what it renders — a Secret a fetched chart generates afresh on every render, say. Which rendered unit an entry names is knowledge only your provider has, so the entries travel to your guest and your guest does the leaving out. They arrive on `render_node`'s input as an optional `omits` list beside the `source_listing`:
+
+```json
+{
+  "node": { "id": "payments-api" },
+  "context": { },
+  "source_listing": { "root": "/acquired/payments-chart", "root_is_dir": true, "entries": [] },
+  "omits": [
+    { "kind": "Secret", "name": "payments-api-token", "namespace": "payments" },
+    { "kind": "ConfigMap", "name": "payments-api-dashboards" }
+  ]
+}
+```
+
+Each entry is a `kind`, a `name` and an optional `namespace`, already resolved to plain strings and listed in the order the author declared them; an entry that does not apply to the build is not carried. What the three fields select is your provider's own contract — the kind, name and namespace of a resource in your target's format — so document it for the authors who write the entries.
+
+A guest that honours the entries does three things:
+
+- **Matches every entry against what it rendered**, in your format's terms.
+- **Leaves each matched unit out of everything it returns** — its `files`, the names it declares in `derived_keys` and the facts it reports in `render_facts` — so nothing the compiler receives still describes it.
+- **Reports one count per entry** on an optional `omitted` list in its output, in the order the entries arrived, each the number of units that entry matched, counted whether or not another entry also matched them:
+
+```json
+{
+  "files": [ { "path": "templates/deployment.yaml", "content": "..." } ],
+  "omitted": [1, 0]
+}
+```
+
+A zero is a complete answer: that entry matched nothing your guest rendered. The counts are all that travels back about what was left out; the units themselves are simply absent from what your guest returned.
+
+A provider that does all three declares it with `omits: true` on its contract. The `Plugin` entity records the same claim as `spec.provider.contract.omits`; where the entity carries a render-behavior contract, the load refuses a guest whose `describe()` reports a different value. The entries accompany a source listing and nothing else: a render of a synthesized workload or of an artifact set never carries them.
+
+**A guest handed no entries renders exactly as before.** Both fields are optional and absent when empty, so a render that carries no entries crosses the socket byte for byte as it would if the fields did not exist, and a guest that never reads them is unaffected by them. The `OmitEntry` type is published in the three ABI packages and re-exported by each language's plugin development kit.
+
+**Status today:** the two fields and the contract claim are part of the socket; the compiler does not yet hand a render any entries, and no provider distributed with the compiler declares the claim.
 
 #### Declaring what a source's ecosystem never ships
 
