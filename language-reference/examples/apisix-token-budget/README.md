@@ -54,11 +54,11 @@ Resolving pins the APISIX chart the gateway's Recipe renders, fetched from the
 chart's own repository, so it needs the network. This workspace resolves the
 catalog entities through the `catalog_dirs` in `.aggrega-config.yaml`.
 
-The build prints:
+The build prints, with `<workspace>` standing for this example's folder:
 
 ```text
 [… omitted: the resolution's summary and a total build time, which differ per run]
-Build completed: 8 files written to dist/
+Build completed: 8 files written to <workspace>/dist
 ```
 
 ## The rendered tree

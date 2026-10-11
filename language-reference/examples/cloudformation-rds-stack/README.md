@@ -49,13 +49,15 @@ per run.
 ./build-release.sh one-stack
 ```
 
+It prints, with `<workspace>` standing for this example's folder:
+
 ```
 # example : cloudformation-rds-stack
 # rule    : 2 (.aggrega-config.yaml catalog_dirs drives resolution)
 # command : aggrega build --release release-one-stack.yaml
 
 Total build time:               2.4s
-Build completed: 1 files written to dist/
+Build completed: 1 files written to <workspace>/dist
 ```
 
 The assembled stack lands at

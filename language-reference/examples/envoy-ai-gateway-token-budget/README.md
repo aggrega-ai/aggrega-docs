@@ -84,7 +84,7 @@ Envoy AI Gateway's from Docker Hub, cert-manager's from quay.io — so it needs
 the network. This workspace resolves the catalog entities through the
 `catalog_dirs` in `.aggrega-config.yaml`.
 
-Building with `--auto-pull` prints:
+Building with `--auto-pull` prints, with `<workspace>` standing for this example's folder:
 
 ```text
 # example : envoy-ai-gateway-token-budget
@@ -93,7 +93,7 @@ Building with `--auto-pull` prints:
 
 Pull complete: release.lock (entities=26, source_artifacts=3, external_inputs=0)
 [… omitted: the total build time, which differs per run]
-Build completed: 113 files written to dist/
+Build completed: 113 files written to <workspace>/dist
 ```
 
 ## The rendered tree

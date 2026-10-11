@@ -75,12 +75,12 @@ The pull prints:
 Pull complete: release-matched.lock (entities=15, source_artifacts=0, external_inputs=0)
 ```
 
-and the build:
+and the build, with `<workspace>` standing for this example's folder:
 
 ```text
   notice: LINT: Feature "core/referenced-secret" at core/referenced-secret:1.0.0 declares property "origin" in both values: and infra: pillars (path: origin)
 [… omitted: a total build time, which differs per run]
-Build completed: 8 files written to dist/
+Build completed: 8 files written to <workspace>/dist
 ```
 
 The other two releases print the same lines, each pull naming its own

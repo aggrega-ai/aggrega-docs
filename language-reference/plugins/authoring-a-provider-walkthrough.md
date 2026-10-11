@@ -662,10 +662,11 @@ aggrega build --release release.yaml --auto-pull
 Pull complete: release.lock (entities=5, source_artifacts=0)
 warning: plugin "provider/dotenv" resolved from local with no recorded digest to check it against, so it runs unverified; it is read from beside its Plugin entity in a catalog directory on every build, and a pull records its digest only for a plugin attached at a transform role; otherwise publish the plugin and reference the published entity to have its digest recorded
 [… omitted: a line reporting total build time, which differs on every run]
-Build completed: 1 files written to dist/
+Build completed: 1 files written to <workspace>/dist
 ```
 
-The rendered tree:
+The closing line names the output directory in full, where `<workspace>` stands for
+the workspace root. The rendered tree beneath it:
 
 ```text
 dist/infra/dotenv/app/app.env

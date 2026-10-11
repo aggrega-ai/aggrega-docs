@@ -85,12 +85,12 @@ first.
 Either way the halt is the point rather than an obstacle: a build does not render
 against a pin it can see is stale.
 
-The build prints:
+The build prints, with `<workspace>` standing for this example's folder:
 
 ```text
 Pull complete: release.lock (entities=20, source_artifacts=0, external_inputs=0)
 [… omitted: a total build time, which differs per run]
-Build completed: 12 files written to dist/
+Build completed: 12 files written to <workspace>/dist
 ```
 
 The entities are checked against the catalog's conventions once while the

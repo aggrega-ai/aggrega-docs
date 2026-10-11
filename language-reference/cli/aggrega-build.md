@@ -97,7 +97,13 @@ The workspace settings build reads can be overridden through the environment, ab
 
 ## Output
 
-Rendered artifacts land under `dist/`. A Release that declares no boundaries writes per provider: `dist/<provider>/<files>`. A declared boundary with no `directory:` writes per boundary, per provider: `dist/boundaries/<boundary-path>/<provider>/<files>`. Operator-authored `directory:` and `subDirectory:` overrides on Release boundaries change the target path; per-`(path, provider)` collapse merges contributors that resolve to the same evaluated path.
+Rendered artifacts land under `dist/` beneath the workspace root, whichever folder the command is run from — the root itself, a folder beneath it, or a folder elsewhere with the root named by `--workspace-root` or `AGGREGA_WORKSPACE_ROOT` — and the closing line names that directory in full:
+
+```
+Build completed: 4 files written to <workspace>/dist
+```
+
+`<workspace>` stands here for the workspace root, which the line spells out as a full path. Where no workspace is found and nothing names one, the folder the command was run from is the root, so `dist/` is written there. A `dist` that is a link leading out of the workspace is refused before anything in it is removed or written. A Release that declares no boundaries writes per provider: `dist/<provider>/<files>`. A declared boundary with no `directory:` writes per boundary, per provider: `dist/boundaries/<boundary-path>/<provider>/<files>`. Operator-authored `directory:` and `subDirectory:` overrides on Release boundaries change the target path; per-`(path, provider)` collapse merges contributors that resolve to the same evaluated path.
 
 ### YAML indentation
 
@@ -129,16 +135,16 @@ aggrega build --release releases/production.yaml --dry-run
 ```
 
 ```
-==> dist/main/helm/webapp-configmap-webapp.yaml <==
+==> <workspace>/dist/main/helm/webapp-configmap-webapp.yaml <==
 apiVersion: v1
 kind: ConfigMap
 ...
 
 Total build time:               2.5s
-Dry run: 1 files would be written to dist/; nothing was written
+Dry run: 1 files would be written to <workspace>/dist; nothing was written
 ```
 
-The artifacts are reported in the order a build writes them, so the same input reports the same bytes in the same sequence, and the path reported is the path a build would write to.
+The artifacts are reported in the order a build writes them, so the same input reports the same bytes in the same sequence, and the path reported is the path a build would write to — beneath the workspace root, spelled out in full where `<workspace>` stands above.
 
 **What is not written.** The output directory is left exactly as it stands — it is not cleaned either, so a previous build's output survives a dry run intact. The lockfile is not written. Nothing is written to `.trace/`.
 
@@ -170,7 +176,7 @@ Everything else composes normally. `--verify-determinism` renders each node twic
 
 ## Trace output
 
-The `--trace` flag turns on a per-node debug dump capturing every intermediate compiler state. Output lives at `.trace/` next to `dist/` (never under it; the sibling layout follows the convention of `.git/`, `.terraform/`, `node_modules/` and keeps `dist/` purely deployable).
+The `--trace` flag turns on a per-node debug dump capturing every intermediate compiler state. Output lives at `.trace/` beneath the workspace root, next to `dist/` (never under it; the sibling layout follows the convention of `.git/`, `.terraform/`, `node_modules/` and keeps `dist/` purely deployable).
 
 The directory layout is per-boundary, per-instance:
 
@@ -314,6 +320,10 @@ provider emits is the provider's own shape — Helm manifests, a redistributable
 Helm chart, docker-compose YAML — so the output directory holds whatever the
 providers this Release routes to produce.
 
+The output directory is dist/ beneath the workspace root, whichever folder the
+command is run from, and the closing line names it in full. A run that finds no
+workspace uses the folder it was run from as the root, and writes dist/ there.
+
 Build is read-only by default and needs a lockfile. Run "aggrega pull" first to
 create one, or pass --auto-pull to fill it in-process for this build.
 
@@ -336,7 +346,7 @@ the rendered tree reviewable as a diff.
 | `--progress` | `false` | Force the build-progress surface on even when stderr is not a terminal, printing one plain line per step as it completes, with its time. The default is auto: the interactive phase checklist is shown only when stderr is a terminal that interprets escape sequences, a terminal that does not gets the same plain lines, and redirected or piped output gets none. --quiet and --debug both override --progress |
 | `--quiet` | `false` | Silence the build-progress surface on stderr. Does not affect stdout. Takes precedence over --progress |
 | `--release` | — | Path to Release YAML file (required). A relative path resolves against the directory you run the command in, not against the workspace root. Where that directory is in no workspace and no root is named, an absolute path finds the workspace from the Release's own folder |
-| `--trace` | `false` | write per-node intermediate files to .trace/ (sibling to dist/) for post-mortem inspection |
+| `--trace` | `false` | write per-node intermediate files to .trace/ beneath the workspace root, beside dist/, for post-mortem inspection |
 | `--trace-unredacted` | `false` | Write the declared-sensitive values into the .trace/ files instead of the <redacted> text that stands in for them, and stamp every file the trace writes with a header saying so. Requires --trace. It reaches .trace/ and nothing else: rendered artifacts, aggrega inspect output and diagnostic text are identical with and without it. Invocation-only — there is no workspace-config setting for it, so it can never be left on for a later build |
 | `--unredacted` | `false` | Print the values an author declared sensitive instead of withholding them. Anything the output reaches — a terminal, a pipe, a file, a screen recording — then carries those values in the clear. Reaches the graph --ir-graph writes and nothing else, so it requires --ir-graph; the .trace/ files take --trace-unredacted instead |
 | `--upgrade` | `false` | Make the auto-pull step a full refresh: discard the existing lockfile and re-resolve every dependency from current registry state, floating each to the highest available version instead of honoring existing pins. Implies --auto-pull — on its own it runs a full-refresh pull before the build. It takes no target, so it cannot be narrowed to one dependency: to adopt or drop a single pin, run `aggrega pull --upgrade --release <release> <uri>` instead, which holds every other pin unchanged. Because it drops every recorded pin it asks for confirmation first; --yes answers in advance, and on a non-interactive stdin it refuses rather than waiting for an answer nobody can give |

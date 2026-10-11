@@ -186,6 +186,7 @@ work that lives outside the neutral core.
 
 ```text
 cross-boundary-networking/
+├── .aggrega-config.yaml      # marks this folder as the workspace root; lists the standard catalog
 ├── aggregate.yaml            # SHARED developer intent (both variants)
 ├── release-compose.yaml      # Variant A: parent bridge boundary + two networks
 ├── manifest-compose.yaml

@@ -52,11 +52,11 @@ This workspace resolves the catalog entities through the `catalog_dirs` in
 configuration step `pipeline-step/litellm-gateway-config`, which the resolution
 fetches from the registry `default_registry` names.
 
-The build prints:
+The build prints, with `<workspace>` standing for this example's folder:
 
 ```text
 [… omitted: the resolution's summary and a total build time, which differ per run]
-Build completed: 10 files written to dist/
+Build completed: 10 files written to <workspace>/dist
 ```
 
 **The Release names the guard's and the detector's images, because the catalog

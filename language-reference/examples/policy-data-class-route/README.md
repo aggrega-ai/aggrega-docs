@@ -160,11 +160,11 @@ sentence a second time. The lockfile is still written.
 ## Satisfying it: the masking gateway on the route
 
 `release-masked.yaml` routes the claims assistant through `masking-gateway`, and
-every engine lets it build:
+every engine lets it build, with `<workspace>` standing for this example's folder:
 
 ```text
 [… omitted: the helper's header, the pull's lines, a lint notice, under OPA a warning that its guest runs unverified, and the total build time]
-Build completed: 17 files written to dist/
+Build completed: 17 files written to <workspace>/dist
 ```
 
 The masking gateway is now on the claims assistant's only route to the model,
