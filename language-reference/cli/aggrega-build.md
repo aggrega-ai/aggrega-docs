@@ -83,7 +83,11 @@ wherever you run the command from. See
 Where no workspace is found that way either and nothing names one, the build says on
 standard error which folder it used as the root, and a build asked to resolve its
 dependencies first is refused before anything is fetched, because the cache that
-resolution fills would be written in that folder and make it a workspace. A
+resolution fills would be written in that folder and make it a workspace. A build that
+resolves nothing first still renders, but for the same reason an external input the
+lockfile pins and the cache no longer holds is not fetched again: the plugin that asks
+for it is told the refusal's sentence in its place, as it is told the offline posture's,
+and the build reports what that plugin makes of it. A
 `--workspace-root` or `AGGREGA_WORKSPACE_ROOT` naming a folder that does not exist is
 refused before the build does anything else, naming whichever of the two supplied it.
 

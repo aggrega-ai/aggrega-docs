@@ -709,12 +709,15 @@ and the kinds of anchor rank against each other rather than by nearness:
 Nothing is written into an artifact cache in such a folder. An `.aggrega/` directory is itself one of
 the markers above, so a cache written there would make the folder a workspace because something was
 once fetched in it. A command whose work fills the cache — `aggrega pull`, a build that resolves its
-dependencies first, `aggrega registry update`, `aggrega pin`, adding a command-extension plugin from a
-registry — is refused before it fetches anything, naming the folder and the two ways out: name the
-workspace with `--workspace-root` or `AGGREGA_WORKSPACE_ROOT`, or give the folder a
-`.aggrega-config.yaml` carrying a `workspace:` block. Where `artifact_cache_dir` puts the cache
-changes nothing here, because the directory is joined to whichever root was found. Commands that only
-read still answer.
+dependencies first, `aggrega registry update`, `aggrega pin`, `aggrega push` of a Recipe or
+FeatureRecipe, which is held to the pins the `entity.lock` beside it records, adding a
+command-extension plugin from a registry — is refused before it fetches anything, naming the folder
+and the two ways out: name the workspace with `--workspace-root` or `AGGREGA_WORKSPACE_ROOT`, or give
+the folder a `.aggrega-config.yaml` carrying a `workspace:` block. A build there is not refused, but an
+external input its lockfile pins and the cache no longer holds is not fetched again to repair it: the
+render is told the same sentence in place of that input, the way it is told the offline posture's, and
+reports it. Where `artifact_cache_dir` puts the cache changes nothing here, because the directory is
+joined to whichever root was found. Commands that only read still answer.
 
 That last fallback has one exception. When nothing named the root and the working directory anchors
 nothing, a command about one Release or one entity document that names that file by an absolute path
