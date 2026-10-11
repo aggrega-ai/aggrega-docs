@@ -245,5 +245,5 @@ status is the same under either format.
 | `--output`, `-o` | `text` | Output format: text\|json. |
 | `--plugin` | — | Filesystem path to the publishing-linter .wasm artifact (runs this artifact instead of the workspace plugins.linter attachments) |
 | `--pre-publish` | `false` | Fetch the previous registry version and verify the proposed bump against the schema-evolution classification |
-| `--release` | — | Path to a Release YAML to check conventions over its resolved dependency closure (mutually exclusive with an entity argument) |
+| `--release` | — | Path to a Release YAML to check conventions over its resolved dependency closure (mutually exclusive with an entity argument). A relative path resolves against the directory you run the command in, not against the workspace root. Where that directory is in no workspace and no root is named, an absolute path finds the workspace from the Release's own folder |
 <!-- END GENERATED: cli-lint -->
