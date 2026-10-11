@@ -709,11 +709,15 @@ and the kinds of anchor rank against each other rather than by nearness:
 Nothing is written into an artifact cache in such a folder. An `.aggrega/` directory is itself one of
 the markers above, so a cache written there would make the folder a workspace because something was
 once fetched in it. A command whose work fills the cache — `aggrega pull`, a build that resolves its
-dependencies first, `aggrega registry update`, `aggrega pin`, `aggrega push` of a Recipe or
-FeatureRecipe, which is held to the pins the `entity.lock` beside it records, adding a
-command-extension plugin from a registry — is refused before it fetches anything, naming the folder
-and the two ways out: name the workspace with `--workspace-root` or `AGGREGA_WORKSPACE_ROOT`, or give
-the folder a `.aggrega-config.yaml` carrying a `workspace:` block. A build there is not refused, but an
+dependencies first, `aggrega registry update`, adding a command-extension plugin from a registry — is
+refused before it fetches anything, naming the folder and the two ways out: name the workspace with
+`--workspace-root` or `AGGREGA_WORKSPACE_ROOT`, or give the folder a `.aggrega-config.yaml` carrying a
+`workspace:` block. `aggrega pin`, and `aggrega push` of a Recipe or FeatureRecipe, which is held to
+the pins the `entity.lock` beside it records, fill the cache only with the remote sources the entity
+writes out in full, which pinning one or comparing its pin fetches: they are refused the same way where
+they would fetch such a source, before they fetch it. An entity with no such source — no source at
+all, a local one, or one whose coordinates each Release fills in — is pinned or published there as
+anywhere else. A build there is not refused, but an
 external input its lockfile pins and the cache no longer holds is not fetched again to repair it: the
 render is told the same sentence in place of that input, the way it is told the offline posture's, and
 reports it. Where `artifact_cache_dir` puts the cache changes nothing here, because the directory is
