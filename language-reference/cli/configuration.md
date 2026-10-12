@@ -234,9 +234,15 @@ one version or at two — are refused when the configuration loads, whichever co
 naming both entries and the files they were written in. The rule spans every file that contributes
 to the list: an entry in the global file, one in a project's file, one under `importer_append`, and
 one in a pipeline's `.aggrega-config-append-ci.yaml` all count, so moving an importer to a new
-version means changing the version on its one entry. An entry whose `uri` is a filesystem path names
-no importer and is not compared, and the `plugins.governance` and `plugins.linter` lists are not held
-to the rule: one plugin may be attached to them more than once, each time with its own `with`.
+version means changing the version on its one entry. `aggrega plugin add importer` does exactly that
+when the `plugins.importer` list of the file it writes already names the importer: it moves that
+entry to the version it resolved, keeping the entry's place and its `with`, rather than adding a
+second one. It reads no other list, so an importer attached under `importer_append`, or in a
+pipeline's `.aggrega-config-append-ci.yaml`, is attached a second time by the command and the pair
+is refused when the configuration loads; change the version on such an entry where it is written.
+An entry whose `uri` is a filesystem path names no importer and is not compared, and the
+`plugins.governance` and `plugins.linter` lists are not held to the rule: one plugin may be attached
+to them more than once, each time with its own `with`.
 
 ### Starting from nothing
 

@@ -61,6 +61,8 @@ What add writes depends on the type:
     version and adds the bare plugin identity (<type>/<name>:<version>) to the
     plugins.<type> list. A governance entry also records its --role, one of
     annotation-transform, label-transform, ir-verdict, or render-verdict.
+    An importer the plugins.importer list already names keeps its one entry,
+    moved to the pinned version with its place and what it carries under with.
   - The provider type writes the plugin's oci:// identity as a plugins.providers
     entry; --capability names the capability the binding serves, preserving
     existing settings.
@@ -290,6 +292,8 @@ whose records are out of sync with its binary.
 ## What an importer entry does
 
 `aggrega plugin add importer` writes the plugin's identity and the latest version published for it — `importer/<name>:<version>` — into the `plugins.importer` list. That entry attaches the importer it names: an import asking for a format the importer advertises runs that importer, at that version, even where other importers in your catalog advertise the format too, and only that importer is handed what the entry carries under `with`. [Which importer turns a source into drafts](configuration.md#which-importer-turns-a-source-into-drafts) describes the entry in full.
+
+An importer is attached by one entry, so adding one the `plugins.importer` list of the file being written already names — at any version, or by a range — adds no second entry. The command moves that entry to the version it resolved instead: the entry keeps its place in the list and everything it carries under `with`. Adding an importer at the version its entry already names leaves the entry as it is.
 
 ## A CLI plugin's commands and their flags
 
