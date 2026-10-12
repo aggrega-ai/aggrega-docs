@@ -29,8 +29,9 @@ spec:
     # The routing component. Its authoring surface is the model map: each entry
     # publishes an alias a caller may ask for and names the upstream target that
     # alias resolves to. Both entries below publish the SAME alias, which is what
-    # makes routing_strategy do anything — with distinct aliases the gateway
-    # routes by name alone and the strategy changes no answer.
+    # gives the router a choice to make — with distinct aliases the gateway
+    # routes by name alone, and the selection attachment below changes no
+    # answer.
     #
     # Both are typed by hand into values.models rather than wired to the
     # router's models socket, for two reasons, each enough on its own. A wired
@@ -57,8 +58,17 @@ spec:
             target: openai/gpt-4o
           - name: assistant
             target: anthropic/claude-sonnet-4
-        routing_strategy: latency-based-routing
       features:
+        # How the router chooses between the two entries publishing assistant:
+        # the target observed to answer quickest. The choice is the developer's,
+        # part of what the application asks of its router, so it is attached
+        # here with its strategy as a value; the Manifest binds the realization
+        # that writes it into the router's configuration.
+        selection:
+          type: core/target-selection
+          values:
+            strategy: latency
+
         # Two credentials, and the difference between them is the whole point of
         # putting a router in front of a model.
         #

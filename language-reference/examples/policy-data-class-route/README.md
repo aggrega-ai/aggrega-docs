@@ -195,7 +195,7 @@ The masking itself is in the masking gateway's configuration, the `config.yaml`
 key of `dist/helm/masking-gateway/litellm-gateway-config.configmap.yaml`:
 
 ```yaml
-[… omitted: the routing table and the routing strategy]
+[… omitted: the routing table]
 litellm_settings:
   callbacks:
     - /etc/litellm-request-guard/request_field_filter.filter

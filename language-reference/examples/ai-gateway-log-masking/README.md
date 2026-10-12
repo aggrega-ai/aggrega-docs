@@ -106,7 +106,7 @@ Here is the gateway's configuration body, the `config.yaml` key of
 `litellm_settings` section on:
 
 ```yaml
-[… omitted: the routing table and the routing strategy]
+[… omitted: the routing table]
 litellm_settings:
   callbacks:
     - /etc/litellm-request-guard/request_field_filter.filter

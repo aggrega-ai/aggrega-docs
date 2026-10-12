@@ -110,14 +110,16 @@ developer surface and the String Pipe with zero platform authoring.
   router, compiled to Kubernetes. The router's alias map reaches the rendered
   configuration, so the routing table is readable in the artifact rather than
   implied by it, and two entries publishing the same alias are what give the
-  routing strategy something to decide. Five attachments over three Feature
-  kinds, each visible in the output: an Ingress and a ServiceMonitor the
-  component's own Recipe knows nothing about, and three credentials — the key
-  the router requires of callers, the key it presents upstream on their behalf,
-  and the key the agent presents to it, the first and last read from one hoisted
-  parameter so they cannot drift apart. Also shows where the compiler is blind:
-  two pairs of names have to agree, nothing checks either, and the build
-  succeeds when they do not.
+  router a choice to make, which a `core/target-selection` attachment makes by
+  latency. Six attachments over four Feature kinds, each visible in the output:
+  that choice, written into the router's configuration; an Ingress and a
+  ServiceMonitor the component's own Recipe knows nothing about; and three
+  credentials — the key the router requires of callers, the key it presents
+  upstream on their behalf, and the key the agent presents to it, the first and
+  last read from one hoisted parameter so they cannot drift apart. Also shows
+  where the compiler is blind: the address and the alias the agent receives are
+  read off what the router publishes, and the compiler pipes both without
+  reading them.
 - **[connection-credentials](connection-credentials/)** — a semantic-memory
   store reaching two models and presenting a different key to each, compiled to
   Kubernetes: a hosted model whose key is fetched from a cluster secret store,

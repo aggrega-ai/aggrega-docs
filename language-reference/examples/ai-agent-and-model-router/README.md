@@ -40,7 +40,7 @@ Three components, and each one is doing a different job:
 Two `uses` edges, both into sockets the agent's Component declares: `model`
 (required, admitting a model component or a gateway serving a model API — the
 router is the second) and `checkpointer_db` (required, selecting on the
-datastore category). Five Feature attachments over three Feature kinds — four on
+datastore category). Six Feature attachments over four Feature kinds — five on
 the router, one on the agent's `model` connection — each of which puts something
 in the rendered output; the section below shows what each one produces.
 
@@ -88,8 +88,8 @@ against a pin it can see is stale.
 The build prints, with `<workspace>` standing for this example's folder:
 
 ```text
-Pull complete: release.lock (entities=20, source_artifacts=0, external_inputs=0)
-[… omitted: a total build time, which differs per run]
+Pull complete: release.lock (entities=23, source_artifacts=0, external_inputs=0)
+[… omitted: a notice that core/referenced-secret declares origin in both of its pillars, and a total build time, which differs per run]
 Build completed: 12 files written to <workspace>/dist
 ```
 
@@ -103,7 +103,7 @@ file it came from and what would make it agree:
 aggrega lint --release release.yaml
 ```
 
-which here reports `conventions checked: 15 entities, 0 advisory finding(s)`.
+which here reports `conventions checked: 17 entities, 0 advisory finding(s)`.
 
 ## The rendered tree
 
@@ -168,11 +168,11 @@ data:
         litellm_params:
           model: anthropic/claude-sonnet-4
           api_key: os.environ/LITELLM_PROVIDER_API_KEY
-    router_settings:
-      routing_strategy: latency-based-routing
     litellm_settings:
       callbacks:
         - /etc/litellm-request-guard/request_field_filter.filter
+    router_settings:
+      routing_strategy: latency-based-routing
 ```
 
 and the `data` block of the second ConfigMap,
@@ -189,18 +189,19 @@ data:
 
 Five things are worth reading off those.
 
-**Both entries publish the same alias.** That is what gives
-`routing_strategy` something to do: with two entries under one name, the router
-has a choice to make on each request, and `latency-based-routing` is the rule it
-applies. A map whose aliases are all distinct routes by name alone, and the
-strategy changes nothing about it. Sharing one alias is also why both are typed
-by hand into `values.models` rather than served from model components wired to
-the router's `models` socket: a wired model is served under the alias of its own
-connection, which no other entry may publish, so two wired models never share
-one. The second reason is Anthropic's: the router writes a wired model's entry
-through the OpenAI API alone, while Anthropic's model answers its own API, so
-wiring `core/ai-model/anthropic` halts the build, saying to type that upstream
-into the map instead.
+**Both entries publish the same alias.** That is what gives the router a choice
+to make on each request, and the `router_settings` at the end of the body says
+how it makes it: `latency-based-routing`, written there by the router's
+`selection` attachment rather than by its own Recipe, as the section on that
+attachment below shows. A map whose aliases are all distinct routes by name
+alone, and the strategy changes nothing about it. Sharing one alias is also why
+both are typed by hand into `values.models` rather than served from model
+components wired to the router's `models` socket: a wired model is served under
+the alias of its own connection, which no other entry may publish, so two wired
+models never share one. The second reason is Anthropic's: the router writes a
+wired model's entry through the OpenAI API alone, while Anthropic's model
+answers its own API, so wiring `core/ai-model/anthropic` halts the build, saying
+to type that upstream into the map instead.
 
 **The targets are strings the compiler does not interpret.**
 `openai/gpt-4o` is a deterministic pointer: the running proxy resolves it when it
@@ -341,10 +342,10 @@ The agent talks to the router in exactly the dialect it would use to talk to a
 provider directly — a base URL, a model name, and a key. That is what lets the
 router be inserted, moved or repointed without the application changing.
 
-## The five attachments, and what each one renders
+## The six attachments, and what each one renders
 
 An attachment that changes nothing in the output teaches nothing. Each of these
-five puts something there.
+six puts something there.
 
 ### `api_key` on the router — the key it requires of callers
 
@@ -525,6 +526,61 @@ spec:
 
 The `port` names a Service port rather than a number, and `http` is the one the
 router's Recipe emits — the same name the Ingress above routes to.
+
+### `selection` on the router — how it chooses between its targets
+
+`core/target-selection`, which attaches to a gateway carrying
+`gateway.aggrega.ai/intelligence: semantic`, as the router does. Which way the
+router chooses is part of what the application asks of it, so the developer
+attaches it in the Aggregate, with its `strategy` as a value:
+
+```yaml
+  components:
+    router:
+      features:
+        selection:
+          type: core/target-selection
+          values:
+            strategy: latency
+```
+
+and the Manifest binds it to the realization for this router:
+
+```yaml
+        core/target-selection:1.0.0: helm/target-selection-litellm:1.0.0
+```
+
+It renders no file of its own. Its realization writes one setting into the
+routing table the router's Recipe renders — the last two lines of the `data`
+block above:
+
+```yaml
+    router_settings:
+      routing_strategy: latency-based-routing
+```
+
+With it, the proxy sends each request for `assistant` to the entry whose last
+ten replies took the least time on average, per output token where a reply
+reports its tokens, and an entry not yet tried counts as quickest, so each is
+tried before the averages decide. Remove the attachment
+from the Aggregate and rebuild: the build still reports twelve files, and the
+routing table's ConfigMap differs by exactly those two lines. The router's
+Recipe writes no strategy of its own, and without one the proxy picks between
+the two entries at random.
+
+Ask for `strategy: cost` instead and the build halts, writing nothing. The halt
+is `E0033`, a failed assertion of the realization, and its message ends
+with the rule's own sentence: *core/target-selection attachment "selection" on
+"router" asks for strategy cost, but core/gateway/litellm cannot choose between
+the entries of its model map by cost: the proxy looks each entry's target up,
+exactly as written, in its own price table, which names OpenAI's and Anthropic's
+models without the provider prefix a target carries (gpt-4o, not
+openai/gpt-4o) and which the proxy may fetch afresh when it starts, and it
+prices an entry it does not find, and that carries no price of its own, at a
+fixed fallback, so the entries sharing an alias are priced alike and the choice
+falls to their order. Ask for strategy latency, or remove the attachment*. Both
+targets here are written that way, so the proxy would send every request to the
+first of them while the Aggregate asked for cost.
 
 ## Where the compiler is blind
 

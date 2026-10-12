@@ -100,8 +100,6 @@ model_list:
       model: openai/gpt-4o-mini
       api_base: "http://guard-default:8000/v1"
       api_key: "the-guard-holds-the-upstream-credential"
-router_settings:
-  routing_strategy: simple-shuffle
 litellm_settings:
   callbacks:
     - /etc/litellm-request-guard/request_field_filter.filter
