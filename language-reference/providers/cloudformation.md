@@ -7,7 +7,7 @@ The cloudformation provider renders Aggrega Recipes into AWS CloudFormation stac
 A cloudformation Recipe authors a **fragment** — the CloudFormation resources contributed by a single component — rather than a whole template. When a boundary's components render, the provider assembles every fragment in the dispatch group into one stack template: the resources merge under a single `Resources` map, each component's `provides` values surface as stack `Outputs`, and the template's other top-level sections are accounted for one by one under [Top-level sections in the assembled stack](#top-level-sections-in-the-assembled-stack). Two authoring shapes are accepted:
 
 - **Fragment (artifacts) input.** A Recipe authors resource fragments directly; the provider normalizes them to pure-JSON long-form intrinsics and merges them into the assembled stack.
-- **Sourced input.** A Recipe references an existing CloudFormation template (YAML or JSON); the provider normalizes it to long-form JSON and validates its structure before assembly.
+- **Sourced input.** A Recipe references an existing CloudFormation template (YAML or JSON); the provider normalizes it to long-form JSON and validates its structure before assembly, leaving out any resource the Recipe's `omits:` entries name — see [Leaving resources out of a sourced template](#leaving-resources-out-of-a-sourced-template).
 
 The assembled template is pure JSON. Intrinsics are emitted verbatim and never evaluated at build time — the compiler cannot resolve a value that only exists after the stack deploys, and evaluating one would break the ahead-of-time contract.
 
@@ -144,7 +144,43 @@ A sourced CloudFormation template is structurally validated before it renders: t
 
 **A template that parses is not thereby carried whole.** The parse says the document is well formed; what reaches the assembled stack is decided separately and per section, under [Top-level sections in the assembled stack](#top-level-sections-in-the-assembled-stack) — a sourced template goes through the same accounting a fragment does.
 
-Nor does the parse ask whether the template's references resolve. Whether a `Ref` names a parameter, or an `Fn::FindInMap` a map, is a question about the assembled stack rather than about any one input document, and it is CloudFormation's to answer at deploy time. The build states what it did not carry instead of judging what the result refers to.
+Nor does the parse ask whether the template's references resolve. Whether a `Ref` names a parameter, or an `Fn::FindInMap` a map, is a question about the assembled stack rather than about any one input document, and it is CloudFormation's to answer at deploy time. The build states what it did not carry instead of judging what the result refers to. The one reference it does judge is one to a resource an `omits:` entry left out of the template, which the next section covers: there the build itself made the reference dangle.
+
+## Leaving resources out of a sourced template
+
+A sourced template is used as it stands: the provider normalizes it and reads no value into it, so a template fetched from a git repository that declares a resource the Release must not create — a bucket the operator already provides, a key the platform manages elsewhere — cannot be changed by the Recipe. That is what the [`omits:`](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source) entries of a Recipe or a FeatureRecipe are for. This provider honours them on a sourced template and on nothing else: the fragments an `artifacts:` entry authors render without them.
+
+```yaml
+spec:
+  capability: cloudformation
+  implements: core/store:1.0.0
+  source:
+    kind: git-repository
+    url: https://git.example.com/platform/templates.git
+    ref: v3.2.0
+    module_subdir: store
+  omits:
+    # The template bundles an access-log bucket; this Release logs elsewhere.
+    - kind: AWS::S3::Bucket
+      name: StoreLogs
+```
+
+**An entry names one resource by its `Type` and its logical ID.** The entry's `kind` is the resource's `Type`, such as `AWS::S3::Bucket`, and its `name` is the resource's logical ID, its key under `Resources`; both are compared exactly as written, and both have to match, so an entry whose `Type` is right and whose logical ID is not leaves nothing out. A template has no namespaces, so an entry carrying a `namespace` stops the build when the component renders, naming the entry; every entry is checked before anything is left out.
+
+**Every template of the source is matched.** A single-file source has one template. A directory source — a source fetched from a git repository is always one — has every file ending `.yaml`, `.yml`, `.json` or `.template`, and an entry leaves out every resource it names in any of them; a file carried alongside the templates is never read. The provider reports how many resources each entry left out across all of them, and an entry that left none out stops the build; see [An omits entry left out nothing the source rendered](../errors/fatal-halts.md#an-omits-entry-left-out-nothing-the-source-rendered).
+
+**A resource left out is gone before anything else reads the template.** It is not stamped with provenance, not counted among the names the stack carries — so another component may contribute a resource under the same logical ID without the two meeting — and it never reaches the assembled stack. Everything else in the template is written exactly as it would be had the template been authored without the resource, and a template every resource of which is left out keeps an empty `Resources` section.
+
+**A resource left out must not stay named by what remains**, because CloudFormation refuses a template that names a resource it does not declare. Once the resources are removed, every reference the remaining templates still make to one of them stops the build, and the message names the template, the resource, how the reference names it, and where the reference sits as a path from the template's root — `/Resources/Store/Properties/LoggingConfiguration/DestinationBucketName`, say. A reference is what CloudFormation's template reference defines as naming a resource by its logical ID, read in every resource's body — its properties, its metadata and its policies included — and in every output:
+
+- `Ref`, with the logical ID as its argument;
+- `Fn::GetAtt`, as a list whose first item is the logical ID, or as one string — `!GetAtt StoreLogs.Arn` — whose text before the first dot is;
+- a resource's `DependsOn`, as one logical ID or a list of them;
+- each variable of `Fn::Sub`, in its string form and in its list form: `${StoreLogs}` and `${StoreLogs.Arn}` both name `StoreLogs`.
+
+Some values only look like references and are not read as one. `${!StoreLogs}` is literal text, and a variable the list form's map names is that map's value. A resource's `Condition` and the first argument of `Fn::If` name a condition, `Fn::FindInMap` names a mapping, `Fn::ImportValue` an export of another stack, and `Fn::GetAZs` a region. The `Conditions`, `Mappings`, `Parameters` and `Rules` sections cannot name a resource, and the template's own top-level `Metadata` section is information CloudFormation stores rather than reads, so none of them is checked. A `Ref` or an `Fn::GetAtt` whose logical ID is itself written as an intrinsic function is valid only under a transform, which the assembled stack never carries (see [Top-level sections in the assembled stack](#top-level-sections-in-the-assembled-stack)), so it names no resource the check can read and is left as it is; so is a reference to a resource the source never declared.
+
+**The check reads the declaring Recipe's or FeatureRecipe's own templates, together.** They assemble into one stack, so a reference to a logical ID another of those templates still declares is not stopped. Nothing else is read: a reference to a left-out resource stops the build even where another component declares a resource of that logical ID, and a reference made by anything else that assembles into the stack — another component, an attached Feature, or the Recipe's own `artifacts:` entries — is not one this check sees, so CloudFormation refuses the stack when it is deployed. To keep a reference, keep the resource. A sourced template takes no values, so the reference itself cannot be changed: leave out the resource making it as well, or remove the entry. An output is not a resource and no entry names one, so a resource the template's `Outputs` name cannot be left out of it: leaving it out stops the build.
 
 ## Cloud-target annotations
 

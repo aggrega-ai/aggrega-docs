@@ -140,7 +140,7 @@ The head carries the category and this condition's short code, `E0265`, which is
 
 A Recipe or a FeatureRecipe declares `omits:` and the provider rendering it does not declare that it leaves rendered documents out. Leaving a document out of what a source renders is something only the provider can do — only the provider knows which documents the source renders and what each is called — so a provider that does not do it would render every document the entries name and report success. The build refuses before anything renders instead, so the key never quietly does nothing.
 
-Whether a provider leaves documents out is read from the provider's own declaration of what it supports, not from a list of providers the compiler keeps. Every entry counts, whatever its `when:` renders, because whether the provider can honour the key does not depend on which entries a build keeps. The `helm` and `compose` providers honour the key. `helm-chart` and `terraform` hand their source on to be rendered when it is deployed, so no rendered document exists at build time to leave out, and both are refused; `cloudformation` is refused too, until it honours it.
+Whether a provider leaves documents out is read from the provider's own declaration of what it supports, not from a list of providers the compiler keeps. Every entry counts, whatever its `when:` renders, because whether the provider can honour the key does not depend on which entries a build keeps. The `helm`, `compose` and `cloudformation` providers honour the key. `helm-chart` and `terraform` hand their source on to be rendered when it is deployed, so no rendered document exists at build time to leave out, and both are refused.
 
 The refusal is decided once every component's Recipe and every attachment's FeatureRecipe is bound and each provider has described itself — before the first component renders and before any entry is evaluated, so a build refused here renders nothing. It is asked of every document that renders a source: a component's Recipe; the FeatureRecipe an attachment binds on a component, once for each component carrying the attachment; and a FeatureRecipe that generates once for a boundary, once, at the boundary that declares it. Every document at fault is reported in one build; where more than one is, the findings are grouped under `documents declaring omits whose provider does not honour them`. A document bound to a provider the build cannot resolve is not reported here: that build halts where the provider is selected, naming the binding.
 
@@ -4209,7 +4209,7 @@ Emitted message:
 
 <!-- covers: internal/compiler/renderer.ErrOmitMatchedNothing -->
 
-Every entry of a Recipe's or a FeatureRecipe's `omits:` list that applies to a build — its `when:` absent, empty or true — must leave at least one thing the source rendered out of the output: a document a chart renders, or a service, a volume or a config a compose file declares. The provider rendering the source matches each entry against what it rendered and reports how many units each left out; an entry that left none out stops the build.
+Every entry of a Recipe's or a FeatureRecipe's `omits:` list that applies to a build — its `when:` absent, empty or true — must leave at least one thing the source rendered out of the output: a document a chart renders, a service, a volume or a config a compose file declares, or a resource a CloudFormation template declares. The provider rendering the source matches each entry against what it rendered and reports how many units each left out; an entry that left none out stops the build.
 
 An entry that matches nothing is a statement about the source that is no longer true. The usual cause is a source upgrade that renamed or removed what the entry names — and a renamed document or service is then in the output under its new name, which is exactly what the entry was written to keep out — and the other is a mistake in the entry itself. Passing over it would ship what the entry was meant to leave out, so the build stops and names the entry.
 
@@ -4221,7 +4221,7 @@ Emitted message. The category reaches you in the bracketed head:
 
 The head carries this condition's short code, `E0334`.
 
-**How to fix:** compare the entry with what the source renders now — build with the entry removed and read what the component renders — then correct the entry's kind, name or namespace, or remove the entry where what it named is gone. For a chart, an entry names a document by the document's own `kind`, `metadata.name` and, where the entry names a namespace, the namespace the document is in; for a compose file, it names a `service`, a `volume` or a `config` by its key. See [Recipe → The `omits:` field](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source).
+**How to fix:** compare the entry with what the source renders now — build with the entry removed and read what the component renders — then correct the entry's kind, name or namespace, or remove the entry where what it named is gone. For a chart, an entry names a document by the document's own `kind`, `metadata.name` and, where the entry names a namespace, the namespace the document is in; for a compose file, it names a `service`, a `volume` or a `config` by its key; for a CloudFormation template, it names a resource by its `Type` and its logical ID, in any of the source's templates. See [Recipe → The `omits:` field](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source).
 
 ### A provider's omitted counts do not match the omits entries it was handed
 
@@ -4522,6 +4522,18 @@ An `omits:` entry on a Recipe or a FeatureRecipe that sources a compose file lea
 
 **How to fix:** name the unit as the compose file does — `kind: service`, `volume` or `config`, and `name:` its key under that section — and drop the `namespace:`. See [compose → Sourced mode](../providers/compose.md#sourced-mode).
 
+### An omits entry names a namespace a CloudFormation template does not have
+
+<!-- covers: internal/wasm.ErrPluginCannotExpressInput -->
+
+An `omits:` entry on a Recipe or a FeatureRecipe that sources a CloudFormation template leaves out one resource, named by its `Type` as the entry's `kind` and its logical ID as the entry's `name`. A template has no namespaces, so an entry carrying a `namespace` names nothing a template could leave out, and the render stops rather than treat the entry as one that matched nothing. Every entry is checked before anything is left out, and the first one carrying a namespace, in the order the entries were written, is the one named.
+
+**Emitted message.** It reports the condition for a construct a provider has no expression for, and the provider's own sentence names the entry and what this provider leaves out. A field whose template read a value declared sensitive is shown as `<redacted>`:
+> a plugin has no expression for a construct this build declares
+> cloudformation-provider: an omits entry (kind `"<kind>"`, name `"<name>"`) names namespace `"<namespace>"`, and a CloudFormation template has no namespaces: cloudformation leaves out a resource, named by its Type as the entry's kind and its logical ID under Resources as the entry's name; remove the namespace from the entry
+
+**How to fix:** drop the `namespace:` from the entry, which names the resource by its `Type` and logical ID alone. See [cloudformation → Leaving resources out of a sourced template](../providers/cloudformation.md#leaving-resources-out-of-a-sourced-template).
+
 ### A published port declares a transport compose cannot spell
 
 <!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
@@ -4619,6 +4631,22 @@ Emitted message. The condition leads, then each referring entry, the unit it nam
 A unit whose entry's name was built from a value declared sensitive is shown as `<redacted>`.
 
 **How to fix:** decide which of the two you meant. Where the referring service still needs the unit, keep it: remove the entry. Where it does not, change the reference through the Recipe's `valuesMapping:` — a list there replaces the base file's list, so `depends_on: []` clears one — or leave the referring service out with an entry of its own.
+
+### What an omits entry left out is still named by a CloudFormation template
+
+<!-- covers: internal/wasm.ErrPluginRequiredInputUnresolved -->
+
+An `omits:` entry leaves a resource out of a sourced CloudFormation template, and CloudFormation refuses a template that names a resource it does not declare. So once the entries' resources are removed, every reference the remaining templates still make to one of them stops the render: a `Ref`, an `Fn::GetAtt` in its list form or its dotted-string form, a resource's `DependsOn`, or a variable of an `Fn::Sub` — read anywhere in each resource's body and each output. The full list, and the values that only look like references, are in [cloudformation → Leaving resources out of a sourced template](../providers/cloudformation.md#leaving-resources-out-of-a-sourced-template).
+
+**The check reads the declaring Recipe's or FeatureRecipe's own templates, together**: a reference to a logical ID another of those templates still declares is not stopped, while one to a left-out resource stops the render even where another component declares a resource of that logical ID. Every reference is reported rather than the first — template by template in the order the source carries them, each template's resources and then its outputs in key order — so one build names all of them.
+
+Emitted message. The condition leads, then each reference: the template it is in, the resource it names, how it names it, and where it sits as a path from the template's root:
+> a plugin could not resolve something it requires to exactly one value
+> cloudformation-provider: what an omits entry left out is still named by the source's templates: template `"<template>"` names resource `"<logical-id>"` (type `"<type>"`) by `<Ref|Fn::GetAtt|DependsOn|Fn::Sub>` at `<path>`; CloudFormation refuses a template naming a resource it does not declare: leave out what names it as well, or remove the entry
+
+Where an entry's fields were built from a value declared sensitive, its resource's logical ID and type are shown as `<redacted>`, and so is any step of the path that spells that logical ID.
+
+**How to fix:** decide which of the two you meant. Where the referring resource still needs the left-out one, keep it: remove the entry. Where it does not, leave the referring resource out as well, with an entry of its own — a sourced template takes no values, so the reference itself cannot be changed. An output naming the resource cannot be left out, so a resource an output names stays.
 
 ### Two entries reach one stack output name
 
@@ -5703,8 +5731,8 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0285` | `the Recipe publishes a provides key the Component it implements does not declare, so a consumer wiring that key is refused` | A Recipe publishes a `provides` key its Component does not declare, checked at publication |
 | `E0286` | `the version bump being published is smaller than the evolution check's classification of the change requires` | The version offered is a smaller bump than the change requires |
 | `E0287` | `the importer reported a diagnostic that stops the import, so the source was not fully turned into draft authoring files` | An import stopped partway through translating a source |
-| `E0288` | `a plugin has no expression for a construct this build declares` | A workload declares a form compose cannot express; A container declares a field compose has no primitive for; An omits entry names a kind or a namespace a compose file does not have |
-| `E0289` | `a plugin could not resolve something it requires to exactly one value` | A health probe cannot be turned into a compose healthcheck; A configmap volume has no file behind it; What an omits entry left out is still named by the compose file; A cross-boundary reference has no consuming stack to be written into; A synthesized StatefulSet has no single service to govern it |
+| `E0288` | `a plugin has no expression for a construct this build declares` | A workload declares a form compose cannot express; A container declares a field compose has no primitive for; An omits entry names a kind or a namespace a compose file does not have; An omits entry names a namespace a CloudFormation template does not have |
+| `E0289` | `a plugin could not resolve something it requires to exactly one value` | A health probe cannot be turned into a compose healthcheck; A configmap volume has no file behind it; What an omits entry left out is still named by the compose file; What an omits entry left out is still named by a CloudFormation template; A cross-boundary reference has no consuming stack to be written into; A synthesized StatefulSet has no single service to govern it |
 | `E0290` | `two things a plugin produced occupy one name in its output` | An authored export name is one the build derives for a cross-stack reference; Two entries reach one stack output name; A CloudFormation fragment writes one key twice; Two rendered resources land at one output file |
 | `E0291` | `a plugin has no representation for a value it was given` | A published port declares a transport compose cannot spell; A resources quantity cannot be converted to a compose value; A resource quantity the helm provider emits is not a quantity; A cross-boundary reference was spliced into a longer string |
 | `E0292` | `a plugin reported a failure that none of the declared kinds names` | A plugin reported a failure it did not classify |
