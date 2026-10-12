@@ -1904,14 +1904,14 @@ and for a plugin the record holds no entry for, where a build refuses it for rec
 
 A plugin's `.wasm` is read from one of four places, in this order: the plugins built into the compiler binary, a file beside the plugin's `Plugin` entity in a catalog directory, an explicit filesystem path the reference names, and the workspace content cache that `aggrega pull` fills. Resolving a plugin only reads what is already on the machine and fetches nothing, so this condition reports that none of the four holds the bytes — not that a download failed.
 
-The file beside the entity is named from the entity's plugin type and name, and the message gives the name: for `pipeline-step/patch` it is `pipeline-step--patch.wasm`, in the directory the entity's document sits in.
+The file beside the entity is named from the entity's plugin type and name, and the pull's refusal below gives the name: for `pipeline-step/patch` it is `pipeline-step--patch.wasm`, in the directory the entity's document sits in.
 
 **A `Plugin` entity authored in one of your catalog directories is refused when the pull resolves it.** A pull never fetches such an entity's `.wasm`: it looks in the four places above, exactly where a build looks. A pipeline step, a provider or a plugin attached at a verdict role is not pinned at all, and a build reads its entity from the catalog directory every time. A plugin attached at a transform role is pinned, because its bytes shape the rendered output: the pull records its entity and the content digest of the `.wasm` it found there, and a build refuses a `.wasm` that no longer matches. So a pull that finds the artifact in none of the four places stops there, before it writes the lockfile or any `entity.lock`, rather than leaving a build to fail later, at the step that loads the plugin. A `.wasm` the binary carries, or one already in the content cache, satisfies the pull exactly as it satisfies the build, so an entity for a plugin that ships inside the compiler needs no file beside it.
 
 Emitted messages. The pull's refusal, pointing at the directory it expected the file in, with the resolution it asked about beneath it:
 > plugin artifact not found on this machine (Plugin entity `"<reference>"` is authored in a catalog directory, expected `<file>` in `<directory>`). Place the built .wasm beside the entity under that name, or publish the plugin and reference the published Plugin entity instead of the one in the catalog directory
 
-a plugin a build loads with no source holding its bytes — and a plugin attached at a verdict role that `aggrega pull --verify` under the offline posture reads from the content cache as a build does:
+a plugin a build or an import loads with no source holding its bytes — and a plugin attached at a verdict role that `aggrega pull --verify` under the offline posture reads from the content cache as a build does:
 > plugin `"<reference>"` not resolvable through any tier (embed, colocated, local, cache): plugin artifact not found on this machine
 
 and the same for a reference written as a registry location:

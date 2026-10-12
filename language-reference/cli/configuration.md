@@ -475,11 +475,15 @@ rule worth reading twice, because a path that looks project-relative resolves el
 build still succeeds, against content you did not intend.
 
 It applies to `workspace.catalog_dirs`, to the Release files keyed under `workspace.releases` and
-the directories each entry lists, and to the local filesystem paths on a `plugins.governance`,
-`plugins.linter` or `plugins.importer` attachment — a `uri` naming a `.wasm` file on disk, and each
-entry under that attachment's `with.sources`. It applies to the entries under their append
-companions too, and each of those anchors to its own declaring file rather than to the file the
-merge happens to end at. And it applies to `mcp.tls.cert_file`, `mcp.tls.key_file` and
+the directories each entry lists, to the local filesystem paths on a `plugins.governance` or
+`plugins.linter` attachment — a `uri` naming a `.wasm` file on disk, and each entry under that
+attachment's `with.sources` — and to each entry under a `plugins.importer` attachment's
+`with.sources`. An importer attachment's `uri` does not decide which module an import runs:
+`aggrega import` runs the importer plugin in the workspace's catalog that advertises the source's
+format, and the attachment supplies only the `with` sources and settings that importer is handed.
+The rule applies to the entries under the append companions too, and each of those anchors to its
+own declaring file rather than to the file the merge happens to end at. And it applies to
+`mcp.tls.cert_file`, `mcp.tls.key_file` and
 `mcp.authorization.jwks_file`, so a file beside the one naming it is found wherever the server is launched.
 
 So given this layout:

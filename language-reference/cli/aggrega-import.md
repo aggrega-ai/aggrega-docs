@@ -17,8 +17,12 @@ Turn a foreign source description into draft Aggrega authoring files.
 The importer reads the source file, drafts Aggrega entities from it, and writes
 the drafted files beneath the root of the workspace the run resolved, from
 whichever folder the command is run in (creating parent directories as needed).
-The importer attached at the workspace's import socket does the translation;
-import selects it, runs it, and writes what it produces.
+The translation is done by the importer plugin in the workspace's catalog that
+advertises the source format; import selects it, runs it, and writes what it
+produces. Its .wasm is read from the places a build reads a plugin from — beside
+its Plugin entity in a catalog folder among them — and nothing is fetched. A
+plugins.importer attachment selects no importer: it supplies the with: sources
+and settings the importer is handed.
 
 Pass --output-dir to write the drafts beneath another directory instead. A
 relative path resolves against the directory you run the command in, as every
