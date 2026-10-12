@@ -91,6 +91,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrAmbiguousProviderPlugin()` | `ambiguous-provider-plugin` | `capability is served by more than one provider plugin; add a plugins.providers entry to select one` |
 | `ErrAmbiguousTypeMapping()` | `ambiguous-type-mapping` | `manifest maps multiple version-distinct keys to the same base type; the type-to-recipe lookup is ambiguous` |
 | `ErrDuplicateEntityIdentity()` | `duplicate-entity-identity` | `duplicate entity identity within a single catalog directory` |
+| `ErrImporterVersionUnsatisfiable()` | `importer-version-unsatisfiable` | `no importer plugin version satisfies the plugins.importer entry's version pin` |
 | `ErrManifestImplementsMismatch()` | `manifest-implements-mismatch` | `manifest mapping entry's recipe spec.implements does not match the mapped component-type / feature-type key` |
 | `ErrNoImporterForFormat()` | `no-importer-for-format` | `no importer plugin advertises the requested format` |
 | `ErrNoParserForFormat()` | `no-parser-for-format` | `no parser plugin advertises the requested format` |
@@ -411,6 +412,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | `ErrCapabilityOnCrossCuttingSocket()` | `capability-on-cross-cutting-socket` | `a cross-cutting socket is bound by capability but attaches by uri` |
 | `ErrColonInProviderBindingCapability()` | `colon-in-provider-binding-capability` | `a provider socket binding names a capability containing a colon, which no Recipe can select` |
 | `ErrConfigInvalid()` | `workspace-config-invalid` | `file failed schema validation` |
+| `ErrDuplicateImporterAttachment()` | `duplicate-importer-attachment` | `importer is attached by more than one plugins.importer entry` |
 | `ErrDuplicateProviderTarget()` | `duplicate-provider-target` | `capability is bound to more than one provider plugin` |
 | `ErrDuplicateRegistryAlias()` | `duplicate-registry-alias` | `registry alias is already used by another host` |
 | `ErrGovernanceRoleInvalid()` | `governance-role-invalid` | `a governance attachment declares no role or an unknown role` |
@@ -789,6 +791,8 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0334` | `omit-matched-nothing` | `an omits entry left out nothing the source rendered` |
 | `E0335` | `unsupported-omits` | `provider does not support omits` |
 | `E0336` | `omit-report-mismatch` | `a provider's omitted counts do not match the omits entries it was handed` |
+| `E0337` | `importer-version-unsatisfiable` | `no importer plugin version satisfies the plugins.importer entry's version pin` |
+| `E0338` | `duplicate-importer-attachment` | `importer is attached by more than one plugins.importer entry` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication no longer judges a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.

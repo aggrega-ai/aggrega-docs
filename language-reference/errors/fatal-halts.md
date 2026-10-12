@@ -934,6 +934,21 @@ Emitted message, naming the capability and the rule:
 
 **How to fix:** keep one `plugins.providers` entry for the capability the message names and remove the other. Where the two come from different configuration layers, the layer you control is the one to edit — removing your own entry adopts the one the shared layer contributes, and keeping yours means the shared layer's entry has to go instead. Two plugins that genuinely both serve the workspace serve two different capabilities, so if both are wanted, give each its own capability rather than binding one twice.
 
+### An importer is attached by more than one `plugins.importer` entry
+
+<!-- covers: pkg/workspaceconfig.ErrDuplicateImporterAttachment -->
+
+A `plugins.importer` entry attaches the importer its `uri` names: where that importer advertises the format an import asks for, the entry decides which version of it runs and hands it the entry's `with.sources` and `with.settings`. One entry does that for one importer, so a second entry naming the same importer — the same identity, at the same version or at another — would be read by nothing, and its `with` would reach no importer without a word said. The configuration is refused when it loads instead, whichever command reads it.
+
+A workspace configuration is assembled from several files — the global file, each `.aggrega-config.yaml` from the project root down to the directory a command runs in, the `importer_append` companion each may carry, and a pipeline's `.aggrega-config-append-ci.yaml` — so the second entry is often written in a different file from the first. The message names the importer and both entries, the earlier first, each by the key and position it is written under, the file it was written in, and its `uri` as written there.
+
+Only the importer list is judged: the governance and linter lists accept one plugin attached more than once, each attachment carrying its own `with`. An entry whose `uri` is a filesystem path names no importer, so it is not compared.
+
+Emitted message:
+> workspaceconfig: importer `"<identity>"` is attached by `<key>[<position>]` in `<file>` (uri `"<uri>"`) and again by `<key>[<position>]` in `<file>` (uri `"<uri>"`); keep exactly one plugins.importer entry per importer, its uri naming the version you want: importer is attached by more than one plugins.importer entry
+
+**How to fix:** keep one entry for the importer the message names — the one whose `uri` names the version you want, carrying the `with` you want that importer handed — and remove the other. Where the two are in different files, the file you control is the one to edit: removing your entry adopts the other file's, and keeping yours means the other file's entry has to go instead.
+
 ### A provider binding names a capability containing a colon
 
 <!-- covers: pkg/workspaceconfig.ErrColonInProviderBindingCapability -->
@@ -1475,6 +1490,19 @@ Emitted messages:
 For an importer the halt is raised in one more shape: the workspace's `plugins.importer` entries attach more than one of the importers advertising the format, and the importers it names are then the attached ones.
 
 **How to fix:** for an importer, keep both in the catalog and attach the one you want — a `plugins.importer` entry whose `uri` names it by its identity and version, `uri: importer/<name>:<version>`, as `aggrega plugin add importer` writes it. The attached importer is chosen among those advertising the format, as a `plugins.providers` entry chooses among the plugins serving a capability on the **provider** socket, described under "A capability is served by more than one provider plugin" below. Where the importers named are ones your entries attach, keep the entry for the one you want and remove the other. The parse socket has no such selection, so for a parser the remedy is to narrow the catalog the build reads so only the plugin you want is in it — pointing `--catalog` at the directory holding your choice is the direct way.
+
+### A `plugins.importer` entry pins a version of its importer the catalog does not hold
+
+<!-- covers: pkg/catalog.ErrImporterVersionUnsatisfiable -->
+
+A `plugins.importer` entry attaches an importer by its identity and a version — an exact one, `uri: importer/<name>:1.2.0`, or a range, `uri: importer/<name>:^1.2.0` — and that importer advertises the format the import asks for, but no version of it the catalog holds satisfies the pin: the exact version is not there, or none of its versions falls in the range. The version is an explicit choice, so the import is refused before any importer runs, rather than running another version of the importer in its place.
+
+This is distinct from no importer advertising the format, described above: here the importer is in the catalog and advertises the format, and only the version the entry names is missing. A pin that is none of the forms a version pin takes, such as `:latest`, is reported as malformed instead, as "A version pin is none of the forms a pin takes" describes.
+
+Emitted message, naming the format's capability and the version the entry pins:
+> no importer plugin version satisfies the plugins.importer entry's version pin: capability `"import:<format>"` pins `"<version>"` but no serving plugin version satisfies it
+
+**How to fix:** change the version in the entry's `uri` to one the catalog holds, or widen the range, or add the version the entry names to the catalog. A caret range matches versions at or above its floor within the same major, so `^2.0.0` is not satisfied by a `1.x` importer however recent.
 
 ### A plugin reference carries a registry host or an artifact path
 
@@ -5782,6 +5810,8 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0334` | `an omits entry left out nothing the source rendered` | An omits entry left out nothing the source rendered |
 | `E0335` | `provider does not support omits` | The provider does not support omits |
 | `E0336` | `a provider's omitted counts do not match the omits entries it was handed` | A provider's omitted counts do not match the omits entries it was handed |
+| `E0337` | `no importer plugin version satisfies the plugins.importer entry's version pin` | A `plugins.importer` entry pins a version of its importer the catalog does not hold |
+| `E0338` | `importer is attached by more than one plugins.importer entry` | An importer is attached by more than one `plugins.importer` entry |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

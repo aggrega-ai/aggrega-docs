@@ -224,8 +224,19 @@ for:
 
 Where more than one importer advertises the format and no single one of them is attached — none is,
 or entries name two of them — the import is refused, naming the importers it could not choose
-between. An entry naming an importer at a version the catalog does not hold is refused too, naming
-the version, rather than running another version in its place.
+between. An entry naming an importer that advertises the format, at a version no version of it in
+the catalog satisfies — an exact version the catalog does not hold, or a range none of its versions
+falls in — is refused too, naming the version, rather than running another version in its place; a
+version that is not one at all, such as `:latest`, is refused as malformed.
+
+**Each importer is attached by one entry.** Two entries naming one importer — the same identity, at
+one version or at two — are refused when the configuration loads, whichever command reads it,
+naming both entries and the files they were written in. The rule spans every file that contributes
+to the list: an entry in the global file, one in a project's file, one under `importer_append`, and
+one in a pipeline's `.aggrega-config-append-ci.yaml` all count, so moving an importer to a new
+version means changing the version on its one entry. An entry whose `uri` is a filesystem path names
+no importer and is not compared, and the `plugins.governance` and `plugins.linter` lists are not held
+to the rule: one plugin may be attached to them more than once, each time with its own `with`.
 
 ### Starting from nothing
 
