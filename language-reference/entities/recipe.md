@@ -568,7 +568,7 @@ Recipe assertions evaluate after Recipe binding and before rendering, once every
 
 ## The `omits:` field — leaving rendered documents out of a source
 
-Most Recipes never need this. It is for a source you take as it is — a chart fetched from a registry, most often — that renders a document your Release must not ship: a Secret the chart generates afresh on every render, say, which makes two builds differ and, once applied, overwrites the Secret the operator supplied. You do not edit a fetched chart, and no ignore rule reaches into one, so `omits:` is how a Recipe leaves such a document out of the build.
+Most Recipes never need this. It is for a source you take as it is — a chart fetched from a registry, most often — that renders a document your Release must not ship: a Secret the chart generates afresh on every render, say, which makes two builds differ and, once applied, overwrites the Secret the operator supplied. You do not edit a fetched chart, and no ignore rule reaches into one, so `omits:` is how a Recipe leaves such a document out of the build. A fetched compose file is the same case: it may bundle a service, a volume or a config the Release must not have, and a `valuesMapping:` overlay can change one but never remove it.
 
 ```yaml
 spec:
@@ -591,31 +591,32 @@ spec:
 
 **What it covers.** Only what `source:` renders. A `workload:` and the `artifacts:` entries are never filtered: you write those in the Recipe, so a document you do not want there is one you leave unwritten. The key requires `source:`, and a Recipe on the `eval` provider cannot declare it; a document breaking either rule is refused when it is read, naming the rule.
 
-**An entry.** Each entry names the documents to leave out by three fields, and a fourth decides whether it applies:
+**An entry.** Each entry names what to leave out by three fields, and a fourth decides whether it applies. What the first three name is the provider's own vocabulary for what its source renders, set out per provider in the table below:
 
-- `kind` — the kind of a rendered document: `Secret`, `ConfigMap`, `Deployment`. It is unrelated to the `kind:` a structured `source:` carries, which names how the source is fetched.
-- `name` — the document's `metadata.name`.
-- `namespace` *(optional)* — the namespace the document is in. Without it the entry names the kind and name in any namespace; a `namespace` that renders to nothing is treated as absent.
+- `kind` — the kind of what the source renders: for a chart, the kind of a rendered document — `Secret`, `ConfigMap`, `Deployment`; for a compose file, `service`, `volume` or `config`. It is unrelated to the `kind:` a structured `source:` carries, which names how the source is fetched.
+- `name` — its name: a document's `metadata.name`; a compose unit's key under `services:`, `volumes:` or `configs:`.
+- `namespace` *(optional)* — the namespace the document is in, for a provider whose output has namespaces. Without it the entry names the kind and name in any namespace; a `namespace` that renders to nothing is treated as absent.
 - `when` *(optional)* — whether the entry applies to this build. It is evaluated first and read by the same rule a pipeline step's [`when:`](featurerecipe.md#conditional-steps--when) is: a false result drops the entry, so its other fields are not evaluated and it is neither handed to the provider nor checked, while an absent or empty `when:` keeps it.
 
 `kind` and `name` are required, and an entry carrying any other field is refused when the Recipe is read.
 
 **Every value is a template**, evaluated against the same context as `valuesMapping:`. That context carries `.context.rendered_name`, the name the provider gives the node's resources and the one a chart typically names them after, so an entry can name a document exactly as the chart will. A template that fails to render halts the build as a failing `valuesMapping:` template does.
 
-**Every entry that applies must leave something out.** The provider reports how many documents each entry matched, and an entry that matched none stops the build, naming the entry; see [An omits entry left out nothing the source rendered](../errors/fatal-halts.md#an-omits-entry-left-out-nothing-the-source-rendered). A source upgrade that renames or removes the document is the usual cause, and the halt is what keeps a renamed document from reaching your output unnoticed. To leave a document out only sometimes, say so with `when:` rather than relying on the document being absent.
+**Every entry that applies must leave something out.** The provider reports how many units each entry left out, and an entry that left none out stops the build, naming the entry; see [An omits entry left out nothing the source rendered](../errors/fatal-halts.md#an-omits-entry-left-out-nothing-the-source-rendered). A source upgrade that renames or removes the document is the usual cause, and the halt is what keeps a renamed document from reaching your output unnoticed. To leave a document out only sometimes, say so with `when:` rather than relying on the document being absent.
 
 **The source still renders in full.** Only its output is filtered: every template of the chart still runs, so a template that fails still fails the build, and a document left out is rendered and then dropped. Once dropped it reaches nothing the build does afterwards — no emitted file, no name compared with other components' names, no fact a Feature reads about the render, nothing a pipeline step is handed.
 
 **A Release reaches the key through `infra` and `parameters`.** The key belongs to the Recipe, so a Release cannot write it. It can still decide what an entry does: an entry's templates read the `infra` the Release fills in, and the `parameters` it supplies reach the Recipe's `.values` wherever the Aggregate routes them there. So a Release switches an entry on or off with `when:`, as the second entry above does, or decides what it names.
 
-**What you leave out is yours to answer for.** Nothing in the build knows what a document is for. Leaving out one the rest of the chart depends on at runtime — the Secret a Deployment mounts, the ServiceAccount a pod runs as — produces output that builds cleanly and then fails when it is applied, unless something else applied beside it provides that document.
+**What you leave out is yours to answer for.** Nothing in the build knows what a document is for. Leaving out one the rest of the chart depends on at runtime — the Secret a Deployment mounts, the ServiceAccount a pod runs as — produces output that builds cleanly and then fails when it is applied, unless something else applied beside it provides that document. For a compose file the build does check, because the file states its own references: a remaining service that still names a left-out unit stops the build, as the table below describes.
 
 **Which providers honour it.** Leaving a document out is something only the provider can do, because only the provider knows what its source renders, so whether a provider honours the key is part of the provider's own declaration. A Recipe declaring `omits:` whose provider does not honour it is refused before anything renders, whatever its entries' `when:` render to; see [The provider does not support omits](../errors/fatal-halts.md#the-provider-does-not-support-omits).
 
 | Provider | `omits:` |
 | --- | --- |
 | `helm` | Honoured. An entry names a document the chart renders — from a template or from its `crds/` directory — by the document's own `kind`, `metadata.name` and, where the entry names one, the namespace the document is in. See [helm → Sourced mode](../providers/helm.md#sourced-mode). |
-| `compose`, `cloudformation` | Refused, until the provider honours the key. |
+| `compose` | Honoured. An entry names a `service`, a `volume` or a `config` of the sourced compose file by its key under `services:`, `volumes:` or `configs:`, matched once `valuesMapping:` is merged into the file, and names no namespace: an entry naming another kind, or a namespace, stops the build when the component renders. A file in which what remains still names a left-out unit — by `depends_on`, `links`, `volumes_from`, a `service:` network or namespace mode, `extends`, a build context, or a `volumes:` or `configs:` entry — stops the build, naming each reference. See [compose → Sourced mode](../providers/compose.md#sourced-mode). |
+| `cloudformation` | Refused, until the provider honours the key. |
 | `helm-chart`, `terraform` | Refused: the provider hands its source on to be rendered when it is deployed, so no document exists at build time to leave out. For a local chart or module, a line in the `.aggregaignore` beside the Recipe leaves a file of it out instead. |
 
 The same key is authored on a FeatureRecipe; see [entities/featurerecipe.md](featurerecipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source).

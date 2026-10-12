@@ -140,7 +140,7 @@ The head carries the category and this condition's short code, `E0265`, which is
 
 A Recipe or a FeatureRecipe declares `omits:` and the provider rendering it does not declare that it leaves rendered documents out. Leaving a document out of what a source renders is something only the provider can do — only the provider knows which documents the source renders and what each is called — so a provider that does not do it would render every document the entries name and report success. The build refuses before anything renders instead, so the key never quietly does nothing.
 
-Whether a provider leaves documents out is read from the provider's own declaration of what it supports, not from a list of providers the compiler keeps. Every entry counts, whatever its `when:` renders, because whether the provider can honour the key does not depend on which entries a build keeps. The `helm` provider honours the key. `helm-chart` and `terraform` hand their source on to be rendered when it is deployed, so no rendered document exists at build time to leave out, and both are refused; `compose` and `cloudformation` are refused too, until they honour it.
+Whether a provider leaves documents out is read from the provider's own declaration of what it supports, not from a list of providers the compiler keeps. Every entry counts, whatever its `when:` renders, because whether the provider can honour the key does not depend on which entries a build keeps. The `helm` and `compose` providers honour the key. `helm-chart` and `terraform` hand their source on to be rendered when it is deployed, so no rendered document exists at build time to leave out, and both are refused; `cloudformation` is refused too, until it honours it.
 
 The refusal is decided once every component's Recipe and every attachment's FeatureRecipe is bound and each provider has described itself — before the first component renders and before any entry is evaluated, so a build refused here renders nothing. It is asked of every document that renders a source: a component's Recipe; the FeatureRecipe an attachment binds on a component, once for each component carrying the attachment; and a FeatureRecipe that generates once for a boundary, once, at the boundary that declares it. Every document at fault is reported in one build; where more than one is, the findings are grouped under `documents declaring omits whose provider does not honour them`. A document bound to a provider the build cannot resolve is not reported here: that build halts where the provider is selected, naming the binding.
 
@@ -4209,25 +4209,25 @@ Emitted message:
 
 <!-- covers: internal/compiler/renderer.ErrOmitMatchedNothing -->
 
-Every entry of a Recipe's or a FeatureRecipe's `omits:` list that applies to a build — its `when:` absent, empty or true — must leave at least one document the source rendered out of the output. The provider rendering the source matches each entry against the documents it rendered and reports how many each matched; an entry that matched none stops the build.
+Every entry of a Recipe's or a FeatureRecipe's `omits:` list that applies to a build — its `when:` absent, empty or true — must leave at least one thing the source rendered out of the output: a document a chart renders, or a service, a volume or a config a compose file declares. The provider rendering the source matches each entry against what it rendered and reports how many units each left out; an entry that left none out stops the build.
 
-An entry that matches nothing is a statement about the source that is no longer true. The usual cause is a source upgrade that renamed or removed the document — and a renamed document is then in the output under its new name, which is exactly what the entry was written to keep out — and the other is a mistake in the entry itself. Passing over it would ship what the entry was meant to leave out, so the build stops and names the entry.
+An entry that matches nothing is a statement about the source that is no longer true. The usual cause is a source upgrade that renamed or removed what the entry names — and a renamed document or service is then in the output under its new name, which is exactly what the entry was written to keep out — and the other is a mistake in the entry itself. Passing over it would ship what the entry was meant to leave out, so the build stops and names the entry.
 
 The message names the node, the provider, the document declaring the entry and the entry's position in that document's `omits:` list, counting from `0`, and the kind, name and namespace the entry resolved to, the namespace only where the entry names one. For a FeatureRecipe attached to a component the node is that component; for one attached to a boundary, the line above the message names the attachment and its boundary. Where several entries matched nothing, the first in the order you wrote them is the one named, so the same entry is named on every run. A field whose template read a value declared sensitive is shown as `<redacted>` rather than as what it resolved to. An entry its `when:` dropped is never handed to the provider and never checked.
 
 Emitted message. The category reaches you in the bracketed head:
 
-> an omits entry left out nothing the source rendered (node `"<node-id>"`, provider `"<provider>"`, `"<document>"` omits[`<position>`], kind `"<kind>"`, name `"<name>"`, namespace `"<namespace>"`). correct the entry so it names a document the source renders, or remove it; a source upgrade that renamed or removed the document is the usual cause
+> an omits entry left out nothing the source rendered (node `"<node-id>"`, provider `"<provider>"`, `"<document>"` omits[`<position>`], kind `"<kind>"`, name `"<name>"`, namespace `"<namespace>"`). correct the entry so it names something the source renders, or remove it; a source upgrade that renamed or removed it is the usual cause
 
 The head carries this condition's short code, `E0334`.
 
-**How to fix:** compare the entry with what the source renders now — build with the entry removed and read the documents the component renders — then correct the entry's kind, name or namespace, or remove the entry where the document is gone. An entry names a document by the document's own `kind`, `metadata.name` and, where the entry names a namespace, the namespace the document is in; see [Recipe → The `omits:` field](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source).
+**How to fix:** compare the entry with what the source renders now — build with the entry removed and read what the component renders — then correct the entry's kind, name or namespace, or remove the entry where what it named is gone. For a chart, an entry names a document by the document's own `kind`, `metadata.name` and, where the entry names a namespace, the namespace the document is in; for a compose file, it names a `service`, a `volume` or a `config` by its key. See [Recipe → The `omits:` field](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source).
 
 ### A provider's omitted counts do not match the omits entries it was handed
 
 <!-- covers: internal/compiler/renderer.ErrOmitReportMismatch -->
 
-A provider that declares it leaves rendered documents out reports, for every `omits:` entry it was handed, how many documents that entry matched — one count per entry, in the order the entries were handed over. A report that is missing, holds too few or too many counts, or holds a count below zero leaves no way to tell whether an entry left anything out at all, so the build stops. Nothing you wrote causes this: it reports a provider whose returned output does not keep the contract it declares.
+A provider that declares it leaves rendered units out reports, for every `omits:` entry it was handed, how many units that entry matched — one count per entry, in the order the entries were handed over. A report that is missing, holds too few or too many counts, or holds a count below zero leaves no way to tell whether an entry left anything out at all, so the build stops. Nothing you wrote causes this: it reports a provider whose returned output does not keep the contract it declares.
 
 Emitted message. The message names the node and the provider, then how many entries were handed over and what came back — either how many counts, or the count below zero and the entry it was given for:
 
@@ -4507,6 +4507,21 @@ Both are checked for ordinary containers and for containers that run before the 
 
 **How to fix:** for a compose target, remove the field and do its work another way — start-up work belongs in a container that runs before the main one, and shutdown work in the container's own signal handling; bulk environment can be written out as explicit variables, or supplied from a file the compose target can read. Where the field is what you meant, render that boundary through a provider whose target has the primitive.
 
+### An omits entry names a kind or a namespace a compose file does not have
+
+<!-- covers: internal/wasm.ErrPluginCannotExpressInput -->
+
+An `omits:` entry on a Recipe or a FeatureRecipe that sources a compose file leaves out one top-level unit of that file, and a compose file has exactly three kinds an entry can name — a `service`, a `volume` and a `config`, each keyed under `services:`, `volumes:` or `configs:` — and no namespaces. An entry naming any other kind, a chart document's `Secret` or a compose `network` among them, or carrying a `namespace`, names nothing the file could leave out, so the render stops rather than treat the entry as one that matched nothing. Kinds are compared exactly, so `Service` is refused where `service` is meant. Every entry is checked before anything is left out, and the first one at fault, in the order the entries were written, is the one named.
+
+**Emitted messages.** Both report the condition for a construct a provider has no expression for, and the provider's own sentence names the entry and the kinds it accepts. A field whose template read a value declared sensitive is shown as `<redacted>`:
+> a plugin has no expression for a construct this build declares
+> compose: an omits entry (name `"<name>"`) names kind `"<kind>"`: compose leaves out a service, a volume or a config, each named by its key under services:, volumes: or configs:, and no other kind
+
+> a plugin has no expression for a construct this build declares
+> compose: an omits entry (kind `"<kind>"`, name `"<name>"`) names namespace `"<namespace>"`, and a compose file has no namespaces: compose leaves out a service, a volume or a config, each named by its key under services:, volumes: or configs:, and no other kind; remove the namespace from the entry
+
+**How to fix:** name the unit as the compose file does — `kind: service`, `volume` or `config`, and `name:` its key under that section — and drop the `namespace:`. See [compose → Sourced mode](../providers/compose.md#sourced-mode).
+
 ### A published port declares a transport compose cannot spell
 
 <!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
@@ -4588,6 +4603,22 @@ Emitted message. The condition leads, then each service, the reference it made, 
 > compose AssembleBoundary: service `"<service>"` references config `"<name>"` mounted at `"<path>"`; declare each one as a top-level configs: entry from the Recipe's artifacts: input: configmap volume requires a file emitted via the Recipe's artifacts: input; none found
 
 **How to fix:** emit the file from the Recipe's `artifacts:` input under the name the volume references — the two are matched by that name, so a mismatch between what the volume asks for and what the Recipe emits is the common cause. Where the content was meant to come from somewhere else, the volume is the wrong mechanism for it: a value that belongs in the environment goes there instead.
+
+### What an omits entry left out is still named by the compose file
+
+<!-- covers: internal/wasm.ErrPluginRequiredInputUnresolved -->
+
+An `omits:` entry leaves a service, a volume or a config out of a sourced compose file, and compose refuses a file that names one it does not declare. So once the entries' units are removed, every reference the rest of the file still makes to one of them stops the render: a service named by `depends_on`, `links`, `volumes_from`, `extends`, a `build.additional_contexts` value or a `service:` network, IPC, PID or UTS mode; a volume named as the source of a `volumes:` entry; a config named by a `configs:` entry — read in each service, each service's `pre_start` hooks and each job. The full list, and the values that only look like references, are in [compose → Sourced mode](../providers/compose.md#sourced-mode).
+
+**The check reads the declaring Recipe's or FeatureRecipe's own file**, so it stops the render even where another contributor to the same assembled file declares a unit of the left-out one's name. Every reference is reported rather than the first — services in key order, then jobs, each service's hooks after it — so one build names all of them.
+
+Emitted message. The condition leads, then each referring entry, the unit it names and the field the reference is in:
+> a plugin could not resolve something it requires to exactly one value
+> compose: what an omits entry left out is still named by the file: service `"<service>"` names `<kind>` `"<name>"` at `<field>`; compose refuses a file naming a service, a volume or a config it does not declare: leave out what names it as well, change the reference through valuesMapping, or remove the entry
+
+A unit whose entry's name was built from a value declared sensitive is shown as `<redacted>`.
+
+**How to fix:** decide which of the two you meant. Where the referring service still needs the unit, keep it: remove the entry. Where it does not, change the reference through the Recipe's `valuesMapping:` — a list there replaces the base file's list, so `depends_on: []` clears one — or leave the referring service out with an entry of its own.
 
 ### Two entries reach one stack output name
 
@@ -5672,8 +5703,8 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0285` | `the Recipe publishes a provides key the Component it implements does not declare, so a consumer wiring that key is refused` | A Recipe publishes a `provides` key its Component does not declare, checked at publication |
 | `E0286` | `the version bump being published is smaller than the evolution check's classification of the change requires` | The version offered is a smaller bump than the change requires |
 | `E0287` | `the importer reported a diagnostic that stops the import, so the source was not fully turned into draft authoring files` | An import stopped partway through translating a source |
-| `E0288` | `a plugin has no expression for a construct this build declares` | A workload declares a form compose cannot express; A container declares a field compose has no primitive for |
-| `E0289` | `a plugin could not resolve something it requires to exactly one value` | A health probe cannot be turned into a compose healthcheck; A configmap volume has no file behind it; A cross-boundary reference has no consuming stack to be written into; A synthesized StatefulSet has no single service to govern it |
+| `E0288` | `a plugin has no expression for a construct this build declares` | A workload declares a form compose cannot express; A container declares a field compose has no primitive for; An omits entry names a kind or a namespace a compose file does not have |
+| `E0289` | `a plugin could not resolve something it requires to exactly one value` | A health probe cannot be turned into a compose healthcheck; A configmap volume has no file behind it; What an omits entry left out is still named by the compose file; A cross-boundary reference has no consuming stack to be written into; A synthesized StatefulSet has no single service to govern it |
 | `E0290` | `two things a plugin produced occupy one name in its output` | An authored export name is one the build derives for a cross-stack reference; Two entries reach one stack output name; A CloudFormation fragment writes one key twice; Two rendered resources land at one output file |
 | `E0291` | `a plugin has no representation for a value it was given` | A published port declares a transport compose cannot spell; A resources quantity cannot be converted to a compose value; A resource quantity the helm provider emits is not a quantity; A cross-boundary reference was spliced into a longer string |
 | `E0292` | `a plugin reported a failure that none of the declared kinds names` | A plugin reported a failure it did not classify |
