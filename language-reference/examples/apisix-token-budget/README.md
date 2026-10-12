@@ -5,9 +5,9 @@ gateway spends on them each day, counted in tokens. This workspace compiles such
 a gateway to Kubernetes manifests: Apache APISIX in front of the two models,
 with `core/period-budget` attached.
 
-The page also shows the one thing this gateway refuses to do for an AI
-workload: keep a semantic cache. Adding one halts the build, and the reason is
-worth reading before choosing a gateway for that job.
+The page also shows what a semantic cache needs from this gateway before it
+builds: callers it can tell apart, each by the key it presents, and a store for
+the replies.
 
 This workspace authors **no catalog entity of its own**. The three entity files
 here — an Aggregate, a Manifest and a Release — are the whole of what anyone
@@ -199,9 +199,10 @@ Each of these is a sentence the build prints, naming what to change:
     caused by: FeatureRecipe "period-budget-apisix" instance "gateway" assertion "unit_is_a_token_count": [… omitted: the template position and the assertion's own source]: error calling fail: assertion failed: core/period-budget attachment "budget" on "gateway" asks for unit usd, but core/gateway/apisix, which declares dataplane.aggrega.ai/period-budget: tokens, counts the tokens each model's reply reports and prices nothing, so it keeps no budget in US dollars; set unit to total_tokens, prompt_tokens or completion_tokens, or attach the Feature to a gateway that counts cost
   ```
 
-- **A budget per caller**, `scope: caller`. The gateway tells callers apart only
-  by the consumer an authentication plugin names, and a gateway reading its
-  routes from a rendered file holds no consumers the file does not declare.
+- **A budget per caller**, `scope: caller`, while the Release declares no
+  callers. The gateway tells callers apart by the key each presents, and with
+  no `infra.callers` every route is open. With callers declared, as in the
+  next section, each has a count of its own across every route.
 - **A calendar month**, `period: 1mo`, and **a limit that is not a whole number
   of tokens**.
 - **A second `core/period-budget` attachment on the gateway**, which runs one
@@ -214,7 +215,7 @@ Each of these is a sentence the build prints, naming what to change:
   no route to write one onto and, at 3.17.0, each gateway process counts on its
   own.
 
-## A semantic cache halts the build
+## A semantic cache needs callers
 
 APISIX 3.18.0 carries a semantic cache, and `core/semantic-caching` attaches to
 this gateway. Add one to the gateway's `features` in `aggregate.yaml`:
@@ -234,15 +235,135 @@ halts:
 ```text
 [CATALOG_ERROR E0033]
   Recipe/FeatureRecipe assertions
-  caused by: FeatureRecipe "semantic-caching-apisix" instance "gateway" assertion "gateway_tells_callers_apart": [… omitted: the template position and the assertion's own source]: error calling fail: assertion failed: core/semantic-caching attachment "answers" on "gateway" asks for scope end_user, which keeps each end user the gateway identifies apart, but core/gateway/apisix keeps two callers' cached replies apart only by the consumer an authentication plugin names, or by a value the request itself carries, which it does not verify, and while it serves the models wired to it, it reads its routes from a file rendered with it and runs no Admin API, so it has no consumers: the file declares none, and it identifies no caller, no end user and no key. Every request would share one cache, and a reply generated for one caller could be served to another; remove the attachment
+  caused by: FeatureRecipe "semantic-caching-apisix" instance "gateway" assertion "scope_is_one_the_gateway_keeps": [… omitted: the template position and the assertion's own source]: error calling fail: assertion failed: core/semantic-caching attachment "answers" on "gateway" asks for scope end_user, which keeps each end user the gateway identifies apart, but core/gateway/apisix tells its callers apart only by the key each presents, and cannot tell apart the end users behind one key: a value a request names for one is whatever the caller sent, which the gateway does not verify. Set scope to key, which keeps each caller infra.callers declares apart, or attach the Feature to a gateway that identifies end users
 ```
 
 A cache keeps a reply for whoever asks something close enough later, so who
 shares one cache decides who can be served a reply generated for someone else.
-This gateway has no caller it can tell apart: with `scope: key` the build halts
-the same way. Rather than render a cache every caller shares under a scope that
-says it does not, the realization refuses every attachment. A gateway that
-identifies its callers, such as `core/gateway/litellm`, realizes the cache.
+This gateway can keep each caller apart by the key it presents, which it
+verifies, and nothing finer: set `scope: key` and the build halts again, now on
+the callers it has not been given:
+
+```text
+[CATALOG_ERROR E0033]
+  Recipe/FeatureRecipe assertions
+  caused by: FeatureRecipe "semantic-caching-apisix" instance "gateway" assertion "callers_are_declared": [… omitted: the template position and the assertion's own source]: error calling fail: assertion failed: core/semantic-caching attachment "answers" on "gateway" asks for scope key, but infra.callers of "gateway" declares no caller, so the gateway authenticates no key and every request on a route would share one cache, a reply generated for one caller served to another; declare the callers in infra.callers, with their keys through the caller_keys slot
+```
+
+Three additions make it build. The Release names the callers and their keys:
+
+```yaml
+    gateway:
+      infra:
+        callers: [support-agent, billing-agent]
+      features:
+        caller_keys:
+          type: core/referenced-secret-set
+          infra:
+            entries:
+              - key: support-agent
+                value: support-agent-key-change-me
+              - key: billing-agent
+                value: billing-agent-key-change-me
+        budget:
+          [… omitted: the budget's size, as above]
+```
+
+The Aggregate wires the model the cache turns each prompt into a vector with,
+and a Redis store for the replies, and names the embeddings model in the
+attachment as `embedding_model: embedder`, with `scope: key`:
+
+```yaml
+        models:
+          [… omitted: assistant and summarizer, as above]
+          embedder:
+            target: embeddings
+            features:
+              credential:
+                type: core/referenced-secret
+                values:
+                  key: api-key
+                  origin: "{{ .parameters.openai_key }}"
+        cache_store:
+          replies:
+            target: cache
+```
+
+with the `embeddings` component (`core/ai-model/openai-embedding`) and the
+`cache` component (`core/datastore/redis`) declared beside the models, each
+placed in the Release, and the Manifest mapping both and
+`core/referenced-secret-set` to its realization, `helm/k8s-secret-set`, which
+writes the keys straight into a rendered Secret and so suits a development
+target only. The routes file then declares each caller and checks its key on
+every route, and the chat route carries the cache:
+
+```yaml
+consumers:
+  - username: "support-agent"
+    plugins:
+      key-auth:
+        key: "$env://CALLER_SUPPORT_AGENT_AUTHORIZATION"
+  [… omitted: billing-agent, the same way]
+routes:
+  - id: "model-assistant-chat"
+    uri: "/assistant/v1/chat/completions"
+    service_id: "model-budget"
+    methods:
+      - POST
+    plugins:
+      key-auth:
+        header: Authorization
+        hide_credentials: true
+      ai-proxy:
+        [… omitted: the route to gpt-4o, as above]
+      ai-cache:
+        layers:
+          - exact
+          - semantic
+        exact:
+          ttl: 3600
+        cache_key:
+          share_across_routes: false
+          include_consumer: true
+        policy: redis
+        redis_host: "cache-default"
+        redis_port: 6379
+        semantic:
+          similarity_threshold: 0.9
+          ttl: 3600
+          embedding:
+            openai:
+              endpoint: "https://api.openai.com/v1/embeddings"
+              model: "text-embedding-3-small"
+              api_key: "$env://AI_PROXY_EMBEDDER_API_KEY"
+          vector_search:
+            redis:
+              index: "gateway-answers"
+  [… omitted: the same for the other connections]
+```
+
+No caller's key is in it: each consumer names a variable the Deployment fills
+from the Secret the `caller_keys` attachment renders, under the caller's own
+name, and composes into the whole header:
+
+```yaml
+            - name: CALLER_SUPPORT_AGENT_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: support-agent
+                  name: gateway-caller-keys
+            - name: CALLER_SUPPORT_AGENT_AUTHORIZATION
+              value: Bearer $(CALLER_SUPPORT_AGENT_KEY)
+            [… omitted: the same two variables for billing-agent]
+```
+
+At run time a request presenting no declared key, as `Authorization: Bearer
+<key>`, is refused with HTTP 401, and the key is removed from the request the
+gateway forwards. A reply is stored under the route and the caller, so one
+caller's reworded prompt is served the reply stored for that caller and never
+one stored for another. A reply served from the cache counts nothing toward the
+budget, and is served past its limit. The `embedder` connection gets routes of
+its own, as every connection on the `models` socket does.
 
 ## Where the compiler is blind
 
@@ -258,6 +379,9 @@ traffic.
 
 - **A limit per model.** Set `scope: model`: each alias gets a service, and a
   count, of its own.
+- **A limit per caller.** Declare the callers and their keys in the Release, as
+  in "A semantic cache needs callers" above, and set `scope: caller`: each
+  caller gets a count of its own across every route.
 - **Count one side.** Set `unit: prompt_tokens` to count what the models read,
   or `completion_tokens` for what they write.
 - **A shorter or longer window.** Set `period` to a number of seconds, minutes,
