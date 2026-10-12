@@ -287,6 +287,10 @@ whose records are out of sync with its binary.
 | `--plugin` | — | Path to the plugin's .wasm artifact whose imports and describe() determine the recorded host functions and commands |
 <!-- END GENERATED: cli-plugin -->
 
+## What an importer entry does
+
+`aggrega plugin add importer` writes the plugin's identity and the latest version published for it — `importer/<name>:<version>` — into the `plugins.importer` list. That entry attaches the importer it names: an import asking for a format the importer advertises runs that importer, at that version, even where other importers in your catalog advertise the format too, and only that importer is handed what the entry carries under `with`. [Which importer turns a source into drafts](configuration.md#which-importer-turns-a-source-into-drafts) describes the entry in full.
+
 ## A CLI plugin's commands and their flags
 
 Each time `aggrega` starts, it adds one command for every command a configured `cli` plugin contributes, reading the commands and their flags from the plugin's `describe()` self-report — from the describe cache when it holds the plugin's pinned digest, and otherwise by describing the plugin. Each declared flag is declared on its command so `aggrega help <command>` lists it the way it lists a built-in command's flags; the plugin still receives its arguments unparsed and reads its own flags.

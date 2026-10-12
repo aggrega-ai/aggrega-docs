@@ -20,9 +20,16 @@ whichever folder the command is run in (creating parent directories as needed).
 The translation is done by the importer plugin in the workspace's catalog that
 advertises the source format; import selects it, runs it, and writes what it
 produces. Its .wasm is read from the places a build reads a plugin from — beside
-its Plugin entity in a catalog folder among them — and nothing is fetched. A
-plugins.importer attachment selects no importer: it supplies the with: sources
-and settings the importer is handed.
+its Plugin entity in a catalog folder among them — and nothing is fetched.
+
+A plugins.importer attachment attaches the importer its uri names by identity
+and version — importer/<name>:<version>, as plugin add importer writes it. An
+attached importer that advertises the source format is the one that runs, at
+the version its uri names, whatever other importers advertise the format too.
+Where more than one importer advertises the format and no single one of them is
+attached, import stops and names the importers it could not choose between. An
+attachment's with: sources and settings are handed to the importer it attaches
+and to no other, so an importer no attachment names is handed none.
 
 Pass --output-dir to write the drafts beneath another directory instead. A
 relative path resolves against the directory you run the command in, as every

@@ -187,6 +187,46 @@ Recipe's `capability:` is read as the capability up to its last colon and a vers
 an entry keyed `helm:1.0.0` could never be looked up. Pin the version on the plugin instead —
 `uri: provider/helm:1.0.0` — or in the Recipe.
 
+### Which importer turns a source into drafts
+
+`aggrega import` hands a source to the importer plugin in your catalog that advertises the source's
+format — `import:langflow` for a Langflow flow. Where exactly one importer advertises it, nothing
+needs configuring. A `plugins.importer` entry attaches an importer by naming it in its `uri`, by its
+identity and version, and hands it what it carries under `with`:
+
+```yaml
+# <project>/.aggrega-config.yaml
+workspace: {}
+plugins:
+  importer:
+    - uri: importer/agent-flows:1.2.0
+      with:
+        settings:
+          target_namespace: payments
+```
+
+`aggrega plugin add importer` writes the `uri` in exactly that form. The version is exact — `:1.2.0`
+— or a range — `:^1.2.0` for the highest version at or above it within the same major. Write one or
+the other: on this list a `uri` with no colon is read as a filesystem path, as
+[Where a relative path points](#where-a-relative-path-points) describes, and names no importer.
+
+What an entry does depends on whether the importer it names advertises the format an import asks
+for:
+
+- **It does: that importer is the one that runs**, at the version the `uri` names, however many other
+  importers in the catalog advertise the format too, and it is handed the entry's `with.sources` and
+  `with.settings`. An entry is how a workspace whose catalog federates two publishers' importers for
+  one format says which of them it uses.
+- **It does not — it names an importer of another format, a plugin of another kind, or nothing your
+  catalog holds: the entry plays no part in that import.** It chooses nothing, and its `with` is
+  handed to no importer. An entry's settings reach only the importer it names, so a workspace
+  attaching one importer per format configures each without the settings of one reaching the other.
+
+Where more than one importer advertises the format and no single one of them is attached — none is,
+or entries name two of them — the import is refused, naming the importers it could not choose
+between. An entry naming an importer at a version the catalog does not hold is refused too, naming
+the version, rather than running another version in its place.
+
 ### Starting from nothing
 
 A freshly installed `aggrega` has neither file, and that is a working state rather than a broken
@@ -478,9 +518,12 @@ It applies to `workspace.catalog_dirs`, to the Release files keyed under `worksp
 the directories each entry lists, to the local filesystem paths on a `plugins.governance` or
 `plugins.linter` attachment — a `uri` naming a `.wasm` file on disk, and each entry under that
 attachment's `with.sources` — and to each entry under a `plugins.importer` attachment's
-`with.sources`. An importer attachment's `uri` does not decide which module an import runs:
-`aggrega import` runs the importer plugin in the workspace's catalog that advertises the source's
-format, and the attachment supplies only the `with` sources and settings that importer is handed.
+`with.sources`. On all three lists a `uri` with no colon that names no registry —
+`importer/agent-flows` as much as `./lint/api-rules.wasm` — is such a path, while a `uri` naming a
+plugin by its identity carries the version after a colon, `importer/agent-flows:1.2.0`, and is left
+exactly as written. An importer attachment's `uri` names the importer it attaches, as
+[Which importer turns a source into drafts](#which-importer-turns-a-source-into-drafts) describes; an
+import reads no module from a path written there.
 The rule applies to the entries under the append companions too, and each of those anchors to its
 own declaring file rather than to the file the merge happens to end at. And it applies to
 `mcp.tls.cert_file`, `mcp.tls.key_file` and

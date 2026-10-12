@@ -190,7 +190,7 @@ spec:
 
 The importer block for a `pluginType: importer` plugin. Its one field, `capabilities`, names the foreign source formats the plugin turns into draft Aggrega authoring files, each written `import:<format>`. The prefix is part of the entry, so a plugin that handles several formats lists one entry per format; entries preserve author order. The block is present only on importer plugins.
 
-A requested import format resolves to the importer whose list contains the matching entry. A format no importer advertises halts the import, and a format advertised by more than one importer plugin halts as ambiguous, naming the candidates. An empty or absent list declares no format claim, so the plugin imports nothing.
+A requested import format resolves to the importer whose list contains the matching entry. A format no importer advertises halts the import, and a format advertised by more than one importer plugin halts as ambiguous, naming the candidates, unless a `plugins.importer` entry in the workspace configuration attaches one of them, which is then the one that runs. An empty or absent list declares no format claim, so the plugin imports nothing.
 
 ```yaml
 metadata:

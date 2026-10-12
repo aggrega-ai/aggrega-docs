@@ -907,7 +907,7 @@ Sockets in the workspace configuration attach plugins in two different ways, and
 
 The two mismatches are mirror images of each other.
 
-- **A cross-cutting socket bound by capability.** The governance, linter and importer sockets attach a plugin directly by `uri:`. The plugin at one of them serves no capability, so a `capability:` binding there would be looked up against nothing and match nothing — an attachment that can never resolve.
+- **A cross-cutting socket bound by capability.** The governance, linter and importer sockets attach a plugin directly by `uri:`. A governance or linter plugin serves no capability, so a `capability:` binding there would be looked up against nothing and match nothing — an attachment that can never resolve. An importer does advertise the formats it handles, but which format is wanted is the import's to say rather than the attachment's: an importer attachment names its importer by `uri:`, and that is what chooses it among the importers advertising the format an import asks for.
 - **A provider socket setting a key with no referent.** A provider binding names a capability and the plugin that serves it, and the plugin drives a fixed set of exports rather than one selectable entry, so `function:` names nothing on it. `with:` is refused for a different reason: render configuration for a provider is written in the Recipe, so putting it on the workspace binding places it on the wrong side of the developer-and-operator split.
 
 **Emitted messages.** A capability on a cross-cutting socket:
@@ -1472,7 +1472,9 @@ Emitted messages:
 > format is advertised by more than one parser plugin: format `"<format>"` is advertised by parser plugins `[<plugin-names>]`
 > format is advertised by more than one importer plugin: format `"<format>"` is advertised by importer plugins `[<plugin-names>]`
 
-**How to fix:** narrow the catalog the build reads so only the plugin you want is in it — pointing `--catalog` at the directory holding your choice is the direct way. Keeping both and choosing between them per workspace is supported for the **provider** socket, through a `plugins.providers` entry, and that surface is described under "A capability is served by more than one provider plugin" above; the parse and import sockets have no such selection, so removing the competing plugin from the build's catalog is the remedy for them.
+For an importer the halt is raised in one more shape: the workspace's `plugins.importer` entries attach more than one of the importers advertising the format, and the importers it names are then the attached ones.
+
+**How to fix:** for an importer, keep both in the catalog and attach the one you want — a `plugins.importer` entry whose `uri` names it by its identity and version, `uri: importer/<name>:<version>`, as `aggrega plugin add importer` writes it. The attached importer is chosen among those advertising the format, as a `plugins.providers` entry chooses among the plugins serving a capability on the **provider** socket, described under "A capability is served by more than one provider plugin" below. Where the importers named are ones your entries attach, keep the entry for the one you want and remove the other. The parse socket has no such selection, so for a parser the remedy is to narrow the catalog the build reads so only the plugin you want is in it — pointing `--catalog` at the directory holding your choice is the direct way.
 
 ### A plugin reference carries a registry host or an artifact path
 
