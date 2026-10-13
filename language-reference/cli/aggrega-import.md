@@ -40,10 +40,16 @@ directory you named outside it, out of that directory — is refused, and nothin
 is written.
 
 The source format selects how the importer reads the file. Pass --format to
-name it explicitly. When --format is omitted, import inspects the file's
-top-level shape to recognize the format; if the shape is not recognized, import
-stops and asks for --format rather than guessing. Detection reads only the
-named file — no other files, no network.
+name it explicitly. When --format is omitted, import recognizes the format by
+the signatures the importers in the workspace's catalog declare: each names the
+syntax a source is read in, the file names it applies to and the paths its
+parsed tree must or must not carry. The file is parsed by the parser the catalog
+serves for a syntax, once for each syntax a signature applying to its name reads
+it in, and the format of the one importer whose signature matches is the one
+read. If no signature matches, import stops, asks
+for --format and names the formats the catalog's importers advertise; if
+signatures of more than one format match, it stops and names them. It does not
+guess. Detection reads only the named file — no other source, no network.
 
 Before the drafted output, import names on standard error the format it read
 the source as and the directory the drafted paths are relative to, alongside
@@ -64,6 +70,6 @@ source the write would refuse is refused here too.
 | Flag | Default | Description |
 | --- | --- | --- |
 | `--dry-run` | `false` | Do everything except write: hand back the drafted files as content, naming the file each is for, and create or modify nothing. Every other behaviour is the write's, the importer run included. Without it the drafts are written to disk. |
-| `--format` | — | Name the source format explicitly, overriding shape detection (for example langflow or flowise) |
+| `--format` | — | Name the source format explicitly, overriding detection by the catalog's importer signatures (for example langflow or flowise) |
 | `--output-dir` | — | Directory the drafted files are written under. A relative path resolves against the directory you run the command in. Without it the drafts are written beneath the root of the workspace the run resolved. |
 <!-- END GENERATED: cli-import -->

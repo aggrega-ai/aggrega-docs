@@ -5469,6 +5469,22 @@ Its message opens:
 
 **How to fix:** read the diagnostics reported beside it — each names a construct in the source the importer could not translate. The fix is in the source you handed in, or in finishing the draft by hand: an import produces a starting point to edit, so a construct that did not survive translation is one to author directly on the Aggrega side. [aggrega-import.md](../cli/aggrega-import.md) describes what the command produces and where it writes.
 
+### More than one importer recognises the source
+
+<!-- covers: internal/importops.ErrAmbiguousImportFormat -->
+
+A refusal on turning a foreign source description into draft authoring files, not on a build. The import named no format, so the format was recognised from the signatures the importers in the workspace's catalog declare — each names the syntax a source is read in, the file names it applies to, and the paths its parsed tree must or must not carry — and signatures of importers serving more than one format matched the source. The import does not choose between them: which format a source is in is the importers' statement, not the compiler's, and choosing would be a guess that hands the source to an importer it may not be for.
+
+**This is not the same as one format advertised by more than one importer**, described under "A parse or import format is advertised by more than one plugin" above. There the format is settled and the importers serving it compete, so a `plugins.importer` entry chooses among them; here the formats themselves differ, so no attachment settles it and naming the format does. An importer recognising a source recognises it as every format it advertises, so an importer advertising more than one format, one of whose signatures matches, is refused here as well.
+
+Its message opens:
+> more than one importer recognises the source
+
+The rest of the message names the source and every format it was recognised as, in the order the catalog lists the importers, then the remedy:
+> more than one importer recognises the source (source `"<source>"`, recognised as `"<format>"`, `"<format>"`). Pass --format to name the one to read it as (for example --format `<format>` or --format `<format>`)
+
+**How to fix:** name the format — `--format` on `aggrega import`, or `format` on the assistant's import tool and the session's `aggrega/import` method. Where one of the importers should never recognise such a source, the change is to that importer's signatures, which its author declares in its describe() self-report and its Plugin entity records when it is generated; or leave that importer out of the catalog the workspace reads. [aggrega-import.md](../cli/aggrega-import.md) describes how a format is recognised.
+
 ### A child Release inherits a boundary directory that resolves where its parent writes
 
 <!-- covers: pkg/resolver.ErrInheritedBoundaryDirectoryIsLiteral -->
@@ -5812,6 +5828,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0336` | `a provider's omitted counts do not match the omits entries it was handed` | A provider's omitted counts do not match the omits entries it was handed |
 | `E0337` | `no importer plugin version satisfies the plugins.importer entry's version pin` | A `plugins.importer` entry pins a version of its importer the catalog does not hold |
 | `E0338` | `importer is attached by more than one plugins.importer entry` | An importer is attached by more than one `plugins.importer` entry |
+| `E0339` | `more than one importer recognises the source` | More than one importer recognises the source |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

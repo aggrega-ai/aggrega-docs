@@ -188,9 +188,19 @@ spec:
 
 ## `spec.importer`
 
-The importer block for a `pluginType: importer` plugin. Its one field, `capabilities`, names the foreign source formats the plugin turns into draft Aggrega authoring files, each written `import:<format>`. The prefix is part of the entry, so a plugin that handles several formats lists one entry per format; entries preserve author order. The block is present only on importer plugins.
+The importer block for a `pluginType: importer` plugin. Its `capabilities` field names the foreign source formats the plugin turns into draft Aggrega authoring files, each written `import:<format>`. The prefix is part of the entry, so a plugin that handles several formats lists one entry per format; entries preserve author order. The block is present only on importer plugins.
 
 A requested import format resolves to the importer whose list contains the matching entry. A format no importer advertises halts the import, and a format advertised by more than one importer plugin halts as ambiguous, naming the candidates, unless a `plugins.importer` entry in the workspace configuration attaches one of them, which is then the one that runs. An empty or absent list declares no format claim, so the plugin imports nothing.
+
+Its `detect` field records the signatures a source of those formats is recognised by when an import names no format. It is machine-owned, like the host-function and command records: it is derived from what the plugin's `describe()` reports when the entity is generated from the plugin, in the order the plugin declares the signatures, and an author does not write it. Each signature names:
+
+- `syntax` — the syntactic format the source is parsed as, the format a parser plugin advertises as `parse:<syntax>`, such as `json` or `yaml`.
+- `files` — optional file-name patterns, matched against the end of the source's name: a pattern of one segment against the file's own name, one of several slash-separated segments against that many trailing segments of its path, so `.vscode/mcp.json` matches a file named `mcp.json` in a directory named `.vscode`. `*`, `?` and `[...]` match within a segment. Absent, the signature applies to a source of any name.
+- `match` — the predicates the parsed tree must satisfy, all of them. Each has a `path`, keys joined by dots from the top of the tree, with a whole-number segment selecting an array position; an `is`, one of `present`, `absent`, `object`, `array`, `string`, `number` and `boolean`; and optionally `equals`, a string the value must be, or `prefix`, a string it must begin with — at most one of the two.
+
+When an import names no format, the signatures of every importer the workspace's catalog holds — every version included — are matched against the source. The source is parsed once for each syntax a signature applying to its name reads it in, through the parser the catalog serves for that syntax, and a source that does not parse in a syntax matches no signature naming it. A source a signature matches is recognised as every format its importer advertises. Exactly one format recognised is the one the source is read as. A source no signature matches is refused, asking for the format and naming the formats the catalog's importers advertise; a source recognised as more than one format is refused naming them, with the condition [More than one importer recognises the source](../errors/fatal-halts.md#more-than-one-importer-recognises-the-source). So an importer advertising more than one format has every source its signatures match refused as ambiguous, and an importer whose sources are to be recognised serves one format.
+
+Where the entity records `detect`, it must equal what the plugin's `describe()` reports, signature for signature and in order: loading the importer refuses a plugin whose report differs, naming `importer.detect`, and so does publishing it. An entity recording no `detect` makes no claim and is not compared — an entity generated before the field existed keeps loading — and its importer's formats are then reached only by naming them.
 
 ```yaml
 metadata:
@@ -200,6 +210,11 @@ spec:
   importer:
     capabilities:
       - import:langflow
+    detect:
+      - syntax: json
+        match:
+          - path: data.nodes
+            is: array
 ```
 
 ## `spec.signature`

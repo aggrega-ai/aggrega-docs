@@ -4,7 +4,7 @@ _Generated reference. Do not edit by hand — regenerate from the published JSON
 
 Schema id: `https://aggrega.ai/schemas/wasm-describe-v1alpha1.schema.json`
 
-The wire shape every Wasm plugin returns from its describe() export (PluginDescriptor). describe() is the plugin's self-declaration, read once by the host when it loads the plugin: the ABI version the guest binds against, the plugin type, the exports it offers with each export's capability declaration, a plugin-level capability self-report, an optional provider render-behavior contract, optional CLI commands, an optional settings schema, and optional authorship metadata. One shape covers every plugin type — provider, linter, feature-recipe-pipeline step, governance, CLI, parser, and importer. The host reads describe() before dispatching any other export and refuses a descriptor it cannot admit rather than mis-invoking the plugin at dispatch.
+The wire shape every Wasm plugin returns from its describe() export (PluginDescriptor). describe() is the plugin's self-declaration, read once by the host when it loads the plugin: the ABI version the guest binds against, the plugin type, the exports it offers with each export's capability declaration, a plugin-level capability self-report, an optional provider render-behavior contract, an optional importer recognition contract, optional CLI commands, an optional settings schema, and optional authorship metadata. One shape covers every plugin type — provider, linter, feature-recipe-pipeline step, governance, CLI, parser, and importer. The host reads describe() before dispatching any other export and refuses a descriptor it cannot admit rather than mis-invoking the plugin at dispatch.
 
 ## One of the following shapes
 
@@ -14,7 +14,7 @@ The wire shape every Wasm plugin returns from its describe() export (PluginDescr
 
 ### `PluginDescriptor`
 
-A plugin's complete self-declaration, returned from describe() and read once at load. It carries the ABI-compatibility handshake, the plugin type, the offered exports, and the optional per-type surfaces (a provider's render-behavior contract, a CLI plugin's commands, a settings schema, authorship metadata).
+A plugin's complete self-declaration, returned from describe() and read once at load. It carries the ABI-compatibility handshake, the plugin type, the offered exports, and the optional per-type surfaces (a provider's render-behavior contract, an importer's recognition contract, a CLI plugin's commands, a settings schema, authorship metadata).
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -23,6 +23,7 @@ A plugin's complete self-declaration, returned from describe() and read once at 
 | `capabilities` | string[] | no | What the plugin serves. The list is flat on the wire and the adjacent required plugin_type fixes which of four senses each entry carries: for a provider, the capability names (such as helm or compose) whose output shape it renders; for a feature-recipe-pipeline step, the provider capabilities its step is compatible with; for a parser, the source formats it turns into a canonical structured tree, each written as parse:<format>; for an importer, the foreign source formats it turns into draft authoring files, each written as import:<format>. A linter, governance or CLI plugin is not resolved by capability and leaves it empty. Entries are in declared order and are an explicit, tested-compatibility claim. An absent or empty list declares no capability claim. The published catalog entity carries the same values under the per-type block its plugin type gives meaning to, so the entity's reader never has to decide which sense applies. |
 | `exports` | PluginExport[] | yes | The exports the plugin offers, in declared order. The host validates that the per-type minimum export is present and binds the per-export host surface before invoking each export. |
 | `contract` | ProviderContract | no | The provider's render-behavior self-report — the input kinds it renders, how it assembles a dispatch group's per-node output, and the artifact-template delimiter pair it applies. It describes the provider as a whole rather than any one export. Absent for a plugin that declares no render-behavior contract. |
+| `importer` | ImporterContract | no | An importer's self-report of how a source of the formats it advertises is recognised when an import names no format. Only a plugin whose plugin_type is importer may declare it; any other plugin declaring it is refused at load. Absent for an importer that declares no way to recognise its formats, whose formats are then reached only by naming them. |
 | `description` | string | no | The plugin's own one-line human-readable description of what it does, distinct from a per-export description and from the entity's metadata description. It is informational; the host neither validates nor acts on it. |
 | `commands` | PluginCLICommand[] | no | The top-level aggrega command verbs a CLI plugin contributes, each with its own short-help line. One CLI plugin may contribute several commands; the host registers one command per entry and routes the resolved command name to the guest at invocation. A non-CLI plugin leaves it empty. |
 | `settings_schema` | object | no | An optional JSON Schema document a plugin declares to type the operator-supplied settings its attachment carries. When present, the host compiles it at load and validates the attachment's settings against it at dispatch before invoking the plugin; settings that do not conform halt the build. When absent, the plugin declares no shape and settings pass through verbatim. The schema is the plugin's own free-form declaration; the host runs generic JSON Schema validation against it and does not interpret the settings' meaning. |
@@ -149,5 +150,40 @@ The boundary annotation whose resolved value names a plugin's assembled artifact
 | --- | --- | --- | --- |
 | `annotation` | string | yes | The boundary annotation key the plugin reads the assembled artifact's name from. |
 | `require_unique` | boolean | no | Whether every boundary contributing to one dispatch group must agree on the annotation's resolved value. When true, a group whose contributing boundaries resolve the annotation to different values halts the build; when false, the plugin accepts the first resolved value. |
+
+_Additional properties are not permitted._
+
+### `ImporterContract`
+
+What an importer declares about its formats beyond advertising them: the signatures a source of those formats is recognised by. When an import names no format, the host reads the signatures every importer in the workspace's catalog records, matches each against the source without knowing what any format is, and reads the source as the format of the one importer whose signature matches. A source no signature matches is refused asking for the format, and a source signatures of more than one format match is refused naming them. The Plugin entity records the same list, and the host refuses an importer whose describe() report differs from the record.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `detect` | DetectSignature[] | no | The signatures that recognise a source of this importer's formats, in declared order; a source is recognised when any one of them matches it. A source recognised by an importer is recognised as every format the importer advertises, so an importer advertising more than one format has every match refused as ambiguous, and an importer whose sources must be recognised advertises one format. Absent or empty declares no signature, and the importer's formats are reached only by naming them. |
+
+_Additional properties are not permitted._
+
+### `DetectSignature`
+
+One way a source is recognised: the syntax the source is read in, the file names the signature applies to, and the predicates the parsed tree must satisfy. It matches a source whose name matches one of its file patterns, or any name where it declares none, whose bytes parse in its syntax, and whose parsed tree satisfies every one of its predicates.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `syntax` | string | yes | The syntactic format the source is parsed as — json or yaml, for example — which is the format a parser plugin advertises as parse:<syntax>. The host parses the source through that parser at most once whatever number of signatures name the syntax, and a source that does not parse in it matches no signature naming it. A syntax no parser in the workspace's catalog advertises stops the recognition with that parser's absence named, rather than being passed over. |
+| `files` | string[] | no | The file-name patterns the signature applies to, matched against the end of the source's name with its separators read as forward slashes: a pattern of one segment is matched against the file's own name, and a pattern of several slash-separated segments against that many trailing segments of its path, so .vscode/mcp.json matches a file named mcp.json in a directory named .vscode. Within a segment, * matches any run of characters, ? matches one character, and [...] matches one character of a class. The signature applies when any pattern matches. A pattern that is not well formed is refused at load. Absent or empty applies the signature to a source of any name. |
+| `match` | PathMatch[] | no | The predicates the parsed tree must satisfy, all of them, in declared order. Absent or empty asks nothing of the tree beyond parsing in the syntax. |
+
+_Additional properties are not permitted._
+
+### `PathMatch`
+
+One predicate over the parsed tree: the value a path reaches, the kind of value it must be, and optionally a string it must equal or begin with.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `path` | string | yes | Where in the tree the predicate looks, written as keys joined by dots from the top of the tree: data.nodes names the nodes member of the top-level data object. A segment written as a whole number, 0 or greater, selects that position of an array counting from zero, so nodes.0.type names the type of the first node; every other segment selects a member of an object. A key that itself contains a dot cannot be named. |
+| `is` | string (enum) | yes | What the path must reach: present holds when it reaches a value of any kind, null included; absent holds when it reaches nothing; object, array, string, number and boolean each hold when it reaches a value of that kind. Allowed values: `"present"`, `"absent"`, `"object"`, `"array"`, `"string"`, `"number"`, `"boolean"` |
+| `equals` | string | no | A string the value the path reaches must equal exactly. A value that is not a string never equals it. At most one of equals and prefix is declared on one predicate, and a predicate declaring both is refused at load. |
+| `prefix` | string | no | A string the value the path reaches must begin with. A value that is not a string never begins with it. At most one of equals and prefix is declared on one predicate, and a predicate declaring both is refused at load. |
 
 _Additional properties are not permitted._
