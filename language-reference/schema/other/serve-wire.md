@@ -892,8 +892,8 @@ Converts a foreign source description into draft authoring documents. A source i
 | --- | --- | --- | --- |
 | `workspaceRoot` | WorkspaceRootSubject | no | The absolute path of the workspace this request acts on. It is the request's subject: the daemon resolves it before the method runs, and a request that omits it or spells it as anything other than a string is refused. |
 | `workDoneToken` | ProgressToken | no | A value the caller mints so it can match progress notifications to the call that asked for them. It is echoed back on every notification unchanged, so a caller may compare it to the value it sent. It is accepted on every request, and a request that sends one in a session which declared no progress capability is refused. |
-| `source` | string | no | The source description to convert. |
-| `outputDir` | string | no | The directory under the workspace to write the drafts into. Absent writes where the same conversion in this workspace would. |
+| `source` | string | no | The file or the directory to convert, as an absolute path or one relative to the workspace root; a request without one is refused. It is read where it is, inside the workspace or not, and a directory is read into the files of it the importer's declared file patterns select. |
+| `outputDir` | string | no | The directory under the workspace to write the drafts into. It is required under dryRun as well, because every drafted path is relative to it, and a request without one is refused rather than given a destination. |
 | `format` | string | no | The source format. Absent lets the conversion determine it. |
 | `dryRun` | boolean | no | Whether to answer with the drafts' content rather than writing them. |
 
