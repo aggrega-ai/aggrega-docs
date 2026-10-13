@@ -52,10 +52,19 @@ signatures of more than one format match, it stops and names them. It does not
 guess. Detection reads only the named file — no other source, no network.
 
 Before the drafted output, import names on standard error the format it read
-the source as and the directory the drafted paths are relative to, alongside
-any diagnostics the importer reported. Standard output carries only the result
-— the paths written, or the drafted files themselves under --dry-run — so it can
-be piped unchanged.
+the source as and the directory the drafted paths are relative to, then any
+diagnostics the importer reported, then one line for each source node the
+importer mapped, in the importer's order:
+
+  mapped <node id> (<node type>) to <target> as a <mode>, <tier> at <score>
+
+naming the catalog Component or draft it chose for the node, whether it is
+referenced or drafted, the match tier, and the score of the best candidate it
+weighed. A node the importer weighed no candidate for has no score, and its line
+ends at the tier; a node it made no choice for reads "made no choice for <node
+id> (<node type>)". Standard output carries only the result — the paths
+written, or the drafted files themselves under --dry-run — so it can be piped
+unchanged.
 
 --dry-run does everything import does except write: standard output carries one
 document listing each drafted file's path and its content, so the result can be

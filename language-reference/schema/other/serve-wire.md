@@ -1532,6 +1532,71 @@ One thing a conversion could not convert. These are the conversion's most useful
 
 _Additional properties are not permitted._
 
+### `ImportDecision`
+
+How a conversion mapped one source node: the catalog Components the importer weighed, the one it chose, why, and how to swap the choice.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `sourceNode` | DecisionSourceNode | yes | The source node a mapping decision is about. |
+| `candidates` | ImportCandidate[] | no | The catalog Components the importer weighed for the node, each with its score. Absent where it weighed none. |
+| `chosen` | DecisionChoice | no | What the importer chose for a source node. Absent from a decision where it made no choice. |
+| `rationale` | string | no | Why the importer made the choice, in its own words. Absent where it wrote none. |
+| `swapHint` | string | no | How to swap the choice for an alternative, in the importer's own words. Absent where it wrote none. |
+
+_Additional properties are not permitted._
+
+### `DecisionSourceNode`
+
+The source node a mapping decision is about.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `id` | string | yes | The node's identifier in the source. |
+| `type` | string | yes | The node's type, as the source names it. |
+| `paramsSummary` | string | yes | A summary of the node's parameters, for showing beside the decision. |
+
+_Additional properties are not permitted._
+
+### `ImportCandidate`
+
+One catalog Component the importer weighed for a source node.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `componentName` | string | yes | The Component's name. |
+| `score` | number | yes | How well the Component matches the node, as the importer scored it. |
+| `tier` | string | yes | The match tier the score falls in. |
+| `signals` | CandidateSignals | yes | What each of the importer's signals contributed to a candidate's score. |
+
+_Additional properties are not permitted._
+
+### `CandidateSignals`
+
+What each of the importer's signals contributed to a candidate's score.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `table` | number | yes | The contribution of the mapping-table signal. |
+| `category` | number | yes | The contribution of the category signal. |
+| `domainLabels` | number | yes | The contribution of the domain-labels signal. |
+| `shape` | number | yes | The contribution of the shape signal. |
+| `name` | number | yes | The contribution of the name signal. |
+
+_Additional properties are not permitted._
+
+### `DecisionChoice`
+
+What the importer chose for a source node. Absent from a decision where it made no choice.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `target` | string | yes | The name of the Component chosen: an existing catalog Component, or the one drafted for the node. |
+| `mode` | string | yes | How the choice is written: as a reference to an existing Component, or as a newly drafted one. |
+| `tier` | string | yes | The match tier of the choice. |
+
+_Additional properties are not permitted._
+
 ### `LintFileFindings`
 
 What a convention check found in one document.
@@ -2283,6 +2348,7 @@ What converting a foreign source produced, and what it could not convert.
 | `written` | array or null | yes | The drafts that were written. |
 | `files` | array or null | yes | The drafts and their text, for a request that asked to be shown them rather than have them written. |
 | `diagnostics` | array or null | yes | What could not be converted. |
+| `decisions` | ImportDecision[] | yes | How the importer mapped each source node, in the importer's order and exactly as it reported it: what tells you where the conversion guessed. Carried under both deliveries and whether or not the conversion stopped, and an empty list for an importer that reports none. |
 | `halted` | boolean | yes | Whether the conversion stopped rather than finishing with findings. |
 
 _Additional properties are not permitted._
