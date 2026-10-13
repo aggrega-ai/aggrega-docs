@@ -456,7 +456,7 @@ fires rather than an error, because a path that is not there is simply undefined
 
 | Role | What a policy reads |
 | --- | --- |
-| `ir-verdict` | `input.graph` — the whole build graph document: nodes at `input.graph.spec.nodes` keyed by node id, edges at `input.graph.spec.edges`. A value an author declared sensitive reads as `{"aggrega_withheld": "declared"}`. `input.precalculated_paths` — the enumerated routing paths, each carrying its ordered `nodes` list and `attached_features`, the Feature types attached anywhere on it (see below). |
+| `ir-verdict` | `input.graph` — the whole build graph document: nodes at `input.graph.spec.nodes` keyed by node id, edges at `input.graph.spec.edges`. A value an author declared sensitive reads as `{"aggrega_withheld": "declared"}`. `input.precalculated_paths` — the enumerated routing paths, each carrying its ordered `nodes` list and `attached_features`, the Feature types attached anywhere on it (see below). The list is always present: a build with no route between components carries an empty list. |
 | `render-verdict` | `input.artifacts` — one entry per emitted file, each with `path`, `content`, `format`, and `documents`, the parsed documents of the file. An artifact that could not be read structurally carries `parse_error` and no documents, so a policy can reject on the failure itself rather than let an unreadable file pass unexamined. |
 | `label-transform` | `input.graph.nodes` — the build's nodes keyed by node id, each with `component`, `resolved_version` and `labels`. `input.compilation_context` — the Release's `release_name` and `environment`, so a policy can decide differently per environment. |
 | `annotation-transform` | `input.targets` — every component the attachment may annotate, each with `boundary_path`, `component_name` and its current `annotations`. `input.binding_keys` — the annotation keys the Manifest registers a binding for. |
@@ -503,6 +503,34 @@ written that way, for the Rego engine, the CEL engine and OPA.
 A node object carries no id of its own: the id is the key it sits under in
 `input.graph.spec.nodes`, which is why the rule above carries the ids it read from
 `path.nodes` into its message rather than reading an `id` field.
+
+### The order a policy meets a map's keys in
+
+The graph keeps the order its author wrote: the nodes in the order the components
+were declared, and each node's labels in the order the node carries them. That
+order crosses into the guest intact — the payload carries both as ordered entries
+(see [maps that keep their order](plugin-contract.md#maps-that-keep-their-order)).
+Whether a policy meets it is decided by how the engine evaluating the policy holds
+an object, not by the payload:
+
+- **The Rego engine holds an object's keys sorted.** A rule iterating
+  `input.graph.spec.nodes`, a node's `labels`, or any other object — one written in
+  the policy itself included — meets the keys in sorted order: components declared
+  `web`, `api`, `metrics` are met as `api`, `metrics`, `web`.
+- **The CEL engine fixes no order for a map.** A comprehension over
+  `input.graph.spec.nodes` or over a node's `labels` can meet the keys in a
+  different order on two builds of identical input, and two walks of the same map
+  within one expression can differ from each other. That is why
+  [the messages under one decision key are sorted](#ordering-sorted-within-a-key-and-a-total-order-over-decisions):
+  write a rule whose decision does not depend on the position a key sits at.
+- **A guest written against a plugin kit meets the author's order.** Decoded
+  through its kit, the nodes and each node's labels arrive in the kit's
+  order-keeping container in the order the payload carries them, and the
+  governance adapter skeleton each kit ships hands its engine a JSON document
+  written in that same order. An engine that converts that document into a value
+  type of its own meets that type's order instead, as
+  [maps that keep their order](plugin-contract.md#maps-that-keep-their-order)
+  describes.
 
 ### Shaping labels: a policy names the label, and the engine addresses it
 
