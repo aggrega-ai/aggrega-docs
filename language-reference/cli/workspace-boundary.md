@@ -231,6 +231,13 @@ workspace, an output directory you pass to `aggrega plugin gen-catalog` or `aggr
 `artifact_cache_dir` that climbs out of the workspace each hold what is beneath them to themselves. Where a directory you named lies inside the
 workspace, the workspace is the root.
 
+**A directory you name is resolved against the folder you run in before anything is placed beneath it.**
+An output directory you pass to `aggrega import`, typed relative, is the folder of that name in the
+folder you run the command in, and a drive you name bare on Windows — `D:` — is the current folder on
+that drive. The directory is made a full path first and every file is placed beneath that full path, so
+a file whose name opens with a separator, `\notes.txt` say, lands inside the directory you named rather
+than at the top of the drive, and the directory the command reports is the one written to.
+
 **A Release or a Manifest you named outside the workspace is the same rule read for a file**: its own
 directory is the root, so what it names by a path — and what every Release its `extends:` chain leads
 to names — must stay inside that directory. A Release kept beside its Aggregate and Manifest builds

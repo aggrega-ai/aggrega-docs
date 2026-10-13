@@ -33,11 +33,20 @@ and to no other, so an importer no attachment names is handed none.
 
 Pass --output-dir to write the drafts beneath another directory instead. A
 relative path resolves against the directory you run the command in, as every
-path you type does. A directory you name outside the workspace is used where you
-named it, and what is written beneath it is held to it. Wherever the drafts go,
-a link on the way to one that leads out of the workspace — or, beneath a
-directory you named outside it, out of that directory — is refused, and nothing
-is written.
+path you type does, and a drive named bare on Windows, such as D:, is the
+current directory on that drive. The directory is resolved before any draft is
+placed beneath it, so a draft whose path opens with a separator lands beneath
+it rather than at the top of the drive. A directory you name outside
+the workspace is used where you named it, and what is written beneath it is
+held to it. Wherever the drafts go, a link on the way to one that leads out of
+the workspace — or, beneath a directory you named outside it, out of that
+directory — is refused, and nothing is written.
+
+On Windows, a draft whose path holds a part Windows cannot hold as written — a
+name it reserves for a device, such as NUL or aux, with or without an extension
+and in any letter case, or a part ending in a full stop or a space — is refused
+naming the draft, and nothing is written. On every other platform such a draft
+is written as it is named.
 
 The source format selects how the importer reads the file. Pass --format to
 name it explicitly. When --format is omitted, import recognizes the format by
@@ -80,5 +89,5 @@ source the write would refuse is refused here too.
 | --- | --- | --- |
 | `--dry-run` | `false` | Do everything except write: hand back the drafted files as content, naming the file each is for, and create or modify nothing. Every other behaviour is the write's, the importer run included. Without it the drafts are written to disk. |
 | `--format` | — | Name the source format explicitly, overriding detection by the catalog's importer signatures (for example langflow or flowise) |
-| `--output-dir` | — | Directory the drafted files are written under. A relative path resolves against the directory you run the command in. Without it the drafts are written beneath the root of the workspace the run resolved. |
+| `--output-dir` | — | Directory the drafted files are written under. A relative path resolves against the directory you run the command in, and a drive named bare on Windows, such as D:, is the current directory on that drive. Without it the drafts are written beneath the root of the workspace the run resolved. |
 <!-- END GENERATED: cli-import -->

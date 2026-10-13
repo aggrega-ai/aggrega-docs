@@ -4852,6 +4852,23 @@ The diagnostic carries no category: what is at fault is the layout on disk rathe
 
 **How to fix:** remove the link the message names and run the operation again, so it creates a real directory or file in that place; or make the link lead somewhere inside the directory the message names, where it is followed. Nothing in your entity files causes this and no authoring change clears it.
 
+### A name the operation writes holds a part Windows cannot hold
+
+<!-- covers: pkg/pathscope.ErrNameWindowsCannotHold -->
+
+On Windows, some names do not reach a file as they are written. A name Windows reserves for a device — `CON`, `PRN`, `AUX`, `NUL`, `CONIN$`, `CONOUT$`, `COM0` to `COM9` and `LPT0` to `LPT9`, and the `COM` and `LPT` names spelled with a superscript one, two or three — names the device rather than a file, in any letter case and whatever extension follows it, so `nul`, `Aux.yaml` and `com1.txt` are all devices. And a part of a path ending in a full stop or a space is one Windows may trim rather than keep as written. Writing such a name would put its bytes somewhere other than the file it names.
+
+So where an operation is about to write a name it did not choose itself beneath a directory on a Windows machine, a name holding such a part is refused before anything is written: an entry of the archive a source artifact or a catalog entity carries, when the cache lays the archive out to be read; a file a build renders into its output directory; a draft an importer returns to `aggrega import`, under a dry run as under a write; and the document `aggrega edit-document` writes back, whichever surface asked for the edit. Every part of the name is judged, with a backslash read as a separator, as Windows reads it — so `aux/x.yaml` is refused for its directory `aux`, `report.` for its final full stop, and `.. \evil.yaml` for its first part, two dots and a space. A set refused for one name writes none of the others: an archive is not laid out, a build's output is not cleared or written, and no draft reaches disk.
+
+On Linux and macOS the same names are written as they are named, and this condition never fires. A name that climbs out of the directory it is written beneath is a different fault, refused on every platform with that operation's own message before this one is asked.
+
+Emitted message. The condition's own sentence opens it, then the name, the part Windows cannot hold and the directory the name was to be written beneath, then the remedy:
+> a name this operation writes holds a path segment Windows cannot hold as written (the name `"aux/x.yaml"`, its segment `"aux"`, beneath `<directory>`). It was not written. Windows reserves device names such as CON, PRN, AUX, NUL, COM1 and LPT1, in any letter case and whatever extension follows, and does not hold a segment ending in a full stop or a space as written; rename that segment where the name is produced
+
+The diagnostic carries no category: the name comes from whatever produced it — an archive's publisher, a Recipe or a library, an importer, the path an edit names — rather than from one document the compiler files the fault against.
+
+**How to fix:** rename the part the message names where the name comes from. For an archive entry, that is the published source artifact or entity, which only its publisher can change. For a rendered file, it is the output name a Recipe or an ArtifactLibrary gives it; for a draft, the importer that named it; for an edit, the path of the document. Nothing about the Windows machine makes the name usable as written.
+
 ## Conditions that do not halt a build
 
 Every condition above stops a build. Some conditions carry a short code and a message of their own without ever stopping one, and they are catalogued here so that a code you have in hand always resolves to something, whichever page you arrived from.
@@ -5829,6 +5846,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0337` | `no importer plugin version satisfies the plugins.importer entry's version pin` | A `plugins.importer` entry pins a version of its importer the catalog does not hold |
 | `E0338` | `importer is attached by more than one plugins.importer entry` | An importer is attached by more than one `plugins.importer` entry |
 | `E0339` | `more than one importer recognises the source` | More than one importer recognises the source |
+| `E0340` | `a name this operation writes holds a path segment Windows cannot hold as written` | A name the operation writes holds a part Windows cannot hold |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
