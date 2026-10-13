@@ -6,7 +6,7 @@ Turn a foreign source description into draft Aggrega authoring files
 **Synopsis**
 
 ```
-aggrega import <file> [flags]
+aggrega import <file or directory> [flags]
 ```
 
 **Description**
@@ -14,13 +14,29 @@ aggrega import <file> [flags]
 ```
 Turn a foreign source description into draft Aggrega authoring files.
 
-The importer reads the source file, drafts Aggrega entities from it, and writes
-the drafted files beneath the root of the workspace the run resolved, from
-whichever folder the command is run in (creating parent directories as needed).
-The translation is done by the importer plugin in the workspace's catalog that
+The importer reads the source, drafts Aggrega entities from it, and writes the
+drafted files beneath the root of the workspace the run resolved, from whichever
+folder the command is run in (creating parent directories as needed). The
+translation is done by the importer plugin in the workspace's catalog that
 advertises the source format; import selects it, runs it, and writes what it
 produces. Its .wasm is read from the places a build reads a plugin from — beside
 its Plugin entity in a catalog folder among them — and nothing is fetched.
+
+The source is a file or a directory. A file is handed to the importer whole. A
+directory is read into named sources: exactly the files the importer's declared
+file patterns match, at any depth, each named by its path inside the directory
+written with forward slashes, in sorted order, and no other file of the
+directory is opened. A link inside the directory is never followed out of it:
+the directory is held to itself wherever it lies, inside the workspace or
+outside it, so a link leading out of it — to a directory, or to a file the
+importer's patterns match (any importer's, when the format is recognized) — is
+refused before anything is read. A link to a directory is never entered, and a
+link to a file no pattern matches is passed over unread. An importer that
+declares no file patterns reads one file and refuses a directory, and a
+directory holding no file its patterns match is refused too. The files the
+importer's attachment names under with: sources reach it beside the directory's
+files, under their own base names, and a name the two share is refused rather
+than one hiding the other.
 
 A plugins.importer attachment attaches the importer its uri names by identity
 and version — importer/<name>:<version>, as plugin add importer writes it. An
@@ -48,17 +64,20 @@ and in any letter case, or a part ending in a full stop or a space — is refuse
 naming the draft, and nothing is written. On every other platform such a draft
 is written as it is named.
 
-The source format selects how the importer reads the file. Pass --format to
+The source format selects how the importer reads the source. Pass --format to
 name it explicitly. When --format is omitted, import recognizes the format by
 the signatures the importers in the workspace's catalog declare: each names the
 syntax a source is read in, the file names it applies to and the paths its
-parsed tree must or must not carry. The file is parsed by the parser the catalog
+parsed tree must or must not carry. A file is parsed by the parser the catalog
 serves for a syntax, once for each syntax a signature applying to its name reads
 it in, and the format of the one importer whose signature matches is the one
-read. If no signature matches, import stops, asks
-for --format and names the formats the catalog's importers advertise; if
+read. A directory is recognized the same way over the files it holds: each
+signature is tried against the files its file names match, and a signature that
+names no file applies to none of them. If no signature matches, import stops,
+asks for --format and names the formats the catalog's importers advertise; if
 signatures of more than one format match, it stops and names them. It does not
-guess. Detection reads only the named file — no other source, no network.
+guess. Recognition reads nothing but the source — of a directory, only the files
+a signature's file names match — and reaches no network.
 
 Before the drafted output, import names on standard error the format it read
 the source as and the directory the drafted paths are relative to, then any

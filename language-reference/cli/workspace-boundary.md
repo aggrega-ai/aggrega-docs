@@ -132,6 +132,13 @@ leads, and leaves the place the link points to exactly as it was:
   the repository as written is refused before the repository is fetched, so nothing beside the checkout
   is read:
   [`E0307`](../errors/fatal-halts.md#a-value-would-place-a-cached-file-outside-the-cache).
+- **The files of a directory you import** — `aggrega import`, the assistant's import tool and the
+  session's `aggrega/import`, given a directory, read the files of it the importer's file patterns
+  select. The directory is a root of its own wherever it lies — see
+  [A directory you import](#a-directory-you-import) — so a link among those files leading out of it, or
+  a link to a directory leading out of it, stops the import naming the link before any file of the
+  directory is read:
+  [`E0321`](../errors/fatal-halts.md#a-file-the-operation-reads-leads-through-a-link-out-of-the-directory-it-must-stay-inside).
 - **The workspace's own configuration** — every `.aggrega-config.yaml` from the root down to the
   directory a command runs in, and a pipeline's `.aggrega-config-append-ci.yaml` beside any of them.
   Every command, the language server and an assistant's tools read the configuration before anything
@@ -207,11 +214,12 @@ class of path rather than a list of places, and each is an exception for a reaso
 - **The product's machine-wide stores** — the global configuration file, the compiled-module store,
   the plugin descriptor cache, the documentation bundle and the registry credential store. They belong
   to the machine rather than to any workspace, so no workspace holds them.
-- **A file picked in a dialog, read where it is.** An editor sends the key file or trust root of a
-  registry registration as an absolute path, the description `aggrega/import` converts, and the module
-  `aggrega/pluginGenCatalog` generates an entity for with the overlay beside it. A person chose each
-  one, wherever they keep it. They are only read: nothing a request writes goes to a path chosen this
-  way.
+- **A file or a directory picked in a dialog, read where it is.** An editor sends the key file or trust
+  root of a registry registration as an absolute path, the description `aggrega/import` converts — a
+  file, or a directory whose files the importer reads — and the module `aggrega/pluginGenCatalog`
+  generates an entity for with the overlay beside it. A person chose each one, wherever they keep it.
+  They are only read: nothing a request writes goes to a path chosen this way. A directory picked this
+  way is held to itself, as every directory you import is.
 - **A document your editor holds open.** Validating it, asking for its diagnostics or dropping them,
   hovering, completing, resolving, and finding references and implementations in it are answered from
   the content the editor sent, so no file is read at the path that names it, and the path is never
@@ -229,7 +237,8 @@ points — and a link beneath it leading out of it is held exactly as a link ins
 read in a listing, and halting a lookup or a write. So a catalog directory you list outside the
 workspace, an output directory you pass to `aggrega plugin gen-catalog` or `aggrega import`, and an
 `artifact_cache_dir` that climbs out of the workspace each hold what is beneath them to themselves. Where a directory you named lies inside the
-workspace, the workspace is the root.
+workspace, the workspace is the root — a directory you import apart, which is
+[a root of its own](#a-directory-you-import) wherever it lies.
 
 **A directory you name is resolved against the folder you run in before anything is placed beneath it.**
 An output directory you pass to `aggrega import`, typed relative, is the folder of that name in the
@@ -266,6 +275,20 @@ the default `.aggrega/cache` included — it is the workspace's own directory: a
 link to elsewhere inside the workspace is followed, and one leading out of the workspace is refused, for
 reading as for writing. Written climbing out (`../shared-cache`), it is a directory the configuration
 names, read and written where it leads.
+
+### A directory you import
+
+**A directory you import is a root of its own, wherever it is** — inside the workspace as much as
+outside it, which is where it differs from every other directory you name inside the workspace.
+`aggrega import`, the assistant's import tool and the session's `aggrega/import` hand the importer each
+file of the directory under its place in that directory, so what they hand it is read only from inside
+the directory. What is judged is what the import would take something from: a link to a file a pattern
+of the importer selects — any importer's, where the format is recognised rather than named — and a link
+to a directory, which is never entered. One of those leading out of the directory is refused before any
+file is read, even where it leads elsewhere inside the workspace, while a selected link to a file
+elsewhere inside the directory is read where it points, under the link's own name. A link to a file no
+pattern selects is neither judged nor read. The directory itself is used as you named it, one that is a
+link followed to where it points.
 
 ### The document edit stays inside
 
@@ -308,6 +331,7 @@ caller does.
 | `E0321` on a configuration file | Replace the link with a copy kept in the workspace. A configuration shared between workspaces is read by naming it as the global configuration file, with `--config` or `AGGREGA_CONFIG`, beneath each workspace's own files. |
 | `E0321` on the artifact cache | Remove the link; a pull fills the cache again. To keep the cache somewhere else, set `artifact_cache_dir` to that directory, written relative to the workspace root (`../shared-cache`), rather than linking it. |
 | `E0321` on a link in a fetched repository | The link is committed in the repository the source names — the message names it by its place there: change it there — point it inside the repository, or commit the file itself — and name the revision that carries the change. |
+| `E0321` on a link in a directory you import | Keep the file itself in the directory rather than a link to it, or import the directory the link leads to. A directory you import is read only from inside itself, wherever it lies. |
 | `E0307` on a `module_subdir` | Name a directory inside the repository: the value may descend beneath the repository's top but may not climb above it. |
 | `E0320`, a write or removal through a link | Remove the link the message names, or make it lead somewhere inside the directory the message names, and run the operation again. Nothing in your entity files causes it. |
 | `E0324`, a reference leading out | Name an Aggregate kept elsewhere by its `metadata.name` and list its catalog directory; keep a Manifest, a Release an `extends:` names and a parameters file inside the workspace — or, for a document you named from outside, in its own directory; or open the workspace at a directory holding both documents. |

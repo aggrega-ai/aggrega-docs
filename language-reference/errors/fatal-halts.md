@@ -1339,12 +1339,14 @@ What is judged is every entry the read would take something from: a link to a fi
 
 **The overlays a catalog generation reads are held the same way.** `aggrega plugin gen-catalog --from-embedded` reads every overlay beneath the overlay directory it is given — typed with `--overlay`, picked in the editor, or named by an assistant — and holds each to the directory that overlay directory is read under: the workspace, for an overlay directory inside it, and the overlay directory itself for one named outside the workspace. The overlay directory is used as you named it — one that is a link is read where it points. An overlay beneath it that is a link leading out of the directory it is held to is not read, and neither is a directory link leading out of it, which may hold overlays of its own: the generation stops naming the link, with nothing written, rather than generating without the overlay. An overlay that is a link leading elsewhere inside the directory it is held to is read where it points; a directory link leading inside it is not entered. The remedy this message names is an overlay's own: keep the overlay itself beneath the overlay directory, or name a directory holding every overlay as the overlay directory.
 
+**A directory you import is held to itself.** `aggrega import` given a directory, the assistant's import tool and the session's `aggrega/import` method hand the importer the files of the directory its file patterns select, each under its place in the directory, so the directory is the one those reads stay inside wherever it lies — inside the workspace as much as outside it. What is judged is every entry the import would take something from: a link to a file one of the relevant patterns selects — the patterns of the importer serving the format named, or, where the format is recognised, those of every importer the catalog holds — and a link to a directory, which is never entered. One that leads out of the directory, to elsewhere in the workspace or anywhere else, is not read: the import stops naming the link before any file of the directory is opened, with nothing written. A selected link to a file elsewhere inside the directory is read where it points, under the link's own name, and a link to a file no pattern selects is neither judged nor read. The directory itself is used as you named it — one that is a link is read where it points. Reached over a listener, the assistant's tool names the link by its place in the workspace and says nothing of where it leads. The remedy this message names is an imported directory's own: keep the file itself in the directory rather than a link to it, or import the directory the link leads to.
+
 Emitted message. The condition's own sentence opens it, then the path the read reached, the directory it must stay inside, the link it meets on the way and the place that link leads to, then the remedy:
 > a file this operation reads leads through a link out of the directory it must stay inside (reading `<workspace>/catalog-local/component/app/1.0.0/component.yaml`, which must stay inside `<workspace>`, the link `<workspace>/catalog-local/component/app/1.0.0/component.yaml` leads to `<elsewhere>/component.yaml`). nothing was read through that link. Remove the link, or make it lead to a place inside `<workspace>`. To read what is kept outside, list the directory holding it as a catalog directory in the workspace configuration, rather than reaching it through a link beneath one: a listed directory is read where it leads, even when it is itself a link
 
 The diagnostic carries no category: what is at fault is the layout on disk rather than any document you wrote.
 
-**How to fix:** replace the link with a copy of what it leads to, or remove it; or, where the entity is meant to stay outside the workspace, list the directory holding it under `catalog_dirs` in the workspace configuration, or pass it with `--catalog`, so the directory is read as a catalog directory of its own. List the directory the link leads to, not the one it sits in: a link met beneath a directory is judged the same however that directory came to be read, so listing it changes nothing. Where the link is the workspace's conventional `catalog` directory itself, listing `catalog` — or the directory it points to — under `catalog_dirs`, or passing either with `--catalog`, is enough, since a directory you name is read where it points. Where the link is a Release's lockfile, remove it and pull the Release again, which writes a fresh lockfile beside it. A Manifest has no catalog tier, so a Manifest the Release reads is kept beside the Release itself. Where the link is a configuration file, replace it with a copy kept in the workspace; a configuration you mean to share between workspaces is read by naming it as the global configuration file, with `--config` or `AGGREGA_CONFIG`, beneath each workspace's own files. Where the link sits beside an entity being pinned or published, replace it with the file itself, or move a document that is an entity into a directory of its own; where it is the `.wasm` beside a Plugin entity, lay the built `.wasm` itself there. Where the link is the artifact cache directory or something in it, remove it — a pull fills the cache again — or, to keep the cache somewhere else, set `artifact_cache_dir` to that directory, written relative to the workspace root (`../shared-cache`). Where the link is committed in a repository a `git-repository` source fetches, change it in that repository — point it inside the repository, or commit the file itself — and name the revision that carries the change. Where the link is an overlay beneath the overlay directory of a catalog generation, replace it with the overlay itself, or name a directory holding every overlay as the overlay directory.
+**How to fix:** replace the link with a copy of what it leads to, or remove it; or, where the entity is meant to stay outside the workspace, list the directory holding it under `catalog_dirs` in the workspace configuration, or pass it with `--catalog`, so the directory is read as a catalog directory of its own. List the directory the link leads to, not the one it sits in: a link met beneath a directory is judged the same however that directory came to be read, so listing it changes nothing. Where the link is the workspace's conventional `catalog` directory itself, listing `catalog` — or the directory it points to — under `catalog_dirs`, or passing either with `--catalog`, is enough, since a directory you name is read where it points. Where the link is a Release's lockfile, remove it and pull the Release again, which writes a fresh lockfile beside it. A Manifest has no catalog tier, so a Manifest the Release reads is kept beside the Release itself. Where the link is a configuration file, replace it with a copy kept in the workspace; a configuration you mean to share between workspaces is read by naming it as the global configuration file, with `--config` or `AGGREGA_CONFIG`, beneath each workspace's own files. Where the link sits beside an entity being pinned or published, replace it with the file itself, or move a document that is an entity into a directory of its own; where it is the `.wasm` beside a Plugin entity, lay the built `.wasm` itself there. Where the link is the artifact cache directory or something in it, remove it — a pull fills the cache again — or, to keep the cache somewhere else, set `artifact_cache_dir` to that directory, written relative to the workspace root (`../shared-cache`). Where the link is committed in a repository a `git-repository` source fetches, change it in that repository — point it inside the repository, or commit the file itself — and name the revision that carries the change. Where the link is an overlay beneath the overlay directory of a catalog generation, replace it with the overlay itself, or name a directory holding every overlay as the overlay directory. Where the link sits in a directory you import, keep the file itself in the directory rather than a link to it, or import the directory the link leads to.
 
 ### A reference to another file leads out of the directory it must stay inside
 
@@ -5502,6 +5504,52 @@ The rest of the message names the source and every format it was recognised as, 
 
 **How to fix:** name the format — `--format` on `aggrega import`, or `format` on the assistant's import tool and the session's `aggrega/import` method. Where one of the importers should never recognise such a source, the change is to that importer's signatures, which its author declares in its describe() self-report and its Plugin entity records when it is generated; or leave that importer out of the catalog the workspace reads. [aggrega-import.md](../cli/aggrega-import.md) describes how a format is recognised.
 
+### An importer that declares no file patterns is handed a directory
+
+<!-- covers: internal/importops.ErrImporterDeclaresNoFilePatterns -->
+
+A refusal on turning a foreign source description into draft authoring files, not on a build. The source named is a directory, and a directory is handed to its importer as exactly the files the importer's declared file patterns select — so which files of a directory an importer reads is the importer's own statement. The importer serving the source's format declares no file patterns: it reads one file, and says nothing about which files of a directory are its.
+
+**Nothing is opened.** The import stops once the importer is resolved and before any file of the directory is read, rather than handing the importer every file the directory holds.
+
+Its message opens:
+> the importer serving the source's format declares no file patterns, so it reads one file and cannot read a directory
+
+The rest of the message names the format, the importer and the directory as you named it, then the remedy:
+> the importer serving the source's format declares no file patterns, so it reads one file and cannot read a directory (format `"<format>"`, importer `"importer/<name>"`, directory `"<directory>"`). Import one of the directory's files on its own instead; the importer reads a directory once it declares the file patterns its files are named by
+
+**How to fix:** import one file of the format on its own. For an importer to read directories of its format, its author declares the patterns its files are named by — the `files` of a recognition signature in its describe() self-report, which its Plugin entity records when it is generated. [aggrega-import.md](../cli/aggrega-import.md) describes what an import of a directory reads.
+
+### No file in the directory matches the importer's file patterns
+
+<!-- covers: internal/importops.ErrImportDirectoryMatchedNothing -->
+
+A refusal on turning a foreign source description into draft authoring files, not on a build. The source named is a directory, the format is settled, and the importer serving it declares file patterns — but no file the directory holds, at any depth, matches one of them. Handing the importer no source at all would have it fail on an empty one, in words about content rather than about which files were read, so the import stops here with nothing read.
+
+Where the format was recognised rather than named, the importer whose signature recognised the directory matched one of its files, so this is met only where the importer that runs is not that one — another importer of the same format a `plugins.importer` entry selects, or another version of it.
+
+Its message opens:
+> no file in the directory matches the file patterns the importer serving the source's format declares
+
+The rest of the message names the format, the importer, the directory as you named it and every pattern the importer declares, then the remedy:
+> no file in the directory matches the file patterns the importer serving the source's format declares (format `"<format>"`, importer `"importer/<name>"`, directory `"<directory>"`, file patterns `"<pattern>"`, `"<pattern>"`). Name a directory holding a file one of those patterns matches, or the format of an importer whose patterns match the files this directory holds
+
+**How to fix:** import the directory that holds the files of the format — a pattern is matched against the end of a file's path inside the directory, so a file at any depth counts — or name the format the directory's files are in. [aggrega-import.md](../cli/aggrega-import.md) describes what an import of a directory reads.
+
+### A file read from the directory and a file named in the importer's `with.sources` have the same name
+
+<!-- covers: internal/importops.ErrImportSourceNameCollision -->
+
+A refusal on turning a foreign source description into draft authoring files, not on a build. The source named is a directory, and its files reach the importer as named sources, each under its path inside the directory. The `plugins.importer` entry attaching the importer names files of its own under `with.sources`, which reach it as named sources too, each under its base name — and one name is carried by both. A name is how an importer tells one source from another, so handing it both would leave one of them shadowing the other with nothing to say which; the import stops instead, with nothing handed over.
+
+Its message opens:
+> a file read from the directory and a file named in the importer's `with.sources` have the same name
+
+The rest of the message names the name and the `with.sources` file, then the remedy:
+> a file read from the directory and a file named in the importer's `with.sources` have the same name (name `"<name>"`, the with.sources file `"<path>"`). Each source reaches the importer under one name, so rename one of the two files, or leave the file out of the importer's with.sources
+
+**How to fix:** rename one of the two files, or take the file out of the entry's `with.sources` where the directory already carries it. A `with.sources` file keeps its base name, so a file of the same name at the top of the directory is the one it meets; a file in a directory beneath carries that directory in its name. [Which importer turns a source into drafts](../cli/configuration.md#which-importer-turns-a-source-into-drafts) describes an entry's `with.sources`.
+
 ### A child Release inherits a boundary directory that resolves where its parent writes
 
 <!-- covers: pkg/resolver.ErrInheritedBoundaryDirectoryIsLiteral -->
@@ -5847,6 +5895,9 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0338` | `importer is attached by more than one plugins.importer entry` | An importer is attached by more than one `plugins.importer` entry |
 | `E0339` | `more than one importer recognises the source` | More than one importer recognises the source |
 | `E0340` | `a name this operation writes holds a path segment Windows cannot hold as written` | A name the operation writes holds a part Windows cannot hold |
+| `E0341` | `the importer serving the source's format declares no file patterns, so it reads one file and cannot read a directory` | An importer that declares no file patterns is handed a directory |
+| `E0342` | `no file in the directory matches the file patterns the importer serving the source's format declares` | No file in the directory matches the importer's file patterns |
+| `E0343` | ``a file read from the directory and a file named in the importer's `with.sources` have the same name`` | A file read from the directory and a file named in the importer's `with.sources` have the same name |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
