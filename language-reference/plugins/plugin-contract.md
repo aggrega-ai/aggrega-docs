@@ -392,6 +392,26 @@ No parameter value reaches a linter plugin, at any scope `aggrega lint` runs. Be
 
 **Status today:** **available**. The publishing-linter ships and runs through the host via `aggrega lint`.
 
+## The importer socket — draft authoring output
+
+An importer turns a source written for another tool — a flow exported from an agent builder, say — into draft Aggrega authoring files. It runs out of band: [`aggrega import`](../cli/aggrega-import.md), the editor session's `aggrega/import` method and the assistant-facing `import` tool resolve the importer that advertises the requested format as `import:<format>` and call its `import` export once per import. A build never dispatches it. Which importer runs, and what an operator hands it, is described under [Which importer turns a source into drafts](../cli/configuration.md#which-importer-turns-a-source-into-drafts).
+
+**Input shape (host → guest).** An `ImportInput` document carrying:
+
+- `format` — the format the import asked for, one of the importer's `import:<format>` capabilities without its prefix.
+- `bytes` — the source bytes.
+- `sources` — the files the `plugins.importer` entry attaching this importer declares under `with.sources`, each carrying its base name and its bytes, sorted by name. Absent when no entry attaches the importer or the entry declares none.
+- `settings` — the settings object that entry declares under `with.settings`, as a JSON document with its keys sorted, handed through verbatim. Absent under the same two conditions.
+- `catalog` — a view of the Components the workspace's own catalog holds: the catalog the importer itself was selected from, as the workspace resolves it on disk, with nothing fetched for it. Its `components` list holds one entry per Component name, sorted by name; where the catalog holds several versions of a Component, the entry describes the version a reference naming it without a version resolves to. Each entry carries the Component's `name` and `version`, its `labels`, the top-level key names its values and provides declare (`values` and `provides`, each sorted), and its `sockets` — each the socket's `name` and the label `selector` a dependency wired through it must satisfy — in the order the Component declares them. A Component that extends another carries what it inherits as well as what it declares, and the sockets it inherits come first. The view holds names, versions, labels and selectors only — never a value, a default or a secret — and its order is fixed, so one catalog yields one byte sequence. Absent when the catalog holds no Component.
+
+**Output shape (guest → host).** An `ImportOutput` document carrying the entities the import produced — each a reference to an existing catalog entity or a drafted body — the mapping decisions behind them, any diagnostics in the shared `Diagnostic` shape, the scaffold files to write, and a failure `error` when the import could not complete. Every field and its constraints are in the generated [importer socket schema reference](../schema/plugins/wasm-import.md).
+
+**Wire encoding.** The input and the output both travel as **canonical CBOR** ([RFC 8949](https://datatracker.ietf.org/doc/html/rfc8949) §4.2.1). A guest decodes its input and encodes its output through the entry points its kit's `ImportInput` and `ImportOutput` already carry — `DecodeCBOR` and `EncodeCBOR` in Go, `decode_cbor` and `encode_cbor` in Rust, `decodeCBORImportInput` and `encodeCBORImportOutput` in TypeScript — reading and writing bytes (`Vec<u8>` in Rust, `Host.inputBytes()` and `Host.outputBytes(...)` in TypeScript). No CBOR library is needed and nothing hand-parses bytes. `settings` crosses inside the binary document as the bytes of its JSON document, so a guest parses it as JSON to look inside, as on every other socket. An importer that cannot complete says why in the output's `error`, and the import halts naming the importer and that message; an answer that is not an `ImportOutput` in this encoding — one written as JSON, or one carrying a top-level field the shape does not declare — halts the import too, naming the importer and its `import` export. Called directly with `aggrega plugin run-local --export import`, an importer is handed the authored JSON payload converted into this encoding, and its answer is written out as the bytes it returned.
+
+**Type definitions.** The importer wire types — `ImportInput`, `ImportSource`, `CatalogProjection`, `CatalogComponent`, `CatalogSocket`, `ImportOutput` and the entity, decision and scaffold shapes it carries — are published in all three ABI packages and re-exported by each language's plugin development kit, generated from one codec so the three stay in lockstep. The Go kit's importer package, `github.com/aggrega-ai/aggrega-pdk-go/pkg/importer`, carries everything an importer does whatever its format, and its two reference importers read their input and write their output this way.
+
+**Status today:** **available** — dispatched by `aggrega import` and by the same operation on the editor session and the assistant-facing tool.
+
 ## Placement criterion: the linter socket vs the governance verdict roles
 
 Two of the documented sockets share a similar surface — both emit per-rule results — but differ in pipeline placement and gating semantics. The criterion for deciding which socket carries a given check:

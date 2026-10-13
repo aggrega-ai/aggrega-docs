@@ -15,7 +15,7 @@ The wire shapes an importer plugin socket consumes (ImportInput) and emits (Impo
 
 ### `ImportInput`
 
-The payload an importer guest receives: the source format that selects how to read the bytes, the primary source bytes, any named sources for a multi-file import, and an optional opaque options document the consumer supplies for importer-specific behavior.
+The payload an importer guest receives: the source format that selects how to read the bytes, the primary source bytes, any named sources for a multi-file import, an optional opaque options document the consumer supplies for importer-specific behavior, and a view of the Components the workspace's catalog holds.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -23,6 +23,43 @@ The payload an importer guest receives: the source format that selects how to re
 | `bytes` | string | yes | The primary source bytes to import, which the importer reads as the named format. Each kit carries them in its own field type — raw where that type is a byte type, base64-encoded where it is a string the importer decodes to recover them — and the generated encoder converts between the field and the form the wire carries bytes in. |
 | `sources` | ImportSource[] | no | Named sources for a multi-file or directory import, each carrying its own bytes. Absent for a single-file import, where the primary bytes carry the whole source. |
 | `settings` | any | no | An opaque import-options document the consumer supplies for importer-specific behavior. The host pipes it through without interpreting it; the importer reads whatever shape it documents. Absent when the consumer supplies no options. |
+| `catalog` | CatalogProjection | no | A view of the Components the workspace's own catalog holds — the catalog the importer itself was selected from — so the importer can weigh them as candidates when it maps a source node to a catalog entity. The host builds it from that local catalog alone, and it carries names, versions, labels and declared structure only: never a value, a default or a secret. Its order is fixed, so one catalog yields one byte sequence. Absent when the catalog holds no Component. |
+
+_Additional properties are not permitted._
+
+### `CatalogProjection`
+
+The workspace's catalog as an importer sees it: one entry per Component the catalog holds, each carrying the metadata an importer weighs when it scores a candidate.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `components` | CatalogComponent[] | yes | One entry per Component name the catalog holds, sorted by name. Where the catalog holds several versions of one Component, its entry describes the version a reference naming the Component without a version resolves to. |
+
+_Additional properties are not permitted._
+
+### `CatalogComponent`
+
+One Component of the workspace's catalog: its name and version, its labels, the key names its values and provides declare, and the sockets it declares for its dependencies. A Component that extends another carries what it inherits as well as what it declares itself.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | string | yes | The Component's name, as its metadata.name declares it — the name an Aggregate references it by. |
+| `version` | string | yes | The Component's version, as its metadata.version declares it. |
+| `labels` | map of string | no | The Component's labels, as a string-to-string map. Absent when it carries none. |
+| `values` | string[] | no | The top-level key names the Component's values declares, sorted. A list of names only: it never carries a value or a default. Absent when its values declares no key. |
+| `provides` | string[] | no | The top-level key names the Component's provides declares, sorted. A list of names only: it never carries a value. Absent when its provides declares no key. |
+| `sockets` | CatalogSocket[] | no | The sockets the Component declares for its dependencies, in declaration order: for a Component that extends another, the sockets it inherits come first, in the order the extended Component declares them, followed by those it adds. Absent when it declares none. |
+
+_Additional properties are not permitted._
+
+### `CatalogSocket`
+
+One socket a catalog Component declares for its dependencies: the socket's name and the label selector a dependency wired through it must satisfy.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `name` | string | yes | The socket's name, as the Component's usesSchema declares it. |
+| `selector` | string | yes | The socket's label selector, verbatim, in the Kubernetes-style grammar the Component writes it in: the labels a dependency wired through this socket must carry. |
 
 _Additional properties are not permitted._
 
