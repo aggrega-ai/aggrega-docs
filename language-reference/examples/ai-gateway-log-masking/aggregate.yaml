@@ -22,7 +22,6 @@ spec:
       type: core/gateway/litellm
       values:
         model: assistant
-      features:
         # Log masking: the text a caller or the model wrote is masked in the copy
         # of each call the gateway hands to its logs, and in nothing else. The
         # model receives the request exactly as the caller sent it, and the
@@ -31,14 +30,12 @@ spec:
         # What to mask is listed here, because what counts as sensitive depends
         # on what this assistant handles: a pattern for the company's ticket
         # numbers, and two entity types the recognizer finds. There is no default
-        # list, and an attachment listing neither halts the build.
-        logs:
-          type: core/log-masking
-          values:
-            patterns:
-              - name: ticket
-                regex: '\bTCK-[0-9]{6}\b'
-            entities: [PERSON, EMAIL_ADDRESS]
+        # list, and a gateway listing neither masks nothing in its logs.
+        log_masking:
+          patterns:
+            - name: ticket
+              regex: '\bTCK-[0-9]{6}\b'
+          entities: [PERSON, EMAIL_ADDRESS]
       uses:
         # The model the gateway serves. A caller asks for the alias this
         # connection is written under, and the gateway's entry for it is written

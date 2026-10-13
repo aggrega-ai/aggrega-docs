@@ -17,7 +17,7 @@ spec:
   appliesTo: "dataplane.aggrega.ai/content-masking"
   schema:
     values:
-      $ref: "BaseComponents#/schemas/BaseFeatureParameter"
+      type: object
       properties:
         action: { type: string, enum: [redact, restore, refuse], default: redact }
         scope: { type: string, enum: [request, response, both], default: request }
@@ -36,7 +36,7 @@ spec:
       required: [action]
 ```
 
-The Feature also carries an assertion that halts the build when an attachment lists neither `patterns` nor `entities`: no list is assumed on an author's behalf, so an attachment always names what it masks. `refuse` stops text carrying a match rather than replacing the match: a request carrying one is not forwarded and a reply carrying one is not delivered. The abridged form leaves out the `infra` values the operator sets on the attachment in the Release, each of whose defaults is the protection: `allow_unmasked_text` and `allow_unmasked_reply_parts` (off, so what a realization does not mask in a request is refused and what a masked reply carries unread is withheld), `allow_non_text_content` and `allow_streamed_replies` (off), and `mask_reasoning` (on). The abridged form shows `patterns` and `entities` inline; in the standard library they are declared once, in the `TextMaskingSchemas` schema library, which `core/data-masking` and `core/log-masking` both reference, so a pattern or an entity type means the same thing on both.
+The Feature also carries an assertion that halts the build when an attachment lists neither `patterns` nor `entities`: no list is assumed on an author's behalf, so an attachment always names what it masks. `refuse` stops text carrying a match rather than replacing the match: a request carrying one is not forwarded and a reply carrying one is not delivered. The abridged form leaves out the `infra` values the operator sets on the attachment in the Release, each of whose defaults is the protection: `allow_unmasked_text` and `allow_unmasked_reply_parts` (off, so what a realization does not mask in a request is refused and what a masked reply carries unread is withheld), `allow_non_text_content` and `allow_streamed_replies` (off), and `mask_reasoning` (on). The abridged form shows `patterns` and `entities` inline; in the standard library they are declared once, in the `TextMaskingSchemas` schema library, which `core/data-masking` and the AI gateway's own `values.log_masking` both reference, so a pattern or an entity type means the same thing on both. That library entry is the one schema reference the Feature's values compose, so they carry no Feature base: an attachment writing `display_name`, `description`, `severity` or `as` is refused.
 
 **2. Platform Catalog: The Component That Declares the Capability**
 Abridged from `core/gateway/litellm`. The label is what the Feature's selector reads; the `models` socket takes the models the gateway serves, and the other two sockets the pair of services it calls to find and replace entity types.

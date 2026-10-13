@@ -5,12 +5,13 @@ the model it calls must see them. The gateway in front of that model keeps logs
 for audit and for debugging, and those logs must not keep them. This workspace
 compiles such a gateway to Kubernetes manifests.
 
-The Feature that does it is `core/log-masking`. It masks the copy of each call
-the gateway hands to its logs, and nothing else: the model receives the request
-exactly as the caller sent it, and the caller receives the reply exactly as the
-model wrote it. That is the difference from `core/data-masking`, which hides the
-text from the model itself. The two are alternatives, and the section on
-choosing between them below shows what happens when both are attached.
+What does it is a value of the gateway itself, `values.log_masking` on
+`core/gateway/litellm`. It masks the copy of each call the gateway hands to its
+logs, and nothing else: the model receives the request exactly as the caller
+sent it, and the caller receives the reply exactly as the model wrote it. That
+is the difference from the Feature `core/data-masking`, which hides the text from
+the model itself. The two are alternatives, and the section on choosing between
+them below shows what happens when both are set on one gateway.
 
 This workspace authors **no catalog entity of its own**. The three entity files
 here — an Aggregate, a Manifest and a Release — are the whole of what anyone
@@ -30,10 +31,11 @@ Three `uses` edges: the gateway's `models` socket to the model, carrying as its
 `pii_anonymizer` sockets to the two recognizer services. The Aggregate attaches
 that credential without naming a secret, and the Release names it in the
 attachment's `infra`: a Secret the namespace already holds, which the Manifest's
-realization references and does not render. One Feature attachment, `logs`, on
-the gateway, lists what to mask: a regular expression for the company's ticket
-numbers, and the entity types `PERSON` and `EMAIL_ADDRESS`. There is no default
-list; an attachment listing neither halts the build.
+realization references and does not render. The gateway's `values.log_masking`
+lists what to mask: a regular expression for the company's ticket numbers under
+`patterns`, and the entity types `PERSON` and `EMAIL_ADDRESS` under `entities`.
+There is no default list; a gateway listing neither masks nothing in its logs,
+and renders exactly as it does without the value.
 
 ## Building
 
@@ -51,9 +53,8 @@ aggrega pull --release release.yaml      # resolve once, then build with no flag
 ```
 
 This workspace resolves the catalog entities through the `catalog_dirs` in
-`.aggrega-config.yaml`. The log-masking realization runs one plugin, the
-gateway configuration step `pipeline-step/litellm-gateway-config`, which the
-resolution fetches from the registry `default_registry` names.
+`.aggrega-config.yaml`. The gateway's own Recipe writes the log masking, so the
+build runs no plugin beyond those the compiler carries.
 
 The build prints, with `<workspace>` standing for this example's folder:
 
@@ -79,8 +80,8 @@ dist/helm/
         └── request-guard.yaml
 ```
 
-The attachment brings no file of its own. What it does is written into the
-gateway's configuration, and a module that configuration loads is added to the
+The value brings no file of its own. The gateway's Recipe writes it into the
+gateway's configuration, and adds a module that configuration loads to the
 gateway's ConfigMap. The model renders one file, `gpt-service.yaml`, a Service
 mapping an in-cluster name onto OpenAI's API host, `api.openai.com`; its key
 renders none, because the Secret holding it already exists.
@@ -113,26 +114,28 @@ litellm_settings:
     - log_masking.withhold_failed_calls
   redact_messages_in_exceptions: true
 guardrails:
-  -
-    guardrail_name: router-logs-log-masking
+  - guardrail_name: "router.log-masking"
     litellm_params:
-      default_on: true
       guardrail: log_masking.LogMasking
+      default_on: true
       mode: logging_only
       patterns:
-        -
-          action: MASK
-          name: ticket
+        - pattern_type: regex
+          name: "ticket"
           pattern: "\\bTCK-[0-9]{6}\\b"
-          pattern_type: regex
+          action: MASK
       pii_entities_config:
-        EMAIL_ADDRESS: MASK
-        PERSON: MASK
+        "PERSON": MASK
+        "EMAIL_ADDRESS": MASK
 general_settings:
   disable_error_logs: true
 ```
 
-Five things are worth reading off it.
+The gateway's Recipe writes all of it from `values.log_masking`, and names the
+entry after the gateway, `router` here, with a dot where the guardrail entries
+the standard library's realizations write carry a hyphen, so no attachment of
+theirs, whatever its name, can take this entry's place. Five things are worth
+reading off it.
 
 **`mode: logging_only` is the gateway's own mode for a guardrail that runs
 where a finished call is handed to its logs, and nowhere else.** The class the
@@ -175,7 +178,7 @@ name becomes `<PERSON>` and an address `<EMAIL_ADDRESS>`.
 **A failed call is withheld rather than masked.** The gateway runs no logging
 guardrail for a call that fails, so the module the entry loads also provides
 `log_masking.withhold_failed_calls`, registered right after the request guard,
-and the attachment's realization writes the two settings beside it. The callback
+and the gateway's Recipe writes the two settings beside it. The callback
 is handed a failed call's record before any callback registered after it, and
 replaces every text a caller or the model wrote with `[TEXT_WITHHELD]`, matched
 or not, and the error's text with `[ERROR_TEXT_WITHHELD]`, leaving what a retried
@@ -185,8 +188,9 @@ details the gateway attaches to an error.
 
 The same ConfigMap carries a second key, `log_masking.py`: the module the entry's
 `guardrail` and the second `callbacks` entry name. The gateway's Recipe adds the
-module and that entry only while a `core/log-masking` attachment lists something,
-so a Release without the attachment renders the ConfigMap without either.
+module, that `callbacks` entry, the guardrail entry and the two settings only
+while `values.log_masking` lists something, so a gateway listing nothing renders
+the ConfigMap without any of them, byte for byte as a gateway without the value.
 
 ## What a log reader sees, and what the model sees
 
@@ -223,21 +227,21 @@ Reply for <PERSON> (<EMAIL_ADDRESS>) about [TICKET_REDACTED].
 
 ## What stays unmasked
 
-Masking the logs keeps the text from nobody else, and the attachment's
-realization says so:
+Masking the logs keeps the text from nobody else, and the description of
+`values.log_masking` says so:
 
 - **The model provider receives everything unmasked**, and so do the gateway
   and both recognizer services.
 - **A failed call keeps no request text in any log the gateway writes, and that
   costs two things.** The gateway's own line for a failed call keeps only the
   kind of error, such as `An error was logged with its text withheld, as log
-  masking is attached: BadRequestError`, so the provider's message and its
+  masking is on: BadRequestError`, so the provider's message and its
   traceback leave that log; and failed calls leave the spend logs and the daily
   spend totals, which count successful calls only. A logging integration
   configured outside the catalog can still read a provider's own error message
   on the exception a failed call carries, and one registered ahead of the
   gateway's own callback is handed a failed call's text as it came.
-- **Only the logs the realization writes through are covered:** not the
+- **Only the logs the masking writes through are covered:** not the
   gateway's debug output, and not a provider's own logs. A request's metadata,
   its tool definitions and its headers are logged as sent.
 - **A call whose copies cannot be masked is logged with its text withheld.**
@@ -257,43 +261,45 @@ log configured on the gateway would receive.
 `core/data-masking` hides the listed text from the model, and on this gateway
 its realization turns the gateway's logging of message contents off while it is
 attached. Beside it, log masking would have nothing left to act on, and a reader
-could take the two for one protection. So each declares a conflict with the
-other, and attaching both to the gateway halts the build. Adding a `core/data-masking` attachment named
-`masked` above `logs` prints:
+could take the two for one protection. So the gateway refuses the two together:
+while `values.log_masking` lists something, a `core/data-masking` attachment on
+the gateway halts the build, by an assertion of the gateway's own Component.
+Adding one named `masked` to the gateway, with its realization bound in the
+Manifest, prints:
 
 ```text
-[DEVELOPER_ERROR E0308] aggregate.yaml at .spec.components.router
-  a Feature reaches a component alongside a Feature it declares a conflict with ("core/data-masking", attached in the Aggregate on component "router", conflicts with "core/log-masking", attached in the Aggregate on component "router", on component "router"). Attach only one of the two where they meet: remove one attachment, or move it to a scope that does not hold this component.
+[DEVELOPER_ERROR E0033]
+  Component/Feature assertions
+  caused by: Component "core/gateway/litellm" instance "router" assertion "log_masking_not_beside_data_masking": [… omitted: the template position and the assertion's own source]: error calling fail: assertion failed: "router" lists what to mask in its logs under values.log_masking, and the core/data-masking attachment "masked" is on it too: that attachment's realization turns the gateway's logging of message contents off, so log masking would have nothing left to act on, and a reader could take the two for one protection. Remove values.log_masking to mask what travels, or the "masked" attachment to mask only what is logged
 ```
 
 Reach for log masking where the model must see the data and the logs must not
 keep it; reach for data masking where the model must not see it either. Both
-read the same `patterns` and `entities`, so an attachment's list means the same
-thing on either.
+read the same `patterns` and `entities`, so a list means the same thing on
+either.
 
 ## Where the compiler is blind
 
 The compiler routes the pattern and the entity types into the gateway's
 configuration as strings. It does not compile the expression, does not know what
 a ticket number or a person is, and does not see the traffic the gateway will
-carry. Each halt this workspace can meet — an attachment listing nothing,
-entity types with a recognizer socket unwired, an entity type the analyzer does
-not recognize in English, both masking Features on one component, the
-connection to the managed model carrying no credential — is declared by the
-catalog's own entities, as an assertion in the gateway, the Feature or its
-realization or as the conflict the two Features declare, and none of them rests
-on any understanding of the text.
+carry. Each halt this workspace can meet — entity types with a recognizer socket
+unwired, an entity type the analyzer does not recognize in English, log masking
+beside data masking on one gateway, the connection to the managed model carrying
+no credential — is declared by the catalog's own entities, as an assertion of
+the gateway's Component or of its Recipe, and none of them rests on any
+understanding of the text.
 
 ## Adapting it
 
-- **Mask patterns only.** Drop `entities` from the attachment and the two
+- **Mask patterns only.** Drop `entities` from `values.log_masking` and the two
   recognizer components with their edges; the patterns are matched inside the
   gateway and need neither service.
 - **Mask more entity types.** Add them to `entities`, in the recognizer's own
   vocabulary; a type the analyzer does not recognize in English halts the build
   and names the ones it does.
-- **Hide the text from the model as well.** Replace the `core/log-masking`
-  attachment with a `core/data-masking` one listing the same `patterns` and
+- **Hide the text from the model as well.** Replace `values.log_masking` with a
+  `core/data-masking` attachment on the gateway listing the same `patterns` and
   `entities`, and bind its realization in the Manifest.
 - **Serve a second model.** Wire another model component to the `models`
   socket under an alias of its own, with the key the gateway presents to it on

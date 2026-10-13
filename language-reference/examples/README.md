@@ -132,12 +132,12 @@ developer surface and the String Pipe with zero platform authoring.
   conventions check of a Release advising where the two ends read different
   parameters.
 - **[ai-gateway-log-masking](ai-gateway-log-masking/)** — an AI gateway that
-  keeps personal data out of its logs, compiled to Kubernetes. The masking
-  applies only to the copy of each call the gateway hands to its logs: the model
-  receives the request as the caller sent it, and the caller receives the reply
-  as the model wrote it — the difference from data masking, which hides the text
-  from the model itself. The README shows the build refusing when both are
-  attached to one gateway.
+  keeps personal data out of its logs through a value of its own, compiled to
+  Kubernetes. The masking applies only to the copy of each call the gateway hands
+  to its logs: the model receives the request as the caller sent it, and the
+  caller receives the reply as the model wrote it — the difference from data
+  masking, which hides the text from the model itself. The README shows the
+  build refusing when both are set on one gateway.
 - **[ai-gateway-prompt-injection-shield](ai-gateway-prompt-injection-shield/)** —
   an AI gateway that sends every request through a guard, which asks a trained
   classifier whether the request tries to override the model's instructions and
