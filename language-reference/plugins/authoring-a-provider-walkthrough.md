@@ -68,7 +68,6 @@ package main
 
 import (
 	"bytes"
-	"encoding/json"
 	"fmt"
 	"sort"
 	"strings"
@@ -228,8 +227,8 @@ func renderBody(name string, body []byte) ([]byte, error) {
 //go:wasmexport render_node
 func render_node() int32 {
 	var in aggrega.RenderNodeInput
-	if err := json.Unmarshal(pdk.Input(), &in); err != nil {
-		pdk.SetError(fmt.Errorf("dotenv: unmarshal RenderNodeInput: %w", err))
+	if err := in.DecodeCBOR(pdk.Input()); err != nil {
+		pdk.SetError(fmt.Errorf("dotenv: decode RenderNodeInput: %w", err))
 		return 1
 	}
 
@@ -252,9 +251,9 @@ func render_node() int32 {
 		})
 	}
 
-	outputBytes, err := json.Marshal(aggrega.RenderNodeOutput{Files: files})
+	outputBytes, err := aggrega.RenderNodeOutput{Files: files}.EncodeCBOR()
 	if err != nil {
-		pdk.SetError(fmt.Errorf("dotenv: marshal RenderNodeOutput: %w", err))
+		pdk.SetError(fmt.Errorf("dotenv: encode RenderNodeOutput: %w", err))
 		return 1
 	}
 	pdk.Output(outputBytes)
@@ -263,6 +262,14 @@ func render_node() int32 {
 
 func main() {}
 ```
+
+**The payload crosses in a binary encoding, and the kit reads and writes it.**
+The host hands `render_node` its input as canonical CBOR and reads the answer
+in the same encoding, so the guest decodes with the input type's `DecodeCBOR`
+and encodes with the output type's `EncodeCBOR` — no CBOR library, and nothing
+parsed by hand. A file's `Content` is a byte slice the guest fills with the
+exact bytes to write; the encoder carries them as raw bytes and the host writes
+them verbatim.
 
 **The host hands the guest content it has already evaluated.** Each artifact
 entry's `Content` is the authored body with its template expressions already
