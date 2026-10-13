@@ -257,6 +257,7 @@ rateLimit:
     redis:
       url: counters-default.envoy-gateway-system.svc.cluster.local:6379
     type: Redis
+  failClosed: true
 ```
 
 What to read off them:
@@ -292,6 +293,14 @@ creates in its namespace and turns on for every gateway it serves, and points it
 at the Redis the gateway's `cache` socket reaches. The store publishes its host
 with no namespace, so the gateway qualifies it with the one the Release places
 the store in.
+
+**A check that gets no answer refuses the request.** `failClosed: true` has
+Envoy refuse a model request with HTTP 500 while the store or the rate-limit
+service cannot be reached, or a check takes longer than Envoy's rate-limit
+timeout, 20 ms by default, rather than serve it and not count it. That setting
+belongs to the control plane, so it holds for every rate limit this Envoy
+Gateway install keeps, and a rate limit applied to the install by hand fails
+closed too. The configuration carries it only while the budget is attached.
 
 **No password is in it.** The service reads the store's password as
 `REDIS_AUTH`, from the Secret the `cache` connection's credential names,
@@ -353,15 +362,16 @@ On each model request the gateway asks the rate-limit service whether the
 tokens charged so far this month exceed `limit`. Once they do, it answers model
 requests with HTTP 429 until the month ends. A request's tokens are added once
 its reply is complete, so the request that crosses the limit is served, and so
-is any request answered beside it.
+is any request answered beside it. While the store or the rate-limit service
+cannot be reached, or a check takes longer than Envoy's rate-limit timeout, it
+refuses model requests with HTTP 500, under the `failClosed` setting above, so
+no model request is admitted while its count cannot be checked.
 
 What follows from that is the product's behaviour rather than configuration:
 
-- **While the store or the service cannot be reached, requests are served and
-  not counted.** That is Envoy Gateway's default for its rate limit: while the
-  store or the service cannot be reached, or does not answer within 20 ms, a
-  request is let through and not counted, so traffic during an outage spends
-  past the budget.
+- **A request admitted just before an outage is still served and not
+  counted.** Its tokens are charged after the reply, so a reply completing
+  while the store or the service cannot be reached adds nothing to the count.
 - **A store keeping the count in memory starts every window again when it
   restarts.** `core/datastore/redis` keeps its entries in memory by default, so a
   restarted store loses the count kept so far, and the rest of the month is
