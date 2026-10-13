@@ -5173,6 +5173,23 @@ Emitted message, which is the condition's own sentence:
 
 **How to fix:** check the `kind:` field of the file you are publishing against the entity kinds the language reference lists — a misspelled or unsupported kind reports here, and correcting the field is the whole remedy. Where the kind is one the language reference documents as publishable, that is a gap in the toolchain rather than in your entity, and it is worth reporting with the kind quoted.
 
+### A published archive carries an entry Windows cannot use
+
+<!-- covers: internal/publishops.ErrWindowsUnusableEntry -->
+
+An advisory raised when an entity is published; it never stops anything, and a build does not raise it. An entity that carries files beside its document publishes as an archive, and each name the archive holds — the entity document's own file name, then each file it carries — is judged by the rule the halt "A name the operation writes holds a part Windows cannot hold" above applies on Windows: a part Windows reserves for a device, in any letter case and whatever extension follows, or a part ending in a full stop or a space. So `aux/x.yaml` draws it for its directory `aux`, `report.` for its final full stop, and a document called `con.yaml` that imports a schema file for its own name. An entity that carries nothing publishes as its document alone, laid out under a name the product chooses, and a Plugin publishes no archive, so neither draws it.
+
+**It is raised on every platform, and it refuses nothing.** A workspace on Windows refuses to lay out such an entry, under that halt, so it cannot use the version; the advisory is how the publisher learns this before someone on Windows does. The publication, or its dry run, goes ahead or stops exactly as it would without it.
+
+**Every surface that publishes an entity raises it, each in its own shape.** `aggrega push`, and its `--dry-run`, prints one line per entry on standard error, each opening with `warning: `. The assistant's `publish-entity` tool answers with the entries as `windows_unusable_entries`, and the answer's text names them too. `aggrega serve` answers `aggrega/publishEntity` with them as `windowsUnusableEntries`, and passes the warning lines themselves to a request that asked to be reported on. Each answer leaves the field out where there is no such entry.
+
+Its message opens:
+> an entry this publication carries cannot be used on Windows
+
+and continues with the entry and the first of its parts Windows cannot hold, then the remedy. Taught under "A published archive carries an entry Windows cannot use" in [warnings.md](./warnings.md).
+
+**How to fix:** rename the part the message names, on disk and wherever the entity's declarations name the file, and publish again. Where the version is not meant to be used on Windows, nothing needs changing.
+
 ### Two catalog identities publish to one repository location
 
 <!-- covers: pkg/oci.ErrOCILocationCollision -->
@@ -5898,6 +5915,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0341` | `the importer serving the source's format declares no file patterns, so it reads one file and cannot read a directory` | An importer that declares no file patterns is handed a directory |
 | `E0342` | `no file in the directory matches the file patterns the importer serving the source's format declares` | No file in the directory matches the importer's file patterns |
 | `E0343` | ``a file read from the directory and a file named in the importer's `with.sources` have the same name`` | A file read from the directory and a file named in the importer's `with.sources` have the same name |
+| `E0344` | `an entry this publication carries cannot be used on Windows` | A published archive carries an entry Windows cannot use |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

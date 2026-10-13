@@ -380,3 +380,25 @@ The line names the source the bytes came from — the same word `aggrega pull` a
 **Why a warning and not a halt.** Reading a document is worth doing on a workspace nobody has prepared yet — refusing to validate or lint until someone runs `aggrega pull` would make the reporting commands unusable at exactly the moment they are most useful. `aggrega build` will not produce artifacts without a lockfile at all, so the build meets this warning only for a plugin its lockfile records no digest for — the ordinary case being one read from beside its entity in a catalog directory.
 
 **Where a missing lockfile refuses instead.** When an editor asks the compiler service for a Release's graph and the workspace has no lockfile at all, the service stops and asks for one rather than drawing a graph. A lockfile that exists and simply records no digest for a plugin is the case above instead: the plugin runs, and this warning is how you learn it. A drawn graph is what a reader then reasons about, and one built from unverified bytes would look exactly like one that was checked. See [`aggrega serve`](../cli/aggrega-serve.md).
+
+## A published archive carries an entry Windows cannot use
+
+**Fires when** [`aggrega push`](../cli/aggrega-push.md) — or its `--dry-run` — publishes an archive one of whose entries holds a part Windows cannot hold as written: a name Windows reserves for a device, such as `CON`, `PRN`, `AUX`, `NUL`, `COM1` or `LPT1`, in any letter case and whatever extension follows, or a part ending in a full stop or a space. `aux/x.yaml` holds one in its directory; `report.` and `COM1.yaml` hold one in their file name. On Windows, `aggrega` refuses to unpack such an entry, so a Windows workspace cannot use the version at all. The warning fires on every platform, because a publication is for whoever pulls it, and it is how its author learns this before someone on Windows does.
+
+**What it reads.** The names the archive will hold: the entity document's own file name, then each file the entity names beside it — the files [Bundling](../cli/aggrega-push.md#bundling) lists. So a document called `con.yaml` that imports a schema file draws the warning for its own name. An entity that names nothing publishes as its document alone, which a consumer lays out under a name the product chooses rather than the one you authored, so it is never warned about, whatever its file is called. A Plugin publishes no archive and is never warned about either.
+
+**Emit shape.** One line per entry, on standard error, in the order the names are composed — the document first, then the files it carries in lexical order — ahead of the dry run's or the publication's own account on standard output:
+
+```text
+warning: an entry this publication carries cannot be used on Windows (the entry "aux/x.yaml", its segment "aux"). Windows reserves device names such as CON, PRN, AUX, NUL, COM1 and LPT1, in any letter case and whatever extension follows, and does not hold a segment ending in a full stop or a space as written, so a workspace on Windows refuses to unpack the entry. This warning does not stop the publication; rename that segment to publish a version Windows can use
+```
+
+The first quoted value is the entry as the archive names it. The second is the first of its segments — the parts its slashes separate — that Windows cannot hold, which is the part to rename. The line opens with the condition's fixed sentence. It is raised by the publication rather than by a rule a build evaluates, so it has no row in the table at the top of this page; [the table of every condition](./sentinels.md#every-condition-by-short-code) lists it under `E0344`.
+
+**It refuses nothing.** The push, or its dry run, goes ahead or is refused exactly as it would be without the warning, and exits as it would have.
+
+**Where else it reaches.** The assistant's `publish-entity` tool answers with the same entries as `windows_unusable_entries`, and `aggrega serve` answers `aggrega/publishEntity` with them as `windowsUnusableEntries`; each is absent where there is none. See [aggrega mcp](../cli/aggrega-mcp.md) and [aggrega serve](../cli/aggrega-serve.md). The service also passes the warning line itself to a request that asked to be reported on, among the rest of the publication's account.
+
+**Editor visibility.** None as a diagnostic: publishing is not a build, so nothing here reaches a problems list. An editor publishing through the service reads `windowsUnusableEntries` on the answer.
+
+**Why a warning and not a halt.** Such a name is legal, and Linux and macOS use the file as it is named, so refusing the publication would refuse a working entity on a guess about who will pull it. Whether to rename is the author's call.

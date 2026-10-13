@@ -2081,6 +2081,7 @@ What publishing an entity landed, and where. A publication that ran the pin step
 | `reach` | PublicationReach | yes | How far a publication reached. These answers reach beyond this machine entirely — what they land is what every consumer of that registry resolves — so each names the host it addressed and whether the call landed anything. |
 | `pin` | PinResult | no | What the pin step did to the lock beside an entity, or would do on a dry run. It is the answer to `aggrega/pin`, and a publication that ran the step carries it as its `pin`. |
 | `wholeDirectorySource` | string | no | The entity's local source as authored, present when it is written as a template. Such a source names its directory only once a Release fills the template in, so the publication carries every file in the entity's directory rather than only the files the entity names. Absent where it carries only those files. |
+| `windowsUnusableEntries` | string[] | no | The entries of the published archive whose path holds a part Windows cannot hold as written — a name Windows reserves for a device, such as CON, AUX or NUL, in any letter case and whatever extension follows, or a part ending in a full stop or a space — the entity document's own file name first, then the files it carries. A workspace on Windows refuses to unpack them, so it cannot use the version; the publication goes ahead or stops exactly as it would without them. Absent where there is none, which includes an entity published as its document alone. |
 
 _Additional properties are not permitted._
 

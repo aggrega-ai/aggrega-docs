@@ -19,6 +19,8 @@ An Aggregate, a Plugin and the library kinds name no file beside their document.
 
 **Each file in an archive carries mode `0644` and no timestamp, whatever its permission bits on disk.** A checkout writes files with its own permission bits, and a system that records no execute bit checks out as an ordinary file what another system checks out as executable, so the archive carries no mode read from disk: two checkouts of one commit publish the same files whatever their umask and whichever system they were made on, and flipping a script's execute bit changes nothing that is published.
 
+**A push warns about each entry an archive carries that Windows cannot hold as written** — a path with a part named after a device, such as `CON`, `AUX` or `NUL`, in any letter case and whatever extension follows, like `aux/x.yaml`, or a part ending in a full stop or a space, like `report.`. On Windows, `aggrega` refuses to unpack such an entry, so a Windows workspace cannot use the version. The warning is written to standard error on every platform, one line per entry, ahead of the publication's own account; the entity document's own file name is judged with the files it names, and an entity that names nothing publishes as its document alone and is never warned about. It refuses nothing: the push goes ahead or is refused exactly as it would be without it, and `--dry-run` warns the same way. [A published archive carries an entry Windows cannot use](../errors/warnings.md#a-published-archive-carries-an-entry-windows-cannot-use) shows the line and what to do about it.
+
 **A local `source:` written as a template carries the whole directory.** A template such as `./charts/{{ .values.flavour }}` names a directory only once a Release fills it in, so no publication can tell which one it will be. Such an entity carries every file in its own directory that its recorded ignore rules keep — never its `.aggregaignore`, whose rules travel inside the lock — and the push says so beneath its other facts:
 
 ```
@@ -179,9 +181,11 @@ Precedence is flag > environment > config > default. See [environment-variables.
 - [./aggrega-serve.md](./aggrega-serve.md) — the daemon carries this same publication at
   `aggrega/publishEntity`, so an editor can run it without leaving the session; it runs only when a
   request names it, and answers with the reference, the published digest — on a dry run, the digest
-  `--dry-run` prints — and how far the call reached.
+  `--dry-run` prints — how far the call reached, and the entries this command warns about as
+  `windowsUnusableEntries`.
 - [./aggrega-mcp.md](./aggrega-mcp.md) — the same capability as the `publish-entity` tool, which an
-  assistant can call. Read what that page says about allowing it before you do.
+  assistant can call, answering with those entries as `windows_unusable_entries`. Read what that page
+  says about allowing it before you do.
 - [../../architecture/13-catalog-and-registry.md](../../architecture/13-catalog-and-registry.md) — the catalog, registry, and OCI mediatype model.
 
 <!-- BEGIN GENERATED: cli-push -->
@@ -239,6 +243,16 @@ the rules the plugin serving its capability declared, and the author's own
 among those files is refused rather than followed. A local source written as a
 template names no one directory until a Release fills it in, so an entity with
 one carries every such file in its own directory, and push says so.
+
+Push warns about each file an archive carries whose path holds a part Windows
+cannot hold as written: a name Windows reserves for a device — CON, PRN, AUX,
+NUL, COM1 or LPT1, say, in any letter case and whatever extension follows — or a
+part ending in a full stop or a space. On Windows, aggrega refuses to unpack
+such a file, so a Windows workspace cannot use the version. The warning is
+written to standard error on every platform, one line per file, the entity
+document's own file name judged with the rest, and it refuses nothing: the push,
+or its dry run, goes ahead or stops exactly as it would without it. An entity
+that names nothing publishes as its document alone and is never warned about.
 
 Each file travels with mode 0644, whatever its permission bits — the execute
 bit included — in the checkout it is published from. The OCI manifest names the
