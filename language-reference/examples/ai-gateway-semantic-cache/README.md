@@ -287,11 +287,11 @@ Each of these is a sentence the build prints, naming what to change:
 
 - **No store.** Remove the `cache_store` edge and the build halts naming the
   socket to wire.
-- **A store that is not `core/datastore/redis`.** The socket admits the
-  key-value stores, and the gateway's Recipe halts on any other than Redis: the
-  cache searches its replies with the Redis query engine's vector search and
-  JSON commands, which the Redis image the catalog pins loads, and a store
-  without them would cache nothing while every request still succeeded.
+- **A store that publishes no `vector_search`.** The socket admits the
+  key-value stores, and the gateway's Recipe halts on one that does not state it
+  serves the Redis query engine's vector search, which the cache searches its
+  replies with: a Redis before release 8.0, or Valkey, would cache nothing while
+  every request still succeeded.
 - **A second `core/semantic-caching` attachment on the gateway**, which has one
   cache.
 - **`core/data-masking` on the same gateway.** The two declare a conflict,
