@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: mcp-address-from-secret-compose
+  environment: development
+  version: "1.0.0"
+spec:
+  aggregate: mcp-address-from-secret
+  manifest: mcp-address-from-secret-compose
+
+  boundaries:
+    main:
+      # Each release writes to its own directory, so the two rendered trees
+      # coexist and can be compared side by side.
+      directory: local
+      components:
+        # The tool's address without the part that carries its key.
+        search:
+          infra:
+            endpoint: https://mcp.example.com/mcp
+        agent:
+          infra:
+            image: ghcr.io/example/research-agent:1.0.0
+          # The whole address, key included, as a Compose variable reference:
+          # Docker Compose substitutes SEARCH_MCP_URL from the environment the
+          # stack is started with, so the file carries the reference alone.
+          uses:
+            tools:
+              search:
+                features:
+                  endpoint:
+                    type: core/secret-value
+                    infra:
+                      origin: "${SEARCH_MCP_URL}"

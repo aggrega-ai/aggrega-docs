@@ -1,0 +1,92 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Component
+metadata:
+  name: local/ai-agent/mcp-client
+  version: 1.0.0
+  description: >
+    The agent this workspace deploys: an application that reaches Model
+    Context Protocol tools over HTTP. Its tools socket admits the tools it can
+    talk to, and each connection on it can carry two secrets: a credential the
+    agent presents in a request header, and the tool's whole address, for a
+    server that reads its key from the address itself.
+
+    The application image is the estate's own, so the Release names it. The
+    Recipes deliver each connection's address and secrets as environment
+    variables named for the connection's alias.
+  labels:
+    component.aggrega.ai/type: worker
+    component.aggrega.ai/category: ai-agent
+  maintainers:
+    - name: Massimiliano Ferrero
+      email: m.ferrero@cognitio.it
+spec:
+  usesSchema:
+    # A tool socket: the category admits tools and nothing else, and the
+    # transport admits only the tools this agent can talk to.
+    tools:
+      selector: "component.aggrega.ai/category=ai-tool, tool.aggrega.ai/transport=http"
+      # A statement about this connection's target, authored on the
+      # connection: the tool it reaches takes no credential. It changes
+      # nothing this component renders.
+      valueSchema:
+        unauthenticated:
+          type: boolean
+          default: false
+          description: Declares that the tool this connection reaches takes no credential, so a connection carrying none is intended rather than an omission. It changes nothing this component renders.
+      # Both secrets are held on the connection they are used on, so each
+      # connection names its own fill. Both are optional and transparent
+      # (inject: [env]), so a synthesized Workload references either as an
+      # environment secret on helm, and a compose Recipe reads either from the
+      # inject pipe.
+      featuresSchema:
+        credential:
+          selector: "feature.aggrega.ai/kind=secret"
+          sensitive: true
+          inject: [env]
+          description: >
+            Optional credential the agent presents to the tool this connection
+            reaches, under the request header the tool publishes as
+            credential_header. When attached, the Recipe delivers it as
+            MCP_CREDENTIAL_<ALIAS> and the header as MCP_CREDENTIAL_HEADER_<ALIAS>.
+        endpoint:
+          selector: "feature.aggrega.ai/kind=secret"
+          sensitive: true
+          inject: [env]
+          description: >
+            Optional whole address of the tool this connection reaches, the part
+            carrying its key included, for a server that reads its key from its
+            own address. When attached, the Recipe delivers it as
+            MCP_URL_<ALIAS> in place of the endpoint the tool publishes, so the
+            key reaches no rendered file: a secretKeyRef on helm, the inject pipe
+            on compose.
+
+  # A connection to a target its catalog labels a managed service
+  # (component.aggrega.ai/hosting: managed) carries a credential, or says on the
+  # connection that its target takes none. The rule reads the target's labels,
+  # the connection's unauthenticated value and its credential slot, all known
+  # before a Recipe binds, so it holds whichever Recipe renders this component;
+  # a self-hosted target draws nothing. The list names every socket of this
+  # component that declares unauthenticated.
+  assertions:
+    managed_target_needs_a_credential: >-
+      {{- range $socket := list "tools" -}}
+      {{- range $alias, $connection := (optional $.uses $socket dict) -}}
+      {{- $managed := eq (optional $connection.labels "component.aggrega.ai/hosting" "") "managed" -}}
+      {{- $optedOut := optional $connection.values "unauthenticated" false -}}
+      {{- if and $managed (not (hasKey $connection.features "credential")) (not $optedOut) -}}
+      {{- fail (printf "the %s connection %s of %q reaches %q, whose component.aggrega.ai/hosting label is managed, with no credential: attach one under credential on that connection, or set unauthenticated: true in its values" $socket $alias $.metadata.instance_id $connection.target) -}}
+      {{- end -}}
+      {{- end -}}
+      {{- end -}}
+
+  schema:
+    values: {}
+    infra:
+      # The application is the estate's own code, so the catalog holds no
+      # default and the Release names the image.
+      image:
+        type: string
+        description: Container image running the agent's application code.

@@ -1,0 +1,89 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Recipe
+metadata:
+  name: mcp-client
+  version: 1.0.0
+  description: >
+    Kubernetes realization of this workspace's agent: one Deployment running
+    the image infra.image names. Each connection on its tools socket becomes
+    environment variables named for the connection's alias: the tool's host,
+    its address, and the connection's credential with the header to present it
+    under. A secret held on a connection reaches the container as a
+    secretKeyRef, never as a value.
+  maintainers:
+    - name: Massimiliano Ferrero
+      email: m.ferrero@cognitio.it
+spec:
+  capability: helm
+  implements: local/ai-agent/mcp-client:1.0.0
+  # Each variable is named for the connection's alias in capitals, every
+  # character other than a letter or a digit an underscore, so a tool wired
+  # under the alias search arrives as MCP_HOST_SEARCH and MCP_URL_SEARCH.
+  #
+  # MCP_URL_<ALIAS> is the address the tool publishes, unless the connection
+  # carries an endpoint secret: then it is that secret, referenced by name and
+  # data key, and the address the tool publishes is not delivered at all. The
+  # host stays the one the tool publishes either way. The credential and the
+  # header it is presented under are delivered only where the connection
+  # carries one.
+  #
+  # Every attachment entry sits under one attachments key, however many
+  # connections carry a secret, so the block is opened once.
+  workload: |
+    {{- $wired := false -}}
+    {{- $secrets := false -}}
+    {{- range $alias, $edge := .context.uses -}}
+    {{- if eq $edge.socket "tools" -}}
+    {{- $wired = true -}}
+    {{- $features := default dict $edge.features -}}
+    {{- if or (hasKey $features "endpoint") (hasKey $features "credential") -}}
+    {{- $secrets = true -}}
+    {{- end -}}
+    {{- end -}}
+    {{- end -}}
+    apiVersion: aggrega.ai/v1alpha1
+    kind: Workload
+    form: stateless
+    containers:
+      main:
+        image: "{{ .infra.image }}"
+    {{- if $wired }}
+        variables:
+    {{- range $alias, $edge := .context.uses }}
+    {{- if eq $edge.socket "tools" }}
+    {{- $name := regexReplaceAll "[^A-Z0-9]" (upper $alias) "_" }}
+    {{- $features := default dict $edge.features }}
+          MCP_HOST_{{ $name }}: "{{ $edge.provides.host }}"
+    {{- if not (hasKey $features "endpoint") }}
+          MCP_URL_{{ $name }}: "{{ $edge.provides.endpoint }}"
+    {{- end }}
+    {{- if hasKey $features "credential" }}
+          MCP_CREDENTIAL_HEADER_{{ $name }}: "{{ $edge.provides.credential_header }}"
+    {{- end }}
+    {{- end }}
+    {{- end }}
+    {{- end }}
+    {{- if $secrets }}
+        attachments:
+    {{- range $alias, $edge := .context.uses }}
+    {{- if eq $edge.socket "tools" }}
+    {{- $name := regexReplaceAll "[^A-Z0-9]" (upper $alias) "_" }}
+    {{- $features := default dict $edge.features }}
+    {{- if hasKey $features "endpoint" }}
+          MCP_URL_{{ $name }}:
+            connection: "{{ $alias }}"
+            from: endpoint
+            as: env
+    {{- end }}
+    {{- if hasKey $features "credential" }}
+          MCP_CREDENTIAL_{{ $name }}:
+            connection: "{{ $alias }}"
+            from: credential
+            as: env
+    {{- end }}
+    {{- end }}
+    {{- end }}
+    {{- end }}

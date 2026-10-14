@@ -1,0 +1,45 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: mcp-address-from-secret-helm
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: mcp-address-from-secret
+  manifest: mcp-address-from-secret-helm
+
+  boundaries:
+    main:
+      # Each release writes to its own directory, so the two rendered trees
+      # coexist and can be compared side by side.
+      directory: kubernetes
+      # One namespace for the boundary: the agent references the Secret in it.
+      annotations:
+        aggrega.ai/namespace: agents
+      components:
+        # The tool's address without the part that carries its key. The
+        # reference realization reads its host, port and scheme from it, and
+        # needs at least a scheme and a host.
+        search:
+          infra:
+            endpoint: https://mcp.example.com/mcp
+        agent:
+          infra:
+            # The application image. The catalog declares the agent; the code
+            # it runs is the estate's own.
+            image: ghcr.io/example/research-agent:1.0.0
+          # A secret on the connection the Aggregate wired: the whole address,
+          # key included, read from a Secret named search-mcp-address. A
+          # Release writes no values, so origin is in infra, and the data key
+          # is the Feature's default, value.
+          uses:
+            tools:
+              search:
+                features:
+                  endpoint:
+                    type: core/referenced-secret
+                    infra:
+                      origin: search-mcp-address

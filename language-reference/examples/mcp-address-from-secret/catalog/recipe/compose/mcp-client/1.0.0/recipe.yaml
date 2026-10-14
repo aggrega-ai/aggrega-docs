@@ -1,0 +1,64 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Recipe
+metadata:
+  name: mcp-client
+  version: 1.0.0
+  description: >
+    Docker Compose realization of this workspace's agent, for local
+    development: one service running the image infra.image names. Each
+    connection on its tools socket becomes environment variables named for the
+    connection's alias: the tool's host, its address, and the connection's
+    credential with the header to present it under.
+
+    Compose has no secret reference, so a secret held on a connection arrives
+    on the inject pipe and is written into the file as it was delivered. A
+    Compose variable reference such as ${SEARCH_MCP_URL} is written as that
+    reference, and Docker Compose substitutes it when the stack starts.
+  maintainers:
+    - name: Massimiliano Ferrero
+      email: m.ferrero@cognitio.it
+spec:
+  capability: compose
+  implements: local/ai-agent/mcp-client:1.0.0
+  # The variables are named as on helm/mcp-client, so the application reads
+  # the same names on either target.
+  #
+  # A secret on a connection is read from the inject pipe under the key its own
+  # attachment delivered it under, values.key, which is value unless the
+  # Aggregate names another. Two attachments on this component delivering under
+  # one key halt the build, naming both.
+  workload: |
+    {{- $wired := false -}}
+    {{- range $alias, $edge := .context.uses -}}
+    {{- if eq $edge.socket "tools" -}}
+    {{- $wired = true -}}
+    {{- end -}}
+    {{- end -}}
+    apiVersion: aggrega.ai/v1alpha1
+    kind: Workload
+    form: stateless
+    containers:
+      main:
+        image: "{{ .infra.image }}"
+    {{- if $wired }}
+        variables:
+    {{- range $alias, $edge := .context.uses }}
+    {{- if eq $edge.socket "tools" }}
+    {{- $name := regexReplaceAll "[^A-Z0-9]" (upper $alias) "_" }}
+    {{- $features := default dict $edge.features }}
+          MCP_HOST_{{ $name }}: "{{ $edge.provides.host }}"
+    {{- if hasKey $features "endpoint" }}
+          MCP_URL_{{ $name }}: "{{ index $.context.inject.env $features.endpoint.values.key }}"
+    {{- else }}
+          MCP_URL_{{ $name }}: "{{ $edge.provides.endpoint }}"
+    {{- end }}
+    {{- if hasKey $features "credential" }}
+          MCP_CREDENTIAL_HEADER_{{ $name }}: "{{ $edge.provides.credential_header }}"
+          MCP_CREDENTIAL_{{ $name }}: "{{ index $.context.inject.env $features.credential.values.key }}"
+    {{- end }}
+    {{- end }}
+    {{- end }}
+    {{- end }}

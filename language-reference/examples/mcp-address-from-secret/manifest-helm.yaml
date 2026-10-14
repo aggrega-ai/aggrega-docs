@@ -1,0 +1,24 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: mcp-address-from-secret-helm
+  version: "1.0.0"
+  description: >
+    Ops mapping for the Kubernetes target. The tool is a server someone else
+    runs, so it maps to the reference realization, which runs nothing; the
+    secret on the agent's connection names a Secret the namespace already
+    holds.
+spec:
+  mappings:
+    components:
+      type:
+        core/ai-tool/mcp:1.0.0: helm/mcp-remote:1.0.0
+        local/ai-agent/mcp-client:1.0.0: helm/mcp-client:1.0.0
+    features:
+      type:
+        # origin is the name of a Secret created outside the Release, so no
+        # file carries the address it holds.
+        core/referenced-secret:1.0.0: helm/k8s-existing-secret:1.0.0

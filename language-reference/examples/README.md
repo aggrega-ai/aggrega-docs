@@ -213,6 +213,18 @@ Features, Recipes, Manifests, and the provider matrix.
   move — and on the managed target those two are Terraform expressions the
   compiler pipes through without resolving, because what they name does not
   exist yet.
+- **[mcp-address-from-secret](mcp-address-from-secret/)** — an agent reaching a
+  Model Context Protocol server someone else runs, which reads its key from its
+  own address rather than from a request header, compiled to Kubernetes and to
+  Docker Compose. The tool holds the address without the part that carries the
+  key, and the agent's connection to the tool holds the whole address as a
+  secret: a `secretKeyRef` to a Secret the namespace already holds on
+  Kubernetes, a Compose variable reference on Docker Compose, so no rendered
+  file carries the key. The agent is declared in the workspace's own catalog,
+  with the slot on its tool socket and a Recipe per target reading it. The
+  README shows the limits: two secrets the Release alone attaches to one agent
+  collide on Docker Compose, and the host is written twice with nothing checking
+  that the two agree. Needs the standard-library catalog checked out beside it.
 - **[chart-from-git-repository](chart-from-git-repository/)** — a Helm chart that
   lives in a git repository rather than a chart registry, sourced by a Recipe
   whose source names three coordinates: the repository, the reference to read it

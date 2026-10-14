@@ -1,0 +1,25 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Manifest
+metadata:
+  name: mcp-address-from-secret-compose
+  version: "1.0.0"
+  description: >
+    Ops mapping for Docker Compose, for local development. The tool maps to
+    the reference realization, which defines no service; the secret on the
+    agent's connection is a value delivered into the agent's environment,
+    written as a Compose variable reference.
+spec:
+  mappings:
+    components:
+      type:
+        core/ai-tool/mcp:1.0.0: compose/mcp-remote:1.0.0
+        local/ai-agent/mcp-client:1.0.0: compose/mcp-client:1.0.0
+    features:
+      type:
+        # Compose has no secret reference, so the credential Feature here is
+        # the one that delivers a value; origin is a Compose variable
+        # reference, so the file carries the reference and not the address.
+        core/secret-value:1.0.0: compose/dotenv-secret:1.0.0
