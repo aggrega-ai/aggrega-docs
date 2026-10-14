@@ -62,6 +62,9 @@ Because both a Compose and a synthesized helm Recipe carry the names
   `forward_target` socket selects a `server` or a `stateful-server`. Fluentd is
   typed as a stateful server, and it binds the socket cleanly — the socket
   selects on the operational server role, not on whether the sink holds state.
+  What the sink speaks is checked apart from that: the forward output speaks the
+  Fluentd forward protocol, so the build halts unless the sink publishes
+  `protocol: forward`, as Fluentd does.
 - **Workload synthesis (Kubernetes).** Each synthesized helm Recipe declares a
   Workload — a Deployment plus a ClusterIP Service running the official image —
   that the helm provider translates into Kubernetes manifests with no external
