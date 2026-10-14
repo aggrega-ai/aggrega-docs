@@ -945,7 +945,7 @@ A workspace configuration is assembled from several files — the global file, e
 Only the importer list is judged: the governance and linter lists accept one plugin attached more than once, each attachment carrying its own `with`. An entry whose `uri` is a filesystem path names no importer, so it is not compared.
 
 Emitted message:
-> workspaceconfig: importer `"<identity>"` is attached by `<key>[<position>]` in `<file>` (uri `"<uri>"`) and again by `<key>[<position>]` in `<file>` (uri `"<uri>"`); keep exactly one plugins.importer entry per importer, its uri naming the version you want: importer is attached by more than one plugins.importer entry
+> importer `"<identity>"` is attached by `<key>[<position>]` in `<file>` (uri `"<uri>"`) and again by `<key>[<position>]` in `<file>` (uri `"<uri>"`); keep exactly one plugins.importer entry per importer, its uri naming the version you want: importer is attached by more than one plugins.importer entry
 
 **How to fix:** keep one entry for the importer the message names — the one whose `uri` names the version you want, carrying the `with` you want that importer handed — and remove the other. Where the two are in different files, the file you control is the one to edit: removing your entry adopts the other file's, and keeping yours means the other file's entry has to go instead.
 
