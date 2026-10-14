@@ -124,7 +124,7 @@ spec:
 
 ## Example 19: The Complete Wasm Handshake (stdin/stdout)
 
-This traces the JSON payload the Go compiler sends to a WebAssembly plugin and the patch it receives back.
+This traces the payload the Go compiler sends to a WebAssembly plugin and the patch it receives back. Both travel in the canonical binary encoding; the JSON in steps 3 and 4 shows what they carry.
 
 **1. Dev Domain: The Aggregate**
 
@@ -174,7 +174,7 @@ spec:
 ```
 
 **3. The Wasm Input (Go Compiler → Wasm `stdin`)**
-During the plugin pipeline, the compiler feeds the Injector plugin its step input, with the `with:` template already evaluated. The JSON below illustrates the payload; the exact wire contract is the step-input shape documented in the [Wasm plugin contract](../plugins/plugin-contract.md). The plugin pipeline runs during `aggrega build`; see [Status of the Language](../10-status.md#compilation-pipeline-phases).
+During the plugin pipeline, the compiler feeds the Injector plugin its step input, with the `with:` template already evaluated. The JSON below illustrates the payload's content; the wire carries it in the canonical binary encoding, and the exact contract is the step-input shape documented in the [Wasm plugin contract](../plugins/plugin-contract.md). The plugin pipeline runs during `aggrega build`; see [Status of the Language](../10-status.md#compilation-pipeline-phases).
 
 ```json
 {
@@ -211,7 +211,7 @@ During the plugin pipeline, the compiler feeds the Injector plugin its step inpu
 ```
 
 **4. The Wasm Output (Wasm `stdout` → Go Compiler)**
-The plugin returns its patch appending the Volume and VolumeMount. The JSON below illustrates the intent; the shipped return is RFC 6902 patches against the keyed document set, per the [Wasm plugin contract](../plugins/plugin-contract.md).
+The plugin returns its patch appending the Volume and VolumeMount. The JSON below illustrates the intent; the shipped return is RFC 6902 patches against the keyed document set, carried in the same canonical binary encoding, per the [Wasm plugin contract](../plugins/plugin-contract.md).
 
 ```json
 {
