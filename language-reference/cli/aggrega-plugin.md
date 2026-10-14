@@ -237,10 +237,15 @@ other value is taken as a literal inline JSON payload (--with '{"k":1}'). When
 resolved payload is validated as JSON before the guest runs, so malformed input
 is reported up front.
 
-Some exports read their payload in a binary encoding rather than as JSON. Which
-encoding an export reads is fixed by the socket that export serves, so no flag
-selects it: the resolved payload is converted into whatever the named export
-reads before the guest is called. The authored payload stays JSON either way.
+An export a socket calls with a payload reads it in a binary encoding rather
+than as JSON; a CLI plugin's cli_run export is the exception, and reads JSON.
+Which encoding an export reads is fixed by the socket that export serves, so no
+flag selects it: the resolved payload is converted into the encoding the named
+export reads before the guest is called. The conversion reads the payload's
+shape from the export's name, so it covers each export a socket calls by
+default; an entry function an attachment or a pipeline step names under a name
+of its own receives the payload as written. The authored payload stays JSON
+either way.
 
 In the artifact form, --type optionally names a plugin type the guest's
 describe() self-report must agree with, or the load is rejected before the
