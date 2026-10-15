@@ -177,7 +177,8 @@ The Release gives each backend its own port — `web` on 8080 and `api` on 8081 
 so both run side by side locally, and each port travels through that backend's
 connection into its own scrape job's target.
 
-Open <http://localhost:9090> — the Prometheus expression browser. Under
+Open <http://127.0.0.1:9090> — the Prometheus expression browser, which the
+Compose Recipe publishes on the host's loopback address only. Under
 **Status → Targets** the two jobs are listed under the names the compiled
 configuration gives them, `web` and `api-backend`. Tear down with
 `docker compose -f dist/app/compose/docker-compose.yaml down`.
