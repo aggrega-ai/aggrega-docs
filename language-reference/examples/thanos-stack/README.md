@@ -65,8 +65,9 @@ manifests offline — no chart pull is required.
 The Store Gateway renders as a stateless Deployment plus a ClusterIP Service
 exposing its StoreAPI gRPC port and HTTP port. Its container is started with
 `thanos store` and a single inline `--objstore.config` flag whose value is the S3
-stanza composed from the object-store edge — the object store's in-cluster
-Service name and port. That configuration selects the AWS SDK credential chain,
+stanza built from the endpoint the object store publishes — its in-cluster
+Service name and port, with `insecure: true` because that endpoint is served
+over plain HTTP. That configuration selects the AWS SDK credential chain,
 so it carries no secret; the credentials arrive as environment variables, the
 secret key read from a Secret:
 
@@ -130,9 +131,10 @@ carries, each carrying the module's development default.
   `core/storage/minio` component, reused as-is; the read tier adds no storage
   logic of its own.
 - **Internal edges inside the module.** The Store Gateway declares a use of the
-  object store and Query declares a use of the Store Gateway; each target's
-  `provides` host and port are piped into the consumer and composed into an
-  endpoint. The compiler routes the strings without interpreting them.
+  object store and Query declares a use of the Store Gateway; the object store's
+  published `endpoint` and the Store Gateway's published host and port are
+  piped into the consumer on each edge, and each consumer's Recipe builds its
+  address from them. The compiler routes the strings without interpreting them.
 - **A public endpoint.** The module exports Query as `query`, the stable public
   name a consumer connects to — decoupled from the module's internal component
   names.
