@@ -36,9 +36,9 @@ Documentation versions are Git tags of this repository. The site is built once
 per version from its tag; the latest version is served at `/docs` and every other
 version under a version-prefixed path such as `/docs/v0.1`. Only the latest is
 indexed — older versions emit `noindex,follow` and a canonical link to the latest
-equivalent page — and a version switcher lists the available versions. The build
-and per-version cache are driven from `deploy/web/docs` in the umbrella workspace;
-the base path and latest flag for a single build come from the environment (see
+equivalent page — and a version switcher lists the available versions. The
+per-version builds and their cache are driven from outside this repository; the
+base path and latest flag for a single build come from the environment (see
 `src/versioning.mjs`).
 
 ## Languages
@@ -49,7 +49,7 @@ translation-memory pipeline that only re-translates changed segments and
 preserves a glossary of product names — is built and exercised behind an
 environment flag (`DOCS_I18N_PROOF=1`, which adds a stub locale for testing), but
 no translated content is shipped. Only the latest version is ever translated. The
-pipeline lives in `deploy/web/i18n` in the umbrella workspace.
+translation-memory pipeline is not part of this repository.
 
 ## Reference pages
 

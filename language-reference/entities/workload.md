@@ -616,7 +616,7 @@ The Workload stays focused on the workload shape; cross-cutting and Recipe-intri
 
 The Workload schema is broad — it covers single-container HTTP servers, multi-container sidecar patterns, init-container chains, batch jobs, and stateful services with persistent volumes. Three patterns recur frequently enough that authoring boilerplate from scratch per Recipe is wasteful. The blocks below are copy-paste templates Recipe authors can adapt to specific components.
 
-A future iteration is expected to ship these patterns as catalog-shipped Workload-fragments authors `implements:` from rather than copy-paste; see the "Workload Pattern Library" entry under Standard Library Expansion in the project ROADMAP. Until those fragments ship, the templates here are the canonical starting points.
+A future iteration is expected to ship these patterns as catalog-shipped Workload-fragments authors `implements:` from rather than copy-paste. Until those fragments ship, the templates here are the canonical starting points.
 
 ### Pattern 1 — Server with metrics exposure
 

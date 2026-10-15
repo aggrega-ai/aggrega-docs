@@ -82,9 +82,9 @@
 #   2. $AGGREGA_FROM_SOURCE=1, if set — skip every prebuilt and build. Refuses
 #      with exit 2 if the module or the go toolchain is absent.
 #   3. Otherwise the prebuilt candidates, in preference order: aggrega on PATH,
-#      then a sibling <umbrella>/aggrega-cli/aggrega, then aggrega-light. Each is
-#      accepted only if no module input is newer than it; the first that passes
-#      wins.
+#      then aggrega in the sibling aggrega-cli checkout, then aggrega-light there.
+#      Each is accepted only if no module input is newer than it; the first that
+#      passes wins.
 #   4. If no candidate passes — because each is superseded, or none exists — a
 #      fresh `go build ./cmd/aggrega` in the aggrega-cli module (the Go workspace
 #      file is auto-discovered). The rejected candidates are named on stderr.
@@ -249,7 +249,7 @@ else
 
   if [ -z "$AGGREGA" ]; then
     if [ "${#CAND_PATH[@]}" -eq 0 ] && [ "$MODULE_PRESENT" -eq 0 ]; then
-      die "no aggrega found: install it on PATH, set AGGREGA_BIN to a binary, or run inside the umbrella workspace where aggrega-cli/ is present"
+      die "no aggrega found: install it on PATH, set AGGREGA_BIN to a binary, or check out aggrega-cli beside this aggrega-docs checkout to build it from source"
     fi
     build_from_source
     [ -n "$REJECTED" ] && ORIGIN="$ORIGIN (every prebuilt candidate was superseded: $REJECTED)"
