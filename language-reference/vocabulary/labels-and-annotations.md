@@ -110,6 +110,8 @@ A few keys inside those open namespaces are nonetheless **defined by the platfor
 
 Read the difference this way: a **reserved** prefix refuses a key you try to define inside it, while a **platform-defined key** is one named key the build knows about, sitting in a namespace you are otherwise free to author in. Every other key under `component.aggrega.ai/`, `features.aggrega.ai/` and the rest is metadata the build carries without interpreting.
 
+One such key on a Component's `metadata.annotations` is read by the standard publishing linter rather than by the build: **`observability.aggrega.ai/metrics-credential`** states how the product's metrics authenticate — `none`, they are served with no credential; `target-key`, they take the key the Component requires of every caller; `separate-token`, they take a token of their own. The build carries it like any other annotation. The linter reads it to decide whether a scrape connection's credential is compared with the target's caller key, and holds it to agree with the `metrics_credential_required` provides key the Component declares — see "The discipline rules" in [`cli/aggrega-lint.md`](../cli/aggrega-lint.md).
+
 ## Provenance labels emitted on rendered output
 
 Beyond the inbound annotations the providers consume, Aggrega also **emits** provenance labels onto every rendered Kubernetes manifest and every emitted compose service. The label set lets downstream tooling (cost dashboards, observability stacks, GitOps controllers) attribute runtime resources back to the catalog content that produced them.

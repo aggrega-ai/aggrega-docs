@@ -5480,7 +5480,7 @@ Its message opens:
 
 <!-- covers: internal/lintops.ErrPluginDefaultLimits -->
 
-A refusal on checking an entity against the publishing conventions, not on a build. A Plugin declares the memory ceiling and the time limit the host applies when it loads and runs the plugin. One declaring neither runs under the platform's defaults, which is a supported outcome rather than a mistake — so what this reports is that the defaults are in effect and that pinning them explicitly is available.
+An advisory raised when an entity is checked against the publishing conventions, while you author and at the publish gate alike; it never stops anything, and a build does not raise it. A Plugin declares the memory ceiling and the time limit the host applies when it loads and runs the plugin. One declaring neither runs under the platform's defaults, which is a supported outcome rather than a mistake — so what this reports is that the defaults are in effect and that pinning them explicitly is available.
 
 Its message opens:
 > the Plugin entity declares no runtime resource cap of its own, so the platform defaults apply
@@ -5491,7 +5491,7 @@ Its message opens:
 
 <!-- covers: internal/lintops.ErrSecretSlotDeclaresSensitive -->
 
-A refusal on checking an entity against the publishing conventions, not on a build. An attachment slot can pin, through its selector, that only a secret-bearing Feature may fill it, and it can separately record that whatever fills it handles secret material. The selector states which fills are admissible; the record states the handling. A slot that pins the first and omits the second leaves the handling to be inferred from the selector rather than read off the slot. Every slot an entity declares is checked: one of its own attachment block, and, on a Component, one a dependency socket declares for each connection wired through it — the finding about a socket's slot names the socket beside the slot.
+An advisory raised when an entity is checked against the publishing conventions, while you author and at the publish gate alike; it never stops anything, and a build does not raise it. An attachment slot can pin, through its selector, that only a secret-bearing Feature may fill it, and it can separately record that whatever fills it handles secret material. The selector states which fills are admissible; the record states the handling. A slot that pins the first and omits the second leaves the handling to be inferred from the selector rather than read off the slot. Every slot an entity declares is checked: one of its own attachment block, and, on a Component, one a dependency socket declares for each connection wired through it — the finding about a socket's slot names the socket beside the slot.
 
 Its message opens:
 > an attachment slot admits only secret material and does not declare that it handles it
@@ -5502,7 +5502,7 @@ Its message opens:
 
 <!-- covers: internal/lintops.ErrProvidesDeclaredByComponent -->
 
-A refusal on checking an entity against the publishing conventions, not on a build. A Recipe publishes a key under `provides:`, and the Component the Recipe implements does not declare that key in the `provides` pillar of its schema. A consumer wiring across a connection reads the Component's declared contract rather than whatever the Recipe emits, so the key is produced and then refused where something tries to consume it.
+An advisory raised when an entity is checked against the publishing conventions, while you author and at the publish gate alike; it never stops anything, and a build does not raise it. A Recipe publishes a key under `provides:`, and the Component the Recipe implements does not declare that key in the `provides` pillar of its schema. A consumer wiring across a connection reads the Component's declared contract rather than whatever the Recipe emits, so the key is produced and then refused where something tries to consume it.
 
 🔴 **Two conditions describe this, and they are not the same one.** The advisory a build reports is documented above under "A Recipe publishes a `provides` key its Component does not declare"; this one is raised when the entity is checked against the publishing conventions, and it carries its own code. The finding is the same fact met on two surfaces — read the code in the diagnostic to tell which you are holding.
 
@@ -5511,13 +5511,24 @@ Its message opens:
 
 **How to fix:** declare the key on the Component, so the contract a consumer reads includes what the Recipe emits — or stop publishing it from the Recipe where nothing is meant to consume it. The opt-out is under "The discipline rules" in [aggrega-lint.md](../cli/aggrega-lint.md).
 
+### A Component's metrics annotation and its provides key disagree
+
+<!-- covers: internal/lintops.ErrMetricsCredentialAnnotationMatchesProvides -->
+
+An advisory raised when an entity is checked against the publishing conventions, while you author and at the publish gate alike; it never stops anything, and a build does not raise it. A Component can state how its product's metrics authenticate, in its annotation `observability.aggrega.ai/metrics-credential` — `none`, `target-key` or `separate-token` — and it can declare the provides key `metrics_credential_required`, which each of its Recipes publishes to say whether one instance's metrics need a credential. The two are one fact about the product seen from two sides, so a Component stating that its metrics take no credential declares no such key, and one stating that they take a credential declares it. This condition reports a Component where the two disagree, naming the Component, the annotation's value and the key that is extra or missing.
+
+Its message opens:
+> a Component's annotation stating how its metrics authenticate disagrees with whether it declares the provides key saying an instance's metrics need a credential
+
+**How to fix:** correct whichever of the two is wrong — declare `metrics_credential_required` in the `provides` pillar, and publish it from each Recipe, where the metrics take a credential; remove it where they take none; or change the annotation to the value that describes the product. It carries no opt-out setting, for the reason the Plugin-caps rule carries none; which values it reads, and which Components it leaves unread, are under "The discipline rules" in [aggrega-lint.md](../cli/aggrega-lint.md).
+
 ### A connection and the target it reaches do not name one key
 
 <!-- covers: internal/lintops.ErrConnectionCredentialMatchesTargetKey -->
 
 An advisory raised when a Release is checked against the publishing conventions; it never stops anything, and a build does not raise it. A server that checks a key holds the key it verifies in a slot of its own, and a caller presents a key on the connection it reaches that server through. Neither end sees the other's, so the two are one key only because their authors write the same locator at both ends. This condition reports a connection whose target declares the slot for the key it requires of its callers, where they are not: the connection carries a credential and the target's key slot is unfilled, the target's key slot is filled and the connection carries no credential, or both are filled and the two write their locators differently.
 
-**Unlike the rules above it, this one reads a whole Release rather than one entity**, so it is met only when a Release is checked and never at the publish gate, which checks one entity on its own; wherever it is reported it is advice. The finding names the component, the connection, the target and the two slots, and never quotes either locator.
+**Unlike the rules above it, this one reads a whole Release rather than one entity**, so it is met only when a Release is checked and never at the publish gate, which checks one entity on its own; wherever it is reported it is advice. The finding names the component, the connection, the target and the two slots, and never quotes either locator. A scrape — a connection on the `scrape_target` socket — is judged by what its target states about its metrics: not at all where the target's `observability.aggrega.ai/metrics-credential` annotation says `none`, never against the target's key where it says `separate-token`, and like any other connection otherwise; a connection on any other socket is judged whatever the target states.
 
 Its message opens:
 > a connection and the target it reaches do not name one key: they write different locators for it, or only one of them names one
@@ -5975,6 +5986,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0343` | ``a file read from the directory and a file named in the importer's `with.sources` have the same name`` | A file read from the directory and a file named in the importer's `with.sources` have the same name |
 | `E0344` | `an entry this publication carries cannot be used on Windows` | A published archive carries an entry Windows cannot use |
 | `E0345` | `a container declares one environment variable twice` | A container gives one environment variable two values |
+| `E0346` | `a Component's annotation stating how its metrics authenticate disagrees with whether it declares the provides key saying an instance's metrics need a credential` | A Component's metrics annotation and its provides key disagree |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
