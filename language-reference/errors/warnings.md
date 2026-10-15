@@ -207,7 +207,7 @@ The line names no field of the Recipe, and that is deliberate: whoever authored 
 
 The order is fixed: the node's `.values`, then its `.infra`, then each `uses` alias in the order the edges were emitted, keys sorted within each group. The same input therefore produces the same warning sequence on every run.
 
-**Editor visibility.** The warning reaches editor diagnostics only where the language server runs the artifact-rendering stage while inspecting an IR graph — `aggrega serve --build-on-inspect`, or the `serve.build_on_inspect` config key it overrides, which is off by default. That dial adds the advisories a build raises while rendering, and none of the checks a build halts on. The entry names a node rather than an authoring key, so it sits at the head of the file.
+**Editor visibility.** The warning reaches editor diagnostics only where the language server runs the artifact-rendering stage while inspecting an IR graph — `aggrega serve --build-on-inspect`, or the `serve.build_on_inspect` config key it overrides, which is off by default. That dial adds the advisories a build raises while rendering, and none of the checks a build halts on. The entry names a node rather than an authoring key, so it is drawn on the Aggregate's `kind:` key.
 
 **Why a warning and not a fatal halt.** Developers may legitimately consume different `.values` subsets in conditional template logic — a Recipe whose template branches on `.values.mode` reads `mode` but conditionally reads `.values.replication_password` only when `mode == "replication"`. The static walk cannot tell whether an unreferenced key is a don't-care or a bug. The tracker's purpose is to make the discrepancy visible rather than to police it; silent omission is the failure mode the tracker prevents.
 
@@ -237,7 +237,7 @@ A declared parameter is the authoring surface for varying one value per deployme
 
 Findings arrive in the order the Aggregate declares its parameters, so the same Aggregate produces the same sequence on every run. Each carries the declaration's locator, which names the offending key. The message names the key as well, which is why it appears twice on a terminal line that prints the locator too: an editor shows the message at the position it placed and never the locator text, so a message that left the key out would read identically for every unread declaration.
 
-**Editor visibility.** The advisory also reaches editor diagnostics through the language server, at warning severity, positioned on the declaration its locator names rather than at the head of the file. It is raised before the artifact-rendering stage, so it needs no dial: an editor session surfaces it whether or not `serve.build_on_inspect` is on.
+**Editor visibility.** The advisory also reaches editor diagnostics through the language server, at warning severity, positioned on the declaration its locator names rather than on the Aggregate as a whole. It is raised before the artifact-rendering stage, so it needs no dial: an editor session surfaces it whether or not `serve.build_on_inspect` is on.
 
 **Why a warning and not a fatal halt.** A parameter may be declared ahead of the reference that will read it, and a static walk cannot tell that from a mistake — the same reason the authored-key reading only ever advises. The compiler does not police which knobs an author exposes.
 
@@ -311,7 +311,7 @@ These consequences follow from how annotations reach a render, and each of them 
 
 Each warning carries the stable, machine-matchable class code `unsupported-field`, so tooling can match the class rather than parse the message text. Every member of the class — the omitted-outright field, the reduced-form field, and the unacted-on annotation — carries that one code, which is what lets a single filter suppress the whole class. The warnings travel out-of-band from the rendered artifacts, which means **rendered bytes are byte-identical whether or not the warnings surface** — suppressing them cannot change your output.
 
-**Editor visibility.** Every member of the class reaches editor diagnostics only where the language server runs the artifact-rendering stage while inspecting an IR graph — `aggrega serve --build-on-inspect`, or the `serve.build_on_inspect` config key it overrides, which is off by default. That dial adds the advisories a build raises while rendering, and none of the checks a build halts on. The class code above travels on the published diagnostic as it does on the terminal line, so an editor client matches the same class an author reads. Each entry names a node and a target rather than an authoring key, so it sits at the head of the file.
+**Editor visibility.** Every member of the class reaches editor diagnostics only where the language server runs the artifact-rendering stage while inspecting an IR graph — `aggrega serve --build-on-inspect`, or the `serve.build_on_inspect` config key it overrides, which is off by default. That dial adds the advisories a build raises while rendering, and none of the checks a build halts on. The class code above travels on the published diagnostic as it does on the terminal line, so an editor client matches the same class an author reads. Each entry names a node and a target rather than an authoring key, so it is drawn on the Aggregate's `kind:` key.
 
 ### Suppressing the class
 
@@ -340,7 +340,7 @@ Reach for the flag when you have accepted the reduced fidelity deliberately — 
 
 **The class code.** The advisory carries the stable, machine-matchable class code `sensitive-by-value`, so tooling matches the class rather than parsing the message text. The code travels on the terminal line and on the structured diagnostic the language server publishes, so an author and an editor client read the same class — under the editor-visibility condition below, which governs whether the language server publishes this advisory at all.
 
-**Editor visibility.** The advisory reaches editor diagnostics only where the language server runs the artifact-rendering stage while inspecting an IR graph — `aggrega serve --build-on-inspect`, or the `serve.build_on_inspect` config key it overrides, which is off by default. That dial adds the advisories a build raises while rendering, and none of the checks a build halts on. The entry names a node and a target rather than an authoring key, so it sits at the head of the file.
+**Editor visibility.** The advisory reaches editor diagnostics only where the language server runs the artifact-rendering stage while inspecting an IR graph — `aggrega serve --build-on-inspect`, or the `serve.build_on_inspect` config key it overrides, which is off by default. That dial adds the advisories a build raises while rendering, and none of the checks a build halts on. The entry names a node and a target rather than an authoring key, so it is drawn on the Aggregate's `kind:` key.
 
 **It is a class of its own, and `--no-unsupported-field-warnings` does not cover it.** That flag silences the unsupported-field class above; this advisory still surfaces alongside it. There is no flag that silences this one.
 
