@@ -30,7 +30,7 @@ Every cell in that grid carries one of three tiers:
 
 Two scopes, and only one of them makes input kind a meaningful axis:
 
-- **Node-scoped** — `aggrega.ai/namespace`, `aggrega.ai/image-registry`, `aggrega.ai/image-pull-secret` and `aggrega.ai/service-account` shape one component's own rendered output, which the path its input kind selects produces. These are the grid's columns.
+- **Node-scoped** — `aggrega.ai/namespace`, `aggrega.ai/image-registry`, `aggrega.ai/image-pull-secret`, `aggrega.ai/service-account` and `aggrega.ai/kubernetes-version` shape one component's own rendered output, which the path its input kind selects produces. These are the grid's columns.
 - **Assembly- and reference-scoped** — `aggrega.ai/chart-name` is resolved once when an umbrella chart is assembled, and the three `aggrega.ai/aws-*` keys are resolved when a reference crosses a boundary. Input kind is not an axis for either: the value is read at the assembly or at the reference, however each contributing node was rendered. They have their own table at [Keys resolved per assembly and per reference](#keys-resolved-per-assembly-and-per-reference).
 
 ### Category 1 — Placement
@@ -108,23 +108,23 @@ and supplies no role.
 The node-scoped keys, per provider per input kind. Column headers drop the `aggrega.ai/` prefix every key carries. `applied` and `—` carry the tiers defined above, `—` being *not applied*; `n/a` means the provider does not render that input kind at all, so no path exists there for the key to be applied on or missed on.
 
 <!-- BEGIN GENERATED: well-known-annotation-support -->
-| Provider | Input kind | `namespace` | `image-registry` | `image-pull-secret` | `service-account` |
-| --- | --- | --- | --- | --- | --- |
-| `helm` | sourced | applied | — | — | — |
-| `helm` | synthesized | applied | applied | applied | applied |
-| `helm` | artifacts-only | — | — | — | — |
-| `compose` | sourced | applied | — | — | — |
-| `compose` | synthesized | applied | applied | — | — |
-| `compose` | artifacts-only | — | — | — | — |
-| `helm-chart` | sourced | — | — | — | — |
-| `helm-chart` | synthesized | n/a | n/a | n/a | n/a |
-| `helm-chart` | artifacts-only | n/a | n/a | n/a | n/a |
-| `terraform` | sourced | — | — | — | — |
-| `terraform` | synthesized | n/a | n/a | n/a | n/a |
-| `terraform` | artifacts-only | — | — | — | — |
-| `cloudformation` | sourced | — | — | — | — |
-| `cloudformation` | synthesized | n/a | n/a | n/a | n/a |
-| `cloudformation` | artifacts-only | — | — | — | — |
+| Provider | Input kind | `namespace` | `image-registry` | `image-pull-secret` | `service-account` | `kubernetes-version` |
+| --- | --- | --- | --- | --- | --- | --- |
+| `helm` | sourced | applied | — | — | — | applied |
+| `helm` | synthesized | applied | applied | applied | applied | — |
+| `helm` | artifacts-only | — | — | — | — | — |
+| `compose` | sourced | applied | — | — | — | — |
+| `compose` | synthesized | applied | applied | — | — | — |
+| `compose` | artifacts-only | — | — | — | — | — |
+| `helm-chart` | sourced | — | — | — | — | — |
+| `helm-chart` | synthesized | n/a | n/a | n/a | n/a | n/a |
+| `helm-chart` | artifacts-only | n/a | n/a | n/a | n/a | n/a |
+| `terraform` | sourced | — | — | — | — | — |
+| `terraform` | synthesized | n/a | n/a | n/a | n/a | n/a |
+| `terraform` | artifacts-only | — | — | — | — | — |
+| `cloudformation` | sourced | — | — | — | — | — |
+| `cloudformation` | synthesized | n/a | n/a | n/a | n/a | n/a |
+| `cloudformation` | artifacts-only | — | — | — | — | — |
 
 *Every provider distributed with the compiler has rows here, including one that reads no placement annotation at all — an empty row set would be indistinguishable from a provider nobody has described yet. A provider supplied separately declares what it reads in the same way and is not listed here, because a published page cannot enumerate providers it has never seen.*
 <!-- END GENERATED: well-known-annotation-support -->
