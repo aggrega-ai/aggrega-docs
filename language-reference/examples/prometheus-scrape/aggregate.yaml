@@ -7,37 +7,38 @@ metadata:
   name: aggregate
   version: "1.0.0"
   description: >
-    A Prometheus metrics server scraping two web backends, authored once and
-    compiled to two targets: a Docker Compose stack for local development and
-    Kubernetes via Workload synthesis on the official prom/prometheus image.
-    Each backend is wired on the `scrape_target` socket and becomes one scrape
-    job — the backend Recipe's provides host and port are piped in as that job's
-    target, and the per-edge `values` on each connection tune that job's label,
-    cadence, and metrics path. The same developer intent drives both targets;
-    only the Recipe layer selected by the Manifest differs.
+    A Prometheus metrics server scraping two Grafana dashboards servers,
+    authored once and compiled to two targets: a Docker Compose stack for local
+    development and Kubernetes via Workload synthesis on the official
+    prom/prometheus image. Grafana serves its own metrics in the Prometheus
+    format at /metrics on its web port, so each Grafana is a real scrape target.
+    Each one is wired on the `scrape_target` socket and becomes one scrape job —
+    the Grafana Recipe's provides host and port are piped in as that job's
+    target, and the per-edge `values` on each connection tune that job's label
+    and cadence. The same developer intent drives both targets; only the Recipe
+    layer selected by the Manifest differs.
 spec:
   components:
-    web:
-      type: core/devtool/adminer
-    api:
-      type: core/devtool/adminer
+    team-dashboards:
+      type: core/observability/grafana
+    ops-dashboards:
+      type: core/observability/grafana
     metrics:
       type: core/observability/prometheus
       uses:
-        # Two connections on one socket: Prometheus scrapes both backends. Each
+        # Two connections on one socket: Prometheus scrapes both Grafanas. Each
         # connection is one scrape job, so the settings that differ per target
         # are authored on the connection rather than on the component.
         scrape_target:
           # No `values` here, so this job takes what the socket declares: the
           # edge alias as its `job_name`, and the socket's declared defaults
-          # for `scrape_interval` and `metrics_path`.
-          web:
-            target: web
+          # for the keys this connection leaves unset.
+          team-dashboards:
+            target: team-dashboards
           # Every key set here overrides that connection's job and leaves the
           # other connection untouched.
-          api:
-            target: api
+          ops-dashboards:
+            target: ops-dashboards
             values:
-              job_name: api-backend
+              job_name: ops-grafana
               scrape_interval: 30s
-              metrics_path: /api/metrics
