@@ -83,7 +83,7 @@ Values an author declared sensitive are withheld from the graph, in the structur
 
 A **Component or Feature** stops there: schema envelope, shape, and pillar structure. A lone Component has no authored `values` or `infra` to render in isolation, so there is nothing to render — its correctness is fully covered by the schema-and-pillar tiers.
 
-A **Recipe** additionally **renders in isolation**. This is one facet of single-entity correctness, not its headline: after the schema and shape tiers pass, validate resolves the Recipe's `implements` Component from the catalog, synthesizes a minimal Aggregate, Manifest and Release around a single instance of that Component bound to the Recipe under test, and drives the real compilation pipeline over it — first resolution and guards (with render skipped), then a real render of the isolated output. Each required value and each required infra field that carries no default is filled with a placeholder of its declared type — the values in the synthesized Aggregate, the infra in the synthesized Release — and every other value and infra field takes its schema default through the resolver; the Release routes the instance into a synthesized default boundary and declares no `values:` and no compute the Aggregate did not declare. A placeholder is a value the field's own declared constraints accept: the constant or the first value an `enum` lists, a number within its bounds, a string of its length and in its `format`, a semantic version where its `pattern` asks for one, as many list items as it requires, and every property an object requires. Any other `pattern`, a `validate:` or `when:` condition, a composition of schemas and a constraint on which items a list holds are not consulted, so a field relying on one may still refuse its placeholder; validate then reports that refusal in the schema's own words. The rendered artifacts are printed so an author sees the isolated output before wiring the entity into a full Aggregate. Because a single-entity harness fills only those required fields, wires no connection and attaches no Feature, a Recipe whose templates read a value only a connection or an attached Feature delivers cannot render in isolation; validate reports such a render as not attempted rather than failed. A render that stops for any other reason did not complete, and validate reports it with the underlying render diagnostic down to the sentence that names what stopped it.
+A **Recipe** additionally **renders in isolation**. This is one facet of single-entity correctness, not its headline: after the schema and shape tiers pass, validate resolves the Recipe's `implements` Component from the catalog, synthesizes a minimal Aggregate, Manifest and Release around a single instance of that Component bound to the Recipe under test, and drives the real compilation pipeline over it — first resolution and guards (with render skipped), then a real render of the isolated output. Each required value and each required infra field that carries no default is filled with a placeholder of its declared type — the values in the synthesized Aggregate, the infra in the synthesized Release — and every other value and infra field takes its schema default through the resolver; the Release routes the instance into a synthesized default boundary and declares no `values:` and no compute the Aggregate did not declare. A placeholder is a value the field's own declared constraints accept: the constant or the first value an `enum` lists, a number within its bounds, a string of its length and in its `format`, a semantic version where its `pattern` asks for one, as many list items as it requires, and every property an object requires. Any other `pattern`, a `validate:` or `when:` condition, a composition of schemas and a constraint on which items a list holds are not consulted, so a field relying on one may still refuse its placeholder; validate then reports that refusal in the schema's own words. The rendered artifacts are printed so an author sees the isolated output before wiring the entity into a full Aggregate. Because a single-entity harness fills only those required fields, wires no connection and attaches no Feature, a Recipe whose templates read a value only a connection or an attached Feature delivers cannot render in isolation; validate reports such a render as not attempted rather than failed. An assertion that calls `fail` is reported as a warning rather than failing the check — see [a failed assertion is a warning](#a-failed-assertion-is-a-warning). A render that stops for any other reason did not complete, and validate reports it with the underlying render diagnostic down to the sentence that names what stopped it.
 
 A Recipe whose `source:` has to be **fetched** is not rendered at all, and a Recipe whose render stops while it reads a value only a connection or an attached Feature supplies has that render set aside — see [what single-entity correctness does not check](#what-single-entity-correctness-does-not-check) below.
 
@@ -165,6 +165,22 @@ The whole-catalog scope is a run with no argument, and the Release scope is `--r
 | SchemaLibrary, MappingLibrary, WorkloadLibrary, ArtifactLibrary | a whole-catalog run, when it sits in a catalog directory |
 
 A whole-catalog run reads only what sits inside the configured catalog directories, so an Aggregate kept at the workspace root beside its Release is checked through `--release` over that Release.
+
+### A failed assertion is a warning
+
+An assertion that calls `fail` — one the Recipe declares, or one its `implements` Component declares — is reported as a warning, and the check does not fail on it. The synthesized Release carries placeholders and schema defaults in place of the values a real Release sets, so an assertion over such a value, an image or a prerequisite's presence, fails here whether or not the Recipe is sound, and validate cannot tell an assertion waiting on a Release from one that is broken. The verdict on the assertion is left to a build, which always has a Release.
+
+The warning is written to standard error, opened by `warning:`, after any advisory notes. It carries the assertion's full message — the entity, the instance, the assertion's name and the sentence its author wrote — closed by one more sentence:
+
+```
+A Release must satisfy this assertion before a build of it can pass.
+```
+
+The report on standard output says where the run stopped, and the command exits `0`. A Recipe's own assertion stops the render, so the report reads `Render: stopped on a failed assertion, reported as a warning` after `Resolution: valid`. A Component's assertion is evaluated before anything renders, so the report reads `Resolution: stopped on a failed assertion, reported as a warning`, followed by `Render: not attempted (the run stopped on that assertion)`. Either way nothing is rendered, so no artifact is printed.
+
+Only an assertion that calls `fail` is a warning. An assertion that stops on a key it reads but does not find, or that does not parse, is a fault in the assertion's own text rather than a failed assertion, and is judged as any other stop is. Every other fault keeps its place as the check's verdict.
+
+[`aggrega build`](./aggrega-build.md) of a Release that does not satisfy the assertion halts on it with an error, naming the assertion and carrying its author's sentence, as it always does. The editor's entity check through [`aggrega serve`](./aggrega-serve.md) gives the same warning, drawn on the assertion's own key where the Recipe declares it, and the `validate` tool of [`aggrega mcp`](./aggrega-mcp.md) answers `valid: true` with the warning among its `notices`.
 
 ### What single-entity correctness does not check
 
@@ -279,7 +295,7 @@ A read that finds nothing and stops nothing is not set aside: a `range` over `.c
 
 **What decides it is what the Recipe reads, not what the render stopped on**, and that has a consequence worth knowing before you meet it: a fault of the Recipe's own in a Recipe that also reads such a value — a misspelled key, say — is reported as not attempted along with the rest, not as a failure. The `The render stopped:` line carries the render's own sentence so you can see which it was, and a build of a Release that deploys the Component judges the render in full.
 
-Three faults still fail the run whatever the Recipe reads, because no connection or Feature changes them: a template that does not parse, a reference the render refuses — a root the render context does not define, or a mistyped key beneath one whose shape is fixed, such as `.context.instance_idd` — and an assertion the Recipe declares that calls `fail`. An assertion over a value a Release sets, such as an image or a prerequisite's presence, therefore fails every check of the Recipe on its own: that failure is the Recipe stating what a Release has to provide. A Recipe whose templates read none of the three has its render judged as before, and a render that stops fails with the sentence naming the cause.
+Two faults still fail the run whatever the Recipe reads, because no connection or Feature changes them: a template that does not parse, and a reference the render refuses — a root the render context does not define, or a mistyped key beneath one whose shape is fixed, such as `.context.instance_idd`. An assertion the Recipe declares that calls `fail` is neither set aside nor a failure, whatever the Recipe reads: it is reported as the warning [a failed assertion](#a-failed-assertion-is-a-warning) always is. A Recipe whose templates read none of the three has its render judged as before, and a render that stops fails with the sentence naming the cause.
 
 The [`validate` tool of `aggrega mcp`](./aggrega-mcp.md) gives the same verdict on the same Recipe: a render set aside this way answers as valid with nothing in its diagnostics, and the lines above are in the text it returns beside them.
 
@@ -371,8 +387,12 @@ supplies — anything under .context.inject, .context.uses or .features — is
 reported as not attempted too: the generated harness wires no connection and
 attaches no Feature, so that render cannot be judged there, and a fault of
 the Recipe's own beside such a read is set aside with it. A template that
-does not parse, a reference the render refuses and a Recipe assertion that
-calls fail still fail. Any other kind is refused here
+does not parse and a reference the render refuses still fail. An assertion
+that calls fail, the Recipe's own or one its Component declares, is printed
+as a warning closed by a sentence saying a Release must satisfy it before a
+build can pass, and does not fail the check: the generated harness sets none
+of a real Release's values, so it cannot tell an assertion waiting on one from
+one that is broken, and a build still halts on it. Any other kind is refused here
 today, and the refusal names the scope that checks it instead: a whole-catalog
 run reaches an Aggregate and the library kinds when they sit in a catalog
 directory, and --release reaches a Release, the Manifest it names and the
