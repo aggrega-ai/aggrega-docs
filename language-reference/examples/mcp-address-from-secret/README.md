@@ -12,10 +12,12 @@ to the tool holds the whole address as a secret, and the Release names where it
 lives. It builds for Kubernetes and for Docker Compose, and on both no rendered
 file carries the key.
 
-The agent is declared in this workspace's own catalog: no standard-library
-Component declares a tool socket yet, so the socket that holds the address is
-declared here. The tool, the two credential Features and their realizations ship
-in the standard-library catalog.
+The agent is declared in this workspace's own catalog, so the socket that holds
+the address is written out here in full. The standard-library agent runtimes
+`core/ai-agent/openai-agents-sdk`, `claude-agent-sdk`, `google-adk` and
+`mastra`, and the platforms `core/ai-agent/flowise` and `n8n`, declare a `tools`
+socket of the same form, with the same two slots. The tool, the two credential
+Features and their realizations ship in the standard-library catalog.
 
 ## What it builds
 
