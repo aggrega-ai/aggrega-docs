@@ -445,7 +445,7 @@ A parser turns a source written in a format the compiler does not read natively 
 
 ## The importer socket — draft authoring output
 
-An importer turns a source written for another tool — a flow exported from an agent builder, say — into draft Aggrega authoring files. It runs out of band: [`aggrega import`](../cli/aggrega-import.md), the editor session's `aggrega/import` method and the assistant-facing `import` tool resolve the importer that advertises the requested format as `import:<format>` and call its `import` export once per import. A build never dispatches it. Which importer runs, and what an operator hands it, is described under [Which importer turns a source into drafts](../cli/configuration.md#which-importer-turns-a-source-into-drafts).
+An importer turns a source written for another tool — a flow exported from an agent builder, say — into draft Aggrega authoring files. It runs out of band: [`aggrega import`](../cli/aggrega-import.md), the editor session's `aggrega/import` method and the assistant-facing `import` tool resolve the importer that advertises the requested format as `import:<format>` and call its `import` export once per import. A build never dispatches it. Which importer runs, and what an operator hands it, is described under [Which importer turns a source into drafts](../cli/configuration.md#which-importer-turns-a-source-into-drafts). The compiler's own importers, for Langflow and for Flowise, are described on [Core importers](core-importers.md): what each reads, the settings it takes, and their publication with each compiler release.
 
 **Input shape (host → guest).** An `ImportInput` document carrying:
 
@@ -510,6 +510,7 @@ The pipeline placement table at the top of this page reflects today's state plus
 ## Cross-references
 
 - [`policy-socket.md`](policy-socket.md) — the comprehensive governance-socket treatment: the four roles, verdict severities, the operator input channel, writing a policy for either of the two engines that ship inside the compiler, wrapping a foreign policy engine, and the reference guests.
+- [`core-importers.md`](core-importers.md) — the compiler's Langflow and Flowise importers: what each reads, their settings, and their publication with each compiler release.
 - [`10-status.md#compilation-pipeline-phases`](../10-status.md#compilation-pipeline-phases) — Status page plugin-pipeline classification (Wasm plugin pipeline runtime readiness).
 - [`architecture/04-entity-taxonomy.md`](../../architecture/04-entity-taxonomy.md) §"Domain 3: Infrastructure Base" — Two-Part Plugin Principle for credential FeatureRecipes (Fetcher + Injector pattern).
 - [`architecture/13-catalog-and-registry.md`](../../architecture/13-catalog-and-registry.md) — the OCI taxonomy that leads with the provider segment.
