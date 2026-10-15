@@ -209,7 +209,19 @@ A `podSelector` in a policy's `from` matches pods in the policy's own namespace,
 ## Provider-specific quirks
 
 - **Provenance injection.** The sourced and synthesized paths converge on the same label-and-annotation set; sourced renders inject them via post-render YAML rewriting (after the Helm SDK has already rendered), so chart authors do not need to thread Aggrega labels through their own templates.
-- **Ordered env emission.** Kubernetes environment variables are an ordered list (later entries can `$(VAR)`-reference earlier ones); the provider emits them in author order from the OrderedMap-backed `environment` map. Authoring environment-variable order matters for correctness.
+- **Environment order — Secret-read entries first.** A synthesized container's `env` list carries two kinds of entry: each `attachments` entry delivered `as: env` reads its value from a Secret through `valueFrom.secretKeyRef`, and each `variables` entry carries a plain `value`. The provider writes every Secret-read entry first and every plain variable after them, each kind in the order it is authored, and lists `envFrom` sources separately under `envFrom`. Kubernetes expands a `$(NAME)` reference in an `env` value from the entries listed before it in the same container, never from one listed after it, so this order lets a plain variable compose a Secret-read value by reference while the secret itself stays in the Secret:
+
+  ```yaml
+  containers:
+    api:
+      image: "api:1.0"
+      variables:
+        DATABASE_URL: "postgres://app:$(DB_PASSWORD)@db:5432/app"
+      attachments:
+        DB_PASSWORD: { from: db-credentials, as: env }
+  ```
+
+  The rendered container lists `DB_PASSWORD` ahead of `DATABASE_URL`, so the process receives the URL with the password in place. A variable may also reference any variable authored before it, which keeps authored order meaningful within `variables`. Init containers follow the same order.
 - **Namespace cascade — the two modes reach the resource differently.** Both read `aggrega.ai/namespace` from the boundary annotation cascade, and neither invents a namespace when no boundary declares one. In synthesized mode the provider writes `metadata.namespace` directly, and omits the field entirely when the cascade yields no value. In sourced mode the provider supplies the value as the chart's release namespace — `default` when the cascade yields none — and the chart's own template decides whether to project it; where a namespace is declared, the provider then writes it into every namespaced resource the chart rendered without one (see [Sourced mode](#sourced-mode)). So with a namespace declared both modes place every namespaced resource in it — a namespace a chart pins itself, and a kind the provider cannot classify, aside. With none declared they part: a chart that projects the release namespace places its resources in `default`, where synthesized output writes none, and a chart that writes no namespace places them in none, so they land where the tool applying the manifests puts them. The local charts the standard-library FeatureRecipes carry read the cascade value directly through their `valuesMapping` instead: doing so lets them omit the field when no boundary declares a namespace, matching synthesized output, which the release namespace alone cannot express because it is never empty.
 
 ## Worked examples

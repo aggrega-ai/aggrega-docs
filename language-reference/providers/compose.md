@@ -32,6 +32,8 @@ When a Recipe declares `workload:`, the provider translates the platform-owned W
 | `restartPolicy: OnFailure` | `restart: on-failure` |
 | `restartPolicy: Never` | `restart: no` |
 
+`variables` and `attachments[as: env]` land in the one `environment` map, the attachment entries first and the `variables` after them, each in the order it is authored — the order the [helm provider](helm.md#provider-specific-quirks) writes, so one Workload renders one environment sequence on every target. Compose expands no `$(NAME)` reference between a service's environment entries, so on compose that order carries no runtime meaning.
+
 ### Container resources
 
 A container's `resources` reach compose's `deploy.resources` block, which docker compose honours in non-swarm mode. Kubernetes `requests` express a guaranteed minimum, so they become compose `reservations`; `limits` express a hard cap, so they stay `limits`.
