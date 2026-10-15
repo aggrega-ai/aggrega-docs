@@ -3436,6 +3436,44 @@ The reference is quoted relative to the connection it was read off — `.render_
 
 A FeatureRecipe that renders once for a boundary (`executionScope: boundary`) is not checked here, for the reason the entry above gives.
 
+### A template reads its targets' render facts without declaring it
+
+<!-- covers: internal/compiler/renderer.ErrTargetRenderFactsNotDeclared -->
+
+A template in a FeatureRecipe attached to a component reads `render_facts` beneath `.context.uses` — what the components the attachment's host is wired to reported about their own renders — and the FeatureRecipe does not set `readsTargetRenderFacts: true`.
+
+The key decides two things. It makes the attachment render once every component has rendered: without it, the attachment renders right after the component it is attached to, and a target that comes later in the build's order has not rendered at that point. And it is what puts each target's facts on the connections the attachment reads: without it, no entry of `.context.uses` carries `.render_facts` at all. Refusing the template before anything renders reports the missing declaration against the field you wrote, instead of a build whose template reads nothing where it expected a target's facts.
+
+Emitted message:
+> template reads the render facts of a component its host is wired to, but the FeatureRecipe does not set readsTargetRenderFacts (`<reference>`, written in `<field>`)
+
+The reference is the one the template wrote: beneath one connection's alias in full — `.context.uses.<alias>.render_facts`, or `.context.uses.<alias>.render_facts.<name>` — or, where the template reads the connections one at a time, inside `{{ range .context.uses }}`, `{{ with .context.uses.<alias> }}` or off one connection it picks, relative to that connection: `.render_facts`, or `.render_facts.<name>`. The field names the block the template was written in: `valuesMapping`, `workload` or `artifacts[<output-name>]`. A pipeline step's `with:` or `when:` reading the same facts is reported by the next entry instead, whatever the FeatureRecipe sets. Where several fields read the facts, each gets a report of its own beneath a line naming what they share:
+
+> attachment templates reading the render facts of the components their host is wired to, without declaring it
+
+**How to fix:** set `readsTargetRenderFacts: true` in the FeatureRecipe's `spec` — `readsCallerRenderFacts: true` does not clear this halt, since it puts facts on the components connecting to the host rather than on the ones it is wired to. That renders its attachments after every component has rendered and puts each target's facts on its connection, and changes nothing else about what they render — see [the FeatureRecipe entity page](../entities/featurerecipe.md#rendering-after-the-targets--specreadstargetrenderfacts). The key is the contract, and this halt only helps you find a template that visibly needs it: the check reads the template as written, so a reference built while the template runs, or one written in content imported from a file or a library, does not halt — set the key on such a FeatureRecipe all the same. A template that reads `.context.uses` at all and also reads a field named `render_facts` off some other value — a caller's facts inside `{{ range .context.used_by }}` among them — halts as well; set the key, and `readsCallerRenderFacts` too where the template reads its callers' facts.
+
+A FeatureRecipe that renders once for a boundary (`executionScope: boundary`) is not checked here, for the reason the callers' entry above gives.
+
+### A pipeline step reads its targets' render facts
+
+<!-- covers: internal/compiler/renderer.ErrPipelineStepReadsTargetRenderFacts -->
+
+A pipeline step's `with:` or `when:`, in a FeatureRecipe attached to a component, reads `render_facts` beneath `.context.uses` — what the components the attachment's host is wired to reported about their own renders.
+
+A step reads the connections its host makes, as the host's own Recipe reads them, and never their targets' render facts — for every FeatureRecipe, whether or not it sets `readsTargetRenderFacts: true`. A step may rewrite the host component's own documents, and the host's own render reads what its targets publish, never what they emitted, so a step's templates are evaluated without those facts. A step reading them would therefore read nothing, and the build halts before anything renders rather than render that read as an empty value.
+
+Emitted message:
+> pipeline step reads the render facts of a component its host is wired to, but a pipeline step reads only the host's own render facts (`<reference>`, written in `<field>`)
+
+The reference is quoted as in the entry above, and the field names the step by its id: `pipeline[<step>].with` or `pipeline[<step>].when`. Where several steps read the facts, each gets a report of its own beneath a line naming what they share:
+
+> pipeline steps reading the render facts of the components their host is wired to
+
+**How to fix:** in a step, read the host's own render facts at `.context.render_facts`, written in full. Read the targets' facts in the templates that produce the attachment's own resources instead — its `valuesMapping:`, `workload:` or `artifacts:` — with `readsTargetRenderFacts: true` set, as [the FeatureRecipe entity page](../entities/featurerecipe.md#rendering-after-the-targets--specreadstargetrenderfacts) describes. Setting the key alone does not clear this halt. The check reads the template as written, with the limits the entry above describes.
+
+A FeatureRecipe that renders once for a boundary (`executionScope: boundary`) is not checked here, for the reason the callers' entry above gives.
+
 ### Cross-node type safety violation via `selector:`
 
 <!-- covers: internal/compiler/analyzer.ErrSelectorViolation -->
@@ -5987,6 +6025,8 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0344` | `an entry this publication carries cannot be used on Windows` | A published archive carries an entry Windows cannot use |
 | `E0345` | `a container declares one environment variable twice` | A container gives one environment variable two values |
 | `E0346` | `a Component's annotation stating how its metrics authenticate disagrees with whether it declares the provides key saying an instance's metrics need a credential` | A Component's metrics annotation and its provides key disagree |
+| `E0347` | `template reads the render facts of a component its host is wired to, but the FeatureRecipe does not set readsTargetRenderFacts` | A template reads its targets' render facts without declaring it |
+| `E0348` | `pipeline step reads the render facts of a component its host is wired to, but a pipeline step reads only the host's own render facts` | A pipeline step reads its targets' render facts |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
