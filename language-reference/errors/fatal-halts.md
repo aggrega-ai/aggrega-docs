@@ -4627,6 +4627,24 @@ The helm provider renders each Workload `services` entry as a Kubernetes Service
 
 **How to fix:** for a helm target, declare the type that says how far the port should reach in the cluster — `ClusterIP` to keep it inside, `NodePort` or `LoadBalancer` to publish it. A `Loopback` entry is for a compose target, which publishes the port on `127.0.0.1`; see [Workload → `services`](../entities/workload.md#services).
 
+### A Kubernetes version the helm provider cannot render a chart for
+
+<!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
+
+The helm provider renders a chart from source for the Kubernetes version the `aggrega.ai/kubernetes-version` annotation names on a component or on its boundary, and reads the value the way `helm template --kube-version` reads its flag. A value that flag would refuse — `"one.two"`, `"latest"`, a single number such as `"1"`, a number written with a leading zero such as `"01.20"` — has no version for the chart to read as `.Capabilities.KubeVersion`, so the build stops before the chart is rendered.
+
+**It stops rather than render the chart for the default version**, because a chart reads the version to choose an API version, a field or a whole mechanism, and a chart rendered for a version other than the one you named emits the shape for that other version — one the cluster it deploys to may not run.
+
+**An empty value is not refused.** It is treated as unset, and the chart renders for the default: the version the stock `helm template` of the same helm release renders for.
+
+**Emitted message.** It opens with the condition, then names the node and the boundary it is placed in, the annotation, the value and what made it not a version, and states the form to write:
+> a plugin has no representation for a value it was given
+> helm: node `"<node>"` in boundary `"<boundary>"`: annotation aggrega.ai/kubernetes-version: `"<value>"` is not a Kubernetes version a chart can be rendered for: `<reason>`; write the version of the cluster the chart deploys to, such as "1.31" or "v1.31.2", on the component or on its boundary
+
+The message names both the node and its boundary because the provider reads a component's annotations and its boundary's together, a component's own value winning, so the value may have been written on either.
+
+**How to fix:** write the version of the cluster the chart deploys to — a major and a minor version such as `"1.31"`, or a full one such as `"v1.31.2"` — on the component or on its boundary, or remove the annotation to render for the default. See [helm → The Kubernetes version a chart is rendered for](../providers/helm.md#the-kubernetes-version-a-chart-is-rendered-for).
+
 ### A health probe cannot be turned into a compose healthcheck
 
 <!-- covers: internal/wasm.ErrPluginRequiredInputUnresolved -->
@@ -5876,7 +5894,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0288` | `a plugin has no expression for a construct this build declares` | A workload declares a form compose cannot express; A container declares a field compose has no primitive for; An omits entry names a kind or a namespace a compose file does not have; An omits entry names a namespace a CloudFormation template does not have |
 | `E0289` | `a plugin could not resolve something it requires to exactly one value` | A health probe cannot be turned into a compose healthcheck; A configmap volume has no file behind it; What an omits entry left out is still named by the compose file; What an omits entry left out is still named by a CloudFormation template; A cross-boundary reference has no consuming stack to be written into; A synthesized StatefulSet has no single service to govern it |
 | `E0290` | `two things a plugin produced occupy one name in its output` | An authored export name is one the build derives for a cross-stack reference; Two entries reach one stack output name; A CloudFormation fragment writes one key twice; Two rendered resources land at one output file |
-| `E0291` | `a plugin has no representation for a value it was given` | A published port declares a transport compose cannot spell; A resources quantity cannot be converted to a compose value; A resource quantity the helm provider emits is not a quantity; A service type the helm provider cannot render; A cross-boundary reference was spliced into a longer string |
+| `E0291` | `a plugin has no representation for a value it was given` | A published port declares a transport compose cannot spell; A resources quantity cannot be converted to a compose value; A resource quantity the helm provider emits is not a quantity; A service type the helm provider cannot render; A Kubernetes version the helm provider cannot render a chart for; A cross-boundary reference was spliced into a longer string |
 | `E0292` | `a plugin reported a failure that none of the declared kinds names` | A plugin reported a failure it did not classify |
 | `E0293` | `wasm: guest plugin named a condition the socket does not declare` | A plugin named a condition the socket does not declare |
 | `E0294` | `components in different subsystems take the same identity: rename one of them, since a subsystem contributes nothing to a component's identity` | Two subsystems declare a component under one name |

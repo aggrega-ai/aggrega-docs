@@ -67,6 +67,29 @@ The report is a warning on the build, which still completes:
 
 Where the chart has a value that renders the kind's `CustomResourceDefinition`, or one that writes the namespace itself, setting it through the Recipe's `valuesMapping` places such a resource.
 
+### The Kubernetes version a chart is rendered for
+
+A chart's templates read the Kubernetes version they are rendered for as `.Capabilities.KubeVersion`, and many choose an API version, a field or a whole mechanism by it — a service-account token projected from 1.21 on, say, and a first-party one below. The build has no cluster to ask, so the version is one you state, where the Release says where a component deploys: the `aggrega.ai/kubernetes-version` annotation on a boundary, or on a component, where it wins over its boundary's, cascading exactly as `aggrega.ai/namespace` does.
+
+```yaml
+spec:
+  boundaries:
+    production:
+      annotations:
+        aggrega.ai/kubernetes-version: "1.31"
+      components:
+        api: {}
+        legacy:
+          annotations:
+            aggrega.ai/kubernetes-version: "1.28"   # this component deploys to an older cluster
+```
+
+The value is read the way `helm template --kube-version` reads its flag, so it accepts the forms that flag accepts and a chart reads exactly what that flag would give it: `"1.31"` reads as `v1.31`, `"v1.31.2"` as `v1.31.2`, and anything after the numbers, such as a `-gke.100` suffix, is dropped. A value that is not a version — `"one.two"`, `"latest"`, a single number — halts the build under the condition for a value a plugin has no representation for, naming the value, the component and its boundary; the chart is never rendered for some other version in its place. See [A Kubernetes version the helm provider cannot render a chart for](../errors/fatal-halts.md#a-kubernetes-version-the-helm-provider-cannot-render-a-chart-for). An empty value is treated as unset.
+
+Where no annotation names a version, a chart renders for the version the stock `helm template` of the same helm release renders for, which is the version of the Kubernetes client library the provider is built with: a provider built against client library v0.35 renders for Kubernetes v1.35.0. So a chart renders in Aggrega as its own authors' `helm template` renders it, and the default moves only when the client library the provider is built with moves. Name the version of the cluster you deploy to whenever it differs: a chart rendered for a newer version than the cluster runs can emit an API version that cluster does not serve.
+
+Only the version is set this way. Every other capability a chart reads — `.Capabilities.APIVersions` and `.Capabilities.HelmVersion` — is the helm library's built-in one, so an API a cluster serves from an installed `CustomResourceDefinition` is not reported to the chart. A chart's own `kubeVersion` range in its `Chart.yaml` is not compared with the version: `helm template` refuses a chart whose range excludes the version it renders for, and the build renders it. The annotation shapes a chart rendered from source and nothing else: a synthesized Workload and an `artifacts:` body read no `.Capabilities`, and the [`helm-chart`](helm-chart.md) provider hands its chart on unrendered, to be rendered when it is installed.
+
 **Leaving rendered documents out.** This provider honours the [`omits:`](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source) entries a Recipe or a FeatureRecipe declares, in this mode and in no other: a synthesized Workload and an `artifacts:` body render without them. Every document the chart renders — from a template or from a file of its `crds/` directory — is matched against each entry that applies to the build, and a document any entry names is left out. An entry names a document by the words the document itself carries, the same words its output filename and its render facts are built from: its `kind`, its `metadata.name` and, only where the entry names one, the namespace the document is in — the one its template writes, or the boundary's declared namespace where this provider places the document as described above. It is never the namespace the chart merely renders against: with no namespace declared the chart renders against `default`, yet a document whose template writes no namespace is in none, so an entry naming `default` does not match it. A document carrying no kind or no name matches no entry. The documents left out are rendered and then dropped once every file's name is settled, so each document kept is named and written exactly as it would be without the entries, and a document left out reaches nothing the build does afterwards — no file, no name in the comparison that refuses two contributors landing on one, no render fact a Feature reads, nothing a pipeline step is handed. The provider reports how many documents each entry matched, and an entry that matched none stops the build; see [An omits entry left out nothing the source rendered](../errors/fatal-halts.md#an-omits-entry-left-out-nothing-the-source-rendered).
 
 ### How the release name is derived
