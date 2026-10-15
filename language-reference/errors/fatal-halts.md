@@ -4613,6 +4613,20 @@ The helm provider copies every resource quantity into the manifests it emits ver
 
 **How to fix:** write the value in the form set out in [Workload → Resource quantities](../entities/workload.md#resource-quantities). Where the field is templated, the value to fix is the one the template read: a bare suffix such as `m` or `Mi` is what a template leaves when the value it interpolates is empty, and a Release parameter reaches the field exactly as it was written.
 
+### A service type the helm provider cannot render
+
+<!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
+
+The helm provider renders each Workload `services` entry as a Kubernetes Service whose type is the entry's `type`. A `Loopback` entry asks for its ports to be reachable from the host's own loopback address and from nowhere else, and a Kubernetes Service has no type that does that: which node addresses a `NodePort` Service listens on is a setting of the whole cluster, not of one Service. So the build stops on the first `Loopback` entry, in the order the services are declared, before any resource is written.
+
+**It stops rather than render the entry as another type**, because each of the types a Service does have changes what the port reaches: a `ClusterIP` Service drops the published reach the entry asks for, and a `NodePort` one publishes the port on every node address the cluster allows — the wider exposure the entry exists to avoid.
+
+**Emitted message.** It opens with the condition, then names the node, the service's path in the Workload and the type:
+> a plugin has no representation for a value it was given
+> helm: node `"<node>"`: services.`<service>`: type "Loopback" publishes the service's ports on the host's loopback address only, and a Kubernetes Service has no type that does; declare ClusterIP to keep the ports inside the cluster, or NodePort or LoadBalancer to publish them outside it
+
+**How to fix:** for a helm target, declare the type that says how far the port should reach in the cluster — `ClusterIP` to keep it inside, `NodePort` or `LoadBalancer` to publish it. A `Loopback` entry is for a compose target, which publishes the port on `127.0.0.1`; see [Workload → `services`](../entities/workload.md#services).
+
 ### A health probe cannot be turned into a compose healthcheck
 
 <!-- covers: internal/wasm.ErrPluginRequiredInputUnresolved -->
@@ -5862,7 +5876,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0288` | `a plugin has no expression for a construct this build declares` | A workload declares a form compose cannot express; A container declares a field compose has no primitive for; An omits entry names a kind or a namespace a compose file does not have; An omits entry names a namespace a CloudFormation template does not have |
 | `E0289` | `a plugin could not resolve something it requires to exactly one value` | A health probe cannot be turned into a compose healthcheck; A configmap volume has no file behind it; What an omits entry left out is still named by the compose file; What an omits entry left out is still named by a CloudFormation template; A cross-boundary reference has no consuming stack to be written into; A synthesized StatefulSet has no single service to govern it |
 | `E0290` | `two things a plugin produced occupy one name in its output` | An authored export name is one the build derives for a cross-stack reference; Two entries reach one stack output name; A CloudFormation fragment writes one key twice; Two rendered resources land at one output file |
-| `E0291` | `a plugin has no representation for a value it was given` | A published port declares a transport compose cannot spell; A resources quantity cannot be converted to a compose value; A resource quantity the helm provider emits is not a quantity; A cross-boundary reference was spliced into a longer string |
+| `E0291` | `a plugin has no representation for a value it was given` | A published port declares a transport compose cannot spell; A resources quantity cannot be converted to a compose value; A resource quantity the helm provider emits is not a quantity; A service type the helm provider cannot render; A cross-boundary reference was spliced into a longer string |
 | `E0292` | `a plugin reported a failure that none of the declared kinds names` | A plugin reported a failure it did not classify |
 | `E0293` | `wasm: guest plugin named a condition the socket does not declare` | A plugin named a condition the socket does not declare |
 | `E0294` | `components in different subsystems take the same identity: rename one of them, since a subsystem contributes nothing to a component's identity` | Two subsystems declare a component under one name |

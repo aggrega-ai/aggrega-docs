@@ -116,18 +116,21 @@ The Workload's `form` selects an abstract controller shape (see [entities/worklo
 
 ### Service exposure
 
-A Workload `services` entry's `type` field decides whether compose publishes ports:
+A Workload `services` entry's `type` field decides whether compose publishes ports, and on which host address:
 
 | Workload service type | Compose behaviour |
 | --- | --- |
 | `ClusterIP` | No `ports:` publishing — the service is reachable only on the compose network |
-| `NodePort` | `ports: [<host>:<container>]` publishing |
-| `LoadBalancer` | `ports: [<host>:<container>]` publishing (compose has no managed-loadbalancer equivalent; the host-port publish is the closest analogue) |
+| `NodePort` | `ports: [<host>:<container>]` publishing, on every host interface |
+| `LoadBalancer` | `ports: [<host>:<container>]` publishing, on every host interface (compose has no managed-loadbalancer equivalent; the host-port publish is the closest analogue) |
+| `Loopback` | `ports: [127.0.0.1:<host>:<container>]` publishing — reachable from the host itself and from nowhere else |
 | `Headless` | No `ports:` publishing |
 
-When multiple services on a single Workload publish overlapping ports, the most-publishing entry wins per port (any `NodePort` or `LoadBalancer` reference triggers publishing).
+A `Loopback` entry binds the IPv4 loopback address only. The IPv6 loopback address `::1` is not bound: compose's port syntax carries one host address per entry, and a host whose loopback interface carries no IPv6 address could not bind it, so the service would not start there. Clients on the host reach the port at `127.0.0.1`.
 
-**Port transport.** A published entry carries the transport declared on the container port it names, as compose's `/protocol` suffix: `53:53/udp`. A port that declares no transport publishes as `<host>:<container>` with no suffix, leaving compose's own default in force. Compose spells a published port's transport as `tcp` or `udp`; a port declaring `SCTP` has no compose spelling, so it halts with a `TRANSLATION_ERROR` rather than publishing a port that would carry a different transport. A container port that no service publishes reaches no part of the compose file at all, so a transport declared on such a port has nothing to be spelled onto and does not halt.
+When multiple services on a single Workload publish overlapping ports, the port is published once, and the widest reach wins: any `NodePort` or `LoadBalancer` reference publishes it on every host interface, even where a `Loopback` entry names it too and whichever entry is declared first; a port that only `Loopback` entries name is published on `127.0.0.1`. Published ports are listed in container-port order.
+
+**Port transport.** A published entry carries the transport declared on the container port it names, as compose's `/protocol` suffix: `53:53/udp`, or `127.0.0.1:53:53/udp` for a `Loopback` entry. A port that declares no transport publishes as `<host>:<container>` with no suffix, leaving compose's own default in force. Compose spells a published port's transport as `tcp` or `udp`; a port declaring `SCTP` has no compose spelling, so it halts with a `TRANSLATION_ERROR` rather than publishing a port that would carry a different transport. A container port that no service publishes reaches no part of the compose file at all, so a transport declared on such a port has nothing to be spelled onto and does not halt.
 
 ## Multi-container Workloads
 

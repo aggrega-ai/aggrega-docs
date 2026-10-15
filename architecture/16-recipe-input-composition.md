@@ -222,7 +222,7 @@ services:
       admin: 9901
 ```
 
-Each becomes a separate Kubernetes Service object when rendered under the helm provider. In compose, services that aren't `ClusterIP` result in port publishing on the compose service.
+Each becomes a separate Kubernetes Service object when rendered under the helm provider, which halts on a `Loopback` entry instead. In compose, `NodePort` and `LoadBalancer` services publish their ports on every host interface of the compose service, `Loopback` ones on the host's loopback address only, and `ClusterIP` and `Headless` ones publish nothing.
 
 Service names in K8s output are prefixed with the component's `instance_id` for uniqueness. Port names must match container port names declared in `containers.<name>.ports`.
 

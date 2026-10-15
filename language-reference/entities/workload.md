@@ -198,7 +198,7 @@ The check judges form only. Whether a cluster can schedule the amount, or whethe
 
 ### `services`
 
-An ordered map of service exposures. Each service declares its type (`ClusterIP`, `NodePort`, `LoadBalancer`, `Headless`) and a named-port map. Port names must match container port names declared elsewhere in the Workload:
+An ordered map of service exposures. Each service declares its type (`ClusterIP`, `Headless`, `NodePort`, `LoadBalancer`, `Loopback`) — how far its ports reach — and a named-port map. Port names must match container port names declared elsewhere in the Workload:
 
 ```yaml
 services:
@@ -209,6 +209,22 @@ services:
 ```
 
 Multiple services on a single Workload are common for exposing internal and external traffic separately (internal `ClusterIP` for in-cluster consumers, `LoadBalancer` for external traffic, `ClusterIP` for Prometheus scraping).
+
+**How far a service's ports reach.** The `type` states it, and each target renders it in its own terms:
+
+| `type` | Reach | helm | compose |
+| --- | --- | --- | --- |
+| `ClusterIP` | the workload's peers, on the target's own network | a Service of type `ClusterIP` | publishes nothing; peers reach the port on the compose network |
+| `Headless` | the same, with no cluster address | a Service of type `ClusterIP` with `clusterIP: None` | publishes nothing |
+| `NodePort` | beyond the target's own network | a Service of type `NodePort` | each port published on every host interface, as `<port>:<port>` |
+| `LoadBalancer` | beyond the target's own network | a Service of type `LoadBalancer` | the same as `NodePort` |
+| `Loopback` | the host's own loopback address only | **halts the build**, naming the service | each port published on the IPv4 loopback address, as `127.0.0.1:<port>:<port>` |
+
+`Loopback` is for a port that something on the same machine reaches — a browser or an agent running on the host — and that nothing else should. On compose the binding is the IPv4 loopback address alone: the IPv6 loopback address `::1` is not bound, so address the port as `127.0.0.1` rather than through a name that may resolve to `::1`. A declared transport is spelled on the entry as on any published port, as in `127.0.0.1:5514:5514/udp`.
+
+Where two entries name the same port, the wider reach wins: a port that a `NodePort` or `LoadBalancer` entry publishes is published on every interface even when a `Loopback` entry names it too, whichever of the two is declared first.
+
+On helm a `Loopback` entry stops the build rather than rendering as something it is not. A Kubernetes Service has no type that binds to a host's loopback address — which node addresses a `NodePort` Service listens on is a setting of the whole cluster, not of one Service — so a `ClusterIP` Service would drop the reach the entry asks for, and a `NodePort` one would publish the port on every node address the cluster allows. The halt names the node and the service; see [A service type the helm provider cannot render](../errors/fatal-halts.md#a-service-type-the-helm-provider-cannot-render).
 
 **Synthesized-name convention.** When the helm provider synthesizes a Workload's services, each Service's `metadata.name` is derived deterministically from the node's release name and the service's authoring key: `<release name>-<service-key>`. The release name is the component's identity written into the alphabet a Kubernetes name admits — the same name a chart renders against, readable in a Recipe's templates as `{{ .context.rendered_name }}` — so it equals the `instance_id` wherever the identity carries no underscore and no capital letter. A Workload declaring `services.http` on node `api-server` produces a Service named `api-server-http`; the same Workload on node `billing` produces `billing-http`, and on node `my_api` produces `my-zuapi-http`. The output filename mirrors the same convention: `<release name>-<service-key>-service.yaml`. A Recipe publishing the address of such a Service builds it from `{{ .context.rendered_name }}`, never from `{{ .context.instance_id }}`, which names no Service wherever the two differ — see [`../templates/rendered-resource-names.md`](../templates/rendered-resource-names.md).
 
@@ -576,7 +592,7 @@ On helm, `MODEL_KEY_GPT` renders as a `secretKeyRef` naming the Secret the `gpt`
 
 Every Workload is validated at Recipe load time before any rendering runs. Validation has two stages:
 
-- **Schema validation.** The Workload value is unified against the embedded `aggrega.ai/v1alpha1` Workload schema. Errors carry the field path and the constraint violated (for example, `.containers.main.health.ready: more than one probe shape declared`). Schema validation enforces every type, enum, range, and disjunction declared in the schema — including the closed-set controller `form` (one of `stateless`, `stateful`, `daemon`, `scheduled`, `task`), the closed-set service `type` (one of `ClusterIP`, `NodePort`, `LoadBalancer`, `Headless`), the integer port range (1..65535), the probe-shape disjunction (exactly one of `http`, `tcp`, `exec`), and the volume-variant disjunction (exactly one of `ephemeral`, `configmap`, `secret`, `persistent`, `persistentTemplate`).
+- **Schema validation.** The Workload value is unified against the embedded `aggrega.ai/v1alpha1` Workload schema. Errors carry the field path and the constraint violated (for example, `.containers.main.health.ready: more than one probe shape declared`). Schema validation enforces every type, enum, range, and disjunction declared in the schema — including the closed-set controller `form` (one of `stateless`, `stateful`, `daemon`, `scheduled`, `task`), the closed-set service `type` (one of `ClusterIP`, `Headless`, `NodePort`, `LoadBalancer`, `Loopback`), the integer port range (1..65535), the probe-shape disjunction (exactly one of `http`, `tcp`, `exec`), and the volume-variant disjunction (exactly one of `ephemeral`, `configmap`, `secret`, `persistent`, `persistentTemplate`).
 - **Cross-reference validation.** Workload attachment references are checked against the Component's `featuresSchema` — and, for an entry naming a connection, against the slots that connection's socket declares — (slot membership, `as:` delivery allowlist, blackbox exclusion) and against each referenced slot's resolved provides (referenceability — the fill must publish `name`/`key`). These are cross-entity checks that schema-only validation cannot perform.
 
 Both stages produce the same `CATALOG_ERROR`-prefixed message shape; failures stop the build before any rendering output is produced. Recipe authors get pointed feedback identifying the exact field that failed and the constraint that rejected it.
