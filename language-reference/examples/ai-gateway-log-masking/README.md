@@ -160,19 +160,19 @@ Recipe fills from the two edges. From `dist/helm/router-deployment.yaml`, the
 
 ```yaml
 env:
-  - name: PRESIDIO_ANALYZER_API_BASE
-    value: http://analyzer-default:3000
-  - name: PRESIDIO_ANONYMIZER_API_BASE
-    value: http://anonymizer-default:3000
   - name: LITELLM_MODEL_ASSISTANT_API_KEY
     valueFrom:
       secretKeyRef:
         name: openai-api-key
         key: api-key
+  - name: PRESIDIO_ANALYZER_API_BASE
+    value: http://analyzer-default:3000
+  - name: PRESIDIO_ANONYMIZER_API_BASE
+    value: http://anonymizer-default:3000
 ```
 
-The first two are the recognizers' addresses; the third is the model's key,
-referenced from the Secret the Release names and never written out. A person's
+The first is the model's key, referenced from the Secret the Release names and
+never written out; the other two are the recognizers' addresses. A person's
 name becomes `<PERSON>` and an address `<EMAIL_ADDRESS>`.
 
 **A failed call is withheld rather than masked.** The gateway runs no logging

@@ -88,6 +88,16 @@ Secrets:
 
 ```yaml
 env:
+  - name: KC_DB_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: server-zdserver-db.credential
+        key: db-password
+  - name: KC_BOOTSTRAP_ADMIN_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: server-zdserver-admin-password
+        key: admin-password
   - name: KC_DB
     value: postgres
   - name: KC_DB_URL_HOST
@@ -108,16 +118,6 @@ env:
     value: "9000"
   - name: KC_BOOTSTRAP_ADMIN_USERNAME
     value: admin
-  - name: KC_DB_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        name: server-zdserver-db.credential
-        key: db-password
-  - name: KC_BOOTSTRAP_ADMIN_PASSWORD
-    valueFrom:
-      secretKeyRef:
-        name: server-zdserver-admin-password
-        key: admin-password
 ```
 
 The container declares the management port, 9000, beside the HTTP port, and the

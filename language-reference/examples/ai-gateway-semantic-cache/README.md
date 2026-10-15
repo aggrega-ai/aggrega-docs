@@ -150,10 +150,6 @@ those from the `cache_store` edge. From `dist/helm/router-deployment.yaml`, the
 
 ```yaml
           env:
-            - name: SEMANTIC_CACHE_STORE_HOST
-              value: cache-default
-            - name: SEMANTIC_CACHE_STORE_PORT
-              value: "6379"
             - name: LITELLM_MASTER_KEY
               valueFrom:
                 secretKeyRef:
@@ -174,6 +170,10 @@ those from the `cache_store` edge. From `dist/helm/router-deployment.yaml`, the
                 secretKeyRef:
                   name: router-embedder.credential
                   key: api-key
+            - name: SEMANTIC_CACHE_STORE_HOST
+              value: cache-default
+            - name: SEMANTIC_CACHE_STORE_PORT
+              value: "6379"
 ```
 
 `cache-default` is the Service the store's own Recipe emits, read off what that
@@ -185,9 +185,11 @@ parameter, `cache-password`, and starts with `--requirepass` read from it, so
 the password the cache presents and the one the store requires are one value,
 written once. With no `cache_store` edge none of the three variables the store's
 address and password arrive under is rendered, and the cache, with nowhere to
-keep its replies, halts the build, as below. The last two entries are the
-models' keys, each referenced from the Secret its own connection's credential
-renders, under the variable its entry in the routing table names.
+keep its replies, halts the build, as below. The third and fourth entries are
+the models' keys, each referenced from the Secret its own connection's
+credential renders, under the variable its entry in the routing table names;
+the helm provider writes every entry it reads from a Secret ahead of the plain
+ones.
 
 **The embedding model is an alias of the gateway's own map.** The gateway sends
 each prompt to `embedder` through the same map a caller's request goes through,

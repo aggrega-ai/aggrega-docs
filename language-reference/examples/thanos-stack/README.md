@@ -89,13 +89,13 @@ args:
       aws_sdk_auth: true
 [… omitted: the container ports for the two addresses named in the args]
 env:
-  - name: AWS_ACCESS_KEY_ID
-    value: admin
   - name: AWS_SECRET_ACCESS_KEY
     valueFrom:
       secretKeyRef:
         name: metrics-zdstore-s3.credential
         key: s3-secret-key
+  - name: AWS_ACCESS_KEY_ID
+    value: admin
 ```
 
 Query renders as a stateless Deployment plus a ClusterIP Service on its HTTP

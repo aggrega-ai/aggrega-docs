@@ -163,13 +163,13 @@ The agent's container reads the address from it. The `env` of
 
 ```yaml
 env:
-  - name: MCP_HOST_SEARCH
-    value: mcp.example.com
   - name: MCP_URL_SEARCH
     valueFrom:
       secretKeyRef:
         name: search-mcp-address
         key: value
+  - name: MCP_HOST_SEARCH
+    value: mcp.example.com
 ```
 
 `MCP_URL_SEARCH` is the whole address, read from the Secret by name and data key;
@@ -260,10 +260,12 @@ written.
   Secret, and nothing checks that the two agree, because the compiler never reads
   a Secret.
 
-The address is not assembled at run time from the key alone, with a `$(VAR)`
-reference in a plain variable: Kubernetes expands such a reference from the
-variables listed before it in the container, and the helm provider lists a
-container's plain variables before the ones it reads from a Secret.
+Assembling the address at run time from the key alone, with a `$(VAR)`
+reference in a plain variable, works on Kubernetes only: Kubernetes expands
+such a reference from the entries listed before it in the container, and the
+helm provider lists the entries it reads from a Secret before the plain
+variables, while Docker Compose expands no `$(VAR)` reference between a
+service's environment entries.
 
 ## Adapting it
 

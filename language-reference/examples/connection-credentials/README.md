@@ -174,18 +174,11 @@ memory:
 
 An attachment written on a connection becomes one of the store's own
 attachments, named for the connection's alias, a dot and the slot:
-`llm.credential` and `embeddings.credential`. Here are the last six entries of
-the store's container `env`, from `dist/matched/helm/memory-statefulset.yaml`:
+`llm.credential` and `embeddings.credential`. Here are the first two and the
+last four entries of the store's container `env`, from
+`dist/matched/helm/memory-statefulset.yaml`:
 
 ```yaml
-- name: EMBEDDING_ENDPOINT
-  value: http://embeddings-default:8080/v1
-- name: EMBEDDING_MODEL
-  value: BAAI/bge-small-en-v1.5
-- name: LLM_ENDPOINT
-  value: https://api.openai.com/v1
-- name: LLM_MODEL
-  value: gpt-4o-mini
 - name: LLM_API_KEY
   valueFrom:
     secretKeyRef:
@@ -196,13 +189,24 @@ the store's container `env`, from `dist/matched/helm/memory-statefulset.yaml`:
     secretKeyRef:
       name: embedding-server-key
       key: api-key
+[… omitted: the store's own settings, HTTP_PORT to EMBEDDING_DIMENSIONS]
+- name: EMBEDDING_ENDPOINT
+  value: http://embeddings-default:8080/v1
+- name: EMBEDDING_MODEL
+  value: BAAI/bge-small-en-v1.5
+- name: LLM_ENDPOINT
+  value: https://api.openai.com/v1
+- name: LLM_MODEL
+  value: gpt-4o-mini
 ```
 
-The first four came off the two connections: each model publishes its address
-and its model name, and the store's Recipe reads them per socket. The last two
-are the keys, each from the credential on its own connection, under the
-variable the store's Recipe gives that side — `LLM_API_KEY` for extraction,
-`EMBEDDING_API_KEY` for embedding. Both are references, not values.
+The first two are the keys, each from the credential on its own connection,
+under the variable the store's Recipe gives that side — `LLM_API_KEY` for
+extraction, `EMBEDDING_API_KEY` for embedding. Both are references, not
+values, and the helm provider writes the entries it reads from a Secret ahead
+of the plain ones. The last four came off the two connections: each model
+publishes its address and its model name, and the store's Recipe reads them
+per socket.
 
 The store's Component also declares a key slot on itself, `model_api_key`. Its
 Recipe reads that slot only for a socket left unwired, where the store reaches
