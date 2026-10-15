@@ -556,6 +556,30 @@ Emitted message:
 
 **How to fix:** two directions, and which is right depends on what you meant. Where the reference is correct, the attachment filling the slot is the thing to change: attach a Feature whose `schema.provides` declares `name` — and `key`, where the entry names none of its own — so there is a locator to point at. Where the material was never meant to be addressed by name in the output, drop the reference and deliver it through the slot's `inject:` pipe instead, which carries the value rather than a pointer to where it lives.
 
+### A container gives one environment variable two values
+
+<!-- covers: pkg/validator.ErrDuplicateContainerEnvironmentVariable -->
+
+One container of a `workload:` block names the same environment variable twice: once as a key of its `variables`, and once as the key of an `attachments` entry delivered `as: env`. A main container and an init container are each checked, in the Workload a component's Recipe renders and in the Workload a FeatureRecipe renders alike — one attached to a component and one declared at a boundary — and the check reads the Workload as its template rendered it.
+
+**Why it halts rather than picking one.** A container's environment is written from those two collections in a fixed order — the helm and compose providers write every attachment-read entry first and the plain `variables` after them. A name written both ways would therefore reach the process with whichever value that order lets win, which is a consequence of where the two kinds land rather than anything you wrote, so the build refuses the pair instead of rendering it. The check runs once, whichever provider renders the Workload, after the Workload's other checks and before the `artifacts:` entries are evaluated or any provider is handed the Workload, so a refused pair is never rendered. An `attachments` entry delivered `as: file` is mounted as a file rather than set in the environment, so it never forms a pair.
+
+The check compares names only; it never reads a value, so no finding quotes one. Two kinds of environment entry are outside what it compares: an `envFrom` entry sets the keys of the ConfigMap or Secret it names, which are not known when the build runs, and an entry a pipeline step writes into a rendered document is not part of the Workload the check reads.
+
+Each pair is a finding of its own, positioned at the `workload:` key of the Recipe or FeatureRecipe that declares the Workload, and naming the variable and the container — a main container by its key, an init container by its place in the `initContainers` list. Findings arrive with the main containers first, in the order they are authored, then the init containers by position, and within one container in the order its `attachments` entries are authored.
+
+Emitted message, for a pair on a main container of a Recipe's Workload. The category and this condition's short code, `E0345`, reach you in the bracketed head, and the position reads `<path> at .spec.workload`:
+
+> a container declares one environment variable twice (`"<NAME>"`, container `"<container>"`). Rename one of the two, or write them under complementary template conditions so that only one of them renders
+
+A pair on an init container names its place in the list instead — `init container "initContainers[<i>]"` — and a FeatureRecipe's finding names the attachment that binds it after the container, `attachment "<attachment>"`, because a component may carry several attachments whose FeatureRecipes are separate documents.
+
+Where one Workload carries several pairs, the findings are grouped under a line naming the document: `containers of the Workload this Recipe renders name one environment variable twice`, or, for a FeatureRecipe, `containers of the Workload rendered by the FeatureRecipe that attachment "<attachment>" binds name one environment variable twice`.
+
+The build reports the halt under a `CATALOG_ERROR` tag, because a `workload:` block is written by the author of the Recipe or FeatureRecipe rather than by the Aggregate or the Release.
+
+**How to fix:** decide which of the two the container should receive. Where both are wanted, rename one of them, so the process sees two variables. Where they are alternatives — a plain fallback for when no credential is attached, say — guard them under complementary conditions so exactly one renders: write the variable under `{{ if not (hasKey (default dict .features) "<slot>") }}` and the `attachments` entry under `{{ if hasKey (default dict .features) "<slot>" }}`, or under the two branches of one `{{ if }}`/`{{ else }}`. A pair guarded that way never reaches the check, because only one of the two is in the rendered Workload.
+
 ### A Release's `parameters:` block is written in neither of its two shapes
 
 <!-- covers: pkg/types.ErrParametersShape -->
@@ -5948,6 +5972,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0342` | `no file in the directory matches the file patterns the importer serving the source's format declares` | No file in the directory matches the importer's file patterns |
 | `E0343` | ``a file read from the directory and a file named in the importer's `with.sources` have the same name`` | A file read from the directory and a file named in the importer's `with.sources` have the same name |
 | `E0344` | `an entry this publication carries cannot be used on Windows` | A published archive carries an entry Windows cannot use |
+| `E0345` | `a container declares one environment variable twice` | A container gives one environment variable two values |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

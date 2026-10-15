@@ -32,7 +32,7 @@ When a Recipe declares `workload:`, the provider translates the platform-owned W
 | `restartPolicy: OnFailure` | `restart: on-failure` |
 | `restartPolicy: Never` | `restart: no` |
 
-`variables` and `attachments[as: env]` land in the one `environment` map, the attachment entries first and the `variables` after them, each in the order it is authored — the order the [helm provider](helm.md#provider-specific-quirks) writes, so one Workload renders one environment sequence on every target. Compose expands no `$(NAME)` reference between a service's environment entries, so on compose that order carries no runtime meaning.
+`variables` and `attachments[as: env]` land in the one `environment` map, the attachment entries first and the `variables` after them, each in the order it is authored — the order the [helm provider](helm.md#provider-specific-quirks) writes, so one Workload renders one environment sequence on every target. Compose expands no `$(NAME)` reference between a service's environment entries, so on compose that order carries no runtime meaning. Because the map holds each name once, a container that gives one name both as a `variables` entry and as an `attachments` entry delivered `as: env` halts the build rather than keeping one of the two values (see [A container gives one environment variable two values](../errors/fatal-halts.md#a-container-gives-one-environment-variable-two-values)).
 
 ### Container resources
 

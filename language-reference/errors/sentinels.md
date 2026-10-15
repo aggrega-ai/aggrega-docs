@@ -376,6 +376,7 @@ A few names appear in more than one package. Those are re-exports of one shared 
 | --- | --- | --- |
 | `ErrAssertionNameCollision()` | `assertion-name-collision` | `assertion name declared twice across the extends chain` |
 | `ErrCyclicExtension()` | `cyclic-extension` | `cyclic extends chain` |
+| `ErrDuplicateContainerEnvironmentVariable()` | `duplicate-container-environment-variable` | `a container declares one environment variable twice` |
 | `ErrExtendsChainTooDeep()` | `extends-chain-too-deep` | `extends chain exceeds maximum depth` |
 | `ErrFeatureRecipeEvalProviderConstraint()` | `feature-recipe-eval-provider-constraint` | `featurerecipe eval-provider constraint: render input-kind fields are forbidden when provider is eval` |
 | `ErrFeatureRecipeValuesMappingRequiresSource()` | `feature-recipe-values-mapping-requires-source` | `FeatureRecipe: valuesMapping requires source` |
@@ -805,6 +806,7 @@ A short code is deliberately opaque: four digits say nothing about a condition o
 | `E0342` | `import-directory-matched-nothing` | `no file in the directory matches the file patterns the importer serving the source's format declares` |
 | `E0343` | `import-source-name-collision` | ``a file read from the directory and a file named in the importer's `with.sources` have the same name`` |
 | `E0344` | `windows-unusable-entry` | `an entry this publication carries cannot be used on Windows` |
+| `E0345` | `duplicate-container-environment-variable` | `a container declares one environment variable twice` |
 
 - `E0002` is retired: nothing reports it now, and the number is never handed to a different condition. It named a catalog lookup that fails while the graph's static contracts are checked — a fault in the compiler rather than in an authored document — and the condition raised when a build resolves a component type the catalog it reads then holds no entry for reports that state now, and its code is `E0154`.
 - `E0134` is retired: nothing reports it now, and the number is never handed to a different condition. It named a publishable entity whose directory was not named after the version the entity declares; a publication no longer judges a directory's name, and the condition raised when an entity shares its directory with another entity where its kind has a directory of its own is `E0303`.
