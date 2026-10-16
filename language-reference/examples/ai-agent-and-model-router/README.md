@@ -88,7 +88,8 @@ against a pin it can see is stale.
 The build prints, with `<workspace>` standing for this example's folder:
 
 ```text
-Pull complete: release.lock (entities=23, source_artifacts=0, external_inputs=0)
+  verify: plugin pipeline-step/litellm-gateway-config:1.0.0 host functions match the published .wasm
+Pull complete: release.lock (entities=24, source_artifacts=0, external_inputs=0)
 [… omitted: a notice that core/referenced-secret declares origin in both of its pillars, and a total build time, which differs per run]
 Build completed: 12 files written to <workspace>/dist
 ```
@@ -103,7 +104,7 @@ file it came from and what would make it agree:
 aggrega lint --release release.yaml
 ```
 
-which here reports `conventions checked: 17 entities, 0 advisory finding(s)`.
+which here reports `conventions checked: 18 entities, 0 advisory finding(s)`.
 
 ## The rendered tree
 
