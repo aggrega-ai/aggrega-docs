@@ -189,8 +189,8 @@ an entry keyed `helm:1.0.0` could never be looked up. Pin the version on the plu
 
 ### Which importer turns a source into drafts
 
-`aggrega import` hands a source to the importer plugin in your catalog that advertises the source's
-format — `import:langflow` for a Langflow flow. Where exactly one importer advertises it, nothing
+`aggrega import` hands a source to the importer that advertises the source's format — one in your
+catalog or one of the compiler's [core importers](../plugins/core-importers.md), `import:langflow` for a Langflow flow. Where exactly one importer advertises it, nothing
 needs configuring. A `plugins.importer` entry attaches an importer by naming it in its `uri`, by its
 identity and version, and hands it what it carries under `with`:
 
@@ -218,7 +218,7 @@ for:
   `with.settings`. An entry is how a workspace whose catalog federates two publishers' importers for
   one format says which of them it uses.
 - **It does not — it names an importer of another format, a plugin of another kind, or nothing your
-  catalog holds: the entry plays no part in that import.** It chooses nothing, and its `with` is
+  catalog holds or the compiler carries: the entry plays no part in that import.** It chooses nothing, and its `with` is
   handed to no importer. An entry's settings reach only the importer it names, so a workspace
   attaching one importer per format configures each without the settings of one reaching the other.
 

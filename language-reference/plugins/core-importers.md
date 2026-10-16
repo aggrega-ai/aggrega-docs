@@ -11,9 +11,8 @@ publishes them with every compiler release:
 Each is built from the compiler's own sources and stamped with the compiler's version, so the
 importers released with the compiler at `X.Y.Z` report version `X.Y.Z`, and their Plugin entities
 record it. Unlike the plugins listed on [Embedded plugins](embedded-plugins.md), neither is compiled
-into the binary. [`aggrega import`](../cli/aggrega-import.md) reads an importer's module from the
-places a build reads a plugin from — beside its Plugin entity in a catalog folder among them — and
-fetches nothing, so an import needs the importer's module in one of those places.
+into the binary. The binary carries each one's Plugin entity and the digest of the one module it
+accepts for it, so both serve their formats in every workspace, with no entry in its catalog.
 
 Both are built on the Go kit's importer package, `github.com/aggrega-ai/aggrega-pdk-go/pkg/importer`.
 Everything an importer does whatever its format — scoring the workspace catalog's Components against
@@ -21,6 +20,54 @@ each node, deciding whether to reference one or draft a new one, writing the dra
 settings below — is that package's, and only reading the format is particular to each importer. How
 the importer socket works, and what it is handed, is described under
 [The importer socket](plugin-contract.md#the-importer-socket--draft-authoring-output).
+
+## How an import obtains one
+
+[`aggrega import`](../cli/aggrega-import.md), the editor session's `aggrega/import` method and the
+assistant's `import` tool obtain a core importer the same way. Where the machine already holds its
+module — in the workspace's content cache — the import reads it from there and reaches no network.
+Where it does not, the first import that needs it fetches it from the workspace's default registry,
+at the compiler's version, and:
+
+- holds it to the digest the binary carries, so only the module the compiler's release published
+  runs;
+- verifies it as a pull verifies a plugin it fetches — its signature under that registry's trust
+  policy, and the host functions it uses against the ones its Plugin entity records;
+- keeps it in the workspace's content cache, which is the only thing written for it: no lockfile, and
+  no record of trusted plugins, because an import pins nothing.
+
+Every later import reads it from the content cache. A module that does not verify is refused, and
+nothing is kept. In a folder no workspace marks there is no content cache to keep it in, so the fetch
+is refused there, naming the folder and how to name a workspace or make the folder one. The module
+is never read from beside a Plugin entity of the same name at another version in a catalog folder:
+that module belongs to the other entity.
+
+Where the module cannot be fetched, the import stops under
+[A plugin's `.wasm` is not on this machine](../errors/fatal-halts.md#a-plugins-wasm-is-not-on-this-machine),
+naming the importer and its version, and says what puts its module on the machine:
+
+- **Run the import once with the network available**, where the workspace is offline or its registry
+  could not be reached. That run fetches it and every later run is offline.
+- **Place its module beside a Plugin entity of that importer at that version in a catalog folder**,
+  under the name the message gives — `importer--langflow.wasm` for the Langflow importer. A catalog
+  entity at the same name and version as a core importer runs in its place, with its module read from
+  beside it. Where the registry does not hold the module, or the workspace names no default registry,
+  this is the one remedy the message gives.
+
+## Which one runs beside your own importers
+
+The core importers are candidates beside the importers your workspace's catalog holds, under the
+rules every importer is selected by, which
+[Which importer turns a source into drafts](../cli/configuration.md#which-importer-turns-a-source-into-drafts)
+sets out:
+
+- Within one name, the highest version runs, or the version a `plugins.importer` entry names.
+- Where your catalog holds an importer of another name for `langflow` or `flowise`, two importers
+  advertise the format, and an import that attaches neither is refused naming both, under
+  [A parse or import format is advertised by more than one plugin](../errors/fatal-halts.md#a-parse-or-import-format-is-advertised-by-more-than-one-plugin).
+  A `plugins.importer` entry naming the one you want settles it.
+- An importer your catalog holds at the same name and version as a core importer is the one that
+  runs, read from beside its entity.
 
 ## How a source is recognised
 
@@ -31,9 +78,12 @@ declares:
 - **Flowise** — a source that parses as JSON, carries arrays at `nodes` and `edges`, and carries
   nothing at `data.nodes`.
 
-No source matches both. Each reads its source through the parser that serves `parse:json`, and
-neither declares file patterns, so each reads one file and an import of a directory through either
-is refused.
+No source matches both. Each reads its source through the parser that serves `parse:json`, which an
+import selects from your workspace's catalog, so an import through either needs a parser for `json`
+there. Neither declares file patterns, so each reads one file and an import of a directory through
+either is refused. For the same reason their signatures apply to every file imported on its own: an
+import naming no format reads such a file as JSON to try them, whatever importer it is meant for, and
+so needs that parser in your catalog too.
 
 ## What the Langflow importer reads
 
