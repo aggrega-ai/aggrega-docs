@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: ai-gateway-own-webhook-certificate-own-certificate
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: ai-gateway-own-webhook-certificate
+  manifest: ai-gateway-own-webhook-certificate-manifest
+
+  # The own-certificate mode: the webhook serves the certificate in a Secret
+  # whoever deploys creates beforehand, in the controller's namespace, holding
+  # tls.crt, tls.key and ca.crt. No Certificate and no Issuer are rendered, and
+  # cert-manager is not needed.
+  components:
+    ai-controller:
+      annotations:
+        aggrega.ai/namespace: envoy-ai-gateway-system
+      infra:
+        webhook_tls_secret: ai-gateway-webhook-tls

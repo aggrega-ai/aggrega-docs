@@ -1,0 +1,73 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Recipe
+metadata:
+  name: envoy-ai-gateway-operator-stale-omits
+  version: 1.0.0
+  license: Apache-2.0
+  description: >
+    A teaching variant of the standard-library Recipe
+    helm/envoy-ai-gateway-operator whose omits entry names a Secret the chart
+    does not render. It sources the same chart at the same release and chooses
+    the webhook's certificate mode by the same mapping; only the name in its
+    entry differs.
+
+    It is here to show the halt on an entry that matches nothing: the shape an
+    entry takes when a chart upgrade renames the document it was written for.
+    It carries only what that build needs, so the custom-resource definitions
+    and the MCP session-encryption seed setting of the standard-library Recipe
+    are left out.
+  maintainers:
+    - name: Massimiliano Ferrero
+      email: m.ferrero@cognitio.it
+spec:
+  capability: helm
+  implements: core/gateway/envoy-ai-gateway-operator:1.0.0
+
+  # The same chart, at the same release, as the standard-library Recipe.
+  source:
+    kind: helm-oci-chart
+    url: oci://docker.io/envoyproxy/ai-gateway-helm
+    version: "v1.1.0"
+
+  # The Component's provides contract, published as the standard-library
+  # Recipe publishes it.
+  provides:
+    host: "{{ .context.rendered_name }}"
+    port: "1063"
+    metrics_endpoint: "http://{{ .context.rendered_name }}:8080/metrics"
+
+  # The standard-library Recipe's mapping for the controller's names, its image
+  # and the webhook's certificate mode, copied as it stands there.
+  valuesMapping: |
+    {{- $repository := .infra.image }}
+    {{- $tag := "" }}
+    {{- $name := last (splitList "/" .infra.image) }}
+    {{- if contains ":" $name }}
+      {{- $tag = last (splitList ":" $name) }}
+      {{- $repository = trimSuffix (printf ":%s" $tag) .infra.image }}
+    {{- end }}
+    controller:
+      fullnameOverride: "{{ .context.rendered_name }}"
+      image:
+        repository: "{{ $repository }}"
+        tag: "{{ $tag }}"
+      mutatingWebhook:
+        {{- with optional .infra "webhook_tls_secret" "" }}
+        tlsCertSecretName: {{ . | toJson }}
+        certManager:
+          enable: false
+        {{- else }}
+        certManager:
+          enable: true
+        {{- end }}
+
+  # The chart names its generated Secret after infra.webhook_tls_secret, and
+  # this entry names it after the controller's rendered name instead, so in the
+  # own-certificate mode it applies and leaves nothing out.
+  omits:
+    - kind: Secret
+      name: "{{ .context.rendered_name }}-webhook-tls"
+      when: '{{ ne (optional .infra "webhook_tls_secret" "") "" }}'

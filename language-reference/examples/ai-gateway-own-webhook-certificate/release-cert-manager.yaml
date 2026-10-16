@@ -1,0 +1,20 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: ai-gateway-own-webhook-certificate-cert-manager
+  environment: development
+  version: "1.0.0"
+spec:
+  aggregate: ai-gateway-own-webhook-certificate
+  manifest: ai-gateway-own-webhook-certificate-manifest
+
+  # The default certificate mode: infra.webhook_tls_secret is left unset, so the
+  # chart renders a cert-manager Certificate and the self-signed Issuer that
+  # signs it, and cert-manager must already run in the cluster.
+  components:
+    ai-controller:
+      annotations:
+        aggrega.ai/namespace: envoy-ai-gateway-system

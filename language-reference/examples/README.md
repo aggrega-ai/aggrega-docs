@@ -302,6 +302,17 @@ cross-boundary networking across providers.
   script beside it builds all nine combinations and checks every outcome. Needs
   the standard-library catalog checked out beside it and a hub registry
   credential.
+- **[ai-gateway-own-webhook-certificate](ai-gateway-own-webhook-certificate/)** —
+  a Recipe's `omits:` field leaving out a document a fetched chart renders. The
+  Envoy AI Gateway controller is built in both of its webhook-certificate modes
+  through the standard-library Recipe; with a certificate the operator supplies,
+  the project's chart also renders a Secret holding a key and a certificate
+  generated afresh on every render, and the Recipe's entry leaves it out, so the
+  build stays byte-identical from one run to the next. Two guardrail Releases
+  show the halts around the field: a build checking determinism halting on the
+  same chart without the entry, and an entry that matches nothing halting and
+  naming itself. A script beside it builds all four Releases and checks every
+  outcome. Needs the standard-library catalog checked out beside it.
 
 *Pipeline steps run today — see [When to reach for a pipeline step](../plugins/when-to-use-a-pipeline-step.md).
 Planned — the `eval` provider joins this tier when it ships.*

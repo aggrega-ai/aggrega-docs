@@ -620,3 +620,5 @@ spec:
 | `helm-chart`, `terraform` | Refused: the provider hands its source on to be rendered when it is deployed, so no document exists at build time to leave out. For a local chart or module, a line in the `.aggregaignore` beside the Recipe leaves a file of it out instead. |
 
 The same key is authored on a FeatureRecipe; see [entities/featurerecipe.md](featurerecipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source).
+
+For a worked example — a fetched chart's generated Secret left out, the determinism halt the same chart meets without the entry, and the halt on an entry that matches nothing, each from a real build — see [ai-gateway-own-webhook-certificate](../examples/ai-gateway-own-webhook-certificate/).

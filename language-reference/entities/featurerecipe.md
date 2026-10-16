@@ -426,3 +426,5 @@ The key is authored identically on a Recipe, and [Recipe → The `omits:` field]
 - **Only what this FeatureRecipe's own `source:` renders is filtered.** Its `workload:` and `artifacts:` are not, and neither is the host component's output: an attachment's entries reach its own chart, its own compose file or its own CloudFormation template, and nothing else — a compose service the host declares under the same key in the `docker-compose.yaml` both assemble into is untouched, and so is a resource the host declares under the same logical ID in the stack both assemble into. To change a document the host renders, the host's Recipe declares the entry, or a `pipeline:` step patches it.
 
 A halt on an entry names the node, the provider, this FeatureRecipe and the entry's position in its `omits:` list; for a boundary-scope FeatureRecipe, the line above the message names the attachment and its boundary.
+
+For a worked example of the key, authored on a Recipe — a fetched chart's generated Secret left out, and the halts without the entry and on an entry that matches nothing — see [ai-gateway-own-webhook-certificate](../examples/ai-gateway-own-webhook-certificate/).

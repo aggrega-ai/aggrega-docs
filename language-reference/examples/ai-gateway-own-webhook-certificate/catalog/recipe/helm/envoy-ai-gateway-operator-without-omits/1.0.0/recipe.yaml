@@ -1,0 +1,69 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Recipe
+metadata:
+  name: envoy-ai-gateway-operator-without-omits
+  version: 1.0.0
+  license: Apache-2.0
+  description: >
+    A teaching variant of the standard-library Recipe
+    helm/envoy-ai-gateway-operator with its omits entry taken out. It sources
+    the same chart at the same release and chooses the webhook's certificate
+    mode by the same mapping, so in the own-certificate mode the Secret the
+    chart generates reaches the output, holding a key and a certificate made
+    afresh on every render.
+
+    It is here to show why the standard-library Recipe declares the entry: a
+    build that checks determinism halts on this Recipe in that mode. It carries
+    only what that build needs, so the custom-resource definitions and the MCP
+    session-encryption seed setting of the standard-library Recipe are left
+    out.
+  maintainers:
+    - name: Massimiliano Ferrero
+      email: m.ferrero@cognitio.it
+spec:
+  capability: helm
+  implements: core/gateway/envoy-ai-gateway-operator:1.0.0
+
+  # The same chart, at the same release, as the standard-library Recipe.
+  source:
+    kind: helm-oci-chart
+    url: oci://docker.io/envoyproxy/ai-gateway-helm
+    version: "v1.1.0"
+
+  # The Component's provides contract, published as the standard-library
+  # Recipe publishes it.
+  provides:
+    host: "{{ .context.rendered_name }}"
+    port: "1063"
+    metrics_endpoint: "http://{{ .context.rendered_name }}:8080/metrics"
+
+  # The standard-library Recipe's mapping for the controller's names, its image
+  # and the webhook's certificate mode, copied as it stands there: with
+  # infra.webhook_tls_secret set, the chart mounts the Secret that key names
+  # and renders no Certificate and no Issuer — and renders a Secret of its own
+  # under that name, which nothing here leaves out.
+  valuesMapping: |
+    {{- $repository := .infra.image }}
+    {{- $tag := "" }}
+    {{- $name := last (splitList "/" .infra.image) }}
+    {{- if contains ":" $name }}
+      {{- $tag = last (splitList ":" $name) }}
+      {{- $repository = trimSuffix (printf ":%s" $tag) .infra.image }}
+    {{- end }}
+    controller:
+      fullnameOverride: "{{ .context.rendered_name }}"
+      image:
+        repository: "{{ $repository }}"
+        tag: "{{ $tag }}"
+      mutatingWebhook:
+        {{- with optional .infra "webhook_tls_secret" "" }}
+        tlsCertSecretName: {{ . | toJson }}
+        certManager:
+          enable: false
+        {{- else }}
+        certManager:
+          enable: true
+        {{- end }}

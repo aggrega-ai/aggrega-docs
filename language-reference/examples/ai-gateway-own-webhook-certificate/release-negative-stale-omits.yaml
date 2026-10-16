@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright 2026 Cognitio S.r.l.
+#
+# Expected to FAIL. It is the own-certificate Release deployed through the
+# Manifest that binds the Recipe whose omits entry names a Secret the chart
+# does not render, so the entry applies, leaves nothing out, and the build halts
+# naming it.
+
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: ai-gateway-own-webhook-certificate-negative-stale-omits
+  environment: production
+  version: "1.0.0"
+spec:
+  aggregate: ai-gateway-own-webhook-certificate
+  manifest: ai-gateway-own-webhook-certificate-stale-omits-manifest
+  components:
+    ai-controller:
+      annotations:
+        aggrega.ai/namespace: envoy-ai-gateway-system
+      infra:
+        webhook_tls_secret: ai-gateway-webhook-tls
