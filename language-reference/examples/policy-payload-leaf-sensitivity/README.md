@@ -13,8 +13,8 @@ worth running is that **both attachments handle secret material** — so the rul
 cannot be written against the question "is this attachment sensitive?", and the
 control policy below shows what happens when you try.
 
-Everything comes from the standard-library catalog except the governance Plugin
-entity this workspace declares for itself, and two policy files.
+Everything except two policy files comes from the standard-library catalog, the
+governance Plugin entity included.
 
 ## The slot, and the two Features that can fill it
 
@@ -117,7 +117,7 @@ deny contains msg if {
 	some node_id, attachments in input.graph.spec.feature_values_mapping
 	some attachment_name, attachment in attachments
 	some leaf in attachment.sensitive_payload_leaves
-	msg := sprintf("%v: the %v credential writes declared-sensitive material into the deployment at %v", [node_id, attachment_name, leaf])
+	msg := sprintf("%v: the %v credential carries declared-sensitive material in its payload at %v", [node_id, attachment_name, leaf])
 }
 ```
 
@@ -144,7 +144,7 @@ the role that receives the build graph:
 ```yaml
 plugins:
   governance:
-    - uri: governance/rego:1.0.0
+    - uri: governance/rego:0.8.5
       role: ir-verdict
       with:
         sources:
@@ -177,7 +177,7 @@ diagnostic a policy refusal carries — see
 
 ```text
 [POLICY_ERROR E0005]
-  policy plugin "1.0.0" rejected the build: db: the root_password credential writes declared-sensitive material into the deployment at values.origin
+  policy plugin "0.8.5" rejected the build: db: the root_password credential carries declared-sensitive material in its payload at values.origin
   caused by: policy violation
 ```
 
@@ -270,7 +270,7 @@ this page assumes it. **Both are now refused**, with the same sentence:
 
 ```text
 [POLICY_ERROR E0005]
-  policy plugin "1.0.0" rejected the build: db: the root_password credential handles sensitive material
+  policy plugin "0.8.5" rejected the build: db: the root_password credential handles sensitive material
   caused by: policy violation
 ```
 
@@ -314,21 +314,34 @@ catch mechanically.
 
 ## Where the plugin comes from
 
-The Component, the two Features, the Recipe and the two FeatureRecipes this
-workspace consumes come from the published standard-library catalog — the
-checkout listed under `catalog_dirs`, or the hub registry for a standalone clone.
+Every entity this workspace consumes comes from the published standard-library
+catalog: the Component, the two Features, the Recipe, the two FeatureRecipes and
+the governance Plugin entity — read from the checkout listed under
+`catalog_dirs`, or from the hub registry for a standalone clone.
 
-The governance plugin is addressed differently, and the difference is worth
-stating plainly. `uri: governance/rego:1.0.0` is an identity: a
+`uri: governance/rego:0.8.5` names that Plugin entity. It is an identity: a
 `<pluginType>/<name>` coordinate plus a version, and both halves are part of the
-form. **The version here is this workspace's own declaration rather than a
-coordinate published anywhere** — the workspace declares the Plugin entity it
-attaches, at `catalog/plugin/governance/rego/1.0.0/plugin.yaml`, and the compiler
-serves the artifact that identity names. A workspace declaring the entity it
-attaches is an ordinary authoring pattern; what it means for this page is that
-the URI *form* is what the example teaches, while the version inside it belongs
-to this workspace. An attachment pointed at a published plugin names that
-plugin's published version in the same position.
+form. **The version is the one the plugin is published at** — the catalog
+carries the entity under `plugin/governance/rego/0.8.5/`, and the hub publishes
+it as `oci://hub.aggrega.ai/plugin/governance/rego:0.8.5`. The version takes part
+in resolution: an attachment naming a version that no catalog directory and no
+registry carries stops the build.
+
+Built beside the catalog checkout, the example resolves every entity from that
+checkout and needs no credential. A standalone clone reads them all from
+`hub.aggrega.ai`, which refuses anonymous reads: store a credential once with
+`aggrega login hub.aggrega.ai`, or the build stops at the first entity it reads
+with `basic credential not found`.
+
+A standalone clone also needs a compiler of the release that published the
+plugin version the attachment names — for `governance/rego:0.8.5`, the `0.8.5`
+release of `aggrega`. The Rego engine is compiled into the CLI binary, and its
+version is the compiler release that ships it. A compiler of any other release,
+or one built from source between releases, carries a different build of the
+engine: a standalone build with it halts with `E0135` (`oci: content digest
+mismatch`), because the module that compiler carries does not match the digest
+the hub publishes for `governance/rego:0.8.5`. That halt is the plugin's digest
+check working, not a fault in the example.
 
 ## Files
 
@@ -348,8 +361,6 @@ plugin's published version in the same position.
 - `policy.rego` — the house rule, keyed on the per-leaf marking.
 - `policy-attachment-wide.rego` — the control, keyed on the whole-attachment
   answer. Not attached by default.
-- `catalog/plugin/governance/rego/1.0.0/plugin.yaml` — the Plugin entity this
-  workspace declares for the policy engine it attaches.
 - `.aggrega-config.yaml` — the catalog search stack and the governance
   attachment.
 

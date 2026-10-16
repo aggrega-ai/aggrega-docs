@@ -16,5 +16,5 @@ deny contains msg if {
 	some node_id, attachments in input.graph.spec.feature_values_mapping
 	some attachment_name, attachment in attachments
 	some leaf in attachment.sensitive_payload_leaves
-	msg := sprintf("%v: the %v credential writes declared-sensitive material into the deployment at %v", [node_id, attachment_name, leaf])
+	msg := sprintf("%v: the %v credential carries declared-sensitive material in its payload at %v", [node_id, attachment_name, leaf])
 }
