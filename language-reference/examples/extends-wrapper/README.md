@@ -167,9 +167,9 @@ internal tier is declared as the bare `core/gateway/nginx` base instead of the
 wrapper — and it is **expected to fail**:
 
 ```bash
-./build-release.sh unreviewed -- --auto-pull
+./build-release.sh negative-unreviewed -- --auto-pull
 # [DEVELOPER_ERROR E0007] aggregate-unreviewed.yaml at .spec.components.edge.uses.reviewed_upstream.internal
-#   selector violation ("gateway.example.com/audit-tier=reviewed", "internal")
+#   selector violation ("gateway.example.com/audit-tier=reviewed", declared on socket "reviewed_upstream", not satisfied by the labels of "internal"). Add the labels the selector requires to the target's component type, or wire the socket to a component that already carries them.
 # exit status: 1
 ```
 

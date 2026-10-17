@@ -23,7 +23,7 @@ Output blocks on this page are copied from a real run, per
   into a single stack. Attaches `core/shared-config` across the boundary.
 - `release-two-stacks.yaml` — the same intent split across two boundaries, so
   the application's reference to the database crosses a stack edge.
-- `release-name-collision.yaml` with `aggregate-name-collision.yaml` —
+- `release-negative-name-collision.yaml` with `aggregate-name-collision.yaml` —
   **expected to fail.** Attaches the alarm twice to one component.
 - `manifest.yaml` — binds each component type and each attached Feature to the
   Recipe that implements it on this target.
@@ -328,7 +328,7 @@ For how the export name is built, and when the consumer reads through
 ## The build that halts
 
 ```bash
-./build-release.sh name-collision
+./build-release.sh negative-name-collision
 ```
 
 `aggregate-name-collision.yaml` attaches the alarm **twice** to one component,
@@ -340,15 +340,15 @@ host component and the entry, and the host is the same component for both.
 ```
 # example : cloudformation-rds-stack
 # rule    : 2 (.aggrega-config.yaml catalog_dirs drives resolution)
-# command : aggrega build --release release-name-collision.yaml
+# command : aggrega build --release release-negative-name-collision.yaml
 
 [TRANSLATION_ERROR E0038]
   dispatch groups whose contributors derive one name more than once in one key space
   caused by (2):
-    [TRANSLATION_ERROR]
+    [TRANSLATION_ERROR] release-negative-name-collision.yaml
       derived name collision: one name is derived more than once in one key space ("paymentsXzhdbXXalarmXzhid", key space "output-logical-ids", derived by component "payments-db", carrying attachment "storage-headroom", provider "cloudformation", dispatch path "name-collision/cloudformation")
   ---
-    [TRANSLATION_ERROR]
+    [TRANSLATION_ERROR] release-negative-name-collision.yaml
       derived name collision: one name is derived more than once in one key space ("paymentsXzhdbXXalarmXzhid", key space "output-logical-ids", derived by component "payments-db", carrying attachment "storage-headroom-strict", provider "cloudformation", dispatch path "name-collision/cloudformation")
 
 build-release: aggrega exited 1 (surfaced raw; a non-zero exit is expected for guardrail-demonstration releases)

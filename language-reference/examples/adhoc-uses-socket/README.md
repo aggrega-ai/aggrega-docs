@@ -155,7 +155,7 @@ ad-hoc edge asks for a third key:
 pillar, and nothing else. The build is **expected to fail**:
 
 ```bash
-./build-release.sh undeclared-key -- --auto-pull
+./build-release.sh negative-undeclared-key -- --auto-pull
 # [DEVELOPER_ERROR E0156] .spec.components.web.uses.assistant.model
 #   invalid inject key: the from-key must name a declared provides key of the target
 #   component type (Aggregate adhoc-uses-socket-undeclared-key,

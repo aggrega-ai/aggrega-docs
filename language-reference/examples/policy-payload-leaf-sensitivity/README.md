@@ -160,8 +160,8 @@ policy quietly substituting one.
 ## Build both
 
 ```bash
-./build-release.sh authored  -- --auto-pull    # expected to fail
-./build-release.sh delegated -- --auto-pull
+./build-release.sh negative-authored -- --auto-pull    # expected to fail
+./build-release.sh delegated         -- --auto-pull
 ```
 
 `--auto-pull` fills the lockfile during the build; `aggrega pull --release
@@ -352,9 +352,9 @@ check working, not a fault in the example.
   developer binds nothing.
 - `manifest.yaml` — binds the component type and both Feature types to their
   Terraform Recipes. Shared by both releases.
-- `release-authored.yaml`, `release-delegated.yaml` — one per arm, each with its
-  own boundary `directory:`. There is no flag for the output location, so two
-  releases sharing one directory would have the second overwrite the first.
+- `release-negative-authored.yaml`, `release-delegated.yaml` — one per arm, each
+  with its own boundary `directory:`. There is no flag for the output location,
+  so two releases sharing one directory would have the second overwrite the first.
   `release-delegated.yaml` also binds the slot, on its entry for `db`, with
   `core/generated-secret`, authoring nothing. Which Feature fills the slot, and
   in which document, is the only difference between the two arms.
@@ -367,6 +367,6 @@ check working, not a fault in the example.
 ## Build
 
 ```bash
-./build-release.sh authored  -- --auto-pull    # refused; exits 1
-./build-release.sh delegated -- --auto-pull    # builds
+./build-release.sh negative-authored -- --auto-pull    # refused; exits 1
+./build-release.sh delegated         -- --auto-pull    # builds
 ```
