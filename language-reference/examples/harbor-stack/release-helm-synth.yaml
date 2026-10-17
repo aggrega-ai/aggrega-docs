@@ -25,8 +25,24 @@ spec:
         # with a CPU limit and no memory limit is materially different from the
         # one the component's declared defaults describe, and nothing in the
         # output would say so.
+        #
+        # The token-signing key and the services' shared secret have no default,
+        # and the build halts until both slots are filled. The module attaches
+        # neither, so the Release attaches them here, each naming a Secret that
+        # already exists in the namespace — the Manifest binds these two
+        # attachments to k8s-existing-secret. Create both Secrets before applying
+        # the rendered manifests; the README shows how.
         harbor.registry:
           infra:
             compute:
               cpu: 500m
               memory: 1Gi
+          features:
+            token_key:
+              type: core/referenced-secret
+              infra:
+                origin: harbor-token-key
+            core_secret:
+              type: core/referenced-secret
+              infra:
+                origin: harbor-core-secret

@@ -16,8 +16,11 @@ metadata:
     k8s-secret-from-parameter, it reads each of the module's credential
     parameters as the credential itself and emits a Secret carrying it, which
     suits an evaluation stack running on the module's development defaults.
-    Recipe selection at build time is by component type against the loaded
-    catalog.
+    The Release attaches the same Feature for the token-signing key and the
+    services' shared secret, which have no default; those two attachments are
+    bound by name to k8s-existing-secret, so each names a Secret that already
+    exists in the namespace and no key is rendered. Recipe selection at build
+    time is by component type against the loaded catalog.
 spec:
   mappings:
     components:
@@ -26,3 +29,6 @@ spec:
     features:
       type:
         core/referenced-secret:1.0.0: helm/k8s-secret-from-parameter:1.0.0
+      name:
+        token_key: helm/k8s-existing-secret:1.0.0
+        core_secret: helm/k8s-existing-secret:1.0.0
