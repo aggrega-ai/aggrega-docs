@@ -116,7 +116,7 @@ rendered output are generated, not shipped.
 ```text
 [… omitted: the helper's header, the pull's lines, and a lint notice about core/referenced-secret]
 [POLICY_ERROR E0005]
-  policy plugin "1.0.0" rejected the build: assistant (restricted) reaches gpt (public) with no declassifying Feature attached between them
+  policy plugin "rego" rejected the build: assistant (restricted) reaches gpt (public) with no declassifying Feature attached between them
   caused by: policy violation
 [… omitted: the helper's line reporting the exit status]
 ```
@@ -126,7 +126,7 @@ The CEL engine:
 ```text
 [… omitted: the helper's header, the pull's lines, and a lint notice about core/referenced-secret]
 [POLICY_ERROR E0005]
-  policy plugin "1.0.0" rejected the build: assistant (restricted) reaches gpt (public) with no declassifying Feature attached between them
+  policy plugin "cel" rejected the build: assistant (restricted) reaches gpt (public) with no declassifying Feature attached between them
   caused by: policy violation
 [… omitted: the helper's line reporting the exit status]
 ```
@@ -136,7 +136,7 @@ OPA:
 ```text
 [… omitted: the helper's header, a warning that the OPA guest runs unverified, the pull's lines, and a lint notice about core/referenced-secret]
 [POLICY_ERROR E0005]
-  policy plugin "1.0.0" rejected the build: assistant (restricted) reaches gpt (public) with no declassifying Feature attached between them
+  policy plugin "opa" rejected the build: assistant (restricted) reaches gpt (public) with no declassifying Feature attached between them
   caused by: policy violation
 [… omitted: the helper's line reporting the exit status]
 ```
@@ -318,12 +318,13 @@ component carries that `rank` does not list halts the build rather than reading
 as no class, so a misspelling is reported instead of passing. With the claims
 assistant's label written `Restricted`, every engine refuses `release-masked.yaml`;
 `aggrega build --release release-masked.yaml --config governance-rego.yaml
---auto-pull` prints, and so does each other engine's file:
+--auto-pull` prints the refusal below, and each other engine's file prints the
+same one headed with that engine's name:
 
 ```text
 [… omitted: under OPA a warning that its guest runs unverified, the pull's lines, and a lint notice about core/referenced-secret]
 [POLICY_ERROR E0005]
-  policy plugin "1.0.0" rejected the build: assistant carries the data class "Restricted", which the policy's rank setting does not list; correct the class or rank it
+  policy plugin "rego" rejected the build: assistant carries the data class "Restricted", which the policy's rank setting does not list; correct the class or rank it
   caused by: policy violation
 ```
 
@@ -367,10 +368,12 @@ They differ where the engines do:
   changes no build until the guest is rebuilt, below.
 
 The three Plugin entities in `catalog/plugin/governance/` are this workspace's
-own declarations at version `1.0.0`, which is why each refusal is headed `policy
-plugin "1.0.0"`. Each build attaches one engine, so the refusal it prints is that
-engine's. The OPA guest is read from beside its entity on every build, and since
-nothing records its digest, every build with it warns that it runs unverified.
+own declarations, each at version `1.0.0`. A refusal is headed with the last
+segment of the attachment's reference, its version left off — `policy plugin
+"rego"`, `"cel"` or `"opa"` — and each build attaches one engine, so the refusal
+it prints names that engine. The OPA guest is read from beside its entity on
+every build, and since nothing records its digest, every build with it warns
+that it runs unverified.
 
 ## Checking every build
 

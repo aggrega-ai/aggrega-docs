@@ -177,7 +177,7 @@ diagnostic a policy refusal carries — see
 
 ```text
 [POLICY_ERROR E0005]
-  policy plugin "0.8.5" rejected the build: db: the root_password credential carries declared-sensitive material in its payload at values.origin
+  policy plugin "rego" rejected the build: db: the root_password credential carries declared-sensitive material in its payload at values.origin
   caused by: policy violation
 ```
 
@@ -270,7 +270,7 @@ this page assumes it. **Both are now refused**, with the same sentence:
 
 ```text
 [POLICY_ERROR E0005]
-  policy plugin "0.8.5" rejected the build: db: the root_password credential handles sensitive material
+  policy plugin "rego" rejected the build: db: the root_password credential handles sensitive material
   caused by: policy violation
 ```
 
