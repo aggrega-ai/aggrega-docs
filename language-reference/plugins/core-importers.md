@@ -129,6 +129,45 @@ By default an import writes:
 A node referenced to a catalog Component, rather than drafted, has no file of its own: the draft
 Aggregate names the Component.
 
+## Carrying the exported flow itself
+
+A drafted Aggregate composes the flow's nodes; it does not carry the flow. A Component that runs a
+flow as authored takes the export as a value — `flow_definition` on the standard library's
+`core/ai-agent/langflow` and `core/ai-agent/flowise` — and an Aggregate's text is read as a template,
+so the double braces the export holds would be read as template actions: a Flowise chatflow writes
+`{{<node id>.data.instance}}` for every connection between two nodes, a Flowise prompt names a
+variable as `{{question}}`, and a Langflow export carries the source code of its components, where the braces can appear as well.
+Write each `{{` in the export as `{{"{{"}}`, inside a block scalar, and interpolation restores the
+export's text before the Component's Recipes read it;
+[Text that carries its own double braces](../templates/parameters-context.md#text-that-carries-its-own-double-braces)
+describes why.
+
+```yaml
+# Aggregate fragment — a Flowise chatflow carried as exported
+spec:
+  components:
+    chat:
+      type: core/ai-agent/flowise
+      values:
+        chatflow_id: 3f2b8c1e-7a4d-4e9b-8c2f-1a6d5e9b0c47
+        flow_definition: |
+          {
+            "nodes": [
+              {
+                "id": "llmChain_0",
+                "data": {
+                  "name": "llmChain",
+                  "inputs": {
+                    "model": "{{"{{"}}chatOpenAI_0.data.instance}}",
+                    "prompt": "{{"{{"}}promptTemplate_0.data.instance}}"
+                  }
+                }
+              }
+            ],
+            "edges": []
+          }
+```
+
 ## Settings
 
 An importer is handed the settings of the `plugins.importer` entry that attaches it, under

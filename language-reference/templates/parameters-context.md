@@ -16,10 +16,44 @@ The compiler resolves parameters in four ordered phases:
 1. **Contract read** — the Aggregate's `spec.parameters:` block is checked on its own terms before any Release value is looked at, so a slot that could constrain nothing halts the build even when no Release supplies it. A negative `minLength` or `maxLength` on a parameter's own declaration is refused when the Aggregate loads, naming the parameter and the key. Every `pattern` — on the slot itself and inside any nested contract under `items`, `properties` or `valuesType` — is compiled as a regular expression, and one that does not compile is refused naming the parameter, the pattern and the reason. A length bound inside a nested contract is not held to that floor; see [`entities/aggregate.md`](../entities/aggregate.md#parameter-slot-vocabulary).
 2. **Default fill** — slots with `default:` defined and no Release-supplied value receive their default. The `.parameters` map is in scope at this point.
 3. **Parameter contract validation** — each value in the merged map, whether the Release supplied it or a `default:` filled it, validates against the Aggregate's `spec.parameters.<slot>` declared `type` / `enum` / `min` / `max` / `pattern` / nested-structure constraints; a `pattern` is matched against the expression compiled when the contract was read. The `.parameters` map exists in the validator's in-memory context as the structured payload being checked.
-4. **Interpolation** — the compiler evaluates the Aggregate's whole text as a template, before reading it as YAML, and replaces every `{{ .parameters.<slot> }}` reference with the resolved value; any other `{{` in the text is read as template syntax too. The interpolation is the substitution path for value-template surfaces — after this pass, value-template TemplateContexts no longer carry `.parameters`; they consume the resolved values written into the surrounding `values:` strings.
+4. **Interpolation** — the compiler evaluates the Aggregate's whole text as a template, before reading it as YAML, and replaces every `{{ .parameters.<slot> }}` reference with the resolved value; any other `{{` in the text is read as template syntax too, so a value carrying double braces of its own writes each `{{` as `{{"{{"}}` (see [Text that carries its own double braces](#text-that-carries-its-own-double-braces)). The interpolation is the substitution path for value-template surfaces — after this pass, value-template TemplateContexts no longer carry `.parameters`; they consume the resolved values written into the surrounding `values:` strings.
 The merged map stays readable after interpolation, through the whole of rendering, specifically to support path-template evaluation. Its readable lifetime is bounded by the build's: the compiler hands the resolved view to the compilation that consumes it rather than returning it to a caller, so nothing outside that build can reach the map. The path-template surface (Release `directory:` / `subDirectory:`) reads `.parameters.<slot>` at orchestrator time against the closed allowlist documented at [`path-template-variables.md`](../path-template-variables.md).
 
 Templates inside Aggregate YAML strings (component `values:`, feature `values:`, sub-aggregate `parameters:` pass-through expressions) read the `.parameters` map via standard Go template syntax during the interpolation pass. Templates inside Recipe and FeatureRecipe files do NOT receive `.parameters` in their TemplateContext (see "Boundary with downstream template contexts" below for the per-surface contract).
+
+## Text that carries its own double braces
+
+Because the whole text is a template, double braces that belong to a value rather than to a template are read as template actions too. A flow platform's definition carried in a component's `values:` is the common case: n8n wraps each expression in a node's parameters in double braces, as in `={{ $json.body.message }}`, a Flowise prompt names a variable as `{{question}}` and a Flowise chatflow writes `{{chatOpenAI_0.data.instance}}` for each connection between two nodes, and a Langflow export carries the source code of its components, where the braces can appear as well. Written into an Aggregate as they stand, they halt the build at the Aggregate with `E0158`, described under "A `{{ .parameters.* }}` reference cannot be interpolated" on [Fatal halts](../errors/fatal-halts.md); its reason names the line and the first token the template engine could not read — `undefined variable "$json"` for an n8n expression. A YAML comment is template text as well, so a `{{` written in a comment halts the same way.
+
+Write each `{{` in such a value as `{{"{{"}}`. That is a template action whose result is the string `{{`, so interpolation puts the two braces back. A closing `}}` needs nothing, because outside an action it is plain text. Interpolation runs once, over the Aggregate's text, and a Recipe template writes what it reads from `.values` out as data, so the restored braces reach the rendered output as they were exported.
+
+```yaml
+# Aggregate fragment — an n8n workflow definition carried as exported
+spec:
+  components:
+    automation:
+      type: core/ai-agent/n8n
+      values:
+        workflow_id: support-reply
+        flow_definition: |
+          {
+            "name": "Support reply",
+            "nodes": [
+              {
+                "name": "Set reply",
+                "type": "n8n-nodes-base.set",
+                "parameters": {
+                  "value": "={{"{{"}} $json.body.message }} for {{"{{"}} $env.SUPPORT_TEAM }}"
+                }
+              }
+            ],
+            "connections": {}
+          }
+```
+
+The platform receives `"value": "={{ $json.body.message }} for {{ $env.SUPPORT_TEAM }}"`.
+
+Keep such a definition in a block scalar (`|`), as above, where the escape's quotation marks are ordinary characters. The Aggregate's text is also read as YAML before it is interpolated, and inside a double-quoted YAML string the escape's `"` closes the string, so the file no longer parses and the build halts with the YAML error.
 
 ## The `.parameters.<slot>` access pattern
 
