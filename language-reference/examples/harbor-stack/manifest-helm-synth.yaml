@@ -11,16 +11,15 @@ metadata:
     module composes is realized by the Recipe that wraps the registry's own Helm
     chart: the Recipe declares the chart and the values it overlays, and the Helm
     provider renders the chart's templates into manifests. The module attaches
-    the core/referenced-secret credential Feature to the component's four
-    credential slots, so the Feature is mapped here too: bound to
-    k8s-secret-from-parameter, it reads each of the module's credential
-    parameters as the credential itself and emits a Secret carrying it, which
-    suits an evaluation stack running on the module's development defaults.
-    The Release attaches the same Feature for the token-signing key and the
-    services' shared secret, which have no default; those two attachments are
-    bound by name to k8s-existing-secret, so each names a Secret that already
-    exists in the namespace and no key is rendered. Recipe selection at build
-    time is by component type against the loaded catalog.
+    the core/referenced-secret credential Feature to four of the component's
+    credential slots, and the Release attaches it to three more, so the Feature
+    is mapped here too: bound to k8s-existing-secret, each attachment names a
+    Secret that already exists in the namespace and no key is rendered. The one
+    exception is the administrator's password, which this example leaves at the
+    module's development default: that attachment is bound by name to
+    k8s-secret-from-parameter, which reads the parameter as the password itself
+    and emits a Secret carrying it. Recipe selection at build time is by
+    component type against the loaded catalog.
 spec:
   mappings:
     components:
@@ -28,7 +27,6 @@ spec:
         core/devtool/harbor:1.0.0: helm/harbor-chart:1.0.0
     features:
       type:
-        core/referenced-secret:1.0.0: helm/k8s-secret-from-parameter:1.0.0
+        core/referenced-secret:1.0.0: helm/k8s-existing-secret:1.0.0
       name:
-        token_key: helm/k8s-existing-secret:1.0.0
-        core_secret: helm/k8s-existing-secret:1.0.0
+        admin_password: helm/k8s-secret-from-parameter:1.0.0

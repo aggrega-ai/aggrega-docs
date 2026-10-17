@@ -13,15 +13,16 @@ need. The Component declares the registry; the Recipe wraps that chart.
 
 The registry is imported as a **module**: a reusable sub-aggregate that composes
 the Component and exports its published address. The top-level Aggregate imports
-the module by name; the operator sizes the module's component in the Release.
+the module by name and passes it three of the registry's keys; the operator sizes
+the module's component in the Release.
 
 ## Files
 
 | File | Role |
 | --- | --- |
-| `aggregate.yaml` | Developer intent: imports the container-registry module (`core/harbor`). |
-| `manifest-helm-synth.yaml` | Maps the registry's component type to the Recipe that wraps its Helm chart, and the credential Feature to the realization that emits a Secret from the module's credential parameters — except the two attachments the Release makes, which it binds by name to the realization that reads a Secret already in the namespace. |
-| `release-helm-synth.yaml` | Operator record for the Kubernetes target. Sizes the module's component by its module-scoped ID, and attaches the token-signing key and the services' shared secret to it by naming the Secrets that hold them; anything else is left to schema defaults. |
+| `aggregate.yaml` | Developer intent: imports the container-registry module (`core/harbor`) and passes it three of the registry's keys from parameters of its own. |
+| `manifest-helm-synth.yaml` | Maps the registry's component type to the Recipe that wraps its Helm chart, and the credential Feature to the realization that reads a Secret already in the namespace — except the administrator's password, which it binds by name to the realization that emits a Secret from the module's parameter. |
+| `release-helm-synth.yaml` | Operator record for the Kubernetes target. Names the Secrets holding the three keys the Aggregate passes down, sizes the module's component by its module-scoped ID, and attaches the token-signing key, the services' shared secret and the key stored credentials are encrypted with to it by naming the Secrets that hold them; anything else is left to schema defaults. |
 
 ## What it demonstrates
 
@@ -61,19 +62,23 @@ the module by name; the operator sizes the module's component in the Release.
   different from the one the Component's declared defaults describe, and nothing
   in the rendered output would say so — so the build stops and names the missing
   key instead.
-- **Two credentials the Release supplies.** The key the token service signs the
-  registry's tokens with, together with its certificate, and the secret the
-  registry's own services authenticate to each other with have no default value,
-  and neither does the request-forgery key the module fills below: a key every
-  reader of the catalog held would let anyone mint tokens the registry trusts.
-  The Component declares those slots required, so a build that leaves one empty
-  halts and names the slot. The module attaches neither of the first two, so
-  the Release attaches both to the module's component, `token_key` and
-  `core_secret`, each through `core/referenced-secret` with `infra.origin`
-  naming a Secret, and the Manifest binds those two attachments by name to
-  `k8s-existing-secret`. The build reads neither value and renders neither: the
-  control plane mounts the key from the Secret it names, and the services read
-  the shared secret from theirs.
+- **Six keys with no default.** The key the token service signs the registry's
+  tokens with, together with its certificate; the three secrets the registry's
+  own services authenticate to each other and sign upload state with; the
+  request-forgery key; and the key the control plane encrypts stored
+  credentials with have no default value: a key every reader of the catalog held
+  would let anyone mint tokens the registry trusts or read what it stores. The
+  Component declares those slots required, so a build that leaves one empty
+  halts and names the slot. The build reads none of the six values and renders
+  none of them: every workload reads each from a Secret it names.
+- **Three keys the Release attaches.** The module attaches neither the
+  token-signing key, nor the control plane's shared secret, nor the key stored
+  credentials are encrypted with, so the Release attaches all three to the
+  module's component, `token_key`, `core_secret` and `secret_key`, each through
+  `core/referenced-secret` with `infra.origin` naming a Secret, and the
+  Manifest binds the Feature to `k8s-existing-secret`. The control plane mounts
+  the token-signing key and the encryption key from the Secrets they name, and
+  the services read the shared secret from theirs.
 - **Credentials the module fills.** The administrator account's password, the
   cross-site request-forgery key, the worker tier's shared secret and the blob
   store's upload-state secret are credential slots on the Component too, and the
@@ -81,24 +86,26 @@ the module by name; the operator sizes the module's component in the Release.
   `jobservice_secret`, `registry_http_secret`) through the
   `core/referenced-secret` credential Feature, so every workload reads them from
   a Secret by name. Because the module attaches that Feature, the Manifest maps
-  it. This example leaves the four parameters at the module's development
-  defaults and maps the Feature to `k8s-secret-from-parameter`, which emits a
-  Secret carrying each value. For a Release carrying real traffic, the Aggregate
+  it. The three keys have no default in the module either, so the Aggregate
   declares parameters of its own and passes them down through
-  `aggregates.harbor.parameters`, the Release fulfills them, and the Manifest
-  maps the Feature to `k8s-existing-secret`, which reads each parameter as the
-  name of a Secret that already exists in the namespace. The rest are written
-  into the configuration the Release renders, so they are replaced by setting
-  `infra` instead; unset, each takes a development value the Recipe states.
+  `aggregates.harbor.parameters`, the Release fulfills them, and
+  `k8s-existing-secret` reads each as the name of a Secret that already exists
+  in the namespace; a Release that supplies no value halts the build, naming
+  the parameter. This example leaves the administrator's password at the
+  module's development default, and the Manifest binds that one attachment by
+  name to `k8s-secret-from-parameter`, which emits a Secret carrying it. The
+  remaining passwords are written into the configuration the Release renders,
+  so they are replaced by setting `infra` instead; unset, each takes a
+  development value the Recipe states.
 - **Deterministic output over a chart that would otherwise generate material.**
   Left to itself this chart mints its own secrets when none are supplied — the
   control plane's shared and token-signing secrets, the worker tier's and blob
   store's secrets, the request-forgery key, and the blob store's hashed password,
   which it re-hashes with a fresh salt on every render. Each one is supplied
-  instead: the token-signing key and the shared secret always from the Secret the
-  Release names, and the rest from the attached credential by name where a slot
-  is filled and from a fixed development value where it is not, so two renders
-  of identical input emit byte-identical bytes.
+  instead: the six keys always from the Secrets the Release names, and the
+  passwords from the attached credential by name where a slot is filled and
+  from a fixed development value where it is not, so two renders of identical
+  input emit byte-identical bytes.
 - **Reproducible images.** Every image the registry runs is pinned to an explicit
   tag. The product ships them all on one tag, so `infra.engine_version` selects
   every one at once; `infra.overrides.image` replaces a single service's pin, and
@@ -118,20 +125,28 @@ aggrega build --release release-helm-synth.yaml
 
 Rendered artifacts land under `dist/`.
 
-Before applying them, create the two Secrets the Release names in the namespace
+Before applying them, create the six Secrets the Release names in the namespace
 the registry is deployed to: `harbor-token-key`, holding an RSA private key under
-the data key `tls.key` and a certificate over that key under `tls.crt`, and
-`harbor-core-secret`, holding a 16-character secret under the data key `secret`.
-For example:
+the data key `tls.key` and a certificate over that key under `tls.crt`;
+`harbor-core-secret`, holding a 16-character secret under the data key `secret`;
+`harbor-secret-key`, holding a 16-character key under `secretKey`;
+`harbor-csrf-key`, holding a 32-character key under `CSRF_KEY`; and
+`harbor-jobservice-secret` and `harbor-registry-http-secret`, holding a
+16-character secret under `JOBSERVICE_SECRET` and `REGISTRY_HTTP_SECRET`. For
+example:
 
 ```sh
 openssl req -x509 -newkey rsa:4096 -nodes -days 3650 -subj "/CN=harbor-token-ca" \
   -keyout tls.key -out tls.crt
 kubectl create secret tls harbor-token-key --key tls.key --cert tls.crt
 kubectl create secret generic harbor-core-secret --from-literal=secret="$(openssl rand -hex 8)"
+kubectl create secret generic harbor-secret-key --from-literal=secretKey="$(openssl rand -hex 8)"
+kubectl create secret generic harbor-csrf-key --from-literal=CSRF_KEY="$(openssl rand -hex 16)"
+kubectl create secret generic harbor-jobservice-secret --from-literal=JOBSERVICE_SECRET="$(openssl rand -hex 8)"
+kubectl create secret generic harbor-registry-http-secret --from-literal=REGISTRY_HTTP_SECRET="$(openssl rand -hex 8)"
 ```
 
-A registry whose control plane cannot find either Secret does not start.
+A registry whose services cannot find these Secrets does not start.
 
 ## What the composed registry looks like
 
@@ -140,15 +155,14 @@ Deployments for the reverse proxy, the console, the control plane, the worker
 tier and the blob store; StatefulSets for the backend, the cache and the
 scanner; persistent volume claims for the blob store and for the worker tier's
 logs; the ConfigMaps and Secrets each service reads; and the Services fronting
-them. Beside them the credential Feature emits four Secrets, one per credential
-slot the module fills — `harbor.registry-admin-password`,
-`harbor.registry-csrf-key`, `harbor.registry-jobservice-secret` and
-`harbor.registry-registry-http-secret` — each carrying the module's development
-default, and the services read those four credentials from them rather than
-from the chart's own Secrets. No Secret is emitted for the token-signing key or
-the shared secret: the control plane mounts the key from `harbor-token-key`,
-and the services read the shared secret from `harbor-core-secret`, the two
-Secrets the Release names.
+them. Beside them the credential Feature emits one Secret,
+`harbor-zdregistry-admin-password`, carrying the module's development default
+for the administrator's password, which the control plane reads from it rather
+than from the chart's own Secret. No Secret is emitted for any of the six keys:
+the control plane mounts the token-signing key from `harbor-token-key` and the
+encryption key from `harbor-secret-key`, and the services read the others from
+`harbor-core-secret`, `harbor-csrf-key`, `harbor-jobservice-secret` and
+`harbor-registry-http-secret`, the Secrets the Release names.
 
 Exactly one of those Services is the address consumers wire to —
 `dist/app/helm/harbor.registry-service-default-harbor-zdregistry.yaml`:

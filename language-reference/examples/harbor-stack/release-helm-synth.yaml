@@ -10,6 +10,15 @@ metadata:
 spec:
   aggregate: aggregate
   manifest: manifest-helm-synth
+  # The Secrets holding three of the registry's keys, which the Aggregate passes
+  # down to the module. The Manifest binds the credential to an existing
+  # Secret, so each names one rather than carrying the key: create them in the
+  # target namespace, each key under the data key its parameter names, before
+  # applying the rendered manifests.
+  parameters:
+    csrf_key: harbor-csrf-key
+    jobservice_secret: harbor-jobservice-secret
+    registry_http_secret: harbor-registry-http-secret
   boundaries:
     app:
       directory: app
@@ -17,8 +26,7 @@ spec:
         # The module's component is addressed by its dotted module-scoped id.
         # Compute sizing is owned by the operator: the control plane is sized
         # here, and the port, the image tag and the blob store's volume are left
-        # to the component's schema defaults, so the stack renders
-        # self-contained.
+        # to the component's schema defaults.
         #
         # Both keys of the compute group are set together. The Recipe halts on a
         # group that carries only one of them, because a control plane rendered
@@ -26,12 +34,13 @@ spec:
         # one the component's declared defaults describe, and nothing in the
         # output would say so.
         #
-        # The token-signing key and the services' shared secret have no default,
-        # and the build halts until both slots are filled. The module attaches
-        # neither, so the Release attaches them here, each naming a Secret that
-        # already exists in the namespace — the Manifest binds these two
-        # attachments to k8s-existing-secret. Create both Secrets before applying
-        # the rendered manifests; the README shows how.
+        # The token-signing key, the services' shared secret and the key stored
+        # credentials are encrypted with have no default, and the build halts
+        # until each slot is filled. The module attaches none of them, so the
+        # Release attaches them here, each naming a Secret that already exists
+        # in the namespace — the Manifest binds them to k8s-existing-secret.
+        # Create the Secrets before applying the rendered manifests; the README
+        # shows how.
         harbor.registry:
           infra:
             compute:
@@ -46,3 +55,7 @@ spec:
               type: core/referenced-secret
               infra:
                 origin: harbor-core-secret
+            secret_key:
+              type: core/referenced-secret
+              infra:
+                origin: harbor-secret-key
