@@ -152,7 +152,7 @@ developer surface and the String Pipe with zero platform authoring.
   edge, and the cache's configuration names only the variables. The README is
   mostly about who is served from one stored reply: one end user under the
   default scope, every holder of the key under the other — and why the end user
-  a request names is not proof of who sent it.
+  a request names is not proof of who sent it. Needs a hub registry credential.
 - **[apisix-token-budget](apisix-token-budget/)** — Apache APISIX in front of two
   OpenAI models, wired to its `models` socket, with a token budget on everything
   the gateway serves, compiled to Kubernetes through the project's own chart. The

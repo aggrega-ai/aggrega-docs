@@ -52,9 +52,18 @@ aggrega pull --release release.yaml      # resolve once, then build with no flag
 ```
 
 This workspace resolves the catalog entities through the `catalog_dirs` in
-`.aggrega-config.yaml`. The cache's realization runs one plugin, the gateway
-configuration step `pipeline-step/litellm-gateway-config`, which the resolution
-fetches from the registry `default_registry` names.
+`.aggrega-config.yaml`. The cache's realization runs one plugin that ships in
+neither the compiler nor the catalog, the gateway configuration step
+`pipeline-step/litellm-gateway-config`, which the resolution fetches from the
+registry `default_registry` names, `hub.aggrega.ai`. The registry refuses
+anonymous reads, so the build needs a credential for it. Log in once:
+
+```bash
+aggrega login hub.aggrega.ai
+```
+
+`aggrega login` and `docker login` store the credential in the same place, so
+either answers it.
 
 The build prints, with `<workspace>` standing for this example's folder:
 

@@ -39,7 +39,7 @@ the Manifest changes per target.
 - **Workload synthesis on Compose.** The Compose Recipe declares a
   capability-agnostic `Workload`; the compose provider synthesizes a
   `docker-compose.yaml` service with the MySQL image, its environment, a named
-  data volume, and health checks.
+  data volume, and a health check.
 - **An operator escape hatch.** The Compose release sets `infra.overrides.image`,
   the open pillar for provider-specific facts the Component's own schema does
   not name, and the rendered service runs that exact image reference. See
