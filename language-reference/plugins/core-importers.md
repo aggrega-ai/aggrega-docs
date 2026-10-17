@@ -347,7 +347,13 @@ Before the flow is carried, every value in a place the format keeps a credential
   writes the connection's address into its configuration, and the import reports the address the
   export held there as part of how the node reaches its connection, not as a credential. A Flowise
   configuration written as text that does not read as a JSON object is written empty whole, since
-  nothing inside it can be located.
+  nothing inside it can be located. A Langflow MCP Tools node that carries no `mcp_server` field
+  keeps its server in fields of its own instead — the address in `sse_url`, the headers in
+  `headers_input`, the environment in `env`, and the whole command line, its arguments included, in
+  `command` — and Langflow marks none of them as a credential either, so each header value, each
+  entry of `env`, the address and the command line are written empty, their fields and entries kept.
+  Where `env` is a list, each entry is reported by its position, since a variable's name and its
+  value share one text. Such a node names no MCP server, so it is never wired to a tools connection.
 
 The import reports each value it writes empty with `credential-emptied`, naming its node and its
 field and never its value. A value already empty, or `null`, is left as it is and not reported. Apart
