@@ -20,9 +20,10 @@ core/datastore/postgres --- terraform/postgres-rds -- an RDS instance in Terrafo
       one contract       '- helm/postgres-external -- a server that already exists
 ```
 
-Three Recipes implement the same Component. Each publishes the same five
-`provides` keys — `host`, `port`, `user`, `database`, `protocol`. Which one runs
-is a single line in the Manifest.
+Three Recipes implement the same Component. Each publishes the same `provides`
+keys — `host`, `port`, `user`, `database`, `protocol`, and the keys saying where
+a scraper finds the database's metrics, empty on all three. Which one runs is a
+single line in the Manifest.
 
 ## Files
 
@@ -193,5 +194,5 @@ exists to make concrete:
 
 Add a fourth realization tomorrow — a different cloud, a different operator, a
 Compose service for local work — and it is one more Recipe publishing the same
-five keys, plus one Manifest line. The `aggregate.yaml` in this directory does
-not change.
+keys, plus one Manifest line. The `aggregate.yaml` in this directory does not
+change.
