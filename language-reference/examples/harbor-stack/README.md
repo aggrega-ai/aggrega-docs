@@ -218,6 +218,5 @@ at the ingress tier, routing to the address this module exports. Transport
 security is off, because the chart's own certificate source generates a
 certificate authority and a signed certificate at render time, which two renders
 of identical input would not reproduce. The metrics exporter and the
-Prometheus-operator monitor are off, because the Component describes neither —
-the exporter's image is pinned with the rest all the same, so a Release turning
-it on through `infra.overrides` does not pick up a floating tag.
+Prometheus-operator monitor are off, and no value or override of the Component
+turns them on; the exporter's image is pinned with the rest all the same.
