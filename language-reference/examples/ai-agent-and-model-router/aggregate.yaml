@@ -58,6 +58,14 @@ spec:
             target: openai/gpt-4o
           - name: assistant
             target: anthropic/claude-sonnet-4
+        # The router's own metrics, which the Release's `metrics` attachment
+        # scrapes. Off by default: true has the router serve them on a second
+        # port of its Service, named `metrics` (9090), where its path allowlist
+        # forwards a GET of /metrics alone; its `http` port answers /metrics
+        # 403, as it does every path the router does not serve. The metrics
+        # port checks no caller, and the metrics name the hashed keys, key
+        # aliases and user emails the router attributes spend to.
+        metrics_enabled: true
       features:
         # How the router chooses between the two entries publishing assistant:
         # the target observed to answer quickest. The choice is the developer's,

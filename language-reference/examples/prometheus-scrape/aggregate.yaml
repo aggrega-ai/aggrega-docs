@@ -11,12 +11,13 @@ metadata:
     authored once and compiled to two targets: a Docker Compose stack for local
     development and Kubernetes via Workload synthesis on the official
     prom/prometheus image. Grafana serves its own metrics in the Prometheus
-    format at /metrics on its web port, so each Grafana is a real scrape target.
-    Each one is wired on the `scrape_target` socket and becomes one scrape job —
-    the Grafana Recipe's provides host and port are piped in as that job's
-    target, and the per-edge `values` on each connection tune that job's label
-    and cadence. The same developer intent drives both targets; only the Recipe
-    layer selected by the Manifest differs.
+    format at /metrics on its web port, and its Recipe publishes that address as
+    `metrics_endpoint`, so each Grafana is a real scrape target. Each one is
+    wired on the `scrape_target` socket and becomes one scrape job — the address
+    the Grafana publishes is piped in as that job's target and path, and the
+    per-edge `values` on each connection tune that job's label and cadence. The
+    same developer intent drives both targets; only the Recipe layer selected by
+    the Manifest differs.
 spec:
   components:
     team-dashboards:

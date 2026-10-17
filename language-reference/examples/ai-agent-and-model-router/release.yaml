@@ -57,12 +57,12 @@ spec:
           type: core/prometheus-exporter
           infra:
             # All three scrape knobs, written out. Left out, each takes the
-            # Feature's default — port `metrics`, every 60s, at /metrics — and
-            # the router's Recipe emits no port by that name: its one named port
-            # is http, which is also the port the proxy serves its metrics path
-            # on, so `port` names it here.
+            # Feature's default — port `metrics`, every 60s, at /metrics. The
+            # router serves its metrics on the Service port named `metrics`,
+            # which its Recipe emits because the Aggregate sets the router's
+            # `metrics_enabled`; its `http` port answers /metrics 403.
             interval: 30s
-            port: http
+            port: metrics
             path: /metrics
 
     # Declared with nothing to configure. Every knob the cache exposes takes its

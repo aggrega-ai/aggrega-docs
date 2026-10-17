@@ -26,8 +26,9 @@ what anyone writes.
    assistant.example.internal
 ```
 
-The router has two ways in — the agent reaches it over its `model` edge, and
-anything outside reaches it through the Ingress — and one way out per map entry.
+The router has two ways in for requests — the agent reaches it over its `model`
+edge, and anything outside reaches it through the Ingress — and one way out per
+map entry. A third port serves its metrics to a scraper inside the cluster.
 
 Three components, and each one is doing a different job:
 
@@ -172,6 +173,7 @@ data:
     litellm_settings:
       callbacks:
         - /etc/litellm-request-guard/request_field_filter.filter
+        - prometheus
     router_settings:
       routing_strategy: latency-based-routing
 ```
@@ -215,7 +217,7 @@ build still succeeds — the failure arrives at request time, from the provider.
 variable instead, through the proxy's own indirection. The value arrives in the
 container by another route entirely, shown below.
 
-**Every request meets a guard first.** The `callbacks` entry registers the
+**Every request meets a guard first.** The first `callbacks` entry registers the
 module `request_field_filter` by the full path of its file: the second ConfigMap
 is mounted in the router's container at `/etc/litellm-request-guard`, a
 directory of its own beside `/etc/litellm`, where the first is mounted and the
@@ -235,7 +237,9 @@ messages request, where the router keeps the caller's `metadata` apart from its
 own, it removes any team, organization or end user field the caller wrote there
 and the guard refuses a request naming the key there, `metadata.user_api_key`,
 and on every other route the router's value replaces any the caller sent. This
-Release admits nothing further.
+Release admits nothing further. The second entry, `prometheus`, is the proxy's
+own metrics callback, which the router's `metrics_enabled` value turns on; the
+`metrics` attachment below scrapes what it records.
 
 **Only the router's own routes are reachable.** The guard sees only the routes
 that hand it the request, so the second ConfigMap's other file configures the
@@ -254,7 +258,13 @@ console cannot be reached through the router, and neither can a model route
 whose path carries the model name, as the paths Azure's client sends do:
 there the proxy reads words in the path, the alias included, to decide how it
 records a request, and the router would refuse a request for this map's own
-`assistant` on it.
+`assistant` on it. The proxy's metrics are not among those routes either: port
+4000 answers `/metrics` 403. With the router's `metrics_enabled` true, as the
+Aggregate sets it, the allowlist also listens on port 9090 and forwards a GET of
+`/metrics` there alone, to the listener the proxy keeps for its metrics on the
+loopback address, answering every other request 403. That port checks no
+caller, and the metrics name the hashed keys, key aliases and user emails the
+router attributes spend to.
 
 ## What the router publishes
 
@@ -282,12 +292,16 @@ spec:
     - name: http
       port: 4000
       targetPort: http
+    - name: metrics
+      port: 9090
+      targetPort: metrics
 ```
 
 The Recipe composes the endpoint it publishes, `http://router-default:4000/v1`,
 from the same two facts the Service is named and ported from: the component's
 own name and its `infra.port`. The port the Service targets, `http`, is the one
-the router's path allowlist listens on. Nothing in the three files spells
+the router's path allowlist listens on; `metrics`, the second, is there because
+the router's metrics are on, and carries only them. Nothing in the three files spells
 `router-default` out. Rename the `router` component — its key in the Aggregate
 and in the Release, and the agent's edge that names it — and the address the
 agent receives follows: renamed `gateway`, the agent's `OPENAI_BASE_URL` is
@@ -508,7 +522,7 @@ does not mention it:
           type: core/prometheus-exporter
           infra:
             interval: 30s
-            port: http
+            port: metrics
             path: /metrics
 ```
 
@@ -521,13 +535,19 @@ spec:
     matchLabels:
       app.kubernetes.io/name: router
   endpoints:
-    - port: http
+    - port: metrics
       interval: 30s
       path: /metrics
 ```
 
-The `port` names a Service port rather than a number, and `http` is the one the
-router's Recipe emits — the same name the Ingress above routes to.
+The `port` names a Service port rather than a number: `metrics`, which the
+router's Recipe emits because the Aggregate sets the router's `metrics_enabled`
+value, and which serves its metrics. That is also the Feature's default port
+name, written out here with the other two knobs. The `http` port the Ingress
+above routes to answers `/metrics` 403, so a scrape pointed there would collect
+nothing. Whether metrics are served at all is the developer's choice, made in
+the Aggregate; how often and at which port and path a platform scrapes them is
+the operator's, made here.
 
 ### `selection` on the router — how it chooses between its targets
 
