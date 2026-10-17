@@ -9,9 +9,10 @@ systems — HashiCorp Vault, AWS Secrets Manager, Google Secret Manager, Azure K
 Vault, and others — into native Kubernetes Secrets, keeping them in sync as the
 source changes. It is a cluster-scoped controller that extends the cluster API
 with its own custom resources rather than a server applications route to, so it
-takes no `uses` edge and exports nothing to consumers: applications obtain their
-secrets by declaring `ExternalSecret` and `SecretStore` resources, and the
-operator materializes the corresponding Kubernetes `Secret`s.
+takes no `uses` edge, and all it publishes is where a Prometheus server finds
+its metrics: applications obtain their secrets by declaring `ExternalSecret` and
+`SecretStore` resources, and the operator materializes the corresponding
+Kubernetes `Secret`s.
 
 ## Files
 
@@ -32,7 +33,7 @@ operator materializes the corresponding Kubernetes `Secret`s.
 - **A cluster-extending controller, no topology edge.** external-secrets adds
   its own custom resources to the cluster API; consumers request secrets by
   declaring those resources, so the component wires no `uses` edge and exports
-  nothing.
+  nothing but where its metrics are.
 - **A single coherent operator.** The chart renders the controller, the webhook,
   and the certificate controller as one operator; the bundled provider subchart
   is off, so no foreign datastore, cache, or broker is pulled in. The rendered

@@ -11,9 +11,10 @@ and renewal of X.509 certificates from issuing sources such as ACME (Let's
 Encrypt), a private CA, or Vault. It extends the cluster with its own
 `Certificate`, `Issuer`, and `ClusterIssuer` custom resources. Applications ask
 for certificates by declaring those resources — not by wiring an upstream — so
-the component takes no `uses` edge and exports nothing to consumers. For the
-same reason it has no standalone local-container form, so this family ships a
-Helm Recipe only; there is no Compose target.
+the component takes no `uses` edge. For the same reason it has no standalone
+local-container form, so this family ships a Helm Recipe only; there is no
+Compose target. All the component publishes is where a Prometheus server finds
+its metrics.
 
 ## Files
 
