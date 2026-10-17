@@ -102,7 +102,8 @@ JSON to try them, whatever importer it is meant for, through that same parser.
 - Drafting the platform that carries the flow also reads, off the flow: its top-level `id`; the value
   of each field marked `password: true`, which it writes empty; an MCP Tools node's `mcp_server`
   field — the MCP server it names, and that server's configuration; the field a node names its model
-  in; and the fields through which a node reaches a part's address, which it rewrites.
+  in, and the model provider it runs on; and the fields through which a node reaches a part's address
+  and key, which it rewrites.
   [What they draft](#what-they-draft) says what becomes of each.
 
 ## What the Flowise importer reads
@@ -279,15 +280,36 @@ into the flow what makes it do so — the name of a variable, or an address empt
   alias, which Langflow reads through a field naming a global variable: a field whose object carries
   `load_from_db: true` holds the variable's name as its value, and Langflow reads the global variable
   of that name, or the environment variable of that name where none is stored. The draft writes each
-  such field with the variable's name and `load_from_db: true`: an `OpenAIModel` node's
-  `openai_api_base` and `api_key`, an `OpenAIEmbeddings` node's `openai_api_base` and
-  `openai_api_key`, and a `pgvector` node's `pg_server_url`, as
-  `AGGREGA_VECTOR_STORE_<ALIAS>_CONNECTION_STRING`, where `<ALIAS>` is the connection's alias
-  upper-cased with every character other than a letter or a digit written as an underscore. A field
-  the export writes without both of those members is not written anew — a credential field among them
-  is still written empty, as below — and where that field is the one carrying the part's address, or
-  the node is of any other type, the import reports the part as reached at the address the flow or
-  its component's defaults give.
+  of these fields with the variable's name and `load_from_db: true`:
+
+  - an `OpenAIModel` node's `openai_api_base`, as `OPENAI_BASE_URL`, and its `api_key`, as
+    `OPENAI_API_KEY`;
+  - an `OpenAIEmbeddings` node's `openai_api_base`, as `OPENAI_BASE_URL`, and its `openai_api_key`, as
+    `OPENAI_API_KEY`;
+  - a `LanguageModelComponent` node's `api_key`, as `OPENAI_API_KEY`;
+  - an `EmbeddingModel` node's `api_base`, as `OPENAI_BASE_URL`, and its `api_key`, as
+    `OPENAI_API_KEY`;
+  - a `pgvector` node's `pg_server_url`, as `AGGREGA_VECTOR_STORE_<ALIAS>_CONNECTION_STRING`, where
+    `<ALIAS>` is the connection's alias upper-cased with every character other than a letter or a
+    digit written as an underscore.
+
+  A `LanguageModelComponent` or `EmbeddingModel` node runs on one of several model providers — the one
+  its `provider` field names, or, where that is empty, the provider of the model its `model` field
+  selects — and hands its key to that provider. The platform delivers the model connection for an
+  OpenAI-compatible client, so such a node is written with the variables only where it runs on
+  `OpenAI`: one running on another provider, selecting none, naming its provider through a global
+  variable, or taking its model from another node is written with none of them, so the draft never
+  points another provider at the connection's key. Where no field of such a node gives its API's
+  address — a `LanguageModelComponent` node holds none for OpenAI, and an `EmbeddingModel` node's
+  `api_base` may be missing, or empty where it cannot name a variable — the OpenAI client it runs
+  takes `OPENAI_BASE_URL` from the environment, so the node reaches the address the platform delivers
+  all the same.
+
+  A field the export writes without both of those members is not written anew — a credential field
+  among them is still written empty, as below. Where that field is the one carrying the part's
+  address — and, for a `LanguageModelComponent` or `EmbeddingModel` node, gives one — where such a node
+  does not run on `OpenAI`, or where the node is of any other type, the import reports the part as
+  reached at the address the flow or its component's defaults give.
 - **A Flowise OpenAI node.** The OpenAI client Flowise runs a `chatOpenAI` or `openAIEmbeddings` node
   on reads `OPENAI_BASE_URL` and `OPENAI_API_KEY` from the environment where the node's Base Path is
   empty and it selects no credential, so the draft writes a Base Path the export holds empty, and the
