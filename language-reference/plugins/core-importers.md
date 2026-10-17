@@ -339,12 +339,15 @@ Before the flow is carried, every value in a place the format keeps a credential
   configuration object at any depth of them, as an agentflow keeps a model's or a tool's.
 - **An MCP server's configuration** — a Langflow MCP Tools node's `mcp_server` configuration, and a
   Flowise node's `mcpServerConfig`, written as JSON text or as an object: each header value, whether
-  the headers are an object or a list of key and value items; each environment value; the command;
-  and every argument. Neither format marks a command or an argument as a credential, and either can
-  carry a key, so both are written empty, their members kept. The server's address is written empty
-  too: on Flowise always, and on Langflow where the node is wired to a tools connection, whose address
-  the platform writes there. A Flowise configuration written as text that does not read as a JSON
-  object is written empty whole, since nothing inside it can be located.
+  the headers are an object or a list of key and value items; each environment value; the server's
+  address; the command; and every argument. Neither format marks an address, a command or an argument
+  as a credential, and each can carry a key — an address in its user part, its path or its query — so
+  all three are written empty too, their members kept, on both formats and whether or not the node is
+  wired to a connection. Where a Langflow MCP Tools node is wired to a tools connection, the platform
+  writes the connection's address into its configuration, and the import reports the address the
+  export held there as part of how the node reaches its connection, not as a credential. A Flowise
+  configuration written as text that does not read as a JSON object is written empty whole, since
+  nothing inside it can be located.
 
 The import reports each value it writes empty with `credential-emptied`, naming its node and its
 field and never its value. A value already empty, or `null`, is left as it is and not reported. Apart
