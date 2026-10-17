@@ -78,12 +78,14 @@ declares:
 - **Flowise** — a source that parses as JSON, carries arrays at `nodes` and `edges`, and carries
   nothing at `data.nodes`.
 
-No source matches both. Each reads its source through the parser that serves `parse:json`, which an
-import selects from your workspace's catalog, so an import through either needs a parser for `json`
-there. Neither declares file patterns, so each reads one file and an import of a directory through
-either is refused. For the same reason their signatures apply to every file imported on its own: an
-import naming no format reads such a file as JSON to try them, whatever importer it is meant for, and
-so needs that parser in your catalog too.
+No source matches both. Each reads its source through the parser that serves `parse:json`: the one
+your workspace's catalog serves, where it serves one, and otherwise the JSON parser the compiler
+itself carries (see [Embedded plugins](embedded-plugins.md)). So an import through either needs no
+parser in your catalog, and nothing is fetched for one. A JSON parser your catalog does serve is the
+one used, and the compiler's plays no part. Neither importer declares file patterns, so each reads
+one file and an import of a directory through either is refused. For the same reason their
+signatures apply to every file imported on its own: an import naming no format reads such a file as
+JSON to try them, whatever importer it is meant for, through that same parser.
 
 ## What the Langflow importer reads
 

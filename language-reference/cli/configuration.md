@@ -244,6 +244,15 @@ An entry whose `uri` is a filesystem path names no importer and is not compared,
 `plugins.governance` and `plugins.linter` lists are not held to the rule: one plugin may be attached
 to them more than once, each time with its own `with`.
 
+**The parsers an import reads through need no entry.** An importer reads its source — and an import
+naming no format recognises it — through a parser for the source's syntax: the one your catalog
+serves for that syntax, and, for a syntax your catalog serves no parser for, the one the compiler
+itself carries, JSON among them. So a workspace whose catalog holds no parser imports a Langflow or
+Flowise flow with nothing configured. No list attaches a parser: a parser your catalog serves for a
+syntax is the one used, and two of different names serving one syntax are refused, as
+[A parse or import format is advertised by more than one plugin](../errors/fatal-halts.md#a-parse-or-import-format-is-advertised-by-more-than-one-plugin)
+describes.
+
 ### Starting from nothing
 
 A freshly installed `aggrega` has neither file, and that is a working state rather than a broken

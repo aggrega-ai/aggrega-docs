@@ -88,18 +88,26 @@ name it explicitly. When --format is omitted, import recognizes the format by
 the signatures the importers declare — the workspace catalog's and the core
 importers' alike: each names the syntax a source is read in, the file names it
 applies to and the paths its parsed tree must or must not carry. A file is
-parsed by the parser the workspace's catalog serves for a syntax, once for each
-syntax a signature applying to its name reads it in, and the format of the one
-importer whose signature matches is the one read. The core importers'
-signatures read a file as JSON and name no file, so recognizing a file imported
-on its own reads it as JSON too, and needs a parser for json in the workspace's
-catalog. A directory is recognized the same way over the files it holds: each
-signature is tried against the files its file names match, and a signature that
-names no file applies to none of them. If no signature matches, import stops,
-asks for --format and names the formats the importers advertise; if signatures
-of more than one format match, it stops and names them. It does not guess.
-Recognition reads nothing but the source — of a directory, only the files a
-signature's file names match — and reaches no network.
+parsed once for each syntax a signature applying to its name reads it in, and
+the format of the one importer whose signature matches is the one read. The
+core importers' signatures read a file as JSON and name no file, so recognizing
+a file imported on its own reads it as JSON too. A directory is recognized the
+same way over the files it holds: each signature is tried against the files
+its file names match, and a signature that names no file applies to none of
+them. If no signature matches, import stops, asks for --format and names the
+formats the importers advertise; if signatures of more than one format match,
+it stops and names them. It does not guess. Recognition reads nothing but the
+source — of a directory, only the files a signature's file names match — and
+reaches no network.
+
+Recognition and the importer read the source through the parser the
+workspace's catalog serves for its syntax, and, for a syntax the catalog
+serves no parser for, through the parser the compiler itself carries for it —
+JSON among them — so a workspace whose catalog holds no parser still
+recognizes and imports a source the core importers read. Where the catalog
+serves a parser for a syntax, the compiler's own plays no part in reading it.
+The compiler's parsers are part of the binary, so nothing is fetched for one.
+A syntax neither serves stops the import, naming the syntax no parser serves.
 
 Before the drafted output, import names on standard error the format it read
 the source as and the directory the drafted paths are relative to, then any
