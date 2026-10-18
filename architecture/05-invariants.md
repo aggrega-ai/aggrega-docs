@@ -1,6 +1,6 @@
 # Architectural Invariants
 
-These eight invariants are the founding rules of Aggrega. They hold across milestones, across the compiler core, the schema layer, the catalog, and the Wasm plugin surface. Every design decision, every feature, and every authored entity respects them.
+These eight invariants are the founding rules of Aggrega. They hold across releases, across the compiler core, the schema layer, the catalog, and the Wasm plugin surface. Every design decision, every feature, and every authored entity respects them.
 
 Invariants are referenced by number across other architecture chapters. When a later chapter says "per Invariant 2" or "by the String Pipe rule (Invariant 3)," it points here.
 
