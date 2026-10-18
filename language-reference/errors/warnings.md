@@ -305,7 +305,7 @@ These consequences follow from how annotations reach a render, and each of them 
 - **Only the bare `aggrega.ai/` keys are checked.** A sub-prefixed key — `compliance.aggrega.ai/data-class`, or your own `acme.aggrega.ai/team` — is your vocabulary, which the compiler carries through without interpreting. Nothing warns about one, ever.
 - **A target that declares no support claim at all raises nothing.** The warning compares what you authored against what the provider said it reads; a provider that has said nothing gives it nothing to compare against, and inferring a refusal from silence would report a claim the provider's author never made.
 
-**Why a warning and not a halt.** A boundary that legitimately spans components on heterogeneous targets will always have some node that cannot act on a given key — that is the normal shape of a mixed deployment, not a mistake — so refusing the build would reject correct deployments. The value passes through untouched, exactly as before; what changed is that you are told.
+**Why a warning and not a halt.** A boundary that legitimately spans components on heterogeneous targets will always have some node that cannot act on a given key — that is the normal shape of a Release spanning several targets, not a mistake — so refusing the build would reject correct Releases. The value passes through untouched, and the warning tells you so.
 
 ### The class code and the out-of-band guarantee
 
