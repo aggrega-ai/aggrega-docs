@@ -31,8 +31,7 @@ Translate into Italian. Each choice below is a default, made without a native sp
 - `escape hatch`: via d’uscita; never "scappatoia", which reads as a loophole.
 - `convention`: convenzione; never "regola" or "norma".
 - `unopinionated`: privo di opinioni; "mathematically unopinionated" is "matematicamente privo di opinioni".
-- `mathematically blind`: matematicamente cieco.
-- `dumb`: stupido, in the sense of "terminale stupido": it does what it is given and nothing more; never "semplice" or "ingenuo".
-- `blind to`: cieco a, as in "cieco alle convenzioni".
+- `content-neutral`: neutrale rispetto ai contenuti.
+- `agnostic to`: agnostico rispetto a, as in "agnostico rispetto alle convenzioni".
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.

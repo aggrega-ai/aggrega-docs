@@ -29,8 +29,7 @@ Translate into Spanish, in a neutral international variety. Each choice below is
 - `escape hatch`: vía de escape; never "resquicio" or "laguna", which read as a loophole.
 - `convention`: convención; never "regla" or "norma".
 - `unopinionated`: sin opiniones propias; "mathematically unopinionated" is "matemáticamente sin opiniones propias".
-- `mathematically blind`: matemáticamente ciego.
-- `dumb`: tonto, in the sense of "terminal tonto": it does what it is given and nothing more; never "simple" or "ingenuo".
-- `blind to`: ciego a, as in "ciego a las convenciones".
+- `content-neutral`: neutral respecto al contenido.
+- `agnostic to`: agnóstico respecto a, as in "agnóstico respecto a las convenciones".
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.

@@ -28,8 +28,7 @@ Translate into Polish. Each choice below is a default, made without a native spe
 - `escape hatch`: furtka, in the sense of "zostawić sobie furtkę"; never "luka", which reads as a gap or a vulnerability.
 - `convention`: konwencja; never "reguła" or "przepis".
 - `unopinionated`: bez własnego zdania; "mathematically unopinionated" is "matematycznie bez własnego zdania".
-- `mathematically blind`: matematycznie ślepy.
-- `dumb`: głupi, in the sense of "głupi terminal": it does what it is given and nothing more; never "prosty".
-- `blind to`: ślepy na, as in "ślepy na konwencje".
+- `content-neutral`: neutralny wobec treści.
+- `agnostic to`: agnostyczny wobec, as in "agnostyczny wobec konwencji".
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.

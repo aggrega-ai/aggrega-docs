@@ -29,8 +29,7 @@ Translate into Ukrainian. Each choice below is a default, made without a native 
 - `escape hatch`: запасний вихід; never "лазівка", which reads as a loophole, nor "чорний хід", which reads as a back door.
 - `convention`: домовленість; never "правило", nor "конвенція", which reads as a treaty.
 - `unopinionated`: без власної позиції; "mathematically unopinionated" is "математично без власної позиції".
-- `mathematically blind`: математично сліпий.
-- `dumb`: тупий, in the sense of "тупий термінал": it does what it is given and nothing more; never "простий".
-- `blind to`: сліпий до, as in "сліпий до домовленостей".
+- `content-neutral`: нейтральний щодо вмісту.
+- `agnostic to`: агностичний щодо, as in "агностичний щодо домовленостей".
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.

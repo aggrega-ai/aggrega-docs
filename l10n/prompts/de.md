@@ -29,8 +29,7 @@ Translate into German. Each choice below is a default, made without a native spe
 - `escape hatch`: Ausweg; never "Hintertür", which reads as a back door, nor "Notausgang", which reads as an emergency.
 - `convention`: Konvention; never "Regel" or "Vorschrift".
 - `unopinionated`: meinungslos; "mathematically unopinionated" is "mathematisch meinungslos".
-- `mathematically blind`: mathematisch blind.
-- `dumb`: dumm, in the sense of "dummes Terminal": it does what it is given and nothing more; never "einfach" or "simpel".
-- `blind to`: blind für, as in "blind für Konventionen".
+- `content-neutral`: inhaltsneutral.
+- `agnostic to`: agnostisch gegenüber, as in "agnostisch gegenüber Konventionen".
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.

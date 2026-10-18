@@ -28,8 +28,7 @@ Translate into Vietnamese. Each choice below is a default, made without a native
 - `escape hatch`: lối thoát; never "kẽ hở", which reads as a loophole, nor "cửa sau", which reads as a back door.
 - `convention`: quy ước; never "quy tắc", which reads as a rule that is enforced.
 - `unopinionated`: không có quan điểm riêng; "mathematically unopinionated" is "về mặt toán học không có quan điểm riêng".
-- `mathematically blind`: mù về mặt toán học.
-- `dumb`: ngốc: it does what it is given and nothing more; never "đơn giản".
-- `blind to`: mù trước, as in "mù trước các quy ước"; never "mù quáng", which reads as reckless.
+- `content-neutral`: trung lập về nội dung.
+- `agnostic to`: không phụ thuộc vào, as in "không phụ thuộc vào các quy ước".
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.

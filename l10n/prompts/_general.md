@@ -21,10 +21,10 @@ Write for an engineer reading in their own language: precise, plain and technica
 
 ## The qualifiers
 
-The documentation uses a small set of words to say what the compiler does and does not do: `social contract`, `best practice`, `escape hatch`, `convention`, `unopinionated`, `mathematically blind`, `dumb` and `blind to`. They carry the compiler's stance. What the documentation calls a social contract, a best practice or a convention is upheld by the people and the catalogs that follow it, and the compiler does not enforce it; an escape hatch is a way out of such a default that the design provides on purpose; and the compiler is dumb, unopinionated and blind to what the values it routes mean, by design.
+The documentation uses a small set of words to say what the compiler does and does not do: `social contract`, `best practice`, `escape hatch`, `convention`, `unopinionated`, `content-neutral` and `agnostic to`. They carry the compiler's stance. What the documentation calls a social contract, a best practice or a convention is upheld by the people and the catalogs that follow it, and the compiler does not enforce it; an escape hatch is a way out of such a default that the design provides on purpose; and the compiler is content-neutral, unopinionated and agnostic to what the values it routes mean, by design.
 
 - Translate each with the rendering the language guide gives, every time it occurs and on every page, so that a reader meets one word for one stance.
-- Translate each faithfully: never soften one, so that a dumb compiler does not become merely a simple one; and never strengthen one, so that a convention or a best practice never becomes a rule, a requirement or a guarantee.
+- Translate each faithfully: never render the compiler's neutrality as a deficiency or an insult; and never strengthen one, so that a convention or a best practice never becomes a rule, a requirement or a guarantee.
 - Keep each qualifier where the source puts it. Never drop one, move it to another clause, or add one the source does not have.
 
 ## The Markdown

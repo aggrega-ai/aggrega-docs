@@ -28,8 +28,7 @@ Translate into Korean. Each choice below is a default, made without a native spe
 - `escape hatch`: 탈출구; never "허점", which reads as a loophole, nor "뒷문", which reads as a back door.
 - `convention`: 관례; never "규칙" or "규약", which read as rules that are enforced.
 - `unopinionated`: 주관이 없는; "mathematically unopinionated" is "수학적으로 주관이 없는".
-- `mathematically blind`: 수학적으로 눈먼.
-- `dumb`: 멍청한: it does what it is given and nothing more; never "단순한".
-- `blind to`: ~을 보지 못하는, as in "관례를 보지 못한다".
+- `content-neutral`: 내용에 중립적인.
+- `agnostic to`: ~에 구애받지 않는, as in "관례에 구애받지 않는다".
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.

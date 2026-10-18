@@ -30,8 +30,7 @@ Translate into Simplified Chinese, as written in mainland China. Each choice bel
 - `escape hatch`: 逃生舱口; never "后门", which reads as a back door, nor "漏洞", which reads as a loophole.
 - `convention`: 约定; never "规则" or "规范".
 - `unopinionated`: 不预设立场; "mathematically unopinionated" is "在数学意义上不预设立场".
-- `mathematically blind`: 在数学意义上是盲的; never "盲目", which reads as reckless.
-- `dumb`: 笨: it does what it is given and nothing more; never "简单".
-- `blind to`: 看不见, as in "看不见约定".
+- `content-neutral`: 对内容保持中立.
+- `agnostic to`: 与……无关, as in "与约定无关".
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.

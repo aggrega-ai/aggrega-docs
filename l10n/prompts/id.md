@@ -28,8 +28,7 @@ Translate into Indonesian. Each choice below is a default, made without a native
 - `escape hatch`: jalan keluar; never "celah", which reads as a loophole.
 - `convention`: konvensi; never "aturan".
 - `unopinionated`: tanpa opini sendiri; "mathematically unopinionated" is "secara matematis tanpa opini sendiri".
-- `mathematically blind`: buta secara matematis.
-- `dumb`: bodoh, in the sense of "terminal bodoh": it does what it is given and nothing more; never "sederhana".
-- `blind to`: buta terhadap, as in "buta terhadap konvensi".
+- `content-neutral`: netral terhadap konten.
+- `agnostic to`: agnostik terhadap, as in "agnostik terhadap konvensi".
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.

@@ -29,8 +29,7 @@ Translate into Brazilian Portuguese. Each choice below is a default, made withou
 - `escape hatch`: via de escape; never "brecha", which reads as a loophole.
 - `convention`: convenção; never "regra" or "norma".
 - `unopinionated`: sem opiniões próprias; "mathematically unopinionated" is "matematicamente sem opiniões próprias".
-- `mathematically blind`: matematicamente cego.
-- `dumb`: burro, in the sense of "terminal burro": it does what it is given and nothing more; never "simples" or "ingênuo".
-- `blind to`: cego para, as in "cego para as convenções".
+- `content-neutral`: neutro quanto ao conteúdo.
+- `agnostic to`: agnóstico em relação a, as in "agnóstico em relação às convenções".
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.

@@ -30,8 +30,7 @@ Translate into French. Each choice below is a default, made without a native spe
 - `escape hatch`: porte de sortie; never "échappatoire", which reads as an evasion.
 - `convention`: convention; never "règle" or "norme".
 - `unopinionated`: sans parti pris; "mathematically unopinionated" is "mathématiquement sans parti pris".
-- `mathematically blind`: mathématiquement aveugle.
-- `dumb`: bête, as a dumb pipe is bête: it does what it is given and nothing more; never "simple" or "naïf".
-- `blind to`: aveugle à, as in "aveugle aux conventions".
+- `content-neutral`: neutre vis-à-vis du contenu.
+- `agnostic to`: agnostique vis-à-vis de, as in "agnostique vis-à-vis des conventions".
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.

@@ -30,8 +30,7 @@ Translate into Japanese. Each choice below is a default, made without a native s
 - `escape hatch`: エスケープハッチ; never "抜け道", which reads as a loophole.
 - `convention`: 慣例; never "規則" or "規約", which read as rules that are enforced.
 - `unopinionated`: 主張を持たない; "mathematically unopinionated" is "数学的に主張を持たない".
-- `mathematically blind`: 数学的に盲目; never "盲目的", which reads as reckless.
-- `dumb`: 賢くない: it does what it is given and nothing more; never "単純", which softens it, nor "愚か", which insults.
-- `blind to`: 〜が見えない, as in "慣例が見えない".
+- `content-neutral`: 内容に対して中立.
+- `agnostic to`: 〜に依存しない, as in "慣例に依存しない".
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.

@@ -28,8 +28,7 @@ Translate into Russian. Each choice below is a default, made without a native sp
 - `escape hatch`: запасной выход; never "лазейка", which reads as a loophole, nor "чёрный ход", which reads as a back door.
 - `convention`: соглашение, as in "соглашения об именовании"; never "правило".
 - `unopinionated`: без собственного мнения; "mathematically unopinionated" is "математически без собственного мнения".
-- `mathematically blind`: математически слепой.
-- `dumb`: тупой, in the sense of "тупой терминал": it does what it is given and nothing more; never "простой".
-- `blind to`: слеп к, as in "слеп к соглашениям".
+- `content-neutral`: нейтральный к содержимому.
+- `agnostic to`: агностичный по отношению к, as in "агностичный по отношению к соглашениям".
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.

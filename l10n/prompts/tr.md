@@ -28,8 +28,7 @@ Translate into Turkish. Each choice below is a default, made without a native sp
 - `escape hatch`: kaçış yolu; never "açık", which reads as a loophole, nor "arka kapı", which reads as a back door.
 - `convention`: uzlaşım; never "kural", which reads as a rule that is enforced.
 - `unopinionated`: kendi görüşü olmayan; "mathematically unopinionated" is "matematiksel olarak kendi görüşü olmayan".
-- `mathematically blind`: matematiksel olarak kör.
-- `dumb`: aptal, in the sense of "aptal terminal": it does what it is given and nothing more; never "basit".
-- `blind to`: kör, with the dative, as in "uzlaşımlara kör".
+- `content-neutral`: içeriğe karşı tarafsız.
+- `agnostic to`: -den bağımsız, with the ablative, as in "uzlaşımlardan bağımsız".
 
 A native speaker who finds a default here wrong corrects this file; every translation made after the correction follows it.
