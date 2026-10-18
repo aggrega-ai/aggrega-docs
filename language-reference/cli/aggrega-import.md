@@ -77,6 +77,58 @@ held to it. Wherever the drafts go, a link on the way to one that leads out of
 the workspace — or, beneath a directory you named outside it, out of that
 directory — is refused, and nothing is written.
 
+Beside its drafts, every import that drafts anything writes .aggrega-import.json,
+the record of what it wrote: each drafted file and, in a drafted Aggregate, each
+key at every depth, with a digest of the text written there. A key's text is its
+line, its value's lines where its value is not a mapping of keys, and the comment
+lines written directly above it at its own indentation. The record is JSON, so
+nothing that reads the workspace's YAML documents reads it; keep it beside the
+drafts for as long as you mean to sync them.
+
+An import never writes over an Aggregate already at one of its drafted paths:
+an Aggregate is the document an author goes on editing once it is drafted, so
+import stops, naming it and --sync, and writes nothing — under --dry-run too.
+Every other file already at a drafted path is written over, and a file an
+earlier import drafted that this one does not draft is left where it is.
+
+--sync brings what an earlier import drafted up to date with the source instead,
+changing only what the import wrote. It judges every part three ways — what the
+record says the import last wrote there, what is on disk, and what the source
+drafts now:
+
+  - a part the source left as the import last wrote it stays exactly as it is
+    on disk, whether or not you edited it;
+  - a part the source changed is written anew, where it is on disk as the
+    import last wrote it;
+  - a part the source dropped is removed, where it is as the import last wrote
+    it and holds nothing you added — a drafted file is deleted whole;
+  - a part the source gained is added beside the parts the draft names around
+    it.
+
+Everything else stays byte for byte: a key you added anywhere — a parameter, a
+Feature, under a drafted Component instance too, another Component — a comment
+not written directly above a drafted key, and every file the record does not
+list. Before anything is written, standard error names each part that drifted,
+one line each:
+
+  added|removed|changed <key> in <file>
+  added|removed|changed <file>
+
+Where the sync would change or remove a part you edited, add a part where you
+already wrote one, or remove a part holding something you added, import stops,
+naming each such part and why, and writes nothing; reconcile them by hand and
+sync again. A comment you write directly above a drafted key edits that key.
+An Aggregate at a drafted path that no record lists stops the sync too, saying
+so, as does a record that cannot be read. Where the importer reports a
+diagnostic that stops the import, a sync writes nothing. A sync into a directory
+holding no record and nothing at its drafted paths writes the whole draft.
+
+With --sync, --dry-run writes nothing and names the same drift, or stops on the
+same conflicts, and the exit status says which: 0 when the drafts are in step
+with the source, 2 when they drifted, and 1 on an error or when the sync is
+refused. Standard output carries the files the sync would write, with the
+content it would give them.
+
 On Windows, a draft whose path holds a part Windows cannot hold as written — a
 name it reserves for a device, such as NUL or aux, with or without an extension
 and in any letter case, or a part ending in a full stop or a space — is refused
@@ -120,8 +172,9 @@ naming the catalog Component or draft it chose for the node, whether it is
 referenced or drafted, the match tier, and the score of the best candidate it
 weighed. A node the importer weighed no candidate for has no score, and its line
 ends at the tier; a node it made no choice for reads "made no choice for <node
-id> (<node type>)". Standard output carries only the result — the paths
-written, or the drafted files themselves under --dry-run — so it can be piped
+id> (<node type>)"; then, under --sync, the drift lines. Standard output
+carries only the result — the paths written, and under --sync the paths
+removed, or the drafted files themselves under --dry-run — so it can be piped
 unchanged.
 
 --dry-run does everything import does except write: standard output carries one
@@ -139,4 +192,5 @@ source the write would refuse is refused here too.
 | `--dry-run` | `false` | Do everything except write: hand back the drafted files as content, naming the file each is for, and create or modify nothing. Every other behaviour is the write's, the importer run included. Without it the drafts are written to disk. |
 | `--format` | — | Name the source format explicitly, overriding detection by the importers' signatures (for example langflow, flowise or n8n) |
 | `--output-dir` | — | Directory the drafted files are written under. A relative path resolves against the directory you run the command in, and a drive named bare on Windows, such as D:, is the current directory on that drive. Without it the drafts are written beneath the root of the workspace the run resolved. |
+| `--sync` | `false` | Bring what an earlier import drafted up to date with the source, changing only what the import wrote, as the record beside the drafts lists it, and naming each part that drifted. With --dry-run, exit 0 when in step, 2 when drifted, 1 on an error or a refusal. |
 <!-- END GENERATED: cli-import -->
