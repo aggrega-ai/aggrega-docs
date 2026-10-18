@@ -212,7 +212,7 @@ kind: Aggregate
 metadata:
   name: imported/flow
   version: 0.1.0
-  description: Draft aggregate imported from a flowise source.
+  description: Draft Aggregate imported from a source in the flowise format.
 spec:
   components:
     # Left for the Release, since the source cannot supply it:
