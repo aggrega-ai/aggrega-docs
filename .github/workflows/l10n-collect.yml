@@ -1,17 +1,13 @@
 # The collector of a Markdown documentation corpus translated with @cognitio/l10n:
 # the translation workflow's companion, copied beside it to the repository as
 # .github/workflows/l10n-collect.yml, and named by the configuration's
-# `ci.collector`. It runs the same command, `npx l10n ci`, with the same rules,
-# every 10 minutes — its one automatic trigger — and by hand.
+# `ci.collector`. It runs the same command, `npx l10n ci`, with the same rules.
 #
-# `l10n ci` switches it on when a run leaves a batch recorded on the CI branch,
-# and off when a run leaves none, so it runs only while a batch is pending, and
-# an idle project runs nothing. A workflow file has no disabled state of its
-# own: pushed, it is enabled, and its first scheduled run switches it off
-# unless that run leaves a batch recorded. Disable it at once from the repository's Actions
-# page, or with `gh workflow disable l10n-collect.yml`, to skip even that run.
-# GitHub runs a schedule only from the default branch, so it collects once both
-# workflows sit there; until then the next push or a manual run collects.
+# 🔴 It runs only when started by hand — from the repository's Actions page, or
+# `gh workflow run l10n-collect.yml` — and carries no schedule, because a run
+# that collects also submits whatever still lacks a translation, and is paid
+# for. `l10n ci` still switches this workflow on while a batch is recorded and
+# off when none is (`ci.collector`); with no schedule that starts nothing.
 #
 # It shares the translation workflow's concurrency group, so the two never
 # race for the CI branch, and it assumes what that workflow's comment lists.
@@ -20,8 +16,6 @@
 name: Collect translations
 
 on:
-  schedule:
-    - cron: '*/10 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -37,8 +31,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      # A scheduled run starts from the default branch; the content translated is
-      # the working branch's, so the checkout names it.
+      # A manual run can start from any branch; the content translated is the
+      # working branch's, so the checkout names it.
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
           ref: main

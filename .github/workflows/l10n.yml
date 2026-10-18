@@ -8,10 +8,13 @@
 # `ci.dispatch`, dispatches that workflow. The configuration beside this
 # template names none.
 #
-# It runs on a push touching the sources, the human layer or the prompt files,
-# and by hand; it has no schedule. A batch it submits is collected by its
-# collector, l10n-collect.yml, which `l10n ci` switches on while a batch is
-# recorded (`ci.collector`), or by the next push or manual run.
+# 🔴 It runs only when started by hand — from the repository's Actions page, or
+# `gh workflow run l10n.yml` — and never on a push or a schedule, because every
+# run submits the segments still lacking a translation and is paid for. The
+# translation is started deliberately, here or locally with the package's own
+# command, never as a side effect of pushing documentation. A batch it submits
+# is collected by the next manual run of this workflow or of its collector,
+# l10n-collect.yml.
 #
 # It assumes:
 #   - the working branch `main`;
@@ -19,9 +22,8 @@
 #     l10n/memory/ (`memory.dir: "memory"`) and the prompt files under
 #     l10n/prompts/ (`promptsDir: "prompts"`);
 #   - the corpus's source files at the repository root (`adapter.sourceDir:
-#     ".."`), selected by the configuration's `adapter.include` globs: the push
-#     trigger lists the same globs, and never the output under l10n/<locale>/
-#     (`adapter.outDir: "."`);
+#     ".."`), selected by the configuration's `adapter.include` globs, and never
+#     the output under l10n/<locale>/ (`adapter.outDir: "."`);
 #   - the API key in the repository secret ANTHROPIC_API_KEY, the variable
 #     `backend.apiKeyEnv` names; a workflow receives only the secrets it names;
 #   - the project's credential for the package host in the repository secret
@@ -33,15 +35,6 @@
 name: Translate
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - README.md
-      - architecture/**/*.md
-      - authoring/**/*.md
-      - language-reference/**/*.md
-      - l10n/memory/messages/**
-      - l10n/prompts/**
   workflow_dispatch:
 
 permissions:

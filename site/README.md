@@ -54,8 +54,10 @@ The translation configuration sits in `l10n/` at the repository root: the
 target languages, a glossary of the product names kept in English, and one
 instruction file per language. Two workflows (`.github/workflows/l10n.yml` and
 `l10n-collect.yml`) translate the corpus in batches and keep the machine
-translations on the branch `l10n-memory`. They install the translation
-package themselves, so the site still builds from a plain clone.
+translations on the branch `l10n-memory`. Both run only when started by hand:
+no push and no schedule starts a translation, which is paid for per run. They
+install the translation package themselves, so the site still builds from a
+plain clone.
 
 ## Reference pages
 
