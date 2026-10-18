@@ -886,7 +886,7 @@ _Additional properties are not permitted._
 
 ### `ImportParams`
 
-Converts a foreign source description into draft authoring documents. A source it could not fully convert is an answer rather than a failure: the drafts it did produce are written and the findings say what it could not convert.
+Converts a foreign source description into draft authoring documents, and writes beside them `.aggrega-import.json`, the record of what the import wrote, which a later sync reads. A source it could not fully convert is an answer rather than a failure: the drafts it did produce are written and the findings say what it could not convert — except under sync, which writes nothing from a conversion that stopped.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
@@ -895,7 +895,8 @@ Converts a foreign source description into draft authoring documents. A source i
 | `source` | string | no | The file or the directory to convert, as an absolute path or one relative to the workspace root; a request without one is refused. It is read where it is, inside the workspace or not, and a directory is read into the files of it the importer's declared file patterns select. |
 | `outputDir` | string | no | The directory under the workspace to write the drafts into. It is required under dryRun as well, because every drafted path is relative to it, and a request without one is refused rather than given a destination. |
 | `format` | string | no | The source format. Absent lets the conversion determine it. |
-| `dryRun` | boolean | no | Whether to answer with the drafts' content rather than writing them. |
+| `dryRun` | boolean | no | Whether to answer with the content of every file the request would write rather than writing it. Every other behaviour is the write's, so a request the write would refuse is refused under it too; with sync, it answers with what the sync would write and every part that would drift. |
+| `sync` | boolean | no | Whether to bring what an earlier import drafted beneath outputDir up to date with the source, rather than writing the draft whole. Only what the import wrote changes, as the record beside the drafts lists it: a part the source left alone stays as it is on disk, edited or not; a part the source changed, dropped or gained is written anew, removed — a drafted file deleted whole — or added, where what is on disk is what the import last wrote; and everything else, a key an author added or a comment not written directly above a drafted key, stays byte for byte. A sync that would change or remove what an author edited or added, or add a part where an author already wrote one, is refused naming each part, and so is a sync over an Aggregate no record lists; nothing is written either way. Without it, a request whose drafts would be written over an Aggregate already in outputDir is refused, under dryRun too. |
 
 _Additional properties are not permitted._
 
@@ -1511,12 +1512,24 @@ _Additional properties are not permitted._
 
 ### `ImportedFile`
 
-One draft document a conversion produced.
+One file an import writes: a draft document, or the record of what the import wrote.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `path` | string | yes | Where the draft belongs, as a path relative to the workspace root. |
-| `content` | string | yes | The draft's text. |
+| `path` | string | yes | Where the file belongs, as a path relative to the answer's outputDir. |
+| `content` | string | yes | The file's text. |
+
+_Additional properties are not permitted._
+
+### `ImportDrift`
+
+One part a sync brought up to date with the source, or under dryRun would.
+
+| Property | Type | Required | Description |
+| --- | --- | --- | --- |
+| `change` | string | yes | How the part drifted: added, for a part the source gained; removed, for one it dropped; or changed, for one it changed. |
+| `file` | string | yes | The drafted file the part is in, as a path relative to the answer's outputDir. |
+| `key` | string[] | yes | The keys leading to the part from the top of a drafted Aggregate, one entry per key, so a key holding a full stop stays one entry. Empty where the part is the whole file. |
 
 _Additional properties are not permitted._
 
@@ -2345,9 +2358,10 @@ What converting a foreign source produced, and what it could not convert.
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `format` | string | yes | The source format that was converted. |
-| `outputDir` | string | yes | The directory the drafts were written into. |
-| `written` | array or null | yes | The drafts that were written. |
-| `files` | array or null | yes | The drafts and their text, for a request that asked to be shown them rather than have them written. |
+| `outputDir` | string | yes | The directory every path in the answer is relative to, and the one the files were written into. |
+| `written` | array or null | yes | Each file that reached disk, in the order written: the drafts, then the record of what the import wrote. Under sync, only the drafts the sync changed and the record where it changed. Empty under dryRun. |
+| `files` | array or null | yes | Each file the request writes, with its text, under dryRun and without it: every draft, then the record of what the import wrote. Under sync, each draft the sync changes, with its new text, then the record where that changes too, so a sync in step answers an empty list. |
+| `drift` | ImportDrift[] | yes | Each part a sync brought up to date with the source, or under dryRun would, in the order the draft names them; a drafted file the sync deletes is one of them, removed with no keys. An empty list for a request that is not a sync, for a sync in step, and for a sync whose conversion stopped, which writes nothing. |
 | `diagnostics` | array or null | yes | What could not be converted. |
 | `decisions` | ImportDecision[] | yes | How the importer mapped each source node, in the importer's order and exactly as it reported it: what tells you where the conversion guessed. Carried under both deliveries and whether or not the conversion stopped, and an empty list for an importer that reports none. |
 | `halted` | boolean | yes | Whether the conversion stopped rather than finishing with findings. |
