@@ -4,7 +4,7 @@ To author with an AI assistant you need two things: the `aggrega` binary install
 
 ## Install the binary
 
-Aggrega ships as a single self-contained executable. Install it by whichever route fits your platform, then put it on your `PATH`.
+Aggrega ships as a single executable. Install it by whichever route fits your platform, then put it on your `PATH`.
 
 - **Prebuilt binary.** Each release carries prebuilt binaries for Linux and for Windows, both on 64-bit x86, and for macOS on Apple silicon and on Intel. Download the executable for your operating system, mark it executable, and move it onto your `PATH` (for example a directory like `/usr/local/bin` on Linux). On Windows, see [The Windows prebuilt binary](#the-windows-prebuilt-binary) below; on macOS, see [The macOS prebuilt binary](#the-macos-prebuilt-binary).
 - **From source.** With a Go toolchain installed, build the `aggrega` command from the source tree and place the resulting binary on your `PATH`.
