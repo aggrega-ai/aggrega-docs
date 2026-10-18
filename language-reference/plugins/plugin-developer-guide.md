@@ -162,7 +162,7 @@ A `Plugin` has no `extends` surface, so the inheritance rules that govern the ca
 - [`authoring-a-provider-walkthrough.md`](authoring-a-provider-walkthrough.md) — one provider guest built end to end, from an empty directory to rendered output.
 - [`plugin-contract.md`](plugin-contract.md) — the socket points a plugin targets and the per-socket input/output shapes.
 - [`policy-socket.md`](policy-socket.md) — the governance socket in depth: its four roles, the verdict severities, the operator input channel, writing a policy for either of the two engines that ship inside the compiler, and the reference policy guests.
-- [`core-importers.md`](core-importers.md) — the compiler's Langflow and Flowise importers, built on the Go kit's importer package: what each reads, their settings, and their publication with each compiler release.
+- [`core-importers.md`](core-importers.md) — the compiler's Langflow, Flowise and n8n importers, built on the Go kit's importer package: what each reads, their settings, and their publication with each compiler release.
 - [`../entities/plugin.md`](../entities/plugin.md) — the `Plugin` entity field-by-field reference.
 - [`../entities/featurerecipe.md`](../entities/featurerecipe.md) — the FeatureRecipe `pipeline:` authoring surface that references a plugin by entity URI.
 - [`../cli/aggrega-lint.md`](../cli/aggrega-lint.md) — the publishing-linter, the version-bump rubric, and immutability enforcement.

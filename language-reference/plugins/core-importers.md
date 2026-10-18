@@ -1,20 +1,21 @@
 # Core importers
 
-The compiler's repository builds two importer plugins of its own, one for each source format, and
+The compiler's repository builds three importer plugins of its own, one for each source format, and
 publishes them with every compiler release:
 
 | Plugin | Serves | Reads |
 | --- | --- | --- |
 | `importer/langflow` | `import:langflow` | a flow exported from Langflow, as JSON |
 | `importer/flowise` | `import:flowise` | a chatflow or an agentflow exported from Flowise, as JSON |
+| `importer/n8n` | `import:n8n` | a workflow exported from n8n, as JSON |
 
 Each is built from the compiler's own sources and stamped with the compiler's version, so the
 importers released with the compiler at `X.Y.Z` report version `X.Y.Z`, and their Plugin entities
-record it. Unlike the plugins listed on [Embedded plugins](embedded-plugins.md), neither is compiled
+record it. Unlike the plugins listed on [Embedded plugins](embedded-plugins.md), none is compiled
 into the binary. The binary carries each one's Plugin entity and the digest of the one module it
-accepts for it, so both serve their formats in every workspace, with no entry in its catalog.
+accepts for it, so each serves its format in every workspace, with no entry in its catalog.
 
-Both are built on the Go kit's importer package, `github.com/aggrega-ai/aggrega-pdk-go/pkg/importer`.
+All three are built on the Go kit's importer package, `github.com/aggrega-ai/aggrega-pdk-go/pkg/importer`.
 Everything an importer does whatever its format — scoring the workspace catalog's Components against
 each node, deciding whether to reference one or draft a new one, laying the draft out, keeping
 credential values out of it, writing the drafts and reading the settings below — is that package's,
@@ -63,7 +64,7 @@ rules every importer is selected by, which
 sets out:
 
 - Within one name, the highest version runs, or the version a `plugins.importer` entry names.
-- Where your catalog holds an importer of another name for `langflow` or `flowise`, two importers
+- Where your catalog holds an importer of another name for `langflow`, `flowise` or `n8n`, two importers
   advertise the format, and an import that attaches neither is refused naming both, under
   [A parse or import format is advertised by more than one plugin](../errors/fatal-halts.md#a-parse-or-import-format-is-advertised-by-more-than-one-plugin).
   A `plugins.importer` entry naming the one you want settles it.
@@ -78,13 +79,15 @@ declares:
 - **Langflow** — a source that parses as JSON and carries an array at `data.nodes`.
 - **Flowise** — a source that parses as JSON, carries arrays at `nodes` and `edges`, and carries
   nothing at `data.nodes`.
+- **n8n** — a source that parses as JSON, carries an array at `nodes` and an object at
+  `connections`, and carries nothing at `edges` or at `data.nodes`.
 
-No source matches both. Each reads its source through the parser that serves `parse:json`: the one
-your workspace's catalog serves, where it serves one, and otherwise the JSON parser the compiler
-itself carries (see [Embedded plugins](embedded-plugins.md)). So an import through either needs no
-parser in your catalog, and nothing is fetched for one. A JSON parser your catalog does serve is the
-one used, and the compiler's plays no part. Neither importer declares file patterns, so each reads
-one file and an import of a directory through either is refused. For the same reason their
+No source matches two of them. Each reads its source through the parser that serves `parse:json`: the
+one your workspace's catalog serves, where it serves one, and otherwise the JSON parser the compiler
+itself carries (see [Embedded plugins](embedded-plugins.md)). So an import through any of them needs
+no parser in your catalog, and nothing is fetched for one. A JSON parser your catalog does serve is the
+one used, and the compiler's plays no part. None of them declares file patterns, so each reads one
+file and an import of a directory through any of them is refused. For the same reason their
 signatures apply to every file imported on its own: an import naming no format reads such a file as
 JSON to try them, whatever importer it is meant for, through that same parser.
 
@@ -131,13 +134,42 @@ JSON to try them, whatever importer it is meant for, through that same parser.
   node's `modelName` input; and an OpenAI node's Base Path, its `basepath` input.
   [What they draft](#what-they-draft) says what becomes of each.
 
+## What the n8n importer reads
+
+- The workflow's `nodes` and its `connections`, at the top level of the export.
+- For each node, its `name`, which identifies it — n8n's connections name the nodes they join by
+  name, and a workflow's node names are unique — and its `type`, written whole, with its package:
+  `@n8n/n8n-nodes-langchain.lmChatOpenAi`, say, or `n8n-nodes-base.httpRequest`. A node with no name
+  is identified by its `id`.
+- Each connection the workflow lists is one edge, from the node it leaves to the node it enters,
+  whatever its type: a `main` connection carries data from one node to the next, and an AI connection
+  — `ai_languageModel`, `ai_tool`, `ai_vectorStore`, `ai_embedding`, `ai_memory` and the others —
+  hands the node it enters the model, tool, store or memory the node it leaves stands for. Either way
+  the node a connection enters consumes the node it leaves.
+- Each credential type a node's `credentials` names, and each top-level parameter n8n marks as a
+  password, is drafted as a credential slot; each other top-level parameter of the node is a value
+  field. Drafting
+  a node as a Component reads no field's value.
+- A note pinned to the canvas, a node of type `n8n-nodes-base.stickyNote`, is not imported, and a
+  connection to a node that is not imported is dropped.
+- Drafting the platform that carries the workflow also reads, off it: its top-level `id`; each
+  credential a node selects; each parameter n8n marks as a password; the address an MCP client node
+  calls; the headers and query parameters a node sends with a request the workflow composes, as
+  [Credential values written empty](#credential-values-written-empty) lists them — those
+  `empty_unmarked_credentials` governs only where it is `true`; and the parameter a model node names
+  its model in. [What they draft](#what-they-draft) says what becomes of each.
+
 ## What they draft
 
 Each node is weighed against the Components of the workspace's own catalog and nothing else, as the
 [importer socket](plugin-contract.md#the-importer-socket--draft-authoring-output) describes, and each
 importer carries a short table mapping common node types of its format — chat and embedding models,
 retrieval, HTTP requests and, on Langflow, the MCP Tools node `MCPTools`, which maps to
-`core/ai-tool/mcp` — to standard-library Components. A row of that table counts towards a match only
+`core/ai-tool/mcp` — to standard-library Components. The n8n importer's table maps n8n's chat and
+embedding models, its MCP client tool to `core/ai-tool/mcp`, its HTTP request tools, its SerpApi tool,
+its Qdrant, PGVector, Chroma, Milvus and Weaviate vector stores, and its Postgres and Redis chat
+memories. A node n8n runs within the workflow itself — an agent, a chain, a trigger, a memory the
+workflow keeps in its own process, a code tool — is the workflow's own, and no row maps it. A row of that table counts towards a match only
 where the workspace's catalog holds the Component it names. The command reports one line for each
 node it mapped, naming what it chose, the match tier and the best candidate's score, and a line
 reading `made no choice for <node id> (<node type>)` for a node it gives no Component of its own. A
@@ -156,10 +188,11 @@ By default an import writes:
 
 - `aggregate.yaml` — a draft Aggregate named `<target_namespace>/flow`. It holds one instance of the
   platform that runs the flow — `core/ai-agent/langflow`, under the key `langflow`, for a Langflow
-  flow, and `core/ai-agent/flowise`, under the key `flowise`, for a Flowise one — referencing the
-  catalog Component of that name. The instance carries the flow in `values.flow_definition` and names
-  it in its identifier value, `flow_id` on Langflow and `chatflow_id` on Flowise. Each part of the
-  flow is an entry of its own beside it, wired to the platform under the instance's `uses`.
+  flow, `core/ai-agent/flowise`, under the key `flowise`, for a Flowise one, and `core/ai-agent/n8n`,
+  under the key `n8n`, for an n8n workflow — referencing the catalog Component of that name. The
+  instance carries the flow in `values.flow_definition` and names it in its identifier value, `flow_id`
+  on Langflow, `chatflow_id` on Flowise and `workflow_id` on n8n. Each part of the flow is an entry of
+  its own beside it, wired to the platform under the instance's `uses`.
 - one file under `components/` for each part it drafts rather than references, written as
   [the node-by-node layout](#node-by-node) writes a drafted node.
 
@@ -221,8 +254,9 @@ Its chat model is the one part wired; its two embedding models stay in the flow,
 socket draws a single connection, and its retriever tools stay in the flow, since no socket of the
 platform takes them. The import reports each.
 
-The flow's identifier is the one the export gives it — a Langflow flow's top-level `id`, and a Flowise
-chatflow's top-level `id` where it is a UUID — where that is one to 128 letters, digits, `.`, `-`, `_`
+The flow's identifier is the one the export gives it — a Langflow flow's top-level `id`, a Flowise
+chatflow's top-level `id` where it is a UUID, and an n8n workflow's top-level `id` — where that is one
+to 128 letters, digits, `.`, `-`, `_`
 or `:`, opening with a letter or a digit. Where the export gives none, or one holding any other
 character, the draft writes a name-based UUID derived from the format's name and the flow as it is
 carried, so one flow always yields one identifier, and a comment above the value says it was derived.
@@ -246,7 +280,7 @@ to read labels off, stays in the flow, and the import reports it.
 
 Three rules narrow that:
 
-- **A socket drawing a single connection is held by one part.** On both platforms the `model` socket
+- **A socket drawing a single connection is held by one part.** On every platform the `model` socket
   draws one connection, which the platform's Recipes deliver as one `OPENAI_BASE_URL` and one
   `OPENAI_API_KEY`. Where several parts are placed in it, the first whose Component carries
   `model.aggrega.ai/capability: generative` holds it — the first part, where none does — and every
@@ -274,8 +308,9 @@ connection, and names each socket it was passed over for and why.
 
 ### How the carried flow reaches each part
 
-The flow the platform carries reaches each wired part through its connection, and the draft writes
-into the flow what makes it do so — the name of a variable, or an address emptied, and never a value:
+Where the format lets it, the flow the platform carries reaches each wired part through its
+connection, and the draft writes into the flow what makes it do so — the name of a variable, or an
+address emptied, and never a value:
 
 - **A Langflow MCP Tools node.** The platform writes the address its connection delivers into the
   node's server configuration and, where the connection carries a credential, the name of the variable
@@ -327,6 +362,18 @@ into the flow what makes it do so — the name of a variable, or an address empt
   of that name, which nothing creates at startup. The draft writes nothing for it, and the import
   reports the step that makes the chatflow read it: create the Runtime variable on Flowise's
   Variables page, and read it in the node as `$vars.<name>`.
+- **Any n8n node.** The platform delivers a model connection as `OPENAI_BASE_URL` and
+  `OPENAI_API_KEY`, and a tools or vector-store connection as `AGGREGA_TOOL_<ALIAS>_URL` or
+  `AGGREGA_VECTOR_STORE_<ALIAS>_URL`, while an n8n node reaches a model, a store or a service at the
+  address the stored credential it selects gives, or the address its own parameters hold, and a
+  workflow reads an environment variable only through an expression reading `$env`, which the platform refuses unless the Aggregate sets
+  `values.allow_env_access_in_nodes` to `true`. The draft leaves that value at its default, `false`,
+  since setting it lets every workflow, and every user who can edit one, read every variable of the
+  platform's environment, the delivered credentials included. So the draft writes nothing into the
+  workflow for a connection, and every wired part is reported as reached other than through it. An MCP
+  client node's address is written empty with the workflow's credentials, as below, so it reaches no
+  server until an address is set again, and the server's own address — `infra.endpoint` of the part —
+  is left for the Release.
 
 Where the flow is carried, each wired part is reported with which of these holds:
 `part-reads-connection` where the flow reaches the part through its connection, and
@@ -352,6 +399,14 @@ as the end of this section says.
   selects; the value of each input its `inputParams` declare of type `password`; and
   `FLOWISE_CREDENTIAL_ID` among a node's inputs, and `credential` or `FLOWISE_CREDENTIAL_ID` inside a
   configuration object at any depth of them, as an agentflow keeps a model's or a tool's.
+- **n8n** — the `id` of each stored credential a node selects, at `credentials.<type>.id`. An n8n
+  export keeps a credential as a reference, never its value, and the reference's `name` is kept: n8n,
+  importing the workflow on another instance, resolves a credential whose `id` it does not hold by its
+  type and name. A credential an older export selects by its name alone names a credential and holds
+  none, and is carried as written. And the value of each parameter n8n marks as a password in its
+  base nodes' definitions — the Crypto node's `secret`, say, or the `password` of the nodes that
+  create a user — wherever among the node's parameters it sits, a node used as an agent's tool read
+  as the node it is.
 - **An MCP server's configuration** — a Langflow MCP Tools node's `mcp_server` configuration, and a
   Flowise node's `mcpServerConfig`, written as JSON text or as an object: each header value, whether
   the headers are an object, rows of a key and a value or objects merged whole, an item of any other
@@ -380,7 +435,11 @@ as the end of this section says.
   Tools (SSE) and MCP Tools (stdio) components, which Langflow marks deprecated, keep their server in
   one field each — an `MCPSse` node its address in `url`, an `MCPStdio` node its whole command line,
   its arguments included, in `command` — and Langflow marks neither as a credential, so each is
-  written empty whole. Neither names an MCP server, so neither is wired to a tools connection.
+  written empty whole. Neither names an MCP server, so neither is wired to a tools connection. An n8n
+  MCP client node — the MCP Client Tool an agent calls, the MCP Client node, or a client of a server
+  n8n's registry lists — keeps the server's address in its `endpointUrl` parameter, or `sseEndpoint`
+  on its first version, and its headers only as credentials it selects; the address is written empty
+  whole, wired or not.
 - **Request headers neither format marks as a credential**, with `empty_unmarked_credentials: true` —
   on Langflow, the `headers` of an
   `APIRequest`, `URLComponent`, `CloudflareWorkersAIEmbeddings` or `ConfluentKafkaProducer` node and
@@ -389,25 +448,36 @@ as the end of this section says.
   `requestsGetHeaders`, `requestsPostHeaders`, `requestsPutHeaders` and `requestsDeleteHeaders` of
   the Requests tools, and the `baseOptions` — the default headers a model's client sends — of an
   `azureChatOpenAI`, `azureOpenAIEmbeddings`, `chatCerebras`, `chatOpenAICustom`,
-  `openAIEmbeddingsCustom`, `chatOpenRouter`, `chatSambanova` or `openAI` node. A header's name carries
+  `openAIEmbeddingsCustom`, `chatOpenRouter`, `chatSambanova` or `openAI` node; on n8n, the
+  `headerParameters`, `jsonHeaders`, `headerParametersUi` and `headerParametersJson` of an
+  `n8n-nodes-base.httpRequest` node — its current version keeps the first two, its earlier versions
+  the other two — and of the same node used as an agent's tool, the `parametersHeaders` and
+  `jsonHeaders` of an `@n8n/n8n-nodes-langchain.toolHttpRequest` node, and the `headerParametersUi` of
+  an `n8n-nodes-base.graphql` node. A header's name carries
   no secret, so each header's value is written empty and its name kept, whatever shape the headers
-  take: an object of names to values, rows of a key and a value, or objects Langflow merges into the
-  headers whole. Each header is reported by its name. An item of a list that is no header row is
-  written empty whole and reported by its position. Headers written as text are written empty whole,
-  except on Flowise where the text holds headers as JSON: there the text is rewritten in place, each
-  value written empty, and reported once with the names of the headers it holds. Every value is
+  take: an object of names to values, rows of a key and a value — on n8n, rows of a `name` and a
+  `value` — or objects Langflow merges into the headers whole. Each header is reported by its name. An
+  item of a list that is no header row is written empty whole and reported by its position. Headers
+  written as text are written empty whole, except on Flowise and n8n where the text holds headers as a
+  JSON object: there the text is rewritten in place, each value written empty, and reported once with
+  the names of the headers it holds. n8n text opening with `=` is an expression n8n evaluates when the
+  workflow runs, and is written empty whole. Every value is
   written empty, those of headers that hold no secret such as `User-Agent` included, so an imported
   request is sent with them empty until its author restores them.
 - **Query parameters neither format marks as a credential**, with `empty_unmarked_credentials: true`
   — on Langflow, the `query_params` of an
   `APIRequest` or `GoogleSerperAPI` node and the `search_params` of a `SerpAPI`, `Serp`, `SearchAPI`
   or `SearchComponent` node; on Flowise, the `queryParams` of an `httpAgentflow` node and the
-  `customParameters` of a `searchApi` loader. Each is sent as the query of a request, and a query
+  `customParameters` of a `searchApi` loader; on n8n, the `queryParameters`, `jsonQuery`,
+  `queryParametersUi` and `queryParametersJson` of an `n8n-nodes-base.httpRequest` node, used as a
+  tool or not, the `parametersQuery` and `jsonQuery` of an `@n8n/n8n-nodes-langchain.toolHttpRequest`
+  node, and the `queryParameters` and `queryParametersJson` an `n8n-nodes-base.facebookGraphApi` node
+  keeps among its `options`. Each is sent as the query of a request, and a query
   parameter can carry a key — some search APIs take theirs as `api_key` in the query — so each is
   written as headers are: each value written empty and its name kept, whatever shape the parameters
   take, and each reported by its name; parameters written as text are written empty whole, except on
-  Flowise where the text holds them as JSON, which is rewritten in place and reported once with the
-  names it holds. Every value is written empty, those of parameters that hold no secret included, so
+  Flowise and n8n where the text holds them as a JSON object, which is rewritten in place and reported
+  once with the names it holds. Every value is written empty, those of parameters that hold no secret included, so
   an imported request is sent with them empty — or, from a Flowise HTTP node, which sends no
   parameter whose value is empty, without them — until its author restores them.
 - **Default headers and a default query on a node the platform's connection reaches** — a Langflow
@@ -450,8 +520,9 @@ the editor adds to a node beyond those its component declares; the body a reques
 as an `APIRequest` or `httpAgentflow` node's, which can carry a token; the arguments a node hands
 its model's client or a loader as one object of its own, such as a Langflow `EmbeddingModel` node's
 `model_kwargs` or a Flowise `replicate` node's `additionalInputs`, which can carry a key under any
-name; an address other than an MCP server's, which can carry a key in its user part or its query;
-and free text such as a prompt or a message.
+name; an address other than an MCP server's, which can carry a key in its user part or its query; an
+n8n Code node's code, and the headers or the query of a node that sends a request the importer does
+not list above; and free text such as a prompt or a message.
 
 ### What the draft leaves for the Release
 
@@ -460,7 +531,8 @@ supplies:
 
 - the platform's own inputs: on Langflow, `infra.image`, and the `admin_password` slot while
   `values.require_authentication` stays `true`; on Flowise, `infra.image`, `infra.owner_email` and the
-  `owner_password` slot, the last two required while `values.flow_definition` is set;
+  `owner_password` slot, the last two required while `values.flow_definition` is set; on n8n,
+  `infra.image`;
 - the address of each MCP server wired to the platform, `infra.endpoint` of its part;
 - where the platform draws a connection, the credential each connection presents to the part it
   reaches, attached on that connection.
@@ -472,7 +544,10 @@ platform draws a connection, a comment inside its instance shows the lines decla
 with a key of its own, each commented out where it belongs — `owner_password` with the key
 `OWNER_PASSWORD` on Flowise, as in the example above, and `admin_password` with the key
 `LANGFLOW_SUPERUSER_PASSWORD` on Langflow. Uncomment them to build for compose; the Release still
-attaches the slot, naming the same type or none.
+attaches the slot, naming the same type or none. The n8n platform takes no secret of its own, so its
+draft shows no such lines; its compose Recipe reads the credentials the Release attaches on its
+connections under the same one key, so a Release attaching a credential on two of its connections
+halts the compose build naming both, and an Aggregate naming `values.key` on one of them avoids it.
 
 ### The model a part serves
 
@@ -484,6 +559,10 @@ as `values.model`:
   `model`; and a `LanguageModelComponent` or `EmbeddingModel` node's `model_name` override where it is
   set, and otherwise the model its `model` field selects.
 - **Flowise** — a `chatOpenAI`, `chatAnthropic` or `openAIEmbeddings` node's `modelName`.
+- **n8n** — the `model` parameter of a chat, completion or embeddings node the importer's table maps,
+  or its `modelName` on the Google Gemini and Vertex nodes, written as a name or as the value of the
+  selector n8n's newer nodes keep it in. n8n leaves a parameter set to its default out of an export,
+  so a node that keeps the default model names none in the export.
 
 A Release cannot write a value. So where the node names no model the draft can write — it selects
 none, names it through a global variable or an expression read only when the flow runs, takes it from
@@ -639,8 +718,9 @@ with its `code` as well.
 
 ## Published with each compiler release
 
-Each compiler release builds both importers from the tagged sources and generates their Plugin
+Each compiler release builds the three importers from the tagged sources and generates their Plugin
 entities from the importers themselves, so an entity's capability, recognition signatures, host
-functions and description are what its importer reports. The release signs and publishes both,
-`importer/langflow` and `importer/flowise` at the release's version, beside the other core plugins,
-and records their entities with the other core plugins' entities for the standard catalog.
+functions and description are what its importer reports. The release signs and publishes all three,
+`importer/langflow`, `importer/flowise` and `importer/n8n` at the release's version, beside the other
+core plugins, and records their entities with the other core plugins' entities for the standard
+catalog.
