@@ -48,8 +48,14 @@ routing, `hreflang` alternates, per-locale sitemaps, and a differential
 translation-memory pipeline that only re-translates changed segments and
 preserves a glossary of product names — is built and exercised behind an
 environment flag (`DOCS_I18N_PROOF=1`, which adds a stub locale for testing), but
-no translated content is shipped. Only the latest version is ever translated. The
-translation-memory pipeline is not part of this repository.
+no translated content is shipped. Only the latest version is ever translated.
+
+The translation configuration sits in `l10n/` at the repository root: the
+target languages, a glossary of the product names kept in English, and one
+instruction file per language. Two workflows (`.github/workflows/l10n.yml` and
+`l10n-collect.yml`) translate the corpus in batches and keep the machine
+translations on the branch `l10n-memory`. They install the translation
+package themselves, so the site still builds from a plain clone.
 
 ## Reference pages
 
@@ -75,5 +81,10 @@ npm run dev       # local preview
   approach) would improve them.
 - Breadcrumb segments are humanised from route names, so an initialism such as
   "CLI" renders as "Cli" until a proper-noun map is added.
+- Switching the translated languages on: declare the target languages in
+  `astro.config.mjs`, add the translated trees under `l10n/<locale>/` to the
+  content collection, register the package's heading-identifier plugin, show
+  the machine-translation notice on every translated page, and read the newest
+  translations from `l10n-memory` in the publishing build.
 - Callout panels use the shared dark surface with the default per-type border; a
   per-type accent colour from the brand's semantic palette is a later refinement.
