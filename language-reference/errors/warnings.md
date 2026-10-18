@@ -94,7 +94,7 @@ Those two lines come from one build over one Manifest, and what differs between 
 **Emit shape:**
 
 ```text
-  lint: Aggregate nearmiss at .spec.components.db.features.app_user_passwrod: attachment name is a near miss for a declared slot ("app_user_passwrod", on component type "core/datastore/postgres", near the declared slot "app_user_password")
+  lint: attachment name is a near miss for a declared slot (Aggregate nearmiss, at .spec.components.db.features.app_user_passwrod, "app_user_passwrod", on component type "core/datastore/postgres", near the declared slot "app_user_password")
 ```
 
 The first quoted value is the name the attachment was written under, which is what the warning's opening sentence is about. The two that follow are introduced by the words that say what they are: the Component type the attachment sits on, and the declared slot it sits within one edit of.
@@ -232,7 +232,7 @@ A declared parameter is the authoring surface for varying one value per deployme
 **Emit shape.** One line per unread declaration, naming the Aggregate and the declaration's locator:
 
 ```text
-  lint: Aggregate fullstack-app at .spec.parameters.unread_probe: declared parameter is read by no reference in the Aggregate ("unread_probe")
+  lint: declared parameter is read by no reference in the Aggregate (Aggregate fullstack-app, at .spec.parameters.unread_probe, "unread_probe")
 ```
 
 Findings arrive in the order the Aggregate declares its parameters, so the same Aggregate produces the same sequence on every run. Each carries the declaration's locator, which names the offending key. The message names the key as well, which is why it appears twice on a terminal line that prints the locator too: an editor shows the message at the position it placed and never the locator text, so a message that left the key out would read identically for every unread declaration.

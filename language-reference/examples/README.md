@@ -119,7 +119,7 @@ developer surface and the String Pipe with zero platform authoring.
   last read from one hoisted parameter so they cannot drift apart. Also shows
   where the compiler is blind: the address and the alias the agent receives are
   read off what the router publishes, and the compiler pipes both without
-  reading them.
+  reading them. Needs a hub registry credential.
 - **[connection-credentials](connection-credentials/)** — a semantic-memory
   store reaching two models and presenting a different key to each, compiled to
   Kubernetes: a hosted model whose key is fetched from a cluster secret store,
@@ -144,7 +144,7 @@ developer surface and the String Pipe with zero platform authoring.
   refuses it if so, compiled to Kubernetes as the gateway, the guard and the
   classifier's service. The catalog names an image for neither the guard nor the
   classifier, so the Release supplies both. The README spends as long on what the
-  shield does not do as on what it does.
+  shield does not do as on what it does. Needs a hub registry credential.
 - **[ai-gateway-semantic-cache](ai-gateway-semantic-cache/)** — an AI gateway
   that answers a question from the reply it gave an earlier, similarly worded
   one, keeping the replies in a Redis wired to it, compiled to Kubernetes. The
