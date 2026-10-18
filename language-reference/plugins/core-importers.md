@@ -549,6 +549,23 @@ draft shows no such lines; its compose Recipe reads the credentials the Release 
 connections under the same one key, so a Release attaching a credential on two of its connections
 halts the compose build naming both, and an Aggregate naming `values.key` on one of them avoids it.
 
+With the [`attach_egress_allowlist` setting](#settings) `true`, the platform's instance also declares
+the standard library's `core/egress-allowlist` Feature under `features`, as `egress-allowlist`, so the
+platform connects only to the components its connections reach, its own pods and the cluster's DNS
+— the outbound counterpart of a [`uses` edge as a declared call](../entities/aggregate.md#a-uses-edge-is-a-call-the-aggregate-declares).
+The draft declares the attachment's type and nothing else, since an Aggregate's attachment carries no
+`infra`, and the comment above the instance names what the Release sets on it, under
+`features.egress-allowlist.infra` of the platform's entry: `control_plane_present: true`, the
+operator's affirmation that the cluster's network plugin enforces network policy, without which the
+build halts; and `admitted_destinations`, an address range for each connection whose target the
+cluster does not run, such as a hosted model, without which the build halts naming that connection.
+The comment also names `aggrega.ai/namespace` for the boundary holding the platform, since the policy
+is placed in its workloads' namespace and the build halts where they are emitted into none. Each wired
+part's decision says the attachment admits its connection, and the import reports the attachment as
+`feature-attached`. Compose has no network policy, so a compose build of such a draft halts naming the
+attachment; where the platform draws a connection, the compose lines above are shown inside the
+instance's `features` block, with no second `features` key.
+
 ### The model a part serves
 
 A part the draft references whose Component declares a value named `model` — as each model Component
@@ -680,6 +697,7 @@ plugins:
 | `mapping_overrides` | none | Mappings layered over the importer's own table, keyed by format and then by node type. Each entry names the `component` a node of that type maps to and, optionally, its `category`, the `traits` — labels and their values — a matching Component carries, and a `vendor` word its name carries. An entry for a node type the table already maps takes the table row's place. Only the entries under the format being imported are read. |
 | `layout` | `platform` | `platform` drafts the platform that runs the flow, carrying the flow, with each part of it a Component of its own wired to the platform, as [The platform carrying the flow](#the-platform-carrying-the-flow) describes. `nodes` drafts every node as a Component of its own, as [Node by node](#node-by-node) describes. Any other value drafts as `platform`, and the import warns with `unknown-layout`. |
 | `empty_unmarked_credentials` | `false` | `true` writes empty, in the flow the platform carries, the inputs each format marks as no credential and that can carry one all the same — request headers, query parameters, a request written as a command line, an input named for a key — as [Credential values written empty](#credential-values-written-empty) lists them. `false` carries each as written, so a key in one reaches the draft. What a format marks as a credential, an MCP server's configuration, and the default headers and query of a node the platform's connection reaches are written empty either way. Any value that is not a boolean reads as `false`. |
+| `attach_egress_allowlist` | `false` | `true` attaches the standard library's `core/egress-allowlist` Feature to each platform instance the draft writes, as `egress-allowlist`, setting none of its `infra`, as [What the draft leaves for the Release](#what-the-draft-leaves-for-the-release) describes. `false` attaches nothing. A draft that writes no platform, under `layout: nodes`, attaches nothing whatever this says, and with it `true` the import warns with `feature-not-attached`. Any value that is not a boolean reads as `false`. |
 
 A setting an importer does not know is ignored.
 
@@ -715,6 +733,8 @@ with its `code` as well.
 | `part-reads-connection` | `warn` | How the flow reaches a wired part through its connection. |
 | `part-address-in-flow` | `warn` | The flow reaches a wired part other than through its connection, with how. |
 | `model-not-named` | `warn` | `values.model` of a referenced part is left for the author, with why. |
+| `feature-attached` | `info` | `attach_egress_allowlist` attached `core/egress-allowlist` to a drafted platform, with what of it the Release sets; once for each platform instance. |
+| `feature-not-attached` | `warn` | `attach_egress_allowlist` is `true` and the draft writes no platform, so nothing is attached. |
 
 ## Published with each compiler release
 
