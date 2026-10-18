@@ -19,7 +19,7 @@ The payload a feature-recipe-pipeline guest receives for one pipeline step: the 
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `documents` | DocumentSet | yes | The keyed, scope-rooted set of addressable units a pipeline guest receives as its input surface. The host hands the whole set and is blind to its content; the guest selects the documents it targets by content and addresses its patches by key. |
+| `documents` | DocumentSet | yes | The keyed, scope-rooted set of addressable units a pipeline guest receives as its input surface. The host hands the whole set and does not interpret its content; the guest selects the documents it targets by content and addresses its patches by key. |
 | `step_input` | object | no | The step's rendered `with` block, an author-ordered key set the guest reads as its step-local input. Preserves author order so the payload is byte-identical across runs of identical input. |
 | `context` | object | yes | The render-time context the host hands the step. The step carries it through; the schema does not interpret its internal shape (an opaque passthrough), so the FRP socket schema does not bind to the cross-boundary render-context shape. The render context's own contract is the render-context wire shape; a guest that reads it consults that contract. |
 | `step_index` | integer | yes | This step's zero-based position in the pipeline. |
@@ -43,7 +43,7 @@ _Additional properties are not permitted._
 
 ### `DocumentSet`
 
-The keyed, scope-rooted set of addressable units a pipeline guest receives as its input surface. The host hands the whole set and is blind to its content; the guest selects the documents it targets by content and addresses its patches by key.
+The keyed, scope-rooted set of addressable units a pipeline guest receives as its input surface. The host hands the whole set and does not interpret its content; the guest selects the documents it targets by content and addresses its patches by key.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
