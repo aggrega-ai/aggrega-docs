@@ -103,7 +103,7 @@ The InjectPipe is the post-interception state — FeatureRecipe `injectMapping` 
 - **`.annotations` (three buckets)** — target's `release`/`catalog`/`aggregate` annotation buckets.
 - **`.component` (string)** — target's Component type URI.
 - **`.resolved_version` (string)** — target's Component version after Manifest resolution.
-- **`.boundary_path` (string)** — target's Release boundary path (set when the target lives in a different boundary than the caller).
+- **`.boundary_path` (string)** — target's Release boundary path, set whether the target lives in the caller's boundary or in another.
 - **`.origin_feature` (string)** — set when the edge was synthesized by a Feature attachment (e.g., a sidecar Feature contributing a `uses` edge to a credential Feature).
 - **`.values` (map)** — resolved per-edge developer configuration for this connection, authored on the Aggregate's `uses` entry. Present only when the edge carries per-edge values.
 - **`.infra` (map)** — resolved per-edge operator configuration for this connection, authored on the Release's `uses` entry. Present only when the edge carries per-edge infra.
