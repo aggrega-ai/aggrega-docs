@@ -389,13 +389,26 @@ What lies outside those places is the author's to review, as the end of this sec
   value written empty, and reported once with the names of the headers it holds. Every value is
   written empty, those of headers that hold no secret such as `User-Agent` included, so an imported
   request is sent with them empty until its author restores them.
-- **Default headers on a node the platform's connection reaches** — a Langflow `OpenAIEmbeddings`
-  node's `default_headers`, and a Flowise `chatOpenAI` or `openAIEmbeddings` node's `baseOptions`,
-  wherever the node sits, an agentflow's configuration of the model it selects included. These
-  clients send their default headers over the ones they build from the key the platform delivers for
-  the model connection, so a header kept with its value emptied would be sent in place of the key.
-  The whole value is written empty with its kind kept — an object as `{}`, a list as `[]`, text as an
-  empty string — and reported once; an empty object or list overrides nothing.
+- **Query parameters neither format marks as a credential** — on Langflow, the `query_params` of an
+  `APIRequest` or `GoogleSerperAPI` node and the `search_params` of a `SerpAPI`, `Serp`, `SearchAPI`
+  or `SearchComponent` node; on Flowise, the `queryParams` of an `httpAgentflow` node and the
+  `customParameters` of a `searchApi` loader. Each is sent as the query of a request, and a query
+  parameter can carry a key — some search APIs take theirs as `api_key` in the query — so each is
+  written as headers are: each value written empty and its name kept, whatever shape the parameters
+  take, and each reported by its name; parameters written as text are written empty whole, except on
+  Flowise where the text holds them as JSON, which is rewritten in place and reported once with the
+  names it holds. Every value is written empty, those of parameters that hold no secret included, so
+  an imported request is sent with them empty — or, from a Flowise HTTP node, which sends no
+  parameter whose value is empty, without them — until its author restores them.
+- **Default headers and a default query on a node the platform's connection reaches** — a Langflow
+  `OpenAIEmbeddings` node's `default_headers` and `default_query`, and a Flowise `chatOpenAI` or
+  `openAIEmbeddings` node's `baseOptions`, wherever the node sits, an agentflow's configuration of the
+  model it selects included. These clients send their default headers over the ones they build from
+  the key the platform delivers for the model connection, and the Langflow node's client merges its
+  default query over the query of the address it calls, so a header or a parameter kept with its
+  value emptied would be sent in place of the one the platform's connection supplies. The whole value
+  is written empty with its kind kept — an object as `{}`, a list as `[]`, text as an empty string —
+  and reported once; an empty object or list overrides nothing.
 - **A whole request written as a command line** — a Langflow `APIRequest` node's `curl_input` and a
   `Webhook` node's `curl`, written empty whole, the Webhook's default included. Neither is read when
   the flow runs: the first only fills the node's fields in the editor, the second shows an example.
@@ -408,19 +421,22 @@ What lies outside those places is the author's to review, as the end of this sec
   carried as written.
 
 The import reports each value it writes empty with `credential-emptied`, naming its node and its
-field — a header by its name — and never its value. A value already empty, or `null`, is left as it
-is and not reported. Apart from those values, what the draft writes so that the flow reaches its parts, and the carriage returns
-written as line feeds below, the flow is carried as it was exported, so a flow with none of these to
-change is carried byte for byte.
+field — a header or a query parameter by its name — and never its value. A value already empty, or
+`null`, is left as it is and not reported. Apart from those values, what the draft writes so that
+the flow reaches its parts, and the carriage returns written as line feeds below, the flow is carried
+as it was exported, so a flow with none of these to change is carried byte for byte.
 
 A connection in the draft carries no credential: the Release attaches the one each connection
 presents, as the comment above the platform says.
 
 No rule about a field reaches the rest of a flow, so the author reviews it before sharing a draft: a
 component's own code, which the flow carries and in which a custom component can hold a key; inputs
-the editor adds to a node beyond those its component declares; an address other than an MCP
-server's, which can carry a key in its user part or its query, a Flowise HTTP node's query
-parameters among them; and free text such as a prompt or a message.
+the editor adds to a node beyond those its component declares; the body a request is sent with, such
+as an `APIRequest` or `httpAgentflow` node's, which can carry a token; the arguments a node hands
+its model's client or a loader as one object of its own, such as a Langflow `EmbeddingModel` node's
+`model_kwargs` or a Flowise `replicate` node's `additionalInputs`, which can carry a key under any
+name; an address other than an MCP server's, which can carry a key in its user part or its query;
+and free text such as a prompt or a message.
 
 ### What the draft leaves for the Release
 
