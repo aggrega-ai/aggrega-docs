@@ -101,9 +101,10 @@ JSON to try them, whatever importer it is meant for, through that same parser.
   is not imported is dropped.
 - Drafting the platform that carries the flow also reads, off the flow: its top-level `id`; the value
   of each field marked `password: true`, which it writes empty; an MCP Tools node's `mcp_server`
-  field — the MCP server it names, and that server's configuration; the field a node names its model
-  in, and the model provider it runs on; and the fields through which a node reaches a part's address
-  and key, which it rewrites.
+  field — the MCP server it names, and that server's configuration — or the fields it keeps its server
+  in instead, and its `headers` field; the field an `MCPSse` or `MCPStdio` node keeps its server in;
+  the field a node names its model in, and the model provider it runs on; and the fields through which
+  a node reaches a part's address and key, which it rewrites.
   [What they draft](#what-they-draft) says what becomes of each.
 
 ## What the Flowise importer reads
@@ -354,6 +355,17 @@ Before the flow is carried, every value in a place the format keeps a credential
   entry of `env`, the address and the command line are written empty, their fields and entries kept.
   Where `env` is a list, each entry is reported by its position, since a variable's name and its
   value share one text. Such a node names no MCP server, so it is never wired to a tools connection.
+  A Langflow MCP Tools node, whether or not it carries `mcp_server`, can also have a `headers` field of
+  its own, whose headers Langflow sends the server over those of its configuration. Langflow marks it
+  as no credential, and a header in it can carry one, so its whole value is written empty with its
+  kind kept — an object as `{}`, a list as `[]`, and a value of any other kind, which Langflow sends
+  as no header, as an empty string — and reported once, as `headers`. A header written with its name
+  kept and its value emptied would, on a node wired to a tools connection, be sent in place of the one
+  the platform writes for the connection; an empty object or list overrides nothing. Langflow's MCP
+  Tools (SSE) and MCP Tools (stdio) components, which Langflow marks deprecated, keep their server in
+  one field each — an `MCPSse` node its address in `url`, an `MCPStdio` node its whole command line,
+  its arguments included, in `command` — and Langflow marks neither as a credential, so each is
+  written empty whole. Neither names an MCP server, so neither is wired to a tools connection.
 
 The import reports each value it writes empty with `credential-emptied`, naming its node and its
 field and never its value. A value already empty, or `null`, is left as it is and not reported. Apart
