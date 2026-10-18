@@ -430,7 +430,7 @@ The tree holds no Namespace and no Secret, so a cluster receiving
   `registry.example/crew-assistant:1.0.0`; the catalog packages the agent
   runtime, and the crew it runs is your own code.
 
-## Where the compiler is blind
+## Where the compiler does not interpret
 
 The compiler pipes the limit, the unit and the token cost into the gateway's
 resources as strings, and the model's endpoint, the store's address and the

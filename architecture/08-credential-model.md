@@ -72,7 +72,7 @@ This section is the load-bearing one. Aggrega is an ahead-of-time compiler, and 
 
 **The compiler never resolves a credential.** It does not authenticate with a cloud API, does not read a vault, and does not fetch material during `aggrega build`. A credential attachment's `values` and `infra` travel through the graph and into the render context as opaque scalars, and a FeatureRecipe renders them into whatever artifact the target platform expects. Resolution happens later, in the cluster or the IaC state manager, against whatever the rendered artifact points at.
 
-**The compiler cannot tell a pointer from a material value.** It is blind to what a scalar means (see [05-invariants.md](05-invariants.md)). A credential attachment whose locator carries a store coordinate (`path`, `key`, an ARN) renders a *reference* to that coordinate; a credential attachment whose locator carries the material itself renders the **material, verbatim, into the output file**. Both are legal, and the compiler treats them identically because it has no way to distinguish them.
+**The compiler cannot tell a pointer from a material value.** It is agnostic to what a scalar means (see [05-invariants.md](05-invariants.md)). A credential attachment whose locator carries a store coordinate (`path`, `key`, an ARN) renders a *reference* to that coordinate; a credential attachment whose locator carries the material itself renders the **material, verbatim, into the output file**. Both are legal, and the compiler treats them identically because it has no way to distinguish them.
 
 So the honest statement of the guarantee is:
 

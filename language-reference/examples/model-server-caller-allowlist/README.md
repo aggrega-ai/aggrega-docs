@@ -220,7 +220,7 @@ Each of these is a sentence the build prints, naming what to change:
 - **A source in `admitted_sources` naming both an address range and pods, or
   naming neither.**
 
-## Where the compiler is blind
+## Where the compiler does not interpret
 
 The compiler pipes the selectors, labels and namespaces each render reported
 into the policy as strings. It does not contact the cluster, does not know

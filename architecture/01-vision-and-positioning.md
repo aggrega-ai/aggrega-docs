@@ -6,7 +6,7 @@ This chapter establishes the foundational problem space, the strict anti-goals o
 
 The enterprise cloud landscape is currently constrained by a persistent semantic gap: **traditional Infrastructure-as-Code (IaC) tools manage physical state, but natively lack Application-Layer context.**
 
-Foundational tools like Terraform are state managers. They provision physical compute nodes, but they are inherently blind to the logical L7 data flows happening *between* those nodes. They cannot natively analyze an architecture to provision the semantic firewalls needed to trace AI prompt chains or stop "Confused Deputy" attacks. Conversely, Kubernetes-native tools (like KubeVela) operate as active runtime controllers, failing to provide the static, ahead-of-time compliance artifacts required by enterprise security teams.
+Foundational tools like Terraform are state managers. They provision physical compute nodes, but they do not model the logical L7 data flows happening *between* those nodes. They cannot natively analyze an architecture to provision the semantic firewalls needed to trace AI prompt chains or stop "Confused Deputy" attacks. Conversely, Kubernetes-native tools (like KubeVela) operate as active runtime controllers, failing to provide the static, ahead-of-time compliance artifacts required by enterprise security teams.
 
 Aggrega solves this by acting as an **Ahead-of-Time (AOT) Topological Compiler**. We solve the most critical bottlenecks in modern platform engineering and AI deployment:
 
@@ -88,7 +88,7 @@ Aggrega strictly enforces Conway's Law and rejects the paradigm of proprietary l
 ### 4. Application Paradigm & Infrastructure Anti-Goals
 
 * **No Decentralized or P2P Networks:** The generated configurations rely on a centralized corporate control plane (Kubernetes/VPC) capable of enforcing L4/L7 network boundaries. The compiler cannot generate secure routing for agents that dynamically discover each other on decentralized blockchains or public P2P networks.
-* **No Zero-Copy or Shared-Memory Systems:** Aggrega's security model relies on generating configurations for network-level interception (like Envoy sidecars) to enforce policies. If a swarm of agents communicates purely through intra-node shared system memory (e.g., Ray Core Actors), the network proxies are blind to that communication and cannot enforce guardrails.
+* **No Zero-Copy or Shared-Memory Systems:** Aggrega's security model relies on generating configurations for network-level interception (like Envoy sidecars) to enforce policies. If a swarm of agents communicates purely through intra-node shared system memory (e.g., Ray Core Actors), the network proxies cannot see that communication and cannot enforce guardrails.
 * **No Client-Side Agents:** Aggrega is strictly a backend infrastructure orchestrator. It cannot generate configurations for unmanaged AI models executing entirely within an end-user's Chrome browser or mobile edge.
 * **No JIT Ephemeral Sandboxing (Per-Request Micro-Segmentation):** Aggrega is an AOT static compiler designed to provision long-running compute (like Kubernetes Deployments). It does not natively support Just-In-Time (JIT) ephemeral sandboxing where an entire container is spun up and destroyed per-request to limit blast radius.
 

@@ -365,7 +365,7 @@ one stored for another. A reply served from the cache counts nothing toward the
 budget, and is served past its limit. The `embedder` connection gets routes of
 its own, as every connection on the `models` socket does.
 
-## Where the compiler is blind
+## Where the compiler does not interpret
 
 The compiler pipes the limit, the window and the unit into the routes file as
 strings, and each model's endpoint and model name from what that model

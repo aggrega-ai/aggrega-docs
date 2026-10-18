@@ -42,7 +42,7 @@ To prevent template namespace collisions and the unintended leaking of physical 
   * **Pragmatic escape hatch:** For smaller teams, rapid prototyping, or legacy CI/CD integrations where strict separation is not practical, `parameters` can carry global environment configurations through the stack. The compiler accepts whatever passes schema validation; the recommendation above is a social contract, not a compiler rule.
 * **Flow 2: Cognitive Application Intent (`values` in Components):** Defines the intrinsic application logic. The Component's `schema:` declaration (compact form or JSON Schema 2020-12) provides strict type-checking and validation for this payload, providing immediate "Shift-Left" feedback to developers and ensuring the requested configurations perfectly match the underlying infrastructure API.
 * **Flow 3: Operational Feature Intent (`values` in Features/Secrets):** In the Aggregate, the developer requests the infrastructure capabilities whose behaviour is application intent, and queries strictly typed credentials, without modifying the internal code. A Feature whose inputs are all operational carries no developer `values`: operations attach it in the Release, with its `infra` (Flow 4).
-* **Flow 4: Physical Infrastructure Sizing (`infra`):** Bypassing the Developer entirely, physical `infra` sizing is explicitly projected from the environment-specific `Release` directly onto locally-scoped Components and their attached Features/Secrets. To avoid closed-schema validation collisions from blindly broadcasting dictionaries, `infra` sizing is strictly localized to the explicit component targeting it. This guarantees True Separation of Concerns by placing compute limits, replicas, and mechanical resource requirements strictly in the Ops domain.
+* **Flow 4: Physical Infrastructure Sizing (`infra`):** Bypassing the Developer entirely, physical `infra` sizing is explicitly projected from the environment-specific `Release` directly onto locally-scoped Components and their attached Features/Secrets. To avoid closed-schema validation collisions from broadcasting dictionaries verbatim, `infra` sizing is strictly localized to the explicit component targeting it. This guarantees True Separation of Concerns by placing compute limits, replicas, and mechanical resource requirements strictly in the Ops domain.
 * **Flow 5: Cascading Annotations (Contextual Metadata):** Broad contextual data (like operational domains, namespaces, or billing codes) is handled via Cascading Annotations, preventing `infra` broadcasting pollution. These are explicitly segregated into memory buckets based on their origin to enforce strict consumption rules:
   * **`.context.annotations.release` (Domain 4 Boundaries):** Used exclusively to govern physical realities. Ops explicitly routes these annotations into strict local `infra` fields via Go templates (e.g., mapping a regional namespace to a compute component).
   * **`.context.annotations.aggregate` (Domain 1 Subsystems):** Used exclusively to govern cognitive and operational logic. These annotations are explicitly routed into the component's `values` payloads (e.g., cascading a team billing code down to an application configuration).
@@ -189,7 +189,7 @@ The compiler and the core schemas enforce the following structural rules.
 
 * **Constraint 1: Credentials Are Attachments, Not Values**
   * **Discouraged pattern:** Developer writes `values: { password: "123" }` on a component.
-  * **Why:** the standard-library convention is that a credential is requested as an attachment under `features:`, naming a credential Feature `type` (one labeled `feature.aggrega.ai/kind: secret`) and using that attachment's own `values` to describe the query against a secret store. This is a convention, not a compiler check — the compiler is blind to what a `values` leaf means and will carry an inline literal verbatim. The attachment surface is what makes the well-authored form available and typed.
+  * **Why:** the standard-library convention is that a credential is requested as an attachment under `features:`, naming a credential Feature `type` (one labeled `feature.aggrega.ai/kind: secret`) and using that attachment's own `values` to describe the query against a secret store. This is a convention, not a compiler check — the compiler does not interpret what a `values` leaf means and will carry an inline literal verbatim. The attachment surface is what makes the well-authored form available and typed.
 
 * **Constraint 2: Capability-Agnostic Components**
   * **Unsupported pattern:** Architect writes `aws_instance_type: string` in the Component's `schema:` declaration.
@@ -319,7 +319,7 @@ spec:
 
 1. The Go compiler executes the `eval` pipeline for `legacy-oracle` first. It feeds the mapped `values` into the Wasm plugin.
 2. The Wasm plugin constructs the required strings and returns a flat JSON dictionary via `stdout` (e.g., `{"primary_endpoint": "oracle://..."}`).
-3. The Go compiler blindly assigns this entire JSON dictionary to the Oracle node's exported `.locals` state in memory.
+3. The Go compiler assigns this entire JSON dictionary verbatim to the Oracle node's exported `.locals` state in memory.
 4. The compiler then executes the recipe for `my-agent`. It builds the `.context.uses` pipe, seamlessly including the Oracle node's evaluated `.locals` dictionary.
 
 **5. Domain 3 (The Caller Recipe): Fulfilling the Contract**
@@ -347,7 +347,7 @@ See [inheritance-and-interface](../language-reference/vocabulary/inheritance-and
 
 ### 12. Greenfield Provisioning ("Platform Aggregates")
 
-A recurring trap in platform engineering is forcing the deployment router (our `Release` file) to handle heavy Day-0 cluster provisioning (e.g., spinning up a new AWS EKS cluster before deploying the app into it). This creates bloated, unreadable routing files.
+A recurring trap in platform engineering is forcing the router (our `Release` file) to handle heavy Day-0 cluster provisioning (e.g., spinning up a new AWS EKS cluster before deploying the app into it). This creates long, hard-to-read routing files.
 
 Aggrega solves this using the principle of "Turtles All the Way Down." We do not introduce a new `install_infrastructure:` block into the `Release` schema. Instead, we use **Platform Aggregates**.
 

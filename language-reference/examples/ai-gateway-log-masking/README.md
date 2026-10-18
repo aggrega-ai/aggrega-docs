@@ -278,7 +278,7 @@ keep it; reach for data masking where the model must not see it either. Both
 read the same `patterns` and `entities`, so a list means the same thing on
 either.
 
-## Where the compiler is blind
+## Where the compiler does not interpret
 
 The compiler routes the pattern and the entity types into the gateway's
 configuration as strings. It does not compile the expression, does not know what

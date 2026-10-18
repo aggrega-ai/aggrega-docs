@@ -617,7 +617,7 @@ falls to their order. Ask for strategy latency, or remove the attachment*. Both
 targets here are written that way, so the proxy would send every request to the
 first of them while the Aggregate asked for cost.
 
-## Where the compiler is blind
+## Where the compiler does not interpret
 
 The agent's address and model name are read off what the router publishes, so
 no pair of names in the three files has to be kept in step by hand. What the

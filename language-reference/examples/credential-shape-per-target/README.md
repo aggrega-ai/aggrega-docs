@@ -186,7 +186,7 @@ leaves its interpretation to the FeatureRecipe:
 - `k8s-secret-from-parameter` writes it into the Secret as the material.
 - `k8s-external-secret` reads it as the key to fetch from the store.
 
-The compiler pipes the string through unchanged; it is blind to which of those a
+The compiler pipes the string through unchanged; it is agnostic to which of those a
 given string is. That is what lets one attachment serve both shapes with no edit
 on the developer's side — and it is the thing to check before swapping a
 binding, because the same authored string has to be meaningful to whichever

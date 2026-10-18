@@ -273,7 +273,7 @@ and a streamed one with a stream carrying no text. With the guard down, the
 gateway answers with an error. Nothing in this configuration sends a request
 around the guard when it fails.
 
-## Where the compiler is blind
+## Where the compiler does not interpret
 
 The compiler pipes the guard's Service name and port into the gateway's
 configuration, and the threshold and the detector's address into the guard's,

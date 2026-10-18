@@ -3,7 +3,7 @@
 _The whole socket rather than one role of it: the four roles — two that judge a build, two that shape it — both policy engines that ship in the compiler, and how an operator attaches a plugin._
 
 An operator attaches a Wasm governance plugin to inspect a build and act on what
-it finds. The compiler host stays dumb and unopinionated: it routes the build
+it finds. The compiler host stays content-neutral and unopinionated: it routes the build
 payload to the guest and acts on what the guest returns, and it never interprets
 the policy itself. All the domain policy intelligence — the policy language, its
 engine, and the rules — lives inside the guest.
@@ -42,7 +42,7 @@ meaning, does not know what the policy checked, and does not know which engine
 produced the decision. At a transform role it is the change to make, addressed to
 the labels or the annotations that role governs and to nothing else.
 
-Because the host is blind to policy content, the entire policy surface is the
+Because the host does not interpret policy content, the entire policy surface is the
 guest's: which language the rules are written in, which engine evaluates them, and
 how a rule firing becomes a verdict or a change. The socket contract is narrow by
 design — a role, a set of inputs, and a result — so that any policy technology that
@@ -246,7 +246,7 @@ document, the way a Kubernetes validating-admission policy does, attaches the CE
 engine. The two are attached per role, so a workspace may run Rego at one role and
 CEL at another, or both at the same role as two attachments.
 
-The host is blind to which of them a decision came from: it routes the payload, reads
+The host is agnostic to which of them a decision came from: it routes the payload, reads
 back a verdict or a change, and acts on it. Switching a policy from one language to
 the other is an attachment change and a rewrite of the rules — never a host change.
 

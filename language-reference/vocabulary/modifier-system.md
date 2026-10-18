@@ -108,7 +108,7 @@ before halting, so one compile surfaces all of them.
 
 ## What the compiler does not do
 
-The compiler is blind to label semantics. It evaluates whatever label
+The compiler is agnostic to label semantics. It evaluates whatever label
 strings it finds — it does not recognize `component.aggrega.ai/type` as
 special, does not validate that a category value belongs to the
 standard catalog's closed set, and does not infer meaning from key

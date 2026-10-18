@@ -381,7 +381,7 @@ start while a `dist/` sits in this directory, because it compares the trees the
 builds write, and it leaves none behind. Its exit status is the whole verdict,
 so a pipeline can run it in place of building each Release on its own.
 
-## Where the compiler is blind
+## Where the compiler does not interpret
 
 The compiler does not know what a Secret is, what the controller does with one,
 or why a chart would generate one. It evaluates the entry's templates as it

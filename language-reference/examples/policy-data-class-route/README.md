@@ -477,7 +477,7 @@ on the toolchain, so a rebuild elsewhere is an equivalent guest with another
 sha256. The one shipped here is
 `04e7009688c2b36035239d5bbc293229b858d3cd7f8e815381cb84ee77ad05d3`.
 
-## Where the compiler is blind
+## Where the compiler does not interpret
 
 The compiler routes the class label to the build graph as a string, enumerates
 routes over the `uses` edges the Aggregate and the Releases declared, and hands

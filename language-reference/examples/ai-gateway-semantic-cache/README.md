@@ -318,7 +318,7 @@ while every request is still answered by the model. Only the gateway's own log
 says so. That is why the two ends of the password read one parameter: the
 store's `password` slot and the `credential` on the `cache_store` edge.
 
-## Where the compiler is blind
+## Where the compiler does not interpret
 
 The compiler pipes the store's Service name and port from the store's Recipe
 into the gateway's environment as strings, and the alias and the numbers into

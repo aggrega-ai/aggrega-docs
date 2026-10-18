@@ -117,7 +117,7 @@ developer surface and the String Pipe with zero platform authoring.
   credentials — the key the router requires of callers, the key it presents
   upstream on their behalf, and the key the agent presents to it, the first and
   last read from one hoisted parameter so they cannot drift apart. Also shows
-  where the compiler is blind: the address and the alias the agent receives are
+  where the compiler does not interpret: the address and the alias the agent receives are
   read off what the router publishes, and the compiler pipes both without
   reading them. Needs a hub registry credential.
 - **[connection-credentials](connection-credentials/)** — a semantic-memory

@@ -4,7 +4,7 @@
 
 To support the unique demands, volatility, and security threats of modern AI systems, Aggrega embeds specialized intelligence directly into its open-source **AI Standard Library (The Catalog)**. It ensures that both generic cloud-native scaffolding and highly specialized AI-native reasoning engines coexist securely.
 
-The core Go compiler is a dumb universal router; all AI-specific intelligence lives in pluggable WebAssembly (Wasm) policies and the JSON Schema 2020-12 declarations Platform Architects author on Catalog entities.
+The core Go compiler is a content-neutral universal router; all AI-specific intelligence lives in pluggable WebAssembly (Wasm) policies and the JSON Schema 2020-12 declarations Platform Architects author on Catalog entities.
 
 ### 1. The Operational Cloud Ontology & AI Duck-Typing
 
@@ -146,7 +146,7 @@ To enforce the Separation of Concerns, Developers are **strictly forbidden** fro
 ### 2. Port Abstraction (The Zero-Port Convention)
 
 The open-source Aggrega standard-library catalog recommends omitting physical port declarations from Components' cognitive layer, routing port selection through the Ops Recipe instead. Authors following this recommendation avoid port collisions across deployment targets, prevent backdoor APIs that bypass the Injection
-Contract, and keep network topography flexible across providers. The compiler itself is blind to ports — it pipes whatever values the resolved JSON Schema permits. The
+Contract, and keep network topography flexible across providers. The compiler itself is agnostic to ports — it pipes whatever values the resolved JSON Schema permits. The
 convention operates with an explicit escape hatch for legacy systems whose physical ports cannot move.
 
 * **The Cloud-Native Default (Dynamic Injection):** For modern workloads,
@@ -261,7 +261,7 @@ To satisfy stringent regulatory requirements (e.g., the EU AI Act), **Platform A
 
 ### 9. Feature Compatibility & Topological Safety
 
-Because the core compiler is blind to physical infrastructure mechanics, it relies entirely on explicit declarations in the catalog to prevent the generation of incompatible configurations.
+Because the core compiler is agnostic to physical infrastructure mechanics, it relies entirely on explicit declarations in the catalog to prevent the generation of incompatible configurations.
 
 * **`conflictsWith`:** A list, declared on a Feature's catalog entity under `interoperability`, of the Features it cannot be attached alongside. The compiler compares it with the Features each component ends up carrying once every scope has contributed — the component's own attachments, those written on a subsystem or boundary that holds it, those on its Release component entry, and those annotation-driven expansion produced — and halts before rendering any physical artifacts when one component carries both (i.e., an author attaches, directly or through a scope, two Features that one Feature's author explicitly declared incompatible). One declaration is enough, and Features are matched by name whatever their versions. The compiler reads nothing into the names: the incompatibility is the author's declaration, and the check is a comparison of names. Feature atomicity and purity themselves remain a social contract — nothing checks that a Feature does one thing.
 

@@ -592,7 +592,7 @@ gate reads the guest's declared set and refuses a node the guest never claimed.
 
 This is the shape of most first-provider failures. The guest is fine; its
 self-report is incomplete. `describe()` is not a formality the host tolerates —
-it is the whole basis on which a format-blind host decides what to send where.
+it is the whole basis on which a format-agnostic host decides what to send where.
 
 ## 8. Declare the render-behaviour contract
 

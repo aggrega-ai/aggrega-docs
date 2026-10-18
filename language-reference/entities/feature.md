@@ -150,7 +150,7 @@ The test counts products in **the field**, not components in this catalog, each 
 
 Two bounds on the test, and the second is the half most easily dropped:
 
-* **It is authoring discipline, not a compiler check.** A Feature declaring options no product implements passes schema validation, the publishing linter and a render alike — the compiler is blind to what a Feature promises. The judgement stays with the catalog author.
+* **It is authoring discipline, not a compiler check.** A Feature declaring options no product implements passes schema validation, the publishing linter and a render alike — the compiler does not interpret what a Feature promises. The judgement stays with the catalog author.
 * **One product's inability to honour an option is not grounds to drop that option.** Where two or more products ship a capability under names that group, the capability is portable and the Feature keeps it; the product that cannot honour it declines it. A Feature shrunk to what every product supports has almost nothing left to say.
 
 ## Feature scope and authoring shape

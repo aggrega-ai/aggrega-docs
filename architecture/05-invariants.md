@@ -4,15 +4,15 @@ These eight invariants are the founding rules of Aggrega. They hold across relea
 
 Invariants are referenced by number across other architecture chapters. When a later chapter says "per Invariant 2" or "by the String Pipe rule (Invariant 3)," it points here.
 
-## 1. The compiler is dumb, mathematically unopinionated, and blind to user intent
+## 1. The compiler is content-neutral, unopinionated, and agnostic to user intent
 
 The Aggrega compiler is an Ahead-Of-Time (AOT) text-router. It parses YAML, traverses graphs, evaluates label intersections, and pipes strings from sources to sinks. It does not police what authors put into `values`, `parameters`, `infra`, `provides`, or `locals`. It does not enforce naming conventions, port conventions, or the semantic labels an Architect invents.
 
-Many rules that sound like compiler rules — the Zero-Port Contract, Naked-Base / Flavored-Edges catalog style, the choice of which operational primitive fits a given component — are **Social Contracts**: best practices with escape hatches, upheld by Platform Architects authoring the standard-library catalog. The compiler is blind to them.
+Many rules that sound like compiler rules — the Zero-Port Contract, Naked-Base / Flavored-Edges catalog style, the choice of which operational primitive fits a given component — are **Social Contracts**: best practices with escape hatches, upheld by Platform Architects authoring the standard-library catalog. The compiler does not interpret them.
 
 **This invariant is about what the compiler infers from content you author, and that scope is the whole of it.** A handful of keys are Aggrega's own — reserved, with the values they accept written into the published schema — and the schema checks those the way it checks any other declared field. `component.aggrega.ai/type` is one: its value set is closed, and a document carrying a value outside it is refused when it loads. That is the platform stating what its own key means, not the compiler reading meaning into a string you wrote, and it leaves every key of your own exactly as unpoliced as this invariant says. A catalog classifying components on an axis Aggrega does not define authors its own label key, which the schema accepts with any string value and every selector surface reads identically.
 
-What the compiler does enforce is narrow: schema validation, YAML parsing, graph construction, template evaluation, and the dumb text-routing of the Injection Contract. Everything else is convention, enforced at catalog authoring time or inside the opt-in Wasm governance socket.
+What the compiler does enforce is narrow: schema validation, YAML parsing, graph construction, template evaluation, and the plain text-routing of the Injection Contract. Everything else is convention, enforced at catalog authoring time or inside the opt-in Wasm governance socket.
 
 Enterprises authoring their own internal catalogs are explicitly free to break standard-library conventions. The compiler accepts whatever they write provided it passes schema validation. The architecture promotes best practices; it does not build prisons.
 
@@ -32,7 +32,7 @@ This is **True Control Inversion**: developers dictate an Injection Contract in 
 
 ## 3. The String Pipe: the compiler cannot infer meaning
 
-The compiler is mathematically blind to what piped values mean. When Component A uses Component B, the compiler takes the scalar Component B's Recipe produces via `provides` — a string, a number, or a boolean — and pipes it into Component A's Recipe context, stringified deterministically at the injection boundary. Whether that value is an FQDN, a local hostname, an IP literal, a port number, or a Wasm-formatted DSN makes no difference: the compiler does not validate routability, protocol correctness, or semantic appropriateness.
+The compiler does not interpret what piped values mean. When Component A uses Component B, the compiler takes the scalar Component B's Recipe produces via `provides` — a string, a number, or a boolean — and pipes it into Component A's Recipe context, stringified deterministically at the injection boundary. Whether that value is an FQDN, a local hostname, an IP literal, a port number, or a Wasm-formatted DSN makes no difference: the compiler does not validate routability, protocol correctness, or semantic appropriateness.
 
 Two consequences follow:
 
