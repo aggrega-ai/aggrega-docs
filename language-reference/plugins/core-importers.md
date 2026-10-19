@@ -1,6 +1,6 @@
 # Core importers
 
-The compiler's repository builds eight importer plugins of its own, one for each source format, and
+The compiler's repository builds nine importer plugins of its own, one for each source format, and
 publishes them with every compiler release:
 
 | Plugin | Serves | Reads |
@@ -12,7 +12,8 @@ publishes them with every compiler release:
 | `importer/compose` | `import:compose` | a Compose application — `compose.yaml`, `docker-compose.yml` and their override files — as YAML |
 | `importer/dify` | `import:dify` | an application exported from Dify in its DSL, as YAML |
 | `importer/crewai` | `import:crewai` | the agents and tasks a CrewAI project declares — `config/agents.yaml` and `config/tasks.yaml`, as YAML, or `crew.jsonc` and `agents/<name>.jsonc`, or their strict-JSON spellings `crew.json` and `agents/<name>.json`, as JSON with comments |
-| `importer/langgraph` | `import:langgraph` | a LangGraph application's configuration, `langgraph.json`, as JSON, and of an environment file it names the variables' names alone |
+| `importer/langgraph` | `import:langgraph` | a LangGraph application's configuration, `langgraph.json`, as JSON, and of an environment file it names and the import is handed under `with.sources` the variables' names alone |
+| `importer/google-adk` | `import:google-adk` | the agents declared in the Agent Config files of an application built on Google ADK — `root_agent.yaml` and the configurations its sub-agents name — as YAML |
 
 Each is built from the compiler's own sources and stamped with the compiler's version, so the
 importers released with the compiler at `X.Y.Z` report version `X.Y.Z`, and their Plugin entities
@@ -20,7 +21,7 @@ record it. Unlike the plugins listed on [Embedded plugins](embedded-plugins.md),
 into the binary. The binary carries each one's Plugin entity and the digest of the one module it
 accepts for it, so each serves its format in every workspace, with no entry in its catalog.
 
-All eight are built on the Go kit's importer package, `github.com/aggrega-ai/aggrega-pdk-go/pkg/importer`.
+All nine are built on the Go kit's importer package, `github.com/aggrega-ai/aggrega-pdk-go/pkg/importer`.
 For the Langflow, Flowise and n8n importers, everything an importer does whatever its format — scoring
 the workspace catalog's Components against each node, deciding whether to reference one or draft a
 new one, laying the draft out, carrying the credential values it holds or writing them empty as a
@@ -39,7 +40,10 @@ standard library's CrewAI agent per agent a project declares, wired to the model
 the rest as the MCP importer does, as [The CrewAI importer](#the-crewai-importer) describes. The LangGraph
 importer drafts an instance of the standard library's LangGraph agent per graph an application's
 configuration declares, wired to the datastore its checkpointer keeps state in, and shares the rest as
-the MCP importer does, as [The LangGraph importer](#the-langgraph-importer) describes. How the
+the MCP importer does, as [The LangGraph importer](#the-langgraph-importer) describes. The Google ADK
+importer drafts an instance of the standard library's ADK agent per agent tree an application's
+configurations declare, wired to the Gemini model the tree names, and shares the rest as the MCP
+importer does, as [The Google ADK importer](#the-google-adk-importer) describes. How the
 importer socket works, and
 what it is handed, is described under
 [The importer socket](plugin-contract.md#the-importer-socket--draft-authoring-output).
@@ -85,7 +89,7 @@ rules every importer is selected by, which
 sets out:
 
 - Within one name, the highest version runs, or the version a `plugins.importer` entry names.
-- Where your catalog holds an importer of another name for `langflow`, `flowise`, `n8n`, `mcp`, `compose`, `dify`, `crewai` or `langgraph`, two importers
+- Where your catalog holds an importer of another name for `langflow`, `flowise`, `n8n`, `mcp`, `compose`, `dify`, `crewai`, `langgraph` or `google-adk`, two importers
   advertise the format, and an import that attaches neither is refused naming both, under
   [A parse or import format is advertised by more than one plugin](../errors/fatal-halts.md#a-parse-or-import-format-is-advertised-by-more-than-one-plugin).
   A `plugins.importer` entry naming the one you want settles it.
@@ -124,12 +128,16 @@ declares:
 - **LangGraph** — a source named `langgraph.json` that parses as JSON and carries an object at `graphs`;
   or a source of any name that parses as JSON, carries an object at `graphs` and whose `$schema` is the
   text `https://langgra.ph/schema.json`, the schema LangGraph publishes for its configuration. A
-  configuration under another name naming no schema is imported by naming `--format langgraph`. The
-  importer also declares the environment files named like `*.env`, so that a directory hands it the one
-  a configuration names; that declaration recognises no source.
+  configuration under another name naming no schema is imported by naming `--format langgraph`. No
+  importer's signature names an environment file, so recognising a directory opens none.
+- **Google ADK** — a source named `root_agent.yaml` that parses as YAML and carries something at `name`
+  and at `instruction`, as an LlmAgent's configuration does, or a text at `agent_class` and something at
+  `name`, as any other agent's does. A configuration under another name is imported by naming
+  `--format google-adk`. No signature names a sub-agent's configuration, which may be called anything,
+  so recognising a directory opens no YAML file but `root_agent.yaml`.
 
 No source matches two of them. The five JSON importers read their source through the parser that
-serves `parse:json`, the Compose and Dify importers through the one that serves `parse:yaml`, and the
+serves `parse:json`, the Compose, Dify and Google ADK importers through the one that serves `parse:yaml`, and the
 CrewAI importer a classic project's files through the one that serves `parse:yaml` and the others
 through the one that serves `parse:jsonc`: the one your
 workspace's catalog serves, where it serves one, and otherwise the parser the compiler itself carries
@@ -141,9 +149,12 @@ importer declares the four client file names, so a directory is read through the
 configurations it holds; the Compose importer declares the eight Compose file names, so a
 directory is read through the Compose files it holds; the CrewAI importer declares the six
 names of a project's declarations, so a project's directory is read through its declarations and
-nothing else; and the LangGraph importer declares `langgraph.json` and the environment files named
-like `*.env`, so an application's directory is read through its configuration and the environment file
-it names, and its code is never read. A signature naming no file — the Langflow,
+nothing else; and the LangGraph importer declares `langgraph.json`, so an application's directory is
+read through its configuration alone, and neither its code nor an environment file is ever read; and
+the Google ADK importer declares `root_agent.yaml`, so an application's directory is read through its
+root configuration alone — the configurations its sub-agents name reaching the importer only under
+its attachment's `with.sources` — and neither its code nor its environment file is ever read. A
+signature naming no file — the Langflow,
 Flowise and n8n importers', the MCP importer's for a registry server description, the LangGraph
 importer's for a configuration naming its schema, and the Dify importer's — applies to every file imported on its own: an import naming no format reads such a file
 as JSON, and as YAML, to try them, whatever importer it is meant for, through those same parsers —
@@ -154,7 +165,8 @@ carries for that syntax where your catalog serves none.
 
 A source its parser refuses — for the five JSON importers, one that is not JSON, the MCP importer's
 once its comments and trailing commas are written as spaces, for the Compose and Dify importers one that
-is not YAML, and for the CrewAI importer a declaration that is not YAML or not JSON with comments —
+is not YAML, for the CrewAI importer a declaration that is not YAML or not JSON with comments, and for
+the Google ADK importer a configuration that is not YAML —
 stops the import under
 `parse-failed`, whose message carries the parser's own reason. Naming the format does not change that:
 the importer asks for the source's tree, and the parser's refusal is the answer it gets.
@@ -1511,13 +1523,25 @@ The members `langgraph build` reads to build the application's image — `depend
 configuration such as `auth`, `http` and `webhooks` among them, are named in a comment and carried
 nowhere, as are the store's `index` and `ttl` and the checkpointer's `ttl` and `serde`.
 
-A directory is handed to the importer as `langgraph.json` and the environment files named like
-`*.env`, `.env` among them, and no other file, so the application's code is never read. An environment
-file is never parsed: of the one the configuration's `env` names — at that path from the
-configuration's directory, or, where an attachment hands it under the importer's `with.sources`, by its
-name — only the variables' names are read, and an environment file no configuration names is named in a
-comment as not read. A configuration imported on its own is read whatever its name. A directory may hold
-several applications, each read from its own directory.
+A directory is handed to the importer as `langgraph.json` and no other file, so neither the
+application's code nor an environment file is ever read from it. An environment file reaches the
+importer only where the importer's `with.sources` hands it, and is never parsed: of the one the
+configuration's `env` names — matched by the last segment of the path it names — only the variables'
+names are read, and an environment file no configuration names is named in a comment as not read.
+Where the import is not handed the file the configuration names, the Aggregate names it as not handed
+and says to name it under the importer's `with.sources`, and its variables are left for the Release:
+
+```yaml
+plugins:
+  importer:
+    - uri: importer/langgraph:<version>
+      with:
+        sources:
+          - ./local.env
+```
+
+A configuration imported on its own is read whatever its name. A directory may hold several
+applications, each read from its own directory.
 
 ### What an application becomes
 
@@ -1650,15 +1674,219 @@ it in a comment above the application's first graph.
   no value and reported with `credential-emptied`; at `marked` each is carried, since LangGraph marks
   none.
 - **An `env` naming a file** names a file the configuration only points at, which commonly holds local
-  secrets. The comment names each variable the file names, left for the Release to supply, and no
-  value of the file is read: none reaches a draft, a decision or a diagnostic, whatever the setting
-  says. A value quoted across several lines is one value, so a line inside it is never taken for a
-  variable, and a line naming no variable is named by its number. Where the import was not handed the
-  file, the Aggregate names it as not read, and its variables are left for the Release.
+  secrets. It is read only where the importer's `with.sources` hands it. The comment names each
+  variable the file names, left for the Release to supply, and no value of the file is read: none
+  reaches a draft, a decision or a diagnostic, whatever the setting says. A value quoted across
+  several lines is one value, so a line inside it is never taken for a variable, and a line naming no
+  variable is named by its number. Where the import was not handed the file — always so for a
+  directory, which never hands one — the Aggregate names it as not handed, with how to hand it, and its
+  variables are left for the Release.
 
 ### The settings it reads
 
 The LangGraph importer reads `target_namespace`, `empty_credentials` and `render_mode`, as
+[Settings](#settings) describes them, and no other setting.
+
+## The Google ADK importer
+
+`importer/google-adk` reads the agents an application built on Google's Agent Development Kit (ADK)
+declares in its Agent Config files — `root_agent.yaml` and the configurations its sub-agents name — and
+drafts an Aggregate holding one instance of the standard library's ADK agent,
+`core/ai-agent/google-adk`, per agent tree, wired to the Gemini model the tree names, and a Release
+beside it. It reads those configurations, and never the application's code.
+
+ADK states that its Agent Config feature is experimental and currently supports only Gemini models. The
+importer reads the configuration as ADK documents it, and drafts the model a tree names as a Gemini
+model for that reason.
+
+### What it reads
+
+ADK's `adk create --type=config` writes `root_agent.yaml`, the configuration of an application's root
+agent, and an environment file beside it. A configuration declares one agent:
+
+- `name`, `description` and `agent_class` — the class ADK builds the agent as, `LlmAgent` where it names
+  none;
+- `model` — the model the agent asks for — or `model_code`, a reference to code building its model;
+- `tools` — each tool by `name`, with the `args` its configuration hands it;
+- `generate_content_config` — the options of the agent's model requests, among them `http_options`;
+- `sub_agents` — each a `config_path`, another configuration's path from the directory of the
+  configuration naming it, or `code`, an agent the application's code builds.
+
+A directory is handed to the importer as its `root_agent.yaml` files and no other file, and a
+configuration imported on its own is read as a root, whatever its name. Each root's tree is read root
+first, each agent's sub-agents in the order it lists them. The configuration a `sub_agents` entry names
+by `config_path` is read only where the importer's `with.sources` hands it, matched by the last segment
+of the path; one the import was not handed is named in the Aggregate and in its decision as not handed,
+with how to hand it, and its agent is not read:
+
+```yaml
+plugins:
+  importer:
+    - uri: importer/google-adk:<version>
+      with:
+        sources:
+          - ./my_agent/code_tutor_agent.yaml
+          - ./my_agent/math_tutor_agent.yaml
+```
+
+A `config_path` that is absolute, or leads out of the directory of the configuration naming it, is not
+read, as ADK refuses it too. A file `with.sources` hands that no configuration names is named in a
+comment as not read, and nothing of it is read; a file it hands is read only as a configuration a root's
+tree names, so an import holding no `root_agent.yaml` and no file imported on its own reads no tree and
+reports each file under `no-nodes`. The application's code — the tools, callbacks, schemas and agents a
+configuration names by their code — and the environment file are never handed, and the importer reads
+neither: the application loads its configurations itself, from the image the Release names. A
+directory may hold several applications, each read from its own `root_agent.yaml`.
+
+The other members of a configuration — an agent's `instruction` among them — are read by the
+application from its own configuration, so the draft carries none of them.
+
+### What an agent tree becomes
+
+ADK serves an application from its root agent, every agent its configurations name built inside it, and
+`core/ai-agent/google-adk` runs one such application. So `aggregate.yaml`, a draft Aggregate named
+`<target_namespace>/flow`, holds, per agent tree and keyed by its root agent's name, an instance of
+`core/ai-agent/google-adk` with:
+
+- `description`, the root agent's description, where its configuration gives one;
+- its `model` connection, wired to the model the tree names.
+
+Comments above it name the tree's other agents, which become no instance of their own; each sub-agent
+that is not read, and why — built by the application's code, a configuration the import was not handed,
+or one ADK refuses; the tools the tree's agents name, those ADK ships and those the application's code
+defines; the agents whose class — `LoopAgent`, `ParallelAgent` or `SequentialAgent` — ADK deprecates in
+favour of Workflow; and the models other agents of the tree ask for. Each is reported in a decision
+that chooses nothing.
+
+The first agent of the tree, the root first, naming a model or the code building one decides the
+instance's model. A model it names is an instance of `core/ai-model/gemini`, serving that model and
+keyed by it, and trees naming one model share one instance. Where the workspace's catalog holds no
+`core/ai-model/gemini`, one is drafted, `<target_namespace>/ai-model/gemini`, carrying the
+`model.aggrega.ai/api: gemini` label the agent's `model` socket selects, and its decision says so; a
+Recipe publishing its endpoint and its model is left for you, as a comment opening it says. A model the
+application's code builds, or a tree naming none — ADK then uses its default model — is wired to
+nothing, and a comment above the instance says why; the build halts naming the `model` socket until one
+is wired. The models other agents of a tree ask for need no connection of their own: ADK's Gemini client
+sends every model's requests with the key the instance's connection delivers. Whether the application
+reaches Gemini through the Gemini API or through Vertex AI is chosen by its environment, which the
+import does not read; the agent's `model` socket admits the Gemini API alone.
+
+`release.yaml`, beside it, is a draft Release of the same name naming that Aggregate. It leaves, in a
+comment above each instance's entry, its `infra.image` — the image running the application built on
+ADK, which holds its configurations — and the credential it presents to its model, attached on its
+`model` connection; the build halts naming the image until it is set. The values the tree's
+configurations hand their tools and their model requests are written in a comment above the entry, as
+[Credential values a configuration holds](#credential-values-a-configuration-holds) describes. The
+Release's `metadata.environment` and `spec.manifest` are left unset, each named in a comment.
+
+The application this importer's tests import, a root agent naming two sub-agents' configurations and
+one built by code, imported as its directory with the two configurations named under `with.sources`,
+is drafted, with no setting, as:
+
+```yaml
+# aggregate.yaml
+# Google ADK agent configurations read:
+#   - root_agent.yaml
+#   - code_tutor_agent.yaml
+#   - math_tutor_agent.yaml
+# Not read: the application's code, which defines the tools, callbacks and agents a configuration names by their code, nor the environment file ADK's scaffold writes beside root_agent.yaml; the application runs in the image the Release names for each instance, and loads its configurations itself.
+# ADK states that its Agent Config is experimental and currently supports only Gemini models.
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: imported/flow
+  version: 0.1.0
+  description: Draft Aggregate imported from a source in the google-adk format.
+spec:
+  components:
+    # The agent tree of root_agent.yaml, served from its root agent tutor_root.
+    # Sub-agents ADK builds inside this application, drafted as no instance of their own: code_tutor_agent, math_tutor_agent.
+    # Not read: a sub-agent of tutor_root, which is built by the application's code at tutor_agents.review_agent, which the import does not read.
+    # Tools ADK ships, which run inside the application, drafted as no Component: google_search.
+    # Tools the application's code defines, drafted as no Component: tutor_tools.make_snippet_runner.
+    # Models other agents of the tree ask for, ...: gemini-pro-latest (math_tutor_agent).
+    tutor-root:
+      type: core/ai-agent/google-adk
+      values:
+        description: "Learning assistant that tutors {{`{{`}} students }} in code and math."
+      uses:
+        model:
+          gemini-flash-latest:
+            target: gemini-flash-latest
+    # The model gemini-flash-latest.
+    gemini-flash-latest:
+      type: core/ai-model/gemini
+      values:
+        model: "gemini-flash-latest"
+```
+
+A text the draft copies from a configuration into the Aggregate writes each `{{` as ``{{`{{`}}``, an
+action whose result is the two braces, so the description reads back as written once the Aggregate is
+evaluated.
+
+```yaml
+# release.yaml
+spec:
+  aggregate: imported/flow
+  components:
+    # Left for the Release, since no configuration states it:
+    #   - infra.image, the container image running the application built on ADK, holding its configurations
+    #   - the credential tutor-root presents to the model it reaches, attached under credential on its connection uses.model.gemini-flash-latest
+    # The configurations also hand these values to their tools and their model requests, which the application reads from its own configurations, written here for review:
+    #   code_tutor_agent tools.tutor_tools.make_snippet_runner.args.api_key: "..."
+    #   code_tutor_agent tools.tutor_tools.make_snippet_runner.args.sandbox: "python3.12"
+    #   code_tutor_agent tools.tutor_tools.make_snippet_runner.args.timeout_seconds: 20
+    #   math_tutor_agent generate_content_config.http_options.headers: "..."
+    #   math_tutor_agent generate_content_config.http_options.timeout: 30000
+    tutor-root:
+      infra: {}
+```
+
+A Release building it on Kubernetes supplies the instance's image and the credential on its `model`
+connection, and places the model in a boundary:
+
+```yaml
+spec:
+  aggregate: imported/flow
+  boundaries:
+    main:
+      components:
+        gemini-flash-latest: {}
+        tutor-root:
+          infra:
+            image: <the image running the application>
+          uses:
+            model:
+              gemini-flash-latest:
+                features:
+                  credential:
+                    type: core/referenced-secret
+                    infra:
+                      origin: <an existing Secret's name>
+```
+
+The instance is then rendered running that image and given the credential as `GOOGLE_API_KEY`, which
+ADK's Gemini client sends to the Gemini API, and the model as a Service reaching the Gemini API's
+address.
+
+### Credential values a configuration holds
+
+A configuration can hand a key to a tool, in its `args`, or to its model requests, in the
+`http_options` of its `generate_content_config` — their headers, their address, the arguments of their
+client. Each member of a tool's `args` and of those HTTP options is written in the comment above the
+instance's entry in the Release, as its configuration writes it, and each that is a text, an object or
+a list can carry a credential, which ADK marks as none: by default each is carried as written and named
+in a `credential-carried` warning by its agent and its field, such as
+`tools.tutor_tools.make_snippet_runner.args.api_key`, never by its value. With the
+[`empty_credentials` setting](#settings) at `all`, each is written with no value and reported with
+`credential-emptied`; at `marked` each is carried, since ADK marks none. A number or a boolean carries
+no key, and is written as the configuration writes it. ADK expands no variable reference in a
+configuration, so every value is read as written; the environment file, which commonly holds the key
+ADK's Gemini client reads, is never read, whatever the setting says.
+
+### The settings it reads
+
+The Google ADK importer reads `target_namespace`, `empty_credentials` and `render_mode`, as
 [Settings](#settings) describes them, and no other setting.
 
 ## Settings
@@ -1679,14 +1907,14 @@ plugins:
 
 | Setting | Default | What it does |
 | --- | --- | --- |
-| `target_namespace` | `imported` | The namespace drafted entities are named under: `<target_namespace>/<category>/<name>` for a Component, `<target_namespace>/flow` for the Aggregate and for the Release the MCP, Compose, CrewAI and LangGraph importers draft. |
+| `target_namespace` | `imported` | The namespace drafted entities are named under: `<target_namespace>/<category>/<name>` for a Component, `<target_namespace>/flow` for the Aggregate and for the Release the MCP, Compose, CrewAI, LangGraph and Google ADK importers draft. |
 | `reuse_mode` | `hints-only` | `hints-only` drafts every node the draft gives a Component of its own and references no catalog Component, recording a strong match as a hint. `auto-apply-above-threshold` references the best-matching catalog Component for such a node whose match is in the high tier and scores at or above `reuse_threshold`, and drafts every other. Any other value reads as `hints-only`. |
 | `reuse_threshold` | `0.85` | The score at or above which `auto-apply-above-threshold` references a Component. Read in that mode only; `0` reads as the default. |
 | `emit_hints` | `true` | Whether a drafted Component's file opens with a comment naming the catalog Component it resembles, for a high- or medium-tier match. The draft Aggregate carries the same comment above that node's entry, and above a referenced entry one naming the next-best candidate it could be swapped for, or saying that none scored above zero. `false` leaves the comments out. |
 | `render_mode` | `human` | `human` writes the drafts described above. `llm` writes no drafts, and writes instead the whole decision record — every node, the candidates weighed and the choice made — as one document, `import-decisions.json`, for another tool to read. Any other value reads as `human`. |
 | `mapping_overrides` | none | Mappings layered over the importer's own table, keyed by format and then by node type — for the Compose importer, by image repository. Each entry names the `component` a node of that type maps to and, optionally, its `category`, the `traits` — labels and their values — a matching Component carries, and a `vendor` word its name carries. An entry for a node type the table already maps takes the table row's place. Only the entries under the format being imported are read. |
 | `layout` | `platform` | `platform` drafts the platform that runs the flow, carrying the flow, with each part of it a Component of its own wired to the platform, as [The platform carrying the flow](#the-platform-carrying-the-flow) describes. `nodes` drafts every node as a Component of its own, as [Node by node](#node-by-node) describes. For the Dify importer, `platform` drafts the Dify installation carrying the application, as [What an application becomes](#what-an-application-becomes) describes. Any other value drafts as `platform`, and the import warns with `unknown-layout`. |
-| `empty_credentials` | `none` | Which credential values the flow the platform carries has written empty, as [Credential values the flow holds](#credential-values-the-flow-holds) lists them, which the Release the MCP importer drafts has written empty, as [Credential values a server holds](#credential-values-a-server-holds) lists them, which the Release the Compose importer drafts has written empty, as [Credential values a service holds](#credential-values-a-service-holds) lists them, which the application the Dify importer carries has written empty, as [Credential values an application holds](#credential-values-an-application-holds) lists them, which the Release the CrewAI importer drafts has written empty, as [Credential values a declaration holds](#credential-values-a-declaration-holds) lists them, and which the Release the LangGraph importer drafts has written empty, as [The environment a configuration states](#the-environment-a-configuration-states) lists them. `none` writes none empty: each is carried as written and named in a `credential-carried` warning. `marked` writes empty what a format marks as a credential and every member of an MCP server's configuration. `all` writes empty the inputs a format marks as no credential that can carry one as well — request headers, query parameters, a request written as a command line, an input named for a key. What the draft writes so that a node reaches its connection is written whatever this says. Any other value halts the import, which drafts nothing, with `unknown-empty-credentials`. A draft made node by node reads no value, and so does not read this setting. |
+| `empty_credentials` | `none` | Which credential values the flow the platform carries has written empty, as [Credential values the flow holds](#credential-values-the-flow-holds) lists them, which the Release the MCP importer drafts has written empty, as [Credential values a server holds](#credential-values-a-server-holds) lists them, which the Release the Compose importer drafts has written empty, as [Credential values a service holds](#credential-values-a-service-holds) lists them, which the application the Dify importer carries has written empty, as [Credential values an application holds](#credential-values-an-application-holds) lists them, which the Release the CrewAI importer drafts has written empty, as [Credential values a declaration holds](#credential-values-a-declaration-holds) lists them, which the Release the LangGraph importer drafts has written empty, as [The environment a configuration states](#the-environment-a-configuration-states) lists them, and which the Release the Google ADK importer drafts has written empty, as [Credential values a configuration holds](#credential-values-a-configuration-holds) lists them. `none` writes none empty: each is carried as written and named in a `credential-carried` warning. `marked` writes empty what a format marks as a credential and every member of an MCP server's configuration. `all` writes empty the inputs a format marks as no credential that can carry one as well — request headers, query parameters, a request written as a command line, an input named for a key. What the draft writes so that a node reaches its connection is written whatever this says. Any other value halts the import, which drafts nothing, with `unknown-empty-credentials`. A draft made node by node reads no value, and so does not read this setting. |
 | `attach_egress_allowlist` | `false` | `true` attaches the standard library's `core/egress-allowlist` Feature to each platform instance the draft writes, as `egress-allowlist`, setting none of its `infra`, as [What the draft leaves for the Release](#what-the-draft-leaves-for-the-release) describes. `false` attaches nothing. A draft that writes no platform, under `layout: nodes`, and the Dify importer's draft, whose entry for the Dify installation takes no Feature, attach nothing whatever this says, and with it `true` the import warns with `feature-not-attached`. Any value that is not a boolean reads as `false`. |
 
 A setting an importer does not know is ignored.
@@ -1712,14 +1940,14 @@ with its `code` as well.
 | Code | Severity | Reported when |
 | --- | --- | --- |
 | `parse-failed` | `halt` | The source does not parse: its parser refuses it, and the message carries the parser's reason. |
-| `no-nodes` | `warn` | The source carries no node the importer recognises — for the MCP importer, no server, for the Compose importer, no service and no model, for the CrewAI importer, a crew declaring no agent, and for the LangGraph importer, a configuration declaring no graph. |
+| `no-nodes` | `warn` | The source carries no node the importer recognises — for the MCP importer, no server, for the Compose importer, no service and no model, for the CrewAI importer, a crew declaring no agent, for the LangGraph importer, a configuration declaring no graph, and for the Google ADK importer, a root configuration declaring no agent, or each file `with.sources` hands an import holding no root configuration. |
 | `unknown-layout` | `warn` | `layout` is neither `platform` nor `nodes`; the flow is drafted as `platform`. |
 | `unknown-empty-credentials` | `halt` | `empty_credentials` holds a value other than `none`, `marked` or `all`, named with the setting; the import drafts nothing. |
 | `platform-not-in-catalog` | `warn` | The workspace's catalog holds no Component of the platform's name, so no part is wired to it; for the Dify importer, no `core/ai-agent/dify`, and `core/dify` is composed all the same. |
 | `part-not-placed` | `warn` | A part of the flow is wired to no socket of the platform, with why; it stays in the flow. |
 | `socket-selector-unreadable` | `warn` | The selector a socket of the platform declares does not read, so no part is wired to it; once for each socket. |
-| `credential-carried` | `warn` | A credential value is carried as written in the flow the draft carries, or in the Release the MCP, Compose, CrewAI or LangGraph importer drafts, named by its node — or its server, service, agent or configuration — and its field, never by its value, with the `empty_credentials` value that writes it empty. |
-| `credential-emptied` | `warn` | A credential value is written empty in the flow the draft carries, or in the Release the MCP, Compose, CrewAI or LangGraph importer drafts, where `empty_credentials` asks for it, named by its node — or its server, service, agent or configuration — and its field. |
+| `credential-carried` | `warn` | A credential value is carried as written in the flow the draft carries, or in the Release the MCP, Compose, CrewAI, LangGraph or Google ADK importer drafts, named by its node — or its server, service, agent or configuration — and its field, never by its value, with the `empty_credentials` value that writes it empty. |
+| `credential-emptied` | `warn` | A credential value is written empty in the flow the draft carries, or in the Release the MCP, Compose, CrewAI, LangGraph or Google ADK importer drafts, where `empty_credentials` asks for it, named by its node — or its server, service, agent or configuration — and its field. |
 | `carriage-returns-rewritten` | `warn` | The flow's carriage returns are written as line feeds, with how many. |
 | `definition-not-carried` | `warn` | The flow is not carried in `values.flow_definition`, or the Dify importer's application in `parameters.app_definition`, with why. |
 | `part-reads-connection` | `warn` | How the flow reaches a wired part through its connection, or how a connection reaches a node the draft wires to no socket as it is written. |
@@ -1732,9 +1960,9 @@ with its `code` as well.
 
 ## Published with each compiler release
 
-Each compiler release builds the eight importers from the tagged sources and generates their Plugin
+Each compiler release builds the nine importers from the tagged sources and generates their Plugin
 entities from the importers themselves, so an entity's capability, recognition signatures, host
-functions and description are what its importer reports. The release signs and publishes all eight,
-`importer/langflow`, `importer/flowise`, `importer/n8n`, `importer/mcp`, `importer/compose`, `importer/dify`, `importer/crewai` and `importer/langgraph` at the release's version, beside the other
+functions and description are what its importer reports. The release signs and publishes all nine,
+`importer/langflow`, `importer/flowise`, `importer/n8n`, `importer/mcp`, `importer/compose`, `importer/dify`, `importer/crewai`, `importer/langgraph` and `importer/google-adk` at the release's version, beside the other
 core plugins, and records their entities with the other core plugins' entities for the standard
 catalog.
