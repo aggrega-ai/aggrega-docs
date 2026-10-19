@@ -5637,6 +5637,24 @@ The rest of the message names the source and every format it was recognised as, 
 
 **How to fix:** name the format — `--format` on `aggrega import`, or `format` on the assistant's import tool and the session's `aggrega/import` method. Where one of the importers should never recognise such a source, the change is to that importer's signatures, which its author declares in its describe() self-report and its Plugin entity records when it is generated; or, where it is one the workspace's catalog holds, leave it out of the catalog the workspace reads — a core importer is always among those tried, so a source one of them recognises alongside another importer is settled by naming the format. [aggrega-import.md](../cli/aggrega-import.md) describes how a format is recognised.
 
+### No importer recognises the source
+
+<!-- covers: internal/importops.ErrUnrecognisedImportFormat -->
+
+A refusal on turning a foreign source description into draft authoring files, not on a build. The import named no format, so the format was recognised from the signatures the importers declare — those in the workspace's catalog and the compiler's [core importers](../plugins/core-importers.md) alike — and the signatures of no format matched the source. The import does not guess: handing the source to an importer that never declared it reads that shape would draft from a source it may not be for.
+
+**This is the counterpart of "More than one importer recognises the source" above.** There several formats claim the source; here none does. In both, naming the format settles it, and nothing is written until it is named.
+
+Its message opens:
+> no importer recognises the source
+
+The rest of the message names the source, then the remedy and every format the catalog's importers advertise, in the order they were read:
+> no importer recognises the source (source `"<source>"`). Pass --format to name it explicitly (for example --format `<format>` or --format `<format>`)
+
+Where no importer advertises a format at all, the remedy says so in place of the examples.
+
+**How to fix:** name the format — `--format` on `aggrega import`, or `format` on the assistant's import tool and the session's `aggrega/import` method, each of which words the refusal around the field it takes and opens it with this condition's short code; the session's answer also carries both of the condition's codes in its data. Where the source should have been recognised, the change is to the signatures of the importer serving its format, which its author declares in its describe() self-report and its Plugin entity records when it is generated. [aggrega-import.md](../cli/aggrega-import.md) describes how a format is recognised.
+
 ### An importer that declares no file patterns is handed a directory
 
 <!-- covers: internal/importops.ErrImporterDeclaresNoFilePatterns -->
@@ -6055,6 +6073,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0347` | `template reads the render facts of a component its host is wired to, but the FeatureRecipe does not set readsTargetRenderFacts` | A template reads its targets' render facts without declaring it |
 | `E0348` | `pipeline step reads the render facts of a component its host is wired to, but a pipeline step reads only the host's own render facts` | A pipeline step reads its targets' render facts |
 | `E0349` | `no Recipe in the workspace's catalog binds to the capability the import's target names` | An import's target names a capability no Recipe in the catalog binds to |
+| `E0350` | `no importer recognises the source` | No importer recognises the source |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)
