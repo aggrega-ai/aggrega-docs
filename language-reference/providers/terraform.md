@@ -202,6 +202,44 @@ The **synthesized** input kind is not offered. There is no faithful, capability-
 
 **A Recipe declaring `omits:` is refused.** The [`omits:`](../entities/recipe.md#the-omits-field--leaving-rendered-documents-out-of-a-source) key leaves documents a source renders out of the build, and this provider renders nothing from a sourced module at build time: it vendors the module's files verbatim, and Terraform evaluates them when the configuration is planned and applied. With nothing rendered there is nothing to leave out, so this provider does not declare that it honours the key, and a Recipe or FeatureRecipe declaring it is refused before anything is vendored — see [The provider does not support omits](../errors/fatal-halts.md#the-provider-does-not-support-omits). For a module you keep beside the Recipe, a line in the `.aggregaignore` there leaves a file of the module out instead, from the next time the Recipe is pinned.
 
+### Sourcing a module a registry publishes
+
+A module registry publishes each version of a module as a tag of the module's own git repository, and what it answers when asked to download a version is a git source pinned to the commit that tag names. So a Recipe sources a published module from that repository at that tag, with the `git-repository` source kind:
+
+```yaml
+spec:
+  capability: terraform
+  implements: example/storage/database:1.0.0
+  source:
+    kind: git-repository
+    url: https://github.com/terraform-aws-modules/terraform-aws-rds.git
+    ref: v7.2.2
+  valuesMapping: |
+    identifier: "{{ .values.identifier }}"
+  provides:
+    host: "${module.{{ .context.instance_id }}.db_instance_address}"
+    port: "${module.{{ .context.instance_id }}.db_instance_port}"
+```
+
+`ref:` is the release tag exactly as the repository names it. `valuesMapping:` supplies the module's inputs, by the names its `variable` blocks declare — Terraform requires a value for every input that declares no `default` — and they become the arguments of this component's `module` block in the root configuration, as for any sourced module.
+
+**What is pinned.** [`aggrega pin`](../cli/aggrega-pin.md) and the pull resolve the tag to the commit it names and archive the repository at that commit. The Release's lockfile then records that commit as the source's pinned version, the tag as the reference you wrote, and the digest of the archive. Every later build reads the archive from the cache and verifies it against that digest before vendoring anything, so it needs no network, and a cached archive whose bytes no longer match halts the build. A tag is a name a repository can move to another commit; a later pull that finds yours resolving somewhere else halts rather than adopting the new commit, and `aggrega pull --upgrade` adopts it deliberately. That is a tighter pin than Terraform's own dependency lock file, which records the providers a configuration selected and no module at all, so a module written into a configuration as a git source at a tag is only as fixed as the tag. Here the module's commit and the digest of its bytes are fixed in the lock, the bytes are vendored into the output, and the root configuration calls them by a local path, so the engine has no module to fetch.
+
+**What is vendored.** The whole repository at the pinned commit, apart from its `.git/` directory, lands in the component's own directory under `modules/`, byte-for-byte — the module's own configuration files and child modules, and also whatever else the repository carries: its `examples/` and `wrappers/` directories, its documentation, its CI configuration, and any test fixtures, binary ones included. The engine reads only what the module calls: when the root configuration calls the component's directory, the engine loads the configuration files directly in it and in each directory a local `source` reaches from there. An example directory that calls other registry modules is therefore vendored and never loaded, and nothing it calls is fetched.
+
+**Narrowing what is vendored.** A fetched source is the archive it was fetched as, so the one way to narrow it is `module_subdir:`, which makes one directory of the repository the artifact. That only helps when the module you want sits in a sub-directory: a module at the repository root that calls its own `./modules/*` needs the whole tree. Neither a `.terraformignore` the repository carries nor an `.aggregaignore` beside the Recipe changes what a fetched source vendors — both shape a module kept beside the Recipe, and neither is read for one fetched from a repository.
+
+**Reading what the module publishes.** A value the module publishes is one of its `output` blocks, and a consumer reads it as `${module.<name>.<output>}`, where `<name>` is the producer's module block — which is why the producer above publishes `${module.{{ .context.instance_id }}.<output>}`. The engine resolves the reference against the module's own `output` blocks when it validates the root configuration, so an output name the module does not declare is refused there, naming it:
+
+```
+Error: Unsupported attribute
+  on aggrega.modules.tf line 9, in module "api":
+   9:   db_host = "${module.db.db_instance_addresz}"
+This object does not have an attribute named "db_instance_addresz".
+```
+
+The build reads none of the module's `variable` or `output` blocks, writes nothing into the module, and adds no provider configuration to it, so a mistyped output name is caught by the engine rather than by the build. See [Consuming another component's published value](#consuming-another-components-published-value) for the consumer's side.
+
 ## Verbatim emission and vendoring
 
 The terraform provider does not transpile, reformat, or rewrite Terraform bodies. An authored HCL or `.tf.json` body is emitted exactly as written, and a sourced module is vendored file-for-file. This is what keeps terraform output deterministic and reproducible: given the same inputs, the rendered configuration is byte-identical across runs, and a vendored module round-trips unchanged. Because the provider never resolves runtime state, everything runtime-dependent stays an interpolation string that Terraform binds at apply time.
