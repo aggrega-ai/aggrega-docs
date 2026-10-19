@@ -1,6 +1,6 @@
 # Core importers
 
-The compiler's repository builds five importer plugins of its own, one for each source format, and
+The compiler's repository builds six importer plugins of its own, one for each source format, and
 publishes them with every compiler release:
 
 | Plugin | Serves | Reads |
@@ -10,6 +10,7 @@ publishes them with every compiler release:
 | `importer/n8n` | `import:n8n` | a workflow exported from n8n, as JSON |
 | `importer/mcp` | `import:mcp` | an MCP client's configuration — `.mcp.json`, `claude_desktop_config.json`, `.vscode/mcp.json` or `.cursor/mcp.json` — or an MCP registry server description, `server.json`, as JSON |
 | `importer/compose` | `import:compose` | a Compose application — `compose.yaml`, `docker-compose.yml` and their override files — as YAML |
+| `importer/dify` | `import:dify` | an application exported from Dify in its DSL, as YAML |
 
 Each is built from the compiler's own sources and stamped with the compiler's version, so the
 importers released with the compiler at `X.Y.Z` report version `X.Y.Z`, and their Plugin entities
@@ -17,7 +18,7 @@ record it. Unlike the plugins listed on [Embedded plugins](embedded-plugins.md),
 into the binary. The binary carries each one's Plugin entity and the digest of the one module it
 accepts for it, so each serves its format in every workspace, with no entry in its catalog.
 
-All five are built on the Go kit's importer package, `github.com/aggrega-ai/aggrega-pdk-go/pkg/importer`.
+All six are built on the Go kit's importer package, `github.com/aggrega-ai/aggrega-pdk-go/pkg/importer`.
 For the Langflow, Flowise and n8n importers, everything an importer does whatever its format — scoring
 the workspace catalog's Components against each node, deciding whether to reference one or draft a
 new one, laying the draft out, carrying the credential values it holds or writing them empty as a
@@ -28,7 +29,10 @@ shares the package's reading of the settings it reads, its decision over credent
 conventions its drafts are named and described by, as [The MCP importer](#the-mcp-importer)
 describes. The Compose importer decides each service it matches as the flow importers decide a node,
 through the same package, renders its drafts as they do, and shares the rest as the MCP importer
-does, as [The Compose importer](#the-compose-importer) describes. How the importer socket works, and
+does, as [The Compose importer](#the-compose-importer) describes. The Dify importer drafts the Dify
+installation the standard library assembles, carrying the application, through the same package's
+platform draft in the form it takes for a platform that is a whole installation, as
+[The Dify importer](#the-dify-importer) describes. How the importer socket works, and
 what it is handed, is described under
 [The importer socket](plugin-contract.md#the-importer-socket--draft-authoring-output).
 
@@ -73,7 +77,7 @@ rules every importer is selected by, which
 sets out:
 
 - Within one name, the highest version runs, or the version a `plugins.importer` entry names.
-- Where your catalog holds an importer of another name for `langflow`, `flowise`, `n8n`, `mcp` or `compose`, two importers
+- Where your catalog holds an importer of another name for `langflow`, `flowise`, `n8n`, `mcp`, `compose` or `dify`, two importers
   advertise the format, and an import that attaches neither is refused naming both, under
   [A parse or import format is advertised by more than one plugin](../errors/fatal-halts.md#a-parse-or-import-format-is-advertised-by-more-than-one-plugin).
   A `plugins.importer` entry naming the one you want settles it.
@@ -102,25 +106,28 @@ declares:
   `compose.override.yml`, `compose.override.yaml`, `docker-compose.override.yml` or
   `docker-compose.override.yaml` — and carries an object at `services`. A Compose file under any other
   name is imported by naming `--format compose`.
+- **Dify** — a source of any name that parses as YAML, carries the text `app` at `kind`, and carries
+  something at `app.mode` and at `version`, as every application Dify exports does.
 
 No source matches two of them. The four JSON importers read their source through the parser that
-serves `parse:json`, and the Compose importer through the one that serves `parse:yaml`: the one your
+serves `parse:json`, and the Compose and Dify importers through the one that serves `parse:yaml`: the one your
 workspace's catalog serves, where it serves one, and otherwise the parser the compiler itself carries
 for that syntax (see [Embedded plugins](embedded-plugins.md)). So an import through any of them needs
 no parser in your catalog, and nothing is fetched for one. A parser your catalog does serve is the one
-used, and the compiler's plays no part. The Langflow, Flowise and n8n importers declare no file
+used, and the compiler's plays no part. The Langflow, Flowise, n8n and Dify importers declare no file
 pattern, so each reads one file and an import of a directory through any of them is refused; the MCP
 importer declares the four client file names, so a directory is read through the client
 configurations it holds; and the Compose importer declares the eight Compose file names, so a
 directory is read through the Compose files it holds. A signature naming no file — the Langflow,
-Flowise and n8n importers' and the MCP importer's for a registry server description — applies to every
-file imported on its own: an import naming no format reads such a file as JSON to try them, whatever
-importer it is meant for, through that same parser. A file holding a comment or a trailing comma does
+Flowise and n8n importers' and the MCP importer's for a registry server description, and the Dify
+importer's — applies to every file imported on its own: an import naming no format reads such a file
+as JSON, and as YAML, to try them, whatever importer it is meant for, through those same parsers —
+the compiler carries both, so nothing is fetched for either. A file holding a comment or a trailing comma does
 not parse as JSON, so no signature recognises it.
 
 A source its parser refuses — for the four JSON importers, one that is not JSON, the MCP importer's
-once its comments and trailing commas are written as spaces, and for the Compose importer one that is
-not YAML — stops the import under
+once its comments and trailing commas are written as spaces, and for the Compose and Dify importers one that
+is not YAML — stops the import under
 `parse-failed`, whose message carries the parser's own reason. Naming the format does not change that:
 the importer asks for the source's tree, and the parser's refusal is the answer it gets.
 
@@ -1130,6 +1137,156 @@ The Compose importer reads `target_namespace`, `reuse_mode`, `reuse_threshold`, 
 and no other setting. The hint `emit_hints` governs is written in the drafted Component's file alone;
 the drafted Aggregate carries none.
 
+## The Dify importer
+
+`importer/dify` reads an application exported from Dify in its DSL, the YAML document Dify writes for
+an application, and drafts an Aggregate composing the standard library's Dify installation,
+`core/dify`, with the application carried in the installation's `app_definition` parameter. The
+installation imports it at deploy, through the step its API server's Recipe renders for it.
+
+### What it reads
+
+- **The application.** `kind`, which is `app`; `version`, the version of the DSL the application is
+  written in; and `app`, with its `mode`.
+- **A workflow or a chatflow** — `mode` `workflow` or `advanced-chat` — keeps its graph under
+  `workflow`: each node of `workflow.graph.nodes` that names its type under `data.type` is a node of
+  the application, in the order the graph lists them, and `workflow.environment_variables` holds the
+  variables it reads.
+- **A chat, agent chat or completion application** keeps its configuration under `model_config`: its
+  `model`, each knowledge base under `dataset_configs.datasets.datasets` and each tool under
+  `agent_mode.tools` is a node of the application, named by its place there, such as
+  `model_config.model`. An application of the `agent` mode is one node, `agent`.
+- **The plugins it needs.** Each entry of `dependencies` is a node too, named `dependencies.<n>`, of
+  the type the entry names, such as `marketplace`.
+
+Nothing else decides what is drafted: the whole application is carried.
+
+### What an application becomes
+
+`aggregate.yaml` is a draft Aggregate named `<target_namespace>/flow` composing one entry of
+`core/dify`, keyed `dify`, whose `app_definition` parameter carries the application as written — as
+[How the flow is written into the draft](#how-the-flow-is-written-into-the-draft) describes for a flow,
+so Dify's own `{{#…#}}` references reach the installation as exported. The installation wires every
+connection of its API server itself — its database, its cache, its vector store, its sandbox, its
+plugin runtime and its egress proxy — so the draft drafts no Component and wires nothing: every node
+stays in the application, and its decision says so. No other draft is written.
+
+An import sees the Components of the workspace's catalog and none of its Aggregates, so it does not
+check that the catalog holds `core/dify`, and a comment above the entry says so. Where the catalog
+holds no `core/ai-agent/dify`, the API server `core/dify` runs, the import warns with
+`platform-not-in-catalog` and drafts the entry all the same.
+
+The application is imported under the installation's owner account, which the Release names: the
+comment above the entry leaves for it `infra.owner_email` on the installation's `api` component and the
+`owner_password` slot on that component, both set in the Release's routing entry for the installation,
+without which the build halts.
+
+The authored workflow application this importer's tests import is drafted, with no setting, as:
+
+```yaml
+# aggregate.yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: imported/flow
+  version: 0.1.0
+  description: Draft Aggregate imported from a source in the dify format.
+spec:
+  aggregates:
+    # An import sees the Components of the workspace's catalog and none of its Aggregates, so it does not check that the catalog holds core/dify.
+    # Left for the Release, since the source cannot supply it:
+    #   - infra.owner_email on the api component of core/dify, the email of the installation's owner account the application is imported under, set under components.api in the Release's routing entry for this entry
+    #   - the owner_password slot on that api component, the owner account's password, attached in the same routing entry with type core/referenced-secret
+    dify:
+      type: core/dify
+      parameters:
+        app_definition: |
+          app:
+            description: Answers a support question from a knowledge base and files it.
+            ...
+```
+
+and a Release building it names the owner in the routing entry placing the installation:
+
+```yaml
+spec:
+  aggregate: imported/flow
+  boundaries:
+    platform:
+      aggregates:
+        dify:
+          components:
+            api:
+              infra:
+                owner_email: owner@example.com
+              features:
+                owner_password:
+                  type: core/referenced-secret
+                  infra:
+                    origin: <the password, or an existing Secret's name>
+```
+
+### What Dify configures for itself
+
+Dify configures the providers of the models and the tools an application calls inside itself, and
+`core/ai-agent/dify` declares no socket for a model, so the draft wires none. Each node naming one is
+reported with `part-configured-in-platform`, and in its decision, by what it names:
+
+- an `llm`, `question-classifier` or `parameter-extractor` node, and a chat application's
+  `model_config.model`: the model, by its name and its provider;
+- a `tool` node, and a chat application's tool: the tool, by its name and its provider;
+- an `agent` node: the agent strategy and the plugin providing it;
+- a `knowledge-retrieval` node, and a chat application's knowledge base: the knowledge bases it
+  retrieves from, and the model it routes a query with or reranks with, where it names one. An
+  application names a knowledge base by an identifier of the installation it was exported from, and
+  carries none of its documents and no store, so each is created inside Dify, in the vector store the
+  installation wires to its API server;
+- a dependency: the plugin, by the identifier Dify installs it under, and where Dify installs it from.
+
+Every other node is kept in the application with nothing reported.
+
+### Credential values an application holds
+
+The importer locates, in the order the application writes them:
+
+- the value of each environment variable whose `value_type` is `secret`, which Dify marks as a
+  credential. Dify's export writes it empty unless the export includes secrets;
+- an HTTP request node's `authorization.config.api_key`, which Dify marks as a credential and exports
+  as written;
+- the stored credential a `tool` node, or a tool of an `agent` node, selects under `credential_id`,
+  which Dify marks as a credential and writes only where the export includes secrets;
+- an HTTP request node's `headers` and `params`, which Dify marks as no credential and which can carry
+  one, each whole.
+
+By default each holding a value is carried as written in the application and named in a
+`credential-carried` warning by its node — `workflow` for an environment variable — and its field,
+never by its value. With the [`empty_credentials` setting](#settings) at `marked`, each value Dify
+marks as a credential is written empty, and at `all` the headers and the query parameters too, each
+reported with `credential-emptied`. A value is written empty in the application's own text: the
+scalar after its key is replaced by `''`, and nothing else is changed. The application is carried only
+where the parser serving `parse:yaml` reads the result back as the exported application with exactly
+those values emptied; otherwise it is not carried, `app_definition` is left unset with a comment, and
+`definition-not-carried` says why — as for an application in which a YAML alias reads a secret's
+value, which writing that value empty would change too. A value the setting leaves as written is never
+rewritten, so it never stops the application being carried.
+
+### The DSL version
+
+Where an application is written in a version of the DSL newer than `0.7.0`, the version Dify `1.17.0`
+— the version `core/ai-agent/dify` runs by default — writes, the import warns with
+`dsl-version-newer`. Dify holds the import of such an application for confirmation, which the step
+importing it at deploy gives, so check the application against the Dify version the Release runs.
+
+### The settings it reads
+
+The Dify importer reads `target_namespace`, `empty_credentials`, `layout`, `attach_egress_allowlist`
+and `render_mode`, as [Settings](#settings) describes them, and `reuse_mode`, `reuse_threshold`,
+`emit_hints` and `mapping_overrides`, which change nothing the default layout drafts: every node stays
+in the application. `attach_egress_allowlist` attaches nothing, since an entry of a composed
+Aggregate takes parameters and no Feature, and with it `true` the import warns with
+`feature-not-attached`. `layout: nodes` drafts each node as a Component of its own, as
+[Node by node](#node-by-node) describes, and carries no application.
+
 ## Settings
 
 An importer is handed the settings of the `plugins.importer` entry that attaches it, under
@@ -1154,9 +1311,9 @@ plugins:
 | `emit_hints` | `true` | Whether a drafted Component's file opens with a comment naming the catalog Component it resembles, for a high- or medium-tier match. The draft Aggregate carries the same comment above that node's entry, and above a referenced entry one naming the next-best candidate it could be swapped for, or saying that none scored above zero. `false` leaves the comments out. |
 | `render_mode` | `human` | `human` writes the drafts described above. `llm` writes no drafts, and writes instead the whole decision record — every node, the candidates weighed and the choice made — as one document, `import-decisions.json`, for another tool to read. Any other value reads as `human`. |
 | `mapping_overrides` | none | Mappings layered over the importer's own table, keyed by format and then by node type — for the Compose importer, by image repository. Each entry names the `component` a node of that type maps to and, optionally, its `category`, the `traits` — labels and their values — a matching Component carries, and a `vendor` word its name carries. An entry for a node type the table already maps takes the table row's place. Only the entries under the format being imported are read. |
-| `layout` | `platform` | `platform` drafts the platform that runs the flow, carrying the flow, with each part of it a Component of its own wired to the platform, as [The platform carrying the flow](#the-platform-carrying-the-flow) describes. `nodes` drafts every node as a Component of its own, as [Node by node](#node-by-node) describes. Any other value drafts as `platform`, and the import warns with `unknown-layout`. |
-| `empty_credentials` | `none` | Which credential values the flow the platform carries has written empty, as [Credential values the flow holds](#credential-values-the-flow-holds) lists them, which the Release the MCP importer drafts has written empty, as [Credential values a server holds](#credential-values-a-server-holds) lists them, and which the Release the Compose importer drafts has written empty, as [Credential values a service holds](#credential-values-a-service-holds) lists them. `none` writes none empty: each is carried as written and named in a `credential-carried` warning. `marked` writes empty what a format marks as a credential and every member of an MCP server's configuration. `all` writes empty the inputs a format marks as no credential that can carry one as well — request headers, query parameters, a request written as a command line, an input named for a key. What the draft writes so that a node reaches its connection is written whatever this says. Any other value halts the import, which drafts nothing, with `unknown-empty-credentials`. A draft made node by node reads no value, and so does not read this setting. |
-| `attach_egress_allowlist` | `false` | `true` attaches the standard library's `core/egress-allowlist` Feature to each platform instance the draft writes, as `egress-allowlist`, setting none of its `infra`, as [What the draft leaves for the Release](#what-the-draft-leaves-for-the-release) describes. `false` attaches nothing. A draft that writes no platform, under `layout: nodes`, attaches nothing whatever this says, and with it `true` the import warns with `feature-not-attached`. Any value that is not a boolean reads as `false`. |
+| `layout` | `platform` | `platform` drafts the platform that runs the flow, carrying the flow, with each part of it a Component of its own wired to the platform, as [The platform carrying the flow](#the-platform-carrying-the-flow) describes. `nodes` drafts every node as a Component of its own, as [Node by node](#node-by-node) describes. For the Dify importer, `platform` drafts the Dify installation carrying the application, as [What an application becomes](#what-an-application-becomes) describes. Any other value drafts as `platform`, and the import warns with `unknown-layout`. |
+| `empty_credentials` | `none` | Which credential values the flow the platform carries has written empty, as [Credential values the flow holds](#credential-values-the-flow-holds) lists them, which the Release the MCP importer drafts has written empty, as [Credential values a server holds](#credential-values-a-server-holds) lists them, which the Release the Compose importer drafts has written empty, as [Credential values a service holds](#credential-values-a-service-holds) lists them, and which the application the Dify importer carries has written empty, as [Credential values an application holds](#credential-values-an-application-holds) lists them. `none` writes none empty: each is carried as written and named in a `credential-carried` warning. `marked` writes empty what a format marks as a credential and every member of an MCP server's configuration. `all` writes empty the inputs a format marks as no credential that can carry one as well — request headers, query parameters, a request written as a command line, an input named for a key. What the draft writes so that a node reaches its connection is written whatever this says. Any other value halts the import, which drafts nothing, with `unknown-empty-credentials`. A draft made node by node reads no value, and so does not read this setting. |
+| `attach_egress_allowlist` | `false` | `true` attaches the standard library's `core/egress-allowlist` Feature to each platform instance the draft writes, as `egress-allowlist`, setting none of its `infra`, as [What the draft leaves for the Release](#what-the-draft-leaves-for-the-release) describes. `false` attaches nothing. A draft that writes no platform, under `layout: nodes`, and the Dify importer's draft, whose entry for the Dify installation takes no Feature, attach nothing whatever this says, and with it `true` the import warns with `feature-not-attached`. Any value that is not a boolean reads as `false`. |
 
 A setting an importer does not know is ignored.
 
@@ -1184,24 +1341,26 @@ with its `code` as well.
 | `no-nodes` | `warn` | The source carries no node the importer recognises — for the MCP importer, no server, and for the Compose importer, no service and no model. |
 | `unknown-layout` | `warn` | `layout` is neither `platform` nor `nodes`; the flow is drafted as `platform`. |
 | `unknown-empty-credentials` | `halt` | `empty_credentials` holds a value other than `none`, `marked` or `all`, named with the setting; the import drafts nothing. |
-| `platform-not-in-catalog` | `warn` | The workspace's catalog holds no Component of the platform's name, so no part is wired to it. |
+| `platform-not-in-catalog` | `warn` | The workspace's catalog holds no Component of the platform's name, so no part is wired to it; for the Dify importer, no `core/ai-agent/dify`, and `core/dify` is composed all the same. |
 | `part-not-placed` | `warn` | A part of the flow is wired to no socket of the platform, with why; it stays in the flow. |
 | `socket-selector-unreadable` | `warn` | The selector a socket of the platform declares does not read, so no part is wired to it; once for each socket. |
 | `credential-carried` | `warn` | A credential value is carried as written in the flow the draft carries, or in the Release the MCP or Compose importer drafts, named by its node — or its server or service — and its field, never by its value, with the `empty_credentials` value that writes it empty. |
 | `credential-emptied` | `warn` | A credential value is written empty in the flow the draft carries, or in the Release the MCP or Compose importer drafts, where `empty_credentials` asks for it, named by its node — or its server or service — and its field. |
 | `carriage-returns-rewritten` | `warn` | The flow's carriage returns are written as line feeds, with how many. |
-| `definition-not-carried` | `warn` | The flow is not carried in `values.flow_definition`, with why. |
+| `definition-not-carried` | `warn` | The flow is not carried in `values.flow_definition`, or the Dify importer's application in `parameters.app_definition`, with why. |
 | `part-reads-connection` | `warn` | How the flow reaches a wired part through its connection, or how a connection reaches a node the draft wires to no socket as it is written. |
 | `part-address-in-flow` | `warn` | The flow reaches a wired part other than through its connection, with how. |
 | `model-not-named` | `warn` | `values.model` of a referenced part is left for the author, with why. |
 | `feature-attached` | `info` | `attach_egress_allowlist` attached `core/egress-allowlist` to a drafted platform, with what of it the Release sets; once for each platform instance. |
-| `feature-not-attached` | `warn` | `attach_egress_allowlist` is `true` and the draft writes no platform, so nothing is attached. |
+| `feature-not-attached` | `warn` | `attach_egress_allowlist` is `true` and the draft writes no platform, or composes the Dify installation, whose entry takes no Feature, so nothing is attached. |
+| `part-configured-in-platform` | `warn` | A node of a Dify application names what Dify configures for itself — a model and its provider, a tool, a knowledge base, an agent strategy, a plugin — so the draft wires no part for it. |
+| `dsl-version-newer` | `warn` | A Dify application is written in a version of the DSL newer than the one the Dify version `core/ai-agent/dify` runs by default writes. |
 
 ## Published with each compiler release
 
-Each compiler release builds the five importers from the tagged sources and generates their Plugin
+Each compiler release builds the six importers from the tagged sources and generates their Plugin
 entities from the importers themselves, so an entity's capability, recognition signatures, host
-functions and description are what its importer reports. The release signs and publishes all five,
-`importer/langflow`, `importer/flowise`, `importer/n8n`, `importer/mcp` and `importer/compose` at the release's version, beside the other
+functions and description are what its importer reports. The release signs and publishes all six,
+`importer/langflow`, `importer/flowise`, `importer/n8n`, `importer/mcp`, `importer/compose` and `importer/dify` at the release's version, beside the other
 core plugins, and records their entities with the other core plugins' entities for the standard
 catalog.
