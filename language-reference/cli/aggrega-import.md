@@ -77,6 +77,30 @@ held to it. Wherever the drafts go, a link on the way to one that leads out of
 the workspace — or, beneath a directory you named outside it, out of that
 directory — is refused, and nothing is written.
 
+Pass --target to draft, beside the importer's drafts, the Manifest the drafted
+Release builds against for one provider. The target is a provider capability —
+the word a Recipe's spec.capability binds to, such as compose or helm. For each
+component type the drafted Aggregate declares, in the order it first declares
+it, import looks in the workspace's catalog for the Recipes that implement the
+type and bind to that capability: where there is exactly one Recipe — several
+versions of one Recipe count as one — the Manifest maps the type to it by its
+capability-qualified name with no version, such as compose/postgres, which the
+first pull pins in the lockfile at the highest version available; where there is
+none, or Recipes of more than one name, the type is left unmapped and a warning
+names it and why, so a build of the drafts stops naming each instance of it
+until you add the mapping. Feature attachments are not mapped. The Manifest is
+written as manifest.yaml beside the drafted Release, with the Release's name
+and version, and the Release's spec.manifest is set to that name — the comment
+the importer wrote in its place is replaced, and nothing else in the Release
+changes. A Release that already names a Manifest is left as it is; where the
+import drafts no Release, the Manifest is drafted beside the Aggregate, with its
+name and version, and nothing references it. The Manifest and the edited
+Release are drafts like the others: recorded, held inside the output directory,
+and shown by --dry-run. A target no Recipe in the catalog binds to stops the
+import before the importer runs, naming the target and the capabilities the
+catalog's Recipes bind to, and nothing is written. Without --target no Manifest
+is drafted and the drafts are the importer's alone.
+
 Beside its drafts, every import that drafts anything writes .aggrega-import.json,
 the record of what it wrote: each drafted file and, in a drafted Aggregate, each
 key at every depth, with a digest of the text written there. A key's text is its
@@ -228,4 +252,5 @@ source the write would refuse is refused here too.
 | `--format` | — | Name the source format explicitly, overriding detection by the importers' signatures (for example langflow, flowise, n8n, mcp, compose, dify, crewai, langgraph, google-adk or agent-framework) |
 | `--output-dir` | — | Directory the drafted files are written under. A relative path resolves against the directory you run the command in, and a drive named bare on Windows, such as D:, is the current directory on that drive. Without it the drafts are written beneath the root of the workspace the run resolved. |
 | `--sync` | `false` | Bring what an earlier import drafted up to date with the source, changing only what the import wrote, as the record beside the drafts lists it, and naming each part that drifted. With --dry-run, exit 0 when in step, 2 when drifted, 1 on an error or a refusal. |
+| `--target` | — | Draft a Manifest for this provider capability — the word a Recipe's spec.capability binds to, for example compose or helm — mapping each drafted component type to the one Recipe of that capability the workspace's catalog offers for it, and point the drafted Release at it. A capability no Recipe in the catalog binds to is refused before the importer runs. Without it no Manifest is drafted. |
 <!-- END GENERATED: cli-import -->

@@ -5683,6 +5683,24 @@ The rest of the message names the name and the `with.sources` file, then the rem
 
 **How to fix:** rename one of the two files, or take the file out of the entry's `with.sources` where the directory already carries it. A `with.sources` file keeps its base name, so a file of the same name at the top of the directory is the one it meets; a file in a directory beneath carries that directory in its name. [Which importer turns a source into drafts](../cli/configuration.md#which-importer-turns-a-source-into-drafts) describes an entry's `with.sources`.
 
+### An import's target names a capability no Recipe in the catalog binds to
+
+<!-- covers: internal/importops.ErrImportTargetUnbound -->
+
+A refusal on turning a foreign source description into draft authoring files, not on a build. The import was given a target — `--target` on `aggrega import`, or `target` on the assistant's import tool and the session's `aggrega/import` method — so that it drafts a Manifest mapping each drafted component type to a Recipe of that provider. The target is a provider capability, matched against the `spec.capability` each Recipe in the workspace's catalog binds to, and no Recipe there binds to the one given. A Manifest drafted for it would map nothing at all, and every component type would then read as missing from the catalog when what is wrong is the option itself — most often a misspelling.
+
+**Nothing runs and nothing is written.** The import stops once the catalog is loaded, before the source's format is recognised and before the importer runs, so no draft is produced and no file is written, under a dry run too.
+
+Its message opens:
+> no Recipe in the workspace's catalog binds to the capability the import's target names
+
+The rest of the message names the target exactly as given and the capabilities the catalog's Recipes do bind to, each once and in sorted order, then the remedy:
+> no Recipe in the workspace's catalog binds to the capability the import's target names (target `"<target>"`, the catalog's Recipes bind to `"<capability>"`, `"<capability>"`). Name one of those capabilities as the target, or leave the target out and no Manifest is drafted; nothing was drafted or written
+
+Where the catalog holds no Recipe at all, the message says so in place of the list, and the remedy is to add a Recipe of the provider to the catalog.
+
+**How to fix:** name one of the capabilities the message lists — `compose` or `helm`, say, as a Recipe's `spec.capability` writes it — or leave the target out, which drafts no Manifest. Where the provider you meant is one the catalog holds no Recipe for yet, add its Recipes to a catalog folder the workspace reads first. [aggrega-import.md](../cli/aggrega-import.md) describes what an import given a target drafts.
+
 ### A child Release inherits a boundary directory that resolves where its parent writes
 
 <!-- covers: pkg/resolver.ErrInheritedBoundaryDirectoryIsLiteral -->
@@ -6036,6 +6054,7 @@ Where one entry appears against two short codes, it covers two distinct conditio
 | `E0346` | `a Component's annotation stating how its metrics authenticate disagrees with whether it declares the provides key saying an instance's metrics need a credential` | A Component's metrics annotation and its provides key disagree |
 | `E0347` | `template reads the render facts of a component its host is wired to, but the FeatureRecipe does not set readsTargetRenderFacts` | A template reads its targets' render facts without declaring it |
 | `E0348` | `pipeline step reads the render facts of a component its host is wired to, but a pipeline step reads only the host's own render facts` | A pipeline step reads its targets' render facts |
+| `E0349` | `no Recipe in the workspace's catalog binds to the capability the import's target names` | An import's target names a capability no Recipe in the catalog binds to |
 <!-- END GENERATED: halt-condition-sentences -->
 
 ## The linter domain (not fatal)

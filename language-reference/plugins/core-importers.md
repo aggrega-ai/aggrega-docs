@@ -872,7 +872,8 @@ no value fail the schema of the field holding them, and the realization reading 
 `infra.stdio_runtime`, `infra.stdio_command` or `infra.endpoint` stops naming it.
 
 The Release's `metadata.environment` and `spec.manifest` are left unset, each named in a comment where
-it belongs: no source names the environment a Release deploys to, and the import drafts no Manifest.
+it belongs: no source names the environment a Release deploys to, and the importer drafts no Manifest
+— unless the import is given a target, as [What a target adds](#what-a-target-adds) describes.
 The Manifest names the target and the realization each server runs under — `helm/mcp-stdio-bridge` or
 `compose/mcp-stdio-bridge` for a command line, `helm/mcp-remote` or `compose/mcp-remote` for an
 address, `helm/mcp` for an image — and the realization of `core/referenced-secret-set`. The Release
@@ -1119,7 +1120,8 @@ leaves for the Release: the image of a service naming none, as one that builds i
 port that is not one number.
 A port the Component does not take, such as one below `core/compute/server`'s floor of 1024, is
 written as the source states it, and the build halts naming it. The Release's `metadata.environment`
-and `spec.manifest` are left unset, each named in a comment, as the MCP importer's are. The Manifest
+and `spec.manifest` are left unset, each named in a comment, as the MCP importer's are, unless the
+import is given a target, as [What a target adds](#what-a-target-adds) describes. The Manifest
 names the Recipe realizing each Component on the target you build for; `core/compute/server` is
 realized on Kubernetes by `helm/server`.
 
@@ -1445,7 +1447,8 @@ declaration names — and the credential it presents to its model, attached unde
 `model` connection; the build halts naming the image until it is set. A model declared as an `llm`
 object has an entry too, with the object's other members written in a comment above it, for the
 Release to carry where the model's Component takes them. The Release's `metadata.environment` and
-`spec.manifest` are left unset, each named in a comment.
+`spec.manifest` are left unset, each named in a comment, unless the import is given a target, as
+[What a target adds](#what-a-target-adds) describes.
 
 The classic project this importer's tests import, whose two agents both name `openai/gpt-4o`, is
 drafted, with no setting, as:
@@ -1616,7 +1619,8 @@ comment above each graph's entry, its `infra.image` — the image running the ap
 `langgraph build` builds from its configuration; the build halts naming the image until it is set. A
 comment above the application's first graph states the environment its configuration declares, as
 [The environment a configuration states](#the-environment-a-configuration-states) describes. The
-Release's `metadata.environment` and `spec.manifest` are left unset, each named in a comment.
+Release's `metadata.environment` and `spec.manifest` are left unset, each named in a comment, unless
+the import is given a target, as [What a target adds](#what-a-target-adds) describes.
 
 The Python application this importer's tests import, declaring two graphs, a checkpointer naming no
 backend, a store and an `env` written as an object, is drafted, with no setting, as:
@@ -1820,7 +1824,8 @@ ADK, which holds its configurations — and the credential it presents to its mo
 `model` connection; the build halts naming the image until it is set. The values the tree's
 configurations hand their tools and their model requests are written in a comment above the entry, as
 [Credential values a configuration holds](#credential-values-a-configuration-holds) describes. The
-Release's `metadata.environment` and `spec.manifest` are left unset, each named in a comment.
+Release's `metadata.environment` and `spec.manifest` are left unset, each named in a comment, unless
+the import is given a target, as [What a target adds](#what-a-target-adds) describes.
 
 The application this importer's tests import, a root agent naming two sub-agents' configurations and
 one built by code, imported as its directory with the two configurations named under `with.sources`,
@@ -2028,7 +2033,8 @@ keys the declarative agent states are written in the same comment, as
 [Credential values a declarative agent holds](#credential-values-a-declarative-agent-holds) describes.
 The endpoint a wired model's connection states is written as the model's `infra.endpoint`, and one
 written as a reference is named beside its entry, the Component's own address used until it is set. The
-Release's `metadata.environment` and `spec.manifest` are left unset, each named in a comment.
+Release's `metadata.environment` and `spec.manifest` are left unset, each named in a comment, unless
+the import is given a target, as [What a target adds](#what-a-target-adds) describes.
 
 The declarative agent this importer's tests import, of the OpenAI provider with a key connection, an MCP
 server presenting a key of its own, a function tool and a web search, imported as a file of its own,
@@ -2164,6 +2170,20 @@ other expression is named as one and never written.
 The Agent Framework importer reads `target_namespace`, `empty_credentials` and `render_mode`, as
 [Settings](#settings) describes them, and no other setting.
 
+## What a target adds
+
+An importer drafts no Manifest. An import given a target — `--target` on `aggrega import`, or `target`
+on the assistant's import tool and the session's `aggrega/import` method, naming a provider capability
+such as `compose` or `helm` — has the import itself draft one beside whatever the importer drafted,
+whichever importer ran: `manifest.yaml`, beside the drafted Release and named and versioned as it is,
+mapping each component type the drafted Aggregate declares to the one Recipe of that capability the
+workspace's catalog offers for it. Where the drafted Release names no Manifest, its `spec.manifest` is
+set to that one in place of the comment the importer wrote, and nothing else in the Release changes. A
+type with no such Recipe, or with Recipes of more than one name — the MCP importer's servers, say, where
+the catalog offers both `compose/mcp-stdio-bridge` and `compose/mcp-remote` for `core/ai-tool/mcp` — is
+left unmapped, and a build of the drafts stops naming each instance of it until you map it.
+[aggrega import](../cli/aggrega-import.md) describes it in full.
+
 ## Settings
 
 An importer is handed the settings of the `plugins.importer` entry that attaches it, under
@@ -2232,6 +2252,12 @@ with its `code` as well.
 | `feature-not-attached` | `warn` | `attach_egress_allowlist` is `true` and the draft writes no platform, or composes the Dify installation, whose entry takes no Feature, so nothing is attached. |
 | `part-configured-in-platform` | `warn` | A node of a Dify application names what Dify configures for itself — a model and its provider, a tool, a knowledge base, an agent strategy, a plugin — so the draft wires no part for it. |
 | `dsl-version-newer` | `warn` | A Dify application is written in a version of the DSL newer than the one the Dify version `core/ai-agent/dify` runs by default writes. |
+
+An import given a target reports, after the importer's diagnostics, what drafting the Manifest found:
+a `warn` naming each component type the Manifest leaves unmapped and why, and an `info` where the
+drafted Release already names a Manifest or no drafted Release references it. Those are the import's
+own rather than an importer's, and carry no code; [What a target adds](#what-a-target-adds) describes
+them.
 
 ## Published with each compiler release
 
