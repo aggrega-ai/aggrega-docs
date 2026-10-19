@@ -1,0 +1,79 @@
+# The translation workflow of a block-composed site translated with
+# @aggrega-ai/l10n. Copy it to the site's repository as
+# .github/workflows/l10n.yml. It runs the package's CI command, `npx l10n ci`,
+# which collects the translation batches that have ended, submits the source
+# strings that still lack a translation, and pushes the translation-memory
+# branch the configuration names (`ci.branch`) — the only branch it writes —
+# then, when a collection applied translations and the configuration names
+# `ci.dispatch`, dispatches that workflow. The configuration beside this
+# template names none.
+#
+# It runs on a push touching the sources, the human layer or the prompt files,
+# and by hand; it has no schedule. A batch it submits is collected by its
+# collector, l10n-collect.yml, which `l10n ci` switches on while a batch is
+# recorded (`ci.collector`), or by the next push or manual run.
+#
+# It assumes:
+#   - the working branch `main`;
+#   - the configuration at the repository root, l10n.config.json, with the
+#     English content under content/en/, the UI dictionary at ui/en.json, the
+#     memory under i18n/ (`memory.dir: "i18n"`) and the prompt files under
+#     i18n/prompts/ (`promptsDir`): the push trigger lists the source files, the
+#     human layer and the prompt files, and never the generated targets;
+#   - the API key in the repository secret ANTHROPIC_API_KEY, the variable
+#     `backend.apiKeyEnv` names; a workflow receives only the secrets it names;
+#   - the package vendored at vendor/l10n/, which package.json depends on as
+#     `file:vendor/l10n`; `npm ci` reads no secret.
+#
+# It never runs for a pull request: it holds the translation API key.
+name: Translate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - content/en/**
+      - ui/en.json
+      - i18n/messages/**
+      - i18n/prompts/**
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: l10n
+  cancel-in-progress: false
+
+jobs:
+  translate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      # A manual run can start from any branch; the content translated is the
+      # working branch's, so the checkout names it.
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: main
+          persist-credentials: false
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
+          cache: npm
+
+      # The package comes from its vendored directory, its dependencies from the
+      # public registry, as package-lock.json records them.
+      - name: Install
+        run: npm ci --no-audit --no-fund
+
+      - name: Collect, submit and push the translation memory
+        run: npx l10n ci
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com

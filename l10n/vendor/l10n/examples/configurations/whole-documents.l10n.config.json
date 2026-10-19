@@ -1,0 +1,51 @@
+{
+  "locales": { "source": "it", "targets": ["en", "fr", "de", "es", "pt", "zh-Hans", "zh-Hant"] },
+  "memory": { "dir": "i18n" },
+  "glossary": "i18n/glossary.json",
+  "promptsDir": "i18n/prompts",
+  "adapter": {
+    "kind": "json-content",
+    "content": {
+      "source": "src/data_build/content/{lang}",
+      "target": "src/data_build/content/{lang}",
+      "staging": "i18n/generated/content/{lang}",
+      "usageLabel": "content/{lang}"
+    },
+    "ui": {
+      "source": "src/data_build/ui-dictionary/{lang}.json",
+      "target": "src/data_build/ui-dictionary/{lang}.json",
+      "staging": "i18n/generated/ui-dictionary/{lang}.json",
+      "nested": true
+    },
+    "document": { "walk": "auto", "contextKey": "tipo" },
+    "output": { "path": "neutral", "langField": false, "keyOrder": "source" },
+    "fields": {
+      "denylistKeys": ["tipo", "id", "slug", "path", "template", "href", "url", "src", "item_id", "codice", "chiave_etichetta", "chiave_titolo", "voce_attiva", "video_webm", "locandina", "aperta", "chiusa", "texture", "asset", "amazonUrl", "assistenza_href", "sfondo_da_fase", "email", "telefono", "accento", "colore", "fascia", "direzione", "posizione", "orientamento", "inquadratura", "variante", "tono", "tono_apertura", "filetto", "destinazione", "collezione", "numero", "righe_latta", "area", "linea", "base", "larghezze", "intrinseca"],
+      "pageFields": { "seo": ["title", "description"] },
+      "valueGuards": {
+        "refPrefixes": ["/", "http://", "https://", "#", "tel:", "mailto:"],
+        "assetExtensions": ["jpg", "jpeg", "png", "svg", "webp", "avif", "gif", "pdf", "mp4", "webm"],
+        "excludeNumbers": true,
+        "excludeBooleans": true
+      },
+      "denylistKeyPatterns": ["_*"],
+      "identifierStrings": [
+        { "keys": ["aree", "fasi", "prodotti", "usi"], "where": "list" },
+        { "keys": ["fase"], "where": "value" }
+      ],
+      "skipInParent": [
+        {
+          "key": "categoria",
+          "parentHas": ["slug"],
+          "parentOnly": ["slug", "categoria", "larghezze", "intrinseca", "orientamento", "alt", "fotografia"]
+        }
+      ]
+    }
+  },
+  "backend": { "kind": "claude-code", "model": "opus", "login": "allowed" },
+  "mode": "local",
+  "local": {
+    "commands": ["npm run i18n:materialize"],
+    "paths": ["i18n/machine/", "src/data_build/content/", "src/data_build/ui-dictionary/"]
+  }
+}

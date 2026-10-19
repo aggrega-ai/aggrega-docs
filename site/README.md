@@ -56,8 +56,9 @@ instruction file per language. Two workflows (`.github/workflows/l10n.yml` and
 `l10n-collect.yml`) translate the corpus in batches and keep the machine
 translations on the branch `l10n-memory`. Both run only when started by hand:
 no push and no schedule starts a translation, which is paid for per run. They
-install the translation package themselves, so the site still builds from a
-plain clone.
+install the translation package themselves, from the copy kept under
+`l10n/vendor/l10n/`, so the site still builds from a plain clone and no
+credential is needed to install it.
 
 ## Reference pages
 

@@ -1,0 +1,82 @@
+# The translation workflow of a Markdown documentation corpus translated with
+# @aggrega-ai/l10n. Copy it to the corpus repository as
+# .github/workflows/l10n.yml. It runs the package's CI command, `npx l10n ci`,
+# which collects the translation batches that have ended, submits the source
+# segments that still lack a translation, and pushes the translation-memory
+# branch the configuration names (`ci.branch`) — the only branch it writes —
+# then, when a collection applied translations and the configuration names
+# `ci.dispatch`, dispatches that workflow. The configuration beside this
+# template names none.
+#
+# It runs on a push touching the sources, the human layer or the prompt files,
+# and by hand; it has no schedule. A batch it submits is collected by its
+# collector, l10n-collect.yml, which `l10n ci` switches on while a batch is
+# recorded (`ci.collector`), or by the next push or manual run.
+#
+# It assumes:
+#   - the working branch `main`;
+#   - the configuration at l10n/l10n.config.json, with the memory under
+#     l10n/memory/ (`memory.dir: "memory"`) and the prompt files under
+#     l10n/prompts/ (`promptsDir: "prompts"`);
+#   - the corpus's source files at the repository root (`adapter.sourceDir:
+#     ".."`), selected by the configuration's `adapter.include` globs: the push
+#     trigger lists the same globs, and never the output under l10n/<locale>/
+#     (`adapter.outDir: "."`);
+#   - the API key in the repository secret ANTHROPIC_API_KEY, the variable
+#     `backend.apiKeyEnv` names; a workflow receives only the secrets it names;
+#   - the package vendored at l10n/vendor/l10n/, and no package.json at the
+#     repository root; the install reads no secret.
+#
+# It never runs for a pull request: it holds the translation API key.
+name: Translate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - README.md
+      - architecture/**/*.md
+      - authoring/**/*.md
+      - language-reference/**/*.md
+      - l10n/memory/messages/**
+      - l10n/prompts/**
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: l10n
+  cancel-in-progress: false
+
+jobs:
+  translate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      # A manual run can start from any branch; the content translated is the
+      # working branch's, so the checkout names it.
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: main
+          persist-credentials: false
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 24
+
+      # The package is installed from its vendored directory, with its
+      # dependencies, and saved nowhere: the repository root has no package.json.
+      - name: Install
+        run: npm install --no-save --no-audit --no-fund --install-links ./l10n/vendor/l10n
+
+      - name: Collect, submit and push the translation memory
+        run: npx l10n ci --config l10n/l10n.config.json
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GIT_AUTHOR_NAME: github-actions[bot]
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_NAME: github-actions[bot]
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com

@@ -1,0 +1,12 @@
+#!/bin/sh
+# The push check of a site translated in the local mode by @aggrega-ai/l10n.
+# `npm install` and `npm ci` arm it: package.json's "prepare" script points
+# git's core.hooksPath at this directory. Before every push, git runs it with
+# the remote's name and URL as arguments and one line per pushed ref on
+# standard input; `l10n prepush` refuses the push unless every pushed commit is
+# fully translated, and says what to run. `git push --no-verify` skips it; the
+# check workflow, .github/workflows/l10n-check.yml, then turns the pushed
+# commit red instead. `npx --no` runs the installed command and never installs
+# one. The configuration of this example is l10n.local.json; a project whose
+# configuration is l10n.config.json at the root drops the --config.
+exec npx --no l10n prepush --config l10n.local.json "$@"

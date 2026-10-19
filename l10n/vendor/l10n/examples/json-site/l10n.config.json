@@ -1,0 +1,40 @@
+{
+  "locales": { "source": "en", "targets": ["it", "de"] },
+  "memory": { "dir": "i18n" },
+  "glossary": "i18n/glossary.json",
+  "promptsDir": "i18n/prompts",
+  "adapter": {
+    "kind": "json-content",
+    "content": {
+      "source": "content/{lang}",
+      "target": "content/{lang}",
+      "staging": "i18n/generated/content/{lang}"
+    },
+    "ui": {
+      "source": "ui/{lang}.json",
+      "target": "ui/{lang}.json",
+      "staging": "i18n/generated/ui/{lang}.json"
+    },
+    "fields": {
+      "denylistKeys": ["image", "to", "variant", "ogImage"],
+      "pageFields": { "seo": ["title", "description"] },
+      "valueGuards": {
+        "refPrefixes": ["/", "https://", "#"],
+        "assetExtensions": ["jpg", "png", "svg"],
+        "excludeNumbers": true,
+        "excludeBooleans": true
+      }
+    }
+  },
+  "backend": {
+    "kind": "anthropic",
+    "model": { "id": "claude-opus-5-5", "effort": "low" },
+    "apiKeyEnv": "ANTHROPIC_API_KEY",
+    "submission": { "inputTokens": 2500000, "outputTokens": 1000000 }
+  },
+  "ci": { "branch": "l10n-memory", "collector": "l10n-collect.yml" },
+  "sync": {
+    "commands": ["npx --no l10n materialize"],
+    "paths": ["content/it/", "content/de/", "ui/it.json", "ui/de.json"]
+  }
+}

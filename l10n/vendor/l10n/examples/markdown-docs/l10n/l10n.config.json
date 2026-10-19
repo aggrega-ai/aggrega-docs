@@ -1,0 +1,75 @@
+{
+  "locales": {
+    "source": "en",
+    "targets": ["it", "de", "fr", "es", "pt-BR", "zh-CN", "ja", "ko", "pl", "tr", "uk", "id", "vi", "ru"]
+  },
+  "memory": { "dir": "memory" },
+  "glossary": "glossary.json",
+  "promptsDir": "prompts",
+  "adapter": {
+    "kind": "markdown",
+    "sourceDir": "..",
+    "include": ["README.md", "architecture/**/*.md", "authoring/**/*.md", "language-reference/**/*.md"],
+    "exclude": ["**/.aggrega/**", "**/examples/**/charts/**", "**/examples/**/dist/**"],
+    "outDir": ".",
+    "policies": {
+      "paths": [
+        { "glob": "language-reference/schema/**", "policy": "translate" },
+        { "glob": "language-reference/plugins/embedded-plugins.md", "policy": "translate" }
+      ],
+      "regions": {
+        "advisory-short-codes": "translate",
+        "cli-auth": "translate",
+        "cli-build": "translate",
+        "cli-cache": "translate",
+        "cli-config": "translate",
+        "cli-deprecate": "translate",
+        "cli-edit-document": "translate",
+        "cli-explain": "translate",
+        "cli-get-schema": "translate",
+        "cli-import": "translate",
+        "cli-inspect": "translate",
+        "cli-lint": "translate",
+        "cli-login": "translate",
+        "cli-logout": "translate",
+        "cli-mcp": "translate",
+        "cli-pin": "translate",
+        "cli-plugin": "translate",
+        "cli-pull": "translate",
+        "cli-push": "translate",
+        "cli-push-artifact": "translate",
+        "cli-registry": "translate",
+        "cli-scaffold": "translate",
+        "cli-search": "translate",
+        "cli-serve": "translate",
+        "cli-sign": "translate",
+        "cli-validate": "translate",
+        "cli-version": "translate",
+        "command-list": "translate",
+        "condition-short-codes": "translate",
+        "error-identities": "translate",
+        "global-flags": "translate",
+        "halt-condition-sentences": "translate",
+        "provider-capability-matrix": "translate",
+        "well-known-annotation-boundary-scope": "translate",
+        "well-known-annotation-support": "translate"
+      }
+    }
+  },
+  "backend": {
+    "kind": "anthropic",
+    "model": {
+      "id": "claude-sonnet-5-5",
+      "thinking": { "type": "between_tools" },
+      "effort": "low",
+      "fallbackId": "claude-opus-5-5"
+    },
+    "apiKeyEnv": "ANTHROPIC_API_KEY",
+    "submission": { "inputTokens": 7500000, "outputTokens": 900000 }
+  },
+  "ci": { "branch": "l10n-memory", "collector": "l10n-collect.yml" },
+  "sync": {
+    "commands": ["npx --no l10n generate"],
+    "paths": ["it/", "de/", "fr/", "es/", "pt-BR/", "zh-CN/", "ja/", "ko/", "pl/", "tr/", "uk/", "id/", "vi/", "ru/"]
+  }
+}
