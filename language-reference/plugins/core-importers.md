@@ -1,6 +1,6 @@
 # Core importers
 
-The compiler's repository builds six importer plugins of its own, one for each source format, and
+The compiler's repository builds seven importer plugins of its own, one for each source format, and
 publishes them with every compiler release:
 
 | Plugin | Serves | Reads |
@@ -11,6 +11,7 @@ publishes them with every compiler release:
 | `importer/mcp` | `import:mcp` | an MCP client's configuration — `.mcp.json`, `claude_desktop_config.json`, `.vscode/mcp.json` or `.cursor/mcp.json` — or an MCP registry server description, `server.json`, as JSON |
 | `importer/compose` | `import:compose` | a Compose application — `compose.yaml`, `docker-compose.yml` and their override files — as YAML |
 | `importer/dify` | `import:dify` | an application exported from Dify in its DSL, as YAML |
+| `importer/crewai` | `import:crewai` | the agents and tasks a CrewAI project declares — `config/agents.yaml` and `config/tasks.yaml`, as YAML, or `crew.jsonc` and `agents/<name>.jsonc`, or their strict-JSON spellings `crew.json` and `agents/<name>.json`, as JSON with comments |
 
 Each is built from the compiler's own sources and stamped with the compiler's version, so the
 importers released with the compiler at `X.Y.Z` report version `X.Y.Z`, and their Plugin entities
@@ -18,7 +19,7 @@ record it. Unlike the plugins listed on [Embedded plugins](embedded-plugins.md),
 into the binary. The binary carries each one's Plugin entity and the digest of the one module it
 accepts for it, so each serves its format in every workspace, with no entry in its catalog.
 
-All six are built on the Go kit's importer package, `github.com/aggrega-ai/aggrega-pdk-go/pkg/importer`.
+All seven are built on the Go kit's importer package, `github.com/aggrega-ai/aggrega-pdk-go/pkg/importer`.
 For the Langflow, Flowise and n8n importers, everything an importer does whatever its format — scoring
 the workspace catalog's Components against each node, deciding whether to reference one or draft a
 new one, laying the draft out, carrying the credential values it holds or writing them empty as a
@@ -32,7 +33,10 @@ through the same package, renders its drafts as they do, and shares the rest as 
 does, as [The Compose importer](#the-compose-importer) describes. The Dify importer drafts the Dify
 installation the standard library assembles, carrying the application, through the same package's
 platform draft in the form it takes for a platform that is a whole installation, as
-[The Dify importer](#the-dify-importer) describes. How the importer socket works, and
+[The Dify importer](#the-dify-importer) describes. The CrewAI importer drafts an instance of the
+standard library's CrewAI agent per agent a project declares, wired to the model it names, and shares
+the rest as the MCP importer does, as [The CrewAI importer](#the-crewai-importer) describes. How the
+importer socket works, and
 what it is handed, is described under
 [The importer socket](plugin-contract.md#the-importer-socket--draft-authoring-output).
 
@@ -77,7 +81,7 @@ rules every importer is selected by, which
 sets out:
 
 - Within one name, the highest version runs, or the version a `plugins.importer` entry names.
-- Where your catalog holds an importer of another name for `langflow`, `flowise`, `n8n`, `mcp`, `compose` or `dify`, two importers
+- Where your catalog holds an importer of another name for `langflow`, `flowise`, `n8n`, `mcp`, `compose`, `dify` or `crewai`, two importers
   advertise the format, and an import that attaches neither is refused naming both, under
   [A parse or import format is advertised by more than one plugin](../errors/fatal-halts.md#a-parse-or-import-format-is-advertised-by-more-than-one-plugin).
   A `plugins.importer` entry naming the one you want settles it.
@@ -108,26 +112,38 @@ declares:
   name is imported by naming `--format compose`.
 - **Dify** — a source of any name that parses as YAML, carries the text `app` at `kind`, and carries
   something at `app.mode` and at `version`, as every application Dify exports does.
+- **CrewAI** — a source named `config/agents.yaml` or `config/tasks.yaml` that parses as YAML, a
+  source named `crew.jsonc` or `crew.json` that parses as JSON with comments and carries a list at
+  `agents`, or a source named `agents/<name>.jsonc` or `agents/<name>.json` that parses as JSON with
+  comments and carries something at `role`. A classic project keys its agents and its tasks by names of its author's choosing, so its
+  two files are told by their names alone.
 
 No source matches two of them. The four JSON importers read their source through the parser that
-serves `parse:json`, and the Compose and Dify importers through the one that serves `parse:yaml`: the one your
+serves `parse:json`, the Compose and Dify importers through the one that serves `parse:yaml`, and the
+CrewAI importer a classic project's files through the one that serves `parse:yaml` and the others
+through the one that serves `parse:jsonc`: the one your
 workspace's catalog serves, where it serves one, and otherwise the parser the compiler itself carries
 for that syntax (see [Embedded plugins](embedded-plugins.md)). So an import through any of them needs
 no parser in your catalog, and nothing is fetched for one. A parser your catalog does serve is the one
 used, and the compiler's plays no part. The Langflow, Flowise, n8n and Dify importers declare no file
 pattern, so each reads one file and an import of a directory through any of them is refused; the MCP
 importer declares the four client file names, so a directory is read through the client
-configurations it holds; and the Compose importer declares the eight Compose file names, so a
-directory is read through the Compose files it holds. A signature naming no file — the Langflow,
+configurations it holds; the Compose importer declares the eight Compose file names, so a
+directory is read through the Compose files it holds; and the CrewAI importer declares the six
+names of a project's declarations, so a project's directory is read through its declarations and
+nothing else. A signature naming no file — the Langflow,
 Flowise and n8n importers' and the MCP importer's for a registry server description, and the Dify
 importer's — applies to every file imported on its own: an import naming no format reads such a file
 as JSON, and as YAML, to try them, whatever importer it is meant for, through those same parsers —
 the compiler carries both, so nothing is fetched for either. A file holding a comment or a trailing comma does
-not parse as JSON, so no signature recognises it.
+not parse as JSON, so no signature reading JSON recognises it; the CrewAI importer's signatures for
+`crew.jsonc`, `agents/<name>.jsonc` and their `.json` spellings read JSON with comments, through the parser the compiler
+carries for that syntax where your catalog serves none.
 
 A source its parser refuses — for the four JSON importers, one that is not JSON, the MCP importer's
-once its comments and trailing commas are written as spaces, and for the Compose and Dify importers one that
-is not YAML — stops the import under
+once its comments and trailing commas are written as spaces, for the Compose and Dify importers one that
+is not YAML, and for the CrewAI importer a declaration that is not YAML or not JSON with comments —
+stops the import under
 `parse-failed`, whose message carries the parser's own reason. Naming the format does not change that:
 the importer asks for the source's tree, and the parser's refusal is the answer it gets.
 
@@ -1287,6 +1303,171 @@ Aggregate takes parameters and no Feature, and with it `true` the import warns w
 `feature-not-attached`. `layout: nodes` drafts each node as a Component of its own, as
 [Node by node](#node-by-node) describes, and carries no application.
 
+## The CrewAI importer
+
+`importer/crewai` reads the agents and the tasks a CrewAI project declares in its configuration files,
+and drafts an Aggregate holding one instance of the standard library's CrewAI agent,
+`core/ai-agent/crewai`, per agent, each wired to the model its configuration names, and a Release
+beside it.
+
+### What it reads
+
+CrewAI keeps a crew's behaviour in a program and declares its agents and its tasks in configuration
+files, in one of two layouts, and the importer reads either:
+
+- **A classic project** — `config/agents.yaml`, each agent keyed by its name, and
+  `config/tasks.yaml`, each task keyed by its name, both read as YAML. The agents are read in the order
+  `agents.yaml` writes them.
+- **A project in the JSON-first layout** — `crew.jsonc`, which lists the crew's agents by name under
+  `agents` and its tasks under `tasks`, and `agents/<name>.jsonc`, one file per agent, all read as JSON
+  with comments, so their comments and trailing commas are read as CrewAI reads them. The agents are
+  read in the order `crew.jsonc` lists them, followed by any other agent's file in name order; an agent
+  the crew lists whose file the import was not handed is named in a comment and drafted as nothing.
+  The same layout spelled in strict JSON — `crew.json` and `agents/<name>.json` — is read the same
+  way. Where a crew or an agent is written in both spellings, the `.jsonc` file is the one read, as
+  CrewAI reads it, and the `.json` file is named in a comment as not read.
+
+Of an agent it reads its `role`, `goal` and `backstory`; `allow_delegation` and `verbose`, at the top
+of its declaration or under `settings`, where `settings` wins, as CrewAI reads them; its `llm`; and the
+names of its `tools`. Of a task it reads its name and the agent it is assigned to. Every other member is
+named in a comment and carried nowhere.
+
+A directory is handed to the importer as the files its signatures name and no other, so the crew's
+program — a classic project's `crew.py`, a flow's `main.py`, a tool a project defines in Python — is
+never read. A file imported on its own is read as the declaration its shape is. A project's
+directory may hold several crews, each read from its own directory.
+
+### What a project becomes
+
+`aggregate.yaml` is a draft Aggregate named `<target_namespace>/flow`, opening with comments naming
+the declarations read, that the crew's program is not read, and each crew's tasks with the agent each
+is assigned to. It holds, per agent and keyed by its name, an instance of `core/ai-agent/crewai` with:
+
+- `role`, `goal` and `backstory` as declared;
+- `allow_delegation` as declared, and `false` where the agent declares none;
+- `log_level` `DEBUG` for an agent declared `verbose`, which narrates each step of its reasoning, and
+  `INFO` for one that is not, which reports progress and problems only. A `verbose` or an
+  `allow_delegation` that is neither `true` nor `false` is left to the Component's default and named
+  in a comment;
+- its `model` connection, wired to the instance of the model its `llm` names.
+
+An `llm` written `<provider>/<model>`, or as an object naming the model under `model`, `model_name`
+or `deployment_name`, names a provider and a model. The model is an instance of the catalog's
+Component for that provider — `core/ai-model/<provider>`, an underscore in the provider's name read
+as a hyphen, and `azure` read as `azure-openai` — keyed by the model's name, with the model as its
+`values.model`; agents naming one provider and model share one instance. Where the workspace's catalog
+holds no Component of that name, one is drafted, `<target_namespace>/ai-model/<provider>`, declaring
+the `model` value, and its decision says so; the `model.aggrega.ai/api` label the agent's `model`
+socket selects a Component by, and a Recipe publishing its endpoint and its model, are left for you,
+as a comment opening it says. An `llm` naming no provider — a bare model name, which CrewAI resolves
+a provider for when the program runs, or the name of an `llm` the program defines — a reference into
+the program, and an agent declaring no `llm`, which CrewAI then reads from the environment its program
+runs in, are wired to nothing, and a comment above the agent says why; the build halts naming the
+`model` socket until one is wired.
+
+A task is logic the crew's program runs, and a tool is code the program defines or loads: neither
+becomes a Component. Each is reported in a decision that chooses nothing, and a tool whose name — with
+a trailing `Tool`, its hyphens and underscores dropped — is the name of a tool Component the catalog
+holds carries that Component as a hint: `search_tool` and `SearchTool` both hint at
+`core/ai-tool/search`. `core/ai-agent/crewai` declares no socket for a tool, so nothing is wired for
+one.
+
+`release.yaml`, beside it, is a draft Release of the same name naming that Aggregate. It leaves, in a
+comment above each agent's entry, its `infra.image` — the image running the crew's program, which no
+declaration names — and the credential it presents to its model, attached under `credential` on its
+`model` connection; the build halts naming the image until it is set. A model declared as an `llm`
+object has an entry too, with the object's other members written in a comment above it, for the
+Release to carry where the model's Component takes them. The Release's `metadata.environment` and
+`spec.manifest` are left unset, each named in a comment.
+
+The classic project this importer's tests import, whose two agents both name `openai/gpt-4o`, is
+drafted, with no setting, as:
+
+```yaml
+# aggregate.yaml
+# CrewAI declarations read:
+#   - src/market_brief/config/agents.yaml
+#   - src/market_brief/config/tasks.yaml
+# Not read: the crew's program, which runs its agents and its tasks and defines its tools; it runs in the image the Release names for each agent.
+# Tasks the crew's program runs, drafted as no Component:
+#   - research_task, assigned to researcher
+#   - brief_task, assigned to brief_writer
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: imported/flow
+  version: 0.1.0
+  description: Draft Aggregate imported from a source in the crewai format.
+spec:
+  components:
+    # Tools the crew's program defines or loads for this agent, drafted as no Component: search_tool.
+    researcher:
+      type: core/ai-agent/crewai
+      values:
+        role: "{topic} Market Researcher\u000A"
+        goal: "Gather the facts about {topic} a buyer needs before a first meeting\u000A"
+        backstory: "You have briefed sales teams for years. ..."
+        allow_delegation: false
+        log_level: DEBUG
+      uses:
+        model:
+          gpt-4o:
+            target: gpt-4o
+    # The agent brief_writer.
+    # Not carried, since core/ai-agent/crewai takes no value for it: max_iter.
+    brief-writer:
+      type: core/ai-agent/crewai
+      ...
+    # The model openai/gpt-4o.
+    gpt-4o:
+      type: core/ai-model/openai
+      values:
+        model: "gpt-4o"
+```
+
+and a Release building it on Kubernetes supplies each agent's image and the credential on its `model`
+connection:
+
+```yaml
+spec:
+  aggregate: imported/flow
+  boundaries:
+    main:
+      components:
+        gpt-4o: {}
+        researcher:
+          infra:
+            image: <the image running the crew's program>
+          uses:
+            model:
+              gpt-4o:
+                features:
+                  credential:
+                    type: core/referenced-secret
+                    infra:
+                      origin: <an existing Secret's name>
+```
+
+Each agent is then rendered running that image, given the model's endpoint and the model's name as
+`OPENAI_BASE_URL` and `MODEL`, the variables CrewAI reads them from.
+
+### Credential values a declaration holds
+
+An `llm` written as an object can carry a key — under `api_key`, in an address, in headers. Each of
+its members other than the one naming the model that is not a number or a boolean is a value that can
+carry one, which CrewAI marks as no credential. By default each holding a value is carried as written
+into the comment above its model's entry in the Release and named in a `credential-carried` warning
+by its agent and its member, such as `llm.api_key`, never by its value. With the
+[`empty_credentials` setting](#settings) at `all`, each is written with no value and reported with
+`credential-emptied`; at `marked` each is carried, since CrewAI marks none. A member's name is not read
+for what it means. Every other member a declaration holds that the draft does not carry — a tool's
+configuration, a crew's `inputs` — is named, never valued.
+
+### The settings it reads
+
+The CrewAI importer reads `target_namespace`, `empty_credentials` and `render_mode`, as
+[Settings](#settings) describes them, and no other setting.
+
 ## Settings
 
 An importer is handed the settings of the `plugins.importer` entry that attaches it, under
@@ -1305,14 +1486,14 @@ plugins:
 
 | Setting | Default | What it does |
 | --- | --- | --- |
-| `target_namespace` | `imported` | The namespace drafted entities are named under: `<target_namespace>/<category>/<name>` for a Component, `<target_namespace>/flow` for the Aggregate and for the Release the MCP and Compose importers draft. |
+| `target_namespace` | `imported` | The namespace drafted entities are named under: `<target_namespace>/<category>/<name>` for a Component, `<target_namespace>/flow` for the Aggregate and for the Release the MCP, Compose and CrewAI importers draft. |
 | `reuse_mode` | `hints-only` | `hints-only` drafts every node the draft gives a Component of its own and references no catalog Component, recording a strong match as a hint. `auto-apply-above-threshold` references the best-matching catalog Component for such a node whose match is in the high tier and scores at or above `reuse_threshold`, and drafts every other. Any other value reads as `hints-only`. |
 | `reuse_threshold` | `0.85` | The score at or above which `auto-apply-above-threshold` references a Component. Read in that mode only; `0` reads as the default. |
 | `emit_hints` | `true` | Whether a drafted Component's file opens with a comment naming the catalog Component it resembles, for a high- or medium-tier match. The draft Aggregate carries the same comment above that node's entry, and above a referenced entry one naming the next-best candidate it could be swapped for, or saying that none scored above zero. `false` leaves the comments out. |
 | `render_mode` | `human` | `human` writes the drafts described above. `llm` writes no drafts, and writes instead the whole decision record — every node, the candidates weighed and the choice made — as one document, `import-decisions.json`, for another tool to read. Any other value reads as `human`. |
 | `mapping_overrides` | none | Mappings layered over the importer's own table, keyed by format and then by node type — for the Compose importer, by image repository. Each entry names the `component` a node of that type maps to and, optionally, its `category`, the `traits` — labels and their values — a matching Component carries, and a `vendor` word its name carries. An entry for a node type the table already maps takes the table row's place. Only the entries under the format being imported are read. |
 | `layout` | `platform` | `platform` drafts the platform that runs the flow, carrying the flow, with each part of it a Component of its own wired to the platform, as [The platform carrying the flow](#the-platform-carrying-the-flow) describes. `nodes` drafts every node as a Component of its own, as [Node by node](#node-by-node) describes. For the Dify importer, `platform` drafts the Dify installation carrying the application, as [What an application becomes](#what-an-application-becomes) describes. Any other value drafts as `platform`, and the import warns with `unknown-layout`. |
-| `empty_credentials` | `none` | Which credential values the flow the platform carries has written empty, as [Credential values the flow holds](#credential-values-the-flow-holds) lists them, which the Release the MCP importer drafts has written empty, as [Credential values a server holds](#credential-values-a-server-holds) lists them, which the Release the Compose importer drafts has written empty, as [Credential values a service holds](#credential-values-a-service-holds) lists them, and which the application the Dify importer carries has written empty, as [Credential values an application holds](#credential-values-an-application-holds) lists them. `none` writes none empty: each is carried as written and named in a `credential-carried` warning. `marked` writes empty what a format marks as a credential and every member of an MCP server's configuration. `all` writes empty the inputs a format marks as no credential that can carry one as well — request headers, query parameters, a request written as a command line, an input named for a key. What the draft writes so that a node reaches its connection is written whatever this says. Any other value halts the import, which drafts nothing, with `unknown-empty-credentials`. A draft made node by node reads no value, and so does not read this setting. |
+| `empty_credentials` | `none` | Which credential values the flow the platform carries has written empty, as [Credential values the flow holds](#credential-values-the-flow-holds) lists them, which the Release the MCP importer drafts has written empty, as [Credential values a server holds](#credential-values-a-server-holds) lists them, which the Release the Compose importer drafts has written empty, as [Credential values a service holds](#credential-values-a-service-holds) lists them, which the application the Dify importer carries has written empty, as [Credential values an application holds](#credential-values-an-application-holds) lists them, and which the Release the CrewAI importer drafts has written empty, as [Credential values a declaration holds](#credential-values-a-declaration-holds) lists them. `none` writes none empty: each is carried as written and named in a `credential-carried` warning. `marked` writes empty what a format marks as a credential and every member of an MCP server's configuration. `all` writes empty the inputs a format marks as no credential that can carry one as well — request headers, query parameters, a request written as a command line, an input named for a key. What the draft writes so that a node reaches its connection is written whatever this says. Any other value halts the import, which drafts nothing, with `unknown-empty-credentials`. A draft made node by node reads no value, and so does not read this setting. |
 | `attach_egress_allowlist` | `false` | `true` attaches the standard library's `core/egress-allowlist` Feature to each platform instance the draft writes, as `egress-allowlist`, setting none of its `infra`, as [What the draft leaves for the Release](#what-the-draft-leaves-for-the-release) describes. `false` attaches nothing. A draft that writes no platform, under `layout: nodes`, and the Dify importer's draft, whose entry for the Dify installation takes no Feature, attach nothing whatever this says, and with it `true` the import warns with `feature-not-attached`. Any value that is not a boolean reads as `false`. |
 
 A setting an importer does not know is ignored.
@@ -1338,14 +1519,14 @@ with its `code` as well.
 | Code | Severity | Reported when |
 | --- | --- | --- |
 | `parse-failed` | `halt` | The source does not parse: its parser refuses it, and the message carries the parser's reason. |
-| `no-nodes` | `warn` | The source carries no node the importer recognises — for the MCP importer, no server, and for the Compose importer, no service and no model. |
+| `no-nodes` | `warn` | The source carries no node the importer recognises — for the MCP importer, no server, for the Compose importer, no service and no model, and for the CrewAI importer, a crew declaring no agent. |
 | `unknown-layout` | `warn` | `layout` is neither `platform` nor `nodes`; the flow is drafted as `platform`. |
 | `unknown-empty-credentials` | `halt` | `empty_credentials` holds a value other than `none`, `marked` or `all`, named with the setting; the import drafts nothing. |
 | `platform-not-in-catalog` | `warn` | The workspace's catalog holds no Component of the platform's name, so no part is wired to it; for the Dify importer, no `core/ai-agent/dify`, and `core/dify` is composed all the same. |
 | `part-not-placed` | `warn` | A part of the flow is wired to no socket of the platform, with why; it stays in the flow. |
 | `socket-selector-unreadable` | `warn` | The selector a socket of the platform declares does not read, so no part is wired to it; once for each socket. |
-| `credential-carried` | `warn` | A credential value is carried as written in the flow the draft carries, or in the Release the MCP or Compose importer drafts, named by its node — or its server or service — and its field, never by its value, with the `empty_credentials` value that writes it empty. |
-| `credential-emptied` | `warn` | A credential value is written empty in the flow the draft carries, or in the Release the MCP or Compose importer drafts, where `empty_credentials` asks for it, named by its node — or its server or service — and its field. |
+| `credential-carried` | `warn` | A credential value is carried as written in the flow the draft carries, or in the Release the MCP, Compose or CrewAI importer drafts, named by its node — or its server, service or agent — and its field, never by its value, with the `empty_credentials` value that writes it empty. |
+| `credential-emptied` | `warn` | A credential value is written empty in the flow the draft carries, or in the Release the MCP, Compose or CrewAI importer drafts, where `empty_credentials` asks for it, named by its node — or its server, service or agent — and its field. |
 | `carriage-returns-rewritten` | `warn` | The flow's carriage returns are written as line feeds, with how many. |
 | `definition-not-carried` | `warn` | The flow is not carried in `values.flow_definition`, or the Dify importer's application in `parameters.app_definition`, with why. |
 | `part-reads-connection` | `warn` | How the flow reaches a wired part through its connection, or how a connection reaches a node the draft wires to no socket as it is written. |
@@ -1358,9 +1539,9 @@ with its `code` as well.
 
 ## Published with each compiler release
 
-Each compiler release builds the six importers from the tagged sources and generates their Plugin
+Each compiler release builds the seven importers from the tagged sources and generates their Plugin
 entities from the importers themselves, so an entity's capability, recognition signatures, host
-functions and description are what its importer reports. The release signs and publishes all six,
-`importer/langflow`, `importer/flowise`, `importer/n8n`, `importer/mcp`, `importer/compose` and `importer/dify` at the release's version, beside the other
+functions and description are what its importer reports. The release signs and publishes all seven,
+`importer/langflow`, `importer/flowise`, `importer/n8n`, `importer/mcp`, `importer/compose`, `importer/dify` and `importer/crewai` at the release's version, beside the other
 core plugins, and records their entities with the other core plugins' entities for the standard
 catalog.

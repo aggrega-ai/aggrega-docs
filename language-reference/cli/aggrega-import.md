@@ -156,7 +156,13 @@ Compose reads by default — compose.yaml, compose.yml, docker-compose.yml and
 docker-compose.yaml, and their override files compose.override.yml,
 compose.override.yaml, docker-compose.override.yml and
 docker-compose.override.yaml — and an object at services, so a Compose file
-under another name is imported naming --format compose. A directory is
+under another name is imported naming --format compose. The CrewAI importer
+recognizes a project's declarations by their names: config/agents.yaml and
+config/tasks.yaml, read as YAML, and crew.jsonc holding a list at agents and
+agents/<name>.jsonc holding a role, read as JSON with comments, as are their
+strict-JSON spellings crew.json and agents/<name>.json, a .json file not being
+read where its .jsonc spelling is handed too; it is handed those files and no
+other, so a crew's program is never read. A directory is
 recognized the same way over the files it holds: each signature is tried against the files
 its file names match, and a signature that names no file applies to none of
 them. If no signature matches, import stops, asks for --format and names the
@@ -168,7 +174,7 @@ reaches no network.
 Recognition and the importer read the source through the parser the
 workspace's catalog serves for its syntax, and, for a syntax the catalog
 serves no parser for, through the parser the compiler itself carries for it —
-JSON and YAML among them — so a workspace whose catalog holds no parser still
+JSON, JSON with comments and YAML among them — so a workspace whose catalog holds no parser still
 recognizes and imports a source the core importers read. Where the catalog
 serves a parser for a syntax, the compiler's own plays no part in reading it.
 The compiler's parsers are part of the binary, so nothing is fetched for one.
@@ -204,7 +210,7 @@ source the write would refuse is refused here too.
 | Flag | Default | Description |
 | --- | --- | --- |
 | `--dry-run` | `false` | Do everything except write: hand back the drafted files as content, naming the file each is for, and create or modify nothing. Every other behaviour is the write's, the importer run included. Without it the drafts are written to disk. |
-| `--format` | — | Name the source format explicitly, overriding detection by the importers' signatures (for example langflow, flowise, n8n, mcp, compose or dify) |
+| `--format` | — | Name the source format explicitly, overriding detection by the importers' signatures (for example langflow, flowise, n8n, mcp, compose, dify or crewai) |
 | `--output-dir` | — | Directory the drafted files are written under. A relative path resolves against the directory you run the command in, and a drive named bare on Windows, such as D:, is the current directory on that drive. Without it the drafts are written beneath the root of the workspace the run resolved. |
 | `--sync` | `false` | Bring what an earlier import drafted up to date with the source, changing only what the import wrote, as the record beside the drafts lists it, and naming each part that drifted. With --dry-run, exit 0 when in step, 2 when drifted, 1 on an error or a refusal. |
 <!-- END GENERATED: cli-import -->
