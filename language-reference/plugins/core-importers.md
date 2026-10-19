@@ -522,6 +522,15 @@ Each value it writes empty is reported with `credential-emptied`, by its node an
 its value; a value already empty, or `null`, is left as it is and not reported. A value the setting
 does not take halts the import, which drafts nothing, rather than reading as `none`.
 
+A located value that is one variable reference and nothing else — `${NAME}`, `${env:NAME}`,
+`${input:id}`, `${workspaceFolder}` — holds no value of its own: whatever the setting says it is
+carried as written and named in no warning, whichever format the flow is in, as the MCP importer writes one. So is a
+member that is one reference inside a value a format keeps as text, such as a Flowise `mcpServerConfig`
+written as JSON text, or headers and query parameters held as a JSON object in text on Flowise and
+n8n: written empty, the text keeps that member as written. A reference carrying a default,
+`${NAME:-value}`, or text beside a reference, such as `--key=${NAME}`, holds a value, and is located
+like any other.
+
 What the draft writes so that a node reaches its connection — an address written empty, a variable's
 name, a selected credential or default headers written empty, as
 [How the carried flow reaches each part](#how-the-carried-flow-reaches-each-part) describes — is wiring:
@@ -874,10 +883,10 @@ no value fail the schema of the field holding them, and the realization reading 
 The Release's `metadata.environment` and `spec.manifest` are left unset, each named in a comment where
 it belongs: no source names the environment a Release deploys to, and the importer drafts no Manifest
 — unless the import is given a target, as [What a target adds](#what-a-target-adds) describes.
-The Manifest names the target and the realization each server runs under — `helm/mcp-stdio-bridge` or
+The Manifest you write maps each server to its realization — `helm/mcp-stdio-bridge` or
 `compose/mcp-stdio-bridge` for a command line, `helm/mcp-remote` or `compose/mcp-remote` for an
-address, `helm/mcp` for an image — and the realization of `core/referenced-secret-set`. The Release
-schema requires both, so a build stops naming them until they are set.
+address, `helm/mcp` for an image — and `core/referenced-secret-set` to its own; a drafted one maps
+neither. The Release schema requires both, so a build stops naming them until they are set.
 
 A Claude Code `.mcp.json` listing a server reached over HTTP and one started with `npx`:
 
@@ -969,7 +978,8 @@ it, so a command written empty leaves it out too.
 
 A value that is one variable reference and nothing else — `${NAME}`, `${env:NAME}`, `${input:id}`,
 `${workspaceFolder}` — holds no value of its own: it is written as the text it is whatever the setting
-says, the bridge passing it to the server unexpanded, and it is named in no warning. An environment
+says, the bridge passing it to the server unexpanded, and it is named in no warning, as a reference is
+[in a flow](#credential-values-the-flow-holds). An environment
 variable whose value is one is written with its key and no value, its reference named in the comment
 above the entry, for the Release to supply, and a header whose value is one is listed with the
 reference it reads from. A reference carrying a default, `${NAME:-value}`, or text beside a reference
@@ -1347,8 +1357,10 @@ By default each holding a value is carried as written in the application and nam
 `credential-carried` warning by its node — `workflow` for an environment variable — and its field,
 never by its value. With the [`empty_credentials` setting](#settings) at `marked`, each value Dify
 marks as a credential is written empty, and at `all` the headers and the query parameters too, each
-reported with `credential-emptied`. A value is written empty in the application's own text: the
-scalar after its key is replaced by `''`, and nothing else is changed. The application is carried only
+reported with `credential-emptied`. A value that is one variable reference and nothing else holds
+none, and is carried as written whatever the setting says and named in no warning, as
+[in a flow](#credential-values-the-flow-holds). A value is written empty in the application's own
+text: the scalar after its key is replaced by `''`, and nothing else is changed. The application is carried only
 where the parser serving `parse:yaml` reads the result back as the exported application with exactly
 those values emptied; otherwise it is not carried, `app_definition` is left unset with a comment, and
 `definition-not-carried` says why — as for an application in which a YAML alias reads a secret's
