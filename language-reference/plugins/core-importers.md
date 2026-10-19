@@ -867,8 +867,9 @@ Aggregate, carrying for each instance the operational inputs the source states:
   command is `npx`, `npm` or `node`, `pypi` where it is `uvx`, `uv`, `python` or `python3`, and, for a
   registry package, its registry, `npm` or `pypi`;
 - for a server reached at an address, `infra.endpoint`: the address without its user part, its query
-  and its fragment, which are not written, since the Component takes the address without any part
-  that carries a key, and a comment says which were left out;
+  and its fragment, since the Component takes the address without any part that carries a key; each
+  part it leaves out is written in the comment above the entry, beside the address, as
+  [Credential values a server holds](#credential-values-a-server-holds) describes;
 - for an OCI package, `infra.image`;
 - for a server's environment, the `server_env` slot, attached as `core/referenced-secret-set` with one
   entry under `infra.entries` per variable, keyed by the variable's name.
@@ -963,27 +964,29 @@ spec:
 ### Credential values a server holds
 
 Each value of a server's configuration the Release writes — each header's value, each item of its
-command line, its address and each environment value — can carry a key, and no client marks one as a
-credential, so the import locates each as a member of an MCP server's configuration; a registry input
-marked `isSecret` is located as a value its format marks as a credential. A registry input — an
-environment variable or a remote's header — is read as its `value`, or its `default` where it writes
-none. By default each is carried as written into the Release and named in a `credential-carried`
-warning by its server and its place — `headers.<header>`, `infra.stdio_command.<position>`,
-`infra.endpoint` or `server_env.<variable>` — never by its value. With the
+command line, its address, each part of the address `infra.endpoint` leaves out and each environment
+value — can carry a key, and no client marks one as a credential, so the import locates each as a
+member of an MCP server's configuration; a registry input marked `isSecret` is located as a value its
+format marks as a credential. A registry input — an environment variable or a remote's header — is
+read as its `value`, or its `default` where it writes none. By default each is carried as written into
+the Release and named in a `credential-carried` warning by its server and its place —
+`headers.<header>`, `infra.stdio_command.<position>`, `infra.endpoint` or `server_env.<variable>`, and
+a part of the address by the `url` it is written in and the part's name, as in "url of node
+remote-search is carried with its query as written" — never by its value. With the
 [`empty_credentials` setting](#settings) at `marked` or `all`, each is written empty and reported with
 `credential-emptied`: an item of the command line as an empty item, an address and an environment
-value left out, so the build halts naming each, and a header's value left out of the comment, which
-names the header alone. A client's `infra.stdio_runtime` is read off the command as the Release writes
-it, so a command written empty leaves it out too.
+value left out, so the build halts naming each, and a header's value or a part of the address left
+out of the comment, which names the header or the part alone. A client's `infra.stdio_runtime` is read
+off the command as the Release writes it, so a command written empty leaves it out too.
 
 A value that is one variable reference and nothing else — `${NAME}`, `${env:NAME}`, `${input:id}`,
 `${workspaceFolder}` — holds no value of its own: it is written as the text it is whatever the setting
 says, the bridge passing it to the server unexpanded, and it is named in no warning, as a reference is
 [in a flow](#credential-values-the-flow-holds). An environment
 variable whose value is one is written with its key and no value, its reference named in the comment
-above the entry, for the Release to supply, and a header whose value is one is listed with the
-reference it reads from. A reference carrying a default, `${NAME:-value}`, or text beside a reference
-holds a value, and is located like any other.
+above the entry, for the Release to supply, and a header or a part of the address whose value is one
+is listed with the reference it reads from. A reference carrying a default, `${NAME:-value}`, or text
+beside a reference holds a value, and is located like any other.
 
 No infrastructure key of `core/ai-tool/mcp` takes a header's value: a remote server's credential is
 held by each consumer, on its connection to the tool, and the import drafts no consumer. So the
@@ -992,6 +995,25 @@ a double-quoted string reading back as exactly the source's text — for you to 
 of the consumer presenting it. A header whose value the source does not write, such as a registry
 header input with neither a value nor a default, is listed as having none. The image an OCI package
 names is written as it is, and is not a value the setting reaches.
+
+`infra.endpoint` takes the address without any part that carries a key, so the parts of the address
+the source writes that it leaves out — the user part before the `@`, the query after the `?` and the
+fragment after the `#`, everything after the first `#` being the fragment — are listed in the same
+comment, each beside its name and as written, without the `@`, `?` or `#` setting it off. A consumer
+reading its key from the address supplies the whole address on its own connection to the tool. A
+server reached at `https://user:pw@api.example.com/mcp?key=k`, with no setting, is drafted as:
+
+```yaml
+    # The address's user part and query are not written in infra.endpoint, which holds the address without any part that carries a key; a consumer reading its key from the address supplies the whole address on its own connection to the tool:
+    #   - user part: "user:pw"
+    #   - query: "key=k"
+    api:
+      infra:
+        endpoint: "https://api.example.com/mcp"
+```
+
+and with `empty_credentials` at `marked`, `infra.endpoint` is left for the Release and the comment
+lists `user part` and `query` each with its value left out.
 
 ### A configuration holding comments
 
@@ -2031,7 +2053,8 @@ why; the build halts naming the `model` socket until one is wired.
 Each tool of kind `mcp` is drafted as [The MCP importer](#the-mcp-importer) drafts a server someone else
 runs: an instance of `core/ai-tool/mcp`, keyed by the tool's name and carrying its description, whose
 `url` is written as its `infra.endpoint` in the Release without any part that carries a key — its user
-part, its query and its fragment — with a comment naming what is left out. A `url` written as a
+part, its query and its fragment — each part it leaves out written as written in the comment above the
+entry, beside its name, as the MCP importer writes it. A `url` written as a
 reference is left for the Release, named by its variable. Its `approvalMode` and its `allowedTools` are
 applied by the application from the declarative agent, and no key of `core/ai-tool/mcp` takes them, so
 a comment above its instance names them.
@@ -2112,7 +2135,8 @@ spec:
     gpt-4-1-mini:
       infra:
         endpoint: "https://llm-gateway.example.com/v1"
-    # The address's query is not written: infra.endpoint holds the address without any part that carries a key, and a consumer reading its key from the address supplies the whole address on its own connection to the tool.
+    # The address's query is not written in infra.endpoint, which holds the address without any part that carries a key; a consumer reading its key from the address supplies the whole address on its own connection to the tool:
+    #   - query: "session=..."
     microsoft-learn:
       infra:
         endpoint: "https://learn.microsoft.com/api/mcp"
@@ -2168,11 +2192,14 @@ The key a `key` connection presents — written under `key` or `apiKey`, on the 
 what it logs. Each key a declarative agent writes as a literal is written in the comment above the
 agent's entry in the Release, as the declarative agent writes it, and by default carried as written and
 named in a `credential-carried` warning by its agent and its field, such as `model.connection.key`,
-never by its value. An MCP server's address, written as its `infra.endpoint`, is a member of an MCP
-server's configuration, and a wired model's endpoint is an input Agent Framework marks as no
-credential. With the [`empty_credentials` setting](#settings) at `marked`, the keys and the MCP servers'
-addresses are written with no value and reported with `credential-emptied`, and the model's endpoint is
-carried; at `all`, the model's endpoint is written with no value too. A value written as `=Env.NAME`
+never by its value. An MCP server's address, written as its `infra.endpoint`, and each part of its `url`
+the address leaves out, written in the comment above the server's entry and named by the `url`'s field
+and the part's name — `tools.microsoft_learn.url of node LearnAgent is carried with its query as
+written` — are members of an MCP server's configuration, and a wired model's endpoint is an input Agent
+Framework marks as no credential. With the [`empty_credentials` setting](#settings) at `marked`, the
+keys, the MCP servers' addresses and the parts of their `url` are written with no value — a part left
+out of the comment, which names it alone — and reported with `credential-emptied`, and the model's
+endpoint is carried; at `all`, the model's endpoint is written with no value too. A value written as `=Env.NAME`
 holds none, so it is named by its variable — `model.connection.key, read from the environment variable
 OPENAI_API_KEY` — whatever the setting says, and reported under neither code; a value written as any
 other expression is named as one and never written.
