@@ -1035,19 +1035,25 @@ The importer matches a service by the repository its image names: the reference 
 its digest, a Docker Hub reference written in its short form — `postgres` for
 `docker.io/library/postgres:16`. It matches the repository through its image table, a table from image
 repository to the catalog Component that a Compose Recipe of the standard catalog runs an image of
-that repository for. The table is generated from the standard catalog's Compose Recipes when the
-importer is built and compiled into it, so no Recipe is read when an import runs; the importer's
+that repository for. The table is generated from the standard catalog's Compose Recipes and
+Components when the importer is built and compiled into it, so no Recipe is read when an import
+runs and the table holds the standard catalog's labels, whatever your catalog holds; the importer's
 Plugin entity names, in its description, the hub revision the table was generated from. Of each
 Recipe, the table reads the Component the Recipe implements and the image of its container named
 `main`, where that image writes its repository in its own text, or is a locals entry that does. A
 Recipe running the image the Release names whole, or one its template composes otherwise, adds no
 row, and neither does an image a Recipe runs beside its main container. Two Recipes naming one
-repository for different Components stop the table being generated, so a row never names one of
-two.
+repository for different Components stop the table being generated, so a row never names one of two.
+Of the Component a row names, the table reads its labels as an import is handed them — at the version
+a reference naming the Component without a version resolves to, with those it inherits through
+`extends` — and writes every label but `component.aggrega.ai/category` into the row as its traits. A
+Recipe implementing a Component the standard catalog does not hold stops the table being generated
+too.
 
 A row is read as a flow importer's table row is: the Component, the category its name places it in,
-and the last segment of its name as its vendor. The [`mapping_overrides` setting](#settings) layers
-over the table under the `compose` format, keyed by repository, and an entry for a repository the
+its traits, and the last segment of its name as its vendor. The
+[`mapping_overrides` setting](#settings) layers over the table under the `compose` format, keyed by
+repository, and an entry for a repository the
 table maps takes the row's place. So an image the standard catalog's Recipes do not name — your own,
 or one a Component of the catalog runs under another repository — is mapped by an entry:
 
@@ -1068,10 +1074,13 @@ A service whose image a row maps is decided as the flow importers decide a node:
 catalog's Components, referenced where `reuse_mode` is `auto-apply-above-threshold` and its best
 candidate is a high-tier match at or above `reuse_threshold`, and drafted as a Component of its own
 otherwise, the drafted Component's file opening with a comment naming the Component it resembles. A
-row of the generated table carries no traits, so a service it maps scores `0.75` against the
-Component it names, a medium-tier match, where nothing else of the service matches; an entry carrying
-the traits the Component's labels hold scores in the high tier. Services drafting one Component share
-its one file. A service whose image no row maps, whose image names no repository the importer reads,
+row carries the labels of the Component it names, so where your catalog holds that Component with the
+labels the standard catalog gives it, a service the row maps is a high-tier match for it, scoring
+`0.90`, and `auto-apply-above-threshold` references it at the default `reuse_threshold`. A Component
+whose labels your catalog has changed scores less, in proportion to the share of the row's traits it
+no longer carries, and is referenced only while it stays in the high tier; the category is weighed
+once, in its own signal, not again as a trait. Services drafting one Component share its one file. A
+service whose image no row maps, whose image names no repository the importer reads,
 or that builds its image, is an instance of `core/compute/server`, whatever your catalog holds. Each
 service's decision is reported as each node's is.
 
@@ -1174,7 +1183,9 @@ spec:
 ```
 
 and `components/imported-datastore-postgres.yaml`, opening with
-`# resembles core/datastore/postgres (score 0.7500); consider referencing it`.
+`# resembles core/datastore/postgres (score 0.9000); reference it by setting type: core/datastore/postgres`.
+With `reuse_mode: auto-apply-above-threshold`, `db` is instead `type: core/datastore/postgres` and no
+Component file is drafted for it.
 
 ### Credential values a service holds
 
