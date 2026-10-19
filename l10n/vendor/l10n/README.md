@@ -1135,8 +1135,12 @@ workflows:
   touching exactly the source files, the human layer (`messages/`) and the
   prompt files, and on manual dispatch; nothing else, and no schedule. The
   collector runs on a schedule every 10 minutes, its one automatic trigger, and
-  on manual dispatch; nothing else. Neither runs on `pull_request` or
-  `pull_request_target`: the job holds the API key.
+  on manual dispatch; nothing else. Either may instead run **by hand alone**,
+  with manual dispatch its one trigger, so that no push and no schedule ever
+  starts a paid run; the translation workflow then names the working branch in
+  its checkout's `ref`, which `doctor` reads in place of the push branch.
+  Neither runs on `pull_request` or `pull_request_target`: the job holds the API
+  key.
 - **Permissions**: `contents: write`, to push the CI branch, and
   `actions: write`, to switch the collector and dispatch; nothing else. One
   job, `translate`, with no permissions of its own.

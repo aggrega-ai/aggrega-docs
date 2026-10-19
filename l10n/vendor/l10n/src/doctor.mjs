@@ -64,8 +64,10 @@
  * locale's content directory and UI dictionary file; with the Markdown adapter,
  * each `include` glob under `sourceDir`), the human layer `<memory.dir>/messages/`
  * and the prompts directory. The working branch is `ci.dispatch.ref`, or else
- * the translation workflow's one push branch, which may not be the CI branch;
- * the collector checks out the same branch.
+ * the translation workflow's one push branch, or, for a translation workflow
+ * run by hand alone, the branch its checkout names; it may not be the CI
+ * branch, and the collector checks out the same branch. Either workflow may run
+ * by hand alone, with manual dispatch its one trigger.
  *
  * The exit code is 0 when every check passes and 1 otherwise.
  */
@@ -92,8 +94,10 @@ import {
   PREPUSH_COMMAND,
   WorkflowReadError,
   checkWorkflowProblems,
+  checkoutRef,
   ciStepOf,
   collectorProblems,
+  manualOnly,
   readWorkflow,
   sharedGroupProblems,
   workflowProblems,
@@ -372,9 +376,14 @@ function readWorkflowFile(project, root, name, fsImpl) {
   }
 }
 
-/** The working branch: `ci.dispatch.ref`, else the translation workflow's one push branch, else null. */
+/**
+ * The working branch: `ci.dispatch.ref`, else the translation workflow's one push
+ * branch, else — for a translation workflow run by hand alone, which has no push
+ * — the branch its checkout names; else null.
+ */
 function workingBranch(ci, translation) {
   if (ci.dispatch) return ci.dispatch.ref;
+  if (manualOnly(translation)) return checkoutRef(translation);
   const branches = translation && translation.on && translation.on.push && Array.isArray(translation.on.push.branches) ? translation.on.push.branches : [];
   return branches.length === 1 ? branches[0] : null;
 }
@@ -403,11 +412,14 @@ function checkWorkflow(project, fsImpl) {
   const { shown, text, wf } = read;
   const working = workingBranch(ci, wf);
   const problems = [];
-  if (working === null) problems.push(`on.push.branches must name the working branch alone; it is ${JSON.stringify(wf && wf.on && wf.on.push ? wf.on.push.branches : undefined)}`);
+  const manual = manualOnly(wf);
+  if (working === null && manual) problems.push(`the checkout's with.ref must name the working branch, since the workflow runs by hand alone; it is ${JSON.stringify(wf.jobs && wf.jobs.translate && wf.jobs.translate.steps && wf.jobs.translate.steps[0] && wf.jobs.translate.steps[0].with ? wf.jobs.translate.steps[0].with.ref : undefined)}`);
+  else if (working === null) problems.push(`on.push.branches must name the working branch alone; it is ${JSON.stringify(wf && wf.on && wf.on.push ? wf.on.push.branches : undefined)}`);
   else if (working === ci.branch) problems.push(`the working branch ${working} must not be the CI branch`);
   problems.push(...ruleProblems(project, root, wf, workflowProblems, working, { paths: triggerPaths(project, root), text }));
   if (problems.length) return { ok: false, detail: `${shown}: ${problems.join('; ')}` };
-  return { ok: true, detail: `${shown}: push to ${working} and by hand, no schedule; no pull-request trigger; contents and actions write; one concurrency group that cancels no run` };
+  const runs = manual ? `by hand alone, on ${working}` : `push to ${working} and by hand, no schedule`;
+  return { ok: true, detail: `${shown}: ${runs}; no pull-request trigger; contents and actions write; one concurrency group that cancels no run` };
 }
 
 /** The collector check. */
@@ -425,7 +437,8 @@ function checkCollector(project, fsImpl) {
   if (translation.wf) problems.push(...sharedGroupProblems(translation.wf, wf).map((p) => `concurrency: ${p}`));
   else problems.push(`concurrency: the translation workflow cannot be compared (${translation.failure})`);
   if (problems.length) return { ok: false, detail: `${shown}: ${problems.join('; ')}` };
-  return { ok: true, detail: `${shown}: every 10 minutes and by hand, switched on by \`l10n ci\` while a batch is recorded; the translation workflow's concurrency group` };
+  const runs = manualOnly(wf) ? 'by hand alone' : 'every 10 minutes and by hand, switched on by `l10n ci` while a batch is recorded';
+  return { ok: true, detail: `${shown}: ${runs}; the translation workflow's concurrency group` };
 }
 
 /** The CI branch check. */

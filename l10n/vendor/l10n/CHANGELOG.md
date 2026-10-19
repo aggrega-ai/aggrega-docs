@@ -6,6 +6,14 @@ whose release publishes the archive a consuming project vendors from
 feature the package has at its first release; a feature added after it is
 recorded under the next version, above this one.
 
+## 1.1.2
+
+- `doctor` accepts a translation workflow or a collector that runs by hand
+  alone, with manual dispatch its one trigger, so no push and no schedule starts
+  a paid run; for such a translation workflow it reads the working branch from
+  the checkout's `ref`. The workflows with their automatic triggers are checked
+  as before.
+
 ## 1.1.1
 
 - The Aggrega documentation example's prompt files name the compiler's stance

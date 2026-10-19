@@ -270,7 +270,55 @@ for (const name of Object.keys(EXAMPLE)) {
         expect(run.lines[run.lines.length - 1]).toMatch(new RegExp(`^doctor: \\d+ of ${DOCTOR_CHECKS.length} checks did not pass: `));
       });
     }
+
+    describe('with the workflows run by hand alone', () => {
+      it('passes every check, reading the working branch from the translation workflow\'s checkout', async () => {
+        const run = await doctor(name, ({ at, files }) => {
+          byHandAlone(at(files.workflow));
+          byHandAlone(at(files.collector));
+        });
+        expect(run.err).toBe('');
+        expect(run.code).toBe(0);
+        expect(run.statuses).toEqual(expected([]));
+        expect(run.lines.join('\n')).toContain('l10n.yml: by hand alone, on main;');
+        expect(run.lines.join('\n')).toContain('l10n-collect.yml: by hand alone;');
+      });
+
+      it('passes with the translation workflow alone run by hand, and the collector on its schedule', async () => {
+        const run = await doctor(name, ({ at, files }) => byHandAlone(at(files.workflow)));
+        expect(run.code).toBe(0);
+        expect(run.statuses).toEqual(expected([]));
+      });
+
+      it('fails when the checkout names no branch, so no working branch can be read', async () => {
+        const run = await doctor(name, ({ at, files }) => {
+          byHandAlone(at(files.workflow));
+          editText(at(files.workflow), 'ref: main', 'ref: ${{ github.ref_name }}');
+        });
+        expect(run.code).toBe(1);
+        expect(run.statuses).toEqual(expected(['workflow', 'collector']));
+        expect(run.lines.join('\n')).toContain("the checkout's with.ref must name the working branch, since the workflow runs by hand alone");
+      });
+
+      it('fails a manual dispatch that carries settings', async () => {
+        const run = await doctor(name, ({ at, files }) => {
+          byHandAlone(at(files.collector));
+          editText(at(files.collector), '  workflow_dispatch:\n', '  workflow_dispatch:\n    inputs: {}\n');
+        });
+        expect(run.code).toBe(1);
+        expect(run.statuses).toEqual(expected(['collector']));
+        expect(run.lines.join('\n')).toContain('triggers: on.workflow_dispatch must be present with no settings');
+      });
+    });
   });
+}
+
+/** Rewrites a workflow's triggers to manual dispatch alone. */
+function byHandAlone(file) {
+  const text = fs.readFileSync(file, 'utf8');
+  const next = text.replace(/^on:\n(?:[ #].*\n|\n)*?(?=permissions:)/m, 'on:\n  workflow_dispatch:\n\n');
+  if (next === text) throw new Error(`${file}: no on: block before permissions:`);
+  fs.writeFileSync(file, next);
 }
 
 describe('l10n doctor with the configuration below the repository root', () => {

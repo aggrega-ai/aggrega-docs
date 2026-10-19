@@ -13,9 +13,9 @@
  * workflow holds the rule:
  *   - `triggerProblems`: the translation workflow's triggers, a push to the
  *     working branch touching exactly the given paths and manual dispatch, and
- *     no schedule;
+ *     no schedule — or manual dispatch alone (`manualOnly`);
  *   - `collectorTriggerProblems`: the collector's triggers, a schedule every
- *     10 minutes and manual dispatch;
+ *     10 minutes and manual dispatch — or manual dispatch alone;
  *   - `pullRequestProblems`: no `pull_request` and no `pull_request_target`
  *     trigger, because the job holds the API key;
  *   - `permissionProblems`: `contents: write` and `actions: write` and nothing
@@ -387,12 +387,34 @@ function triggerSetProblems(on, want) {
 }
 
 /**
+ * Whether a workflow runs by hand alone: its `on` holds manual dispatch and no
+ * other trigger. Either workflow may be written so, and then no push and no
+ * schedule ever starts a paid run.
+ */
+export function manualOnly(wf) {
+  const on = isObject(wf) ? wf.on : undefined;
+  return isObject(on) && isDeepStrictEqual(Object.keys(on), ['workflow_dispatch']);
+}
+
+/**
+ * The branch a workflow's first step checks out, as its `with.ref` names it, or
+ * null when that is not one branch name written out.
+ */
+export function checkoutRef(wf) {
+  const first = stepsOf(wf)[0];
+  const ref = isObject(first) && isObject(first.with) ? first.with.ref : undefined;
+  return typeof ref === 'string' && ref !== '' && !ref.includes('${{') ? ref : null;
+}
+
+/**
  * The translation workflow's triggers: the push to the working branch touching
- * exactly `paths`, and manual dispatch; no schedule, and no other trigger.
+ * exactly `paths`, and manual dispatch; no schedule, and no other trigger. Or,
+ * run by hand alone, manual dispatch and nothing else.
  */
 export function triggerProblems(wf, { working, paths }) {
   const on = isObject(wf) ? wf.on : undefined;
   if (!isObject(on)) return [`on must be a mapping of triggers; it is ${show(on)}`];
+  if (manualOnly(wf)) return triggerSetProblems(on, ['workflow_dispatch']);
   const problems = triggerSetProblems(on, ['push', 'workflow_dispatch']);
   const push = { branches: [working], paths: [...paths] };
   if (!isDeepStrictEqual(on.push, push)) problems.push(`on.push must be ${JSON.stringify(push)}; it is ${show(on.push)}`);
@@ -401,11 +423,13 @@ export function triggerProblems(wf, { working, paths }) {
 
 /**
  * The collector's triggers: the schedule every 10 minutes, its one automatic
- * trigger, and manual dispatch; no other trigger.
+ * trigger, and manual dispatch; no other trigger. Or, run by hand alone, manual
+ * dispatch and nothing else.
  */
 export function collectorTriggerProblems(wf) {
   const on = isObject(wf) ? wf.on : undefined;
   if (!isObject(on)) return [`on must be a mapping of triggers; it is ${show(on)}`];
+  if (manualOnly(wf)) return triggerSetProblems(on, ['workflow_dispatch']);
   const problems = triggerSetProblems(on, ['schedule', 'workflow_dispatch']);
   if (!isDeepStrictEqual(on.schedule, COLLECTOR_SCHEDULE)) problems.push(`on.schedule must be ${JSON.stringify(COLLECTOR_SCHEDULE)}; it is ${show(on.schedule)}`);
   return problems;
@@ -682,6 +706,8 @@ export default {
   PERMISSIONS,
   JOB,
   ciStepOf,
+  manualOnly,
+  checkoutRef,
   triggerProblems,
   collectorTriggerProblems,
   pullRequestProblems,

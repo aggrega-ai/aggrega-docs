@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 
-import { WorkflowReadError, collectorProblems, readWorkflow, sharedGroupProblems, workflowProblems } from './workflow.mjs';
+import { WorkflowReadError, checkoutRef, collectorProblems, manualOnly, readWorkflow, sharedGroupProblems, workflowProblems } from './workflow.mjs';
 import { EXAMPLES } from '../test/helpers.mjs';
 
 /** The json-site example's workflow template, which holds every rule. */
@@ -150,6 +150,40 @@ const collectorFailing = (wf, text = COLLECTOR_TEXT) =>
     .filter((r) => r.problems.length > 0)
     .map((r) => r.rule);
 
+describe('a translation workflow run by hand alone', () => {
+  const manual = () => {
+    const wf = readWorkflow(TEXT);
+    wf.on = { workflow_dispatch: null };
+    return wf;
+  };
+
+  it('holds every rule, with no push and so no trigger paths', () => {
+    expect(manualOnly(manual())).toBe(true);
+    expect(failing(manual())).toEqual([]);
+  });
+
+  it('names the branch its checkout names, and none for an expression', () => {
+    const wf = manual();
+    expect(checkoutRef(wf)).toBe('main');
+    wf.jobs.translate.steps[0].with.ref = '${{ github.ref_name }}';
+    expect(checkoutRef(wf)).toBe(null);
+  });
+
+  it('breaks triggers with a manual dispatch carrying settings', () => {
+    const wf = manual();
+    wf.on.workflow_dispatch = { inputs: {} };
+    expect(manualOnly(wf)).toBe(true);
+    expect(failing(wf)).toEqual(['triggers']);
+  });
+
+  it('is not manual alone with a schedule beside its dispatch', () => {
+    const wf = manual();
+    wf.on.schedule = [{ cron: '0 * * * *' }];
+    expect(manualOnly(wf)).toBe(false);
+    expect(failing(wf)).toEqual(['triggers']);
+  });
+});
+
 describe('the collector rules (one fault per row)', () => {
   it('the template collector holds every rule, and shares the translation workflow’s concurrency group', () => {
     expect(collectorFailing(readWorkflow(COLLECTOR_TEXT))).toEqual([]);
@@ -160,7 +194,6 @@ describe('the collector rules (one fault per row)', () => {
   const rows = [
     { scenario: 'a push trigger', mutate: (wf) => (wf.on.push = { branches: ['main'] }), fails: ['triggers'] },
     { scenario: 'an hourly schedule', mutate: (wf) => (wf.on.schedule = [{ cron: '0 * * * *' }]), fails: ['triggers'] },
-    { scenario: 'no schedule', mutate: (wf) => delete wf.on.schedule, fails: ['triggers'] },
     { scenario: 'no manual dispatch', mutate: (wf) => delete wf.on.workflow_dispatch, fails: ['triggers'] },
     { scenario: 'a pull-request trigger', mutate: (wf) => (wf.on.pull_request = null), fails: ['triggers', 'pull requests'] },
     { scenario: 'a further permission', mutate: (wf) => (wf.permissions['pull-requests'] = 'write'), fails: ['permissions'] },
@@ -175,6 +208,13 @@ describe('the collector rules (one fault per row)', () => {
       expect(collectorFailing(wf)).toEqual(row.fails);
     });
   }
+
+  it('with no schedule, run by hand alone, it holds every rule', () => {
+    const wf = clone();
+    delete wf.on.schedule;
+    expect(manualOnly(wf)).toBe(true);
+    expect(collectorFailing(wf)).toEqual([]);
+  });
 
   it('a concurrency group of its own breaks the shared group, naming both', () => {
     const wf = clone();
