@@ -17,8 +17,9 @@ accepts for it, so each serves its format in every workspace, with no entry in i
 
 All three are built on the Go kit's importer package, `github.com/aggrega-ai/aggrega-pdk-go/pkg/importer`.
 Everything an importer does whatever its format — scoring the workspace catalog's Components against
-each node, deciding whether to reference one or draft a new one, laying the draft out, keeping
-credential values out of it, writing the drafts and reading the settings below — is that package's,
+each node, deciding whether to reference one or draft a new one, laying the draft out, carrying the
+credential values it holds or writing them empty as a setting asks, writing the drafts and reading
+the settings below — is that package's,
 and only reading the format, and knowing the platform its flows run on, is particular to each
 importer. How the importer socket works, and what it is handed, is described under
 [The importer socket](plugin-contract.md#the-importer-socket--draft-authoring-output).
@@ -103,11 +104,10 @@ JSON to try them, whatever importer it is meant for, through that same parser.
 - A note pinned to the canvas, a node of type `noteNode`, is not imported, and an edge to a node that
   is not imported is dropped.
 - Drafting the platform that carries the flow also reads, off the flow: its top-level `id`; the value
-  of each field marked `password: true`, which it writes empty; an MCP Tools node's `mcp_server`
-  field — the MCP server it names, and that server's configuration — or the fields it keeps its server
-  in instead; each input Langflow marks as no credential that can carry one, as
-  [Credential values written empty](#credential-values-written-empty) lists them — those
-  `empty_unmarked_credentials` governs only where it is `true`; the field a
+  of each field marked `password: true`; an MCP Tools node's `mcp_server` field — the MCP server it
+  names, and that server's configuration — or the fields it keeps its server in instead; each input
+  Langflow marks as no credential that can carry one, as
+  [Credential values the flow holds](#credential-values-the-flow-holds) lists them; the field a
   node names its model in, and the model provider it runs on; and the fields through which a node
   reaches a part's address and key, which it rewrites.
   [What they draft](#what-they-draft) says what becomes of each.
@@ -128,9 +128,8 @@ JSON to try them, whatever importer it is meant for, through that same parser.
   declare of type `password`; `FLOWISE_CREDENTIAL_ID` among a node's inputs, and `credential` or
   `FLOWISE_CREDENTIAL_ID` inside a configuration object at any depth of them; the server
   configuration in a node's `mcpServerConfig` input; each input Flowise marks as no credential that
-  can carry one, as [Credential values written empty](#credential-values-written-empty) lists
-  them — those `empty_unmarked_credentials` governs only where it is `true` — and the member an
-  agentflow's configuration names the model or the tool it selects in; a
+  can carry one, as [Credential values the flow holds](#credential-values-the-flow-holds) lists
+  them, and the member an agentflow's configuration names the model or the tool it selects in; a
   node's `modelName` input; and an OpenAI node's Base Path, its `basepath` input.
   [What they draft](#what-they-draft) says what becomes of each.
 
@@ -155,9 +154,9 @@ JSON to try them, whatever importer it is meant for, through that same parser.
 - Drafting the platform that carries the workflow also reads, off it: its top-level `id`; each
   credential a node selects; each parameter n8n marks as a password; the address an MCP client node
   calls; the headers and query parameters a node sends with a request the workflow composes, as
-  [Credential values written empty](#credential-values-written-empty) lists them — those
-  `empty_unmarked_credentials` governs only where it is `true`; and the parameter a model node names
-  its model in. [What they draft](#what-they-draft) says what becomes of each.
+  [Credential values the flow holds](#credential-values-the-flow-holds) lists them; and the
+  parameter a model node names its model in. [What they draft](#what-they-draft) says what becomes of
+  each.
 
 ## What they draft
 
@@ -309,14 +308,20 @@ connection, and names each socket it was passed over for and why.
 ### How the carried flow reaches each part
 
 Where the format lets it, the flow the platform carries reaches each wired part through its
-connection, and the draft writes into the flow what makes it do so — the name of a variable, or an
-address emptied, and never a value:
+connection, and the draft writes into the flow what makes it do so — the name of a variable, an
+address emptied, or what the node would send in place of what the connection supplies, emptied, and
+never a value. This is wiring, not the removal of a credential value: the draft writes it whatever
+the [`empty_credentials` setting](#settings) says, since a value kept there would override what the
+connection delivers.
 
 - **A Langflow MCP Tools node.** The platform writes the address its connection delivers into the
   node's server configuration and, where the connection carries a credential, the name of the variable
   holding it under the header the tool publishes. The draft writes the address the export held there
   empty, so the flow holds no copy of it, and leaves the server's address — `infra.endpoint` of the
-  part — for the Release.
+  part — for the Release. Langflow sends the node's own `headers` field over the headers of its server
+  configuration, so the draft writes that field's whole value empty with its kind kept — an object as
+  `{}`, a list as `[]`, text as an empty string — since a header kept with its value emptied would
+  still be sent, while an empty object or list overrides nothing.
 - **A Langflow model or vector-store node.** The platform delivers a model connection as
   `OPENAI_BASE_URL` and `OPENAI_API_KEY`, and a vector-store connection as variables named for its
   alias, which Langflow reads through a field naming a global variable: a field whose object carries
@@ -347,16 +352,24 @@ address emptied, and never a value:
   takes `OPENAI_BASE_URL` from the environment, so the node reaches the address the platform delivers
   all the same.
 
+  An `OpenAIEmbeddings` node's client sends its `default_headers` over the ones it builds from the
+  key, and merges its `default_query` over the query of the address it calls, so on such a node the
+  draft wires, the whole value of each is written empty with its kind kept, as an MCP Tools node's
+  `headers` are.
+
   A field the export writes without both of those members is not written anew — a credential field
-  among them is still written empty, as below. Where that field is the one carrying the part's
+  among them is carried as written, or written empty where the setting asks for it, as below. Where
+  that field is the one carrying the part's
   address — and, for a `LanguageModelComponent` or `EmbeddingModel` node, gives one — where such a node
   does not run on `OpenAI`, or where the node is of any other type, the import reports the part as
   reached at the address the flow or its component's defaults give.
 - **A Flowise OpenAI node.** The OpenAI client Flowise runs a `chatOpenAI` or `openAIEmbeddings` node
   on reads `OPENAI_BASE_URL` and `OPENAI_API_KEY` from the environment where the node's Base Path is
   empty and it selects no credential, so the draft writes a Base Path the export holds empty, and the
-  node's selected credential is written empty with every other. A model node of any other type is
-  reported as reached at the address the chatflow or its own defaults give.
+  credential the node selects, at `data.credential`, empty too. That client sends the node's default
+  headers, its `baseOptions`, over the header it builds from the key, so the draft writes their whole
+  value empty with its kind kept. A model node of any other type is reported as reached at the
+  address the chatflow or its own defaults give.
 - **A Flowise tool or vector store.** A chatflow reads the address the platform delivers for one —
   `AGGREGA_TOOL_<ALIAS>_URL` or `AGGREGA_VECTOR_STORE_<ALIAS>_URL` — only through a Runtime variable
   of that name, which nothing creates at startup. The draft writes nothing for it, and the import
@@ -371,26 +384,57 @@ address emptied, and never a value:
   since setting it lets every workflow, and every user who can edit one, read every variable of the
   platform's environment, the delivered credentials included. So the draft writes nothing into the
   workflow for a connection, and every wired part is reported as reached other than through it. An MCP
-  client node's address is written empty with the workflow's credentials, as below, so it reaches no
-  server until an address is set again, and the server's own address — `infra.endpoint` of the part —
-  is left for the Release.
+  client node reaches its server at the address the workflow holds — as the export wrote it, or none
+  where the `empty_credentials` setting writes it empty, as below — and the server's own address —
+  `infra.endpoint` of the part — is left for the Release.
 
 Where the flow is carried, each wired part is reported with which of these holds:
 `part-reads-connection` where the flow reaches the part through its connection, and
 `part-address-in-flow` where it reaches the part other than through its connection — at an address
 the flow holds, or one its component's defaults give. The part's decision says the same.
 
-### Credential values written empty
+A node the draft wires to no socket can still be reached by a connection it does wire, as the node is
+written: an OpenAI client with no address and no key of its own reads the `OPENAI_BASE_URL` and
+`OPENAI_API_KEY` the platform delivers for the model connection from its environment. Where one does,
+the draft writes the node as it would a wired one, so nothing it holds is sent in place of what the
+connection supplies, and reports it with `part-reads-connection`:
 
-Before the flow is carried, the import writes empty every value in the places listed below: where each
-format keeps a credential, an MCP server's configuration wherever a format keeps it, and the default
-headers and query of a node the platform's connection reaches. The setting
-`empty_unmarked_credentials` adds the other inputs each format marks as no credential and that can
-carry one all the same — request headers, query parameters, a whole request written as a command
-line, and an input holding a credential under a credential's name, the bullets marked with it below.
-Its default, `false`, carries each of those as written, so a key in one reaches the draft; `true`
-writes them empty as those bullets say. What lies outside all these places is the author's to review,
-as the end of this section says.
+- a Langflow `OpenAIEmbeddings` node whose address field names the variable `OPENAI_BASE_URL` the
+  platform delivers, read as a global variable, while a part is wired to the model socket: its
+  `default_headers` and `default_query`;
+- a Flowise `chatOpenAI` or `openAIEmbeddings` node whose Base Path is empty and which selects no
+  credential, and such a model's configuration an agentflow node keeps among its inputs, while a part
+  is wired to the model socket: its `baseOptions`.
+
+On any other node these values are not wiring: they are carried as written, or written empty where
+the setting asks for it, as the next section says.
+
+### Credential values the flow holds
+
+Before the flow is carried, the import locates every value in it that can carry a credential, in the
+places listed below, each of one of three kinds: what a format marks as a credential; a member of an
+MCP server's configuration, wherever a format keeps one; and an input a format marks as no credential
+that can carry one all the same — request headers, query parameters, a whole request written as a
+command line, an input holding a credential under a credential's name.
+
+By default the import writes none of them empty: the flow is carried as it was exported, and each
+located value that holds something — not an empty string and not `null` — is named in a
+`credential-carried` warning, by its node and its field — a header or a query parameter by its name —
+never by its value or any part of it, with the value of the `empty_credentials` setting that writes it
+empty. The setting turns removal on: `marked` writes empty what a format marks as a credential and
+every member of an MCP server's configuration; `all` writes empty the inputs marked as none as well.
+Each value it writes empty is reported with `credential-emptied`, by its node and its field, never by
+its value; a value already empty, or `null`, is left as it is and not reported. A value the setting
+does not take halts the import, which drafts nothing, rather than reading as `none`.
+
+What the draft writes so that a node reaches its connection — an address written empty, a variable's
+name, a selected credential or default headers written empty, as
+[How the carried flow reaches each part](#how-the-carried-flow-reaches-each-part) describes — is wiring:
+it is written whatever the setting says, reported with how the node reaches its connection, and never
+reported as a credential value. What lies outside every place below is the author's to review, as the
+end of this section says.
+
+**What a format marks as a credential** — written empty under `marked` and `all`:
 
 - **Langflow** — the value of each template field marked `password: true`, a field holding the name
   of a global variable included, unless the draft writes that field with the name of the variable
@@ -400,51 +444,51 @@ as the end of this section says.
   `FLOWISE_CREDENTIAL_ID` among a node's inputs, and `credential` or `FLOWISE_CREDENTIAL_ID` inside a
   configuration object at any depth of them, as an agentflow keeps a model's or a tool's.
 - **n8n** — the `id` of each stored credential a node selects, at `credentials.<type>.id`. An n8n
-  export keeps a credential as a reference, never its value, and the reference's `name` is kept: n8n,
-  importing the workflow on another instance, resolves a credential whose `id` it does not hold by its
-  type and name. A credential an older export selects by its name alone names a credential and holds
-  none, and is carried as written. And the value of each parameter n8n marks as a password in its
-  base nodes' definitions — the Crypto node's `secret`, say, or the `password` of the nodes that
-  create a user — wherever among the node's parameters it sits, a node used as an agent's tool read
-  as the node it is.
-- **An MCP server's configuration** — a Langflow MCP Tools node's `mcp_server` configuration, and a
-  Flowise node's `mcpServerConfig`, written as JSON text or as an object: each header value, whether
-  the headers are an object, rows of a key and a value or objects merged whole, an item of any other
-  kind written empty whole; each environment value; the server's
-  address; the command; and every argument. Neither format marks an address, a command or an argument
-  as a credential, and each can carry a key — an address in its user part, its path or its query — so
-  all three are written empty too, their members kept, on both formats and whether or not the node is
-  wired to a connection. Where a Langflow MCP Tools node is wired to a tools connection, the platform
-  writes the connection's address into its configuration, and the import reports the address the
-  export held there as part of how the node reaches its connection, not as a credential. A Flowise
-  configuration written as text that does not read as a JSON object is written empty whole, since
-  nothing inside it can be located. A Langflow MCP Tools node that carries no `mcp_server` field
-  keeps its server in fields of its own instead — the address in `sse_url`, the headers in
-  `headers_input`, the environment in `env`, and the whole command line, its arguments included, in
-  `command` — and Langflow marks none of them as a credential either, so each header value, each
-  entry of `env`, the address and the command line are written empty, their fields and entries kept.
-  Where `env` is a list, each entry is reported by its position, since a variable's name and its
-  value share one text. Such a node names no MCP server, so it is never wired to a tools connection.
-  A Langflow MCP Tools node, whether or not it carries `mcp_server`, can also have a `headers` field of
-  its own, whose headers Langflow sends the server over those of its configuration. Langflow marks it
-  as no credential, and a header in it can carry one, so its whole value is written empty with its
-  kind kept — an object as `{}`, a list as `[]`, and a value of any other kind, which Langflow sends
-  as no header, as an empty string — and reported once, as `headers`. A header written with its name
-  kept and its value emptied would, on a node wired to a tools connection, be sent in place of the one
-  the platform writes for the connection; an empty object or list overrides nothing. Langflow's MCP
-  Tools (SSE) and MCP Tools (stdio) components, which Langflow marks deprecated, keep their server in
-  one field each — an `MCPSse` node its address in `url`, an `MCPStdio` node its whole command line,
-  its arguments included, in `command` — and Langflow marks neither as a credential, so each is
-  written empty whole. Neither names an MCP server, so neither is wired to a tools connection. An n8n
-  MCP client node — the MCP Client Tool an agent calls, the MCP Client node, or a client of a server
-  n8n's registry lists — keeps the server's address in its `endpointUrl` parameter, or `sseEndpoint`
-  on its first version, and its headers only as credentials it selects; the address is written empty
-  whole, wired or not.
-- **Request headers neither format marks as a credential**, with `empty_unmarked_credentials: true` —
-  on Langflow, the `headers` of an
-  `APIRequest`, `URLComponent`, `CloudflareWorkersAIEmbeddings` or `ConfluentKafkaProducer` node and
-  the `api_headers` of a `DoclingRemote` node; on Flowise, the `headers` of an `httpAgentflow`,
-  `getApiChain`, `postApiChain`, `openApiChain`, `apiLoader`, `openAPIToolkit` or `searXNG` node, the
+  export keeps a credential as a reference, never its value, and the reference's `name` is not
+  located: n8n, importing the workflow on another instance, resolves a credential whose `id` it does
+  not hold by its type and name. A credential an older export selects by its name alone names a
+  credential and holds none, and is not located. And the value of each parameter n8n marks as a
+  password in its base nodes' definitions — the Crypto node's `secret`, say, or the `password` of the
+  nodes that create a user — wherever among the node's parameters it sits, a node used as an agent's
+  tool read as the node it is.
+
+**An MCP server's configuration** — written empty under `marked` and `all`:
+
+- A Langflow MCP Tools node's `mcp_server` configuration, and a Flowise node's `mcpServerConfig`,
+  written as JSON text or as an object: each header value, whether the headers are an object, rows of
+  a key and a value or objects merged whole, an item of any other kind located whole; each
+  environment value; the server's address; the command; and every argument. Neither format marks an
+  address, a command or an argument as a credential, and each can carry a key — an address in its user
+  part, its path or its query — so all three are located too, on both formats. Written empty, the
+  command and each argument keep their members, so a configuration that starts a server of its own
+  still reads as one. Where a Langflow MCP Tools node is wired to a tools connection, its address is
+  wiring, as above, and never reported as a credential value. A Flowise configuration written as text
+  that does not read as a JSON object is located whole, since nothing inside it can be located.
+- A Langflow MCP Tools node that carries no `mcp_server` field keeps its server in fields of its own
+  instead — the address in `sse_url`, the headers in `headers_input`, the environment in `env`, and the
+  whole command line, its arguments included, in `command` — and Langflow marks none of them as a
+  credential either, so each header value, each entry of `env`, the address and the command line are
+  located, their fields and entries kept when written empty. Where `env` is a list, each entry is
+  reported by its position, since a variable's name and its value share one text. Such a node names no
+  MCP server, so it is never wired to a tools connection.
+- A Langflow MCP Tools node's own `headers` field, which Langflow sends the server over the headers of
+  its configuration, on a node the draft does not wire: its whole value, written empty with its kind
+  kept, as on a wired node, and reported once, as `headers`.
+- Langflow's MCP Tools (SSE) and MCP Tools (stdio) components, which Langflow marks deprecated, keep
+  their server in one field each — an `MCPSse` node its address in `url`, an `MCPStdio` node its whole
+  command line, its arguments included, in `command` — located whole. Neither names an MCP server, so
+  neither is wired to a tools connection.
+- An n8n MCP client node — the MCP Client Tool an agent calls, the MCP Client node, or a client of a
+  server n8n's registry lists — keeps the server's address in its `endpointUrl` parameter, or
+  `sseEndpoint` on its first version, and its headers only as credentials it selects; the address is
+  located whole, wired or not.
+
+**An input a format marks as no credential** — written empty under `all` alone:
+
+- **Request headers** — on Langflow, the `headers` of an `APIRequest`, `URLComponent`,
+  `CloudflareWorkersAIEmbeddings` or `ConfluentKafkaProducer` node and the `api_headers` of a
+  `DoclingRemote` node; on Flowise, the `headers` of an `httpAgentflow`, `getApiChain`,
+  `postApiChain`, `openApiChain`, `apiLoader`, `openAPIToolkit` or `searXNG` node, the
   `requestsGetHeaders`, `requestsPostHeaders`, `requestsPutHeaders` and `requestsDeleteHeaders` of
   the Requests tools, and the `baseOptions` — the default headers a model's client sends — of an
   `azureChatOpenAI`, `azureOpenAIEmbeddings`, `chatCerebras`, `chatOpenAICustom`,
@@ -453,76 +497,67 @@ as the end of this section says.
   `n8n-nodes-base.httpRequest` node — its current version keeps the first two, its earlier versions
   the other two — and of the same node used as an agent's tool, the `parametersHeaders` and
   `jsonHeaders` of an `@n8n/n8n-nodes-langchain.toolHttpRequest` node, and the `headerParametersUi` of
-  an `n8n-nodes-base.graphql` node. A header's name carries
-  no secret, so each header's value is written empty and its name kept, whatever shape the headers
-  take: an object of names to values, rows of a key and a value — on n8n, rows of a `name` and a
-  `value` — or objects Langflow merges into the headers whole. Each header is reported by its name. An
-  item of a list that is no header row is written empty whole and reported by its position. Headers
-  written as text are written empty whole, except on Flowise and n8n where the text holds headers as a
-  JSON object: there the text is rewritten in place, each value written empty, and reported once with
-  the names of the headers it holds. n8n text opening with `=` is an expression n8n evaluates when the
-  workflow runs, and is written empty whole. Every value is
-  written empty, those of headers that hold no secret such as `User-Agent` included, so an imported
-  request is sent with them empty until its author restores them.
-- **Query parameters neither format marks as a credential**, with `empty_unmarked_credentials: true`
-  — on Langflow, the `query_params` of an
-  `APIRequest` or `GoogleSerperAPI` node and the `search_params` of a `SerpAPI`, `Serp`, `SearchAPI`
-  or `SearchComponent` node; on Flowise, the `queryParams` of an `httpAgentflow` node and the
-  `customParameters` of a `searchApi` loader; on n8n, the `queryParameters`, `jsonQuery`,
-  `queryParametersUi` and `queryParametersJson` of an `n8n-nodes-base.httpRequest` node, used as a
-  tool or not, the `parametersQuery` and `jsonQuery` of an `@n8n/n8n-nodes-langchain.toolHttpRequest`
-  node, and the `queryParameters` and `queryParametersJson` an `n8n-nodes-base.facebookGraphApi` node
-  keeps among its `options`. Each is sent as the query of a request, and a query
-  parameter can carry a key — some search APIs take theirs as `api_key` in the query — so each is
-  written as headers are: each value written empty and its name kept, whatever shape the parameters
-  take, and each reported by its name; parameters written as text are written empty whole, except on
-  Flowise and n8n where the text holds them as a JSON object, which is rewritten in place and reported
-  once with the names it holds. Every value is written empty, those of parameters that hold no secret included, so
-  an imported request is sent with them empty — or, from a Flowise HTTP node, which sends no
-  parameter whose value is empty, without them — until its author restores them.
-- **Default headers and a default query on a node the platform's connection reaches** — a Langflow
+  an `n8n-nodes-base.graphql` node. A header's name carries no secret, so each header's value is
+  located and its name kept, whatever shape the headers take: an object of names to values, rows of a
+  key and a value — on n8n, rows of a `name` and a `value` — or objects Langflow merges into the
+  headers whole. Each header is reported by its name. An item of a list that is no header row is
+  located whole and reported by its position. Headers written as text are located whole, except on
+  Flowise and n8n where the text holds headers as a JSON object: there, written empty, the text is
+  rewritten in place, each value empty, and reported once with the names of the headers it holds. n8n
+  text opening with `=` is an expression n8n evaluates when the workflow runs, and is located whole.
+  Written empty, every value is, those of headers that hold no secret such as `User-Agent` included,
+  so an imported request is sent with them empty until its author restores them.
+- **Query parameters** — on Langflow, the `query_params` of an `APIRequest` or `GoogleSerperAPI` node
+  and the `search_params` of a `SerpAPI`, `Serp`, `SearchAPI` or `SearchComponent` node; on Flowise,
+  the `queryParams` of an `httpAgentflow` node and the `customParameters` of a `searchApi` loader; on
+  n8n, the `queryParameters`, `jsonQuery`, `queryParametersUi` and `queryParametersJson` of an
+  `n8n-nodes-base.httpRequest` node, used as a tool or not, the `parametersQuery` and `jsonQuery` of
+  an `@n8n/n8n-nodes-langchain.toolHttpRequest` node, and the `queryParameters` and
+  `queryParametersJson` an `n8n-nodes-base.facebookGraphApi` node keeps among its `options`. Each is
+  sent as the query of a request, and a query parameter can carry a key — some search APIs take
+  theirs as `api_key` in the query — so each is located as headers are: each value, its name kept,
+  whatever shape the parameters take, and each reported by its name; parameters written as text are
+  located whole, except on Flowise and n8n where the text holds them as a JSON object, which, written
+  empty, is rewritten in place and reported once with the names it holds. Written empty, every value
+  is, those of parameters that hold no secret included, so an imported request is sent with them
+  empty — or, from a Flowise HTTP node, which sends no parameter whose value is empty, without
+  them — until its author restores them.
+- **Default headers and a default query on an OpenAI node no connection reaches** — a Langflow
   `OpenAIEmbeddings` node's `default_headers` and `default_query`, and a Flowise `chatOpenAI` or
-  `openAIEmbeddings` node's `baseOptions`, wherever the node sits, an agentflow's configuration of the
-  model it selects included, whether or not the draft wires that node and whatever
-  `empty_unmarked_credentials` says. These clients send their default headers over the ones they build from
-  the key the platform delivers for the model connection, and the Langflow node's client merges its
-  default query over the query of the address it calls, so a header or a parameter kept with its
-  value emptied would be sent in place of the one the platform's connection supplies. The whole value
-  is written empty with its kind kept — an object as `{}`, a list as `[]`, text as an empty string —
-  and reported once; an empty object or list overrides nothing.
-- **A whole request written as a command line**, with `empty_unmarked_credentials: true` — a
-  Langflow `APIRequest` node's `curl_input` and a
-  `Webhook` node's `curl`, written empty whole, the Webhook's default included. Neither is read when
-  the flow runs: the first only fills the node's fields in the editor, the second shows an example.
-- **An input holding a credential under a credential's name**, with
-  `empty_unmarked_credentials: true` — a Langflow `OlivyaComponent` node's
+  `openAIEmbeddings` node's `baseOptions`, wherever the node sits, an agentflow's configuration of
+  the model it selects included, where the draft neither wires the node nor finds a connection
+  reaching it as it is written; where one does, they are wiring, as above. Each is located whole and,
+  written empty, keeps its kind — an object as `{}`, a list as `[]`, text as an empty string — and is
+  reported once.
+- **A whole request written as a command line** — a Langflow `APIRequest` node's `curl_input` and a
+  `Webhook` node's `curl`, located whole, the Webhook's default included. Neither is read when the
+  flow runs: the first only fills the node's fields in the editor, the second shows an example.
+- **An input holding a credential under a credential's name** — a Langflow `OlivyaComponent` node's
   `api_key`, every Composio component's `verification_token`, and a `mem0_chat_memory` node's
-  `mem0_config`, whose whole value is written empty with its kind kept; and a Flowise
+  `mem0_config`, whose whole value keeps its kind when written empty; and a Flowise
   `startAgentflow` node's `webhookSecret` and `callbackSecret` and a `teradataMCP` node's
-  `bearerToken`. Each is written empty whole. An input whose name only resembles a credential — the
-  name of a key stored elsewhere, a user name, or an option the component declares as no secret — is
-  carried as written.
+  `bearerToken`. Each is located whole. An input whose name only resembles a credential — the name of
+  a key stored elsewhere, a user name, or an option the component declares as no secret — is not
+  located.
 
-The import reports each value it writes empty with `credential-emptied`, naming its node and its
-field — a header or a query parameter by its name — and never its value. A value already empty, or
-`null`, is left as it is and not reported. Apart from those values, what the draft writes so that
-the flow reaches its parts, and the carriage returns written as line feeds below, the flow is carried
-as it was exported, so a flow with none of these to change is carried byte for byte.
+Apart from the values the setting writes empty, what the draft writes so that the flow reaches its
+parts, and the carriage returns written as line feeds below, the flow is carried as it was exported,
+so a flow with none of these to change is carried byte for byte.
 
 A connection in the draft carries no credential: the Release attaches the one each connection
 presents, as the comment above the platform says.
 
-With `empty_unmarked_credentials` at its default, the inputs it governs reach the draft as written,
-and the author reviews them. No rule about a field reaches the rest of a flow either, so the author
-reviews it too before sharing a draft: a
-component's own code, which the flow carries and in which a custom component can hold a key; inputs
-the editor adds to a node beyond those its component declares; the body a request is sent with, such
-as an `APIRequest` or `httpAgentflow` node's, which can carry a token; the arguments a node hands
-its model's client or a loader as one object of its own, such as a Langflow `EmbeddingModel` node's
-`model_kwargs` or a Flowise `replicate` node's `additionalInputs`, which can carry a key under any
-name; an address other than an MCP server's, which can carry a key in its user part or its query; an
-n8n Code node's code, and the headers or the query of a node that sends a request the importer does
-not list above; and free text such as a prompt or a message.
+Every value the setting leaves as written reaches the draft, and the author reviews it, guided by the
+`credential-carried` warnings. No rule about a field reaches the rest of a flow either, so the author
+reviews it too before sharing a draft: a component's own code, which the flow carries and in which a
+custom component can hold a key; inputs the editor adds to a node beyond those its component
+declares; the body a request is sent with, such as an `APIRequest` or `httpAgentflow` node's, which
+can carry a token; the arguments a node hands its model's client or a loader as one object of its
+own, such as a Langflow `EmbeddingModel` node's `model_kwargs` or a Flowise `replicate` node's
+`additionalInputs`, which can carry a key under any name; an address other than an MCP server's,
+which can carry a key in its user part or its query; an n8n Code node's code, and the headers or the
+query of a node that sends a request the importer does not list above; and free text such as a
+prompt or a message.
 
 ### What the draft leaves for the Release
 
@@ -643,7 +678,7 @@ Write each `{{` in the export as `{{"{{"}}`, inside a block scalar, and interpol
 export's text before the Component's Recipes read it;
 [Text that carries its own double braces](../templates/parameters-context.md#text-that-carries-its-own-double-braces)
 describes why. A credential value the export holds belongs in a secret the Release attaches, not in
-the Aggregate: write it empty, as the draft does.
+the Aggregate: write it empty, as the draft does where the `empty_credentials` setting asks it to.
 
 ```yaml
 # Aggregate fragment — a Flowise chatflow carried as exported
@@ -696,7 +731,7 @@ plugins:
 | `render_mode` | `human` | `human` writes the drafts described above. `llm` writes no drafts, and writes instead the whole decision record — every node, the candidates weighed and the choice made — as one document, `import-decisions.json`, for another tool to read. Any other value reads as `human`. |
 | `mapping_overrides` | none | Mappings layered over the importer's own table, keyed by format and then by node type. Each entry names the `component` a node of that type maps to and, optionally, its `category`, the `traits` — labels and their values — a matching Component carries, and a `vendor` word its name carries. An entry for a node type the table already maps takes the table row's place. Only the entries under the format being imported are read. |
 | `layout` | `platform` | `platform` drafts the platform that runs the flow, carrying the flow, with each part of it a Component of its own wired to the platform, as [The platform carrying the flow](#the-platform-carrying-the-flow) describes. `nodes` drafts every node as a Component of its own, as [Node by node](#node-by-node) describes. Any other value drafts as `platform`, and the import warns with `unknown-layout`. |
-| `empty_unmarked_credentials` | `false` | `true` writes empty, in the flow the platform carries, the inputs each format marks as no credential and that can carry one all the same — request headers, query parameters, a request written as a command line, an input named for a key — as [Credential values written empty](#credential-values-written-empty) lists them. `false` carries each as written, so a key in one reaches the draft. What a format marks as a credential, an MCP server's configuration, and the default headers and query of a node the platform's connection reaches are written empty either way. Any value that is not a boolean reads as `false`. |
+| `empty_credentials` | `none` | Which credential values the flow the platform carries has written empty, as [Credential values the flow holds](#credential-values-the-flow-holds) lists them. `none` writes none empty: each is carried as written and named in a `credential-carried` warning. `marked` writes empty what a format marks as a credential and every member of an MCP server's configuration. `all` writes empty the inputs a format marks as no credential that can carry one as well — request headers, query parameters, a request written as a command line, an input named for a key. What the draft writes so that a node reaches its connection is written whatever this says. Any other value halts the import, which drafts nothing, with `unknown-empty-credentials`. A draft made node by node reads no value, and so does not read this setting. |
 | `attach_egress_allowlist` | `false` | `true` attaches the standard library's `core/egress-allowlist` Feature to each platform instance the draft writes, as `egress-allowlist`, setting none of its `infra`, as [What the draft leaves for the Release](#what-the-draft-leaves-for-the-release) describes. `false` attaches nothing. A draft that writes no platform, under `layout: nodes`, attaches nothing whatever this says, and with it `true` the import warns with `feature-not-attached`. Any value that is not a boolean reads as `false`. |
 
 A setting an importer does not know is ignored.
@@ -724,13 +759,15 @@ with its `code` as well.
 | `parse-failed` | `halt` | The source does not parse. |
 | `no-nodes` | `warn` | The source carries no node the importer recognises. |
 | `unknown-layout` | `warn` | `layout` is neither `platform` nor `nodes`; the flow is drafted as `platform`. |
+| `unknown-empty-credentials` | `halt` | `empty_credentials` holds a value other than `none`, `marked` or `all`, named with the setting; the import drafts nothing. |
 | `platform-not-in-catalog` | `warn` | The workspace's catalog holds no Component of the platform's name, so no part is wired to it. |
 | `part-not-placed` | `warn` | A part of the flow is wired to no socket of the platform, with why; it stays in the flow. |
 | `socket-selector-unreadable` | `warn` | The selector a socket of the platform declares does not read, so no part is wired to it; once for each socket. |
-| `credential-emptied` | `warn` | A credential value is written empty in the flow the draft carries, named by its node and its field. |
+| `credential-carried` | `warn` | A credential value is carried as written in the flow the draft carries, named by its node and its field, never by its value, with the `empty_credentials` value that writes it empty. |
+| `credential-emptied` | `warn` | A credential value is written empty in the flow the draft carries, where `empty_credentials` asks for it, named by its node and its field. |
 | `carriage-returns-rewritten` | `warn` | The flow's carriage returns are written as line feeds, with how many. |
 | `definition-not-carried` | `warn` | The flow is not carried in `values.flow_definition`, with why. |
-| `part-reads-connection` | `warn` | How the flow reaches a wired part through its connection. |
+| `part-reads-connection` | `warn` | How the flow reaches a wired part through its connection, or how a connection reaches a node the draft wires to no socket as it is written. |
 | `part-address-in-flow` | `warn` | The flow reaches a wired part other than through its connection, with how. |
 | `model-not-named` | `warn` | `values.model` of a referenced part is left for the author, with why. |
 | `feature-attached` | `info` | `attach_egress_allowlist` attached `core/egress-allowlist` to a drafted platform, with what of it the Release sets; once for each platform instance. |
