@@ -1,6 +1,6 @@
 # Core importers
 
-The compiler's repository builds three importer plugins of its own, one for each source format, and
+The compiler's repository builds four importer plugins of its own, one for each source format, and
 publishes them with every compiler release:
 
 | Plugin | Serves | Reads |
@@ -8,6 +8,7 @@ publishes them with every compiler release:
 | `importer/langflow` | `import:langflow` | a flow exported from Langflow, as JSON |
 | `importer/flowise` | `import:flowise` | a chatflow or an agentflow exported from Flowise, as JSON |
 | `importer/n8n` | `import:n8n` | a workflow exported from n8n, as JSON |
+| `importer/mcp` | `import:mcp` | an MCP client's configuration — `.mcp.json`, `claude_desktop_config.json`, `.vscode/mcp.json` or `.cursor/mcp.json` — or an MCP registry server description, `server.json`, as JSON |
 
 Each is built from the compiler's own sources and stamped with the compiler's version, so the
 importers released with the compiler at `X.Y.Z` report version `X.Y.Z`, and their Plugin entities
@@ -15,13 +16,16 @@ record it. Unlike the plugins listed on [Embedded plugins](embedded-plugins.md),
 into the binary. The binary carries each one's Plugin entity and the digest of the one module it
 accepts for it, so each serves its format in every workspace, with no entry in its catalog.
 
-All three are built on the Go kit's importer package, `github.com/aggrega-ai/aggrega-pdk-go/pkg/importer`.
-Everything an importer does whatever its format — scoring the workspace catalog's Components against
-each node, deciding whether to reference one or draft a new one, laying the draft out, carrying the
-credential values it holds or writing them empty as a setting asks, writing the drafts and reading
-the settings below — is that package's,
+All four are built on the Go kit's importer package, `github.com/aggrega-ai/aggrega-pdk-go/pkg/importer`.
+For the Langflow, Flowise and n8n importers, everything an importer does whatever its format — scoring
+the workspace catalog's Components against each node, deciding whether to reference one or draft a
+new one, laying the draft out, carrying the credential values it holds or writing them empty as a
+setting asks, writing the drafts and reading the settings below — is that package's,
 and only reading the format, and knowing the platform its flows run on, is particular to each
-importer. How the importer socket works, and what it is handed, is described under
+importer. The MCP importer drafts an instance of one Component per server, so it scores nothing; it
+shares the package's reading of the settings it reads, its decision over credential values and the
+conventions its drafts are named and described by, as [The MCP importer](#the-mcp-importer)
+describes. How the importer socket works, and what it is handed, is described under
 [The importer socket](plugin-contract.md#the-importer-socket--draft-authoring-output).
 
 ## How an import obtains one
@@ -65,7 +69,7 @@ rules every importer is selected by, which
 sets out:
 
 - Within one name, the highest version runs, or the version a `plugins.importer` entry names.
-- Where your catalog holds an importer of another name for `langflow`, `flowise` or `n8n`, two importers
+- Where your catalog holds an importer of another name for `langflow`, `flowise`, `n8n` or `mcp`, two importers
   advertise the format, and an import that attaches neither is refused naming both, under
   [A parse or import format is advertised by more than one plugin](../errors/fatal-halts.md#a-parse-or-import-format-is-advertised-by-more-than-one-plugin).
   A `plugins.importer` entry naming the one you want settles it.
@@ -82,15 +86,31 @@ declares:
   nothing at `data.nodes`.
 - **n8n** — a source that parses as JSON, carries an array at `nodes` and an object at
   `connections`, and carries nothing at `edges` or at `data.nodes`.
+- **MCP** — a source that parses as JSON and is named `.mcp.json`, `claude_desktop_config.json` or
+  `.cursor/mcp.json` and carries an object at `mcpServers`, or is named `.vscode/mcp.json` and carries
+  an object at `servers`; or a source of any name whose `$schema` is a text opening with
+  `https://static.modelcontextprotocol.io/schemas/`, a registry server description. A name is matched
+  against the end of the path the import is handed, so `project/.vscode/mcp.json` is recognised, while
+  `mcp.json` handed from inside `.vscode`, or a client's file under any other name, is imported by
+  naming `--format mcp`.
 
 No source matches two of them. Each reads its source through the parser that serves `parse:json`: the
 one your workspace's catalog serves, where it serves one, and otherwise the JSON parser the compiler
 itself carries (see [Embedded plugins](embedded-plugins.md)). So an import through any of them needs
 no parser in your catalog, and nothing is fetched for one. A JSON parser your catalog does serve is the
-one used, and the compiler's plays no part. None of them declares file patterns, so each reads one
-file and an import of a directory through any of them is refused. For the same reason their
-signatures apply to every file imported on its own: an import naming no format reads such a file as
-JSON to try them, whatever importer it is meant for, through that same parser.
+one used, and the compiler's plays no part. The Langflow, Flowise and n8n importers declare no file
+pattern, so each reads one file and an import of a directory through any of them is refused; the MCP
+importer declares the four client file names, so a directory is read through the client
+configurations it holds. A signature naming no file — the Langflow, Flowise and n8n importers' and
+the MCP importer's for a registry server description — applies to every file imported on its own: an
+import naming no format reads such a file as JSON to try them, whatever importer it is meant for,
+through that same parser. A file holding a comment or a trailing comma does not parse as JSON, so no
+signature recognises it.
+
+A source its parser refuses — for each of the four, one that is not JSON, the MCP importer's once its
+comments and trailing commas are written as spaces — stops the import under
+`parse-failed`, whose message carries the parser's own reason. Naming the format does not change that:
+the importer asks for the source's tree, and the parser's refusal is the answer it gets.
 
 ## What the Langflow importer reads
 
@@ -706,6 +726,191 @@ spec:
           }
 ```
 
+## The MCP importer
+
+`importer/mcp` reads the MCP servers an MCP client's configuration lists, or the one server an MCP
+registry server description describes, and drafts each server as an instance of the standard
+library's MCP tool, `core/ai-tool/mcp`. Every server is one, so the importer weighs no candidate and
+reports no mapping decision.
+
+### What it reads
+
+- **A client's configuration.** Claude Code's `.mcp.json`, Claude Desktop's
+  `claude_desktop_config.json` and Cursor's `.cursor/mcp.json` list their servers by name under
+  `mcpServers`; Visual Studio Code's `.vscode/mcp.json` lists them under `servers`, and a file listing
+  servers under both is read under `mcpServers` first. A server whose `type` is `stdio`, or that names
+  no `type` and carries a `command`, is started from a command line — its `command` and its `args` —
+  with its `env` as its environment. A server whose `type` is `http`, `streamable-http` or `sse`, or
+  that names no `type` and no `command` and carries a `url`, is reached at its `url` and sent its
+  `headers`.
+- **A registry server description.** The `server.json` the MCP registry publishes: its `name`, and
+  its first package, or, where it lists none, its first remote. An npm or a PyPI package is started
+  from the command line its launcher — its `runtimeHint`, or `npx` for npm and `uvx` for PyPI — its
+  `runtimeArguments`, the package with its version, written `<identifier>@<version>` for npm and
+  `<identifier>==<version>` for PyPI, and its `packageArguments` make, with its
+  `environmentVariables` as its environment. A positional argument is its `value`, or its `default`;
+  a named argument is written `<name>=<value>` where it has either, and as its `name` where it has
+  neither. An OCI package runs from the image its `identifier` names. A remote is reached at its
+  `url`, sent its `headers`. Every other package and remote the description lists is named in a
+  comment, since one instance runs one of them.
+
+Every other member of a server — `cwd`, `envFile`, Cursor's `auth`, or a member its kind does not
+read, such as the `url` of a server started from a command line — is written nowhere, and named in a
+comment above the server's entry in the Release, since no infrastructure key of `core/ai-tool/mcp`
+takes it. A configuration's `inputs`, which describe what Visual Studio Code prompts for and hold no
+value, are not read. The servers keep the order the source writes them in.
+
+A directory is read through the client configurations it holds — every file named as one of the four,
+at any depth — in the order of their paths, and every server of every file is drafted into one
+Aggregate.
+
+### What a server becomes
+
+`aggregate.yaml` is a draft Aggregate named `<target_namespace>/flow` holding one instance of
+`core/ai-tool/mcp` per server. An instance is keyed by its server's name, lowercased, with every run
+of characters other than letters and digits written as one hyphen, and a numeric suffix where an
+earlier server took the key. Where the key is not the server's name as written, or the import read
+several files, a comment above the instance names the server and the file it came from. No agent is
+drafted to use them.
+
+Beside it, `release.yaml` is a draft Release of the same name, whose `spec.aggregate` names the
+Aggregate, carrying for each instance the operational inputs the source states:
+
+- for a server started from a command line, `infra.stdio_command`, its command and then each
+  argument, one item each; and `infra.stdio_runtime`, the launcher's ecosystem, `npm` where the
+  command is `npx`, `npm` or `node`, `pypi` where it is `uvx`, `uv`, `python` or `python3`, and, for a
+  registry package, its registry, `npm` or `pypi`;
+- for a server reached at an address, `infra.endpoint`: the address without its user part, its query
+  and its fragment, which are not written, since the Component takes the address without any part
+  that carries a key, and a comment says which were left out;
+- for an OCI package, `infra.image`;
+- for a server's environment, the `server_env` slot, attached as `core/referenced-secret-set` with one
+  entry under `infra.entries` per variable, keyed by the variable's name.
+
+What the source does not state is left out and named in a comment above the entry: a command whose
+launcher neither bridge image carries leaves `infra.stdio_runtime`; an argument a registry description
+leaves for its user is written as an empty item; a variable whose value the source does not write is
+written with its key and no value. The build then halts naming each — an empty item and an entry with
+no value fail the schema of the field holding them, and the realization reading an unset
+`infra.stdio_runtime`, `infra.stdio_command` or `infra.endpoint` stops naming it.
+
+The Release's `metadata.environment` and `spec.manifest` are left unset, each named in a comment where
+it belongs: no source names the environment a Release deploys to, and the import drafts no Manifest.
+The Manifest names the target and the realization each server runs under — `helm/mcp-stdio-bridge` or
+`compose/mcp-stdio-bridge` for a command line, `helm/mcp-remote` or `compose/mcp-remote` for an
+address, `helm/mcp` for an image — and the realization of `core/referenced-secret-set`. The Release
+schema requires both, so a build stops naming them until they are set.
+
+A Claude Code `.mcp.json` listing a server reached over HTTP and one started with `npx`:
+
+```json
+{
+  "mcpServers": {
+    "api-server": {
+      "type": "http",
+      "url": "https://api.example.com/mcp",
+      "headers": { "Authorization": "Bearer ${API_KEY}" }
+    },
+    "github": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": { "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}" }
+    }
+  }
+}
+```
+
+is drafted as:
+
+```yaml
+# aggregate.yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: imported/flow
+  version: 0.1.0
+  description: Draft Aggregate imported from a source in the mcp format.
+spec:
+  components:
+    api-server:
+      type: core/ai-tool/mcp
+    github:
+      type: core/ai-tool/mcp
+```
+
+```yaml
+# release.yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: imported/flow
+  # environment: left for the operator, since no source names the environment this Release deploys to.
+  version: 0.1.0
+  description: Draft Release imported from a source in the mcp format.
+spec:
+  aggregate: imported/flow
+  # manifest: left for the operator, since the import drafts no Manifest, which names the target the servers are built for.
+  components:
+    # The source sends this server the header Authorization. Its value is not written: a remote server's credential is held by each consumer, on its connection to the tool.
+    api-server:
+      infra:
+        endpoint: "https://api.example.com/mcp"
+    # Left for the Release, since the draft does not write it:
+    #   - the value of server_env.GITHUB_PERSONAL_ACCESS_TOKEN, which the source reads from ${GITHUB_TOKEN}
+    github:
+      infra:
+        stdio_command:
+          - "npx"
+          - "-y"
+          - "@modelcontextprotocol/server-github"
+        stdio_runtime: npm
+      features:
+        server_env:
+          type: core/referenced-secret-set
+          infra:
+            entries:
+              - key: "GITHUB_PERSONAL_ACCESS_TOKEN"
+```
+
+### Credential values a server holds
+
+Each value of a server's configuration the Release writes — each item of its command line, its address
+and each environment value — can carry a key, and no client marks one as a credential, so the import
+locates each as a member of an MCP server's configuration; a registry input marked `isSecret` is
+located as a value its format marks as a credential. By default each is carried as written into the
+Release and named in a `credential-carried` warning by its server and its place —
+`infra.stdio_command.<position>`, `infra.endpoint` or `server_env.<variable>` — never by its value. With
+the [`empty_credentials` setting](#settings) at `marked` or `all`, each is written empty and reported
+with `credential-emptied`: an item of the command line as an empty item, an address and an environment
+value left out, so the build halts naming each. A client's `infra.stdio_runtime` is read off the
+command as the Release writes it, so a command written empty leaves it out too.
+
+A value that is one variable reference and nothing else — `${NAME}`, `${env:NAME}`, `${input:id}`,
+`${workspaceFolder}` — holds no value of its own: it is written as the text it is whatever the setting
+says, the bridge passing it to the server unexpanded, and it is named in no warning. An environment
+variable whose value is one is written with its key and no value, its reference named in the comment
+above the entry, for the Release to supply. A reference carrying a default, `${NAME:-value}`, or text
+beside a reference holds a value, and is located like any other.
+
+A header's value is written nowhere, whatever the setting says: a remote server's credential is held by
+each consumer, on its connection to the tool, and the import drafts no consumer. The comment above the
+entry names each header. The image an OCI package names is written as it is, and is not a value the
+setting reaches.
+
+### A configuration holding comments
+
+Visual Studio Code reads `.vscode/mcp.json` as JSON with comments. Before the MCP importer has a source
+parsed as JSON, it writes each `//` and `/* */` comment and each trailing comma as spaces, keeping every
+line break and every character inside a string, so a commented configuration is imported. Recognition
+reads a file as JSON before any importer runs, so a file holding a comment or a trailing comma is
+recognised by no signature: import it naming `--format mcp`. A comment opened with `/*` and never
+closed is left as written, and the parser refuses the file.
+
+### The settings it reads
+
+The MCP importer reads `target_namespace` and `empty_credentials`, as [Settings](#settings) describes
+them, and no other setting.
+
 ## Settings
 
 An importer is handed the settings of the `plugins.importer` entry that attaches it, under
@@ -724,14 +929,14 @@ plugins:
 
 | Setting | Default | What it does |
 | --- | --- | --- |
-| `target_namespace` | `imported` | The namespace drafted entities are named under: `<target_namespace>/<category>/<name>` for a Component, `<target_namespace>/flow` for the Aggregate. |
+| `target_namespace` | `imported` | The namespace drafted entities are named under: `<target_namespace>/<category>/<name>` for a Component, `<target_namespace>/flow` for the Aggregate and for the Release the MCP importer drafts. |
 | `reuse_mode` | `hints-only` | `hints-only` drafts every node the draft gives a Component of its own and references no catalog Component, recording a strong match as a hint. `auto-apply-above-threshold` references the best-matching catalog Component for such a node whose match is in the high tier and scores at or above `reuse_threshold`, and drafts every other. Any other value reads as `hints-only`. |
 | `reuse_threshold` | `0.85` | The score at or above which `auto-apply-above-threshold` references a Component. Read in that mode only; `0` reads as the default. |
 | `emit_hints` | `true` | Whether a drafted Component's file opens with a comment naming the catalog Component it resembles, for a high- or medium-tier match. The draft Aggregate carries the same comment above that node's entry, and above a referenced entry one naming the next-best candidate it could be swapped for, or saying that none scored above zero. `false` leaves the comments out. |
 | `render_mode` | `human` | `human` writes the drafts described above. `llm` writes no drafts, and writes instead the whole decision record — every node, the candidates weighed and the choice made — as one document, `import-decisions.json`, for another tool to read. Any other value reads as `human`. |
 | `mapping_overrides` | none | Mappings layered over the importer's own table, keyed by format and then by node type. Each entry names the `component` a node of that type maps to and, optionally, its `category`, the `traits` — labels and their values — a matching Component carries, and a `vendor` word its name carries. An entry for a node type the table already maps takes the table row's place. Only the entries under the format being imported are read. |
 | `layout` | `platform` | `platform` drafts the platform that runs the flow, carrying the flow, with each part of it a Component of its own wired to the platform, as [The platform carrying the flow](#the-platform-carrying-the-flow) describes. `nodes` drafts every node as a Component of its own, as [Node by node](#node-by-node) describes. Any other value drafts as `platform`, and the import warns with `unknown-layout`. |
-| `empty_credentials` | `none` | Which credential values the flow the platform carries has written empty, as [Credential values the flow holds](#credential-values-the-flow-holds) lists them. `none` writes none empty: each is carried as written and named in a `credential-carried` warning. `marked` writes empty what a format marks as a credential and every member of an MCP server's configuration. `all` writes empty the inputs a format marks as no credential that can carry one as well — request headers, query parameters, a request written as a command line, an input named for a key. What the draft writes so that a node reaches its connection is written whatever this says. Any other value halts the import, which drafts nothing, with `unknown-empty-credentials`. A draft made node by node reads no value, and so does not read this setting. |
+| `empty_credentials` | `none` | Which credential values the flow the platform carries has written empty, as [Credential values the flow holds](#credential-values-the-flow-holds) lists them, and which the Release the MCP importer drafts has written empty, as [Credential values a server holds](#credential-values-a-server-holds) lists them. `none` writes none empty: each is carried as written and named in a `credential-carried` warning. `marked` writes empty what a format marks as a credential and every member of an MCP server's configuration. `all` writes empty the inputs a format marks as no credential that can carry one as well — request headers, query parameters, a request written as a command line, an input named for a key. What the draft writes so that a node reaches its connection is written whatever this says. Any other value halts the import, which drafts nothing, with `unknown-empty-credentials`. A draft made node by node reads no value, and so does not read this setting. |
 | `attach_egress_allowlist` | `false` | `true` attaches the standard library's `core/egress-allowlist` Feature to each platform instance the draft writes, as `egress-allowlist`, setting none of its `infra`, as [What the draft leaves for the Release](#what-the-draft-leaves-for-the-release) describes. `false` attaches nothing. A draft that writes no platform, under `layout: nodes`, attaches nothing whatever this says, and with it `true` the import warns with `feature-not-attached`. Any value that is not a boolean reads as `false`. |
 
 A setting an importer does not know is ignored.
@@ -756,15 +961,15 @@ with its `code` as well.
 
 | Code | Severity | Reported when |
 | --- | --- | --- |
-| `parse-failed` | `halt` | The source does not parse. |
-| `no-nodes` | `warn` | The source carries no node the importer recognises. |
+| `parse-failed` | `halt` | The source does not parse: its parser refuses it, and the message carries the parser's reason. |
+| `no-nodes` | `warn` | The source carries no node the importer recognises — for the MCP importer, no server. |
 | `unknown-layout` | `warn` | `layout` is neither `platform` nor `nodes`; the flow is drafted as `platform`. |
 | `unknown-empty-credentials` | `halt` | `empty_credentials` holds a value other than `none`, `marked` or `all`, named with the setting; the import drafts nothing. |
 | `platform-not-in-catalog` | `warn` | The workspace's catalog holds no Component of the platform's name, so no part is wired to it. |
 | `part-not-placed` | `warn` | A part of the flow is wired to no socket of the platform, with why; it stays in the flow. |
 | `socket-selector-unreadable` | `warn` | The selector a socket of the platform declares does not read, so no part is wired to it; once for each socket. |
-| `credential-carried` | `warn` | A credential value is carried as written in the flow the draft carries, named by its node and its field, never by its value, with the `empty_credentials` value that writes it empty. |
-| `credential-emptied` | `warn` | A credential value is written empty in the flow the draft carries, where `empty_credentials` asks for it, named by its node and its field. |
+| `credential-carried` | `warn` | A credential value is carried as written in the flow the draft carries, or in the Release the MCP importer drafts, named by its node — or its server — and its field, never by its value, with the `empty_credentials` value that writes it empty. |
+| `credential-emptied` | `warn` | A credential value is written empty in the flow the draft carries, or in the Release the MCP importer drafts, where `empty_credentials` asks for it, named by its node — or its server — and its field. |
 | `carriage-returns-rewritten` | `warn` | The flow's carriage returns are written as line feeds, with how many. |
 | `definition-not-carried` | `warn` | The flow is not carried in `values.flow_definition`, with why. |
 | `part-reads-connection` | `warn` | How the flow reaches a wired part through its connection, or how a connection reaches a node the draft wires to no socket as it is written. |
@@ -775,9 +980,9 @@ with its `code` as well.
 
 ## Published with each compiler release
 
-Each compiler release builds the three importers from the tagged sources and generates their Plugin
+Each compiler release builds the four importers from the tagged sources and generates their Plugin
 entities from the importers themselves, so an entity's capability, recognition signatures, host
-functions and description are what its importer reports. The release signs and publishes all three,
-`importer/langflow`, `importer/flowise` and `importer/n8n` at the release's version, beside the other
+functions and description are what its importer reports. The release signs and publishes all four,
+`importer/langflow`, `importer/flowise`, `importer/n8n` and `importer/mcp` at the release's version, beside the other
 core plugins, and records their entities with the other core plugins' entities for the standard
 catalog.

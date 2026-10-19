@@ -94,7 +94,7 @@ One entity the import produced: its kind, its name, and how it is emitted — a 
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `kind` | string | yes | The kind of entity emitted. In v1 this is Component or Aggregate; additional kinds may appear as the emission surface grows, so a reader tolerates an unrecognized kind. |
+| `kind` | string | yes | The kind of entity emitted. In v1 this is Component, Aggregate or Release; additional kinds may appear as the emission surface grows, so a reader tolerates an unrecognized kind. |
 | `name` | string | yes | The name of the emitted entity. |
 | `mode` | string (enum) | yes | How the entity is emitted: reference points at an existing catalog entity by name, and draft carries a newly drafted entity body. Allowed values: `"reference"`, `"draft"` |
 | `body` | string | no | The raw YAML body of a drafted entity. Empty for a pure reference, which names an existing entity rather than drafting one. |
