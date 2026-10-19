@@ -150,9 +150,9 @@ imported on its own reads it as JSON and as YAML too. The Dify importer
 recognizes an application Dify exports, under any name, by app at its kind and
 by the application's mode at app.mode and the DSL's version at version.
 The MCP importer recognizes a client's configuration by its name — .mcp.json,
-claude_desktop_config.json, .vscode/mcp.json or .cursor/mcp.json — so such a
-file under another name, or one holding comments, is imported naming --format
-mcp. The Compose importer reads a file as YAML and recognizes it by the names
+claude_desktop_config.json and .cursor/mcp.json read as JSON, .vscode/mcp.json
+read as JSON with comments, as Visual Studio Code reads it — so such a file under
+another name is imported naming --format mcp. The Compose importer reads a file as YAML and recognizes it by the names
 Compose reads by default — compose.yaml, compose.yml, docker-compose.yml and
 docker-compose.yaml, and their override files compose.override.yml,
 compose.override.yaml, docker-compose.override.yml and

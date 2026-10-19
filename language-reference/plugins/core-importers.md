@@ -106,9 +106,10 @@ declares:
   nothing at `data.nodes`.
 - **n8n** — a source that parses as JSON, carries an array at `nodes` and an object at
   `connections`, and carries nothing at `edges` or at `data.nodes`.
-- **MCP** — a source that parses as JSON and is named `.mcp.json`, `claude_desktop_config.json` or
-  `.cursor/mcp.json` and carries an object at `mcpServers`, or is named `.vscode/mcp.json` and carries
-  an object at `servers`; or a source of any name whose `$schema` is a text opening with
+- **MCP** — a source that parses as JSON, is named `.mcp.json`, `claude_desktop_config.json` or
+  `.cursor/mcp.json` and carries an object at `mcpServers`; a source that parses as JSON with comments,
+  as Visual Studio Code reads it, is named `.vscode/mcp.json` and carries an object at `servers`; or a
+  source of any name that parses as JSON and whose `$schema` is a text opening with
   `https://static.modelcontextprotocol.io/schemas/`, a registry server description. A name is matched
   against the end of the path the import is handed, so `project/.vscode/mcp.json` is recognised, while
   `mcp.json` handed from inside `.vscode`, or a client's file under any other name, is imported by
@@ -136,8 +137,10 @@ declares:
   `--format google-adk`. No signature names a sub-agent's configuration, which may be called anything,
   so recognising a directory opens no YAML file but `root_agent.yaml`.
 
-No source matches two of them. The five JSON importers read their source through the parser that
-serves `parse:json`, the Compose, Dify and Google ADK importers through the one that serves `parse:yaml`, and the
+No source matches two of them. The Langflow, Flowise, n8n and LangGraph importers read their source
+through the parser that serves `parse:json`, the MCP importer a configuration listing its servers under
+`servers` through the one that serves `parse:jsonc` and every other source through the one that serves
+`parse:json`, the Compose, Dify and Google ADK importers through the one that serves `parse:yaml`, and the
 CrewAI importer a classic project's files through the one that serves `parse:yaml` and the others
 through the one that serves `parse:jsonc`: the one your
 workspace's catalog serves, where it serves one, and otherwise the parser the compiler itself carries
@@ -160,11 +163,13 @@ importer's for a configuration naming its schema, and the Dify importer's — ap
 as JSON, and as YAML, to try them, whatever importer it is meant for, through those same parsers —
 the compiler carries both, so nothing is fetched for either. A file holding a comment or a trailing comma does
 not parse as JSON, so no signature reading JSON recognises it; the CrewAI importer's signatures for
-`crew.jsonc`, `agents/<name>.jsonc` and their `.json` spellings read JSON with comments, through the parser the compiler
-carries for that syntax where your catalog serves none.
+`crew.jsonc`, `agents/<name>.jsonc` and their `.json` spellings, and the MCP importer's for
+`.vscode/mcp.json`, read JSON with comments, through the parser the compiler carries for that syntax
+where your catalog serves none.
 
-A source its parser refuses — for the five JSON importers, one that is not JSON, the MCP importer's
-once its comments and trailing commas are written as spaces, for the Compose and Dify importers one that
+A source its parser refuses — for the Langflow, Flowise, n8n and LangGraph importers one that is not
+JSON, for the MCP importer one that is not JSON with comments or, unless it lists its servers under
+`servers`, not JSON, for the Compose and Dify importers one that
 is not YAML, for the CrewAI importer a declaration that is not YAML or not JSON with comments, and for
 the Google ADK importer a configuration that is not YAML —
 stops the import under
@@ -817,7 +822,9 @@ Every other member of a server — `cwd`, `envFile`, Cursor's `auth`, or a membe
 read, such as the `url` of a server started from a command line — is written nowhere, and named in a
 comment above the server's entry in the Release, since no infrastructure key of `core/ai-tool/mcp`
 takes it. A configuration's `inputs`, which describe what Visual Studio Code prompts for and hold no
-value, are not read. The servers keep the order the source writes them in.
+value, are not read. The servers, their environment and their headers keep the order the source
+writes them in, except in a configuration read as JSON with comments, which keeps the order its parsed
+tree writes them in: name order (see [A configuration holding comments](#a-configuration-holding-comments)).
 
 A directory is read through the client configurations it holds — every file named as one of the four,
 at any depth — in the order of their paths, and every server of every file is drafted into one
@@ -910,7 +917,8 @@ spec:
   aggregate: imported/flow
   # manifest: left for the operator, since the import drafts no Manifest, which names the target the servers are built for.
   components:
-    # The source sends this server the header Authorization. Its value is not written: a remote server's credential is held by each consumer, on its connection to the tool.
+    # The headers the source sends this server, which no infrastructure key of core/ai-tool/mcp takes, since a remote server's credential is held by each consumer, on its connection to the tool:
+    #   - Authorization: "Bearer ${API_KEY}"
     api-server:
       infra:
         endpoint: "https://api.example.com/mcp"
@@ -933,37 +941,50 @@ spec:
 
 ### Credential values a server holds
 
-Each value of a server's configuration the Release writes — each item of its command line, its address
-and each environment value — can carry a key, and no client marks one as a credential, so the import
-locates each as a member of an MCP server's configuration; a registry input marked `isSecret` is
-located as a value its format marks as a credential. By default each is carried as written into the
-Release and named in a `credential-carried` warning by its server and its place —
-`infra.stdio_command.<position>`, `infra.endpoint` or `server_env.<variable>` — never by its value. With
-the [`empty_credentials` setting](#settings) at `marked` or `all`, each is written empty and reported
-with `credential-emptied`: an item of the command line as an empty item, an address and an environment
-value left out, so the build halts naming each. A client's `infra.stdio_runtime` is read off the
-command as the Release writes it, so a command written empty leaves it out too.
+Each value of a server's configuration the Release writes — each header's value, each item of its
+command line, its address and each environment value — can carry a key, and no client marks one as a
+credential, so the import locates each as a member of an MCP server's configuration; a registry input
+marked `isSecret` is located as a value its format marks as a credential. A registry input — an
+environment variable or a remote's header — is read as its `value`, or its `default` where it writes
+none. By default each is carried as written into the Release and named in a `credential-carried`
+warning by its server and its place — `headers.<header>`, `infra.stdio_command.<position>`,
+`infra.endpoint` or `server_env.<variable>` — never by its value. With the
+[`empty_credentials` setting](#settings) at `marked` or `all`, each is written empty and reported with
+`credential-emptied`: an item of the command line as an empty item, an address and an environment
+value left out, so the build halts naming each, and a header's value left out of the comment, which
+names the header alone. A client's `infra.stdio_runtime` is read off the command as the Release writes
+it, so a command written empty leaves it out too.
 
 A value that is one variable reference and nothing else — `${NAME}`, `${env:NAME}`, `${input:id}`,
 `${workspaceFolder}` — holds no value of its own: it is written as the text it is whatever the setting
 says, the bridge passing it to the server unexpanded, and it is named in no warning. An environment
 variable whose value is one is written with its key and no value, its reference named in the comment
-above the entry, for the Release to supply. A reference carrying a default, `${NAME:-value}`, or text
-beside a reference holds a value, and is located like any other.
+above the entry, for the Release to supply, and a header whose value is one is listed with the
+reference it reads from. A reference carrying a default, `${NAME:-value}`, or text beside a reference
+holds a value, and is located like any other.
 
-A header's value is written nowhere, whatever the setting says: a remote server's credential is held by
-each consumer, on its connection to the tool, and the import drafts no consumer. The comment above the
-entry names each header. The image an OCI package names is written as it is, and is not a value the
-setting reaches.
+No infrastructure key of `core/ai-tool/mcp` takes a header's value: a remote server's credential is
+held by each consumer, on its connection to the tool, and the import drafts no consumer. So the
+comment above the server's entry lists each header the source sends it, beside its value as written —
+a double-quoted string reading back as exactly the source's text — for you to move onto the connection
+of the consumer presenting it. A header whose value the source does not write, such as a registry
+header input with neither a value nor a default, is listed as having none. The image an OCI package
+names is written as it is, and is not a value the setting reaches.
 
 ### A configuration holding comments
 
-Visual Studio Code reads `.vscode/mcp.json` as JSON with comments. Before the MCP importer has a source
-parsed as JSON, it writes each `//` and `/* */` comment and each trailing comma as spaces, keeping every
-line break and every character inside a string, so a commented configuration is imported. Recognition
-reads a file as JSON before any importer runs, so a file holding a comment or a trailing comma is
-recognised by no signature: import it naming `--format mcp`. A comment opened with `/*` and never
-closed is left as written, and the parser refuses the file.
+Visual Studio Code reads `.vscode/mcp.json` as JSON with comments, and so does the MCP importer: its
+signature for that file reads it through the parser that serves `parse:jsonc`, so a configuration
+holding `//` and `/* */` comments and trailing commas is recognised with no format named, and the
+importer reads every source listing its servers under `servers` through that parser. Such a
+configuration is drafted exactly as the same configuration without its comments and trailing commas.
+The parser writes the members of an object in name order, so the servers of such a configuration,
+their environment and their headers are drafted in name order, whether or not it holds a comment; a
+command line keeps its order. The other clients and the registry read their files as JSON, and so
+does the importer: a `.mcp.json`, `claude_desktop_config.json`, `.cursor/mcp.json` or `server.json`
+holding a comment is recognised by no signature, and imported naming `--format mcp` it stops under
+`parse-failed` with the parser's reason. A comment opened with `/*` and never closed is left as
+written, and the parser refuses the file.
 
 ### The settings it reads
 
