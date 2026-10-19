@@ -99,15 +99,18 @@ Release are drafts like the others: recorded, held inside the output directory,
 and shown by --dry-run. A target no Recipe in the catalog binds to stops the
 import before the importer runs, naming the target and the capabilities the
 catalog's Recipes bind to, and nothing is written. Without --target no Manifest
-is drafted and the drafts are the importer's alone.
+is drafted and the drafts are the importer's alone — except under --sync, which
+reuses the target the earlier import was given.
 
 Beside its drafts, every import that drafts anything writes .aggrega-import.json,
-the record of what it wrote: each drafted file and, in a drafted Aggregate, each
-key at every depth, with a digest of the text written there. A key's text is its
-line, its value's lines where its value is not a mapping of keys, and the comment
-lines written directly above it at its own indentation. The record is JSON, so
-nothing that reads the workspace's YAML documents reads it; keep it beside the
-drafts for as long as you mean to sync them.
+the record of what it wrote: the target it was given, where it was given one,
+and each drafted file and, in a drafted Aggregate or Release, each key at every
+depth, with a digest of the text written there; any other drafted file is
+recorded whole. A key's text is its line, its value's lines where its value is
+not a mapping of keys, and the comment lines written directly above it at its
+own indentation. The record is JSON, so nothing that reads the workspace's YAML
+documents reads it; keep it beside the drafts for as long as you mean to sync
+them.
 
 An import never writes over an Aggregate already at one of its drafted paths:
 an Aggregate is the document an author goes on editing once it is drafted, so
@@ -116,9 +119,13 @@ Every other file already at a drafted path is written over, and a file an
 earlier import drafted that this one does not draft is left where it is.
 
 --sync brings what an earlier import drafted up to date with the source instead,
-changing only what the import wrote. It judges every part three ways — what the
-record says the import last wrote there, what is on disk, and what the source
-drafts now:
+changing only what the import wrote. A sync given no --target drafts for the
+target the record names, so it drafts the Manifest the earlier import drafted;
+given one, it drafts for that target and records it in place of the one
+recorded. A recorded target no Recipe in the catalog binds to stops the sync as
+a target you pass does, saying the target is the recorded one. It judges every
+part three ways — what the record says the import
+last wrote there, what is on disk, and what the source drafts now:
 
   - a part the source left as the import last wrote it stays exactly as it is
     on disk, whether or not you edited it;
@@ -130,9 +137,9 @@ drafts now:
     it.
 
 Everything else stays byte for byte: a key you added anywhere — a parameter, a
-Feature, under a drafted Component instance too, another Component — a comment
-not written directly above a drafted key, and every file the record does not
-list. Before anything is written, standard error names each part that drifted,
+Feature, under a drafted Component instance too, another Component, the
+environment a drafted Release leaves for you — a comment not written directly
+above a drafted key, and every file the record does not list. Before anything is written, standard error names each part that drifted,
 one line each:
 
   added|removed|changed <key> in <file>
@@ -252,5 +259,5 @@ source the write would refuse is refused here too.
 | `--format` | — | Name the source format explicitly, overriding detection by the importers' signatures (for example langflow, flowise, n8n, mcp, compose, dify, crewai, langgraph, google-adk or agent-framework) |
 | `--output-dir` | — | Directory the drafted files are written under. A relative path resolves against the directory you run the command in, and a drive named bare on Windows, such as D:, is the current directory on that drive. Without it the drafts are written beneath the root of the workspace the run resolved. |
 | `--sync` | `false` | Bring what an earlier import drafted up to date with the source, changing only what the import wrote, as the record beside the drafts lists it, and naming each part that drifted. With --dry-run, exit 0 when in step, 2 when drifted, 1 on an error or a refusal. |
-| `--target` | — | Draft a Manifest for this provider capability — the word a Recipe's spec.capability binds to, for example compose or helm — mapping each drafted component type to the one Recipe of that capability the workspace's catalog offers for it, and point the drafted Release at it. A capability no Recipe in the catalog binds to is refused before the importer runs. Without it no Manifest is drafted. |
+| `--target` | — | Draft a Manifest for this provider capability — the word a Recipe's spec.capability binds to, for example compose or helm — mapping each drafted component type to the one Recipe of that capability the workspace's catalog offers for it, and point the drafted Release at it. A capability no Recipe in the catalog binds to is refused before the importer runs. Without it no Manifest is drafted, except that --sync reuses the target the earlier import was given. |
 <!-- END GENERATED: cli-import -->
