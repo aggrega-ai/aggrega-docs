@@ -1056,14 +1056,17 @@ and a Release beside them carrying what each service states for its operation.
 - **The merge.** An override file is merged as Compose merges one: `image` is replaced; `ports` are
   merged by their address, published port, container port and protocol, `volumes` by their path in
   the container, and `environment` by variable name, a later entry taking the place of an earlier one
-  and a new one following; `expose` is appended; `depends_on` and a service's `models` are joined. Of
+  and a new one following; `expose` is appended; `depends_on` and a service's `models` are joined, an
+  entry's `endpoint_var` and `model_var` each taking the place of the one an earlier file states. Of
   a model, `model` and `context_size` are replaced and `runtime_flags` appended. Compose's `!reset` and
   `!override` tags are not honoured: a value carrying one is merged as the YAML parser reads it.
 - **A service.** Its `image`, and whether it builds one under `build`; its `ports`, `expose`,
   `volumes` and `environment` — a mapping, or a list of `NAME=value` items, a name with no value
   taking its value from the environment Compose runs in; `depends_on`, a list or a mapping; and its
-  `models`, a list or a mapping. Every other member — `command`, `healthcheck`, `secrets`, `env_file`
-  and the rest — is written nowhere, and named in a comment above the service's entry in the Release.
+  `models`, a list of model names or a mapping whose entries may name, under `endpoint_var` and
+  `model_var`, the variables the model's address and identifier reach the service under. Every other
+  member — `command`, `healthcheck`, `secrets`, `env_file` and the rest — is written nowhere, and
+  named in a comment above the service's entry in the Release.
 - **A model.** Each entry of the top-level `models`: its `model`, the OCI identifier of the model, its
   `context_size` and its `runtime_flags`. Any other member is named in a comment above its instance.
 - **The rest.** The other top-level members — `name`, `networks`, `volumes`, `secrets`, `configs` —
@@ -1140,7 +1143,25 @@ value, split at every character a host name is not written with, equal to that s
 the variable and the service, never the value. Each model is drafted as
 `<target_namespace>/ai-model/<key>`, a Component of the `ai-model` category whose values declare
 `model`, `context_size` and `runtime_flags`; its instance writes each the source states, and each
-service naming the model is connected to it.
+service naming the model is connected to it. A service naming the model in the long form, with
+`endpoint_var` or `model_var`, names the variables its address and identifier reach the service under.
+No key of the draft holds a variable's name — the connection is written on a socket named after the
+model, which declares no value, and an importer is handed no Component's infrastructure keys — so a
+comment above the connection names each, as the entry writes it, and the service's decision records
+the same sentence:
+
+```yaml
+    search:
+      type: core/compute/server
+      uses:
+        # The service search reads the address of the model embedder as AI_MODEL_URL and its identifier as AI_MODEL_NAME, the names its models entry gives them; no key of the draft holds either name.
+        embedder:
+          link:
+            target: embedder
+```
+
+A service naming the model in the short form, or with neither variable, is connected to it with no
+comment.
 
 Beside it, `release.yaml` is a draft Release of the same name, whose `spec.aggregate` names the
 Aggregate. For an instance of `core/compute/server` it writes `infra.image`, the image as written, and
