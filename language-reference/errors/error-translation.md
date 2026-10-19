@@ -144,9 +144,11 @@ When the failure forks beneath a frame — a phase that collected several indepe
 [OPS_ERROR E0099]
   recipe resolution
   caused by (2):
-    no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type: component "edge" (type "example/gateway/nginx-reviewed"); no recipe implements this type
+    [OPS_ERROR] .spec.components.edge
+      no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type (Manifest, at .spec.components.edge, "edge", of type "example/gateway/nginx-reviewed"). no recipe in the catalog implements this type; write one, then map the type to it
   ---
-    no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type: component "internal" (type "example/gateway/nginx-reviewed"); no recipe implements this type
+    [OPS_ERROR] .spec.components.internal
+      no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type (Manifest, at .spec.components.internal, "internal", of type "example/gateway/nginx-reviewed"). no recipe in the catalog implements this type; write one, then map the type to it
 ```
 
 The collected failures beneath the count are continuations too, so none of them repeats the head's short code — which is what keeps a fork of a dozen violations from printing the same identifier a dozen times.

@@ -1291,18 +1291,20 @@ An instance's type has no Manifest mapping that resolves to a Recipe the catalog
 
 The same condition covers a mapping that exists but leads nowhere — a value at an accepted reference shape naming a Recipe the catalog does not hold, including one present under a different version than the value pins, and one whose bare name two capabilities both offer. Neither resolves to a Recipe the author can be said to have chosen. A mapping value whose *shape* no reference can express is reported separately, under "Manifest mapping value carries more segments than a recipe reference accepts" above, so the claim that an entity is absent is only ever made about a reference that could have resolved.
 
-Emitted messages. Where a mapping exists and names something absent:
-> no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type: component `"<instance>"` (type `"<type>"`): the Manifest maps it to recipe `"<uri>"`, which is not in the catalog
+Emitted messages, for a component instance. Where a mapping exists and names something absent:
+> no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type (Manifest, at `.spec.components.<instance>`, `"<instance>"`, of type `"<type>"`, mapped to recipe `"<uri>"`). correct the mapping value in the Manifest, or publish the recipe it names
 
 Where no mapping exists and Recipes implementing the type are present, they are listed as the candidates to pin:
-> no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type: component `"<instance>"` (type `"<type>"`); recipes implementing it: `[<recipe-uris>]`; pin one in the Manifest
+> no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type (Manifest, at `.spec.components.<instance>`, `"<instance>"`, of type `"<type>"`, recipes implementing it `"<recipe-uris>"`). pin one of them in the Manifest
 
 And where nothing implements the type at all, there is nothing to list:
-> no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type: component `"<instance>"` (type `"<type>"`); no recipe implements this type
+> no recipe resolved for component/feature instance: add an explicit Manifest mapping for its type (Manifest, at `.spec.components.<instance>`, `"<instance>"`, of type `"<type>"`). no recipe in the catalog implements this type; write one, then map the type to it
 
-A feature instance reports the same three shapes with `feature` in place of `component` and `feature recipe` in place of `recipe`.
+A type the Aggregate writes with no version is offered the Recipes implementing the version the build compiles it at — the highest version of that Component the catalog holds. An instance of `core/datastore/postgres`, with the catalog holding that Component at `1.0.0`, is offered every Recipe declaring `spec.implements: core/datastore/postgres:1.0.0`, as well as any declaring the unversioned type or a caret range that admits `1.0.0`. A type the catalog holds no Component of is offered only the Recipes declaring that unversioned type itself.
 
-**How to fix:** add the mapping the message asks for, under `spec.mappings.components.type` in the Manifest, keyed by the component type and valued with the Recipe. Where the message lists candidates, pick one of them — that list is exactly the Recipes declaring they implement the type. Where it names a Recipe not in the catalog, either correct the value or add the Recipe to a catalog directory the build reads; a version in the value has to match a version the catalog holds. Where nothing implements the type, the missing piece is the Recipe itself.
+A feature instance reports the same three cases in a shape of its own: `feature "<instance>" (type "<type>"): the Manifest maps it to feature recipe "<uri>", which is not in the catalog`, `feature "<instance>" (type "<type>"); feature recipes implementing it: [<recipe-uris>]; pin one in the Manifest`, and `feature "<instance>" (type "<type>"); no feature recipe implements this type`, each after the condition's sentence.
+
+**How to fix:** add the mapping the message asks for, under `spec.mappings.components.type` in the Manifest, keyed by the component type and valued with the Recipe. Where the message lists candidates, pick one of them — that list is exactly the Recipes declaring they implement the type at the version the build resolves it to. Where it names a Recipe not in the catalog, either correct the value or add the Recipe to a catalog directory the build reads; a version in the value has to match a version the catalog holds. Where nothing implements the type, the missing piece is the Recipe itself.
 
 ### A Manifest maps two version-distinct keys onto one type
 
