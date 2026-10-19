@@ -1,6 +1,6 @@
 # Core importers
 
-The compiler's repository builds seven importer plugins of its own, one for each source format, and
+The compiler's repository builds eight importer plugins of its own, one for each source format, and
 publishes them with every compiler release:
 
 | Plugin | Serves | Reads |
@@ -12,6 +12,7 @@ publishes them with every compiler release:
 | `importer/compose` | `import:compose` | a Compose application — `compose.yaml`, `docker-compose.yml` and their override files — as YAML |
 | `importer/dify` | `import:dify` | an application exported from Dify in its DSL, as YAML |
 | `importer/crewai` | `import:crewai` | the agents and tasks a CrewAI project declares — `config/agents.yaml` and `config/tasks.yaml`, as YAML, or `crew.jsonc` and `agents/<name>.jsonc`, or their strict-JSON spellings `crew.json` and `agents/<name>.json`, as JSON with comments |
+| `importer/langgraph` | `import:langgraph` | a LangGraph application's configuration, `langgraph.json`, as JSON, and of an environment file it names the variables' names alone |
 
 Each is built from the compiler's own sources and stamped with the compiler's version, so the
 importers released with the compiler at `X.Y.Z` report version `X.Y.Z`, and their Plugin entities
@@ -19,7 +20,7 @@ record it. Unlike the plugins listed on [Embedded plugins](embedded-plugins.md),
 into the binary. The binary carries each one's Plugin entity and the digest of the one module it
 accepts for it, so each serves its format in every workspace, with no entry in its catalog.
 
-All seven are built on the Go kit's importer package, `github.com/aggrega-ai/aggrega-pdk-go/pkg/importer`.
+All eight are built on the Go kit's importer package, `github.com/aggrega-ai/aggrega-pdk-go/pkg/importer`.
 For the Langflow, Flowise and n8n importers, everything an importer does whatever its format — scoring
 the workspace catalog's Components against each node, deciding whether to reference one or draft a
 new one, laying the draft out, carrying the credential values it holds or writing them empty as a
@@ -35,7 +36,10 @@ installation the standard library assembles, carrying the application, through t
 platform draft in the form it takes for a platform that is a whole installation, as
 [The Dify importer](#the-dify-importer) describes. The CrewAI importer drafts an instance of the
 standard library's CrewAI agent per agent a project declares, wired to the model it names, and shares
-the rest as the MCP importer does, as [The CrewAI importer](#the-crewai-importer) describes. How the
+the rest as the MCP importer does, as [The CrewAI importer](#the-crewai-importer) describes. The LangGraph
+importer drafts an instance of the standard library's LangGraph agent per graph an application's
+configuration declares, wired to the datastore its checkpointer keeps state in, and shares the rest as
+the MCP importer does, as [The LangGraph importer](#the-langgraph-importer) describes. How the
 importer socket works, and
 what it is handed, is described under
 [The importer socket](plugin-contract.md#the-importer-socket--draft-authoring-output).
@@ -81,7 +85,7 @@ rules every importer is selected by, which
 sets out:
 
 - Within one name, the highest version runs, or the version a `plugins.importer` entry names.
-- Where your catalog holds an importer of another name for `langflow`, `flowise`, `n8n`, `mcp`, `compose`, `dify` or `crewai`, two importers
+- Where your catalog holds an importer of another name for `langflow`, `flowise`, `n8n`, `mcp`, `compose`, `dify`, `crewai` or `langgraph`, two importers
   advertise the format, and an import that attaches neither is refused naming both, under
   [A parse or import format is advertised by more than one plugin](../errors/fatal-halts.md#a-parse-or-import-format-is-advertised-by-more-than-one-plugin).
   A `plugins.importer` entry naming the one you want settles it.
@@ -117,8 +121,14 @@ declares:
   `agents`, or a source named `agents/<name>.jsonc` or `agents/<name>.json` that parses as JSON with
   comments and carries something at `role`. A classic project keys its agents and its tasks by names of its author's choosing, so its
   two files are told by their names alone.
+- **LangGraph** — a source named `langgraph.json` that parses as JSON and carries an object at `graphs`;
+  or a source of any name that parses as JSON, carries an object at `graphs` and whose `$schema` is the
+  text `https://langgra.ph/schema.json`, the schema LangGraph publishes for its configuration. A
+  configuration under another name naming no schema is imported by naming `--format langgraph`. The
+  importer also declares the environment files named like `*.env`, so that a directory hands it the one
+  a configuration names; that declaration recognises no source.
 
-No source matches two of them. The four JSON importers read their source through the parser that
+No source matches two of them. The five JSON importers read their source through the parser that
 serves `parse:json`, the Compose and Dify importers through the one that serves `parse:yaml`, and the
 CrewAI importer a classic project's files through the one that serves `parse:yaml` and the others
 through the one that serves `parse:jsonc`: the one your
@@ -129,18 +139,20 @@ used, and the compiler's plays no part. The Langflow, Flowise, n8n and Dify impo
 pattern, so each reads one file and an import of a directory through any of them is refused; the MCP
 importer declares the four client file names, so a directory is read through the client
 configurations it holds; the Compose importer declares the eight Compose file names, so a
-directory is read through the Compose files it holds; and the CrewAI importer declares the six
+directory is read through the Compose files it holds; the CrewAI importer declares the six
 names of a project's declarations, so a project's directory is read through its declarations and
-nothing else. A signature naming no file — the Langflow,
-Flowise and n8n importers' and the MCP importer's for a registry server description, and the Dify
-importer's — applies to every file imported on its own: an import naming no format reads such a file
+nothing else; and the LangGraph importer declares `langgraph.json` and the environment files named
+like `*.env`, so an application's directory is read through its configuration and the environment file
+it names, and its code is never read. A signature naming no file — the Langflow,
+Flowise and n8n importers', the MCP importer's for a registry server description, the LangGraph
+importer's for a configuration naming its schema, and the Dify importer's — applies to every file imported on its own: an import naming no format reads such a file
 as JSON, and as YAML, to try them, whatever importer it is meant for, through those same parsers —
 the compiler carries both, so nothing is fetched for either. A file holding a comment or a trailing comma does
 not parse as JSON, so no signature reading JSON recognises it; the CrewAI importer's signatures for
 `crew.jsonc`, `agents/<name>.jsonc` and their `.json` spellings read JSON with comments, through the parser the compiler
 carries for that syntax where your catalog serves none.
 
-A source its parser refuses — for the four JSON importers, one that is not JSON, the MCP importer's
+A source its parser refuses — for the five JSON importers, one that is not JSON, the MCP importer's
 once its comments and trailing commas are written as spaces, for the Compose and Dify importers one that
 is not YAML, and for the CrewAI importer a declaration that is not YAML or not JSON with comments —
 stops the import under
@@ -1468,6 +1480,187 @@ configuration, a crew's `inputs` — is named, never valued.
 The CrewAI importer reads `target_namespace`, `empty_credentials` and `render_mode`, as
 [Settings](#settings) describes them, and no other setting.
 
+## The LangGraph importer
+
+`importer/langgraph` reads the graphs a LangGraph application's configuration, `langgraph.json`,
+declares, and drafts an Aggregate holding one instance of the standard library's LangGraph
+agent, `core/ai-agent/langgraph`, per graph, each wired to the datastore its checkpointer keeps state
+in, and a Release beside it carrying the environment the configuration states. It reads that
+configuration, and never the graphs' code.
+
+### What it reads
+
+A LangGraph application keeps its graphs in code and declares them in `langgraph.json`: under
+`graphs`, each graph's id maps to the import path of the graph in the application's code —
+`./src/agent/graph.py:graph`, or `module:attr` — or to an object naming that path under `path` and
+describing the graph under `description`. The importer reads, in the order the configuration writes
+them:
+
+- `graphs` — each graph's id, its import path and its description;
+- `checkpointer` — its `backend`: `default`, which is PostgreSQL and what LangGraph reads where none is
+  named; `mongo`, which is MongoDB; or `custom`, a checkpointer the application's code defines at
+  `path`;
+- `store` — the memory store, which names no backend: LangGraph keeps it in the PostgreSQL database its
+  server uses;
+- `env` — the environment the application runs with: an object of variable names to values, or the path
+  of an environment file of `KEY=VALUE` lines.
+
+The members `langgraph build` reads to build the application's image — `dependencies`, `source`,
+`python_version`, `node_version`, `base_image`, `image_distro`, `dockerfile_lines`, `pip_config_file`,
+`pip_installer`, `keep_pkg_tools`, `api_version` — and every other member, the server's own
+configuration such as `auth`, `http` and `webhooks` among them, are named in a comment and carried
+nowhere, as are the store's `index` and `ttl` and the checkpointer's `ttl` and `serde`.
+
+A directory is handed to the importer as `langgraph.json` and the environment files named like
+`*.env`, `.env` among them, and no other file, so the application's code is never read. An environment
+file is never parsed: of the one the configuration's `env` names — at that path from the
+configuration's directory, or, where an attachment hands it under the importer's `with.sources`, by its
+name — only the variables' names are read, and an environment file no configuration names is named in a
+comment as not read. A configuration imported on its own is read whatever its name. A directory may hold
+several applications, each read from its own directory.
+
+### What an application becomes
+
+`aggregate.yaml` is a draft Aggregate named `<target_namespace>/flow`, opening with comments naming the
+configurations read, the environment files read for their names alone, that the application's code is
+not read, and what the draft does not carry. It holds, per graph and keyed by its id, an instance of
+`core/ai-agent/langgraph` with:
+
+- `graph_entrypoint`, the graph's import path, as the configuration writes it;
+- `description`, the graph's description, where the configuration gives one;
+- its `checkpointer_db` connection, wired to the application's datastore.
+
+`recursion_limit` is not written, so the Component's default, 25, stands. The configuration names no
+model, so each graph's `model` connection is left for you, as a comment above the graph says; the build
+halts naming the `model` socket until one is wired.
+
+The checkpointer's backend is the datastore every graph of the application is wired to: `default`, or a
+checkpointer naming no backend, is an instance of `core/datastore/postgres`, and `mongo` one of
+`core/datastore/mongodb`, keyed by the datastore's name. Where the workspace's catalog holds no
+Component of that name, one is drafted, `<target_namespace>/datastore/<name>`, declaring the `host` and
+the `port` the agent's `checkpointer_db` connection reads, and its decision says so; a Recipe running
+the datastore and publishing them is left for you, as a comment opening it says. A `custom`
+checkpointer, or a backend the importer maps to no datastore, wires nothing, and a comment above each
+graph and the checkpointer's decision say why; the build halts naming the `checkpointer_db` socket until
+one is wired. The store is reported in a decision that chooses nothing.
+
+`release.yaml`, beside it, is a draft Release of the same name naming that Aggregate. It leaves, in a
+comment above each graph's entry, its `infra.image` — the image running the application, which
+`langgraph build` builds from its configuration; the build halts naming the image until it is set. A
+comment above the application's first graph states the environment its configuration declares, as
+[The environment a configuration states](#the-environment-a-configuration-states) describes. The
+Release's `metadata.environment` and `spec.manifest` are left unset, each named in a comment.
+
+The Python application this importer's tests import, declaring two graphs, a checkpointer naming no
+backend, a store and an `env` written as an object, is drafted, with no setting, as:
+
+```yaml
+# aggregate.yaml
+# LangGraph configurations read:
+#   - langgraph.json
+# Not read: the application's code, which defines each graph; langgraph build builds it into the image the Release names for each graph.
+# Not carried, since langgraph build reads them to build the image: dependencies, python_version.
+# Not carried, since core/ai-agent/langgraph takes no value for them: http.
+# The store configures the memory store, which LangGraph keeps in the PostgreSQL database its server uses; not carried, since core/ai-agent/langgraph takes no value for it: index, ttl.
+# Not carried, since core/ai-agent/langgraph takes no value for them: checkpointer.ttl.
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: imported/flow
+  version: 0.1.0
+  description: Draft Aggregate imported from a source in the langgraph format.
+spec:
+  components:
+    # The model connection is left for the author, since the configuration names no model; the build halts naming the socket until one is wired.
+    triage:
+      type: core/ai-agent/langgraph
+      values:
+        graph_entrypoint: "./src/support_desk/triage.py:make_graph"
+        description: "Routes an incoming ticket to the {team} that owns it."
+      uses:
+        checkpointer_db:
+          postgres:
+            target: postgres
+    # The model connection is left for the author, ...
+    support:
+      type: core/ai-agent/langgraph
+      ...
+    # The PostgreSQL database the configuration's checkpointer keeps each graph's state in.
+    postgres:
+      type: core/datastore/postgres
+```
+
+```yaml
+# release.yaml
+spec:
+  aggregate: imported/flow
+  components:
+    # The environment langgraph.json states for its application, for the Release to carry where core/ai-agent/langgraph takes it for each of its graphs:
+    #   SUPPORT_QUEUE: "..."
+    #   OPENAI_API_KEY: "..."
+    #   MAX_TICKETS: "25"
+    # Left for the Release, since no configuration states it:
+    #   - infra.image, the container image running the application, which langgraph build builds from its configuration
+    triage:
+      infra: {}
+    ...
+```
+
+To build it, you add a model to the Aggregate — an instance of a model Component, and each graph's
+`model` connection to it — and a Release building it on Kubernetes supplies each graph's image and the
+credential on its `model` connection, and places the datastore and the model in a boundary:
+
+```yaml
+spec:
+  aggregate: imported/flow
+  boundaries:
+    main:
+      components:
+        gpt-4o: {}
+        postgres: {}
+        triage:
+          infra:
+            image: <the image langgraph build built>
+          uses:
+            model:
+              gpt-4o:
+                features:
+                  credential:
+                    type: core/referenced-secret
+                    infra:
+                      origin: <an existing Secret's name>
+```
+
+Each graph is then rendered running that image, given its datastore's address as
+`LANGGRAPH_CHECKPOINTER_HOST` and `LANGGRAPH_CHECKPOINTER_PORT`, and the model's endpoint and name as
+`OPENAI_BASE_URL` and `OPENAI_MODEL`.
+
+### The environment a configuration states
+
+Every variable the configuration's `env` names is an input for the Release to supply, and none is
+drafted as a credential slot: LangGraph marks no variable as a secret, and a variable's name is not read
+for what it means. `core/ai-agent/langgraph` takes no value for the environment, so the Release states
+it in a comment above the application's first graph.
+
+- **An `env` written as an object** is part of the configuration, so its values are carried as written
+  into that comment, in the order the configuration writes them. Each value that holds something can
+  carry a credential, which LangGraph marks as none: by default each is carried as written and named in
+  a `credential-carried` warning by its configuration and its variable, such as `env.OPENAI_API_KEY`,
+  never by its value. With the [`empty_credentials` setting](#settings) at `all`, each is written with
+  no value and reported with `credential-emptied`; at `marked` each is carried, since LangGraph marks
+  none.
+- **An `env` naming a file** names a file the configuration only points at, which commonly holds local
+  secrets. The comment names each variable the file names, left for the Release to supply, and no
+  value of the file is read: none reaches a draft, a decision or a diagnostic, whatever the setting
+  says. A value quoted across several lines is one value, so a line inside it is never taken for a
+  variable, and a line naming no variable is named by its number. Where the import was not handed the
+  file, the Aggregate names it as not read, and its variables are left for the Release.
+
+### The settings it reads
+
+The LangGraph importer reads `target_namespace`, `empty_credentials` and `render_mode`, as
+[Settings](#settings) describes them, and no other setting.
+
 ## Settings
 
 An importer is handed the settings of the `plugins.importer` entry that attaches it, under
@@ -1486,14 +1679,14 @@ plugins:
 
 | Setting | Default | What it does |
 | --- | --- | --- |
-| `target_namespace` | `imported` | The namespace drafted entities are named under: `<target_namespace>/<category>/<name>` for a Component, `<target_namespace>/flow` for the Aggregate and for the Release the MCP, Compose and CrewAI importers draft. |
+| `target_namespace` | `imported` | The namespace drafted entities are named under: `<target_namespace>/<category>/<name>` for a Component, `<target_namespace>/flow` for the Aggregate and for the Release the MCP, Compose, CrewAI and LangGraph importers draft. |
 | `reuse_mode` | `hints-only` | `hints-only` drafts every node the draft gives a Component of its own and references no catalog Component, recording a strong match as a hint. `auto-apply-above-threshold` references the best-matching catalog Component for such a node whose match is in the high tier and scores at or above `reuse_threshold`, and drafts every other. Any other value reads as `hints-only`. |
 | `reuse_threshold` | `0.85` | The score at or above which `auto-apply-above-threshold` references a Component. Read in that mode only; `0` reads as the default. |
 | `emit_hints` | `true` | Whether a drafted Component's file opens with a comment naming the catalog Component it resembles, for a high- or medium-tier match. The draft Aggregate carries the same comment above that node's entry, and above a referenced entry one naming the next-best candidate it could be swapped for, or saying that none scored above zero. `false` leaves the comments out. |
 | `render_mode` | `human` | `human` writes the drafts described above. `llm` writes no drafts, and writes instead the whole decision record — every node, the candidates weighed and the choice made — as one document, `import-decisions.json`, for another tool to read. Any other value reads as `human`. |
 | `mapping_overrides` | none | Mappings layered over the importer's own table, keyed by format and then by node type — for the Compose importer, by image repository. Each entry names the `component` a node of that type maps to and, optionally, its `category`, the `traits` — labels and their values — a matching Component carries, and a `vendor` word its name carries. An entry for a node type the table already maps takes the table row's place. Only the entries under the format being imported are read. |
 | `layout` | `platform` | `platform` drafts the platform that runs the flow, carrying the flow, with each part of it a Component of its own wired to the platform, as [The platform carrying the flow](#the-platform-carrying-the-flow) describes. `nodes` drafts every node as a Component of its own, as [Node by node](#node-by-node) describes. For the Dify importer, `platform` drafts the Dify installation carrying the application, as [What an application becomes](#what-an-application-becomes) describes. Any other value drafts as `platform`, and the import warns with `unknown-layout`. |
-| `empty_credentials` | `none` | Which credential values the flow the platform carries has written empty, as [Credential values the flow holds](#credential-values-the-flow-holds) lists them, which the Release the MCP importer drafts has written empty, as [Credential values a server holds](#credential-values-a-server-holds) lists them, which the Release the Compose importer drafts has written empty, as [Credential values a service holds](#credential-values-a-service-holds) lists them, which the application the Dify importer carries has written empty, as [Credential values an application holds](#credential-values-an-application-holds) lists them, and which the Release the CrewAI importer drafts has written empty, as [Credential values a declaration holds](#credential-values-a-declaration-holds) lists them. `none` writes none empty: each is carried as written and named in a `credential-carried` warning. `marked` writes empty what a format marks as a credential and every member of an MCP server's configuration. `all` writes empty the inputs a format marks as no credential that can carry one as well — request headers, query parameters, a request written as a command line, an input named for a key. What the draft writes so that a node reaches its connection is written whatever this says. Any other value halts the import, which drafts nothing, with `unknown-empty-credentials`. A draft made node by node reads no value, and so does not read this setting. |
+| `empty_credentials` | `none` | Which credential values the flow the platform carries has written empty, as [Credential values the flow holds](#credential-values-the-flow-holds) lists them, which the Release the MCP importer drafts has written empty, as [Credential values a server holds](#credential-values-a-server-holds) lists them, which the Release the Compose importer drafts has written empty, as [Credential values a service holds](#credential-values-a-service-holds) lists them, which the application the Dify importer carries has written empty, as [Credential values an application holds](#credential-values-an-application-holds) lists them, which the Release the CrewAI importer drafts has written empty, as [Credential values a declaration holds](#credential-values-a-declaration-holds) lists them, and which the Release the LangGraph importer drafts has written empty, as [The environment a configuration states](#the-environment-a-configuration-states) lists them. `none` writes none empty: each is carried as written and named in a `credential-carried` warning. `marked` writes empty what a format marks as a credential and every member of an MCP server's configuration. `all` writes empty the inputs a format marks as no credential that can carry one as well — request headers, query parameters, a request written as a command line, an input named for a key. What the draft writes so that a node reaches its connection is written whatever this says. Any other value halts the import, which drafts nothing, with `unknown-empty-credentials`. A draft made node by node reads no value, and so does not read this setting. |
 | `attach_egress_allowlist` | `false` | `true` attaches the standard library's `core/egress-allowlist` Feature to each platform instance the draft writes, as `egress-allowlist`, setting none of its `infra`, as [What the draft leaves for the Release](#what-the-draft-leaves-for-the-release) describes. `false` attaches nothing. A draft that writes no platform, under `layout: nodes`, and the Dify importer's draft, whose entry for the Dify installation takes no Feature, attach nothing whatever this says, and with it `true` the import warns with `feature-not-attached`. Any value that is not a boolean reads as `false`. |
 
 A setting an importer does not know is ignored.
@@ -1519,14 +1712,14 @@ with its `code` as well.
 | Code | Severity | Reported when |
 | --- | --- | --- |
 | `parse-failed` | `halt` | The source does not parse: its parser refuses it, and the message carries the parser's reason. |
-| `no-nodes` | `warn` | The source carries no node the importer recognises — for the MCP importer, no server, for the Compose importer, no service and no model, and for the CrewAI importer, a crew declaring no agent. |
+| `no-nodes` | `warn` | The source carries no node the importer recognises — for the MCP importer, no server, for the Compose importer, no service and no model, for the CrewAI importer, a crew declaring no agent, and for the LangGraph importer, a configuration declaring no graph. |
 | `unknown-layout` | `warn` | `layout` is neither `platform` nor `nodes`; the flow is drafted as `platform`. |
 | `unknown-empty-credentials` | `halt` | `empty_credentials` holds a value other than `none`, `marked` or `all`, named with the setting; the import drafts nothing. |
 | `platform-not-in-catalog` | `warn` | The workspace's catalog holds no Component of the platform's name, so no part is wired to it; for the Dify importer, no `core/ai-agent/dify`, and `core/dify` is composed all the same. |
 | `part-not-placed` | `warn` | A part of the flow is wired to no socket of the platform, with why; it stays in the flow. |
 | `socket-selector-unreadable` | `warn` | The selector a socket of the platform declares does not read, so no part is wired to it; once for each socket. |
-| `credential-carried` | `warn` | A credential value is carried as written in the flow the draft carries, or in the Release the MCP, Compose or CrewAI importer drafts, named by its node — or its server, service or agent — and its field, never by its value, with the `empty_credentials` value that writes it empty. |
-| `credential-emptied` | `warn` | A credential value is written empty in the flow the draft carries, or in the Release the MCP, Compose or CrewAI importer drafts, where `empty_credentials` asks for it, named by its node — or its server, service or agent — and its field. |
+| `credential-carried` | `warn` | A credential value is carried as written in the flow the draft carries, or in the Release the MCP, Compose, CrewAI or LangGraph importer drafts, named by its node — or its server, service, agent or configuration — and its field, never by its value, with the `empty_credentials` value that writes it empty. |
+| `credential-emptied` | `warn` | A credential value is written empty in the flow the draft carries, or in the Release the MCP, Compose, CrewAI or LangGraph importer drafts, where `empty_credentials` asks for it, named by its node — or its server, service, agent or configuration — and its field. |
 | `carriage-returns-rewritten` | `warn` | The flow's carriage returns are written as line feeds, with how many. |
 | `definition-not-carried` | `warn` | The flow is not carried in `values.flow_definition`, or the Dify importer's application in `parameters.app_definition`, with why. |
 | `part-reads-connection` | `warn` | How the flow reaches a wired part through its connection, or how a connection reaches a node the draft wires to no socket as it is written. |
@@ -1539,9 +1732,9 @@ with its `code` as well.
 
 ## Published with each compiler release
 
-Each compiler release builds the seven importers from the tagged sources and generates their Plugin
+Each compiler release builds the eight importers from the tagged sources and generates their Plugin
 entities from the importers themselves, so an entity's capability, recognition signatures, host
-functions and description are what its importer reports. The release signs and publishes all seven,
-`importer/langflow`, `importer/flowise`, `importer/n8n`, `importer/mcp`, `importer/compose`, `importer/dify` and `importer/crewai` at the release's version, beside the other
+functions and description are what its importer reports. The release signs and publishes all eight,
+`importer/langflow`, `importer/flowise`, `importer/n8n`, `importer/mcp`, `importer/compose`, `importer/dify`, `importer/crewai` and `importer/langgraph` at the release's version, beside the other
 core plugins, and records their entities with the other core plugins' entities for the standard
 catalog.

@@ -142,8 +142,9 @@ importers' alike: each names the syntax a source is read in, the file names it
 applies to and the paths its parsed tree must or must not carry. A file is
 parsed once for each syntax a signature applying to its name reads it in, and
 the format of the one importer whose signature matches is the one read. The
-signatures of the Langflow, Flowise and n8n importers, and the MCP importer's
-for a registry server description, read a file as JSON and name no file, and
+signatures of the Langflow, Flowise and n8n importers, the MCP importer's for a
+registry server description and the LangGraph importer's for a configuration
+naming its schema, read a file as JSON and name no file, and
 the Dify importer's reads it as YAML and names no file, so recognizing a file
 imported on its own reads it as JSON and as YAML too. The Dify importer
 recognizes an application Dify exports, under any name, by app at its kind and
@@ -162,7 +163,13 @@ config/tasks.yaml, read as YAML, and crew.jsonc holding a list at agents and
 agents/<name>.jsonc holding a role, read as JSON with comments, as are their
 strict-JSON spellings crew.json and agents/<name>.json, a .json file not being
 read where its .jsonc spelling is handed too; it is handed those files and no
-other, so a crew's program is never read. A directory is
+other, so a crew's program is never read. The LangGraph importer recognizes an
+application's configuration, read as JSON with an object at graphs, by its name,
+langgraph.json, or, under any name, by https://langgra.ph/schema.json at its
+$schema; of a directory it is handed that file and the environment files named
+like *.env, .env among them, which it never parses, reading only the variables'
+names of the one the configuration names, so the application's code is never
+read. A directory is
 recognized the same way over the files it holds: each signature is tried against the files
 its file names match, and a signature that names no file applies to none of
 them. If no signature matches, import stops, asks for --format and names the
@@ -210,7 +217,7 @@ source the write would refuse is refused here too.
 | Flag | Default | Description |
 | --- | --- | --- |
 | `--dry-run` | `false` | Do everything except write: hand back the drafted files as content, naming the file each is for, and create or modify nothing. Every other behaviour is the write's, the importer run included. Without it the drafts are written to disk. |
-| `--format` | — | Name the source format explicitly, overriding detection by the importers' signatures (for example langflow, flowise, n8n, mcp, compose, dify or crewai) |
+| `--format` | — | Name the source format explicitly, overriding detection by the importers' signatures (for example langflow, flowise, n8n, mcp, compose, dify, crewai or langgraph) |
 | `--output-dir` | — | Directory the drafted files are written under. A relative path resolves against the directory you run the command in, and a drive named bare on Windows, such as D:, is the current directory on that drive. Without it the drafts are written beneath the root of the workspace the run resolved. |
 | `--sync` | `false` | Bring what an earlier import drafted up to date with the source, changing only what the import wrote, as the record beside the drafts lists it, and naming each part that drifted. With --dry-run, exit 0 when in step, 2 when drifted, 1 on an error or a refusal. |
 <!-- END GENERATED: cli-import -->
