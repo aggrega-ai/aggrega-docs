@@ -142,14 +142,19 @@ importers' alike: each names the syntax a source is read in, the file names it
 applies to and the paths its parsed tree must or must not carry. A file is
 parsed once for each syntax a signature applying to its name reads it in, and
 the format of the one importer whose signature matches is the one read. The
-core importers' signatures read a file as JSON, and those of the Langflow,
-Flowise and n8n importers, and the MCP importer's for a registry server
-description, name no file, so recognizing a file imported on its own reads it
-as JSON too. The MCP importer recognizes a client's configuration by its name —
-.mcp.json, claude_desktop_config.json, .vscode/mcp.json or .cursor/mcp.json —
-so such a file under another name, or one holding comments, is imported naming
---format mcp. A directory is recognized the
-same way over the files it holds: each signature is tried against the files
+signatures of the Langflow, Flowise and n8n importers, and the MCP importer's
+for a registry server description, read a file as JSON and name no file, so
+recognizing a file imported on its own reads it as JSON too. The MCP importer
+recognizes a client's configuration by its name — .mcp.json,
+claude_desktop_config.json, .vscode/mcp.json or .cursor/mcp.json — so such a
+file under another name, or one holding comments, is imported naming --format
+mcp. The Compose importer reads a file as YAML and recognizes it by the names
+Compose reads by default — compose.yaml, compose.yml, docker-compose.yml and
+docker-compose.yaml, and their override files compose.override.yml,
+compose.override.yaml, docker-compose.override.yml and
+docker-compose.override.yaml — and an object at services, so a Compose file
+under another name is imported naming --format compose. A directory is
+recognized the same way over the files it holds: each signature is tried against the files
 its file names match, and a signature that names no file applies to none of
 them. If no signature matches, import stops, asks for --format and names the
 formats the importers advertise; if signatures of more than one format match,
@@ -160,7 +165,7 @@ reaches no network.
 Recognition and the importer read the source through the parser the
 workspace's catalog serves for its syntax, and, for a syntax the catalog
 serves no parser for, through the parser the compiler itself carries for it —
-JSON among them — so a workspace whose catalog holds no parser still
+JSON and YAML among them — so a workspace whose catalog holds no parser still
 recognizes and imports a source the core importers read. Where the catalog
 serves a parser for a syntax, the compiler's own plays no part in reading it.
 The compiler's parsers are part of the binary, so nothing is fetched for one.
@@ -196,7 +201,7 @@ source the write would refuse is refused here too.
 | Flag | Default | Description |
 | --- | --- | --- |
 | `--dry-run` | `false` | Do everything except write: hand back the drafted files as content, naming the file each is for, and create or modify nothing. Every other behaviour is the write's, the importer run included. Without it the drafts are written to disk. |
-| `--format` | — | Name the source format explicitly, overriding detection by the importers' signatures (for example langflow, flowise, n8n or mcp) |
+| `--format` | — | Name the source format explicitly, overriding detection by the importers' signatures (for example langflow, flowise, n8n, mcp or compose) |
 | `--output-dir` | — | Directory the drafted files are written under. A relative path resolves against the directory you run the command in, and a drive named bare on Windows, such as D:, is the current directory on that drive. Without it the drafts are written beneath the root of the workspace the run resolved. |
 | `--sync` | `false` | Bring what an earlier import drafted up to date with the source, changing only what the import wrote, as the record beside the drafts lists it, and naming each part that drifted. With --dry-run, exit 0 when in step, 2 when drifted, 1 on an error or a refusal. |
 <!-- END GENERATED: cli-import -->

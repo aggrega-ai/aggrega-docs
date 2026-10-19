@@ -1,6 +1,6 @@
 # Core importers
 
-The compiler's repository builds four importer plugins of its own, one for each source format, and
+The compiler's repository builds five importer plugins of its own, one for each source format, and
 publishes them with every compiler release:
 
 | Plugin | Serves | Reads |
@@ -9,6 +9,7 @@ publishes them with every compiler release:
 | `importer/flowise` | `import:flowise` | a chatflow or an agentflow exported from Flowise, as JSON |
 | `importer/n8n` | `import:n8n` | a workflow exported from n8n, as JSON |
 | `importer/mcp` | `import:mcp` | an MCP client's configuration — `.mcp.json`, `claude_desktop_config.json`, `.vscode/mcp.json` or `.cursor/mcp.json` — or an MCP registry server description, `server.json`, as JSON |
+| `importer/compose` | `import:compose` | a Compose application — `compose.yaml`, `docker-compose.yml` and their override files — as YAML |
 
 Each is built from the compiler's own sources and stamped with the compiler's version, so the
 importers released with the compiler at `X.Y.Z` report version `X.Y.Z`, and their Plugin entities
@@ -16,7 +17,7 @@ record it. Unlike the plugins listed on [Embedded plugins](embedded-plugins.md),
 into the binary. The binary carries each one's Plugin entity and the digest of the one module it
 accepts for it, so each serves its format in every workspace, with no entry in its catalog.
 
-All four are built on the Go kit's importer package, `github.com/aggrega-ai/aggrega-pdk-go/pkg/importer`.
+All five are built on the Go kit's importer package, `github.com/aggrega-ai/aggrega-pdk-go/pkg/importer`.
 For the Langflow, Flowise and n8n importers, everything an importer does whatever its format — scoring
 the workspace catalog's Components against each node, deciding whether to reference one or draft a
 new one, laying the draft out, carrying the credential values it holds or writing them empty as a
@@ -25,7 +26,10 @@ and only reading the format, and knowing the platform its flows run on, is parti
 importer. The MCP importer drafts an instance of one Component per server, so it scores nothing; it
 shares the package's reading of the settings it reads, its decision over credential values and the
 conventions its drafts are named and described by, as [The MCP importer](#the-mcp-importer)
-describes. How the importer socket works, and what it is handed, is described under
+describes. The Compose importer decides each service it matches as the flow importers decide a node,
+through the same package, renders its drafts as they do, and shares the rest as the MCP importer
+does, as [The Compose importer](#the-compose-importer) describes. How the importer socket works, and
+what it is handed, is described under
 [The importer socket](plugin-contract.md#the-importer-socket--draft-authoring-output).
 
 ## How an import obtains one
@@ -69,7 +73,7 @@ rules every importer is selected by, which
 sets out:
 
 - Within one name, the highest version runs, or the version a `plugins.importer` entry names.
-- Where your catalog holds an importer of another name for `langflow`, `flowise`, `n8n` or `mcp`, two importers
+- Where your catalog holds an importer of another name for `langflow`, `flowise`, `n8n`, `mcp` or `compose`, two importers
   advertise the format, and an import that attaches neither is refused naming both, under
   [A parse or import format is advertised by more than one plugin](../errors/fatal-halts.md#a-parse-or-import-format-is-advertised-by-more-than-one-plugin).
   A `plugins.importer` entry naming the one you want settles it.
@@ -93,22 +97,30 @@ declares:
   against the end of the path the import is handed, so `project/.vscode/mcp.json` is recognised, while
   `mcp.json` handed from inside `.vscode`, or a client's file under any other name, is imported by
   naming `--format mcp`.
+- **Compose** — a source that parses as YAML, is named as Compose reads a Compose file or its override
+  file by default — `compose.yaml`, `compose.yml`, `docker-compose.yml`, `docker-compose.yaml`,
+  `compose.override.yml`, `compose.override.yaml`, `docker-compose.override.yml` or
+  `docker-compose.override.yaml` — and carries an object at `services`. A Compose file under any other
+  name is imported by naming `--format compose`.
 
-No source matches two of them. Each reads its source through the parser that serves `parse:json`: the
-one your workspace's catalog serves, where it serves one, and otherwise the JSON parser the compiler
-itself carries (see [Embedded plugins](embedded-plugins.md)). So an import through any of them needs
-no parser in your catalog, and nothing is fetched for one. A JSON parser your catalog does serve is the
-one used, and the compiler's plays no part. The Langflow, Flowise and n8n importers declare no file
+No source matches two of them. The four JSON importers read their source through the parser that
+serves `parse:json`, and the Compose importer through the one that serves `parse:yaml`: the one your
+workspace's catalog serves, where it serves one, and otherwise the parser the compiler itself carries
+for that syntax (see [Embedded plugins](embedded-plugins.md)). So an import through any of them needs
+no parser in your catalog, and nothing is fetched for one. A parser your catalog does serve is the one
+used, and the compiler's plays no part. The Langflow, Flowise and n8n importers declare no file
 pattern, so each reads one file and an import of a directory through any of them is refused; the MCP
 importer declares the four client file names, so a directory is read through the client
-configurations it holds. A signature naming no file — the Langflow, Flowise and n8n importers' and
-the MCP importer's for a registry server description — applies to every file imported on its own: an
-import naming no format reads such a file as JSON to try them, whatever importer it is meant for,
-through that same parser. A file holding a comment or a trailing comma does not parse as JSON, so no
-signature recognises it.
+configurations it holds; and the Compose importer declares the eight Compose file names, so a
+directory is read through the Compose files it holds. A signature naming no file — the Langflow,
+Flowise and n8n importers' and the MCP importer's for a registry server description — applies to every
+file imported on its own: an import naming no format reads such a file as JSON to try them, whatever
+importer it is meant for, through that same parser. A file holding a comment or a trailing comma does
+not parse as JSON, so no signature recognises it.
 
-A source its parser refuses — for each of the four, one that is not JSON, the MCP importer's once its
-comments and trailing commas are written as spaces — stops the import under
+A source its parser refuses — for the four JSON importers, one that is not JSON, the MCP importer's
+once its comments and trailing commas are written as spaces, and for the Compose importer one that is
+not YAML — stops the import under
 `parse-failed`, whose message carries the parser's own reason. Naming the format does not change that:
 the importer asks for the source's tree, and the parser's refusal is the answer it gets.
 
@@ -911,6 +923,213 @@ closed is left as written, and the parser refuses the file.
 The MCP importer reads `target_namespace` and `empty_credentials`, as [Settings](#settings) describes
 them, and no other setting.
 
+## The Compose importer
+
+`importer/compose` reads the services and the models a Compose file declares. It drafts each
+service as an instance of the catalog Component its image matches, or of the standard library's
+generic server, `core/compute/server`, running its image; each model as a model Component of its own;
+and a Release beside them carrying what each service states for its operation.
+
+### What it reads
+
+- **The files.** A file imported on its own is read alone. A directory is read as Compose reads one:
+  in each directory holding Compose files, in the order of the directories' paths, the first present
+  of `compose.yaml`, `compose.yml`, `docker-compose.yml` and `docker-compose.yaml` is the Compose file,
+  and the first present of `compose.override.yml`, `compose.override.yaml`,
+  `docker-compose.override.yml` and `docker-compose.override.yaml` is merged over it. Any other of
+  those files is not read. A directory holding override files and no Compose file has its first
+  override file read alone. A comment opening the drafted Aggregate names the files read, in the order
+  they are merged, and the files not read. Every service and model of every directory is drafted into
+  one Aggregate.
+- **The merge.** An override file is merged as Compose merges one: `image` is replaced; `ports` are
+  merged by their address, published port, container port and protocol, `volumes` by their path in
+  the container, and `environment` by variable name, a later entry taking the place of an earlier one
+  and a new one following; `expose` is appended; `depends_on` and a service's `models` are joined. Of
+  a model, `model` and `context_size` are replaced and `runtime_flags` appended. Compose's `!reset` and
+  `!override` tags are not honoured: a value carrying one is merged as the YAML parser reads it.
+- **A service.** Its `image`, and whether it builds one under `build`; its `ports`, `expose`,
+  `volumes` and `environment` — a mapping, or a list of `NAME=value` items, a name with no value
+  taking its value from the environment Compose runs in; `depends_on`, a list or a mapping; and its
+  `models`, a list or a mapping. Every other member — `command`, `healthcheck`, `secrets`, `env_file`
+  and the rest — is written nowhere, and named in a comment above the service's entry in the Release.
+- **A model.** Each entry of the top-level `models`: its `model`, the OCI identifier of the model, its
+  `context_size` and its `runtime_flags`. Any other member is named in a comment above its instance.
+- **The rest.** The other top-level members — `name`, `networks`, `volumes`, `secrets`, `configs` —
+  are not read, and the comment opening the Aggregate names them.
+
+Services, models and a service's environment keep the order the file writes them in. The parser's
+tree writes the members of a mapping in sorted order, so that order is read from the file's text,
+where they are written as a block mapping; a mapping written in flow style keeps the sorted order.
+
+### Which Component a service is
+
+The importer matches a service by the repository its image names: the reference without its tag and
+its digest, a Docker Hub reference written in its short form — `postgres` for
+`docker.io/library/postgres:16`. It matches the repository through its image table, a table from image
+repository to the catalog Component that a Compose Recipe of the standard catalog runs an image of
+that repository for. The table is generated from the standard catalog's Compose Recipes when the
+importer is built and compiled into it, so no Recipe is read when an import runs; the importer's
+Plugin entity names, in its description, the hub revision the table was generated from. Of each
+Recipe, the table reads the Component the Recipe implements and the image of its container named
+`main`, where that image writes its repository in its own text, or is a locals entry that does. A
+Recipe running the image the Release names whole, or one its template composes otherwise, adds no
+row, and neither does an image a Recipe runs beside its main container. Two Recipes naming one
+repository for different Components stop the table being generated, so a row never names one of
+two.
+
+A row is read as a flow importer's table row is: the Component, the category its name places it in,
+and the last segment of its name as its vendor. The [`mapping_overrides` setting](#settings) layers
+over the table under the `compose` format, keyed by repository, and an entry for a repository the
+table maps takes the row's place. So an image the standard catalog's Recipes do not name — your own,
+or one a Component of the catalog runs under another repository — is mapped by an entry:
+
+```yaml
+with:
+  settings:
+    mapping_overrides:
+      compose:
+        bitnami/redis:
+          component: core/datastore/redis
+          category: datastore
+          traits:
+            datastore.aggrega.ai/engine: kv
+          vendor: redis
+```
+
+A service whose image a row maps is decided as the flow importers decide a node: scored against your
+catalog's Components, referenced where `reuse_mode` is `auto-apply-above-threshold` and its best
+candidate is a high-tier match at or above `reuse_threshold`, and drafted as a Component of its own
+otherwise, the drafted Component's file opening with a comment naming the Component it resembles. A
+row of the generated table carries no traits, so a service it maps scores `0.75` against the
+Component it names, a medium-tier match, where nothing else of the service matches; an entry carrying
+the traits the Component's labels hold scores in the high tier. Services drafting one Component share
+its one file. A service whose image no row maps, whose image names no repository the importer reads,
+or that builds its image, is an instance of `core/compute/server`, whatever your catalog holds. Each
+service's decision is reported as each node's is.
+
+### What a service becomes
+
+`aggregate.yaml` is a draft Aggregate named `<target_namespace>/flow` holding one instance per
+service, of the Component its decision chose, keyed as the MCP importer keys a server, a comment above
+it naming the service and the file it came from where the key is not the service's name or the import
+read several directories. Each service a service's `depends_on` names is a connection,
+`uses: <key>: link: {target: <key>}`. An environment value naming another service — a word of the
+value, split at every character a host name is not written with, equal to that service's name — that
+`depends_on` does not name draws no connection: the service's decision records it as a hint, naming
+the variable and the service, never the value. Each model is drafted as
+`<target_namespace>/ai-model/<key>`, a Component of the `ai-model` category whose values declare
+`model`, `context_size` and `runtime_flags`; its instance writes each the source states, and each
+service naming the model is connected to it.
+
+Beside it, `release.yaml` is a draft Release of the same name, whose `spec.aggregate` names the
+Aggregate. For an instance of `core/compute/server` it writes `infra.image`, the image as written, and
+`infra.port`, the port the container listens on in the first entry of `ports`, or of `expose` where
+`ports` holds none. A comment above each service's entry writes what the source states that no key of
+the draft carries — the image of a service matched to another Component, its `ports`, `expose`,
+`volumes` and `environment` — for you to carry where the Component takes it, and names what the draft
+leaves for the Release: the image of a service naming none, as one that builds its own does, and a
+port that is not one number.
+A port the Component does not take, such as one below `core/compute/server`'s floor of 1024, is
+written as the source states it, and the build halts naming it. The Release's `metadata.environment`
+and `spec.manifest` are left unset, each named in a comment, as the MCP importer's are. The Manifest
+names the Recipe realizing each Component on the target you build for; `core/compute/server` is
+realized on Kubernetes by `helm/server`.
+
+A `compose.yaml` running PostgreSQL and an API of its own that depends on it:
+
+```yaml
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: shop
+  api:
+    image: ghcr.io/example/shop-api:1.4.2
+    depends_on:
+      - db
+    ports:
+      - "8080:8080"
+    environment:
+      CACHE_URL: redis://cache:6379/0
+```
+
+is drafted, with no setting, as:
+
+```yaml
+# aggregate.yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Aggregate
+metadata:
+  name: imported/flow
+  version: 0.1.0
+  description: Draft Aggregate imported from a source in the compose format.
+spec:
+  components:
+    db:
+      type: imported/datastore/postgres
+    api:
+      type: core/compute/server
+      uses:
+        db:
+          link:
+            target: db
+```
+
+```yaml
+# release.yaml
+apiVersion: aggrega.ai/v1alpha1
+kind: Release
+metadata:
+  name: imported/flow
+  # environment: left for the operator, since no source names the environment this Release deploys to.
+  version: 0.1.0
+  description: Draft Release imported from a source in the compose format.
+spec:
+  aggregate: imported/flow
+  # manifest: left for the operator, since the import drafts no Manifest, which names the target the services are built for.
+  components:
+    # The source states, for the Release to carry where imported/datastore/postgres takes it:
+    #   image: "postgres:16"
+    #   environment:
+    #     POSTGRES_DB: "shop"
+    db:
+      infra: {}
+    # The source also states, for the Release to carry where core/compute/server takes it:
+    #   ports:
+    #     - "8080:8080"
+    #   environment:
+    #     CACHE_URL: "redis://cache:6379/0"
+    api:
+      infra:
+        image: "ghcr.io/example/shop-api:1.4.2"
+        port: 8080
+```
+
+and `components/imported-datastore-postgres.yaml`, opening with
+`# resembles core/datastore/postgres (score 0.7500); consider referencing it`.
+
+### Credential values a service holds
+
+Compose marks no environment value as a credential, and the importer reads no variable's name for
+what it means, so every environment value that holds something is located as an input its format
+marks as no credential that can carry one. By default each is carried as written into the comment
+above its service's entry in the Release and named in a `credential-carried` warning by its service
+and its variable — `environment.<variable>` — never by its value. With the
+[`empty_credentials` setting](#settings) at `all`, each is written empty and reported with
+`credential-emptied`: the comment names its variable with no value. At `marked` none is written empty,
+since Compose marks none. A value that is one variable reference Compose interpolates and nothing
+else — `${NAME}` or `$NAME` — holds no value of its own: it is written as the text it is, and named in
+no warning. A reference carrying a default or a message, such as `${NAME:-value}`, holds that text,
+and is located like any other value. A value Compose reads from elsewhere — an `env_file`, a secret's
+file — is not read.
+
+### The settings it reads
+
+The Compose importer reads `target_namespace`, `reuse_mode`, `reuse_threshold`, `emit_hints`,
+`render_mode`, `mapping_overrides` and `empty_credentials`, as [Settings](#settings) describes them,
+and no other setting. The hint `emit_hints` governs is written in the drafted Component's file alone;
+the drafted Aggregate carries none.
+
 ## Settings
 
 An importer is handed the settings of the `plugins.importer` entry that attaches it, under
@@ -929,14 +1148,14 @@ plugins:
 
 | Setting | Default | What it does |
 | --- | --- | --- |
-| `target_namespace` | `imported` | The namespace drafted entities are named under: `<target_namespace>/<category>/<name>` for a Component, `<target_namespace>/flow` for the Aggregate and for the Release the MCP importer drafts. |
+| `target_namespace` | `imported` | The namespace drafted entities are named under: `<target_namespace>/<category>/<name>` for a Component, `<target_namespace>/flow` for the Aggregate and for the Release the MCP and Compose importers draft. |
 | `reuse_mode` | `hints-only` | `hints-only` drafts every node the draft gives a Component of its own and references no catalog Component, recording a strong match as a hint. `auto-apply-above-threshold` references the best-matching catalog Component for such a node whose match is in the high tier and scores at or above `reuse_threshold`, and drafts every other. Any other value reads as `hints-only`. |
 | `reuse_threshold` | `0.85` | The score at or above which `auto-apply-above-threshold` references a Component. Read in that mode only; `0` reads as the default. |
 | `emit_hints` | `true` | Whether a drafted Component's file opens with a comment naming the catalog Component it resembles, for a high- or medium-tier match. The draft Aggregate carries the same comment above that node's entry, and above a referenced entry one naming the next-best candidate it could be swapped for, or saying that none scored above zero. `false` leaves the comments out. |
 | `render_mode` | `human` | `human` writes the drafts described above. `llm` writes no drafts, and writes instead the whole decision record — every node, the candidates weighed and the choice made — as one document, `import-decisions.json`, for another tool to read. Any other value reads as `human`. |
-| `mapping_overrides` | none | Mappings layered over the importer's own table, keyed by format and then by node type. Each entry names the `component` a node of that type maps to and, optionally, its `category`, the `traits` — labels and their values — a matching Component carries, and a `vendor` word its name carries. An entry for a node type the table already maps takes the table row's place. Only the entries under the format being imported are read. |
+| `mapping_overrides` | none | Mappings layered over the importer's own table, keyed by format and then by node type — for the Compose importer, by image repository. Each entry names the `component` a node of that type maps to and, optionally, its `category`, the `traits` — labels and their values — a matching Component carries, and a `vendor` word its name carries. An entry for a node type the table already maps takes the table row's place. Only the entries under the format being imported are read. |
 | `layout` | `platform` | `platform` drafts the platform that runs the flow, carrying the flow, with each part of it a Component of its own wired to the platform, as [The platform carrying the flow](#the-platform-carrying-the-flow) describes. `nodes` drafts every node as a Component of its own, as [Node by node](#node-by-node) describes. Any other value drafts as `platform`, and the import warns with `unknown-layout`. |
-| `empty_credentials` | `none` | Which credential values the flow the platform carries has written empty, as [Credential values the flow holds](#credential-values-the-flow-holds) lists them, and which the Release the MCP importer drafts has written empty, as [Credential values a server holds](#credential-values-a-server-holds) lists them. `none` writes none empty: each is carried as written and named in a `credential-carried` warning. `marked` writes empty what a format marks as a credential and every member of an MCP server's configuration. `all` writes empty the inputs a format marks as no credential that can carry one as well — request headers, query parameters, a request written as a command line, an input named for a key. What the draft writes so that a node reaches its connection is written whatever this says. Any other value halts the import, which drafts nothing, with `unknown-empty-credentials`. A draft made node by node reads no value, and so does not read this setting. |
+| `empty_credentials` | `none` | Which credential values the flow the platform carries has written empty, as [Credential values the flow holds](#credential-values-the-flow-holds) lists them, which the Release the MCP importer drafts has written empty, as [Credential values a server holds](#credential-values-a-server-holds) lists them, and which the Release the Compose importer drafts has written empty, as [Credential values a service holds](#credential-values-a-service-holds) lists them. `none` writes none empty: each is carried as written and named in a `credential-carried` warning. `marked` writes empty what a format marks as a credential and every member of an MCP server's configuration. `all` writes empty the inputs a format marks as no credential that can carry one as well — request headers, query parameters, a request written as a command line, an input named for a key. What the draft writes so that a node reaches its connection is written whatever this says. Any other value halts the import, which drafts nothing, with `unknown-empty-credentials`. A draft made node by node reads no value, and so does not read this setting. |
 | `attach_egress_allowlist` | `false` | `true` attaches the standard library's `core/egress-allowlist` Feature to each platform instance the draft writes, as `egress-allowlist`, setting none of its `infra`, as [What the draft leaves for the Release](#what-the-draft-leaves-for-the-release) describes. `false` attaches nothing. A draft that writes no platform, under `layout: nodes`, attaches nothing whatever this says, and with it `true` the import warns with `feature-not-attached`. Any value that is not a boolean reads as `false`. |
 
 A setting an importer does not know is ignored.
@@ -962,14 +1181,14 @@ with its `code` as well.
 | Code | Severity | Reported when |
 | --- | --- | --- |
 | `parse-failed` | `halt` | The source does not parse: its parser refuses it, and the message carries the parser's reason. |
-| `no-nodes` | `warn` | The source carries no node the importer recognises — for the MCP importer, no server. |
+| `no-nodes` | `warn` | The source carries no node the importer recognises — for the MCP importer, no server, and for the Compose importer, no service and no model. |
 | `unknown-layout` | `warn` | `layout` is neither `platform` nor `nodes`; the flow is drafted as `platform`. |
 | `unknown-empty-credentials` | `halt` | `empty_credentials` holds a value other than `none`, `marked` or `all`, named with the setting; the import drafts nothing. |
 | `platform-not-in-catalog` | `warn` | The workspace's catalog holds no Component of the platform's name, so no part is wired to it. |
 | `part-not-placed` | `warn` | A part of the flow is wired to no socket of the platform, with why; it stays in the flow. |
 | `socket-selector-unreadable` | `warn` | The selector a socket of the platform declares does not read, so no part is wired to it; once for each socket. |
-| `credential-carried` | `warn` | A credential value is carried as written in the flow the draft carries, or in the Release the MCP importer drafts, named by its node — or its server — and its field, never by its value, with the `empty_credentials` value that writes it empty. |
-| `credential-emptied` | `warn` | A credential value is written empty in the flow the draft carries, or in the Release the MCP importer drafts, where `empty_credentials` asks for it, named by its node — or its server — and its field. |
+| `credential-carried` | `warn` | A credential value is carried as written in the flow the draft carries, or in the Release the MCP or Compose importer drafts, named by its node — or its server or service — and its field, never by its value, with the `empty_credentials` value that writes it empty. |
+| `credential-emptied` | `warn` | A credential value is written empty in the flow the draft carries, or in the Release the MCP or Compose importer drafts, where `empty_credentials` asks for it, named by its node — or its server or service — and its field. |
 | `carriage-returns-rewritten` | `warn` | The flow's carriage returns are written as line feeds, with how many. |
 | `definition-not-carried` | `warn` | The flow is not carried in `values.flow_definition`, with why. |
 | `part-reads-connection` | `warn` | How the flow reaches a wired part through its connection, or how a connection reaches a node the draft wires to no socket as it is written. |
@@ -980,9 +1199,9 @@ with its `code` as well.
 
 ## Published with each compiler release
 
-Each compiler release builds the four importers from the tagged sources and generates their Plugin
+Each compiler release builds the five importers from the tagged sources and generates their Plugin
 entities from the importers themselves, so an entity's capability, recognition signatures, host
-functions and description are what its importer reports. The release signs and publishes all four,
-`importer/langflow`, `importer/flowise`, `importer/n8n` and `importer/mcp` at the release's version, beside the other
+functions and description are what its importer reports. The release signs and publishes all five,
+`importer/langflow`, `importer/flowise`, `importer/n8n`, `importer/mcp` and `importer/compose` at the release's version, beside the other
 core plugins, and records their entities with the other core plugins' entities for the standard
 catalog.

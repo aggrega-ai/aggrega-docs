@@ -122,7 +122,10 @@ Two selection modes:
 
   --from-embedded   generate an entity for every guest embedded in this binary.
                     The overlay path is a directory; each overlay is matched to
-                    a guest by its metadata.name identity.
+                    a guest by its metadata.name identity, and, where overlays
+                    in several socket directories (<socket>/<name>.yaml)
+                    declare one name, by the directory naming the guest's
+                    socket.
   --plugin <f.wasm> generate a single entity for one non-embedded guest. The
                     overlay path is a single overlay file.
 
