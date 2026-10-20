@@ -123,6 +123,9 @@ aggrega build --release release-compose.yaml
 docker compose -f dist/app/compose/docker-compose.yaml up -d
 ```
 
-The forwarder's monitoring endpoint is exposed on <http://localhost:2020> — its
-`/api/v1/metrics` endpoint reports the records processed and forwarded. Tear
-down with `docker compose -f dist/app/compose/docker-compose.yaml down`.
+The forwarder's monitoring endpoint is published on the host's loopback address
+only, at <http://localhost:2020> — its `/api/v1/metrics` endpoint reports the
+records processed and forwarded. The endpoint checks no caller, so it is not
+published on the host's other interfaces unless the Release sets
+`infra.publish_on_all_interfaces: true` on the forwarder. Tear down with
+`docker compose -f dist/app/compose/docker-compose.yaml down`.
