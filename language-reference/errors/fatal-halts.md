@@ -4847,27 +4847,25 @@ Emitted message. The condition leads, then the parameter, its template and the c
 
 <!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
 
-A value bound to a parameter is written into the template, where anyone who can read the stack's template can read it, so the provider admits a secret only as a pointer to where it is stored. The render stops on a literal bound to a parameter the template declares `NoEcho`; on a value the build marks as carrying something an author declared sensitive, bound as anything but a dynamic reference; and, where the Recipe's `valuesMapping` reads such a value, on every literal that mapping binds, since none of its output can be traced back to the value it came from.
+A value bound to a parameter is written into the template, where anyone who can read the stack's template can read it. The render stops on a literal bound to a parameter the template declares `NoEcho`, and, where the Recipe's `valuesMapping` reads a value an author declared sensitive, on every literal that mapping binds, since none of its output can be traced back to the value it came from. A dynamic reference and an intrinsic function are written as given — the text inside an intrinsic included — so a sensitive value the mapping splices into an `Fn::Sub` string reaches the template as that text, and only a dynamic reference keeps the secret itself out of it.
 
 Emitted message. The condition leads, then the parameters and what to bind instead; no value is quoted. One of:
 > a plugin has no representation for a value it was given
 > cloudformation-provider: parameter `"<parameter>"` of template `"<template>"` is declared NoEcho, and the value bound to it would be written into the template as it stands; bind a dynamic reference ({{resolve:secretsmanager:…}} or {{resolve:ssm-secure:…}}) or an intrinsic function instead, or leave the parameter unbound for a deploy-time value
 >
-> cloudformation-provider: the value bound to parameter `"<parameter>"` of template `"<template>"` is declared sensitive (by `<declaration>`), and only a dynamic reference may carry such a value into a template; …
->
-> cloudformation-provider: the Recipe's valuesMapping reads a value declared sensitive, so every value it produces is treated as one, and binding parameter(s) `"<parameter>"`, … would write a value into the template as it stands; …
+> cloudformation-provider: the Recipe's valuesMapping reads a value declared sensitive, so a literal it produces is refused, and binding parameter(s) `"<parameter>"`, … would write a literal into the template as it stands; …
 
-**How to fix:** store the secret in Secrets Manager or as a Parameter Store secure string and bind a dynamic reference to it — `{{resolve:secretsmanager:<secret>}}` or `{{resolve:ssm-secure:<name>}}` — or leave the parameter unbound for a value passed when the stack deploys. See [cloudformation → Values for a sourced template's parameters](../providers/cloudformation.md#values-for-a-sourced-templates-parameters).
+**How to fix:** store the secret in Secrets Manager or as a Parameter Store secure string and bind a dynamic reference to it — `{{resolve:secretsmanager:<secret>}}` or `{{resolve:ssm-secure:<name>}}` — rather than splicing it into an intrinsic's text, or leave the parameter unbound for a value passed when the stack deploys. See [cloudformation → Values for a sourced template's parameters](../providers/cloudformation.md#values-for-a-sourced-templates-parameters).
 
 ### A dynamic reference is bound where CloudFormation does not resolve it
 
 <!-- covers: internal/wasm.ErrPluginValueNotRepresentable -->
 
-CloudFormation resolves a dynamic reference in a resource's properties, but not in EC2 user data and not in `AWS::CloudFormation::Init` metadata, and it shows a template's `Outputs` to whoever reads the stack. So a dynamic reference bound to a parameter the template references in a `UserData` property, in that metadata or in its `Outputs` stops the render rather than reach a place where it either cannot deploy or is exposed.
+CloudFormation resolves a dynamic reference in a resource's properties, but not in EC2 user data and not in `AWS::CloudFormation::Init` metadata, and it shows a template's `Outputs` to whoever reads the stack. So a dynamic reference bound to a parameter that any template of the source references in a `UserData` property, in that metadata or in its `Outputs` stops the render rather than reach a place where it either cannot deploy or is exposed.
 
-Emitted message. The condition leads, then the parameter, its template and where the template references it; no value is quoted:
+Emitted message. The condition leads, then the parameter, the template and where that template references it; no value is quoted:
 > a plugin has no representation for a value it was given
-> cloudformation-provider: the value bound to parameter `"<parameter>"` of template `"<template>"` is a dynamic reference, and the template references the parameter in `<where>`, where CloudFormation does not resolve a dynamic reference or shows it to whoever reads the stack; bind an intrinsic function instead, or leave the parameter unbound for a deploy-time value
+> cloudformation-provider: the value bound to parameter `"<parameter>"` is a dynamic reference, and template `"<template>"` references the parameter in `<where>`, where CloudFormation does not resolve a dynamic reference or shows it to whoever reads the stack; bind an intrinsic function instead, or leave the parameter unbound for a deploy-time value
 
 **How to fix:** leave the parameter unbound and pass its value when the stack deploys, or bind an intrinsic function that yields what the template needs there.
 
@@ -4875,11 +4873,11 @@ Emitted message. The condition leads, then the parameter, its template and where
 
 <!-- covers: internal/wasm.ErrPluginCannotExpressInput -->
 
-`Fn::ValueOf` in a template's `Rules` names a parameter by its logical ID rather than through `Ref`, and reads the value passed for it when the stack deploys. Binding the parameter removes its declaration from the template, which would leave the rule naming nothing, so the render stops.
+`Fn::ValueOf` in a template's `Rules` names a parameter by its logical ID rather than through `Ref`, and reads the value passed for it when the stack deploys. Binding the parameter removes its declaration from every template of the source, which would leave the rule — in any of those templates — naming nothing, so the render stops.
 
 Emitted message. The condition leads, then the rule, its template and the parameter:
 > a plugin has no expression for a construct this build declares
-> cloudformation-provider: rule `"<rule>"` of template `"<template>"` reads parameter `"<parameter>"` through Fn::ValueOf, which names a parameter the template declares, and binding the parameter removes its declaration; leave the parameter unbound so the rule can read it at deploy
+> cloudformation-provider: rule `"<rule>"` of template `"<template>"` reads parameter `"<parameter>"` through Fn::ValueOf, which names a declared parameter by its logical ID, and binding the parameter removes its declaration from the source; leave the parameter unbound so the rule can read it at deploy
 
 **How to fix:** remove the parameter's key from the `valuesMapping`, so the parameter stays declared and the rule reads the value passed when the stack deploys.
 

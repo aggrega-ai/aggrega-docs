@@ -162,7 +162,9 @@ Nor does the parse ask whether the template's references resolve. Whether a `Ref
 
 ## Values for a sourced template's parameters
 
-A sourced template takes values the way CloudFormation itself gives a template values: through the `Parameters` it declares. A Recipe's `valuesMapping` writes one key per parameter it fills, and the provider binds each one in every template of the source that declares it — every `Ref` to the parameter in `Resources`, `Outputs`, `Conditions`, `Rules` and SAM's `Globals` becomes the value, every `Fn::Sub` naming the parameter as a variable receives the value through its variable map, and the parameter leaves the template's `Parameters`. A parameter no key names is left exactly as the template wrote it, for a value passed when the stack deploys or for its `Default`.
+A sourced template takes values the way CloudFormation itself gives a template values: through the `Parameters` it declares. A Recipe's `valuesMapping` writes one key per parameter it fills, and the provider binds each one in every template of the source — every `Ref` to the parameter in `Resources`, `Outputs`, `Conditions`, `Rules` and SAM's `Globals` becomes the value, every `Fn::Sub` naming the parameter as a variable receives the value through its variable map, and the parameter leaves the `Parameters` of every template declaring it. A parameter no key names is left exactly as the template wrote it, for a value passed when the stack deploys or for its `Default`.
+
+**The source is the unit that declares a parameter.** A directory source's templates assemble into one stack, so one template may reference a parameter another template of the same source declares. Filling the parameter fills it there too: a template that only references it receives the value as the first template of the source declaring it converted it, and nothing in the source is left referencing a parameter whose declaration the binding removed.
 
 ```yaml
 spec:
@@ -191,10 +193,10 @@ A parameter whose type CloudFormation reads from Parameter Store — `AWS::SSM::
 
 **A rule that reads a parameter by name keeps it unbound.** `Fn::ValueOf` in a template's `Rules` names a declared parameter by its logical ID rather than through `Ref`, and filling the parameter removes its declaration, so binding one a rule reads that way stops the build, naming the rule and the parameter.
 
-**A secret never reaches the template as plain text.** A value that is written into the template is readable by anyone who can read the stack's template, so the provider admits a secret only as a pointer to where it is stored:
+**A literal that may carry a secret is refused; an intrinsic is written as given.** A value that is written into the template is readable by anyone who can read the stack's template:
 
 - A parameter the template declares `NoEcho` takes a dynamic reference or an intrinsic, and a literal bound to it stops the build.
-- A value the build marks as carrying something an author declared sensitive is admitted only as a dynamic reference; where the `valuesMapping` reads such a value, every value it produces is treated as one, and every literal it binds stops the build.
+- Where the `valuesMapping` reads a value an author declared sensitive, none of its output can be traced back to the value it came from, so every literal it binds stops the build. A dynamic reference and an intrinsic it binds are written as given — the text inside an intrinsic included. A secret the mapping splices into the text of an `Fn::Sub`, say, therefore reaches the template as that text: only a dynamic reference keeps the secret itself out of the template.
 - A dynamic reference stops the build where its parameter is referenced in a resource's `UserData` property, in `AWS::CloudFormation::Init` metadata, or in `Outputs`: CloudFormation does not resolve a dynamic reference in EC2 user data or in that metadata, and shows `Outputs` to whoever reads the stack.
 
 Every such refusal names the parameters, and quotes no value.
