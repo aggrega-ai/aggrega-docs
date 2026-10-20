@@ -346,6 +346,33 @@ Reach for the flag when you have accepted the reduced fidelity deliberately — 
 
 **The build succeeds and the rendered bytes are unchanged.** The advisory travels out-of-band from the rendered artifacts, as the unsupported-field class does, so what reaches your output is the same whether the line surfaces or not.
 
+## A Terraform module call the engine fetches when it initialises
+
+**Fires when** a Terraform module the build vendors, or a Recipe's authored Terraform body, declares a `module` block whose `source` Terraform downloads when the configuration is initialised rather than reading it from the files the build placed: a registry address, a git, Mercurial or HTTP archive URL, an S3 or GCS bucket, or an absolute path — or a local path that climbs out of the vendored module, which names files the build did not vendor. The lock fixes the vendored module's commit and archive digest, and Terraform's own dependency lock file records providers only, so the module such a call names is fetched at whatever version the engine then selects and nothing this build records covers it.
+
+**What it reads.** The configuration files the engine loads when the module is called — those directly in the module's own directory and in each directory a local `source` reaches from there — and nothing in a directory nothing calls, so a call written in a module's `examples/` or `tests/` directory is not reported. It reads what a `source` says and never the module that source names. [Structural input validation](../providers/terraform.md#a-module-call-the-engine-fetches-when-it-initialises) on the provider page states the rule in full.
+
+**Emit shape.** One line per call, naming the node and the provider, then the block, the file and line it sits at, and the source as written; a source that climbs out of the module says so instead of naming a download:
+
+<!-- unregistered-output: warning text, which is reported without halting and which no halting condition registers -->
+
+```text
+  warning: node "app" (provider "terraform"): module "vpc" (main.tf, line 2) has the source "terraform-aws-modules/vpc/aws", which Terraform downloads when the configuration is initialised, at whatever version it then selects, so no commit or digest this build records covers that module
+  warning: node "app" (provider "terraform"): module "shared" (main.tf, line 2) has the local source "../shared", which resolves outside the module this build placed, so Terraform reads whatever sits at that path when the configuration is initialised rather than files this build vendored
+```
+
+The calls arrive in the order the engine reaches them — the module's own directory first, then each directory in the order a local source first reaches it, and within a file in the order its blocks are written — so the same input produces the same sequence on every run. Every run that renders raises them: `aggrega build`; `aggrega pull`, which renders the Release once to discover what a build of it fetches; and `aggrega validate` over a Recipe whose module the workspace holds, which renders that Recipe on its own.
+
+**The class code.** Each warning carries the stable, machine-matchable class code `module-fetched-at-init`, so tooling matches the class rather than parsing the message text. The code travels on the structured diagnostic: the assistant's `build` tool lists each finding under `advisories` with it, and the language server publishes it on each entry. It names a class of finding rather than a registered condition, so it has no row in the table at the top of this page.
+
+**Editor visibility.** The warning reaches editor diagnostics on the `aggrega-build` layer, at warning severity, whenever the language server renders the Release — a build or a build preview it is asked for, or an IR-graph inspection with `aggrega serve --build-on-inspect`, or the `serve.build_on_inspect` config key it overrides, which is off by default. The entry names a node rather than an authoring key, so it is drawn on the Aggregate's `kind:` key.
+
+**It is a class of its own, and no flag silences it.** `--no-unsupported-field-warnings` silences the unsupported-field class and does not cover this one.
+
+**The build succeeds and the rendered bytes are unchanged.** The warning travels out-of-band from the rendered artifacts, so the vendored module, the authored body and the root configuration are byte-identical whether or not it surfaces.
+
+**Why a warning and not a halt.** A module that calls another module is legitimate input: Terraform fetches the called module and the configuration works. What the author gives up is the build's pin over that module, which is a fact to report rather than a fault to refuse, and whether the fetch is acceptable is the author's call.
+
 ## A plugin ran with no recorded digest to check it against
 
 **Fires when** the compiler is about to run a plugin, a recorded digest is meant to govern that plugin's bytes, and the workspace records none for it. The plugin runs; the warning is how you learn that nothing compared the bytes it ran against the bytes anyone reviewed.
