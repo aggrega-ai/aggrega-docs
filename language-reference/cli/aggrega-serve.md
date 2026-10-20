@@ -793,10 +793,15 @@ is located inside the workspace it named, and a private key is never kept inside
 key comes from the `signing:` block of that workspace's own configuration instead. See
 [`aggrega sign`](aggrega-sign.md) for the two signing modes and what each contacts.
 
-Every one of the four answers carries `reach`, holding `registry` — the host the call addressed — and
-`beyondThisMachine`, which is derived from what the call actually did rather than from what it asked
-for: true exactly when bytes, a signature or a marker landed somewhere other people resolve from, and
-false for a dry run. Show it before acting on the result.
+Every one of the four answers carries `reach`, holding `registries` — every registry host the call
+addressed, each named once, in the order the call first addressed it, so a signing batch or a batch
+file whose references span registries names each of them — and `beyondThisMachine`, which is derived
+from what the call actually attached rather than from what it asked for: true exactly when it uploaded
+content or attached a signature, a publication date or a deprecation marker, and false for a dry run
+and for a call that found everything it would have attached already there — a publication run again
+over a version that is already complete, or a signing batch whose every reference already carried a
+signature that verifies. A dry run still names the destination it would have addressed. Show it
+before acting on the result.
 
 **Registering or removing a registry writes the configuration shared across every workspace on the
 machine, by default.** A registry and the identities you trust on it are usually the same wherever

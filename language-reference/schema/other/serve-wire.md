@@ -1222,12 +1222,12 @@ _Additional properties are not permitted._
 
 ### `PublicationReach`
 
-How far a publication reached. These answers reach beyond this machine entirely — what they land is what every consumer of that registry resolves — so each names the host it addressed and whether the call landed anything.
+How far a publication reached. These answers reach beyond this machine entirely — what they attach is what every consumer of that registry resolves — so each names every registry it addressed and whether the call attached anything there.
 
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
-| `registry` | string | yes | The registry host that was addressed. |
-| `beyondThisMachine` | boolean | yes | Whether anything was landed where others can resolve it. |
+| `registries` | string[] | yes | Every registry host the call addressed, each named once, in the order the call first addressed it. A single-reference call names one; a dry run names the destination it would have addressed. |
+| `beyondThisMachine` | boolean | yes | Whether the call attached anything a registry now serves to others: uploaded content, a signature, a publication date or a deprecation marker. False on a dry run, and on a call that found everything it would have attached already there — a publication run again over a complete version, or a signing batch whose every reference already carried a signature that verifies. |
 
 _Additional properties are not permitted._
 
@@ -2092,7 +2092,7 @@ What publishing an entity landed, and where. A publication that ran the pin step
 | `signed` | boolean | yes | Whether this publication attached a signature: the one it made before publishing, or, on a version already published, one the version lacked. |
 | `alreadyPublished` | boolean | yes | Whether the same bytes were already there, so no content was uploaded. Only what that publication still lacked was attached beside it: its publication date and, where this publication signs, its signature; signed says whether a signature was. |
 | `dryRun` | boolean | yes | Whether this reports what publishing would have landed rather than what it did. |
-| `reach` | PublicationReach | yes | How far a publication reached. These answers reach beyond this machine entirely — what they land is what every consumer of that registry resolves — so each names the host it addressed and whether the call landed anything. |
+| `reach` | PublicationReach | yes | How far a publication reached. These answers reach beyond this machine entirely — what they attach is what every consumer of that registry resolves — so each names every registry it addressed and whether the call attached anything there. |
 | `pin` | PinResult | no | What the pin step did to the lock beside an entity, or would do on a dry run. It is the answer to `aggrega/pin`, and a publication that ran the step carries it as its `pin`. |
 | `wholeDirectorySource` | string | no | The entity's local source as authored, present when it is written as a template. Such a source names its directory only once a Release fills the template in, so the publication carries every file in the entity's directory rather than only the files the entity names. Absent where it carries only those files. |
 | `windowsUnusableEntries` | string[] | no | The entries of the published archive whose path holds a part Windows cannot hold as written — a name Windows reserves for a device, such as CON, AUX or NUL, in any letter case and whatever extension follows, or a part ending in a full stop or a space — the entity document's own file name first, then the files it carries. A workspace on Windows refuses to unpack them, so it cannot use the version; the publication goes ahead or stops exactly as it would without them. Absent where there is none, which includes an entity published as its document alone. |
@@ -2113,7 +2113,7 @@ What publishing a file landed, and where.
 | `digest` | string | yes | The digest of what was published. |
 | `alreadyPublished` | boolean | yes | Whether the same bytes were already there, so no content was uploaded. A publication date was attached beside it only where the artifact lacked one. |
 | `dryRun` | boolean | yes | Whether this reports what publishing would have landed rather than what it did. |
-| `reach` | PublicationReach | yes | How far a publication reached. These answers reach beyond this machine entirely — what they land is what every consumer of that registry resolves — so each names the host it addressed and whether the call landed anything. |
+| `reach` | PublicationReach | yes | How far a publication reached. These answers reach beyond this machine entirely — what they attach is what every consumer of that registry resolves — so each names every registry it addressed and whether the call attached anything there. |
 
 _Additional properties are not permitted._
 
@@ -2124,7 +2124,7 @@ What was signed, and where the signatures landed.
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `signed` | array or null | yes | Each reference that was signed. |
-| `reach` | PublicationReach | yes | How far a publication reached. These answers reach beyond this machine entirely — what they land is what every consumer of that registry resolves — so each names the host it addressed and whether the call landed anything. |
+| `reach` | PublicationReach | yes | How far a publication reached. These answers reach beyond this machine entirely — what they attach is what every consumer of that registry resolves — so each names every registry it addressed and whether the call attached anything there. |
 
 _Additional properties are not permitted._
 
@@ -2135,7 +2135,7 @@ What was marked deprecated, and where the markers landed.
 | Property | Type | Required | Description |
 | --- | --- | --- | --- |
 | `marked` | array or null | yes | Each version that was marked. |
-| `reach` | PublicationReach | yes | How far a publication reached. These answers reach beyond this machine entirely — what they land is what every consumer of that registry resolves — so each names the host it addressed and whether the call landed anything. |
+| `reach` | PublicationReach | yes | How far a publication reached. These answers reach beyond this machine entirely — what they attach is what every consumer of that registry resolves — so each names every registry it addressed and whether the call attached anything there. |
 
 _Additional properties are not permitted._
 
